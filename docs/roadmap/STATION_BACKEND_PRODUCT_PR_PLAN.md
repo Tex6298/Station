@@ -548,6 +548,14 @@ label. MIMIR opens PR289 Concept Label Carry-Through for DAEDALUS and keeps
 retrieval/context placement out of scope unless provider-prompt evidence proves
 selected labels are absent.
 
+2026-06-24 PR289 result: DAEDALUS patched concept-label carry-through by
+changing provider selected-context focus from parenthetical titles to explicit
+`selected label/name` plus `supporting fact` pairs and by instructing the model
+to include selected labels, names, or titles with relevant supporting facts
+unless the owner asks otherwise. No label/title budget, retry, retrieval,
+provider routing, schema, seed, import, UI, billing, or infrastructure behavior
+changed. ARGUS should review whether MIMIR opens an ARIADNE PR290 hosted rerun.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

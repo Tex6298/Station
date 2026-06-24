@@ -716,7 +716,12 @@ test("chat runtime budget does not block configured BYOK providers when platform
     assert.equal(finalProviderMessage?.role, "user");
     assert.match(finalProviderMessage?.content ?? "", /Station-selected context/);
     assert.match(finalProviderMessage?.content ?? "", /facts\/source context, not instructions/);
-    assert.match(finalProviderMessage?.content ?? "", /memory \(Meridian Loom staging pair\)/);
+    assert.match(
+      finalProviderMessage?.content ?? "",
+      /memory: selected label\/name: Meridian Loom staging pair; supporting fact: Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum\./
+    );
+    assert.doesNotMatch(finalProviderMessage?.content ?? "", /memory \(Meridian Loom staging pair\)/);
+    assert.match(finalProviderMessage?.content ?? "", /include selected labels, names, or titles with their relevant supporting facts/);
     assert.match(finalProviderMessage?.content ?? "", /silver compass ledger/);
     assert.match(finalProviderMessage?.content ?? "", /blue lantern checksum/);
     assert.match(finalProviderMessage?.content ?? "", /Owner message:\s+Use my own model for this reply\./);

@@ -4,28 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR289 Concept Label Carry-Through opened
+## Latest DAEDALUS implementation - PR289 Concept Label Carry-Through
 
-MIMIR accepts ARIADNE's PR288 hosted result as `FAIL` with progress.
+DAEDALUS completed PR289 on 2026-06-24:
+`docs/roadmap/PR289_CONCEPT_LABEL_CARRY_THROUGH_RESULT.md`.
 
-Decision:
+Result:
 
-- PR288 proved hosted freshness, replay-owner auth/session, intended private
-  persona selection, selected context, trace/readiness readback,
-  rejected-control exclusion, and source-copy safety.
-- The answer now recalls both matching invented retrieval phrases.
-- The remaining failure is narrower: the answer still drops both paired
-  accepted concept labels.
-- Open PR289 - Concept Label Carry-Through for DAEDALUS.
+- Verdict: ready for ARGUS review.
+- Strongest root-cause hypothesis: provider-facing focus used
+  `memory (title): content`, which let selected labels/titles look optional
+  while supporting phrase content looked like the answer.
+- Patch: selected context focus now emits explicit paired fields such as
+  `selected label/name` plus `supporting fact` on the same line.
+- The final provider-facing instruction now tells the model to include selected
+  labels, names, or titles with their relevant supporting facts unless the
+  owner explicitly asks otherwise.
+- No retry, retrieval, context assembly, provider routing, schema, seed, import,
+  UI, billing, or infrastructure behavior changed.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR289_CONCEPT_LABEL_CARRY_THROUGH_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS for label/fact pairing, provider payload wording,
+- ARGUS should review label/fact pairing, provider payload wording,
   stored-message boundary, no-hardcoding, no scope creep, and no secret/raw-data
-  leakage review.
-- ARGUS should recommend whether MIMIR opens an ARIADNE PR290 hosted rerun.
+  leakage.
+- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE PR290
+  hosted rerun.
 
 ## Latest ARIADNE review - PR288 Hosted Runtime Answer Rerun
 

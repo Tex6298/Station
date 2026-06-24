@@ -124,6 +124,11 @@ then let staged replay reveal the next optimizations.
 - PR288 proved PR287 deployed and the hosted answer now recalls both invented
   retrieval phrases, but still drops both paired accepted concept labels.
   MIMIR opened PR289 as a narrow DAEDALUS concept-label carry-through repair.
+- PR289 changed provider selected-context focus from parenthetical titles to
+  explicit `selected label/name` plus `supporting fact` pairs and added a
+  generic instruction to include selected labels, names, or titles with
+  relevant supporting facts. ARGUS should review the patch before MIMIR opens
+  an ARIADNE PR290 hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
