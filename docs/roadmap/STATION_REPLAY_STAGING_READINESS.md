@@ -60,6 +60,11 @@ then let staged replay reveal the next optimizations.
   supplemental retrieval fixture to exclude other-owner and archive-source
   candidates. PR276 opens that ARIADNE hosted rerun after deploy before the
   two-anchor recall caveat can be closed from live evidence.
+- PR276 failed the hosted recall bar even after PR275 deployed: auth/session,
+  intended persona selection, chat route health, rejected-control exclusion,
+  source-copy safety, and observability passed, but generic context still
+  selected only partial accepted-anchor evidence. PR277 opens a narrow
+  DAEDALUS retrieval-selection repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -60,6 +60,31 @@ Validation result:
 ARGUS accepts the code patch and recommends a hosted PR276 rerun after deploy to
 prove full two-anchor recall live.
 
+## PR277 Hosted Runtime Retrieval Selection Repair
+
+MIMIR opened PR277 for DAEDALUS on 2026-06-24 after PR276 failed the hosted
+full two-anchor recall bar.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Root-cause classification | Concrete | Start from generic hosted context selecting partial evidence after PR275 deployed. |
+| Owner/lifecycle/source filters | Pass | Other-owner, rejected, quarantined, expired, superseded, and archive-source Memory must not enter supplemental Memory selection. |
+| Generic context full-anchor selection | Pass | Repaired generic context should select both accepted anchor concepts and both matching invented retrieval phrases before provider answer. |
+| Rejected-control exclusion | Pass | Rejected-control evidence should remain absent. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required for retrieval-selection repair. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for runtime context behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required because Archive/context retrieval interacts with the replay proof. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if readiness/readback evidence changes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warnings should be named if present. |
+| `git diff --check` | Pass | Required. |
+| `git diff --cached --check` | Pass | Required before wakeup. |
+
+Do not change providers, embeddings, schema, Redis, Cloudflare, queues, workers,
+imports, seeds, billing, Stripe, public UI, or broad Studio UX in PR277.
+
 ## PR276 Hosted Runtime Answer Rerun
 
 MIMIR opened PR276 for ARIADNE on 2026-06-24 after ARGUS accepted PR275.

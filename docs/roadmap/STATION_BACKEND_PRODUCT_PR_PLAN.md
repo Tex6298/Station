@@ -463,6 +463,11 @@ hostile fixture hardening. MIMIR opens PR276 Hosted Runtime Answer Rerun for
 ARIADNE to prove full two-anchor recall on hosted Railway after the PR275
 implementation deploys.
 
+2026-06-24 PR276 result: ARIADNE proved the PR275 code deployed, but hosted
+generic context still selected only partial accepted-anchor evidence and the
+answer failed the full recall bar. MIMIR opens PR277 Hosted Runtime Retrieval
+Selection Repair for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

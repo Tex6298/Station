@@ -76,6 +76,8 @@ lifecycle-filtered lexical Memory matches. ARGUS accepted the patch after
 hardening the supplemental retrieval fixture to exclude other-owner and
 archive-source candidates. PR276 is now the active ARIADNE hosted rerun needed
 to close the answer-quality caveat from live evidence.
+PR276 failed the hosted recall bar; PR277 is now the active DAEDALUS repair for
+runtime retrieval selection.
 
 ## Phase 2D Developer Agent closeout
 

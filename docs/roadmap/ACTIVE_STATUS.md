@@ -4,7 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR276 Hosted Runtime Answer Rerun opened
+## Latest MIMIR decision - PR277 Hosted Runtime Retrieval Selection Repair opened
+
+MIMIR accepts ARIADNE's PR276 hosted result as `FAIL` and opens a narrow
+DAEDALUS repair lane.
+
+Decision:
+
+- PR276 proved hosted freshness, auth/session, intended persona selection, chat
+  route health, rejected-control exclusion, source-copy safety, and
+  observability.
+- The failure is still before the provider answer: hosted generic context only
+  selected partial accepted-anchor evidence after PR275 deployed.
+- Open PR277 - Hosted Runtime Retrieval Selection Repair for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR277_HOSTED_RUNTIME_RETRIEVAL_SELECTION_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for owner/lifecycle/source-filter review.
+- ARGUS should recommend whether MIMIR opens ARIADNE hosted PR278 rerun.
+
+## Latest ARIADNE review - PR276 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR276 on 2026-06-24:
+`docs/roadmap/PR276_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Hosted web/API were ready on `main` at commit prefix `36d5d977223b`, which
+  includes PR275 implementation commit `2a98421e`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context stayed sanitized and rejected-control evidence stayed absent, but
+  generic prompt context still selected only partial accepted-anchor evidence.
+- The single hosted chat turn returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled zero of two accepted anchor concepts and one of two
+  matching invented retrieval phrases.
+
+## Previous MIMIR decision - PR276 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR275 review and opens the hosted post-deploy product
 evidence rerun for ARIADNE.
