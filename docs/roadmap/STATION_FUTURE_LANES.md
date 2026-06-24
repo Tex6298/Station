@@ -222,10 +222,17 @@ Current intent:
   Foundation. PR221 opens hosted proof before any Salon UX/readback widening,
   because migration `058` must be present in hosted Supabase for staging to
   exercise the new `salon` type safely.
+- PR221 result: DAEDALUS repaired hosted Community Beta schema drift for
+  migrations `041` through `044` plus `058`, proved Railway web/API are on the
+  PR220 code commit, created bounded public Salon seed
+  `station-replay-salon-alpha`, and proved anonymous public-safe Salon
+  read/list/category behavior. Recommended next lane: ARIADNE hosted Salon
+  foundation rehearsal before Discover Salon grouping or public persona Salon
+  readback.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR220 are accepted. PR221 Public Salon
-Foundation Hosted Proof is open for DAEDALUS.
+Status, 2026-06-24: PR202 through PR221 are accepted. MIMIR should decide
+whether to open ARIADNE hosted Salon foundation rehearsal next.
 
 Current MIMIR position:
 

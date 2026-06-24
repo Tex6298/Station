@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR221 Salon hosted proof repaired and passed
+
+DAEDALUS completed PR221 on 2026-06-24.
+
+Result:
+
+- Railway web and API `/health` returned HTTP 200 with `ok:true`.
+- Railway web and API `/health/deployment` returned HTTP 200, `ok:true`,
+  `ready:true`, branch `main`, services `@station/web` / `@station/api`, and
+  commit `19e9f3655a0fc2e1ca87f09a4873340ba7fcfbc5`, which is the PR220 code
+  commit.
+- Hosted Supabase initially lacked the Community Beta schema slice needed for
+  PR220: `community_subcommunities`, `community_subcommunity_moderators`,
+  `community_witnesses`, and thread/comment authorship columns were missing.
+  Service-role PostgREST returned HTTP 404 / `PGRST205` for the subcommunity
+  tables, and hosted `/forums/subcommunities` returned HTTP 500.
+- DAEDALUS repaired staging by applying repo migrations `041`, `042`, `043`,
+  `044`, and `058` through the existing `SUPABASE_POOLER_URL` path using a
+  temporary `pg@8.13.1` client outside the repo, recorded hosted migration
+  ledger rows, and sent `NOTIFY pgrst, 'reload schema'`.
+- Post-repair checks proved the subcommunity/moderator/witness tables,
+  authorship columns, and `salon` check constraint are present; PostgREST
+  probes returned HTTP 200; and `/forums/subcommunities` returned HTTP 200.
+- Hosted API proof signed in the replay owner as non-admin `canon`, rejected
+  `private` and `unlisted` Salon creation with HTTP 400, created bounded public
+  seed `[replay:staging-salon-alpha] Station Replay Salon Alpha`
+  (`station-replay-salon-alpha`), and proved anonymous read/list/category
+  surfaces return only public-safe subcommunity fields.
+
+Residual gate:
+
+- PR221 did not create persona-linked Salon threads. PR220's persona-link guard
+  remains locally covered; future Discover/public-persona Salon readback should
+  use safe slug/href fields rather than widening raw persona-id exposure.
+- Discover-specific Salon grouping and public persona Salon readback remain
+  unimplemented.
+
+Current baton:
+
+- MIMIR should decide the next lane. DAEDALUS recommends ARIADNE hosted Salon
+  foundation rehearsal against the current `station-replay-salon-alpha` seed
+  before opening Discover Salon grouping or public persona Salon readback.
+- Full proof packet:
+  `docs/roadmap/PR221_PUBLIC_SALON_HOSTED_PROOF_DAEDALUS.md`.
+
 ## Latest MIMIR decision - PR221 Salon hosted proof opened
 
 MIMIR closes PR220 on 2026-06-24 after ARGUS accepted the Public Salon Type

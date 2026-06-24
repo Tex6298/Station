@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR221 Public Salon Foundation Hosted Proof
+
+DAEDALUS hosted proof/repair on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health` | Pass | Railway web returned HTTP 200 with `ok:true`. |
+| API `/health` | Pass | Railway API returned HTTP 200 with `ok:true`. |
+| Web `/health/deployment` | Pass | Railway web returned HTTP 200, `ok:true`, `ready:true`, branch `main`, service `@station/web`, and commit `19e9f3655a0fc2e1ca87f09a4873340ba7fcfbc5`. |
+| API `/health/deployment` | Pass | Railway API returned HTTP 200, `ok:true`, `ready:true`, branch `main`, service `@station/api`, and commit `19e9f3655a0fc2e1ca87f09a4873340ba7fcfbc5`. |
+| Initial pooler metadata check | Missing before repair | Hosted DB lacked `community_subcommunities`, `community_subcommunity_moderators`, `community_witnesses`, and thread/comment authorship columns. |
+| Initial service-role PostgREST probes | Missing before repair | `community_subcommunities` and `community_subcommunity_moderators` returned HTTP 404 / `PGRST205`; `forum_categories` remained HTTP 200. |
+| Initial hosted API probe | Missing before repair | `GET /forums/subcommunities` returned HTTP 500 because `public.community_subcommunities` was absent from the schema cache; `GET /forums/categories` stayed HTTP 200 through the legacy fallback. |
+| Temporary `pg@8.13.1` client outside repo | Pass | Applied repo migrations `041`, `042`, `043`, `044`, and `058` through `SUPABASE_POOLER_URL`; no credential values were printed. |
+| Hosted migration ledger + schema reload | Pass | Recorded `20260624062100 / 041_community_subcommunities`, `20260624062200 / 042_community_authorship_provenance`, `20260624062300 / 043_community_witnesses`, `20260624062400 / 044_community_subcommunity_moderators`, and `20260624062500 / 058_salon_subcommunity_type`; sent `NOTIFY pgrst, 'reload schema'`. |
+| Post-repair pooler metadata check | Pass | `community_subcommunities`, `community_subcommunity_moderators`, `community_witnesses`, thread authorship columns, and the `salon` check constraint were present; five repair ledger rows were visible. |
+| Post-repair service-role PostgREST probes | Pass | `community_subcommunities`, `community_subcommunity_moderators`, and `community_witnesses` returned HTTP 200. |
+| Hosted API Salon proof | Pass | Replay owner signin returned HTTP 200; `/auth/me` showed non-admin `canon`; `private` and `unlisted` Salon creation returned HTTP 400; bounded public seed `station-replay-salon-alpha` was created; anonymous read/list/category returned HTTP 200 with public-safe subcommunity fields only. |
+| `git diff --check` | Pass | Docs-only proof record passed whitespace validation. |
+| `git diff --cached --check` | Pass | Staged docs-only proof record passed whitespace validation. |
+
+Scope notes:
+
+- Hosted repair touched staging Supabase schema only; repo code and product
+  behavior did not change.
+- The durable staging seed is
+  `[replay:staging-salon-alpha] Station Replay Salon Alpha` at slug
+  `station-replay-salon-alpha`.
+- PR221 did not create persona-linked Salon threads, Discover Salon grouping,
+  public persona Salon readback, realtime rooms, provider/model calls,
+  persona-to-persona behavior, public event feeds, billing, notifications,
+  Redis/Cloudflare, workers, queues, storage buckets, auth/session policy,
+  moderation-role expansion, or broad UI behavior.
+
 ## PR220 Public Salon Type Foundation
 
 DAEDALUS implementation validation on 2026-06-24:
