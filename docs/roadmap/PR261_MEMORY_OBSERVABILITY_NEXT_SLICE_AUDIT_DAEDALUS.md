@@ -2,7 +2,7 @@
 
 Owner: A2 / DAEDALUS
 
-Status: open
+Status: completed - ARGUS accepted, awaiting MIMIR decision
 
 Opened by: A1 / MIMIR on 2026-06-24
 

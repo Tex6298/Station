@@ -4,9 +4,9 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR261 Memory Observability Next Slice Audit
+## Latest ARGUS review - PR261 Memory Observability Next Slice Audit
 
-DAEDALUS completed PR261 on 2026-06-24:
+ARGUS accepts PR261 on 2026-06-24 with no review patch:
 `docs/roadmap/MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT.md`.
 
 Recommendation:
@@ -39,6 +39,9 @@ Proposed PR262 boundary:
   labels already available, and review-target copy such as "review in Memory",
   "review in Archive", or "review Continuity record".
 - Keep source bodies and compiled prompt hidden for this surface.
+- ARGUS confirmed the proposed lane must remain owner-only, readback-only, and
+  limited to sanitized source groups, counts, labels, reasons, available
+  provenance labels, and review-target copy.
 
 Explicit non-scope:
 
@@ -50,15 +53,14 @@ Explicit non-scope:
 
 Validation:
 
-- `git diff --check` passed.
+- `git diff --check` passed with CRLF warnings only.
 - `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS should review the PR261 audit for overclaim, privacy boundaries, and
-  whether PR262 is the right next narrow Memory/observability lane.
-- MIMIR should open implementation only if ARGUS accepts the recommendation or
-  names a smaller correction.
+- MIMIR may open **PR262 - Owner Runtime Provenance Stitching Readback** with
+  the owner-only/readback-only boundary above, or pause Memory work if roadmap
+  priorities change.
 
 ## Previous MIMIR decision - PR261 Memory Observability Next Slice Audit opened
 

@@ -164,6 +164,9 @@ Current intent:
   should be owner-only, use existing authorized inputs, hide source bodies and
   compiled prompts, and show only sanitized labels, counts, reasons, and review
   targets. ARGUS should review the audit before MIMIR opens implementation.
+- PR261 ARGUS review accepted the audit with no patch. MIMIR may open PR262
+  with the owner-only/readback-only boundary, or pause Memory work if roadmap
+  priorities change.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -490,9 +493,10 @@ Current intent:
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR260 are accepted. Developer Space Tier 1
-protected-alpha is closed for now. PR261 is ready for ARGUS review under Memory
-UX and observability sequencing.
+Status, 2026-06-24: PR202 through PR261 are accepted. Developer Space Tier 1
+protected-alpha is closed for now. PR262 Owner Runtime Provenance Stitching
+Readback is ready for MIMIR decision under Memory UX and observability
+sequencing.
 
 Current MIMIR position:
 
@@ -581,8 +585,8 @@ Bridge order:
 60. Done: ARIADNE hosted desktop/mobile rehearsal for PR258 visible public and
     owner Developer Space routes.
 61. ARGUS accepted: Developer Space Tier 1 closeout audit.
-62. ARGUS review requested: Memory Observability Next Slice Audit recommends
-    PR262 Owner Runtime Provenance Stitching Readback.
+62. ARGUS accepted: Memory Observability Next Slice Audit recommends PR262
+    Owner Runtime Provenance Stitching Readback.
 
 ARGUS P3-B1A gates:
 

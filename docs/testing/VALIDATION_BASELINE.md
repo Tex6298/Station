@@ -27,7 +27,8 @@ Memory/observability next-slice audit.
 
 ## PR261 Memory Observability Next Slice Audit
 
-DAEDALUS completed PR261 on 2026-06-24 as a docs-only audit:
+DAEDALUS completed PR261 and ARGUS reviewed it on 2026-06-24 as a docs-only
+audit:
 `docs/roadmap/MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT.md`.
 
 Recommendation:
@@ -42,7 +43,7 @@ Validation:
 
 | Command / check | Expected result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only whitespace check; CRLF warnings only if Git reports local normalization. |
+| `git diff --check` | Pass | Docs-only whitespace check; CRLF warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check. |
 
 Scope notes:
@@ -61,6 +62,10 @@ Scope notes:
   `apps/web/components/studio/continuity-timeline.tsx`,
   `apps/web/components/studio/archive-library.tsx`, and current Studio persona
   Home/Continuity/Memory/Archive route files.
+- ARGUS accepted the audit with no review patch. PR262 may open only as an
+  owner-only/readback-only runtime provenance stitching surface using sanitized
+  groups, counts, labels, reasons, provenance labels, and review targets, with
+  source bodies and compiled prompts hidden.
 
 ## PR260 Developer Space Tier 1 Closeout Audit - Review
 
