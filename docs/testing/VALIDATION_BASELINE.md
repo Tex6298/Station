@@ -30,6 +30,49 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR293 Answer Contract Gate Diagnostic
+
+MIMIR opened PR293 for DAEDALUS on 2026-06-25 after ARIADNE's PR292 hosted
+rerun failed.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Direct/factual classifier | Pass | PR292-shaped factual answer/naming prompt should be eligible for answer-contract retry; creative/style prompts should remain single-shot. |
+| Sanitized reason-code readback | Pass | Owner-only trace/readiness detail should expose reason codes and retry decisions as safe enums/booleans/counts only. |
+| Retry gate | Pass | First answer missing all selected focus should trigger exactly one retry when the gate applies. |
+| Raw-content safety | Pass | No raw selected strings, prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, or credentials in trace/readiness output. |
+| No hardcoded replay terms | Pass | Product code must not special-case seeded anchors, replay persona names, hosted ids, test account details, or staging prompt wording. |
+| Scope | Pass | No retrieval, provider routing/model choice, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required focused route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if trace/readiness sanitizer changes. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warnings should be named if still present. |
+| `git diff --check` | Pass | Required. |
+| `git diff --cached --check` | Pass | Required before wakeup. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values. |
+
+## PR292 Hosted Runtime Answer Rerun Result
+
+ARIADNE completed PR292 on 2026-06-25.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included accepted PR291 runtime/review commit `9531d22b`. |
+| Replay owner auth/session | Pass | API auth and protected browser Studio session passed, including reload persistence. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Full selected context evidence | Pass | Context preview and trace contained both accepted concept labels and both matching invented phrases with rejected-control absent. |
+| Full two-anchor answer recall | Fail | Hosted chat answer recalled neither accepted concept label nor invented phrase. |
+| Answer-contract/retry observability | Fail | Contract event was present, retry event was absent, and reason codes were not exposed by sanitized trace detail. |
+| Rejected-control exclusion | Pass | Rejected-control signal stayed absent from context and answer. |
+| Source-copy safety | Pass | The answer stayed short and did not copy raw source-body markers. |
+| Context/observability readback | Pass with caveat | Sanitized counts, timing buckets, trace, and readiness readback were recorded; reason-code detail was missing. |
+
 ## PR292 Hosted Runtime Answer Rerun After Answer Contract Retry
 
 MIMIR opened PR292 for ARIADNE on 2026-06-25 after ARGUS accepted PR291.

@@ -146,6 +146,12 @@ then let staged replay reveal the next optimizations.
   hosted rerun after deploy; its scope is hosted evidence for recall,
   answer-contract/retry telemetry, rejected-control exclusion, source-copy
   safety, and sanitized context/observability.
+- PR292 failed the full recall bar after proving PR291 deployed and selected
+  context still contained both accepted labels and both invented phrases. A
+  completed answer-contract event was present, but no retry event was observed
+  and reason codes were not exposed by sanitized trace detail. MIMIR opened
+  PR293 as a narrow DAEDALUS gate/readback diagnostic before classifying this as
+  provider/model behavior.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

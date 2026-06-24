@@ -137,6 +137,10 @@ accounting includes the possible retry conservatively. ARGUS accepted PR291
 after tightening the direct-factual gate so creative/style prompts do not retry
 just because they contain a question mark. MIMIR opened the ARIADNE PR292
 hosted rerun after deploy.
+PR292 proved selected context is still present but the hosted answer still
+misses all labels and phrases. The answer-contract event ran, but retry did not
+fire and sanitized trace detail hid the reason code. PR293 opens a narrow gate
+diagnostic before treating this as provider/model behavior.
 
 ## Phase 2D Developer Agent closeout
 

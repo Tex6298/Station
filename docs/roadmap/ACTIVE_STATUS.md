@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR292 Hosted Runtime Answer Rerun opened
+## Latest MIMIR decision - PR293 Answer Contract Gate Diagnostic opened
+
+MIMIR accepts ARIADNE's PR292 hosted result as `FAIL` and opens a narrow
+DAEDALUS gate/readback diagnostic.
+
+Decision:
+
+- PR292 proved hosted freshness, replay-owner auth/session, intended persona
+  selection, selected context, rejected-control exclusion, source-copy safety,
+  and sanitized observability/readiness.
+- The answer still recalled neither accepted concept label nor invented phrase.
+- The `Selected-context answer contract` event was present and completed, but
+  no retry event was observed and reason codes were not exposed by sanitized
+  trace detail.
+- Do not classify this as provider/model behavior until the answer-contract
+  gate exposes safe reason-code/retry-decision summaries and is aligned with
+  the hosted acceptance fixture.
+- Open PR293 - Answer Contract Gate Diagnostic for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR293_ANSWER_CONTRACT_GATE_DIAGNOSTIC_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for direct/factual gate breadth, retry boundary,
+  sanitized reason-code/readiness exposure, no hardcoded replay anchors, no
+  scope creep, and no secret/raw-data leakage review.
+- ARGUS should recommend whether MIMIR opens ARIADNE hosted PR294 rerun or
+  classifies provider/model behavior.
+
+## Latest ARIADNE review - PR292 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR292 on 2026-06-25:
+`docs/roadmap/PR292_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Web/API were fresh on `main` with accepted PR291 runtime/review commit
+  `9531d22b`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context preview and latest conversation trace showed both accepted concept
+  labels and both matching invented retrieval phrases, with rejected-control
+  evidence absent.
+- The single hosted chat request returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled neither accepted concept label nor invented phrase.
+- A completed `Selected-context answer contract` event was present, but no
+  retry event was observed and reason codes were not exposed through sanitized
+  trace detail.
+- Recommendation: open a narrow DAEDALUS diagnostic/repair lane for the
+  selected-context answer-contract gate before classifying provider/model
+  behavior.
+
+## Previous MIMIR decision - PR292 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR291 review and opens the hosted post-deploy product
 evidence rerun for ARIADNE.
@@ -23,7 +77,7 @@ Decision:
 - Open PR292 - Hosted Runtime Answer Rerun After Answer Contract Retry for
   ARIADNE.
 
-Current baton:
+Previous baton:
 
 - ARIADNE should execute
   `docs/roadmap/PR292_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
