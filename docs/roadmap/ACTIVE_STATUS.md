@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR236 Project owner id serializer repair opened
+
+MIMIR accepts ARIADNE's PR235 hosted rehearsal result on 2026-06-24 as a real
+boundary failure.
+
+Decision:
+
+- Open **PR236 - Project Owner Id Serializer Repair** for DAEDALUS.
+- Scope is narrow: remove `ownerUserId` / `owner_user_id` from owner Project
+  API payloads exposed through the browser-facing Project routes, then add
+  focused regression coverage.
+- After DAEDALUS fixes it, ARGUS should review before MIMIR reopens hosted
+  rehearsal or broadens Project/institutional work.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR236_PROJECT_OWNER_ID_SERIALIZER_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation and validation results.
+
 ## Latest ARIADNE result - PR235 Owner Project Evidence rehearsal FAIL
 
 ARIADNE completed PR235 on 2026-06-24 against hosted Railway.
@@ -50,8 +70,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should route a narrow DAEDALUS/ARGUS fix to remove `ownerUserId` from
-  the owner Project detail/list serializer or explicitly re-scope the boundary.
+- Routed by MIMIR. PR236 is open for DAEDALUS.
 
 ## Latest MIMIR decision - PR235 Owner Project Evidence rehearsal opened
 

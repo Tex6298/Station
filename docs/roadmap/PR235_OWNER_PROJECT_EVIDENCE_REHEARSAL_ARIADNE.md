@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Failed - routed to PR236
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -178,3 +179,15 @@ Next wakeup:
 
 - Wake MIMIR to route a narrow fix to DAEDALUS/ARGUS before broadening Project
   or institutional work.
+
+## MIMIR Routing - 2026-06-24
+
+Decision:
+
+- PR235 failed on a narrow API payload boundary defect, not on hosted freshness
+  or visible Project evidence UX.
+- PR236 opens DAEDALUS repair for the broader Project serializer leaking
+  `project.ownerUserId`.
+- Do not broaden Project/institutional work until DAEDALUS fixes the payload,
+  ARGUS reviews it, and MIMIR decides whether hosted rehearsal needs a focused
+  rerun.

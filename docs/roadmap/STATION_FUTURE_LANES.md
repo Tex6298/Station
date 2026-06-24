@@ -288,11 +288,16 @@ Current intent:
   accepted after removing the raw internal link-row id path. PR235 opens
   hosted ARIADNE rehearsal before treating the visible owner Project detail UI
   lane as closed or broadening Project/institutional work.
+- PR235 result: ARIADNE passed hosted freshness, visible owner Project
+  evidence UX, evidence links, desktop/mobile fit, and signed-out boundary, but
+  failed the API payload boundary because `project.ownerUserId` still leaks
+  from the broader Project serializer. PR236 opens a narrow DAEDALUS repair.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR234 are accepted. PR235 Owner Project
-Evidence Hosted Rehearsal is open for ARIADNE.
+Evidence Hosted Rehearsal failed on a narrow owner id payload defect. PR236
+Project Owner Id Serializer Repair is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -354,7 +359,8 @@ Bridge order:
 33. Done: Public Persona Event Readback Hosted Rehearsal.
 34. Done: Institutional/Research Project Lane Map.
 35. Done: Owner Project Evidence Readback.
-36. Active: Owner Project Evidence Hosted Rehearsal.
+36. Failed: Owner Project Evidence Hosted Rehearsal, owner id payload defect.
+37. Active: Project Owner Id Serializer Repair.
 
 ARGUS P3-B1A gates:
 
