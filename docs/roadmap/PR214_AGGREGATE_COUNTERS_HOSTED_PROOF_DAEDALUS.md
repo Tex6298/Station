@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: repaired and proved; awaiting ARIADNE rehearsal
 
 ## Frame
 
@@ -135,3 +135,80 @@ Task:
 
 If hosted proof is blocked, wake MIMIR with the exact missing permission,
 variable, stale deployment, or schema failure.
+
+## DAEDALUS Result
+
+Completed on 2026-06-24.
+
+Verdict:
+
+```text
+REPAIRED AND PROVED
+```
+
+Deployment freshness:
+
+- Web `/health/deployment` returned ready `true`, branch `main`, service
+  `@station/web`, commit `1368133913878befd3c6f817f11b3f4a3eb6cd5b`.
+- API `/health/deployment` returned ready `true`, branch `main`, service
+  `@station/api`, commit `1368133913878befd3c6f817f11b3f4a3eb6cd5b`.
+
+Hosted schema proof and repair:
+
+- Initial sanitized PostgREST probe showed the aggregate counter table missing:
+  HTTP `404`, code `PGRST205`.
+- Initial sanitized RPC probe showed
+  `increment_public_persona_interaction_counters` missing: HTTP `404`, code
+  `PGRST202`.
+- Direct database host still failed local DNS resolution, matching the earlier
+  hosted repair environment limitation.
+- Pooler execution with simple-protocol/statement-cache disabled succeeded via
+  the `supabase db query --db-url` command class.
+- Applied migration `057_public_persona_interaction_counters.sql` as 14
+  sanitized single SQL statements, including removal of the temporary probe
+  table.
+- Follow-up sanitized table probe returned HTTP `200`.
+- Follow-up sanitized RPC probe returned HTTP `400`, code `22P02`, from an
+  intentionally invalid UUID call. That proves the RPC is present without
+  mutating rows.
+
+Hosted owner/public readback proof:
+
+- Replay owner API signin returned HTTP `200`.
+- Owner `GET /personas/:id` for `station-replay-alpha-persona` returned HTTP
+  `200` and included `publicInteraction.activity`.
+- Before the low-impact chat proof, last-7-day and last-30-day aggregate totals
+  were zero for chat attempts/successes/failures and report creations.
+- Public `GET /personas/public/station-replay-alpha-persona` returned HTTP
+  `200` and did not include `publicInteraction`.
+
+Hosted increment proof:
+
+- Low-impact signed-in public chat against
+  `station-replay-alpha-persona` returned HTTP `200`.
+- After that route call, owner readback reported:
+  - last-7-day chat attempts `+1`;
+  - last-7-day chat successes `+1`;
+  - last-7-day chat failures `+0`;
+  - last-30-day chat attempts `+1`.
+- The proof used the public chat route; it did not mutate report statuses and
+  did not insert counter rows by hand to manufacture a pass.
+
+Privacy/boundary checks:
+
+- Owner `publicInteraction` JSON did not include
+  `public_persona_interaction_counters`, raw DB counter column names,
+  `visitor-user`, `reporter_id`, `token_transactions`, `tokens_delta`, the
+  proof message text, provider traces, or prompt text.
+- Public persona readback still omits `publicInteraction`.
+- No Redis, Cloudflare, worker, queue, config, analytics-scope, report-status,
+  or raw-event-log change was made.
+
+Validation:
+
+- `git diff --check` passed with no repo code changes pending before this docs
+  record.
+
+Next wakeup:
+
+- Wake ARIADNE for deployed owner aggregate activity card rehearsal.

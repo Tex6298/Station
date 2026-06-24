@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR214 hosted counter proof repaired and proved
+
+DAEDALUS completed PR214 on 2026-06-24.
+
+Verdict:
+
+- `REPAIRED AND PROVED`
+
+Deployment freshness:
+
+- Web `/health/deployment`: ready `true`, branch `main`, service
+  `@station/web`, commit `1368133913878befd3c6f817f11b3f4a3eb6cd5b`.
+- API `/health/deployment`: ready `true`, branch `main`, service
+  `@station/api`, commit `1368133913878befd3c6f817f11b3f4a3eb6cd5b`.
+
+Hosted schema repair:
+
+- Initial sanitized probes showed the PR213 table missing with `PGRST205` and
+  the increment RPC missing with `PGRST202`.
+- Direct DB host resolution still failed locally, matching the earlier hosted
+  repair limitation.
+- DAEDALUS applied migration `057_public_persona_interaction_counters.sql`
+  through `supabase db query --db-url` via the pooler with simple protocol and
+  statement-cache disabled.
+- The repair applied 14 sanitized single SQL statements and removed the
+  temporary probe table.
+- Follow-up sanitized probes returned table HTTP `200` and RPC-present proof via
+  an intentional invalid-UUID HTTP `400` / `22P02`, without mutating rows.
+
+Hosted route proof:
+
+- Replay owner signin returned HTTP `200`.
+- Owner persona readback for `station-replay-alpha-persona` returned HTTP
+  `200` and included `publicInteraction.activity` with aggregate-only flags.
+- Public persona readback returned HTTP `200` and still omitted
+  `publicInteraction`.
+- A low-impact signed-in public chat returned HTTP `200`; owner aggregate
+  readback then moved last-7-day and last-30-day chat attempts by `+1`, and
+  last-7-day chat successes by `+1`.
+
+Boundary proof:
+
+- Owner `publicInteraction` did not include raw counter table/column names,
+  visitor ids, reporter ids, token transaction rows, the proof message text,
+  provider traces, or prompt text.
+- No report statuses, raw event logs, analytics scope, Redis/Cloudflare,
+  workers, queues, or config were changed.
+- `git diff --check` passed before the docs-only record.
+
+Current baton:
+
+- ARIADNE should rehearse the deployed owner aggregate activity card on Railway.
+- Focus: route visibility, aggregate chat-attempt/report-created copy,
+  desktop/mobile fit, and no privacy leakage.
+
 ## Latest MIMIR decision - PR214 hosted counter proof opened
 
 MIMIR accepts PR213 after ARGUS review on 2026-06-24.

@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR214 Aggregate Counters Hosted Proof
+
+DAEDALUS hosted repair/proof on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `1368133913878befd3c6f817f11b3f4a3eb6cd5b`, branch `main`, service `@station/web`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `1368133913878befd3c6f817f11b3f4a3eb6cd5b`, branch `main`, service `@station/api`, ready `true`. |
+| Initial hosted table probe | Missing before repair | Sanitized PostgREST probe returned HTTP `404`, code `PGRST205` for `public_persona_interaction_counters`. |
+| Initial hosted RPC probe | Missing before repair | Sanitized PostgREST RPC probe returned HTTP `404`, code `PGRST202` for `increment_public_persona_interaction_counters`. |
+| Hosted migration repair | Pass | Applied migration `057_public_persona_interaction_counters.sql` through `supabase db query --db-url` via the pooler with simple protocol and statement-cache disabled. Direct DB host resolution still failed locally. |
+| Follow-up hosted table probe | Pass | Sanitized PostgREST probe returned HTTP `200`. |
+| Follow-up hosted RPC probe | Pass | Intentional invalid-UUID RPC call returned HTTP `400`, code `22P02`, proving RPC presence without mutating rows. |
+| Replay owner signin | Pass | API `/auth/signin` returned HTTP `200`; token was not printed. |
+| Owner persona readback | Pass | Owner `GET /personas/:id` returned HTTP `200` and included `publicInteraction.activity` with aggregate-only flags and zero starting totals. |
+| Public persona readback | Pass | Public `GET /personas/public/station-replay-alpha-persona` returned HTTP `200` and omitted `publicInteraction`. |
+| Low-impact public chat increment proof | Pass | Signed-in public chat returned HTTP `200`; owner readback then showed last-7-day chat attempts `+1`, last-7-day chat successes `+1`, last-7-day chat failures `+0`, and last-30-day chat attempts `+1`. |
+| `git diff --check` | Pass | Passed before the docs-only proof record. |
+
+Scope notes:
+
+- The repair touched hosted Supabase schema only; no repo code changed for the
+  proof.
+- The proof used the public chat route to exercise counters. It did not mutate
+  report statuses or insert counter rows directly to manufacture a pass.
+- Owner `publicInteraction` JSON did not include raw counter table/column names,
+  visitor ids, reporter ids, token transaction rows, proof message text,
+  provider traces, or prompt text.
+- Public persona readback still omitted `publicInteraction`.
+- No Redis, Cloudflare, workers, queues, config, analytics-scope, report-status,
+  or raw-event-log change was made.
+
 ## PR213 Public Interaction Aggregate Counters
 
 DAEDALUS implementation validation on 2026-06-24:
