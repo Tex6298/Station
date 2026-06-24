@@ -81,7 +81,8 @@ export default function PublicProjectProfilePage() {
     );
   }
 
-  const { project, developerSpaces, publicEvidence } = profile;
+  const { project, developerSpaces } = profile;
+  const publicEvidence = profile.publicEvidence ?? [];
 
   return (
     <main className="station-page">

@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS ACCEPT - MIMIR closeout pending
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -145,6 +146,51 @@ If auth middleware or public route matchers change, also run:
 ```text
 npm exec --yes pnpm@10.32.1 -- run test:auth
 ```
+
+## ARGUS Review - 2026-06-24
+
+Verdict: `ACCEPT` with one narrow review patch.
+
+ARGUS reviewed PR246 against the narrowed PR245 scope. The implementation
+matches the approved lane:
+
+- `GET /projects/public/:slug` adds `publicEvidence` and does not add a
+  separate unauthenticated endpoint.
+- The public evidence loader is separate from the owner-only Project evidence
+  serializer.
+- Public evidence requires a public Project, same-owner attached public
+  Developer Space, same-owner public link row, and same-owner published public
+  document.
+- Serialized evidence is limited to `title`, `kind`, `href`, fixed
+  `sourceLabel`, optional `publishedAt`, and `updatedAt`.
+- Evidence links only to `/developer-spaces/:slug`.
+- Private-only evidence and no-evidence Projects return neutral
+  `publicEvidence: []`.
+- No private owner evidence shape, direct document links, document bodies or
+  excerpts, raw source labels, ids, owner/member fields, activity, reports,
+  exports, billing, hosted runtime, providers, Redis, Cloudflare, queues,
+  workers, migrations, or broad UI redesign were added.
+
+ARGUS review patch:
+
+- The public Project page now defaults missing `profile.publicEvidence` to `[]`
+  so an out-of-order web/API deployment cannot crash the anonymous public page.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+Hosted rehearsal:
+
+- Required before closeout. PR246 changes anonymous public Project API payload
+  and page UI, so MIMIR should open an ARIADNE hosted anonymous desktop/mobile
+  public Project evidence rehearsal before closing this loop.
 
 ## Wakeup
 

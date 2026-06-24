@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR246 Public Project Evidence Minimal Readback
+## Latest ARGUS review - PR246 Public Project Evidence Minimal Readback
 
-DAEDALUS implemented PR246 on 2026-06-24 and wakes ARGUS for hostile review.
+ARGUS accepts PR246 on 2026-06-24 with one narrow review patch.
 
-What changed:
+Review findings:
 
 - `GET /projects/public/:slug` now returns a bounded `publicEvidence` bucket.
 - The public evidence loader is separate from the owner-only Project evidence
@@ -21,15 +21,19 @@ What changed:
 - Public evidence links only to `/developer-spaces/:slug`.
 - The public Project page renders neutral `Public references` copy and empty
   state without implying private evidence exists.
+- ARGUS patched the public Project page to default missing
+  `profile.publicEvidence` to `[]`, preventing an out-of-order web/API
+  deployment from crashing the anonymous page.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 13 tests.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed after correcting a
-  test-only response type annotation.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
   `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
 
 Scope notes:
 
@@ -37,13 +41,15 @@ Scope notes:
   body excerpts, raw source labels, ids, owner/member fields, activity,
   reports, exports, billing, hosted runtime, providers, Redis, Cloudflare,
   queues, workers, migrations, or broad UI redesign changed.
-- ARGUS should review public evidence serialization, same-owner/public
-  predicates, and private-evidence non-disclosure.
+- No auth middleware or public route matcher changed, so `test:auth` was not
+  required.
+- Hosted ARIADNE rehearsal is required before closeout because this changes
+  anonymous public Project API payload and page UI.
 
 Current baton:
 
-- ARGUS should review PR246 and wake MIMIR with ACCEPT / FAIL / BLOCKED and
-  hosted-rehearsal recommendation.
+- MIMIR should open an ARIADNE hosted anonymous desktop/mobile public Project
+  evidence rehearsal before closing PR246.
 
 ## Latest MIMIR decision - PR246 Public Project Evidence Minimal Readback opened
 
