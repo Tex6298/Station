@@ -4,11 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR272 Staged Replay Polish Caveats complete
+## Latest ARGUS review - PR272 Staged Replay Polish Caveats
 
-DAEDALUS completed PR272 on 2026-06-24.
+ARGUS accepted PR272 on 2026-06-24 with no review patch:
+`docs/roadmap/PR272_STAGED_REPLAY_POLISH_CAVEATS_DAEDALUS.md`.
 
-Implemented:
+Result:
 
 - Discover right-rail persona roulette now uses a bounded fetch timeout and
   explicit state copy: `Drawing...`, `No public personas yet.`, or
@@ -20,6 +21,10 @@ Implemented:
   at display time on the forum index and category pages.
 - Focused helper tests were added and wired into the existing validation
   scripts.
+- The implementation stayed in the tiny frontend polish lane and did not widen
+  into backend semantics, schema, auth, provider, billing, queue, Redis,
+  Cloudflare, worker, staged-data, Developer Space ingestion, webhook, or
+  external side-effect behavior.
 
 Validation:
 
@@ -30,20 +35,15 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
   warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
-- `git diff --check` passed with CRLF normalization warnings only for touched
-  files.
-
-Non-scope confirmation:
-
-- No backend semantics, schema, auth, provider, billing, queue, Redis,
-  Cloudflare, worker, staged-data, Developer Space ingestion, webhook, or
-  external side-effect behavior changed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, email
+  addresses, credentialed URLs, or UUID-shaped ids.
 
 Current baton:
 
-- ARGUS should review the tiny polish scope and decide whether ARIADNE needs a
-  focused hosted rerun or whether MIMIR can accept PR272 as closing the PR271
-  caveats.
+- MIMIR should open a focused ARIADNE hosted rerun for the three PR271 visible
+  caveats before closing them from product evidence.
 
 ## Latest MIMIR decision - PR272 Staged Replay Polish Caveats opened
 

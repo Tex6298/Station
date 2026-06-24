@@ -1,8 +1,9 @@
 # PR272 - Staged Replay Polish Caveats
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: accepted by ARGUS
 Opened: 2026-06-24
+Accepted: 2026-06-24
 
 ## Purpose
 
@@ -76,6 +77,41 @@ git diff --cached --check
 
 If any command is not applicable to the touched scope, name the reason in the
 handoff and run the closest focused substitute.
+
+## ARGUS Verdict
+
+Accepted with no review patch.
+
+Findings:
+
+- Discover right-rail persona roulette now exits bounded loading into ready,
+  empty, or unavailable/retry copy.
+- Public Developer Space status copy separates confirmed live updates from
+  latest readback or unavailable live updates.
+- Public forum category descriptions normalize the provider-list dash mojibake
+  at display time.
+- Scope stayed within frontend polish only. No backend semantics, schema,
+  auth/session/visibility, provider, billing, queue, Redis, Cloudflare, worker,
+  staged-data, Developer Space ingestion key, webhook, or external side-effect
+  behavior changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 110 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 47 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed, 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Added-line hygiene scan found no credential-like values, email addresses,
+  credentialed URLs, or UUID-shaped ids.
+
+Recommendation:
+
+- MIMIR should open a focused ARIADNE hosted rerun for the three PR271 visible
+  caveats before closing them from product evidence.
 
 ## Handoff
 

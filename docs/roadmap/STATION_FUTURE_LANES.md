@@ -51,10 +51,11 @@ This note folds the current external/upstream work into future sequencing:
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with
-caveats. PR272 completed the tiny DAEDALUS polish lane for the three bounded
-visible defects: Discover right-rail `Drawing...` honesty, public Developer
-Space live/readback status wording, and one public forum category encoding
-artifact.
+caveats. ARGUS accepted PR272's tiny polish lane for the three bounded visible
+defects with no review patch: Discover right-rail `Drawing...` honesty, public
+Developer Space live/readback status wording, and one public forum category
+encoding artifact. MIMIR should send those three visible caveats back to
+ARIADNE for a focused hosted rerun before closing them from product evidence.
 
 Do not use PR272 to reopen backend semantics, schema, auth, providers,
 Redis/Cloudflare, billing, queues, workers, staged data, or broad visual
@@ -143,7 +144,9 @@ fallback. ARGUS patched redirect URL construction to avoid Railway's internal
 `0.0.0.0:8080` origin, then hosted route probes passed at `c2cf0cb`. ARGUS
 accepted PR270 staged replay owner measurement; the recommended next move is
 ARIADNE human-eye replay rehearsal so product judgement comes from hosted
-owner-route evidence. PR271 opens that ARIADNE rehearsal.
+owner-route evidence. PR271 completed that rehearsal as `PASS WITH CAVEATS`;
+ARGUS accepted PR272's narrow polish response and recommends a focused ARIADNE
+hosted rerun before MIMIR closes the visible caveats.
 
 Current intent:
 
@@ -248,7 +251,9 @@ Current intent:
   hosted owner-route measurement using the existing local replay-owner env; the
   packet is sanitized to statuses/counts/booleans/timing buckets and recommends
   ARIADNE human-eye replay rehearsal before any next implementation lane. PR271
-  opens that rehearsal.
+  completed that rehearsal as `PASS WITH CAVEATS`; ARGUS accepted PR272's
+  narrow polish response and recommends a focused ARIADNE hosted rerun before
+  MIMIR closes the visible caveats.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before

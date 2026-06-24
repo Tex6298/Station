@@ -32,7 +32,7 @@ Memory/observability implementation lane.
 
 ## PR272 Staged Replay Polish Caveats
 
-DAEDALUS completed PR272 for ARGUS review on 2026-06-24 after ARIADNE returned
+ARGUS accepted PR272 on 2026-06-24 with no review patch after ARIADNE returned
 PR271 as `PASS WITH CAVEATS`.
 
 Implementation result:
@@ -51,23 +51,22 @@ Implementation result:
   worker, staged-data, Developer Space ingestion, webhook, or external
   side-effect behavior changed.
 
-Required validation:
+ARGUS validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Discover right-rail state | Pass | `Persona Roulette / Drawing...` must not look like an endless live operation after the page is otherwise ready. |
-| Public Developer Space status label | Pass | Public readback should not overclaim persistent live connectivity when showing snapshot/readback data. |
-| Public forum category copy | Pass | Provider-list description should not contain mojibake or encoding artifacts. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 110 tests passed, including Discover roulette state copy. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 47 tests passed, including readback-aware status badge copy. |
 | `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 31 tests passed, including forum description mojibake normalization. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
-| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff --check` | Pass | Whitespace check passed. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, or UUID-shaped ids found in the PR272 diff. |
 
-ARGUS should review whether ARIADNE needs a focused hosted rerun or whether
-MIMIR can accept the PR271 caveats as closed from code/test evidence.
+ARGUS accepts the code/test evidence, but recommends MIMIR open a focused
+ARIADNE hosted rerun for the three visible PR271 caveats before closing them
+from product evidence.
 
 ## PR271 Staged Replay Human-Eye Rehearsal
 
