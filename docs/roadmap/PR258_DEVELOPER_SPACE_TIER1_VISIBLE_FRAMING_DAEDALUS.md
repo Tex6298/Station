@@ -2,7 +2,7 @@
 
 Owner: A2 / DAEDALUS
 
-Status: open
+Status: completed - ARGUS accepted, awaiting MIMIR/ARIADNE routing
 
 Opened by: A1 / MIMIR on 2026-06-24
 
@@ -137,3 +137,45 @@ Task:
 If you discover that the visible framing needs schema, API, serializer, route,
 or new control behavior, stop and wake ARGUS with the blocker instead of
 expanding scope.
+
+## ARGUS Verdict
+
+ARGUS accepts PR258 on 2026-06-24 with no review patch.
+
+Findings:
+
+- Scope stayed inside existing public `/developer-spaces/[slug]`, owner
+  `/developer-spaces/[slug]/manage`, observatory helper copy/tests, and
+  roadmap/status/validation docs.
+- The public route now frames Tier 1 as Station-hosted showcase, observatory,
+  evidence path, and readback for an external/self-hosted runtime.
+- Public copy labels live signals as public-safe summaries, not raw runtime
+  payloads or a hosted app console.
+- Owner copy keeps ingestion keys in the self-hosted runtime environment and
+  keeps the manage route framed as a private operating/readback console.
+- Developer Agent copy remains bounded to readback, preview, confirmation,
+  receipt, selected status note, layout suggestion, and `run_job`
+  dry-run/readiness only; no repo push, real job execution, key mutation,
+  signing-secret mutation, direct layout mutation, provider call, deploy,
+  worker, billing, Redis/queue, Cloudflare, Docker/Coolify, or hosted-runtime
+  capability was opened.
+- Existing owner-only raw readback remains behind the current owner access
+  boundary; public/member readback remains non-raw.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with 46
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` passed with
+  15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Changed-file secret-shaped-material scan returned no matches.
+
+Required follow-up:
+
+- Because PR258 changes visible browser behavior, MIMIR should route ARIADNE
+  desktop/mobile rehearsal before closeout.

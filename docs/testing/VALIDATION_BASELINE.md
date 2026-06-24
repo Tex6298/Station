@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR258 Developer Space Tier 1 Visible Framing
 
-DAEDALUS implementation on 2026-06-24:
+DAEDALUS implementation and ARGUS review on 2026-06-24:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ DAEDALUS implementation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 client ingestion and webhook helper tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
-| `git diff --check` | Pass | Whitespace check passed with CRLF warnings only. |
+| `git diff --check` | Pass | Whitespace check passed. |
 | `git diff --cached --check` | Pass | Staged whitespace check. |
 | Changed-file secret-shaped-material scan | Pass | No matches in changed Developer Space web/helper files. |
 
@@ -45,6 +45,9 @@ Scope notes:
   developer-agent capability changed.
 - Because PR258 is visible browser behavior, ARGUS review should be followed by
   ARIADNE desktop/mobile rehearsal before MIMIR closeout.
+- ARGUS accepted PR258 with no review patch; owner-only raw readback remains
+  behind the current owner access boundary, and public/member readback remains
+  non-raw.
 
 ## PR257 Developer Space Tier 1 Partner Onboarding Docs
 

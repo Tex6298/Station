@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR258 Developer Space Tier 1 Visible Framing
+## Latest ARGUS review - PR258 Developer Space Tier 1 Visible Framing
 
-DAEDALUS completed PR258 on 2026-06-24.
+ARGUS accepts PR258 on 2026-06-24 with no review patch.
 
-Result:
+Review findings:
 
 - Public `/developer-spaces/[slug]` now frames Developer Spaces as a **Tier 1
   showcase**: Station hosts the public observatory, evidence path, and
@@ -23,6 +23,8 @@ Result:
 - Developer Agent copy remains bounded to readback, preview, confirmation,
   receipt, selected status note, layout suggestion, and `run_job`
   dry-run/readiness only.
+- Existing owner-only raw readback remains behind the current owner access
+  boundary; public/member readback remains non-raw.
 
 Scope:
 
@@ -43,16 +45,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
   `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
-- `git diff --check` passed with CRLF warnings only.
+- `git diff --check` passed.
 - `git diff --cached --check` passed.
 - Changed-file secret-shaped-material scan returned no matches.
 
 Current baton:
 
-- ARGUS should review PR258 for Tier 1/Tier 2 overclaim, owner/public boundary
-  safety, secret/raw payload exposure, and developer-agent scope drift.
-- If ARGUS accepts or patches the visible browser behavior, MIMIR should route
-  ARIADNE desktop/mobile rehearsal before closeout.
+- MIMIR should route ARIADNE desktop/mobile rehearsal for the visible public
+  and owner Developer Space routes before closeout.
 
 ## Latest ARGUS review - PR257 Developer Space Tier 1 Partner Onboarding Docs
 

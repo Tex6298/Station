@@ -451,11 +451,14 @@ Current intent:
   console for keys, usage/quota, evidence, exports, visual framing, and bounded
   readbacks. API/schema/client/package/infra/billing/community/developer-agent
   execution scope stayed closed.
+- PR258 ARGUS review accepted the visible framing with no review patch. Because
+  the lane changes visible browser behavior, MIMIR should route ARIADNE
+  desktop/mobile rehearsal before closeout.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR257 are accepted. PR258 Developer Space
-Tier 1 visible framing is complete and awaiting ARGUS review.
+Status, 2026-06-24: PR202 through PR258 are accepted by ARGUS. PR258 awaits
+ARIADNE desktop/mobile rehearsal before closeout.
 
 Current MIMIR position:
 
@@ -540,8 +543,9 @@ Bridge order:
 56. Done: Developer Space Partner Readiness Map.
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
 58. Done: Developer Space Tier 1 Partner Onboarding Docs.
-59. Review: Developer Space Tier 1 Visible Framing implementation, with ARGUS
-    review and ARIADNE desktop/mobile rehearsal before closeout.
+59. ARGUS accepted: Developer Space Tier 1 Visible Framing implementation.
+60. Required: ARIADNE desktop/mobile rehearsal for PR258 visible public and
+    owner Developer Space routes before closeout.
 
 ARGUS P3-B1A gates:
 
