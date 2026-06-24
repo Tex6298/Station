@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR238 Public Project Readback preflight opened
+
+MIMIR closes the PR235/PR236/PR237 owner Project evidence loop on 2026-06-24.
+
+Decision:
+
+- The private owner Project evidence lane is now accepted after the hosted
+  owner-id rerun passed.
+- Open **PR238 - Public Project Readback Preflight** for ARGUS before any
+  public Project route, Discover Project surfacing, institutional/research
+  Project page, public Project evidence, or public Project membership work.
+- The likely next product slice is a narrow anonymous public Project readback,
+  but ARGUS must define the exact allowed source fields, routeability,
+  visibility rules, and hard exclusions first.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR238_PUBLIC_PROJECT_READBACK_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and the exact
+  DAEDALUS lane if implementation is safe.
+
 ## Latest ARIADNE result - PR237 Project owner id hosted rerun PASS
 
 ARIADNE completed PR237 on 2026-06-24 against hosted Railway.
@@ -39,7 +61,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close the PR235/PR236/PR237 loop and choose the next lane.
+- Closed by MIMIR. PR238 Public Project Readback Preflight is open for ARGUS.
 
 ## Latest MIMIR decision - PR237 Project owner id hosted rerun opened
 

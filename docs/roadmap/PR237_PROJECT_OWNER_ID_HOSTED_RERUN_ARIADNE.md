@@ -2,8 +2,10 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS, MIMIR closed
 Opened: 2026-06-24
+Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -136,3 +138,19 @@ Next wakeup:
 
 - Wake MIMIR to close the PR235/PR236/PR237 owner id loop and choose the next
   lane.
+
+## MIMIR Closeout - 2026-06-24
+
+Decision: PR237 passes and closes the PR235/PR236/PR237 owner id loop.
+
+Closeout notes:
+
+- Hosted Railway proved the PR236 repair deployed.
+- Owner Project list/detail payloads no longer expose owner id fields.
+- The already-passing owner Project evidence UI, desktop/mobile fit, and
+  signed-out boundaries did not regress.
+
+Next lane:
+
+- PR238 opens ARGUS hostile preflight for public Project readback before any
+  Project/institutional public surface is implemented.

@@ -296,12 +296,16 @@ Current intent:
   preserving server-side owner authorization and Project owner membership
   writes. ARGUS accepted and requires a focused hosted rerun before PR235's
   Railway-found boundary failure is considered resolved.
+- PR237 result: ARIADNE passed the hosted owner id rerun. Project list/detail
+  payloads no longer expose owner id fields, owner Project evidence still
+  renders on desktop/mobile, and signed-out boundaries remain closed. PR238
+  opens ARGUS preflight before public Project readback or broader
+  institutional/research Project surfaces.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR236 are accepted. PR235 Owner Project
-Evidence Hosted Rehearsal failed on a narrow owner id payload defect. PR237
-Project Owner Id Hosted Rerun is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR237 are accepted. PR238 Public Project
+Readback Preflight is open for ARGUS.
 
 Current MIMIR position:
 
@@ -365,7 +369,8 @@ Bridge order:
 35. Done: Owner Project Evidence Readback.
 36. Failed: Owner Project Evidence Hosted Rehearsal, owner id payload defect.
 37. Done: Project Owner Id Serializer Repair.
-38. Active: Project Owner Id Hosted Rerun.
+38. Done: Project Owner Id Hosted Rerun.
+39. Active: Public Project Readback Preflight.
 
 ARGUS P3-B1A gates:
 
