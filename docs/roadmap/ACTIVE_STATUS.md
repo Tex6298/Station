@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR283 Hosted Answer Grounding Enforcement opened
+
+MIMIR accepts ARIADNE's PR282 hosted result as `FAIL` while treating retrieval
+and context selection as proven for this probe.
+
+Decision:
+
+- PR282 proved hosted freshness, replay-owner auth/session, intended persona
+  selection, full selected context evidence, source-copy safety,
+  rejected-control exclusion, and observability.
+- PR281's prompt-grounding rule was deployed, but the hosted answer still
+  recalled none of the accepted concepts or matching invented retrieval phrases.
+- Open PR283 - Hosted Answer Grounding Enforcement for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR283_HOSTED_ANSWER_GROUNDING_ENFORCEMENT_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for prompt-boundary, retry/accounting if touched,
+  no-hardcoding, scope, and raw-data hygiene review.
+- ARGUS should recommend whether MIMIR opens an ARIADNE hosted PR284 rerun.
+
+## Latest ARIADNE review - PR282 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR282 on 2026-06-24:
+`docs/roadmap/PR282_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Hosted web/API were ready on `main` with PR281 implementation commit
+  `4c96bbd4`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context preview and latest conversation trace showed full selected context,
+  with rejected-control evidence absent.
+- The single hosted chat turn returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled no accepted concepts and no matching invented retrieval
+  phrases.
+
 ## Latest MIMIR decision - PR282 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR281 review and opens the hosted post-deploy product

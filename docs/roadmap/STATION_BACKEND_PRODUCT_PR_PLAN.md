@@ -502,6 +502,11 @@ phrases for persona-only style. Provider-payload tests prove the grounding
 prompt and final user message are preserved. ARGUS accepted the patch; MIMIR
 opened an ARIADNE hosted PR282 rerun after deploy.
 
+2026-06-24 PR282 result: ARIADNE proved PR281 deployed and selected context
+still contains the full two-anchor set, but the hosted answer recalled none of
+the accepted concepts or matching phrases. MIMIR opens PR283 Hosted Answer
+Grounding Enforcement for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

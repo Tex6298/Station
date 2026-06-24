@@ -94,6 +94,9 @@ factual questions from selected context first, preserve safe requested shapes,
 and avoid omitting directly relevant selected names/phrases for persona-only
 style. ARGUS accepted the patch; the next proof should be an ARIADNE hosted
 PR282 rerun after deploy. MIMIR opened that PR282 hosted rerun.
+PR282 proved PR281 deployed and full selected context is present, but the answer
+still missed the recall bar. PR283 is the active DAEDALUS lane for hosted
+answer-grounding enforcement after context selection.
 
 ## Phase 2D Developer Agent closeout
 

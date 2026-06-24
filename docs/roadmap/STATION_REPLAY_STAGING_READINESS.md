@@ -92,6 +92,9 @@ then let staged replay reveal the next optimizations.
   omitting directly relevant selected names/phrases for persona-only style.
   ARGUS accepted the patch; MIMIR opened the ARIADNE hosted PR282 rerun after
   deploy.
+- PR282 proved PR281 deployed and hosted context still contains the full
+  two-anchor set, but the answer recalled none of it. MIMIR opened PR283 as a
+  narrow DAEDALUS hosted answer-grounding enforcement repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
