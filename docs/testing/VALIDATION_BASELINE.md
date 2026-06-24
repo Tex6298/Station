@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR240 Public Project Profile Hosted Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `2819502`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `2819502`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Public Project seed | Pass | Reused/created bounded public seed `ariadne-pr240-public-profile-202606241001` through existing owner APIs only. |
+| Anonymous `GET /projects/public/:slug` | Pass | Public API returned `200` and exposed only allowed Project fields plus an empty/safe public Developer Space summary list. |
+| Public API unsafe identifiers | Pass | UUID-shaped, invalid, and known private Project slugs returned closed responses. |
+| Anonymous owner-only API `GET /projects/:slug` | Pass | Owner-only Project API still required auth. |
+| Anonymous web `/projects/public/[slug]` desktop/mobile | Fail | Hosted web redirected both desktop and `375px` mobile visits to `/login?redirect=%2Fprojects%2Fpublic%2F...` instead of rendering the public profile page. |
+| Signed-out owner web `/projects/:slug` | Pass | Redirected to login without exposing Project evidence. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr240-public-project-profile-rehearsal.spec.js --reporter=line --workers=1` | Fail | Failure is isolated to the anonymous public Project web route redirect; hosted API and private/unsafe route boundaries passed before the final assertion. |
+
+Rehearsal verdict:
+
+- `FAIL`
+- The hosted anonymous web page is still treated as protected Project scope,
+  likely by the `/projects/:path*` auth matcher, while the API route itself is
+  fresh and bounded.
+
 ## PR239 Public Project Profile Readback
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

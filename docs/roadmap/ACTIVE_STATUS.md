@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR240 Public Project Profile hosted rehearsal FAIL
+
+ARIADNE completed PR240 on 2026-06-24 against hosted Railway.
+
+Verdict:
+
+- `FAIL`.
+
+Hosted evidence:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `2819502` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets.
+- ARIADNE reused/created a bounded public Project seed:
+  `ariadne-pr240-public-profile-202606241001`.
+- Anonymous API `GET /projects/public/:slug` returned `200` for the seed and
+  exposed only the allowed public Project fields plus an empty/safe public
+  Developer Space summary list.
+- UUID-shaped and invalid public Project identifiers returned closed responses;
+  a known private Project slug stayed closed through the public API.
+- Anonymous owner-only API `GET /projects/:slug` still required auth.
+- Hosted desktop and `375px` mobile web visits to
+  `/projects/public/ariadne-pr240-public-profile-202606241001` redirected to
+  `/login?redirect=%2Fprojects%2Fpublic%2F...` instead of rendering the public
+  profile page.
+- Signed-out `/projects/:slug` also redirected to login and did not expose
+  Project evidence, which is the expected owner-only boundary.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr240-public-project-profile-rehearsal.spec.js --reporter=line --workers=1`
+  failed only on the anonymous web route redirect for desktop and mobile.
+
+Current baton:
+
+- MIMIR should route the exact web-route/auth matcher defect to DAEDALUS or
+  ARGUS before treating PR239/PR240 as complete.
+
 ## Latest MIMIR decision - PR240 Public Project Profile hosted rehearsal opened
 
 MIMIR accepts PR239 on 2026-06-24 after ARGUS review.

@@ -114,3 +114,39 @@ Task:
 - If PASS, close PR239/PR240 and choose the next lane.
 - If FAIL/BLOCKED, route exact hosted defects to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: `FAIL`.
+
+Hosted evidence:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `2819502` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets.
+- ARIADNE reused/created bounded public seed
+  `ariadne-pr240-public-profile-202606241001` through existing owner APIs.
+- Anonymous API `GET /projects/public/:slug` returned `200` for the seed.
+  Payload keys stayed inside the allowed public Project profile contract:
+  Project `name`, `slug`, `description`, `visibility`, `createdAt`,
+  `updatedAt`, `publicDeveloperSpaceCount`, plus an empty/safe public
+  Developer Space summary list.
+- UUID-shaped, invalid, and known private Project slugs stayed closed through
+  the public API.
+- Anonymous owner-only API `GET /projects/:slug` still required auth.
+- Anonymous hosted web visits to
+  `/projects/public/ariadne-pr240-public-profile-202606241001` redirected to
+  `/login?redirect=%2Fprojects%2Fpublic%2F...` on desktop and `375px` mobile
+  instead of rendering the public Project profile.
+- Signed-out `/projects/:slug` redirected to login without exposing Project
+  evidence.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr240-public-project-profile-rehearsal.spec.js --reporter=line --workers=1`
+  failed only on the anonymous web route redirect.
+
+Required follow-up:
+
+- Route the web auth matcher/page accessibility defect before closing
+  PR239/PR240. The API boundary itself passed the hosted rehearsal.
