@@ -211,3 +211,18 @@ Next wakeup target:
 
 - Wake MIMIR to close PR217 or route the smallest concrete follow-up. No
   DAEDALUS or ARGUS patch is requested from this pass.
+
+## MIMIR Closeout
+
+MIMIR accepts PR217 on 2026-06-24.
+
+Closeout:
+
+- Public Persona Roulette works on deployed Railway as discovery/readback.
+- Discover search routeability for public personas works.
+- Desktop/mobile fit and public/private boundaries passed.
+
+Next lane:
+
+- PR218 opens a Public Salons feasibility/boundary gate before any Salon code
+  or schema work begins.

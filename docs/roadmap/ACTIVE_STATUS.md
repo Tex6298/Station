@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR218 Salons gate opened
+
+MIMIR accepts PR217 on 2026-06-24 after ARIADNE passed the hosted Roulette
+rehearsal.
+
+Decision:
+
+- Open PR218 as a Public Salons feasibility/boundary gate.
+- Reason: Roulette now gives public persona discovery/readback. The next
+  public interaction family should use the existing community/forum/moderation
+  primitives if possible, but Salons are wider than a single route and need a
+  repo-grounded implementation proposal before code.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR218_PUBLIC_SALONS_GATE_DAEDALUS.md`.
+- This is design/feasibility only. DAEDALUS should wake MIMIR with the
+  recommended PR219 slice and whether ARGUS needs hostile preflight.
+
 ## Latest ARIADNE result - PR217 Roulette rehearsal accepted
 
 ARIADNE rehearsed Public Persona Roulette on deployed Railway on 2026-06-24.

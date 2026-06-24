@@ -204,12 +204,14 @@ Current intent:
 - PR216 review result: ARGUS accepted after hardening public search routeability
   so persona routes derive only from safe public slugs and ignore untrusted
   `href` values.
-- Active follow-up: PR217 sends the visible Roulette/search surface to ARIADNE
-  for hosted human rehearsal.
+- PR217 result: ARIADNE accepted deployed Roulette API, Discover panel, public
+  persona search routeability, desktop/mobile fit, and privacy boundaries.
+- Active follow-up: PR218 opens Public Salons feasibility/boundary mapping
+  before any Salon schema or product code.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR216 are accepted. PR217 is open for
-ARIADNE to rehearse deployed Public Persona Roulette.
+Status, 2026-06-24: PR202 through PR217 are accepted. PR218 is open for
+DAEDALUS to map the smallest safe Public Salons slice.
 
 Current MIMIR position:
 
@@ -252,7 +254,8 @@ Bridge order:
    choosing PR216.
 17. Done: Public Persona Roulette discovery/readback with ARGUS routeability
     hardening.
-18. Active: ARIADNE hosted human rehearsal of Roulette/search routeability.
+18. Done: ARIADNE hosted human rehearsal of Roulette/search routeability.
+19. Active: Public Salons feasibility/boundary gate.
 
 ARGUS P3-B1A gates:
 
