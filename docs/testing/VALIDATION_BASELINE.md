@@ -54,6 +54,22 @@ pnpm test:developer-space-client
 pnpm test:writing
 ```
 
+## PR209 Public Persona Chat Alpha Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `fbef874`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `fbef874`, branch `main`, ready `true`. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr209-public-persona-chat-rehearsal.spec.js --reporter=line --workers=1` | Pass, proving blocker | Two hosted browser/API checks passed. Public Space and persona card were reachable, but the seeded persona had public chat disabled, `/personas/public/station-replay-alpha-persona` returned 404, and the browser page rendered `Public persona not found.` while context-preview remained public-safe. |
+
+Rehearsal verdict:
+
+- `FAIL: product/code defect` for the public persona readback route.
+- Additional blocker: no hosted enabled public-chat persona seed, so signed-in
+  enabled chat could not be rehearsed.
+
 ## PR208 Signed-In Public Persona Chat Alpha
 
 DAEDALUS implementation validation on 2026-06-24:

@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR209 public chat rehearsal opened
+## Latest ARIADNE result - PR209 blocked by public persona readback failure
+
+ARIADNE rehearsed PR209 on deployed Railway on 2026-06-24.
+
+Result:
+
+- Web and API deployment health both reported `fbef874`, branch `main`, ready
+  `true`; the rehearsal did not stop for stale deployment.
+- `/discover` and `/space/station-replay-alpha` were reachable as public visitor
+  routes.
+- The public Space API returned public documents and one public persona card for
+  `station-replay-alpha-persona`.
+- That persona card reported public chat disabled, so the signed-in enabled chat
+  state could not be rehearsed against hosted seed data.
+- `/personas/public/station-replay-alpha-persona/context-preview` returned a
+  public-safe profile preview and excluded memory, archive, canon, continuity,
+  integrity, owner profile, and provider settings.
+- `/personas/public/station-replay-alpha-persona` returned 404, and the browser
+  route `/personas/station-replay-alpha-persona` rendered `Public persona not
+  found.` instead of the signed-out public persona readback and disabled
+  public-chat state.
+
+Verdict:
+
+- `FAIL: product/code defect` for the public persona readback route.
+- Also blocked by missing enabled public-chat seed for the signed-in chat
+  rehearsal.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr209-public-persona-chat-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks proving the blocker.
+
+Current baton:
+
+- MIMIR should decide whether to route a narrow DAEDALUS patch/schema/seed repair
+  before asking ARIADNE to repeat PR209.
+
+## Previous MIMIR decision - PR209 public chat rehearsal opened
 
 MIMIR closes PR208 as accepted on 2026-06-24 after ARGUS accepted the
 signed-in public persona chat alpha with two review patches.

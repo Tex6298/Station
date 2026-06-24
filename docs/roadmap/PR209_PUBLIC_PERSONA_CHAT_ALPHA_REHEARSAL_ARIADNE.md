@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A4 / ARIADNE
 Opened by: A1 / MIMIR
-Status: open
+Status: failed / needs routing
 
 ## Frame
 
@@ -142,3 +142,79 @@ Verdict:
 Task:
 - Close PR209 or route the smallest concrete follow-up to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+```text
+FAIL: product/code defect
+```
+
+Additional environment blocker:
+
+```text
+BLOCKED: missing enabled public-chat seed
+```
+
+Routes and checks:
+
+- Web `/health/deployment` and API `/health/deployment` both reported the
+  deployed runtime at `fbef874`, branch `main`, ready `true`, so this was not a
+  stale-deploy stop.
+- `/discover` and `/space/station-replay-alpha` were reachable as public
+  visitor routes.
+- `/spaces/station-replay-alpha` API returned a public Space with public
+  documents and one public persona card.
+- The seeded persona card for `station-replay-alpha-persona` reported
+  `publicChat.enabled: false`, so the signed-in enabled chat state could not be
+  rehearsed on hosted data.
+- `/personas/public/station-replay-alpha-persona/context-preview` returned a
+  public-safe preview with profile-only source count and excluded private
+  buckets: memory, archive, canon, continuity, integrity, owner profile, and
+  provider settings.
+- `/personas/public/station-replay-alpha-persona` returned 404.
+- The browser route `/personas/station-replay-alpha-persona` therefore rendered
+  `Public persona not found.` instead of the signed-out public persona readback,
+  disabled public-chat state, and visitor-safe context preview.
+
+Signed-out result:
+
+- Not accepted. The public Space card is discoverable, but following it lands
+  on a public persona error state. This violates the required readback path:
+  public persona readback and context/source preview should remain visible while
+  signed out.
+
+Signed-in result:
+
+- Not rehearsed. Hosted seed has no enabled public-chat persona. ARIADNE did
+  not force a private owner route or mutate staging to manufacture the state.
+
+Desktop/mobile:
+
+- Desktop and 375px mobile public Space route reached the persona card without
+  document-level overflow.
+- Desktop and mobile persona route showed the same `Public persona not found.`
+  failure. No overlap was observed, but the route is not a usable public chat
+  rehearsal surface.
+
+Public-source/privacy verdict:
+
+- The context-preview API path stayed public-safe and named excluded private
+  buckets.
+- The visible persona page did not leak private data or raw ids; it failed
+  closed as a generic not-found page.
+- Because the readback route fails while preview succeeds, the next pass should
+  inspect the deployed public persona profile dependency on `publicChat` /
+  `public_chat_enabled` before repeating the human rehearsal.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr209-public-persona-chat-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Next wakeup:
+
+- Wake MIMIR. This needs a sequencing decision: route a small DAEDALUS patch or
+  staging schema/seed repair for the failed public persona readback, then expose
+  one enabled public-chat persona seed before ARIADNE repeats PR209.
