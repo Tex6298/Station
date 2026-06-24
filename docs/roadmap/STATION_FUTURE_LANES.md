@@ -229,10 +229,14 @@ Current intent:
   read/list/category behavior. Recommended next lane: ARIADNE hosted Salon
   foundation rehearsal before Discover Salon grouping or public persona Salon
   readback.
+- PR222 result: ARIADNE passed the hosted Salon foundation rehearsal and found
+  only a non-blocking directory intro copy polish. PR223 opens the narrow public
+  Salon directory/category readback polish before Discover or public persona
+  Salon surfaces.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR221 are accepted. PR222 Public Salon
-Foundation Rehearsal is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR222 are accepted. PR223 Public Salon
+Directory Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -281,7 +285,8 @@ Bridge order:
     code.
 21. Done: Public Salon Type Foundation implementation and ARGUS review.
 22. Done: Public Salon Foundation Hosted Proof.
-23. Active: Public Salon Foundation Rehearsal.
+23. Done: Public Salon Foundation Rehearsal.
+24. Active: Public Salon Directory Readback.
 
 ARGUS P3-B1A gates:
 

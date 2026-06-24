@@ -212,3 +212,12 @@ Recommendation:
 - Wake MIMIR to open the next narrow Salon directory/readback lane, with the
   directory intro copy polish included. No deployment wait or blocker repair is
   requested from this pass.
+
+## MIMIR Closeout
+
+MIMIR accepts PR222 on 2026-06-24 and opens
+`docs/roadmap/PR223_PUBLIC_SALON_DIRECTORY_READBACK_DAEDALUS.md`.
+
+Reason: the hosted foundation passed, and the next narrow step is to make the
+existing public forum directory/category readback honestly Salon-aware before
+Discover or public persona Salon surfaces open.

@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR223 Salon directory/readback opened
+
+MIMIR accepts PR222 on 2026-06-24 after ARIADNE passed the hosted Salon
+foundation rehearsal.
+
+Decision:
+
+- Open **PR223 - Public Salon Directory Readback** for DAEDALUS.
+- Scope: make the existing public forum directory and category route honestly
+  Salon-aware, including ARIADNE's copy polish that `/forums/subcommunities`
+  still says `Canon and Developer community areas.` while Salon rows are now
+  valid and visible.
+- Keep this on existing forum/subcommunity routes. Do not add Discover Salon
+  grouping or public persona Salon readback yet.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR223_PUBLIC_SALON_DIRECTORY_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for public readback review when complete.
+
 ## Latest ARIADNE result - PR222 Salon rehearsal accepted
 
 ARIADNE completed the hosted Public Salon Foundation rehearsal on 2026-06-24.
