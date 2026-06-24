@@ -31,6 +31,17 @@ DAEDALUS implementation validation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `test:community` | Not run | No API, serializer, persistence, route-permission, or visibility behavior changed. |
 
+ARGUS review validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts` | Pass | Re-ran 6 focused helper tests during hostile review. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Same existing raw `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged ARGUS verdict docs and watcher state had no whitespace errors. |
+| `test:community` | Not run | ARGUS confirmed PR223 did not change API, serializer, persistence, route-permission, or visibility behavior. |
+
 Scope notes:
 
 - The stale `/forums/subcommunities` intro copy now includes Salons.
@@ -42,6 +53,8 @@ Scope notes:
   subcommunity-to-persona links, creation policy change, realtime room,
   provider/model call, public event feed, billing, queue, auth/session change,
   moderation-role expansion, or broad UI reskin was added.
+- ARGUS recommends one focused ARIADNE hosted rehearsal because this lane fixes
+  visible directory/category copy ARIADNE flagged in PR222.
 
 ## PR222 Public Salon Foundation Rehearsal
 

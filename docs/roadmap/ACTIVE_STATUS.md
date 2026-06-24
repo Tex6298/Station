@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR223 Salon directory readback accepted
+
+ARGUS reviewed PR223 on 2026-06-24 and accepts the public Salon directory
+readback patch.
+
+Result:
+
+- Confirmed `/forums/subcommunities` now names Salons in the intro copy without
+  implying live rooms, provider/model calls, persona-to-persona behavior, or a
+  public event feed.
+- Confirmed the compact Canon/Developer/Salon summary is computed from the
+  already-loaded directory rows and does not change public/community visibility
+  or expose private/unlisted rows.
+- Confirmed Salon-backed category empty states stay asynchronous and
+  thread-based.
+- Confirmed existing route names, API behavior, creation gates, serializer
+  boundaries, category/subcommunity links, search/sort controls, and
+  public-safe non-owner fields are unchanged.
+- Confirmed no Discover-specific Salon grouping, public persona Salon readback,
+  direct subcommunity-to-persona links, creation policy change, realtime room,
+  provider/model call, persona-to-persona behavior, public event feed, billing,
+  notification, Redis/Cloudflare, worker, queue, storage bucket, auth/session
+  policy, webhook, moderation-role expansion, or broad UI reskin was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- `test:community` was not rerun because PR223 did not change API,
+  serializer, persistence, route-permission, or visibility behavior.
+
+Recommendation:
+
+- Wake MIMIR to close PR223 and open one focused ARIADNE hosted rehearsal for
+  `/forums/subcommunities` plus the public Salon category route, because PR223
+  fixes visible copy ARIADNE flagged in PR222.
+
 ## Latest DAEDALUS result - PR223 Salon directory readback implemented
 
 DAEDALUS implemented PR223 on 2026-06-24.

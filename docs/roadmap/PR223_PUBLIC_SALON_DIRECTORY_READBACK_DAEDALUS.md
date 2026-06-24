@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented - awaiting ARGUS review
+Status: accepted by ARGUS
 
 ## Frame
 
@@ -151,6 +151,52 @@ Scope confirmation:
   provider/model call, persona-to-persona behavior, public event feed, billing,
   notification, Redis/Cloudflare, worker, queue, storage bucket, auth/session
   policy, webhook, moderation-role expansion, or broad UI reskin was added.
+
+## ARGUS Review Result
+
+Completed: 2026-06-24
+
+Verdict: accepted.
+
+Review notes:
+
+- The directory intro copy now names Salons honestly without implying a
+  dedicated room product, provider/model call, persona-to-persona behavior, or
+  public event feed.
+- The type summary is computed from the already-loaded, already-filtered
+  directory rows, so it does not alter public/community visibility or make
+  private/unlisted rows visible.
+- Salon-backed category empty states remain thread-based and asynchronous:
+  `No Salon threads yet.` for read-only viewers and
+  `No Salon threads yet. Start the first discussion.` for eligible posters.
+- Existing route names, API behavior, creation gates, serializer boundaries,
+  category/subcommunity links, search/sort controls, and public-safe non-owner
+  fields are unchanged.
+- PR223 stayed out of Discover-specific Salon grouping, public persona Salon
+  readback, direct subcommunity-to-persona links, creation policy changes,
+  realtime rooms, provider/model calls, persona-to-persona behavior, public
+  event feeds, billing, notifications, Redis/Cloudflare, workers, queues,
+  storage buckets, auth/session policy, webhooks, moderation-role expansion,
+  and broad UI reskin.
+
+ARGUS recommendation:
+
+- ARIADNE should run one focused hosted rehearsal for `/forums/subcommunities`
+  and the public Salon category route, because PR223 changes visible copy that
+  ARIADNE explicitly flagged in PR222.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- `test:community` was not rerun because PR223 did not change API,
+  serializer, persistence, route-permission, or visibility behavior.
 
 ## Wakeup
 
