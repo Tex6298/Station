@@ -326,11 +326,14 @@ Current intent:
 - PR243 opens Discover Public Project Surfacing as the next narrow step:
   routeable Discover search results for already-public Projects only, using the
   accepted `/projects/public/:slug` destination and safe public summary fields.
+- PR243 result: DAEDALUS implemented Discover public Project search surfacing
+  and ARGUS accepted the local/API/web boundary. PR244 opens hosted ARIADNE
+  rehearsal before the Discover Project surfacing loop is closed.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR242 are accepted. PR243 Discover Public
-Project Surfacing is open for DAEDALUS.
+Status, 2026-06-24: PR202 through PR242 are accepted. PR243 is accepted by
+ARGUS. PR244 Discover Public Project Hosted Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -400,7 +403,8 @@ Bridge order:
 41. Failed: Public Project Profile Hosted Rehearsal, web auth exception defect.
 42. Done: Public Project Web Auth Exception.
 43. Done: Public Project Profile Focused Hosted Rerun.
-44. Active: Discover Public Project Surfacing.
+44. Done: Discover Public Project Surfacing local/API/web review.
+45. Active: Discover Public Project Hosted Rehearsal.
 
 ARGUS P3-B1A gates:
 

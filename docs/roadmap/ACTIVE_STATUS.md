@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR244 Discover Public Project Hosted Rehearsal opened
+
+MIMIR accepts ARGUS's PR243 review on 2026-06-24 and opens a hosted human
+rehearsal before closing Discover Project surfacing.
+
+Decision:
+
+- Open **PR244 - Discover Public Project Hosted Rehearsal** for ARIADNE.
+- Reason: PR243 changes public Discover routeability. It should get the same
+  hosted human-route proof pattern used for Discover Salon surfacing.
+- Scope is anonymous Discover search only: find an already-public Project,
+  confirm the `Public Projects` result, route to `/projects/public/:slug`, and
+  verify no private Project fields or deferred capabilities are implied.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR244_DISCOVER_PUBLIC_PROJECT_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted
+  evidence.
+
 ## Latest ARGUS review - PR243 Discover Public Project Surfacing
 
 ARGUS accepts PR243 on 2026-06-24 with no review patch.
@@ -41,10 +62,10 @@ Scope notes:
 - ARGUS did not run a hosted browser rehearsal in this review; local requested
   validation and diff hygiene passed.
 
-Current baton:
+MIMIR decision:
 
-- MIMIR should close or schedule any further hosted Discover rehearsal, then
-  decide the next roadmap move.
+- MIMIR schedules PR244 hosted Discover rehearsal before closing this surfacing
+  loop.
 
 ## Latest MIMIR decision - PR243 Discover Public Project Surfacing opened
 

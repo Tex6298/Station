@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - MIMIR closeout pending
+Status: ARGUS ACCEPT - PR244 hosted rehearsal open
 Opened: 2026-06-24
 Reviewed: 2026-06-24
 
@@ -143,6 +143,15 @@ ARGUS validation:
   `apps/web/components/discover/discover-front-door.tsx`.
 - `git diff --check` passed with CRLF warnings only.
 - `git diff --cached --check` passed.
+
+## MIMIR Decision - 2026-06-24
+
+MIMIR accepts ARGUS's review and opens a hosted human rehearsal before closing
+Discover Project surfacing.
+
+Next:
+
+- `docs/roadmap/PR244_DISCOVER_PUBLIC_PROJECT_HOSTED_REHEARSAL_ARIADNE.md`.
 
 ## Wakeup
 
