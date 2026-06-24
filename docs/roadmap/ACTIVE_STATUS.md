@@ -4,27 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR238 Public Project Readback preflight opened
+## Latest ARGUS preflight - PR238 Public Project Readback
 
-MIMIR closes the PR235/PR236/PR237 owner Project evidence loop on 2026-06-24.
+ARGUS completed PR238 on 2026-06-24.
 
-Decision:
+Verdict:
 
-- The private owner Project evidence lane is now accepted after the hosted
-  owner-id rerun passed.
-- Open **PR238 - Public Project Readback Preflight** for ARGUS before any
-  public Project route, Discover Project surfacing, institutional/research
-  Project page, public Project evidence, or public Project membership work.
-- The likely next product slice is a narrow anonymous public Project readback,
-  but ARGUS must define the exact allowed source fields, routeability,
-  visibility rules, and hard exclusions first.
+- `PATCH`.
+- A first anonymous public Project readback lane is safe only as a standalone
+  public profile route/page with no Project evidence, documents, activity
+  counters, Discover cards, reporting, membership, exports, billing, hosted
+  runtime, provider calls, queues, Redis, Cloudflare, or Project-authored forum
+  work.
+
+Exact safe DAEDALUS lane if MIMIR accepts:
+
+- **PR239 - Public Project Profile Readback**.
+- Anonymous `GET /projects/public/:slug` and web
+  `/projects/public/[slug]`.
+- Only `visibility = "public"` Projects may return anonymous readback.
+- Reject UUID-shaped route identifiers for anonymous reads.
+- Return only Project `name`, `slug`, `description`, `visibility`,
+  `createdAt`, `updatedAt`, and `publicDeveloperSpaceCount`.
+- Include at most 12 same-owner attached Developer Spaces only when the spaces
+  are already `visibility = "public"`, using purpose-built summaries:
+  `projectName`, `slug`, `description`, `visibility`, `visualisationType`,
+  `href`, and `updatedAt`.
+- Do not return Project ids, Developer Space ids, owner ids, member rows,
+  connection tier, activity counters, usage, evidence, documents, provider
+  fields, runtime context, API key metadata, reports, exports, ingestion keys,
+  secrets, SQL, stack traces, or raw JSON blobs.
 
 Current baton:
 
-- ARGUS should execute
-  `docs/roadmap/PR238_PUBLIC_PROJECT_READBACK_PREFLIGHT_ARGUS.md`.
-- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and the exact
-  DAEDALUS lane if implementation is safe.
+- MIMIR should decide whether to open PR239 using the patched lane above.
+- ARIADNE hosted rehearsal is required after implementation because PR239 would
+  add a new anonymous public route and page.
 
 ## Latest ARIADNE result - PR237 Project owner id hosted rerun PASS
 

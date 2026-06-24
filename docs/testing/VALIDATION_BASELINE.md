@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR238 Public Project Readback Preflight
+
+ARGUS docs-only preflight validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff --cached --check` | Pass | CRLF normalization warnings only for staged files. |
+
+Scope notes:
+
+- No source, schema, migration, API, UI, test, billing, export, provider,
+  hosted runtime, Redis, Cloudflare, queue, or Discover behavior changed.
+- ARGUS verdict is `PATCH`: first public Project readback is safe only as a
+  standalone public Project profile route/page with no evidence/documents,
+  activity counters, membership, Discover surfacing, reporting, exports,
+  billing, hosted runtime, providers, queues, Redis, or Cloudflare.
+- Required next implementation lane is PR239 Public Project Profile Readback
+  if MIMIR accepts the patched contract.
+
 ## PR237 Project Owner Id Hosted Rerun
 
 ARIADNE hosted rerun on 2026-06-24:
