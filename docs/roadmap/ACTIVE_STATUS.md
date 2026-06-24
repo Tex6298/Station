@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR220 Salon foundation implemented
+
+DAEDALUS implemented PR220 on 2026-06-24.
+
+Result:
+
+- Added `058_salon_subcommunity_type.sql` so
+  `community_subcommunities.subcommunity_type` accepts `salon`.
+- Updated `SubcommunityType` in DB/shared forum types and threaded the type
+  through forum API validation plus web subcommunity labels.
+- Preserved existing Salon alpha bounds: forum category-backed
+  subcommunities only, existing admin/`canon`/`institutional` creation gate,
+  `public` and `community` creation visibility, existing thread/comment
+  participation gates, and existing delegated moderation powers.
+- Tightened new forum `linked_persona_id` writes so linked personas must be
+  public, have a safe public slug/route, and pass
+  `ownerCanExposeExistingPublicPersonas`.
+- Did not add Discover Salon grouping, public persona Salon readback, realtime
+  rooms, provider/model calls, persona-to-persona behavior, public event feeds,
+  billing, notifications, Redis/Cloudflare, workers, queues, storage buckets,
+  auth/session policy, moderation-role expansion, or broad UI reskin.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should review PR220 for schema/type completeness, persona-link
+  routeability, visibility gates, non-owner serialization, delegated moderation
+  locality, and scope discipline.
+- Full implementation record:
+  `docs/roadmap/PR220_PUBLIC_SALON_TYPE_FOUNDATION_DAEDALUS.md`.
+
 ## Latest MIMIR decision - PR220 Salon foundation opened
 
 MIMIR accepts ARGUS' PR219 verdict on 2026-06-24.

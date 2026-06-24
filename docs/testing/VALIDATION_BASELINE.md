@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR220 Public Salon Type Foundation
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 22 tests passed. Coverage now includes Salon type creation gates, public/community visibility, persona-link routeability failures/success, Salon posting/commenting gates, inactive/hidden/removed/locked material, non-owner serializer safety, and Salon-backed delegated moderation locality. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts` | Pass | 4 tests passed. Coverage includes the `Salon` label and private/unlisted directory exclusion. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added migration `058_salon_subcommunity_type.sql` and updated DB/shared forum
+  type unions for `salon`.
+- Updated forum API subcommunity creation validation and web labels for Salon.
+- Tightened all new forum `linked_persona_id` writes to require public
+  visibility, safe public slug/route, and public persona owner eligibility.
+- No Discover-specific Salon grouping, public persona Salon readback, real-time
+  rooms, provider/model calls, persona-to-persona behavior, public event feeds,
+  billing, notifications, Redis/Cloudflare, workers, queues, storage buckets,
+  auth/session policy, moderation-role expansion, or broad UI behavior changed.
+
 ## PR219 Public Salons Alpha Preflight
 
 ARGUS docs-only hostile preflight on 2026-06-24:

@@ -24,6 +24,8 @@ const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 const OTHER_ID = "33333333-3333-4333-8333-333333333333";
 const ADMIN_ID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const VISITOR_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+const CANON_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const INSTITUTIONAL_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const CATEGORY_ID = "44444444-4444-4444-8444-444444444444";
 const PUBLIC_SPACE_ID = "55555555-5555-4555-8555-555555555551";
 const PRIVATE_SPACE_ID = "55555555-5555-4555-8555-555555555552";
@@ -62,6 +64,8 @@ class CommunitySupabase {
       profile(OTHER_ID, "other", "creator"),
       profile(ADMIN_ID, "admin", "canon", true),
       profile(VISITOR_ID, "visitor", "visitor"),
+      profile(CANON_ID, "canon", "canon"),
+      profile(INSTITUTIONAL_ID, "institutional", "institutional"),
     ],
     spaces: [
       space(PUBLIC_SPACE_ID, "public-space", true),
@@ -269,6 +273,8 @@ class CommunitySupabase {
     ["other-token", { id: OTHER_ID, email: "other@example.test" }],
     ["admin-token", { id: ADMIN_ID, email: "admin@example.test" }],
     ["visitor-token", { id: VISITOR_ID, email: "visitor@example.test" }],
+    ["canon-token", { id: CANON_ID, email: "canon@example.test" }],
+    ["institutional-token", { id: INSTITUTIONAL_ID, email: "institutional@example.test" }],
   ]);
 
   client = {
@@ -951,6 +957,18 @@ function close(server: Server) {
 
 test("forum thread creation validates linked entities and preserves visibility", async () => {
   const db = new CommunitySupabase();
+  const ineligiblePublicPersona = db.insertRow("personas", {
+    ...persona("77777777-7777-4777-8777-777777777774", MEMBER_ID, "Member Salon Persona", "public"),
+    public_slug: "member-salon-persona",
+  });
+  const unsafeSlugPersona = db.insertRow("personas", {
+    ...persona("77777777-7777-4777-8777-777777777775", OWNER_ID, "Unsafe Salon Persona", "public"),
+    public_slug: "550e8400-e29b-41d4-a716-446655440000",
+  });
+  const missingRoutePersona = db.insertRow("personas", {
+    ...persona("77777777-7777-4777-8777-777777777776", OWNER_ID, "Missing Route Persona", "public"),
+    public_slug: null,
+  });
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
 
@@ -1000,6 +1018,18 @@ test("forum thread creation validates linked entities and preserves visibility",
       true
     );
 
+    const publicPersonaLink = await requestJson(app, "POST", "/forums/threads", {
+      token: "member-token",
+      body: {
+        categoryId: CATEGORY_ID,
+        title: "Public persona thread",
+        body: "This public persona link is routeable.",
+        linkedPersonaId: PUBLIC_PERSONA_ID,
+      },
+    });
+    assert.equal(publicPersonaLink.status, 201);
+    assert.equal(publicPersonaLink.body.thread.linked_persona_id, PUBLIC_PERSONA_ID);
+
     const privateDocumentLink = await requestJson(app, "POST", "/forums/threads", {
       token: "owner-token",
       body: {
@@ -1032,6 +1062,39 @@ test("forum thread creation validates linked entities and preserves visibility",
       },
     });
     assert.equal(privatePersonaLink.status, 400);
+
+    const unsafeSlugPersonaLink = await requestJson(app, "POST", "/forums/threads", {
+      token: "owner-token",
+      body: {
+        categoryId: CATEGORY_ID,
+        title: "Unsafe persona slug leak",
+        body: "UUID-shaped public slugs should not be routeable.",
+        linkedPersonaId: unsafeSlugPersona.id,
+      },
+    });
+    assert.equal(unsafeSlugPersonaLink.status, 400);
+
+    const missingRoutePersonaLink = await requestJson(app, "POST", "/forums/threads", {
+      token: "owner-token",
+      body: {
+        categoryId: CATEGORY_ID,
+        title: "Missing route persona leak",
+        body: "Public personas without safe routes should not be linkable.",
+        linkedPersonaId: missingRoutePersona.id,
+      },
+    });
+    assert.equal(missingRoutePersonaLink.status, 400);
+
+    const ineligiblePersonaLink = await requestJson(app, "POST", "/forums/threads", {
+      token: "member-token",
+      body: {
+        categoryId: CATEGORY_ID,
+        title: "Ineligible persona leak",
+        body: "Private-tier public persona ownership is not enough.",
+        linkedPersonaId: ineligiblePublicPersona.id,
+      },
+    });
+    assert.equal(ineligiblePersonaLink.status, 400);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -1239,6 +1302,31 @@ test("subcommunity foundation gates creation and filters public/community/owner 
     });
     assert.equal(memberCreate.status, 403);
 
+    db.insertRow("community_subcommunity_moderators", {
+      subcommunity_id: privateSubcommunity.id,
+      user_id: MEMBER_ID,
+      created_by: OWNER_ID,
+    });
+    const delegatedModeratorSalonCreate = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "member-token",
+      body: {
+        slug: "moderator-salon",
+        title: "Moderator Salon",
+        type: "salon",
+      },
+    });
+    assert.equal(delegatedModeratorSalonCreate.status, 403);
+
+    const creatorSalonCreate = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "owner-token",
+      body: {
+        slug: "creator-salon",
+        title: "Creator Salon",
+        type: "salon",
+      },
+    });
+    assert.equal(creatorSalonCreate.status, 403);
+
     const privateDeveloperSpace = await requestJson(app, "POST", "/forums/subcommunities", {
       token: "admin-token",
       body: {
@@ -1249,6 +1337,83 @@ test("subcommunity foundation gates creation and filters public/community/owner 
       },
     });
     assert.equal(privateDeveloperSpace.status, 400);
+
+    const privateSalon = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "admin-token",
+      body: {
+        slug: "private-salon",
+        title: "Private Salon",
+        type: "salon",
+        visibility: "private",
+      },
+    });
+    assert.equal(privateSalon.status, 400);
+
+    const unlistedSalon = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "admin-token",
+      body: {
+        slug: "unlisted-salon",
+        title: "Unlisted Salon",
+        type: "salon",
+        visibility: "unlisted",
+      },
+    });
+    assert.equal(unlistedSalon.status, 400);
+
+    const adminSalon = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "admin-token",
+      body: {
+        slug: "public-salon",
+        title: "Public Salon",
+        description: "Public asynchronous Salon discussion.",
+        type: "salon",
+        visibility: "public",
+      },
+    });
+    assert.equal(adminSalon.status, 201);
+    assert.equal(adminSalon.body.subcommunity.type, "salon");
+    assert.equal(adminSalon.body.subcommunity.visibility, "public");
+    assert.equal(adminSalon.body.subcommunity.ownerUserId, ADMIN_ID);
+
+    const canonSalon = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "canon-token",
+      body: {
+        slug: "canon-salon",
+        title: "Canon Salon",
+        type: "salon",
+        visibility: "public",
+      },
+    });
+    assert.equal(canonSalon.status, 201);
+    assert.equal(canonSalon.body.subcommunity.ownerUserId, CANON_ID);
+
+    const institutionalSalon = await requestJson(app, "POST", "/forums/subcommunities", {
+      token: "institutional-token",
+      body: {
+        slug: "institutional-salon",
+        title: "Institutional Salon",
+        type: "salon",
+        visibility: "community",
+      },
+    });
+    assert.equal(institutionalSalon.status, 201);
+    assert.equal(institutionalSalon.body.subcommunity.type, "salon");
+    assert.equal(institutionalSalon.body.subcommunity.visibility, "community");
+
+    const pausedSalonCategory = db.insertRow("forum_categories", {
+      slug: "paused-salon",
+      title: "Paused Salon",
+      description: "Inactive Salon category.",
+    });
+    db.insertRow("community_subcommunities", {
+      category_id: pausedSalonCategory.id,
+      owner_user_id: CANON_ID,
+      slug: "paused-salon",
+      title: "Paused Salon",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "paused",
+    });
 
     const created = await requestJson(app, "POST", "/forums/subcommunities", {
       token: "admin-token",
@@ -1270,13 +1435,20 @@ test("subcommunity foundation gates creation and filters public/community/owner 
 
     const anonymousList = await requestJson(app, "GET", "/forums/subcommunities");
     assert.equal(anonymousList.status, 200);
+    const anonymousPublicSalon = anonymousList.body.subcommunities.find((row: Row) => row.slug === "public-salon");
+    assert.equal(anonymousPublicSalon.type, "salon");
+    assert.equal(anonymousPublicSalon.ownerUserId, undefined);
     assert.equal(anonymousList.body.subcommunities.some((row: Row) => row.slug === "developer-lab"), false);
+    assert.equal(anonymousList.body.subcommunities.some((row: Row) => row.slug === "institutional-salon"), false);
+    assert.equal(anonymousList.body.subcommunities.some((row: Row) => row.slug === "paused-salon"), false);
     assert.equal(anonymousList.body.subcommunities.some((row: Row) => row.slug === "private-canon"), false);
 
     const memberList = await requestJson(app, "GET", "/forums/subcommunities", {
       token: "member-token",
     });
     assert.equal(memberList.status, 200);
+    assert.equal(memberList.body.subcommunities.some((row: Row) => row.slug === "public-salon"), true);
+    assert.equal(memberList.body.subcommunities.some((row: Row) => row.slug === "institutional-salon"), true);
     const memberDeveloper = memberList.body.subcommunities.find((row: Row) => row.slug === "developer-lab");
     assert.equal(memberDeveloper.type, "developer");
     assert.equal(memberDeveloper.ownerUserId, undefined);
@@ -1293,6 +1465,23 @@ test("subcommunity foundation gates creation and filters public/community/owner 
     assert.equal(memberRead.body.subcommunity.ownerUserId, undefined);
     assert.equal(memberRead.body.subcommunity.linkedDeveloperSpaceId, undefined);
 
+    const anonymousSalonRead = await requestJson(app, "GET", "/forums/subcommunities/public-salon");
+    assert.equal(anonymousSalonRead.status, 200);
+    assert.equal(anonymousSalonRead.body.subcommunity.type, "salon");
+    assert.equal(anonymousSalonRead.body.subcommunity.ownerUserId, undefined);
+    assert.equal(anonymousSalonRead.body.subcommunity.linkedSpaceId, undefined);
+    assert.equal(anonymousSalonRead.body.subcommunity.linkedDeveloperSpaceId, undefined);
+
+    const anonymousCommunitySalonRead = await requestJson(app, "GET", "/forums/subcommunities/institutional-salon");
+    assert.equal(anonymousCommunitySalonRead.status, 404);
+
+    const memberCommunitySalonRead = await requestJson(app, "GET", "/forums/subcommunities/institutional-salon", {
+      token: "member-token",
+    });
+    assert.equal(memberCommunitySalonRead.status, 200);
+    assert.equal(memberCommunitySalonRead.body.subcommunity.type, "salon");
+    assert.equal(memberCommunitySalonRead.body.subcommunity.ownerUserId, undefined);
+
     const ownerPrivateRead = await requestJson(app, "GET", "/forums/subcommunities/private-canon", {
       token: "owner-token",
     });
@@ -1307,15 +1496,34 @@ test("subcommunity foundation gates creation and filters public/community/owner 
 
     const anonymousCategories = await requestJson(app, "GET", "/forums/categories");
     assert.equal(anonymousCategories.status, 200);
+    assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "public-salon"), true);
     assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "developer-lab"), false);
+    assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "institutional-salon"), false);
+    assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "paused-salon"), false);
     assert.equal(anonymousCategories.body.categories.some((category: Row) => category.slug === "private-canon"), false);
 
     const memberCategories = await requestJson(app, "GET", "/forums/categories", {
       token: "member-token",
     });
     assert.equal(memberCategories.status, 200);
+    assert.equal(memberCategories.body.categories.some((category: Row) => category.slug === "public-salon"), true);
     assert.equal(memberCategories.body.categories.some((category: Row) => category.slug === "developer-lab"), true);
+    assert.equal(memberCategories.body.categories.some((category: Row) => category.slug === "institutional-salon"), true);
     assert.equal(memberCategories.body.categories.some((category: Row) => category.slug === "private-canon"), false);
+
+    const publicSalonCategory = await requestJson(app, "GET", "/forums/categories/public-salon");
+    assert.equal(publicSalonCategory.status, 200);
+    assert.equal(publicSalonCategory.body.category.subcommunity.type, "salon");
+    assert.equal(publicSalonCategory.body.category.subcommunity.ownerUserId, undefined);
+
+    const anonymousCommunitySalonCategory = await requestJson(app, "GET", "/forums/categories/institutional-salon");
+    assert.equal(anonymousCommunitySalonCategory.status, 404);
+
+    const memberCommunitySalonCategory = await requestJson(app, "GET", "/forums/categories/institutional-salon", {
+      token: "member-token",
+    });
+    assert.equal(memberCommunitySalonCategory.status, 200);
+    assert.equal(memberCommunitySalonCategory.body.category.subcommunity.type, "salon");
 
     const category = await requestJson(app, "GET", "/forums/categories/developer-lab", {
       token: "member-token",
@@ -1335,6 +1543,89 @@ test("subcommunity foundation gates creation and filters public/community/owner 
       },
     });
     assert.equal(memberThread.status, 201);
+
+    const visitorSalonThread = await requestJson(app, "POST", "/forums/threads", {
+      token: "visitor-token",
+      body: {
+        categoryId: adminSalon.body.subcommunity.categoryId,
+        title: "Visitor Salon thread",
+        body: "Visitors should not post in Salons.",
+      },
+    });
+    assert.equal(visitorSalonThread.status, 403);
+
+    const salonThread = await requestJson(app, "POST", "/forums/threads", {
+      token: "member-token",
+      body: {
+        categoryId: adminSalon.body.subcommunity.categoryId,
+        title: "Salon thread",
+        body: "Public Salon thread.",
+        linkedPersonaId: PUBLIC_PERSONA_ID,
+      },
+    });
+    assert.equal(salonThread.status, 201);
+    assert.equal(salonThread.body.thread.linked_persona_id, PUBLIC_PERSONA_ID);
+
+    const hiddenSalonThread = db.insertRow("threads", thread("77777777-7777-4777-8777-777777777778", "Hidden Salon Thread", "public", {
+      category_id: adminSalon.body.subcommunity.categoryId,
+      is_hidden: true,
+    }));
+    const removedSalonThread = db.insertRow("threads", thread("77777777-7777-4777-8777-777777777779", "Removed Salon Thread", "public", {
+      category_id: adminSalon.body.subcommunity.categoryId,
+      status: "removed",
+    }));
+    const lockedSalonThread = db.insertRow("threads", thread("77777777-7777-4777-8777-777777777780", "Locked Salon Thread", "public", {
+      category_id: adminSalon.body.subcommunity.categoryId,
+      status: "locked",
+    }));
+
+    const publicSalonWithThreads = await requestJson(app, "GET", "/forums/categories/public-salon");
+    assert.equal(publicSalonWithThreads.status, 200);
+    assert.equal(
+      publicSalonWithThreads.body.threads.some((row: Row) => row.id === salonThread.body.thread.id),
+      true
+    );
+    assert.equal(publicSalonWithThreads.body.threads.some((row: Row) => row.id === hiddenSalonThread.id), false);
+    assert.equal(publicSalonWithThreads.body.threads.some((row: Row) => row.id === removedSalonThread.id), false);
+
+    const anonymousSalonComment = await requestJson(app, "POST", "/comments", {
+      body: {
+        parentType: "thread",
+        parentId: salonThread.body.thread.id,
+        body: "Anonymous Salon comment.",
+      },
+    });
+    assert.equal(anonymousSalonComment.status, 401);
+
+    const visitorSalonComment = await requestJson(app, "POST", "/comments", {
+      token: "visitor-token",
+      body: {
+        parentType: "thread",
+        parentId: salonThread.body.thread.id,
+        body: "Visitor Salon comment.",
+      },
+    });
+    assert.equal(visitorSalonComment.status, 403);
+
+    const memberSalonComment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: salonThread.body.thread.id,
+        body: "Member Salon comment.",
+      },
+    });
+    assert.equal(memberSalonComment.status, 201);
+
+    const lockedSalonComment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: lockedSalonThread.id,
+        body: "Locked Salon comment.",
+      },
+    });
+    assert.equal(lockedSalonComment.status, 400);
 
     const privateThread = await requestJson(app, "POST", "/forums/threads", {
       token: "member-token",
@@ -1531,7 +1822,7 @@ test("subcommunity owner and moderator actions are bounded to safety actions and
     owner_user_id: OWNER_ID,
     slug: "action-lab",
     title: "Action Lab",
-    subcommunity_type: "canon",
+    subcommunity_type: "salon",
     visibility: "community",
     status: "active",
   });
@@ -1546,7 +1837,7 @@ test("subcommunity owner and moderator actions are bounded to safety actions and
     owner_user_id: OTHER_ID,
     slug: "other-action-lab",
     title: "Other Action Lab",
-    subcommunity_type: "canon",
+    subcommunity_type: "salon",
     visibility: "community",
     status: "active",
   });
@@ -1835,7 +2126,7 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
     owner_user_id: OWNER_ID,
     slug: "queue-lab",
     title: "Queue Lab",
-    subcommunity_type: "canon",
+    subcommunity_type: "salon",
     visibility: "community",
     status: "active",
   });
@@ -1850,7 +2141,7 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
     owner_user_id: OTHER_ID,
     slug: "other-queue-lab",
     title: "Other Queue Lab",
-    subcommunity_type: "canon",
+    subcommunity_type: "salon",
     visibility: "community",
     status: "active",
   });

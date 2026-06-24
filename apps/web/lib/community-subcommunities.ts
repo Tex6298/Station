@@ -18,6 +18,7 @@ export function canCreateSubcommunity(user: AuthUser | null | undefined) {
 }
 
 export function subcommunityTypeLabel(type: SubcommunityType) {
+  if (type === "salon") return "Salon";
   if (type === "canon") return "Canon";
   if (type === "developer") return "Developer";
   return "General";

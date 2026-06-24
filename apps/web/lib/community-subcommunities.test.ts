@@ -22,8 +22,10 @@ test("subcommunity helpers keep API paths bounded to PR91 routes", () => {
 test("subcommunity helpers label serializer fields without owner internals", () => {
   assert.equal(subcommunityTypeLabel("canon"), "Canon");
   assert.equal(subcommunityTypeLabel("developer"), "Developer");
+  assert.equal(subcommunityTypeLabel("salon"), "Salon");
   assert.equal(subcommunityVisibilityLabel("community"), "Community");
   assert.equal(subcommunityBadgeLabel({ type: "developer", visibility: "public", status: "active" }), "Developer / Public / active");
+  assert.equal(subcommunityBadgeLabel({ type: "salon", visibility: "community", status: "active" }), "Salon / Community / active");
 });
 
 test("subcommunity directory helper keeps owner-only rows out of public readback", () => {

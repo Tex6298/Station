@@ -218,10 +218,13 @@ Current intent:
   PR220 opens a narrow Public Salon Type Foundation lane for DAEDALUS:
   migration/types/API/web labels, existing forum gates preserved, persona-link
   routeability tightened, and Discover/public persona Salon readback deferred.
+- PR220 result: DAEDALUS implemented the Salon type foundation and tightened
+  forum persona-link routeability. ARGUS review is next before any Discover
+  grouping or public persona Salon readback.
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR219 are accepted. PR220 Public Salon Type
-Foundation is open for DAEDALUS implementation before ARGUS review.
+Foundation is implemented and awaiting ARGUS review.
 
 Current MIMIR position:
 
@@ -268,7 +271,7 @@ Bridge order:
 19. Done: Public Salons feasibility/boundary gate.
 20. Done: ARGUS Salon Alpha Preflight before any Salon schema or product
     code.
-21. Active: Public Salon Type Foundation implementation.
+21. Active: ARGUS review of Public Salon Type Foundation implementation.
 
 ARGUS P3-B1A gates:
 

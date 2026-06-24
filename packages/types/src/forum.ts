@@ -41,7 +41,7 @@ export interface ForumCategory {
   sortOrder: number;
 }
 
-export type SubcommunityType = 'general' | 'canon' | 'developer';
+export type SubcommunityType = 'general' | 'canon' | 'developer' | 'salon';
 export type SubcommunityVisibility = 'public' | 'community' | 'unlisted' | 'private';
 export type SubcommunityStatus = 'active' | 'paused' | 'archived';
 export type SubcommunityModeratorRole = 'moderator';

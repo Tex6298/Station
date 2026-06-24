@@ -34,6 +34,8 @@ import {
   revokeSubcommunityModerator,
   serializeSubcommunity,
 } from "../services/community-subcommunities.service";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
+import { isSafePublicPersonaSlug, publicPersonaRouteHref } from "../lib/persona-serialization";
 
 const createThreadSchema = z.object({
   categoryId: z.string().uuid(),
@@ -47,7 +49,7 @@ const createSubcommunitySchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).min(3).max(80),
   title: z.string().min(1).max(120),
   description: z.string().max(500).optional().nullable(),
-  type: z.enum(["canon", "developer"]),
+  type: z.enum(["canon", "developer", "salon"]),
   visibility: z.enum(["public", "community"]).default("public"),
   linkedSpaceId: z.string().uuid().optional().nullable(),
   linkedDeveloperSpaceId: z.string().uuid().optional().nullable(),
@@ -155,13 +157,20 @@ async function validateThreadLinks(
   if (input.linkedPersonaId) {
     const { data: persona } = await sb
       .from("personas")
-      .select("id, visibility")
+      .select("id, visibility, public_slug, owner_user_id")
       .eq("id", input.linkedPersonaId)
       .single();
 
     if (!persona) return { ok: false, status: 404, error: "Linked persona not found" };
     if (persona.visibility !== "public") {
       return { ok: false, status: 400, error: "Linked persona must be public." };
+    }
+    if (!isSafePublicPersonaSlug(persona.public_slug) || !publicPersonaRouteHref(persona.public_slug)) {
+      return { ok: false, status: 400, error: "Linked persona must have a safe public route." };
+    }
+    const ownerEligible = await ownerCanExposeExistingPublicPersonas(sb, persona.owner_user_id);
+    if (!ownerEligible) {
+      return { ok: false, status: 400, error: "Linked persona owner is not eligible for public persona exposure." };
     }
   }
 

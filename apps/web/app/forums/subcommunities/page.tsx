@@ -143,6 +143,7 @@ export default function SubcommunitiesPage() {
                 <select className="input" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as SubcommunityType })}>
                   <option value="canon">Canon</option>
                   <option value="developer">Developer</option>
+                  <option value="salon">Salon</option>
                 </select>
               </label>
               <label style={fieldLabel}>

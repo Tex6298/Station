@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: active
+Status: implemented - awaiting ARGUS review
 
 ## Frame
 
@@ -141,6 +141,71 @@ git diff --cached --check
 
 Run `test:personas` only if you change public persona helpers/readback. Run
 Discover/search tests only if MIMIR explicitly expands PR220 into Discover.
+
+## DAEDALUS Implementation Result
+
+Completed: 2026-06-24
+
+Implemented:
+
+- Added migration `058_salon_subcommunity_type.sql` to extend the
+  `community_subcommunities.subcommunity_type` check to include `salon`.
+- Updated manual DB and shared forum type unions so `SubcommunityType` includes
+  `salon`.
+- Updated forum subcommunity creation validation so `salon` is a valid
+  subcommunity type while preserving the existing admin, `canon`, or
+  `institutional` creation gate and existing `public` / `community` visibility
+  limit.
+- Tightened all new forum `linked_persona_id` writes: linked personas must now
+  be public, have a safe public slug / route, and pass
+  `ownerCanExposeExistingPublicPersonas`.
+- Added web helper and subcommunity creation UI labels for `Salon`.
+- Kept Salons backed by existing forum categories, threads, comments, reports,
+  watches, votes, and delegated moderation. No new Salon table, route namespace,
+  event table, direct subcommunity-to-persona relation, Discover grouping, or
+  public persona readback was added.
+
+Focused test coverage added or extended:
+
+- `test:community` now covers admin, non-admin `canon`, and `institutional`
+  Salon creation.
+- Rejection coverage includes anonymous, `private`, `creator`, and delegated
+  moderator creation attempts, plus `private` and `unlisted` Salon visibility
+  attempts.
+- Public and community Salon read/list/category access now proves anonymous
+  users see only public Salon content while community-visible Salon content
+  requires a community-eligible signed-in user.
+- Salon thread/comment mutation keeps existing private-tier gates and locked,
+  hidden, removed, inactive, and unreadable material blocked.
+- Persona-link tests now reject private personas, ineligible owners, unsafe
+  UUID-shaped slugs, and missing public routes, while accepting an eligible
+  public persona with a safe public slug.
+- Existing delegated moderation action and queue tests now exercise
+  Salon-backed subcommunities for local scope, safety-action-only controls,
+  self-moderation blocks, revoked moderator blocks, and cross-subcommunity
+  blocks.
+- Web helper tests now prove the `Salon` label renders without changing
+  private/unlisted directory exclusion.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+ARGUS review focus:
+
+- Verify the migration/type/API/web label surface is complete.
+- Review the tightened forum persona-link routeability guard.
+- Review the expanded `test:community` cases for overclaiming, especially
+  community visibility, non-owner serialization, delegated moderation locality,
+  and missing public persona route failures.
+- Confirm PR220 stayed out of Discover-specific Salon grouping and public
+  persona Salon readback.
 
 ## Wakeup
 
