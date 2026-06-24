@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: complete; awaiting ARIADNE PR209 rerun
 
 ## Frame
 
@@ -109,6 +109,69 @@ npm exec --yes pnpm@10.32.1 -- run replay:seed:staging
 Then verify the three hosted public routes named above. If the hosted repair
 cannot be completed because config is missing, wake MIMIR with the exact missing
 variable or permission.
+
+## DAEDALUS Result
+
+Completed on 2026-06-24.
+
+What changed:
+
+- Hosted schema was missing `personas.public_chat_enabled`. A sanitized
+  PostgREST probe returned SQL code `42703`, then DAEDALUS applied the
+  idempotent column-add statement from migration `056` using the Supabase CLI
+  `db query --db-url` command class. A follow-up sanitized PostgREST probe
+  returned HTTP `200` with `columnPresent: true`.
+- `scripts/staging-replay-seed.mjs` now accepts optional
+  `publicPersona.publicChatEnabled`, validates it as boolean when supplied,
+  defaults it to `false`, writes `public_chat_enabled`, and includes
+  `publicPersonaChatEnabled` in sanitized summaries.
+- `docs/ops/STAGING_REPLAY_CORPUS.example.json` now names exactly one enabled
+  public-chat rehearsal fixture:
+  `station-replay-alpha-persona`.
+- The local ignored staging replay corpus was updated with the same opt-in
+  before running the hosted seed.
+- The public Space route now selects `public_chat_enabled` for persona cards, so
+  the Space card capability matches the public persona profile readback.
+
+Hosted proof:
+
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` passed and reported
+  `publicPersonaChatEnabled: true` in sanitized output.
+- `/personas/public/station-replay-alpha-persona` returned HTTP `200` with
+  slug `station-replay-alpha-persona`, `publicChat.enabled: true`, and no
+  owner/provider/setup fields in the public profile payload.
+- `/personas/public/station-replay-alpha-persona/context-preview` returned HTTP
+  `200` with one public source, explicit private bucket exclusions, and zero
+  private phrase leaks for the known private replay phrases.
+- `/spaces/station-replay-alpha` returned HTTP `200`, `access: public`, a
+  routeable `station-replay-alpha-persona` card, and
+  `cardPublicChatEnabled: true`.
+- `/personas/station-replay-alpha-persona` returned HTTP `200` and no
+  `Public persona not found.` copy.
+
+Validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Seed helper syntax checked. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates and reports `publicPersonaChatEnabled: true`. |
+| `node scripts/staging-replay-seed.mjs --dry-run` | Pass | Local replay corpus dry-run reports `station-replay-alpha-persona` with `publicPersonaChatEnabled: true`. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Hosted seed completed with sanitized output only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed after proving Space persona cards preserve public chat capability. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 11 tests passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors for the repair commit. |
+
+Notes:
+
+- The optional SQL comment statement from migration `056` was not applied from
+  this shell: the pooler returned prepared-statement code `42P05`, and the
+  direct database host remained blocked by local DNS/IPv6 resolution. The
+  functional column is present and the comment remains in the repo migration
+  file.
+- No anonymous chat, durable visitor transcript, private runtime context,
+  provider/BYOK expansion, or broad UI redesign was added.
 
 ## Wakeup
 

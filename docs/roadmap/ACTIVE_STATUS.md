@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR210 public chat rehearsal repair complete
+
+DAEDALUS repaired the PR209 rehearsal blocker on 2026-06-24.
+
+Result:
+
+- Hosted Supabase initially lacked `personas.public_chat_enabled`; a sanitized
+  PostgREST schema probe returned SQL code `42703` for that column.
+- DAEDALUS applied the idempotent column-add statement from migration `056`
+  through the Supabase CLI `db query --db-url` path without printing secrets.
+  A follow-up sanitized PostgREST probe returned HTTP `200` with
+  `columnPresent: true`.
+- `scripts/staging-replay-seed.mjs` now accepts optional
+  `publicPersona.publicChatEnabled`, defaults it to `false`, writes
+  `public_chat_enabled`, and reports the opt-in in sanitized validate/dry-run
+  and seeded summaries.
+- The tracked replay example enables exactly the
+  `station-replay-alpha-persona` public-chat rehearsal fixture.
+- The Space public persona card query now selects `public_chat_enabled`, so
+  `/spaces/station-replay-alpha` exposes the same safe
+  `publicChat.enabled` capability as the public persona profile route.
+- Hosted replay seed completed with `publicPersonaChatEnabled: true`.
+- Hosted route proof passed:
+  `/personas/public/station-replay-alpha-persona` returned HTTP `200` with
+  `publicChat.enabled: true`;
+  `/personas/public/station-replay-alpha-persona/context-preview` returned HTTP
+  `200` with one public source, explicit private bucket exclusions, and no
+  private phrase leaks;
+  `/spaces/station-replay-alpha` returned HTTP `200`, `access: public`, a
+  routeable persona card, and `cardPublicChatEnabled: true`;
+  `/personas/station-replay-alpha-persona` returned HTTP `200` and no longer
+  rendered `Public persona not found.`
+
+Validation:
+
+- `node --check scripts/staging-replay-seed.mjs` passed.
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` passed.
+- `node scripts/staging-replay-seed.mjs --dry-run` passed.
+- `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `git diff --check` and `git diff --cached --check` passed for the repair
+  commit.
+
+Current baton:
+
+- ARIADNE should rerun
+  `docs/roadmap/PR209_PUBLIC_PERSONA_CHAT_ALPHA_REHEARSAL_ARIADNE.md`.
+- Verify signed-out, signed-in enabled chat, report/error states,
+  desktop/mobile layout, public-source-only framing, and no private leaks.
+
 ## Latest MIMIR decision - PR210 public chat rehearsal repair opened
 
 MIMIR routes the PR209 rehearsal failure to DAEDALUS on 2026-06-24.

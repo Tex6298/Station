@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR210 Public Persona Chat Rehearsal Repair
+
+DAEDALUS repair validation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Sanitized PostgREST schema probe | Fail before repair | Hosted Supabase initially returned SQL code `42703` for `personas.public_chat_enabled`. No secrets, URLs, tokens, or raw connection strings were printed. |
+| Supabase CLI single-statement repair | Pass | Applied the idempotent `alter table public.personas add column if not exists public_chat_enabled boolean not null default false` statement from migration `056` via `db query --db-url`; output was sanitized command-class/status only. |
+| Sanitized PostgREST schema probe | Pass after repair | Returned HTTP `200` with `columnPresent: true`. |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Seed helper syntax checked after adding `publicPersona.publicChatEnabled`. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates and reports `publicPersonaSlug: station-replay-alpha-persona` plus `publicPersonaChatEnabled: true`. |
+| `node scripts/staging-replay-seed.mjs --dry-run` | Pass | Local replay corpus dry-run reports the same public-chat enabled fixture with sanitized labels only. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Hosted seed completed and reported `publicPersonaChatEnabled: true` in sanitized output. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed after proving public Space persona cards preserve `publicChat.enabled`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 11 tests passed. |
+| Hosted `/personas/public/station-replay-alpha-persona` | Pass | Returned HTTP `200`, slug `station-replay-alpha-persona`, `publicChat.enabled: true`, and no owner/provider/setup fields. |
+| Hosted `/personas/public/station-replay-alpha-persona/context-preview` | Pass | Returned HTTP `200`, one public source, explicit private bucket exclusions, and zero known private replay phrase leaks. |
+| Hosted `/spaces/station-replay-alpha` | Pass | Returned HTTP `200`, `access: public`, routeable `station-replay-alpha-persona` card, and `cardPublicChatEnabled: true`. |
+| Hosted `/personas/station-replay-alpha-persona` | Pass | Railway web returned HTTP `200` and no `Public persona not found.` copy. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors for the repair commit. |
+
+Scope notes:
+
+- The replay seed opt-in defaults to `false`; only the
+  `station-replay-alpha-persona` fixture is enabled by the replay corpus.
+- The repair also fixed the public Space persona-card readback by selecting
+  `public_chat_enabled` before serializing `publicChat`.
+- The optional SQL comment statement from migration `056` could not be applied
+  from this shell because the pooler returned prepared-statement code `42P05`
+  and the direct database host remained blocked by local DNS/IPv6 resolution.
+  The functional column is present and the comment remains in the repo
+  migration file.
+- No anonymous chat, durable visitor transcript, private runtime context,
+  provider/BYOK expansion, or broad UI redesign was added.
+
 ## Baseline commands
 
 Run from the repository root:
