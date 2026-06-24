@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR243 Discover Public Project Surfacing
 
-DAEDALUS implementation validation on 2026-06-24:
+ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -30,6 +30,8 @@ DAEDALUS implementation validation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 11 tests passed. Existing public Project profile API/page helper contract remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed after adding the shared public Project search result type and Discover bucket wiring. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass with CRLF warnings | Whitespace check passed; Git repeated existing CRLF conversion warnings for edited files. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
 
 Scope notes:
 
@@ -41,6 +43,8 @@ Scope notes:
 - No Project evidence, documents, activity, reports, membership, exports,
   billing, hosted runtime, providers, Redis, Cloudflare, migrations, or broad UI
   redesign changed.
+- ARGUS accepted the implementation with no review patch. No hosted browser
+  rehearsal was run in this review.
 
 ## PR242 Public Project Profile Focused Hosted Rerun
 

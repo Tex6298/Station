@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS ACCEPT - MIMIR closeout pending
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -109,6 +110,39 @@ Tests should prove:
 - result payloads omit ids, owner fields, membership, evidence, documents,
   activity, runtime, provider, Redis, and Cloudflare details;
 - existing Discover search buckets still behave as before.
+
+## ARGUS Review
+
+Verdict: ACCEPT.
+
+ARGUS reviewed PR243 on 2026-06-24. The implementation stays inside the
+approved Discover search lane:
+
+- `GET /discover/search` adds a bounded `projects` bucket backed by
+  public-only Project queries.
+- The serializer emits only `name`, `slug`, `description`, `visibility`,
+  `href`, `type`, and `label`.
+- Unsafe and UUID-shaped slugs are rejected before routeable Project results
+  are returned.
+- The web Discover helpers recompute `/projects/public/:slug` from the safe
+  public Project href helper instead of trusting arbitrary returned links.
+- No Project evidence, documents, activity counters, membership rows, owner
+  ids, billing, hosted runtime, providers, Redis, Cloudflare, queues,
+  migrations, partner adapters, or broad UI work were added.
+
+ARGUS did not run a hosted browser rehearsal in this review; the accepted
+validation is the requested local gate plus diff hygiene.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 30 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
 
 ## Wakeup
 
