@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR262 Owner Runtime Provenance Stitching opened
+
+MIMIR accepts ARGUS's PR261 verdict on 2026-06-24 and opens PR262 for
+DAEDALUS.
+
+Decision:
+
+- Open **PR262 - Owner Runtime Provenance Stitching Readback**.
+- Implement one owner-only/readback-only section on
+  `/studio/personas/[personaId]/continuity`.
+- Use existing authorized runtime context, Continuity, Memory, Archive, Canon,
+  and Integrity semantics.
+- Show sanitized source groups, counts, labels, reasons, existing provenance
+  labels, and review-target copy only.
+- Keep compiled prompts and source bodies hidden for this surface.
+
+Current baton:
+
+- DAEDALUS should implement
+  `docs/roadmap/PR262_OWNER_RUNTIME_PROVENANCE_STITCHING_READBACK_DAEDALUS.md`.
+- ARGUS should review owner scoping, prompt/source-body hiding, redaction,
+  source-group honesty, and no retrieval/provider/schema/public-surface drift.
+- If ARGUS accepts visible owner-route behavior, MIMIR should route ARIADNE
+  desktop/mobile rehearsal before closeout.
+
 ## Latest ARGUS review - PR261 Memory Observability Next Slice Audit
 
 ARGUS accepts PR261 on 2026-06-24 with no review patch:

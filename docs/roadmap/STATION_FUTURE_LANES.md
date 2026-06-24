@@ -587,6 +587,7 @@ Bridge order:
 61. ARGUS accepted: Developer Space Tier 1 closeout audit.
 62. ARGUS accepted: Memory Observability Next Slice Audit recommends PR262
     Owner Runtime Provenance Stitching Readback.
+63. Open: Owner Runtime Provenance Stitching Readback.
 
 ARGUS P3-B1A gates:
 
@@ -969,6 +970,9 @@ PR261 decision:
   visibility, providers, Redis/Cloudflare, queues/workers, schema/migrations,
   billing, auth/session, deployment, public memory, public observability, or
   broad Studio design.
+- PR262 opens for DAEDALUS as the owner-only/readback-only implementation lane.
+  ARGUS must review boundary safety before ARIADNE rehearses the visible
+  Continuity route.
 
 Original PR261 candidate set:
 

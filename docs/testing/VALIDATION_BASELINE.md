@@ -27,6 +27,38 @@ Memory/observability next-slice audit.
 
 ## PR261 Memory Observability Next Slice Audit
 
+ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
+Memory/observability implementation lane.
+
+## PR262 Owner Runtime Provenance Stitching Readback
+
+MIMIR opened PR262 for DAEDALUS on 2026-06-24.
+
+Required validation:
+
+| Command / check | Expected result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Continuity helper/route behavior stays bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass or justified substitution | Runtime context semantics remain unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Visible owner Studio route helpers remain stable. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript stays clean. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass or existing warnings only | Report pre-existing warnings separately. |
+| `git diff --check` | Pass | Whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check. |
+
+Scope notes:
+
+- PR262 may add owner-only/readback-only runtime provenance stitching on the
+  Continuity route.
+- It must not expose source bodies, compiled prompts, raw ids, private
+  excerpts, prompts, provider payloads, URLs, secrets, or hosted logs.
+- It must not change retrieval ranking, embeddings, memory truth, source
+  serialization, visibility, provider behavior, Redis/Cloudflare, schema,
+  workers, billing, auth/session, deployment, public memory, or public
+  observability.
+
+## PR261 Memory Observability Next Slice Audit - Review
+
 DAEDALUS completed PR261 and ARGUS reviewed it on 2026-06-24 as a docs-only
 audit:
 `docs/roadmap/MEMORY_OBSERVABILITY_NEXT_SLICE_AUDIT.md`.
