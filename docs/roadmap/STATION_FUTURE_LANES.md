@@ -92,8 +92,8 @@ missed the full recall bar. PR281 patched the bounded answer-grounding layer:
 private persona prompts with selected context now explicitly answer direct
 factual questions from selected context first, preserve safe requested shapes,
 and avoid omitting directly relevant selected names/phrases for persona-only
-style. ARGUS review is pending; if accepted, the next proof should be an
-ARIADNE hosted PR282 rerun after deploy.
+style. ARGUS accepted the patch; the next proof should be an ARIADNE hosted
+PR282 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

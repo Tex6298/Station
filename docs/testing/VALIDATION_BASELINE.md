@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR281 Bounded Answer Grounding Repair
 
-DAEDALUS completed PR281 on 2026-06-24:
+ARGUS accepted PR281 on 2026-06-24 with no review patch:
 `docs/roadmap/PR281_BOUNDED_ANSWER_GROUNDING_REPAIR_RESULT.md`.
 
-Result: `PASS WITH CAVEATS`, pending ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -54,10 +54,10 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
 | `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
-| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, raw ids, raw prompts, completions, or private source bodies. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, or private source bodies found in the PR281 ARGUS diff. |
 
-ARGUS should review the repair. If accepted, the next useful validation is an
-ARIADNE hosted PR282 rerun after deploy.
+ARGUS accepted the repair. The next useful validation is an ARIADNE hosted
+PR282 rerun after deploy.
 
 ## PR280 Hosted Runtime Answer Rerun Result
 
