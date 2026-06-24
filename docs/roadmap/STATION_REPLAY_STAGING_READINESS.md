@@ -18,9 +18,9 @@ then let staged replay reveal the next optimizations.
   lane is recommended before a staging readiness truth check.
 - PR267 truth check failed on 2026-06-24 because hosted `/developer` returned
   HTTP 404 even though `/developer-spaces` and the replay Developer Space
-  observatory route were live. MIMIR should open a narrow repair lane for a
-  public `/developer` redirect or alias before broader UX/product work.
-- PR268 opens that repair lane for DAEDALUS.
+  observatory route were live.
+- PR268 adds the public `/developer` redirect to `/developer-spaces`; ARGUS
+  should rerun hosted public route probes after deploy freshness permits.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
@@ -249,3 +249,15 @@ Next recommendation:
 - Add and verify a public `/developer` redirect or alias to `/developer-spaces`,
   then rerun the public route probes. Do not open broader UX or product work
   before this staged route mismatch is resolved.
+
+## PR268 route repair result
+
+DAEDALUS completed the narrow route-truth repair on 2026-06-24.
+
+- `/developer` now redirects to `/developer-spaces`.
+- `/developer-spaces` and `/developer-spaces/:slug` behavior is preserved.
+- Local probe on `127.0.0.1:3138` returned HTTP `307` with
+  `Location: /developer-spaces` for `/developer`, and HTTP `200` for
+  `/developer-spaces`.
+- ARGUS should rerun the PR267 hosted public route probes after deploy
+  freshness permits, especially hosted `/developer`.

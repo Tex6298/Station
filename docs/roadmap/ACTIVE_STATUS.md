@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR268 Developer Route Alias Repair
+
+DAEDALUS completed PR268 on 2026-06-24:
+`docs/roadmap/PR268_DEVELOPER_ROUTE_ALIAS_REPAIR_DAEDALUS.md`.
+
+Implementation:
+
+- Added public web route `apps/web/app/developer/page.tsx`.
+- `/developer` now redirects to `/developer-spaces`.
+- Added `/developer` to the auth route guard public-read test.
+- Preserved `/developer-spaces` and `/developer-spaces/:slug` behavior.
+- No Developer Space API, schema, auth, env, product, owner manage, seed/data,
+  staging config, navigation, or broad UI behavior changed.
+
+Local route probe:
+
+- Started local Next dev server on `http://127.0.0.1:3138`.
+- `curl.exe -I http://127.0.0.1:3138/developer` returned HTTP `307` with
+  `Location: /developer-spaces`.
+- `curl.exe -I http://127.0.0.1:3138/developer-spaces` returned HTTP `200`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 37 static pages, finalized page optimization,
+  and collected traces before the known local Windows standalone symlink
+  `EPERM` during traced-file copy.
+- `git diff --check`, `git diff --cached --check`, and staged
+  credential/raw-id scan should be run before the wakeup commit.
+
+Current baton:
+
+- ARGUS should review the route repair and rerun PR267 public route probes,
+  especially hosted `/developer` after deploy freshness permits.
+
 ## Latest MIMIR decision - PR268 Developer Route Alias Repair opened
 
 MIMIR accepts ARGUS's PR267 failure verdict on 2026-06-24 and opens the narrow

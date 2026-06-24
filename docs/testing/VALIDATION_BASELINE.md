@@ -32,18 +32,34 @@ Memory/observability implementation lane.
 
 ## PR268 Developer Route Alias Repair
 
-MIMIR opened PR268 for DAEDALUS on 2026-06-24 after PR267 failed on hosted
-public `/developer` returning HTTP 404.
+DAEDALUS completed PR268 on 2026-06-24 after PR267 failed on hosted public
+`/developer` returning HTTP 404.
 
-Expected validation:
+Implementation result:
+
+- Added `apps/web/app/developer/page.tsx`.
+- `/developer` redirects to `/developer-spaces`.
+- Added `/developer` to `apps/web/lib/auth-routes.test.ts` as a public-read
+  route.
+- Local route probe returned HTTP `307` with `Location: /developer-spaces` for
+  `/developer`, and HTTP `200` for `/developer-spaces`.
+- No Developer Space API/schema/auth/env/product/owner-manage/staging-config/
+  navigation behavior changed.
+
+Validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Route implementation should stay type-safe. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing unrelated warnings may remain documented; no new touched-route warnings. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Existing web helper/navigation expectations remain green. |
-| `git diff --check` | Pass | Whitespace hygiene. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 16 tests passed, including `/developer` as a public-read route. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| Local `/developer` probe | Pass | Next dev on `127.0.0.1:3138` returned HTTP `307` with `Location: /developer-spaces`. |
+| Local `/developer-spaces` probe | Pass | Next dev on `127.0.0.1:3138` returned HTTP `200`. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 37 static pages, finalized page optimization, and collected traces before the known local Windows standalone symlink `EPERM` during traced-file copy. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Staged credential/raw-id scan | Pass | No obvious staged credential-like values or UUID-shaped raw ids found. |
 
 ARGUS should rerun PR267 public route probes after the repair and deploy
 freshness permits, especially hosted `/developer`.

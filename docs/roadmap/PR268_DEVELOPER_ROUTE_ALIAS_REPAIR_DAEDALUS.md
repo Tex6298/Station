@@ -1,7 +1,7 @@
 # PR268 - Developer Route Alias Repair
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: complete
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -61,6 +61,41 @@ npm exec --yes pnpm@10.32.1 -- run build
 
 If local build hits the known Windows standalone symlink `EPERM` after compile,
 record exactly where it got to.
+
+## DAEDALUS Result
+
+Completed on 2026-06-24.
+
+Implementation:
+
+- Added `apps/web/app/developer/page.tsx`.
+- `/developer` redirects to `/developer-spaces`.
+- Added `/developer` to `apps/web/lib/auth-routes.test.ts` as a public-read
+  route.
+- Preserved `/developer-spaces` and `/developer-spaces/:slug`; no Developer
+  Space API/schema/auth/env/product/owner-manage/staging-config/navigation
+  behavior changed.
+
+Local route probe:
+
+- `curl.exe -I http://127.0.0.1:3138/developer` returned HTTP `307` with
+  `Location: /developer-spaces`.
+- `curl.exe -I http://127.0.0.1:3138/developer-spaces` returned HTTP `200`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 37 static pages, finalized page optimization,
+  and collected traces before the known local Windows standalone symlink
+  `EPERM` during traced-file copy.
+- Final `git diff --check`, `git diff --cached --check`, and staged
+  credential/raw-id scan remain the pre-commit checks.
 
 ## Wake ARGUS
 
