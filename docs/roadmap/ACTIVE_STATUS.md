@@ -4,32 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR252 Owner Project Export UI Panel opened
+## Latest DAEDALUS handoff - PR252 Owner Project Export UI Panel
 
-MIMIR closes PR251 on 2026-06-24 after ARGUS accepted the API-only owner Project
-manifest bundle readback with one narrow validation-hardening patch.
+DAEDALUS implemented PR252 on 2026-06-24. ARGUS review is pending.
 
-Decision:
+Implemented:
 
-- Open **PR252 - Owner Project Export UI Panel** for DAEDALUS.
-- Make the accepted owner-only Project export APIs usable from the private
-  owner Project detail page.
-- Use existing APIs only:
+- Added a compact private owner Project export panel to
+  `apps/web/app/projects/[idOrSlug]/page.tsx`, below the owner-only Project
+  evidence surface.
+- Added `ProjectExportPanel` to list existing Project export packages, create a
+  fresh Project manifest, inspect completed manifest Markdown readback, and
+  inspect completed bundle file lists.
+- The panel uses only accepted owner APIs:
   `GET /exports/projects/:projectIdOrSlug`,
   `POST /exports/projects/:projectIdOrSlug`,
   `GET /exports/:id`, and `GET /exports/:id/bundle`.
-- Add no schema, API routes, public Project surfaces, Discover changes,
-  membership/admin/billing permissions, background jobs, Redis, Cloudflare,
-  provider/runtime calls, or export payload changes.
-- Because this is visible browser behavior, DAEDALUS should wake ARGUS first;
-  after ARGUS accepts, ARIADNE should run hosted owner-eye rehearsal unless
-  ARGUS finds the UI change did not ship.
+- Added focused `project-export-ui` helpers/tests for package state, available
+  actions, summary copy, and bounded failed-state copy.
+- Failed, malformed, non-completed, and unavailable readback states show
+  bounded UI copy rather than raw stored errors.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+Scope notes:
+
+- No schema, API route, public Project route, Discover, membership/admin/billing
+  permission, export payload, bundle behavior, jobs, Redis, Cloudflare,
+  provider/runtime, Developer Space observatory, Studio, Settings, or global
+  navigation change was added.
+- This is visible browser behavior on the private owner Project page, so
+  ARIADNE hosted owner-eye rehearsal is expected after ARGUS review accepts it.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR252_OWNER_PROJECT_EXPORT_UI_PANEL_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with implementation details and validation.
+- ARGUS should review PR252 against the opened scope and decide the exact
+  ARIADNE rehearsal brief if accepted.
 
 ## Latest ARGUS review - PR251 Owner Project Manifest Bundle Readback
 

@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR252 Owner Project Export UI Panel
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 16 tests passed. Coverage now includes Project export UI helper state, readback action availability, summary copy, and bounded failed-state copy, plus existing Project API/public profile/evidence tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed; owner Project export API manifest and bundle behavior remains green after adding the UI panel. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed with the new Project export panel and helper types. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass with CRLF warnings | Whitespace check passed; Git repeated existing CRLF conversion warnings for edited files. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Scope notes:
+
+- Added the owner Project export UI panel only to the authenticated private
+  Project detail route.
+- The panel uses existing owner-only export APIs:
+  `GET /exports/projects/:projectIdOrSlug`,
+  `POST /exports/projects/:projectIdOrSlug`,
+  `GET /exports/:id`, and `GET /exports/:id/bundle`.
+- No schema, API route, public Project route, Discover surface, membership/
+  admin/billing permission, export payload, bundle behavior, background job,
+  Redis, Cloudflare, provider/runtime call, Studio, Settings, or global
+  navigation change was added.
+- ARIADNE hosted owner-eye rehearsal is expected after ARGUS accepts because
+  this lane shipped visible browser behavior.
+
 ## PR251 Owner Project Manifest Bundle Readback
 
 DAEDALUS implementation and ARGUS review validation on 2026-06-24:

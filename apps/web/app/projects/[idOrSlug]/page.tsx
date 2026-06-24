@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import type { ProjectEvidenceItem } from "@station/types";
 import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { ProjectExportPanel } from "@/components/projects/project-export-panel";
 import {
   projectEvidenceCountLabel,
   projectEvidenceDate,
@@ -364,6 +365,8 @@ export default function ProjectDetailPage() {
             );
           })}
         </section>
+
+        <ProjectExportPanel idOrSlug={idOrSlug} token={token} />
 
         <section style={{ display: "grid", gap: "0.75rem" }}>
           {developerSpaces.length === 0 ? (
