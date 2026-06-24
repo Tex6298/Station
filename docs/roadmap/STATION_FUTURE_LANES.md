@@ -272,11 +272,16 @@ Current intent:
   and ARGUS accepted after hardening public discussion event route safety to
   require safe non-UUID forum category slugs. PR232 opens hosted ARIADNE
   rehearsal before the next product lane.
+- PR232 result: ARIADNE passed hosted public persona event readback rehearsal.
+  PR233 opens a DAEDALUS institutional/research Project lane map before
+  implementation, because existing Project scaffolding is private-owner only
+  and PR215 deferred institutional/research work until ownership shape is
+  reconciled.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR231 are accepted. PR232 Public Persona
-Event Readback Hosted Rehearsal is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR232 are accepted. PR233
+Institutional/Research Project Lane Map is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -335,7 +340,8 @@ Bridge order:
 30. Done: Public Persona Salon Human Rehearsal.
 31. Done: Public Persona Events Preflight.
 32. Done: Public Persona Event Readback.
-33. Active: Public Persona Event Readback Hosted Rehearsal.
+33. Done: Public Persona Event Readback Hosted Rehearsal.
+34. Active: Institutional/Research Project Lane Map.
 
 ARGUS P3-B1A gates:
 

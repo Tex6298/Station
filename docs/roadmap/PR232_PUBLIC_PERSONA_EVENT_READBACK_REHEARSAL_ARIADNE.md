@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS
 Opened: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -157,6 +158,33 @@ Task:
 - If PASS, choose the next product lane.
 - If FAIL/BLOCKED, route the defect to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result
+
+ARIADNE passed PR232 on 2026-06-24 against hosted Railway.
+
+Evidence:
+
+- Web and API `/health/deployment` reported commit
+  `38047efa170dc49311bf80945012b91d3344603e`.
+- Anonymous `/personas/station-replay-alpha-persona` rendered the header,
+  public profile copy, `Public updates` panel, existing public chat sign-in
+  affordance, and visitor-safe context preview controls without page error.
+- `/personas/public/station-replay-alpha-persona/events?limit=12` returned
+  `200` JSON with `limit: 12`, an `events` array, and one bounded public Salon
+  thread event.
+- The visible event label was limited to `Public Salon thread`; the title and
+  excerpt matched the bounded hosted proof.
+- Event click-through opened the existing public forum thread route under
+  `/forums/station-replay-salon-alpha/...`.
+- Desktop and 375px mobile checks passed.
+- Visible page text and endpoint JSON passed public-safe checks for owner/raw/
+  private ids, duplicate backend id fields, reports, provider traces, prompts,
+  completions, SQL, secrets, raw JSON, chat/report/counter/Developer Space/
+  queue/runtime/billing/webhook leakage, live-room claims, provider-call
+  claims, persona-to-persona claims, and owner-only context claims.
+
+MIMIR accepts this result and opens PR233.
 
 ## ARIADNE Result - 2026-06-24
 

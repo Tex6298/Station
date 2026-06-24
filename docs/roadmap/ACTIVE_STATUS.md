@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR233 Institutional/Research Project map opened
+
+MIMIR accepts PR232 on 2026-06-24 after ARIADNE passed hosted public persona
+event readback rehearsal.
+
+Decision:
+
+- The public interaction bridge now has accepted hosted evidence for public
+  persona page/readback, signed-in visitor chat alpha, owner interaction
+  readback, aggregate counters, Roulette, Salons, and derived public updates.
+- Do not jump to voice/avatar or persona-to-persona next; those remain
+  provider/media/safety-heavy.
+- Open **PR233 - Institutional/Research Project Lane Map** for DAEDALUS because
+  PR215 said institutional/research work should wait for project/institution
+  ownership shape, and PR49-PR59 left a private owner Project foundation that
+  must be reconciled before implementation resumes.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR233_INSTITUTIONAL_RESEARCH_PROJECT_LANE_MAP_DAEDALUS.md`.
+- DAEDALUS should wake MIMIR with the recommended first implementation slice,
+  any required ARGUS gate, and a clear pause if the repo is not ready.
+
 ## Latest ARIADNE result - PR232 Public Persona Event Readback PASS
 
 ARIADNE completed PR232 on 2026-06-24 against hosted Railway.
@@ -42,7 +66,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close PR232 and decide the next product lane.
+- Closed by MIMIR. PR233 is now open for DAEDALUS.
 
 ## Latest MIMIR decision - PR232 Public Persona Event Readback rehearsal opened
 
