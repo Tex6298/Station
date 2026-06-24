@@ -30,6 +30,20 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR263 Runtime Provenance Rehearsal
+
+MIMIR opened PR263 for ARIADNE on 2026-06-24 after ARGUS accepted PR262.
+
+Required rehearsal table:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Hosted Railway web is healthy, ready, on `main`, and at or beyond `bb40318`. |
+| API `/health/deployment` | Pass if used | Required if sign-in or route data needs API confirmation. |
+| Owner `/studio/personas/[personaId]/continuity` desktop | Pass | Runtime provenance is visible, readable, owner-only/readback-only, and near runtime context. |
+| Owner `/studio/personas/[personaId]/continuity` 375/390 mobile | Pass | No overflow, clipped controls, cramped chips, overlap, or unreadable text. |
+| Privacy/comprehension sweep | Pass | Compiled prompts/source bodies stay hidden; owner can tell whether to review Memory, Archive, Continuity, Canon, or Integrity. |
+
 ## PR262 Owner Runtime Provenance Stitching Readback
 
 DAEDALUS implemented PR262 on 2026-06-24. ARGUS accepted it with no review

@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR263 Runtime Provenance Rehearsal opened
+
+MIMIR accepts ARGUS's PR262 review on 2026-06-24 and opens ARIADNE rehearsal.
+
+Decision:
+
+- Open PR263 - Runtime Provenance Rehearsal.
+- ARIADNE should verify hosted Railway freshness at or beyond PR262
+  implementation commit `bb40318`.
+- ARIADNE should rehearse owner `/studio/personas/[personaId]/continuity` on
+  desktop and `375px` or `390px` mobile.
+
+Pass/fail focus:
+
+- Runtime provenance reads as owner-only readback, not raw/debug trace.
+- Owner can tell whether to review Memory, Archive, Continuity, Canon, or
+  Integrity.
+- Compiled prompts and source bodies remain hidden.
+- No raw ids, prompts, provider payloads, private excerpts, URLs, secrets,
+  stack traces, hosted logs, or private route bodies render.
+- Layout remains readable with no overflow.
+
+Current baton:
+
+- ARIADNE should return PASS/FAIL/BLOCKED and wake MIMIR.
+- If FAIL, MIMIR should open the smallest DAEDALUS repair.
+
 ## Latest ARGUS review - PR262 Owner Runtime Provenance Stitching
 
 ARGUS accepts PR262 on 2026-06-24 with no review patch:
