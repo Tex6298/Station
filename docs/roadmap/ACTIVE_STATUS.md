@@ -4,14 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR275 Runtime Answer Quality Triage
+## Latest ARGUS review - PR275 Runtime Answer Quality Triage
 
-DAEDALUS completed PR275 on 2026-06-24:
+ARGUS accepted PR275 on 2026-06-24 with a narrow test-only review patch:
 `docs/roadmap/PR275_RUNTIME_ANSWER_QUALITY_TRIAGE_RESULT.md`.
 
 Result:
 
-- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Verdict: `PASS WITH CAVEATS`.
 - PR274 selected the intended replay persona, but the generic PR274 context and
   prompt only carried one accepted anchor concept and one matching phrase.
 - The full accepted anchor set was present in active Memory and retrievable
@@ -22,16 +22,20 @@ Result:
 - Patch: vector Memory retrieval now backfills remaining requested slots with
   owner-scoped, lifecycle-filtered lexical Memory matches when vector returns
   fewer injectable memories than requested.
+- ARGUS review patch: strengthened the new retrieval metadata fixture so the
+  lexical supplement explicitly rejects other-owner and archive-source
+  candidates as well as rejected lifecycle rows.
 - Validation passed: `test:retrieval-metadata`, `test:persona-context`,
-  `test:replay-readiness`, `test:conversation-archive`, `typecheck`, and
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
   `lint` with existing raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, or UUID-shaped ids.
 
 Current baton:
 
-- ARGUS should review the hybrid Memory backfill for owner/lifecycle safety,
-  scope, and test coverage.
-- If accepted, ARGUS should wake MIMIR to open a hosted PR276 rerun after deploy
-  to prove full two-anchor recall live.
+- MIMIR should open a hosted PR276 rerun after deploy to replay the same bounded
+  chat/context path and prove whether full two-anchor recall is live.
 
 ## Previous MIMIR decision - PR275 Runtime Answer Quality Triage opened
 

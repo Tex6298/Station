@@ -132,6 +132,8 @@ test("vector memory search backfills exact lexical anchors when vector misses th
   );
   assert.equal(retrieval.trace.selected.some((source) => source.id === "lexical-anchor"), true);
   assert.equal(retrieval.trace.selected.some((source) => source.id === "rejected-control"), false);
+  assert.equal(retrieval.trace.selected.some((source) => source.id === "other-owner-anchor"), false);
+  assert.equal(retrieval.trace.selected.some((source) => source.id === "archive-source-anchor"), false);
 });
 
 test("memory search uses keyword fallback without an embedding key", async () => {
@@ -427,11 +429,37 @@ class VectorMissesLexicalSupabase extends VectorSupabase {
         relevance_weight: 100,
         archive_source_type: null,
       },
+      {
+        id: "other-owner-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-2",
+        title: "Synthetic staging anchors",
+        content:
+          "Other owner synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum.",
+        summary: "Other owner accepted synthetic staging anchors.",
+        source_type: "manual",
+        relevance_weight: 200,
+        archive_source_type: null,
+      },
+      {
+        id: "archive-source-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Synthetic staging anchors",
+        content:
+          "Archive-source synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum.",
+        summary: "Archive-source accepted synthetic staging anchors.",
+        source_type: "import",
+        relevance_weight: 200,
+        archive_source_type: "import_job",
+      },
     ],
     memory_item_lifecycle: [
       lifecycleRow("vector-memory", "owner-1", "active"),
       lifecycleRow("lexical-anchor", "owner-1", "active"),
       lifecycleRow("rejected-control", "owner-1", "rejected"),
+      lifecycleRow("other-owner-anchor", "owner-2", "active"),
+      lifecycleRow("archive-source-anchor", "owner-1", "active"),
     ],
   };
 

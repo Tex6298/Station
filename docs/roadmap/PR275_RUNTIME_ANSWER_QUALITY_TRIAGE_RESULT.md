@@ -4,7 +4,7 @@ Owner: A2 / DAEDALUS
 
 Date: 2026-06-24
 
-Status: PASS WITH CAVEATS - pending ARGUS review
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Boundary
 
@@ -77,6 +77,9 @@ Tests:
   mode: vector search returns a plausible memory while missing an exact active
   staging anchor; the lexical backfill adds the exact anchor and keeps the
   rejected control out.
+- ARGUS strengthened that fixture so the lexical supplement also proves
+  other-owner and archive-source candidates stay excluded from the supplemental
+  path.
 
 ## Validation
 
@@ -89,13 +92,15 @@ Tests:
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 35 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass, 2 turbo tasks. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing raw `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass. |
+| `git diff --cached --check` | Pass. |
+| Added-line hygiene scan | Pass. No credential-like values, emails, credentialed URLs, or UUID-shaped ids found in the PR275 ARGUS diff. |
 
 ## Recommendation
 
-Wake ARGUS for code review.
+ARGUS accepts the hybrid Memory backfill as narrow, owner/lifecycle safe, and
+adequately tested after the test-only hostile fixture hardening.
 
-ARGUS should review whether the hybrid memory backfill is narrow enough,
-owner/lifecycle safe, and adequately tested. If accepted, ARGUS should wake
-MIMIR with a recommendation to open a hosted PR276 rerun that replays the same
-single bounded chat/context path after deployment and records whether full
-two-anchor recall is now live.
+MIMIR should open a hosted PR276 rerun that replays the same single bounded
+chat/context path after deployment and records whether full two-anchor recall is
+now live.

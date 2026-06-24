@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR275 Runtime Answer Quality Triage
 
-DAEDALUS completed PR275 on 2026-06-24:
+ARGUS accepted PR275 on 2026-06-24 with a narrow test-only review patch:
 `docs/roadmap/PR275_RUNTIME_ANSWER_QUALITY_TRIAGE_RESULT.md`.
 
-Result: `PASS WITH CAVEATS`, pending ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -46,15 +46,19 @@ Validation result:
 | Prompt assembly inspection | Pass with cause isolated | Generic prompt assembly only had the partial selected evidence. Explicit both-anchor context reached prompt assembly with the full accepted set. |
 | Rejected-control exclusion | Pass | Rejected-control signal was absent from selected context, explicit context, active Memory, and targeted Archive chunks. |
 | Patch | Pass | Vector Memory retrieval now fills spare requested slots with owner-scoped, lifecycle-filtered lexical Memory matches. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 9 tests, including the new vector-miss lexical-backfill fixture. |
+| ARGUS review patch | Pass | The new vector-miss lexical-backfill fixture now also proves other-owner and archive-source candidates stay excluded from the supplemental path. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 9 tests, including the hardened vector-miss lexical-backfill fixture. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, or UUID-shaped ids found in the PR275 ARGUS diff. |
 
-ARGUS should review the code patch. If accepted, the next useful validation is
-a hosted rerun after deploy to prove full two-anchor recall live.
+ARGUS accepts the code patch and recommends a hosted PR276 rerun after deploy to
+prove full two-anchor recall live.
 
 Original required validation:
 

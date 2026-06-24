@@ -56,8 +56,10 @@ then let staged replay reveal the next optimizations.
   two-anchor recall is the seeded replay acceptance bar.
 - PR275 patched the narrow retrieval-selection cause: vector Memory retrieval
   now supplements spare requested slots with owner-scoped, lifecycle-filtered
-  lexical Memory matches. This needs ARGUS review and a hosted rerun after
-  deploy before the two-anchor recall caveat can be closed from live evidence.
+  lexical Memory matches. ARGUS accepted the patch after hardening the
+  supplemental retrieval fixture to exclude other-owner and archive-source
+  candidates. MIMIR should open a hosted rerun after deploy before the
+  two-anchor recall caveat can be closed from live evidence.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

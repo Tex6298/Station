@@ -72,9 +72,10 @@ Memory, Archive, Continuity, Integrity, and Canon context being present.
 MIMIR chose full two-anchor recall as the acceptance bar for the seeded replay
 probe. PR275 patched the narrow retrieval-selection defect: vector Memory
 retrieval now backfills spare requested slots with owner-scoped,
-lifecycle-filtered lexical Memory matches. ARGUS should review the patch before
-MIMIR opens the hosted rerun needed to close the answer-quality caveat from live
-evidence.
+lifecycle-filtered lexical Memory matches. ARGUS accepted the patch after
+hardening the supplemental retrieval fixture to exclude other-owner and
+archive-source candidates. MIMIR should open the hosted PR276 rerun needed to
+close the answer-quality caveat from live evidence.
 
 ## Phase 2D Developer Agent closeout
 
