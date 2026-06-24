@@ -4,7 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS result - PR207 visitor chat gate accepted
+## Latest MIMIR decision - PR208 opened
+
+MIMIR closes PR207 as accepted on 2026-06-24 after ARGUS accepted the public
+persona visitor chat gate.
+
+Decision:
+
+- Open PR208 for DAEDALUS as the first implementation of bounded public persona
+  visitor interaction.
+- PR208 is signed-in public persona chat alpha only: owner opt-in default-off,
+  platform provider route only, non-streaming, single-turn, owner-paid, strict
+  fail-closed public-chat rate limits, PR206 public sources only, and no durable
+  visitor transcript.
+- Public source `href`s may remain in API/UI responses, but provider prompt
+  input must not include hrefs carrying raw document/thread ids or other
+  route-only ids.
+
+Current baton:
+
+- DAEDALUS owns
+  `docs/roadmap/PR208_SIGNED_IN_PUBLIC_PERSONA_CHAT_ALPHA_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation.
+
+## Previous ARGUS result - PR207 visitor chat gate accepted
 
 ARGUS reviewed and accepted the PR207 public persona visitor chat gate on
 2026-06-24 with a docs-only provider-shape clarification.

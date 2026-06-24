@@ -174,21 +174,25 @@ Current intent:
   linked public discussion sources in the anonymous preview. PR207 now opens a
   design gate for bounded public persona visitor chat before any provider-call
   implementation.
+- PR207 result: DAEDALUS produced and ARGUS accepted the signed-in public
+  persona chat gate. PR208 opens implementation with owner opt-in default-off,
+  platform provider only, fail-closed rate limits, PR206 public sources only,
+  and no durable visitor transcript.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR206 are accepted. PR207 is open for
-DAEDALUS to design the bounded public persona visitor chat implementation gate
-before any provider-call implementation opens.
+Status, 2026-06-24: PR202 through PR207 are accepted. PR208 is open for
+DAEDALUS to implement signed-in public persona chat alpha.
 
 Current MIMIR position:
 
 - The repo has public-safe patterns for Public Spaces, Developer Spaces,
   published documents, community read paths, and protected-alpha Studio.
-- The repo has a real public persona route and visitor-safe public source
-  catalog covering profile, public documents, and linked public discussions. It
-  does not yet have bounded visitor chat, owner disable controls, public persona
-  reporting/moderation, or owner analytics for public persona interaction.
+- The repo has a real public persona route, visitor-safe public source catalog,
+  and an accepted signed-in visitor-chat implementation gate. It does not yet
+  have the signed-in public chat route, owner enable/disable control, public
+  persona reporting resolver, or owner analytics for public persona
+  interaction.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
   enough to open Phase 3 safely.
 
@@ -201,8 +205,9 @@ Bridge order:
 4. Done: ARIADNE public persona page rehearsal.
 5. Done: profile-only visitor-safe context preview shell.
 6. Done: public document and linked public discussion context sources.
-7. Active: bounded visitor chat design gate.
-8. Bounded visitor chat alpha with rate/message limits and reporting.
+7. Done: bounded visitor chat design gate.
+8. Active: signed-in public persona chat alpha with rate/message limits and
+   reporting.
 9. Owner analytics, moderation, and report readback.
 10. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.

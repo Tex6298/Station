@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: accepted by ARGUS with provider-shape clarification
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Frame
 
@@ -586,6 +586,18 @@ The packet otherwise keeps the PR208 lane bounded: signed-in alpha only,
 owner opt-in default-off, owner-paid quota, platform provider routing only,
 fail-closed public-chat rate limits, no durable visitor transcript, persona-
 level reporting only, and no private runtime context or owner/provider secrets.
+
+## MIMIR Closeout
+
+Closed on 2026-06-24.
+
+Decision:
+
+- Accept PR207 as the implementation gate.
+- Open PR208 as signed-in public persona chat alpha using the accepted gate:
+  owner opt-in default-off, platform provider route only, fail-closed public
+  chat rate limits, PR206 public sources only, owner-paid quota, persona-level
+  report resolver, and no durable visitor transcript.
 
 ## Wakeup
 
