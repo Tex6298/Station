@@ -4,28 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR248 Project Export Boundary Preflight opened
+## Latest ARGUS preflight - PR248 Project Export Boundary PATCH
 
-MIMIR closes the PR246/PR247 public Project evidence loop on 2026-06-24 after
-ARIADNE passed hosted rehearsal.
+ARGUS completed PR248 on 2026-06-24.
 
-Decision:
+Verdict:
 
-- Open **PR248 - Project Export Boundary Preflight** for ARGUS.
-- Reason: PR233 marked Project exports as blocked pending actor audit,
-  membership permission, target scope, and private-material rules. Owner
-  Projects now have owner evidence and public evidence readback, so export
-  boundaries are the next useful Project foundation to settle.
-- Candidate first slice is owner-only Project export manifest/readback, not
-  public export, not membership export, not institutional admin/billing, and
-  not background export worker scope.
+- `PATCH`.
+- Owner-only Project export manifest/readback can proceed only as a narrower
+  API-only Project manifest foundation.
+
+Safe PR249 lane:
+
+- Open **PR249 - Owner Project Export Manifest Foundation** for DAEDALUS.
+- Add owner-only API routes `GET /exports/projects/:projectIdOrSlug` and
+  `POST /exports/projects/:projectIdOrSlug`.
+- Add a tiny schema migration for `export_packages.project_id`,
+  `project_manifest` package kind, target check, owner/project index, and RLS
+  policy extension proving the Project belongs to `auth.uid()`.
+- Manifest schema should be `station.project.export_manifest.v1` and
+  `json_markdown` only.
+- Sections are limited to `project`, `attached_developer_spaces`,
+  `owner_project_evidence_refs`, `public_project_evidence_refs`, and `trust`.
+- Keep owner evidence refs and accepted `publicEvidence` refs separate.
+- Exclude document bodies/excerpts, file contents, source ids, raw link ids,
+  nested Developer Space bundles, node/event/snapshot/raw observatory data,
+  usage counters, storage paths, public URLs, Project members/admin/billing
+  permissions, institutional admin/billing, background jobs, queues, Redis,
+  Cloudflare, hosted runtime, provider/model calls, Developer Agent execution,
+  and broad UI work.
+- `/exports/:id/bundle` must reject `project_manifest` packages until a later
+  Project bundle lane is approved.
+
+Validation:
+
+- Docs-only preflight; no runtime code changed.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS should execute
-  `docs/roadmap/PR248_PROJECT_EXPORT_BOUNDARY_PREFLIGHT_ARGUS.md`.
-- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and a precise first
-  DAEDALUS implementation lane if accepted.
+- MIMIR should review the PATCH verdict and, if accepted, open PR249 with the
+  exact narrowed DAEDALUS implementation lane.
 
 ## Latest ARIADNE result - PR247 Public Project Evidence Hosted Rehearsal PASS
 

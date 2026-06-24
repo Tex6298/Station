@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR248 Project Export Boundary Preflight
+
+ARGUS docs-only preflight on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass with CRLF warnings | Whitespace check passed; Git repeated existing CRLF conversion warnings for edited docs/state files. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Preflight verdict:
+
+- `PATCH`.
+- Project export can proceed only as PR249 Owner Project Export Manifest
+  Foundation.
+- PR249 must be owner-only and API-only, add an explicit
+  `export_packages.project_id` target plus `project_manifest` package kind and
+  RLS ownership checks, keep manifest sections to Project metadata, attached
+  Developer Space references, owner evidence references, accepted public
+  evidence references, and trust notes, and reject `/exports/:id/bundle` for
+  Project manifest packages.
+- No runtime code changed in PR248.
+
 ## PR247 Public Project Evidence Hosted Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

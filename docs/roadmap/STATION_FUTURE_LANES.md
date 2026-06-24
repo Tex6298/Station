@@ -353,11 +353,17 @@ Current intent:
 - PR248 opens ARGUS preflight for owner-only Project export boundaries before
   any Project export package, manifest, bundle, migration, membership
   permission, or background export work.
+- PR248 result: ARGUS returned `PATCH`. Project export can proceed only as
+  PR249 Owner Project Export Manifest Foundation: owner-only API routes,
+  explicit `export_packages.project_id`, `project_manifest` package kind, RLS
+  target ownership, manifest-only JSON/Markdown readback, no bundle support,
+  no document/file bodies, no nested Developer Space export data, no public
+  routes, and no membership/admin/billing/background worker scope.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR247 are accepted. PR248 Project Export
-Boundary Preflight is open for ARGUS.
+Status, 2026-06-24: PR202 through PR247 are accepted. PR248 returned an ARGUS
+PATCH verdict and awaits MIMIR review.
 
 Current MIMIR position:
 
@@ -432,7 +438,7 @@ Bridge order:
 46. Done: Public Project Evidence Preflight.
 47. Done: Public Project Evidence Minimal Readback local/API/web review.
 48. Done: Public Project Evidence Hosted Rehearsal.
-49. Active: Project Export Boundary Preflight.
+49. MIMIR review: Project Export Boundary Preflight PATCH.
 
 ARGUS P3-B1A gates:
 
