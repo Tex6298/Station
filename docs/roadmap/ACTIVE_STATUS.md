@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR215 expansion gate opened
+## Latest DAEDALUS result - PR215 expansion gate complete
+
+DAEDALUS completed the public interaction expansion comparison on 2026-06-24.
+
+Recommendation:
+
+- Open PR216 as **Public Persona Roulette discovery/readback**.
+- Keep the first Roulette slice no-new-config and public-readback only:
+  eligible public personas, safe public slugs, existing public serializers,
+  routeable cards, and optional public context preview.
+- Do not add provider calls, anonymous chat expansion, public event feeds,
+  voice/avatar media, persona-to-persona calls, billing, queues, or broad UI
+  work in PR216.
+
+Repo-grounded reason:
+
+- Public persona pages, anonymous context preview, signed-in public chat alpha,
+  public persona reporting, owner readback, and aggregate counters are already
+  proven.
+- Discover already queries public personas, but the current public search UI
+  omits the `personas` group and the API query does not return `public_slug`,
+  so public personas are not routeable from Discover search yet.
+- A Roulette draw/list can reuse the existing public persona boundary without
+  inventing Salons, event feeds, media providers, or persona-to-persona model
+  calls.
+
+Current baton:
+
+- MIMIR should decide whether to open PR216 as the recommended Roulette
+  discovery/readback implementation lane or ask ARGUS for a hostile preflight
+  first.
+- Full decision packet:
+  `docs/roadmap/PR215_PUBLIC_INTERACTION_EXPANSION_GATE_DAEDALUS.md`.
+
+## Previous MIMIR decision - PR215 expansion gate opened
 
 MIMIR closes the PR213/PR214 aggregate counter chain on 2026-06-24 after
 ARIADNE passed the hosted owner aggregate activity rehearsal.
