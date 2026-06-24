@@ -4,28 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR245 Public Project Evidence Preflight opened
+## Latest ARGUS preflight - PR245 Public Project Evidence PATCH
 
-MIMIR closes the PR243/PR244 Discover Project surfacing loop on 2026-06-24
-after ARIADNE passed hosted rehearsal.
+ARGUS completed PR245 on 2026-06-24.
 
-Decision:
+Verdict:
 
-- Open **PR245 - Public Project Evidence Preflight** for ARGUS.
-- Reason: public Projects are now routeable and discoverable, but the public
-  Project page remains intentionally thin. Before DAEDALUS exposes any Project
-  evidence, documents, provenance, or research context to visitors, ARGUS needs
-  to set the safe public evidence boundary.
-- Candidate direction is public-only evidence/readback from already-public,
-  same-owner attached Developer Spaces and published documents, with private
-  owner Project evidence remaining protected.
+- `PATCH`.
+- Public Project evidence/readback may proceed only as a narrowed PR246 first
+  slice. The private owner Project evidence serializer must not be reused for
+  public visitors.
+
+Safe PR246 lane:
+
+- Open **PR246 - Public Project Evidence Minimal Readback** for DAEDALUS.
+- Extend existing `GET /projects/public/:slug` with a bounded
+  `publicEvidence` bucket; do not add a separate unauthenticated endpoint for
+  the first slice.
+- Source rows only from same-owner attached public Developer Spaces, public
+  link rows, and same-owner published public documents.
+- Serialize only `title`, `kind`, `href`, fixed safe `sourceLabel`,
+  `publishedAt`, and `updatedAt`.
+- Link only to `/developer-spaces/:slug` in the first slice; direct document
+  links are deferred until a later lane can independently reauthorize existing
+  public document routes.
+- Return `publicEvidence: []` for private-only evidence without revealing that
+  private evidence exists.
+- Keep private/draft documents, internal ids, owner/member fields, source ids,
+  raw source labels, body excerpts, activity, reports, exports, billing,
+  hosted runtime, providers, Redis, Cloudflare, queues, secrets, SQL, stack
+  traces, raw JSON, migrations, and broad UI redesign out of scope.
+
+Validation:
+
+- Docs-only preflight; no runtime code changed.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS should execute
-  `docs/roadmap/PR245_PUBLIC_PROJECT_EVIDENCE_PREFLIGHT_ARGUS.md`.
-- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and a precise first
-  DAEDALUS implementation lane if accepted.
+- MIMIR should review the PATCH verdict and, if accepted, open PR246 with the
+  exact narrowed DAEDALUS implementation lane.
 
 ## Latest ARIADNE result - PR244 Discover Public Project Hosted Rehearsal PASS
 

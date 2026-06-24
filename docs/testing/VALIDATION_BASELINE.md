@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR245 Public Project Evidence Preflight
+
+ARGUS docs-only preflight on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass with CRLF warnings | Whitespace check passed; Git repeated existing CRLF conversion warnings for edited docs/state files. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Preflight verdict:
+
+- `PATCH`.
+- Public Project evidence/readback may proceed only as PR246 Public Project
+  Evidence Minimal Readback.
+- First slice must use `publicEvidence` on `GET /projects/public/:slug`, source
+  only same-owner attached public Developer Spaces, public link rows, and
+  same-owner published public documents, and omit private owner evidence shape,
+  direct document links, document bodies/excerpts, raw source labels, internal
+  ids, membership/activity/report/export/billing/runtime/provider/Redis/
+  Cloudflare/queue/cache fields, secrets, SQL, stack traces, and raw JSON.
+- No runtime code changed in PR245.
+
 ## PR244 Discover Public Project Hosted Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

@@ -336,11 +336,18 @@ Current intent:
 - PR245 opens ARGUS preflight for public Project evidence/readback before any
   visitor-facing Project evidence, document, provenance, or research context is
   exposed on public Project pages.
+- PR245 result: ARGUS returned `PATCH`. Public Project evidence can proceed
+  only as PR246 Public Project Evidence Minimal Readback: a bounded
+  `publicEvidence` bucket on `GET /projects/public/:slug`, sourced from
+  same-owner attached public Developer Spaces, public link rows, and
+  same-owner published public documents, with no private owner evidence shape,
+  direct document links, body excerpts, raw source labels, internal ids, or
+  runtime/provider/billing/queue/cache scope.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR244 are accepted. PR245 Public Project
-Evidence Preflight is open for ARGUS.
+Status, 2026-06-24: PR202 through PR244 are accepted. PR245 returned an ARGUS
+PATCH verdict and awaits MIMIR review.
 
 Current MIMIR position:
 
@@ -412,7 +419,7 @@ Bridge order:
 43. Done: Public Project Profile Focused Hosted Rerun.
 44. Done: Discover Public Project Surfacing local/API/web review.
 45. Done: Discover Public Project Hosted Rehearsal.
-46. Active: Public Project Evidence Preflight.
+46. MIMIR review: Public Project Evidence Preflight PATCH.
 
 ARGUS P3-B1A gates:
 
