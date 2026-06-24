@@ -4,9 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR211 public interaction readback implemented
+## Latest ARGUS result - PR211 public interaction readback accepted
 
-DAEDALUS implemented PR211 on 2026-06-24.
+ARGUS reviewed and accepted PR211 on 2026-06-24 after one narrow raw-slug
+hardening patch.
 
 Mapped existing data surfaces:
 
@@ -29,6 +30,8 @@ Implementation:
 - The readback includes public chat state, safe public route/slug state,
   persona-targeted moderation report counts by status, active report count, and
   explicit moderation privacy flags.
+- ARGUS patched the owner interaction readback to null unsafe legacy
+  UUID-shaped public slugs before serializing `publicRoute.publicSlug`.
 - Owners do not receive reporter identity, report notes/bodies, raw target ids,
   visitor message content, provider traces, or token transaction rows.
 - Admin owners receive a safe pointer to `/reports?targetType=persona`; normal
@@ -36,7 +39,7 @@ Implementation:
 - Studio persona home now shows a compact Public Interaction readback using the
   existing card pattern: route state, public chat state, report count.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
 - `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
@@ -44,11 +47,12 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
   warnings only.
+- `git diff --check` and `git diff --cached --check` passed with CRLF warnings
+  only.
 
 Current baton:
 
-- ARGUS should review PR211 for authorization, public/private separation,
-  report-status leakage, raw ids, transcript retention, and missing tests.
+- MIMIR should close PR211 and decide the next move.
 
 ## Latest MIMIR decision - PR211 public interaction readback opened
 

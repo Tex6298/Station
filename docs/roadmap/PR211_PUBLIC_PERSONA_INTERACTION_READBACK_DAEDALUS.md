@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: implemented; awaiting ARGUS review
+Status: accepted by ARGUS with raw-slug hardening patch
 
 ## Frame
 
@@ -205,6 +205,25 @@ Validation:
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 13 tests passed, including public interaction helper labels. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+## ARGUS Review Result
+
+ARGUS accepts PR211 on 2026-06-24 with one narrow hardening patch:
+
+- Owner interaction readback now nulls unsafe legacy UUID-shaped public slugs
+  before serializing `publicRoute.publicSlug`, matching the safe public href
+  boundary.
+
+ARGUS revalidated `test:personas`, `test:reports`, `test:writing`,
+`typecheck`, `lint`, `git diff --check`, and `git diff --cached --check`.
+`test:personas` now includes regression coverage that the owner-only public
+interaction payload does not contain a UUID-shaped legacy public slug.
+
+Review verdict: PR211 is owner-only, uses existing safe data, exposes report
+status counts rather than reporter/report bodies, stores no new visitor
+transcript or analytics events, leaves admin/reporter report behavior intact,
+and does not widen into public logs, queues, Cloudflare/Redis analytics, private
+runtime context, provider traces, token transaction rows, or raw id readback.
 
 Next wakeup target:
 

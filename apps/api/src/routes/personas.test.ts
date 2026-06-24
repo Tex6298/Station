@@ -1168,6 +1168,27 @@ test("owner persona readback includes safe public interaction summary only", asy
     });
     assert.equal(adminReadback.status, 200);
     assert.equal(adminReadback.body.persona.publicInteraction.moderation.adminQueueHref, "/reports?targetType=persona");
+
+    const unsafeSlugPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Unsafe Legacy Public Guide",
+      visibility: "public",
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    const unsafeSlugReadback = await requestJson(app, "GET", `/personas/${unsafeSlugPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(unsafeSlugReadback.status, 200);
+    assert.deepEqual(unsafeSlugReadback.body.persona.publicInteraction.publicRoute, {
+      publicSlug: null,
+      href: null,
+      canOpen: false,
+      unavailableReason: "Persona has no safe public route.",
+    });
+    assert.equal(
+      JSON.stringify(unsafeSlugReadback.body.persona.publicInteraction).includes("550e8400-e29b-41d4-a716-446655440000"),
+      false
+    );
   } finally {
     setSupabaseAdminForTests(null);
   }

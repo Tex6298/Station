@@ -517,7 +517,7 @@ async function loadPublicPersonaInteractionReadback(
     }
   }
 
-  const publicSlug = typeof persona.public_slug === "string" ? persona.public_slug : null;
+  const publicSlug = isSafePublicPersonaSlug(persona.public_slug) ? persona.public_slug : null;
   const href = persona.visibility === "public" && publicEligibility.eligible
     ? publicPersonaRouteHref(publicSlug)
     : null;

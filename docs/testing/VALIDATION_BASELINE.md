@@ -44,6 +44,20 @@ Scope notes:
   raw id, provider/private context, public moderation log, analytics storage,
   Redis/Cloudflare worker, or anonymous chat behavior was added.
 
+ARGUS revalidation after raw-slug hardening patch on 2026-06-24:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 11 tests,
+  including owner-only interaction coverage that nulls unsafe UUID-shaped legacy
+  public slugs before serialization.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` and `git diff --cached --check` passed; `git diff --check`
+  reported CRLF normalization warnings only.
+
 ## PR210 Public Persona Chat Rehearsal Repair
 
 DAEDALUS repair validation on 2026-06-24:
