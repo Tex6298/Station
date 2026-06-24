@@ -1196,7 +1196,7 @@ test("owner can export persona archive while preserving provenance and privacy b
   }
 });
 
-test("owner can create and read Project manifest packages without bundle support", async () => {
+test("owner can create and read Project manifest bundles from stored readback", async () => {
   const db = new InMemorySupabase();
   db.insertRow("developer_spaces", {
     id: "project-unattached-space",
@@ -1384,16 +1384,261 @@ test("owner can create and read Project manifest packages without bundle support
     assert.match(readBack.body.manifestMarkdown, /Document bodies omitted: yes/);
     assert.match(readBack.body.manifestMarkdown, /Public Project Evidence References/);
 
+    const storedManifest = clone(packageRow.manifest_json);
+    const storedMarkdown = packageRow.manifest_markdown;
+
+    const liveProject = db.tables.projects.find((row) => row.id === PROJECT_ID);
+    liveProject.name = "Mutated live Project name must not leak";
+    liveProject.description = "Mutated live Project description must not leak";
+
+    const liveDeveloperSpace = db.tables.developer_spaces.find((row) => row.id === DEVELOPER_SPACE_ID);
+    liveDeveloperSpace.project_name = "Mutated live Developer Space must not leak";
+    liveDeveloperSpace.description = "Mutated live Developer Space description must not leak";
+
+    const liveLink = db.tables.developer_space_documents.find((row) => row.id === "dev-link-public");
+    liveLink.document_role = "mutated-link-role-must-not-leak";
+    liveLink.link_visibility = "private";
+
+    const liveDocument = db.tables.documents.find((row) => row.id === DEV_PUBLIC_DOC_ID);
+    liveDocument.title = "Mutated live document title must not leak";
+    liveDocument.body = "Mutated live document body must not leak";
+    liveDocument.source_id = "mutated-source-id-must-not-leak";
+    liveDocument.source_label = "Mutated source label must not leak";
+
+    db.tables.developer_space_nodes[0].node_name = "Mutated node must not leak";
+    db.tables.developer_space_events[0].event_label = "Mutated event must not leak";
+    db.tables.developer_space_snapshots[0].snapshot_data = { summary: "Mutated snapshot must not leak" };
+    db.tables.developer_space_usage[0].storage_bytes = 999999;
+    db.tables.developer_space_usage[0].public_detail_reads_count = 999999;
+    db.tables.developer_space_usage[0].export_count = 999999;
+    for (const table of [
+      "projects",
+      "developer_spaces",
+      "developer_space_documents",
+      "documents",
+      "developer_space_nodes",
+      "developer_space_events",
+      "developer_space_snapshots",
+      "developer_space_usage",
+    ]) {
+      db.failSelectTables.add(table);
+    }
+
+    const anonymousBundle = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`);
+    assert.equal(anonymousBundle.status, 401);
+
+    const missingBundle = await requestJson(app, "GET", "/exports/missing-project-manifest-package/bundle", {
+      token: "owner-token",
+    });
+    assert.equal(missingBundle.status, 404);
+
     const blockedReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
       token: "other-token",
     });
     assert.equal(blockedReadBack.status, 404);
 
-    const blockedBundle = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+    const blockedBundleReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "other-token",
+    });
+    assert.equal(blockedBundleReadBack.status, 404);
+
+    const bundleReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
       token: "owner-token",
     });
-    assert.equal(blockedBundle.status, 409);
-    assert.match(blockedBundle.body.error, /Project manifest bundle export is not supported/);
+    assert.equal(bundleReadBack.status, 200);
+    const bundle = bundleReadBack.body.bundle;
+    assert.equal(bundle.schema, "station.export.bundle.v1");
+    assert.equal(bundle.package.id, created.body.exportPackage.id);
+    assert.deepEqual(Object.keys(bundle.package).sort(), ["format", "id", "packageKind", "status"]);
+    assert.equal(bundle.package.packageKind, "project_manifest");
+    assert.equal(bundle.package.format, "json_markdown");
+    assert.equal(bundle.package.status, "completed");
+    assert.equal(bundle.privacy.ownerOnly, true);
+    assert.equal(bundle.integrity.algorithm, "sha256");
+    assert.equal(bundle.integrity.fileCount, 3);
+    const projectBundleFiles = new Map<string, Row>(bundle.files.map((file: Row) => [file.path, file]));
+    assert.deepEqual([...projectBundleFiles.keys()].sort(), ["README.md", "manifest.json", "manifest.md"]);
+    assert.deepEqual(Object.keys(bundle.integrity.files).sort(), ["README.md", "manifest.json", "manifest.md"]);
+    for (const file of projectBundleFiles.values()) {
+      assert.match(file.sha256, /^[a-f0-9]{64}$/);
+      assert.equal(bundle.integrity.files[file.path], file.sha256);
+    }
+    assert.deepEqual(JSON.parse(projectBundleFiles.get("manifest.json")?.content ?? "{}"), storedManifest);
+    assert.equal(projectBundleFiles.get("manifest.md")?.content, storedMarkdown);
+    assert.equal(
+      (projectBundleFiles.get("README.md")?.content ?? "").includes(`Package: ${created.body.exportPackage.id}`),
+      true
+    );
+    assert.match(projectBundleFiles.get("README.md")?.content ?? "", /Kind: project_manifest/);
+    assert.doesNotMatch(projectBundleFiles.get("README.md")?.content ?? "", /Animus Project/);
+    assert.doesNotMatch(projectBundleFiles.get("README.md")?.content ?? "", /Animus Field/);
+
+    const bundleText = JSON.stringify(bundle);
+    for (const forbidden of [
+      PROJECT_ID,
+      OTHER_PROJECT_ID,
+      OWNER_ID,
+      OTHER_ID,
+      DEVELOPER_SPACE_ID,
+      DEV_PUBLIC_DOC_ID,
+      DEV_PRIVATE_DOC_ID,
+      "dev-link-public",
+      "dev-link-private",
+      "ownerUserId",
+      "owner_user_id",
+      "projectId",
+      "project_id",
+      "developerSpaceId",
+      "developer_space_id",
+      "personaId",
+      "persona_id",
+      "source_id",
+      "sourceId",
+      "author_user_id",
+      "authorUserId",
+      "Mutated live Project name must not leak",
+      "Mutated live Project description must not leak",
+      "Mutated live Developer Space must not leak",
+      "Mutated live Developer Space description must not leak",
+      "mutated-link-role-must-not-leak",
+      "Mutated live document title must not leak",
+      "Mutated live document body must not leak",
+      "mutated-source-id-must-not-leak",
+      "Mutated source label must not leak",
+      "Mutated node must not leak",
+      "Mutated event must not leak",
+      "Mutated snapshot must not leak",
+      "Public field log body is safe to reference.",
+      "Private Developer Space method must not leave public-safe export refs.",
+      "rawSignal",
+      "nodes",
+      "events",
+      "snapshots",
+      "usage",
+      "export_count",
+      "storage_bytes",
+      "public_detail_reads_count",
+      "api_key_hash",
+      "must-not-export",
+      "other-secret",
+      "DATABASE_URL",
+      "Cloudflare",
+      "Redis",
+      "queue",
+      "worker",
+      "provider",
+      "model",
+      "runtime",
+      "billing",
+      "member",
+      "admin",
+      "stack trace",
+      "SQL",
+    ]) {
+      assert.equal(bundleText.includes(forbidden), false, `${forbidden} leaked into Project bundle`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("project manifest bundle rejects non-completed and malformed stored readbacks", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    for (const status of ["requested", "processing", "failed", "abandoned"]) {
+      const row = db.insertRow("export_packages", {
+        owner_user_id: OWNER_ID,
+        project_id: PROJECT_ID,
+        package_kind: "project_manifest",
+        status,
+        manifest_json: {
+          schema: "station.project.export_manifest.v1",
+          privateStoredDetail: `stored ${status} detail must not leak`,
+        },
+        manifest_markdown: `# Stored ${status} markdown must not leak`,
+        error_message: `SQL stack trace for ${status} with DATABASE_URL must not leak`,
+      });
+
+      const response = await requestJson(app, "GET", `/exports/${row.id}/bundle`, {
+        token: "owner-token",
+      });
+      assert.equal(response.status, 409);
+      const responseText = JSON.stringify(response.body);
+      assert.doesNotMatch(responseText, /privateStoredDetail/);
+      assert.doesNotMatch(responseText, /Stored .* markdown must not leak/);
+      assert.doesNotMatch(responseText, /SQL stack trace/);
+      assert.doesNotMatch(responseText, /DATABASE_URL/);
+    }
+
+    for (const table of [
+      "projects",
+      "developer_spaces",
+      "developer_space_documents",
+      "documents",
+      "developer_space_nodes",
+      "developer_space_events",
+      "developer_space_snapshots",
+      "developer_space_usage",
+    ]) {
+      db.failSelectTables.add(table);
+    }
+
+    const malformedRows = [
+      {
+        label: "missing-json",
+        manifestJson: null,
+        manifestMarkdown: "# Stored missing-json markdown must not leak",
+      },
+      {
+        label: "array-json",
+        manifestJson: [],
+        manifestMarkdown: "# Stored array-json markdown must not leak",
+      },
+      {
+        label: "wrong-schema",
+        manifestJson: { schema: "station.project.wrong.v1", detail: "wrong schema detail must not leak" },
+        manifestMarkdown: "# Stored wrong-schema markdown must not leak",
+      },
+      {
+        label: "missing-markdown",
+        manifestJson: { schema: "station.project.export_manifest.v1", detail: "missing markdown detail must not leak" },
+        manifestMarkdown: "",
+      },
+      {
+        label: "object-markdown",
+        manifestJson: { schema: "station.project.export_manifest.v1", detail: "object markdown detail must not leak" },
+        manifestMarkdown: { body: "object markdown body must not leak" },
+      },
+    ];
+
+    for (const scenario of malformedRows) {
+      const row = db.insertRow("export_packages", {
+        owner_user_id: OWNER_ID,
+        project_id: PROJECT_ID,
+        package_kind: "project_manifest",
+        status: "completed",
+        manifest_json: { schema: "station.project.export_manifest.v1" },
+        manifest_markdown: "# valid placeholder",
+      });
+      row.manifest_json = scenario.manifestJson;
+      row.manifest_markdown = scenario.manifestMarkdown;
+
+      const response = await requestJson(app, "GET", `/exports/${row.id}/bundle`, {
+        token: "owner-token",
+      });
+      assert.equal(response.status, 409, scenario.label);
+      const responseText = JSON.stringify(response.body);
+      assert.match(responseText, /stored manifest readback is complete/);
+      assert.doesNotMatch(responseText, /wrong schema detail/);
+      assert.doesNotMatch(responseText, /missing markdown detail/);
+      assert.doesNotMatch(responseText, /object markdown body/);
+      assert.doesNotMatch(responseText, /Stored .* markdown must not leak/);
+      assert.doesNotMatch(responseText, /Animus Project/);
+      assert.doesNotMatch(responseText, /Animus Field/);
+    }
   } finally {
     setSupabaseAdminForTests(null);
   }

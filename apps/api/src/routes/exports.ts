@@ -1131,6 +1131,67 @@ function buildExportBundle(row: any) {
   };
 }
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasStoredProjectManifestReadback(row: any) {
+  return (
+    isPlainRecord(row.manifest_json) &&
+    row.manifest_json.schema === "station.project.export_manifest.v1" &&
+    typeof row.manifest_markdown === "string" &&
+    row.manifest_markdown.trim().length > 0
+  );
+}
+
+function buildProjectManifestBundle(row: any) {
+  const manifestJson = JSON.stringify(row.manifest_json, null, 2);
+  const manifestMarkdown = row.manifest_markdown;
+  const readme = [
+    `# Station Export Bundle`,
+    "",
+    `Package: ${row.id}`,
+    `Kind: ${row.package_kind}`,
+    `Format: ${row.format}`,
+    `Status: ${row.status}`,
+    "",
+    "## Contents",
+    "- `manifest.json` is the canonical structured owner-only Project manifest readback.",
+    "- `manifest.md` is the human-readable Markdown readback for the same package.",
+    "",
+    "## Privacy",
+    "This bundle is returned only to the package owner through the authenticated export route.",
+    "It contains only the stored PR249 Project manifest readback; excluded material remains outside this API response.",
+    "",
+  ].join("\n");
+  const files = [
+    bundleFile("README.md", "text/markdown; charset=utf-8", readme),
+    bundleFile("manifest.json", "application/json; charset=utf-8", manifestJson),
+    bundleFile("manifest.md", "text/markdown; charset=utf-8", manifestMarkdown),
+  ];
+
+  return {
+    schema: "station.export.bundle.v1",
+    generatedAt: new Date().toISOString(),
+    package: {
+      id: row.id,
+      packageKind: row.package_kind,
+      format: row.format,
+      status: row.status,
+    },
+    privacy: {
+      ownerOnly: true,
+      note: "Stored Project manifest readback for the authenticated package owner.",
+    },
+    integrity: {
+      algorithm: "sha256",
+      fileCount: files.length,
+      files: Object.fromEntries(files.map((file) => [file.path, file.sha256])),
+    },
+    files,
+  };
+}
+
 async function createExportPackage(persona: any, ownerUserId: string) {
   const sb = getSupabaseAdmin();
   const requestedAt = new Date().toISOString();
@@ -1469,9 +1530,12 @@ exportsRouter.get("/:id/bundle", async (req, res) => {
     return res.status(409).json({ error: "Export bundle is available only after the package is completed." });
   }
   if (data.package_kind === "project_manifest") {
-    return res.status(409).json({
-      error: "Project manifest bundle export is not supported until a Project bundle lane is approved.",
-    });
+    if (!hasStoredProjectManifestReadback(data)) {
+      return res.status(409).json({
+        error: "Project manifest bundle is available only when stored manifest readback is complete.",
+      });
+    }
+    return res.json({ bundle: buildProjectManifestBundle(data) });
   }
 
   return res.json({ bundle: buildExportBundle(data) });

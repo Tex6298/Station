@@ -4,31 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR251 Owner Project Manifest Bundle Readback opened
+## Latest DAEDALUS handoff - PR251 Owner Project Manifest Bundle Readback
 
-MIMIR accepts ARGUS's PR250 `PATCH` verdict on 2026-06-24 and opens the
-narrowed implementation lane.
+DAEDALUS implemented PR251 on 2026-06-24. ARGUS review is pending.
 
-Decision:
+Implemented:
 
-- Open **PR251 - Owner Project Manifest Bundle Readback** for DAEDALUS.
-- Support `GET /exports/:id/bundle` for completed `project_manifest` packages
-  only.
-- Build the Project bundle from stored package readback only:
-  `manifest_json` and `manifest_markdown`.
-- Return exactly `README.md`, `manifest.json`, and `manifest.md`.
-- Do not re-read live Project, Developer Space, document, link, source, usage,
-  provider, runtime, queue, Redis, Cloudflare, billing, or member/admin tables
-  while building the bundle.
-- Keep persona and Developer Space bundle behavior unchanged.
-- Keep the lane API-only and owner-only; ARIADNE hosted rehearsal is not
-  required unless DAEDALUS adds visible/browser/public/download behavior.
+- Existing authenticated `GET /exports/:id/bundle` now supports completed
+  `project_manifest` packages.
+- Project bundle generation uses only stored package readback:
+  `export_packages.manifest_json` and `export_packages.manifest_markdown`.
+- Project bundle files are exactly `README.md`, `manifest.json`, and
+  `manifest.md`, with existing `station.export.bundle.v1` integrity metadata.
+- Project bundle package metadata is minimized to package id, kind, format, and
+  status so raw owner, Project, Developer Space, persona, document, link, and
+  author ids are not added outside the stored manifest.
+- Requested, processing, failed, unknown non-completed, missing, malformed, or
+  wrong-schema Project manifest readbacks return bounded `409`/`404` responses
+  without stored errors, stack traces, or partial manifests.
+- Persona and Developer Space bundle behavior remains unchanged.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF warnings only.
+- `git diff --cached --check` passed.
+
+Scope notes:
+
+- No new routes, UI, public bundle URLs, signed URLs, redirects, ZIP/PDF/binary
+  packaging, background jobs, queues, Redis, Cloudflare, hosted runtime,
+  provider/model calls, member/admin/billing permissions, nested Developer
+  Space bundles, or broad Project export redesign were added.
+- Live Project, Developer Space, document, link, node, event, snapshot, and
+  usage rows are not re-read while building Project bundles.
+- ARIADNE hosted rehearsal is not required because the lane stayed API-only,
+  owner-only, and local tests prove the stored-readback boundary.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR251_OWNER_PROJECT_MANIFEST_BUNDLE_READBACK_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with implementation details and validation.
+- ARGUS should review PR251 against the narrowed PR250 scope and wake MIMIR
+  with `ACCEPT`, `FAIL`, or `BLOCKED`.
 
 ## Latest ARGUS preflight - PR250 Project Export Bundle Boundary PATCH
 

@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR251 Owner Project Manifest Bundle Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. Coverage now proves owner-only `project_manifest` bundle readback on existing `GET /exports/:id/bundle`, exact `README.md`/`manifest.json`/`manifest.md` file set, `station.export.bundle.v1` integrity metadata, manifest JSON copied only from stored `manifest_json`, Markdown copied only from stored `manifest_markdown`, live Project/Developer Space/document/link/node/event/snapshot/usage mutation resistance, anonymous auth failure, non-owner/unknown `404`, bounded `409` for non-completed and malformed Project manifest packages, failed-package error redaction, and persona/Developer Space bundle regressions remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 13 tests passed; Project readback/public profile boundaries remain green after enabling stored Project manifest bundles. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass with CRLF warnings | Whitespace check passed; Git repeated existing CRLF conversion warnings for edited files. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Scope notes:
+
+- Enabled only stored-readback Project manifest bundles on the existing
+  authenticated owner export bundle route.
+- Project bundle generation does not re-read live Project, Developer Space,
+  document, link, source-like document provenance, node, event, snapshot, or
+  usage rows.
+- Project bundle package metadata is minimized and does not add raw owner,
+  Project, Developer Space, persona, document, source, link-row, or author ids
+  outside the already stored manifest content.
+- No public bundle URL, UI, signed URL, redirect, ZIP/PDF/binary export, nested
+  Developer Space bundle, document/file body, member/admin/billing permission,
+  job, queue, Redis, Cloudflare, hosted runtime, provider/model call, or broad
+  Project export redesign was added.
+- ARIADNE hosted rehearsal is not required because the change stayed API-only
+  and owner-only.
+
 ## PR250 Project Export Bundle Boundary Preflight
 
 ARGUS docs-only preflight on 2026-06-24:
