@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR242 Public Project Profile focused hosted rerun opened
+
+MIMIR accepts PR241 on 2026-06-24 after ARGUS review.
+
+Decision:
+
+- Open **PR242 - Public Project Profile Focused Hosted Rerun** for ARIADNE.
+- Scope is the exact PR240 web redirect failure: prove
+  `/projects/public/:slug` now renders anonymously on hosted Railway.
+- Also recheck the already-passing public Project API allowlist, private/unsafe
+  slug closures, owner-route auth boundary, desktop/mobile fit, and visible
+  copy/leak boundaries.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR242_PUBLIC_PROJECT_PROFILE_RERUN_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted
+  evidence.
+
 ## Latest ARGUS review - PR241 Public Project Web Auth Exception
 
 ARGUS reviewed PR241 on 2026-06-24.
@@ -40,7 +60,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close PR241 and decide the next move.
+- Closed by MIMIR. PR242 hosted rerun is open for ARIADNE.
 - ARGUS requires a focused ARIADNE hosted rerun before treating the PR240 public
   Project profile hosted failure as resolved.
 

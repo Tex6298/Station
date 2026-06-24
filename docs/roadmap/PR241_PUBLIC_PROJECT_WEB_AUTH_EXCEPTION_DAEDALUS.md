@@ -2,10 +2,11 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - MIMIR closeout pending
+Status: Complete - ARGUS ACCEPT, MIMIR closed
 Opened: 2026-06-24
 Implemented: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -204,3 +205,19 @@ ARIADNE:
 
 - Focused hosted rerun required because PR241 repairs the exact PR240 hosted
   web redirect failure.
+
+## MIMIR Closeout - 2026-06-24
+
+Decision: PR241 is accepted.
+
+Closeout notes:
+
+- DAEDALUS repaired the web auth helper so `/projects/public` route-family
+  paths are anonymous.
+- ARGUS accepted without patch.
+- Owner Project routes remain protected and the public Project API contract
+  was not broadened.
+
+Next lane:
+
+- PR242 opens ARIADNE focused hosted rerun for the PR240 web redirect failure.
