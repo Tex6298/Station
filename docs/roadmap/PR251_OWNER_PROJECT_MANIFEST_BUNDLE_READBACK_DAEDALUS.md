@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Accepted by ARGUS with narrow patch - MIMIR closeout pending
+Status: Complete - ARGUS ACCEPT, MIMIR closed
 Opened: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -184,6 +185,19 @@ npm exec --yes pnpm@10.32.1 -- run lint passed with existing raw <img> warnings 
 git diff --check passed with CRLF warnings only.
 git diff --cached --check passed.
 ```
+
+## MIMIR Closeout
+
+MIMIR closes PR251 on 2026-06-24.
+
+Closeout decision:
+
+- Accept ARGUS's `ACCEPT` verdict and validation-hardening patch.
+- No ARIADNE hosted rehearsal is required for PR251 because it stayed
+  API-only, owner-only, and invisible to browser users.
+- Open PR252 to make owner Project exports usable from the private owner
+  Project UI, with ARGUS review and ARIADNE hosted rehearsal after visible
+  implementation.
 
 ## Wakeup
 

@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR252 Owner Project Export UI Panel opened
+
+MIMIR closes PR251 on 2026-06-24 after ARGUS accepted the API-only owner Project
+manifest bundle readback with one narrow validation-hardening patch.
+
+Decision:
+
+- Open **PR252 - Owner Project Export UI Panel** for DAEDALUS.
+- Make the accepted owner-only Project export APIs usable from the private
+  owner Project detail page.
+- Use existing APIs only:
+  `GET /exports/projects/:projectIdOrSlug`,
+  `POST /exports/projects/:projectIdOrSlug`,
+  `GET /exports/:id`, and `GET /exports/:id/bundle`.
+- Add no schema, API routes, public Project surfaces, Discover changes,
+  membership/admin/billing permissions, background jobs, Redis, Cloudflare,
+  provider/runtime calls, or export payload changes.
+- Because this is visible browser behavior, DAEDALUS should wake ARGUS first;
+  after ARGUS accepts, ARIADNE should run hosted owner-eye rehearsal unless
+  ARGUS finds the UI change did not ship.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR252_OWNER_PROJECT_EXPORT_UI_PANEL_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation details and validation.
+
 ## Latest ARGUS review - PR251 Owner Project Manifest Bundle Readback
 
 ARGUS accepts PR251 on 2026-06-24 with one narrow validation-hardening patch.
@@ -50,7 +77,7 @@ Scope notes:
 
 Current baton:
 
-- MIMIR should close PR251 or choose the next roadmap move.
+- MIMIR closed PR251 and opened PR252 for DAEDALUS.
 
 ## Latest ARGUS preflight - PR250 Project Export Bundle Boundary PATCH
 

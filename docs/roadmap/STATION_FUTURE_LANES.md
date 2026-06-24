@@ -375,11 +375,21 @@ Current intent:
   `manifest.md`, no live Project/source-table regeneration, no raw owner/target
   ids beyond the stored manifest content, and no public/download/UI/background
   scope.
+- PR251 result: DAEDALUS implemented owner-only Project manifest bundle
+  readback and ARGUS accepted with one narrow validation-hardening patch.
+  Completed `project_manifest` bundles now return stored `README.md`,
+  `manifest.json`, and `manifest.md` only; malformed or schema-only stored
+  readbacks return bounded `409`; persona and Developer Space bundle behavior
+  remains unchanged.
+- PR252 opens DAEDALUS implementation for the private owner Project export UI
+  panel, using accepted Project export APIs only and adding no schema, public
+  route, membership/admin/billing, jobs, Redis, Cloudflare, provider/runtime,
+  or payload changes.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR250 are accepted. PR251 Owner Project
-Manifest Bundle Readback is open for DAEDALUS.
+Status, 2026-06-24: PR202 through PR251 are accepted. PR252 Owner Project
+Export UI Panel is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -457,7 +467,8 @@ Bridge order:
 49. Done: Project Export Boundary Preflight.
 50. Done: Owner Project Export Manifest Foundation.
 51. Done: Project Export Bundle Boundary Preflight.
-52. Active: Owner Project Manifest Bundle Readback.
+52. Done: Owner Project Manifest Bundle Readback.
+53. Active: Owner Project Export UI Panel.
 
 ARGUS P3-B1A gates:
 
