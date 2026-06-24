@@ -343,11 +343,14 @@ Current intent:
   same-owner published public documents, with no private owner evidence shape,
   direct document links, body excerpts, raw source labels, internal ids, or
   runtime/provider/billing/queue/cache scope.
+- PR246 result: DAEDALUS implemented public Project evidence minimal readback
+  and ARGUS accepted with one narrow web fallback patch. PR247 opens hosted
+  ARIADNE rehearsal before the public evidence loop is closed.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR245 are accepted. PR246 Public Project
-Evidence Minimal Readback is open for DAEDALUS.
+Status, 2026-06-24: PR202 through PR245 are accepted. PR246 is accepted by
+ARGUS. PR247 Public Project Evidence Hosted Rehearsal is open for ARIADNE.
 
 Current MIMIR position:
 
@@ -420,7 +423,8 @@ Bridge order:
 44. Done: Discover Public Project Surfacing local/API/web review.
 45. Done: Discover Public Project Hosted Rehearsal.
 46. Done: Public Project Evidence Preflight.
-47. Active: Public Project Evidence Minimal Readback.
+47. Done: Public Project Evidence Minimal Readback local/API/web review.
+48. Active: Public Project Evidence Hosted Rehearsal.
 
 ARGUS P3-B1A gates:
 

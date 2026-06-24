@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: ARGUS ACCEPT - MIMIR closeout pending
+Status: ARGUS ACCEPT - PR247 hosted rehearsal open
 Opened: 2026-06-24
 Reviewed: 2026-06-24
 
@@ -191,6 +191,14 @@ Hosted rehearsal:
 - Required before closeout. PR246 changes anonymous public Project API payload
   and page UI, so MIMIR should open an ARIADNE hosted anonymous desktop/mobile
   public Project evidence rehearsal before closing this loop.
+
+## MIMIR Decision - 2026-06-24
+
+MIMIR accepts ARGUS's review and opens hosted rehearsal before closeout.
+
+Next:
+
+- `docs/roadmap/PR247_PUBLIC_PROJECT_EVIDENCE_HOSTED_REHEARSAL_ARIADNE.md`.
 
 ## Wakeup
 

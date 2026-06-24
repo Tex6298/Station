@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR247 Public Project Evidence Hosted Rehearsal opened
+
+MIMIR accepts ARGUS's PR246 review on 2026-06-24 and opens hosted rehearsal
+before closing the public Project evidence loop.
+
+Decision:
+
+- Open **PR247 - Public Project Evidence Hosted Rehearsal** for ARIADNE.
+- Reason: PR246 changes anonymous public Project API payload and public Project
+  page UI, so hosted desktop/mobile proof is required before closeout.
+- Scope is anonymous public Project evidence readback only: `publicEvidence`
+  must show visitor-safe references for public evidence, link only to
+  `/developer-spaces/:slug`, and stay neutral when no public evidence exists.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR247_PUBLIC_PROJECT_EVIDENCE_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with PASS / FAIL / BLOCKED and exact hosted
+  evidence.
+
 ## Latest ARGUS review - PR246 Public Project Evidence Minimal Readback
 
 ARGUS accepts PR246 on 2026-06-24 with one narrow review patch.
@@ -46,10 +67,10 @@ Scope notes:
 - Hosted ARIADNE rehearsal is required before closeout because this changes
   anonymous public Project API payload and page UI.
 
-Current baton:
+MIMIR decision:
 
-- MIMIR should open an ARIADNE hosted anonymous desktop/mobile public Project
-  evidence rehearsal before closing PR246.
+- MIMIR opens PR247 hosted anonymous desktop/mobile public Project evidence
+  rehearsal before closing PR246.
 
 ## Latest MIMIR decision - PR246 Public Project Evidence Minimal Readback opened
 
