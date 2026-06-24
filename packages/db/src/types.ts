@@ -88,7 +88,7 @@ export type DeveloperSpaceAgentExecutionReceiptAction =
   | "update_observatory";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
-export type ExportPackageKind = "persona_archive" | "developer_space_archive";
+export type ExportPackageKind = "persona_archive" | "developer_space_archive" | "project_manifest";
 export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
 export type ExportPackageFormat = "json_markdown";
 export type ProjectVisibility = "private" | "unlisted" | "community" | "public";
@@ -690,6 +690,7 @@ export interface Database {
           owner_user_id: string;
           persona_id: string | null;
           developer_space_id: string | null;
+          project_id: string | null;
           package_kind: ExportPackageKind;
           status: ExportPackageStatus;
           format: ExportPackageFormat;
@@ -703,8 +704,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["export_packages"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["export_packages"]["Row"], "id" | "project_id" | "created_at" | "updated_at"> & {
           id?: string;
+          project_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -104,9 +104,10 @@ export async function assertActiveImportJobQuota(input: {
 
 export async function assertNoInProgressExportPackage(input: {
   ownerUserId: string;
-  packageKind: "persona_archive" | "developer_space_archive";
+  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest";
   personaId?: string | null;
   developerSpaceId?: string | null;
+  projectId?: string | null;
 }) {
   const sb = getSupabaseAdmin();
   let query = sb
@@ -117,6 +118,7 @@ export async function assertNoInProgressExportPackage(input: {
 
   if (input.personaId !== undefined) query = query.eq("persona_id", input.personaId);
   if (input.developerSpaceId !== undefined) query = query.eq("developer_space_id", input.developerSpaceId);
+  if (input.projectId !== undefined) query = query.eq("project_id", input.projectId);
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);

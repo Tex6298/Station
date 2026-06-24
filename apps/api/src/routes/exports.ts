@@ -46,12 +46,21 @@ const DEVELOPER_SPACE_INCLUDED_SECTIONS = [
   "usage",
 ];
 
+const PROJECT_INCLUDED_SECTIONS = [
+  "project",
+  "attached_developer_spaces",
+  "owner_project_evidence_refs",
+  "public_project_evidence_refs",
+  "trust",
+];
+
 function exportRow(row: any) {
   return {
     id: row.id,
     ownerUserId: row.owner_user_id,
     personaId: row.persona_id,
     developerSpaceId: row.developer_space_id ?? null,
+    projectId: row.project_id ?? null,
     packageKind: row.package_kind,
     status: row.status,
     format: row.format,
@@ -84,6 +93,25 @@ async function loadOwnedDeveloperSpace(spaceId: string, ownerUserId: string) {
     .eq("id", spaceId)
     .single();
 
+  return data?.owner_user_id === ownerUserId ? data : null;
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+async function loadOwnedProject(projectIdOrSlug: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  let query = sb
+    .from("projects")
+    .select("*")
+    .eq("owner_user_id", ownerUserId);
+
+  query = isUuid(projectIdOrSlug)
+    ? query.eq("id", projectIdOrSlug)
+    : query.eq("slug", projectIdOrSlug);
+
+  const { data } = await query.single();
   return data?.owner_user_id === ownerUserId ? data : null;
 }
 
@@ -816,6 +844,236 @@ function buildDeveloperSpaceManifestMarkdown(manifest: any) {
   ].join("\n");
 }
 
+async function loadProjectExportSources(project: any, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data: developerSpaces, error: spacesError } = await sb
+    .from("developer_spaces")
+    .select("id, owner_user_id, project_id, project_name, slug, description, visibility, visualisation_type, updated_at")
+    .eq("project_id", project.id)
+    .eq("owner_user_id", ownerUserId)
+    .order("updated_at", { ascending: false });
+
+  throwIfQueryError({ error: spacesError }, "Project Developer Space export source");
+
+  const attachedDeveloperSpaces = developerSpaces ?? [];
+  const spaceIds = attachedDeveloperSpaces.map((space: any) => space.id);
+  if (spaceIds.length === 0) {
+    return {
+      attachedDeveloperSpaces,
+      links: [],
+      documentsById: new Map<string, any>(),
+    };
+  }
+
+  const { data: links, error: linksError } = await sb
+    .from("developer_space_documents")
+    .select("developer_space_id, document_id, document_role, link_visibility, sort_order, created_at, updated_at")
+    .eq("owner_user_id", ownerUserId)
+    .in("developer_space_id", spaceIds)
+    .order("updated_at", { ascending: false });
+
+  throwIfQueryError({ error: linksError }, "Project evidence link export source");
+
+  const documentIds = [...new Set((links ?? []).map((link: any) => link.document_id))];
+  if (documentIds.length === 0) {
+    return {
+      attachedDeveloperSpaces,
+      links: links ?? [],
+      documentsById: new Map<string, any>(),
+    };
+  }
+
+  const { data: documents, error: documentsError } = await sb
+    .from("documents")
+    .select("id, author_user_id, title, slug, document_type, status, visibility, published_at, provenance_type, source_label, created_at, updated_at")
+    .eq("author_user_id", ownerUserId)
+    .in("id", documentIds);
+
+  throwIfQueryError({ error: documentsError }, "Project evidence document export source");
+
+  return {
+    attachedDeveloperSpaces,
+    links: links ?? [],
+    documentsById: new Map((documents ?? []).map((document: any) => [document.id, document])),
+  };
+}
+
+function projectEvidenceSortTime(document: any, link: any) {
+  return Date.parse(document?.published_at ?? document?.updated_at ?? link?.updated_at ?? link?.created_at ?? "");
+}
+
+function serializeProjectSpaceRef(space: any) {
+  return {
+    projectName: space.project_name,
+    slug: space.slug,
+    description: space.description ?? null,
+    visibility: space.visibility,
+    visualisationType: space.visualisation_type,
+    updatedAt: space.updated_at,
+  };
+}
+
+function serializeOwnerProjectEvidenceRef(link: any, document: any, space: any) {
+  const route = link.link_visibility === "public" &&
+    document.status === "published" &&
+    document.visibility === "public"
+    ? {
+      routeLabel: "Open observatory",
+      routeHref: `/developer-spaces/${encodeURIComponent(space.slug)}`,
+    }
+    : {};
+
+  return {
+    developerSpace: {
+      projectName: space.project_name,
+      slug: space.slug,
+    },
+    role: link.document_role,
+    linkVisibility: link.link_visibility,
+    sortOrder: Number(link.sort_order ?? 0),
+    linkedAt: link.created_at,
+    updatedAt: link.updated_at,
+    document: {
+      title: document.title,
+      slug: document.slug,
+      documentType: document.document_type,
+      status: document.status,
+      visibility: document.visibility,
+      provenanceType: document.provenance_type,
+      sourceLabel: document.source_label ?? null,
+      publishedAt: document.published_at ?? null,
+      createdAt: document.created_at,
+      updatedAt: document.updated_at,
+    },
+    ...route,
+  };
+}
+
+function serializePublicProjectEvidenceRef(link: any, document: any, space: any) {
+  return {
+    title: document.title,
+    kind: link.document_role ?? document.document_type,
+    href: `/developer-spaces/${encodeURIComponent(space.slug)}`,
+    sourceLabel: "Public Developer Space",
+    ...(document.published_at ? { publishedAt: document.published_at } : {}),
+    updatedAt: document.updated_at,
+  };
+}
+
+async function buildProjectExportManifest(project: any, packageId: string, ownerUserId: string) {
+  const { attachedDeveloperSpaces, links, documentsById } = await loadProjectExportSources(project, ownerUserId);
+  const spacesById = new Map(attachedDeveloperSpaces.map((space: any) => [space.id, space]));
+
+  const ownerProjectEvidenceRefs = links
+    .map((link: any) => {
+      const space = spacesById.get(link.developer_space_id);
+      const document = documentsById.get(link.document_id);
+      if (!space || !document) return null;
+      return {
+        item: serializeOwnerProjectEvidenceRef(link, document, space),
+        sortTime: projectEvidenceSortTime(document, link),
+      };
+    })
+    .filter((entry: any): entry is { item: Record<string, any>; sortTime: number } => Boolean(entry))
+    .sort((a, b) => {
+      if (a.sortTime !== b.sortTime) return b.sortTime - a.sortTime;
+      return String(a.item.document?.title ?? "").localeCompare(String(b.item.document?.title ?? ""));
+    })
+    .map((entry) => entry.item);
+
+  const publicProjectEvidenceRefs = links
+    .map((link: any) => {
+      const space = spacesById.get(link.developer_space_id);
+      const document = documentsById.get(link.document_id);
+      if (!space || !document) return null;
+      if (space.visibility !== "public") return null;
+      if (link.link_visibility !== "public") return null;
+      if (document.status !== "published" || document.visibility !== "public") return null;
+      return {
+        item: serializePublicProjectEvidenceRef(link, document, space),
+        sortTime: projectEvidenceSortTime(document, link),
+      };
+    })
+    .filter((entry: any): entry is { item: Record<string, any>; sortTime: number } => Boolean(entry))
+    .sort((a, b) => {
+      if (a.sortTime !== b.sortTime) return b.sortTime - a.sortTime;
+      return String(a.item.title ?? "").localeCompare(String(b.item.title ?? ""));
+    })
+    .map((entry) => entry.item);
+
+  const generatedAt = new Date().toISOString();
+  return {
+    schema: "station.project.export_manifest.v1" as const,
+    generatedAt,
+    package: {
+      id: packageId,
+      status: "completed",
+      format: "json_markdown",
+    },
+    project: {
+      name: project.name,
+      slug: project.slug,
+      description: project.description ?? null,
+      visibility: project.visibility,
+      createdAt: project.created_at,
+      updatedAt: project.updated_at,
+    },
+    attachedDeveloperSpaces: attachedDeveloperSpaces.map(serializeProjectSpaceRef),
+    ownerProjectEvidenceRefs,
+    publicProjectEvidenceRefs,
+    trust: {
+      ownerOnly: true,
+      documentBodiesOmitted: true,
+      publicReferencesSeparated: true,
+      linkedSourceRowsRemainPrivate: true,
+      note: "Project manifest packages are owner-only. Document bodies are omitted, public references are separate from owner evidence, and linked source rows remain private.",
+    },
+  };
+}
+
+function buildProjectManifestMarkdown(manifest: any) {
+  return [
+    `# Station Project Export Manifest: ${manifest.project.name}`,
+    "",
+    `Generated: ${manifest.generatedAt}`,
+    `Package: ${manifest.package.id}`,
+    "",
+    "## Trust Notes",
+    `- Owner-only package: ${manifest.trust.ownerOnly ? "yes" : "no"}`,
+    `- Document bodies omitted: ${manifest.trust.documentBodiesOmitted ? "yes" : "no"}`,
+    `- Public references separated: ${manifest.trust.publicReferencesSeparated ? "yes" : "no"}`,
+    `- Linked source rows remain private: ${manifest.trust.linkedSourceRowsRemainPrivate ? "yes" : "no"}`,
+    "",
+    "## Project",
+    `- Name: ${manifest.project.name}`,
+    `- Slug: ${manifest.project.slug}`,
+    `- Visibility: ${manifest.project.visibility}`,
+    manifest.project.description ? `- Description: ${manifest.project.description}` : "- Description: none",
+    "",
+    "## Attached Developer Spaces",
+    manifest.attachedDeveloperSpaces.length === 0
+      ? "- None"
+      : manifest.attachedDeveloperSpaces.map((space: any) =>
+        `- ${space.projectName} (${space.visibility}, ${space.visualisationType})`
+      ).join("\n"),
+    "",
+    "## Owner Project Evidence References",
+    manifest.ownerProjectEvidenceRefs.length === 0
+      ? "- None"
+      : manifest.ownerProjectEvidenceRefs.map((item: any) =>
+        `- ${item.document.title} (${item.role}, ${item.document.status}/${item.document.visibility})`
+      ).join("\n"),
+    "",
+    "## Public Project Evidence References",
+    manifest.publicProjectEvidenceRefs.length === 0
+      ? "- None"
+      : manifest.publicProjectEvidenceRefs.map((item: any) =>
+        `- ${item.title} (${item.kind}) -> ${item.href}`
+      ).join("\n"),
+    "",
+  ].join("\n");
+}
+
 function sha256(value: string) {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
@@ -993,6 +1251,73 @@ async function createDeveloperSpaceExportPackage(space: any, ownerUserId: string
   }
 }
 
+async function createProjectExportPackage(project: any, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const requestedAt = new Date().toISOString();
+  await assertNoInProgressExportPackage({
+    ownerUserId,
+    packageKind: "project_manifest",
+    projectId: project.id,
+  });
+
+  const { data: initial, error } = await sb
+    .from("export_packages")
+    .insert({
+      owner_user_id: ownerUserId,
+      persona_id: null,
+      developer_space_id: null,
+      project_id: project.id,
+      package_kind: "project_manifest",
+      status: "processing",
+      format: "json_markdown",
+      included_sections: PROJECT_INCLUDED_SECTIONS,
+      manifest_json: {},
+      manifest_markdown: "",
+      content_summary: {},
+      requested_at: requestedAt,
+      completed_at: null,
+    })
+    .select("*")
+    .single();
+
+  if (error || !initial) throw new Error(error?.message ?? "Could not create Project manifest package.");
+
+  try {
+    const manifest = await buildProjectExportManifest(project, initial.id, ownerUserId);
+    const manifestMarkdown = buildProjectManifestMarkdown(manifest);
+    const completedAt = new Date().toISOString();
+
+    const { data: completed, error: updateError } = await sb
+      .from("export_packages")
+      .update({
+        status: "completed",
+        manifest_json: manifest,
+        manifest_markdown: manifestMarkdown,
+        content_summary: {
+          attachedDeveloperSpaces: manifest.attachedDeveloperSpaces.length,
+          ownerProjectEvidenceRefs: manifest.ownerProjectEvidenceRefs.length,
+          publicProjectEvidenceRefs: manifest.publicProjectEvidenceRefs.length,
+        },
+        completed_at: completedAt,
+      })
+      .eq("id", initial.id)
+      .eq("owner_user_id", ownerUserId)
+      .eq("project_id", project.id)
+      .select("*")
+      .single();
+
+    if (updateError || !completed) {
+      throw new Error(updateError?.message ?? "Could not finish Project manifest package.");
+    }
+
+    return { row: completed, manifest, manifestMarkdown };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not finish Project manifest package.";
+    await markExportPackageFailed(initial.id, ownerUserId, message);
+    throw new Error(message);
+  }
+}
+
 async function markExportPackageFailed(packageId: string, ownerUserId: string, message: string) {
   const sb = getSupabaseAdmin();
   await sb
@@ -1038,6 +1363,43 @@ exportsRouter.post("/developer-spaces/:spaceId", async (req, res) => {
     if (quotaError) return res.status(quotaError.status).json(quotaError.body);
     return res.status(500).json({
       error: error instanceof Error ? error.message : "Could not create Developer Space export package.",
+    });
+  }
+});
+
+exportsRouter.get("/projects/:projectIdOrSlug", async (req, res) => {
+  const project = await loadOwnedProject(req.params.projectIdOrSlug, req.user!.id);
+  if (!project) return res.status(404).json({ error: "Project not found." });
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("export_packages")
+    .select("id, owner_user_id, persona_id, developer_space_id, project_id, package_kind, status, format, included_sections, content_summary, error_message, requested_at, completed_at, created_at, updated_at")
+    .eq("project_id", project.id)
+    .eq("owner_user_id", req.user!.id)
+    .eq("package_kind", "project_manifest")
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  return res.json({ exports: (data ?? []).map(exportRow) });
+});
+
+exportsRouter.post("/projects/:projectIdOrSlug", async (req, res) => {
+  const project = await loadOwnedProject(req.params.projectIdOrSlug, req.user!.id);
+  if (!project) return res.status(404).json({ error: "Project not found." });
+
+  try {
+    const { row, manifest, manifestMarkdown } = await createProjectExportPackage(project, req.user!.id);
+    return res.status(201).json({
+      exportPackage: exportRow(row),
+      manifest,
+      manifestMarkdown,
+    });
+  } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Could not create Project manifest package.",
     });
   }
 });
@@ -1105,6 +1467,11 @@ exportsRouter.get("/:id/bundle", async (req, res) => {
   if (error || !data) return res.status(404).json({ error: "Export package not found." });
   if (data.status !== "completed") {
     return res.status(409).json({ error: "Export bundle is available only after the package is completed." });
+  }
+  if (data.package_kind === "project_manifest") {
+    return res.status(409).json({
+      error: "Project manifest bundle export is not supported until a Project bundle lane is approved.",
+    });
   }
 
   return res.json({ bundle: buildExportBundle(data) });

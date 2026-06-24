@@ -26,6 +26,8 @@ const PRIVATE_PUBLISHED_DOC_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const DEVELOPER_SPACE_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 const DEV_PUBLIC_DOC_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const DEV_PRIVATE_DOC_ID = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+const PROJECT_ID = "abababab-abab-4bab-8bab-abababababab";
+const OTHER_PROJECT_ID = "bcbcbcbc-bcbc-4cbc-8cbc-bcbcbcbcbcbc";
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -375,6 +377,30 @@ class InMemorySupabase {
         updated_at: "2026-05-26T09:11:30.000Z",
       },
     ],
+    projects: [
+      {
+        id: PROJECT_ID,
+        owner_user_id: OWNER_ID,
+        name: "Animus Project",
+        slug: "animus-project",
+        description: "Owner Project export fixture.",
+        visibility: "private",
+        connection_tier: "tier_1_showcase",
+        created_at: "2026-05-26T09:00:00.000Z",
+        updated_at: "2026-05-26T09:17:00.000Z",
+      },
+      {
+        id: OTHER_PROJECT_ID,
+        owner_user_id: OTHER_ID,
+        name: "Other Project",
+        slug: "other-project",
+        description: "Other owner Project.",
+        visibility: "private",
+        connection_tier: "tier_1_showcase",
+        created_at: "2026-05-26T09:00:00.000Z",
+        updated_at: "2026-05-26T09:17:00.000Z",
+      },
+    ],
     document_versions: [
       {
         id: "doc-version-1",
@@ -435,6 +461,7 @@ class InMemorySupabase {
       {
         id: DEVELOPER_SPACE_ID,
         owner_user_id: OWNER_ID,
+        project_id: PROJECT_ID,
         project_name: "Animus Field",
         slug: "animus-field",
         description: "Live project export fixture.",
@@ -450,6 +477,7 @@ class InMemorySupabase {
       {
         id: "other-dev-space",
         owner_user_id: OTHER_ID,
+        project_id: PROJECT_ID,
         project_name: "Other Field",
         slug: "other-field",
         description: null,
@@ -679,6 +707,7 @@ class InMemorySupabase {
       row.package_kind ??= "persona_archive";
       row.persona_id ??= null;
       row.developer_space_id ??= null;
+      row.project_id ??= null;
       row.status ??= "completed";
       row.format ??= "json_markdown";
       row.included_sections ??= [];
@@ -1167,6 +1196,209 @@ test("owner can export persona archive while preserving provenance and privacy b
   }
 });
 
+test("owner can create and read Project manifest packages without bundle support", async () => {
+  const db = new InMemorySupabase();
+  db.insertRow("developer_spaces", {
+    id: "project-unattached-space",
+    owner_user_id: OWNER_ID,
+    project_id: null,
+    project_name: "Unattached Project Space",
+    slug: "unattached-project-space",
+    description: "Must not appear in Project manifest.",
+    visibility: "public",
+    visualisation_type: "timeline",
+    visualisation_config: {},
+    created_at: "2026-05-26T09:18:00.000Z",
+    updated_at: "2026-05-26T09:18:00.000Z",
+  });
+  db.insertRow("developer_spaces", {
+    id: "project-other-project-space",
+    owner_user_id: OWNER_ID,
+    project_id: OTHER_PROJECT_ID,
+    project_name: "Other Project Space",
+    slug: "other-project-space",
+    description: "Must not appear in this Project manifest.",
+    visibility: "public",
+    visualisation_type: "timeline",
+    visualisation_config: {},
+    created_at: "2026-05-26T09:18:30.000Z",
+    updated_at: "2026-05-26T09:18:30.000Z",
+  });
+  db.insertRow("developer_space_documents", {
+    id: "project-unattached-link",
+    developer_space_id: "project-unattached-space",
+    document_id: DEV_PUBLIC_DOC_ID,
+    owner_user_id: OWNER_ID,
+    document_role: "finding",
+    link_visibility: "public",
+    sort_order: 1,
+    created_at: "2026-05-26T09:19:00.000Z",
+    updated_at: "2026-05-26T09:19:00.000Z",
+  });
+  db.insertRow("developer_space_documents", {
+    id: "project-other-project-link",
+    developer_space_id: "project-other-project-space",
+    document_id: DEV_PUBLIC_DOC_ID,
+    owner_user_id: OWNER_ID,
+    document_role: "finding",
+    link_visibility: "public",
+    sort_order: 1,
+    created_at: "2026-05-26T09:19:30.000Z",
+    updated_at: "2026-05-26T09:19:30.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    const anonymous = await requestJson(app, "GET", "/exports/projects/animus-project");
+    assert.equal(anonymous.status, 401);
+
+    const blockedList = await requestJson(app, "GET", "/exports/projects/animus-project", {
+      token: "other-token",
+    });
+    assert.equal(blockedList.status, 404);
+
+    const blockedCreate = await requestJson(app, "POST", "/exports/projects/animus-project", {
+      token: "other-token",
+    });
+    assert.equal(blockedCreate.status, 404);
+
+    const created = await requestJson(app, "POST", "/exports/projects/animus-project", {
+      token: "owner-token",
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.exportPackage.packageKind, "project_manifest");
+    assert.equal(created.body.exportPackage.projectId, PROJECT_ID);
+    assert.equal(created.body.exportPackage.personaId, null);
+    assert.equal(created.body.exportPackage.developerSpaceId, null);
+    assert.equal(created.body.exportPackage.ownerUserId, OWNER_ID);
+    assert.deepEqual(created.body.exportPackage.includedSections, [
+      "project",
+      "attached_developer_spaces",
+      "owner_project_evidence_refs",
+      "public_project_evidence_refs",
+      "trust",
+    ]);
+
+    const packageRow = db.tables.export_packages.find((row) => row.id === created.body.exportPackage.id);
+    assert.equal(packageRow.project_id, PROJECT_ID);
+    assert.equal(packageRow.persona_id, null);
+    assert.equal(packageRow.developer_space_id, null);
+    assert.equal(packageRow.package_kind, "project_manifest");
+    assert.equal(packageRow.owner_user_id, OWNER_ID);
+
+    assert.deepEqual(Object.keys(created.body.manifest).sort(), [
+      "attachedDeveloperSpaces",
+      "generatedAt",
+      "ownerProjectEvidenceRefs",
+      "package",
+      "project",
+      "publicProjectEvidenceRefs",
+      "schema",
+      "trust",
+    ]);
+    assert.equal(created.body.manifest.schema, "station.project.export_manifest.v1");
+    assert.deepEqual(created.body.manifest.project, {
+      name: "Animus Project",
+      slug: "animus-project",
+      description: "Owner Project export fixture.",
+      visibility: "private",
+      createdAt: "2026-05-26T09:00:00.000Z",
+      updatedAt: "2026-05-26T09:17:00.000Z",
+    });
+    assert.deepEqual(
+      created.body.manifest.attachedDeveloperSpaces.map((space: Row) => space.projectName),
+      ["Animus Field"]
+    );
+    assert.deepEqual(
+      created.body.manifest.ownerProjectEvidenceRefs.map((item: Row) => item.document.title).sort(),
+      ["Animus private method", "Animus public field log"].sort()
+    );
+    assert.equal(created.body.manifest.ownerProjectEvidenceRefs[0].developerSpace.projectName, "Animus Field");
+    assert.equal(created.body.manifest.ownerProjectEvidenceRefs[0].developerSpace.slug, "animus-field");
+    assert.equal(created.body.manifest.ownerProjectEvidenceRefs.some((item: Row) => item.routeHref === "/developer-spaces/animus-field"), true);
+    assert.equal(
+      created.body.manifest.ownerProjectEvidenceRefs.some((item: Row) => item.document.sourceLabel === "Developer Space: Animus Field"),
+      true
+    );
+    assert.deepEqual(created.body.manifest.publicProjectEvidenceRefs, [{
+      title: "Animus public field log",
+      kind: "field_log",
+      href: "/developer-spaces/animus-field",
+      sourceLabel: "Public Developer Space",
+      publishedAt: "2026-05-26T09:11:00.000Z",
+      updatedAt: "2026-05-26T09:11:00.000Z",
+    }]);
+    assert.equal(created.body.manifest.trust.ownerOnly, true);
+    assert.equal(created.body.manifest.trust.documentBodiesOmitted, true);
+    assert.equal(created.body.manifest.trust.publicReferencesSeparated, true);
+    assert.equal(created.body.manifest.trust.linkedSourceRowsRemainPrivate, true);
+
+    const manifestText = JSON.stringify(created.body.manifest);
+    for (const forbidden of [
+      PROJECT_ID,
+      OTHER_PROJECT_ID,
+      DEVELOPER_SPACE_ID,
+      DEV_PUBLIC_DOC_ID,
+      DEV_PRIVATE_DOC_ID,
+      "dev-link-public",
+      "dev-link-private",
+      "project-unattached-link",
+      "project-other-project-link",
+      "Public field log body is safe to reference.",
+      "Private Developer Space method must not leave public-safe export refs.",
+      "source_id",
+      "sourceId",
+      "body",
+      "nodes",
+      "events",
+      "snapshots",
+      "usage",
+      "export_count",
+      "storage",
+      "must-not-export",
+      "owner_user_id",
+      "Other Field",
+      "Unattached Project Space",
+      "Other Project Space",
+    ]) {
+      assert.equal(manifestText.includes(forbidden), false, `${forbidden} leaked into Project manifest`);
+    }
+
+    const listed = await requestJson(app, "GET", `/exports/projects/${PROJECT_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.exports.length, 1);
+    assert.equal(listed.body.exports[0].projectId, PROJECT_ID);
+    assert.equal(listed.body.exports[0].contentSummary.attachedDeveloperSpaces, 1);
+    assert.equal(listed.body.exports[0].contentSummary.ownerProjectEvidenceRefs, 2);
+    assert.equal(listed.body.exports[0].contentSummary.publicProjectEvidenceRefs, 1);
+
+    const readBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(readBack.status, 200);
+    assert.equal(readBack.body.exportPackage.projectId, PROJECT_ID);
+    assert.match(readBack.body.manifestMarkdown, /Station Project Export Manifest: Animus Project/);
+    assert.match(readBack.body.manifestMarkdown, /Document bodies omitted: yes/);
+    assert.match(readBack.body.manifestMarkdown, /Public Project Evidence References/);
+
+    const blockedReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
+      token: "other-token",
+    });
+    assert.equal(blockedReadBack.status, 404);
+
+    const blockedBundle = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(blockedBundle.status, 409);
+    assert.match(blockedBundle.body.error, /Project manifest bundle export is not supported/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("export package concurrency guard blocks duplicate in-progress targets", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -1205,6 +1437,32 @@ test("export package concurrency guard blocks duplicate in-progress targets", as
     assert.equal(blockedDeveloperSpace.body.code, "quota_exceeded");
     assert.equal(blockedDeveloperSpace.body.resource, "export_packages");
     assert.equal(db.tables.export_packages.filter((row) => row.developer_space_id === DEVELOPER_SPACE_ID).length, 1);
+
+    db.tables.export_packages = [];
+    db.insertRow("export_packages", {
+      owner_user_id: OWNER_ID,
+      project_id: PROJECT_ID,
+      package_kind: "project_manifest",
+      status: "processing",
+    });
+
+    const blockedProject = await requestJson(app, "POST", "/exports/projects/animus-project", {
+      token: "owner-token",
+    });
+    assert.equal(blockedProject.status, 429);
+    assert.equal(blockedProject.body.code, "quota_exceeded");
+    assert.equal(blockedProject.body.resource, "export_packages");
+    assert.equal(db.tables.export_packages.filter((row) => row.project_id === PROJECT_ID).length, 1);
+
+    const allowedPersona = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(allowedPersona.status, 201);
+
+    const allowedDeveloperSpace = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(allowedDeveloperSpace.status, 201);
   } finally {
     setSupabaseAdminForTests(null);
   }

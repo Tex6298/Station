@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR249 Owner Project Export Manifest Foundation
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 5 tests passed. Coverage now proves anonymous Project export routes require auth, non-owner Project list/create/readback returns `404`, owner creates/lists/reads `project_manifest` packages with `project_id` set and persona/Developer Space targets null, duplicate in-progress Project manifests are blocked without blocking persona or Developer Space exports, manifest sections and field names stay bounded, same-owner attached Developer Spaces and evidence refs are included, unattached/cross-owner/other-Project refs are excluded, public evidence refs remain separate, `/exports/:id` is owner-only, and `/exports/:id/bundle` rejects `project_manifest` with `409`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 13 tests passed; public and owner Project readback boundaries remain green after adding Project export targeting. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after adding `project_manifest`, `project_id`, quota target typing, and Project export route code. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added owner-only API manifest/list/create/readback for Project export
+  manifests and a schema migration for explicit Project package targeting.
+- Project manifests omit document/file bodies, nested Developer Space bundles,
+  node/event/snapshot raw data, source ids, raw link ids, usage counters,
+  public URLs, bundle data, jobs, Redis, Cloudflare, hosted runtime, provider
+  calls, member/admin/billing export permission, and UI changes.
+- `/exports/:id/bundle` intentionally rejects `project_manifest` packages until
+  a later Project bundle lane is approved.
+
 ## PR248 Project Export Boundary Preflight
 
 ARGUS docs-only preflight on 2026-06-24:
