@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
-import { projectsRouter } from "./projects";
+import { PROJECT_EVIDENCE_LIMIT, projectsRouter } from "./projects";
 
 process.env.NODE_ENV = "test";
 
@@ -20,6 +20,8 @@ class InMemorySupabase {
     project_members: [],
     developer_spaces: [],
     developer_space_usage: [],
+    developer_space_documents: [],
+    documents: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -108,12 +110,41 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "developer_space_documents") {
+      row.document_role ??= "note";
+      row.link_visibility ??= "owner";
+      row.sort_order ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "documents") {
+      row.space_id ??= null;
+      row.persona_id ??= null;
+      row.body ??= null;
+      row.document_type ??= "research";
+      row.status ??= "draft";
+      row.visibility ??= "private";
+      row.comments_enabled ??= false;
+      row.published_at ??= null;
+      row.provenance_type ??= "user_authored";
+      row.source_type ??= "manual";
+      row.source_id ??= null;
+      row.source_label ??= null;
+      row.source_persona_id ??= null;
+      row.discussion_thread_id ??= null;
+      row.version ??= 1;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     return row;
   }
 }
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, Set<unknown>]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private operation: "select" | "insert" = "select";
   private payload: Row | Row[] | null = null;
@@ -126,6 +157,11 @@ class QueryBuilder {
 
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
+    return this;
+  }
+
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, new Set(values)]);
     return this;
   }
 
@@ -156,6 +192,9 @@ class QueryBuilder {
     let rows = [...this.db.rows(this.table)];
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.has(row[field]));
     }
     if (this.orderSpec) {
       const { field, ascending } = this.orderSpec;
@@ -399,6 +438,195 @@ test("project read includes only owner attached Developer Space summaries", asyn
 
     const blocked = await requestJson(app, "GET", "/projects/owner-project", { token: "other-token" });
     assert.equal(blocked.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("project read includes bounded owner-only evidence metadata from attached Developer Spaces", async () => {
+  const db = new InMemorySupabase();
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000020",
+    owner_user_id: "owner-user",
+    name: "Research Project",
+    slug: "research-project",
+  });
+  const attachedSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000020",
+    owner_user_id: "owner-user",
+    project_id: ownerProject.id,
+    project_name: "Attached Lab",
+    slug: "attached-lab",
+    visibility: "private",
+  });
+  const unattachedSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000021",
+    owner_user_id: "owner-user",
+    project_id: null,
+    project_name: "Loose Lab",
+    slug: "loose-lab",
+  });
+  const foreignSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000022",
+    owner_user_id: "other-user",
+    project_id: ownerProject.id,
+    project_name: "Foreign Lab",
+    slug: "foreign-lab",
+  });
+  const publishedProof = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000020",
+    author_user_id: "owner-user",
+    title: "Published proof",
+    slug: "published-proof",
+    body: "Sensitive body text should not leave the evidence serializer.",
+    document_type: "research",
+    status: "published",
+    visibility: "public",
+    published_at: "2026-06-19T12:00:00.000Z",
+    created_at: "2026-06-19T10:00:00.000Z",
+    updated_at: "2026-06-19T12:00:00.000Z",
+    provenance_type: "user_authored",
+    source_id: "private-source-id",
+    source_label: "Developer Space: Attached Lab",
+  });
+  const privateDraft = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000021",
+    author_user_id: "owner-user",
+    title: "Private draft",
+    slug: "private-draft",
+    body: "Private draft body.",
+    document_type: "field_log",
+    status: "draft",
+    visibility: "private",
+    created_at: "2026-06-19T09:00:00.000Z",
+    updated_at: "2026-06-19T11:00:00.000Z",
+    provenance_type: "ai_assisted",
+    source_id: "private-draft-source",
+    source_label: "Private archive source",
+  });
+  const unattachedDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000022",
+    author_user_id: "owner-user",
+    title: "Unattached evidence",
+    slug: "unattached-evidence",
+    status: "published",
+    visibility: "public",
+    published_at: "2026-06-19T13:00:00.000Z",
+  });
+  const otherOwnerDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000023",
+    author_user_id: "other-user",
+    title: "Other owner evidence",
+    slug: "other-owner-evidence",
+    status: "published",
+    visibility: "public",
+    published_at: "2026-06-19T14:00:00.000Z",
+  });
+
+  db.insertRow("developer_space_documents", {
+    id: "40000000-0000-4000-8000-000000000020",
+    developer_space_id: attachedSpace.id,
+    document_id: publishedProof.id,
+    owner_user_id: "owner-user",
+    document_role: "finding",
+    link_visibility: "public",
+    sort_order: 2,
+    created_at: "2026-06-19T12:05:00.000Z",
+    updated_at: "2026-06-19T12:05:00.000Z",
+  });
+  db.insertRow("developer_space_documents", {
+    id: "40000000-0000-4000-8000-000000000021",
+    developer_space_id: attachedSpace.id,
+    document_id: privateDraft.id,
+    owner_user_id: "owner-user",
+    document_role: "field_log",
+    link_visibility: "owner",
+    sort_order: 1,
+    created_at: "2026-06-19T11:05:00.000Z",
+    updated_at: "2026-06-19T11:05:00.000Z",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: unattachedSpace.id,
+    document_id: unattachedDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "methodology",
+    link_visibility: "public",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: foreignSpace.id,
+    document_id: otherOwnerDocument.id,
+    owner_user_id: "other-user",
+    document_role: "finding",
+    link_visibility: "public",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: attachedSpace.id,
+    document_id: otherOwnerDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "note",
+    link_visibility: "public",
+  });
+
+  for (let index = 0; index < PROJECT_EVIDENCE_LIMIT + 4; index += 1) {
+    const document = db.insertRow("documents", {
+      id: `30000000-0000-4000-8000-${String(100 + index).padStart(12, "0")}`,
+      author_user_id: "owner-user",
+      title: `Older note ${index}`,
+      slug: `older-note-${index}`,
+      status: "published",
+      visibility: "public",
+      published_at: `2026-06-18T${String(index % 10).padStart(2, "0")}:00:00.000Z`,
+      updated_at: `2026-06-18T${String(index % 10).padStart(2, "0")}:00:00.000Z`,
+    });
+    db.insertRow("developer_space_documents", {
+      developer_space_id: attachedSpace.id,
+      document_id: document.id,
+      owner_user_id: "owner-user",
+      document_role: "note",
+      link_visibility: "public",
+      sort_order: index + 10,
+    });
+  }
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const response = await requestJson<{ evidence: Row[] }>(app, "GET", "/projects/research-project", {
+      token: "owner-token",
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.body.evidence.length, PROJECT_EVIDENCE_LIMIT);
+    assert.deepEqual(
+      response.body.evidence.slice(0, 2).map((item) => item.document.slug),
+      ["published-proof", "private-draft"]
+    );
+    assert.deepEqual(response.body.evidence[0].developerSpace, {
+      id: attachedSpace.id,
+      projectName: "Attached Lab",
+      slug: "attached-lab",
+    });
+    assert.equal(response.body.evidence[0].role, "finding");
+    assert.equal(response.body.evidence[0].linkVisibility, "public");
+    assert.equal(response.body.evidence[0].document.documentType, "research");
+    assert.equal(response.body.evidence[0].document.status, "published");
+    assert.equal(response.body.evidence[0].document.visibility, "public");
+    assert.equal(response.body.evidence[0].document.provenanceType, "user_authored");
+    assert.equal(response.body.evidence[0].document.sourceLabel, "Developer Space: Attached Lab");
+    assert.equal(response.body.evidence[0].routeHref, "/developer-spaces/attached-lab");
+    assert.equal(response.body.evidence[0].routeLabel, "Open observatory");
+    assert.equal(response.body.evidence[1].role, "field_log");
+    assert.equal(response.body.evidence[1].document.sourceLabel, null);
+    assert.equal(response.body.evidence[1].routeHref, `/studio/publish?documentId=${privateDraft.id}`);
+    assert.equal(response.body.evidence[1].routeLabel, "Review draft");
+
+    const evidenceJson = JSON.stringify(response.body.evidence);
+    assert.doesNotMatch(evidenceJson, /Sensitive body text|Private draft body/);
+    assert.doesNotMatch(evidenceJson, /private-source-id|private-draft-source/);
+    assert.doesNotMatch(evidenceJson, /owner_user_id|ownerUserId|author_user_id|authorUserId/);
+    assert.doesNotMatch(evidenceJson, /raw_event|snapshot|provider|ingestion|secret|report|export/);
+    assert.equal(response.body.evidence.some((item) => item.document.slug === "unattached-evidence"), false);
+    assert.equal(response.body.evidence.some((item) => item.document.slug === "other-owner-evidence"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

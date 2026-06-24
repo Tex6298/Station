@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR234 Owner Project Evidence Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 8 tests passed, including owner Project evidence readback from attached owner Developer Spaces, unattached/cross-owner/unrelated exclusions, bounded evidence list, safe route hints, and web helper copy/label coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after adding shared Project evidence types, metadata-only Project evidence serialization, and the Project detail panel. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff --cached --check` | Pass | CRLF normalization warnings only for staged files. |
+
+Scope notes:
+
+- Added private owner-only Project evidence/citation metadata readback from
+  already-attached owner Developer Spaces and linked documents.
+- Evidence payloads intentionally omit document bodies, private source ids,
+  owner ids, raw Project member rows, raw Developer Space event payloads,
+  snapshots/node metrics, provider fields, reports, export contents, ingestion
+  keys, secrets, stack traces, SQL details, and raw JSON blobs.
+- No schema, migration, public Project route, Discover Project card,
+  member-role authorization, Project export, institutional billing/admin,
+  hosted runtime, provider call, Developer Space behavior expansion, or broad
+  UI reskin changed.
+
 ## PR233 Institutional/Research Project Lane Map
 
 DAEDALUS docs-only mapping validation on 2026-06-24:

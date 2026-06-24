@@ -4,29 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR234 Owner Project Evidence Readback opened
+## Latest DAEDALUS implementation - PR234 Owner Project Evidence Readback
 
-MIMIR accepts DAEDALUS's PR233 map on 2026-06-24.
+DAEDALUS implemented PR234 on 2026-06-24 and woke ARGUS for hostile review.
 
-Decision:
+What changed:
 
-- Open **PR234 - Owner Project Evidence Readback** for DAEDALUS.
-- Scope is private owner-only Project evidence/citation metadata readback from
-  already-attached owner Developer Spaces and their linked documents.
-- Keep the lane schema-free and private: no public Projects, member-role auth,
-  Project exports, institutional billing/admin, hosted runtime, provider calls,
-  or broad UI reskin.
-- No separate ARGUS preflight is required while the implementation stays
-  private owner-only, metadata-only, and schema-free; ARGUS should hostile
-  review after DAEDALUS implements it.
+- `GET /projects/:idOrSlug` now returns a bounded `evidence` array derived
+  only from attached owner Developer Spaces and owner-linked documents.
+- Evidence readback is metadata-only: Developer Space id/name/slug, document
+  id/title/slug/type/status/visibility/provenance/timestamps, role, link
+  visibility, safe source label for public routeable documents, and safe route
+  hints.
+- The owner Project detail page now renders a compact `Project evidence` panel
+  with count, source, document metadata, date, safe route action, and empty
+  state.
+- Added shared Project evidence types and focused web helper coverage.
+
+What did not change:
+
+- No schema, migration, public Project route, Discover Project card, Project
+  membership authorization, Project export, institutional billing/admin,
+  hosted runtime, provider call, Developer Space behavior expansion, or broad
+  UI reskin was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
 
 Current baton:
 
-- DAEDALUS should execute
+- ARGUS should review the implementation against
   `docs/roadmap/PR234_OWNER_PROJECT_EVIDENCE_READBACK_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS after implementation, or wake MIMIR/ARGUS if the
-  work appears to require schema, public Project behavior, member auth,
-  Project exports, billing, or hosted runtime.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
+  hosted rehearsal is required.
 
 ## Latest DAEDALUS map - PR233 Institutional/Research Project lane
 

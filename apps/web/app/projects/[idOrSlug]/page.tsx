@@ -3,8 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { ProjectEvidenceItem } from "@station/types";
 import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import {
+  projectEvidenceCountLabel,
+  projectEvidenceDate,
+  projectEvidenceEmptyCopy,
+  projectEvidenceRoleLabel,
+  projectEvidenceRouteLabel,
+} from "@/lib/project-evidence";
 
 type ProjectVisibility = "private" | "unlisted" | "community" | "public";
 type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
@@ -35,6 +43,7 @@ interface AttachedDeveloperSpaceSummary {
 interface ProjectDetailResponse {
   project: ProjectSummary;
   developerSpaces: AttachedDeveloperSpaceSummary[];
+  evidence?: ProjectEvidenceItem[];
   activity?: Partial<ProjectActivity>;
 }
 
@@ -217,6 +226,7 @@ export default function ProjectDetailPage() {
   }
 
   const { project, developerSpaces } = detail;
+  const evidence = detail.evidence ?? [];
   const activity = normaliseActivity(detail.activity);
   const attachedIds = new Set(developerSpaces.map((space) => space.id));
   const attachCandidates = ownerSpaces.filter((space) => !attachedIds.has(space.id));
@@ -296,6 +306,58 @@ export default function ProjectDetailPage() {
               </div>
             ))}
           </dl>
+        </section>
+
+        <section style={{ display: "grid", gap: "0.75rem" }} aria-label="Project evidence">
+          <div>
+            <div className="station-action-row" style={{ alignItems: "center" }}>
+              <h2 style={{ margin: 0, fontSize: "1.2rem" }}>Project evidence</h2>
+              <span className="station-status-pill">{projectEvidenceCountLabel(evidence.length)}</span>
+            </div>
+            <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
+              Owner-only metadata from attached Developer Spaces.
+            </p>
+          </div>
+
+          {evidence.length === 0 ? (
+            <div className="station-panel" style={{ textAlign: "center", padding: "2rem 1.5rem", color: "#687078" }}>
+              {projectEvidenceEmptyCopy()}
+            </div>
+          ) : evidence.map((item) => {
+            const routeLabel = projectEvidenceRouteLabel(item);
+            return (
+              <article key={item.id} className="station-card" style={{ display: "grid", gap: "0.75rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div className="kicker" style={{ marginBottom: "0.35rem" }}>{item.developerSpace.projectName}</div>
+                    <h3 style={{ margin: "0 0 0.25rem", fontSize: "1rem", overflowWrap: "anywhere" }}>{item.document.title}</h3>
+                    {item.document.sourceLabel ? (
+                      <p style={{ margin: 0, color: "#687078", fontSize: "0.84rem", lineHeight: 1.5 }}>
+                        {item.document.sourceLabel}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className="pill">{projectEvidenceRoleLabel(item.role)}</span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", color: "#687078", fontSize: "0.8rem" }}>
+                  <span>{item.document.documentType.replace("_", " ")}</span>
+                  <span>/</span>
+                  <span style={{ textTransform: "capitalize" }}>{item.document.status}</span>
+                  <span>/</span>
+                  <span style={{ textTransform: "capitalize" }}>{item.document.visibility}</span>
+                  <span>/</span>
+                  <span>{item.linkVisibility === "public" ? "public link" : "owner link"}</span>
+                  <span>/</span>
+                  <span>{formatDate(projectEvidenceDate(item))}</span>
+                </div>
+                {item.routeHref && routeLabel ? (
+                  <div className="station-action-row">
+                    <Link className="station-muted-button" href={item.routeHref}>{routeLabel}</Link>
+                  </div>
+                ) : null}
+              </article>
+            );
+          })}
         </section>
 
         <section style={{ display: "grid", gap: "0.75rem" }}>

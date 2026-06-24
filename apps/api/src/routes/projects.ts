@@ -1,8 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { Database, ProjectConnectionTier, ProjectVisibility } from "@station/db";
+import type { ProjectEvidenceItem } from "@station/types";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
+
+export const PROJECT_EVIDENCE_LIMIT = 24;
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
 const connectionTierSchema = z.enum(["tier_1_showcase", "tier_2_hosted", "tier_3_lab"]);
@@ -19,6 +22,24 @@ const createProjectSchema = z.object({
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
 type DeveloperSpaceRow = Database["public"]["Tables"]["developer_spaces"]["Row"];
 type DeveloperSpaceUsageRow = Database["public"]["Tables"]["developer_space_usage"]["Row"];
+type DeveloperSpaceDocumentRow = Database["public"]["Tables"]["developer_space_documents"]["Row"];
+type DocumentRow = Database["public"]["Tables"]["documents"]["Row"];
+type ProjectEvidenceDocumentRow = Pick<
+  DocumentRow,
+  | "id"
+  | "author_user_id"
+  | "title"
+  | "slug"
+  | "document_type"
+  | "status"
+  | "visibility"
+  | "published_at"
+  | "created_at"
+  | "updated_at"
+  | "provenance_type"
+  | "source_type"
+  | "source_label"
+>;
 
 export const projectsRouter = Router();
 projectsRouter.use(requireAuth);
@@ -77,6 +98,134 @@ function serializeProjectActivity(
     publicReads: 0,
     exports: 0,
   });
+}
+
+function evidenceTimestamp(link: DeveloperSpaceDocumentRow, document: Pick<
+  DocumentRow,
+  "published_at" | "updated_at" | "created_at"
+>) {
+  return document.published_at ?? document.updated_at ?? link.updated_at ?? link.created_at;
+}
+
+function projectEvidenceSortTimestamp(item: ProjectEvidenceItem) {
+  return item.document.publishedAt ?? item.document.updatedAt ?? item.updatedAt ?? item.linkedAt;
+}
+
+function isPublicRouteableDocument(document: Pick<DocumentRow, "status" | "visibility">) {
+  return document.status === "published" && document.visibility === "public";
+}
+
+function isOwnerDraftRouteable(document: Pick<DocumentRow, "id" | "status" | "visibility">) {
+  return Boolean(document.id) && document.status === "draft" && document.visibility === "private";
+}
+
+function evidenceRoute(link: DeveloperSpaceDocumentRow, document: ProjectEvidenceDocumentRow, space: Pick<DeveloperSpaceRow, "slug">) {
+  if (link.link_visibility === "public" && isPublicRouteableDocument(document)) {
+    return {
+      routeHref: `/developer-spaces/${encodeURIComponent(space.slug)}`,
+      routeLabel: "Open observatory",
+    };
+  }
+
+  if (isOwnerDraftRouteable(document)) {
+    return {
+      routeHref: `/studio/publish?documentId=${encodeURIComponent(document.id)}`,
+      routeLabel: "Review draft",
+    };
+  }
+
+  return {
+    routeHref: null,
+    routeLabel: null,
+  };
+}
+
+function serializeProjectEvidence(
+  link: DeveloperSpaceDocumentRow,
+  document: ProjectEvidenceDocumentRow,
+  space: Pick<DeveloperSpaceRow, "id" | "project_name" | "slug">
+): ProjectEvidenceItem {
+  const route = evidenceRoute(link, document, space);
+  return {
+    id: link.id,
+    developerSpace: {
+      id: space.id,
+      projectName: space.project_name,
+      slug: space.slug,
+    },
+    document: {
+      id: document.id,
+      title: document.title,
+      slug: document.slug,
+      documentType: document.document_type,
+      status: document.status,
+      visibility: document.visibility,
+      provenanceType: document.provenance_type,
+      sourceLabel: isPublicRouteableDocument(document) ? document.source_label ?? null : null,
+      publishedAt: document.published_at ?? null,
+      createdAt: document.created_at,
+      updatedAt: document.updated_at,
+    },
+    role: link.document_role,
+    linkVisibility: link.link_visibility,
+    sortOrder: Number(link.sort_order ?? 0),
+    linkedAt: link.created_at,
+    updatedAt: link.updated_at,
+    ...route,
+  };
+}
+
+async function loadProjectEvidence(
+  developerSpaces: Array<Pick<DeveloperSpaceRow, "id" | "owner_user_id" | "project_name" | "slug">>,
+  ownerUserId: string
+): Promise<{ evidence?: ProjectEvidenceItem[]; error?: string }> {
+  const attachedSpaces = developerSpaces.filter((space) => space.owner_user_id === ownerUserId);
+  const spaceIds = attachedSpaces.map((space) => space.id);
+  if (spaceIds.length === 0) return { evidence: [] };
+
+  const sb = getSupabaseAdmin();
+  const { data: links, error: linkError } = await sb
+    .from("developer_space_documents")
+    .select("id, developer_space_id, document_id, owner_user_id, document_role, link_visibility, sort_order, created_at, updated_at")
+    .eq("owner_user_id", ownerUserId)
+    .in("developer_space_id", spaceIds)
+    .order("updated_at", { ascending: false });
+
+  if (linkError) return { error: linkError.message };
+
+  const linkRows = links ?? [];
+  const documentIds = [...new Set(linkRows.map((link) => link.document_id))];
+  if (documentIds.length === 0) return { evidence: [] };
+
+  const { data: documents, error: documentError } = await sb
+    .from("documents")
+    .select("id, author_user_id, title, slug, document_type, status, visibility, published_at, created_at, updated_at, provenance_type, source_type, source_label")
+    .eq("author_user_id", ownerUserId)
+    .in("id", documentIds);
+
+  if (documentError) return { error: documentError.message };
+
+  const spacesById = new Map(attachedSpaces.map((space) => [space.id, space]));
+  const documentsById = new Map((documents ?? []).map((document) => [document.id, document]));
+  const evidence = linkRows
+    .map((link) => {
+      const space = spacesById.get(link.developer_space_id);
+      const document = documentsById.get(link.document_id);
+      if (!space || !document) return null;
+      return serializeProjectEvidence(link, document, space);
+    })
+    .filter((item): item is ProjectEvidenceItem => Boolean(item))
+    .sort((a, b) => {
+      const newest = Date.parse(projectEvidenceSortTimestamp(a));
+      const older = Date.parse(projectEvidenceSortTimestamp(b));
+      if (newest !== older) return older - newest;
+      const spaceName = a.developerSpace.projectName.localeCompare(b.developerSpace.projectName);
+      if (spaceName !== 0) return spaceName;
+      return a.document.title.localeCompare(b.document.title);
+    })
+    .slice(0, PROJECT_EVIDENCE_LIMIT);
+
+  return { evidence };
 }
 
 function isUuid(value: string) {
@@ -156,7 +305,7 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
 
   const { data: developerSpaces, error: developerSpacesError } = await sb
     .from("developer_spaces")
-    .select("id, project_name, slug, description, visibility, visualisation_type, created_at, updated_at")
+    .select("id, owner_user_id, project_name, slug, description, visibility, visualisation_type, created_at, updated_at")
     .eq("project_id", data.id)
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
@@ -171,9 +320,13 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
 
   if (usageError) return res.status(500).json({ error: usageError.message });
 
+  const evidenceResult = await loadProjectEvidence(developerSpaces ?? [], req.user!.id);
+  if (evidenceResult.error) return res.status(500).json({ error: evidenceResult.error });
+
   return res.json({
     project: serializeProject(data),
     developerSpaces: (developerSpaces ?? []).map(serializeAttachedDeveloperSpace),
     activity: serializeProjectActivity(usageRows ?? [], developerSpaces?.length ?? 0),
+    evidence: evidenceResult.evidence ?? [],
   });
 });

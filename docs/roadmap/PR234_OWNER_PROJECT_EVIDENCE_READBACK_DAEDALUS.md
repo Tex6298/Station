@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Open
+Status: Implemented - ARGUS review pending
 Opened: 2026-06-24
+Implemented: 2026-06-24
 
 ## Frame
 
@@ -183,3 +184,48 @@ Task:
 - Wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE hosted rehearsal
   is required.
 ```
+
+## DAEDALUS Result - 2026-06-24
+
+Implementation:
+
+- Added shared `ProjectEvidenceItem` types in `@station/types`.
+- Extended owner `GET /projects/:idOrSlug` with bounded `evidence` readback.
+- Evidence is derived only from Developer Spaces attached to the authenticated
+  owner's Project and owner-owned `developer_space_documents` / `documents`
+  rows.
+- Evidence payloads include only metadata: Developer Space id/name/slug,
+  document id/title/slug/type/status/visibility/provenance/timestamps, role,
+  link visibility, safe public source label when the document is public
+  routeable, and safe route hints.
+- Rendered a compact owner Project detail `Project evidence` panel with count,
+  Developer Space source, document title/type/role/status/visibility/date,
+  safe route action, and empty state.
+- Added focused API and web helper coverage under `test:projects`.
+
+Boundary notes:
+
+- No schema, migration, public Project route, Discover Project card,
+  member-role authorization, Project export, institutional billing/admin,
+  hosted runtime, provider call, Developer Space feature expansion, or broad UI
+  reskin was added.
+- Tests prove unattached spaces, hostile cross-owner Project assignments,
+  other-owner spaces, other-owner documents, and unrelated documents are
+  excluded.
+- Tests prove evidence JSON omits document bodies, private source ids, owner
+  ids, raw event/snapshot/provider/report/export/ingestion/secret-shaped
+  fields, and other forbidden internals.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed with CRLF normalization warnings only.
+
+Review:
+
+- ARGUS review required before MIMIR closeout.
