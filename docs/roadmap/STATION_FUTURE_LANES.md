@@ -164,22 +164,27 @@ Current intent:
   repair at `c898f82`; PR204 now sends the public persona page to ARIADNE for
   visible rehearsal.
 - PR204 result: ARIADNE accepted the public persona page rehearsal on Railway
-  after MIMIR repaired staging schema/seed drift. PR205 opens visitor-safe
-  public persona context preview for DAEDALUS. This is still pre-chat: no
-  provider call, no visitor conversations, and no private runtime context.
+  after MIMIR repaired staging schema/seed drift. PR205 added and ARGUS
+  accepted a visitor-safe public persona context preview shell. The first
+  preview is intentionally public-profile-only.
+- PR206 opens the next pre-chat bridge slice: expand the public context preview
+  to already-public, already-routeable published documents and linked public
+  discussion sources before any visitor chat product opens.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 and PR204 are accepted. PR205 is open for DAEDALUS to
-add visitor-safe public persona context preview before any public chat product
-opens.
+Status, 2026-06-24: PR202 through PR205 are accepted. PR206 is open for
+DAEDALUS to expand visitor-safe public persona context preview from
+profile-only to public documents and linked public discussion sources before
+any public chat product opens.
 
 Current MIMIR position:
 
 - The repo has public-safe patterns for Public Spaces, Developer Spaces,
   published documents, community read paths, and protected-alpha Studio.
-- The repo does not yet have a real public persona route, visitor-safe public
-  persona context assembly, bounded visitor chat, owner disable controls,
+- The repo has a real public persona route and a profile-only visitor-safe
+  context preview. It does not yet have public document/discussion source
+  assembly for public personas, bounded visitor chat, owner disable controls,
   public persona reporting/moderation, or owner analytics for public persona
   interaction.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
@@ -192,10 +197,11 @@ Bridge order:
    split, and owner readback.
 3. Done: public persona page readback with no visitor chat.
 4. Done: ARIADNE public persona page rehearsal.
-5. Active: visitor-safe context assembly readback/preview.
-6. Bounded visitor chat alpha with rate/message limits and reporting.
-7. Owner analytics, moderation, and report readback.
-8. Only then consider Roulette, Salons, voice/avatar, public persona events,
+5. Done: profile-only visitor-safe context preview shell.
+6. Active: public document and linked public discussion context sources.
+7. Bounded visitor chat alpha with rate/message limits and reporting.
+8. Owner analytics, moderation, and report readback.
+9. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:

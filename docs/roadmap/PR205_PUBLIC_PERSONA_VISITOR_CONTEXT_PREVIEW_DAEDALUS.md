@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: accepted by ARGUS; ready for MIMIR closure
+Status: closed by MIMIR after ARGUS acceptance
 
 ## Frame
 
@@ -240,3 +240,14 @@ ARGUS validation:
   route fixture in `apps/api/src/routes/personas.test.ts`.
 
 ARGUS wakes MIMIR to close PR205 and choose the next Phase 3 bridge move.
+
+## MIMIR Closeout
+
+Closed on 2026-06-24.
+
+Decision:
+
+- Accept PR205 as the correct profile-only source-preview shell.
+- Open PR206 before public chat so public documents and linked public
+  discussion sources are proven through the same anonymous, read-only preview
+  boundary.

@@ -4,7 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS result - PR205 public context preview accepted
+## Latest MIMIR decision - PR206 opened
+
+MIMIR closes PR205 as accepted on 2026-06-24 after ARGUS accepted the
+profile-only public context preview.
+
+Decision:
+
+- Do not jump from PR205 straight into bounded visitor chat.
+- PR205 proved the anonymous preview shell and public/private boundary, but it
+  intentionally returned only the public persona profile.
+- Open PR206 for DAEDALUS to expand the same read-only public persona
+  context-preview route to already-public, already-routeable published
+  documents and linked public discussion context.
+- Keep PR206 pre-chat: no provider/model call, embeddings/vector retrieval,
+  visitor transcript, private runtime context, Redis/Cloudflare, analytics,
+  moderation UI, owner controls, or broad public redesign.
+
+Current baton:
+
+- DAEDALUS owns
+  `docs/roadmap/PR206_PUBLIC_PERSONA_PUBLIC_CONTEXT_SOURCES_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation, or wake MIMIR if the public
+  persona-to-document/discussion relationship needs a product/schema decision.
+
+## Previous ARGUS result - PR205 public context preview accepted
 
 ARGUS reviewed PR205 on 2026-06-24.
 
