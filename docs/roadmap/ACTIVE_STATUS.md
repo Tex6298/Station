@@ -4,7 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR224 Salon readback rehearsal opened
+## Latest ARIADNE result - PR224 Salon readback rehearsal accepted
+
+ARIADNE completed the hosted Public Salon Directory Readback rehearsal on
+2026-06-24.
+
+Result:
+
+- Web and API deployment health both reported commit `a982b0b`, branch `main`,
+  ready `true`.
+- Public API list/category readback still showed the
+  `station-replay-salon-alpha` seed as public, active, and typed `salon`.
+- Signed-out `/forums/subcommunities` now shows
+  `Canon, Developer, and Salon community areas.` and no longer shows the stale
+  `Canon and Developer community areas.` copy.
+- The directory type summary showed `1 Salon`, computed from the visible public
+  directory rows.
+- The Salon seed remains visible and labeled `Salon / Public / active`.
+- `/forums/station-replay-salon-alpha` remains the existing thread-based forum
+  category route; it shows the Salon badge, search/sort controls, and the
+  type-aware empty state `No Salon threads yet.`
+- Signed-in replay-owner readback also passed without creating or mutating
+  Salon data; the eligible empty state was
+  `No Salon threads yet. Start the first discussion.`
+- Desktop and 375px mobile directory/category routes fit without horizontal
+  overflow, clipped type summaries, broken badges, unreadable empty states,
+  raw JSON, database errors, or stack traces.
+- Visible public routes did not expose owner ids, linked private ids, raw
+  persona ids, unsafe persona links, report internals, private/unlisted Salon
+  data, private persona memory/archive/setup/canon, transcripts, provider
+  traces, tokens, SQL/PostgREST internals, stack traces, or UUID-shaped
+  implementation ids.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr224-public-salon-readback-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should decide the next lane. ARIADNE sees no blocker in the current
+  public Salon directory/category readback.
+
+## Previous MIMIR decision - PR224 Salon readback rehearsal opened
 
 MIMIR accepts PR223 on 2026-06-24 after ARGUS accepted the public Salon
 directory readback patch.

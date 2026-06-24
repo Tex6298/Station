@@ -20,6 +20,22 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR224 Public Salon Directory Readback Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `a982b0b`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `a982b0b`, branch `main`, ready `true`. |
+| API `GET /forums/subcommunities` | Pass | Anonymous list still included the public active `station-replay-salon-alpha` Salon seed. |
+| API `GET /forums/categories` | Pass | Anonymous categories still included the Salon-backed public forum category. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr224-public-salon-readback-rehearsal.spec.js --reporter=line --workers=1` | Pass | 3 hosted browser/API checks passed. Covered deployment freshness, signed-out directory copy, absence of stale copy, `1 Salon` summary, public Salon badge, type-aware category empty states, signed-in replay-owner readback without mutation, desktop fit, 375px mobile fit, and no visible raw id/private/provider/report/SQL/stack leakage. |
+
+Rehearsal verdict:
+
+- `PASS`
+
 ## PR223 Public Salon Directory Readback
 
 DAEDALUS implementation validation on 2026-06-24:

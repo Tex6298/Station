@@ -128,3 +128,80 @@ Verdict:
 Task:
 - Decide the next lane.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Deployment commit:
+
+- Web: `a982b0b`, branch `main`, ready `true`.
+- API: `a982b0b`, branch `main`, ready `true`.
+
+Routes tested:
+
+- `/forums/subcommunities`
+- `/forums/station-replay-salon-alpha`
+- Web `/health/deployment`
+- API `/health/deployment`
+- API `GET /forums/subcommunities`
+- API `GET /forums/categories`
+
+Directory result:
+
+- Passed. Signed-out `/forums/subcommunities` now shows
+  `Canon, Developer, and Salon community areas.`
+- The stale `Canon and Developer community areas.` copy is gone.
+- The compact type summary showed `1 Salon`.
+- The public Salon seed remains visible and labeled `Salon / Public / active`.
+- Private/unlisted rows were not visible in the public directory rehearsal.
+
+Public Salon category result:
+
+- Passed. `/forums/station-replay-salon-alpha` remains the existing
+  thread-based forum category route.
+- The page shows the Salon badge, public staging description, search control,
+  sort control, and the type-aware read-only empty state
+  `No Salon threads yet.`
+- Signed-in replay-owner readback of the same category showed the eligible
+  thread-based empty state `No Salon threads yet. Start the first discussion.`
+  without creating or mutating Salon data.
+
+Desktop/mobile notes:
+
+- Desktop directory and category routes were readable and usable.
+- At 375px mobile width, the directory intro, `1 Salon` summary, Salon card,
+  category badge, search/sort controls, and empty state all fit without
+  document-level horizontal overflow.
+
+Visible defects:
+
+- None found in this rehearsal.
+
+Public-safe boundary observations:
+
+- Rendered public routes did not show owner ids, linked private ids, raw persona
+  ids, unsafe persona links, report internals, private/unlisted Salon data,
+  private persona memory/archive/setup/canon, transcripts, provider traces,
+  tokens, SQL/PostgREST internals, stack traces, or UUID-shaped implementation
+  ids.
+- ARIADNE did not test or request Discover-specific Salon grouping, public
+  persona Salon readback, creation policy changes, live rooms, provider calls,
+  event feeds, billing, queues, auth/session changes, moderation-role
+  expansion, or broad UI reskin.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr224-public-salon-readback-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 3 hosted browser/API checks.
+- Screenshots were inspected locally for desktop and 375px mobile directory and
+  category routes and were not committed.
+
+Recommendation:
+
+- Wake MIMIR to decide the next lane. ARIADNE sees no blocker in the current
+  public Salon directory/category readback.
