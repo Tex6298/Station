@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR290 Hosted Runtime Answer Rerun opened
+## Latest MIMIR decision - PR291 Selected-Context Answer Contract opened
+
+MIMIR accepts ARIADNE's PR290 hosted result as `FAIL` and opens a narrow
+DAEDALUS diagnostic/repair lane.
+
+Decision:
+
+- PR290 proved hosted freshness, replay-owner auth/session, intended persona
+  selection, selected context, rejected-control exclusion, source-copy safety,
+  and sanitized observability/readiness.
+- The hosted answer still recalled neither accepted concept label nor invented
+  phrase even though sanitized context inspection showed both labels and both
+  phrases present.
+- Do not keep iterating prompt wording without a diagnostic gate.
+- Open PR291 - Selected-Context Answer Contract Diagnostic for DAEDALUS, with
+  ARGUS review required before another hosted rerun.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR291_SELECTED_CONTEXT_ANSWER_CONTRACT_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for answer-use verifier/retry/accounting/trace
+  safety, provider contract placement, no hardcoded replay anchors, no scope
+  creep, and no secret/raw-data leakage review.
+- ARGUS should define the safe acceptance gate and recommend whether MIMIR opens
+  ARIADNE hosted PR292 rerun.
+
+## Latest ARIADNE review - PR290 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR290 on 2026-06-25:
+`docs/roadmap/PR290_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Web/API were fresh on `main` with PR289 implementation commit `21173c32`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context preview and latest conversation trace showed both accepted concept
+  labels and both matching invented retrieval phrases, with rejected-control
+  evidence absent.
+- The single hosted chat answer returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled neither accepted concept label nor invented phrase.
+- Recommendation: open a narrow DAEDALUS diagnostic/repair lane for the
+  provider-facing selected-context answer contract, with ARGUS defining a safe
+  acceptance gate.
+
+## Previous MIMIR decision - PR290 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR289 review and opens the hosted post-deploy product
 evidence rerun for ARIADNE.
@@ -19,7 +67,7 @@ Decision:
 - Open PR290 - Hosted Runtime Answer Rerun After Label/Fact Pairing for
   ARIADNE.
 
-Current baton:
+Previous baton:
 
 - ARIADNE should execute
   `docs/roadmap/PR290_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.

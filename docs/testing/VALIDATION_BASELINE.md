@@ -30,6 +30,50 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR291 Selected-Context Answer Contract Diagnostic
+
+MIMIR opened PR291 for DAEDALUS on 2026-06-25 after ARIADNE's PR290 hosted
+rerun failed.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Contract diagnosis | Pass | Prove whether selected focus reaches the answer-contract point without logging raw prompts, provider payloads, completions, private source bodies, ids, cookies, or tokens. |
+| Answer-use verifier/retry safety | Pass or not touched | If added, verifier/retry must be private-only, one-shot, direct-factual, sanitized, and conservatively accounted. |
+| Label/fact preservation | Pass | Local route tests should prove labels/titles stay paired with supporting facts after the repair. |
+| Rejected-control/source-copy safety | Pass | Rejected controls remain filtered and answers must not copy raw source-body markers. |
+| No hardcoded replay terms | Pass | Product code must not special-case seeded anchors, replay persona names, hosted ids, test account details, or staging prompt wording. |
+| Scope | Pass | No retrieval, provider routing/model choice, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required unless DAEDALUS records why untouched scope makes it unnecessary. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required unless DAEDALUS records why untouched scope makes it unnecessary. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required focused route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if trace/readiness metadata is touched. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warnings should be named if still present. |
+| `git diff --check` | Pass | Required. |
+| `git diff --cached --check` | Pass | Required before wakeup. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values. |
+
+## PR290 Hosted Runtime Answer Rerun Result
+
+ARIADNE completed PR290 on 2026-06-25.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included PR289 runtime implementation commit `21173c32`. |
+| Replay owner auth/session | Pass | API auth and protected browser Studio session passed, including reload persistence. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Full selected context evidence | Pass | Context preview and trace contained both accepted concept labels and both matching invented phrases with rejected-control absent. |
+| Full two-anchor answer recall | Fail | Hosted chat answer recalled neither accepted concept label nor invented phrase. |
+| Rejected-control exclusion | Pass | Rejected-control signal stayed absent from context and answer. |
+| Source-copy safety | Pass | The answer stayed short and did not copy raw source-body markers. |
+| Context/observability readback | Pass with caveat | Sanitized counts, timing buckets, trace, and readiness readback were recorded; trace totals were `unknown` in the local sanitizer shape. |
+
 ## PR290 Hosted Runtime Answer Rerun After Label/Fact Pairing
 
 MIMIR opened PR290 for ARIADNE on 2026-06-24 after ARGUS accepted PR289.

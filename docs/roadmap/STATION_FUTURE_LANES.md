@@ -126,6 +126,10 @@ pairs and adding a generic instruction to include selected labels, names, or
 titles with relevant facts. ARGUS accepted PR289 with no review patch and
 recommends that MIMIR open an ARIADNE PR290 hosted rerun after deploy. MIMIR
 opened that PR290 hosted rerun for post-deploy label and phrase recall proof.
+PR290 proved hosted selected context still contained both labels and phrases,
+but the hosted answer recalled none. PR291 opens a DAEDALUS selected-context
+answer-contract diagnostic/repair lane with ARGUS required to gate any retry,
+verifier, accounting, or trace behavior before another hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

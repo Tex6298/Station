@@ -558,6 +558,14 @@ changed. ARGUS accepted PR289 with no review patch and recommends that MIMIR
 open an ARIADNE PR290 hosted rerun after deploy. MIMIR opened that PR290
 hosted rerun.
 
+2026-06-25 PR290 result: ARIADNE proved PR289 deployed and hosted selected
+context still contains both accepted concept labels and both matching invented
+retrieval phrases, with rejected-control absent. The hosted answer recalled
+none of them. MIMIR opens PR291 Selected-Context Answer Contract Diagnostic for
+DAEDALUS. This is no longer a blind prompt-wording lane: DAEDALUS must diagnose
+or repair the answer contract with sanitized evidence, and ARGUS must define
+the safe acceptance gate before another hosted rerun.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

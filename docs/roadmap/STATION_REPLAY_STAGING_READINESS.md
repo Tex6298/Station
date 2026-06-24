@@ -132,6 +132,11 @@ then let staged replay reveal the next optimizations.
 - PR290 opens that ARIADNE hosted rerun. Its scope is only post-deploy product
   evidence for full two-anchor label and phrase recall, rejected-control
   exclusion, source-copy safety, and sanitized context/observability readback.
+- PR290 failed the full recall bar after proving PR289 deployed and selected
+  context still contained both accepted labels and both invented phrases. The
+  hosted answer recalled none. MIMIR opened PR291 as a narrow DAEDALUS
+  diagnostic/repair lane for the selected-context answer contract, with ARGUS
+  required to define the safe acceptance gate before another hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
