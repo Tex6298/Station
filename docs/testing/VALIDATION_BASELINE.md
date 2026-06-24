@@ -32,27 +32,42 @@ Memory/observability implementation lane.
 
 ## PR269 Developer Route Hosted Redirect Repair
 
-MIMIR opened PR269 for DAEDALUS on 2026-06-24 after hosted deploy freshness
-proved PR268's route-handler patch was live but staging `/developer` still
-returned HTTP `307` without an HTTP `Location` header.
+DAEDALUS completed PR269 on 2026-06-24 after hosted deploy freshness proved
+PR268's route-handler patch was live but staging `/developer` still returned
+HTTP `307` without an HTTP `Location` header.
 
-Required validation:
+Implementation result:
+
+- Added a middleware redirect for `/developer` before route handling/cache.
+- Added `/developer` to the middleware matcher.
+- Kept `apps/web/app/developer/route.ts` as a dynamic/no-store fallback
+  redirect.
+- Local route probe returned HTTP `307` with
+  `location: http://localhost:3140/developer-spaces` for `/developer`.
+- Local `/developer-spaces` and
+  `/developer-spaces/station-replay-dev-alpha` probes returned HTTP `200`.
+- No Developer Space API/schema/auth/env/product/owner-manage/navigation/
+  config/billing/queue/provider behavior changed.
+
+Validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Web `/health/deployment` | Pass | `ready:true`, service `@station/web`, branch `main`, and runtime commit at or beyond the PR269 repair commit. |
-| Hosted `/developer` | Pass | HTTP `307` or `308` with `Location: https://stationweb-production.up.railway.app/developer-spaces`. |
-| Hosted `/developer-spaces` | Pass | HTTP `200`. |
-| Hosted `/developer-spaces/station-replay-dev-alpha` | Pass | HTTP `200`. |
-| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | `/developer` remains public-readable. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Existing UI route helpers remain green. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Route/middleware implementation stays type-safe. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing raw `<img>` warnings may remain documented; no new touched-route warning. |
+| Local `/developer` probe | Pass | Next dev on `127.0.0.1:3140` returned HTTP `307` with `location: http://localhost:3140/developer-spaces`. |
+| Local `/developer-spaces` probe | Pass | Next dev on `127.0.0.1:3140` returned HTTP `200`. |
+| Local `/developer-spaces/station-replay-dev-alpha` probe | Pass | Next dev on `127.0.0.1:3140` returned HTTP `200`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 17 tests passed, including middleware matcher coverage for `/developer`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 109 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | Web compiled, linted/typechecked, collected page data, generated 36 static pages, finalized page optimization, and collected traces before the known local Windows standalone symlink `EPERM` during traced-file copy. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Staged credential/raw-id scan | Pass | No obvious staged credential-like values or UUID-shaped raw ids found. |
 
-If hosted `/developer` still lacks a `Location` header after deploy freshness,
-the lane is not closed.
+Hosted verification remains mandatory for ARGUS after deploy freshness. If
+hosted `/developer` still lacks a `Location` header after deploy freshness, the
+lane is not closed.
 
 ## PR268 Developer Route Alias Repair
 

@@ -60,3 +60,8 @@ test("middleware matchers include each protected route family", () => {
     assert.equal(middlewareConfig.matcher.includes(matcher), true, `${matcher} should wake middleware`);
   }
 });
+
+test("middleware matcher includes the public developer alias redirect", () => {
+  assert.equal(isProtectedRoute("/developer"), false);
+  assert.equal(middlewareConfig.matcher.includes("/developer"), true);
+});

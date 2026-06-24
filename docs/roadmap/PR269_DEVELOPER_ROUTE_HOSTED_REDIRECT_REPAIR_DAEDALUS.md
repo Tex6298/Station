@@ -1,7 +1,7 @@
 # PR269 - Developer Route Hosted Redirect Repair
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: complete
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -88,6 +88,46 @@ curl.exe -sS -D - -o NUL https://stationweb-production.up.railway.app/developer
 curl.exe -I -sS https://stationweb-production.up.railway.app/developer-spaces
 curl.exe -I -sS https://stationweb-production.up.railway.app/developer-spaces/station-replay-dev-alpha
 ```
+
+## DAEDALUS Result
+
+Completed on 2026-06-24.
+
+Implementation:
+
+- Added a middleware redirect for `/developer` before route handling/cache.
+- Added `/developer` to `middlewareConfig.matcher`.
+- Kept `apps/web/app/developer/route.ts` as a dynamic/no-store fallback
+  redirect.
+- Preserved `/developer-spaces` and `/developer-spaces/:slug`; no Developer
+  Space API/schema/auth/env/product/owner-manage/navigation/config/billing/
+  queue/provider behavior changed.
+
+Local route probe:
+
+- `curl.exe -sS -D - -o NUL http://127.0.0.1:3140/developer` returned HTTP
+  `307` with `location: http://localhost:3140/developer-spaces`.
+- `curl.exe -I -sS http://127.0.0.1:3140/developer-spaces` returned HTTP
+  `200`.
+- `curl.exe -I -sS http://127.0.0.1:3140/developer-spaces/station-replay-dev-alpha`
+  returned HTTP `200`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 109 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `npm exec --yes pnpm@10.32.1 -- run build` compiled, linted/typechecked,
+  collected page data, generated 36 static pages, finalized page optimization,
+  and collected traces before the known local Windows standalone symlink
+  `EPERM` during traced-file copy.
+- Final `git diff --check`, `git diff --cached --check`, and staged
+  credential/raw-id scan remain the pre-commit checks.
+
+Hosted verification remains for ARGUS after deploy freshness.
 
 ## Wake ARGUS
 

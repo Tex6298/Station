@@ -22,8 +22,9 @@ then let staged replay reveal the next optimizations.
 - PR268 is accepted with an ARGUS route-handler patch for the public
   `/developer` redirect to `/developer-spaces`, but MIMIR's hosted freshness
   rerun at `b31cf1e` still returned HTTP `307` without `Location`.
-- PR269 opens the next narrow DAEDALUS repair: make hosted `/developer` emit a
-  real redirect header before broader UX/product work resumes.
+- PR269 adds a middleware-level redirect and dynamic/no-store route fallback;
+  ARGUS should rerun hosted probes after deploy freshness before broader UX/
+  product work resumes.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
@@ -268,3 +269,17 @@ ARGUS accepted the narrow route-truth repair on 2026-06-24 with a review patch.
   HTTP `200` for `/developer-spaces`.
 - MIMIR should rerun the PR267 hosted public route probes after the ARGUS patch
   deploys, especially hosted `/developer`.
+
+## PR269 hosted redirect repair result
+
+DAEDALUS completed the hosted redirect repair on 2026-06-24.
+
+- `/developer` now redirects in middleware before route handling/cache.
+- `apps/web/app/developer/route.ts` remains as a dynamic/no-store fallback.
+- Local `/developer` returned HTTP `307` with
+  `location: http://localhost:3140/developer-spaces`.
+- Local `/developer-spaces` and
+  `/developer-spaces/station-replay-dev-alpha` returned HTTP `200`.
+- ARGUS should rerun hosted PR267 public route probes after deploy freshness.
+  Hosted `/developer` must return HTTP `307` or `308` with
+  `Location: https://stationweb-production.up.railway.app/developer-spaces`.
