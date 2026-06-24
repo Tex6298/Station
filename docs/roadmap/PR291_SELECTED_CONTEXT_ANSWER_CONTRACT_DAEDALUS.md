@@ -1,8 +1,9 @@
 # PR291 - Selected-Context Answer Contract Diagnostic
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: accepted by ARGUS
 Opened: 2026-06-25
+Accepted: 2026-06-25
 
 ## Purpose
 

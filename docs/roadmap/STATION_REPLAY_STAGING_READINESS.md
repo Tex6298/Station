@@ -140,8 +140,10 @@ then let staged replay reveal the next optimizations.
 - PR291 added a private-only answer contract verifier and one-shot retry for
   direct/factual private persona prompts that miss all selected focus. Trace
   payloads store only sanitized counts/reason codes, and quota/token accounting
-  includes the possible retry conservatively. ARGUS should review the patch
-  before MIMIR opens an ARIADNE PR292 hosted rerun.
+  includes the possible retry conservatively. ARGUS accepted PR291 after
+  tightening the direct-factual gate so creative/style prompts do not retry
+  just because they contain a question mark. MIMIR should open an ARIADNE PR292
+  hosted rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

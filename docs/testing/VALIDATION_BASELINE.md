@@ -32,27 +32,31 @@ Memory/observability implementation lane.
 
 ## PR291 Selected-Context Answer Contract Diagnostic
 
-DAEDALUS completed PR291 on 2026-06-25:
+ARGUS accepted PR291 on 2026-06-25 with a narrow review patch:
 `docs/roadmap/PR291_SELECTED_CONTEXT_ANSWER_CONTRACT_RESULT.md`.
 
-Result: ready for ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
 | Check | Result | Notes |
 | --- | --- | --- |
 | Contract diagnosis | Pass | Selected focus reaches the provider-facing final user message, and the route now evaluates the answer-use contract in process memory. |
-| Answer-use verifier/retry safety | Pass | Verifier/retry is private-only, direct-factual, one-shot, sanitized, and quota/token-accounted conservatively. |
+| Answer-use verifier/retry safety | Pass | Verifier/retry is private-only, direct-factual, one-shot, sanitized, and quota/token-accounted conservatively. ARGUS tightened the direct-factual gate so bare question marks do not retry creative/style prompts. |
 | Label/fact preservation | Pass | Focused route test proves successful retry preserves the selected label and supporting facts. |
+| Creative/style prompt guard | Pass | ARGUS route coverage proves a creative private prompt with selected context and a question mark stays single-shot even when the answer misses selected focus. |
 | Rejected-control/source-copy safety | Pass | Rejected-control filtering and source-copy boundaries are unchanged. |
 | No hardcoded replay terms | Pass | Product code is generic over selected source titles/content terms; seeded labels appear only in synthetic test fixtures. |
 | Scope | Pass | No retrieval, provider routing/model choice, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, or Studio UI changes. |
 | `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 36 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 37 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found in the PR291 ARGUS diff. |
 
 ## PR290 Hosted Runtime Answer Rerun Result
 

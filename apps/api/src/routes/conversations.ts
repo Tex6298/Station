@@ -384,7 +384,6 @@ function answerContractTerms(value: string, maxTerms = ANSWER_CONTRACT_MAX_TERMS
 function isDirectFactualOwnerMessage(value: string) {
   const text = value.toLowerCase();
   return (
-    /\?/.test(text) ||
     /\b(list|name|which|what|who|where|when|identify|recall|remember|summari[sz]e|facts?|pairs?|labels?|selected context|tell me|give me)\b/.test(text)
   );
 }

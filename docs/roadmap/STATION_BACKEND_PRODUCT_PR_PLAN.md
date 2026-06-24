@@ -571,8 +571,11 @@ contract verifier plus one-shot retry for direct/factual private persona
 prompts that miss all selected focus. The route records only sanitized
 booleans/counts/reason codes, keeps provider-only selected context out of
 persisted owner messages, and conservatively accounts for the possible retry in
-quota/token estimates. ARGUS should review whether MIMIR opens an ARIADNE PR292
-hosted rerun or routes the next decision through provider/model behavior.
+quota/token estimates. ARGUS accepted PR291 after tightening the direct-factual
+gate so creative/style prompts do not retry just because they contain a question
+mark. MIMIR should open an ARIADNE PR292 hosted rerun after deploy; if that
+still fails, classify whether the remaining issue belongs to provider/model
+behavior.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

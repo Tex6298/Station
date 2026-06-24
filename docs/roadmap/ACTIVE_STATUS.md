@@ -4,31 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR291 Selected-Context Answer Contract
+## Latest ARGUS review - PR291 Selected-Context Answer Contract
 
-DAEDALUS completed PR291 on 2026-06-25:
+ARGUS accepted PR291 on 2026-06-25 with a narrow review patch:
 `docs/roadmap/PR291_SELECTED_CONTEXT_ANSWER_CONTRACT_RESULT.md`.
 
 Result:
 
-- Verdict: ready for ARGUS review.
+- Verdict: `PASS WITH CAVEATS`.
 - Strongest hypothesis: provider-facing selected context can be present and
   well-shaped while the first model answer still ignores it.
 - Patch: private-only selected-context answer contract verifier plus one-shot
   retry for direct/factual private persona prompts when the first answer misses
   all selected focus.
+- ARGUS review patch: tightened the direct-factual gate so a bare question mark
+  does not trigger retry for creative/style prompts, and added coverage proving
+  a creative private prompt with selected context stays single-shot.
 - Trace payloads store sanitized booleans, counts, and reason codes only.
 - Quota check is conservative: when the answer contract applies, it estimates
   the initial request plus possible retry before calling the provider.
 - Token usage and trace totals include both attempts when retry occurs.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private
+  source bodies, or secret-bearing env values.
 
 Current baton:
 
-- ARGUS should review answer-use verifier/retry/accounting/trace safety,
-  provider contract placement, no hardcoded replay anchors, no scope creep, and
-  no secret/raw-data leakage.
-- If accepted, ARGUS should define the safe acceptance gate and recommend
-  whether MIMIR opens ARIADNE hosted PR292 rerun.
+- MIMIR should open an ARIADNE hosted PR292 rerun after deploy.
+- If PR292 still fails after this verifier/retry path is deployed, MIMIR should
+  classify whether the remaining issue belongs to provider/model behavior
+  rather than route contract delivery.
 
 ## Latest ARIADNE review - PR290 Hosted Runtime Answer Rerun
 
