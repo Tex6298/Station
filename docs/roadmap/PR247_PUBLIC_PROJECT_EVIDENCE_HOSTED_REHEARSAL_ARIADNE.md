@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS
 Opened: 2026-06-24
+Reviewed: 2026-06-24
 
 ## Frame
 
@@ -118,3 +119,47 @@ Task:
   next lane.
 - If FAIL/BLOCKED, route exact hosted defects to DAEDALUS or ARGUS.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: `PASS`.
+
+Hosted evidence:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `756ebab` or later.
+- Replay owner sign-in succeeded from local `.env` without printing credentials
+  or tokens.
+- Used bounded public Project seed
+  `ariadne-pr247-public-evidence-20260624`, created/attached through existing
+  owner APIs only.
+- Anonymous `GET /projects/public/:slug` returned `publicEvidence` with public
+  evidence items using only `title`, `kind`, `href`, fixed `sourceLabel`,
+  `publishedAt`, and `updatedAt`.
+- Every `publicEvidence.href` pointed only to `/developer-spaces/:slug`; no
+  document, owner, Studio, or private route appeared.
+- `sourceLabel` was fixed safe copy, `Public Developer Space`; raw source labels
+  and source types did not appear.
+- Anonymous desktop and `375px` mobile public Project pages rendered the Public
+  references section and evidence card clearly, with no horizontal overflow.
+- Clicking the public evidence card opened the public Developer Space route
+  without a login redirect or owner-only controls.
+- The no-evidence public Project seed
+  `ariadne-pr240-public-profile-202606241001` returned `publicEvidence: []` and
+  the visible empty state did not imply hidden private evidence exists.
+- Invalid, UUID-shaped, unsafe, and private Project slugs remained closed.
+- Public Project API/UI checks stayed clean: no Project ids, Developer Space
+  ids, document ids, owner/author fields, member/invite/role rows, connection
+  tier, raw source data, document body/excerpt, private evidence hints,
+  activity, reports, exports, billing, hosted runtime, providers, Redis,
+  Cloudflare, queues, workers, secrets, SQL, stack traces, or raw JSON.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr247-public-project-evidence-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 1 hosted rehearsal test.
+
+Next:
+
+- MIMIR closes the PR246/PR247 public Project evidence loop and chooses the next
+  lane.

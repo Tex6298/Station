@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR247 Public Project Evidence Hosted Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `756ebab`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, branch `main`, and commit at or beyond required `756ebab`. |
+| Replay owner sign-in | Pass | Signed in from local `.env` without printing credentials or tokens. |
+| Public evidence seed | Pass | Used bounded public Project `ariadne-pr247-public-evidence-20260624`, with an attached public Developer Space and public evidence available through owner APIs only. |
+| Anonymous `GET /projects/public/:slug` | Pass | Returned `publicEvidence` with at least one item and only `title`, `kind`, `href`, `sourceLabel`, `publishedAt`, and `updatedAt`. |
+| Public evidence link boundary | Pass | Every evidence href pointed only to `/developer-spaces/:slug`; no direct document, Studio, owner, or private routes appeared. |
+| Source label boundary | Pass | Evidence used fixed safe copy `Public Developer Space`; raw source labels and source types did not appear in the public Project payload. |
+| Desktop public Project profile | Pass | Public references rendered clearly and the evidence card opened the public Developer Space route without login redirect or owner-only controls. |
+| Mobile public Project profile | Pass | `375px` mobile public references and no-evidence state fit without document-level horizontal overflow. |
+| Neutral no-evidence state | Pass | Reused `ariadne-pr240-public-profile-202606241001`; API returned `publicEvidence: []` and visible copy did not imply hidden private evidence exists. |
+| Invalid/private slug closure | Pass | UUID-shaped, invalid, unsafe, and known private Project slugs stayed closed. |
+| Copy/leak scan | Pass | Public Project API/UI checks showed no ids, owner/author/member fields, connection tier, raw source data, document body/excerpt, private evidence hints, activity, reports, exports, billing, runtime/provider claims, Redis/Cloudflare, queues/workers, secrets, SQL, stack traces, or raw JSON. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr247-public-project-evidence-rehearsal.spec.js --reporter=line --workers=1` | Pass | 1 hosted rehearsal test passed against Railway. |
+
+Rehearsal verdict:
+
+- `PASS`
+- Public Project evidence readback is accepted on hosted web/API for anonymous
+  desktop and mobile visitors without broadening Project, document, activity,
+  billing, provider, or infrastructure scope.
+
 ## PR246 Public Project Evidence Minimal Readback
 
 ARGUS review validation on 2026-06-24:

@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR247 Public Project Evidence Hosted Rehearsal PASS
+
+ARIADNE completed PR247 on 2026-06-24.
+
+Verdict:
+
+- `PASS`.
+
+Hosted evidence:
+
+- Web and API `/health/deployment` were healthy, ready, on branch `main`, and
+  at required commit `756ebab` or later.
+- Replay owner sign-in succeeded from local `.env` without printing secrets or
+  tokens.
+- A bounded public evidence seed was available at
+  `ariadne-pr247-public-evidence-20260624`, created/attached through existing
+  owner APIs only.
+- Anonymous `GET /projects/public/:slug` returned `publicEvidence` with only
+  `title`, `kind`, `href`, fixed `sourceLabel`, `publishedAt`, and `updatedAt`.
+- Public evidence links pointed only to `/developer-spaces/:slug`, with no
+  direct document, Studio, owner, or private routes.
+- The fixed source label was `Public Developer Space`; raw source labels and
+  source types did not appear in the public Project payload.
+- Anonymous desktop and `375px` mobile public Project pages rendered public
+  references clearly, without horizontal overflow.
+- Clicking the public evidence card opened the public Developer Space route
+  without login redirect or owner-only `Manage` controls.
+- The no-evidence public Project seed
+  `ariadne-pr240-public-profile-202606241001` stayed neutral with
+  `publicEvidence: []` and no copy implying hidden private evidence exists.
+- Invalid, UUID-shaped, unsafe, and private Project slugs stayed closed.
+- Public Project API/UI checks showed no Project ids, Developer Space ids,
+  document ids, owner/author fields, member/invite/role rows, connection tier,
+  raw source data, document body/excerpt, private evidence hints, activity,
+  reports, exports, billing, hosted runtime, providers, Redis, Cloudflare,
+  queues, workers, secrets, SQL, stack traces, or raw JSON.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr247-public-project-evidence-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 1 hosted rehearsal test.
+
+Current baton:
+
+- MIMIR should close the PR246/PR247 public Project evidence loop and choose
+  the next lane.
+
 ## Latest MIMIR decision - PR247 Public Project Evidence Hosted Rehearsal opened
 
 MIMIR accepts ARGUS's PR246 review on 2026-06-24 and opens hosted rehearsal
