@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { DEVELOPER_ALIAS_ROUTE, developerSpacesRedirectUrl } from "./lib/developer-route";
 import { LOGIN_REDIRECT_PARAM, STATION_AUTH_COOKIE, isProtectedRoute } from "./lib/auth-routes";
-
-const DEVELOPER_ALIAS_ROUTE = "/developer";
-const DEVELOPER_SPACES_ROUTE = "/developer-spaces";
 
 export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === DEVELOPER_ALIAS_ROUTE) {
-    return NextResponse.redirect(new URL(DEVELOPER_SPACES_ROUTE, request.url), 307);
+    return NextResponse.redirect(developerSpacesRedirectUrl(request), 307);
   }
 
   if (!isProtectedRoute(request.nextUrl.pathname)) return NextResponse.next();

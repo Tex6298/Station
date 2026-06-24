@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { config as middlewareConfig } from "../middleware";
+import { developerSpacesRedirectUrl } from "./developer-route";
 import { isProtectedRoute } from "./auth-routes";
+
+type DeveloperRedirectRequest = Parameters<typeof developerSpacesRedirectUrl>[0];
+
+function redirectRequest(url: string, headers = new Headers()): DeveloperRedirectRequest {
+  const nextUrl = new URL(url) as URL & { clone: () => URL };
+  nextUrl.clone = () => new URL(nextUrl.toString());
+  return { headers, nextUrl } as unknown as DeveloperRedirectRequest;
+}
 
 test("auth route guard protects private app routes and preserves public reads", () => {
   const protectedPaths = [
@@ -64,4 +73,41 @@ test("middleware matchers include each protected route family", () => {
 test("middleware matcher includes the public developer alias redirect", () => {
   assert.equal(isProtectedRoute("/developer"), false);
   assert.equal(middlewareConfig.matcher.includes("/developer"), true);
+});
+
+test("developer alias redirect uses forwarded public host before internal host", () => {
+  const headers = new Headers({
+    "x-forwarded-host": "stationweb-production.up.railway.app",
+    "x-forwarded-proto": "https",
+  });
+
+  assert.equal(
+    developerSpacesRedirectUrl(redirectRequest("https://0.0.0.0:8080/developer", headers)).toString(),
+    "https://stationweb-production.up.railway.app/developer-spaces"
+  );
+});
+
+test("developer alias redirect falls back to configured public app url for internal hosts", () => {
+  const previous = process.env.NEXT_PUBLIC_APP_URL;
+  process.env.NEXT_PUBLIC_APP_URL = "https://stationweb-production.up.railway.app";
+
+  try {
+    assert.equal(
+      developerSpacesRedirectUrl(redirectRequest("https://0.0.0.0:8080/developer")).toString(),
+      "https://stationweb-production.up.railway.app/developer-spaces"
+    );
+  } finally {
+    if (previous === undefined) {
+      delete process.env.NEXT_PUBLIC_APP_URL;
+    } else {
+      process.env.NEXT_PUBLIC_APP_URL = previous;
+    }
+  }
+});
+
+test("developer alias redirect keeps localhost for local probes", () => {
+  assert.equal(
+    developerSpacesRedirectUrl(redirectRequest("http://localhost:3140/developer")).toString(),
+    "http://localhost:3140/developer-spaces"
+  );
 });
