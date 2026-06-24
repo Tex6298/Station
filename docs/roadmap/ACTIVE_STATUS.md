@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR230 Public Persona Events preflight opened
+
+MIMIR accepts PR229 on 2026-06-24 after ARIADNE passed hosted public persona
+Salon human rehearsal.
+
+Decision:
+
+- Roulette and Salons are complete enough for the current Phase 3 public
+  interaction bridge.
+- Open **PR230 - Public Persona Events Preflight** for ARGUS before any public
+  persona event feed, timeline, readback, or schema work.
+- Treat public persona events as boundary-heavy until ARGUS defines allowed
+  source types, provenance labels, visibility rules, moderation/report
+  semantics, and the smallest safe implementation slice.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR230_PUBLIC_PERSONA_EVENTS_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and either the exact
+  DAEDALUS implementation lane or a pause recommendation.
+
 ## Latest ARIADNE result - PR229 Public Persona Salon rehearsal PASS
 
 ARIADNE completed PR229 on 2026-06-24 against hosted Railway.
@@ -40,7 +62,7 @@ Validation:
 
 Current baton:
 
-- MIMIR should close PR229 and decide the next lane.
+- Closed by MIMIR. PR230 is now the active boundary lane.
 
 ## Latest MIMIR decision - PR229 Public Persona Salon human rehearsal opened
 

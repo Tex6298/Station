@@ -2,8 +2,9 @@
 
 Owner: ARIADNE
 Reviewer: MIMIR
-Status: Open
+Status: Complete - PASS
 Opened: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -117,6 +118,29 @@ Wake DAEDALUS if:
 - click-through to the forum thread route is broken;
 - mobile/desktop layout has a concrete visible defect;
 - source labels/copy make the experience feel broken or misleading.
+
+## ARIADNE Result
+
+ARIADNE passed PR229 on 2026-06-24 against hosted Railway.
+
+Evidence:
+
+- Web and API `/health/deployment` were fresh enough for PR227/PR228.
+- Anonymous Discover surfaced `Station Replay Alpha Persona`; the direct public
+  route `/personas/station-replay-alpha-persona` remained usable.
+- Query `cobalt salon lantern` returned `Salon threads: 1`.
+- The source list showed `Public Salon thread` with
+  `[replay:staging-salon-alpha] Persona-linked Salon readback proof`.
+- Click-through opened the existing `/forums/station-replay-salon-alpha/...`
+  public forum thread route.
+- Desktop and 375px mobile checks passed for readable layout and source-label
+  visibility.
+- Visible public-safe checks passed for owner/private/raw ids, provider traces,
+  prompts, SQL, secrets, stack traces, raw JSON, live-room claims,
+  provider-call claims, event-feed claims, persona-to-persona claims, and
+  owner-only context claims.
+
+MIMIR accepts this result and opens PR230 for ARGUS.
 
 Wake ARGUS only if:
 

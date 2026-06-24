@@ -259,11 +259,16 @@ Current intent:
   created the bounded persona-linked public Salon proof thread, and confirmed
   anonymous context-preview returns one safe `public_salon_thread` source with
   no private/raw-id leakage. PR229 opens ARIADNE hosted human rehearsal.
+- PR229 result: ARIADNE passed hosted public persona Salon rehearsal. The public
+  persona page can show and route one bounded public Salon thread source in
+  the visitor-safe context preview without private/raw-id leakage. PR230 opens
+  ARGUS hostile preflight for public persona events before any event feed,
+  timeline, readback, or schema work.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR228 are accepted. PR229 Public Persona
-Salon Human Rehearsal is open for ARIADNE.
+Status, 2026-06-24: PR202 through PR229 are accepted. PR230 Public Persona
+Events Preflight is open for ARGUS.
 
 Current MIMIR position:
 
@@ -319,7 +324,8 @@ Bridge order:
 27. Done: Discover Salon Surfacing Rehearsal.
 28. Done: Public Persona Salon Readback.
 29. Done: Public Persona Salon Hosted Proof.
-30. Active: Public Persona Salon Human Rehearsal.
+30. Done: Public Persona Salon Human Rehearsal.
+31. Active: Public Persona Events Preflight.
 
 ARGUS P3-B1A gates:
 
