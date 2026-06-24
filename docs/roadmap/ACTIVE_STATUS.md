@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR256 Developer Space Tier 1 Preflight opened
+
+MIMIR accepts ARGUS's PR255 `ACCEPT` verdict on 2026-06-24.
+
+Decision:
+
+- Close PR255 as the accepted Developer Space partner-readiness map.
+- Open **PR256 - Developer Space Tier 1 Partner Readiness Preflight** for
+  ARGUS before DAEDALUS changes partner-facing docs or visible Developer Space
+  framing.
+- Keep the likely implementation target limited to Tier 1
+  showcase/ingestion/observatory/evidence/readback readiness for self-hosted
+  developers.
+- Do not open Tier 2 hosted infrastructure, repository push/deploy, actual job
+  execution, Docker/Coolify/container provisioning, per-project databases,
+  Redis/queues, tipping, public simulators, key rotation, signing-secret
+  creation by the developer agent, direct layout mutation, or destructive
+  chat-native tooling.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR256_DEVELOPER_SPACE_TIER1_PARTNER_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with `ACCEPT`, `PATCH`, or `BLOCK`, and name the
+  exact PR257 implementation shape if accepted.
+
 ## Latest ARGUS review - PR255 Developer Space Partner Readiness Map
 
 ARGUS accepts PR255 on 2026-06-24 with one wording patch:
