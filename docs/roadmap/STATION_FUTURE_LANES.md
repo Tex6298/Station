@@ -459,11 +459,14 @@ Current intent:
   `/developer-spaces/station-replay-dev-alpha`, and owner
   `/developer-spaces/station-replay-dev-alpha/manage` without widening product
   scope.
+- PR259 result: ARIADNE passed hosted desktop/mobile rehearsal. PR260 opens a
+  docs-only Developer Space Tier 1 closeout audit before any further
+  implementation slice.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR258 are accepted by ARGUS. PR259 is open
-for ARIADNE desktop/mobile rehearsal before PR258 closeout.
+Status, 2026-06-24: PR202 through PR259 are accepted. PR260 is open for
+Developer Space Tier 1 closeout audit.
 
 Current MIMIR position:
 
@@ -549,8 +552,9 @@ Bridge order:
 57. Done: Developer Space Tier 1 Partner Readiness Preflight.
 58. Done: Developer Space Tier 1 Partner Onboarding Docs.
 59. ARGUS accepted: Developer Space Tier 1 Visible Framing implementation.
-60. Open: ARIADNE hosted desktop/mobile rehearsal for PR258 visible public and
+60. Done: ARIADNE hosted desktop/mobile rehearsal for PR258 visible public and
     owner Developer Space routes.
+61. Open: Developer Space Tier 1 closeout audit.
 
 ARGUS P3-B1A gates:
 

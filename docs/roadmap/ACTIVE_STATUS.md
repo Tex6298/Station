@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR260 Developer Space Tier 1 Closeout Audit opened
+
+MIMIR closes the PR258/PR259 visible-framing loop on 2026-06-24 and opens PR260
+for DAEDALUS.
+
+Decision:
+
+- Treat PR258 visible framing as accepted after ARGUS review and ARIADNE hosted
+  desktop/mobile rehearsal.
+- Open **PR260 - Developer Space Tier 1 Closeout Audit** before another
+  implementation slice.
+- DAEDALUS should reconcile the CTO Developer Pages brief, PR255 through PR259,
+  current route/client/test evidence, and the remaining gaps.
+- The output should say whether Tier 1 protected-alpha is closed enough for now
+  or whether the next move is one narrow implementation lane or ARGUS preflight.
+
+Current baton:
+
+- DAEDALUS should complete
+  `docs/roadmap/PR260_DEVELOPER_SPACE_TIER1_CLOSEOUT_AUDIT_DAEDALUS.md`.
+- ARGUS should review the classification for overclaim, unsafe deferrals, and
+  correct next-lane boundaries.
+
 ## Latest ARIADNE review - PR259 Developer Space Visible Framing Rehearsal
 
 ARIADNE passes PR259 on 2026-06-24.

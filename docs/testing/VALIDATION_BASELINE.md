@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR260 Developer Space Tier 1 Closeout Audit
+
+MIMIR opened PR260 for DAEDALUS on 2026-06-24.
+
+Required validation for the docs-only audit:
+
+| Command / check | Expected result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check. |
+
+Scope notes:
+
+- PR260 is a closeout/classification audit only.
+- No product code, schema, migration, API, serializer, auth/session, package,
+  SDK, env, deployment, Railway/Supabase, Redis, Cloudflare, provider, billing,
+  tipping, community/forum, Project/persona/export payload, background-job,
+  developer-agent capability, broad UI, or hosted data mutation should change.
+
 ## PR259 Developer Space Tier 1 Visible Framing Rehearsal
 
 ARIADNE passed PR259 on 2026-06-24.
