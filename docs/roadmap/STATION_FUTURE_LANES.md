@@ -195,14 +195,15 @@ Current intent:
 - PR214 result: DAEDALUS repaired/proved hosted migration/deploy readiness for
   the counters, then ARIADNE accepted the visible owner aggregate activity card
   on deployed Railway.
-- Active follow-up: PR215 compares the next public interaction family before
-  implementation: Roulette, Salons, public persona events, voice/avatar,
-  institutional/research features, and persona-to-persona encounters.
+- PR215 result: DAEDALUS recommends Public Persona Roulette as the first next
+  slice: no-new-config discovery/readback only, eligible public personas,
+  existing public serializers, and no provider call.
+- Active follow-up: PR216 implements the narrow Public Persona Roulette
+  discovery/readback slice and must wake ARGUS after implementation.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR214 are accepted. PR215 is open for
-DAEDALUS to recommend the smallest next public interaction implementation
-slice.
+Status, 2026-06-24: PR202 through PR215 are accepted. PR216 is open for
+DAEDALUS to implement narrow Public Persona Roulette discovery/readback.
 
 Current MIMIR position:
 
@@ -240,9 +241,11 @@ Bridge order:
 13. Done: aggregate-only public persona interaction counters.
 14. Done: hosted migration/deploy proof for aggregate counters.
 15. Done: ARIADNE hosted human rehearsal of owner aggregate activity readback.
-16. Active: compare Roulette, Salons, voice/avatar, public persona events,
+16. Done: compare Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, and persona-to-persona encounters before
    choosing PR216.
+17. Active: Public Persona Roulette discovery/readback, with ARGUS review after
+   implementation.
 
 ARGUS P3-B1A gates:
 

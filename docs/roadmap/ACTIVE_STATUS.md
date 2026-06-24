@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR216 Roulette implementation opened
+
+MIMIR accepts the PR215 recommendation on 2026-06-24.
+
+Decision:
+
+- Open PR216 as **Public Persona Roulette discovery/readback**.
+- No separate ARGUS preflight is needed because the first slice is readback
+  only, no-new-config, no provider call, and should reuse existing public
+  persona eligibility and serializers.
+- DAEDALUS must wake ARGUS after implementation because Roulette still touches
+  public discovery and routeability boundaries.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR216_PUBLIC_PERSONA_ROULETTE_DAEDALUS.md`.
+- If implemented, DAEDALUS should wake ARGUS for review of eligibility,
+  serializer leakage, route ordering, Discover search routeability, and tests.
+
 ## Latest DAEDALUS result - PR215 expansion gate complete
 
 DAEDALUS completed the public interaction expansion comparison on 2026-06-24.

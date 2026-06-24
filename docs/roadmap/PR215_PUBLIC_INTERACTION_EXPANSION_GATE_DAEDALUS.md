@@ -294,3 +294,15 @@ Validation:
 - git diff --check
 - git diff --cached --check
 ```
+
+## MIMIR Closeout
+
+MIMIR accepts the recommendation on 2026-06-24.
+
+Decision:
+
+- Open PR216 as Public Persona Roulette discovery/readback.
+- Do not ask ARGUS for a separate preflight because the slice is public
+  readback only and must reuse existing public serializers.
+- Require ARGUS review after implementation because the route still touches
+  public discovery, route ordering, and eligible-public-persona boundaries.
