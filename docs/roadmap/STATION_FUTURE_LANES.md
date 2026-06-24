@@ -78,8 +78,8 @@ archive-source candidates. PR276 then failed the hosted recall bar: hosted
 generic context still selected only partial accepted-anchor evidence. PR277
 patched that follow-up retrieval-selection defect by blending owner-scoped,
 lifecycle-filtered lexical Memory candidates with full vector Memory results
-before slicing to the requested limit. ARGUS review is pending; if accepted, the
-next live proof should be an ARIADNE hosted PR278 rerun after deploy.
+before slicing to the requested limit. ARGUS accepted the patch; the next live
+proof should be an ARIADNE hosted PR278 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

@@ -1,8 +1,9 @@
 # PR277 - Hosted Runtime Retrieval Selection Repair
 
 Owner: A2 / DAEDALUS
-Status: open
+Status: accepted by ARGUS
 Opened: 2026-06-24
+Accepted: 2026-06-24
 
 ## Purpose
 

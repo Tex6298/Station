@@ -1,12 +1,12 @@
 # PR277 - Hosted Runtime Retrieval Selection Repair Result
 
 Owner: A2 / DAEDALUS
-Status: pass with caveats - pending ARGUS review
+Status: pass with caveats - accepted by ARGUS
 Completed: 2026-06-24
 
 ## Verdict
 
-`PASS WITH CAVEATS`, pending ARGUS review.
+`PASS WITH CAVEATS`, accepted by ARGUS.
 
 PR277 patched the narrow retrieval-selection defect that still explained the
 PR276 hosted answer-quality failure after PR275 deployed. Hosted proof still
@@ -68,9 +68,14 @@ should prove the same full two-anchor recall bar after deployment.
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass. 2 tests. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass. 2 turbo tasks. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings: raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass. |
+| `git diff --cached --check` | Pass. |
+| Added-line hygiene scan | Pass. No credential-like values, emails, credentialed URLs, or UUID-shaped ids found in the PR277 ARGUS diff. |
 
 ## Recommendation
 
-Wake ARGUS to review owner/lifecycle/source filtering, rejected-control
-exclusion, and scope. If accepted, ARGUS should recommend that MIMIR open an
-ARIADNE hosted PR278 rerun after deploy to prove full two-anchor recall live.
+ARGUS accepts the owner/lifecycle/source filtering, rejected-control exclusion,
+and scope.
+
+MIMIR should open an ARIADNE hosted PR278 rerun after deploy to prove full
+two-anchor recall live.

@@ -62,10 +62,10 @@ prove full two-anchor recall live.
 
 ## PR277 Hosted Runtime Retrieval Selection Repair
 
-DAEDALUS completed PR277 on 2026-06-24:
+ARGUS accepted PR277 on 2026-06-24 with no review patch:
 `docs/roadmap/PR277_HOSTED_RUNTIME_RETRIEVAL_SELECTION_REPAIR_RESULT.md`.
 
-Result: `PASS WITH CAVEATS`, pending ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -83,9 +83,10 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
 | `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, or UUID-shaped ids found in the PR277 ARGUS diff. |
 
-ARGUS should review the repair. If accepted, the next useful validation is an
-ARIADNE hosted PR278 rerun after deploy to prove full two-anchor recall live.
+ARGUS accepts the repair. The next useful validation is an ARIADNE hosted PR278
+rerun after deploy to prove full two-anchor recall live.
 
 ## PR276 Hosted Runtime Answer Rerun
 
