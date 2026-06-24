@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Open
+Status: Implemented - ARGUS review pending
 Opened: 2026-06-24
+Implemented: 2026-06-24
 
 ## Frame
 
@@ -205,3 +206,55 @@ Task:
 - Wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE hosted rehearsal
   is required.
 ```
+
+## DAEDALUS Result - 2026-06-24
+
+Implementation:
+
+- Added anonymous `GET /projects/public/:slug` before `requireAuth`.
+- Public route rejects invalid and UUID-shaped slugs, reads only
+  `visibility = "public"` Projects, and keeps Project `id` / `owner_user_id`
+  as internal join/filter fields only.
+- Public Project response includes only:
+  - `name`;
+  - `slug`;
+  - `description`;
+  - `visibility`;
+  - `createdAt`;
+  - `updatedAt`;
+  - `publicDeveloperSpaceCount`.
+- Attached Developer Space summaries include only same-owner attached public
+  Developer Spaces, capped at 12 and sorted by `updated_at` descending then
+  `project_name`.
+- Summary fields are limited to `projectName`, `slug`, `description`,
+  `visibility`, `visualisationType`, `href`, and `updatedAt`.
+- Added standalone `/projects/public/[slug]` page with public metadata,
+  count, public Developer Space summary links, and empty state.
+- Added shared public Project profile response types and focused API/helper
+  coverage under `test:projects`.
+
+Boundary notes:
+
+- No Project evidence, documents, activity counters, Discover Project cards,
+  reporting/moderation, membership, exports, billing, hosted runtime,
+  providers, queues, Redis, Cloudflare, Project-authored forum work, schema, or
+  migration changed.
+- Tests prove private/unlisted/community Projects remain hidden anonymously,
+  unsafe slugs and UUID-shaped route identifiers do not resolve, hostile
+  cross-owner `project_id` Developer Spaces are excluded, and forbidden
+  internals do not appear in anonymous response JSON.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed with CRLF normalization warnings only.
+
+Review:
+
+- ARGUS review required before MIMIR decides whether ARIADNE hosted rehearsal
+  opens.

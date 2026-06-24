@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR239 Public Project Profile Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 11 tests passed. New coverage proves anonymous public Project profile readback, public-only Project visibility, safe/UUID slug rejection, same-owner attached public Developer Space summaries, limit/sort behavior, hostile cross-owner exclusions, and helper copy boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after adding public Project response types, anonymous route serialization, helper copy, and `/projects/public/[slug]`. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff --cached --check` | Pass | CRLF normalization warnings only for staged files. |
+
+Scope notes:
+
+- Added a standalone anonymous public Project profile route/page only.
+- Public readback omits Project ids, owner ids, connection tier, activity
+  counters, member rows/counts, evidence, documents, usage, provider fields,
+  API key metadata, runtime context, reports, exports, ingestion keys, secrets,
+  SQL, stack traces, and raw JSON blobs.
+- No schema, migration, public Project creation/transition UI, Discover Project
+  cards, Project evidence, Project documents, public reporting/moderation,
+  member invitations/authorization, institutional accounts, exports, billing,
+  hosted runtime, queues/workers, Redis/Cloudflare, Developer Agent runtime
+  actions, Project-authored forum posts, provider calls, or broad UI redesign
+  changed.
+
 ## PR238 Public Project Readback Preflight
 
 ARGUS docs-only preflight validation on 2026-06-24:

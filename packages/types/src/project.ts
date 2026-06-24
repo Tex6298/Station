@@ -31,3 +31,28 @@ export interface ProjectEvidenceItem {
   routeHref?: string | null;
   routeLabel?: string | null;
 }
+
+export interface PublicProjectDeveloperSpaceSummary {
+  projectName: string;
+  slug: string;
+  description?: string | null;
+  visibility: "public";
+  visualisationType: "node_field" | "timeline" | "world_map" | "constellation";
+  href: string;
+  updatedAt: string;
+}
+
+export interface PublicProjectProfile {
+  name: string;
+  slug: string;
+  description?: string | null;
+  visibility: "public";
+  createdAt: string;
+  updatedAt: string;
+  publicDeveloperSpaceCount: number;
+}
+
+export interface PublicProjectProfileResponse {
+  project: PublicProjectProfile;
+  developerSpaces: PublicProjectDeveloperSpaceSummary[];
+}

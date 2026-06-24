@@ -4,7 +4,11 @@ import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
-import { PROJECT_EVIDENCE_LIMIT, projectsRouter } from "./projects";
+import {
+  PROJECT_EVIDENCE_LIMIT,
+  PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT,
+  projectsRouter,
+} from "./projects";
 
 process.env.NODE_ENV = "test";
 
@@ -274,6 +278,178 @@ function assertNoProjectOwnerIds(value: unknown) {
   assert.doesNotMatch(json, /"ownerUserId"|"owner_user_id"|"authorUserId"|"author_user_id"/);
   assert.doesNotMatch(json, /owner-user|other-user/);
 }
+
+function assertNoPublicProjectInternals(value: unknown) {
+  const json = JSON.stringify(value);
+  assertNoProjectOwnerIds(value);
+  assert.doesNotMatch(json, /"id"|"projectId"|"project_id"|"connectionTier"|"connection_tier"/);
+  assert.doesNotMatch(json, /"activity"|"evidence"|"documents"|"documentCount"|"members"|"memberCount"/);
+  assert.doesNotMatch(json, /nodes|events|snapshots|storageBytes|publicReads|exports/);
+  assert.doesNotMatch(json, /provider|apiKey|api_key|visualisationConfig|visualisation_config/);
+  assert.doesNotMatch(json, /raw_event|runtime|ingestion|secret|report|source_id|body|SQL|stack/i);
+}
+
+test("anonymous public Project profile returns only safe public metadata and same-owner public Developer Spaces", async () => {
+  const db = new InMemorySupabase();
+  const publicProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000100",
+    owner_user_id: "owner-user",
+    name: "Public Research Project",
+    slug: "public-research-project",
+    description: "Public project metadata only.",
+    visibility: "public",
+    connection_tier: "tier_3_lab",
+    created_at: "2026-06-20T09:00:00.000Z",
+    updated_at: "2026-06-20T10:00:00.000Z",
+  });
+  for (const visibility of ["private", "unlisted", "community"] as const) {
+    db.insertRow("projects", {
+      owner_user_id: "owner-user",
+      name: `${visibility} Project`,
+      slug: `${visibility}-project`,
+      visibility,
+    });
+  }
+
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Latest Public Space",
+    slug: "latest-public-space",
+    description: "Public observatory.",
+    visibility: "public",
+    visualisation_type: "timeline",
+    updated_at: "2026-06-20T12:00:00.000Z",
+    provider_policy: "private_archive_allowed",
+    api_key_last_four: "1234",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Alpha Public Space",
+    slug: "alpha-public-space",
+    visibility: "public",
+    visualisation_type: "node_field",
+    updated_at: "2026-06-20T11:00:00.000Z",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Beta Public Space",
+    slug: "beta-public-space",
+    visibility: "public",
+    visualisation_type: "world_map",
+    updated_at: "2026-06-20T11:00:00.000Z",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Private Attached Space",
+    slug: "private-attached-space",
+    visibility: "private",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Unlisted Attached Space",
+    slug: "unlisted-attached-space",
+    visibility: "unlisted",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Community Attached Space",
+    slug: "community-attached-space",
+    visibility: "community",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "owner-user",
+    project_id: null,
+    project_name: "Loose Public Space",
+    slug: "loose-public-space",
+    visibility: "public",
+  });
+  db.insertRow("developer_spaces", {
+    owner_user_id: "other-user",
+    project_id: publicProject.id,
+    project_name: "Foreign Public Space",
+    slug: "foreign-public-space",
+    visibility: "public",
+  });
+
+  for (let index = 0; index < PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT + 2; index += 1) {
+    db.insertRow("developer_spaces", {
+      owner_user_id: "owner-user",
+      project_id: publicProject.id,
+      project_name: `Older Public Space ${index}`,
+      slug: `older-public-space-${index}`,
+      visibility: "public",
+      visualisation_type: "constellation",
+      updated_at: `2026-06-19T${String(index % 10).padStart(2, "0")}:00:00.000Z`,
+    });
+  }
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const response = await requestJson<{ project: Row; developerSpaces: Row[] }>(
+      app,
+      "GET",
+      "/projects/public/public-research-project"
+    );
+    assert.equal(response.status, 200);
+    assertNoPublicProjectInternals(response.body);
+    assert.deepEqual(Object.keys(response.body.project).sort(), [
+      "createdAt",
+      "description",
+      "name",
+      "publicDeveloperSpaceCount",
+      "slug",
+      "updatedAt",
+      "visibility",
+    ]);
+    assert.equal(response.body.project.name, "Public Research Project");
+    assert.equal(response.body.project.slug, "public-research-project");
+    assert.equal(response.body.project.visibility, "public");
+    assert.equal(response.body.project.publicDeveloperSpaceCount, PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT + 5);
+    assert.equal(response.body.developerSpaces.length, PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT);
+    assert.deepEqual(response.body.developerSpaces.slice(0, 3).map((space) => space.slug), [
+      "latest-public-space",
+      "alpha-public-space",
+      "beta-public-space",
+    ]);
+    assert.deepEqual(Object.keys(response.body.developerSpaces[0]).sort(), [
+      "description",
+      "href",
+      "projectName",
+      "slug",
+      "updatedAt",
+      "visibility",
+      "visualisationType",
+    ]);
+    assert.equal(response.body.developerSpaces[0].href, "/developer-spaces/latest-public-space");
+    assert.equal(response.body.developerSpaces[0].visibility, "public");
+    assert.equal(response.body.developerSpaces.some((space) => space.slug === "private-attached-space"), false);
+    assert.equal(response.body.developerSpaces.some((space) => space.slug === "unlisted-attached-space"), false);
+    assert.equal(response.body.developerSpaces.some((space) => space.slug === "community-attached-space"), false);
+    assert.equal(response.body.developerSpaces.some((space) => space.slug === "loose-public-space"), false);
+    assert.equal(response.body.developerSpaces.some((space) => space.slug === "foreign-public-space"), false);
+
+    for (const slug of ["private-project", "unlisted-project", "community-project"]) {
+      const hidden = await requestJson(app, "GET", `/projects/public/${slug}`);
+      assert.equal(hidden.status, 404);
+    }
+
+    const invalid = await requestJson(app, "GET", "/projects/public/Bad Slug");
+    assert.equal(invalid.status, 404);
+
+    const uuidShaped = await requestJson(app, "GET", "/projects/public/10000000-0000-4000-8000-000000000100");
+    assert.equal(uuidShaped.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
 
 test("projects routes require auth and validate create payloads", async () => {
   const db = new InMemorySupabase();

@@ -1,11 +1,16 @@
 import { Router } from "express";
 import { z } from "zod";
 import type { Database, ProjectConnectionTier, ProjectVisibility } from "@station/db";
-import type { ProjectEvidenceItem } from "@station/types";
+import type {
+  ProjectEvidenceItem,
+  PublicProjectDeveloperSpaceSummary,
+  PublicProjectProfile,
+} from "@station/types";
 import { requireAuth } from "../middleware/require-auth";
 import { getSupabaseAdmin } from "../lib/supabase";
 
 export const PROJECT_EVIDENCE_LIMIT = 24;
+export const PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT = 12;
 
 const visibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
 const connectionTierSchema = z.enum(["tier_1_showcase", "tier_2_hosted", "tier_3_lab"]);
@@ -48,9 +53,16 @@ type ProjectEvidenceDocumentRow = Pick<
   | "provenance_type"
   | "source_label"
 >;
+type PublicProjectRow = Pick<
+  ProjectRow,
+  "id" | "owner_user_id" | "name" | "slug" | "description" | "visibility" | "created_at" | "updated_at"
+>;
+type PublicProjectDeveloperSpaceRow = Pick<
+  DeveloperSpaceRow,
+  "project_name" | "slug" | "description" | "visibility" | "visualisation_type" | "updated_at"
+>;
 
 export const projectsRouter = Router();
-projectsRouter.use(requireAuth);
 
 function serializeProject(row: ProjectRow) {
   return {
@@ -77,6 +89,30 @@ function serializeAttachedDeveloperSpace(row: Pick<
     visibility: row.visibility,
     visualisationType: row.visualisation_type,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function serializePublicProject(row: PublicProjectRow, publicDeveloperSpaceCount: number): PublicProjectProfile {
+  return {
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    visibility: "public",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    publicDeveloperSpaceCount,
+  };
+}
+
+function serializePublicDeveloperSpace(row: PublicProjectDeveloperSpaceRow): PublicProjectDeveloperSpaceSummary {
+  return {
+    projectName: row.project_name,
+    slug: row.slug,
+    description: row.description,
+    visibility: "public",
+    visualisationType: row.visualisation_type,
+    href: `/developer-spaces/${encodeURIComponent(row.slug)}`,
     updatedAt: row.updated_at,
   };
 }
@@ -234,6 +270,50 @@ function isUuid(value: string) {
 function isUniqueViolation(error: { code?: string } | null | undefined) {
   return error?.code === "23505";
 }
+
+projectsRouter.get("/public/:slug", async (req, res) => {
+  const slug = req.params.slug;
+  const parsedSlug = slugSchema.safeParse(slug);
+  if (!parsedSlug.success || isUuid(slug)) {
+    return res.status(404).json({ error: "Public Project not found." });
+  }
+
+  const sb = getSupabaseAdmin();
+  const { data: project, error } = await sb
+    .from("projects")
+    .select("id, owner_user_id, name, slug, description, visibility, created_at, updated_at")
+    .eq("slug", parsedSlug.data)
+    .eq("visibility", "public")
+    .maybeSingle();
+
+  if (error) return res.status(500).json({ error: error.message });
+  if (!project) return res.status(404).json({ error: "Public Project not found." });
+
+  const { data: developerSpaces, error: developerSpacesError } = await sb
+    .from("developer_spaces")
+    .select("project_name, slug, description, visibility, visualisation_type, updated_at")
+    .eq("project_id", project.id)
+    .eq("owner_user_id", project.owner_user_id)
+    .eq("visibility", "public")
+    .order("updated_at", { ascending: false });
+
+  if (developerSpacesError) return res.status(500).json({ error: developerSpacesError.message });
+
+  const sortedDeveloperSpaces = [...(developerSpaces ?? [])].sort((a, b) => {
+    const updated = Date.parse(b.updated_at) - Date.parse(a.updated_at);
+    if (updated !== 0) return updated;
+    return a.project_name.localeCompare(b.project_name);
+  });
+
+  return res.json({
+    project: serializePublicProject(project, sortedDeveloperSpaces.length),
+    developerSpaces: sortedDeveloperSpaces
+      .slice(0, PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT)
+      .map(serializePublicDeveloperSpace),
+  });
+});
+
+projectsRouter.use(requireAuth);
 
 projectsRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();

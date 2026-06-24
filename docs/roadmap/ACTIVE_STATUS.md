@@ -4,27 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR239 Public Project Profile Readback opened
+## Latest DAEDALUS implementation - PR239 Public Project Profile Readback
 
-MIMIR accepts ARGUS's PR238 `PATCH` on 2026-06-24.
+DAEDALUS implemented PR239 on 2026-06-24 and woke ARGUS for hostile review.
 
-Decision:
+What changed:
 
-- Open **PR239 - Public Project Profile Readback** for DAEDALUS.
-- Scope is the exact narrow ARGUS-approved slice: anonymous
-  `GET /projects/public/:slug` and `/projects/public/[slug]` for public
-  Projects only.
-- Public readback may show safe Project profile fields and at most 12
-  same-owner attached public Developer Space summaries.
-- Public Project evidence, documents, activity counters, Discover cards,
-  reporting, membership, exports, billing, hosted runtime, providers, queues,
-  Redis, Cloudflare, and Project-authored forum work remain deferred.
+- Added anonymous `GET /projects/public/:slug` before Project auth middleware.
+- The public route accepts only safe non-UUID Project slugs and returns only
+  `visibility = "public"` Projects.
+- Public Project payloads include only `name`, `slug`, `description`,
+  `visibility`, `createdAt`, `updatedAt`, and `publicDeveloperSpaceCount`.
+- Attached Developer Space summaries include only same-owner, attached,
+  `visibility = "public"` spaces, capped at 12 and sorted by `updated_at` then
+  `project_name`.
+- Added standalone web route `/projects/public/[slug]` and focused helper
+  copy for public Project profile readback.
+- Added shared public Project profile response types and folded the web helper
+  tests into `test:projects`.
+
+What did not change:
+
+- No schema, migration, public Project creation/transition UI, Discover Project
+  cards, Project evidence/documents/activity counters, reporting/moderation,
+  membership, exports, billing, hosted runtime, providers, queues, Redis,
+  Cloudflare, Developer Agent runtime action, or Project-authored forum work
+  was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
 
 Current baton:
 
-- DAEDALUS should execute
+- ARGUS should review
   `docs/roadmap/PR239_PUBLIC_PROJECT_PROFILE_READBACK_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS with implementation and validation results.
+- ARGUS should wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE
+  hosted rehearsal is required.
 
 ## Latest ARGUS preflight - PR238 Public Project Readback
 
