@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR212 owner readback rehearsal opened
+
+MIMIR closes PR211 as accepted after ARGUS review on 2026-06-24 and routes the
+visible owner-facing readback to ARIADNE.
+
+Reason:
+
+- PR211 added a compact Studio `publicInteraction` readback on the owner
+  persona home.
+- ARGUS accepted the API/privacy boundary after hardening unsafe legacy
+  UUID-shaped public slugs.
+- Because this is visible product UI, the next move is a hosted human-eye
+  rehearsal before MIMIR opens any event-retention or analytics storage lane.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR212_PUBLIC_INTERACTION_READBACK_REHEARSAL_ARIADNE.md`.
+- If the deployed owner readback is coherent and safe, ARIADNE should wake
+  MIMIR with `PASS`.
+- If the UI is missing, stale, confusing, or broken, ARIADNE should wake
+  DAEDALUS with exact route/control defects.
+- If the issue is privacy, raw-id, reporter-identity, or moderation leakage,
+  ARIADNE should wake ARGUS.
+
 ## Latest ARGUS result - PR211 public interaction readback accepted
 
 ARGUS reviewed and accepted PR211 on 2026-06-24 after one narrow raw-slug

@@ -185,16 +185,17 @@ Current intent:
   DAEDALUS repaired the hosted public persona readback and enabled exactly one
   replay public-chat seed, then ARIADNE accepted the signed-out, signed-in,
   report, desktop/mobile, and public-source-only rehearsal.
-- Active follow-up: PR211 opens owner/admin public interaction readback for
-  public personas. The intended slice is existing-data status/report readback
-  only. New event retention, visitor transcript storage, Redis/Cloudflare
-  analytics, or broader public chat behavior need a separate MIMIR decision and
-  ARGUS review.
+- PR211 result: DAEDALUS implemented and ARGUS accepted owner/admin public
+  interaction readback for public personas using existing safe data only.
+  Unsafe legacy UUID-shaped public slugs are nulled before owner serialization.
+- Active follow-up: PR212 sends the visible owner readback to ARIADNE for
+  hosted human rehearsal before MIMIR decides whether any event-retention
+  analytics lane is needed.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR210 are accepted. PR211 is open for
-DAEDALUS to add owner/admin public interaction readback without expanding
-public chat storage or visitor transcript retention.
+Status, 2026-06-24: PR202 through PR211 are accepted. PR212 is open for
+ARIADNE to rehearse the owner-facing public interaction readback on deployed
+Railway before any event-retention lane opens.
 
 Current MIMIR position:
 
@@ -204,8 +205,9 @@ Current MIMIR position:
   an accepted signed-in visitor-chat implementation gate, signed-in public chat
   route, owner enable/disable control, and public persona reporting resolver.
   It now has hosted human rehearsal evidence for the public chat alpha. It does
-  not yet have owner/admin interaction readback for public persona reports,
-  status, and safe usage signals.
+  now has owner/admin interaction readback for public persona reports and
+  public route/chat status. It does not yet have event-retention analytics for
+  per-persona public interaction usage.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
   enough to open Phase 3 safely.
 
@@ -224,10 +226,12 @@ Bridge order:
 9. Done: DAEDALUS hosted schema/seed/readback repair for PR209.
 10. Done: ARIADNE hosted human rehearsal of signed-in public persona chat
     alpha.
-11. Active: owner/admin interaction readback for public persona reports,
-    status, and safe usage signals.
-12. Decide whether any useful analytics need a separate event-retention lane.
-13. Only then consider Roulette, Salons, voice/avatar, public persona events,
+11. Done: owner/admin interaction readback for public persona reports and
+    public route/chat status.
+12. Active: ARIADNE hosted human rehearsal of owner public interaction
+    readback.
+13. Decide whether any useful analytics need a separate event-retention lane.
+14. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:

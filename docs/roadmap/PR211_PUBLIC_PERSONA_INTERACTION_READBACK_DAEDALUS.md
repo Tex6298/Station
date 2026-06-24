@@ -227,7 +227,28 @@ runtime context, provider traces, token transaction rows, or raw id readback.
 
 Next wakeup target:
 
-- Wake ARGUS for privacy/moderation review.
+- MIMIR should close PR211 and decide whether the visible owner readback needs
+  ARIADNE rehearsal before any event-retention lane opens.
+
+## MIMIR Closeout
+
+MIMIR accepts PR211 on 2026-06-24 after ARGUS review.
+
+Closeout:
+
+- The implementation uses existing safe data only: public chat state/route and
+  persona report status counts.
+- ARGUS patched unsafe legacy UUID-shaped public slugs out of owner
+  `publicInteraction.publicRoute.publicSlug`.
+- PR211 does not add visitor transcripts, visitor message storage, reporter
+  identity to owners, public moderation logs, Redis/Cloudflare analytics,
+  provider traces, token transaction rows, or private runtime context.
+
+Next lane:
+
+- PR212 sends the visible owner readback to ARIADNE for hosted human rehearsal
+  before MIMIR decides whether to open a separate event-retention analytics
+  lane.
 
 ## Wakeup
 
