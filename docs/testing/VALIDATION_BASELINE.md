@@ -32,27 +32,32 @@ Memory/observability implementation lane.
 
 ## PR279 Hosted Partial Context Selection Repair
 
-MIMIR opened PR279 for DAEDALUS on 2026-06-24 after ARIADNE's PR278 hosted
-rerun failed the full recall bar.
+DAEDALUS completed PR279 on 2026-06-24:
+`docs/roadmap/PR279_HOSTED_PARTIAL_CONTEXT_SELECTION_REPAIR_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`, pending ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Hosted/local mismatch classification | Pass | Determine whether missing accepted evidence is absent from owner-safe active data, missed by lexical blend, or dropped after selection. |
-| DB-shaped reproduction | Pass | Add or update a fixture that resembles the PR278 hosted shape rather than only the synthetic deterministic fixture. |
-| Generic context full-anchor selection | Pass locally | Runtime context/prompt should include both accepted concepts and both matching invented retrieval phrases before provider answer. |
-| Rejected-control exclusion | Pass | Rejected, quarantined, expired, superseded, other-owner, and archive-source Memory must stay excluded. |
-| Scope | Pass | No provider, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, or UI changes unless new evidence is documented first. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required for retrieval/context selection changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for runtime context route or prompt changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for archive/context regressions. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if readiness/observability surfaces are touched. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review unless a repo-level blocker is documented. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings named | Existing raw `<img>` warnings are acceptable if unchanged. |
-| `git diff --check` | Pass | Whitespace check. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Hosted/local mismatch classification | Pass | Missing evidence can be present and selected, then dropped when private runtime Memory assembly chooses partial `summary` over full `content`. |
+| DB-shaped reproduction | Pass | The full-vector-slot fixture now uses partial summary plus full content to mirror the PR278 hosted/local mismatch. |
+| Generic context full-anchor selection | Pass locally | Runtime context/prompt includes both accepted concepts and both matching invented retrieval phrases before provider answer. Hosted proof still needs a post-deploy PR280 rerun. |
+| Rejected-control exclusion | Pass | Rejected-control, other-owner, and archive-source Memory stay absent in the focused fixture; existing lifecycle fixtures cover quarantined, expired, and superseded exclusions. |
+| Scope | Pass | No provider, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 10 tests, including the DB-shaped partial-summary/full-content fixture. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
 | Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, raw ids, raw prompts, or private source bodies. |
+
+ARGUS should review the repair. If accepted, the next useful validation is an
+ARIADNE hosted PR280 rerun after deploy.
 
 ## PR278 Hosted Runtime Answer Rerun Result
 

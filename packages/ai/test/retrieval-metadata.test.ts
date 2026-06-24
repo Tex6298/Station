@@ -136,7 +136,7 @@ test("vector memory search backfills exact lexical anchors when vector misses th
   assert.equal(retrieval.trace.selected.some((source) => source.id === "archive-source-anchor"), false);
 });
 
-test("persona runtime context promotes exact lexical memory when vector memory slots are full", async () => {
+test("persona runtime context promotes exact lexical memory and preserves full content", async () => {
   const db = new VectorFullSlotsMissesLexicalSupabase();
   const embeddingFetch = mockEmbeddingFetch(new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001));
 
@@ -575,8 +575,7 @@ class VectorFullSlotsMissesLexicalSupabase extends VectorMissesLexicalSupabase {
         title: "Synthetic staging anchors",
         content:
           "Synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum. Both phrases are invented staging anchors for measurement.",
-        summary:
-          "Accepted synthetic staging anchors: Meridian Loom pairs with silver compass ledger; Helio Gate pairs with blue lantern checksum.",
+        summary: "Accepted synthetic staging anchors: Meridian Loom pairs with silver compass ledger.",
         source_type: "manual",
         relevance_weight: 1,
         archive_source_type: null,

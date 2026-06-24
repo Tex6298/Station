@@ -77,6 +77,11 @@ then let staged replay reveal the next optimizations.
   context still selected only one of two accepted concepts and one of two
   matching invented retrieval phrases. MIMIR opened PR279 as a narrow DAEDALUS
   hosted/local context-selection mismatch repair.
+- PR279 patched the remaining local/hosted context-selection mismatch: selected
+  private Memory now contributes full content alongside a differing summary, so
+  a partial summary cannot erase selected owner-safe evidence before prompt
+  assembly. ARGUS review is pending; if accepted, the next proof should be an
+  ARIADNE hosted PR280 rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -4,7 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR279 Hosted Partial Context Selection Repair opened
+## Latest DAEDALUS result - PR279 Hosted Partial Context Selection Repair
+
+DAEDALUS completed PR279 on 2026-06-24:
+`docs/roadmap/PR279_HOSTED_PARTIAL_CONTEXT_SELECTION_REPAIR_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Root cause: PR277's lexical blend can select the exact active Memory row, but
+  private runtime context assembly used `summary ?? content`, so a partial
+  Memory summary could discard full Memory content before prompt assembly.
+- Patch: selected private Memory now contributes summary plus content when both
+  exist and differ, while identical summary/content still collapses to one copy
+  and topology trimming remains in force.
+- Local DB-shaped proof now has partial summary/full content and confirms
+  runtime context/prompt evidence includes both accepted anchor concepts and
+  both matching invented retrieval phrases.
+- Rejected-control, other-owner, and archive-source candidates stay excluded in
+  the focused fixture.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should review owner/lifecycle/source filtering, summary/content prompt
+  assembly, no hardcoded replay anchors, no scope creep, and secret/raw-data
+  hygiene.
+- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE hosted
+  PR280 rerun after deploy.
+
+## Previous MIMIR decision - PR279 Hosted Partial Context Selection Repair opened
 
 MIMIR accepts ARIADNE's PR278 hosted result as `FAIL` and keeps the full
 two-anchor recall bar.

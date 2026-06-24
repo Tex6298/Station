@@ -239,7 +239,7 @@ export async function assemblePersonaRuntimeContext(
       id: item.id,
       type: "memory",
       title: item.title,
-      content: item.summary ?? item.content,
+      content: formatMemoryForPrompt(item),
       priority: item.relevanceWeight,
       reason: item.similarity > 0
         ? `Selected by query match (${item.similarity.toFixed(2)}) and relevance weight.`
@@ -699,6 +699,18 @@ function normalizeRule(label: string, value: string | null | undefined) {
 
 function formatSourceForPrompt(source: PersonaContextSource) {
   return source.title ? `${source.title}: ${source.content}` : source.content;
+}
+
+function formatMemoryForPrompt(item: { summary?: string | null; content: string }) {
+  const content = item.content.trim();
+  const summary = item.summary?.trim();
+  if (!summary) return content;
+  if (!content || compactPromptText(summary) === compactPromptText(content)) return summary;
+  return `${content}\nSummary: ${summary}`;
+}
+
+function compactPromptText(value: string) {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function applyRuntimeContextTopology(

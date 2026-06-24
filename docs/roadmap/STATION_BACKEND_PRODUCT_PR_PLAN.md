@@ -483,6 +483,12 @@ of two matching invented retrieval phrases reached prompt context and answer.
 MIMIR keeps the full recall bar and opens PR279 Hosted Partial Context
 Selection Repair for DAEDALUS.
 
+2026-06-24 PR279 result: DAEDALUS found the missing evidence could be selected
+but then dropped at private Memory prompt assembly when a partial summary
+replaced full content. The patch keeps selected private Memory content alongside
+a differing summary before topology trimming. ARGUS review is pending; if
+accepted, MIMIR should open an ARIADNE hosted PR280 rerun after deploy.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

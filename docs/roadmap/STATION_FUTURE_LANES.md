@@ -82,8 +82,11 @@ before slicing to the requested limit. ARGUS accepted the patch; MIMIR opened
 the ARIADNE hosted PR278 rerun after deploy.
 PR278 failed the hosted recall bar with deploy/auth/session/persona/chat
 safety/rejected-control/observability passing and hosted generic context still
-partial. PR279 is the active DAEDALUS lane to repair the hosted/local context
-selection mismatch without lowering the recall bar.
+partial. PR279 patched the hosted/local context-selection mismatch: selected
+private Memory now contributes full content alongside a differing summary, so a
+partial summary cannot erase selected owner-safe evidence before prompt
+assembly. ARGUS review is pending; if accepted, the next proof should be an
+ARIADNE hosted PR280 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 
