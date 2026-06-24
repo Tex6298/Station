@@ -32,17 +32,27 @@ Memory/observability implementation lane.
 
 ## PR266 Post-Archive UX Lane Selection
 
-MIMIR opened PR266 for DAEDALUS on 2026-06-24 after PR265 passed.
+DAEDALUS completed PR266 for MIMIR on 2026-06-24 after PR265 passed:
+`docs/roadmap/PR266_POST_ARCHIVE_UX_LANE_SELECTION_AUDIT.md`.
 
-Expected validation:
+Result:
+
+- Product code was inspected but not changed.
+- Package tests were not required for this docs-only lane-selection audit.
+- PR264/PR265 close UX-02A.
+- UX-02B Persona Export Status remains current.
+- UX-DEBT-01 mobile top-nav remains current.
+- Recommendation is no new local UX implementation lane right now; open
+  **PR267 - Staging Readiness Truth Check** as a staging-prep/evidence lane if
+  MIMIR wants the next move.
+
+Validation:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| `git diff --check` | Pass | Docs-only lane-selection audit. |
+| `git diff --check` | Pass | Docs-only lane-selection audit; CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
-
-Package tests are not required unless DAEDALUS changes product code. PR266
-should not implement product code.
+| Staged credential/raw-id scan | Pass | No obvious staged credential-like values or UUID-shaped raw ids found. |
 
 ## PR265 Archive Trust Rehearsal
 

@@ -119,8 +119,9 @@ slice. PR262 is accepted by ARGUS as the owner-only runtime provenance
 stitching slice, PR263 passed ARIADNE hosted desktop/mobile rehearsal, and
 PR264 is accepted by ARGUS with a narrow source-count honesty patch as UX-02A
 Per-Persona Archive Trust States. PR265 passed ARIADNE hosted desktop/mobile
-rehearsal, and PR266 is open for post-Archive UX lane selection so the team does
-not reopen already accepted UX-02B or mobile top-nav debt by inertia.
+rehearsal. PR266 is complete: DAEDALUS found UX-02B and UX-DEBT-01 current,
+accepted PR264/PR265 as UX-02A closeout, and recommends no new local UX
+implementation lane before a staging readiness truth check.
 
 Current intent:
 
@@ -195,6 +196,10 @@ Current intent:
 - PR265 result: ARIADNE passed hosted desktop/mobile rehearsal with no repair
   needed. MIMIR closes PR264/PR265 and opens PR266 for DAEDALUS to reconcile
   current UI/UX lane truth before any further implementation.
+- PR266 result: DAEDALUS recommends **PR267 - Staging Readiness Truth Check**
+  instead of another local UX implementation lane. UX-02B Persona Export Status
+  and UX-DEBT-01 mobile top-nav are current; UX-01B and UX-03 should wait for
+  staged replay evidence or a concrete MIMIR-named blocker.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -520,15 +525,16 @@ Current intent:
   Stitching Readback. PR263 passed ARIADNE hosted desktop/mobile rehearsal.
   PR264 implements UX-02A Per-Persona Archive Trust States and ARGUS accepted it
   with a narrow source-count honesty patch. PR265 opens ARIADNE hosted
-  desktop/mobile rehearsal for the visible owner Archive route. PR266 opens
-  post-Archive UX lane selection so UX-02B and mobile top-nav debt are not
-  duplicated if they are already current.
+  desktop/mobile rehearsal for the visible owner Archive route. PR266 confirmed
+  UX-02B and mobile top-nav debt are current, closes the post-Archive lane
+  selection audit, and recommends a staging readiness truth check before any
+  further local UX implementation.
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR265 are accepted. Developer Space Tier 1
-protected-alpha is closed for now. PR266 is open for Post-Archive UX Lane
-Selection under the Studio/Archive UI sequencing.
+Status, 2026-06-24: PR202 through PR266 are accepted. Developer Space Tier 1
+protected-alpha is closed for now. PR266 recommends staging readiness evidence
+before another local Studio/Archive UI implementation lane.
 
 Current MIMIR position:
 
@@ -623,7 +629,8 @@ Bridge order:
 64. Done: ARIADNE Runtime Provenance Rehearsal.
 65. ARGUS accepted: Per-Persona Archive Trust States.
 66. Done: ARIADNE Archive Trust Rehearsal.
-67. Open: DAEDALUS Post-Archive UX Lane Selection.
+67. DAEDALUS completed: Post-Archive UX Lane Selection recommends PR267
+    Staging Readiness Truth Check.
 
 ARGUS P3-B1A gates:
 

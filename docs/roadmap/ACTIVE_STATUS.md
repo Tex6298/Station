@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR266 Post-Archive UX Lane Selection
+
+DAEDALUS completed PR266 on 2026-06-24:
+`docs/roadmap/PR266_POST_ARCHIVE_UX_LANE_SELECTION_AUDIT.md`.
+
+Verdict:
+
+- Recommend **no new local UX implementation lane right now**.
+- Next move should be **PR267 - Staging Readiness Truth Check**: a
+  staging-prep/evidence lane, not product implementation.
+
+Current-state checks:
+
+- PR264/PR265 are accepted enough to close UX-02A. The per-persona Archive
+  trust rows are implemented, ARGUS patched the source-count honesty issue, and
+  ARIADNE passed hosted desktop/mobile rehearsal.
+- UX-02B Persona Export Status is current. The reusable
+  `ArchiveExportStatus` component and `export-trust` helper are still used by
+  persona home and the per-persona Archive tab, with manifest/bundle readback,
+  failure display, and requested/processing states intact.
+- UX-DEBT-01 mobile top-nav is current. The scoped top-nav classes, bounded
+  mobile link rail, avatar collapse, small-screen signed-in link hiding, and
+  shared loading shell remain in current code.
+
+Recommendation details:
+
+- PR267 owner: MIMIR/human for external deployment facts, with DAEDALUS only if
+  a repo-side drift or docs patch is named.
+- PR267 scope: reconcile hosted Railway web/API health and deployed commit,
+  Supabase staging migration/auth/storage facts, Stripe test-mode/replay
+  prerequisites, replay-account/data assumptions, and the shortest
+  protected-alpha staging path.
+- PR267 non-scope: no product feature implementation, broad UI polish, UX-01B,
+  UX-03, public product expansion, Developer Space expansion, auth/session
+  change, unknown-project migrations, Stripe live-money work, provider/cache/
+  worker changes, or imported concepts.
+- Risk: stale external deployment truth; local docs inspection cannot prove
+  staging readiness without fresh hosted and account facts.
+
+Validation:
+
+- Product code was inspected but not changed.
+- Package tests were not required for this docs-only lane-selection audit.
+- `git diff --check`, `git diff --cached --check`, and staged credential/raw-id
+  scan should be run before the wakeup commit.
+
+Current baton:
+
+- MIMIR should open PR267 Staging Readiness Truth Check, pause deliberately, or
+  request ARGUS/ARIADNE review if staging evidence needs a separate gate.
+
 ## Latest MIMIR decision - PR266 Post-Archive UX Lane Selection opened
 
 MIMIR closes PR264/PR265 on 2026-06-24 after ARGUS accepted the implementation

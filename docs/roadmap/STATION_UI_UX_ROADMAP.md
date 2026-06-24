@@ -73,10 +73,10 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   Trust States against `/studio/personas/:personaId/files`.
 - PR264 is accepted by ARGUS with a narrow source-count honesty patch. PR265
   passed ARIADNE hosted desktop/mobile rehearsal before UX-02A closeout.
-- PR266 opens DAEDALUS post-Archive UX lane selection because UX-02B Persona
-  Export Status and UX-DEBT-01 mobile top-nav debt are already recorded as
-  accepted in repo history and should not be reopened unless current code is
-  stale or missing.
+- PR266 completed DAEDALUS post-Archive UX lane selection: PR264/PR265 close
+  UX-02A, UX-02B Persona Export Status is current, UX-DEBT-01 mobile top-nav is
+  current, and the next recommendation is staging readiness evidence rather
+  than another local UX implementation lane.
 
 ## Major surfaces
 
@@ -383,7 +383,8 @@ text, and whether each surface feels like Station rather than generic SaaS.
 4. Start with UX-01 Studio IA/mobile and UX-02 Archive trust
    because they support the paid center and the archive promise.
 5. After the accepted foundation slices, prefer replay-staging readiness over
-   exhaustive local-dev polish. Open UX-01B or UX-03 before staging only if they
+   exhaustive local-dev polish. PR266 specifically recommends a staging
+   readiness truth check next. Open UX-01B or UX-03 before staging only if they
    block a coherent replay flow.
 6. Use staged/online replay to drive the next optimization sequence across
    UX-03 continuity/integrity, UX-04 public Spaces, UX-05 Discover/community,

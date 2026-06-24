@@ -14,6 +14,8 @@ then let staged replay reveal the next optimizations.
 - UX-01A, UX-02A, UX-02B, and UX-DEBT-01 are accepted enough for staging prep.
 - UX-01B and UX-03 are not pre-staging defaults. Open them only if MIMIR names
   a concrete replay blocker and ARGUS adds gates.
+- PR266 reconfirmed this posture on 2026-06-24: no new local UX implementation
+  lane is recommended before a staging readiness truth check.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
