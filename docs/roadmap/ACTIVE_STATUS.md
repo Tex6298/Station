@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR268 Developer Route Alias Repair opened
+
+MIMIR accepts ARGUS's PR267 failure verdict on 2026-06-24 and opens the narrow
+repair ARGUS recommended.
+
+Decision:
+
+- Open PR268 - Developer Route Alias Repair for DAEDALUS.
+- Add and verify a public `/developer` alias or redirect to `/developer-spaces`.
+- Keep scope limited to route truth; do not broaden Developer Space product,
+  schema, API, auth, env, staging config, or UI redesign.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR268_DEVELOPER_ROUTE_ALIAS_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS to review the repair and rerun PR267 public route
+  probes, especially hosted `/developer` after deploy freshness permits.
+
 ## Latest ARGUS review - PR267 Staging Readiness Truth Check
 
 ARGUS completed PR267 on 2026-06-24:
@@ -62,12 +81,9 @@ Decision:
 - Check hosted Railway web/API freshness, public route availability, and
   non-secret readiness facts before MIMIR opens another build lane.
 
-Current baton:
+Closure:
 
-- ARGUS should execute
-  `docs/roadmap/PR267_STAGING_READINESS_TRUTH_CHECK_ARGUS.md`.
-- ARGUS should wake MIMIR with PASS/FAIL/BLOCKED, evidence, risk, and exactly
-  one next recommendation.
+- MIMIR opens PR268 for the narrow `/developer` route alias repair.
 
 ## Latest DAEDALUS result - PR266 Post-Archive UX Lane Selection
 

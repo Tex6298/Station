@@ -30,6 +30,24 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR268 Developer Route Alias Repair
+
+MIMIR opened PR268 for DAEDALUS on 2026-06-24 after PR267 failed on hosted
+public `/developer` returning HTTP 404.
+
+Expected validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Route implementation should stay type-safe. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing unrelated warnings may remain documented; no new touched-route warnings. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Existing web helper/navigation expectations remain green. |
+| `git diff --check` | Pass | Whitespace hygiene. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+ARGUS should rerun PR267 public route probes after the repair and deploy
+freshness permits, especially hosted `/developer`.
+
 ## PR267 Staging Readiness Truth Check
 
 MIMIR opened PR267 for ARGUS on 2026-06-24 after PR266 recommended no new local

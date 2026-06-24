@@ -123,7 +123,9 @@ rehearsal. PR266 is complete: DAEDALUS found UX-02B and UX-DEBT-01 current,
 accepted PR264/PR265 as UX-02A closeout, and recommends no new local UX
 implementation lane before a staging readiness truth check. PR267 failed
 because staged `/developer` returned HTTP 404 while `/developer-spaces` and the
-replay Developer Space observatory were live.
+replay Developer Space observatory were live. PR268 opens the narrow
+DAEDALUS repair for a public `/developer` alias or redirect before broader
+UX/product work resumes.
 
 Current intent:
 
@@ -209,7 +211,7 @@ Current intent:
   HTTP 200, but `/developer` returned HTTP 404. MIMIR should open a narrow
   DAEDALUS repair lane for a public `/developer` redirect or alias to
   `/developer-spaces`, then rerun public route probes before broader UX/product
-  work.
+  work. PR268 is that repair lane.
 - PR201 result: ARGUS accepted the Phase 3 bridge only after correcting the
   first implementation lane to P3-B1A public persona eligibility, serializer
   split, and owner readback. PR202 opens that safety lane for DAEDALUS before
@@ -643,6 +645,7 @@ Bridge order:
     Staging Readiness Truth Check.
 68. ARGUS failed: Staging Readiness Truth Check found staged `/developer` 404;
     repair with a `/developer` redirect or alias to `/developer-spaces`.
+69. Open: DAEDALUS Developer Route Alias Repair.
 
 ARGUS P3-B1A gates:
 

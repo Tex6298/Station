@@ -20,6 +20,7 @@ then let staged replay reveal the next optimizations.
   HTTP 404 even though `/developer-spaces` and the replay Developer Space
   observatory route were live. MIMIR should open a narrow repair lane for a
   public `/developer` redirect or alias before broader UX/product work.
+- PR268 opens that repair lane for DAEDALUS.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
