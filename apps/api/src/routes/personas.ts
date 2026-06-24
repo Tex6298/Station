@@ -4,8 +4,11 @@ import { requireAuth, type AuthenticatedUser } from "../middleware/require-auth"
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import {
+  PUBLIC_PERSONA_CONTEXT_PREVIEW_QUERY_MAX_LENGTH,
   isSafePublicPersonaSlug,
+  normalizePublicPersonaContextQuery,
   serializePersonaPublicFields,
+  serializePublicPersonaContextPreview,
   serializePublicPersona,
   slugifyPublicPersonaName,
 } from "../lib/persona-serialization";
@@ -59,24 +62,56 @@ const handoffSchema = z.object({
 
 export const personasRouter = Router();
 
-// Public readback route. This must stay before the authenticated router guard.
-personasRouter.get("/public/:publicSlug", async (req, res) => {
-  if (!isSafePublicPersonaSlug(req.params.publicSlug)) {
-    return res.status(404).json({ error: "Public persona not found." });
-  }
+const publicContextPreviewQuerySchema = z.object({
+  query: z.preprocess(
+    (value) => Array.isArray(value) ? value[0] : value,
+    z.string().max(PUBLIC_PERSONA_CONTEXT_PREVIEW_QUERY_MAX_LENGTH).optional()
+  ),
+});
+
+async function loadEligiblePublicPersonaBySlug(publicSlug: string, select: string): Promise<any | null> {
+  if (!isSafePublicPersonaSlug(publicSlug)) return null;
 
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("personas")
-    .select("name, short_description, visibility, avatar_url, public_slug, owner_user_id")
-    .eq("public_slug", req.params.publicSlug)
+    .select(select)
+    .eq("public_slug", publicSlug)
     .eq("visibility", "public")
     .maybeSingle();
 
-  if (error || !data) return res.status(404).json({ error: "Public persona not found." });
+  if (error || !data) return null;
 
-  const eligible = await ownerCanExposeExistingPublicPersonas(sb, data.owner_user_id);
-  if (!eligible) return res.status(404).json({ error: "Public persona not found." });
+  const row = data as any;
+  const eligible = await ownerCanExposeExistingPublicPersonas(sb, row.owner_user_id);
+  if (!eligible) return null;
+
+  return row;
+}
+
+personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {
+  const parsed = publicContextPreviewQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Public persona context preview query is too long." });
+  }
+
+  const data = await loadEligiblePublicPersonaBySlug(
+    req.params.publicSlug,
+    "name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+  );
+  if (!data) return res.status(404).json({ error: "Public persona not found." });
+
+  const query = normalizePublicPersonaContextQuery(parsed.data.query);
+  return res.json(serializePublicPersonaContextPreview(data, query));
+});
+
+// Public readback route. This must stay before the authenticated router guard.
+personasRouter.get("/public/:publicSlug", async (req, res) => {
+  const data = await loadEligiblePublicPersonaBySlug(
+    req.params.publicSlug,
+    "name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+  );
+  if (!data) return res.status(404).json({ error: "Public persona not found." });
 
   return res.json({ persona: serializePublicPersona(data) });
 });

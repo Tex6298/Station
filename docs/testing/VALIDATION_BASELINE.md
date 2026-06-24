@@ -54,6 +54,31 @@ pnpm test:developer-space-client
 pnpm test:writing
 ```
 
+## PR205 Public Persona Visitor Context Preview
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 8 tests passed. New coverage proves anonymous public context preview success for a safe eligible public persona, 404s for private, ineligible, and UUID-shaped public slugs, 400 for overlong query, public routeable source shape, explicit private bucket exclusions, and no owner/raw persona/provider/private prompt/secret-shaped leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 10 tests passed. Public persona route helper/copy coverage now includes context-preview copy that frames the panel as a source preview, not live chat or model response. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web packages. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added anonymous `GET /personas/public/:publicSlug/context-preview` with the
+  same safe slug and owner-exposure eligibility as public persona profile
+  readback.
+- The first slice returns only public profile source data, counts, route hints,
+  short public excerpt, and explicit excluded private buckets.
+- The public persona page renders a subordinate source-preview panel with a
+  bounded query and no chat composer.
+- No provider/model call, embeddings/vector retrieval, private runtime context,
+  visitor conversation/transcript storage, public document/discussion retrieval,
+  billing, cache/worker architecture, owner controls, or broad UI redesign was
+  added.
+
 ## PR204 Public Persona Page Rehearsal
 
 MIMIR staging seed repair on 2026-06-24:

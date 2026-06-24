@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { publicPersonaHref, publicPersonaReadbackCopy } from "./public-persona-route";
+import {
+  publicPersonaContextPreviewCopy,
+  publicPersonaHref,
+  publicPersonaReadbackCopy,
+} from "./public-persona-route";
 
 test("public persona href only accepts safe public slugs", () => {
   assert.equal(publicPersonaHref("mimir-public"), "/personas/mimir-public");
@@ -17,4 +21,12 @@ test("public persona readback copy names private boundaries without route ids", 
   assert.match(copy, /Only the public profile/);
   assert.match(copy, /Private Studio memory/);
   assert.doesNotMatch(copy, /ownerUserId|personaId|provider payload|token|cookie/i);
+});
+
+test("public persona context preview copy is a preview boundary, not a chat promise", () => {
+  const copy = publicPersonaContextPreviewCopy();
+  assert.match(copy, /public source categories/);
+  assert.match(copy, /does not start chat/);
+  assert.match(copy, /private runtime context/);
+  assert.doesNotMatch(copy, /ask this persona|send message|live chat|model response/i);
 });

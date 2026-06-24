@@ -18,3 +18,7 @@ export function publicPersonaHref(publicSlug: string | null | undefined) {
 export function publicPersonaReadbackCopy() {
   return "Only the public profile is shown here. Private Studio memory, archive, canon, continuity, setup notes, provider settings, and owner data stay hidden.";
 }
+
+export function publicPersonaContextPreviewCopy() {
+  return "Preview which public source categories a future visitor interaction may see. This does not start chat, call a model, or use private runtime context.";
+}

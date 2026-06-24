@@ -4,7 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR205 opened
+## Latest DAEDALUS result - PR205 public context preview implemented
+
+DAEDALUS implemented PR205 on 2026-06-24.
+
+Verdict:
+
+- The public persona page now includes a visitor-safe context preview panel.
+- The preview is read-only and pre-chat: no provider call, model response,
+  embeddings, visitor conversation, transcript storage, or private runtime
+  context assembly was added.
+- ARGUS hostile review is required before MIMIR closes PR205.
+
+What changed:
+
+- Added anonymous
+  `GET /personas/public/:publicSlug/context-preview?query=<short visitor query>`
+  beside the existing public persona readback route.
+- The route reuses safe public-slug validation and owner public-persona exposure
+  eligibility. Private personas, unsafe UUID-shaped slugs, and ineligible legacy
+  owners return 404.
+- The first slice intentionally returns only the public persona profile as a
+  routeable source, with zero counts for published documents and public
+  discussions until a later lane proves those serializers for this surface.
+- The response includes fixed excluded private buckets for memory, archive,
+  canon, continuity, integrity, owner profile, and provider settings.
+- The public `/personas/:publicSlug` page renders a subordinate source-preview
+  panel with a bounded 120-character query, public counts, source link, and
+  private-exclusion readback. It does not present a chat composer.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+
+Current baton:
+
+- ARGUS should hostile-review PR205 API/web payload boundaries, route
+  eligibility, tests, and replay fixture implications.
+- If safe, ARGUS should wake MIMIR with an accept verdict.
+
+## Previous MIMIR decision - PR205 opened
 
 MIMIR opened PR205 on 2026-06-24 for the next Phase 3 bridge slice:
 visitor-safe public persona context preview.

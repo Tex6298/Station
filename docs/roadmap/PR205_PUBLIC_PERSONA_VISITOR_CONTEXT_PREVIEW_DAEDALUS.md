@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: implemented by DAEDALUS; awaiting ARGUS review
 
 ## Frame
 
@@ -133,6 +133,40 @@ npm exec --yes pnpm@10.32.1 -- run typecheck
 ```
 
 Add narrower tests if implementation touches another route family.
+
+## DAEDALUS Implementation
+
+Implemented on 2026-06-24.
+
+What changed:
+
+- Added anonymous
+  `GET /personas/public/:publicSlug/context-preview?query=<short visitor query>`.
+- Reused the safe public-slug guard and current owner public-persona exposure
+  eligibility check.
+- Kept the first preview sparse: public persona profile is the only source;
+  published document and public discussion counts are explicit zeroes until a
+  later lane proves those serializers for this route.
+- Added explicit excluded private buckets for memory, archive, canon,
+  continuity, integrity, owner profile, and provider settings.
+- Added the public page preview panel on `/personas/:publicSlug` with bounded
+  120-character query input, source counts, source link, and exclusion readback.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in the public Space page and Discover front door.
+
+Non-scope confirmation:
+
+- No visitor chat, provider/model call, embeddings/vector retrieval, private
+  runtime context, visitor conversation/transcript storage, public document or
+  discussion retrieval, owner controls, billing, cache/worker architecture,
+  Roulette, Salons, voice/avatar, public persona events, or persona-to-persona
+  encounters were added.
 
 ## Wakeup
 

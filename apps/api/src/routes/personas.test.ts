@@ -587,6 +587,108 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
   }
 });
 
+test("public persona context preview is anonymous and limited to public routeable profile sources", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const publicPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Blue Lantern Guide",
+      short_description: "Public-safe guide to the blue lantern room.",
+      long_description: "Owner-only private runtime context with memory archive canon continuity integrity.",
+      awakening_prompt: "Private setup prompt with secret-shaped-value.",
+      style_notes: "Private style notes with provider settings.",
+      provider: "anthropic",
+      avatar_url: "https://example.test/public-slug-avatar.png",
+      visibility: "public",
+      public_slug: "blue-lantern-guide",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Private Context Persona",
+      long_description: "Private persona body.",
+      visibility: "private",
+      public_slug: "private-context-persona",
+    });
+    db.insertRow("personas", {
+      owner_user_id: "private-owner",
+      name: "Ineligible Context Persona",
+      visibility: "public",
+      public_slug: "ineligible-context-persona",
+    });
+
+    const preview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=blue%20lantern");
+    assert.equal(preview.status, 200);
+    assert.deepEqual(preview.body.persona, {
+      name: "Blue Lantern Guide",
+      publicSlug: "blue-lantern-guide",
+    });
+    assert.equal(preview.body.query, "blue lantern");
+    assert.deepEqual(preview.body.preview.counts, {
+      publicProfile: 1,
+      publishedDocuments: 0,
+      publicDiscussions: 0,
+    });
+    assert.deepEqual(preview.body.preview.sources, [
+      {
+        type: "public_profile",
+        title: "Blue Lantern Guide",
+        href: "/personas/blue-lantern-guide",
+        label: "Public persona profile",
+        excerpt: "Public-safe guide to the blue lantern room.",
+        matchesQuery: true,
+      },
+    ]);
+    assert.deepEqual(preview.body.preview.excludedPrivateBuckets, [
+      "memory",
+      "archive",
+      "canon",
+      "continuity",
+      "integrity",
+      "owner_profile",
+      "provider_settings",
+    ]);
+
+    const previewJson = JSON.stringify(preview.body);
+    assert.equal(previewJson.includes(publicPersona.id), false);
+    assert.equal(previewJson.includes("creator-owner"), false);
+    assert.equal(previewJson.includes("owner_user_id"), false);
+    assert.equal(previewJson.includes("\"provider\""), false);
+    assert.equal(previewJson.includes("providerUsed"), false);
+    assert.equal(previewJson.includes("anthropic"), false);
+    assert.equal(previewJson.includes("longDescription"), false);
+    assert.equal(previewJson.includes("awakeningPrompt"), false);
+    assert.equal(previewJson.includes("styleNotes"), false);
+    assert.equal(previewJson.includes("secret-shaped-value"), false);
+    assert.equal(previewJson.includes("Private setup prompt"), false);
+    assert.equal(previewJson.includes("Owner-only private runtime context"), false);
+
+    const privatePreview = await requestJson(app, "GET", "/personas/public/private-context-persona/context-preview?query=blue");
+    assert.equal(privatePreview.status, 404);
+
+    const ineligiblePreview = await requestJson(app, "GET", "/personas/public/ineligible-context-persona/context-preview?query=blue");
+    assert.equal(ineligiblePreview.status, 404);
+
+    const rawUuidPreview = await requestJson(
+      app,
+      "GET",
+      "/personas/public/550e8400-e29b-41d4-a716-446655440000/context-preview?query=blue"
+    );
+    assert.equal(rawUuidPreview.status, 404);
+
+    const tooLongPreview = await requestJson(
+      app,
+      "GET",
+      `/personas/public/blue-lantern-guide/context-preview?query=${"a".repeat(121)}`
+    );
+    assert.equal(tooLongPreview.status, 400);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("public persona exposure eligibility fails closed when public count cannot load", async () => {
   function queryResult(result: Row) {
     return {

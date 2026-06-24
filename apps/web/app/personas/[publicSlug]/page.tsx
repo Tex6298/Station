@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { PublicPersonaContextPreview } from "@station/types/persona";
 import { apiGet } from "@/lib/api-client";
-import { publicPersonaReadbackCopy } from "@/lib/public-persona-route";
+import { publicPersonaContextPreviewCopy, publicPersonaReadbackCopy } from "@/lib/public-persona-route";
 
 interface PublicPersona {
   name: string;
@@ -17,6 +18,10 @@ interface PublicPersona {
 export default function PublicPersonaPage() {
   const { publicSlug } = useParams<{ publicSlug: string }>();
   const [persona, setPersona] = useState<PublicPersona | null>(null);
+  const [preview, setPreview] = useState<PublicPersonaContextPreview | null>(null);
+  const [previewQuery, setPreviewQuery] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,9 +32,16 @@ export default function PublicPersonaPage() {
     async function loadPersona() {
       setLoading(true);
       setError(null);
+      setPreviewError(null);
       try {
-        const data = await apiGet<{ persona: PublicPersona }>(`/personas/public/${publicSlug}`);
-        if (!cancelled) setPersona(data.persona);
+        const [data, previewData] = await Promise.all([
+          apiGet<{ persona: PublicPersona }>(`/personas/public/${publicSlug}`),
+          apiGet<PublicPersonaContextPreview>(`/personas/public/${publicSlug}/context-preview`),
+        ]);
+        if (!cancelled) {
+          setPersona(data.persona);
+          setPreview(previewData);
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Public persona not found.");
       } finally {
@@ -42,6 +54,23 @@ export default function PublicPersonaPage() {
       cancelled = true;
     };
   }, [publicSlug]);
+
+  async function loadPreview(query: string) {
+    if (!publicSlug) return;
+    setPreviewLoading(true);
+    setPreviewError(null);
+    try {
+      const suffix = query.trim() ? `?query=${encodeURIComponent(query.trim())}` : "";
+      const data = await apiGet<PublicPersonaContextPreview>(
+        `/personas/public/${publicSlug}/context-preview${suffix}`
+      );
+      setPreview(data);
+    } catch (err) {
+      setPreviewError(err instanceof Error ? err.message : "Could not load public context preview.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -81,6 +110,71 @@ export default function PublicPersonaPage() {
           <strong>{persona.visibility}</strong>
         </div>
         <p>{publicPersonaReadbackCopy()}</p>
+      </section>
+
+      <section className="public-persona-panel public-persona-context-preview" aria-label="Visitor-safe context preview">
+        <div>
+          <span>Visitor-safe context preview</span>
+          <strong>Public sources only</strong>
+        </div>
+        <p>{publicPersonaContextPreviewCopy()}</p>
+
+        <form
+          className="public-persona-preview-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void loadPreview(previewQuery);
+          }}
+        >
+          <label>
+            <span>Short visitor query</span>
+            <input
+              value={previewQuery}
+              maxLength={120}
+              onChange={(event) => setPreviewQuery(event.target.value)}
+              placeholder="Try a public topic"
+            />
+          </label>
+          <button type="submit" disabled={previewLoading}>
+            {previewLoading ? "Checking..." : "Preview sources"}
+          </button>
+        </form>
+
+        {previewError && <p className="public-persona-preview-error">{previewError}</p>}
+        {preview && (
+          <div className="public-persona-preview-result">
+            <div className="public-persona-preview-counts" aria-label="Public source counts">
+              <div>
+                <span>Profile</span>
+                <strong>{preview.preview.counts.publicProfile}</strong>
+              </div>
+              <div>
+                <span>Published docs</span>
+                <strong>{preview.preview.counts.publishedDocuments}</strong>
+              </div>
+              <div>
+                <span>Public discussions</span>
+                <strong>{preview.preview.counts.publicDiscussions}</strong>
+              </div>
+            </div>
+
+            <div className="public-persona-preview-sources">
+              {preview.preview.sources.map((source) => (
+                <Link href={source.href} key={`${source.type}-${source.href}`}>
+                  <span>{source.label}</span>
+                  <strong>{source.title}</strong>
+                  {source.excerpt && <em>{source.excerpt}</em>}
+                  <small>{source.matchesQuery ? "Matched public text" : "Available public source"}</small>
+                </Link>
+              ))}
+            </div>
+
+            <div className="public-persona-preview-exclusions">
+              <span>Excluded private buckets</span>
+              <p>{preview.preview.excludedPrivateBuckets.join(", ")}</p>
+            </div>
+          </div>
+        )}
       </section>
     </main>
   );

@@ -24,6 +24,34 @@ export interface PublicPersonaProfile extends Omit<PersonaPublicFields, "visibil
   visibility: "public";
 }
 
+export type PublicPersonaContextSourceType = "public_profile";
+
+export interface PublicPersonaContextSource {
+  type: PublicPersonaContextSourceType;
+  title: string;
+  href: string;
+  label: string;
+  excerpt?: string | null;
+  matchesQuery: boolean;
+}
+
+export interface PublicPersonaContextPreview {
+  persona: {
+    name: string;
+    publicSlug: string;
+  };
+  query: string;
+  preview: {
+    sources: PublicPersonaContextSource[];
+    counts: {
+      publicProfile: number;
+      publishedDocuments: number;
+      publicDiscussions: number;
+    };
+    excludedPrivateBuckets: string[];
+  };
+}
+
 export interface PublicPersonaEligibility {
   eligible: boolean;
   limit: number;
