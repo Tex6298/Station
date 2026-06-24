@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR220 Salon foundation opened
+
+MIMIR accepts ARGUS' PR219 verdict on 2026-06-24.
+
+Decision:
+
+- Open **PR220 - Public Salon Type Foundation** for DAEDALUS.
+- Scope is the smallest durable implementation foundation: add an honest
+  `salon` subcommunity type across migration/types/API/web labels, preserve
+  existing forum/subcommunity read and participation gates, and tighten
+  forum-linked public persona validation.
+- Keep Discover-specific Salon grouping and public persona Salon readback out
+  of PR220. They should wait until the `salon` type and persona-link guard are
+  proven.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR220_PUBLIC_SALON_TYPE_FOUNDATION_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for hostile implementation review when complete.
+
 ## Latest ARGUS result - PR219 Salon preflight accepted with gates
 
 ARGUS completed the Salon Alpha hostile preflight on 2026-06-24 and accepts the

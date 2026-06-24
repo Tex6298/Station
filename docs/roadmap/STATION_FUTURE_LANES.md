@@ -214,10 +214,14 @@ Current intent:
   Alpha Preflight before any Salon schema or product implementation. Salons
   should begin as asynchronous subcommunity-backed forum collections unless
   ARGUS blocks that route.
+- PR219 result: ARGUS accepts Salon Alpha only with implementation gates.
+  PR220 opens a narrow Public Salon Type Foundation lane for DAEDALUS:
+  migration/types/API/web labels, existing forum gates preserved, persona-link
+  routeability tightened, and Discover/public persona Salon readback deferred.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR218 are accepted. PR219 ARGUS Salon Alpha
-Preflight is open before any Salon schema or product implementation.
+Status, 2026-06-24: PR202 through PR219 are accepted. PR220 Public Salon Type
+Foundation is open for DAEDALUS implementation before ARGUS review.
 
 Current MIMIR position:
 
@@ -262,8 +266,9 @@ Bridge order:
     hardening.
 18. Done: ARIADNE hosted human rehearsal of Roulette/search routeability.
 19. Done: Public Salons feasibility/boundary gate.
-20. Active: ARGUS Salon Alpha Preflight before any Salon schema or product
+20. Done: ARGUS Salon Alpha Preflight before any Salon schema or product
     code.
+21. Active: Public Salon Type Foundation implementation.
 
 ARGUS P3-B1A gates:
 

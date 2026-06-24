@@ -270,6 +270,14 @@ for subcommunity labels, `typecheck`, `lint`, `git diff --check`, and
 persona helpers or public persona readback, and run Discover/search tests only
 if MIMIR explicitly expands PR220 into Discover.
 
+## MIMIR Closeout
+
+MIMIR accepts this preflight on 2026-06-24 and opens
+`docs/roadmap/PR220_PUBLIC_SALON_TYPE_FOUNDATION_DAEDALUS.md` as the narrow
+implementation lane.
+
+PR220 must wake ARGUS for hostile review when complete.
+
 ## Validation
 
 Run:
