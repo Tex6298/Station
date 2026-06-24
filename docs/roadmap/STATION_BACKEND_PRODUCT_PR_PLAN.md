@@ -525,7 +525,7 @@ delivery evidence proves selected context is absent.
 2026-06-24 PR285 result: DAEDALUS patched answer-label preservation by
 formatting Memory prompt input with selected source titles/labels alongside
 content, matching Archive and Integrity behavior. The prompt input shape is
-unchanged. ARGUS accepted the patch; MIMIR should open an ARIADNE hosted PR286
+unchanged. ARGUS accepted the patch; MIMIR opened an ARIADNE hosted PR286
 rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and

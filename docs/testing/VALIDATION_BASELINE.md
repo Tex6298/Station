@@ -30,6 +30,28 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR286 Hosted Runtime Answer Rerun After Label Preservation Repair
+
+MIMIR opened PR286 for ARIADNE on 2026-06-24 after ARGUS accepted PR285.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR285 implementation commit `2d37b1e9` or later. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, or raw ids. |
+| Intended replay persona | Pass or blocked | Use the PR284 intended replay persona; report ambiguity rather than guessing. |
+| Full two-anchor recall | Pass | The hosted chat answer should recall both accepted anchor concept labels and both matching invented retrieval phrases. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent. |
+| Source-copy safety | Pass | No raw source-body markers should be copied into the answer. |
+| Context/observability readback | Pass | Record sanitized categories/counts/timing buckets only. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR286 is a hosted rerun only; no product code, provider, embedding, schema,
+Redis, Cloudflare, queue, worker, import, seed, billing, Stripe, public UI, or
+Studio redesign changes should occur.
+
 ## PR285 Answer Label Preservation Repair
 
 ARGUS accepted PR285 on 2026-06-24 with no review patch:

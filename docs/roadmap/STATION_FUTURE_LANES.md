@@ -103,8 +103,8 @@ PR284 proved PR283 deployed and improved hosted answer behavior: the answer now
 recalls both invented retrieval phrases, but neither paired accepted concept
 label. PR285 patched answer-label preservation by formatting Memory prompt
 input with selected source titles/labels alongside content, matching Archive
-and Integrity behavior. ARGUS accepted the patch; the next proof should be an
-ARIADNE hosted PR286 rerun after deploy.
+and Integrity behavior. ARGUS accepted the patch; MIMIR opened the ARIADNE
+hosted PR286 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 
