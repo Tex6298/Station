@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR228 Public Persona Salon Hosted Proof
+
+DAEDALUS hosted proof on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported `ok:true`, `ready:true`, service `@station/web`, branch `main`, commit `e58a5e4c266e2188b9644c27bd25872346d29bb4`. |
+| API `/health/deployment` | Pass | Railway API reported `ok:true`, `ready:true`, service `@station/api`, branch `main`, commit `e58a5e4c266e2188b9644c27bd25872346d29bb4`. |
+| Anonymous public persona seed | Pass | `/personas/public/station-replay-alpha-persona` returned the public persona with safe slug and no owner/provider/setup fields. |
+| Anonymous public Salon seed | Pass | `/forums/subcommunities/station-replay-salon-alpha` returned an active public `salon` with safe non-UUID slug. |
+| Replay owner signin and seed lookup | Pass | Replay owner signin succeeded from local `.env` without printing secrets; `/auth/me` reported tier `canon`; owner `/personas` and public subcommunity readback supplied ids internally only. |
+| Bounded proof thread | Pass | Created `[replay:staging-salon-alpha] Persona-linked Salon readback proof` in the hosted public Salon, linked to the hosted public persona, with no document link. Raw ids were not recorded; proof thread id hash prefix `f015d023c83d`. |
+| Anonymous public context preview | Pass | `/personas/public/station-replay-alpha-persona/context-preview?query=cobalt%20salon%20lantern` returned `publicSalonThreads:1`, one `public_salon_thread` source, safe route shape `/forums/station-replay-salon-alpha/<threadId>`, label `Public Salon thread`, `matchesQuery:true`, and the bounded public proof excerpt. |
+| Leak scan | Pass | No owner ids, raw persona ids, linked private ids, subcommunity ids, category ids, report internals, provider traces, prompts, private memory/archive/canon/continuity/integrity text, SQL details, tokens, service keys, or raw env values found. Existing `excludedPrivateBuckets` labels are boundary labels, not leaked private configuration. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged docs-only proof record had no whitespace errors. |
+
+Result:
+
+- `PROVED`.
+
+Recommendation:
+
+- Open ARIADNE hosted human rehearsal for public persona Salon readback.
+
 ## PR227 Public Persona Salon Readback
 
 DAEDALUS implementation validation on 2026-06-24:

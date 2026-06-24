@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: MIMIR
-Status: Open
+Status: PROVED - MIMIR review pending
 Opened: 2026-06-24
+Completed: 2026-06-24
 
 ## Frame
 
@@ -157,6 +158,73 @@ Include:
 - public readback fields observed;
 - explicit leak scan result;
 - whether ARIADNE should rehearse next.
+
+## DAEDALUS Hosted Proof Result
+
+Result: `PROVED`.
+
+Deployment freshness:
+
+- Web `/health/deployment`: `ok:true`, `ready:true`, service `@station/web`,
+  branch `main`, commit `e58a5e4c266e2188b9644c27bd25872346d29bb4`.
+- API `/health/deployment`: `ok:true`, `ready:true`, service `@station/api`,
+  branch `main`, commit `e58a5e4c266e2188b9644c27bd25872346d29bb4`.
+
+Hosted seed checks:
+
+- Anonymous `/personas/public/station-replay-alpha-persona` returned public
+  readback for `Station Replay Alpha Persona` with safe slug
+  `station-replay-alpha-persona` and no owner/provider/setup fields.
+- Anonymous `/forums/subcommunities/station-replay-salon-alpha` returned an
+  active public `salon` with safe slug `station-replay-salon-alpha`.
+- Replay owner signin succeeded from local `.env` without printing secrets;
+  `/auth/me` reported tier `canon`.
+
+Bounded proof thread:
+
+- Created the proof thread because the expected title was not already present
+  in the hosted Salon category.
+- Title:
+  `[replay:staging-salon-alpha] Persona-linked Salon readback proof`.
+- Body:
+  `Public proof thread for Station persona Salon readback. The bounded public
+  anchor is cobalt salon lantern.`
+- The thread is linked to the hosted public persona and has no document link.
+- Proof thread id was not recorded raw; hash prefix `f015d023c83d`.
+
+Public readback proof:
+
+- Anonymous
+  `/personas/public/station-replay-alpha-persona/context-preview?query=cobalt%20salon%20lantern`
+  returned `preview.counts.publicSalonThreads: 1`.
+- It returned one `public_salon_thread` source for the proof title.
+- Source route shape is `/forums/station-replay-salon-alpha/<threadId>`;
+  full href was verified but not recorded raw. Href hash prefix
+  `595454b32912`.
+- Source label was `Public Salon thread`.
+- `matchesQuery` was `true`.
+- Excerpt was the bounded public proof phrase containing
+  `cobalt salon lantern`.
+
+Leak scan:
+
+- Passed. No owner ids, raw persona ids, linked private ids, subcommunity ids,
+  category ids, report internals, provider traces, prompts, private memory/
+  archive/canon/continuity/integrity text, SQL details, tokens, service keys,
+  or raw env values were found.
+- The scan treats `excludedPrivateBuckets` names such as `provider_settings` as
+  allowed boundary labels, not leaked provider configuration.
+
+Repo validation:
+
+- No repo code changed for PR228.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Recommendation:
+
+- Open ARIADNE hosted human rehearsal for the public persona page and context
+  preview path.
 
 ## Wakeup
 

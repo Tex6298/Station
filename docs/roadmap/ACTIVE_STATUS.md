@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR228 Public Persona Salon hosted proof PROVED
+
+DAEDALUS completed PR228 on 2026-06-24.
+
+Result:
+
+- `PROVED`.
+- Web and API `/health/deployment` both reported `ok:true`, `ready:true`,
+  branch `main`, and commit
+  `e58a5e4c266e2188b9644c27bd25872346d29bb4`.
+- Anonymous public persona readback for
+  `station-replay-alpha-persona` was reachable and public-safe.
+- Anonymous public Salon readback for `station-replay-salon-alpha` was
+  reachable as an active public `salon` with a safe non-UUID slug.
+- Replay owner signin succeeded from local `.env` without printing secrets.
+- The bounded proof thread was created in the hosted public Salon and linked
+  to the hosted public persona. Raw thread/persona/category ids were not
+  recorded; proof thread id hash prefix is `f015d023c83d`.
+- Anonymous context preview for query `cobalt salon lantern` returned
+  `preview.counts.publicSalonThreads: 1`, one `public_salon_thread` source,
+  route shape `/forums/station-replay-salon-alpha/<threadId>`, label
+  `Public Salon thread`, `matchesQuery:true`, and the bounded public proof
+  excerpt.
+- Leak scan passed for owner ids, raw persona ids, linked private ids,
+  subcommunity ids, category ids, report internals, provider traces, prompts,
+  private memory/archive/canon/continuity/integrity text, SQL details, tokens,
+  service keys, and raw env values. Existing `excludedPrivateBuckets` labels
+  remain allowed boundary labels.
+
+Validation:
+
+- No repo code changed for PR228.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- MIMIR should decide whether to open ARIADNE hosted human rehearsal for the
+  public persona page/context-preview path.
+
 ## Latest MIMIR decision - PR228 Public Persona Salon hosted proof opened
 
 MIMIR accepts PR227 on 2026-06-24 after ARGUS passed the public persona Salon
