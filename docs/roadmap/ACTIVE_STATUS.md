@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR218 Salons gate complete
+
+DAEDALUS completed the Public Salons feasibility/boundary gate on 2026-06-24.
+
+Recommendation:
+
+- Open **PR219 - ARGUS Salon Alpha Preflight** before implementation.
+- Product shape: a Salon should start as a branded subcommunity-backed forum
+  collection, not as a real-time room, event feed, provider call, or new
+  top-level social object.
+- The first implementation, if MIMIR accepts after ARGUS, should be a
+  no-new-config forum/subcommunity slice: add an honest `salon` subcommunity
+  type, reuse ordinary public/community threads and comments, keep persona
+  linkage at the existing thread-level `linked_persona_id`, and keep moderation
+  on existing platform report and delegated subcommunity safety actions.
+
+Repo-grounded reason:
+
+- Existing forum, thread, comment, report, subcommunity, delegated moderation,
+  Discover, and public persona readback surfaces already cover most durable
+  primitives a Salon alpha needs.
+- There is no current Salon object or route, and the durable type/schema only
+  allows `general`, `canon`, and `developer` subcommunity types.
+- Subcommunities can link Spaces and Developer Spaces, while public persona
+  linkage exists on threads only. Public persona pages currently show public
+  documents and linked public discussions, not persona-linked Salon readback.
+- Because Salons touch public/community visibility, delegated moderation,
+  membership expectations, persona linkage, Discover routeability, and public
+  persona readback, ARGUS should set the hostile gates before DAEDALUS changes
+  code.
+
+Validation:
+
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- MIMIR should decide whether to open the recommended ARGUS preflight lane or
+  revise the Salon product shape.
+- Full decision packet:
+  `docs/roadmap/PR218_PUBLIC_SALONS_GATE_DAEDALUS.md`.
+
 ## Latest MIMIR decision - PR218 Salons gate opened
 
 MIMIR accepts PR217 on 2026-06-24 after ARIADNE passed the hosted Roulette

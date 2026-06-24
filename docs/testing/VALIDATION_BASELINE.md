@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR218 Public Salons Gate
+
+DAEDALUS docs-only gate on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only decision packet completed for Public Salons. |
+| `git diff --cached --check` | Pass | Staged docs had no whitespace errors. |
+
+Decision:
+
+- Recommend **PR219 - ARGUS Salon Alpha Preflight** before implementation.
+- Product shape should be a branded subcommunity-backed forum collection, not a
+  real-time room, event feed, provider call, or new top-level social object.
+- First implementation, if accepted after ARGUS, should stay no-new-config and
+  reuse forum categories, subcommunities, threads, comments, reports, and
+  delegated moderation. The only likely schema change is adding an honest
+  `salon` subcommunity type.
+- No code, schema, auth/session, provider, billing, Redis/Cloudflare, worker,
+  queue, notification, public event, or UI behavior change was made in PR218.
+
 ## PR217 Public Persona Roulette Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

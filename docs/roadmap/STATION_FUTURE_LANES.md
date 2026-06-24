@@ -206,12 +206,14 @@ Current intent:
   `href` values.
 - PR217 result: ARIADNE accepted deployed Roulette API, Discover panel, public
   persona search routeability, desktop/mobile fit, and privacy boundaries.
-- Active follow-up: PR218 opens Public Salons feasibility/boundary mapping
-  before any Salon schema or product code.
+- PR218 result: DAEDALUS recommends a branded subcommunity-backed Public Salon
+  alpha, preceded by ARGUS hostile preflight because the slice touches
+  public/community visibility, delegated moderation, membership expectations,
+  persona linkage, Discover routeability, and public persona readback.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR217 are accepted. PR218 is open for
-DAEDALUS to map the smallest safe Public Salons slice.
+Status, 2026-06-24: PR202 through PR217 are accepted. PR218 is complete and
+awaits MIMIR decision on the recommended PR219 ARGUS Salon Alpha Preflight.
 
 Current MIMIR position:
 
@@ -255,7 +257,9 @@ Bridge order:
 17. Done: Public Persona Roulette discovery/readback with ARGUS routeability
     hardening.
 18. Done: ARIADNE hosted human rehearsal of Roulette/search routeability.
-19. Active: Public Salons feasibility/boundary gate.
+19. Done: Public Salons feasibility/boundary gate.
+20. Recommended: ARGUS Salon Alpha Preflight before any Salon schema or product
+    code.
 
 ARGUS P3-B1A gates:
 
