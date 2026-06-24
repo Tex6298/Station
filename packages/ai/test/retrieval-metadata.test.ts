@@ -164,6 +164,8 @@ test("persona runtime context promotes exact lexical memory and preserves full c
       context.memory.map((source) => source.id),
       ["lexical-anchor", "vector-memory", "vector-memory-2"]
     );
+    assert.match(context.memory[0].title ?? "", /Meridian Loom/);
+    assert.doesNotMatch(context.memory[0].content, /Meridian Loom/);
 
     const promptEvidence = context.systemPrompt;
     assert.match(promptEvidence, /Meridian Loom/);
@@ -639,10 +641,10 @@ class VectorFullSlotsMissesLexicalSupabase extends VectorMissesLexicalSupabase {
         id: "lexical-anchor",
         persona_id: "persona-1",
         owner_user_id: "owner-1",
-        title: "Synthetic staging anchors",
+        title: "Synthetic staging labels: Meridian Loom and Helio Gate",
         content:
-          "Synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum. Both phrases are invented staging anchors for measurement.",
-        summary: "Accepted synthetic staging anchors: Meridian Loom pairs with silver compass ledger.",
+          "Synthetic replay chat memory pairs the selected labels with silver compass ledger and blue lantern checksum. Both phrases are invented staging anchors for measurement.",
+        summary: "Accepted synthetic staging anchors with paired invented retrieval phrases.",
         source_type: "manual",
         relevance_weight: 1,
         archive_source_type: null,

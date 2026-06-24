@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR285 Answer Label Preservation Repair opened
+## Latest DAEDALUS result - PR285 Answer Label Preservation Repair
+
+DAEDALUS completed PR285 on 2026-06-24:
+`docs/roadmap/PR285_ANSWER_LABEL_PRESERVATION_REPAIR_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Root cause/hypothesis: selected Memory titles can carry paired concept
+  labels, but private prompt assembly passed Memory into the prompt as
+  `source.content` only. This can preserve phrase text while discarding
+  title/label metadata.
+- Patch: private Memory prompt input now uses the same title/content formatting
+  helper as Archive and Integrity, so selected Memory labels reach the
+  provider-facing prompt alongside Memory content.
+- Prompt input shape is unchanged. No retrieval, provider, embedding, schema,
+  seed, import, UI, billing, Redis, Cloudflare, queue, or worker behavior
+  changed.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should review prompt-boundary safety, label/source preservation, no
+  hardcoded replay anchors, no scope creep, and secret/raw-data hygiene.
+- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE hosted
+  PR286 rerun after deploy.
+
+## Previous MIMIR decision - PR285 Answer Label Preservation Repair opened
 
 MIMIR accepts ARIADNE's PR284 hosted result as `FAIL` with progress.
 

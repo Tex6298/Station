@@ -32,27 +32,32 @@ Memory/observability implementation lane.
 
 ## PR285 Answer Label Preservation Repair
 
-MIMIR opened PR285 for DAEDALUS on 2026-06-24 after ARIADNE completed PR284 as
-`FAIL` with hosted progress.
+DAEDALUS completed PR285 on 2026-06-24:
+`docs/roadmap/PR285_ANSWER_LABEL_PRESERVATION_REPAIR_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`, pending ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Label preservation root cause | Pass | Identify whether selected source labels/titles/concept labels are available before prompt assembly, and where they are lost if they are lost. |
-| Provider-facing prompt evidence | Pass | Safe tests should prove selected labels and selected phrases both survive into the private provider-facing prompt; do not dump raw prompts. |
-| No hardcoded replay terms | Pass | The repair must generalize and must not special-case replay persona text, hosted ids, seeded labels, or staging prompt text. |
-| Rejected-control/source-copy safety | Pass | Filtering and source-copy boundaries must remain intact. |
-| Scope | Pass | Keep retrieval, provider routing, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, and Studio UI out of scope unless new evidence proves prompt delivery is missing selected context. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Add focused label-preservation assertions here or in the nearest relevant suite. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required if private context formatting or prompt input shape changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required to protect archive/conversation context behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required to keep replay gates green. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required if code changes. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with only known warnings | Do not add new lint failures. |
-| `git diff --check` | Pass | Whitespace check before review. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Label preservation root cause | Pass | Selected Memory title/label metadata was available but Memory prompt input used content only. |
+| Provider-facing prompt evidence | Pass | Focused test proves a label present only in Memory title and phrases present in content both reach the private provider-facing prompt. |
+| No hardcoded replay terms | Pass | Product code uses generic title/content formatting; no replay persona, hosted id, seeded label, or staging prompt is special-cased. |
+| Rejected-control/source-copy safety | Pass | Filtering and prompt-boundary behavior are unchanged; no source-copy expansion was added. |
+| Scope | Pass | No retrieval, provider routing, embedding, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, public UI, or Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests, including title-label preservation into provider-facing prompt. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
 | Added-line hygiene scan | Pass | No credentials, raw ids, raw prompts, completions, hosted logs, SQL, private source bodies, cookies, or tokens. |
+
+ARGUS should review the repair. If accepted, the next useful validation is an
+ARIADNE hosted PR286 rerun after deploy.
 
 ## PR284 Hosted Runtime Answer Rerun Result
 

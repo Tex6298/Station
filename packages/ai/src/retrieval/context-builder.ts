@@ -272,7 +272,7 @@ export async function assemblePersonaRuntimeContext(
       styleNotes: input.persona.styleNotes ?? undefined,
       canon: topology.buckets.canon.sources.map((source) => source.content),
       integrity: topology.buckets.integrity.sources.map((source) => formatSourceForPrompt(source)),
-      memory: topology.buckets.memory.sources.map((source) => source.content),
+      memory: topology.buckets.memory.sources.map((source) => formatSourceForPrompt(source)),
       continuity: topology.buckets.continuity.sources.map((source) => source.content),
       archive: topology.buckets.archive.sources.map((source) => formatSourceForPrompt(source)),
     });
