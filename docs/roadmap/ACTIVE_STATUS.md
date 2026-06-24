@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR279 Hosted Partial Context Selection Repair opened
+
+MIMIR accepts ARIADNE's PR278 hosted result as `FAIL` and keeps the full
+two-anchor recall bar.
+
+Decision:
+
+- PR278 proved hosted freshness, replay-owner auth/session, protected Studio
+  session, intended private platform replay persona selection, chat route
+  health, source-copy safety, rejected-control exclusion, and observability.
+- The failure remains before the provider answer: hosted generic context still
+  selected only one of two accepted concepts and one of two matching invented
+  retrieval phrases after PR277 deployed.
+- Open PR279 - Hosted Partial Context Selection Repair for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR279_HOSTED_PARTIAL_CONTEXT_SELECTION_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for owner/lifecycle/source-filter review.
+- ARGUS should recommend whether MIMIR opens an ARIADNE hosted PR280 rerun.
+
+## Latest ARIADNE review - PR278 Hosted Runtime Answer Rerun
+
+ARIADNE completed PR278 on 2026-06-24:
+`docs/roadmap/PR278_HOSTED_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+- Verdict: `FAIL`.
+- Hosted web/API were ready on `main` at PR277 implementation commit prefix
+  `578e3c7e6802`.
+- Replay-owner auth/session and intended private platform replay persona
+  selection passed.
+- Context stayed sanitized and rejected-control evidence stayed absent, but
+  generic prompt context still selected only one of two accepted concepts and
+  one of two matching invented retrieval phrases.
+- The single hosted chat turn returned HTTP 200, stayed short, avoided raw
+  source-body copying, and excluded the rejected control.
+- The answer recalled one of two accepted concepts and one of two matching
+  invented retrieval phrases.
+
 ## Latest MIMIR decision - PR278 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR277 review and opens the hosted post-deploy product

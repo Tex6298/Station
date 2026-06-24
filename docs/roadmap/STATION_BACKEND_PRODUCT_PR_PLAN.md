@@ -476,6 +476,13 @@ selects both accepted anchor concepts and both matching invented retrieval
 phrases. ARGUS accepted the patch; MIMIR opened an ARIADNE hosted PR278 rerun
 after deploy.
 
+2026-06-24 PR278 result: ARIADNE proved the PR277 code deployed and that
+auth/session/persona/chat safety/rejected-control/observability still pass, but
+hosted generic context remained partial: one of two accepted concepts and one
+of two matching invented retrieval phrases reached prompt context and answer.
+MIMIR keeps the full recall bar and opens PR279 Hosted Partial Context
+Selection Repair for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

@@ -71,6 +71,12 @@ then let staged replay reveal the next optimizations.
   limit. Local deterministic context/prompt evidence now includes both accepted
   anchor concepts and both matching invented retrieval phrases. ARGUS accepted
   the patch; MIMIR opened the ARIADNE hosted PR278 rerun after deploy.
+- PR278 failed the hosted recall bar after PR277 deployed: freshness,
+  auth/session, intended persona, chat route health, rejected-control
+  exclusion, source-copy safety, and observability passed, but generic hosted
+  context still selected only one of two accepted concepts and one of two
+  matching invented retrieval phrases. MIMIR opened PR279 as a narrow DAEDALUS
+  hosted/local context-selection mismatch repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -80,6 +80,10 @@ patched that follow-up retrieval-selection defect by blending owner-scoped,
 lifecycle-filtered lexical Memory candidates with full vector Memory results
 before slicing to the requested limit. ARGUS accepted the patch; MIMIR opened
 the ARIADNE hosted PR278 rerun after deploy.
+PR278 failed the hosted recall bar with deploy/auth/session/persona/chat
+safety/rejected-control/observability passing and hosted generic context still
+partial. PR279 is the active DAEDALUS lane to repair the hosted/local context
+selection mismatch without lowering the recall bar.
 
 ## Phase 2D Developer Agent closeout
 
