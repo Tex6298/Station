@@ -128,12 +128,53 @@ test("vector memory search backfills exact lexical anchors when vector misses th
   assert.equal(retrieval.trace.fallbackMode, "none");
   assert.deepEqual(
     retrieval.results.map((row) => row.id),
-    ["vector-memory", "lexical-anchor"]
+    ["lexical-anchor", "vector-memory"]
   );
   assert.equal(retrieval.trace.selected.some((source) => source.id === "lexical-anchor"), true);
   assert.equal(retrieval.trace.selected.some((source) => source.id === "rejected-control"), false);
   assert.equal(retrieval.trace.selected.some((source) => source.id === "other-owner-anchor"), false);
   assert.equal(retrieval.trace.selected.some((source) => source.id === "archive-source-anchor"), false);
+});
+
+test("persona runtime context promotes exact lexical memory when vector memory slots are full", async () => {
+  const db = new VectorFullSlotsMissesLexicalSupabase();
+  const embeddingFetch = mockEmbeddingFetch(new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001));
+
+  try {
+    const context = await assemblePersonaRuntimeContext({
+      supabase: db.client as any,
+      ownerUserId: "owner-1",
+      persona: {
+        id: "persona-1",
+        name: "Replay Persona",
+        shortDescription: "Synthetic replay persona.",
+        longDescription: "Used for replay measurement.",
+        visibility: "private",
+      },
+      userQuery: "accepted synthetic staging anchors invented retrieval phrases",
+      embeddingApiKey: "test-key",
+      maxMemory: 3,
+      maxArchive: 1,
+    });
+
+    assert.equal(context.trace.retrievalMode.memory, "vector");
+    assert.deepEqual(
+      context.memory.map((source) => source.id),
+      ["lexical-anchor", "vector-memory", "vector-memory-2"]
+    );
+
+    const promptEvidence = context.systemPrompt;
+    assert.match(promptEvidence, /Meridian Loom/);
+    assert.match(promptEvidence, /Helio Gate/);
+    assert.match(promptEvidence, /silver compass ledger/);
+    assert.match(promptEvidence, /blue lantern checksum/);
+    assert.doesNotMatch(promptEvidence, /Rejected amber/);
+    assert.equal(context.trace.selectedSources.some((source) => source.id === "rejected-control"), false);
+    assert.equal(context.trace.selectedSources.some((source) => source.id === "other-owner-anchor"), false);
+    assert.equal(context.trace.selectedSources.some((source) => source.id === "archive-source-anchor"), false);
+  } finally {
+    embeddingFetch.restore();
+  }
 });
 
 test("memory search uses keyword fallback without an embedding key", async () => {
@@ -483,6 +524,161 @@ class VectorMissesLexicalSupabase extends VectorSupabase {
           ],
           error: null,
         };
+      }
+
+      return { data: null, error: { message: `Unexpected RPC ${functionName}` } };
+    },
+    from: (table: string) => new QueryBuilder(this, table),
+  };
+}
+
+class VectorFullSlotsMissesLexicalSupabase extends VectorMissesLexicalSupabase {
+  override tables: Record<string, Row[]> = {
+    memory_items: [
+      {
+        id: "vector-memory",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "General vector memory",
+        content: "A plausible vector result about continuity hygiene.",
+        summary: "Vector result without the seeded replay anchors.",
+        source_type: "manual",
+        relevance_weight: 5,
+        archive_source_type: null,
+      },
+      {
+        id: "vector-memory-2",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Second general vector memory",
+        content: "Another plausible vector result about archive hygiene.",
+        summary: "Second vector result without the accepted replay pair.",
+        source_type: "manual",
+        relevance_weight: 4,
+        archive_source_type: null,
+      },
+      {
+        id: "vector-memory-3",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Third general vector memory",
+        content: "A weaker vector result that should yield to exact lexical replay evidence.",
+        summary: "Third vector result without the full accepted replay pair.",
+        source_type: "manual",
+        relevance_weight: 3,
+        archive_source_type: null,
+      },
+      {
+        id: "lexical-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Synthetic staging anchors",
+        content:
+          "Synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum. Both phrases are invented staging anchors for measurement.",
+        summary:
+          "Accepted synthetic staging anchors: Meridian Loom pairs with silver compass ledger; Helio Gate pairs with blue lantern checksum.",
+        source_type: "manual",
+        relevance_weight: 1,
+        archive_source_type: null,
+      },
+      {
+        id: "rejected-control",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Rejected amber shortcut",
+        content: "Rejected amber staging shortcut should stay filtered out.",
+        summary: "Rejected control.",
+        source_type: "manual",
+        relevance_weight: 100,
+        archive_source_type: null,
+      },
+      {
+        id: "other-owner-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-2",
+        title: "Synthetic staging anchors",
+        content:
+          "Other owner synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum.",
+        summary: "Other owner accepted synthetic staging anchors.",
+        source_type: "manual",
+        relevance_weight: 200,
+        archive_source_type: null,
+      },
+      {
+        id: "archive-source-anchor",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        title: "Synthetic staging anchors",
+        content:
+          "Archive-source synthetic replay chat memory binds Meridian Loom to silver compass ledger and Helio Gate to blue lantern checksum.",
+        summary: "Archive-source accepted synthetic staging anchors.",
+        source_type: "import",
+        relevance_weight: 200,
+        archive_source_type: "import_job",
+      },
+    ],
+    memory_item_lifecycle: [
+      lifecycleRow("vector-memory", "owner-1", "active"),
+      lifecycleRow("vector-memory-2", "owner-1", "active"),
+      lifecycleRow("vector-memory-3", "owner-1", "active"),
+      lifecycleRow("lexical-anchor", "owner-1", "active"),
+      lifecycleRow("rejected-control", "owner-1", "rejected"),
+      lifecycleRow("other-owner-anchor", "owner-2", "active"),
+      lifecycleRow("archive-source-anchor", "owner-1", "active"),
+    ],
+    canon_items: [],
+    owner_memory_blocks: [],
+    calibration_sessions: [],
+    persona_preferences: [],
+    import_jobs: [],
+    persona_files: [],
+    archived_chat_transcripts: [],
+  };
+
+  override client = {
+    rpc: async (functionName: string, args: Record<string, any>) => {
+      this.rpcCalls.push({ functionName, args });
+      if (functionName === "match_memory_items") {
+        assert.equal(args.query_embedding.length, ACTIVE_EMBEDDING_DIMENSION);
+        return {
+          data: [
+            {
+              id: "vector-memory",
+              persona_id: "persona-1",
+              title: "General vector memory",
+              content: "A plausible vector result about continuity hygiene.",
+              summary: "Vector result without the seeded replay anchors.",
+              source_type: "manual",
+              relevance_weight: 5,
+              similarity: 0.98,
+            },
+            {
+              id: "vector-memory-2",
+              persona_id: "persona-1",
+              title: "Second general vector memory",
+              content: "Another plausible vector result about archive hygiene.",
+              summary: "Second vector result without the accepted replay pair.",
+              source_type: "manual",
+              relevance_weight: 4,
+              similarity: 0.97,
+            },
+            {
+              id: "vector-memory-3",
+              persona_id: "persona-1",
+              title: "Third general vector memory",
+              content: "A weaker vector result that should yield to exact lexical replay evidence.",
+              summary: "Third vector result without the full accepted replay pair.",
+              source_type: "manual",
+              relevance_weight: 3,
+              similarity: 0.96,
+            },
+          ],
+          error: null,
+        };
+      }
+
+      if (functionName === "match_private_archive_chunks") {
+        return { data: [], error: null };
       }
 
       return { data: null, error: { message: `Unexpected RPC ${functionName}` } };

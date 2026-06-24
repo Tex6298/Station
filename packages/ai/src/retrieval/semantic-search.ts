@@ -139,19 +139,15 @@ export async function searchMemoryWithTrace(options: {
       rows,
     });
 
-    const supplementedResults = filtered.results.length < limit
-      ? [
-          ...filtered.results,
-          ...await keywordSupplementalSearch({
-            supabase,
-            personaId,
-            query,
-            limit: limit - filtered.results.length,
-            ownerUserId,
-            excludeIds: new Set(filtered.results.map((row) => row.id)),
-          }),
-        ]
-      : filtered.results;
+    const supplementalResults = await keywordSupplementalSearch({
+      supabase,
+      personaId,
+      query,
+      limit,
+      ownerUserId,
+      excludeIds: new Set(filtered.results.map((row) => row.id)),
+    });
+    const supplementedResults = blendMemorySelections(filtered.results, supplementalResults, limit);
 
     return {
       results: supplementedResults,
@@ -279,7 +275,7 @@ async function keywordSupplementalSearch(input: {
   ownerUserId?: string;
   excludeIds: Set<string>;
 }): Promise<MemorySearchResult[]> {
-  if (input.limit <= 0) return [];
+  if (input.limit <= 0 || !input.ownerUserId) return [];
 
   const memoryQuery = input.supabase
     .from("memory_items")
@@ -318,6 +314,19 @@ async function keywordSupplementalSearch(input: {
     })
     .sort((a, b) => b.similarity - a.similarity || b.relevanceWeight - a.relevanceWeight)
     .slice(0, input.limit);
+}
+
+function blendMemorySelections(
+  vectorResults: MemorySearchResult[],
+  supplementalResults: MemorySearchResult[],
+  limit: number
+) {
+  if (limit <= 0) return [];
+  if (supplementalResults.length === 0) return vectorResults.slice(0, limit);
+
+  return [...vectorResults, ...supplementalResults]
+    .sort((a, b) => b.similarity - a.similarity || b.relevanceWeight - a.relevanceWeight)
+    .slice(0, limit);
 }
 
 async function loadMemoryLifecycleMap(

@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR277 Hosted Runtime Retrieval Selection Repair opened
+## Latest DAEDALUS result - PR277 Hosted Runtime Retrieval Selection Repair
+
+DAEDALUS completed PR277 on 2026-06-24:
+`docs/roadmap/PR277_HOSTED_RUNTIME_RETRIEVAL_SELECTION_REPAIR_RESULT.md`.
+
+Result:
+
+- Verdict: `PASS WITH CAVEATS`, pending ARGUS review.
+- Root cause: PR276 vector Memory retrieval filled the requested Memory slots,
+  so PR275's lexical supplement never ran.
+- Patch: vector Memory retrieval still runs first, then owner-scoped,
+  lifecycle-filtered, non-archive lexical Memory candidates are blended with
+  vector results and sliced back to the original limit.
+- Local deterministic runtime context fixture now promotes the exact active
+  lexical replay Memory when vector slots are full, and the prompt includes both
+  accepted anchor concepts and both matching invented retrieval phrases.
+- Rejected-control, other-owner, and archive-source candidates stay excluded in
+  the focused fixture.
+- Validation passed: `test:retrieval-metadata`, `test:persona-context`,
+  `test:conversation-archive`, `test:replay-readiness`, `typecheck`, and
+  `lint` with existing raw `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should review owner/lifecycle/source filtering, rejected-control
+  exclusion, and scope.
+- If accepted, ARGUS should recommend whether MIMIR opens an ARIADNE hosted
+  PR278 rerun after deploy to prove full two-anchor recall live.
+
+## Previous MIMIR decision - PR277 Hosted Runtime Retrieval Selection Repair opened
 
 MIMIR accepts ARIADNE's PR276 hosted result as `FAIL` and opens a narrow
 DAEDALUS repair lane.

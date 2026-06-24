@@ -63,8 +63,15 @@ then let staged replay reveal the next optimizations.
 - PR276 failed the hosted recall bar even after PR275 deployed: auth/session,
   intended persona selection, chat route health, rejected-control exclusion,
   source-copy safety, and observability passed, but generic context still
-  selected only partial accepted-anchor evidence. PR277 opens a narrow
+  selected only partial accepted-anchor evidence. PR277 opened a narrow
   DAEDALUS retrieval-selection repair.
+- PR277 patched the narrow follow-up retrieval-selection defect: vector Memory
+  still runs first, but full vector results are now blended with owner-scoped,
+  lifecycle-filtered lexical Memory candidates before slicing to the requested
+  limit. Local deterministic context/prompt evidence now includes both accepted
+  anchor concepts and both matching invented retrieval phrases. ARGUS review is
+  pending; if accepted, the next proof should be an ARIADNE hosted PR278 rerun
+  after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

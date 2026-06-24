@@ -62,28 +62,30 @@ prove full two-anchor recall live.
 
 ## PR277 Hosted Runtime Retrieval Selection Repair
 
-MIMIR opened PR277 for DAEDALUS on 2026-06-24 after PR276 failed the hosted
-full two-anchor recall bar.
+DAEDALUS completed PR277 on 2026-06-24:
+`docs/roadmap/PR277_HOSTED_RUNTIME_RETRIEVAL_SELECTION_REPAIR_RESULT.md`.
 
-Required validation:
+Result: `PASS WITH CAVEATS`, pending ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Root-cause classification | Concrete | Start from generic hosted context selecting partial evidence after PR275 deployed. |
-| Owner/lifecycle/source filters | Pass | Other-owner, rejected, quarantined, expired, superseded, and archive-source Memory must not enter supplemental Memory selection. |
-| Generic context full-anchor selection | Pass | Repaired generic context should select both accepted anchor concepts and both matching invented retrieval phrases before provider answer. |
-| Rejected-control exclusion | Pass | Rejected-control evidence should remain absent. |
-| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | Required for retrieval-selection repair. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for runtime context behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required because Archive/context retrieval interacts with the replay proof. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if readiness/readback evidence changes. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required before ARGUS review. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warnings should be named if present. |
-| `git diff --check` | Pass | Required. |
-| `git diff --cached --check` | Pass | Required before wakeup. |
+| Root-cause classification | Pass | PR276 vector Memory retrieval filled the requested slots, so PR275's lexical supplement never ran. |
+| Owner/lifecycle/source filters | Pass | The focused full-slot fixture keeps rejected, other-owner, and archive-source Memory out of selected sources. Existing lifecycle fixtures also cover quarantined, expired, and superseded exclusions. |
+| Generic context full-anchor selection | Pass locally | The repaired deterministic runtime context/prompt fixture includes both accepted anchor concepts and both matching invented retrieval phrases before provider answer. Hosted proof still needs a post-deploy PR278 rerun. |
+| Rejected-control exclusion | Pass | Rejected-control evidence is absent from selected sources and prompt evidence in the repair fixture. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 10 tests, including full vector-slot lexical promotion into runtime context/prompt. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before wakeup. |
 
-Do not change providers, embeddings, schema, Redis, Cloudflare, queues, workers,
-imports, seeds, billing, Stripe, public UI, or broad Studio UX in PR277.
+ARGUS should review the repair. If accepted, the next useful validation is an
+ARIADNE hosted PR278 rerun after deploy to prove full two-anchor recall live.
 
 ## PR276 Hosted Runtime Answer Rerun
 

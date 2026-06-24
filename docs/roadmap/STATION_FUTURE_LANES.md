@@ -74,10 +74,12 @@ probe. PR275 patched the narrow retrieval-selection defect: vector Memory
 retrieval now backfills spare requested slots with owner-scoped,
 lifecycle-filtered lexical Memory matches. ARGUS accepted the patch after
 hardening the supplemental retrieval fixture to exclude other-owner and
-archive-source candidates. PR276 is now the active ARIADNE hosted rerun needed
-to close the answer-quality caveat from live evidence.
-PR276 failed the hosted recall bar; PR277 is now the active DAEDALUS repair for
-runtime retrieval selection.
+archive-source candidates. PR276 then failed the hosted recall bar: hosted
+generic context still selected only partial accepted-anchor evidence. PR277
+patched that follow-up retrieval-selection defect by blending owner-scoped,
+lifecycle-filtered lexical Memory candidates with full vector Memory results
+before slicing to the requested limit. ARGUS review is pending; if accepted, the
+next live proof should be an ARIADNE hosted PR278 rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 
