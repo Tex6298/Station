@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR211 Public Persona Interaction Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 11 tests passed. New coverage proves owner-only `persona.publicInteraction` includes public chat state, safe route, report status counts, admin queue href only for admins, and excludes reporter ids, report notes, raw persona ids, and token transaction rows. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. Existing admin/reporter moderation report behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 13 tests passed, including public interaction helper labels/copy. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Scope notes:
+
+- Added owner-only public interaction readback to existing persona payloads, not
+  a new route or table.
+- The readback uses existing `moderation_reports` status counts and existing
+  public persona route state.
+- Token usage remains a policy/boundary note only: owner-paid, no transcript,
+  and no per-persona token attribution without a future retention decision.
+- No visitor chat transcript/content storage, reporter identity, report body,
+  raw id, provider/private context, public moderation log, analytics storage,
+  Redis/Cloudflare worker, or anonymous chat behavior was added.
+
 ## PR210 Public Persona Chat Rehearsal Repair
 
 DAEDALUS repair validation on 2026-06-24:

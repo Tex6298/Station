@@ -96,6 +96,32 @@ export interface PublicPersonaReportConfirmation {
   duplicate: boolean;
 }
 
+export type PublicPersonaReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
+
+export interface PublicPersonaInteractionReadback {
+  publicChat: PublicPersonaChatCapability & {
+    ownerPaid: true;
+    transcriptStored: false;
+    tokenAttribution: "not_available_without_event_retention";
+  };
+  publicRoute: {
+    publicSlug?: string | null;
+    href?: string | null;
+    canOpen: boolean;
+    unavailableReason?: string | null;
+  };
+  reports: {
+    total: number;
+    active: number;
+    byStatus: Record<PublicPersonaReportStatus, number>;
+  };
+  moderation: {
+    ownerCanSeeReporterIdentity: false;
+    ownerCanSeeReportBodies: false;
+    adminQueueHref?: string | null;
+  };
+}
+
 export interface PublicPersonaEligibility {
   eligible: boolean;
   limit: number;
@@ -115,6 +141,7 @@ export interface Persona extends PersonaSummary {
   awakeningPrompt?: string | null;
   styleNotes?: string | null;
   publicChatEnabled?: boolean;
+  publicInteraction?: PublicPersonaInteractionReadback;
   updatedAt?: string;
   publicReadback?: PersonaPublicReadback;
 }

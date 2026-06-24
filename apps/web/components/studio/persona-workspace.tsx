@@ -4,6 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Persona } from "@station/types/persona";
 import { activeStudioHref, studioPersonaWorkspaceTabs } from "@/lib/studio-navigation";
+import {
+  publicInteractionChatLabel,
+  publicInteractionReportSummary,
+  publicInteractionRouteLabel,
+  publicInteractionTokenBoundaryCopy,
+} from "@/lib/public-persona-interaction";
 import { StudioPlaceStrip } from "@/components/studio/studio-frame";
 
 export interface ContinuitySummary {
@@ -116,6 +122,34 @@ export function ContinuityCards({ persona }: { persona: PersonaWithContinuity })
   );
 }
 
+export function PublicInteractionReadback({ persona }: { persona: PersonaWithContinuity }) {
+  const readback = persona.publicInteraction ?? null;
+  const routeHref = readback?.publicRoute.canOpen ? readback.publicRoute.href : null;
+  const adminHref = readback?.moderation.adminQueueHref ?? null;
+
+  return (
+    <section className="studio-continuity-grid" aria-label="Public interaction readback">
+      <InteractionCard
+        label="Public route"
+        value={routeHref ? "Live" : "Closed"}
+        body={publicInteractionRouteLabel(readback)}
+        href={routeHref ?? undefined}
+      />
+      <InteractionCard
+        label="Public chat"
+        value={readback?.publicChat.enabled ? "On" : "Off"}
+        body={`${publicInteractionChatLabel(readback)}. ${publicInteractionTokenBoundaryCopy(readback)}`}
+      />
+      <InteractionCard
+        label="Persona reports"
+        value={String(readback?.reports.total ?? 0)}
+        body={publicInteractionReportSummary(readback)}
+        href={adminHref ?? undefined}
+      />
+    </section>
+  );
+}
+
 function ContinuityCard({ label, value, body, href }: { label: string; value: number; body: string; href: string }) {
   return (
     <Link href={href} className="studio-continuity-card">
@@ -123,5 +157,25 @@ function ContinuityCard({ label, value, body, href }: { label: string; value: nu
       <strong>{value}</strong>
       <p>{body}</p>
     </Link>
+  );
+}
+
+function InteractionCard({ label, value, body, href }: { label: string; value: string; body: string; href?: string }) {
+  const content = (
+    <>
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <p>{body}</p>
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className="studio-continuity-card">
+      {content}
+    </Link>
+  ) : (
+    <div className="studio-continuity-card">
+      {content}
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: open
+Status: implemented; awaiting ARGUS review
 
 ## Frame
 
@@ -145,6 +145,70 @@ Include:
 - safety/privacy notes;
 - validation results;
 - exact next wakeup target.
+
+## DAEDALUS Result
+
+IMPLEMENTED on 2026-06-24.
+
+Mapped existing data surfaces:
+
+- Public chat route remains
+  `POST /personas/public/:publicSlug/chat`. It already records owner-paid token
+  usage through `recordLlmTokenUsage`, with `chatId: null`, and stores no
+  visitor transcript.
+- Public persona report route remains
+  `POST /personas/public/:publicSlug/report`. It resolves public slug
+  server-side, stores a normal `moderation_reports` persona target, and returns
+  only `{ report: { status }, duplicate }` to the reporter.
+- Owner persona readback is `GET /personas/:id`. It already returns public
+  eligibility/readback for owned personas and feeds the Studio persona home.
+- Admin report readback already loads safe persona target context through
+  `loadPersonaTargetContext`, including safe public route/name when available.
+  No admin report queue behavior changed.
+- Existing token tables do not store persona/public-chat attribution. A useful
+  per-persona usage chart would require a storage/retention decision, so this
+  lane did not add analytics or infer usage from unrelated transactions.
+
+Implementation summary:
+
+- Added `PublicPersonaInteractionReadback` to `packages/types/src/persona.ts`.
+- Added `persona.publicInteraction` to owner-only persona readback.
+- The readback includes:
+  - public chat enabled/disabled state;
+  - public route slug/href/can-open state;
+  - persona-targeted moderation report counts by status;
+  - active report count;
+  - explicit privacy flags that owners cannot see reporter identity or report
+    bodies;
+  - admin queue href only when the owner is also an admin.
+- Added Studio persona home readback cards for public route, public chat, and
+  persona report count.
+- Added web helper coverage for the bounded labels/copy.
+
+Safety notes:
+
+- No visitor chat transcripts, visitor message content, reporter identity,
+  report notes, raw persona ids, owner ids, reporter ids, provider traces, token
+  transaction rows, private memory/archive/canon/continuity/integrity data, or
+  public moderation log were exposed.
+- The report summary counts `moderation_reports` rows for the owned persona by
+  status only.
+- Token usage is represented only as policy text: owner-paid, transcript not
+  stored, per-persona token attribution unavailable without event retention.
+
+Validation:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 11 tests passed, including owner-only public interaction summary and no reporter/note/raw-id/token-row leakage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; existing admin/reporter report behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 13 tests passed, including public interaction helper labels. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Next wakeup target:
+
+- Wake ARGUS for privacy/moderation review.
 
 ## Wakeup
 

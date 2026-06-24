@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR211 public interaction readback implemented
+
+DAEDALUS implemented PR211 on 2026-06-24.
+
+Mapped existing data surfaces:
+
+- Public chat stays in `POST /personas/public/:publicSlug/chat`: signed-in,
+  owner-paid, non-streaming, no durable visitor transcript.
+- Public persona reports stay in
+  `POST /personas/public/:publicSlug/report`: slug resolved server-side, normal
+  `moderation_reports` rows, public response contains only status/duplicate.
+- Owner persona readback is `GET /personas/:id`; it already feeds the Studio
+  workspace and already includes public readback/eligibility for owned personas.
+- Admin report readback already loads safe persona target context with public
+  route/name when eligible; no admin report behavior changed.
+- `token_transactions` proves owner-paid LLM spend but does not store
+  persona/public-chat attribution. DAEDALUS did not invent analytics or add a
+  storage policy.
+
+Implementation:
+
+- Added `persona.publicInteraction` only on owner persona readback.
+- The readback includes public chat state, safe public route/slug state,
+  persona-targeted moderation report counts by status, active report count, and
+  explicit moderation privacy flags.
+- Owners do not receive reporter identity, report notes/bodies, raw target ids,
+  visitor message content, provider traces, or token transaction rows.
+- Admin owners receive a safe pointer to `/reports?targetType=persona`; normal
+  owners do not.
+- Studio persona home now shows a compact Public Interaction readback using the
+  existing card pattern: route state, public chat state, report count.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+
+Current baton:
+
+- ARGUS should review PR211 for authorization, public/private separation,
+  report-status leakage, raw ids, transcript retention, and missing tests.
+
 ## Latest MIMIR decision - PR211 public interaction readback opened
 
 MIMIR closes the PR209/PR210 public persona chat alpha repair/rehearsal chain on

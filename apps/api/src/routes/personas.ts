@@ -10,6 +10,7 @@ import {
   normalizePublicPersonaContextQuery,
   publicContextSourceExcerpt,
   publicContextSourceMatchesQuery,
+  publicPersonaRouteHref,
   serializePersonaPublicFields,
   serializePublicPersonaContextPreview,
   serializePublicPersona,
@@ -22,6 +23,8 @@ import type {
   PublicPersonaChatResponse,
   PublicPersonaContextSource,
   PublicPersonaEligibility,
+  PublicPersonaInteractionReadback,
+  PublicPersonaReportStatus,
   PublicPersonaReportConfirmation,
 } from "@station/types";
 import { enqueueLlmCall } from "../services/llm-queue.service";
@@ -453,6 +456,12 @@ function boundPublicChatReply(value: string) {
 }
 
 const PUBLIC_PERSONA_ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
+const PUBLIC_PERSONA_REPORT_STATUSES: PublicPersonaReportStatus[] = [
+  "open",
+  "reviewing",
+  "resolved",
+  "dismissed",
+];
 
 async function loadExistingPublicPersonaReport(
   sb: ReturnType<typeof getSupabaseAdmin>,
@@ -477,6 +486,73 @@ function serializePublicPersonaReportConfirmation(row: any, duplicate: boolean):
       status: row.status,
     },
     duplicate,
+  };
+}
+
+function emptyPublicPersonaReportCounts(): Record<PublicPersonaReportStatus, number> {
+  return {
+    open: 0,
+    reviewing: 0,
+    resolved: 0,
+    dismissed: 0,
+  };
+}
+
+async function loadPublicPersonaInteractionReadback(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  persona: any,
+  publicEligibility: PublicPersonaEligibility,
+  viewerIsAdmin: boolean
+): Promise<PublicPersonaInteractionReadback> {
+  const byStatus = emptyPublicPersonaReportCounts();
+  const { data: reports } = await sb
+    .from("moderation_reports")
+    .select("status")
+    .eq("target_type", "persona")
+    .eq("target_id", persona.id);
+
+  for (const report of reports ?? []) {
+    if (PUBLIC_PERSONA_REPORT_STATUSES.includes(report.status as PublicPersonaReportStatus)) {
+      byStatus[report.status as PublicPersonaReportStatus] += 1;
+    }
+  }
+
+  const publicSlug = typeof persona.public_slug === "string" ? persona.public_slug : null;
+  const href = persona.visibility === "public" && publicEligibility.eligible
+    ? publicPersonaRouteHref(publicSlug)
+    : null;
+  const canOpen = Boolean(href);
+
+  return {
+    publicChat: {
+      enabled: Boolean(persona.public_chat_enabled),
+      mode: "signed_in_alpha",
+      ownerPaid: true,
+      transcriptStored: false,
+      tokenAttribution: "not_available_without_event_retention",
+    },
+    publicRoute: {
+      publicSlug,
+      href,
+      canOpen,
+      unavailableReason: canOpen
+        ? null
+        : persona.visibility !== "public"
+        ? "Persona is private."
+        : !publicEligibility.eligible
+        ? "Owner is not eligible for public persona exposure."
+        : "Persona has no safe public route.",
+    },
+    reports: {
+      total: PUBLIC_PERSONA_REPORT_STATUSES.reduce((total, status) => total + byStatus[status], 0),
+      active: byStatus.open + byStatus.reviewing,
+      byStatus,
+    },
+    moderation: {
+      ownerCanSeeReporterIdentity: false,
+      ownerCanSeeReportBodies: false,
+      adminQueueHref: viewerIsAdmin ? "/reports?targetType=persona" : null,
+    },
   };
 }
 
@@ -647,7 +723,12 @@ personasRouter.get("/public/:publicSlug", async (req, res) => {
 
 personasRouter.use(requireAuth);
 
-function serializePersona(row: any, continuity?: any, publicEligibility?: PublicPersonaEligibility) {
+function serializePersona(
+  row: any,
+  continuity?: any,
+  publicEligibility?: PublicPersonaEligibility,
+  publicInteraction?: PublicPersonaInteractionReadback
+) {
   if (!row) return row;
 
   const persona: Record<string, unknown> = {
@@ -673,6 +754,10 @@ function serializePersona(row: any, continuity?: any, publicEligibility?: Public
       eligibility: publicEligibility,
       publicFields: serializePersonaPublicFields(row),
     };
+  }
+
+  if (publicInteraction) {
+    persona.publicInteraction = publicInteraction;
   }
 
   return persona;
@@ -917,7 +1002,13 @@ personasRouter.get("/:id", async (req, res) => {
     loadContinuitySummary(data.id, req.user!.id),
     loadPublicPersonaEligibility(req.user!.id, authUser),
   ]);
-  return res.json({ persona: serializePersona(data, continuity, publicEligibility) });
+  const publicInteraction = await loadPublicPersonaInteractionReadback(
+    sb,
+    data,
+    publicEligibility,
+    Boolean(req.user!.isAdmin)
+  );
+  return res.json({ persona: serializePersona(data, continuity, publicEligibility, publicInteraction) });
 });
 
 // -- Persona layer architecture, lifecycle, and handoffs ----------------------

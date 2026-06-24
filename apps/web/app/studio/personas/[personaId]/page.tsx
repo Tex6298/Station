@@ -12,6 +12,7 @@ import { RuntimeContextPreview } from "@/components/studio/runtime-context-previ
 import {
   ContinuityCards,
   PersonaWorkspaceHeader,
+  PublicInteractionReadback,
   type PersonaWithContinuity,
 } from "@/components/studio/persona-workspace";
 
@@ -78,6 +79,7 @@ export default function PersonaPage() {
 
       <PersonaWorkspaceHeader persona={persona} />
       <ContinuityCards persona={persona} />
+      <PublicInteractionReadback persona={persona} />
 
       <section className="studio-home-grid">
         <div className="studio-home-main">

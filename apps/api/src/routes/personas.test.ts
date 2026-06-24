@@ -1058,6 +1058,121 @@ test("public persona report resolver writes server-side target and returns publi
   }
 });
 
+test("owner persona readback includes safe public interaction summary only", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const persona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Public Interaction Guide",
+      short_description: "Public-safe guide.",
+      visibility: "public",
+      public_slug: "public-interaction-guide",
+      public_chat_enabled: true,
+    });
+    db.insertRow("moderation_reports", {
+      reporter_id: "visitor-user",
+      target_type: "persona",
+      target_id: persona.id,
+      reason: "public_persona_chat",
+      notes: "Reporter-only note with visitor context.",
+      status: "open",
+    });
+    db.insertRow("moderation_reports", {
+      reporter_id: "other-user",
+      target_type: "persona",
+      target_id: persona.id,
+      reason: "public_persona_chat",
+      notes: "Second reporter-only note.",
+      status: "reviewing",
+    });
+    db.insertRow("moderation_reports", {
+      reporter_id: "visitor-user",
+      target_type: "persona",
+      target_id: persona.id,
+      reason: "resolved_case",
+      notes: "Resolved reporter note.",
+      status: "resolved",
+    });
+    db.insertRow("moderation_reports", {
+      reporter_id: "visitor-user",
+      target_type: "thread",
+      target_id: "thread-1",
+      status: "open",
+    });
+    db.insertRow("token_transactions", {
+      user_id: "creator-owner",
+      transaction_type: "llm_call",
+      tokens_delta: 42,
+      chat_id: null,
+    });
+
+    const ownerReadback = await requestJson(app, "GET", `/personas/${persona.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(ownerReadback.status, 200);
+    assert.deepEqual(ownerReadback.body.persona.publicInteraction, {
+      publicChat: {
+        enabled: true,
+        mode: "signed_in_alpha",
+        ownerPaid: true,
+        transcriptStored: false,
+        tokenAttribution: "not_available_without_event_retention",
+      },
+      publicRoute: {
+        publicSlug: "public-interaction-guide",
+        href: "/personas/public-interaction-guide",
+        canOpen: true,
+        unavailableReason: null,
+      },
+      reports: {
+        total: 3,
+        active: 2,
+        byStatus: {
+          open: 1,
+          reviewing: 1,
+          resolved: 1,
+          dismissed: 0,
+        },
+      },
+      moderation: {
+        ownerCanSeeReporterIdentity: false,
+        ownerCanSeeReportBodies: false,
+        adminQueueHref: null,
+      },
+    });
+
+    const ownerJson = JSON.stringify(ownerReadback.body.persona.publicInteraction);
+    assert.equal(ownerJson.includes("visitor-user"), false);
+    assert.equal(ownerJson.includes("other-user"), false);
+    assert.equal(ownerJson.includes("Reporter-only note"), false);
+    assert.equal(ownerJson.includes(persona.id), false);
+    assert.equal(ownerJson.includes("tokens_delta"), false);
+
+    const publicReadback = await requestJson(app, "GET", `/personas/${persona.id}`, {
+      token: "other-token",
+    });
+    assert.equal(publicReadback.status, 200);
+    assert.equal(JSON.stringify(publicReadback.body).includes("publicInteraction"), false);
+
+    const adminOwnedPersona = db.insertRow("personas", {
+      owner_user_id: "admin-private",
+      name: "Admin Public Guide",
+      visibility: "public",
+      public_slug: "admin-public-guide",
+    });
+    const adminReadback = await requestJson(app, "GET", `/personas/${adminOwnedPersona.id}`, {
+      token: "admin-token",
+    });
+    assert.equal(adminReadback.status, 200);
+    assert.equal(adminReadback.body.persona.publicInteraction.moderation.adminQueueHref, "/reports?targetType=persona");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("public persona context preview is anonymous and limited to public routeable sources", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
