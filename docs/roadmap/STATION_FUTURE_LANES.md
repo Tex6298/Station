@@ -74,8 +74,8 @@ probe. PR275 patched the narrow retrieval-selection defect: vector Memory
 retrieval now backfills spare requested slots with owner-scoped,
 lifecycle-filtered lexical Memory matches. ARGUS accepted the patch after
 hardening the supplemental retrieval fixture to exclude other-owner and
-archive-source candidates. MIMIR should open the hosted PR276 rerun needed to
-close the answer-quality caveat from live evidence.
+archive-source candidates. PR276 is now the active ARIADNE hosted rerun needed
+to close the answer-quality caveat from live evidence.
 
 ## Phase 2D Developer Agent closeout
 

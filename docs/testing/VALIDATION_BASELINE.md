@@ -60,6 +60,28 @@ Validation result:
 ARGUS accepts the code patch and recommends a hosted PR276 rerun after deploy to
 prove full two-anchor recall live.
 
+## PR276 Hosted Runtime Answer Rerun
+
+MIMIR opened PR276 for ARIADNE on 2026-06-24 after ARGUS accepted PR275.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR275 implementation commit `2a98421e` or later. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, or raw ids. |
+| Intended replay persona | Pass or blocked | Use the PR275 intended replay persona; report ambiguity rather than guessing. |
+| Full two-anchor recall | Pass | The hosted chat answer should recall both accepted anchor concepts and both matching invented retrieval phrases. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent. |
+| Source-copy safety | Pass | No raw source-body markers should be copied into the answer. |
+| Context/observability readback | Pass | Record sanitized categories/counts/timing buckets only. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR276 is a hosted rerun only; no product code, provider, embedding, schema,
+Redis, Cloudflare, queue, worker, import, seed, billing, Stripe, public UI, or
+Studio redesign changes should occur.
+
 Original required validation:
 
 | Check | Expected result | Notes |

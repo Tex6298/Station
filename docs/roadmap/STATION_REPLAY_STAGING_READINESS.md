@@ -58,7 +58,7 @@ then let staged replay reveal the next optimizations.
   now supplements spare requested slots with owner-scoped, lifecycle-filtered
   lexical Memory matches. ARGUS accepted the patch after hardening the
   supplemental retrieval fixture to exclude other-owner and archive-source
-  candidates. MIMIR should open a hosted rerun after deploy before the
+  candidates. PR276 opens that ARIADNE hosted rerun after deploy before the
   two-anchor recall caveat can be closed from live evidence.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
