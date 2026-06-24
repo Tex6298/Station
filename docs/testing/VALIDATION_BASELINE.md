@@ -20,6 +20,22 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR217 Public Persona Roulette Rehearsal
+
+ARIADNE hosted rehearsal on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web `/health/deployment` | Pass | Railway web reported commit `53ac0da`, branch `main`, ready `true`. |
+| API `/health/deployment` | Pass | Railway API reported commit `53ac0da`, branch `main`, ready `true`. |
+| `GET /personas/public/roulette?limit=5&seed=station-replay-alpha-persona` | Pass | Returned a bounded routeable public persona card for `Station Replay Alpha Persona` with safe public slug and href. |
+| `GET /discover/search?q=Station%20Replay%20Alpha%20Persona` | Pass | Returned the replay persona in the public persona bucket with a safe public route. |
+| `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr217-public-persona-roulette-rehearsal.spec.js --reporter=line --workers=1` | Pass | 2 hosted browser/API checks passed. Covered deployment freshness, roulette API field boundaries, Discover roulette panel, public persona search routeability, desktop fit, 375px mobile fit, and absence of raw id/provider/setup/report/aggregate/private-context leakage. |
+
+Rehearsal verdict:
+
+- `PASS`
+
 ## PR216 Public Persona Roulette
 
 DAEDALUS implementation validation on 2026-06-24:

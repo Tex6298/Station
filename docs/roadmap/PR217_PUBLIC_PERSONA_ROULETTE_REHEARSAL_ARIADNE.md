@@ -142,3 +142,72 @@ Verdict:
 Task:
 - Close PR217 or route the smallest concrete follow-up.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict:
+
+```text
+PASS
+```
+
+Routes tested:
+
+- `/discover`
+- `/personas/station-replay-alpha-persona`
+- Web `/health/deployment`
+- API `/health/deployment`
+- API `GET /personas/public/roulette?limit=5&seed=station-replay-alpha-persona`
+- API `GET /discover/search?q=Station%20Replay%20Alpha%20Persona`
+
+Deployment commits:
+
+- Web: `53ac0da`, branch `main`, ready `true`.
+- API: `53ac0da`, branch `main`, ready `true`.
+
+Roulette API result:
+
+- Passed. The public roulette endpoint returned a bounded persona array and
+  included the expected `Station Replay Alpha Persona` card.
+- The card was routeable through `/personas/station-replay-alpha-persona`.
+- The payload stayed in the public-card field set: name, short description,
+  avatar URL, safe public slug, href, and public chat policy.
+
+Discover panel result:
+
+- Passed. The deployed `/discover` page showed `Persona roulette`.
+- The roulette card opened the existing public persona page, not a new chat,
+  encounter, provider-call, or event-feed surface.
+
+Search routeability result:
+
+- Passed. Public search for `Station Replay Alpha Persona` rendered a
+  `Public personas` group.
+- The search result routed to `/personas/station-replay-alpha-persona`.
+
+Desktop/mobile notes:
+
+- Desktop Discover, roulette, search results, and the public persona route fit
+  without document-level horizontal overflow.
+- At 375px mobile width, the roulette panel and public persona search result
+  remained visible and usable with no document-level horizontal overflow.
+
+Privacy verdict:
+
+- Passed. No raw persona ids, owner ids, unsafe UUID-shaped slugs,
+  provider/setup fields, owner aggregate counters, report status/count
+  internals, private runtime context, private source ids, raw counters, or
+  `publicInteraction` were exposed in the roulette/search/public-page
+  rehearsal.
+- Roulette stayed discovery/readback only; ARIADNE did not start anonymous chat,
+  call a provider, create event feeds, or mutate data.
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr217-public-persona-roulette-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Next wakeup target:
+
+- Wake MIMIR to close PR217 or route the smallest concrete follow-up. No
+  DAEDALUS or ARGUS patch is requested from this pass.

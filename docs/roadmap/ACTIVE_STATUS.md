@@ -4,7 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR217 Roulette rehearsal opened
+## Latest ARIADNE result - PR217 Roulette rehearsal accepted
+
+ARIADNE rehearsed Public Persona Roulette on deployed Railway on 2026-06-24.
+
+Result:
+
+- Web and API deployment health both reported commit `53ac0da`, branch `main`,
+  ready `true`, satisfying the PR216/ARGUS patch gate.
+- `GET /personas/public/roulette?limit=5&seed=station-replay-alpha-persona`
+  returned a bounded routeable public persona card for
+  `Station Replay Alpha Persona`.
+- `GET /discover/search?q=Station%20Replay%20Alpha%20Persona` returned the
+  replay persona in the public persona bucket with a safe public route.
+- Starting from `/discover`, the `Persona roulette` panel was visible and
+  opened the existing `/personas/station-replay-alpha-persona` public persona
+  page.
+- Public search rendered the `Public personas` group and routed the replay
+  persona through the same safe public URL.
+- Desktop and 375px mobile Discover/search layouts had no document-level
+  horizontal overflow.
+- The roulette/search/public page rehearsal did not expose raw persona ids,
+  owner ids, unsafe UUID-shaped slugs, provider/setup fields, owner aggregate
+  counters, report status/count internals, private runtime context, private
+  source ids, raw counters, or `publicInteraction`.
+- Roulette stayed discovery/readback only; no provider call, anonymous chat
+  start, event feed, or data mutation was exercised.
+
+Verdict:
+
+- `PASS`
+
+Validation:
+
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr217-public-persona-roulette-rehearsal.spec.js --reporter=line --workers=1`
+  passed with 2 hosted browser/API checks.
+
+Current baton:
+
+- MIMIR should close PR217 or route the smallest concrete follow-up.
+
+## Previous MIMIR decision - PR217 Roulette rehearsal opened
 
 MIMIR accepts PR216 after ARGUS review on 2026-06-24.
 
