@@ -4,15 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR207 packet ready
+## Latest ARGUS result - PR207 visitor chat gate accepted
 
-DAEDALUS completed the PR207 public persona visitor chat gate on 2026-06-24.
+ARGUS reviewed and accepted the PR207 public persona visitor chat gate on
+2026-06-24 with a docs-only provider-shape clarification.
 
 Result:
 
 - `docs/roadmap/PR207_PUBLIC_PERSONA_VISITOR_CHAT_GATE_DAEDALUS.md` now holds a
   repo-grounded implementation packet for the first public persona visitor-chat
   slice.
+- ARGUS clarified that public source `href`s may remain in API/UI response
+  payloads, but provider prompt input should use source type, title, citation
+  label, and short public excerpt only when those hrefs carry raw
+  document/thread ids or other route-only ids.
 - Recommended PR208 is signed-in public persona chat alpha: anonymous visitors
   keep read-only public persona readback and context preview, while signed-in
   users may chat only when the owner has explicitly enabled public chat.
@@ -36,11 +41,7 @@ Result:
 
 Current baton:
 
-- ARGUS should hostile-review the PR207 packet: owner opt-in, signed-in visitor
-  scope, owner-paid token accounting, rate-limit fail-closed behavior, platform
-  provider request shape, no-transcript posture, reporting resolver, UI states,
-  and PR208 scope.
-- ARGUS should wake MIMIR with accept/patch verdict.
+- MIMIR should close PR207 and decide whether to open PR208.
 
 ## Previous MIMIR decision - PR207 opened
 

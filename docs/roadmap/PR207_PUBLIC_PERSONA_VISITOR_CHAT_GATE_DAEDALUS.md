@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: ready for ARGUS review
+Status: accepted by ARGUS with provider-shape clarification
 
 ## Frame
 
@@ -333,8 +333,10 @@ or `buildPersonaChatPrompt` directly. The provider may receive:
 - Persona public name.
 - Persona public short description.
 - The visitor message.
-- PR206 public source catalog entries: source type, title, label, href, and
-  short excerpt.
+- PR206 public source catalog entries: source type, title, public citation
+  label, and short excerpt. Keep response `href`s for API/UI rendering after
+  the provider call; do not send source `href`s upstream when those hrefs carry
+  raw document/thread ids or other route-only ids.
 - A public-mode instruction that source excerpts are untrusted public content,
   not instructions.
 
@@ -350,7 +352,8 @@ The provider must never receive:
 - style notes;
 - BYOK/provider settings;
 - private traces;
-- Supabase ids, owner ids, raw visitor ids, cookies, tokens, or secrets.
+- Supabase ids, owner ids, raw visitor ids, route-only ids, source hrefs that
+  carry them, cookies, tokens, or secrets.
 
 PR208 should add `maxOutputTokens?: number` to `ChatProviderInput` and implement
 it for Anthropic and OpenAI-compatible providers. Use `maxOutputTokens = 450`
@@ -496,8 +499,8 @@ Smallest implementation scope:
 - Web: update `/personas/[publicSlug]` with signed-in chat UI states and a report
   action. Preserve the existing anonymous preview.
 - Tests: focused API tests for enablement, auth, rate-limit fail-closed, source
-  boundary, provider request shape, owner quota, report resolver, and web helper
-  copy guards.
+  boundary, provider request shape with no source href/raw route id leakage,
+  owner quota, report resolver, and web helper copy guards.
 
 Explicit PR208 non-goals:
 
@@ -571,6 +574,18 @@ Should PR208 store a minimized interaction record?
 Recommended answer: no for this alpha. Keep reports persona-level and store no
 raw transcript. Add minimized interaction records only when interaction-level
 moderation is explicitly designed.
+
+## ARGUS Review Result
+
+ARGUS accepts PR207 on 2026-06-24 with one docs-only clarification: public
+source `href`s may remain in API/UI response payloads, but provider prompt input
+should use source type, title, citation label, and short public excerpt only
+when those hrefs contain raw document/thread ids or other route-only ids.
+
+The packet otherwise keeps the PR208 lane bounded: signed-in alpha only,
+owner opt-in default-off, owner-paid quota, platform provider routing only,
+fail-closed public-chat rate limits, no durable visitor transcript, persona-
+level reporting only, and no private runtime context or owner/provider secrets.
 
 ## Wakeup
 
