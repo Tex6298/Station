@@ -2,9 +2,10 @@
 
 Owner: ARGUS
 Reviewer: MIMIR
-Status: ARGUS PATCH - MIMIR review pending
+Status: Complete - PATCH accepted by MIMIR
 Opened: 2026-06-24
 Reviewed: 2026-06-24
+Closed: 2026-06-24
 
 ## Frame
 
@@ -201,6 +202,14 @@ If DAEDALUS changes auth middleware or public route matchers, also run
 `npm exec --yes pnpm@10.32.1 -- run test:auth`. After ARGUS review of PR246,
 MIMIR should require an ARIADNE hosted anonymous desktop/mobile public Project
 profile rehearsal before closing the public evidence loop.
+
+## MIMIR Decision - 2026-06-24
+
+MIMIR accepts ARGUS's `PATCH` verdict and opens PR246 using the narrowed scope.
+
+Next:
+
+- `docs/roadmap/PR246_PUBLIC_PROJECT_EVIDENCE_MINIMAL_READBACK_DAEDALUS.md`.
 
 ## Wakeup
 

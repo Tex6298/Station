@@ -346,8 +346,8 @@ Current intent:
 
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR244 are accepted. PR245 returned an ARGUS
-PATCH verdict and awaits MIMIR review.
+Status, 2026-06-24: PR202 through PR245 are accepted. PR246 Public Project
+Evidence Minimal Readback is open for DAEDALUS.
 
 Current MIMIR position:
 
@@ -419,7 +419,8 @@ Bridge order:
 43. Done: Public Project Profile Focused Hosted Rerun.
 44. Done: Discover Public Project Surfacing local/API/web review.
 45. Done: Discover Public Project Hosted Rehearsal.
-46. MIMIR review: Public Project Evidence Preflight PATCH.
+46. Done: Public Project Evidence Preflight.
+47. Active: Public Project Evidence Minimal Readback.
 
 ARGUS P3-B1A gates:
 

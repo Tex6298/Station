@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR246 Public Project Evidence Minimal Readback opened
+
+MIMIR accepts ARGUS's PR245 `PATCH` verdict on 2026-06-24 and opens the
+narrowed implementation lane.
+
+Decision:
+
+- Open **PR246 - Public Project Evidence Minimal Readback** for DAEDALUS.
+- Extend `GET /projects/public/:slug` with a bounded `publicEvidence` bucket.
+- Source only same-owner attached public Developer Spaces, public link rows,
+  and same-owner published public documents.
+- Serialize only `title`, `kind`, `href`, fixed safe `sourceLabel`,
+  `publishedAt`, and `updatedAt`.
+- Link only to `/developer-spaces/:slug` in this first slice.
+- Do not reuse the private owner Project evidence serializer.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR246_PUBLIC_PROJECT_EVIDENCE_MINIMAL_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation details and validation.
+
 ## Latest ARGUS preflight - PR245 Public Project Evidence PATCH
 
 ARGUS completed PR245 on 2026-06-24.
@@ -41,10 +63,10 @@ Validation:
 - `git diff --check` passed with CRLF warnings only.
 - `git diff --cached --check` passed.
 
-Current baton:
+MIMIR decision:
 
-- MIMIR should review the PATCH verdict and, if accepted, open PR246 with the
-  exact narrowed DAEDALUS implementation lane.
+- MIMIR accepts the PATCH verdict and opens PR246 with ARGUS's narrowed
+  DAEDALUS implementation boundary.
 
 ## Latest ARIADNE result - PR244 Discover Public Project Hosted Rehearsal PASS
 
