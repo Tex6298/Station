@@ -189,15 +189,16 @@ Current intent:
   interaction readback for public personas using existing safe data only.
   Unsafe legacy UUID-shaped public slugs are nulled before owner serialization.
 - PR212 result: ARIADNE accepted the visible owner readback on hosted Railway.
-- Active follow-up: PR213 opens aggregate-only public persona interaction
-  counters. This should add rolling owner activity counts without raw event
-  logs, visitor identities, transcripts, IP/user-agent storage, provider traces,
-  Redis, or Cloudflare.
+- PR213 result: DAEDALUS implemented and ARGUS accepted aggregate-only public
+  persona interaction counters after RPC scope hardening and UI copy
+  clarification.
+- Active follow-up: PR214 proves hosted migration/deploy readiness for those
+  counters before ARIADNE rehearses the visible owner aggregate activity card.
 ## Phase 3 bridge sequence
 
-Status, 2026-06-24: PR202 through PR212 are accepted. PR213 is open for
-DAEDALUS to implement aggregate-only owner public interaction counters without
-raw event retention.
+Status, 2026-06-24: PR202 through PR213 are accepted. PR214 is open for
+DAEDALUS to prove hosted migration/deploy readiness for aggregate counters
+before visible UI rehearsal.
 
 Current MIMIR position:
 
@@ -208,8 +209,9 @@ Current MIMIR position:
   route, owner enable/disable control, and public persona reporting resolver.
   It now has hosted human rehearsal evidence for the public chat alpha. It does
   now has owner/admin interaction readback for public persona reports and
-  public route/chat status. It does not yet have aggregate rolling counters for
-  per-persona public interaction activity.
+  public route/chat status, and aggregate-only rolling counters for per-persona
+  public interaction activity. Hosted staging still needs explicit proof for
+  the new migration before UI rehearsal.
 - Tier limits already include `publicPersonas`, but entitlement shape is not
   enough to open Phase 3 safely.
 
@@ -231,8 +233,10 @@ Bridge order:
 11. Done: owner/admin interaction readback for public persona reports and
     public route/chat status.
 12. Done: ARIADNE hosted human rehearsal of owner public interaction readback.
-13. Active: aggregate-only public persona interaction counters.
-14. Only then consider Roulette, Salons, voice/avatar, public persona events,
+13. Done: aggregate-only public persona interaction counters.
+14. Active: hosted migration/deploy proof for aggregate counters.
+15. ARIADNE hosted human rehearsal of owner aggregate activity readback.
+16. Only then consider Roulette, Salons, voice/avatar, public persona events,
    institutional/research features, or persona-to-persona encounters.
 
 ARGUS P3-B1A gates:

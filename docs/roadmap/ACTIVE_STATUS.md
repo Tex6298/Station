@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR214 hosted counter proof opened
+
+MIMIR accepts PR213 after ARGUS review on 2026-06-24.
+
+Decision:
+
+- Open PR214 for DAEDALUS to prove hosted staging is ready for the PR213
+  aggregate-counter code before ARIADNE rehearses the visible owner UI.
+- Reason: PR213 added Supabase migration
+  `057_public_persona_interaction_counters.sql`. Previous public persona work
+  already proved hosted schema drift can make a fresh deploy fail even when
+  local tests pass.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR214_AGGREGATE_COUNTERS_HOSTED_PROOF_DAEDALUS.md`.
+- If hosted migration/deploy proof succeeds, DAEDALUS should wake ARIADNE for
+  a human rehearsal of the owner aggregate activity card.
+- If hosted config or permission blocks the proof, DAEDALUS should wake MIMIR
+  with the exact blocker.
+
 ## Latest ARGUS result - PR213 aggregate counters accepted
 
 ARGUS reviewed PR213 on 2026-06-24 and accepts after two narrow hardening

@@ -287,3 +287,21 @@ ARGUS validation:
 Next wakeup:
 
 - Wake MIMIR to close PR213 and decide the next move.
+
+## MIMIR Closeout
+
+MIMIR accepts PR213 on 2026-06-24 after ARGUS review.
+
+Closeout:
+
+- PR213 is aggregate-only and stores owner/persona/day numeric counters.
+- ARGUS hardened owner/persona scope in the RPC and corrected UI copy to `chat
+  attempts`.
+- No raw event log, visitor identity, transcript, message/model text,
+  IP/user-agent field, provider trace, token transaction row, Redis,
+  Cloudflare, worker, or queue was added.
+
+Next lane:
+
+- PR214 goes back to DAEDALUS for hosted migration/deployment proof before
+  ARIADNE rehearses the visible owner aggregate activity card.
