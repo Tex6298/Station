@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR256 Developer Space Tier 1 Partner Readiness Preflight
+
+ARGUS docs-only preflight on 2026-06-24:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass with CRLF warnings | Docs-only whitespace check for the preflight, roadmap, status, and validation updates. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Preflight verdict:
+
+- `PATCH`.
+- PR257 may open only as docs-only Developer Space Tier 1 Partner Onboarding
+  Docs.
+- Visible public Developer Space framing and owner-console UI copy are split
+  into a later browser-rehearsed lane.
+- PR257 should add placeholder-only partner ingestion docs, TypeScript client
+  examples, visibility/privacy explanation, owner-console readiness checklist,
+  sanitized troubleshooting, and explicit Tier 2/Tier 3/developer-agent
+  deferrals.
+- No product code, schema, API route, web route, package script, client package,
+  migration, env template, generated asset, hosted infrastructure, billing, or
+  destructive developer-agent scope is approved for PR257.
+
 ## PR255 Developer Space Partner Readiness Map
 
 DAEDALUS docs-only reconciliation and ARGUS review on 2026-06-24:
