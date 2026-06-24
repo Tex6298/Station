@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR251 Owner Project Manifest Bundle Readback
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -37,6 +37,10 @@ Scope notes:
 
 - Enabled only stored-readback Project manifest bundles on the existing
   authenticated owner export bundle route.
+- ARGUS patched stored-readback validation so completed Project manifest bundle
+  rows must contain the PR249 core manifest shape, not only the schema string.
+- ARGUS added malformed-row coverage proving schema-only Project manifests with
+  Markdown return bounded `409` without leaking stored details.
 - Project bundle generation does not re-read live Project, Developer Space,
   document, link, source-like document provenance, node, event, snapshot, or
   usage rows.
@@ -49,6 +53,10 @@ Scope notes:
   Project export redesign was added.
 - ARIADNE hosted rehearsal is not required because the change stayed API-only
   and owner-only.
+
+ARGUS review verdict:
+
+- `ACCEPT` with the narrow validation-hardening patch above.
 
 ## PR250 Project Export Bundle Boundary Preflight
 

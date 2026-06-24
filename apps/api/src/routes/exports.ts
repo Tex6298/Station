@@ -1136,9 +1136,28 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function hasStoredProjectManifestReadback(row: any) {
+  const manifest = row.manifest_json;
+  if (!isPlainRecord(manifest)) return false;
+  const project = manifest.project;
+  const packageInfo = manifest.package;
+  const trust = manifest.trust;
   return (
-    isPlainRecord(row.manifest_json) &&
-    row.manifest_json.schema === "station.project.export_manifest.v1" &&
+    manifest.schema === "station.project.export_manifest.v1" &&
+    typeof manifest.generatedAt === "string" &&
+    isPlainRecord(packageInfo) &&
+    typeof packageInfo.id === "string" &&
+    isPlainRecord(project) &&
+    typeof project.name === "string" &&
+    typeof project.slug === "string" &&
+    typeof project.visibility === "string" &&
+    Array.isArray(manifest.attachedDeveloperSpaces) &&
+    Array.isArray(manifest.ownerProjectEvidenceRefs) &&
+    Array.isArray(manifest.publicProjectEvidenceRefs) &&
+    isPlainRecord(trust) &&
+    trust.ownerOnly === true &&
+    trust.documentBodiesOmitted === true &&
+    trust.publicReferencesSeparated === true &&
+    trust.linkedSourceRowsRemainPrivate === true &&
     typeof row.manifest_markdown === "string" &&
     row.manifest_markdown.trim().length > 0
   );

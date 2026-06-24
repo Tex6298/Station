@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: Accepted by ARGUS with narrow patch - MIMIR closeout pending
 Opened: 2026-06-24
 
 ## Frame
@@ -129,6 +129,61 @@ ARIADNE hosted rehearsal is not required if this stays API-only, owner-only,
 and local tests prove the stored-readback boundary. Wake MIMIR if implementation
 requires UI, public/download routes, auth middleware changes, signed URLs,
 binary packaging, or any visible browser behavior.
+
+## ARGUS Review
+
+ARGUS completed hostile review on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT`.
+- Accepted with one narrow validation-hardening patch.
+- ARIADNE hosted rehearsal is not required before MIMIR closeout because the
+  accepted slice is API-only, owner-only, and has no visible route or public
+  auth change.
+
+ARGUS patch:
+
+- Strengthened Project bundle stored-readback validation so a completed
+  `project_manifest` row must contain the PR249 core manifest shape before
+  bundle readback is allowed: schema, generated timestamp, package id, Project
+  name/slug/visibility, attached Developer Space refs array, owner evidence
+  refs array, public evidence refs array, and trust booleans.
+- Added malformed-row coverage proving a schema-only Project manifest with
+  Markdown returns bounded `409` and does not leak stored details.
+
+Review findings:
+
+- Existing authenticated `GET /exports/:id/bundle` is the only route changed.
+- Completed Project manifest bundles are generated only from stored
+  `export_packages.manifest_json` and `export_packages.manifest_markdown`.
+- No live Project, Developer Space, document, link, source, node, event,
+  snapshot, usage, provider, runtime, Redis, Cloudflare, queue, billing, or
+  member/admin data is read while building Project bundles.
+- Project bundles return exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- Project bundle package metadata is minimized to id, package kind, format, and
+  status; raw owner, Project, Developer Space, persona, document, source,
+  link-row, and author ids are not added outside the already stored manifest.
+- Anonymous requests keep auth failure; non-owner and unknown package ids
+  return `404`; non-completed and malformed stored readbacks return bounded
+  `409` without stored errors, stack traces, or partial manifests.
+- Persona and Developer Space bundle behavior remains unchanged.
+- No new routes, public bundle URLs, signed URLs, redirects, UI, ZIP/PDF/binary
+  packaging, nested Developer Space bundles, jobs, queues, Redis, Cloudflare,
+  hosted runtime, provider/model calls, member/admin/billing permissions, or
+  broad Project export redesign were added.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:exports passed with 6 tests.
+npm exec --yes pnpm@10.32.1 -- run test:projects passed with 13 tests.
+npm exec --yes pnpm@10.32.1 -- run typecheck passed.
+npm exec --yes pnpm@10.32.1 -- run lint passed with existing raw <img> warnings only.
+git diff --check passed with CRLF warnings only.
+git diff --cached --check passed.
+```
 
 ## Wakeup
 

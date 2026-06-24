@@ -1603,6 +1603,11 @@ test("project manifest bundle rejects non-completed and malformed stored readbac
         manifestMarkdown: "# Stored wrong-schema markdown must not leak",
       },
       {
+        label: "schema-only",
+        manifestJson: { schema: "station.project.export_manifest.v1", detail: "schema-only detail must not leak" },
+        manifestMarkdown: "# Stored schema-only markdown must not leak",
+      },
+      {
         label: "missing-markdown",
         manifestJson: { schema: "station.project.export_manifest.v1", detail: "missing markdown detail must not leak" },
         manifestMarkdown: "",
@@ -1633,6 +1638,7 @@ test("project manifest bundle rejects non-completed and malformed stored readbac
       const responseText = JSON.stringify(response.body);
       assert.match(responseText, /stored manifest readback is complete/);
       assert.doesNotMatch(responseText, /wrong schema detail/);
+      assert.doesNotMatch(responseText, /schema-only detail/);
       assert.doesNotMatch(responseText, /missing markdown detail/);
       assert.doesNotMatch(responseText, /object markdown body/);
       assert.doesNotMatch(responseText, /Stored .* markdown must not leak/);

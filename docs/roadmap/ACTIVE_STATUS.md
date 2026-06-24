@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR251 Owner Project Manifest Bundle Readback
+## Latest ARGUS review - PR251 Owner Project Manifest Bundle Readback
 
-DAEDALUS implemented PR251 on 2026-06-24. ARGUS review is pending.
+ARGUS accepts PR251 on 2026-06-24 with one narrow validation-hardening patch.
 
-Implemented:
+Review findings:
 
 - Existing authenticated `GET /exports/:id/bundle` now supports completed
   `project_manifest` packages.
@@ -23,6 +23,8 @@ Implemented:
   wrong-schema Project manifest readbacks return bounded `409`/`404` responses
   without stored errors, stack traces, or partial manifests.
 - Persona and Developer Space bundle behavior remains unchanged.
+- ARGUS patched stored-readback validation so schema-only Project manifests are
+  treated as malformed and return bounded `409`.
 
 Validation:
 
@@ -48,8 +50,7 @@ Scope notes:
 
 Current baton:
 
-- ARGUS should review PR251 against the narrowed PR250 scope and wake MIMIR
-  with `ACCEPT`, `FAIL`, or `BLOCKED`.
+- MIMIR should close PR251 or choose the next roadmap move.
 
 ## Latest ARGUS preflight - PR250 Project Export Bundle Boundary PATCH
 
