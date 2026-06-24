@@ -277,11 +277,18 @@ Current intent:
   implementation, because existing Project scaffolding is private-owner only
   and PR215 deferred institutional/research work until ownership shape is
   reconciled.
+- PR233 result: DAEDALUS mapped the current Project/institutional/research
+  truth. Projects are private owner scaffolding only; membership roles,
+  public Projects, Project exports, institutional admin/billing, and hosted
+  runtime remain blocked. Recommended next lane: PR234 Owner Project Evidence
+  Readback, private owner-only and schema-free, deriving evidence/citation
+  metadata from already-attached Developer Spaces and linked documents.
 
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR232 are accepted. PR233
-Institutional/Research Project Lane Map is open for DAEDALUS.
+Institutional/Research Project Lane Map is complete and awaiting MIMIR
+sequencing.
 
 Current MIMIR position:
 
@@ -341,7 +348,8 @@ Bridge order:
 31. Done: Public Persona Events Preflight.
 32. Done: Public Persona Event Readback.
 33. Done: Public Persona Event Readback Hosted Rehearsal.
-34. Active: Institutional/Research Project Lane Map.
+34. Done: Institutional/Research Project Lane Map.
+35. Recommended: Owner Project Evidence Readback, if MIMIR opens PR234.
 
 ARGUS P3-B1A gates:
 

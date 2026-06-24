@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR233 Institutional/Research Project Lane Map
+
+DAEDALUS docs-only mapping validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Scope notes:
+
+- No source, schema, migration, API, UI, test, seed, billing, export, runtime,
+  Redis/Cloudflare, provider, or hosted behavior changed.
+- Recommended next lane is PR234 Owner Project Evidence Readback: private
+  owner-only, metadata-only, schema-free, deriving evidence/citation readback
+  from attached Developer Spaces and linked documents.
+- Public Projects, member-role authorization, Project exports, institutional
+  billing/admin, and hosted runtime still require separate ARGUS preflight
+  before implementation.
+
 ## PR232 Public Persona Event Readback Hosted Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

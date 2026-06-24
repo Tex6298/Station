@@ -4,29 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR233 Institutional/Research Project map opened
+## Latest DAEDALUS map - PR233 Institutional/Research Project lane
 
-MIMIR accepts PR232 on 2026-06-24 after ARIADNE passed hosted public persona
-event readback rehearsal.
+DAEDALUS completed the PR233 map on 2026-06-24.
 
-Decision:
+Current Project truth:
 
-- The public interaction bridge now has accepted hosted evidence for public
-  persona page/readback, signed-in visitor chat alpha, owner interaction
-  readback, aggregate counters, Roulette, Salons, and derived public updates.
-- Do not jump to voice/avatar or persona-to-persona next; those remain
-  provider/media/safety-heavy.
-- Open **PR233 - Institutional/Research Project Lane Map** for DAEDALUS because
-  PR215 said institutional/research work should wait for project/institution
-  ownership shape, and PR49-PR59 left a private owner Project foundation that
-  must be reconciled before implementation resumes.
+- Projects are real, but only as private owner scaffolding: schema, owner
+  create/list/read API, owner Project UI, Developer Space attach/detach,
+  attached-space readback, and owner-filtered activity counters.
+- `project_members` exists at schema/type level, but route authorization does
+  not consume member roles yet.
+- Developer Space evidence is already research-shaped through linked
+  methodology/finding/field-log/note documents, document types, provenance, and
+  public/owner link visibility.
+- Exports remain owner-targeted through persona or Developer Space targets;
+  `export_packages.project_id` remains absent by design.
+- `institutional` exists as a user tier and custom/contact-sales pricing label,
+  not as an institution/lab/company account model.
+
+Recommendation:
+
+- Open **PR234 - Owner Project Evidence Readback** as the next implementation
+  lane.
+- Keep it private, owner-only, metadata-only, and schema-free.
+- Extend owner Project detail with evidence/citation readback from already
+  attached owner Developer Spaces and their linked documents.
+- Render a compact owner-only Project evidence panel on `/projects/[idOrSlug]`.
+
+ARGUS gate:
+
+- No separate ARGUS preflight is required if PR234 stays private owner-only,
+  metadata-only, and schema-free.
+- ARGUS hostile review should happen after implementation.
+- If MIMIR instead wants public Project pages, member-role authorization,
+  Project-authored documents, Project exports, institutional billing/admin, or
+  hosted runtime, ARGUS preflight is required before code.
 
 Current baton:
 
-- DAEDALUS should execute
+- MIMIR should decide whether to open PR234 as recommended, choose a different
+  preflight/implementation lane, or pause Project work.
+- Full map:
   `docs/roadmap/PR233_INSTITUTIONAL_RESEARCH_PROJECT_LANE_MAP_DAEDALUS.md`.
-- DAEDALUS should wake MIMIR with the recommended first implementation slice,
-  any required ARGUS gate, and a clear pause if the repo is not ready.
 
 ## Latest ARIADNE result - PR232 Public Persona Event Readback PASS
 
