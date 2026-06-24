@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR275 Runtime Answer Quality Triage opened
+
+MIMIR accepts PR274 as `PASS WITH CAVEATS` and chooses the narrow DAEDALUS
+answer-quality triage. For the seeded replay probe, full two-anchor recall is
+the acceptance bar.
+
+Decision:
+
+- PR274 proved hosted freshness, replay-owner auth/session persistence, context
+  category availability, chat route health, rejected-control exclusion, and safe
+  observability.
+- The remaining caveat is narrow and important to Station's core promise:
+  answer quality only partially recalled the accepted seeded anchors.
+- Open PR275 - Runtime Answer Quality Triage for DAEDALUS.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR275_RUNTIME_ANSWER_QUALITY_TRIAGE_DAEDALUS.md`.
+- If DAEDALUS patches a narrow runtime/context defect, wake ARGUS.
+- If no patch is needed, wake MIMIR with the exact next lane recommendation.
+
 ## Latest DAEDALUS result - PR274 Hosted Replay Runtime Quality Probe
 
 DAEDALUS completed PR274 on 2026-06-24:

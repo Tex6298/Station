@@ -30,6 +30,30 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR275 Runtime Answer Quality Triage
+
+MIMIR opened PR275 for DAEDALUS on 2026-06-24 after PR274 returned `PASS WITH
+CAVEATS`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Intended replay persona selection | Pass or classified caveat | Determine whether PR274 selected the intended seeded persona; use sanitized evidence only. |
+| Accepted anchor context selection | Pass or classified caveat | Determine whether both accepted anchors were selected into runtime context; do not commit source bodies or raw ids. |
+| Prompt assembly inspection if needed | Pass or classified caveat | If inspected, record only booleans/counts/categories, never compiled prompts. |
+| Rejected-control exclusion | Pass | The rejected-control anchor must remain absent from answer/context claims. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass if product code changes | Required for retrieval/context changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass if product code changes | Required for archive/context changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass if readiness/observability changes | Required if readiness surfaces are touched. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass if product code changes | Required before ARGUS review unless a repo-level blocker is documented. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass if product code changes | Existing warnings should be named if present. |
+| `git diff --check` | Pass | Required for docs-only and code patches. |
+| `git diff --cached --check` | Pass | Required before wakeup. |
+
+Do not change providers, embeddings, schema, Redis, Cloudflare, queues, workers,
+imports, seeds, billing, or public UI in PR275.
+
 ## PR274 Hosted Replay Runtime Quality Probe
 
 DAEDALUS completed PR274 on 2026-06-24:

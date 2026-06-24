@@ -452,6 +452,12 @@ PR274 Hosted Replay Runtime Quality Probe as the next backend/product lane from
 fresh live evidence: session persistence plus one bounded replay chat/context
 round trip with sanitized observability/readiness evidence.
 
+2026-06-24 PR274 result: DAEDALUS passed hosted freshness, auth/session
+persistence, context/readback, chat route health, rejected-control exclusion,
+and observability, but the answer only partially recalled the accepted seeded
+anchors. MIMIR opens PR275 Runtime Answer Quality Triage because full two-anchor
+recall is the acceptance bar for the seeded replay probe.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

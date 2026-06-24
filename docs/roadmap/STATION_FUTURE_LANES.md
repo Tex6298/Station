@@ -69,10 +69,8 @@ passed, and the single chat turn was safe and traceable. The caveat is runtime
 answer quality: the model only partially recalled the seeded anchor set despite
 Memory, Archive, Continuity, Integrity, and Canon context being present.
 
-Next recommended lane: if full two-anchor recall remains the acceptance bar,
-MIMIR should open a narrow DAEDALUS runtime answer-quality triage. If MIMIR
-accepts the partial recall as sufficient for product judgement, hand the caveat
-to ARIADNE for a human-eye runtime rehearsal instead.
+MIMIR chooses full two-anchor recall as the acceptance bar for the seeded replay
+probe. PR275 is now the active narrow DAEDALUS runtime answer-quality triage.
 
 ## Phase 2D Developer Agent closeout
 

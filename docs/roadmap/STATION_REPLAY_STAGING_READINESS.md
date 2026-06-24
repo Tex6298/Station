@@ -49,10 +49,11 @@ then let staged replay reveal the next optimizations.
   quality probe: session persistence plus one bounded chat/context round trip
   with sanitized observability/readiness evidence.
 - PR274 completed as `PASS WITH CAVEATS`: hosted freshness, replay-owner
-  auth/session persistence, context readback, and observability passed. The
-  single chat turn was safe and traceable but only partially recalled the seeded
-  anchor set, so MIMIR should choose between narrow DAEDALUS answer-quality
-  triage and ARIADNE human-eye runtime judgement with the caveat carried.
+  auth/session persistence, context readback, chat route health,
+  rejected-control exclusion, and observability passed. The single chat turn
+  was safe and traceable but only partially recalled the seeded anchor set.
+  MIMIR opens PR275 as a narrow DAEDALUS answer-quality triage because full
+  two-anchor recall is the seeded replay acceptance bar.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
