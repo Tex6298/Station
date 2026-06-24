@@ -22,7 +22,7 @@ they are not Station validation failures.
 
 ## PR249 Owner Project Export Manifest Foundation
 
-DAEDALUS implementation validation on 2026-06-24:
+DAEDALUS implementation and ARGUS review validation on 2026-06-24:
 
 | Command | Result | Notes |
 | --- | --- | --- |
@@ -30,6 +30,8 @@ DAEDALUS implementation validation on 2026-06-24:
 | `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 13 tests passed; public and owner Project readback boundaries remain green after adding Project export targeting. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API/web typecheck passed after adding `project_manifest`, `project_id`, quota target typing, and Project export route code. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
 
 Scope notes:
 
@@ -41,6 +43,16 @@ Scope notes:
   calls, member/admin/billing export permission, and UI changes.
 - `/exports/:id/bundle` intentionally rejects `project_manifest` packages until
   a later Project bundle lane is approved.
+
+ARGUS review notes:
+
+- `ACCEPT` with no review patch.
+- Owner-only Project API, explicit Project package targeting, owner-scoped RLS,
+  manifest minimization, duplicate target guard, and bundle rejection match the
+  narrowed PR248/PR249 lane.
+- ARIADNE hosted rehearsal is not required before MIMIR closeout because the
+  accepted slice is API-only, owner-only, and has no visible route or public
+  auth change.
 
 ## PR248 Project Export Boundary Preflight
 

@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: Accepted by ARGUS - MIMIR closeout pending
 Opened: 2026-06-24
 
 ## Frame
@@ -140,6 +140,49 @@ Hosted rehearsal is not required for the API-only first slice if scope stays to
 owner-only manifest/list/readback APIs and local tests prove the boundary.
 Wake MIMIR if implementation requires UI, bundle readback, download behavior,
 auth middleware changes, or any public route.
+
+## ARGUS Review
+
+ARGUS completed hostile review on 2026-06-24.
+
+Verdict:
+
+- `ACCEPT`.
+- PR249 matches ARGUS's narrowed PR248 scope.
+- ARIADNE hosted rehearsal is not required before MIMIR closeout because the
+  accepted slice is API-only, owner-only, and has no visible route or public
+  auth change.
+
+Review findings:
+
+- Project export targeting is explicit: `export_packages.project_id`,
+  `project_manifest`, and target-shape checks keep persona, Developer Space,
+  and Project package targets separate.
+- Owner scope is preserved in API lookup, package readback, duplicate
+  in-progress guard, and RLS policy branches.
+- Project manifests stay bounded to Project metadata, attached Developer Space
+  references, owner evidence refs, public evidence refs, and trust notes.
+- Owner evidence refs and public evidence refs remain separate; public refs use
+  the accepted public evidence shape.
+- Document bodies, file contents, source ids, raw link-row ids, nested
+  Developer Space bundles, raw observatory data, usage counters, secrets, SQL,
+  stack traces, and broad runtime data are not exposed.
+- `/exports/:id/bundle` rejects `project_manifest` packages with `409` until a
+  later bundle lane is approved.
+- No Cloudflare, hosted runtime, queue, worker, provider/model, Project UI,
+  public route, member/admin/billing permission, or broad export surface was
+  added.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:exports passed with 5 tests.
+npm exec --yes pnpm@10.32.1 -- run test:projects passed with 13 tests.
+npm exec --yes pnpm@10.32.1 -- run typecheck passed.
+npm exec --yes pnpm@10.32.1 -- run lint passed with existing raw <img> warnings only.
+git diff --check passed.
+git diff --cached --check passed.
+```
 
 ## Wakeup
 

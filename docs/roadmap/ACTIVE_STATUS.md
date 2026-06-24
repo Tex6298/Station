@@ -4,16 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR249 Owner Project Export Manifest Foundation
+## Latest ARGUS review - PR249 Owner Project Export Manifest Foundation
 
-DAEDALUS implemented PR249 on 2026-06-24 and wakes ARGUS for hostile review.
+ARGUS accepts PR249 on 2026-06-24 with no review patch.
 
-What changed:
+Review findings:
 
-- Added migration `059_project_export_manifest.sql` with
+- Added migration `059_project_export_manifest.sql` with explicit
   `export_packages.project_id`, `project_manifest` package kind, target-shape
-  check, owner/project index, and owner-only Project RLS policy branch.
-- Added owner-only API routes:
+  checks, owner/project index, and owner-only Project RLS policy branch.
+- Added owner-only API routes
   `GET /exports/projects/:projectIdOrSlug` and
   `POST /exports/projects/:projectIdOrSlug`.
 - Project lookup is owner-scoped by existing Project `owner_user_id` semantics;
@@ -24,6 +24,8 @@ What changed:
 - Manifest schema is `station.project.export_manifest.v1` and contains only
   Project metadata, attached Developer Space references, owner evidence refs,
   public evidence refs, and trust notes.
+- Owner evidence refs and public evidence refs stay separate; public refs use
+  the accepted public evidence shape.
 - `/exports/:id/bundle` now returns `409` for `project_manifest` packages until
   a later Project bundle lane is approved.
 
@@ -35,19 +37,22 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
   warnings in `apps/web/app/space/[slug]/page.tsx` and
   `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
 
 Scope notes:
 
 - No UI, public route, Project member/admin/billing export permission,
   document/file bodies, nested Developer Space bundle, background job, Redis,
   Cloudflare, hosted runtime, provider call, or broad Project redesign changed.
-- ARGUS should review Project export targeting, owner-only RLS, manifest
-  minimization, duplicate in-progress guard, and bundle rejection.
+- ARGUS found Project export targeting, owner-only RLS, manifest minimization,
+  duplicate in-progress guard, and bundle rejection acceptable.
+- ARIADNE hosted rehearsal is not required before closeout because this lane is
+  API-only, owner-only, and has no visible route or public auth change.
 
 Current baton:
 
-- ARGUS should review PR249 and wake MIMIR with ACCEPT / FAIL / BLOCKED and
-  hosted-rehearsal recommendation.
+- MIMIR should close PR249 or choose the next roadmap move.
 
 ## Latest MIMIR decision - PR249 Owner Project Export Manifest Foundation opened
 
