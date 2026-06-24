@@ -121,6 +121,9 @@ then let staged replay reveal the next optimizations.
   runtime budget/quota estimates. ARGUS accepted the patch after adding a
   focused stored-message boundary assertion; MIMIR opened the ARIADNE hosted
   PR288 rerun after deploy.
+- PR288 proved PR287 deployed and the hosted answer now recalls both invented
+  retrieval phrases, but still drops both paired accepted concept labels.
+  MIMIR opened PR289 as a narrow DAEDALUS concept-label carry-through repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

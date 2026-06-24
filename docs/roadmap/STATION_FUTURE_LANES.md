@@ -116,6 +116,10 @@ provider-facing final user message, keeping the original owner message under an
 runtime budget/quota estimates. ARGUS accepted the patch after adding a focused
 stored-message boundary assertion; MIMIR opened the ARIADNE hosted PR288 rerun
 after deploy.
+PR288 proved the hosted answer now recalls both matching invented phrases, but
+still drops both paired accepted concept labels. PR289 opens DAEDALUS
+concept-label carry-through repair, with retrieval/context placement closed
+unless provider-prompt evidence proves selected labels are absent.
 
 ## Phase 2D Developer Agent closeout
 
