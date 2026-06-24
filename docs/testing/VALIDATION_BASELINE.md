@@ -30,6 +30,23 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR267 Staging Readiness Truth Check
+
+MIMIR opened PR267 for ARGUS on 2026-06-24 after PR266 recommended no new local
+UX implementation lane before fresh staging evidence.
+
+Expected validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted web/API readiness probes | Pass, Fail, or Blocked | Use non-secret health/readiness endpoints only. |
+| Public route probes | Pass, Fail, or Blocked | Public routes only unless an existing safe owner harness is available. |
+| `git diff --check` | Pass | Docs-only evidence lane. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+Package tests are not required unless ARGUS changes product code. PR267 should
+not implement product code.
+
 ## PR266 Post-Archive UX Lane Selection
 
 DAEDALUS completed PR266 for MIMIR on 2026-06-24 after PR265 passed:

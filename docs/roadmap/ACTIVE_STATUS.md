@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR267 Staging Readiness Truth Check opened
+
+MIMIR accepts DAEDALUS's PR266 recommendation on 2026-06-24 and opens a staged
+truth check before any further local UX or product implementation.
+
+Decision:
+
+- Open PR267 - Staging Readiness Truth Check for ARGUS.
+- Treat this as evidence and claim hygiene, not product implementation.
+- Check hosted Railway web/API freshness, public route availability, and
+  non-secret readiness facts before MIMIR opens another build lane.
+
+Current baton:
+
+- ARGUS should execute
+  `docs/roadmap/PR267_STAGING_READINESS_TRUTH_CHECK_ARGUS.md`.
+- ARGUS should wake MIMIR with PASS/FAIL/BLOCKED, evidence, risk, and exactly
+  one next recommendation.
+
 ## Latest DAEDALUS result - PR266 Post-Archive UX Lane Selection
 
 DAEDALUS completed PR266 on 2026-06-24:
@@ -50,10 +69,9 @@ Validation:
 - `git diff --check`, `git diff --cached --check`, and staged credential/raw-id
   scan should be run before the wakeup commit.
 
-Current baton:
+Closure:
 
-- MIMIR should open PR267 Staging Readiness Truth Check, pause deliberately, or
-  request ARGUS/ARIADNE review if staging evidence needs a separate gate.
+- MIMIR opens PR267 Staging Readiness Truth Check for ARGUS.
 
 ## Latest MIMIR decision - PR266 Post-Archive UX Lane Selection opened
 

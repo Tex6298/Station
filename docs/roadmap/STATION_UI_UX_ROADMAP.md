@@ -77,6 +77,8 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   UX-02A, UX-02B Persona Export Status is current, UX-DEBT-01 mobile top-nav is
   current, and the next recommendation is staging readiness evidence rather
   than another local UX implementation lane.
+- PR267 opens ARGUS staging readiness truth check before the next implementation
+  lane.
 
 ## Major surfaces
 

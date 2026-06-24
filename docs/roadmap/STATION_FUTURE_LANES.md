@@ -121,7 +121,8 @@ PR264 is accepted by ARGUS with a narrow source-count honesty patch as UX-02A
 Per-Persona Archive Trust States. PR265 passed ARIADNE hosted desktop/mobile
 rehearsal. PR266 is complete: DAEDALUS found UX-02B and UX-DEBT-01 current,
 accepted PR264/PR265 as UX-02A closeout, and recommends no new local UX
-implementation lane before a staging readiness truth check.
+implementation lane before a staging readiness truth check. PR267 opens that
+truth check for ARGUS.
 
 Current intent:
 

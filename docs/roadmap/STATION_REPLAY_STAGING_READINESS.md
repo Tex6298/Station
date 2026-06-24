@@ -16,6 +16,9 @@ then let staged replay reveal the next optimizations.
   a concrete replay blocker and ARGUS adds gates.
 - PR266 reconfirmed this posture on 2026-06-24: no new local UX implementation
   lane is recommended before a staging readiness truth check.
+- PR267 opens that truth check for ARGUS: refresh hosted Railway web/API,
+  public route, and non-secret readiness facts before MIMIR opens another
+  implementation lane.
 - Known caveats travel into staging review instead of spawning more local polish:
   static global Archive/Export shells, dashboard derived/static snippets, no
   downloadable bundles/workers, and no new private search UI beyond the accepted
