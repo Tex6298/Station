@@ -32,17 +32,22 @@ Memory/observability implementation lane.
 
 ## PR265 Archive Trust Rehearsal
 
-MIMIR opened PR265 for ARIADNE on 2026-06-24 after ARGUS accepted PR264.
+ARIADNE passed PR265 on 2026-06-24.
 
-Required rehearsal table:
+Hosted rehearsal result:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Web `/health/deployment` | Pass | Hosted Railway web is healthy, ready, on `main`, and at or beyond `38ad00e`. |
-| API `/health/deployment` | Pass if used | Required if sign-in or route data needs API confirmation. |
-| Owner `/studio/personas/[personaId]/files` desktop | Pass | Archive trust rows are visible, readable, owner-only, and accurate for source/readiness/review/processing states. |
-| Owner `/studio/personas/[personaId]/files` 375/390 mobile | Pass | No overflow, clipped controls, cramped trust rows, overlap, or unreadable text. |
-| Privacy/comprehension sweep | Pass | Failed imports remain visible/sanitized, storage quota is server-reported, no raw ids/secrets/logs/private payloads render, and no global Archive/Export or infrastructure behavior is implied. |
+| Web `/health/deployment` | Pass | Hosted Railway web reported `ok:true`, `ready:true`, branch `main`, service `@station/web`, and commit `38ad00e`. |
+| API `/health/deployment` | Pass | Hosted Railway API reported `ok:true`, `ready:true`, branch `main`, service `@station/api`, and commit `38ad00e`. |
+| Owner `/studio/personas/:personaId/files` desktop | Pass | Desktop `1280x900` rendered Archive Trust rows as owner-only/readback-only and accurate for source/readiness/review/processing counts. |
+| Owner `/studio/personas/:personaId/files` 390 mobile | Pass | Mobile `390x844` had no page-level overflow, clipped controls, cramped trust rows, overlap, or unreadable text. |
+| Privacy/comprehension sweep | Pass | Failed imports remain visible/sanitized when present, storage quota is server-reported, no raw ids/secrets/logs/private payloads render, uploaded file import jobs do not double-count source material, and no global Archive/Export or infrastructure behavior is implied. |
+
+Validation:
+
+- `node --check tmp-pr265-archive-trust-rehearsal.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr265-archive-trust-rehearsal.spec.js --reporter=line --workers=1`
 
 ## PR264 Per-Persona Archive Trust States
 

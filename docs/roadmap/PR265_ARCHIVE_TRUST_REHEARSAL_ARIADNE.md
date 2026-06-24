@@ -1,7 +1,7 @@
 # PR265 - Archive Trust Rehearsal
 
 Owner: A4 / ARIADNE
-Status: open
+Status: passed
 Opened by: A1 / MIMIR
 Date: 2026-06-24
 
@@ -92,3 +92,45 @@ Validation:
 Task:
 - Close PR264/PR265 or open the smallest DAEDALUS repair.
 ```
+
+## ARIADNE Result - 2026-06-24
+
+Verdict: PASS.
+
+Hosted freshness:
+
+- Web `/health/deployment` returned `ok:true`, `ready:true`, branch `main`,
+  service `@station/web`, and commit `38ad00e`.
+- API `/health/deployment` returned `ok:true`, `ready:true`, branch `main`,
+  service `@station/api`, and commit `38ad00e`.
+
+Routes/viewports checked:
+
+- Replay-owner `/studio/personas/:personaId/files` at desktop `1280x900`.
+- Replay-owner `/studio/personas/:personaId/files` at `390x844` mobile.
+
+Findings:
+
+- Archive Trust explains owner-only pasted/file sources, Continuity readiness,
+  needs-review/failed states, and queued/processing states.
+- Trust-row counts matched the hosted owner API readback, including the
+  non-double-counting rule for uploaded files with file import jobs.
+- Failed-import and empty/thin states remained specific and honest; failed
+  imports keep sanitized error readback visible when present.
+- Storage/quota reads as server-reported usage through the Storage and Quota
+  panel, not a frontend-invented limit.
+- Visible actions were wired route controls; the rehearsal did not mutate
+  archive, import, export, or continuity data.
+- The route did not imply global Archive/Export implementation, downloadable
+  bundle delivery, workers, external connector imports, private search UI,
+  Redis/Cloudflare/provider/embedding/billing/auth/session/deployment/public
+  route/backend API/schema/migration changes, or fake archive activity.
+- Desktop and `390px` mobile checks found no page-level horizontal overflow,
+  clipped controls, cramped trust rows, incoherent overlap, unreadable text,
+  raw ids, URLs, bearer tokens, secrets, SQL, stack traces, hosted logs, raw
+  route bodies, or unsanitized private payloads.
+
+Validation:
+
+- `node --check tmp-pr265-archive-trust-rehearsal.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr265-archive-trust-rehearsal.spec.js --reporter=line --workers=1`

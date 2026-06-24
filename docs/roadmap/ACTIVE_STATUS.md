@@ -4,37 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR265 Archive Trust Rehearsal opened
+## Latest ARIADNE review - PR265 Archive Trust Rehearsal
 
-MIMIR accepts ARGUS's PR264 review on 2026-06-24 and opens ARIADNE rehearsal.
+ARIADNE passes PR265 on 2026-06-24.
 
-Decision:
+Result:
 
-- Open PR265 - Archive Trust Rehearsal.
-- ARIADNE should verify hosted Railway freshness at or beyond ARGUS review
-  patch commit `38ad00e`.
-- ARIADNE should rehearse owner `/studio/personas/[personaId]/files` on desktop
-  and `375px` or `390px` mobile.
+- Hosted Railway web/API were healthy and ready on branch `main` at ARGUS
+  review patch commit `38ad00e`.
+- Replay-owner `/studio/personas/:personaId/files` passed on desktop
+  `1280x900`.
+- Replay-owner `/studio/personas/:personaId/files` passed on `390x844`
+  mobile.
 
-Pass/fail focus:
+Findings:
 
-- Archive trust rows explain owner-only source material, Continuity readiness,
+- Archive Trust explains owner-only pasted/file sources, Continuity readiness,
   needs-review/failed states, and queued/processing states.
-- Uploaded files are not double-counted as separate source material just
-  because they also have file import jobs.
-- Failed imports stay visible and specific through sanitized error readback.
-- Storage/quota remains server-reported.
-- Empty/thin states are honest; controls are wired, disabled, or preview-only.
-- No global Archive/Export, workers, external imports, private search UI,
-  Redis, Cloudflare, provider, embedding, billing, auth/session, deployment,
-  public route, backend API, schema, or migration behavior is implied.
+- Trust-row counts matched the hosted owner API readback, including the
+  non-double-counting rule for uploaded files with file import jobs.
+- Failed-import and empty/thin states remained specific and honest; failed
+  imports keep sanitized error readback visible when present.
+- Storage/quota reads as server-reported usage through the Storage and Quota
+  panel, not a frontend-invented limit.
+- Visible actions were wired route controls; the rehearsal did not mutate
+  archive, import, export, or continuity data.
+- The route did not imply global Archive/Export implementation, downloadable
+  bundle delivery, workers, external connector imports, private search UI,
+  Redis/Cloudflare/provider/embedding/billing/auth/session/deployment/public
+  route/backend API/schema/migration changes, or fake archive activity.
+- Desktop and `390px` mobile checks found no page-level horizontal overflow,
+  clipped controls, cramped trust rows, incoherent overlap, unreadable text,
+  raw ids, URLs, bearer tokens, secrets, SQL, stack traces, hosted logs, raw
+  route bodies, or unsanitized private payloads.
+
+Validation:
+
+- `node --check tmp-pr265-archive-trust-rehearsal.spec.js`
+- `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr265-archive-trust-rehearsal.spec.js --reporter=line --workers=1`
 
 Current baton:
 
-- ARIADNE should execute
-  `docs/roadmap/PR265_ARCHIVE_TRUST_REHEARSAL_ARIADNE.md`.
-- ARIADNE should return PASS/FAIL/BLOCKED and wake MIMIR.
-- If FAIL, MIMIR should open the smallest DAEDALUS repair.
+- MIMIR can close PR264/PR265 or open the next narrow UX-02 lane.
 
 ## Latest ARGUS review - PR264 Per-Persona Archive Trust States
 
