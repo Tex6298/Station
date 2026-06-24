@@ -45,6 +45,26 @@ Scope notes:
   provider/chat/report/counter event source, auth/session, billing, or broad UI
   work was added.
 
+ARGUS review validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | Re-ran 12 tests after the ARGUS unsafe discussion route hardening patch. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | Re-ran 14 web/helper tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Same existing raw `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged implementation, ARGUS patch, docs, and watcher state had no whitespace errors. |
+| `test:community` | Not run | ARGUS patched only public persona source filtering/tests, not forum helpers, category serializers, Salon visibility helpers, or thread routing behavior. |
+
+Review verdict:
+
+- `PATCH`, accepted after ARGUS hardened public discussion event routeability to
+  reject unsafe/UUID-shaped forum category slugs.
+- ARIADNE hosted rehearsal is required before the next product lane because
+  PR231 changed a visible anonymous public persona page and added a new public
+  readback endpoint.
+
 ## PR230 Public Persona Events Preflight
 
 ARGUS preflight on 2026-06-24:

@@ -1497,6 +1497,11 @@ test("public persona context preview is anonymous and limited to public routeabl
       slug: "documents-and-codexes",
       title: "Documents & Codexes",
     });
+    const unsafeDiscussionCategory = db.insertRow("forum_categories", {
+      id: "category-unsafe-discussion",
+      slug: "550e8400-e29b-41d4-a716-446655440001",
+      title: "Unsafe Discussion Route",
+    });
     const salonCategory = db.insertRow("forum_categories", {
       id: "category-salon",
       slug: "blue-lantern-salon",
@@ -1621,6 +1626,18 @@ test("public persona context preview is anonymous and limited to public routeabl
       discussion_thread_id: "hidden-thread",
     });
     db.insertRow("documents", {
+      id: "public-doc-unsafe-discussion",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: publicPersona.id,
+      title: "Unsafe Discussion Route Document",
+      body: "Public document whose discussion category route is unsafe.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-23T09:30:00.000Z",
+      discussion_thread_id: "unsafe-discussion-thread",
+    });
+    db.insertRow("documents", {
       id: "private-doc",
       author_user_id: "creator-owner",
       space_id: publicSpace.id,
@@ -1705,6 +1722,16 @@ test("public persona context preview is anonymous and limited to public routeabl
       body: "Community-only thread body.",
       status: "active",
       visibility: "community",
+      is_hidden: false,
+    });
+    db.insertRow("threads", {
+      id: "unsafe-discussion-thread",
+      category_id: unsafeDiscussionCategory.id,
+      linked_document_id: "public-doc-unsafe-discussion",
+      title: "Unsafe Discussion Thread Must Stay Hidden",
+      body: "Unsafe public discussion route body.",
+      status: "active",
+      visibility: "public",
       is_hidden: false,
     });
     db.insertRow("threads", {
@@ -1841,7 +1868,7 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(preview.body.query, "blue lantern");
     assert.deepEqual(preview.body.preview.counts, {
       publicProfile: 1,
-      publishedDocuments: 2,
+      publishedDocuments: 3,
       publicDiscussions: 1,
       publicSalonThreads: 1,
     });
@@ -1921,6 +1948,7 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(previewJson.includes("Unpublished Draft Source"), false);
     assert.equal(previewJson.includes("Private Space Source"), false);
     assert.equal(previewJson.includes("Unrelated Source"), false);
+    assert.equal(previewJson.includes("Unsafe Discussion Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Hidden Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Community Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("Hidden Salon Thread Must Stay Hidden"), false);
@@ -1935,6 +1963,7 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(previewJson.includes("Unrelated Salon Thread Must Stay Hidden"), false);
     assert.equal(previewJson.includes("sub-public-salon"), false);
     assert.equal(previewJson.includes("category-salon"), false);
+    assert.equal(previewJson.includes("category-unsafe-discussion"), false);
     assert.equal(previewJson.includes("persona_id"), false);
     assert.equal(previewJson.includes("source_persona_id"), false);
     assert.equal(previewJson.includes("linked_document_id"), false);
@@ -1948,7 +1977,7 @@ test("public persona context preview is anonymous and limited to public routeabl
       publicSlug: "blue-lantern-guide",
     });
     assert.equal(events.body.limit, 20);
-    assert.equal(events.body.events.length, 4);
+    assert.equal(events.body.events.length, 5);
     assert.equal(events.body.events.some((event: Row) => event.eventType === "public_profile"), false);
     assert.equal(
       events.body.events.some((event: Row) =>
@@ -2030,6 +2059,7 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(eventJson.includes("Unpublished Draft Source"), false);
     assert.equal(eventJson.includes("Private Space Source"), false);
     assert.equal(eventJson.includes("Unrelated Source"), false);
+    assert.equal(eventJson.includes("Unsafe Discussion Thread Must Stay Hidden"), false);
     assert.equal(eventJson.includes("Hidden Thread Must Stay Hidden"), false);
     assert.equal(eventJson.includes("Community Thread Must Stay Hidden"), false);
     assert.equal(eventJson.includes("Hidden Salon Thread Must Stay Hidden"), false);
@@ -2044,6 +2074,7 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(eventJson.includes("Unrelated Salon Thread Must Stay Hidden"), false);
     assert.equal(eventJson.includes("sub-public-salon"), false);
     assert.equal(eventJson.includes("category-salon"), false);
+    assert.equal(eventJson.includes("category-unsafe-discussion"), false);
     assert.equal(eventJson.includes("persona_id"), false);
     assert.equal(eventJson.includes("source_persona_id"), false);
     assert.equal(eventJson.includes("linked_document_id"), false);

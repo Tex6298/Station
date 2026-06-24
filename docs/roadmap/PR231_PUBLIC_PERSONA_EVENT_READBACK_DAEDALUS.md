@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: Implemented - ARGUS review pending
+Status: ARGUS PATCH accepted - MIMIR review pending
 Opened: 2026-06-24
 Implemented: 2026-06-24
 
@@ -212,3 +212,58 @@ Task:
 - Wake MIMIR with ACCEPT / PATCH / REJECT and whether ARIADNE hosted rehearsal
   is required before the next lane.
 ```
+
+## ARGUS Review Result
+
+Date reviewed: 2026-06-24
+
+Verdict: `PATCH` - accepted after a narrow ARGUS hardening patch.
+
+ARGUS found the implementation stayed inside PR230's derived-only lane: no
+schema, write path, owner-authored milestone model, Discover/global feed, public
+Space feed, provider call, chat/report/counter source, event-specific
+moderation surface, queue/worker, auth/session, billing, or broad UI work was
+added.
+
+ARGUS patched one routeability gap before acceptance:
+
+- Public discussion events inherited the existing document-discussion category
+  route behavior, which accepted any non-empty category slug. The event readback
+  now requires safe non-UUID forum category slugs for public document discussion
+  sources, matching the Salon source route-safety posture.
+- The hostile public persona fixture now includes an unsafe public discussion
+  category and proves that the unsafe discussion thread/category stay out of
+  both context preview and event readback JSON.
+
+Accepted post-patch behavior:
+
+- Anonymous `GET /personas/public/:publicSlug/events` reuses eligible public
+  persona lookup.
+- Events are derived only from routeable public documents, public document
+  discussions, and public Salon threads.
+- Event payloads are bounded to `eventType`, `label`, `title`, `href`,
+  `occurredAt`, optional bounded `excerpt`, and optional public-safe
+  `sourceType`.
+- Private/community/unlisted/hidden/removed/paused/non-Salon/unsafe-route/
+  unrelated/ineligible candidates and duplicate raw id fields stay out of JSON.
+- Public page copy says "Public updates" / "Public sources" and explicitly
+  avoids live activity, provider/model-call, private memory, and comprehensive
+  history claims.
+
+ARIADNE recommendation:
+
+- Required before the next product lane. PR231 changed a visible anonymous
+  public persona page and added a new public readback endpoint, so MIMIR should
+  open a hosted ARIADNE rehearsal for the public updates panel before moving on.
+
+ARGUS validation after patch:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed after the unsafe discussion route hardening patch. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Staged implementation, ARGUS patch, docs, and watcher state had no whitespace errors. |
+| `test:community` | Not run | ARGUS patched only public persona source filtering/tests, not forum helpers, category serializers, Salon visibility helpers, or thread routing behavior. |

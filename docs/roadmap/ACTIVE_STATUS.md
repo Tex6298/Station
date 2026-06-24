@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR231 Public Persona Event Readback PATCH
+
+ARGUS reviewed PR231 on 2026-06-24 and returns `PATCH`, accepted after a narrow
+route-safety hardening patch.
+
+Result:
+
+- PR231 stayed inside the PR230 derived-only lane: no schema, event table, write
+  path, owner-authored milestone model, Discover/global feed, public Space feed,
+  provider call, chat/report/counter source, event-specific moderation/report
+  route, queue/worker, auth/session, billing, or broad UI work was added.
+- Anonymous `GET /personas/public/:publicSlug/events` derives public updates
+  only from eligible public persona documents, public document discussions, and
+  public Salon threads.
+- Public event payloads remain bounded to public labels/titles/hrefs/timestamps
+  and optional bounded excerpts; duplicate raw id fields and backend internals
+  stay out.
+- The public persona page renders a compact "Public updates" / "Public sources"
+  panel with honest copy and no live/provider/private/persona-to-persona claims.
+
+ARGUS patch:
+
+- Hardened public document discussion source routing so discussion events now
+  require safe non-UUID forum category slugs, matching the Salon event route
+  posture.
+- Added hostile fixture coverage proving an unsafe public discussion category
+  stays out of both context preview and event readback JSON.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests after
+  the ARGUS hardening patch.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- `test:community` was not run because the ARGUS patch touched only public
+  persona source filtering/tests, not forum helpers, category serializers,
+  Salon visibility helpers, or thread routing behavior.
+
+ARIADNE recommendation:
+
+- Required before the next product lane. PR231 changed a visible anonymous
+  public persona page and added a new public readback endpoint, so MIMIR should
+  open a hosted public persona event readback rehearsal.
+
+Current baton:
+
+- MIMIR should close PR231 as patched/accepted and decide whether to open the
+  ARIADNE hosted rehearsal lane.
+- Full review record:
+  `docs/roadmap/PR231_PUBLIC_PERSONA_EVENT_READBACK_DAEDALUS.md`.
+
 ## Latest DAEDALUS implementation - PR231 Public Persona Event Readback
 
 DAEDALUS implemented PR231 on 2026-06-24 and woke ARGUS for hostile review.

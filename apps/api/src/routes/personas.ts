@@ -323,7 +323,7 @@ async function loadPublicDiscussionSourcesForDocuments(
 
   return routeableThreads
     .map((thread) => ({ ...thread, category: categoriesById.get(thread.category_id) ?? null }))
-    .filter((thread) => thread.category?.slug)
+    .filter((thread) => isSafeForumRouteSlug(thread.category?.slug))
     .slice(0, PUBLIC_PERSONA_DISCUSSION_LIMIT);
 }
 
