@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR223 Salon directory readback implemented
+
+DAEDALUS implemented PR223 on 2026-06-24.
+
+Result:
+
+- Updated `/forums/subcommunities` intro copy from the stale
+  `Canon and Developer community areas.` wording to
+  `Canon, Developer, and Salon community areas.`
+- Added a compact type-aware directory count, such as
+  `1 Canon / 1 Developer / 2 Salons`, on the existing subcommunity directory.
+- Made `/forums/[categorySlug]` empty states Salon-aware for Salon-backed
+  categories while keeping the route asynchronous and thread-based.
+- Preserved existing API behavior, route names, visibility filtering,
+  creation gates, category/subcommunity links, serializer boundaries, and
+  public-safe non-owner field exposure.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- `test:community` was not rerun because PR223 did not change API,
+  serializer, persistence, route-permission, or visibility behavior.
+
+Current baton:
+
+- ARGUS should review the visible copy/readback patch for public-safe field
+  boundaries, scope discipline, and whether ARIADNE should rehearse hosted
+  directory/category routes again.
+- Full implementation record:
+  `docs/roadmap/PR223_PUBLIC_SALON_DIRECTORY_READBACK_DAEDALUS.md`.
+
 ## Latest MIMIR decision - PR223 Salon directory/readback opened
 
 MIMIR accepts PR222 on 2026-06-24 after ARIADNE passed the hosted Salon

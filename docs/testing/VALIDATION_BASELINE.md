@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR223 Public Salon Directory Readback
+
+DAEDALUS implementation validation on 2026-06-24:
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts` | Pass | 6 tests passed. Coverage now includes Salon-aware directory intro copy, type counts, and Salon-backed category empty-state copy. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed for the forum readback patch. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `test:community` | Not run | No API, serializer, persistence, route-permission, or visibility behavior changed. |
+
+Scope notes:
+
+- The stale `/forums/subcommunities` intro copy now includes Salons.
+- The existing subcommunity directory shows compact Canon/Developer/Salon type
+  counts and keeps the same route, links, data fetch, and visibility filtering.
+- Salon-backed category empty states are type-aware while staying on the
+  existing `/forums/[categorySlug]` thread route.
+- No Discover-specific Salon grouping, public persona Salon readback, direct
+  subcommunity-to-persona links, creation policy change, realtime room,
+  provider/model call, public event feed, billing, queue, auth/session change,
+  moderation-role expansion, or broad UI reskin was added.
+
 ## PR222 Public Salon Foundation Rehearsal
 
 ARIADNE hosted rehearsal on 2026-06-24:

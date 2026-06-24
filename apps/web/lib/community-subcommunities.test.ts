@@ -7,7 +7,10 @@ import {
   mySubcommunitiesPath,
   subcommunityBadgeLabel,
   subcommunityCategoryHref,
+  subcommunityDirectoryIntroCopy,
+  subcommunityDirectorySummary,
   subcommunityListPath,
+  subcommunityThreadEmptyCopy,
   subcommunityTypeLabel,
   subcommunityVisibilityLabel,
 } from "./community-subcommunities";
@@ -26,6 +29,29 @@ test("subcommunity helpers label serializer fields without owner internals", () 
   assert.equal(subcommunityVisibilityLabel("community"), "Community");
   assert.equal(subcommunityBadgeLabel({ type: "developer", visibility: "public", status: "active" }), "Developer / Public / active");
   assert.equal(subcommunityBadgeLabel({ type: "salon", visibility: "community", status: "active" }), "Salon / Community / active");
+});
+
+test("subcommunity directory copy and counts are Salon-aware without widening scope", () => {
+  assert.equal(subcommunityDirectoryIntroCopy(), "Canon, Developer, and Salon community areas.");
+  assert.equal(subcommunityDirectorySummary([]), "No public or community areas");
+  assert.equal(
+    subcommunityDirectorySummary([
+      { type: "canon" },
+      { type: "developer" },
+      { type: "salon" },
+      { type: "salon" },
+    ]),
+    "1 Canon / 1 Developer / 2 Salons"
+  );
+});
+
+test("subcommunity category empty state labels Salon-backed categories", () => {
+  assert.equal(subcommunityThreadEmptyCopy({ type: "salon" }, false), "No Salon threads yet.");
+  assert.equal(
+    subcommunityThreadEmptyCopy({ type: "salon" }, true),
+    "No Salon threads yet. Start the first discussion."
+  );
+  assert.equal(subcommunityThreadEmptyCopy({ type: "developer" }, true), "No threads yet. Be the first to post!");
 });
 
 test("subcommunity directory helper keeps owner-only rows out of public readback", () => {

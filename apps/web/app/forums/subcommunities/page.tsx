@@ -12,6 +12,8 @@ import {
   isDirectorySubcommunity,
   subcommunityBadgeLabel,
   subcommunityCategoryHref,
+  subcommunityDirectoryIntroCopy,
+  subcommunityDirectorySummary,
   subcommunityListPath,
 } from "@/lib/community-subcommunities";
 
@@ -89,7 +91,7 @@ export default function SubcommunitiesPage() {
         <div>
           <div style={{ color: "#534ab7", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em" }}>Community</div>
           <h1 style={{ margin: "0.2rem 0 0.25rem" }}>Subcommunities</h1>
-          <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>Canon and Developer community areas.</p>
+          <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{subcommunityDirectoryIntroCopy()}</p>
         </div>
         <Link href="/forums" style={linkButton}>Forums</Link>
       </div>
@@ -99,7 +101,11 @@ export default function SubcommunitiesPage() {
       <section className="card" style={{ marginBottom: "1rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
           <h2 style={{ margin: 0, fontSize: 16 }}>Directory</h2>
-          {loading && <span style={{ color: "#687078", fontSize: 13 }}>Loading...</span>}
+          {loading ? (
+            <span style={{ color: "#687078", fontSize: 13 }}>Loading...</span>
+          ) : (
+            <span style={{ color: "#687078", fontSize: 13 }}>{subcommunityDirectorySummary(subcommunities)}</span>
+          )}
         </div>
         {!loading && subcommunities.length === 0 ? (
           <div style={{ color: "#687078", fontSize: 13 }}>No public or community subcommunities in this view.</div>

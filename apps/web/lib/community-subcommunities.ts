@@ -24,6 +24,31 @@ export function subcommunityTypeLabel(type: SubcommunityType) {
   return "General";
 }
 
+export function subcommunityDirectoryIntroCopy() {
+  return "Canon, Developer, and Salon community areas.";
+}
+
+export function subcommunityDirectorySummary(
+  subcommunities: Pick<CommunitySubcommunityRecord, "type">[]
+) {
+  const counts = new Map<SubcommunityType, number>();
+  for (const subcommunity of subcommunities) {
+    counts.set(subcommunity.type, (counts.get(subcommunity.type) ?? 0) + 1);
+  }
+
+  const parts = (["canon", "developer", "salon"] as const)
+    .map((type) => {
+      const count = counts.get(type) ?? 0;
+      if (count === 0) return null;
+      const label = subcommunityTypeLabel(type);
+      const pluralLabel = type === "salon" ? "Salons" : label;
+      return `${count} ${count === 1 ? label : pluralLabel}`;
+    })
+    .filter((part): part is string => Boolean(part));
+
+  return parts.length > 0 ? parts.join(" / ") : "No public or community areas";
+}
+
 export function subcommunityVisibilityLabel(visibility: SubcommunityVisibility) {
   if (visibility === "community") return "Community";
   if (visibility === "public") return "Public";
@@ -47,4 +72,14 @@ export function subcommunityBadgeLabel(
   subcommunity: Pick<CommunitySubcommunityRecord, "type" | "visibility" | "status">
 ) {
   return `${subcommunityTypeLabel(subcommunity.type)} / ${subcommunityVisibilityLabel(subcommunity.visibility)} / ${subcommunity.status}`;
+}
+
+export function subcommunityThreadEmptyCopy(
+  subcommunity: Pick<CommunitySubcommunityRecord, "type"> | null | undefined,
+  canPost: boolean
+) {
+  if (subcommunity?.type === "salon") {
+    return canPost ? "No Salon threads yet. Start the first discussion." : "No Salon threads yet.";
+  }
+  return canPost ? "No threads yet. Be the first to post!" : "No threads yet.";
 }

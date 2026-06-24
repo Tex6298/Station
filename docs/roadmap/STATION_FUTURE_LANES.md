@@ -233,10 +233,14 @@ Current intent:
   only a non-blocking directory intro copy polish. PR223 opens the narrow public
   Salon directory/category readback polish before Discover or public persona
   Salon surfaces.
+- PR223 result: DAEDALUS updated the existing forum subcommunity directory and
+  category empty-state readback to be honestly Salon-aware without changing API
+  behavior, visibility gates, creation policy, Discover, or public persona
+  surfaces. ARGUS review is next.
 ## Phase 3 bridge sequence
 
 Status, 2026-06-24: PR202 through PR222 are accepted. PR223 Public Salon
-Directory Readback is open for DAEDALUS.
+Directory Readback is implemented and awaiting ARGUS review.
 
 Current MIMIR position:
 

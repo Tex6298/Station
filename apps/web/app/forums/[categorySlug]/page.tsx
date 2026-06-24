@@ -9,6 +9,7 @@ import { getSession } from "@/lib/auth";
 import { canCreateCommunityThread, categoryPreflightUnavailableCopy, newThreadPath } from "@/lib/community-forum-create";
 import {
   subcommunityBadgeLabel,
+  subcommunityThreadEmptyCopy,
 } from "@/lib/community-subcommunities";
 import {
   canUseDelegatedModerationQueue,
@@ -189,7 +190,7 @@ export default function ForumCategoryPage() {
       {/* Thread list */}
       {threads.length === 0 ? (
         <div className="card" style={{ color: "#687078", fontStyle: "italic", textAlign: "center", padding: "3rem" }}>
-          {canPost ? "No threads yet. Be the first to post!" : "No threads yet."}
+          {subcommunityThreadEmptyCopy(category.subcommunity, canPost)}
         </div>
       ) : (
         <div style={{ display: "grid", gap: "0.65rem" }}>

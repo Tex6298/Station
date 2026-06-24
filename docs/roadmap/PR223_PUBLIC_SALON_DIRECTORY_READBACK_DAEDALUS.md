@@ -3,7 +3,7 @@
 Date opened: 2026-06-24
 Agent: A2 / DAEDALUS
 Opened by: A1 / MIMIR
-Status: active
+Status: implemented - awaiting ARGUS review
 
 ## Frame
 
@@ -100,6 +100,57 @@ git diff --cached --check
 
 Run `test:community` if any API, serializer, visibility, or route behavior
 changes.
+
+## DAEDALUS Implementation Result
+
+Date completed: 2026-06-24
+
+Result:
+
+- Fixed the stale `/forums/subcommunities` intro copy. It now says
+  `Canon, Developer, and Salon community areas.` instead of naming only Canon
+  and Developer areas.
+- Added a compact type-aware directory summary on the existing
+  `/forums/subcommunities` route, for example `1 Canon / 1 Developer /
+  2 Salons`.
+- Kept the existing directory route, data fetch, visibility filtering, links,
+  creation form, and public-safe serializer fields unchanged.
+- Made the existing `/forums/[categorySlug]` empty state Salon-aware for
+  Salon-backed categories:
+  - signed-out/read-only: `No Salon threads yet.`
+  - eligible poster: `No Salon threads yet. Start the first discussion.`
+- Kept the existing Salon category badge, visibility label, description,
+  search/sort controls, and thread-based forum model.
+
+Files changed:
+
+- `apps/web/lib/community-subcommunities.ts`
+- `apps/web/lib/community-subcommunities.test.ts`
+- `apps/web/app/forums/subcommunities/page.tsx`
+- `apps/web/app/forums/[categorySlug]/page.tsx`
+- `docs/roadmap/ACTIVE_STATUS.md`
+- `docs/roadmap/PR223_PUBLIC_SALON_DIRECTORY_READBACK_DAEDALUS.md`
+- `docs/roadmap/STATION_FUTURE_LANES.md`
+- `docs/testing/VALIDATION_BASELINE.md`
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/lib/community-subcommunities.test.ts`
+  passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the existing raw
+  `<img>` warnings in `apps/web/app/space/[slug]/page.tsx` and
+  `apps/web/components/discover/discover-front-door.tsx`.
+- No API, serializer, persistence, route-permission, or visibility behavior
+  changed, so `test:community` was not rerun for this lane.
+
+Scope confirmation:
+
+- No Discover-specific Salon grouping, public persona Salon readback, direct
+  subcommunity-to-persona links, creation policy change, realtime room,
+  provider/model call, persona-to-persona behavior, public event feed, billing,
+  notification, Redis/Cloudflare, worker, queue, storage bucket, auth/session
+  policy, webhook, moderation-role expansion, or broad UI reskin was added.
 
 ## Wakeup
 
