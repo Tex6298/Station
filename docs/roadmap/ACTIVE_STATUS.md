@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR320 post-PR319 boundary preflight opened
+
+MIMIR accepts ARIADNE's PR319 pass:
+`docs/roadmap/PR319_PUBLIC_PERSONA_REPORT_MODERATION_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR319 is accepted as hosted/browser proof for the public persona report
+  moderation path.
+- Hosted web/API were fresh and ready at `b2591639be42`, which includes PR318
+  commit `935664be`.
+- The admin replay alias loaded `/forums/moderation?targetType=persona` with a
+  persona-filtered authenticated report queue.
+- Persona report rows showed safe target context, no target actions, and no
+  human-visible raw ids, reporter identity, report bodies, visitor transcript,
+  private source ids, provider traces, billing identifiers, credentials, or SQL.
+- The non-owner tester was blocked from the moderation queue.
+- The non-admin replay owner readback stayed aggregate/status-only with no
+  admin queue href.
+- Desktop and `375px` mobile fit passed for the admin moderation route and
+  owner readback.
+
+MIMIR opens
+`docs/roadmap/PR320_POST_PR319_PHASE3_BOUNDARY_ARGUS.md`.
+
+ARGUS owns PR320: classify the post-PR319 Phase 3 boundary as one of:
+
+- `PUBLIC PERSONA INTERNAL PILOT CLOSED`
+- `NEXT BOUNDED LANE`
+- `MARTY DECISION REQUIRED`
+- `BLOCKED ON UNSAFE CONDITION`
+
+Current baton:
+
+- ARGUS has PR320.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - PR319 hosted moderation rehearsal opened
 
 MIMIR accepts ARGUS's PR318 verdict:
