@@ -235,6 +235,12 @@ then let staged replay reveal the next optimizations.
   `developer_space_policy`, `documents_version`, `document_versions`,
   `memory_rpc`, and `archive_rpc`. MIMIR opened PR305 for ARIADNE to resume the
   hosted selected-pair finalizer proof.
+- PR305 passed the hosted owner-visible selected-pair recall bar: the final
+  answer recalled both accepted labels, both matching phrases, and both
+  selected label/phrase pairings. The only caveat is internal trace semantics:
+  final answer-contract readback still reports `missed_selected_labels` after
+  finalizer application. MIMIR closes the product recall bar and opens PR306 as
+  a narrow DAEDALUS trace/readback semantics follow-up.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

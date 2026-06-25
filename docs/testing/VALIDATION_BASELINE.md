@@ -86,6 +86,31 @@ PR305 is a hosted rerun only; no product code, schema, provider, embedding,
 retrieval ranking, context assembly, Redis, Cloudflare, queue, worker, import,
 seed, billing, Stripe, public UI, or Studio UI changes should occur.
 
+ARIADNE completed PR305 on 2026-06-25.
+
+Result: `PASS WITH CAVEATS`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness/readiness | Pass | Web/API were `ready:true` on `main` at PR304 runtime commit `73cf8e9c`; API migrations were green with sanitized proof ids. |
+| Replay owner auth/session | Pass | API auth and protected Studio browser session passed, including reload persistence. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Selected context labels | Pass | Selected context contained both accepted concept labels. |
+| Selected context phrases | Pass | Selected context contained both matching invented retrieval phrases. |
+| Retry/finalizer execution | Pass | Server-side retry and finalizer both fired. |
+| Final answer label recall | Pass | Owner-visible final answer recalled both accepted labels. |
+| Final answer phrase recall | Pass | Owner-visible final answer recalled both matching phrases. |
+| Selected pairings | Pass | Both accepted label/phrase pairings appeared on their own paired lines. |
+| Rejected-control exclusion | Pass | Rejected-control anchor stayed absent. |
+| Source-copy safety | Pass | No raw private source-body marker was copied. |
+| Sanitized finalizer metadata | Pass with caveat | Finalizer metadata was safe, but final answer-contract metadata still reported `missed_selected_labels` / `retryRecommended:true` after finalization. |
+
+MIMIR closes the hosted owner-visible selected-pair recall bar and opens PR306
+for DAEDALUS to clarify post-finalizer trace semantics without changing product
+answer behavior.
+
 ## PR302 Selected Pair Finalizer Result
 
 ARGUS accepted PR302 on 2026-06-25:

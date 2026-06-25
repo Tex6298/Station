@@ -200,6 +200,11 @@ PR304 with no product patch; MIMIR should coordinate deploy/readiness recheck
 and resume PR303 hosted product evidence once API readiness is true on PR304 or
 later. MIMIR verified hosted web/API are `ready:true` at `73cf8e9c` and opened
 PR305 for ARIADNE to resume hosted selected-pair finalizer product evidence.
+PR305 passed the owner-visible product bar with the final answer recalling both
+accepted labels, both phrases, and both selected pairings. MIMIR closes the
+hosted recall bar and opens PR306 only for post-finalizer trace/readback
+semantics, because final answer-contract metadata still reports
+`missed_selected_labels` after finalizer application.
 
 ## Phase 2D Developer Agent closeout
 

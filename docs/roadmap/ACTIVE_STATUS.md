@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR306 Post-Finalizer Trace Semantics opened
+
+MIMIR accepts ARIADNE's PR305 result and opens a narrow DAEDALUS follow-up:
+`docs/roadmap/PR306_POST_FINALIZER_TRACE_SEMANTICS_DAEDALUS.md`.
+
+Decision:
+
+- PR305 closes the hosted owner-visible selected-pair recall bar.
+- Hosted web/API readiness passed at PR304 runtime commit `73cf8e9c`.
+- The intended replay persona, selected context labels/phrases,
+  rejected-control exclusion, source-copy safety, and final selected
+  label/phrase pairings all passed.
+- Retry and finalizer both fired.
+- The residual caveat is internal trace semantics: sanitized readback still
+  reports final `missed_selected_labels` / `retryRecommended:true` even though
+  the final owner-visible answer satisfied the selected-pair product bar.
+- Because these fields guide future hosted gates, MIMIR opens PR306 to separate
+  pre-finalizer failure diagnostics from post-finalizer final-answer status.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR306_POST_FINALIZER_TRACE_SEMANTICS_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for hostile review.
+
 ## Latest MIMIR decision - PR305 Hosted Finalizer Rerun reopened
 
 MIMIR accepts ARGUS's PR304 review, verifies deployed readiness, and reopens the
