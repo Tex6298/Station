@@ -672,6 +672,14 @@ DAEDALUS. The route contract is the key risk: do not expose raw persona ids as
 public URLs merely for convenience; use a safe public identifier if narrow, or
 wake MIMIR with route options if the schema/product decision is broader.
 
+2026-06-25 PR305/PR306 result: hosted selected-pair recall is closed as a
+product bar, and finalizer trace semantics are accepted. MIMIR opens PR307 for
+DAEDALUS as the next lane from fresh replay evidence: Memory lifecycle and
+owner-visible observability. This lane should make Station's Memory behavior
+clearer and more useful without adding new config or drifting into Redis,
+Cloudflare, provider/model, embedding, billing, queue, worker, import, export,
+or broad UI work.
+
 ## Agent Roles
 
 - ARIADNE: human-eye route rehearsal only.

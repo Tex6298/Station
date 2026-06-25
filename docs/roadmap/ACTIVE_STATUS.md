@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR307 Memory Lifecycle Observability opened
+
+MIMIR accepts ARGUS's PR306 result and opens the next bounded backend/product
+lane for DAEDALUS:
+`docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_NEXT_SLICE_DAEDALUS.md`.
+
+Decision:
+
+- PR305 closed the hosted owner-visible selected-pair recall bar.
+- PR306 closed the finalizer trace/readback semantics caveat without changing
+  product answer behavior.
+- The next useful lane should improve Station's core promise: owner-visible
+  Memory lifecycle and replay observability.
+- No new config is required for this lane. Redis, Cloudflare, provider/model,
+  embedding, billing, queue, worker, and broad UI reskin work stay out of scope
+  unless current repo truth proves a direct blocker.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_NEXT_SLICE_DAEDALUS.md`.
+- If DAEDALUS lands code, DAEDALUS should wake ARGUS for hostile review.
+- If DAEDALUS finds no safe code slice, DAEDALUS should wake MIMIR with an
+  exact PR308 packet and the reason code.
+
 ## Latest ARGUS review - PR306 Post-Finalizer Trace Semantics
 
 ARGUS accepted PR306 on 2026-06-25:

@@ -56,6 +56,28 @@ Residual risk: hosted trace readback still needs a post-deploy recheck before
 future automation relies on the new fields. The product answer path itself did
 not change.
 
+## PR307 Memory Lifecycle Observability Next Slice
+
+MIMIR opened PR307 for DAEDALUS on 2026-06-25:
+`docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_NEXT_SLICE_DAEDALUS.md`.
+
+Required validation depends on the touched surface:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Scope control | Pass | No Redis canonical Memory, Cloudflare retrieval adapter, provider/model swap, embedding dimension/index change, billing, queue, worker, import, export, or broad UI reskin. |
+| Owner-only boundary | Pass | Private Memory, Archive, Continuity, Integrity, prompts, completions, provider payloads, SQL, credentials, ids, and raw source bodies stay out of public readbacks. |
+| Memory lifecycle readback | Pass if touched | Active, rejected, quarantined, superseded, or expired Memory state should be clearer without changing policy semantics silently. |
+| Runtime observability | Pass if touched | Context/trace/readiness output should explain selected or filtered Memory using bounded owner-visible metadata. |
+| PR305/PR306 recall bar | Pass | Existing selected-pair product behavior and sanitized finalizer semantics should not regress. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass if web Memory UI changes | Include Memory lifecycle UI coverage when touched. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass if runtime Memory selection/readback changes | Include context selection/readback coverage when touched. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass if chat/archive context is touched | Preserve selected-pair and private context safety. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass if trace/readiness changes | Keep deployment/readiness readback sanitized. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required for code changes. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings may remain if unrelated. |
+| `git diff --check` | Pass | Whitespace check before wakeup. |
+
 ## PR304 API Readiness Migration Timeout Result
 
 ARGUS accepted PR304 on 2026-06-25:

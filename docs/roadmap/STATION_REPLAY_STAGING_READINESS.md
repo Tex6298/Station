@@ -241,6 +241,11 @@ then let staged replay reveal the next optimizations.
   opened PR306 as a narrow DAEDALUS trace/readback semantics follow-up. ARGUS
   accepted PR306 with no product patch; future automation should distinguish
   `preFinalizerAnswerContract` from the strict `postFinalizerFulfilled` result.
+- MIMIR accepts PR306 and opens PR307 for DAEDALUS: Memory lifecycle and
+  owner-visible observability are now the next backend/product slice. The goal
+  is to make replay Memory behavior clearer and more useful without reopening
+  selected-pair answer churn or adding new Redis, Cloudflare, provider,
+  embedding, billing, queue, worker, import, export, or broad UI scope.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

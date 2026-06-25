@@ -209,6 +209,14 @@ no product patch; future automation should treat `preFinalizerAnswerContract`
 as the pre-finalizer diagnostic and `postFinalizerFulfilled` as the strict
 post-finalizer verifier result.
 
+MIMIR accepts PR306 and opens PR307 for DAEDALUS as the next bounded
+backend/product lane: Memory lifecycle observability. This is the first move
+after the hosted selected-pair bar closes. DAEDALUS should improve owner-only
+Memory lifecycle/readback or runtime observability from current repo truth, or
+return an exact PR308 implementation packet if no safe no-new-config code slice
+exists. Redis, Cloudflare, provider/model swaps, embeddings, billing, queues,
+workers, imports, exports, and broad UI reskins stay out of this lane.
+
 ## Phase 2D Developer Agent closeout
 
 Status, 2026-06-23: PR176 closes Phase 2D Developer Agent expansion as a
