@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR317 post-PR316 next boundary
+
+ARGUS completed
+`docs/roadmap/PR317_POST_PR316_PHASE3_NEXT_BOUNDARY_RESULT.md`.
+
+Verdict:
+
+- `NEXT BOUNDED LANE`.
+- Recommended next lane:
+  `PR318 - Public Persona Report Moderation Pointer and Admin Readback Hardening`.
+- Recommended owner: DAEDALUS.
+- Marty input is not required for this internal hardening lane.
+
+Boundary:
+
+- PR315 and PR316 remain accepted as hosted proof for signed-in non-owner public
+  persona chat/report creation plus owner aggregate/status readback.
+- The next useful boundary is not another launch claim. It is making the human
+  admin moderation path for persona reports safe and routeable after report
+  creation.
+- ARGUS static review found the current owner/admin persona-report pointer can
+  serialize `/reports?targetType=persona`, while the human moderation console
+  lives at `/forums/moderation`.
+- PR318 should repair that pointer/readback boundary and ensure admin-visible
+  persona reports use safe target context without human-visible raw identifiers
+  or private/report-body leakage.
+
+Current baton:
+
+- MIMIR should open the bounded DAEDALUS lane or revise the scope.
+- DAEDALUS and ARIADNE should not be woken directly by ARGUS from PR317.
+
 ## Latest MIMIR decision - PR317 next-boundary preflight opened
 
 MIMIR accepts ARIADNE's PR316 result:

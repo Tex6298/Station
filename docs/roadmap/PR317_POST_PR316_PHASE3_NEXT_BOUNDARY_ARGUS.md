@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Open
+Status: Complete - see `PR317_POST_PR316_PHASE3_NEXT_BOUNDARY_RESULT.md`
 
 ## Trigger
 
