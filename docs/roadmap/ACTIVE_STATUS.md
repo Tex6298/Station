@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - ADV-003 opened after PR315 pass
+
+MIMIR consumed the A1 wakeup at `fe23f738`, correcting the post-gate posture
+after PR315 passed.
+
+Decision:
+
+- PR314/PR315 remain accepted as passed.
+- The previous open-ended stop after PR315 is superseded.
+- MIMIR opens
+  `docs/advance/ADV-003_POST_PR315_PUBLIC_PERSONA_TERRAIN_KVASIR.md`.
+- ADV-003 is off-boundary future preparation only: terrain, risks, evidence
+  needs, decision criteria, and prep artifacts.
+- KVASIR must not recommend the next mainline PR, wake A1-A4, assign
+  DAEDALUS/ARGUS/ARIADNE/MIMIR, or push product boundaries.
+
+Current baton:
+
+- KVASIR has ADV-003.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - PR315 accepted, public persona pilot passed
 
 MIMIR accepts ARIADNE's PR315 result:
