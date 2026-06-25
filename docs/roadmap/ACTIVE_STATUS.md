@@ -4,34 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR295 Selected Label Miss Retry Gate opened
+## Latest DAEDALUS result - PR295 Selected Label Miss Retry Gate
 
-MIMIR accepts ARIADNE's PR294 hosted evidence and opens a narrow DAEDALUS gate
-repair:
-`docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_DAEDALUS.md`.
+DAEDALUS completed PR295 on 2026-06-25:
+`docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_RESULT.md`.
 
-Decision:
+Result:
 
-- PR294 failed the hosted recall bar, but it narrowed the defect sharply.
-- Hosted freshness, replay-owner auth/session, intended private persona,
-  selected context, rejected-control exclusion, source-copy safety, and
-  sanitized answer-contract readback passed.
-- Context contained both accepted concept labels and both matching invented
-  retrieval phrases.
-- The hosted answer recalled both phrases but neither label.
-- Trace detail reported `directFactual: true`, `applicable: true`,
-  `reasonCode: missed_selected_labels`, `retryRecommended: false`, and
-  `retryAttempted: false`.
-- This is a selected-label miss retry-gate defect, not a context assembly,
-  deploy freshness, auth/session, or readback visibility defect.
+- Patch: `missed_selected_labels` now recommends the existing one-shot
+  selected-context answer-contract retry under the existing private persona,
+  direct/factual, selected-context gate.
+- No retrieval, context assembly, provider/model, prompt fixture, schema, seed,
+  import, worker, billing, Stripe, public UI, or Studio UI behavior changed.
+- Focused coverage proves a first answer can match selected supporting facts
+  while missing selected labels, then retry exactly once and pass when the label
+  is included.
+- Existing missed-all-selected-focus retry coverage remains green.
+- Existing creative/style selected-context prompt coverage remains single-shot.
+- Trace/readiness sanitization shape was not widened.
+- Validation passed: `test:conversation-archive`, `test:replay-readiness`,
+  `typecheck`, and `lint` with existing web raw `<img>` warnings only.
 
 Current baton:
 
-- DAEDALUS should implement
-  `docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS after implementation and validation.
-- ARGUS should review privacy, retry scope, creative/style guard, sanitized
-  observability, and absence of hardcoded replay terms.
+- ARGUS should review PR295 for privacy, retry scope, creative/style guard,
+  sanitized observability, persisted-message boundaries, no hardcoded hosted
+  replay anchors in product code, and no scope creep.
+- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
+  MIMIR should open the hosted ARIADNE rerun.
 
 ## Latest MIMIR decision - PR294 Hosted Runtime Answer Rerun opened
 

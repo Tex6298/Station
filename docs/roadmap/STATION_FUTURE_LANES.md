@@ -156,7 +156,10 @@ phrases and no labels, and trace detail reported `missed_selected_labels` with
 retry not recommended or attempted. MIMIR opened PR295 as a narrow DAEDALUS
 selected-label miss retry-gate repair, with ARGUS to review privacy, retry
 scope, creative/style guard, sanitized observability, and no hardcoded replay
-terms.
+terms. DAEDALUS completed PR295 by making `missed_selected_labels` retryable
+under the existing private/direct/factual/selected-context one-shot gate and
+adding focused facts-matched/label-missed retry coverage. ARGUS should review
+the retry boundary and, if accepted, wake MIMIR to decide the hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

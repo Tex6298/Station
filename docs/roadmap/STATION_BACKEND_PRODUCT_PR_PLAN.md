@@ -603,7 +603,11 @@ contained both accepted labels and both invented phrases, rejected-control
 exclusion and source-copy safety passed, and sanitized answer-contract readback
 was visible. The answer recalled both phrases but neither label. Trace detail
 reported `missed_selected_labels` with retry not recommended or attempted.
-MIMIR opens PR295 Selected Label Miss Retry Gate for DAEDALUS.
+MIMIR opened PR295 Selected Label Miss Retry Gate for DAEDALUS. DAEDALUS
+completed PR295 by making `missed_selected_labels` retryable under the existing
+private/direct-factual/selected-context one-shot gate and adding focused
+facts-matched/label-missed retry coverage. ARGUS review is pending before MIMIR
+decides whether to open the next hosted rerun.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

@@ -360,7 +360,7 @@ function evaluateSelectedContextAnswerContract(
     matchedLabelCount,
     matchedFactCount,
     reasonCode,
-    retryRecommended: reasonCode === "missed_all_selected_focus",
+    retryRecommended: reasonCode === "missed_all_selected_focus" || reasonCode === "missed_selected_labels",
   };
 }
 

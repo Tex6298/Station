@@ -30,29 +30,30 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
-## PR295 Selected Label Miss Retry Gate
+## PR295 Selected Label Miss Retry Gate Result
 
-MIMIR opened PR295 for DAEDALUS on 2026-06-25 after ARIADNE completed PR294.
+DAEDALUS completed PR295 on 2026-06-25:
+`docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_RESULT.md`.
 
-Required validation:
+Validation result:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Label-miss retry | Pass | A private direct/factual selected-context answer that matches facts but misses selected labels should recommend and attempt exactly one retry. |
-| Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior should remain intact. |
-| Creative/style guard | Pass | Creative/style prompts with selected context should remain single-shot unless they include an explicit factual command. |
-| Route scope | Pass | Public, non-private, or non-persona paths should not gain retry behavior. |
-| Sanitized observability | Pass | Trace/readiness output should expose only allow-listed booleans, counts, enums, and timing buckets. |
-| No raw/private leakage | Pass | No raw prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, credentials, or secret-bearing env values. |
-| No hardcoded replay terms | Pass | Product code should not hardcode the PR294 synthetic labels or phrases. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Focused route coverage should live here unless DAEDALUS identifies a closer existing script. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness should keep sanitized readback behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript should stay clean. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings are not part of PR295. |
-| `git diff --check` | Pass | Whitespace check. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Label-miss retry | Pass | A private direct/factual selected-context answer that matched supporting facts but missed selected labels now recommended and attempted exactly one retry. |
+| Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior remains intact. |
+| Creative/style guard | Pass | Creative/style prompts with selected context remain single-shot unless they include an explicit factual command. |
+| Route scope | Pass | Only the private persona selected-context answer-contract verdict can recommend the retry; public/non-private and non-persona paths were not changed. |
+| Sanitized observability | Pass | Trace/readiness output still exposes only allow-listed booleans, counts, enums, and timing buckets. |
+| No raw/private leakage | Pass | Focused route coverage asserts selected context scaffolding and first failed answer are not persisted as owner-visible messages, and raw selected strings are absent from trace/session rows. |
+| No hardcoded replay terms | Pass | Product code changes are generic over the existing `missed_selected_labels` reason code; hosted replay labels/phrases were not hardcoded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 38 tests passed, including new label-miss retry coverage plus existing missed-all retry and creative no-retry coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized trace readback stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
 
-PR295 should not touch hosted probing, provider/model selection, embeddings,
+PR295 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
 queues, workers, billing, Stripe, public UI, or Studio UI.
 

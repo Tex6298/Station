@@ -166,6 +166,11 @@ then let staged replay reveal the next optimizations.
   recalled both phrases and no labels, and sanitized trace detail reported
   `missed_selected_labels` with retry not recommended or attempted. MIMIR
   opened PR295 as a narrow DAEDALUS selected-label miss retry-gate repair.
+- PR295 makes `missed_selected_labels` retryable under the existing
+  private/direct-factual/selected-context one-shot gate. Local coverage proves
+  facts-matched, label-missed first answers now retry exactly once and pass when
+  the retry includes the selected label. ARGUS review is pending before MIMIR
+  decides whether to open the next hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
