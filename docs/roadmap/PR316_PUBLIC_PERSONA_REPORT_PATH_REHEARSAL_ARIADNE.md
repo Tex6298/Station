@@ -10,16 +10,17 @@ Status: Open
 
 ## Trigger
 
-KVASIR completed ADV-003 as advisory terrain after PR315 passed. MIMIR accepts
-the terrain but must keep mainline moving at the active product boundary.
-
 PR315 proved exactly one signed-in non-owner public persona chat interaction and
 owner aggregate/readback. It deliberately did not mutate the report path.
 
-PR316 is the next bounded Phase 3 mainline action: prove the existing public
-persona report path as a human would use it, without expanding into public
-launch, commercial packaging, partner claims, anonymous chat, provider/model
-work, Redis, Cloudflare, workers, or new implementation.
+MIMIR chooses PR316 under mainline sequencing authority as the next bounded
+Phase 3 product-boundary action: prove the existing public persona report path
+as a human would use it, without expanding into public launch, commercial
+packaging, partner claims, anonymous chat, provider/model work, Redis,
+Cloudflare, workers, or new implementation.
+
+ADV-003 is separate off-boundary future preparation. It did not steer,
+authorize, or replace this mainline decision.
 
 ## Scope
 

@@ -40,6 +40,25 @@ bound by it.
 Advance work may later help MIMIR choose safely, but it does not force or imply
 a next product lane.
 
+## Separation Criteria
+
+Before assigning future ADV packets, MIMIR must name why the work is cleanly
+separable from the active A1-A4 lane.
+
+Advance work is appropriate only when it has:
+
+- no overlap with active mainline files, surfaces, or acceptance gates;
+- a stable-enough contract, question, or evidence target;
+- an independent artifact that can stand apart from current product decisions;
+- a result that is discardable if later mainline truth makes it wrong;
+- no need to wake A1-A4 or recommend the next mainline lane;
+- no authority to decide product boundaries, acceptance bars, or promotion.
+
+Advance outputs are not "consumed" as current mainline steering. MIMIR may later
+review them as advisory prep, but mainline sequencing remains a MIMIR decision
+grounded in current product truth, explicit user decisions, and active-lane
+evidence.
+
 Allowed advance work:
 
 - audits;

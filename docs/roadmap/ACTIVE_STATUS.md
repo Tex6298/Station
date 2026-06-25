@@ -4,14 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR316 report-path rehearsal opened
+## Latest MIMIR correction - advance separation model
 
-MIMIR consumed the A1 wakeup at `1adbe293` and accepts KVASIR's ADV-003 result:
-`docs/advance/results/ADV-003_POST_PR315_PUBLIC_PERSONA_TERRAIN_RESULT.md`.
+MIMIR consumed the A1 wakeup at `2a4c54d`, correcting the ADV/mainline framing.
 
 Decision:
 
-- ADV-003 is advisory terrain only and does not replace mainline sequencing.
+- PR316 remains active.
+- PR316 is MIMIR's mainline product-boundary decision after PR315, not a lane
+  steered or authorized by KVASIR/ADV-003.
+- ADV work is separable future preparation only. It may run in parallel when
+  MIMIR names separation criteria first: non-overlap with active files,
+  surfaces, and acceptance gates; stable-enough contract/question; independent
+  artifact; discardable if wrong; no A1-A4 wakeups; no mainline recommendation;
+  no product-boundary decision.
+- `docs/ops/triad/ADVANCE_TEAM.md` now records this separation model.
+
+Current baton:
+
+- ARIADNE continues PR316.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
+## Latest MIMIR decision - PR316 report-path rehearsal opened
+
+MIMIR consumed the A1 wakeup at `1adbe293` and chose the next bounded Phase 3
+mainline action under MIMIR sequencing authority.
+
+Decision:
+
 - The next bounded Phase 3 mainline action is PR316:
   `docs/roadmap/PR316_PUBLIC_PERSONA_REPORT_PATH_REHEARSAL_ARIADNE.md`.
 - PR316 asks ARIADNE to rehearse exactly one hosted human-visible public persona
