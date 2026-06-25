@@ -32,15 +32,16 @@ Memory/observability implementation lane.
 
 ## PR300 Pair-Aware Selected Context Contract Result
 
-DAEDALUS completed PR300 on 2026-06-25:
+ARGUS accepted PR300 on 2026-06-25:
 `docs/roadmap/PR300_PAIR_AWARE_SELECTED_CONTRACT_RESULT.md`.
 
-Validation result:
+Validation result: `PASS WITH CAVEATS`.
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
 | Pair-aware label fulfillment | Pass | An answer that mentions supporting facts for selected items but only includes an unrelated selected label fails as `missed_selected_labels`. |
 | Matched pair pass | Pass | An answer that includes each matched selected label/name/title with its supporting fact coverage satisfies the contract. |
+| ARGUS fact-only guard | Pass | A selected item with no label/name/title available can still fulfill by fact coverage without an impossible missing-label retry. |
 | PR295 label-miss retry | Pass | Facts-matched, label-missed first answers still trigger exactly one retry under the safe gate. |
 | PR297 facts-only failure | Pass | Facts-only retry answers still fail as `missed_selected_labels`. |
 | Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior remains intact. |
@@ -49,12 +50,13 @@ Validation result:
 | Sanitized observability | Pass | Trace/readiness output still exposes only allow-listed booleans, counts, enums, and timing buckets. |
 | No raw/private leakage | Pass | Focused route coverage asserts selected context scaffolding and failed first answers are not persisted as owner-visible messages, and raw selected strings are absent from trace/session rows. |
 | No hardcoded replay terms | Pass | Product code is generic over selected items, labels, and facts; hosted replay labels/phrases were not hardcoded. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 40 tests passed, including pair-aware unrelated-label failure, matched-pair pass, PR295 label-miss retry, PR297 facts-only failure, missed-all retry, and creative no-retry coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed, including pair-aware unrelated-label failure, matched-pair pass, ARGUS fact-only guard, PR295 label-miss retry, PR297 facts-only failure, missed-all retry, and creative no-retry coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized trace readback stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup and during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 PR300 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,

@@ -350,7 +350,7 @@ function evaluateSelectedContextAnswerContract(
     const factMatched = factMentioned;
     if (labelMatched) matchedLabelCount += 1;
     if (factMatched) matchedFactCount += 1;
-    if (factMatched && !labelMatched) unpairedFactCount += 1;
+    if (item.hasLabel && factMatched && !labelMatched) unpairedFactCount += 1;
     if (item.hasLabel ? labelMatched && factMatched : factMatched) matchedItemCount += 1;
   }
 

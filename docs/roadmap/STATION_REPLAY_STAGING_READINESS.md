@@ -201,8 +201,9 @@ then let staged replay reveal the next optimizations.
 - PR300 requires mentioned selected facts to have their own selected
   label/name/title from the same selected item before the contract can report
   `fulfilled`. Local coverage proves unrelated selected labels no longer
-  satisfy selected facts from other items. ARGUS review is pending before MIMIR
-  opens the next hosted rerun.
+  satisfy selected facts from other items. ARGUS accepted PR300 with a narrow
+  fact-only guard for unlabeled selected items and recommends that MIMIR open
+  the next hosted ARIADNE rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

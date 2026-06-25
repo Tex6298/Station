@@ -4,22 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR300 Pair-Aware Selected Contract
+## Latest ARGUS review - PR300 Pair-Aware Selected Contract
 
-DAEDALUS completed PR300 on 2026-06-25:
+ARGUS accepted PR300 on 2026-06-25:
 `docs/roadmap/PR300_PAIR_AWARE_SELECTED_CONTRACT_RESULT.md`.
 
 Result:
 
+- Verdict: `PASS WITH CAVEATS`.
 - Patch: answer-contract fulfillment now requires every mentioned selected
   fact to have its own selected label/name/title matched in the same selected
   item.
 - Facts from selected items paired with an unrelated selected label now fail as
   `missed_selected_labels` and trigger the existing one-shot retry under the
   safe gate.
+- ARGUS review patch: fact-only selected items with no label/name/title
+  available can still fulfill on fact coverage instead of forcing an impossible
+  missing-label retry.
 - Focused coverage proves an answer with two selected facts plus an unrelated
   selected label fails first, then passes when retry output includes the
   matched labels with their facts.
+- ARGUS coverage proves the unlabeled fact-only guard remains single-shot and
+  fulfilled without persisting provider-only selected context.
 - PR295 label-miss retry, PR297 facts-only failure, missed-all retry,
   creative/style no-retry, persisted-message boundaries, and sanitized
   trace/readiness boundaries remain green.
@@ -28,14 +34,12 @@ Result:
   UI behavior changed.
 - Validation passed: `test:conversation-archive`, `test:replay-readiness`,
   `typecheck`, and `lint` with existing web raw `<img>` warnings only.
+- `git diff --check`, `git diff --cached --check`, and added-line hygiene scan
+  passed.
 
-Current baton:
+Previous baton:
 
-- ARGUS should review PR300 for pair-aware fulfillment, retry scope,
-  creative/style guard, sanitized observability, persisted-message boundaries,
-  no hosted replay hardcoding, and no scope creep.
-- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
-  MIMIR should open the next hosted ARIADNE rerun.
+- MIMIR should open the next hosted ARIADNE rerun after deploy.
 
 ## Latest MIMIR decision - PR299 Corrected Freshness Rerun opened
 

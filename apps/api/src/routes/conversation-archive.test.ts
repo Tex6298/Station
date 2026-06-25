@@ -1283,6 +1283,101 @@ test("chat retries when selected facts are paired with an unrelated selected lab
   }
 });
 
+test("chat fulfills fact-only selected items without requiring unavailable labels", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "test-openai-key";
+  db.tables.personas[0].provider = "openai";
+  db.insertRow("memory_items", {
+    id: "memory-selected-fact-only",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "",
+    content: "Amber delta bridge uses the pine relay marker.",
+    summary: "Synthetic fact-only selected source.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  db.insertRow("memory_item_lifecycle", {
+    id: "memory-selected-fact-only-lifecycle",
+    memory_item_id: "memory-selected-fact-only",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    status: "active",
+    trust_level: "user_stated",
+    confidence: 1,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const providerCalls: Array<{ url: string; body: string }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      providerCalls.push({ url, body: String(init?.body ?? "") });
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: "Amber delta bridge uses the pine relay marker." } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      ["token"]: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Answer with the selected supporting fact.",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.reply.content, "Amber delta bridge uses the pine relay marker.");
+    assert.equal(providerCalls.length, 1);
+
+    const firstPayload = JSON.parse(providerCalls[0].body) as { messages: Array<{ role: string; content: string }> };
+    assert.match(firstPayload.messages.at(-1)?.content ?? "", /memory: supporting fact: Amber delta bridge uses the pine relay marker\./);
+    assert.doesNotMatch(firstPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
+
+    const contractRetryEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract retry"
+    );
+    assert.equal(contractRetryEvent, undefined);
+
+    const contractEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract"
+    );
+    assert.ok(contractEvent);
+    assert.equal(contractEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.equal(contractEvent.payload.answerContract.matchedItemCount, 1);
+    assert.deepEqual(contractEvent.payload.retry, {
+      attempted: false,
+      failed: false,
+      maxAttempts: 1,
+    });
+
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.role === "user" && /Station-selected context|Answer-contract retry/.test(row.content)
+      ),
+      false
+    );
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Amber delta bridge|pine relay marker/i);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Amber delta bridge|pine relay marker/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("chat does not retry creative private prompts that miss selected context", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";

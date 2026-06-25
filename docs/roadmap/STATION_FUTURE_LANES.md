@@ -179,8 +179,8 @@ contract fulfilled on an unrelated selected label/fact mix. MIMIR opened PR300
 as a pair-aware selected-context contract repair. DAEDALUS completed PR300 by
 requiring mentioned selected facts to have their own selected label/name/title
 from the same selected item before the contract can report `fulfilled`. ARGUS
-should review the pair-aware fulfillment before MIMIR opens the next hosted
-rerun.
+accepted PR300 with a narrow fact-only guard for unlabeled selected items and
+recommends that MIMIR open the next hosted ARIADNE rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

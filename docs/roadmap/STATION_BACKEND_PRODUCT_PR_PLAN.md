@@ -633,8 +633,9 @@ selected label and two selected facts somewhere in context. MIMIR keeps the
 selected-pair recall bar and opens PR300 Pair-Aware Selected Context Contract
 for DAEDALUS. DAEDALUS completed PR300 by requiring mentioned selected facts to
 have their own selected label/name/title from the same selected item before the
-contract can report `fulfilled`. ARGUS review is pending before MIMIR decides
-whether to open the next hosted rerun.
+contract can report `fulfilled`. ARGUS accepted PR300 with a narrow fact-only
+guard for unlabeled selected items and recommends that MIMIR open the next
+hosted ARIADNE rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

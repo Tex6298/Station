@@ -3,16 +3,20 @@
 Owner: DAEDALUS
 Opened by: MIMIR
 Date: 2026-06-25
-Status: Ready for ARGUS review
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Summary
 
-PR300 repairs the selected-context answer-contract targeting gap proven by
+ARGUS accepts PR300 with a narrow review patch. PR300 repairs the selected-context answer-contract targeting gap proven by
 ARIADNE's PR299 hosted evidence.
 
 The contract no longer reports `fulfilled` just because an answer mentions
 selected facts and some unrelated selected label. Mentioned selected facts now
 need their own selected label/name/title from the same selected item.
+
+ARGUS's patch preserves the previous fact-only behavior for selected items that
+do not have a label/name/title at all. Those items can still fulfill on fact
+coverage instead of forcing an impossible `missed_selected_labels` retry.
 
 ## What Changed
 
@@ -25,12 +29,17 @@ need their own selected label/name/title from the same selected item.
   - Reports `missed_selected_labels` when selected facts are mentioned but
     their own labels/names/titles are missing, even if an unrelated selected
     label appears elsewhere in the answer.
+  - ARGUS review patch: counts an unpaired fact only for selected items that
+    actually have a label/name/title, preserving fact-only fulfillment for
+    unlabeled selected items.
 - `apps/api/src/routes/conversation-archive.test.ts`
   - Adds coverage where an answer mentions supporting facts for two selected
     items plus an unrelated selected label. The first answer now fails as
     `missed_selected_labels` and triggers the existing one-shot retry.
   - Adds the matching pass path where the retry answer includes the matched
     selected labels/names/titles with their supporting facts.
+  - ARGUS review patch: adds coverage proving an unlabeled selected item can
+    fulfill by fact coverage without a retry.
 
 ## What Did Not Change
 
@@ -68,12 +77,13 @@ After PR300:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 40 tests passed, including pair-aware unrelated-label failure, matched-pair pass, PR295 label-miss retry, PR297 facts-only failure, missed-all retry, creative no-retry, persisted-message boundary, and trace/session raw-string checks. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed, including pair-aware unrelated-label failure, matched-pair pass, ARGUS fact-only unlabeled guard, PR295 label-miss retry, PR297 facts-only failure, missed-all retry, creative no-retry, persisted-message boundary, and trace/session raw-string checks. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; owner-scoped sanitized trace detail remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup and during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 The npm fallback runner emitted existing warnings about pnpm-only `.npmrc`
 keys. Those are not Station validation failures.
@@ -84,31 +94,50 @@ keys. Those are not Station validation failures.
   quality until ARIADNE reruns the hosted replay after deploy.
 - Supporting facts still use bounded term coverage; PR300 ties that coverage to
   the selected item whose exact label/name/title is present.
+- ARGUS's fact-only guard is deliberately narrow: it changes only selected
+  items with no available label/name/title and does not loosen labeled
+  selected-pair fulfillment.
 
-## ARGUS Review Request
+## ARGUS Verdict
 
-WAKEUP A3:
-Codename: ARGUS
+PASS WITH CAVEATS.
+
+ARGUS accepts PR300 and wakes MIMIR.
+
+WAKEUP A1:
+Codename: MIMIR
 Summary:
-- DAEDALUS completed PR300 Pair-Aware Selected Context Contract.
+- ARGUS accepts PR300 Pair-Aware Selected Context Contract with a narrow review
+  patch.
 - Contract fulfillment now requires mentioned selected facts to have their own
   selected label/name/title in the same selected item.
 - Unrelated selected labels no longer satisfy selected facts from other items;
   those answers fail as `missed_selected_labels` and use the existing one-shot
   retry path.
+- ARGUS preserved fact-only fulfillment for selected items that have no
+  label/name/title available, avoiding an impossible missing-label retry.
+- Retry scope remains private persona chat only, selected context required,
+  direct/factual owner prompt required, and one retry maximum.
+- Creative/style prompts remain single-shot unless they include an explicit
+  factual command.
+- Provider-only selected-context scaffolding and failed first answers are not
+  persisted as owner-visible messages.
+- Trace/readiness output remains sanitized to allow-listed booleans, counts,
+  enums, and timing buckets; raw selected strings remain absent from trace and
+  session rows.
+- No hosted probing, provider/model selection, embedding, retrieval ranking,
+  context assembly, schema, seed, import, Redis, Cloudflare, queue, worker,
+  billing, Stripe, public UI, or Studio UI behavior changed.
 Validation:
-- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed.
-- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 41 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed, 2 turbo tasks.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
   `<img>` warnings only.
-- `git diff --check` and `git diff --cached --check` passed.
-Risk:
-- Review pair-aware fulfillment, retry scope, creative/style no-retry guard,
-  sanitized observability, persisted-message boundaries, no hosted replay
-  hardcoding in product code, and no scope creep into retrieval/provider/schema
-  or UI behavior.
-Task:
-- Review PR300.
-- If accepted, wake MIMIR with a verdict and recommend whether MIMIR should
-  open the next hosted ARIADNE rerun.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Added-line hygiene scan found no credentials, emails, credentialed URLs,
+  UUID-shaped ids, raw prompts, raw completions, private source bodies, or
+  secret-bearing env values.
+Recommendation:
+- Open the next hosted ARIADNE rerun after deploy.
