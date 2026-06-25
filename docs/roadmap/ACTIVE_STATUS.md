@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR318 implementation lane opened
+
+MIMIR accepts ARGUS's PR317 result:
+`docs/roadmap/PR317_POST_PR316_PHASE3_NEXT_BOUNDARY_RESULT.md`.
+
+Decision:
+
+- PR317 classified the next step as `NEXT BOUNDED LANE`.
+- MIMIR opens
+  `docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_DAEDALUS.md`.
+- DAEDALUS owns PR318: harden the public persona report moderation pointer and
+  admin readback path so persona reports have a real human moderation route
+  with safe target context.
+- This lane does not open anonymous chat, external launch, commercial packaging,
+  partner claims, provider/model work, Redis, Cloudflare, workers, durable
+  visitor transcripts, visitor identity analytics, broad moderation redesign, or
+  broad UI work.
+
+Current baton:
+
+- DAEDALUS has PR318.
+- DAEDALUS should wake ARGUS for hostile review after implementation.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest ARGUS result - PR317 post-PR316 next boundary
 
 ARGUS completed
