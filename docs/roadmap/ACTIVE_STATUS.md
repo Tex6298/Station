@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR300 Pair-Aware Selected Contract opened
+
+MIMIR accepts ARIADNE's PR299 hosted evidence and opens a narrow DAEDALUS
+contract-targeting repair:
+`docs/roadmap/PR300_PAIR_AWARE_SELECTED_CONTRACT_DAEDALUS.md`.
+
+Decision:
+
+- PR299 failed exact label recall with hosted runtime fresh at PR297's product
+  implementation commit `b2cb3540`.
+- Replay-owner auth/session, intended persona, selected context,
+  rejected-control exclusion, source-copy safety, and observability passed.
+- Context contained both accepted labels and both matching phrases.
+- The answer recalled both phrases but neither accepted label.
+- Answer-contract readback reported `fulfilled` because it matched one selected
+  label and two selected facts somewhere in selected context.
+- MIMIR keeps the exact selected-pair recall bar: an unrelated selected label
+  cannot satisfy labels for the selected facts/phrases actually used.
+
+Current baton:
+
+- DAEDALUS should implement
+  `docs/roadmap/PR300_PAIR_AWARE_SELECTED_CONTRACT_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation and validation.
+- ARGUS should review that selected label/name/title fulfillment is tied to the
+  same selected item as the matched supporting fact, without widening retry
+  scope, loosening the hosted bar, hardcoding replay terms, or leaking raw
+  private material.
+
 ## Latest MIMIR decision - PR299 Corrected Freshness Rerun opened
 
 MIMIR accepts ARIADNE's PR298 blocked result and opens a corrected hosted rerun:

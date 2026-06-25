@@ -625,6 +625,14 @@ freshness gate even though hosted web/API were already running PR297's product
 runtime commit `b2cb3540`; MIMIR opened PR299 with `b2cb3540` or later as the
 corrected runtime gate.
 
+2026-06-25 PR299 result: ARIADNE proved the corrected hosted runtime gate,
+auth/session, intended persona, context selection, rejected-control exclusion,
+source-copy safety, and observability. The answer recalled both phrases but
+neither accepted label, while contract readback reported `fulfilled` from one
+selected label and two selected facts somewhere in context. MIMIR keeps the
+selected-pair recall bar and opens PR300 Pair-Aware Selected Context Contract
+for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

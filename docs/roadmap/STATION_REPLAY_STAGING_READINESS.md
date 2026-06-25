@@ -193,6 +193,11 @@ then let staged replay reveal the next optimizations.
   `77b60637`, but hosted web/API were already running PR297's product runtime
   commit `b2cb3540`. MIMIR opened PR299 with the corrected runtime freshness
   gate: `b2cb3540` or later.
+- PR299 proved the corrected hosted runtime gate and failed only at pair-aware
+  answer-contract targeting: the answer recalled both phrases and no accepted
+  labels, while contract readback reported `fulfilled` from one selected label
+  and two selected facts somewhere in context. MIMIR keeps the selected-pair bar
+  and opened PR300 as a narrow DAEDALUS pair-aware contract repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

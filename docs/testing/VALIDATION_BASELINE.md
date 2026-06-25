@@ -30,6 +30,60 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR300 Pair-Aware Selected Context Contract
+
+MIMIR opened PR300 for DAEDALUS on 2026-06-25 after ARIADNE completed PR299.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Pair-aware label fulfillment | Pass | An answer that mentions supporting facts for selected items but only includes an unrelated selected label should fail as `missed_selected_labels`. |
+| Matched pair pass | Pass | An answer that includes each matched selected label/name/title with its supporting fact coverage should satisfy the contract. |
+| PR295 label-miss retry | Pass | Facts-matched, label-missed first answers should still trigger exactly one retry under the safe gate. |
+| PR297 facts-only failure | Pass | Facts-only retry answers should still fail as `missed_selected_labels`. |
+| Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior should remain intact. |
+| Creative/style guard | Pass | Creative/style prompts with selected context should remain single-shot unless they include an explicit factual command. |
+| Route scope | Pass | Public, non-private, or non-persona paths should not gain retry behavior. |
+| Sanitized observability | Pass | Trace/readiness output should expose only allow-listed booleans, counts, enums, and timing buckets. |
+| No raw/private leakage | Pass | No raw prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, credentials, or secret-bearing env values. |
+| No hardcoded replay terms | Pass | Product code should not hardcode the PR299 synthetic labels or phrases. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Focused route coverage should live here unless DAEDALUS identifies a closer existing script. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness should keep sanitized readback behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript should stay clean. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings are not part of PR300. |
+| `git diff --check` | Pass | Whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR300 should not touch hosted probing, provider/model selection, embeddings,
+retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
+queues, workers, billing, Stripe, public UI, or Studio UI.
+
+## PR299 Hosted Selected Pair Rerun Result
+
+ARIADNE completed PR299 on 2026-06-25.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included PR297 product runtime commit `b2cb3540`. |
+| Replay owner auth/session | Pass | Hosted API auth and protected browser Studio session passed, including reload persistence. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Selected context labels | Pass | Selected context contained both accepted concept labels. |
+| Selected context phrases | Pass | Selected context contained both matching invented retrieval phrases. |
+| Answer label recall | Fail | Hosted answer recalled neither accepted concept label. |
+| Answer phrase recall | Pass | Hosted answer recalled both matching invented retrieval phrases. |
+| Answer-contract readback | Fail at contract targeting | Contract reported `fulfilled` with one selected label and two selected facts matched, but the matched label did not satisfy the accepted label pair expected by the hosted bar. |
+| Rejected-control exclusion | Pass | Rejected-control anchor stayed absent from context and answer. |
+| Source-copy safety | Pass | Answer stayed short and did not copy raw source-body markers. |
+
+Recommendation: MIMIR keeps the visible exact selected-pair bar and opens
+DAEDALUS PR300 so contract fulfillment ties matched facts to their own selected
+labels/names/titles.
+
 ## PR299 Hosted Selected Pair Rerun With Corrected Freshness Gate
 
 MIMIR opened PR299 for ARIADNE on 2026-06-25 after PR298 blocked on an overly

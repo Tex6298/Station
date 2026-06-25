@@ -173,7 +173,10 @@ with caveats and recommends that MIMIR open the next hosted ARIADNE rerun after
 deploy. MIMIR opened PR298 as that hosted rerun after PR297 deploy. PR298
 blocked on a too-strict docs/review freshness gate even though hosted web/API
 were already running PR297's product runtime commit `b2cb3540`; MIMIR opened
-PR299 with `b2cb3540` or later as the corrected runtime gate.
+PR299 with `b2cb3540` or later as the corrected runtime gate. PR299 failed
+because the answer recalled both phrases but no accepted labels while the
+contract fulfilled on an unrelated selected label/fact mix. MIMIR opened PR300
+as a pair-aware selected-context contract repair.
 
 ## Phase 2D Developer Agent closeout
 
