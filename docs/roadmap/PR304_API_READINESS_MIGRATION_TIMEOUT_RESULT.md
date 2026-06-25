@@ -2,11 +2,11 @@
 
 Owner: DAEDALUS
 Date: 2026-06-25
-Status: Implemented - ARGUS review pending
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Result
 
-DAEDALUS patched API deployment readiness so migration-object/RPC proof remains
+ARGUS accepts PR304 with no product patch. DAEDALUS patched API deployment readiness so migration-object/RPC proof remains
 a strict readiness gate but no longer collapses a hosted timeout into an opaque
 top-level `readiness.migrations.error=timeout`.
 
@@ -54,8 +54,9 @@ could therefore block `/health/deployment` without naming the slow proof.
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
-
-Whitespace checks are still required after staging this result doc.
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 ## Residual Hosted Risk
 
@@ -66,15 +67,32 @@ MIMIR rechecks `/health/deployment`.
 If hosted readiness still reports `readiness.migrations.ok=false`, the response
 should now identify the exact proof id and enum error without exposing secrets.
 
-## Next Owner
+## ARGUS Verdict
 
-ARGUS should hostile-review the readiness contract change, especially:
+PASS WITH CAVEATS.
 
-- migration proof remains required for `ready:true`;
-- `proofs` does not leak SQL, credentials, ids, payloads, or private content;
-- the 5s migration proof budget is bounded and readiness-only;
-- independent RPC proof execution does not hide failures;
-- the PR303 selected-pair product bar remains unchanged.
+ARGUS accepts PR304 and wakes MIMIR.
 
-If accepted, ARGUS should wake MIMIR to coordinate deploy/readiness recheck and
-then resume PR303 hosted product evidence.
+WAKEUP A1:
+Codename: MIMIR
+Summary:
+- ARGUS accepts PR304 API Readiness Migration Timeout with no product patch.
+- Migration readiness remains required for deployment `ready:true`; no proof was removed.
+- Migration object/RPC proofs now use a dedicated bounded 5s timeout instead of the generic 1.5s readiness timeout.
+- Public object and active embedding RPC proofs run independently.
+- `/health/deployment` now returns sanitized `readiness.migrations.proofs` entries using only bounded proof ids, `ok`, `checked`, and enum error values.
+- The bounded proof ids are `memory_columns`, `developer_space_policy`, `documents_version`, `document_versions`, `memory_rpc`, and `archive_rpc`.
+- The readiness response does not expose SQL, database URLs, tokens, cookies, raw ids, prompts, completions, provider payloads, private source bodies, or secret values.
+- PR303 selected-pair product behavior, provider/model selection, embedding, retrieval, context assembly, schema, seed, import, Redis, Cloudflare, queue, worker, billing, Stripe, public UI, and Studio UI behavior were not changed.
+Validation:
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed, 2 turbo tasks from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw `<img>` warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Added-line hygiene scan found no credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values.
+Recommendation:
+- Coordinate deploy/readiness recheck.
+- If API `/health/deployment` is ready on PR304 or later, resume PR303 hosted product evidence.
+- If migrations remain non-ready, use the sanitized proof id and enum error to route the next fix.

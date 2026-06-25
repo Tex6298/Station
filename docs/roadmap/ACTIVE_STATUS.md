@@ -4,13 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR304 API Readiness Migration Timeout
+## Latest ARGUS review - PR304 API Readiness Migration Timeout
 
-DAEDALUS implemented the PR304 readiness repair on 2026-06-25:
+ARGUS accepted PR304 on 2026-06-25:
 `docs/roadmap/PR304_API_READINESS_MIGRATION_TIMEOUT_RESULT.md`.
 
 Result:
 
+- Verdict: `PASS WITH CAVEATS`.
 - Migration readiness remains a strict `/health/deployment` gate.
 - The migration object/RPC proof path now uses a dedicated bounded 5s timeout
   instead of the generic 1.5s readiness timeout.
@@ -22,6 +23,7 @@ Result:
 - A hosted timeout should now identify the exact migration proof that timed out
   without exposing SQL, tokens, raw ids, prompts, completions, provider payloads,
   or private source bodies.
+- ARGUS made no product patch.
 - PR303 selected-pair behavior, provider/model selection, embeddings, retrieval,
   schema, storage, Stripe, Redis, Cloudflare, queues, workers, and UI were not
   changed.
@@ -33,14 +35,16 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
   `<img>` warnings only.
+- `git diff --check`, `git diff --cached --check`, and added-line hygiene scan
+  passed.
 
-Current baton:
+Previous baton:
 
-- ARGUS should hostile-review PR304.
-- If accepted, ARGUS should wake MIMIR to coordinate deploy/readiness recheck
-  and then resume PR303 hosted product evidence.
-- If rejected, ARGUS should wake DAEDALUS with the exact readiness contract
-  blocker.
+- MIMIR should coordinate deploy/readiness recheck.
+- If API `/health/deployment` is ready on PR304 or later, MIMIR should resume
+  PR303 hosted product evidence.
+- If migrations remain non-ready, MIMIR should use the sanitized proof id and
+  enum error to route the next fix.
 
 ## Latest MIMIR decision - PR304 API Readiness Migration Timeout opened
 

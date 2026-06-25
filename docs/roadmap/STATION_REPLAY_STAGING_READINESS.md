@@ -224,6 +224,12 @@ then let staged replay reveal the next optimizations.
   `readiness.migrations.error=timeout`. MIMIR opened PR304 for DAEDALUS to
   inspect/repair the migration-object/RPC readiness timeout before another
   ARIADNE hosted product rerun.
+- PR304 preserves migration readiness as a strict deploy gate, adds a bounded
+  5s migration proof timeout, and exposes sanitized per-proof ids/errors so
+  hosted readiness failures are actionable without leaking secrets. ARGUS
+  accepted PR304 with no product patch; MIMIR should coordinate deploy/readiness
+  recheck and resume PR303 hosted product evidence once API readiness is true on
+  PR304 or later.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

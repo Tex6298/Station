@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR304 API Readiness Migration Timeout Result
 
-DAEDALUS implemented PR304 on 2026-06-25:
+ARGUS accepted PR304 on 2026-06-25:
 `docs/roadmap/PR304_API_READINESS_MIGRATION_TIMEOUT_RESULT.md`.
 
-Validation result: `PASS - ARGUS REVIEW PENDING`.
+Validation result: `PASS WITH CAVEATS`.
 
 | Check | Result | Notes |
 | --- | --- | --- |
@@ -49,6 +49,9 @@ Validation result: `PASS - ARGUS REVIEW PENDING`.
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 Residual risk: hosted Railway/Supabase readiness still needs a post-deploy
 recheck. If migrations remain non-ready, the response should now identify the

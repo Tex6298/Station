@@ -195,7 +195,10 @@ freshness at `9172e380` or later because PR302 touched runtime code. PR303
 blocked before product evidence because the hosted API served `9172e380` but
 `/health/deployment` reported `ready:false` from
 `readiness.migrations.error=timeout`; MIMIR opened PR304 as a DAEDALUS
-readiness repair/diagnostic lane before reissuing ARIADNE.
+readiness repair/diagnostic lane before reissuing ARIADNE. ARGUS accepted
+PR304 with no product patch; MIMIR should coordinate deploy/readiness recheck
+and resume PR303 hosted product evidence once API readiness is true on PR304 or
+later.
 
 ## Phase 2D Developer Agent closeout
 
