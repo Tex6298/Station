@@ -177,6 +177,21 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
             retryRecommended: true,
             rawSelectedFact: "silver compass ledger",
           },
+          preFinalizerAnswerContract: {
+            schema: "station.selected_context_answer_contract.v1",
+            privatePersona: true,
+            directFactual: true,
+            applicable: true,
+            selectedItemCount: 2,
+            selectedLabelCount: 2,
+            selectedFactCount: 2,
+            matchedItemCount: 0,
+            matchedLabelCount: 1,
+            matchedFactCount: 2,
+            reasonCode: "missed_selected_labels",
+            retryRecommended: true,
+            rawSelectedLabel: "Meridian Loom",
+          },
           retry: {
             attempted: true,
             failed: false,
@@ -188,6 +203,12 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
             applied: true,
             selectedPairCount: 2,
             reasonCode: "missed_selected_labels",
+            finalizerSatisfied: true,
+            preFinalizerReasonCode: "missed_selected_labels",
+            preFinalizerRetryRecommended: true,
+            postFinalizerReasonCode: "missed_selected_labels",
+            postFinalizerRetryRecommended: true,
+            postFinalizerFulfilled: false,
             rawSelectedPair: "Meridian Loom: silver compass ledger",
           },
         },
@@ -266,6 +287,20 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
       retryRecommended: true,
     });
     assert.equal(owner.body.events[0].metadata.firstAnswerContract.reasonCode, "missed_all_selected_focus");
+    assert.deepEqual(owner.body.events[0].metadata.preFinalizerAnswerContract, {
+      schema: "station.selected_context_answer_contract.v1",
+      privatePersona: true,
+      directFactual: true,
+      applicable: true,
+      selectedItemCount: 2,
+      selectedLabelCount: 2,
+      selectedFactCount: 2,
+      matchedItemCount: 0,
+      matchedLabelCount: 1,
+      matchedFactCount: 2,
+      reasonCode: "missed_selected_labels",
+      retryRecommended: true,
+    });
     assert.deepEqual(owner.body.events[0].metadata.retry, {
       attempted: true,
       failed: false,
@@ -276,6 +311,12 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
       applied: true,
       selectedPairCount: 2,
       reasonCode: "missed_selected_labels",
+      finalizerSatisfied: true,
+      preFinalizerReasonCode: "missed_selected_labels",
+      preFinalizerRetryRecommended: true,
+      postFinalizerReasonCode: "missed_selected_labels",
+      postFinalizerRetryRecommended: true,
+      postFinalizerFulfilled: false,
     });
     assert.match(owner.body.trace.failureReason, /\[redacted-url\]/);
     assert.match(owner.body.events[0].failureReason, /\[redacted-secret\]/);

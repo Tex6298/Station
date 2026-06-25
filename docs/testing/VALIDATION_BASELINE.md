@@ -30,6 +30,25 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR306 Post-Finalizer Trace Semantics Result
+
+DAEDALUS implemented PR306 on 2026-06-25:
+`docs/roadmap/PR306_POST_FINALIZER_TRACE_SEMANTICS_RESULT.md`.
+
+Validation result: `PASS - ARGUS REVIEW PENDING`.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Owner-visible PR305 proof | Pass | Product answer behavior did not change; PR305 selected-pair recall remains closed. |
+| Pre-finalizer diagnostic | Pass | Trace payloads now preserve a sanitized `preFinalizerAnswerContract` when retry output failed immediately before finalizer application. |
+| Finalizer status semantics | Pass | Finalizer metadata now exposes bounded booleans/enums for finalizer satisfaction, pre-finalizer reason/retry, and post-finalizer reason/retry/fulfilled state. |
+| Sanitized readback | Pass | Owner-visible trace/readiness metadata still strips raw selected values, prompts, completions, provider payloads, private source bodies, ids, tokens, credentials, SQL, and logs. |
+| Scope control | Pass | No retry count, third provider call, selected-pair bar, provider/model, embedding, retrieval, schema, storage, Redis, Cloudflare, queue, worker, billing, Stripe, public UI, or Studio UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
 ## PR304 API Readiness Migration Timeout Result
 
 ARGUS accepted PR304 on 2026-06-25:

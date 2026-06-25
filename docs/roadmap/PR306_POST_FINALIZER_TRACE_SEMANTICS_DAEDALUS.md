@@ -3,7 +3,7 @@
 Owner: DAEDALUS
 Opened by: MIMIR
 Date: 2026-06-25
-Status: Open
+Status: Implemented - see `PR306_POST_FINALIZER_TRACE_SEMANTICS_RESULT.md`
 
 ## Trigger
 

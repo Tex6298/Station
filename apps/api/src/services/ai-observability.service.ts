@@ -256,6 +256,7 @@ function sanitizeTraceMetadata(value: unknown) {
   const embedding = asRecord(metadata.embedding);
   const answerContract = sanitizeAnswerContractMetadata(metadata.answerContract);
   const firstAnswerContract = sanitizeAnswerContractMetadata(metadata.firstAnswerContract);
+  const preFinalizerAnswerContract = sanitizeAnswerContractMetadata(metadata.preFinalizerAnswerContract);
   const retry = sanitizeAnswerContractRetryMetadata(metadata.retry);
   const finalizer = sanitizeSelectedPairFinalizerMetadata(metadata.finalizer);
   const candidates: Array<[string, unknown]> = [
@@ -277,6 +278,7 @@ function sanitizeTraceMetadata(value: unknown) {
     ),
     ...(answerContract ? { answerContract } : {}),
     ...(firstAnswerContract ? { firstAnswerContract } : {}),
+    ...(preFinalizerAnswerContract ? { preFinalizerAnswerContract } : {}),
     ...(retry ? { retry } : {}),
     ...(finalizer ? { finalizer } : {}),
   };
@@ -324,10 +326,22 @@ function sanitizeSelectedPairFinalizerMetadata(value: unknown) {
   if (!metadata) return null;
 
   const reasonCode = safeAnswerContractReasonCode(metadata.reasonCode);
+  const preFinalizerReasonCode = safeAnswerContractReasonCode(metadata.preFinalizerReasonCode);
+  const postFinalizerReasonCode = safeAnswerContractReasonCode(metadata.postFinalizerReasonCode);
+  const finalizerSatisfied = safeOptionalBoolean(metadata.finalizerSatisfied);
+  const preFinalizerRetryRecommended = safeOptionalBoolean(metadata.preFinalizerRetryRecommended);
+  const postFinalizerRetryRecommended = safeOptionalBoolean(metadata.postFinalizerRetryRecommended);
+  const postFinalizerFulfilled = safeOptionalBoolean(metadata.postFinalizerFulfilled);
   return {
     applied: safeBoolean(metadata.applied),
     selectedPairCount: safeNonNegativeInteger(metadata.selectedPairCount),
     ...(reasonCode ? { reasonCode } : {}),
+    ...(finalizerSatisfied == null ? {} : { finalizerSatisfied }),
+    ...(preFinalizerReasonCode ? { preFinalizerReasonCode } : {}),
+    ...(preFinalizerRetryRecommended == null ? {} : { preFinalizerRetryRecommended }),
+    ...(postFinalizerReasonCode ? { postFinalizerReasonCode } : {}),
+    ...(postFinalizerRetryRecommended == null ? {} : { postFinalizerRetryRecommended }),
+    ...(postFinalizerFulfilled == null ? {} : { postFinalizerFulfilled }),
   };
 }
 
@@ -348,6 +362,10 @@ function safeAnswerContractReasonCode(value: unknown) {
 
 function safeBoolean(value: unknown) {
   return value === true;
+}
+
+function safeOptionalBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : null;
 }
 
 function safeNonNegativeInteger(value: unknown) {

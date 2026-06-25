@@ -182,6 +182,12 @@ type SelectedPairFinalizerSummary = {
   applied: boolean;
   reasonCode: AnswerContractReasonCode;
   selectedPairCount: number;
+  finalizerSatisfied: boolean;
+  preFinalizerReasonCode: AnswerContractReasonCode;
+  preFinalizerRetryRecommended: boolean;
+  postFinalizerReasonCode: AnswerContractReasonCode;
+  postFinalizerRetryRecommended: boolean;
+  postFinalizerFulfilled: boolean;
 };
 
 function buildProviderUserMessageContent(
@@ -1052,6 +1058,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
   let outputTokens = 0;
   let answerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
   let firstAnswerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
+  let preFinalizerAnswerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
   let selectedPairFinalizer: SelectedPairFinalizerSummary | null = null;
   let retryAttempted = false;
   let retryFailed = false;
@@ -1099,13 +1106,26 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
         if (answerContractVerdict.reasonCode === "missed_selected_labels") {
           const finalizer = buildSelectedPairFinalizerAnswer(answerContract, aiResponse.content);
           if (finalizer) {
+            preFinalizerAnswerContractVerdict = answerContractVerdict;
             selectedPairFinalizer = {
               applied: true,
               reasonCode: answerContractVerdict.reasonCode,
               selectedPairCount: finalizer.selectedPairCount,
+              finalizerSatisfied: true,
+              preFinalizerReasonCode: answerContractVerdict.reasonCode,
+              preFinalizerRetryRecommended: answerContractVerdict.retryRecommended,
+              postFinalizerReasonCode: answerContractVerdict.reasonCode,
+              postFinalizerRetryRecommended: answerContractVerdict.retryRecommended,
+              postFinalizerFulfilled: false,
             };
             aiResponse = { ...aiResponse, content: finalizer.content };
             answerContractVerdict = evaluateSelectedContextAnswerContract(answerContract, aiResponse.content);
+            selectedPairFinalizer = {
+              ...selectedPairFinalizer,
+              postFinalizerReasonCode: answerContractVerdict.reasonCode,
+              postFinalizerRetryRecommended: answerContractVerdict.retryRecommended,
+              postFinalizerFulfilled: answerContractVerdict.reasonCode === "fulfilled",
+            };
           }
         }
       } catch {
@@ -1126,6 +1146,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       payload: {
         answerContract: answerContractVerdict,
         firstAnswerContract: firstAnswerContractVerdict,
+        ...(preFinalizerAnswerContractVerdict ? { preFinalizerAnswerContract: preFinalizerAnswerContractVerdict } : {}),
         retry: {
           attempted: retryAttempted,
           failed: retryFailed,
@@ -1149,6 +1170,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       payload: {
         runtimeBudget,
         answerContract: answerContractVerdict,
+        ...(preFinalizerAnswerContractVerdict ? { preFinalizerAnswerContract: preFinalizerAnswerContractVerdict } : {}),
         retry: {
           attempted: retryAttempted,
           failed: retryFailed,

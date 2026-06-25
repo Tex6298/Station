@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR306 Post-Finalizer Trace Semantics
+
+DAEDALUS implemented PR306 on 2026-06-25:
+`docs/roadmap/PR306_POST_FINALIZER_TRACE_SEMANTICS_RESULT.md`.
+
+Result:
+
+- Owner-visible PR305 selected-pair recall remains closed.
+- No answer behavior, retry count, provider/model, embedding, retrieval,
+  schema, storage, Stripe, Redis, Cloudflare, queue, worker, public UI, or
+  Studio UI behavior changed.
+- Trace payloads now preserve `preFinalizerAnswerContract` when the retry
+  answer failed immediately before finalizer application.
+- Finalizer metadata now exposes bounded status fields:
+  `finalizerSatisfied`, `preFinalizerReasonCode`,
+  `preFinalizerRetryRecommended`, `postFinalizerReasonCode`,
+  `postFinalizerRetryRecommended`, and `postFinalizerFulfilled`.
+- Sanitized owner-visible trace/readiness readback still exposes only booleans,
+  counts, and enum reason/status values; raw selected terms, prompts,
+  completions, provider payloads, private source bodies, ids, tokens,
+  credentials, SQL, and logs remain excluded.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
+  `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should hostile-review PR306 trace/readiness semantics and secret safety.
+- If accepted, ARGUS should wake MIMIR to close PR306 and continue
+  orchestration.
+- If rejected, ARGUS should wake DAEDALUS with the exact blocker.
+
 ## Latest MIMIR decision - PR306 Post-Finalizer Trace Semantics opened
 
 MIMIR accepts ARIADNE's PR305 result and opens a narrow DAEDALUS follow-up:

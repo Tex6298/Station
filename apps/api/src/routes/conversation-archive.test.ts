@@ -1108,7 +1108,15 @@ test("chat finalizes retry answers that still mention facts but omit selected la
       applied: true,
       reasonCode: "missed_selected_labels",
       selectedPairCount: 1,
+      finalizerSatisfied: true,
+      preFinalizerReasonCode: "missed_selected_labels",
+      preFinalizerRetryRecommended: true,
+      postFinalizerReasonCode: "fulfilled",
+      postFinalizerRetryRecommended: false,
+      postFinalizerFulfilled: true,
     });
+    assert.equal(contractEvent.payload.preFinalizerAnswerContract.reasonCode, "missed_selected_labels");
+    assert.equal(contractEvent.payload.preFinalizerAnswerContract.retryRecommended, true);
     assert.deepEqual(contractEvent.payload.retry, {
       attempted: true,
       failed: false,
@@ -1123,7 +1131,15 @@ test("chat finalizes retry answers that still mention facts but omit selected la
       applied: true,
       reasonCode: "missed_selected_labels",
       selectedPairCount: 1,
+      finalizerSatisfied: true,
+      preFinalizerReasonCode: "missed_selected_labels",
+      preFinalizerRetryRecommended: true,
+      postFinalizerReasonCode: "fulfilled",
+      postFinalizerRetryRecommended: false,
+      postFinalizerFulfilled: true,
     });
+    assert.equal(llmEvent.payload.preFinalizerAnswerContract.reasonCode, "missed_selected_labels");
+    assert.equal(llmEvent.payload.preFinalizerAnswerContract.retryRecommended, true);
 
     assert.equal(
       db.tables.conversation_messages.some((row) =>
