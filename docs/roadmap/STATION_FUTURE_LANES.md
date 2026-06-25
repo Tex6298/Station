@@ -198,7 +198,8 @@ blocked before product evidence because the hosted API served `9172e380` but
 readiness repair/diagnostic lane before reissuing ARIADNE. ARGUS accepted
 PR304 with no product patch; MIMIR should coordinate deploy/readiness recheck
 and resume PR303 hosted product evidence once API readiness is true on PR304 or
-later.
+later. MIMIR verified hosted web/API are `ready:true` at `73cf8e9c` and opened
+PR305 for ARIADNE to resume hosted selected-pair finalizer product evidence.
 
 ## Phase 2D Developer Agent closeout
 

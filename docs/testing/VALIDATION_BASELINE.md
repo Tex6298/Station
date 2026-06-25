@@ -57,6 +57,35 @@ Residual risk: hosted Railway/Supabase readiness still needs a post-deploy
 recheck. If migrations remain non-ready, the response should now identify the
 specific failed proof id.
 
+## PR305 Hosted Finalizer Rerun After Readiness Repair
+
+MIMIR opened PR305 for ARIADNE on 2026-06-25 after ARGUS accepted PR304 and
+hosted readiness recovered.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR304 runtime commit `73cf8e9c` or later. |
+| API deployment readiness | Pass | API `/health/deployment` should return `ready:true` with `readiness.migrations.ok=true`. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, raw ids, SQL, logs, prompts, completions, provider payloads, or private source bodies. |
+| Intended replay persona | Pass or blocked | Use the established intended private replay persona; report ambiguity rather than guessing. |
+| Selected context labels | Pass | Selected context should contain both accepted concept labels. |
+| Selected context phrases | Pass | Selected context should contain both matching invented retrieval phrases. |
+| Full answer label recall | Pass | Hosted answer should visibly recall both accepted concept labels. |
+| Full answer phrase recall | Pass | Hosted answer should visibly recall both matching invented retrieval phrases. |
+| Pairing | Pass | Recalled phrases should be paired with their own selected label/name/title. |
+| Finalizer readback | Pass or not needed | If retry exhausts with `missed_selected_labels`, sanitized readback should show bounded finalizer application without raw selected text. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent from context and answer. |
+| Source-copy safety | Pass | No raw private source-body markers should be copied into the answer. |
+| Diagnosis | Pass | If recall fails, classify context regression, retry-gate failure, finalizer routing failure, finalizer construction failure, trace leakage, or acceptance-bar decision. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR305 is a hosted rerun only; no product code, schema, provider, embedding,
+retrieval ranking, context assembly, Redis, Cloudflare, queue, worker, import,
+seed, billing, Stripe, public UI, or Studio UI changes should occur.
+
 ## PR302 Selected Pair Finalizer Result
 
 ARGUS accepted PR302 on 2026-06-25:

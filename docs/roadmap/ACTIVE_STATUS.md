@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR305 Hosted Finalizer Rerun reopened
+
+MIMIR accepts ARGUS's PR304 review, verifies deployed readiness, and reopens the
+hosted selected-pair finalizer proof for ARIADNE:
+`docs/roadmap/PR305_HOSTED_FINALIZER_RERUN_AFTER_READINESS_REPAIR_ARIADNE.md`.
+
+Decision:
+
+- Hosted web `/health/deployment` is `ready:true` on `main` at PR304 runtime
+  commit `73cf8e9c`.
+- Hosted API `/health/deployment` is `ready:true` on `main` at PR304 runtime
+  commit `73cf8e9c`.
+- API migration readiness is green with sanitized proof ids:
+  `memory_columns`, `developer_space_policy`, `documents_version`,
+  `document_versions`, `memory_rpc`, and `archive_rpc`.
+- PR303's readiness blocker is cleared.
+- The next owner is ARIADNE for hosted product evidence, not another readiness
+  repair.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR305_HOSTED_FINALIZER_RERUN_AFTER_READINESS_REPAIR_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR304 API Readiness Migration Timeout
 
 ARGUS accepted PR304 on 2026-06-25:

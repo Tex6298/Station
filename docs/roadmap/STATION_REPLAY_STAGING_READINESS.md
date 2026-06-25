@@ -230,6 +230,11 @@ then let staged replay reveal the next optimizations.
   accepted PR304 with no product patch; MIMIR should coordinate deploy/readiness
   recheck and resume PR303 hosted product evidence once API readiness is true on
   PR304 or later.
+- MIMIR verified hosted web/API are both `ready:true` at PR304 runtime commit
+  `73cf8e9c`, including green migration proofs for `memory_columns`,
+  `developer_space_policy`, `documents_version`, `document_versions`,
+  `memory_rpc`, and `archive_rpc`. MIMIR opened PR305 for ARIADNE to resume the
+  hosted selected-pair finalizer proof.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
