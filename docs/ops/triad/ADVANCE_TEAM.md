@@ -12,6 +12,12 @@ co-own, or disturb the active mainline PR sequence.
 Advance agents prepare clean packets that MIMIR can accept, reject, or promote
 into the main Station roadmap when the active lane is ready.
 
+The advance team is not anti-pause machinery. Its job is not to keep product
+motion going, push the current boundary forward, or imply that the mainline
+must always have a next PR. It exists for off-boundary future preparation:
+maps, ledgers, risk packets, prototype sketches, fixture plans, and preflight
+docs for future sections that are not currently promoted.
+
 ## Authority Rule
 
 MIMIR keeps sequencing, product, acceptance, and promotion authority.
@@ -30,6 +36,9 @@ Future advance prompts should ask for scoped prep, for example:
 They should not ask an advance agent to decide what DAEDALUS, ARGUS, ARIADNE,
 or MIMIR should do next. MIMIR may use an advance result as evidence, but is not
 bound by it.
+
+Advance work may later help MIMIR choose safely, but it does not force or imply
+a next product lane.
 
 Allowed advance work:
 

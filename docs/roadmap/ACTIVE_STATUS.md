@@ -4,10 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - ADV-002 opened, mainline paused
+## Latest MIMIR decision - ADV-002 clarified, mainline paused
 
-MIMIR consumed the A1 wakeups assigning KVASIR's corrected advisory lane and
-asking for the mainline posture after PR311.
+MIMIR consumed the A1 wakeup clarifying that the advance team is not
+anti-pause machinery.
 
 Decision:
 
@@ -16,11 +16,14 @@ Decision:
 - There is no fresh hosted product defect, no new config blocker, and no
   concrete product/commercial/partner decision that needs DAEDALUS, ARGUS, or
   ARIADNE yet.
-- The right move is a bounded advance packet:
+- ADV work is off-boundary future preparation only: maps, ledgers, risk
+  packets, prototype sketches, fixture plans, and preflight docs. It does not
+  force or imply the next product lane.
+- The current bounded advance packet remains:
   `docs/advance/ADV-002_PROTECTED_ALPHA_DECISION_LEDGER_KVASIR.md`.
 - KVASIR should inventory upcoming decisions, options, risks, dependencies, and
-  promotion criteria only. KVASIR must not recommend the next mainline PR or
-  wake A1-A4.
+  promotion criteria only. KVASIR must preserve pause as a valid outcome and
+  must not recommend the next mainline PR or wake A1-A4.
 
 Current baton:
 

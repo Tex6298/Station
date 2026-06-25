@@ -17,7 +17,10 @@ KVASIR should prepare a decision ledger for MIMIR and Marty: the near-term
 decisions that may need human/product/commercial judgment soon, separated from
 implementation work.
 
-This is advisory prep only. KVASIR does not choose the mainline sequence.
+This is advisory prep only. KVASIR does not choose the mainline sequence. The
+ledger is non-promotional: it should preserve a pause as a valid outcome and
+must not imply that product work should continue merely because future decisions
+exist.
 
 ## Task
 
@@ -43,7 +46,7 @@ For each decision, include:
 - likely options;
 - risks or tradeoffs;
 - dependencies or config needed;
-- promotion criteria for when MIMIR should open a normal PR lane;
+- promotion criteria for when MIMIR should open a normal PR lane, if ever;
 - suggested owner only if the decision is later promoted.
 
 ## Boundaries
@@ -62,7 +65,9 @@ Do not:
   Developer Space, or broad UI work without a concrete decision criterion.
 
 KVASIR may recommend how to structure future decisions and what evidence would
-make a decision ready to promote.
+make a decision ready to promote. KVASIR should also name decisions that are
+not ready, decisions that should remain paused, and decisions that only need
+watching for now.
 
 ## Mainline Posture
 
