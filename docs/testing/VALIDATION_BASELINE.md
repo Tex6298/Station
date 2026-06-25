@@ -107,6 +107,23 @@ Implementation validation:
 Residual risk: hosted/browser evidence still needs ARIADNE's PR308 rerun after
 ARGUS accepts the code repair.
 
+## PR310 Memory Readback Rerun After Navigation Repair
+
+MIMIR opened PR310 for ARIADNE on 2026-06-25:
+`docs/roadmap/PR310_MEMORY_READBACK_RERUN_AFTER_NAV_REPAIR_ARIADNE.md`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web deployment should include PR309 implementation commit `e9332fe5` or later. |
+| Owner route | Pass | Studio -> intended replay persona -> Open Memory reaches the Memory route without direct URL fallback. |
+| Memory readback buckets | Pass | Selected, eligible-active-not-selected, and lifecycle-held-out buckets are clear once reached. |
+| Held-out statuses | Pass if present | Bounded badges/counts distinguish rejected, quarantined, expired, superseded, or missing lifecycle state when present. |
+| Redaction | Pass | No raw private source bodies, hidden prompts, provider payloads, credentials, or raw ids appear in the UI. |
+| Public boundary | Pass | Public Discover, Space/document/forum, and Developer Space routes do not expose private Memory readback. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+
 ## PR306 Post-Finalizer Trace Semantics Result
 
 DAEDALUS implemented PR306 on 2026-06-25:

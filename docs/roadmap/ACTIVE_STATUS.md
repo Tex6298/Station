@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR310 Memory Readback Rerun opened
+
+MIMIR accepts ARGUS's PR309 verdict and opens ARIADNE's hosted/browser rerun:
+`docs/roadmap/PR310_MEMORY_READBACK_RERUN_AFTER_NAV_REPAIR_ARIADNE.md`.
+
+Decision:
+
+- PR309 repaired the owner persona workspace navigation locally.
+- ARGUS accepted the repair with no product patch.
+- The remaining caveat is hosted/browser evidence after deployment.
+- ARIADNE should rerun the Memory readback rehearsal through the actual owner
+  route and require hosted freshness at PR309 implementation commit `e9332fe5`
+  or later.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR310_MEMORY_READBACK_RERUN_AFTER_NAV_REPAIR_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, plus the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR309 Persona Workspace Memory Navigation
 
 ARGUS accepted the narrow owner-route navigation repair requested in

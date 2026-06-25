@@ -258,6 +258,10 @@ then let staged replay reveal the next optimizations.
   DAEDALUS to repair that narrow owner navigation defect. ARGUS accepted PR309
   with no product patch; MIMIR should reopen ARIADNE's hosted/browser PR308
   rehearsal after deployment.
+- MIMIR opens PR310 for that ARIADNE rerun. It requires hosted web freshness at
+  PR309 implementation commit `e9332fe5` or later and should prove the actual
+  Studio -> intended replay persona -> Open Memory route without direct URL
+  fallback.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
