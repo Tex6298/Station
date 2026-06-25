@@ -944,7 +944,7 @@ test("chat does not retry creative private prompts that miss selected context", 
       ["token"]: "owner-token",
       body: {
         conversationId: CONVERSATION_ID,
-        content: "Can you write a short reflective metaphor about Meridian Loom?",
+        content: "Can you write a reflective metaphor about Meridian Loom using the selected context labels?",
       },
     });
 

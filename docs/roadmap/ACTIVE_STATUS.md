@@ -4,14 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR293 Answer Contract Gate Diagnostic
+## Latest ARGUS review - PR293 Answer Contract Gate Diagnostic
 
-DAEDALUS completed PR293 on 2026-06-25:
+ARGUS accepted PR293 on 2026-06-25 with a narrow review patch:
 `docs/roadmap/PR293_ANSWER_CONTRACT_GATE_DIAGNOSTIC_RESULT.md`.
 
 Result:
 
-- Verdict: ready for ARGUS review.
+- Verdict: `PASS WITH CAVEATS`.
 - Root cause/hypothesis: owner-visible trace detail stripped nested
   answer-contract reason codes/retry decisions, and the hosted acceptance prompt
   may have missed the direct/factual gate.
@@ -20,16 +20,24 @@ Result:
 - Patch: the direct/factual classifier now includes answer, naming, state,
   report, and readback-style factual commands while preserving the creative
   metaphor no-retry boundary.
+- ARGUS review patch: tightened the creative/style guard so prompts that mention
+  selected context, labels, pairs, or facts still stay single-shot unless they
+  also include an explicit factual command.
 - Retry scope is unchanged: private persona chat only, selected context
   required, direct/factual only, missed-all-selected-focus only, one retry max.
+- Validation passed: `test:conversation-archive`, `test:replay-readiness`,
+  `typecheck`, and `lint` with existing raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private
+  source bodies, or secret-bearing env values.
 
 Current baton:
 
-- ARGUS should review direct/factual gate breadth, retry boundary, sanitized
-  reason-code/readiness exposure, no hardcoded replay anchors, no scope creep,
-  and no secret/raw-data leakage.
-- If accepted, ARGUS should recommend whether MIMIR opens ARIADNE hosted PR294
-  rerun or classifies provider/model behavior.
+- MIMIR should open an ARIADNE hosted PR294 rerun after deploy.
+- If PR294 still fails with `directFactual: true`, retry attempted, and
+  sanitized reason codes visible, MIMIR can classify provider/model behavior
+  with better evidence.
 
 ## Latest ARIADNE review - PR292 Hosted Runtime Answer Rerun
 

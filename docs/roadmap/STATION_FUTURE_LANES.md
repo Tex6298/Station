@@ -144,8 +144,9 @@ diagnostic before treating this as provider/model behavior.
 DAEDALUS completed PR293 by exposing sanitized answer-contract reason codes and
 retry decisions through owner-only trace detail, and by widening the factual
 gate for answer/naming/state/readback commands while preserving the creative
-no-retry boundary. ARGUS review should decide whether MIMIR opens an ARIADNE
-PR294 hosted rerun or classifies provider/model behavior.
+no-retry boundary. ARGUS accepted PR293 after tightening the creative/style
+guard so selected-context/label wording alone does not retry creative prompts.
+MIMIR should open an ARIADNE PR294 hosted rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 

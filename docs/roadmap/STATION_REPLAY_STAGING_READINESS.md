@@ -154,9 +154,9 @@ then let staged replay reveal the next optimizations.
   provider/model behavior.
 - PR293 exposed sanitized answer-contract reason codes and retry decisions
   through owner-only trace detail, and widened the factual gate for
-  answer/naming/state/readback commands while preserving the creative no-retry
-  boundary. ARGUS should review before MIMIR opens an ARIADNE PR294 hosted
-  rerun or classifies provider/model behavior.
+  answer/naming/state/readback commands. ARGUS accepted PR293 after tightening
+  the creative/style guard so selected-context/label wording alone does not
+  retry creative prompts. MIMIR should open PR294 after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

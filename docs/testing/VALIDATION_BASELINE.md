@@ -32,16 +32,16 @@ Memory/observability implementation lane.
 
 ## PR293 Answer Contract Gate Diagnostic
 
-DAEDALUS completed PR293 on 2026-06-25:
+ARGUS accepted PR293 on 2026-06-25 with a narrow review patch:
 `docs/roadmap/PR293_ANSWER_CONTRACT_GATE_DIAGNOSTIC_RESULT.md`.
 
-Result: ready for ARGUS review.
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| Direct/factual classifier | Pass | PR292-shaped factual `answer`/`names` prompt is eligible for answer-contract retry; creative metaphor prompt remains single-shot. |
+| Direct/factual classifier | Pass | PR292-shaped factual `answer`/`names` prompt is eligible for answer-contract retry; ARGUS tightened the creative/style guard so metaphor prompts with selected context labels remain single-shot unless they include an explicit factual command. |
 | Sanitized reason-code readback | Pass | Owner-only trace detail exposes answer-contract reason codes and retry decisions as safe enums/booleans/counts only. |
 | Retry gate | Pass | First answer missing all selected focus triggers exactly one retry when the gate applies. |
 | Raw-content safety | Pass | No raw selected strings, prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, or credentials in trace/readiness output. |
@@ -51,6 +51,9 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found in the PR293 ARGUS diff. |
 
 `test:retrieval-metadata` and `test:persona-context` were not rerun because
 PR293 did not touch retrieval, context assembly, prompt assembly, or
