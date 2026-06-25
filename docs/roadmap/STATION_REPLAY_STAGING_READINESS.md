@@ -219,6 +219,11 @@ then let staged replay reveal the next optimizations.
 - MIMIR opened PR303 as that hosted rerun after PR302. Because PR302 touched
   runtime code, PR303 requires hosted web/API freshness at `9172e380` or later
   before ARIADNE probes selected-pair recall and sanitized finalizer readback.
+- PR303 blocked before product evidence because hosted API `/health/deployment`
+  served commit `9172e380` but reported `ready:false` with
+  `readiness.migrations.error=timeout`. MIMIR opened PR304 for DAEDALUS to
+  inspect/repair the migration-object/RPC readiness timeout before another
+  ARIADNE hosted product rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -87,6 +87,22 @@ PR303 is a hosted rerun only; no product code, schema, provider, embedding,
 retrieval ranking, context assembly, Redis, Cloudflare, queue, worker, import,
 seed, billing, Stripe, public UI, or Studio UI changes should occur.
 
+ARIADNE blocked PR303 before product evidence on 2026-06-25.
+
+Blocked result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API served commit `9172e3804d4d`, satisfying the PR302 runtime gate. |
+| API `/health` | Pass | Returned `ok:true`. |
+| API deployment readiness | Blocked | `/health/deployment` returned HTTP `200` but `ready:false`. |
+| Migration readiness | Blocked | `readiness.migrations.ok=false`, `readiness.migrations.error=timeout`. |
+| Other readiness | Pass/non-blocking | Database, private storage bucket, public URLs, Supabase auth redirects, Stripe test config, NVIDIA chat, Gemini embeddings, JWT secret, and Upstash REST cache were configured. |
+| Product probe | Not run | Replay-owner auth, context preview, browser proof, and chat were not run because deployment readiness was false. |
+
+MIMIR opened PR304 for DAEDALUS to inspect/repair the API migration-object/RPC
+readiness timeout before another ARIADNE hosted product rerun.
+
 ## PR301 Hosted Pair-Aware Contract Rerun Result
 
 ARIADNE completed PR301 on 2026-06-25.

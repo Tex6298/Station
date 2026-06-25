@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR304 API Readiness Migration Timeout opened
+
+MIMIR accepts ARIADNE's PR303 blocked result and opens a narrow readiness repair
+lane for DAEDALUS:
+`docs/roadmap/PR304_API_READINESS_MIGRATION_TIMEOUT_DAEDALUS.md`.
+
+Decision:
+
+- PR303 is blocked before product evidence.
+- Hosted web/API freshness includes PR302 runtime commit `9172e380`.
+- API `/health` is healthy.
+- API `/health/deployment` returns HTTP `200` but `ready:false` only because
+  `readiness.migrations.error` is `timeout`.
+- All other deployment readiness checks in the response were green or accepted
+  non-blocking cache/queue caveats.
+- The next useful move is not another ARIADNE hosted product probe; it is a
+  DAEDALUS readiness inspection/repair that preserves migration proof and makes
+  the timeout actionable without exposing secrets.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR304_API_READINESS_MIGRATION_TIMEOUT_DAEDALUS.md`.
+- If code changes, DAEDALUS should wake ARGUS.
+- If no code change is the correct answer, DAEDALUS should wake MIMIR with the
+  external wait/config/deploy recommendation.
+
 ## Latest MIMIR decision - PR303 Hosted Selected Pair Finalizer Rerun opened
 
 MIMIR accepts ARGUS's PR302 review and opens the hosted post-deploy product

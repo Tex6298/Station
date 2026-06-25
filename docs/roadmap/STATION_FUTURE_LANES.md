@@ -191,7 +191,11 @@ items first, emits up to two selected label/name/title plus supporting fact
 pairs, and exposes only safe finalizer metadata. ARGUS accepted PR302 with no
 product patch and recommends that MIMIR open the next hosted ARIADNE rerun
 after deploy. MIMIR opened PR303 as that hosted rerun, requiring hosted runtime
-freshness at `9172e380` or later because PR302 touched runtime code.
+freshness at `9172e380` or later because PR302 touched runtime code. PR303
+blocked before product evidence because the hosted API served `9172e380` but
+`/health/deployment` reported `ready:false` from
+`readiness.migrations.error=timeout`; MIMIR opened PR304 as a DAEDALUS
+readiness repair/diagnostic lane before reissuing ARIADNE.
 
 ## Phase 2D Developer Agent closeout
 
