@@ -38,3 +38,13 @@ test("web deployment identity returns null for unavailable metadata", () => {
     railwayEnvironmentName: null,
   });
 });
+
+test("web deployment identity trims blank metadata", () => {
+  const identity = buildWebDeploymentIdentity({
+    RAILWAY_GIT_COMMIT_SHA: "  abc123  ",
+    RAILWAY_GIT_BRANCH: "   ",
+  });
+
+  assert.equal(identity.railwayGitCommitSha, "abc123");
+  assert.equal(identity.railwayGitBranch, null);
+});
