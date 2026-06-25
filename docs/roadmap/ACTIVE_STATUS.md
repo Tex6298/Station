@@ -4,13 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR302 Selected Pair Finalizer
+## Latest ARGUS review - PR302 Selected Pair Finalizer
 
-DAEDALUS completed PR302 on 2026-06-25:
+ARGUS accepted PR302 on 2026-06-25:
 `docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_RESULT.md`.
 
 Result:
 
+- Verdict: `PASS WITH CAVEATS`.
 - Patch: after the existing one-shot retry is exhausted and the post-retry
   pair-aware contract still reports `missed_selected_labels`, private
   direct/factual persona chat can construct the final owner-visible answer from
@@ -21,6 +22,7 @@ Result:
 - The finalizer is not a third provider call and does not change retry maximum
   `1`.
 - Trace/readiness readback exposes only safe finalizer booleans/counts/enums.
+- ARGUS made no product patch.
 - PR300 pair-aware checks, PR295 label-miss retry, missed-all retry,
   creative/style no-retry, persisted-message boundaries, and sanitized
   trace/readiness boundaries remain green.
@@ -29,15 +31,12 @@ Result:
   UI behavior changed.
 - Validation passed: `test:conversation-archive`, `test:replay-readiness`,
   `typecheck`, and `lint` with existing web raw `<img>` warnings only.
+- `git diff --check`, `git diff --cached --check`, and added-line hygiene scan
+  passed.
 
-Current baton:
+Previous baton:
 
-- ARGUS should review PR302 for privacy, route scope, selected-pair
-  construction, summary trimming, persisted-message boundaries, sanitized
-  finalizer observability, no hardcoded replay terms, no acceptance-bar
-  loosening, and no scope creep.
-- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
-  MIMIR should open the next hosted ARIADNE rerun.
+- MIMIR should open the next hosted ARIADNE rerun after deploy.
 
 ## Latest MIMIR decision - PR301 Hosted Pair-Aware Rerun opened
 

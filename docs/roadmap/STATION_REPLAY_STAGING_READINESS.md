@@ -214,7 +214,8 @@ then let staged replay reveal the next optimizations.
   and the post-retry verdict remains `missed_selected_labels`. It chooses
   mentioned selected fact items first, emits up to two selected label/name/title
   plus supporting fact pairs, strips `Summary:` suffixes, and exposes only safe
-  finalizer metadata. ARGUS review is pending before the next hosted rerun.
+  finalizer metadata. ARGUS accepted PR302 with no product patch and recommends
+  that MIMIR open the next hosted ARIADNE rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

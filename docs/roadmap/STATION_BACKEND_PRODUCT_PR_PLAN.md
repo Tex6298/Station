@@ -647,8 +647,8 @@ MIMIR keeps the selected-pair recall bar and opened PR302 Selected Pair Finalize
 for DAEDALUS. DAEDALUS completed PR302 by adding a bounded post-retry finalizer
 that constructs the final owner-visible answer from up to two selected
 label/name/title plus supporting fact pairs when the post-retry contract still
-reports `missed_selected_labels`. ARGUS review is pending before MIMIR decides
-whether to open the next hosted rerun.
+reports `missed_selected_labels`. ARGUS accepted PR302 with no product patch and
+recommends that MIMIR open the next hosted ARIADNE rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

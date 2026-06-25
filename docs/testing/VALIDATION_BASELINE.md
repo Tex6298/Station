@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR302 Selected Pair Finalizer Result
 
-DAEDALUS completed PR302 on 2026-06-25:
+ARGUS accepted PR302 on 2026-06-25:
 `docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_RESULT.md`.
 
-Validation result:
+Validation result: `PASS WITH CAVEATS`.
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
@@ -53,7 +53,8 @@ Validation result:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup and during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 PR302 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,

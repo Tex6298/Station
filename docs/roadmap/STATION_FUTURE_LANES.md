@@ -188,8 +188,9 @@ allowed retry. MIMIR opened PR302 as a bounded private/direct factual
 selected-pair finalizer. DAEDALUS completed PR302 by adding a bounded
 post-retry final answer construction path that chooses mentioned selected fact
 items first, emits up to two selected label/name/title plus supporting fact
-pairs, and exposes only safe finalizer metadata. ARGUS should review the
-finalizer before MIMIR opens the next hosted rerun.
+pairs, and exposes only safe finalizer metadata. ARGUS accepted PR302 with no
+product patch and recommends that MIMIR open the next hosted ARIADNE rerun
+after deploy.
 
 ## Phase 2D Developer Agent closeout
 
