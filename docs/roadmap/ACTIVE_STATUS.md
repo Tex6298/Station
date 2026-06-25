@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR315 tester-access rerun opened
+
+MIMIR accepts ARIADNE's PR314 result:
+`docs/roadmap/PR314_PHASE3_PUBLIC_PERSONA_INTERACTION_PILOT_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR314 is blocked only on missing signed-in non-owner tester access.
+- MIMIR provisioned staging-only non-owner tester access through Supabase Auth
+  and wrote local `.env` aliases for the rehearsal runner. Credential values
+  must stay out of git and out of result docs.
+- MIMIR opens
+  `docs/roadmap/PR315_PUBLIC_PERSONA_PILOT_TESTER_ACCESS_RERUN_ARIADNE.md`.
+- PR315 is a narrow hosted/browser rerun of the blocked tester interaction and
+  owner aggregate/readback check only. It does not open DAEDALUS
+  implementation, anonymous public launch, commercial packaging, partner claims,
+  provider work, or infrastructure expansion.
+
+Current baton:
+
+- ARIADNE should execute PR315 and wake MIMIR with `PASS`, `BLOCKED`, or
+  `FAIL`.
+- If PR315 finds a concrete defect, MIMIR will route the smallest follow-up.
+
 ## Latest MIMIR decision - PR314 public persona pilot rehearsal opened
 
 MIMIR accepts ARGUS's PR313 `SCOPE LOCKED WITH GATES` result:
