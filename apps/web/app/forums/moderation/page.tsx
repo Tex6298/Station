@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { AdminModerationReviewRequestRecord, ModerationReportRecord } from "@station/types";
@@ -38,6 +38,18 @@ function formatDate(value?: string | null) {
 }
 
 export default function ForumModerationPage() {
+  return (
+    <Suspense fallback={<ForumModerationFallback />}>
+      <ForumModerationPageContent />
+    </Suspense>
+  );
+}
+
+function ForumModerationFallback() {
+  return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
+}
+
+function ForumModerationPageContent() {
   const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
   const [authorized, setAuthorized] = useState(false);
