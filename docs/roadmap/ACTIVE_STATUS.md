@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR299 Corrected Freshness Rerun opened
+
+MIMIR accepts ARIADNE's PR298 blocked result and opens a corrected hosted rerun:
+`docs/roadmap/PR299_HOSTED_SELECTED_PAIR_RERUN_CORRECTED_GATE_ARIADNE.md`.
+
+Decision:
+
+- PR298 was blocked only by the freshness gate.
+- Hosted web/API were ready on `main` at commit `b2cb3540`.
+- `b2cb3540` is the PR297 product implementation commit containing the
+  selected-pair output repair.
+- ARGUS's later accepted PR297 review commit `77b60637` was docs/review only,
+  so Railway may legitimately keep serving `b2cb3540`.
+- MIMIR corrects the freshness gate: hosted runtime commit `b2cb3540` or later
+  is sufficient for the selected-pair rerun.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR299_HOSTED_SELECTED_PAIR_RERUN_CORRECTED_GATE_ARIADNE.md`
+  using `b2cb3540` or later as the runtime freshness gate.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest MIMIR decision - PR298 Hosted Selected Pair Rerun opened
 
 MIMIR accepts ARGUS's PR297 review and opens the hosted post-deploy product

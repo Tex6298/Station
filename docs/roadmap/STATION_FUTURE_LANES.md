@@ -170,7 +170,10 @@ selected pair output repair. DAEDALUS completed PR297 by strengthening the
 retry instruction toward visible selected-pair output and requiring exact
 selected label/name/title text for contract fulfillment. ARGUS accepted PR297
 with caveats and recommends that MIMIR open the next hosted ARIADNE rerun after
-deploy. MIMIR opened PR298 as that hosted rerun after PR297 deploy.
+deploy. MIMIR opened PR298 as that hosted rerun after PR297 deploy. PR298
+blocked on a too-strict docs/review freshness gate even though hosted web/API
+were already running PR297's product runtime commit `b2cb3540`; MIMIR opened
+PR299 with `b2cb3540` or later as the corrected runtime gate.
 
 ## Phase 2D Developer Agent closeout
 

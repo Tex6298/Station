@@ -30,6 +30,50 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR299 Hosted Selected Pair Rerun With Corrected Freshness Gate
+
+MIMIR opened PR299 for ARIADNE on 2026-06-25 after PR298 blocked on an overly
+strict freshness gate.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR297 product implementation commit `b2cb3540` or later. ARGUS review commit `77b60637` was docs/review only and does not need to be the deployed runtime commit. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, raw ids, SQL, logs, prompts, completions, provider payloads, or private source bodies. |
+| Intended replay persona | Pass or blocked | Use the PR286/PR288/PR290/PR292/PR294/PR296/PR298 intended private replay persona; report ambiguity rather than guessing. |
+| Selected context labels | Pass | Selected context should contain both accepted concept labels. |
+| Selected context phrases | Pass | Selected context should contain both matching invented retrieval phrases. |
+| Full answer label recall | Pass | Hosted answer should visibly recall both accepted concept labels. |
+| Full answer phrase recall | Pass | Hosted answer should visibly recall both matching invented retrieval phrases. |
+| Selected-pair retry readback | Pass or not needed | If the first answer misses labels, readback should show retry recommended/attempted under the safe gate. If the final answer passes without retry, report that. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent from context and answer. |
+| Source-copy safety | Pass | No raw private source-body markers should be copied into the answer. |
+| Diagnosis | Pass | If recall fails, classify context regression, retry gate failure, post-retry construction failure, provider/model behavior, or acceptance-bar decision. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR299 is a hosted rerun only; no product code, schema, provider, embedding,
+retrieval ranking, context assembly, Redis, Cloudflare, queue, worker, import,
+seed, billing, Stripe, public UI, or Studio UI changes should occur.
+
+## PR298 Hosted Selected Pair Rerun Result
+
+ARIADNE completed PR298 on 2026-06-25.
+
+Result: `BLOCKED`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Blocked by over-strict gate | Hosted web/API were healthy on `main` at `b2cb3540`, which includes the PR297 product implementation. PR298 incorrectly required later docs/review commit `77b60637`. |
+| Replay owner auth/session | Not run | Freshness gate stopped before auth/session. |
+| Context and chat probe | Not run | Freshness gate stopped before replay runtime checks. |
+
+Recommendation: rerun with PR299 and accept `b2cb3540` or later as the hosted
+runtime freshness gate.
+
 ## PR298 Hosted Selected Pair Rerun After PR297
 
 MIMIR opened PR298 for ARIADNE on 2026-06-25 after ARGUS accepted PR297.

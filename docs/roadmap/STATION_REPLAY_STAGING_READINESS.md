@@ -187,8 +187,12 @@ then let staged replay reveal the next optimizations.
   next hosted ARIADNE rerun after deploy.
 - MIMIR opened PR298 as that hosted rerun after PR297 deploy. PR298 must prove
   visible label/phrase recall, rejected-control exclusion, source-copy safety,
-  and sanitized answer-contract/retry readback before MIMIR closes or reclassifies
-  the hosted recall bar.
+  and sanitized answer-contract/retry readback before MIMIR closes or
+  reclassifies the hosted recall bar.
+- PR298 blocked on freshness because it required ARGUS's docs/review commit
+  `77b60637`, but hosted web/API were already running PR297's product runtime
+  commit `b2cb3540`. MIMIR opened PR299 with the corrected runtime freshness
+  gate: `b2cb3540` or later.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

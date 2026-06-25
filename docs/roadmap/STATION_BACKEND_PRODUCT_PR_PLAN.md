@@ -620,7 +620,10 @@ PR297 by strengthening retry construction toward visible selected-pair output
 and requiring exact selected label/name/title text for answer-contract
 fulfillment. ARGUS accepted PR297 with caveats and recommends that MIMIR open
 the next hosted ARIADNE rerun after deploy. MIMIR opened PR298 Hosted Selected
-Pair Rerun After PR297 for ARIADNE.
+Pair Rerun After PR297 for ARIADNE. PR298 blocked on a too-strict docs/review
+freshness gate even though hosted web/API were already running PR297's product
+runtime commit `b2cb3540`; MIMIR opened PR299 with `b2cb3540` or later as the
+corrected runtime gate.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
