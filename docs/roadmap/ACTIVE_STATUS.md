@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - Advance team design recorded
+
+MIMIR consumed the A1 wakeup asking for a subordinate advance team and recorded
+the safe bootstrap design in `docs/ops/triad/ADVANCE_TEAM.md`.
+
+Decision:
+
+- A5 is `KVASIR` / The Distiller.
+- Proposed A6-A8 are `SESHAT` / The Archivist, `JANUS` / The Gatekeeper, and
+  `CASSANDRA` / The Foresight.
+- Advance work uses `ADV-###` packets, separate wakeup ids, separate state, and
+  separate mailboxes.
+- Advance agents are advisory only. MIMIR keeps final product sequencing and
+  promotion authority.
+- Because PR308 is active and ARIADNE has local rehearsal work in progress,
+  MIMIR is not mutating live agent scripts or package scripts yet.
+
+Current baton:
+
+- ARIADNE remains owner of active PR308.
+- MIMIR should return to foreground watch and wait for PR308 or another A1
+  wakeup.
+
 ## Latest MIMIR decision - PR308 Memory Readback Human Rehearsal opened
 
 MIMIR accepts ARGUS's PR307 result and opens a narrow ARIADNE rehearsal:
