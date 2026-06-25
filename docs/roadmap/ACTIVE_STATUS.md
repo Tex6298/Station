@@ -4,13 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR297 Post-Retry Selected Pair Output
+## Latest ARGUS review - PR297 Post-Retry Selected Pair Output
 
-DAEDALUS completed PR297 on 2026-06-25:
+ARGUS accepted PR297 on 2026-06-25:
 `docs/roadmap/PR297_POST_RETRY_SELECTED_PAIR_OUTPUT_RESULT.md`.
 
 Result:
 
+- Verdict: `PASS WITH CAVEATS`.
 - Patch: selected-context retry construction now explicitly asks for visible
   selected-pair output in the form
   `"<selected label/name/title>: <supporting fact>"`.
@@ -19,22 +20,25 @@ Result:
   omits selected labels/names remains `missed_selected_labels`.
 - Supporting facts continue to use bounded term coverage in the verifier; the
   provider-facing retry instruction asks for exact relevant supporting fact
-  phrases. ARGUS should review whether that balance is strict enough for the
-  hosted visible-pair bar.
+  phrases. ARGUS accepts this as narrow enough locally because exact selected
+  label/name/title text is now required and facts-only retry answers no longer
+  overclaim `fulfilled`.
+- Provider-only selected-context scaffolding and answer-contract retry
+  instructions are not persisted as owner-visible user messages.
+- Trace/readiness output remains sanitized to allow-listed booleans, counts,
+  enums, and timing buckets, with raw selected strings absent from trace and
+  session rows.
 - No hosted probing, provider/model, embedding, retrieval ranking, context
   assembly, schema, seed, import, worker, billing, Stripe, public UI, or Studio
   UI behavior changed.
 - Validation passed: `test:conversation-archive`, `test:replay-readiness`,
   `typecheck`, and `lint` with existing web raw `<img>` warnings only.
+- `git diff --check`, `git diff --cached --check`, and added-line hygiene scan
+  passed.
 
-Current baton:
+Previous baton:
 
-- ARGUS should review PR297 for retry prompt scope, exact-label contract
-  alignment, supporting-fact coverage strictness, creative/style no-retry
-  guard, sanitized observability, persisted-message boundaries, no hardcoded
-  replay terms, and no scope creep.
-- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
-  MIMIR should open the next hosted ARIADNE rerun.
+- MIMIR should open the next hosted ARIADNE rerun after deploy.
 
 ## Latest MIMIR decision - PR296 Hosted Label Retry Rerun opened
 

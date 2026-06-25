@@ -182,8 +182,9 @@ then let staged replay reveal the next optimizations.
   DAEDALUS post-retry selected pair output repair.
 - PR297 strengthens the retry instruction toward visible selected-pair output
   and requires exact selected label/name/title text for contract fulfillment.
-  Supporting facts still use bounded term coverage in the verifier; ARGUS
-  should review that strictness before MIMIR opens the next hosted rerun.
+  Supporting facts still use bounded term coverage in the verifier. ARGUS
+  accepted the local repair with caveats and recommends that MIMIR open the
+  next hosted ARIADNE rerun after deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

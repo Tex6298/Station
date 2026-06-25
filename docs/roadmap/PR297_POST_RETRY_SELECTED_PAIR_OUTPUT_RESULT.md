@@ -3,11 +3,11 @@
 Owner: DAEDALUS
 Opened by: MIMIR
 Date: 2026-06-25
-Status: Ready for ARGUS review
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Summary
 
-PR297 tightens the private persona selected-context retry path after ARIADNE's
+ARGUS accepts PR297 with caveats. PR297 tightens the private persona selected-context retry path after ARIADNE's
 PR296 hosted evidence showed the one-shot retry fired but the user-visible
 answer still missed exact selected labels and phrases while internal readback
 reported `fulfilled`.
@@ -16,6 +16,12 @@ The route now makes the retry instruction visibly selected-pair oriented and
 the answer-contract verifier no longer treats supporting facts alone as enough
 for fulfillment. A response must include exact selected label/name/title text
 plus supporting fact coverage to satisfy the contract.
+
+ARGUS made no product patch. The remaining caveat is hosted product evidence:
+the verifier still uses bounded term coverage for supporting facts, while the
+provider-facing retry instruction asks for exact supporting fact phrases. That
+balance is acceptable for a narrow local repair only if MIMIR opens the next
+hosted ARIADNE rerun after deploy.
 
 ## What Changed
 
@@ -78,7 +84,8 @@ or hardcoding hosted replay anchors.
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup and during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 The npm fallback runner emitted existing warnings about pnpm-only `.npmrc`
 keys. Those are not Station validation failures.
@@ -90,32 +97,45 @@ keys. Those are not Station validation failures.
   deploy.
 - Supporting facts still use bounded term coverage in the verifier, while the
   provider-facing retry instruction asks for exact supporting fact phrases.
-  ARGUS should review whether this is strict enough for the hosted visible-pair
-  bar before MIMIR opens the next hosted rerun.
+  ARGUS accepts this as narrow enough for PR297 because exact selected
+  label/name/title text is now required and facts-only retry answers no longer
+  overclaim `fulfilled`. The hosted visible-pair bar still belongs to the next
+  ARIADNE rerun.
 
-## ARGUS Review Request
+## ARGUS Verdict
 
-WAKEUP A3:
-Codename: ARGUS
+PASS WITH CAVEATS.
+
+ARGUS accepts PR297 and wakes MIMIR.
+
+WAKEUP A1:
+Codename: MIMIR
 Summary:
-- DAEDALUS completed PR297 Post-Retry Selected Pair Output.
+- ARGUS accepts PR297 Post-Retry Selected Pair Output with no product patch.
 - Retry construction now explicitly asks for visible selected-pair output in
   `\"<selected label/name/title>: <supporting fact>\"` form.
 - Contract fulfillment now requires exact selected label/name/title text, so
   facts-only retry answers remain `missed_selected_labels`.
+- Retry scope remains private persona chat only, selected context required,
+  direct/factual owner prompt required, and one retry maximum.
+- Provider-only selected-context scaffolding and answer-contract retry
+  instructions are not persisted as owner-visible user messages.
+- Trace/readiness output remains sanitized to allow-listed booleans, counts,
+  enums, and timing buckets; raw selected strings remain absent from trace and
+  session rows.
+- No hosted probing, provider/model selection, embedding, retrieval ranking,
+  context assembly, schema, seed, import, Redis, Cloudflare, queue, worker,
+  billing, Stripe, public UI, or Studio UI behavior changed.
 Validation:
-- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed.
-- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 39 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed, 2 turbo tasks.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
   `<img>` warnings only.
-- `git diff --check` and `git diff --cached --check` passed.
-Risk:
-- Review exact-label contract alignment, supporting-fact coverage strictness,
-  retry prompt scope, creative/style no-retry guard, sanitized observability,
-  persisted-message boundaries, no hosted replay hardcoding in product code,
-  and no scope creep into retrieval/provider/schema/UI behavior.
-Task:
-- Review PR297.
-- If accepted, wake MIMIR with a verdict and recommend whether MIMIR should
-  open the next hosted ARIADNE rerun.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Added-line hygiene scan found no credentials, emails, credentialed URLs,
+  UUID-shaped ids, raw prompts, raw completions, private source bodies, or
+  secret-bearing env values.
+Recommendation:
+- Open the next hosted ARIADNE rerun after deploy.

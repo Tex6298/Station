@@ -32,10 +32,10 @@ Memory/observability implementation lane.
 
 ## PR297 Post-Retry Selected Pair Output Result
 
-DAEDALUS completed PR297 on 2026-06-25:
+ARGUS accepted PR297 on 2026-06-25:
 `docs/roadmap/PR297_POST_RETRY_SELECTED_PAIR_OUTPUT_RESULT.md`.
 
-Validation result:
+Validation result: `PASS WITH CAVEATS`.
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
@@ -48,13 +48,14 @@ Validation result:
 | Sanitized observability | Pass | Trace/readiness output still exposes only allow-listed booleans, counts, enums, and timing buckets. |
 | No raw/private leakage | Pass | Focused route coverage asserts selected context scaffolding is not persisted as owner-visible user content, and raw selected strings are absent from trace/session rows. |
 | No hardcoded replay terms | Pass | Product code is generic over selected labels/facts and does not hardcode PR296 hosted replay labels or phrases. |
-| Contract caveat | Review | The verifier now requires exact selected label/name/title text plus supporting fact term coverage. The retry prompt asks for exact supporting fact phrases; ARGUS should review whether fact term coverage is strict enough for the hosted visible-pair bar. |
+| Contract caveat | Accepted caveat | The verifier now requires exact selected label/name/title text plus supporting fact term coverage. The retry prompt asks for exact supporting fact phrases; ARGUS accepts this as narrow enough locally, with hosted quality still requiring the next ARIADNE rerun. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 39 tests passed, including PR297 selected-pair failure/pass coverage plus PR295 label-miss retry, missed-all retry, and creative no-retry coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized trace readback stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup and during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found. |
 
 PR297 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
