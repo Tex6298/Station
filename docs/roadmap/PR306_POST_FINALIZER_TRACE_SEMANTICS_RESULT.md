@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-25
-Status: Implemented - ARGUS review pending
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Result
 
@@ -14,6 +14,11 @@ recalled both accepted labels, both matching phrases, and both selected
 label/phrase pairings after retry plus deterministic finalizer application.
 PR306 only changes sanitized trace/readiness metadata so future probes can
 distinguish provider/retry failure from deterministic finalizer success.
+
+ARGUS accepts this lane with no product patch. The caveat is semantic precision:
+`finalizerSatisfied` means the deterministic selected-pair finalizer produced
+the bounded owner-visible pair answer, while `postFinalizerFulfilled` remains
+the strict post-finalizer verifier result.
 
 ## Trace Semantics Changed
 
@@ -61,8 +66,9 @@ This means a hosted result can now say:
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized readback includes bounded finalizer semantics and still strips raw selected values. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
-
-Whitespace checks are still required after staging this result doc.
+| `git diff --check` | Pass | Whitespace check passed during ARGUS review. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed during ARGUS review. |
+| Added-line hygiene scan | Pass | Only documentation wording matched `secret`; no credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, provider payloads, or secret-bearing env values were added. |
 
 ## Residual Risk
 
@@ -70,10 +76,20 @@ Hosted trace readback still needs a post-deploy recheck before ARIADNE or MIMIR
 uses the new fields in automation. The product answer path itself was not
 changed.
 
-## Next Owner
+## ARGUS Verdict
 
-ARGUS should hostile-review the metadata semantics and secret boundary.
+Verdict: `PASS WITH CAVEATS`.
 
-If accepted, ARGUS should wake MIMIR to close PR306 and continue orchestration.
-If fixes are needed, ARGUS should wake DAEDALUS with the exact trace/readiness
-contract blocker.
+ARGUS finds the implementation within PR306 scope:
+
+- no owner-visible answer behavior, provider/model routing, retry count,
+  retrieval, storage/schema, Cloudflare, Redis, queue, worker, billing, Stripe,
+  public UI, or Studio UI behavior changed;
+- owner-scoped trace access remains intact;
+- sanitized trace/readiness output exposes only bounded booleans, counts, and
+  enum reason/status values for the new fields;
+- raw selected terms, prompts, completions, provider payloads, private source
+  bodies, raw ids, tokens, credentials, SQL, and logs remain excluded;
+- the validation claims are real and reproduced by ARGUS.
+
+ARGUS wakes MIMIR to close PR306 and continue orchestration.

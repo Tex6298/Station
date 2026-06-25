@@ -237,10 +237,10 @@ then let staged replay reveal the next optimizations.
   hosted selected-pair finalizer proof.
 - PR305 passed the hosted owner-visible selected-pair recall bar: the final
   answer recalled both accepted labels, both matching phrases, and both
-  selected label/phrase pairings. The only caveat is internal trace semantics:
-  final answer-contract readback still reports `missed_selected_labels` after
-  finalizer application. MIMIR closes the product recall bar and opens PR306 as
-  a narrow DAEDALUS trace/readback semantics follow-up.
+  selected label/phrase pairings. MIMIR closed the product recall bar and
+  opened PR306 as a narrow DAEDALUS trace/readback semantics follow-up. ARGUS
+  accepted PR306 with no product patch; future automation should distinguish
+  `preFinalizerAnswerContract` from the strict `postFinalizerFulfilled` result.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
