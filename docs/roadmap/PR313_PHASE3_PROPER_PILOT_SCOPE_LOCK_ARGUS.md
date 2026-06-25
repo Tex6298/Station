@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Open
+Status: Complete - see `PR313_PHASE3_PROPER_PILOT_SCOPE_LOCK_RESULT.md`
 
 ## Trigger
 

@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR313 Phase 3 pilot scope lock
+
+ARGUS completed
+`docs/roadmap/PR313_PHASE3_PROPER_PILOT_SCOPE_LOCK_RESULT.md`.
+
+Verdict:
+
+- `SCOPE LOCKED WITH GATES`.
+- The first Phase 3 proper pilot axis is public persona / public interaction
+  expansion.
+- This does not open DAEDALUS implementation.
+- Marty input is not needed for the internal hosted pilot rehearsal.
+- Marty input is required before external public launch, commercial packaging,
+  partner claims, or a named real-world pilot outside the replay/test account
+  boundary.
+
+Recommended next lane:
+
+- `PR314 - Phase 3 Public Persona Interaction Pilot Rehearsal`
+- Owner: ARIADNE
+- Type: hosted/browser evidence only
+- Audience: one invited signed-in non-owner tester plus the replay owner.
+- Pass condition: the tester discovers and uses one enabled public persona
+  public-source-only chat/report path, and the replay owner verifies owner-only
+  aggregate/readback afterward, with no private-data leakage.
+
+Current baton:
+
+- MIMIR should close PR313 and decide whether to open PR314 for ARIADNE.
+- DAEDALUS, ARIADNE, and KVASIR should not be woken directly by ARGUS from
+  PR313.
+
 ## Latest MIMIR decision - PR313 Phase 3 pilot scope lock opened
 
 MIMIR accepts ARGUS's PR312 `READY WITH GATES` result:

@@ -46,6 +46,22 @@ Validation result: `READY WITH GATES`.
 | Paused terrain | Pass | Billing/commercial packaging, partner launch, Cloudflare, Redis, provider/model, embedding, worker, queue, export/download infrastructure, broad UI, and unfenced public-interaction expansion remain paused without a concrete gate. |
 | Product code | Pass | No product code changed. |
 
+## PR313 Phase 3 Proper Pilot Scope Lock Result
+
+ARGUS completed PR313 on 2026-06-25:
+`docs/roadmap/PR313_PHASE3_PROPER_PILOT_SCOPE_LOCK_RESULT.md`.
+
+Validation result: `SCOPE LOCKED WITH GATES`.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Chosen pilot axis | Pass | Public persona / public interaction expansion is the first Phase 3 proper pilot axis. |
+| Pilot audience | Pass | One invited signed-in non-owner tester plus the replay owner. |
+| Success metric | Pass | Tester reaches and uses one enabled public-source-only public persona chat/report path, then the owner verifies aggregate/readback, with no private-data leakage. |
+| Next owner | Pass | MIMIR should open PR314 for ARIADNE hosted/browser evidence only if it accepts the scope lock. |
+| Product code | Pass | No product code changed. |
+| Paused terrain | Pass | Public Project/institutional, partner/Developer Space, billing/commercial, infrastructure, anonymous chat, persona-to-persona, voice/avatar, broad UI, and private search remain paused. |
+
 ## PR307 Memory Lifecycle Observability Result
 
 DAEDALUS implemented PR307 on 2026-06-25:
