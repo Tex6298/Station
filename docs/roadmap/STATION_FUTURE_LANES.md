@@ -146,7 +146,10 @@ retry decisions through owner-only trace detail, and by widening the factual
 gate for answer/naming/state/readback commands while preserving the creative
 no-retry boundary. ARGUS accepted PR293 after tightening the creative/style
 guard so selected-context/label wording alone does not retry creative prompts.
-MIMIR should open an ARIADNE PR294 hosted rerun after deploy.
+MIMIR opened PR294 as the ARIADNE hosted rerun after deploy. PR294 should tell
+MIMIR whether hosted label/phrase recall now passes, whether a missing
+gate/readback path still needs DAEDALUS, or whether the remaining failure is
+provider/model behavior with sanitized evidence.
 
 ## Phase 2D Developer Agent closeout
 

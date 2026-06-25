@@ -30,6 +30,32 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR294 Hosted Runtime Answer Rerun After Answer-Contract Gate Readback
+
+MIMIR opened PR294 for ARIADNE on 2026-06-25 after ARGUS accepted PR293.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include accepted PR293 runtime/review commit `37dd7839` or later. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, raw ids, SQL, logs, prompts, completions, or provider payloads. |
+| Intended replay persona | Pass or blocked | Use the PR286/PR288/PR290/PR292 intended private replay persona; report ambiguity rather than guessing. |
+| Selected context labels | Pass | Selected context should contain both accepted concept labels. |
+| Selected context phrases | Pass | Selected context should contain both matching invented retrieval phrases. |
+| Full answer label recall | Pass | Hosted answer should recall both accepted concept labels. |
+| Full answer phrase recall | Pass | Hosted answer should recall both matching invented retrieval phrases. |
+| Answer-contract/retry observability | Pass | Report sanitized applicability, direct/factual status, reason code, retry recommendation, retry attempted/failed status, max attempts, counts, and retry reason if exposed. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent from context and answer. |
+| Source-copy safety | Pass | No raw private source-body markers should be copied into the answer. |
+| Diagnosis | Pass | If recall still fails with `directFactual: true`, retry attempted, and reason codes visible, recommend provider/model classification; if readback/gate is missing, recommend gate/readback repair. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR294 is a hosted rerun only; no product code, schema, provider, embedding,
+Redis, Cloudflare, queue, worker, import, seed, billing, Stripe, public UI, or
+Studio UI changes should occur.
+
 ## PR293 Answer Contract Gate Diagnostic
 
 ARGUS accepted PR293 on 2026-06-25 with a narrow review patch:

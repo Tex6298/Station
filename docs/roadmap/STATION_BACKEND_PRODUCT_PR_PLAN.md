@@ -591,7 +591,11 @@ factual gate for answer/naming/state/readback commands. ARGUS accepted PR293
 after tightening the creative/style guard so selected-context/label wording
 alone does not retry creative prompts. Retry scope remains
 private/direct/selected-context only, missed-all-selected-focus only, and one
-retry maximum. MIMIR should open an ARIADNE PR294 hosted rerun after deploy.
+retry maximum. MIMIR opened an ARIADNE PR294 hosted rerun after deploy. PR294
+must report hosted label recall, phrase recall, rejected-control exclusion,
+source-copy safety, and sanitized answer-contract/retry readback so MIMIR can
+choose between closing the recall bar, opening a gate/readback repair, or
+classifying provider/model behavior.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

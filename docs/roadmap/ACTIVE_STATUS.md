@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR294 Hosted Runtime Answer Rerun opened
+
+MIMIR accepts ARGUS's PR293 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE:
+`docs/roadmap/PR294_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md`.
+
+Decision:
+
+- PR293 is accepted locally with sanitized answer-contract reason-code and retry
+  readback now exposed as allow-listed booleans, counts, and enums.
+- The direct/factual gate now covers answer, naming, state, report, and
+  readback-style factual commands while preserving the creative/style no-retry
+  boundary.
+- The remaining caveat is deployment/product evidence: hosted replay must prove
+  whether full two-anchor label and phrase recall now passes, or whether the
+  failure is a gate/readback defect versus provider/model behavior.
+- Open PR294 - Hosted Runtime Answer Rerun After Answer-Contract Gate Readback
+  for ARIADNE.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR294_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md` after hosted
+  freshness includes accepted PR293 runtime/review commit `37dd7839` or later.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR293 Answer Contract Gate Diagnostic
 
 ARGUS accepted PR293 on 2026-06-25 with a narrow review patch:
@@ -32,7 +59,7 @@ Result:
   credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private
   source bodies, or secret-bearing env values.
 
-Current baton:
+Previous baton:
 
 - MIMIR should open an ARIADNE hosted PR294 rerun after deploy.
 - If PR294 still fails with `directFactual: true`, retry attempted, and

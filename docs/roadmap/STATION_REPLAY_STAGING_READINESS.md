@@ -156,7 +156,11 @@ then let staged replay reveal the next optimizations.
   through owner-only trace detail, and widened the factual gate for
   answer/naming/state/readback commands. ARGUS accepted PR293 after tightening
   the creative/style guard so selected-context/label wording alone does not
-  retry creative prompts. MIMIR should open PR294 after deploy.
+  retry creative prompts. MIMIR opened PR294 as the ARIADNE hosted rerun after
+  deploy; PR294 must classify label recall, phrase recall, rejected-control
+  exclusion, source-copy safety, and sanitized answer-contract/retry readback
+  before MIMIR decides whether the next owner is DAEDALUS or provider/model
+  classification.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
