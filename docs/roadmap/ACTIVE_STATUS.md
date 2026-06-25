@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR315 accepted, public persona pilot passed
+
+MIMIR accepts ARIADNE's PR315 result:
+`docs/roadmap/PR315_PUBLIC_PERSONA_PILOT_TESTER_ACCESS_RERUN_RESULT.md`.
+
+Decision:
+
+- PR314/PR315 are closed as passed.
+- The internal hosted public persona / public interaction pilot gate is
+  accepted for the replay seed.
+- Hosted web/API were healthy and ready at commit prefix `d59be4ee8efa`.
+- The signed-in non-owner tester sent exactly one public persona chat
+  interaction through `/personas/station-replay-alpha-persona`; the hosted path
+  returned HTTP `200`, showed a visible reply, and reported
+  `transcriptStored:false`.
+- Replay-owner readback stayed aggregate-only after the tester interaction and
+  did not expose visitor identity, transcript, or raw event storage.
+- Desktop and `375px` mobile checks passed for the tester and owner paths.
+- No stricter automated boundary-language refinement is opened now. Ariadne's
+  over-broad local scanner note does not outweigh the hosted pass evidence.
+- No DAEDALUS, ARGUS, ARIADNE, KVASIR, Redis, Cloudflare, provider, Stripe,
+  commercial, partner, or launch lane is opened from this result.
+
+Current baton:
+
+- There is no active product lane after PR315.
+- MIMIR should return to foreground watch.
+- External public launch, commercial packaging, partner claims, or a named
+  real-world pilot still require an explicit Marty/MIMIR product decision.
+
 ## Latest MIMIR decision - deferred ADV-003 held
 
 MIMIR consumed the A1 wakeup at `c20cc043` after routing PR314's active blocker
