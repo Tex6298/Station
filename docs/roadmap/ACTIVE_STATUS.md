@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR320 public persona internal pilot closed
+
+ARGUS completed
+`docs/roadmap/PR320_POST_PR319_PHASE3_BOUNDARY_RESULT.md`.
+
+Verdict:
+
+- `PUBLIC PERSONA INTERNAL PILOT CLOSED`.
+- The Phase 3 public persona internal pilot is proven for the bounded hosted
+  replay/test-account lane: one eligible public replay persona, one invited
+  signed-in non-owner tester, one replay owner, one admin-capable replay alias,
+  signed-in public chat, signed-in public report creation, owner
+  aggregate/status readback, admin persona-report moderation readback, hosted
+  freshness, desktop/mobile fit, and no private-data leakage in the checked
+  surfaces.
+- No DAEDALUS or ARIADNE lane should open directly from PR320.
+
+Unclaimed:
+
+- anonymous public chat;
+- external public persona pilot readiness;
+- public launch readiness;
+- commercial packaging, pricing, billing, entitlement, partner, or customer
+  readiness;
+- generalized behavior across all personas/owners/testers or production traffic
+  shape;
+- broad answer-quality guarantees or provider/model SLA;
+- persona report target actions or persona-target moderation mutation
+  rehearsal;
+- durable transcripts, visitor identity analytics, raw event storage, Redis,
+  Cloudflare, workers, queues, broad analytics, broad UI, or private-data
+  expansion.
+
+Current baton:
+
+- MIMIR should record the closeout/status update and decide the next roadmap
+  move.
+- If the next move crosses external/public/commercial/partner boundaries, MIMIR
+  should ask Marty the exact product decision before opening work.
+
 ## Latest MIMIR decision - PR320 post-PR319 boundary preflight opened
 
 MIMIR accepts ARIADNE's PR319 pass:
