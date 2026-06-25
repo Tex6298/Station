@@ -721,7 +721,7 @@ test("chat runtime budget does not block configured BYOK providers when platform
       /memory: selected label\/name: Meridian Loom staging pair; supporting fact: Meridian Loom pairs with the silver compass ledger; Helio Gate pairs with the blue lantern checksum\./
     );
     assert.doesNotMatch(finalProviderMessage?.content ?? "", /memory \(Meridian Loom staging pair\)/);
-    assert.match(finalProviderMessage?.content ?? "", /include selected labels, names, or titles with their relevant supporting facts/);
+    assert.match(finalProviderMessage?.content ?? "", /visibly include exact selected labels, names, or titles with their relevant supporting facts/);
     assert.match(finalProviderMessage?.content ?? "", /silver compass ledger/);
     assert.match(finalProviderMessage?.content ?? "", /blue lantern checksum/);
     assert.match(finalProviderMessage?.content ?? "", /Owner message:\s+Use my own model for this reply\./);
@@ -929,8 +929,8 @@ test("chat retries once when a direct private answer matches facts but misses se
     if (url.startsWith("https://api.openai.com/")) {
       providerCalls.push({ url, body: String(init?.body ?? "") });
       const content = providerCalls.length === 1
-        ? "Beta quartz pairs with the amber vector, and calm orbit pairs with the violet checksum."
-        : "Northstar Ledger concept: Beta quartz pairs with the amber vector, and calm orbit pairs with the violet checksum.";
+        ? "Beta quartz pairs with the amber vector; Calm orbit pairs with the violet checksum."
+        : "Northstar Ledger concept: Beta quartz pairs with the amber vector; Calm orbit pairs with the violet checksum.";
       return new Response(JSON.stringify({
         choices: [{ message: { content } }],
         model: "gpt-4o-mini",
@@ -954,7 +954,7 @@ test("chat retries once when a direct private answer matches facts but misses se
     assert.equal(response.status, 200);
     assert.equal(
       response.body.reply.content,
-      "Northstar Ledger concept: Beta quartz pairs with the amber vector, and calm orbit pairs with the violet checksum."
+      "Northstar Ledger concept: Beta quartz pairs with the amber vector; Calm orbit pairs with the violet checksum."
     );
     assert.equal(providerCalls.length, 2);
 
@@ -1002,19 +1002,134 @@ test("chat retries once when a direct private answer matches facts but misses se
     );
     assert.equal(
       db.tables.conversation_messages.some((row) =>
-        row.content === "Beta quartz pairs with the amber vector, and calm orbit pairs with the violet checksum."
+        row.content === "Beta quartz pairs with the amber vector; Calm orbit pairs with the violet checksum."
       ),
       false
     );
     assert.equal(
       db.tables.conversation_messages.filter((row) =>
-        row.content === "Northstar Ledger concept: Beta quartz pairs with the amber vector, and calm orbit pairs with the violet checksum."
+        row.content === "Northstar Ledger concept: Beta quartz pairs with the amber vector; Calm orbit pairs with the violet checksum."
       ).length,
       1
     );
 
     assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Northstar Ledger|Beta quartz|amber vector|calm orbit|violet checksum/i);
     assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Northstar Ledger|Beta quartz|amber vector|calm orbit|violet checksum/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("chat keeps retry answers failed when they mention facts but omit selected labels", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "test-openai-key";
+  db.tables.personas[0].provider = "openai";
+  db.insertRow("memory_items", {
+    id: "memory-selected-pair-still-missing-label",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Harbor Signal concept",
+    content: "Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive.",
+    summary: "A synthetic selected pair for strict answer-contract coverage.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  db.insertRow("memory_item_lifecycle", {
+    id: "memory-selected-pair-still-missing-label-lifecycle",
+    memory_item_id: "memory-selected-pair-still-missing-label",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    status: "active",
+    trust_level: "user_stated",
+    confidence: 1,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const providerCalls: Array<{ url: string; body: string }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      providerCalls.push({ url, body: String(init?.body ?? "") });
+      const content = providerCalls.length === 1
+        ? "I can answer from general continuity, but not those details."
+        : "Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive.";
+      return new Response(JSON.stringify({
+        choices: [{ message: { content } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      ["token"]: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Answer with the accepted concept names and supporting facts.",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(
+      response.body.reply.content,
+      "Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive."
+    );
+    assert.equal(providerCalls.length, 2);
+
+    const retryPayload = JSON.parse(providerCalls[1].body) as { messages: Array<{ role: string; content: string }> };
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /visible selected-pair form/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /selected label\/name: Harbor Signal concept/);
+
+    const contractRetryEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract retry"
+    );
+    assert.ok(contractRetryEvent);
+    assert.equal(contractRetryEvent.payload.answerContract.reasonCode, "missed_all_selected_focus");
+
+    const contractEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract"
+    );
+    assert.ok(contractEvent);
+    assert.equal(contractEvent.payload.answerContract.reasonCode, "missed_selected_labels");
+    assert.equal(contractEvent.payload.answerContract.retryRecommended, true);
+    assert.deepEqual(contractEvent.payload.retry, {
+      attempted: true,
+      failed: false,
+      maxAttempts: 1,
+    });
+
+    const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
+    assert.ok(llmEvent);
+    assert.equal(llmEvent.payload.retry.attempted, true);
+    assert.equal(llmEvent.payload.answerContract.reasonCode, "missed_selected_labels");
+
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.role === "user" && /Station-selected context|Answer-contract retry/.test(row.content)
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.filter((row) =>
+        row.content === "Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive."
+      ).length,
+      1
+    );
+
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Harbor Signal|Delta ferry|bronze beacon|Quiet ridge|green archive/i);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Harbor Signal|Delta ferry|bronze beacon|Quiet ridge|green archive/i);
   } finally {
     globalThis.fetch = originalFetch;
     setSupabaseAdminForTests(null);

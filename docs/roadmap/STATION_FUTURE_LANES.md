@@ -166,7 +166,10 @@ source-copy safety, and sanitized answer-contract/retry status before MIMIR
 chooses the next owner. PR296 proved retry execution but still failed exact
 visible label/phrase recall while internal readback reported `fulfilled`.
 MIMIR keeps the visible recall bar and opened PR297 as a DAEDALUS post-retry
-selected pair output repair.
+selected pair output repair. DAEDALUS completed PR297 by strengthening the
+retry instruction toward visible selected-pair output and requiring exact
+selected label/name/title text for contract fulfillment. ARGUS should review
+supporting-fact coverage strictness before MIMIR opens the next hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

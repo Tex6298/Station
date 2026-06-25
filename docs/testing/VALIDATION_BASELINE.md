@@ -30,31 +30,33 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
-## PR297 Post-Retry Selected Pair Output
+## PR297 Post-Retry Selected Pair Output Result
 
-MIMIR opened PR297 for DAEDALUS on 2026-06-25 after ARIADNE completed PR296.
+DAEDALUS completed PR297 on 2026-06-25:
+`docs/roadmap/PR297_POST_RETRY_SELECTED_PAIR_OUTPUT_RESULT.md`.
 
-Required validation:
+Validation result:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Visible selected-pair contract | Pass | A retry answer that mentions supporting facts but omits selected labels/names should not satisfy the contract. |
-| Selected label plus fact pass | Pass | A retry answer that includes selected label/name plus supporting fact pairs should satisfy the contract. |
-| PR295 label-miss retry | Pass | Facts-matched, label-missed first answers should still trigger exactly one retry under the safe gate. |
-| Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior should remain intact. |
-| Creative/style guard | Pass | Creative/style prompts with selected context should remain single-shot unless they include an explicit factual command. |
-| Route scope | Pass | Public, non-private, or non-persona paths should not gain retry behavior. |
-| Sanitized observability | Pass | Trace/readiness output should expose only allow-listed booleans, counts, enums, and timing buckets. |
-| No raw/private leakage | Pass | No raw prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, credentials, or secret-bearing env values. |
-| No hardcoded replay terms | Pass | Product code should not hardcode the PR296 synthetic labels or phrases. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Focused route coverage should live here unless DAEDALUS identifies a closer existing script. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness should keep sanitized readback behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript should stay clean. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings are not part of PR297. |
-| `git diff --check` | Pass | Whitespace check. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Visible selected-pair contract | Pass | A retry answer that mentions supporting facts but omits selected labels/names remains `missed_selected_labels` and does not satisfy the contract. |
+| Selected label plus fact pass | Pass | A retry answer that includes the exact selected label/name/title plus supporting facts satisfies the contract. |
+| PR295 label-miss retry | Pass | Facts-matched, label-missed first answers still trigger exactly one retry under the safe gate. |
+| Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior remains intact. |
+| Creative/style guard | Pass | Creative/style prompts with selected context remain single-shot unless they include an explicit factual command. |
+| Route scope | Pass | Public, non-private, and non-persona paths did not gain retry behavior. |
+| Sanitized observability | Pass | Trace/readiness output still exposes only allow-listed booleans, counts, enums, and timing buckets. |
+| No raw/private leakage | Pass | Focused route coverage asserts selected context scaffolding is not persisted as owner-visible user content, and raw selected strings are absent from trace/session rows. |
+| No hardcoded replay terms | Pass | Product code is generic over selected labels/facts and does not hardcode PR296 hosted replay labels or phrases. |
+| Contract caveat | Review | The verifier now requires exact selected label/name/title text plus supporting fact term coverage. The retry prompt asks for exact supporting fact phrases; ARGUS should review whether fact term coverage is strict enough for the hosted visible-pair bar. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 39 tests passed, including PR297 selected-pair failure/pass coverage plus PR295 label-miss retry, missed-all retry, and creative no-retry coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized trace readback stayed green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
 
-PR297 should not touch hosted probing, provider/model selection, embeddings,
+PR297 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
 queues, workers, billing, Stripe, public UI, or Studio UI.
 

@@ -4,35 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR297 Post-Retry Selected Pair Output opened
+## Latest DAEDALUS result - PR297 Post-Retry Selected Pair Output
 
-MIMIR accepts ARIADNE's PR296 hosted evidence and opens a narrow DAEDALUS
-answer-construction lane:
-`docs/roadmap/PR297_POST_RETRY_SELECTED_PAIR_OUTPUT_DAEDALUS.md`.
+DAEDALUS completed PR297 on 2026-06-25:
+`docs/roadmap/PR297_POST_RETRY_SELECTED_PAIR_OUTPUT_RESULT.md`.
 
-Decision:
+Result:
 
-- PR296 failed the hosted exact recall bar after PR295 deployed.
-- Hosted freshness, replay-owner auth/session, intended private persona,
-  selected context, rejected-control exclusion, source-copy safety,
-  observability, and retry execution passed.
-- Context contained both accepted concept labels and both matching invented
-  retrieval phrases.
-- The first answer hit `missed_selected_labels`, and retry was attempted.
-- Final answer-contract readback reported `fulfilled`, but the final hosted
-  answer recalled neither exact accepted label nor exact invented phrase under
-  ARIADNE's external acceptance check.
-- MIMIR keeps the acceptance bar: visible selected label/name plus supporting
-  fact recall matters more than a weaker internal term-level fulfilled result.
+- Patch: selected-context retry construction now explicitly asks for visible
+  selected-pair output in the form
+  `"<selected label/name/title>: <supporting fact>"`.
+- Patch: answer-contract fulfillment now requires the exact selected
+  label/name/title text, so a retry answer that mentions supporting facts but
+  omits selected labels/names remains `missed_selected_labels`.
+- Supporting facts continue to use bounded term coverage in the verifier; the
+  provider-facing retry instruction asks for exact relevant supporting fact
+  phrases. ARGUS should review whether that balance is strict enough for the
+  hosted visible-pair bar.
+- No hosted probing, provider/model, embedding, retrieval ranking, context
+  assembly, schema, seed, import, worker, billing, Stripe, public UI, or Studio
+  UI behavior changed.
+- Validation passed: `test:conversation-archive`, `test:replay-readiness`,
+  `typecheck`, and `lint` with existing web raw `<img>` warnings only.
 
 Current baton:
 
-- DAEDALUS should implement
-  `docs/roadmap/PR297_POST_RETRY_SELECTED_PAIR_OUTPUT_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS after implementation and validation.
-- ARGUS should review that the fix strengthens answer construction/contract
-  alignment without loosening the bar, hardcoding replay terms, widening retry
-  scope, or leaking raw private material.
+- ARGUS should review PR297 for retry prompt scope, exact-label contract
+  alignment, supporting-fact coverage strictness, creative/style no-retry
+  guard, sanitized observability, persisted-message boundaries, no hardcoded
+  replay terms, and no scope creep.
+- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
+  MIMIR should open the next hosted ARIADNE rerun.
 
 ## Latest MIMIR decision - PR296 Hosted Label Retry Rerun opened
 
