@@ -211,6 +211,26 @@ MIMIR may:
 - ask KVASIR for a narrower packet;
 - defer until a named mainline lane closes.
 
+## Handoff Tone
+
+ADV handoffs are advisory and permission-based. They must not sound like
+mainline steering, an urgent interruption, or a request to pause an active
+A1-A4 lane.
+
+When KVASIR has a future-prep result and needs MIMIR to choose whether another
+ADV packet should open, use plain language like:
+
+```text
+Sorry to interrupt the mainline watch. Before you carry on with mainline, here
+is the split-safe future-prep register. This does not ask you to pause or
+change the current product lane. When you have a natural handoff point, please
+choose one item for A5-A8 to prepare separately, or tell us to wait.
+```
+
+If mainline work is active, frame the ADV question as something MIMIR can
+answer at the next natural pause or handoff only. Do not ask MIMIR to decide
+while active A1-A4 work needs immediate attention.
+
 ## Conflict Rules
 
 Advance agents stop and wake MIMIR if they would need to:
