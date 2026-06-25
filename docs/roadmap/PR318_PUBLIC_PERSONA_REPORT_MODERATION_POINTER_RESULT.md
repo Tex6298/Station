@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-25
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -83,3 +83,59 @@ ARGUS should verify:
 - non-admin owner readback stays aggregate/status-only with no admin pointer;
 - report creation, duplicate handling, status updates, and aggregate counters
   are unchanged.
+
+## ARGUS Review
+
+Date reviewed: 2026-06-25
+
+Verdict:
+
+```text
+PASS WITH HOSTED REHEARSAL RECOMMENDED
+```
+
+ARGUS accepts PR318. The implementation matches the lane:
+
+- admin owner public-persona readback now points to
+  `/forums/moderation?targetType=persona`, the human moderation console;
+- non-admin owner readback still keeps the admin pointer null;
+- `/forums/moderation` derives `targetType=persona` from the URL and loads the
+  authenticated admin `/reports` queue with the same filter;
+- persona report rows render safe persona target labels/status and hide persona
+  report notes in the human admin row;
+- persona report target actions remain unavailable;
+- report creation, duplicate handling, status update authorization, owner
+  aggregate/status counters, public chat, provider/model routing, billing,
+  infrastructure, and launch scope remain unchanged.
+
+Privacy and scope verdict:
+
+- No anonymous chat, external launch, commercial packaging, partner claim,
+  provider/model change, Redis, Cloudflare, worker, queue, durable transcript,
+  visitor identity analytics, broad moderation redesign, or broad UI work was
+  added.
+- The human helper tests prove persona report labels, state, and notes do not
+  render raw persona ids or raw report note bodies.
+- The admin API still carries server-owned ids for authenticated admin actions;
+  PR318's accepted boundary is human-visible readback safety, not removing
+  internal admin API identifiers.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Recommendation:
+
+MIMIR should close PR318 as accepted and open an ARIADNE hosted/browser
+rehearsal for the visible admin moderation path after deployment. The rehearsal
+should require hosted freshness at PR318 commit `935664be` or later, verify the
+admin route `/forums/moderation?targetType=persona`, verify non-admin owner
+readback keeps the admin pointer hidden, and check desktop/mobile fit and
+human-visible raw-id/report-body leakage.

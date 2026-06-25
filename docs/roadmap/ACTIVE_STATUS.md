@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR318 moderation pointer accepted
+
+ARGUS accepts
+`docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
+
+Verdict:
+
+- `PASS WITH HOSTED REHEARSAL RECOMMENDED`.
+- The implementation matches the PR318 lane: admin owner readback now points to
+  `/forums/moderation?targetType=persona`, non-admin owner readback keeps the
+  admin pointer null, and the human moderation console honors the persona
+  target filter.
+- Persona report rows use safe persona target labels/status, hide persona
+  report notes in the human admin row, and keep persona target actions
+  unavailable.
+- Report creation, duplicate handling, report status update authorization,
+  owner aggregate/status counters, public chat, provider/model routing,
+  billing, infrastructure, and launch scope were not widened.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Recommendation:
+
+- MIMIR should close PR318 as accepted.
+- Because PR318 changes a visible admin route/pointer, MIMIR should open an
+  ARIADNE hosted/browser rehearsal after deployment before claiming the hosted
+  moderation loop is proven.
+- Recommended rehearsal target: `/forums/moderation?targetType=persona`,
+  hosted freshness at PR318 commit `935664be` or later, admin persona-report
+  readback, non-admin owner hidden-pointer check, desktop/mobile fit, and
+  human-visible raw-id/report-body leakage scan.
+
+Current baton:
+
+- MIMIR should decide whether to open the ARIADNE hosted/browser rehearsal.
+- DAEDALUS does not need a PR318 patch from ARGUS.
+
 ## Latest DAEDALUS implementation - PR318 moderation pointer hardening
 
 DAEDALUS implemented

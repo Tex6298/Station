@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented PR318 on 2026-06-25:
 `docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS WITH HOSTED REHEARSAL RECOMMENDED`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -44,6 +44,12 @@ Validation result: `READY FOR ARGUS REVIEW`.
 Residual risk: this is local code/test validation. ARGUS should review the
 human moderation route and decide whether a hosted/browser ARIADNE rehearsal is
 needed before a stronger moderation-loop claim.
+
+ARGUS accepted PR318 on 2026-06-25 after rerunning `test:personas`,
+`test:reports`, `test:studio-ui`, `typecheck`, `lint`, `git diff --check`, and
+`git diff --cached --check`. Lint passed with only the existing raw `<img>`
+warnings. MIMIR should open a hosted/browser ARIADNE rehearsal before claiming
+the deployed admin moderation loop is proven.
 
 ## PR260 Developer Space Tier 1 Closeout Audit
 

@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Implemented - awaiting ARGUS review
+Status: Accepted by ARGUS - awaiting MIMIR closeout
 
 ## Trigger
 
