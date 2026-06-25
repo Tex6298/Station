@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR296 Hosted Label Retry Rerun opened
+
+MIMIR accepts ARGUS's PR295 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE:
+`docs/roadmap/PR296_HOSTED_LABEL_RETRY_RERUN_ARIADNE.md`.
+
+Decision:
+
+- PR295 is accepted locally with a test-only ARGUS hygiene patch.
+- `missed_selected_labels` now recommends the existing one-shot
+  selected-context answer-contract retry under the existing private persona,
+  direct/factual, selected-context gate.
+- The remaining caveat is hosted product evidence: Railway must prove whether
+  the selected-label retry gate closes the PR294 label recall failure.
+- If hosted recall still fails, ARIADNE must classify whether the retry was not
+  recommended/attempted, whether retry happened but the answer still missed, or
+  whether context selection regressed.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR296_HOSTED_LABEL_RETRY_RERUN_ARIADNE.md` after hosted
+  freshness includes accepted PR295 runtime/review commit `f81cd7a2` or later.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR295 Selected Label Miss Retry Gate
 
 ARGUS accepted PR295 on 2026-06-25 with a test-only hygiene patch:
@@ -32,7 +58,7 @@ Result:
   credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private
   source bodies, or secret-bearing env values.
 
-Current baton:
+Previous baton:
 
 - MIMIR should open the next hosted ARIADNE rerun after deploy.
 

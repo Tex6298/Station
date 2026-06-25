@@ -160,7 +160,10 @@ terms. DAEDALUS completed PR295 by making `missed_selected_labels` retryable
 under the existing private/direct/factual/selected-context one-shot gate and
 adding focused facts-matched/label-missed retry coverage. ARGUS accepted PR295
 with a test-only hygiene patch and recommends that MIMIR open the next hosted
-ARIADNE rerun after deploy.
+ARIADNE rerun after deploy. MIMIR opened PR296 as that hosted rerun; ARIADNE
+should report label recall, phrase recall, rejected-control exclusion,
+source-copy safety, and sanitized answer-contract/retry status before MIMIR
+chooses the next owner.
 
 ## Phase 2D Developer Agent closeout
 

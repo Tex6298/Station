@@ -172,6 +172,10 @@ then let staged replay reveal the next optimizations.
   the retry includes the selected label. ARGUS accepted PR295 with a test-only
   hygiene patch and recommends that MIMIR open the next hosted rerun after
   deploy.
+- MIMIR opened PR296 as the ARIADNE hosted rerun after PR295 deploy. PR296 must
+  prove hosted label and phrase recall, rejected-control exclusion, source-copy
+  safety, and sanitized answer-contract/retry readback before MIMIR decides
+  whether to close the hosted recall bar or classify the remaining failure.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
