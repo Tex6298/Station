@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR302 Selected Pair Finalizer opened
+
+MIMIR accepts ARIADNE's PR301 hosted evidence and opens a narrow DAEDALUS
+finalizer lane:
+`docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_DAEDALUS.md`.
+
+Decision:
+
+- PR301 failed exact label recall after PR300 deployed.
+- Hosted freshness, replay-owner auth/session, intended persona, selected
+  context, rejected-control exclusion, source-copy safety, observability, and
+  pair-aware retry execution passed.
+- Context contained both accepted labels and both matching phrases.
+- The first and final answer-contract reasons were `missed_selected_labels`.
+- Retry was attempted once and did not fail.
+- The final hosted answer still recalled both phrases but neither accepted
+  label.
+- MIMIR keeps the exact selected-pair recall bar and chooses a bounded
+  private/direct factual selected-pair finalizer rather than a third provider
+  call or another prompt-only retry.
+
+Current baton:
+
+- DAEDALUS should implement
+  `docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation and validation.
+- ARGUS should review privacy, route scope, persisted-message boundaries,
+  sanitized observability, selected-pair construction, no hardcoded replay
+  terms, and no acceptance-bar loosening.
+
 ## Latest MIMIR decision - PR301 Hosted Pair-Aware Rerun opened
 
 MIMIR accepts ARGUS's PR300 review and opens the hosted post-deploy product

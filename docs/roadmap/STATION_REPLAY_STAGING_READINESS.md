@@ -206,6 +206,10 @@ then let staged replay reveal the next optimizations.
   the next hosted ARIADNE rerun after deploy.
 - MIMIR opened PR301 as that hosted rerun. Because ARGUS touched runtime code
   in PR300, PR301 requires hosted web/API freshness at `ea9b0e90` or later.
+- PR301 proved the pair-aware retry fires on hosted Railway but still failed
+  exact label recall after the one allowed retry. MIMIR keeps the selected-pair
+  bar and opened PR302 as a bounded private/direct factual selected-pair
+  finalizer rather than another provider retry.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

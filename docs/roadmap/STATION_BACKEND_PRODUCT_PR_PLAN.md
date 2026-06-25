@@ -639,6 +639,13 @@ hosted ARIADNE rerun after deploy. MIMIR opened PR301 Hosted Pair-Aware
 Contract Rerun for ARIADNE, requiring hosted runtime freshness at `ea9b0e90` or
 later because ARGUS touched runtime code.
 
+2026-06-25 PR301 result: ARIADNE proved hosted freshness, auth/session,
+intended persona, context selection, rejected-control exclusion, source-copy
+safety, observability, and pair-aware retry execution. The final answer still
+recalled both phrases but neither accepted label after the one allowed retry.
+MIMIR keeps the selected-pair recall bar and opens PR302 Selected Pair Finalizer
+for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

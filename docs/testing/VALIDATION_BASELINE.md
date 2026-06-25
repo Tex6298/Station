@@ -30,6 +30,59 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR302 Selected Pair Finalizer
+
+MIMIR opened PR302 for DAEDALUS on 2026-06-25 after ARIADNE completed PR301.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Finalizer after exhausted retry | Pass | If private direct/factual selected-context chat still reports `missed_selected_labels` after the existing one-shot retry, Station can construct the final answer from selected pairs. |
+| Selected-pair output | Pass | Finalizer output should include selected label/name/title plus supporting fact from the same selected item. |
+| No third provider call | Pass | The finalizer is not another provider retry. |
+| Route scope | Pass | Creative/style, public, non-private, or non-persona paths should not gain finalizer behavior. |
+| Pair-aware contract preserved | Pass | PR300 unrelated-label failure and matched-pair pass coverage should remain green. |
+| Retry behavior preserved | Pass | PR295 label-miss retry and missed-all retry should remain green with retry maximum `1`. |
+| Sanitized observability | Pass | Trace/readiness output should expose only allow-listed booleans, counts, enums, and timing buckets. |
+| No raw/private leakage | Pass | No raw prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, credentials, or secret-bearing env values. |
+| No hardcoded replay terms | Pass | Product code should not hardcode the PR301 synthetic labels or phrases. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Focused route coverage should live here unless DAEDALUS identifies a closer existing script. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness should keep sanitized readback behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript should stay clean. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings are not part of PR302. |
+| `git diff --check` | Pass | Whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR302 should not touch hosted probing, provider/model selection, embeddings,
+retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
+queues, workers, billing, Stripe, public UI, or Studio UI.
+
+## PR301 Hosted Pair-Aware Contract Rerun Result
+
+ARIADNE completed PR301 on 2026-06-25.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included accepted PR300 runtime/review commit `ea9b0e90`. |
+| Replay owner auth/session | Pass | Hosted API auth and protected browser Studio session passed, including reload persistence. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Selected context labels | Pass | Selected context contained both accepted concept labels. |
+| Selected context phrases | Pass | Selected context contained both matching invented retrieval phrases. |
+| Pair-aware retry execution | Pass | First and final reasons were `missed_selected_labels`; retry attempted exactly once and did not fail. |
+| Answer label recall | Fail | Hosted answer recalled neither accepted concept label. |
+| Answer phrase recall | Pass | Hosted answer recalled both matching invented retrieval phrases. |
+| Rejected-control exclusion | Pass | Rejected-control anchor stayed absent from context and answer. |
+| Source-copy safety | Pass | Answer stayed short and did not copy raw source-body markers. |
+
+Recommendation: MIMIR keeps the visible exact selected-pair bar and opens
+DAEDALUS PR302 for a bounded private/direct factual selected-pair finalizer
+after the one allowed retry is exhausted.
+
 ## PR301 Hosted Pair-Aware Contract Rerun
 
 MIMIR opened PR301 for ARIADNE on 2026-06-25 after ARGUS accepted PR300.

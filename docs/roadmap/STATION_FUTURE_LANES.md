@@ -182,7 +182,10 @@ from the same selected item before the contract can report `fulfilled`. ARGUS
 accepted PR300 with a narrow fact-only guard for unlabeled selected items and
 recommends that MIMIR open the next hosted ARIADNE rerun after deploy. MIMIR
 opened PR301 as that hosted rerun, requiring hosted runtime freshness at
-`ea9b0e90` or later because ARGUS touched runtime code.
+`ea9b0e90` or later because ARGUS touched runtime code. PR301 proved the
+pair-aware retry fires but hosted exact label recall still fails after the one
+allowed retry. MIMIR opened PR302 as a bounded private/direct factual
+selected-pair finalizer.
 
 ## Phase 2D Developer Agent closeout
 
