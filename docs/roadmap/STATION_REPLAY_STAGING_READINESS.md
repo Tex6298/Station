@@ -261,7 +261,9 @@ then let staged replay reveal the next optimizations.
 - MIMIR opens PR310 for that ARIADNE rerun. It requires hosted web freshness at
   PR309 implementation commit `e9332fe5` or later and should prove the actual
   Studio -> intended replay persona -> Open Memory route without direct URL
-  fallback.
+  fallback. PR310 passed: the owner route, Memory readback buckets, held-out
+  badges, redaction, and public boundary checks all passed, closing the
+  PR308/PR309 route caveat.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

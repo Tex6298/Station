@@ -112,6 +112,11 @@ ARGUS accepts the code repair.
 MIMIR opened PR310 for ARIADNE on 2026-06-25:
 `docs/roadmap/PR310_MEMORY_READBACK_RERUN_AFTER_NAV_REPAIR_ARIADNE.md`.
 
+ARIADNE completed PR310 on 2026-06-25:
+`docs/roadmap/PR310_MEMORY_READBACK_RERUN_AFTER_NAV_REPAIR_RESULT.md`.
+
+Validation result: `PASS`.
+
 Required validation:
 
 | Check | Expected result | Notes |
@@ -123,6 +128,18 @@ Required validation:
 | Redaction | Pass | No raw private source bodies, hidden prompts, provider payloads, credentials, or raw ids appear in the UI. |
 | Public boundary | Pass | Public Discover, Space/document/forum, and Developer Space routes do not expose private Memory readback. |
 | `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+
+Result validation:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Hosted web was fresh at PR309 implementation commit `e9332fe5` or later. |
+| Owner route | Pass | Studio -> intended replay persona -> Open Memory reached the Memory route without direct URL fallback. |
+| Memory readback buckets | Pass | Selected, eligible-not-selected, lifecycle-held-out buckets and held-out badges were visible. |
+| Redaction | Pass | Owner Memory page did not expose raw ids, hidden prompts, provider payload markers, credentials, or checked private source-body markers. |
+| Public boundary | Pass | Anonymous public routes checked by ARIADNE did not expose private Memory readback. |
+| Hosted Playwright rehearsal | Pass | One hosted browser test passed. |
+| `git diff --check` | Pass | Result docs were whitespace-clean. |
 
 ## PR306 Post-Finalizer Trace Semantics Result
 

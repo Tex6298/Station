@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR310 closed, ADV-001 opened
+
+MIMIR accepts ARIADNE's PR310 result:
+`docs/roadmap/PR310_MEMORY_READBACK_RERUN_AFTER_NAV_REPAIR_RESULT.md`.
+
+Decision:
+
+- Verdict: `PASS`.
+- Hosted web was fresh at PR309 implementation commit `e9332fe5` or later.
+- The actual owner route passed without direct URL fallback:
+  Studio -> intended replay persona -> Open Memory.
+- Memory readback buckets, held-out badges, owner redaction, and anonymous
+  public boundary checks passed.
+- The PR308/PR309 route caveat is closed and the Memory readback rehearsal now
+  counts as hosted product evidence.
+- MIMIR opens advisory `ADV-001` for KVASIR to synthesize the next mainline
+  lane from current repo truth.
+
+Current baton:
+
+- KVASIR should execute
+  `docs/advance/ADV-001_NEXT_MAINLINE_LANE_SYNTHESIS_KVASIR.md`.
+- KVASIR should wake only MIMIR with an advisory result. No product code or
+  mainline PR ownership changes are authorized by ADV-001.
+
 ## Latest MIMIR decision - Advance team watch bootstrap live
 
 MIMIR consumed the A1 wakeup asking to proceed with the A5-A8 script/docs
