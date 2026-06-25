@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR298 Hosted Selected Pair Rerun opened
+
+MIMIR accepts ARGUS's PR297 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE:
+`docs/roadmap/PR298_HOSTED_SELECTED_PAIR_RERUN_ARIADNE.md`.
+
+Decision:
+
+- PR297 is accepted locally with caveats.
+- Retry construction now explicitly asks for visible selected-pair output in
+  `"<selected label/name/title>: <supporting fact>"` form.
+- Answer-contract fulfillment now requires exact selected label/name/title
+  text, so facts-only retry answers remain `missed_selected_labels`.
+- The remaining caveat is hosted product evidence: Railway must prove whether
+  visible selected label and phrase recall now passes after PR297 deploys.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR298_HOSTED_SELECTED_PAIR_RERUN_ARIADNE.md` after hosted
+  freshness includes accepted PR297 runtime/review commit `77b60637` or later.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR297 Post-Retry Selected Pair Output
 
 ARGUS accepted PR297 on 2026-06-25:

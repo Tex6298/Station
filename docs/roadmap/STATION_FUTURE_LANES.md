@@ -170,7 +170,7 @@ selected pair output repair. DAEDALUS completed PR297 by strengthening the
 retry instruction toward visible selected-pair output and requiring exact
 selected label/name/title text for contract fulfillment. ARGUS accepted PR297
 with caveats and recommends that MIMIR open the next hosted ARIADNE rerun after
-deploy.
+deploy. MIMIR opened PR298 as that hosted rerun after PR297 deploy.
 
 ## Phase 2D Developer Agent closeout
 

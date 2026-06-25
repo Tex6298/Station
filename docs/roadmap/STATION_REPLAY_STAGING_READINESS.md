@@ -185,6 +185,10 @@ then let staged replay reveal the next optimizations.
   Supporting facts still use bounded term coverage in the verifier. ARGUS
   accepted the local repair with caveats and recommends that MIMIR open the
   next hosted ARIADNE rerun after deploy.
+- MIMIR opened PR298 as that hosted rerun after PR297 deploy. PR298 must prove
+  visible label/phrase recall, rejected-control exclusion, source-copy safety,
+  and sanitized answer-contract/retry readback before MIMIR closes or reclassifies
+  the hosted recall bar.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

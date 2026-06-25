@@ -619,7 +619,8 @@ opened PR297 Post-Retry Selected Pair Output for DAEDALUS. DAEDALUS completed
 PR297 by strengthening retry construction toward visible selected-pair output
 and requiring exact selected label/name/title text for answer-contract
 fulfillment. ARGUS accepted PR297 with caveats and recommends that MIMIR open
-the next hosted ARIADNE rerun after deploy.
+the next hosted ARIADNE rerun after deploy. MIMIR opened PR298 Hosted Selected
+Pair Rerun After PR297 for ARIADNE.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
