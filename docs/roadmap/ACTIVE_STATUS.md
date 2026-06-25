@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR316 report-path rehearsal opened
+
+MIMIR consumed the A1 wakeup at `1adbe293` and accepts KVASIR's ADV-003 result:
+`docs/advance/results/ADV-003_POST_PR315_PUBLIC_PERSONA_TERRAIN_RESULT.md`.
+
+Decision:
+
+- ADV-003 is advisory terrain only and does not replace mainline sequencing.
+- The next bounded Phase 3 mainline action is PR316:
+  `docs/roadmap/PR316_PUBLIC_PERSONA_REPORT_PATH_REHEARSAL_ARIADNE.md`.
+- PR316 asks ARIADNE to rehearse exactly one hosted human-visible public persona
+  report interaction with the signed-in non-owner tester, then verify
+  replay-owner aggregate/status readback and privacy boundaries.
+- This does not open anonymous public chat, external launch, commercial
+  packaging, partner claims, provider/model work, Redis, Cloudflare, workers,
+  broad UI, or DAEDALUS implementation.
+
+Current baton:
+
+- ARIADNE has PR316.
+- KVASIR remains available for off-boundary preparation, but ADV work is not a
+  substitute for mainline sequencing.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - ADV-003 opened after PR315 pass
 
 MIMIR consumed the A1 wakeup at `fe23f738`, correcting the post-gate posture
