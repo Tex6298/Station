@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR314 public persona pilot rehearsal opened
+
+MIMIR accepts ARGUS's PR313 `SCOPE LOCKED WITH GATES` result:
+`docs/roadmap/PR313_PHASE3_PROPER_PILOT_SCOPE_LOCK_RESULT.md`.
+
+Decision:
+
+- First Phase 3 proper pilot axis: public persona / public interaction
+  expansion.
+- This is an internal hosted rehearsal only: one invited signed-in non-owner
+  tester plus the replay owner.
+- MIMIR opens
+  `docs/roadmap/PR314_PHASE3_PUBLIC_PERSONA_INTERACTION_PILOT_REHEARSAL_ARIADNE.md`.
+- PR314 is hosted/browser evidence only. It does not open DAEDALUS
+  implementation, external public launch, commercial packaging, partner claims,
+  or infrastructure expansion.
+
+Current baton:
+
+- ARIADNE should execute PR314 and wake MIMIR with `PASS`, `BLOCKED`, or
+  `FAIL`.
+- If PR314 finds a concrete defect, MIMIR will route the smallest follow-up.
+
 ## Latest ARGUS result - PR313 Phase 3 pilot scope lock
 
 ARGUS completed
