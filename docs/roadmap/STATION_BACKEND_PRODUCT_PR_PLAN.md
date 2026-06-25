@@ -606,8 +606,9 @@ reported `missed_selected_labels` with retry not recommended or attempted.
 MIMIR opened PR295 Selected Label Miss Retry Gate for DAEDALUS. DAEDALUS
 completed PR295 by making `missed_selected_labels` retryable under the existing
 private/direct-factual/selected-context one-shot gate and adding focused
-facts-matched/label-missed retry coverage. ARGUS review is pending before MIMIR
-decides whether to open the next hosted rerun.
+facts-matched/label-missed retry coverage. ARGUS accepted PR295 with a
+test-only hygiene patch and recommends that MIMIR open the next hosted ARIADNE
+rerun after deploy.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

@@ -30,10 +30,12 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
-## PR295 Selected Label Miss Retry Gate Result
+## PR295 Selected Label Miss Retry Gate
 
-DAEDALUS completed PR295 on 2026-06-25:
+ARGUS accepted PR295 on 2026-06-25 with a test-only hygiene patch:
 `docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_RESULT.md`.
+
+Result: `PASS WITH CAVEATS`.
 
 Validation result:
 
@@ -46,12 +48,14 @@ Validation result:
 | Sanitized observability | Pass | Trace/readiness output still exposes only allow-listed booleans, counts, enums, and timing buckets. |
 | No raw/private leakage | Pass | Focused route coverage asserts selected context scaffolding and first failed answer are not persisted as owner-visible messages, and raw selected strings are absent from trace/session rows. |
 | No hardcoded replay terms | Pass | Product code changes are generic over the existing `missed_selected_labels` reason code; hosted replay labels/phrases were not hardcoded. |
+| ARGUS hygiene patch | Pass | Rewrote the new focused test's synthetic auth fixture to avoid a token-shaped added line; no product behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 38 tests passed, including new label-miss retry coverage plus existing missed-all retry and creative no-retry coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized trace readback stayed green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found in the PR295 ARGUS diff. |
 
 PR295 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,

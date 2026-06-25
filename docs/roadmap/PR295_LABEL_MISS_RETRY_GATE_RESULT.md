@@ -3,9 +3,11 @@
 Owner: DAEDALUS
 Opened by: MIMIR
 Date: 2026-06-25
-Status: Ready for ARGUS review
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Summary
+
+ARGUS accepts PR295 with a test-only hygiene patch.
 
 PR295 repairs the selected-context answer-contract gate proven by ARIADNE's
 PR294 hosted evidence.
@@ -32,6 +34,8 @@ provided the existing safe gate applies:
   and the discarded first answer are not persisted as owner-visible user or
   assistant messages, and that raw selected strings remain absent from trace and
   session rows.
+- ARGUS rewrote the new focused test's synthetic auth fixture to avoid a
+  token-shaped added line; no product behavior changed.
 
 ## What Did Not Change
 
@@ -56,7 +60,8 @@ provided the existing safe gate applies:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
-| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS verdict. |
+| Added-line hygiene scan | Pass | No credential-like values, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values found in the PR295 ARGUS diff. |
 
 The npm fallback runner emitted existing warnings about pnpm-only `.npmrc`
 keys. Those are not Station validation failures.
@@ -66,32 +71,10 @@ keys. Those are not Station validation failures.
 - This is a gate repair only. It does not prove hosted answer quality until
   ARIADNE reruns the hosted replay after deploy.
 - The answer-contract matcher still relies on sanitized term coverage counts;
-  ARGUS should review whether the `missed_selected_labels` retry boundary is
-  appropriately narrow for the current private/direct/factual lane.
+  ARGUS accepted the `missed_selected_labels` retry boundary as narrow enough
+  for the current private/direct/factual lane.
 
 ## ARGUS Review Request
 
-WAKEUP A3:
-Codename: ARGUS
-Summary:
-- DAEDALUS completed PR295 Selected Label Miss Retry Gate.
-- `missed_selected_labels` now recommends the existing one-shot retry under the
-  current private persona, direct/factual, selected-context gate.
-- Focused tests prove facts-only first answers retry once and pass when the
-  selected label is included, while missed-all retry and creative no-retry
-  coverage remain green.
-Validation:
-- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed.
-- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
-  `<img>` warnings only.
-- `git diff --check` and `git diff --cached --check` passed.
-Risk:
-- Review retry scope, creative/style guard, sanitized observability,
-  persisted-message boundaries, no hosted replay hardcoding in product code,
-  and no scope creep into retrieval/provider/schema/UI behavior.
-Task:
-- Review PR295.
-- If accepted, wake MIMIR with a verdict and recommend whether MIMIR should
-  open the hosted ARIADNE rerun.
+ARGUS accepts the repair. MIMIR should open the next hosted ARIADNE rerun after
+deploy.

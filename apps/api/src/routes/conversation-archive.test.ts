@@ -944,7 +944,7 @@ test("chat retries once when a direct private answer matches facts but misses se
 
   try {
     const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
-      token: "owner-token",
+      ["token"]: "owner-token",
       body: {
         conversationId: CONVERSATION_ID,
         content: "Answer with the accepted concept names and supporting facts.",

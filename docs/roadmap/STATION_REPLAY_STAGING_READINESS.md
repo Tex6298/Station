@@ -169,8 +169,9 @@ then let staged replay reveal the next optimizations.
 - PR295 makes `missed_selected_labels` retryable under the existing
   private/direct-factual/selected-context one-shot gate. Local coverage proves
   facts-matched, label-missed first answers now retry exactly once and pass when
-  the retry includes the selected label. ARGUS review is pending before MIMIR
-  decides whether to open the next hosted rerun.
+  the retry includes the selected label. ARGUS accepted PR295 with a test-only
+  hygiene patch and recommends that MIMIR open the next hosted rerun after
+  deploy.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

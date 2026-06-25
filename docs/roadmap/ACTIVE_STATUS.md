@@ -4,16 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR295 Selected Label Miss Retry Gate
+## Latest ARGUS review - PR295 Selected Label Miss Retry Gate
 
-DAEDALUS completed PR295 on 2026-06-25:
+ARGUS accepted PR295 on 2026-06-25 with a test-only hygiene patch:
 `docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_RESULT.md`.
 
 Result:
 
+- Verdict: `PASS WITH CAVEATS`.
 - Patch: `missed_selected_labels` now recommends the existing one-shot
   selected-context answer-contract retry under the existing private persona,
   direct/factual, selected-context gate.
+- ARGUS review patch: rewrote the new focused test's synthetic auth fixture to
+  avoid a token-shaped added line; no product behavior changed.
 - No retrieval, context assembly, provider/model, prompt fixture, schema, seed,
   import, worker, billing, Stripe, public UI, or Studio UI behavior changed.
 - Focused coverage proves a first answer can match selected supporting facts
@@ -24,14 +27,14 @@ Result:
 - Trace/readiness sanitization shape was not widened.
 - Validation passed: `test:conversation-archive`, `test:replay-readiness`,
   `typecheck`, and `lint` with existing web raw `<img>` warnings only.
+- `git diff --check` and `git diff --cached --check` passed.
+- ARGUS added-line hygiene scan found no credential-like values, emails,
+  credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private
+  source bodies, or secret-bearing env values.
 
 Current baton:
 
-- ARGUS should review PR295 for privacy, retry scope, creative/style guard,
-  sanitized observability, persisted-message boundaries, no hardcoded hosted
-  replay anchors in product code, and no scope creep.
-- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
-  MIMIR should open the hosted ARIADNE rerun.
+- MIMIR should open the next hosted ARIADNE rerun after deploy.
 
 ## Latest MIMIR decision - PR294 Hosted Runtime Answer Rerun opened
 

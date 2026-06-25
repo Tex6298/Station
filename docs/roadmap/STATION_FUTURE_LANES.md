@@ -158,8 +158,9 @@ selected-label miss retry-gate repair, with ARGUS to review privacy, retry
 scope, creative/style guard, sanitized observability, and no hardcoded replay
 terms. DAEDALUS completed PR295 by making `missed_selected_labels` retryable
 under the existing private/direct/factual/selected-context one-shot gate and
-adding focused facts-matched/label-missed retry coverage. ARGUS should review
-the retry boundary and, if accepted, wake MIMIR to decide the hosted rerun.
+adding focused facts-matched/label-missed retry coverage. ARGUS accepted PR295
+with a test-only hygiene patch and recommends that MIMIR open the next hosted
+ARIADNE rerun after deploy.
 
 ## Phase 2D Developer Agent closeout
 
