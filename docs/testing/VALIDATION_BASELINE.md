@@ -146,6 +146,11 @@ Result validation:
 MIMIR opened PR311 for ARIADNE on 2026-06-25:
 `docs/roadmap/PR311_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_MEMORY_PROOF_ARIADNE.md`.
 
+ARIADNE completed PR311 on 2026-06-25:
+`docs/roadmap/PR311_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_MEMORY_PROOF_RESULT.md`.
+
+Validation result: `PASS`.
+
 Required validation:
 
 | Check | Expected result | Notes |
@@ -158,6 +163,20 @@ Required validation:
 | Public chain | Pass | Public-safe Discover/content/forum and Developer Space routes remain coherent and do not leak private owner Memory. |
 | Billing/account readback | Pass or skipped | Readback only; no new checkout, portal, or billing mutation. |
 | `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+
+Result validation:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Hosted web/API were healthy and deployment-ready at commit prefix `d59be4ee8efa`; local ancestry included PR309 runtime commit `e9332fe5`. |
+| Owner Studio journey | Pass | Replay owner reached Studio, intended replay persona, Memory, Continuity/provenance, Persona Archive, Export Workspace, Billing, and Settings. |
+| Memory route/readback | Pass | Owner reached Memory through `Open Memory`; selected, eligible-not-selected, lifecycle-held-out buckets and held-out badges remained understandable. |
+| Continuity/provenance | Pass | Runtime provenance source grouping was reachable without compiled prompts or raw source bodies. |
+| Archive/export trust | Pass | Archive and export trust surfaces were coherent and did not imply unavailable worker/download behavior. |
+| Public chain | Pass | Public front door, Discover, replay Space/document, Forums, and public Developer Space stayed public-safe and did not expose private Memory readback. |
+| Billing/account readback | Pass | Readback was server-authoritative; no checkout, portal, webhook, billing, export, import, key-rotation, provider, queue, or worker mutation was run. |
+| Hosted Playwright rehearsal | Pass | One hosted browser test passed. |
+| `git diff --check` | Pass | Result docs were whitespace-clean. |
 
 ## PR306 Post-Finalizer Trace Semantics Result
 

@@ -12,6 +12,25 @@ co-own, or disturb the active mainline PR sequence.
 Advance agents prepare clean packets that MIMIR can accept, reject, or promote
 into the main Station roadmap when the active lane is ready.
 
+## Authority Rule
+
+MIMIR keeps sequencing, product, acceptance, and promotion authority.
+
+KVASIR, SESHAT, JANUS, and CASSANDRA do not choose the next mainline lane,
+declare the main team ready to move, or tell MIMIR what the product sequence
+should be. They prepare bounded advisory packets only.
+
+Future advance prompts should ask for scoped prep, for example:
+
+- map a named billing or token-topup risk;
+- inventory partner-pilot documentation clues;
+- preflight a known config gate;
+- compare options and name promotion criteria.
+
+They should not ask an advance agent to decide what DAEDALUS, ARGUS, ARIADNE,
+or MIMIR should do next. MIMIR may use an advance result as evidence, but is not
+bound by it.
+
 Allowed advance work:
 
 - audits;
@@ -49,8 +68,9 @@ KVASIR coordinates advance packets. KVASIR distills scattered research,
 upstream repo clues, user asks, and staged evidence into one bounded packet for
 MIMIR.
 
-KVASIR does not decide product sequence. KVASIR wakes MIMIR with options,
-tradeoffs, and a recommended promotion path.
+KVASIR does not decide product sequence, set acceptance bars, or direct the
+mainline team. KVASIR wakes MIMIR with options, tradeoffs, risks, and promotion
+criteria.
 
 ### A6 / SESHAT - The Archivist
 

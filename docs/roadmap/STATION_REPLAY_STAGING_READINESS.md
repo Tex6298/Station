@@ -264,9 +264,13 @@ then let staged replay reveal the next optimizations.
   fallback. PR310 passed: the owner route, Memory readback buckets, held-out
   badges, redaction, and public boundary checks all passed, closing the
   PR308/PR309 route caveat.
-- KVASIR completed ADV-001 and MIMIR accepts the recommendation to open PR311:
-  an ARIADNE protected-alpha demo refresh after the accepted Memory proof. This
-  is hosted product evidence, not a new implementation lane.
+- KVASIR completed ADV-001 as an advisory packet. MIMIR used it as evidence but
+  retains mainline sequencing authority; advance agents do not choose the next
+  product lane.
+- PR311 passed: hosted web/API were ready at commit prefix `d59be4ee8efa`,
+  included required PR309 runtime commit `e9332fe5`, and the protected-alpha
+  owner/public demo journey passed without a DAEDALUS patch, ARGUS review, or
+  Marty config/input.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -4,28 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR311 Protected-Alpha Demo Refresh opened
+## Latest MIMIR decision - PR311 closed, advance authority corrected
 
-MIMIR accepts KVASIR's ADV-001 recommendation:
-`docs/advance/results/ADV-001_NEXT_MAINLINE_LANE_SYNTHESIS_RESULT.md`.
+MIMIR accepts ARIADNE's PR311 result:
+`docs/roadmap/PR311_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_MEMORY_PROOF_RESULT.md`.
 
 Decision:
 
-- PR310 closed the Memory readback route caveat with hosted product evidence.
-- No Redis, Cloudflare, provider/model, embedding, billing, worker, broad UI, or
-  Developer Space partner lane has a concrete trigger right now.
-- The next useful mainline lane is evidence-first: a hosted protected-alpha
-  demo refresh after the accepted Memory proof.
-- No new config from Marty is expected if the PR310 hosted replay owner/session
-  and staging endpoints remain available.
+- Verdict: `PASS`.
+- Hosted web/API are healthy and deployment-ready at commit prefix
+  `d59be4ee8efa`.
+- Hosted ancestry includes required PR309 runtime commit `e9332fe5`.
+- The owner journey passed across Studio, the intended replay persona, Memory
+  via `Open Memory`, Continuity/provenance, Persona Archive, Export Workspace,
+  Billing, and Settings.
+- The public chain passed across the public front door, Discover, replay Space,
+  public document, Forums, and public Developer Space.
+- No private Memory readback leaked into public routes.
+- No DAEDALUS patch, ARGUS review, or Marty config/input is recommended from
+  PR311.
+- MIMIR records the advance-team authority correction: KVASIR/A5 may prepare
+  scoped advisory packets, options, risks, and promotion criteria, but KVASIR
+  does not choose mainline sequence or tell MIMIR what to do.
 
 Current baton:
 
-- ARIADNE should execute
-  `docs/roadmap/PR311_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_MEMORY_PROOF_ARIADNE.md`.
-- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
-  `BLOCKED`, the exact next-owner recommendation, and whether Marty input is
-  needed.
+- No active implementation lane is open from PR311.
+- MIMIR should wait for a fresh hosted product defect, Marty product/commercial
+  input, or a concrete A1 wakeup before promoting another lane.
 
 ## Latest MIMIR decision - PR310 closed, ADV-001 opened
 
