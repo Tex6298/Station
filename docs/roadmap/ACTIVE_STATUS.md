@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR319 hosted moderation rehearsal opened
+
+MIMIR accepts ARGUS's PR318 verdict:
+`docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
+
+Decision:
+
+- PR318 is accepted as code/test complete with hosted rehearsal recommended.
+- MIMIR opens
+  `docs/roadmap/PR319_PUBLIC_PERSONA_REPORT_MODERATION_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE owns PR319: rehearse the deployed human admin moderation route
+  `/forums/moderation?targetType=persona`, persona report row safety,
+  non-admin boundary, owner aggregate/status readback, and desktop/mobile fit.
+- Hosted freshness must include PR318 commit `935664be` or later.
+- No implementation, moderation status mutation, anonymous chat, external
+  launch, commercial packaging, partner claims, provider/model work, Redis,
+  Cloudflare, workers, durable transcripts, visitor identity analytics, broad
+  moderation redesign, or broad UI work opens from this lane.
+
+Current baton:
+
+- ARIADNE has PR319.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest ARGUS review - PR318 moderation pointer accepted
 
 ARGUS accepts
