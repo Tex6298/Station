@@ -210,6 +210,11 @@ then let staged replay reveal the next optimizations.
   exact label recall after the one allowed retry. MIMIR keeps the selected-pair
   bar and opened PR302 as a bounded private/direct factual selected-pair
   finalizer rather than another provider retry.
+- PR302 adds that bounded finalizer after the one allowed retry is exhausted
+  and the post-retry verdict remains `missed_selected_labels`. It chooses
+  mentioned selected fact items first, emits up to two selected label/name/title
+  plus supporting fact pairs, strips `Summary:` suffixes, and exposes only safe
+  finalizer metadata. ARGUS review is pending before the next hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

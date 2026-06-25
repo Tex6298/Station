@@ -257,6 +257,7 @@ function sanitizeTraceMetadata(value: unknown) {
   const answerContract = sanitizeAnswerContractMetadata(metadata.answerContract);
   const firstAnswerContract = sanitizeAnswerContractMetadata(metadata.firstAnswerContract);
   const retry = sanitizeAnswerContractRetryMetadata(metadata.retry);
+  const finalizer = sanitizeSelectedPairFinalizerMetadata(metadata.finalizer);
   const candidates: Array<[string, unknown]> = [
     ["route", metadata.providerRoute ?? budgetProvider?.route],
     ["profile", metadata.providerProfile ?? metadata.profileCode ?? embedding?.profileCode],
@@ -277,6 +278,7 @@ function sanitizeTraceMetadata(value: unknown) {
     ...(answerContract ? { answerContract } : {}),
     ...(firstAnswerContract ? { firstAnswerContract } : {}),
     ...(retry ? { retry } : {}),
+    ...(finalizer ? { finalizer } : {}),
   };
 }
 
@@ -314,6 +316,18 @@ function sanitizeAnswerContractRetryMetadata(value: unknown) {
     ...(safeAnswerContractReasonCode(metadata.reasonCode)
       ? { reasonCode: safeAnswerContractReasonCode(metadata.reasonCode) }
       : {}),
+  };
+}
+
+function sanitizeSelectedPairFinalizerMetadata(value: unknown) {
+  const metadata = asRecord(value);
+  if (!metadata) return null;
+
+  const reasonCode = safeAnswerContractReasonCode(metadata.reasonCode);
+  return {
+    applied: safeBoolean(metadata.applied),
+    selectedPairCount: safeNonNegativeInteger(metadata.selectedPairCount),
+    ...(reasonCode ? { reasonCode } : {}),
   };
 }
 

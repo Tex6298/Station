@@ -1021,7 +1021,7 @@ test("chat retries once when a direct private answer matches facts but misses se
   }
 });
 
-test("chat keeps retry answers failed when they mention facts but omit selected labels", async () => {
+test("chat finalizes retry answers that still mention facts but omit selected labels", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";
   db.tables.profiles[0].byok_openai_key = "test-openai-key";
@@ -1083,7 +1083,7 @@ test("chat keeps retry answers failed when they mention facts but omit selected 
     assert.equal(response.status, 200);
     assert.equal(
       response.body.reply.content,
-      "Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive."
+      "Harbor Signal concept: Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive."
     );
     assert.equal(providerCalls.length, 2);
 
@@ -1102,8 +1102,13 @@ test("chat keeps retry answers failed when they mention facts but omit selected 
       event.label === "Selected-context answer contract"
     );
     assert.ok(contractEvent);
-    assert.equal(contractEvent.payload.answerContract.reasonCode, "missed_selected_labels");
-    assert.equal(contractEvent.payload.answerContract.retryRecommended, true);
+    assert.equal(contractEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.equal(contractEvent.payload.answerContract.retryRecommended, false);
+    assert.deepEqual(contractEvent.payload.finalizer, {
+      applied: true,
+      reasonCode: "missed_selected_labels",
+      selectedPairCount: 1,
+    });
     assert.deepEqual(contractEvent.payload.retry, {
       attempted: true,
       failed: false,
@@ -1113,7 +1118,12 @@ test("chat keeps retry answers failed when they mention facts but omit selected 
     const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
     assert.ok(llmEvent);
     assert.equal(llmEvent.payload.retry.attempted, true);
-    assert.equal(llmEvent.payload.answerContract.reasonCode, "missed_selected_labels");
+    assert.equal(llmEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.deepEqual(llmEvent.payload.finalizer, {
+      applied: true,
+      reasonCode: "missed_selected_labels",
+      selectedPairCount: 1,
+    });
 
     assert.equal(
       db.tables.conversation_messages.some((row) =>
@@ -1122,8 +1132,14 @@ test("chat keeps retry answers failed when they mention facts but omit selected 
       false
     );
     assert.equal(
-      db.tables.conversation_messages.filter((row) =>
+      db.tables.conversation_messages.some((row) =>
         row.content === "Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive."
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.filter((row) =>
+        row.content === "Harbor Signal concept: Delta ferry pairs with the bronze beacon; Quiet ridge pairs with the green archive."
       ).length,
       1
     );

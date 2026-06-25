@@ -643,8 +643,12 @@ later because ARGUS touched runtime code.
 intended persona, context selection, rejected-control exclusion, source-copy
 safety, observability, and pair-aware retry execution. The final answer still
 recalled both phrases but neither accepted label after the one allowed retry.
-MIMIR keeps the selected-pair recall bar and opens PR302 Selected Pair Finalizer
-for DAEDALUS.
+MIMIR keeps the selected-pair recall bar and opened PR302 Selected Pair Finalizer
+for DAEDALUS. DAEDALUS completed PR302 by adding a bounded post-retry finalizer
+that constructs the final owner-visible answer from up to two selected
+label/name/title plus supporting fact pairs when the post-retry contract still
+reports `missed_selected_labels`. ARGUS review is pending before MIMIR decides
+whether to open the next hosted rerun.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

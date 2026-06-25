@@ -185,7 +185,11 @@ opened PR301 as that hosted rerun, requiring hosted runtime freshness at
 `ea9b0e90` or later because ARGUS touched runtime code. PR301 proved the
 pair-aware retry fires but hosted exact label recall still fails after the one
 allowed retry. MIMIR opened PR302 as a bounded private/direct factual
-selected-pair finalizer.
+selected-pair finalizer. DAEDALUS completed PR302 by adding a bounded
+post-retry final answer construction path that chooses mentioned selected fact
+items first, emits up to two selected label/name/title plus supporting fact
+pairs, and exposes only safe finalizer metadata. ARGUS should review the
+finalizer before MIMIR opens the next hosted rerun.
 
 ## Phase 2D Developer Agent closeout
 

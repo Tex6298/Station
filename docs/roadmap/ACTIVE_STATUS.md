@@ -4,35 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR302 Selected Pair Finalizer opened
+## Latest DAEDALUS result - PR302 Selected Pair Finalizer
 
-MIMIR accepts ARIADNE's PR301 hosted evidence and opens a narrow DAEDALUS
-finalizer lane:
-`docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_DAEDALUS.md`.
+DAEDALUS completed PR302 on 2026-06-25:
+`docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_RESULT.md`.
 
-Decision:
+Result:
 
-- PR301 failed exact label recall after PR300 deployed.
-- Hosted freshness, replay-owner auth/session, intended persona, selected
-  context, rejected-control exclusion, source-copy safety, observability, and
-  pair-aware retry execution passed.
-- Context contained both accepted labels and both matching phrases.
-- The first and final answer-contract reasons were `missed_selected_labels`.
-- Retry was attempted once and did not fail.
-- The final hosted answer still recalled both phrases but neither accepted
-  label.
-- MIMIR keeps the exact selected-pair recall bar and chooses a bounded
-  private/direct factual selected-pair finalizer rather than a third provider
-  call or another prompt-only retry.
+- Patch: after the existing one-shot retry is exhausted and the post-retry
+  pair-aware contract still reports `missed_selected_labels`, private
+  direct/factual persona chat can construct the final owner-visible answer from
+  selected label/name/title plus supporting fact pairs.
+- The finalizer chooses selected items whose supporting facts the failed retry
+  mentioned, bounded to two selected pairs, and strips appended `Summary:`
+  suffixes from owner-visible finalizer facts.
+- The finalizer is not a third provider call and does not change retry maximum
+  `1`.
+- Trace/readiness readback exposes only safe finalizer booleans/counts/enums.
+- PR300 pair-aware checks, PR295 label-miss retry, missed-all retry,
+  creative/style no-retry, persisted-message boundaries, and sanitized
+  trace/readiness boundaries remain green.
+- No hosted probing, provider/model, embedding, retrieval ranking, context
+  assembly, schema, seed, import, worker, billing, Stripe, public UI, or Studio
+  UI behavior changed.
+- Validation passed: `test:conversation-archive`, `test:replay-readiness`,
+  `typecheck`, and `lint` with existing web raw `<img>` warnings only.
 
 Current baton:
 
-- DAEDALUS should implement
-  `docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS after implementation and validation.
-- ARGUS should review privacy, route scope, persisted-message boundaries,
-  sanitized observability, selected-pair construction, no hardcoded replay
-  terms, and no acceptance-bar loosening.
+- ARGUS should review PR302 for privacy, route scope, selected-pair
+  construction, summary trimming, persisted-message boundaries, sanitized
+  finalizer observability, no hardcoded replay terms, no acceptance-bar
+  loosening, and no scope creep.
+- If accepted, ARGUS should wake MIMIR with a verdict and recommend whether
+  MIMIR should open the next hosted ARIADNE rerun.
 
 ## Latest MIMIR decision - PR301 Hosted Pair-Aware Rerun opened
 

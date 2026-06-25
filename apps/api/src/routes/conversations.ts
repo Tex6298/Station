@@ -102,6 +102,7 @@ function chatError(status: number, code: string, classification: ChatErrorClassi
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS = 8;
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_CHARS = 220;
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_TITLE_CHARS = 80;
+const SELECTED_PAIR_FINALIZER_MAX_ITEMS = 2;
 const ANSWER_CONTRACT_MAX_TERMS_PER_ITEM = 10;
 const ANSWER_CONTRACT_STOP_WORDS = new Set([
   "about",
@@ -139,6 +140,7 @@ type ProviderFocusOptions = {
 type AnswerContractItem = {
   hasLabel: boolean;
   labelText: string;
+  factText: string;
   labelTerms: string[];
   factTerms: string[];
 };
@@ -174,6 +176,12 @@ type SelectedContextAnswerContractVerdict = {
   matchedFactCount: number;
   reasonCode: AnswerContractReasonCode;
   retryRecommended: boolean;
+};
+
+type SelectedPairFinalizerSummary = {
+  applied: boolean;
+  reasonCode: AnswerContractReasonCode;
+  selectedPairCount: number;
 };
 
 function buildProviderUserMessageContent(
@@ -305,6 +313,7 @@ function answerContractItems(sources: PersonaContextSource[], limit: number): An
       return {
         hasLabel: labelTerms.length > 0,
         labelText,
+        factText,
         labelTerms,
         factTerms,
       };
@@ -370,6 +379,43 @@ function evaluateSelectedContextAnswerContract(
     reasonCode,
     retryRecommended: reasonCode === "missed_all_selected_focus" || reasonCode === "missed_selected_labels",
   };
+}
+
+function buildSelectedPairFinalizerAnswer(
+  contract: SelectedContextAnswerContract,
+  failedAnswer: string,
+): { content: string; selectedPairCount: number } | null {
+  if (!contract.applicable) return null;
+
+  const answerTerms = new Set(answerContractTerms(failedAnswer, 256));
+  const matchedFactItems = contract.items.filter((item) =>
+    item.hasLabel &&
+    item.labelText.length > 0 &&
+    item.factText.length > 0 &&
+    item.factTerms.length > 0 &&
+    hasAnswerTermCoverage(answerTerms, item.factTerms)
+  );
+  const fallbackItems = contract.items.filter((item) =>
+    item.hasLabel &&
+    item.labelText.length > 0 &&
+    item.factText.length > 0 &&
+    item.factTerms.length > 0
+  );
+  const selectedItems = (matchedFactItems.length > 0 ? matchedFactItems : fallbackItems)
+    .slice(0, SELECTED_PAIR_FINALIZER_MAX_ITEMS);
+
+  if (selectedItems.length === 0) return null;
+
+  return {
+    content: selectedItems
+      .map((item) => `${item.labelText}: ${selectedPairFinalizerFactText(item.factText)}`)
+      .join("\n"),
+    selectedPairCount: selectedItems.length,
+  };
+}
+
+function selectedPairFinalizerFactText(value: string) {
+  return value.split(/\s+Summary:/i)[0]?.trim() || value;
 }
 
 function hasAnswerExactSelectedText(normalizedAnswer: string, selectedText: string) {
@@ -1006,6 +1052,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
   let outputTokens = 0;
   let answerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
   let firstAnswerContractVerdict: SelectedContextAnswerContractVerdict | null = null;
+  let selectedPairFinalizer: SelectedPairFinalizerSummary | null = null;
   let retryAttempted = false;
   let retryFailed = false;
   try {
@@ -1049,6 +1096,18 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
         outputTokens += retryResponse.usage?.outputTokens ?? estimateTokensFromText(retryResponse.content);
         aiResponse = retryResponse;
         answerContractVerdict = evaluateSelectedContextAnswerContract(answerContract, aiResponse.content);
+        if (answerContractVerdict.reasonCode === "missed_selected_labels") {
+          const finalizer = buildSelectedPairFinalizerAnswer(answerContract, aiResponse.content);
+          if (finalizer) {
+            selectedPairFinalizer = {
+              applied: true,
+              reasonCode: answerContractVerdict.reasonCode,
+              selectedPairCount: finalizer.selectedPairCount,
+            };
+            aiResponse = { ...aiResponse, content: finalizer.content };
+            answerContractVerdict = evaluateSelectedContextAnswerContract(answerContract, aiResponse.content);
+          }
+        }
       } catch {
         retryFailed = true;
       }
@@ -1072,6 +1131,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
           failed: retryFailed,
           maxAttempts: 1,
         },
+        ...(selectedPairFinalizer ? { finalizer: selectedPairFinalizer } : {}),
       },
     });
 
@@ -1094,6 +1154,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
           failed: retryFailed,
           maxAttempts: 1,
         },
+        ...(selectedPairFinalizer ? { finalizer: selectedPairFinalizer } : {}),
       },
     });
     await completeAiTrace({

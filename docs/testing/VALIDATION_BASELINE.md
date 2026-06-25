@@ -30,31 +30,32 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
-## PR302 Selected Pair Finalizer
+## PR302 Selected Pair Finalizer Result
 
-MIMIR opened PR302 for DAEDALUS on 2026-06-25 after ARIADNE completed PR301.
+DAEDALUS completed PR302 on 2026-06-25:
+`docs/roadmap/PR302_SELECTED_PAIR_FINALIZER_RESULT.md`.
 
-Required validation:
+Validation result:
 
 | Check | Expected result | Notes |
 | --- | --- | --- |
-| Finalizer after exhausted retry | Pass | If private direct/factual selected-context chat still reports `missed_selected_labels` after the existing one-shot retry, Station can construct the final answer from selected pairs. |
-| Selected-pair output | Pass | Finalizer output should include selected label/name/title plus supporting fact from the same selected item. |
-| No third provider call | Pass | The finalizer is not another provider retry. |
-| Route scope | Pass | Creative/style, public, non-private, or non-persona paths should not gain finalizer behavior. |
-| Pair-aware contract preserved | Pass | PR300 unrelated-label failure and matched-pair pass coverage should remain green. |
-| Retry behavior preserved | Pass | PR295 label-miss retry and missed-all retry should remain green with retry maximum `1`. |
-| Sanitized observability | Pass | Trace/readiness output should expose only allow-listed booleans, counts, enums, and timing buckets. |
-| No raw/private leakage | Pass | No raw prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, credentials, or secret-bearing env values. |
-| No hardcoded replay terms | Pass | Product code should not hardcode the PR301 synthetic labels or phrases. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Focused route coverage should live here unless DAEDALUS identifies a closer existing script. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness should keep sanitized readback behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript should stay clean. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings are not part of PR302. |
-| `git diff --check` | Pass | Whitespace check. |
-| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Finalizer after exhausted retry | Pass | If private direct/factual selected-context chat still reports `missed_selected_labels` after the existing one-shot retry, Station constructs the final answer from selected pairs. |
+| Selected-pair output | Pass | Finalizer output includes selected label/name/title plus supporting fact from the same selected item. |
+| No third provider call | Pass | The finalizer reuses selected context and does not call the provider again. |
+| Route scope | Pass | Creative/style and non-applicable selected-context paths do not gain finalizer behavior. |
+| Pair-aware contract preserved | Pass | PR300 unrelated-label failure and matched-pair pass coverage remain green. |
+| Retry behavior preserved | Pass | PR295 label-miss retry and missed-all retry remain green with retry maximum `1`. |
+| Sanitized observability | Pass | Trace/readiness output exposes only allow-listed finalizer booleans, counts, and reason-code enums. |
+| No raw/private leakage | Pass | Focused route coverage asserts hidden selected context scaffolding and failed provider answers are not persisted as owner-visible messages, and raw selected strings are absent from trace/session rows. |
+| No hardcoded replay terms | Pass | Product code is generic over selected items, labels, and facts; hosted replay labels/phrases were not hardcoded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed, including selected-pair finalizer output, PR300 pair-aware coverage, PR295 label-miss retry, missed-all retry, creative no-retry, persisted-message boundary, and trace/session raw-string checks. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; sanitized finalizer readback stayed safe. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed before ARGUS wakeup. |
 
-PR302 should not touch hosted probing, provider/model selection, embeddings,
+PR302 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
 queues, workers, billing, Stripe, public UI, or Studio UI.
 

@@ -184,6 +184,12 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
             reasonCode: "missed_all_selected_focus",
             rawProviderPayload: "PROVIDER_REQUEST_SHOULD_NOT_RETURN",
           },
+          finalizer: {
+            applied: true,
+            selectedPairCount: 2,
+            reasonCode: "missed_selected_labels",
+            rawSelectedPair: "Meridian Loom: silver compass ledger",
+          },
         },
       },
     ],
@@ -265,6 +271,11 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
       failed: false,
       maxAttempts: 1,
       reasonCode: "missed_all_selected_focus",
+    });
+    assert.deepEqual(owner.body.events[0].metadata.finalizer, {
+      applied: true,
+      selectedPairCount: 2,
+      reasonCode: "missed_selected_labels",
     });
     assert.match(owner.body.trace.failureReason, /\[redacted-url\]/);
     assert.match(owner.body.events[0].failureReason, /\[redacted-secret\]/);
