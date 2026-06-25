@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Open
+Status: Implemented - awaiting ARGUS review
 
 ## Trigger
 
@@ -74,3 +74,21 @@ ARGUS should verify:
 
 After ARGUS accepts, MIMIR should reopen ARIADNE's PR308 rehearsal as the
 hosted/browser rerun.
+
+## DAEDALUS Result
+
+Implemented in
+`docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_RESULT.md`.
+
+The owner persona workspace now renders a primary `Open Memory` action in the
+owner-only current-place strip, backed by the same Studio navigation helper as
+the Memory tab. No Memory data, lifecycle, persistence, retrieval, provider,
+schema, billing, public route, or selected-pair behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.

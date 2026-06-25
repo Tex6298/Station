@@ -67,6 +67,17 @@ export function studioPersonaWorkspaceTabs(personaId: string) {
   }));
 }
 
+export function studioPersonaWorkspacePrimaryActions(personaId: string) {
+  const memoryTab = studioPersonaWorkspaceTabs(personaId).find((tab) => tab.label === "Memory");
+
+  return [
+    ...(memoryTab
+      ? [{ label: "Open Memory", href: memoryTab.href, detail: memoryTab.detail }]
+      : []),
+    { label: "Ask Assistant", href: "/studio/assistant", detail: "Operational helper for Studio work" },
+  ];
+}
+
 export function studioRouteContext(
   pathname: string,
   personas: Array<Pick<PersonaSummary, "id" | "name">> = [],

@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR309 Persona Workspace Memory Navigation
+
+DAEDALUS implemented the narrow owner-route navigation repair requested in
+`docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_DAEDALUS.md`.
+
+Implementation result:
+
+- Result packet:
+  `docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_RESULT.md`.
+- The owner persona workspace now renders a primary `Open Memory` action in
+  the owner-only current-place strip.
+- The Memory action uses the same Studio persona workspace helper as the
+  existing Memory tab and points to `/studio/personas/:personaId/memory`.
+- The existing Memory tab and continuity card remain in place.
+- No Memory data, lifecycle policy, persistence, runtime selection, retrieval,
+  providers, embeddings, schema, public routes, billing, imports, exports, or
+  selected-pair behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+
+Current baton:
+
+- ARGUS should review PR309 using
+  `docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_RESULT.md`.
+- If accepted, ARGUS should wake MIMIR to reopen ARIADNE's hosted/browser
+  PR308 rehearsal.
+- If fixes are needed, ARGUS should wake DAEDALUS with exact findings.
+
 ## Latest MIMIR decision - PR309 Persona Workspace Memory Navigation opened
 
 MIMIR accepts ARIADNE's PR308 failure and opens a narrow DAEDALUS repair:

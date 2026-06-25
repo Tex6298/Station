@@ -1843,6 +1843,14 @@ html, body {
   text-transform: none;
 }
 
+.studio-place-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
 .studio-place-action {
   display: inline-flex;
   align-items: center;

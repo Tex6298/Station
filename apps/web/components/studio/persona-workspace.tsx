@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Persona } from "@station/types/persona";
-import { activeStudioHref, studioPersonaWorkspaceTabs } from "@/lib/studio-navigation";
+import {
+  activeStudioHref,
+  studioPersonaWorkspacePrimaryActions,
+  studioPersonaWorkspaceTabs,
+} from "@/lib/studio-navigation";
 import {
   publicInteractionActivityBoundaryCopy,
   publicInteractionActivitySummary,
@@ -40,6 +44,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 export function PersonaWorkspaceHeader({ persona }: { persona: PersonaWithContinuity }) {
   const pathname = usePathname();
   const tabs = studioPersonaWorkspaceTabs(persona.id);
+  const actions = studioPersonaWorkspacePrimaryActions(persona.id);
   const activeTab = [...tabs]
     .sort((a, b) => b.href.length - a.href.length)
     .find((tab) => activeStudioHref(pathname, tab.href)) ?? tabs[0];
@@ -60,7 +65,15 @@ export function PersonaWorkspaceHeader({ persona }: { persona: PersonaWithContin
         label={`${persona.name} / ${activeTab.label}`}
         detail={activeTab.detail}
         privacy="Owner-only persona workspace"
-        action={<Link href="/studio/assistant" className="studio-place-action">Ask Assistant</Link>}
+        action={(
+          <div className="studio-place-actions">
+            {actions.map((action) => (
+              <Link key={action.href} href={action.href} className="studio-place-action">
+                {action.label}
+              </Link>
+            ))}
+          </div>
+        )}
       />
 
       <nav className="studio-persona-tabs" aria-label="Persona workspace">

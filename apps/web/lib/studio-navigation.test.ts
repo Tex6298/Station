@@ -7,6 +7,7 @@ import {
   studioRouteContext,
   studioPersonaHref,
   studioPersonaMeta,
+  studioPersonaWorkspacePrimaryActions,
   studioPersonaWorkspaceTabs,
   studioWorkspaceLinks,
 } from "./studio-navigation";
@@ -34,6 +35,15 @@ test("Studio persona workspace exposes Continuity as its own stop", () => {
   assert.equal(tabs.find((tab) => tab.label === "Continuity")?.href, "/studio/personas/persona-1/continuity");
   assert.match(tabs.find((tab) => tab.label === "Memory")?.detail ?? "", /lifecycle/);
   assert.equal((labels as string[]).includes("Timeline"), false);
+});
+
+test("Studio persona workspace exposes Memory as a primary owner action", () => {
+  const actions = studioPersonaWorkspacePrimaryActions("persona-1");
+
+  assert.deepEqual(actions.map((action) => action.label), ["Open Memory", "Ask Assistant"]);
+  assert.equal(actions[0]?.href, "/studio/personas/persona-1/memory");
+  assert.match(actions[0]?.detail ?? "", /lifecycle/);
+  assert.equal(actions.some((action) => action.href.startsWith("/space")), false);
 });
 
 test("Studio route context names static Studio stops for mobile summaries", () => {
