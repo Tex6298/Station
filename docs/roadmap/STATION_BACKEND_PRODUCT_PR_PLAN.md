@@ -678,7 +678,9 @@ DAEDALUS as the next lane from fresh replay evidence: Memory lifecycle and
 owner-visible observability. This lane should make Station's Memory behavior
 clearer and more useful without adding new config or drifting into Redis,
 Cloudflare, provider/model, embedding, billing, queue, worker, import, export,
-or broad UI work.
+or broad UI work. ARGUS accepted PR307 with no product patch; the first
+owner-only Studio Memory readback slice now separates selected,
+eligible-not-selected, and lifecycle-held-out Memory counts.
 
 ## Agent Roles
 

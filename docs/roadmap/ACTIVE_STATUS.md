@@ -4,13 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR307 Memory Lifecycle Observability
+## Latest ARGUS review - PR307 Memory Lifecycle Observability
 
-DAEDALUS implemented PR307 on 2026-06-25:
+ARGUS accepted PR307 on 2026-06-25:
 `docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_RESULT.md`.
 
 Result:
 
+- Verdict: `PASS WITH CAVEATS`.
 - Owner-only Studio Memory readback now separates selected, eligible-but-not-
   selected, and lifecycle-held-out memory in the runtime preview panel.
 - The helper aggregates `selectedCount`, `eligibleNotSelectedCount`,
@@ -21,6 +22,10 @@ Result:
 - No Memory persistence, lifecycle policy, runtime selection, retrieval ranking,
   provider/model, embedding, schema, Redis, Cloudflare, queue, worker, import,
   export, billing, public route, broad UI, or selected-pair behavior changed.
+- ARGUS made no product patch.
+- Caveat: this is local owner-only count/copy readback, not a hosted browser
+  rehearsal; the detail list still uses the existing not-selected/held-out row
+  grouping while metrics, summary, and status badges split the buckets.
 
 Validation:
 
@@ -28,12 +33,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
   `<img>` warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Added-line hygiene scan passed with documentation-only false positives on
+  `secret-shaped`.
 
 Current baton:
 
-- ARGUS should hostile-review PR307 owner-only Memory readback and redaction.
-- If accepted, ARGUS should wake MIMIR to close PR307 and choose the next lane.
-- If rejected, ARGUS should wake DAEDALUS with the exact blocker.
+- MIMIR should close PR307 and choose the next lane.
 
 ## Latest MIMIR decision - PR307 Memory Lifecycle Observability opened
 

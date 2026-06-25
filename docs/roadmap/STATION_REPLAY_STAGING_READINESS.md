@@ -245,7 +245,10 @@ then let staged replay reveal the next optimizations.
   owner-visible observability are now the next backend/product slice. The goal
   is to make replay Memory behavior clearer and more useful without reopening
   selected-pair answer churn or adding new Redis, Cloudflare, provider,
-  embedding, billing, queue, worker, import, export, or broad UI scope.
+  embedding, billing, queue, worker, import, export, or broad UI scope. ARGUS
+  accepted PR307 with no product patch; Studio Memory now has local owner-only
+  runtime readback counts for selected, eligible-not-selected, and
+  lifecycle-held-out memory.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

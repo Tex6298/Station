@@ -35,7 +35,7 @@ Memory/observability implementation lane.
 DAEDALUS implemented PR307 on 2026-06-25:
 `docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_RESULT.md`.
 
-Validation result: `PASS - ARGUS REVIEW PENDING`.
+Validation result: `PASS WITH CAVEATS`.
 
 | Check | Result | Notes |
 | --- | --- | --- |
@@ -46,6 +46,12 @@ Validation result: `PASS - ARGUS REVIEW PENDING`.
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 111 tests passed, including Memory lifecycle/readback coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed during ARGUS review. |
+| Added-line hygiene scan | Pass | Only documentation wording matched `secret-shaped`; no credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, provider payloads, private source bodies, or secret-bearing env values were added. |
+
+Residual risk: this was not a hosted/browser rehearsal. The changed display is
+count/copy level, not a new workflow.
 
 ## PR306 Post-Finalizer Trace Semantics Result
 

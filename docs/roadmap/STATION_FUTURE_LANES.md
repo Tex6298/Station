@@ -215,7 +215,10 @@ after the hosted selected-pair bar closes. DAEDALUS should improve owner-only
 Memory lifecycle/readback or runtime observability from current repo truth, or
 return an exact PR308 implementation packet if no safe no-new-config code slice
 exists. Redis, Cloudflare, provider/model swaps, embeddings, billing, queues,
-workers, imports, exports, and broad UI reskins stay out of this lane.
+workers, imports, exports, and broad UI reskins stay out of this lane. ARGUS
+accepted PR307 with no product patch; Studio Memory now has local owner-only
+runtime readback counts for selected, eligible-not-selected, and
+lifecycle-held-out memory.
 
 ## Phase 2D Developer Agent closeout
 
