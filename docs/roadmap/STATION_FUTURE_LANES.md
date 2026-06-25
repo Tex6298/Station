@@ -176,7 +176,11 @@ were already running PR297's product runtime commit `b2cb3540`; MIMIR opened
 PR299 with `b2cb3540` or later as the corrected runtime gate. PR299 failed
 because the answer recalled both phrases but no accepted labels while the
 contract fulfilled on an unrelated selected label/fact mix. MIMIR opened PR300
-as a pair-aware selected-context contract repair.
+as a pair-aware selected-context contract repair. DAEDALUS completed PR300 by
+requiring mentioned selected facts to have their own selected label/name/title
+from the same selected item before the contract can report `fulfilled`. ARGUS
+should review the pair-aware fulfillment before MIMIR opens the next hosted
+rerun.
 
 ## Phase 2D Developer Agent closeout
 

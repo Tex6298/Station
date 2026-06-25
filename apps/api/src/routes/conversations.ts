@@ -342,6 +342,7 @@ function evaluateSelectedContextAnswerContract(
   let matchedItemCount = 0;
   let matchedLabelCount = 0;
   let matchedFactCount = 0;
+  let unpairedFactCount = 0;
 
   for (const item of contract.items) {
     const labelMatched = item.hasLabel ? hasAnswerExactSelectedText(normalizedAnswer, item.labelText) : false;
@@ -349,14 +350,15 @@ function evaluateSelectedContextAnswerContract(
     const factMatched = factMentioned;
     if (labelMatched) matchedLabelCount += 1;
     if (factMatched) matchedFactCount += 1;
+    if (factMatched && !labelMatched) unpairedFactCount += 1;
     if (item.hasLabel ? labelMatched && factMatched : factMatched) matchedItemCount += 1;
   }
 
-  const reasonCode: AnswerContractReasonCode = matchedItemCount > 0
+  const reasonCode: AnswerContractReasonCode = matchedItemCount > 0 && unpairedFactCount === 0
     ? "fulfilled"
     : matchedLabelCount === 0 && matchedFactCount === 0
       ? "missed_all_selected_focus"
-      : matchedLabelCount === 0
+      : matchedLabelCount === 0 || unpairedFactCount > 0
         ? "missed_selected_labels"
         : "missed_supporting_facts";
 

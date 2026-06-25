@@ -198,6 +198,11 @@ then let staged replay reveal the next optimizations.
   labels, while contract readback reported `fulfilled` from one selected label
   and two selected facts somewhere in context. MIMIR keeps the selected-pair bar
   and opened PR300 as a narrow DAEDALUS pair-aware contract repair.
+- PR300 requires mentioned selected facts to have their own selected
+  label/name/title from the same selected item before the contract can report
+  `fulfilled`. Local coverage proves unrelated selected labels no longer
+  satisfy selected facts from other items. ARGUS review is pending before MIMIR
+  opens the next hosted rerun.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

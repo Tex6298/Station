@@ -1136,6 +1136,153 @@ test("chat keeps retry answers failed when they mention facts but omit selected 
   }
 });
 
+test("chat retries when selected facts are paired with an unrelated selected label", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "test-openai-key";
+  db.tables.personas[0].provider = "openai";
+  db.insertRow("memory_items", {
+    id: "memory-selected-pair-delta",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Delta Harbor concept",
+    content: "Delta ferry pairs with the bronze beacon.",
+    summary: "First synthetic selected pair.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  db.insertRow("memory_items", {
+    id: "memory-selected-pair-quiet",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Quiet Ridge concept",
+    content: "Quiet ridge pairs with the green archive.",
+    summary: "Second synthetic selected pair.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  db.insertRow("memory_items", {
+    id: "memory-selected-pair-spare",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Spare Lantern concept",
+    content: "Spare lantern pairs with the copper index.",
+    summary: "Unrelated synthetic selected pair.",
+    source_type: "manual",
+    relevance_weight: 10,
+  });
+  for (const id of ["memory-selected-pair-delta", "memory-selected-pair-quiet", "memory-selected-pair-spare"]) {
+    db.insertRow("memory_item_lifecycle", {
+      id: `${id}-lifecycle`,
+      memory_item_id: id,
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      status: "active",
+      trust_level: "user_stated",
+      confidence: 1,
+    });
+  }
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const providerCalls: Array<{ url: string; body: string }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      providerCalls.push({ url, body: String(init?.body ?? "") });
+      const content = providerCalls.length === 1
+        ? "Spare Lantern concept. Delta ferry pairs with the bronze beacon. Quiet ridge pairs with the green archive."
+        : "Delta Harbor concept: Delta ferry pairs with the bronze beacon. Quiet Ridge concept: Quiet ridge pairs with the green archive.";
+      return new Response(JSON.stringify({
+        choices: [{ message: { content } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      ["token"]: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Answer with the accepted concept names and supporting facts.",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(
+      response.body.reply.content,
+      "Delta Harbor concept: Delta ferry pairs with the bronze beacon. Quiet Ridge concept: Quiet ridge pairs with the green archive."
+    );
+    assert.equal(providerCalls.length, 2);
+
+    const retryPayload = JSON.parse(providerCalls[1].body) as { messages: Array<{ role: string; content: string }> };
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /selected label\/name: Delta Harbor concept/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /selected label\/name: Quiet Ridge concept/);
+
+    const contractRetryEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract retry"
+    );
+    assert.ok(contractRetryEvent);
+    assert.equal(contractRetryEvent.payload.answerContract.reasonCode, "missed_selected_labels");
+    assert.equal(contractRetryEvent.payload.answerContract.matchedItemCount, 0);
+    assert.equal(contractRetryEvent.payload.answerContract.matchedLabelCount, 1);
+    assert.equal(contractRetryEvent.payload.answerContract.matchedFactCount, 2);
+    assert.deepEqual(contractRetryEvent.payload.retry, {
+      attempted: true,
+      reasonCode: "missed_selected_labels",
+    });
+
+    const contractEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract"
+    );
+    assert.ok(contractEvent);
+    assert.equal(contractEvent.payload.firstAnswerContract.reasonCode, "missed_selected_labels");
+    assert.equal(contractEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.equal(contractEvent.payload.answerContract.matchedItemCount, 2);
+    assert.equal(contractEvent.payload.answerContract.retryRecommended, false);
+
+    const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
+    assert.ok(llmEvent);
+    assert.equal(llmEvent.payload.retry.attempted, true);
+    assert.equal(llmEvent.payload.answerContract.reasonCode, "fulfilled");
+
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.role === "user" && /Station-selected context|Answer-contract retry/.test(row.content)
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.content === "Spare Lantern concept. Delta ferry pairs with the bronze beacon. Quiet ridge pairs with the green archive."
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.filter((row) =>
+        row.content === "Delta Harbor concept: Delta ferry pairs with the bronze beacon. Quiet Ridge concept: Quiet ridge pairs with the green archive."
+      ).length,
+      1
+    );
+
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Delta Harbor|bronze beacon|Quiet Ridge|green archive|Spare Lantern|copper index/i);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Delta Harbor|bronze beacon|Quiet Ridge|green archive|Spare Lantern|copper index/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("chat does not retry creative private prompts that miss selected context", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";
