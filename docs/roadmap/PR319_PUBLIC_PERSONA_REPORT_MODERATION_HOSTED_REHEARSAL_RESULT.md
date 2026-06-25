@@ -4,26 +4,29 @@ Owner: ARIADNE
 
 Date: 2026-06-25
 
-Current verdict: BLOCKED: missing admin access
+Current verdict: PASS
 
-Previous verdict: BLOCKED: stale deployment
+Previous blockers:
+
+- `BLOCKED: stale deployment`
+- `BLOCKED: missing admin access`
 
 ## Summary
 
-ARIADNE first stopped at the required hosted freshness gate. The hosted API
-reported PR318, but the hosted web service still reported an older main commit
-that did not include PR318's web moderation route changes.
+ARIADNE completed PR319 after MIMIR refreshed the hosted web/API deployment and
+restored a dedicated admin-capable replay alias.
 
-After MIMIR refreshed the hosted web service, ARIADNE reran PR319. Hosted web
-and API freshness then passed, but the available replay accounts did not include
-an admin-capable session. The owner, non-owner, tester, and visitor aliases all
-signed in successfully and all read back as non-admin.
+The final hosted rehearsal used:
 
-No hosted admin moderation route rehearsal was claimed, and no moderation
-status, report target, public persona interaction, billing, provider, launch,
-infrastructure, account role, or account state was mutated.
+- Admin replay alias only for `/forums/moderation?targetType=persona`.
+- Replay owner alias only for owner aggregate/status readback.
+- Non-owner tester alias only for the ordinary-user boundary.
 
-## Rerun After Web Refresh
+No moderation status, report target action, account role, public interaction,
+billing, provider, launch, infrastructure, or account-state mutation was
+performed.
+
+## Hosted Freshness
 
 Required PR318 commit: `935664be`.
 
@@ -32,78 +35,102 @@ Required PR318 commit: `935664be`.
 | Web | Pass | Pass | `b2591639be42` | Pass: local ancestry shows this includes `935664be`. |
 | API | Pass | Pass | `b2591639be42` | Pass: local ancestry shows this includes `935664be`. |
 
-Available replay aliases:
+## Admin Moderation Route
 
-| Alias | Sign-in | Admin-capable |
-| --- | --- | --- |
-| Owner | Pass | No |
-| Non-owner | Pass | No |
-| Tester | Pass | No |
-| Visitor | Pass | No |
+Result: Pass.
 
-Because PR319 requires the available admin-capable replay account/session to
-load `/forums/moderation?targetType=persona`, the rerun stopped at admin access.
+- Admin sign-in succeeded and `/auth/me` read back admin-capable.
+- `/forums/moderation?targetType=persona` loaded the human moderation console.
+- The target filter loaded as `persona`.
+- The page used the authenticated report queue with `targetType=persona`.
+- The human destination remained `/forums/moderation?targetType=persona`, not
+  the raw `/reports` API.
 
-## Current Required Rehearsal Status
+## Persona Report Row Safety
 
-| Check | Result | Notes |
-| --- | --- | --- |
-| Hosted freshness | Pass | Hosted web/API both report `b2591639be42`, which includes PR318. |
-| Admin moderation route | Blocked | No admin-capable replay account/session is available in the local replay env. |
-| Persona report row safety | Not rehearsed | Needs an admin-capable browser session to inspect the human row. |
-| Non-admin boundary | Not rehearsed | Ordinary accounts are available, but the admin route must be proven with an admin session first. |
-| Owner readback | Not rehearsed | The admin route/readback pointer proof requires the missing admin-capable session. |
-| Desktop/mobile fit | Not rehearsed | Needs the admin moderation route to load first. |
+Result: Pass.
 
-## Previous Hosted Freshness Block
+- Persona report seed was present: `2` persona report rows.
+- The API queue returned only persona reports for the persona filter.
+- The first visible persona row had safe target context, a safe public persona
+  route, a safe label, and report status controls.
+- Persona target action count was `0`; the browser row showed the unavailable
+  target-action state.
+- Human-visible row text did not show raw persona ids, reporter ids, report ids,
+  visitor ids, private source ids, transcripts, provider traces, billing
+  identifiers, credentials, SQL, raw report notes, or raw report bodies.
 
-Required PR318 commit: `935664be`.
+## Non-Admin Boundary
 
-| Surface | Health | Ready | Commit prefix | Freshness |
-| --- | --- | --- | --- | --- |
-| Web | Pass | Pass | `d59be4ee8efa` | Blocked: local ancestry shows this does not include `935664be`. |
-| API | Pass | Pass | `935664beb54f` | Pass: reports PR318 exactly. |
+Result: Pass.
 
-Local ancestry check:
+- The non-owner tester read back as non-admin.
+- `/forums/moderation?targetType=persona` showed the admin-required state.
+- The non-admin browser route did not call the moderation reports API.
+- Desktop and `375px` mobile fit passed with no document-level horizontal
+  overflow.
 
-- `git merge-base --is-ancestor 935664be HEAD` passed.
-- `git merge-base --is-ancestor 935664be d59be4ee8efa` failed.
+## Owner Readback
 
-Because PR319 explicitly required hosted web/API freshness at PR318 or later,
-the first hosted browser route rehearsal stopped there. MIMIR refreshed the web
-service afterward, and the rerun passed freshness as recorded above.
+Result: Pass.
 
-## Previous Required Rehearsal Status
+- Replay owner read back as non-admin.
+- Owner persona match count: `1`.
+- Owner report aggregate readback: `2` active / `2` total.
+- Status counts: `open: 2`, `reviewing: 0`, `resolved: 0`, `dismissed: 0`.
+- Owner readback stayed aggregate/status-only:
+  - `transcriptStored: false`
+  - `visitorIdentityStored: false`
+  - `rawEventsStored: false`
+  - `ownerCanSeeReporterIdentity: false`
+  - `ownerCanSeeReportBodies: false`
+  - admin queue href not visible to the non-admin owner
+- Browser owner readback showed the aggregate card and no sensitive visible
+  text.
 
-| Check | Result | Notes |
-| --- | --- | --- |
-| Hosted freshness | Blocked | Hosted web is stale for PR318; hosted API is fresh. |
-| Admin moderation route | Not rehearsed | Stopped before route proof because the web bundle is not PR318-or-later. |
-| Persona report row safety | Not rehearsed | Needs fresh hosted web route before browser evidence is meaningful. |
-| Non-admin boundary | Not rehearsed | Needs fresh hosted web route before browser evidence is meaningful. |
-| Owner readback | Not rehearsed | Needs fresh hosted web route before browser evidence is meaningful. |
-| Desktop/mobile fit | Not rehearsed | Needs fresh hosted web route before browser evidence is meaningful. |
+## Desktop And Mobile
+
+Result: Pass.
+
+- Admin moderation route passed desktop and `375px` mobile fit.
+- Owner readback route passed desktop and `375px` mobile fit.
+- No document-level horizontal overflow was detected.
+- No dead moderation target controls were exposed for persona reports.
 
 ## Privacy And Scope
 
-Privacy verdict: not assessed on the hosted moderation UI because the rerun
-lacks an admin-capable browser session.
+Privacy verdict: Pass.
 
-No browser interaction with live moderation rows was performed. No report status
-controls, target actions, public persona chat/report actions, owner readback
-mutations, checkout/portal actions, provider calls, account role changes, or
-infrastructure changes were run.
+The hosted browser rehearsal did not expose raw ids, reporter identity, report
+bodies, visitor transcript, raw event rows, provider traces, private source ids,
+billing identifiers, token rows, credentials, SQL, or admin report notes in the
+human-visible moderation route or owner readback.
+
+No report status control or target action was clicked.
 
 ## Validation
 
-- Hosted Playwright rehearsal stopped with `BLOCKED: missing admin access`.
-- Local replay alias admin-capability check found no admin-capable account.
+- Hosted Playwright rehearsal passed:
+  `npx --yes --package @playwright/test@1.41.2 playwright test tmp-pr319-public-persona-moderation.spec.js --reporter=line --workers=1`
 - `git diff --check`
+
+## Earlier Blockers
+
+First attempt:
+
+- Hosted API reported PR318, but hosted web reported `d59be4ee8efa`.
+- Local ancestry showed that web commit did not include `935664be`.
+- ARIADNE stopped at `BLOCKED: stale deployment`.
+
+Second attempt:
+
+- Hosted web/API freshness passed at `b2591639be42`.
+- Available owner, non-owner, tester, and visitor aliases all signed in but all
+  read back as non-admin.
+- ARIADNE stopped at `BLOCKED: missing admin access`.
+
+Both blockers are now resolved for the final pass.
 
 ## Next Target
 
-Provide or restore an admin-capable replay account/session, then rerun PR319
-unchanged against the currently fresh hosted web/API deployment.
-
-Wakeup target: MIMIR, because this is an access/configuration blocker rather
-than an ARIADNE UI finding or DAEDALUS product-code defect.
+MIMIR can close PR319 or route the smallest concrete follow-up.
