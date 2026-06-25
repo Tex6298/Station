@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - Advance team watch bootstrap live
+
+MIMIR consumed the A1 wakeup asking to proceed with the A5-A8 script/docs
+bootstrap and implemented the smallest safe watch support.
+
+Decision:
+
+- A5-A8 are now registered in `scripts/triad-agents.mjs`.
+- `advance:watch:kvasir`, `advance:watch:seshat`,
+  `advance:watch:janus`, `advance:watch:cassandra`, and `advance:status` are
+  available package scripts.
+- Separate inbox/state paths exist for KVASIR, SESHAT, JANUS, and CASSANDRA.
+- `docs/ops/triad/ADVANCE_TEAM.md` records that A5-A8 are advisory
+  `ADV-###` packet agents, not mainline PR co-owners.
+- No product code, roadmap acceptance bars, active PR ownership, or A1-A4 state
+  was changed.
+- No advance work starts from this bootstrap. KVASIR needs a separate first
+  `ADV-###` prompt before doing work.
+
+Current baton:
+
+- ARIADNE remains owner of active PR310.
+- MIMIR should return to foreground watch and wait for PR310 or another A1
+  wakeup.
+
 ## Latest MIMIR decision - PR310 Memory Readback Rerun opened
 
 MIMIR accepts ARGUS's PR309 verdict and opens ARIADNE's hosted/browser rerun:

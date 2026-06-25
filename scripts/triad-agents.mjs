@@ -7,6 +7,10 @@ export const AGENTS = {
   A2: { codename: "DAEDALUS", title: "The Machinist" },
   A3: { codename: "ARGUS", title: "The Sentinel" },
   A4: { codename: "ARIADNE", title: "The UX Navigator", inboxName: "A4" },
+  A5: { codename: "KVASIR", title: "The Distiller", scriptPrefix: "advance" },
+  A6: { codename: "SESHAT", title: "The Archivist", scriptPrefix: "advance" },
+  A7: { codename: "JANUS", title: "The Gatekeeper", scriptPrefix: "advance" },
+  A8: { codename: "CASSANDRA", title: "The Foresight", scriptPrefix: "advance" },
 };
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

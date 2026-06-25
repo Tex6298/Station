@@ -41,6 +41,11 @@
     "triad:watch:argus": "node scripts/triad-watch.mjs A3 --watch",
     "triad:watch:ariadne": "node scripts/triad-watch.mjs A4 --watch",
     "triad:status": "node scripts/triad-status.mjs",
+    "advance:watch:kvasir": "node scripts/triad-watch.mjs A5 --watch",
+    "advance:watch:seshat": "node scripts/triad-watch.mjs A6 --watch",
+    "advance:watch:janus": "node scripts/triad-watch.mjs A7 --watch",
+    "advance:watch:cassandra": "node scripts/triad-watch.mjs A8 --watch",
+    "advance:status": "node scripts/triad-status.mjs",
     "test:assistant": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/services/conversation-history.service.test.ts"
   },
   "devDependencies": {

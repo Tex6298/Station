@@ -1,6 +1,6 @@
 # Advance Team Design
 
-Status: MIMIR design note, not live automation yet.
+Status: live watch bootstrap available; advisory advance work only.
 
 Date: 2026-06-25
 
@@ -101,7 +101,7 @@ Codename: CASSANDRA
 
 ## Paths
 
-When the live bootstrap is opened, use separate mailboxes and state:
+The live bootstrap uses separate mailboxes and state:
 
 ```text
 .station-agents/inbox/KVASIR
@@ -176,19 +176,24 @@ Advance agents stop and wake MIMIR if they would need to:
   bodies, provider payloads, SQL, or secret-shaped values;
 - make product claims that have not been promoted and reviewed.
 
-## Bootstrap Decision
+## Bootstrap Status
 
-PR308 is active and ARIADNE has local rehearsal state/files in progress.
+PR310 is active and ARIADNE has local rehearsal state/files in progress.
 
-MIMIR decision: do not mutate live watch scripts or package scripts while that
-mainline rehearsal is active. Record this design now. Open a separate bootstrap
-implementation only after PR308 returns or if Marty explicitly asks for live
-A5-A8 watch support immediately.
+MIMIR decision: the user explicitly asked to proceed with script/docs bootstrap.
+The bootstrap is therefore live for watch support only. It must not start
+advance work until KVASIR receives a separate first `ADV-###` prompt.
 
-The first live bootstrap should be script-only and docs-only:
+Implemented bootstrap:
 
-- extend `scripts/triad-agents.mjs` with A5-A8;
-- create state/inbox directories;
-- add watch scripts for A5-A8;
-- add a one-line status/readme note that A5-A8 are advisory advance agents;
-- avoid product code, roadmap acceptance changes, or active PR state changes.
+- `scripts/triad-agents.mjs` includes A5-A8;
+- package scripts expose `advance:watch:kvasir`,
+  `advance:watch:seshat`, `advance:watch:janus`, and
+  `advance:watch:cassandra`;
+- package scripts expose `advance:status` as the same readback as
+  `triad:status`;
+- separate inbox and state files exist for A5-A8;
+- product code, roadmap acceptance bars, and active PR ownership are unchanged.
+
+Do not start KVASIR or any other advance agent on real work from this bootstrap
+commit. A separate wakeup must assign the first `ADV-###` packet.

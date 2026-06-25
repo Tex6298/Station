@@ -10,7 +10,8 @@ for (const agent of getAgents()) {
   console.log(`  State: ${relativePath(statePath(agent))}`);
   console.log(`  Last wakeup: ${state.lastSeenCommit ? state.lastSeenCommit.slice(0, 12) : "none"}`);
   console.log(`  Last wakeup at: ${state.lastWakeupAt ?? "none"}`);
-  console.log(`  Watch command: npm run triad:watch:${agent.codename.toLowerCase()}`);
+  const scriptPrefix = agent.scriptPrefix ?? "triad";
+  console.log(`  Watch command: npm run ${scriptPrefix}:watch:${agent.codename.toLowerCase()}`);
   console.log(`  Wake header: WAKEUP ${agent.id}:`);
   console.log("");
 }
