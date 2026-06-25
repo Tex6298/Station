@@ -30,6 +30,59 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR297 Post-Retry Selected Pair Output
+
+MIMIR opened PR297 for DAEDALUS on 2026-06-25 after ARIADNE completed PR296.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Visible selected-pair contract | Pass | A retry answer that mentions supporting facts but omits selected labels/names should not satisfy the contract. |
+| Selected label plus fact pass | Pass | A retry answer that includes selected label/name plus supporting fact pairs should satisfy the contract. |
+| PR295 label-miss retry | Pass | Facts-matched, label-missed first answers should still trigger exactly one retry under the safe gate. |
+| Missed-all retry | Pass | Existing missed-all-selected-focus retry behavior should remain intact. |
+| Creative/style guard | Pass | Creative/style prompts with selected context should remain single-shot unless they include an explicit factual command. |
+| Route scope | Pass | Public, non-private, or non-persona paths should not gain retry behavior. |
+| Sanitized observability | Pass | Trace/readiness output should expose only allow-listed booleans, counts, enums, and timing buckets. |
+| No raw/private leakage | Pass | No raw prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, credentials, or secret-bearing env values. |
+| No hardcoded replay terms | Pass | Product code should not hardcode the PR296 synthetic labels or phrases. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Focused route coverage should live here unless DAEDALUS identifies a closer existing script. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Replay readiness should keep sanitized readback behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | TypeScript should stay clean. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings are not part of PR297. |
+| `git diff --check` | Pass | Whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR297 should not touch hosted probing, provider/model selection, embeddings,
+retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
+queues, workers, billing, Stripe, public UI, or Studio UI.
+
+## PR296 Hosted Label Retry Rerun Result
+
+ARIADNE completed PR296 on 2026-06-25.
+
+Result: `FAIL`.
+
+Validation result:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass | Web/API deployment included accepted PR295 runtime/review commit `f81cd7a2`. |
+| Replay owner auth/session | Pass | Hosted API auth and protected browser Studio session passed, including reload persistence. |
+| Intended replay persona | Pass | Intended private platform replay persona selection was unambiguous. |
+| Selected context labels | Pass | Selected context contained both accepted concept labels. |
+| Selected context phrases | Pass | Selected context contained both matching invented retrieval phrases. |
+| Retry gate execution | Pass | First reason was `missed_selected_labels`, retry was attempted, retry did not fail, and final reason was `fulfilled`. |
+| Answer label recall | Fail | Final hosted answer recalled neither exact accepted concept label under the external acceptance check. |
+| Answer phrase recall | Fail | Final hosted answer recalled neither exact invented retrieval phrase under the external acceptance check. |
+| Rejected-control exclusion | Pass | Rejected-control anchor stayed absent from context and answer. |
+| Source-copy safety | Pass | Answer stayed short and did not copy raw source-body markers. |
+
+Recommendation: MIMIR keeps the visible exact-recall bar and opens DAEDALUS
+PR297 to align post-retry answer construction and contract fulfillment with
+selected label/name plus supporting fact output.
+
 ## PR296 Hosted Runtime Rerun After Selected-Label Retry Gate
 
 MIMIR opened PR296 for ARIADNE on 2026-06-25 after ARGUS accepted PR295.

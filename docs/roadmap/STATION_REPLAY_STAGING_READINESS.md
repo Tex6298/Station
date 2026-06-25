@@ -176,6 +176,10 @@ then let staged replay reveal the next optimizations.
   prove hosted label and phrase recall, rejected-control exclusion, source-copy
   safety, and sanitized answer-contract/retry readback before MIMIR decides
   whether to close the hosted recall bar or classify the remaining failure.
+- PR296 proved the retry gate fires, but the final hosted answer still missed
+  exact visible labels and phrases while internal readback reported
+  `fulfilled`. MIMIR keeps the visible recall bar and opened PR297 as a narrow
+  DAEDALUS post-retry selected pair output repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -611,6 +611,12 @@ test-only hygiene patch and recommends that MIMIR open the next hosted ARIADNE
 rerun after deploy. MIMIR opened PR296 Hosted Runtime Rerun After
 Selected-Label Retry Gate for ARIADNE.
 
+2026-06-25 PR296 result: ARIADNE proved PR295 deployed and the label-miss retry
+gate fired, but final hosted exact recall still failed. Internal readback
+reported `fulfilled`; the external answer recalled neither exact accepted label
+nor exact invented phrase. MIMIR keeps the visible selected-pair recall bar and
+opens PR297 Post-Retry Selected Pair Output for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

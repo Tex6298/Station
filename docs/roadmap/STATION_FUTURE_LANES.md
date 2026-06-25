@@ -163,7 +163,10 @@ with a test-only hygiene patch and recommends that MIMIR open the next hosted
 ARIADNE rerun after deploy. MIMIR opened PR296 as that hosted rerun; ARIADNE
 should report label recall, phrase recall, rejected-control exclusion,
 source-copy safety, and sanitized answer-contract/retry status before MIMIR
-chooses the next owner.
+chooses the next owner. PR296 proved retry execution but still failed exact
+visible label/phrase recall while internal readback reported `fulfilled`.
+MIMIR keeps the visible recall bar and opened PR297 as a DAEDALUS post-retry
+selected pair output repair.
 
 ## Phase 2D Developer Agent closeout
 
