@@ -85,6 +85,13 @@ test("memory runtime explanation separates selected and query-held active memory
   assert.equal(explanation.selected[0]?.reason, "Selected for this runtime preview.");
   assert.equal(explanation.heldOut[0]?.targetLabel, "Workshop preference");
   assert.match(explanation.heldOut[0]?.reason ?? "", /not selected for this preview query/);
+  assert.deepEqual(explanation.readback, {
+    selectedCount: 1,
+    eligibleNotSelectedCount: 1,
+    lifecycleHeldOutCount: 0,
+    heldOutByStatus: [],
+    summary: "1 selected for this preview; 1 eligible but not selected; 0 held out by lifecycle or source state.",
+  });
   assert.deepEqual(explanation.fallbackNotes, [
     "Memory retrieval mode: Keyword.",
     "Memory searched: 2.",
@@ -120,6 +127,16 @@ test("memory runtime explanation labels lifecycle and source readiness holdouts"
     "Missing lifecycle",
   ]);
   assert.match(explanation.heldOut[0]?.reason ?? "", /Held out of runtime context/);
+  assert.equal(explanation.readback.selectedCount, 0);
+  assert.equal(explanation.readback.eligibleNotSelectedCount, 0);
+  assert.equal(explanation.readback.lifecycleHeldOutCount, 5);
+  assert.deepEqual(explanation.readback.heldOutByStatus, [
+    { status: "quarantined", label: "Quarantined", value: 1 },
+    { status: "rejected", label: "Rejected", value: 1 },
+    { status: "expired", label: "Expired", value: 1 },
+    { status: "superseded", label: "Superseded", value: 1 },
+    { status: "missing_lifecycle", label: "Missing lifecycle", value: 1 },
+  ]);
   assert.deepEqual(explanation.fallbackNotes, [
     "Memory retrieval mode: Keyword.",
     "Memory fallback: No embedding key.",
@@ -157,8 +174,27 @@ test("memory runtime explanation does not expose raw ids, prompts, urls, or secr
   assert.doesNotMatch(rendered, /persona-1/);
   assert.doesNotMatch(rendered, /trace-1/);
   assert.doesNotMatch(rendered, /raw-source-1/);
+  assert.match(explanation.readback.summary, /selected for this preview/);
   assert.match(rendered, /\[redacted-url\]/);
   assert.match(rendered, /\[redacted-secret\]/);
+});
+
+test("memory runtime readback stays useful when preview is unavailable", () => {
+  const explanation = buildMemoryRuntimeExplanation([
+    { id: "memory-ready", title: "Ready memory", source_type: "manual", lifecycle: baseLifecycle },
+    { id: "memory-rejected", title: "Rejected item", source_type: "manual", lifecycle: { ...baseLifecycle, status: "rejected" } },
+  ]);
+
+  assert.equal(explanation.readback.selectedCount, 0);
+  assert.equal(explanation.readback.eligibleNotSelectedCount, 1);
+  assert.equal(explanation.readback.lifecycleHeldOutCount, 1);
+  assert.deepEqual(explanation.readback.heldOutByStatus, [
+    { status: "rejected", label: "Rejected", value: 1 },
+  ]);
+  assert.match(explanation.readback.summary, /Runtime preview unavailable/);
+  assert.deepEqual(explanation.fallbackNotes, [
+    "Runtime preview unavailable; showing lifecycle readiness only.",
+  ]);
 });
 
 test("memory lifecycle review labels active selection and available action state", () => {

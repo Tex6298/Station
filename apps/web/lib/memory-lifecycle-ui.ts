@@ -53,6 +53,7 @@ export interface MemoryRuntimeExplanation {
   selected: MemoryRuntimeExplanationRow[];
   heldOut: MemoryRuntimeExplanationRow[];
   fallbackNotes: string[];
+  readback: MemoryRuntimeReadback;
 }
 
 export type MemoryLifecycleReviewRuntimeState =
@@ -74,6 +75,18 @@ export interface MemoryLifecycleReviewRow {
   actionReason: string;
   confidenceLabel: string;
   weightLabel: string;
+}
+
+export interface MemoryRuntimeReadback {
+  selectedCount: number;
+  eligibleNotSelectedCount: number;
+  lifecycleHeldOutCount: number;
+  heldOutByStatus: Array<{
+    status: Exclude<MemoryLifecycleDisplayStatus, "active">;
+    label: string;
+    value: number;
+  }>;
+  summary: string;
 }
 
 export interface MemorySupersessionOption {
@@ -196,6 +209,7 @@ export function buildMemoryRuntimeExplanation(
     selected,
     heldOut,
     fallbackNotes: memoryRuntimeFallbackNotes(preview),
+    readback: memoryRuntimeReadback(selected, heldOut, previewAvailable),
   };
 }
 
@@ -313,6 +327,38 @@ function memoryRuntimeSelectionReason(
   if (selected) return "Selected for this runtime preview.";
   if (!previewAvailable) return "Runtime preview is unavailable, so selection cannot be explained yet.";
   return "Eligible, but not selected for this preview query.";
+}
+
+function memoryRuntimeReadback(
+  selected: MemoryRuntimeExplanationRow[],
+  heldOut: MemoryRuntimeExplanationRow[],
+  previewAvailable: boolean,
+): MemoryRuntimeReadback {
+  const selectedCount = selected.length;
+  const eligibleNotSelectedCount = heldOut.filter((row) => row.statusLabel === memoryLifecycleStatusLabel("active")).length;
+  const lifecycleHeldOutCount = Math.max(0, heldOut.length - eligibleNotSelectedCount);
+  const heldOutByStatus = STATUS_ORDER
+    .filter((status): status is Exclude<MemoryLifecycleDisplayStatus, "active"> => status !== "active")
+    .map((status) => ({
+      status,
+      label: memoryLifecycleStatusLabel(status),
+      value: heldOut.filter((row) => row.statusLabel === memoryLifecycleStatusLabel(status)).length,
+    }))
+    .filter((row) => row.value > 0);
+
+  return {
+    selectedCount,
+    eligibleNotSelectedCount,
+    lifecycleHeldOutCount,
+    heldOutByStatus,
+    summary: previewAvailable
+      ? [
+          `${selectedCount} selected for this preview`,
+          `${eligibleNotSelectedCount} eligible but not selected`,
+          `${lifecycleHeldOutCount} held out by lifecycle or source state`,
+        ].join("; ") + "."
+      : "Runtime preview unavailable; lifecycle state still shows what can be selected once preview returns.",
+  };
 }
 
 function memoryRuntimeFallbackNotes(preview?: RuntimeContextMemoryPreviewLike | null) {

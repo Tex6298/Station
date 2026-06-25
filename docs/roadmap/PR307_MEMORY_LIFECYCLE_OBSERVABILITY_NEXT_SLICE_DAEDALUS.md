@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Open
+Status: Implemented - see `PR307_MEMORY_LIFECYCLE_OBSERVABILITY_RESULT.md`
 
 ## Trigger
 

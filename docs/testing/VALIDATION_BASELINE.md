@@ -30,6 +30,23 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR307 Memory Lifecycle Observability Result
+
+DAEDALUS implemented PR307 on 2026-06-25:
+`docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_RESULT.md`.
+
+Validation result: `PASS - ARGUS REVIEW PENDING`.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Owner-only Memory readback | Pass | Studio Memory runtime preview now separates selected, eligible-but-not-selected, and lifecycle-held-out memory. |
+| Lifecycle explainability | Pass | Held-out memory is aggregated by bounded lifecycle status labels, including rejected, quarantined, expired, superseded, and missing lifecycle. |
+| Redaction boundary | Pass | Existing helper coverage still strips raw ids, prompts, URLs, and secret-shaped values from owner-facing readback. |
+| Scope control | Pass | No Memory persistence, lifecycle policy, runtime selection, retrieval ranking, provider/model, embedding, schema, Redis, Cloudflare, queue, worker, import, export, billing, public route, broad UI, or selected-pair behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 111 tests passed, including Memory lifecycle/readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
 ## PR306 Post-Finalizer Trace Semantics Result
 
 DAEDALUS implemented PR306 on 2026-06-25:

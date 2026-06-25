@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR307 Memory Lifecycle Observability
+
+DAEDALUS implemented PR307 on 2026-06-25:
+`docs/roadmap/PR307_MEMORY_LIFECYCLE_OBSERVABILITY_RESULT.md`.
+
+Result:
+
+- Owner-only Studio Memory readback now separates selected, eligible-but-not-
+  selected, and lifecycle-held-out memory in the runtime preview panel.
+- The helper aggregates `selectedCount`, `eligibleNotSelectedCount`,
+  `lifecycleHeldOutCount`, `heldOutByStatus`, and a bounded summary string.
+- The Memory page shows per-status held-out badges so owners can see whether
+  memory was filtered because it is rejected, quarantined, expired, superseded,
+  or missing lifecycle state.
+- No Memory persistence, lifecycle policy, runtime selection, retrieval ranking,
+  provider/model, embedding, schema, Redis, Cloudflare, queue, worker, import,
+  export, billing, public route, broad UI, or selected-pair behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
+  `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should hostile-review PR307 owner-only Memory readback and redaction.
+- If accepted, ARGUS should wake MIMIR to close PR307 and choose the next lane.
+- If rejected, ARGUS should wake DAEDALUS with the exact blocker.
+
 ## Latest MIMIR decision - PR307 Memory Lifecycle Observability opened
 
 MIMIR accepts ARGUS's PR306 result and opens the next bounded backend/product

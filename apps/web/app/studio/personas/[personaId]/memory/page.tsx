@@ -234,7 +234,8 @@ export default function PersonaMemoryPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
           <BriefingMetric label="Selected" value={runtimeExplanation.selected.length} />
-          <BriefingMetric label="Held out" value={runtimeExplanation.heldOut.length} />
+          <BriefingMetric label="Eligible not selected" value={runtimeExplanation.readback.eligibleNotSelectedCount} />
+          <BriefingMetric label="Lifecycle held out" value={runtimeExplanation.readback.lifecycleHeldOutCount} />
           <BriefingMetric label="Preview" value={runtimePreview ? "Loaded" : "Unavailable"} />
         </div>
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", marginBottom: "1rem" }}>
@@ -247,9 +248,18 @@ export default function PersonaMemoryPage() {
             {runtimePreviewLoading ? "Refreshing..." : "Refresh Preview"}
           </button>
           <p style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
-            Owner-only preview labels and counts.
+            {runtimeExplanation.readback.summary}
           </p>
         </div>
+        {runtimeExplanation.readback.heldOutByStatus.length > 0 ? (
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+            {runtimeExplanation.readback.heldOutByStatus.map((row) => (
+              <span key={row.status} className="section-label">
+                {row.label} {row.value}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="studio-two-column">
           <RuntimeExplanationList
             title="Selected for preview"
