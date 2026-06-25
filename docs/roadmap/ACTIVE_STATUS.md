@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR313 Phase 3 pilot scope lock opened
+
+MIMIR accepts ARGUS's PR312 `READY WITH GATES` result:
+`docs/roadmap/PR312_PHASE3_PROPER_REENTRY_PREFLIGHT_RESULT.md`.
+
+Decision:
+
+- Mainline re-entry is safe only as a bounded Phase 3 proper pilot gate.
+- Marty input is not needed before this gate.
+- MIMIR opens
+  `docs/roadmap/PR313_PHASE3_PROPER_PILOT_SCOPE_LOCK_ARGUS.md`.
+- PR313 must choose exactly one pilot axis or block explicitly on Marty before
+  any implementation, external pilot, commercial offer, partner claim, or
+  infrastructure expansion.
+
+Current baton:
+
+- ARGUS should execute PR313 and wake MIMIR with `SCOPE LOCKED`,
+  `SCOPE LOCKED WITH GATES`, or `BLOCKED ON MARTY`.
+- DAEDALUS and ARIADNE should not be woken until PR313 chooses or blocks.
+
 ## Latest ARGUS result - PR312 Phase 3 re-entry preflight
 
 ARGUS completed
