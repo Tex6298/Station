@@ -70,6 +70,24 @@ Required validation:
 | Public boundary | Pass | Public Discover, Space/document/forum, and Developer Space routes do not expose private Memory readback. |
 | `git diff --check` | Pass | Result docs should stay whitespace-clean. |
 
+## PR309 Persona Workspace Memory Navigation Repair
+
+MIMIR opened PR309 for DAEDALUS on 2026-06-25:
+`docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_DAEDALUS.md`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Owner navigation | Pass | Studio -> intended replay persona -> Memory exposes a visible/clickable Memory tab or link. |
+| PR307 readback preserved | Pass | Memory readback buckets remain selected, eligible-not-selected, and lifecycle-held-out once reached. |
+| Private boundary | Pass | Memory navigation does not expose private Memory through public routes. |
+| Scope control | Pass | No Memory data, lifecycle policy, retrieval, provider, embedding, schema, Redis, Cloudflare, billing, queue, worker, import, export, broad UI, or selected-pair behavior changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Required for owner workspace navigation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required for code changes. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings only | Existing raw `<img>` warnings may remain if unrelated. |
+| `git diff --check` | Pass | Whitespace check before wakeup. |
+
 ## PR306 Post-Finalizer Trace Semantics Result
 
 DAEDALUS implemented PR306 on 2026-06-25:

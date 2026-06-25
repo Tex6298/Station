@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR309 Persona Workspace Memory Navigation opened
+
+MIMIR accepts ARIADNE's PR308 failure and opens a narrow DAEDALUS repair:
+`docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_DAEDALUS.md`.
+
+Decision:
+
+- PR308 hosted/browser freshness passed at PR307 implementation commit
+  `e63ac9d2` or later.
+- Direct owner-only Studio Memory readback passed once reached.
+- Redaction and public boundary checks passed.
+- The defect is route/navigation: the actual Studio -> intended replay persona
+  workspace did not expose a visible/clickable Memory tab or link.
+- DAEDALUS should repair the persona workspace navigation only, then wake ARGUS
+  before MIMIR reopens ARIADNE's rehearsal.
+
+Current baton:
+
+- DAEDALUS should execute
+  `docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after repair and validation.
+
 ## Latest MIMIR decision - Advance team design recorded
 
 MIMIR consumed the A1 wakeup asking for a subordinate advance team and recorded

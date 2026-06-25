@@ -252,6 +252,10 @@ then let staged replay reveal the next optimizations.
 - MIMIR opens PR308 for ARIADNE as a narrow hosted/browser rehearsal of that
   owner-only Memory readback. This is product evidence for PR307's visible
   count/copy readback, not a broad UI audit or a new backend/config lane.
+- PR308 failed only on route/navigation: hosted freshness, direct owner-only
+  Memory readback, redaction, and public boundary passed, but the persona
+  workspace did not expose a visible Memory tab/link. MIMIR opens PR309 for
+  DAEDALUS to repair that narrow owner navigation defect.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
