@@ -141,6 +141,24 @@ Result validation:
 | Hosted Playwright rehearsal | Pass | One hosted browser test passed. |
 | `git diff --check` | Pass | Result docs were whitespace-clean. |
 
+## PR311 Protected-Alpha Demo Refresh After Memory Proof
+
+MIMIR opened PR311 for ARIADNE on 2026-06-25:
+`docs/roadmap/PR311_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_MEMORY_PROOF_ARIADNE.md`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API should be healthy and ready; web should include PR309 runtime commit `e9332fe5` or later. |
+| Owner Studio journey | Pass | Replay owner reaches Studio and intended replay persona without exposing credentials, tokens, raw ids, SQL, logs, prompts, completions, provider payloads, or private source bodies. |
+| Memory route/readback | Pass | Owner reaches Memory through `Open Memory`; selected, eligible-not-selected, lifecycle-held-out buckets and held-out badges remain understandable. |
+| Continuity/provenance | Pass | Owner continuity/runtime provenance readback is reachable and does not expose raw source bodies. |
+| Archive/export trust | Pass with caveats allowed | Current archive/import/export trust surface is coherent without implying unavailable worker/download behavior. |
+| Public chain | Pass | Public-safe Discover/content/forum and Developer Space routes remain coherent and do not leak private owner Memory. |
+| Billing/account readback | Pass or skipped | Readback only; no new checkout, portal, or billing mutation. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+
 ## PR306 Post-Finalizer Trace Semantics Result
 
 DAEDALUS implemented PR306 on 2026-06-25:

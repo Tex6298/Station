@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR311 Protected-Alpha Demo Refresh opened
+
+MIMIR accepts KVASIR's ADV-001 recommendation:
+`docs/advance/results/ADV-001_NEXT_MAINLINE_LANE_SYNTHESIS_RESULT.md`.
+
+Decision:
+
+- PR310 closed the Memory readback route caveat with hosted product evidence.
+- No Redis, Cloudflare, provider/model, embedding, billing, worker, broad UI, or
+  Developer Space partner lane has a concrete trigger right now.
+- The next useful mainline lane is evidence-first: a hosted protected-alpha
+  demo refresh after the accepted Memory proof.
+- No new config from Marty is expected if the PR310 hosted replay owner/session
+  and staging endpoints remain available.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR311_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_MEMORY_PROOF_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, the exact next-owner recommendation, and whether Marty input is
+  needed.
+
 ## Latest MIMIR decision - PR310 closed, ADV-001 opened
 
 MIMIR accepts ARIADNE's PR310 result:

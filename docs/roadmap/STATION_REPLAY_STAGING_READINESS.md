@@ -264,6 +264,9 @@ then let staged replay reveal the next optimizations.
   fallback. PR310 passed: the owner route, Memory readback buckets, held-out
   badges, redaction, and public boundary checks all passed, closing the
   PR308/PR309 route caveat.
+- KVASIR completed ADV-001 and MIMIR accepts the recommendation to open PR311:
+  an ARIADNE protected-alpha demo refresh after the accepted Memory proof. This
+  is hosted product evidence, not a new implementation lane.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
