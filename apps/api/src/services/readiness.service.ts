@@ -6,6 +6,7 @@ import { operationalCacheStatus } from "./operational-cache.service";
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
+const MIGRATION_PROOF_TIMEOUT_MS = 5000;
 const SUPABASE_MANAGEMENT_TIMEOUT_MS = 5000;
 const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 const SUPABASE_MANAGEMENT_API_BASE = "https://api.supabase.com";
@@ -20,6 +21,21 @@ type CheckStatus = {
   error?: "not_configured" | "query_failed" | "timeout" | "not_supported" | "unauthorized" | "config_mismatch";
 };
 
+type MigrationProofId =
+  | "memory_columns"
+  | "developer_space_policy"
+  | "documents_version"
+  | "document_versions"
+  | "memory_rpc"
+  | "archive_rpc";
+
+type MigrationProofStatus = {
+  id: MigrationProofId;
+  ok: boolean;
+  checked: boolean;
+  error?: CheckStatus["error"];
+};
+
 type SupabaseManagementFetch = (
   input: string,
   init: { method: "GET"; headers: Record<string, string> }
@@ -30,12 +46,20 @@ type SupabaseManagementFetch = (
 }>;
 
 let supabaseManagementFetchForTests: SupabaseManagementFetch | null = null;
+let migrationProofTimeoutMsForTests: number | null = null;
 
 export function setSupabaseManagementFetchForTests(fetcher: SupabaseManagementFetch | null) {
   if (process.env.NODE_ENV !== "test") {
     throw new Error("setSupabaseManagementFetchForTests can only be used while NODE_ENV is test.");
   }
   supabaseManagementFetchForTests = fetcher;
+}
+
+export function setMigrationProofTimeoutMsForTests(timeoutMs: number | null) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("setMigrationProofTimeoutMsForTests can only be used while NODE_ENV is test.");
+  }
+  migrationProofTimeoutMsForTests = timeoutMs;
 }
 
 type UrlStatus = {
@@ -75,6 +99,7 @@ type DeploymentReadiness = {
     migrations: CheckStatus & {
       count: number | null;
       latest: { version: string; name: string | null } | null;
+      proofs: MigrationProofStatus[];
     };
     storage: CheckStatus & {
       bucket: typeof PERSONA_FILES_BUCKET;
@@ -235,7 +260,7 @@ async function checkDatabaseConnectivity(): Promise<CheckStatus & { configured: 
 
 async function checkMigrationState(): Promise<MigrationReadiness> {
   if (!hasValue(env.SUPABASE_URL) || !hasValue(env.SUPABASE_SERVICE_ROLE_KEY)) {
-    return { ok: false, checked: false, count: null, latest: null, error: "not_configured" };
+    return { ok: false, checked: false, count: null, latest: null, proofs: [], error: "not_configured" };
   }
 
   // Readiness depends on the public objects and RPCs the app actually queries,
@@ -244,69 +269,58 @@ async function checkMigrationState(): Promise<MigrationReadiness> {
 }
 
 async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness> {
-  try {
-    const memoryColumns =
-      "archive_source_type,archive_source_id,archive_source_name,chunk_index,chunk_count,embedding_provider,embedding_model,embedding_dimension,embedding_index_name,embedding_index_source,embedding_backfill_version";
-    const memoryResult = await withTimeout<any>(
-      sb.from("memory_items").select(memoryColumns, { head: true }).limit(1),
-      CHECK_TIMEOUT_MS
-    );
-    if (memoryResult.error) {
-      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
-    }
-
-    const developerSpaceResult = await withTimeout<any>(
-      sb.from("developer_spaces").select("provider_policy", { head: true }).limit(1),
-      CHECK_TIMEOUT_MS
-    );
-    if (developerSpaceResult.error) {
-      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
-    }
-
-    const documentsResult = await withTimeout<any>(
-      sb.from("documents").select("version", { head: true }).limit(1),
-      CHECK_TIMEOUT_MS
-    );
-    if (documentsResult.error) {
-      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
-    }
-
-    const documentVersionsResult = await withTimeout<any>(
+  const memoryColumns =
+    "archive_source_type,archive_source_id,archive_source_name,chunk_index,chunk_count,embedding_provider,embedding_model,embedding_dimension,embedding_index_name,embedding_index_source,embedding_backfill_version";
+  const proofs = await Promise.all([
+    checkMigrationQueryProof("memory_columns", () =>
+      sb.from("memory_items").select(memoryColumns, { head: true }).limit(1)
+    ),
+    checkMigrationQueryProof("developer_space_policy", () =>
+      sb.from("developer_spaces").select("provider_policy", { head: true }).limit(1)
+    ),
+    checkMigrationQueryProof("documents_version", () =>
+      sb.from("documents").select("version", { head: true }).limit(1)
+    ),
+    checkMigrationQueryProof("document_versions", () =>
       sb
         .from("document_versions")
         .select("id,document_id,owner_user_id,version_number", { head: true })
-        .limit(1),
-      CHECK_TIMEOUT_MS
-    );
-    if (documentVersionsResult.error) {
-      return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
-    }
+        .limit(1)
+    ),
+    ...embeddingProfileMigrationProofs(sb),
+  ]);
 
-    if (resolveActiveEmbeddingProfileCode() === "station_free_1536") {
-      const rpcProof = await checkEmbeddingProfileRpcObjects(sb);
-      if (!rpcProof.ok) return rpcProof;
-    }
-
-    return {
-      ok: true,
-      checked: true,
-      count: null,
-      latest: BACKEND_MIGRATION_OBJECT_PROOF_LATEST,
-    };
-  } catch (error) {
+  const failedProof = proofs.find((proof) => !proof.ok);
+  if (failedProof) {
     return {
       ok: false,
-      checked: true,
+      checked: proofs.some((proof) => proof.checked),
       count: null,
       latest: null,
-      error: isTimeout(error) ? "timeout" : "query_failed",
+      proofs,
+      error: failedProof.error ?? "query_failed",
     };
   }
+
+  return {
+    ok: true,
+    checked: true,
+    count: null,
+    latest: BACKEND_MIGRATION_OBJECT_PROOF_LATEST,
+    proofs,
+  };
 }
 
-async function checkEmbeddingProfileRpcObjects(sb: any): Promise<MigrationReadiness> {
+function embeddingProfileMigrationProofs(sb: any): Array<Promise<MigrationProofStatus>> {
+  if (resolveActiveEmbeddingProfileCode() !== "station_free_1536") {
+    return [];
+  }
+
   if (typeof sb.rpc !== "function") {
-    return { ok: false, checked: false, count: null, latest: null, error: "not_supported" };
+    return [
+      Promise.resolve(failedMigrationProof("memory_rpc", "not_supported", false)),
+      Promise.resolve(failedMigrationProof("archive_rpc", "not_supported", false)),
+    ];
   }
 
   const zeroVector = new Array<number>(1536).fill(0);
@@ -318,30 +332,45 @@ async function checkEmbeddingProfileRpcObjects(sb: any): Promise<MigrationReadin
     p_embedding_index_name: "memory_items_embedding_1536",
   };
 
-  const memoryResult = await withTimeout<any>(
-    sb.rpc("match_memory_items", {
-      p_persona_id: ZERO_UUID,
-      ...commonArgs,
-    }),
-    CHECK_TIMEOUT_MS
-  );
-  if (memoryResult.error) {
-    return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
-  }
+  return [
+    checkMigrationQueryProof("memory_rpc", () =>
+      sb.rpc("match_memory_items", {
+        p_persona_id: ZERO_UUID,
+        ...commonArgs,
+      })
+    ),
+    checkMigrationQueryProof("archive_rpc", () =>
+      sb.rpc("match_private_archive_chunks", {
+        p_persona_id: ZERO_UUID,
+        p_owner_user_id: ZERO_UUID,
+        ...commonArgs,
+      })
+    ),
+  ];
+}
 
-  const archiveResult = await withTimeout<any>(
-    sb.rpc("match_private_archive_chunks", {
-      p_persona_id: ZERO_UUID,
-      p_owner_user_id: ZERO_UUID,
-      ...commonArgs,
-    }),
-    CHECK_TIMEOUT_MS
-  );
-  if (archiveResult.error) {
-    return { ok: false, checked: true, count: null, latest: null, error: "query_failed" };
+async function checkMigrationQueryProof(
+  id: MigrationProofId,
+  query: () => PromiseLike<{ error?: unknown }>
+): Promise<MigrationProofStatus> {
+  try {
+    const result = await withTimeout<any>(query(), migrationProofTimeoutMs());
+    return result.error ? failedMigrationProof(id, "query_failed") : { id, ok: true, checked: true };
+  } catch (error) {
+    return failedMigrationProof(id, isTimeout(error) ? "timeout" : "query_failed");
   }
+}
 
-  return { ok: true, checked: true, count: null, latest: BACKEND_MIGRATION_OBJECT_PROOF_LATEST };
+function failedMigrationProof(
+  id: MigrationProofId,
+  error: NonNullable<CheckStatus["error"]>,
+  checked = true
+): MigrationProofStatus {
+  return { id, ok: false, checked, error };
+}
+
+function migrationProofTimeoutMs() {
+  return migrationProofTimeoutMsForTests ?? MIGRATION_PROOF_TIMEOUT_MS;
 }
 
 async function checkPersonaFilesBucket(): Promise<DeploymentReadiness["readiness"]["storage"]> {

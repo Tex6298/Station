@@ -3,7 +3,7 @@
 Owner: DAEDALUS
 Opened by: MIMIR
 Date: 2026-06-25
-Status: Open
+Status: Implemented - see `PR304_API_READINESS_MIGRATION_TIMEOUT_RESULT.md`
 
 ## Trigger
 

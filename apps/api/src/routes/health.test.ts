@@ -65,6 +65,7 @@ class ReadinessSupabase {
   migrationObjectProof = false;
   documentVersionObjectProof = true;
   failEmbeddingProfileRpcProof = false;
+  proofDelays: Record<string, number> = {};
   bucketPublic = false;
   bucketMissing = false;
   objectProofQueries: Array<{ schemaName: string; table: string; columns: string }> = [];
@@ -74,6 +75,7 @@ class ReadinessSupabase {
     from: (table: string) => new ReadinessQuery(this, "public", table),
     rpc: async (functionName: string, args: Record<string, unknown>) => {
       this.rpcCalls.push({ functionName, args });
+      await this.delayProof(functionName === "match_memory_items" ? "memory_rpc" : "archive_rpc");
       if (!["match_memory_items", "match_private_archive_chunks"].includes(functionName)) {
         return { data: null, error: { message: "unexpected rpc with secret-service-role" } };
       }
@@ -94,6 +96,13 @@ class ReadinessSupabase {
       },
     },
   };
+
+  async delayProof(id: string) {
+    const delayMs = this.proofDelays[id] ?? 0;
+    if (delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
 }
 
 class ReadinessQuery {
@@ -137,6 +146,7 @@ class ReadinessQuery {
       (this.table === "memory_items" || this.table === "developer_spaces" || this.table === "documents" || this.table === "document_versions")
     ) {
       this.db.objectProofQueries.push({ schemaName: this.schemaName, table: this.table, columns: this.columns ?? "*" });
+      await this.db.delayProof(proofIdForTable(this.table));
       if (!this.db.migrationObjectProof) {
         return { data: null, error: { message: "public proof failure with secret-service-role" }, count: null };
       }
@@ -408,6 +418,14 @@ test("/health/deployment proves backend migrations through public schema objects
       version: "025-037",
       name: "public_schema_object_rpc_and_document_version_proof",
     });
+    assert.deepEqual(deployment.body.readiness.migrations.proofs, [
+      { id: "memory_columns", ok: true, checked: true },
+      { id: "developer_space_policy", ok: true, checked: true },
+      { id: "documents_version", ok: true, checked: true },
+      { id: "document_versions", ok: true, checked: true },
+      { id: "memory_rpc", ok: true, checked: true },
+      { id: "archive_rpc", ok: true, checked: true },
+    ]);
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
       "match_memory_items",
       "match_private_archive_chunks",
@@ -431,6 +449,12 @@ test("/health/deployment blocks readiness when PR30 document version objects are
     assert.equal(deployment.body.ready, false);
     assert.equal(deployment.body.readiness.migrations.ok, false);
     assert.equal(deployment.body.readiness.migrations.error, "query_failed");
+    assert.deepEqual(deployment.body.readiness.migrations.proofs.find((proof: Row) => proof.id === "document_versions"), {
+      id: "document_versions",
+      ok: false,
+      checked: true,
+      error: "query_failed",
+    });
     assert.equal(
       db.objectProofQueries.some((query) => query.table === "documents" && query.columns === "version"),
       true
@@ -488,7 +512,45 @@ test("/health/deployment blocks free embedding profile readiness without migrati
     assert.equal(deployment.body.ready, false);
     assert.equal(deployment.body.readiness.migrations.ok, false);
     assert.equal(deployment.body.readiness.migrations.error, "query_failed");
-    assert.deepEqual(db.rpcCalls.map((call) => call.functionName), ["match_memory_items"]);
+    assert.deepEqual(deployment.body.readiness.migrations.proofs.filter((proof: Row) => proof.error === "query_failed"), [
+      { id: "memory_rpc", ok: false, checked: true, error: "query_failed" },
+      { id: "archive_rpc", ok: false, checked: true, error: "query_failed" },
+    ]);
+    assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "match_memory_items",
+      "match_private_archive_chunks",
+    ]);
+    assertNoSecrets(deployment.body);
+  } finally {
+    await resetHealthFakes();
+  }
+});
+
+test("/health/deployment names the migration proof that times out", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  db.proofDelays.memory_columns = 20;
+  const { setMigrationProofTimeoutMsForTests } = await import("../services/readiness.service.js");
+  setMigrationProofTimeoutMsForTests(5);
+  const { app } = await setupHealthApp(db);
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ok, true);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.migrations.ok, false);
+    assert.equal(deployment.body.readiness.migrations.error, "timeout");
+    assert.deepEqual(deployment.body.readiness.migrations.proofs.find((proof: Row) => proof.id === "memory_columns"), {
+      id: "memory_columns",
+      ok: false,
+      checked: true,
+      error: "timeout",
+    });
+    assert.equal(
+      deployment.body.readiness.migrations.proofs.some((proof: Row) => proof.ok && proof.id === "archive_rpc"),
+      true
+    );
     assertNoSecrets(deployment.body);
   } finally {
     await resetHealthFakes();
@@ -677,8 +739,9 @@ async function setupHealthApp(
 }
 
 async function resetHealthFakes() {
-  const { setSupabaseManagementFetchForTests } = await import("../services/readiness.service.js");
+  const { setSupabaseManagementFetchForTests, setMigrationProofTimeoutMsForTests } = await import("../services/readiness.service.js");
   setSupabaseManagementFetchForTests(null);
+  setMigrationProofTimeoutMsForTests(null);
   setSupabaseAdminForTests(null);
 }
 
@@ -750,6 +813,21 @@ function close(server: Server) {
   return new Promise<void>((resolve, reject) => {
     server.close((error) => error ? reject(error) : resolve());
   });
+}
+
+function proofIdForTable(table: string) {
+  switch (table) {
+    case "memory_items":
+      return "memory_columns";
+    case "developer_spaces":
+      return "developer_space_policy";
+    case "documents":
+      return "documents_version";
+    case "document_versions":
+      return "document_versions";
+    default:
+      return table;
+  }
 }
 
 function assertNoSecrets(value: unknown) {

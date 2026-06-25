@@ -30,6 +30,30 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR304 API Readiness Migration Timeout Result
+
+DAEDALUS implemented PR304 on 2026-06-25:
+`docs/roadmap/PR304_API_READINESS_MIGRATION_TIMEOUT_RESULT.md`.
+
+Validation result: `PASS - ARGUS REVIEW PENDING`.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Migration readiness gate | Pass | `readiness.migrations.ok` remains required for deployment `ready:true`. |
+| Migration proof timeout budget | Pass | Migration object/RPC proofs now use a dedicated bounded 5s timeout rather than the generic 1.5s readiness timeout. |
+| Per-proof status readback | Pass | `readiness.migrations.proofs` reports only bounded proof ids plus `ok`, `checked`, and enum `error` values. |
+| Timeout actionability | Pass | A timed-out proof now reports top-level `timeout` plus the exact proof id, without exposing SQL, ids, tokens, prompts, completions, provider payloads, or private source bodies. |
+| Query/RPC failure actionability | Pass | Missing or failing objects/RPCs report top-level `query_failed` plus matching failed proof entries. |
+| PR303 product scope | Pass | No selected-pair, provider/model, embedding, retrieval, schema, storage, Stripe, Redis, Cloudflare, queue, worker, or UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+Residual risk: hosted Railway/Supabase readiness still needs a post-deploy
+recheck. If migrations remain non-ready, the response should now identify the
+specific failed proof id.
+
 ## PR302 Selected Pair Finalizer Result
 
 ARGUS accepted PR302 on 2026-06-25:

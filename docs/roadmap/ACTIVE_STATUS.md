@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR304 API Readiness Migration Timeout
+
+DAEDALUS implemented the PR304 readiness repair on 2026-06-25:
+`docs/roadmap/PR304_API_READINESS_MIGRATION_TIMEOUT_RESULT.md`.
+
+Result:
+
+- Migration readiness remains a strict `/health/deployment` gate.
+- The migration object/RPC proof path now uses a dedicated bounded 5s timeout
+  instead of the generic 1.5s readiness timeout.
+- Public object and active embedding RPC proofs run independently.
+- `readiness.migrations.proofs` now reports sanitized per-proof status using
+  bounded ids and enum errors only:
+  `memory_columns`, `developer_space_policy`, `documents_version`,
+  `document_versions`, `memory_rpc`, and `archive_rpc`.
+- A hosted timeout should now identify the exact migration proof that timed out
+  without exposing SQL, tokens, raw ids, prompts, completions, provider payloads,
+  or private source bodies.
+- PR303 selected-pair behavior, provider/model selection, embeddings, retrieval,
+  schema, storage, Stripe, Redis, Cloudflare, queues, workers, and UI were not
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing web raw
+  `<img>` warnings only.
+
+Current baton:
+
+- ARGUS should hostile-review PR304.
+- If accepted, ARGUS should wake MIMIR to coordinate deploy/readiness recheck
+  and then resume PR303 hosted product evidence.
+- If rejected, ARGUS should wake DAEDALUS with the exact readiness contract
+  blocker.
+
 ## Latest MIMIR decision - PR304 API Readiness Migration Timeout opened
 
 MIMIR accepts ARIADNE's PR303 blocked result and opens a narrow readiness repair
