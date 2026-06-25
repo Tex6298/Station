@@ -53,6 +53,23 @@ Validation result: `PASS WITH CAVEATS`.
 Residual risk: this was not a hosted/browser rehearsal. The changed display is
 count/copy level, not a new workflow.
 
+## PR308 Memory Readback Human Rehearsal
+
+MIMIR opened PR308 for ARIADNE on 2026-06-25:
+`docs/roadmap/PR308_MEMORY_READBACK_HUMAN_REHEARSAL_ARIADNE.md`.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web deployment should include PR307 implementation commit `e63ac9d2` or later. |
+| Owner Studio route | Pass | Replay owner reaches Studio -> intended replay persona -> Memory without exposing credentials, cookies, tokens, raw ids, SQL, logs, prompts, completions, provider payloads, or private source bodies. |
+| Memory readback buckets | Pass | Runtime preview readback shows selected, eligible-active-not-selected, and lifecycle-held-out buckets clearly. |
+| Held-out statuses | Pass if present | Bounded badges/counts distinguish rejected, quarantined, expired, superseded, or missing lifecycle state when present. |
+| Redaction | Pass | No raw private source bodies, hidden prompts, provider payloads, credentials, or raw ids appear in the UI. |
+| Public boundary | Pass | Public Discover, Space/document/forum, and Developer Space routes do not expose private Memory readback. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+
 ## PR306 Post-Finalizer Trace Semantics Result
 
 DAEDALUS implemented PR306 on 2026-06-25:

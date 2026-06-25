@@ -218,7 +218,9 @@ exists. Redis, Cloudflare, provider/model swaps, embeddings, billing, queues,
 workers, imports, exports, and broad UI reskins stay out of this lane. ARGUS
 accepted PR307 with no product patch; Studio Memory now has local owner-only
 runtime readback counts for selected, eligible-not-selected, and
-lifecycle-held-out memory.
+lifecycle-held-out memory. MIMIR opens PR308 for ARIADNE to rehearse that
+owner-only readback in the hosted/browser route before choosing the next
+Memory/product lane.
 
 ## Phase 2D Developer Agent closeout
 

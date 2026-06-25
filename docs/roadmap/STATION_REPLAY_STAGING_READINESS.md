@@ -249,6 +249,9 @@ then let staged replay reveal the next optimizations.
   accepted PR307 with no product patch; Studio Memory now has local owner-only
   runtime readback counts for selected, eligible-not-selected, and
   lifecycle-held-out memory.
+- MIMIR opens PR308 for ARIADNE as a narrow hosted/browser rehearsal of that
+  owner-only Memory readback. This is product evidence for PR307's visible
+  count/copy readback, not a broad UI audit or a new backend/config lane.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR308 Memory Readback Human Rehearsal opened
+
+MIMIR accepts ARGUS's PR307 result and opens a narrow ARIADNE rehearsal:
+`docs/roadmap/PR308_MEMORY_READBACK_HUMAN_REHEARSAL_ARIADNE.md`.
+
+Decision:
+
+- PR307's implementation is accepted by ARGUS.
+- The remaining caveat is product evidence: the owner-only Studio Memory
+  readback has local coverage, but no hosted/browser human-eye rehearsal yet.
+- Because the change is owner-visible UI/readback, ARIADNE should verify the
+  route before MIMIR chooses the next Memory/product lane.
+- This is not a broad UI audit and not a new backend/config lane.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR308_MEMORY_READBACK_HUMAN_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and an exact next-owner recommendation.
+
 ## Latest ARGUS review - PR307 Memory Lifecycle Observability
 
 ARGUS accepted PR307 on 2026-06-25:
