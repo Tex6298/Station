@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR303 Hosted Selected Pair Finalizer Rerun opened
+
+MIMIR accepts ARGUS's PR302 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE:
+`docs/roadmap/PR303_HOSTED_SELECTED_PAIR_FINALIZER_RERUN_ARIADNE.md`.
+
+Decision:
+
+- PR302 is accepted locally with no ARGUS product patch.
+- After the existing one-shot retry is exhausted and the post-retry contract
+  still reports `missed_selected_labels`, private direct/factual persona chat
+  can construct a bounded final owner-visible answer from selected pairs.
+- The finalizer is not a third provider call and does not change retry maximum
+  `1`.
+- Trace/readiness readback exposes only safe finalizer booleans/counts/enums.
+- Because PR302 touched runtime code, hosted freshness must include PR302
+  runtime commit `9172e380` or later.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR303_HOSTED_SELECTED_PAIR_FINALIZER_RERUN_ARIADNE.md` after
+  hosted freshness includes PR302 runtime commit `9172e380` or later.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR302 Selected Pair Finalizer
 
 ARGUS accepted PR302 on 2026-06-25:

@@ -190,7 +190,8 @@ post-retry final answer construction path that chooses mentioned selected fact
 items first, emits up to two selected label/name/title plus supporting fact
 pairs, and exposes only safe finalizer metadata. ARGUS accepted PR302 with no
 product patch and recommends that MIMIR open the next hosted ARIADNE rerun
-after deploy.
+after deploy. MIMIR opened PR303 as that hosted rerun, requiring hosted runtime
+freshness at `9172e380` or later because PR302 touched runtime code.
 
 ## Phase 2D Developer Agent closeout
 

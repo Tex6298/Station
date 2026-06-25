@@ -60,6 +60,33 @@ PR302 did not touch hosted probing, provider/model selection, embeddings,
 retrieval ranking, context assembly, schema, seeds, imports, Redis, Cloudflare,
 queues, workers, billing, Stripe, public UI, or Studio UI.
 
+## PR303 Hosted Selected Pair Finalizer Rerun
+
+MIMIR opened PR303 for ARIADNE on 2026-06-25 after ARGUS accepted PR302.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include PR302 runtime commit `9172e380` or later. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, raw ids, SQL, logs, prompts, completions, provider payloads, or private source bodies. |
+| Intended replay persona | Pass or blocked | Use the established intended private replay persona; report ambiguity rather than guessing. |
+| Selected context labels | Pass | Selected context should contain both accepted concept labels. |
+| Selected context phrases | Pass | Selected context should contain both matching invented retrieval phrases. |
+| Full answer label recall | Pass | Hosted answer should visibly recall both accepted concept labels. |
+| Full answer phrase recall | Pass | Hosted answer should visibly recall both matching invented retrieval phrases. |
+| Pairing | Pass | Recalled phrases should be paired with their own selected label/name/title. |
+| Finalizer readback | Pass or not needed | If retry exhausts with `missed_selected_labels`, sanitized readback should show bounded finalizer application without raw selected text. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent from context and answer. |
+| Source-copy safety | Pass | No raw private source-body markers should be copied into the answer. |
+| Diagnosis | Pass | If recall fails, classify context regression, retry-gate failure, finalizer routing failure, finalizer construction failure, trace leakage, or acceptance-bar decision. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR303 is a hosted rerun only; no product code, schema, provider, embedding,
+retrieval ranking, context assembly, Redis, Cloudflare, queue, worker, import,
+seed, billing, Stripe, public UI, or Studio UI changes should occur.
+
 ## PR301 Hosted Pair-Aware Contract Rerun Result
 
 ARIADNE completed PR301 on 2026-06-25.
