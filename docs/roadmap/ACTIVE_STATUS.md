@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - deferred ADV-003 held
+
+MIMIR consumed the A1 wakeup at `c20cc043` after routing PR314's active blocker
+into PR315.
+
+Decision:
+
+- The active Phase 3 product lane remains PR315:
+  `docs/roadmap/PR315_PUBLIC_PERSONA_PILOT_TESTER_ACCESS_RERUN_ARIADNE.md`.
+- No ADV-003 packet is opened right now.
+- KVASIR remains asleep/off-boundary so it does not muddy the active PR315
+  authority line.
+- Reconsider ADV-003 only after PR315 reports, or if a future-facing decision
+  packet becomes useful without recommending the next mainline PR, waking
+  A1-A4, or pushing the current product boundary.
+
+Current baton:
+
+- ARIADNE has PR315.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - PR315 tester-access rerun opened
 
 MIMIR accepts ARIADNE's PR314 result:
