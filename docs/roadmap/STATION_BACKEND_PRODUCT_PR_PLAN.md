@@ -597,6 +597,14 @@ source-copy safety, and sanitized answer-contract/retry readback so MIMIR can
 choose between closing the recall bar, opening a gate/readback repair, or
 classifying provider/model behavior.
 
+2026-06-25 PR294 result: ARIADNE proved PR293 deployed, replay-owner
+auth/session and intended private persona selection passed, selected context
+contained both accepted labels and both invented phrases, rejected-control
+exclusion and source-copy safety passed, and sanitized answer-contract readback
+was visible. The answer recalled both phrases but neither label. Trace detail
+reported `missed_selected_labels` with retry not recommended or attempted.
+MIMIR opens PR295 Selected Label Miss Retry Gate for DAEDALUS.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

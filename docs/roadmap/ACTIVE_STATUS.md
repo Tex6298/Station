@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR295 Selected Label Miss Retry Gate opened
+
+MIMIR accepts ARIADNE's PR294 hosted evidence and opens a narrow DAEDALUS gate
+repair:
+`docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_DAEDALUS.md`.
+
+Decision:
+
+- PR294 failed the hosted recall bar, but it narrowed the defect sharply.
+- Hosted freshness, replay-owner auth/session, intended private persona,
+  selected context, rejected-control exclusion, source-copy safety, and
+  sanitized answer-contract readback passed.
+- Context contained both accepted concept labels and both matching invented
+  retrieval phrases.
+- The hosted answer recalled both phrases but neither label.
+- Trace detail reported `directFactual: true`, `applicable: true`,
+  `reasonCode: missed_selected_labels`, `retryRecommended: false`, and
+  `retryAttempted: false`.
+- This is a selected-label miss retry-gate defect, not a context assembly,
+  deploy freshness, auth/session, or readback visibility defect.
+
+Current baton:
+
+- DAEDALUS should implement
+  `docs/roadmap/PR295_LABEL_MISS_RETRY_GATE_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation and validation.
+- ARGUS should review privacy, retry scope, creative/style guard, sanitized
+  observability, and absence of hardcoded replay terms.
+
 ## Latest MIMIR decision - PR294 Hosted Runtime Answer Rerun opened
 
 MIMIR accepts ARGUS's PR293 review and opens the hosted post-deploy product
@@ -23,7 +52,7 @@ Decision:
 - Open PR294 - Hosted Runtime Answer Rerun After Answer-Contract Gate Readback
   for ARIADNE.
 
-Current baton:
+Previous baton:
 
 - ARIADNE should execute
   `docs/roadmap/PR294_HOSTED_RUNTIME_ANSWER_RERUN_ARIADNE.md` after hosted

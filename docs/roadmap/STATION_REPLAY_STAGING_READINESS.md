@@ -161,6 +161,11 @@ then let staged replay reveal the next optimizations.
   exclusion, source-copy safety, and sanitized answer-contract/retry readback
   before MIMIR decides whether the next owner is DAEDALUS or provider/model
   classification.
+- PR294 failed the hosted recall bar, but narrowed the issue to selected-label
+  retry gating: context contained both labels and both phrases, the answer
+  recalled both phrases and no labels, and sanitized trace detail reported
+  `missed_selected_labels` with retry not recommended or attempted. MIMIR
+  opened PR295 as a narrow DAEDALUS selected-label miss retry-gate repair.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

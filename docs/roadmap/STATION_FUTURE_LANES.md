@@ -150,6 +150,13 @@ MIMIR opened PR294 as the ARIADNE hosted rerun after deploy. PR294 should tell
 MIMIR whether hosted label/phrase recall now passes, whether a missing
 gate/readback path still needs DAEDALUS, or whether the remaining failure is
 provider/model behavior with sanitized evidence.
+PR294 failed the hosted recall bar but proved the gate/readback path is visible:
+context contained both labels and both phrases, the answer recalled both
+phrases and no labels, and trace detail reported `missed_selected_labels` with
+retry not recommended or attempted. MIMIR opened PR295 as a narrow DAEDALUS
+selected-label miss retry-gate repair, with ARGUS to review privacy, retry
+scope, creative/style guard, sanitized observability, and no hardcoded replay
+terms.
 
 ## Phase 2D Developer Agent closeout
 
