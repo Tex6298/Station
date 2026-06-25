@@ -78,7 +78,7 @@ MIMIR opened PR309 for DAEDALUS on 2026-06-25:
 DAEDALUS implemented PR309 on 2026-06-25:
 `docs/roadmap/PR309_PERSONA_WORKSPACE_MEMORY_NAV_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `PASS WITH CAVEATS`.
 
 Required validation:
 
@@ -101,6 +101,8 @@ Implementation validation:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, provider payloads, private source bodies, or secret-bearing env values were added. |
 
 Residual risk: hosted/browser evidence still needs ARIADNE's PR308 rerun after
 ARGUS accepts the code repair.

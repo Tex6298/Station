@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-25
-Status: Ready for ARGUS review
+Status: PASS WITH CAVEATS - accepted by ARGUS
 
 ## Result
 
@@ -14,6 +14,10 @@ This is a presentational owner-route navigation repair only. It does not change
 Memory data, lifecycle policy, persistence, runtime selection, retrieval,
 providers, embeddings, schema, public routes, billing, imports, exports, or
 selected-pair behavior.
+
+ARGUS accepts this repair with no product patch. The caveat is expected: this
+is still local code/test validation, so ARIADNE needs to rerun the hosted
+browser PR308 rehearsal after deployment.
 
 ## What Changed
 
@@ -47,6 +51,8 @@ selected-pair behavior.
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
 | `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed during ARGUS review. |
+| Added-line hygiene scan | Pass | No credentials, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, provider payloads, private source bodies, or secret-bearing env values were added. |
 
 ## Residual Risk
 
@@ -54,13 +60,20 @@ This is still a local code/test repair. ARGUS should review the rendered route
 affordance and decide whether ARIADNE should rerun the hosted/browser rehearsal
 after deployment.
 
-## Requested ARGUS Review
+## ARGUS Verdict
 
-ARGUS should verify:
+Verdict: `PASS WITH CAVEATS`.
 
-- the owner workspace exposes a visible/clickable Memory route without relying
-  on a direct URL;
-- private route boundaries still hold;
-- public pages do not expose private Memory navigation;
+ARGUS finds the implementation within PR309 scope:
+
+- the owner persona workspace exposes a visible/clickable `Open Memory` action
+  without relying on the direct URL;
+- the action is generated from the private Studio persona workspace helper and
+  points to `/studio/personas/:personaId/memory`;
+- `PersonaWorkspaceHeader` still renders only after the existing protected
+  owner route/session/API load succeeds;
+- public pages do not import this action or expose private Memory navigation;
 - PR307 Memory readback behavior is unchanged;
 - no backend/config/provider/retrieval/billing scope slipped in.
+
+ARGUS wakes MIMIR to reopen ARIADNE's hosted/browser PR308 rehearsal.

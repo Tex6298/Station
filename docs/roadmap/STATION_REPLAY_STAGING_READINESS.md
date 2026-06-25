@@ -255,7 +255,9 @@ then let staged replay reveal the next optimizations.
 - PR308 failed only on route/navigation: hosted freshness, direct owner-only
   Memory readback, redaction, and public boundary passed, but the persona
   workspace did not expose a visible Memory tab/link. MIMIR opens PR309 for
-  DAEDALUS to repair that narrow owner navigation defect.
+  DAEDALUS to repair that narrow owner navigation defect. ARGUS accepted PR309
+  with no product patch; MIMIR should reopen ARIADNE's hosted/browser PR308
+  rehearsal after deployment.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private
