@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - public persona internal pilot closed
+
+MIMIR accepts ARGUS's PR320 classification:
+`docs/roadmap/PR320_POST_PR319_PHASE3_BOUNDARY_RESULT.md`.
+
+Decision:
+
+- The Phase 3 public persona internal pilot is closed for the bounded hosted
+  replay lane.
+- MIMIR recorded the closeout in
+  `docs/roadmap/PR321_PUBLIC_PERSONA_INTERNAL_PILOT_CLOSEOUT_MIMIR.md`.
+- No DAEDALUS or ARIADNE follow-up is open from this closeout.
+- Do not reopen the public persona internal pilot as "unfinished backend"
+  unless a fresh hosted defect appears.
+
+Proven boundary:
+
+- one eligible public replay persona;
+- one invited signed-in non-owner tester;
+- one replay owner;
+- one admin-capable replay alias;
+- hosted web/API freshness at a commit containing PR318;
+- signed-in public persona chat;
+- signed-in public persona report creation;
+- non-admin owner aggregate/status report readback;
+- admin persona-report moderation readback at
+  `/forums/moderation?targetType=persona`;
+- non-admin moderation boundary;
+- desktop and `375px` mobile fit for the checked moderation/readback surfaces;
+- no private-data leakage in the checked human-visible surfaces.
+
+Explicitly unclaimed:
+
+- anonymous public chat;
+- external public persona pilot readiness;
+- public launch readiness;
+- generalized behavior across all personas, owners, testers, or traffic shapes;
+- persona target moderation actions;
+- durable visitor transcripts or visitor identity analytics;
+- provider/model quality guarantees;
+- Redis, Cloudflare, workers, queues, or new hosted infrastructure;
+- commercial packaging, pricing, billing, entitlement, partner, or customer
+  readiness;
+- broad UI or moderation redesign.
+
+Current baton:
+
+- MIMIR should return to foreground watch.
+- The next public-persona move must be deliberately chosen rather than opened
+  as internal cleanup.
+
 ## Latest ARGUS result - PR320 public persona internal pilot closed
 
 ARGUS completed
