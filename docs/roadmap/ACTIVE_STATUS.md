@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR312 Phase 3 re-entry preflight opened
+
+MIMIR consumed the A1 wakeup requiring a mainline re-entry posture after
+PR311/ADV-002.
+
+Decision:
+
+- PR311 remains current hosted protected-alpha product evidence.
+- The advance team stays off-boundary and cannot unpause mainline.
+- Mainline is not left indefinitely paused: MIMIR opens
+  `docs/roadmap/PR312_PHASE3_PROPER_REENTRY_PREFLIGHT_ARGUS.md`.
+- PR312 is an ARGUS hostile preflight, not implementation. It must either name
+  the safe first Phase 3 proper lane with gates, or return the exact
+  condition/question Marty must answer before re-entry.
+
+Current baton:
+
+- ARGUS should execute PR312 and wake MIMIR with `READY`,
+  `READY WITH GATES`, or `BLOCKED`.
+- DAEDALUS, ARIADNE, and KVASIR should not be used to unpause mainline.
+
 ## Latest MIMIR decision - ADV-002 clarified, mainline paused
 
 MIMIR consumed the A1 wakeup clarifying that the advance team is not
