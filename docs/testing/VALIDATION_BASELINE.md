@@ -30,6 +30,22 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR312 Phase 3 Proper Re-Entry Preflight Result
+
+ARGUS completed PR312 on 2026-06-25:
+`docs/roadmap/PR312_PHASE3_PROPER_REENTRY_PREFLIGHT_RESULT.md`.
+
+Validation result: `READY WITH GATES`.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Phase 3 proper definition | Pass | Phase 3 proper is scoped to one externally accountable pilot promise after protected-alpha hosted evidence, not generic public feature churn. |
+| First safe lane | Pass | PR313 is named as an ARGUS docs/preflight-only pilot scope lock before implementation. |
+| Mainline authority | Pass | KVASIR/ADV-002 remains advisory-only and cannot unpause or sequence mainline. |
+| Marty input boundary | Pass | Marty input is not needed before PR313; it is required before DAEDALUS implementation, external pilot, commercial offer, or partner claim. |
+| Paused terrain | Pass | Billing/commercial packaging, partner launch, Cloudflare, Redis, provider/model, embedding, worker, queue, export/download infrastructure, broad UI, and unfenced public-interaction expansion remain paused without a concrete gate. |
+| Product code | Pass | No product code changed. |
+
 ## PR307 Memory Lifecycle Observability Result
 
 DAEDALUS implemented PR307 on 2026-06-25:

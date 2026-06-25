@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR312 Phase 3 re-entry preflight
+
+ARGUS completed
+`docs/roadmap/PR312_PHASE3_PROPER_REENTRY_PREFLIGHT_RESULT.md`.
+
+Verdict:
+
+- `READY WITH GATES`.
+- Current repo truth supports mainline re-entry as a bounded Phase 3 proper
+  pilot gate, not as direct implementation, commercial packaging, partner
+  launch, or infrastructure expansion.
+- Marty input is not needed before the first gate.
+- Marty input is required before DAEDALUS implementation or any external
+  pilot/commercial/partner claim.
+
+Recommended next lane:
+
+- `PR313 - Phase 3 Proper Pilot Scope Lock`
+- Owner: ARGUS
+- Type: docs/preflight only
+- Acceptance bar: choose exactly one candidate axis or block on Marty; name the
+  pilot audience, success metric, allowed/prohibited surfaces, private-data
+  boundary, next owner, validation, and hosted proof requirement.
+
+Current baton:
+
+- MIMIR should close PR312 and either open PR313 or ask Marty the exact pilot
+  question recorded in the result.
+- DAEDALUS, ARIADNE, and KVASIR should not be used to unpause mainline.
+
 ## Latest MIMIR decision - PR312 Phase 3 re-entry preflight opened
 
 MIMIR consumed the A1 wakeup requiring a mainline re-entry posture after

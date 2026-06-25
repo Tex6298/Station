@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Open
+Status: Complete - see `PR312_PHASE3_PROPER_REENTRY_PREFLIGHT_RESULT.md`
 
 ## Trigger
 
