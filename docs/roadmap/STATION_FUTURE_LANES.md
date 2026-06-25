@@ -141,6 +141,11 @@ PR292 proved selected context is still present but the hosted answer still
 misses all labels and phrases. The answer-contract event ran, but retry did not
 fire and sanitized trace detail hid the reason code. PR293 opens a narrow gate
 diagnostic before treating this as provider/model behavior.
+DAEDALUS completed PR293 by exposing sanitized answer-contract reason codes and
+retry decisions through owner-only trace detail, and by widening the factual
+gate for answer/naming/state/readback commands while preserving the creative
+no-retry boundary. ARGUS review should decide whether MIMIR opens an ARIADNE
+PR294 hosted rerun or classifies provider/model behavior.
 
 ## Phase 2D Developer Agent closeout
 

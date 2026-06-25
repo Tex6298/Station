@@ -814,7 +814,7 @@ test("chat retries once when a direct private answer ignores selected context", 
       token: "owner-token",
       body: {
         conversationId: CONVERSATION_ID,
-        content: "List the selected context pairs.",
+        content: "Answer with the accepted concept names.",
       },
     });
 
@@ -864,7 +864,7 @@ test("chat retries once when a direct private answer ignores selected context", 
     assert.equal(llmEvent.output_tokens > 0, true);
 
     assert.equal(
-      db.tables.conversation_messages.filter((row) => row.content === "List the selected context pairs.").length,
+      db.tables.conversation_messages.filter((row) => row.content === "Answer with the accepted concept names.").length,
       1
     );
     assert.equal(

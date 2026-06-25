@@ -585,6 +585,14 @@ was observed and reason codes were not exposed by sanitized trace detail. MIMIR
 opens PR293 Answer Contract Gate Diagnostic for DAEDALUS before classifying
 provider/model behavior.
 
+2026-06-25 PR293 result: DAEDALUS exposed sanitized answer-contract reason
+codes and retry decisions through owner-only trace detail, and widened the
+factual gate for answer/naming/state/readback commands while preserving the
+creative no-retry boundary. Retry scope remains private/direct/selected-context
+only, missed-all-selected-focus only, and one retry maximum. ARGUS should
+review whether MIMIR opens an ARIADNE PR294 hosted rerun or classifies
+provider/model behavior.
+
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for
 direct product-code opening because public persona pages, bounded visitor

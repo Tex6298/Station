@@ -152,6 +152,11 @@ then let staged replay reveal the next optimizations.
   and reason codes were not exposed by sanitized trace detail. MIMIR opened
   PR293 as a narrow DAEDALUS gate/readback diagnostic before classifying this as
   provider/model behavior.
+- PR293 exposed sanitized answer-contract reason codes and retry decisions
+  through owner-only trace detail, and widened the factual gate for
+  answer/naming/state/readback commands while preserving the creative no-retry
+  boundary. ARGUS should review before MIMIR opens an ARIADNE PR294 hosted
+  rerun or classifies provider/model behavior.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

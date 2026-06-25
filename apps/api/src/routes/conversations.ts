@@ -383,8 +383,11 @@ function answerContractTerms(value: string, maxTerms = ANSWER_CONTRACT_MAX_TERMS
 
 function isDirectFactualOwnerMessage(value: string) {
   const text = value.toLowerCase();
+  const creativeOnly = /\b(write|draft|compose|metaphor|poem|story|fiction|creative|reflective)\b/.test(text);
+  const factual = /\b(answer|state|list|name|names|which|what|who|where|when|identify|recall|remember|read back|report|summari[sz]e|facts?|pairs?|labels?|selected context|tell me|give me)\b/.test(text);
+  if (creativeOnly && !/\b(facts?|pairs?|labels?|names?|selected context)\b/.test(text)) return false;
   return (
-    /\b(list|name|which|what|who|where|when|identify|recall|remember|summari[sz]e|facts?|pairs?|labels?|selected context|tell me|give me)\b/.test(text)
+    factual
   );
 }
 

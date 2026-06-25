@@ -4,34 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR293 Answer Contract Gate Diagnostic opened
+## Latest DAEDALUS implementation - PR293 Answer Contract Gate Diagnostic
 
-MIMIR accepts ARIADNE's PR292 hosted result as `FAIL` and opens a narrow
-DAEDALUS gate/readback diagnostic.
+DAEDALUS completed PR293 on 2026-06-25:
+`docs/roadmap/PR293_ANSWER_CONTRACT_GATE_DIAGNOSTIC_RESULT.md`.
 
-Decision:
+Result:
 
-- PR292 proved hosted freshness, replay-owner auth/session, intended persona
-  selection, selected context, rejected-control exclusion, source-copy safety,
-  and sanitized observability/readiness.
-- The answer still recalled neither accepted concept label nor invented phrase.
-- The `Selected-context answer contract` event was present and completed, but
-  no retry event was observed and reason codes were not exposed by sanitized
-  trace detail.
-- Do not classify this as provider/model behavior until the answer-contract
-  gate exposes safe reason-code/retry-decision summaries and is aligned with
-  the hosted acceptance fixture.
-- Open PR293 - Answer Contract Gate Diagnostic for DAEDALUS.
+- Verdict: ready for ARGUS review.
+- Root cause/hypothesis: owner-visible trace detail stripped nested
+  answer-contract reason codes/retry decisions, and the hosted acceptance prompt
+  may have missed the direct/factual gate.
+- Patch: sanitized trace detail now exposes allow-listed answer-contract and
+  retry fields as booleans/counts/enums only.
+- Patch: the direct/factual classifier now includes answer, naming, state,
+  report, and readback-style factual commands while preserving the creative
+  metaphor no-retry boundary.
+- Retry scope is unchanged: private persona chat only, selected context
+  required, direct/factual only, missed-all-selected-focus only, one retry max.
 
 Current baton:
 
-- DAEDALUS should execute
-  `docs/roadmap/PR293_ANSWER_CONTRACT_GATE_DIAGNOSTIC_DAEDALUS.md`.
-- DAEDALUS should wake ARGUS for direct/factual gate breadth, retry boundary,
-  sanitized reason-code/readiness exposure, no hardcoded replay anchors, no
-  scope creep, and no secret/raw-data leakage review.
-- ARGUS should recommend whether MIMIR opens ARIADNE hosted PR294 rerun or
-  classifies provider/model behavior.
+- ARGUS should review direct/factual gate breadth, retry boundary, sanitized
+  reason-code/readiness exposure, no hardcoded replay anchors, no scope creep,
+  and no secret/raw-data leakage.
+- If accepted, ARGUS should recommend whether MIMIR opens ARIADNE hosted PR294
+  rerun or classifies provider/model behavior.
 
 ## Latest ARIADNE review - PR292 Hosted Runtime Answer Rerun
 

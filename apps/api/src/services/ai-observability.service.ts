@@ -254,6 +254,9 @@ function sanitizeTraceMetadata(value: unknown) {
   const runtimeBudget = asRecord(metadata.runtimeBudget);
   const budgetProvider = asRecord(runtimeBudget?.provider);
   const embedding = asRecord(metadata.embedding);
+  const answerContract = sanitizeAnswerContractMetadata(metadata.answerContract);
+  const firstAnswerContract = sanitizeAnswerContractMetadata(metadata.firstAnswerContract);
+  const retry = sanitizeAnswerContractRetryMetadata(metadata.retry);
   const candidates: Array<[string, unknown]> = [
     ["route", metadata.providerRoute ?? budgetProvider?.route],
     ["profile", metadata.providerProfile ?? metadata.profileCode ?? embedding?.profileCode],
@@ -265,11 +268,77 @@ function sanitizeTraceMetadata(value: unknown) {
     ["domain", metadata.domain],
   ];
 
-  return Object.fromEntries(
+  return {
+    ...Object.fromEntries(
     candidates
       .map(([key, candidate]) => [key, safeMetadataValue(candidate)] as const)
       .filter((entry): entry is readonly [string, string | number | boolean] => entry[1] !== null)
-  );
+    ),
+    ...(answerContract ? { answerContract } : {}),
+    ...(firstAnswerContract ? { firstAnswerContract } : {}),
+    ...(retry ? { retry } : {}),
+  };
+}
+
+function sanitizeAnswerContractMetadata(value: unknown) {
+  const metadata = asRecord(value);
+  if (!metadata) return null;
+
+  const reasonCode = safeAnswerContractReasonCode(metadata.reasonCode);
+  return {
+    schema: metadata.schema === "station.selected_context_answer_contract.v1"
+      ? "station.selected_context_answer_contract.v1"
+      : "unknown",
+    privatePersona: safeBoolean(metadata.privatePersona),
+    directFactual: safeBoolean(metadata.directFactual),
+    applicable: safeBoolean(metadata.applicable),
+    selectedItemCount: safeNonNegativeInteger(metadata.selectedItemCount),
+    selectedLabelCount: safeNonNegativeInteger(metadata.selectedLabelCount),
+    selectedFactCount: safeNonNegativeInteger(metadata.selectedFactCount),
+    matchedItemCount: safeNonNegativeInteger(metadata.matchedItemCount),
+    matchedLabelCount: safeNonNegativeInteger(metadata.matchedLabelCount),
+    matchedFactCount: safeNonNegativeInteger(metadata.matchedFactCount),
+    reasonCode: reasonCode ?? "unknown",
+    retryRecommended: safeBoolean(metadata.retryRecommended),
+  };
+}
+
+function sanitizeAnswerContractRetryMetadata(value: unknown) {
+  const metadata = asRecord(value);
+  if (!metadata) return null;
+
+  return {
+    attempted: safeBoolean(metadata.attempted),
+    failed: safeBoolean(metadata.failed),
+    maxAttempts: safeNonNegativeInteger(metadata.maxAttempts),
+    ...(safeAnswerContractReasonCode(metadata.reasonCode)
+      ? { reasonCode: safeAnswerContractReasonCode(metadata.reasonCode) }
+      : {}),
+  };
+}
+
+function safeAnswerContractReasonCode(value: unknown) {
+  if (typeof value !== "string") return null;
+  return [
+    "not_private_persona",
+    "not_direct_factual",
+    "no_selected_focus",
+    "fulfilled",
+    "missed_all_selected_focus",
+    "missed_selected_labels",
+    "missed_supporting_facts",
+  ].includes(value)
+    ? value
+    : null;
+}
+
+function safeBoolean(value: unknown) {
+  return value === true;
+}
+
+function safeNonNegativeInteger(value: unknown) {
+  const numberValue = typeof value === "number" ? value : Number(value ?? 0);
+  return Number.isInteger(numberValue) && numberValue >= 0 ? numberValue : 0;
 }
 
 function safeMetadataValue(value: unknown): string | number | boolean | null {

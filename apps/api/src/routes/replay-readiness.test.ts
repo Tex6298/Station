@@ -147,6 +147,43 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
           providerPosture: "platform_key",
           traceId: "trace-private-raw",
           sourceId: "source-private-raw",
+          answerContract: {
+            schema: "station.selected_context_answer_contract.v1",
+            privatePersona: true,
+            directFactual: true,
+            applicable: true,
+            selectedItemCount: 2,
+            selectedLabelCount: 2,
+            selectedFactCount: 2,
+            matchedItemCount: 0,
+            matchedLabelCount: 0,
+            matchedFactCount: 0,
+            reasonCode: "missed_all_selected_focus",
+            retryRecommended: true,
+            rawSelectedLabel: "Meridian Loom",
+          },
+          firstAnswerContract: {
+            schema: "station.selected_context_answer_contract.v1",
+            privatePersona: true,
+            directFactual: true,
+            applicable: true,
+            selectedItemCount: 2,
+            selectedLabelCount: 2,
+            selectedFactCount: 2,
+            matchedItemCount: 0,
+            matchedLabelCount: 0,
+            matchedFactCount: 0,
+            reasonCode: "missed_all_selected_focus",
+            retryRecommended: true,
+            rawSelectedFact: "silver compass ledger",
+          },
+          retry: {
+            attempted: true,
+            failed: false,
+            maxAttempts: 1,
+            reasonCode: "missed_all_selected_focus",
+            rawProviderPayload: "PROVIDER_REQUEST_SHOULD_NOT_RETURN",
+          },
         },
       },
     ],
@@ -208,6 +245,27 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
     assert.equal(owner.body.events[0].eventType, "llm_call");
     assert.equal(owner.body.events[0].metadata.route, "anthropic_platform");
     assert.equal(owner.body.events[0].metadata.providerPosture, "platform_key");
+    assert.deepEqual(owner.body.events[0].metadata.answerContract, {
+      schema: "station.selected_context_answer_contract.v1",
+      privatePersona: true,
+      directFactual: true,
+      applicable: true,
+      selectedItemCount: 2,
+      selectedLabelCount: 2,
+      selectedFactCount: 2,
+      matchedItemCount: 0,
+      matchedLabelCount: 0,
+      matchedFactCount: 0,
+      reasonCode: "missed_all_selected_focus",
+      retryRecommended: true,
+    });
+    assert.equal(owner.body.events[0].metadata.firstAnswerContract.reasonCode, "missed_all_selected_focus");
+    assert.deepEqual(owner.body.events[0].metadata.retry, {
+      attempted: true,
+      failed: false,
+      maxAttempts: 1,
+      reasonCode: "missed_all_selected_focus",
+    });
     assert.match(owner.body.trace.failureReason, /\[redacted-url\]/);
     assert.match(owner.body.events[0].failureReason, /\[redacted-secret\]/);
     assert.match(owner.body.events[0].label, /\[redacted-prompt\]/);
@@ -232,6 +290,8 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
     assert.doesNotMatch(serialized, /PROVIDER_REQUEST_SHOULD_NOT_RETURN/);
     assert.doesNotMatch(serialized, /PROVIDER_RESPONSE_SHOULD_NOT_RETURN/);
     assert.doesNotMatch(serialized, /PRIVATE_ARCHIVE_EXCERPT_SHOULD_NOT_RETURN/);
+    assert.doesNotMatch(serialized, /Meridian Loom/);
+    assert.doesNotMatch(serialized, /silver compass ledger/);
     assert.equal("payload" in owner.body.events[0], false);
   } finally {
     setSupabaseAdminForTests(null);

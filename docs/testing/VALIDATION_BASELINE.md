@@ -32,26 +32,29 @@ Memory/observability implementation lane.
 
 ## PR293 Answer Contract Gate Diagnostic
 
-MIMIR opened PR293 for DAEDALUS on 2026-06-25 after ARIADNE's PR292 hosted
-rerun failed.
+DAEDALUS completed PR293 on 2026-06-25:
+`docs/roadmap/PR293_ANSWER_CONTRACT_GATE_DIAGNOSTIC_RESULT.md`.
 
-Required validation:
+Result: ready for ARGUS review.
 
-| Check | Expected result | Notes |
+Validation result:
+
+| Check | Result | Notes |
 | --- | --- | --- |
-| Direct/factual classifier | Pass | PR292-shaped factual answer/naming prompt should be eligible for answer-contract retry; creative/style prompts should remain single-shot. |
-| Sanitized reason-code readback | Pass | Owner-only trace/readiness detail should expose reason codes and retry decisions as safe enums/booleans/counts only. |
-| Retry gate | Pass | First answer missing all selected focus should trigger exactly one retry when the gate applies. |
+| Direct/factual classifier | Pass | PR292-shaped factual `answer`/`names` prompt is eligible for answer-contract retry; creative metaphor prompt remains single-shot. |
+| Sanitized reason-code readback | Pass | Owner-only trace detail exposes answer-contract reason codes and retry decisions as safe enums/booleans/counts only. |
+| Retry gate | Pass | First answer missing all selected focus triggers exactly one retry when the gate applies. |
 | Raw-content safety | Pass | No raw selected strings, prompts, completions, provider payloads, private source bodies, ids, cookies, tokens, or credentials in trace/readiness output. |
-| No hardcoded replay terms | Pass | Product code must not special-case seeded anchors, replay persona names, hosted ids, test account details, or staging prompt wording. |
+| No hardcoded replay terms | Pass | Product code is generic over factual command terms and trace metadata fields; seeded labels appear only in synthetic tests. |
 | Scope | Pass | No retrieval, provider routing/model choice, embeddings, schema, seeds, imports, Redis, Cloudflare, queues, workers, billing, Stripe, public UI, or Studio UI changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required focused route coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | Required if trace/readiness sanitizer changes. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Required. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Existing warnings should be named if still present. |
-| `git diff --check` | Pass | Required. |
-| `git diff --cached --check` | Pass | Required before wakeup. |
-| Added-line hygiene scan | Pass | No credentials, emails, credentialed URLs, UUID-shaped ids, raw prompts, raw completions, private source bodies, or secret-bearing env values. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 37 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | 2 turbo tasks passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with existing warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
+`test:retrieval-metadata` and `test:persona-context` were not rerun because
+PR293 did not touch retrieval, context assembly, prompt assembly, or
+retrieval-adjacent helpers.
 
 ## PR292 Hosted Runtime Answer Rerun Result
 
