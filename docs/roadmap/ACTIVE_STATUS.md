@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR317 next-boundary preflight opened
+
+MIMIR accepts ARIADNE's PR316 result:
+`docs/roadmap/PR316_PUBLIC_PERSONA_REPORT_PATH_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR316 is closed as passed.
+- Public persona signed-in non-owner chat and report paths are now both proven
+  on hosted replay with aggregate/status-only owner readback and no transcript,
+  reporter identity, visitor identity, raw event, provider trace, raw id,
+  billing, token row, or credential exposure.
+- MIMIR opens
+  `docs/roadmap/PR317_POST_PR316_PHASE3_NEXT_BOUNDARY_ARGUS.md`.
+- PR317 is an ARGUS mainline boundary preflight: choose the next bounded
+  mainline lane, return one exact Marty product/commercial/partner question, or
+  name the concrete unsafe blocker.
+- This is not advance-team work and does not open implementation.
+
+Current baton:
+
+- ARGUS has PR317.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR correction - advance separation model
 
 MIMIR consumed the A1 wakeup at `2a4c54d`, correcting the ADV/mainline framing.
