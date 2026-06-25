@@ -17,14 +17,52 @@ export type ReportTransitionStatus = typeof REPORT_TRANSITION_STATUSES[number];
 export type ReportTargetAction = typeof REPORT_TARGET_ACTIONS[number];
 export type ReviewQueueStatus = typeof REVIEW_QUEUE_STATUSES[number];
 export type ReviewTransitionStatus = typeof REVIEW_TRANSITION_STATUSES[number];
+export type ReportQueueStatusFilter = ReportQueueStatus | "active";
+export type ReportTargetTypeFilter = ReportTargetType | "all";
+export type ReviewQueueStatusFilter = ReviewQueueStatus | "active";
+type SearchParamSource = Pick<URLSearchParams, "get"> | Record<string, string | null | undefined>;
 
 export function canUseModeratorConsole(user?: (AuthUser & { isAdmin?: boolean }) | null) {
   return Boolean(user?.isAdmin);
 }
 
+function searchValue(input: SearchParamSource, key: string) {
+  const maybeGet = (input as { get?: unknown }).get;
+  if (typeof maybeGet === "function") return maybeGet.call(input, key) as string | null;
+  return (input as Record<string, string | null | undefined>)[key] ?? null;
+}
+
+export function normalizeReportQueueStatusFilter(value: string | null | undefined): ReportQueueStatusFilter {
+  return REPORT_QUEUE_STATUSES.includes(value as ReportQueueStatus) ? value as ReportQueueStatus : "active";
+}
+
+export function normalizeReportTargetTypeFilter(value: string | null | undefined): ReportTargetTypeFilter {
+  return REPORT_TARGET_TYPES.includes(value as ReportTargetType) ? value as ReportTargetType : "all";
+}
+
+export function moderationConsoleReportFiltersFromSearch(
+  input: SearchParamSource
+) {
+  return {
+    status: normalizeReportQueueStatusFilter(searchValue(input, "status")),
+    targetType: normalizeReportTargetTypeFilter(searchValue(input, "targetType")),
+  };
+}
+
+export function moderationConsoleHref(input: {
+  status?: ReportQueueStatusFilter;
+  targetType?: ReportTargetTypeFilter;
+} = {}) {
+  const params = new URLSearchParams();
+  if (input.status && input.status !== "active") params.set("status", input.status);
+  if (input.targetType && input.targetType !== "all") params.set("targetType", input.targetType);
+  const query = params.toString();
+  return query ? `/forums/moderation?${query}` : "/forums/moderation";
+}
+
 export function reportQueuePath(input: {
-  status?: ReportQueueStatus | "active";
-  targetType?: ReportTargetType | "all";
+  status?: ReportQueueStatusFilter;
+  targetType?: ReportTargetTypeFilter;
   limit?: number;
 } = {}) {
   const params = new URLSearchParams();
@@ -35,14 +73,32 @@ export function reportQueuePath(input: {
   return query ? `/reports?${query}` : "/reports";
 }
 
-export function reportTargetLabel(report: Pick<ModerationReportRecord, "targetType" | "targetId">) {
+function reportTargetFallbackLabel(report: Pick<ModerationReportRecord, "targetType" | "targetId">) {
+  if (report.targetType === "persona") return "Persona report";
   return `${report.targetType}:${report.targetId}`;
+}
+
+export function reportTargetLabel(report: Pick<ModerationReportRecord, "targetContext" | "targetType" | "targetId">) {
+  if (report.targetContext?.routeLabel) return report.targetContext.routeLabel;
+  if (report.targetContext?.title) return report.targetContext.title;
+  return reportTargetFallbackLabel(report);
 }
 
 export function reportTargetContextLabel(report: Pick<ModerationReportRecord, "targetContext" | "targetType" | "targetId">) {
   if (report.targetContext?.routeLabel) return report.targetContext.routeLabel;
   if (report.targetContext?.title) return report.targetContext.title;
-  return reportTargetLabel(report);
+  return reportTargetFallbackLabel(report);
+}
+
+export function reportTargetStateLabel(report: Pick<ModerationReportRecord, "targetContext">) {
+  const context = report.targetContext;
+  if (!context) return "unknown";
+  return context.status ?? context.visibility ?? "unknown";
+}
+
+export function reportVisibleNotes(report: Pick<ModerationReportRecord, "targetType" | "notes">) {
+  if (report.targetType === "persona") return null;
+  return report.notes ?? null;
 }
 
 export function nextReportStatuses(current: ModerationReportRecord["status"]) {
@@ -51,7 +107,7 @@ export function nextReportStatuses(current: ModerationReportRecord["status"]) {
 
 export function reportMatchesQueueFilter(
   report: Pick<ModerationReportRecord, "status" | "targetType">,
-  input: { status?: ReportQueueStatus | "active"; targetType?: ReportTargetType | "all" } = {}
+  input: { status?: ReportQueueStatusFilter; targetType?: ReportTargetTypeFilter } = {}
 ) {
   if (input.targetType && input.targetType !== "all" && report.targetType !== input.targetType) {
     return false;

@@ -922,6 +922,22 @@ test("admin report queue includes safe target context for thread and comment rep
       unavailableReason: "Private persona target has no safe moderator route hint.",
       supportedActions: [],
     });
+    const personaQueue = await requestJson(app, "GET", "/reports?targetType=persona&limit=20", {
+      token: "admin-token",
+    });
+    assert.equal(personaQueue.status, 200);
+    assert.deepEqual(
+      personaQueue.body.reports.map((report: Row) => report.id),
+      [privatePersonaReport.id, personaReport.id]
+    );
+    assert.deepEqual(
+      personaQueue.body.reports.map((report: Row) => report.targetContext.routeLabel),
+      [null, "Public Persona"]
+    );
+    assert.deepEqual(
+      personaQueue.body.reports.map((report: Row) => report.targetContext.supportedActions),
+      [[], []]
+    );
     assert.deepEqual(byId.get(userReport.id)?.targetContext, {
       targetType: "user",
       targetId: "other-user",

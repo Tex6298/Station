@@ -3,6 +3,8 @@ import test from "node:test";
 import {
   canUseModeratorConsole,
   canActOnReportTarget,
+  moderationConsoleHref,
+  moderationConsoleReportFiltersFromSearch,
   nextReportStatuses,
   nextReviewRequestStatuses,
   nextTargetModerationActions,
@@ -10,6 +12,8 @@ import {
   reportMatchesQueueFilter,
   reportTargetContextLabel,
   reportTargetLabel,
+  reportTargetStateLabel,
+  reportVisibleNotes,
   reviewRequestQueuePath,
   reviewRequestTargetLabel,
   targetActionPath,
@@ -25,11 +29,22 @@ test("moderation report queue paths preserve active default and bounded filters"
   assert.equal(reportQueuePath(), "/reports");
   assert.equal(reportQueuePath({ status: "active", targetType: "all", limit: 50 }), "/reports?limit=50");
   assert.equal(reportQueuePath({ status: "reviewing", targetType: "comment", limit: 25 }), "/reports?status=reviewing&targetType=comment&limit=25");
+  assert.equal(reportQueuePath({ status: "active", targetType: "persona", limit: 50 }), "/reports?targetType=persona&limit=50");
+  assert.equal(moderationConsoleHref({ targetType: "persona" }), "/forums/moderation?targetType=persona");
+  assert.deepEqual(
+    moderationConsoleReportFiltersFromSearch(new URLSearchParams("targetType=persona")),
+    { status: "active", targetType: "persona" }
+  );
+  assert.deepEqual(
+    moderationConsoleReportFiltersFromSearch({ status: "deleted", targetType: "550e8400-e29b-41d4-a716-446655440000" }),
+    { status: "active", targetType: "all" }
+  );
 });
 
 test("moderation report target labels do not invent route context", () => {
   assert.equal(reportTargetLabel({ targetType: "thread", targetId: "thread-1" }), "thread:thread-1");
   assert.equal(reportTargetLabel({ targetType: "document", targetId: "doc-1" }), "document:doc-1");
+  assert.equal(reportTargetLabel({ targetType: "persona", targetId: "persona-private-id" }), "Persona report");
 });
 
 test("moderation report transitions use existing API statuses", () => {
@@ -51,7 +66,33 @@ test("moderation target helpers keep actions and labels bounded to safe context"
     }),
     "General / Thread"
   );
+  const personaReport = {
+    targetType: "persona" as const,
+    targetId: "persona-private-id",
+    notes: "Raw report body should not render in the human persona queue.",
+    targetContext: {
+      targetType: "persona" as const,
+      targetId: "persona-private-id",
+      title: "Public Persona",
+      visibility: "public",
+      routeHref: "/personas/public-persona",
+      routeLabel: "Public Persona",
+      canOpenRoute: true,
+      supportedActions: [],
+    },
+  };
+  assert.equal(reportTargetLabel(personaReport), "Public Persona");
+  assert.equal(reportTargetContextLabel(personaReport), "Public Persona");
+  assert.equal(reportTargetStateLabel(personaReport), "public");
+  assert.equal(reportVisibleNotes(personaReport), null);
+  assert.equal(JSON.stringify({
+    label: reportTargetLabel(personaReport),
+    contextLabel: reportTargetContextLabel(personaReport),
+    state: reportTargetStateLabel(personaReport),
+    notes: reportVisibleNotes(personaReport),
+  }).includes("persona-private-id"), false);
   assert.equal(canActOnReportTarget({ targetType: "document", targetContext: undefined }), false);
+  assert.equal(canActOnReportTarget(personaReport), false);
   assert.deepEqual(
     nextTargetModerationActions({
       targetContext: { targetType: "comment", targetId: "comment-1", canOpenRoute: false, supportedActions: ["unhide", "remove"] },

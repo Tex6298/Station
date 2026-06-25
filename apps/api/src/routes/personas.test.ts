@@ -1435,7 +1435,10 @@ test("owner persona readback includes safe public interaction summary only", asy
       token: "admin-token",
     });
     assert.equal(adminReadback.status, 200);
-    assert.equal(adminReadback.body.persona.publicInteraction.moderation.adminQueueHref, "/reports?targetType=persona");
+    assert.equal(
+      adminReadback.body.persona.publicInteraction.moderation.adminQueueHref,
+      "/forums/moderation?targetType=persona"
+    );
 
     const unsafeSlugPersona = db.insertRow("personas", {
       owner_user_id: "creator-owner",

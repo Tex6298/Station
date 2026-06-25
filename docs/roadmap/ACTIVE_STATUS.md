@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR318 moderation pointer hardening
+
+DAEDALUS implemented
+`docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_DAEDALUS.md`.
+
+Implementation result:
+
+- Result packet:
+  `docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
+- Admin owner public-persona readback now points to the human moderation
+  console at `/forums/moderation?targetType=persona`, not the raw `/reports`
+  data route.
+- Non-admin owner readback still hides the admin moderation pointer and remains
+  aggregate/status-only.
+- `/forums/moderation` honors the `targetType=persona` URL filter and loads the
+  authenticated admin report queue with that filter.
+- Human persona report rows use safe persona target labels/status readback,
+  suppress raw persona report note bodies, and keep persona target actions
+  unavailable.
+- Report creation, duplicate handling, report status update authorization,
+  public chat, owner aggregate counters, provider/model routing, billing,
+  infrastructure, and launch scope were not changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- ARGUS should review PR318 using
+  `docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and exact
+  findings.
+
 ## Latest MIMIR decision - PR318 implementation lane opened
 
 MIMIR accepts ARGUS's PR317 result:

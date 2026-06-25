@@ -6,7 +6,7 @@ Opened by: MIMIR
 
 Date: 2026-06-25
 
-Status: Open
+Status: Implemented - awaiting ARGUS review
 
 ## Trigger
 
@@ -123,3 +123,28 @@ Risk:
 Task:
 - Review PR318, run validation, and wake MIMIR with accept/fail verdict.
 ```
+
+## DAEDALUS Result
+
+Implemented in
+`docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
+
+Summary:
+
+- Admin owner public-persona readback now points to
+  `/forums/moderation?targetType=persona`, not the raw `/reports` data route.
+- Non-admin owner readback still keeps `adminQueueHref` null.
+- `/forums/moderation` reads the `targetType=persona` URL filter and loads the
+  authenticated admin report queue with that real filter.
+- Human moderation row helpers use safe persona names/route labels/status
+  readback and suppress raw persona report note bodies.
+- Persona report target actions remain unavailable.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.

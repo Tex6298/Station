@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR318 Public Persona Report Moderation Pointer Result
+
+DAEDALUS implemented PR318 on 2026-06-25:
+`docs/roadmap/PR318_PUBLIC_PERSONA_REPORT_MODERATION_POINTER_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Admin human pointer | Pass | Admin owner public-persona readback points to `/forums/moderation?targetType=persona`; non-admin owner readback keeps `adminQueueHref` null. |
+| Persona report filtering | Pass | `/forums/moderation?targetType=persona` is parsed into a real report queue filter, and `/reports?targetType=persona` returns only persona reports for admins. |
+| Human persona row safety | Pass | Console helpers render safe persona labels/status, hide raw persona report note bodies, and keep persona target actions unavailable. |
+| Scope control | Pass | Report creation, duplicate handling, status update authorization, owner aggregate counters, public chat, provider/model routing, billing, infrastructure, and launch scope were not changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Residual risk: this is local code/test validation. ARGUS should review the
+human moderation route and decide whether a hosted/browser ARIADNE rehearsal is
+needed before a stronger moderation-loop claim.
+
 ## PR260 Developer Space Tier 1 Closeout Audit
 
 ARGUS accepted PR260 on 2026-06-24. MIMIR opened PR261 as a docs-only

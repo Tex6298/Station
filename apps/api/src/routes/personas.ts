@@ -688,6 +688,7 @@ function boundPublicChatReply(value: string) {
 }
 
 const PUBLIC_PERSONA_ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
+const PUBLIC_PERSONA_REPORT_ADMIN_QUEUE_HREF = "/forums/moderation?targetType=persona";
 const PUBLIC_PERSONA_REPORT_STATUSES: PublicPersonaReportStatus[] = [
   "open",
   "reviewing",
@@ -864,7 +865,7 @@ async function loadPublicPersonaInteractionReadback(
     moderation: {
       ownerCanSeeReporterIdentity: false,
       ownerCanSeeReportBodies: false,
-      adminQueueHref: viewerIsAdmin ? "/reports?targetType=persona" : null,
+      adminQueueHref: viewerIsAdmin ? PUBLIC_PERSONA_REPORT_ADMIN_QUEUE_HREF : null,
     },
   };
 }

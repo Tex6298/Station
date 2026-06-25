@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import type { AdminModerationReviewRequestRecord, ModerationReportRecord } from "@station/types";
 import { apiGet, apiPatch } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
@@ -9,13 +10,14 @@ import {
   REPORT_QUEUE_STATUSES,
   REPORT_TARGET_TYPES,
   REVIEW_QUEUE_STATUSES,
-  type ReportQueueStatus,
-  type ReportTargetType,
+  type ReportQueueStatusFilter,
+  type ReportTargetTypeFilter,
   type ReportTransitionStatus,
-  type ReviewQueueStatus,
+  type ReviewQueueStatusFilter,
   type ReviewTransitionStatus,
   canUseModeratorConsole,
   canActOnReportTarget,
+  moderationConsoleReportFiltersFromSearch,
   nextReportStatuses,
   nextReviewRequestStatuses,
   nextTargetModerationActions,
@@ -23,14 +25,12 @@ import {
   reportQueuePath,
   reportTargetContextLabel,
   reportTargetLabel,
+  reportTargetStateLabel,
+  reportVisibleNotes,
   reviewRequestQueuePath,
   reviewRequestTargetLabel,
   targetActionPath,
 } from "@/lib/moderation-console";
-
-type QueueStatusFilter = ReportQueueStatus | "active";
-type TargetTypeFilter = ReportTargetType | "all";
-type ReviewStatusFilter = ReviewQueueStatus | "active";
 
 function formatDate(value?: string | null) {
   if (!value) return "Not reviewed";
@@ -38,20 +38,26 @@ function formatDate(value?: string | null) {
 }
 
 export default function ForumModerationPage() {
+  const searchParams = useSearchParams();
   const [token, setToken] = useState<string | null>(null);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<ModerationReportRecord[]>([]);
   const [reviewRequests, setReviewRequests] = useState<AdminModerationReviewRequestRecord[]>([]);
-  const [status, setStatus] = useState<QueueStatusFilter>("active");
-  const [targetType, setTargetType] = useState<TargetTypeFilter>("all");
-  const [reviewStatus, setReviewStatus] = useState<ReviewStatusFilter>("active");
+  const initialReportFilters = moderationConsoleReportFiltersFromSearch(searchParams);
+  const [status, setStatus] = useState<ReportQueueStatusFilter>(initialReportFilters.status);
+  const [targetType, setTargetType] = useState<ReportTargetTypeFilter>(initialReportFilters.targetType);
+  const [reviewStatus, setReviewStatus] = useState<ReviewQueueStatusFilter>("active");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updatingTargetId, setUpdatingTargetId] = useState<string | null>(null);
   const [updatingReviewId, setUpdatingReviewId] = useState<string | null>(null);
 
-  const loadReports = useCallback(async (accessToken: string, nextStatus: QueueStatusFilter, nextTargetType: TargetTypeFilter) => {
+  const loadReports = useCallback(async (
+    accessToken: string,
+    nextStatus: ReportQueueStatusFilter,
+    nextTargetType: ReportTargetTypeFilter
+  ) => {
     setLoading(true);
     setError(null);
     try {
@@ -67,7 +73,7 @@ export default function ForumModerationPage() {
     }
   }, []);
 
-  const loadReviewRequests = useCallback(async (accessToken: string, nextStatus: ReviewStatusFilter) => {
+  const loadReviewRequests = useCallback(async (accessToken: string, nextStatus: ReviewQueueStatusFilter) => {
     setError(null);
     try {
       const data = await apiGet<{ reviewRequests: AdminModerationReviewRequestRecord[] }>(
@@ -81,6 +87,10 @@ export default function ForumModerationPage() {
   }, []);
 
   useEffect(() => {
+    const filters = moderationConsoleReportFiltersFromSearch(searchParams);
+    setStatus(filters.status);
+    setTargetType(filters.targetType);
+
     getSession().then((session) => {
       if (!session) {
         setAuthorized(false);
@@ -94,22 +104,22 @@ export default function ForumModerationPage() {
         return;
       }
       setAuthorized(true);
-      void loadReports(session.access_token, "active", "all");
+      void loadReports(session.access_token, filters.status, filters.targetType);
       void loadReviewRequests(session.access_token, "active");
     });
-  }, [loadReports, loadReviewRequests]);
+  }, [loadReports, loadReviewRequests, searchParams]);
 
-  async function changeStatus(nextStatus: QueueStatusFilter) {
+  async function changeStatus(nextStatus: ReportQueueStatusFilter) {
     setStatus(nextStatus);
     if (token) await loadReports(token, nextStatus, targetType);
   }
 
-  async function changeTargetType(nextTargetType: TargetTypeFilter) {
+  async function changeTargetType(nextTargetType: ReportTargetTypeFilter) {
     setTargetType(nextTargetType);
     if (token) await loadReports(token, status, nextTargetType);
   }
 
-  async function changeReviewStatus(nextStatus: ReviewStatusFilter) {
+  async function changeReviewStatus(nextStatus: ReviewQueueStatusFilter) {
     setReviewStatus(nextStatus);
     if (token) await loadReviewRequests(token, nextStatus);
   }
@@ -226,11 +236,11 @@ export default function ForumModerationPage() {
       </div>
 
       <div className="card" style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", marginBottom: "1rem", padding: "0.75rem 1rem" }}>
-        <select className="input" value={status} onChange={(event) => changeStatus(event.target.value as QueueStatusFilter)} style={{ width: 170 }}>
+        <select className="input" value={status} onChange={(event) => changeStatus(event.target.value as ReportQueueStatusFilter)} style={{ width: 170 }}>
           <option value="active">Open + reviewing</option>
           {REPORT_QUEUE_STATUSES.map((value) => <option key={value} value={value}>{value}</option>)}
         </select>
-        <select className="input" value={targetType} onChange={(event) => changeTargetType(event.target.value as TargetTypeFilter)} style={{ width: 170 }}>
+        <select className="input" value={targetType} onChange={(event) => changeTargetType(event.target.value as ReportTargetTypeFilter)} style={{ width: 170 }}>
           <option value="all">All targets</option>
           {REPORT_TARGET_TYPES.map((value) => <option key={value} value={value}>{value}</option>)}
         </select>
@@ -250,7 +260,7 @@ export default function ForumModerationPage() {
               Participant requests for a moderation decision review.
             </p>
           </div>
-          <select className="input" value={reviewStatus} onChange={(event) => changeReviewStatus(event.target.value as ReviewStatusFilter)} style={{ width: 180 }}>
+          <select className="input" value={reviewStatus} onChange={(event) => changeReviewStatus(event.target.value as ReviewQueueStatusFilter)} style={{ width: 180 }}>
             <option value="active">Open + reviewing</option>
             {REVIEW_QUEUE_STATUSES.map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
@@ -337,9 +347,9 @@ export default function ForumModerationPage() {
                 </div>
               </div>
 
-              {report.notes && (
+              {reportVisibleNotes(report) && (
                 <div style={{ color: "#687078", fontSize: "0.82rem", lineHeight: 1.5 }}>
-                  Admin notes: {report.notes}
+                  Admin notes: {reportVisibleNotes(report)}
                 </div>
               )}
 
@@ -351,7 +361,7 @@ export default function ForumModerationPage() {
                   <div style={{ display: "grid", gap: "0.35rem", color: "#687078", fontSize: "0.8rem" }}>
                     <div style={{ color: "#1f2529", fontWeight: 600 }}>{reportTargetContextLabel(report)}</div>
                     <div>
-                      State: {report.targetContext.status ?? "unknown"}
+                      State: {reportTargetStateLabel(report)}
                       {report.targetContext.moderationState ? ` / ${report.targetContext.moderationState}` : ""}
                       {report.targetContext.isHidden ? " / hidden" : ""}
                     </div>
