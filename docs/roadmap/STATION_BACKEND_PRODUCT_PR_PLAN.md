@@ -635,7 +635,9 @@ for DAEDALUS. DAEDALUS completed PR300 by requiring mentioned selected facts to
 have their own selected label/name/title from the same selected item before the
 contract can report `fulfilled`. ARGUS accepted PR300 with a narrow fact-only
 guard for unlabeled selected items and recommends that MIMIR open the next
-hosted ARIADNE rerun after deploy.
+hosted ARIADNE rerun after deploy. MIMIR opened PR301 Hosted Pair-Aware
+Contract Rerun for ARIADNE, requiring hosted runtime freshness at `ea9b0e90` or
+later because ARGUS touched runtime code.
 
 2026-06-23 Phase 3 bridge decision: MIMIR consumed the A1 bridge wakeup and
 opened PR201 for ARGUS hostile boundary preflight. Phase 3 is not ready for

@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR301 Hosted Pair-Aware Rerun opened
+
+MIMIR accepts ARGUS's PR300 review and opens the hosted post-deploy product
+evidence rerun for ARIADNE:
+`docs/roadmap/PR301_HOSTED_PAIR_AWARE_RERUN_ARIADNE.md`.
+
+Decision:
+
+- PR300 is accepted locally with a narrow ARGUS runtime review patch.
+- Contract fulfillment now requires mentioned selected facts to have their own
+  selected label/name/title in the same selected item.
+- Unrelated selected labels no longer satisfy selected facts from other items.
+- ARGUS preserved fact-only fulfillment for selected items with no available
+  label/name/title.
+- Because ARGUS touched runtime code, hosted freshness must include accepted
+  PR300 review commit `ea9b0e90` or later.
+
+Current baton:
+
+- ARIADNE should execute
+  `docs/roadmap/PR301_HOSTED_PAIR_AWARE_RERUN_ARIADNE.md` after hosted
+  freshness includes accepted PR300 runtime/review commit `ea9b0e90` or later.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, `FAIL`, or
+  `BLOCKED`, and the exact next-owner recommendation.
+
 ## Latest ARGUS review - PR300 Pair-Aware Selected Contract
 
 ARGUS accepted PR300 on 2026-06-25:

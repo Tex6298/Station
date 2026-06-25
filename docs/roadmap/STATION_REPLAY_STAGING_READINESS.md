@@ -204,6 +204,8 @@ then let staged replay reveal the next optimizations.
   satisfy selected facts from other items. ARGUS accepted PR300 with a narrow
   fact-only guard for unlabeled selected items and recommends that MIMIR open
   the next hosted ARIADNE rerun after deploy.
+- MIMIR opened PR301 as that hosted rerun. Because ARGUS touched runtime code
+  in PR300, PR301 requires hosted web/API freshness at `ea9b0e90` or later.
 - Broader known caveats still travel into staging review instead of spawning
   more local polish: static global Archive/Export shells, dashboard
   derived/static snippets, no downloadable bundles/workers, and no new private

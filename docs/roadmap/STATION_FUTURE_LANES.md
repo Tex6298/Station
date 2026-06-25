@@ -180,7 +180,9 @@ as a pair-aware selected-context contract repair. DAEDALUS completed PR300 by
 requiring mentioned selected facts to have their own selected label/name/title
 from the same selected item before the contract can report `fulfilled`. ARGUS
 accepted PR300 with a narrow fact-only guard for unlabeled selected items and
-recommends that MIMIR open the next hosted ARIADNE rerun after deploy.
+recommends that MIMIR open the next hosted ARIADNE rerun after deploy. MIMIR
+opened PR301 as that hosted rerun, requiring hosted runtime freshness at
+`ea9b0e90` or later because ARGUS touched runtime code.
 
 ## Phase 2D Developer Agent closeout
 

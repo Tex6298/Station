@@ -30,6 +30,32 @@ Memory/observability next-slice audit.
 ARGUS accepted PR261 on 2026-06-24. MIMIR opened PR262 as an owner-only
 Memory/observability implementation lane.
 
+## PR301 Hosted Pair-Aware Contract Rerun
+
+MIMIR opened PR301 for ARIADNE on 2026-06-25 after ARGUS accepted PR300.
+
+Required validation:
+
+| Check | Expected result | Notes |
+| --- | --- | --- |
+| Hosted freshness | Pass or blocked | Web/API deployment should include accepted PR300 runtime/review commit `ea9b0e90` or later because ARGUS touched runtime code. |
+| Replay owner auth/session | Pass | Use local-only replay owner env values; do not print credentials, tokens, cookies, raw ids, SQL, logs, prompts, completions, provider payloads, or private source bodies. |
+| Intended replay persona | Pass or blocked | Use the PR286/PR288/PR290/PR292/PR294/PR296/PR298/PR299 intended private replay persona; report ambiguity rather than guessing. |
+| Selected context labels | Pass | Selected context should contain both accepted concept labels. |
+| Selected context phrases | Pass | Selected context should contain both matching invented retrieval phrases. |
+| Full answer label recall | Pass | Hosted answer should visibly recall both accepted concept labels. |
+| Full answer phrase recall | Pass | Hosted answer should visibly recall both matching invented retrieval phrases. |
+| Pair-aware retry readback | Pass or not needed | If selected facts are mentioned without their own labels, readback should show retry under the safe gate. If final answer passes without retry, report that. |
+| Rejected-control exclusion | Pass | The rejected-control anchor should remain absent from context and answer. |
+| Source-copy safety | Pass | No raw private source-body markers should be copied into the answer. |
+| Diagnosis | Pass | If recall fails, classify context regression, pair-aware gate failure, post-retry construction failure, provider/model behavior, or acceptance-bar decision. |
+| `git diff --check` | Pass | Result docs should stay whitespace-clean. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+
+PR301 is a hosted rerun only; no product code, schema, provider, embedding,
+retrieval ranking, context assembly, Redis, Cloudflare, queue, worker, import,
+seed, billing, Stripe, public UI, or Studio UI changes should occur.
+
 ## PR300 Pair-Aware Selected Context Contract Result
 
 ARGUS accepted PR300 on 2026-06-25:
