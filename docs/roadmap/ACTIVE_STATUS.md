@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR369 accepted, PR370 opened
+
+MIMIR accepts ARGUS's PR369 provider/model route readback verdict:
+`docs/roadmap/PR369_PROVIDER_MODEL_ROUTE_READBACK_RESULT.md`.
+
+Decision:
+
+- PR369 is closed as `PASS`.
+- AI trace metadata now separates embedding profile/provider/model/dimension
+  from generic chat/provider route facts.
+- Gemini embeddings no longer render as generic `Provider gemini`; Gemini chat
+  remains unimplemented and not activated.
+- No provider routing activation, provider marketplace, paid model selection,
+  provider secrets/config, embedding reindex/backfill, Cloudflare, Redis Memory
+  truth, billing, schema, migration, Railway config, or Supabase config changed.
+- MIMIR opens
+  `docs/roadmap/PR370_PROVIDER_READBACK_HUMAN_REHEARSAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR370.
+- ARIADNE should run a narrow hosted human-eye route through `/settings` -> AI
+  Activity -> trace detail after PR369 product code is deployed.
+- The rehearsal should verify explicit embedding labels, no generic
+  Gemini-chat overclaim, no secret/private payload leakage, and honest empty or
+  caveat states if no trace with embedding metadata exists.
+
 ## Latest ARGUS verdict - PR369 accepted
 
 ARGUS accepted PR369:
