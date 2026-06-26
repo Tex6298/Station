@@ -4,13 +4,26 @@ Date: 2026-06-25
 
 Owner: A5 / KVASIR
 
-Status: complete with A6/A7/A8 input
+Status: invalidated - not actual Station A6/A7/A8 review
+
+## Correction Notice
+
+This file is invalid as an ADV-004 team-review record.
+
+The sections below were produced from generic delegated subagents, not from the
+Station A6 / SESHAT, A7 / JANUS, and A8 / CASSANDRA wakeup or inbox flow. They
+must not be treated as actual advance-team contributions.
+
+The corrected path is recorded in
+`docs/advance/results/ADV-004_TEAM_REVIEW_CORRECTION_RESULT.md`. A5 must not
+claim ADV-004 is complete with A6/A7/A8 input until real Station A6, A7, and A8
+responses arrive through the advance-team flow.
 
 ## Summary
 
-This addendum completes ADV-004 with advance-team review. It supersedes the
-earlier ADV-004 coordination note that said SESHAT, JANUS, and CASSANDRA were
-not woken.
+This addendum previously claimed to complete ADV-004 with advance-team review.
+That claim is invalid. The historical content below is retained only so the
+error remains visible in the record.
 
 The split-safe future prep register remains useful, but its active-boundary
 framing must now reflect current mainline truth:
