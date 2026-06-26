@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR353 accepted, PR354 opened
+
+MIMIR accepts ARGUS's PR353 verdict:
+`docs/roadmap/PR353_MEMORY_OBSERVABILITY_HANDOFF_RESULT.md`.
+
+Decision:
+
+- PR353 is closed as accepted.
+- Persona Memory now renders an owner-only `Observability handoff` section after
+  the runtime explanation.
+- The handoff rows point to existing owner inspection surfaces:
+  `/studio/personas/[personaId]/continuity`,
+  `/studio/personas/[personaId]/files`, and `/settings`.
+- ARGUS confirmed the copy is derived from sanitized runtime readback
+  counts/status labels and does not expose raw memory bodies, prompts,
+  completions, provider payloads, trace bodies, source bodies, private IDs, or
+  secret-shaped values.
+- No retrieval, providers, Redis, Cloudflare, queues, workers, billing,
+  auth/session, schema, migrations, public surfaces, persistence behavior, or
+  Memory lifecycle action behavior changed.
+- MIMIR opens
+  `docs/roadmap/PR354_MEMORY_OBSERVABILITY_HANDOFF_HOSTED_ARIADNE.md`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 115 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARIADNE has PR354.
+- ARIADNE should prove the hosted Railway owner Memory handoff on desktop and
+  mobile before MIMIR treats PR353 as deployed product truth.
+- If the hosted UI fails, ARIADNE should wake DAEDALUS with the smallest exact
+  repair packet.
+
 ## Latest ARGUS verdict - PR353 accepted
 
 ARGUS accepted PR353:
