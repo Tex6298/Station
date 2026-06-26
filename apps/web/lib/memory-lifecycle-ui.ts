@@ -89,6 +89,20 @@ export interface MemoryRuntimeReadback {
   summary: string;
 }
 
+export type MemoryObservabilityHandoffKind =
+  | "runtime_provenance"
+  | "archive_source_state"
+  | "ai_activity";
+
+export interface MemoryObservabilityHandoffRow {
+  id: string;
+  kind: MemoryObservabilityHandoffKind;
+  title: string;
+  metricLabel: string;
+  detail: string;
+  href: string;
+}
+
 export interface MemorySupersessionOption {
   value: string;
   label: string;
@@ -239,6 +253,43 @@ export function buildMemoryLifecycleReview(
       weightLabel: memoryLifecycleReviewWeightLabel(item),
     };
   });
+}
+
+export function buildMemoryObservabilityHandoff(
+  personaId: string,
+  readback: MemoryRuntimeReadback,
+): MemoryObservabilityHandoffRow[] {
+  const personaPath = encodeURIComponent(personaId);
+  const heldOutSummary = readback.heldOutByStatus.length > 0
+    ? readback.heldOutByStatus.map((row) => `${row.label} ${row.value}`).join(", ")
+    : `${readback.lifecycleHeldOutCount} held out`;
+
+  return [
+    {
+      id: "runtime-provenance",
+      kind: "runtime_provenance",
+      title: "Inspect runtime provenance",
+      metricLabel: `${readback.selectedCount} selected / ${readback.eligibleNotSelectedCount} eligible not selected`,
+      detail: "Open Continuity for broader Canon, Integrity, Continuity, Memory, and Archive provenance. Observability does not change memory truth.",
+      href: `/studio/personas/${personaPath}/continuity`,
+    },
+    {
+      id: "archive-source-state",
+      kind: "archive_source_state",
+      title: "Inspect archive source state",
+      metricLabel: readback.lifecycleHeldOutCount > 0 ? heldOutSummary : "Source readiness",
+      detail: "Open Archive/files to inspect source readiness behind private memory before relying on it in runtime context.",
+      href: `/studio/personas/${personaPath}/files`,
+    },
+    {
+      id: "ai-activity",
+      kind: "ai_activity",
+      title: "Inspect sanitized AI activity",
+      metricLabel: "Sanitized traces",
+      detail: "Open Settings AI Activity for operation timing, token, status, and failure facts. Raw prompts, completions, provider payloads, and trace bodies stay hidden.",
+      href: "/settings",
+    },
+  ];
 }
 
 export function buildMemorySupersessionOptions(

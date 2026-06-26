@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { ownerVisibleText } from "@/lib/owner-visible-redaction";
 import {
   buildMemoryLifecycleReview,
+  buildMemoryObservabilityHandoff,
   buildMemorySupersessionOptions,
   buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
@@ -17,6 +19,7 @@ import {
   memoryRuntimeCopy,
   type RuntimeContextMemoryPreviewLike,
   type MemoryLifecycleReviewRow,
+  type MemoryObservabilityHandoffRow,
   type MemoryRuntimeExplanationRow,
 } from "@/lib/memory-lifecycle-ui";
 import type { MemoryItemLifecycle, OwnerMemoryBlock, PersonaMemoryBriefing } from "@station/types/persona";
@@ -207,6 +210,7 @@ export default function PersonaMemoryPage() {
   const lifecycleMetrics = memoryLifecycleCounters(items, briefing);
   const runtimeExplanation = buildMemoryRuntimeExplanation(items, runtimePreview);
   const lifecycleReview = buildMemoryLifecycleReview(items, runtimePreview);
+  const observabilityHandoff = buildMemoryObservabilityHandoff(persona.id, runtimeExplanation.readback);
 
   return (
     <main className="container studio-workspace">
@@ -278,6 +282,21 @@ export default function PersonaMemoryPage() {
             <p key={note} style={{ margin: 0, color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
               {note}
             </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="studio-list-panel" style={{ marginBottom: "1rem" }}>
+        <div className="studio-section-heading">
+          <div className="section-label">Observability handoff</div>
+          <h2>Where to inspect next</h2>
+        </div>
+        <p style={{ margin: "0 0 1rem", color: "#8ea0b8", fontSize: "0.9rem", lineHeight: 1.45 }}>
+          Follow the owner-only inspection surfaces for provenance, source readiness, and sanitized AI activity. These links are readback routes and do not change memory state.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "0.75rem" }}>
+          {observabilityHandoff.map((row) => (
+            <ObservabilityHandoffCard key={row.id} row={row} />
           ))}
         </div>
       </section>
@@ -446,6 +465,23 @@ export default function PersonaMemoryPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+function ObservabilityHandoffCard({ row }: { row: MemoryObservabilityHandoffRow }) {
+  return (
+    <Link
+      href={row.href}
+      className="studio-item-card"
+      style={{ display: "grid", gap: "0.55rem", color: "inherit", textDecoration: "none" }}
+    >
+      <div>
+        <span>{row.kind.replace(/_/g, " ")}</span>
+        <span>{row.metricLabel}</span>
+      </div>
+      <h3>{row.title}</h3>
+      <p>{row.detail}</p>
+    </Link>
   );
 }
 

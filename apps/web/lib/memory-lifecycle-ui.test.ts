@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   buildMemorySupersessionOptions,
   buildMemoryLifecycleReview,
+  buildMemoryObservabilityHandoff,
   buildMemoryRuntimeExplanation,
   memoryLifecycleActions,
   memoryLifecycleCounters,
@@ -259,6 +260,45 @@ test("memory lifecycle review maps held-out states to restore actions", () => {
   ]);
   assert.equal(rows[4]?.actionLabel, "Restore creates lifecycle");
   assert.match(rows[4]?.actionReason ?? "", /owner-only lifecycle route/);
+});
+
+test("memory observability handoff points runtime state to owner-only inspection routes", () => {
+  const rows = buildMemoryObservabilityHandoff("persona-1", {
+    selectedCount: 2,
+    eligibleNotSelectedCount: 3,
+    lifecycleHeldOutCount: 4,
+    heldOutByStatus: [
+      { status: "rejected", label: "Rejected", value: 1 },
+      { status: "quarantined", label: "Quarantined", value: 3 },
+    ],
+    summary: "2 selected for this preview; 3 eligible but not selected; 4 held out by lifecycle or source state.",
+  });
+
+  assert.deepEqual(rows.map((row) => row.href), [
+    "/studio/personas/persona-1/continuity",
+    "/studio/personas/persona-1/files",
+    "/settings",
+  ]);
+  assert.equal(rows[0]?.metricLabel, "2 selected / 3 eligible not selected");
+  assert.equal(rows[1]?.metricLabel, "Rejected 1, Quarantined 3");
+  assert.match(rows[0]?.detail ?? "", /does not change memory truth/);
+  assert.match(rows[1]?.detail ?? "", /source readiness/);
+  assert.match(rows[2]?.detail ?? "", /Raw prompts, completions, provider payloads, and trace bodies stay hidden/);
+});
+
+test("memory observability handoff keeps private ids out of visible copy", () => {
+  const rows = buildMemoryObservabilityHandoff("persona-private-id", {
+    selectedCount: 0,
+    eligibleNotSelectedCount: 0,
+    lifecycleHeldOutCount: 0,
+    heldOutByStatus: [],
+    summary: "Runtime preview unavailable.",
+  });
+
+  const visibleCopy = rows.map((row) => `${row.title} ${row.metricLabel} ${row.detail}`).join(" ");
+  assert.doesNotMatch(visibleCopy, /persona-private-id/);
+  assert.doesNotMatch(visibleCopy, /raw private|source bodies|compiled prompts/i);
+  assert.equal(rows[1]?.metricLabel, "Source readiness");
 });
 
 test("memory lifecycle review sanitizes raw ids, urls, prompts, and secrets", () => {

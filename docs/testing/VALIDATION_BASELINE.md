@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR353 Memory Observability Handoff Result
+
+DAEDALUS implemented PR353 on 2026-06-26:
+`docs/roadmap/PR353_MEMORY_OBSERVABILITY_HANDOFF_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Memory observability handoff helper | Pass | `buildMemoryObservabilityHandoff()` maps selected, eligible-not-selected, and held-out memory state to Continuity, Archive/files, and Settings AI Activity routes. |
+| Memory page wiring | Pass | Owner Memory renders an `Observability handoff` section after runtime explanation; links are route-only. |
+| Scope control | Pass | No retrieval, provider/model, Redis, Cloudflare, queue, worker, billing, auth/session, schema, migration, public surface, persistence, or Memory lifecycle behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 115 tests passed, including Memory observability handoff coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: This is owner UI/helper readback only. It does not add hosted
+browser proof or deeper runtime retrieval instrumentation.
+
 ## PR351 UX-09 Railway Staging Sweep Prep Result
 
 DAEDALUS completed PR351 on 2026-06-26:
