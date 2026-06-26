@@ -11,6 +11,8 @@ import { publicPersonaHref } from "@/lib/public-persona-route";
 import {
   publicDocumentDiscussionCue,
   publicPersonaEmptyCopy,
+  publicSpaceMicrositeCopy,
+  publicSpaceReadingPathLabel,
   publicSpaceHomeCopy,
   spaceStoryStats,
 } from "@/lib/public-story-polish";
@@ -156,6 +158,7 @@ export default function PublicSpacePage() {
   const tagline = presentation.tagline || space.short_description || "A public Station Space.";
   const ownerLabel = owner?.display_name ?? owner?.username ?? "Station member";
   const featuredDocuments = documents.slice(0, presentation.layout === "archive" ? 6 : 3);
+  const readingPathDocuments = documents.slice(0, 3);
   const statPages = authoredPages.length;
   const openDiscussionCount = documents.filter((document) => document.discussion_thread_id).length;
   const stats = spaceStoryStats({
@@ -166,12 +169,19 @@ export default function PublicSpacePage() {
   });
 
   return (
-    <main className={`space-site space-theme-${presentation.theme} space-layout-${presentation.layout}`}>
+    <main className={`space-site space-microsite space-theme-${presentation.theme} space-layout-${presentation.layout}`}>
       <section className="space-hero-shell">
         <div className="space-hero-copy">
           <div className="space-kicker">{layoutOption?.label ?? "Public"} Space</div>
           <h1>{space.title}</h1>
           <p className="space-tagline">{tagline}</p>
+          <p className="space-boundary-copy">
+            {publicSpaceMicrositeCopy({
+              ownerLabel,
+              documentCount: documents.length,
+              personaCount: personas.length,
+            })}
+          </p>
           <div className="space-owner-row">
             <IdentityMark owner={owner} title={space.title} />
             <div>
@@ -195,6 +205,7 @@ export default function PublicSpacePage() {
             ))}
           </div>
           {owner?.bio && <p>{owner.bio}</p>}
+          <ReadingPath documents={readingPathDocuments} spaceSlug={space.slug} />
         </aside>
       </section>
 
@@ -266,11 +277,19 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
 
   return (
     <div className="space-featured-grid">
-      {documents.map((doc) => {
+      {documents.map((doc, index) => {
         const discussionCue = publicDocumentDiscussionCue({ discussionThreadId: doc.discussion_thread_id });
         return (
           <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} className="space-document-card">
             <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
+            <small className="space-document-role">
+              {publicSpaceReadingPathLabel({
+                index,
+                documentTypeLabel: DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type,
+                provenanceLabel: doc.provenance_type ? PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type : null,
+                discussionThreadId: doc.discussion_thread_id,
+              })}
+            </small>
             <h3>{doc.title}</h3>
             {doc.provenance_type && (
               <small>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</small>
@@ -282,6 +301,41 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
           </Link>
         );
       })}
+    </div>
+  );
+}
+
+function ReadingPath({ documents, spaceSlug }: { documents: Document[]; spaceSlug: string }) {
+  if (documents.length === 0) {
+    return (
+      <div className="space-reading-path">
+        <div className="space-panel-label">Reading path</div>
+        <p>No public works are available yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-reading-path">
+      <div className="space-panel-label">Reading path</div>
+      <div className="space-reading-steps">
+        {documents.map((doc, index) => (
+          <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} className="space-reading-step">
+            <span>{index + 1}</span>
+            <div>
+              <strong>{doc.title}</strong>
+              <small>
+                {publicSpaceReadingPathLabel({
+                  index,
+                  documentTypeLabel: DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type,
+                  provenanceLabel: doc.provenance_type ? PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type : null,
+                  discussionThreadId: doc.discussion_thread_id,
+                })}
+              </small>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
@@ -355,7 +409,13 @@ function IdentityMark({ owner, title, imageUrl }: { owner?: Owner | null; title:
   const src = imageUrl ?? owner?.avatar_url ?? null;
   const label = title.slice(0, 2).toUpperCase();
   if (src) {
-    return <img className="space-identity-mark" src={src} alt="" />;
+    return (
+      <div
+        className="space-identity-mark"
+        aria-hidden="true"
+        style={{ backgroundImage: `url(${src})`, backgroundSize: "cover", backgroundPosition: "center" }}
+      />
+    );
   }
   return <div className="space-identity-mark" aria-hidden="true">{label}</div>;
 }

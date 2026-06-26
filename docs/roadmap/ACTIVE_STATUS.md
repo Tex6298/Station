@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR334 public Space microsite slice
+
+DAEDALUS completed
+`docs/roadmap/PR334_UX04_PUBLIC_SPACE_MICROSITE_RESULT.md`.
+
+Status:
+
+- Ready for ARGUS review.
+- Public `/space/[slug]` now has owner/creator boundary copy, a public-document
+  reading path, selected-work labels for type/provenance/discussion state, and
+  route-scoped dark microsite styling.
+- The touched Space page no longer emits its previous raw `<img>` lint warning;
+  the remaining raw `<img>` warning is in untouched Discover code.
+- The slice uses existing public Space/document data and does not change auth,
+  schemas, migrations, Space/document visibility rules, publication semantics,
+  forum semantics, provider/model behavior, Redis, Cloudflare, queues, workers,
+  billing, deploy settings, keys, tester instructions, public launch scope, or
+  Developer Spaces.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with only the untouched
+  Discover raw `<img>` warning.
+- Final whitespace checks should pass before commit.
+
+Current baton:
+
+- ARGUS should review PR334 for public/private boundary safety, visibility
+  semantics, linked-discussion preservation, layout/mobile risk, and whether
+  ARIADNE should run hosted desktop/mobile public Space rehearsal.
+
 ## Latest MIMIR decision - PR333 passed, PR334 UX-04 opened
 
 MIMIR accepts ARIADNE's PR333 result:

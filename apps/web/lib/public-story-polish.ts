@@ -10,6 +10,19 @@ export interface SpaceStoryStat {
   value: string;
 }
 
+export interface PublicSpaceMicrositeCopyInput {
+  ownerLabel: string;
+  documentCount: number;
+  personaCount: number;
+}
+
+export interface PublicSpaceReadingPathInput {
+  index: number;
+  documentTypeLabel: string;
+  provenanceLabel?: string | null;
+  discussionThreadId?: string | null;
+}
+
 export function spaceStoryStats({
   authoredPageCount,
   documentCount,
@@ -64,6 +77,34 @@ export function publicPersonaEmptyCopy(hasDocuments: boolean) {
   return hasDocuments
     ? "This Space is led by its published works for now. Public personas can be added later when they help explain the story."
     : "No public personas are attached to this Space yet.";
+}
+
+export function publicSpaceMicrositeCopy({
+  ownerLabel,
+  documentCount,
+  personaCount,
+}: PublicSpaceMicrositeCopyInput) {
+  const owner = ownerLabel.trim() || "The owner";
+  const works = documentCount === 1 ? "1 public work" : `${documentCount} public works`;
+  const personas = personaCount === 1
+    ? " and 1 public persona"
+    : personaCount > 1
+      ? ` and ${personaCount} public personas`
+      : "";
+
+  return `${owner} is presenting ${works}${personas} here. Only published public material appears on this Space; private Studio memory, archive, canon, continuity, and owner data stay hidden.`;
+}
+
+export function publicSpaceReadingPathLabel({
+  index,
+  documentTypeLabel,
+  provenanceLabel,
+  discussionThreadId,
+}: PublicSpaceReadingPathInput) {
+  const step = index === 0 ? "Start here" : index === 1 ? "Continue with" : "Then read";
+  const provenance = provenanceLabel ? ` / ${provenanceLabel}` : "";
+  const discussion = discussionThreadId ? " / linked discussion" : "";
+  return `${step}: ${documentTypeLabel}${provenance}${discussion}`;
 }
 
 export function publicDocumentDiscussionCue({

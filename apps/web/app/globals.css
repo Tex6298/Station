@@ -3754,6 +3754,153 @@ body {
   color: #fff;
 }
 
+.space-site.space-microsite {
+  --space-bg: #101214;
+  --space-surface: #191916;
+  --space-surface-strong: #242019;
+  --space-text: #f5f1e8;
+  --space-muted: #b9b0a0;
+  --space-line: #3d352c;
+  --space-accent: #d9904a;
+  --space-accent-2: #6ec6b8;
+  background: var(--space-bg);
+  color: var(--space-text);
+}
+
+.space-site.space-microsite .space-hero-shell {
+  min-height: clamp(460px, 68vh, 660px);
+  border-color: var(--space-line);
+  background: var(--space-surface);
+  color: var(--space-text);
+}
+
+.space-site.space-microsite .space-authored-section,
+.space-site.space-microsite .space-featured-section,
+.space-site.space-microsite .space-library-section,
+.space-site.space-microsite .space-hero-panel,
+.space-site.space-microsite .space-stat-grid div,
+.space-site.space-microsite .space-document-card,
+.space-site.space-microsite .space-persona-card,
+.space-site.space-microsite .space-empty-state,
+.space-site.space-microsite .space-library-list a {
+  border-color: var(--space-line);
+  background: var(--space-surface);
+  color: var(--space-text);
+}
+
+.space-site.space-microsite .space-hero-panel,
+.space-site.space-microsite .space-document-card,
+.space-site.space-microsite .space-persona-card,
+.space-site.space-microsite .space-library-list a {
+  background: var(--space-surface-strong);
+}
+
+.space-site.space-microsite .space-kicker,
+.space-site.space-microsite .space-section-label,
+.space-site.space-microsite .space-panel-label,
+.space-site.space-microsite .space-document-card span,
+.space-site.space-microsite .space-library-list span {
+  color: var(--space-accent);
+}
+
+.space-site.space-microsite .space-hero-copy h1,
+.space-site.space-microsite .space-authored-section h2,
+.space-site.space-microsite .space-featured-section h2,
+.space-site.space-microsite .space-library-section h2,
+.space-site.space-microsite .space-document-card h3,
+.space-site.space-microsite .space-persona-card h3,
+.space-site.space-microsite .space-library-list strong {
+  color: var(--space-text);
+}
+
+.space-site.space-microsite .space-tagline,
+.space-site.space-microsite .space-boundary-copy,
+.space-site.space-microsite .space-owner-row span,
+.space-site.space-microsite .space-hero-panel p,
+.space-site.space-microsite .space-stat-grid span,
+.space-site.space-microsite .space-authored-section p,
+.space-site.space-microsite .space-document-card small,
+.space-site.space-microsite .space-document-card p,
+.space-site.space-microsite .space-persona-card p,
+.space-site.space-microsite .space-empty-state,
+.space-site.space-microsite .space-library-list em,
+.space-site.space-microsite .space-library-list time {
+  color: var(--space-muted);
+}
+
+.space-boundary-copy {
+  max-width: 720px;
+  margin: 1rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.space-reading-path {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.space-reading-steps {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.space-reading-step {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  min-width: 0;
+  border: 1px solid var(--space-line);
+  border-radius: 8px;
+  padding: 0.7rem;
+  background: rgba(16, 18, 20, 0.42);
+  color: var(--space-text);
+  text-decoration: none;
+}
+
+.space-reading-step > span {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(217, 144, 74, 0.38);
+  border-radius: 999px;
+  color: var(--space-accent);
+  font-weight: 800;
+}
+
+.space-reading-step strong,
+.space-reading-step small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.space-reading-step strong {
+  color: var(--space-text);
+  line-height: 1.35;
+}
+
+.space-reading-step small,
+.space-site.space-microsite .space-document-role {
+  color: var(--space-accent-2);
+  line-height: 1.45;
+}
+
+.space-site.space-microsite .space-section-nav a,
+.space-site.space-microsite.space-theme-folio .space-section-nav a,
+.space-site.space-microsite .button {
+  border-color: var(--space-line);
+  background: var(--space-surface);
+  color: var(--space-text);
+}
+
+.space-site.space-microsite .button.primary {
+  border-color: var(--space-accent);
+  background: var(--space-accent);
+  color: #101214;
+}
+
 .fact-grid div,
 .zone-card,
 .constellation-node,

@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR334 UX-04 Public Space Microsite Result
+
+DAEDALUS implemented PR334 on 2026-06-26:
+`docs/roadmap/PR334_UX04_PUBLIC_SPACE_MICROSITE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public Space microsite slice | Pass | `/space/[slug]` now has public-boundary copy, a public-document reading path, selected-work labels for type/provenance/discussion state, and route-scoped dark microsite styling. |
+| Scope control | Pass | Existing public Space/document data only; no auth, schema, migration, visibility rule, publication semantic, forum semantic, provider/model, Redis, Cloudflare, queue, worker, billing, deploy, key, tester, public launch, or Developer Space change. |
+| Touched raw image warning | Pass | The touched Space page no longer emits its previous raw `<img>` warning. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warning | Only the untouched Discover raw `<img>` warning remains in `apps/web/components/discover/discover-front-door.tsx`. |
+
 ## PR332 UX-03 Continuity Review Signals Result
 
 DAEDALUS implemented PR332 on 2026-06-26:

@@ -6,6 +6,8 @@ import {
   publicDocumentDiscussionEntrypointCopy,
   publicPersonaEmptyCopy,
   publicSpaceHomeCopy,
+  publicSpaceMicrositeCopy,
+  publicSpaceReadingPathLabel,
   spaceStoryStats,
 } from "./public-story-polish";
 
@@ -48,6 +50,41 @@ test("public Space fallback copy treats works-led Spaces as intentional", () => 
     "This Space is publishing through its works right now. Authored pages can be added later when the owner wants more context around the public story."
   );
   assert.equal(publicPersonaEmptyCopy(true), "This Space is led by its published works for now. Public personas can be added later when they help explain the story.");
+});
+
+test("public Space microsite copy names the public boundary without private leakage", () => {
+  const copy = publicSpaceMicrositeCopy({
+    ownerLabel: "Replay Owner",
+    documentCount: 2,
+    personaCount: 1,
+  });
+
+  assert.equal(
+    copy,
+    "Replay Owner is presenting 2 public works and 1 public persona here. Only published public material appears on this Space; private Studio memory, archive, canon, continuity, and owner data stay hidden."
+  );
+  assert.doesNotMatch(copy, /owner_user_id|persona_id|source_id|token|cookie|provider payload/i);
+});
+
+test("public Space reading path labels selected works with provenance and discussion state", () => {
+  assert.equal(
+    publicSpaceReadingPathLabel({
+      index: 0,
+      documentTypeLabel: "Essay",
+      provenanceLabel: "User-authored",
+      discussionThreadId: "thread-1",
+    }),
+    "Start here: Essay / User-authored / linked discussion"
+  );
+  assert.equal(
+    publicSpaceReadingPathLabel({
+      index: 2,
+      documentTypeLabel: "Archive Note",
+      provenanceLabel: null,
+      discussionThreadId: null,
+    }),
+    "Then read: Archive Note"
+  );
 });
 
 test("Discover discussion cue only appears for document cards with linked discussions", () => {
