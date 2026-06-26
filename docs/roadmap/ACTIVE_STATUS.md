@@ -4,15 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR344 billing source map accepted
+## Latest MIMIR decision - PR344 accepted, PR345 opened
 
-ARGUS accepted
+MIMIR accepts ARGUS's PR344 result:
 `docs/roadmap/PR344_UX07_BILLING_ENTITLEMENT_SOURCE_MAP_RESULT.md`.
 
-Verdict: PASS.
+Decision:
 
-Result:
-
+- PR344 is closed as accepted.
 - Billing, entitlement, quota, token-credit, Stripe handoff, and frontend state
   sources are mapped for UX-07 before broader billing UI work.
 - A low-risk public pricing copy patch landed in
@@ -31,6 +30,11 @@ Result:
   payment IDs, cookies, tokens, secrets, schema, migrations, webhook security,
   entitlement enforcement, tax, invoices, usage billing, Connect, marketplace,
   token-top-up behavior, or live-money behavior changed.
+- MIMIR opens
+  `docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_DAEDALUS.md`.
+- PR345 should add the shared Billing/Pricing display helper recommended by
+  PR344, including authenticated Billing plan-card copy, without Stripe
+  mutation or entitlement enforcement changes.
 
 Validation:
 
@@ -43,9 +47,11 @@ Validation:
 
 Current baton:
 
-- MIMIR has the accepted PR344 verdict via `WAKEUP A1:`.
-- MIMIR should close PR344 and decide whether to open PR345 as the shared
-  billing display-helper lane.
+- DAEDALUS has PR345.
+- DAEDALUS should implement the smallest safe shared display-helper slice and
+  wake ARGUS for hostile review.
+- If implementation is not safe, DAEDALUS should wake MIMIR with the exact
+  blocker and revised next packet.
 
 ## Latest MIMIR decision - PR343 passed, PR344 opened
 
