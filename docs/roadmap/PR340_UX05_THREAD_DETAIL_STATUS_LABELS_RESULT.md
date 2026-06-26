@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -62,12 +62,35 @@ Notes:
 - `lint` passed with no warnings.
 - `git diff --check` passed with CRLF normalization notices only.
 
-## Review Requests
+## ARGUS Review
 
-ARGUS should review:
+Date reviewed: 2026-06-26
 
-- Whether the thread-detail labels match the PR340 scope without implying new
-  permissions or actions.
-- Whether the category/status label row is safe for signed-out public/community
-  thread detail routes.
-- Whether ARIADNE should rerun the hosted thread-detail route after review.
+Verdict:
+
+```text
+PASS
+```
+
+ARGUS accepts PR340. The implementation matches the narrow follow-up:
+
+- `/forums/[categorySlug]/[threadId]` repeats category, open/locked status, and
+  existing kind/visibility labels near the thread heading;
+- the labels reuse tested forum helper copy;
+- score, reply, witness, signed-out participation, moderation, reporting, and
+  reply behavior are unchanged;
+- no forum API query, visibility, membership, moderation, reporting, watch,
+  witness, vote, posting, auth, schema, migration, provider/model, Redis,
+  Cloudflare, queue, worker, deploy, key, database-admin, anonymous-chat,
+  public-launch, commercial, partner, recommendation, or broad design scope was
+  added.
+
+ARGUS validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed.
+
+ARIADNE hosted thread-detail rerun is optional after deploy if MIMIR wants
+hosted proof that the PR339 caveat is closed.

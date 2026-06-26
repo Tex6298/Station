@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented PR340 on 2026-06-26:
 `docs/roadmap/PR340_UX05_THREAD_DETAIL_STATUS_LABELS_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
