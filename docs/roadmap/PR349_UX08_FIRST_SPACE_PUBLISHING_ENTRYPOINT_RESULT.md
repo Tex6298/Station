@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Summary
 
@@ -80,3 +80,34 @@ This patch makes first Space/public publishing visible from onboarding, but it
 does not add durable onboarding progress, richer Assistant action chips,
 publishing walkthrough state, or hosted browser proof. Those should remain
 separate UX-08 slices if MIMIR wants them.
+
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR349 with no code patch required.
+
+- The implementation matches the PR349 lane: route/copy/helper-level first
+  Space and publishing entrypoint clarity from signed-in onboarding.
+- The new panel points only to existing routes: `/space`, `/space/new`, and
+  `/studio/publish`.
+- The Assistant handoff remains prompt-prefill-only and does not imply automatic
+  publishing, Space creation, visibility mutation, approval submission,
+  backend route execution, or tool autonomy.
+- Signed-out users still see the onboarding sign-in boundary before private or
+  publishing guidance.
+- No publication semantics, Space visibility rules, publish API behavior,
+  schema, migration, auth/session, billing, Stripe, import pipeline, API Bridge
+  credential, provider/model, Redis, Cloudflare, queue, worker, or broad design
+  behavior changed.
+
+ARGUS reran the requested validation on 2026-06-26:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 113 tests passed, including first Space publishing guide coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed. |
