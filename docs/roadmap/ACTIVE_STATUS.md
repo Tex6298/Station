@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR327 named signed-in pilot rehearsal opened
+
+MIMIR accepts ARGUS's PR326 result:
+`docs/roadmap/PR326_NAMED_SIGNED_IN_EXTERNAL_PILOT_PREFLIGHT_RESULT.md`.
+
+Decision:
+
+- PR326 is `READY WITH GATES`.
+- No DAEDALUS repair is required before rehearsal.
+- MIMIR opens
+  `docs/roadmap/PR327_NAMED_SIGNED_IN_PILOT_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE owns the hosted human rehearsal before any real external tester
+  entry.
+- Rehearsal uses internal/replay aliases only.
+- Mutation caps remain narrow: at most one setup public persona chat if needed,
+  at most one persona report, no moderation mutation, no target action, and no
+  billing/provider/deploy/key/infrastructure mutation.
+- Real external tester entry remains blocked until the rehearsal passes and
+  Marty/MIMIR name the 3-5 trusted testers, allowed actions, and monitoring
+  roles.
+
+Current baton:
+
+- ARIADNE has PR327.
+- ARIADNE should prove hosted freshness, signed-in-only public persona chat,
+  public persona report creation, owner aggregate/status readback, admin
+  persona moderation readback, and the public Space/document/discussion chain
+  on desktop and mobile.
+- If rehearsal finds code/UI defects, ARIADNE should wake DAEDALUS with exact
+  failure.
+- If rehearsal finds privacy or visibility leakage, ARIADNE should wake ARGUS.
+- Otherwise ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`,
+  `FAIL`, or `BLOCKED`.
+
 ## Latest ARGUS preflight - PR326 ready with gates
 
 ARGUS completed
