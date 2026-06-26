@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-26
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -84,6 +84,37 @@ owner page state that the persona Archive/File page already loaded.
 No raw source bodies, raw transcripts, provider payloads, secrets, private IDs,
 public archive rows, or cross-owner access paths were added.
 
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR366 with no code patch required.
+
+Review notes:
+
+- The implementation matches the import pipeline owner-readback lane and stays
+  bounded to the persona Archive/File page, archive-trust helpers, CSS, tests,
+  and roadmap docs.
+- The supported-source rows match current parser/test truth for pasted text,
+  text/Markdown files, ChatGPT JSON, Claude JSON, Reddit JSON, Discord JSON,
+  and legacy role/content JSON.
+- The UI copy is honest that provider exports are uploaded/stored source
+  material, not OAuth, live provider pulls, Discord bots, Reddit live pulls,
+  workers, crawlers, queues, or scheduled jobs.
+- Failed chat import retry copy matches the existing route: retry requires
+  owner-supplied content again; file failures remain tied to stored owner file
+  pointers and do not trigger live provider retry.
+- Memory/Canon import candidates remain pending and owner-reviewable; no
+  automatic Memory/Canon activation path was added.
+- Existing API/storage/conversation coverage proves parser support, unknown
+  JSON fail-closed behavior, private archive chunks, candidate creation as
+  pending owner rows, owner-scoped candidate review, redacted failures, and
+  cross-owner exclusion.
+- No API, parser, schema, migration, job runner, worker, queue, provider,
+  storage bucket, auth/session, public archive exposure, raw source-body dump,
+  raw transcript exposure, secret leakage, private-id display, or cross-owner
+  behavior changed.
+
 ## Validation
 
 | Command / check | Result | Notes |
@@ -93,7 +124,7 @@ public archive rows, or cross-owner access paths were added.
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 archive/conversation/import parser tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Next lint reported no warnings or errors. |
-| `git diff --check` | Pass | Whitespace check passed; Git emitted only CRLF normalization warnings. |
+| `git diff --check` | Pass | Whitespace check passed. |
 
 ## Review Ask
 

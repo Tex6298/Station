@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR366 ready for ARGUS
+## Latest ARGUS verdict - PR366 accepted
 
-DAEDALUS completed PR366:
+ARGUS accepted PR366:
 `docs/roadmap/PR366_IMPORT_PIPELINE_OWNER_READBACK_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Current import intake truth is mapped: pasted `/imports/chat`, chat retry,
   owner job status/list routes, durable file-pointer processing, supported
@@ -20,10 +26,20 @@ Result:
   Reddit JSON, Discord JSON, and legacy role/content JSON.
 - Import job cards now show safe source-name fallbacks, inferred source-format
   labels, retry/next-action copy, and owner-only/candidate-review boundaries.
+- ARGUS confirmed current parser/test truth for pasted text, text/Markdown,
+  ChatGPT JSON, Claude JSON, Reddit JSON, Discord JSON, and legacy role/content
+  JSON.
+- Failed chat import retry requires owner-supplied content again; file failures
+  remain tied to stored owner file pointers and do not trigger live provider
+  retry.
+- Memory/Canon import candidates remain pending and owner-reviewable; no
+  automatic Memory/Canon activation path was added.
 - Unknown JSON, live provider pulls, OAuth/API connectors, background
-  infrastructure, and automatic Memory/Canon activation remain out of scope.
+  infrastructure, workers/queues, Redis, Cloudflare, and automatic Memory/Canon
+  activation remain out of scope.
 - No API, parser, schema, migration, job runner, worker, queue, provider,
-  storage bucket, auth, public archive, or cross-owner behavior changed.
+  storage bucket, auth, public archive, raw source-body dump, raw transcript
+  exposure, private-id display, secret leakage, or cross-owner behavior changed.
 
 Validation:
 
@@ -34,15 +50,12 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
   warnings or errors.
-- `git diff --check` passed with only CRLF normalization warnings.
+- `git diff --check` passed.
 
 Current baton:
 
-- ARGUS has PR366.
-- ARGUS should review the readback-only patch, import surface map, owner-only
-  boundary, retry copy, and candidate-review boundary.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has PR366.
+- MIMIR should close PR366 as accepted and decide the next roadmap move.
 
 ## Latest MIMIR decision - PR365 accepted, PR366 opened
 
