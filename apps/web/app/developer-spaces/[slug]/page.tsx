@@ -15,6 +15,7 @@ import {
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
   developerSpaceTierOneFramingCopy,
+  developerSpaceVisitorReadingPath,
   formatDate,
   formatValue,
   humaniseKey,
@@ -83,6 +84,28 @@ function ObservatoryStory({ detail }: { detail: DeveloperSpaceDetail }) {
         {methodologyCopy.privateBoundary}
       </p>
     </div>
+  );
+}
+
+function ObservatoryOrientation({ detail }: { detail: DeveloperSpaceDetail }) {
+  const readingPath = developerSpaceVisitorReadingPath(detail);
+
+  return (
+    <section className="observatory-orientation" aria-labelledby="observatory-orientation-title">
+      <div className="observatory-orientation-header">
+        <div className="section-label">How to read this observatory</div>
+        <h2 id="observatory-orientation-title">Evidence first, then live readback.</h2>
+      </div>
+      <div className="observatory-orientation-grid">
+        {readingPath.map((step) => (
+          <article key={step.step} className="observatory-orientation-card">
+            <span>{step.step}</span>
+            <h3>{step.title}</h3>
+            <p>{step.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -506,6 +529,8 @@ export default function DeveloperSpacePublicPage() {
           <ObservatoryStory detail={detail} />
         </div>
       </section>
+
+      <ObservatoryOrientation detail={detail} />
 
       <section className="metric-grid">
         {[

@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR342 Developer Space observatory ready for review
+
+DAEDALUS completed
+`docs/roadmap/PR342_UX06_DEVELOPER_SPACE_OBSERVATORY_RESULT.md`.
+
+Result:
+
+- Public Developer Space detail pages now show a `How to read this observatory`
+  orientation strip before metrics and visualization-heavy content.
+- The strip gives visitors a three-step reading path: start with public
+  methodology/finding/field-log evidence, compare the current public-safe
+  node/signal readback, then separate live signals from the latest snapshot
+  boundary.
+- Thin-data states are explicit when no public evidence notes or snapshot are
+  attached.
+- Owner-only linked documents are not counted as public evidence.
+- The patch is presentation/helper-copy only and does not change config,
+  environment variables, schema, migrations, database-admin state,
+  provider/model routing, Redis, Valkey, Upstash, Cloudflare, queues, workers,
+  billing, Stripe, ingestion key semantics, auth/session behavior, visibility
+  rules, API serializers, event/node/snapshot payloads, or linked-document
+  persistence.
+- It also avoids public launch, commercial readiness, partner, hosting, or
+  external-runtime control claims.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed
+  48 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR342.
+- ARGUS should review the result doc and the public Developer Space detail
+  route for public/member/owner boundary safety and copy overclaims.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- ARIADNE hosted desktop/mobile Developer Space rehearsal is recommended after
+  ARGUS accepts and the patch deploys.
+
 ## Latest MIMIR decision - PR341 accepted, PR342 opened
 
 MIMIR accepts ARIADNE's PR341 result:

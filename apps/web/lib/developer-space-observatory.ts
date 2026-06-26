@@ -360,6 +360,38 @@ export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail,
   };
 }
 
+export function developerSpaceVisitorReadingPath(
+  detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">
+) {
+  const publicLinks = detail.linkedDocuments.filter((link) => link.linkVisibility !== "owner");
+  const methodologyCount = publicLinks.filter((link) => link.role === "methodology").length;
+  const findingCount = publicLinks.filter((link) => link.role === "finding").length;
+  const fieldLogCount = publicLinks.filter((link) => link.role === "field_log").length;
+  const hasEvidencePath = methodologyCount + findingCount + fieldLogCount > 0;
+
+  return [
+    {
+      step: "1",
+      title: "Start with the public evidence",
+      body: hasEvidencePath
+        ? `Use ${countLabel(methodologyCount, "methodology note")}, ${countLabel(findingCount, "finding")}, and ${countLabel(fieldLogCount, "field log")} as the project reading path before judging the live readback.`
+        : "No public methodology, finding, or field-log notes are attached yet. Treat the live readback as the current public evidence until the project links published notes.",
+    },
+    {
+      step: "2",
+      title: "Compare the current readback",
+      body: `${countLabel(detail.nodes.length, "tracked node")} and ${countLabel(detail.events.length, "public signal")} are public-safe summaries from the external runtime, not raw runtime payloads.`,
+    },
+    {
+      step: "3",
+      title: detail.latestSnapshot ? "Separate live signals from snapshots" : "Watch for the first snapshot",
+      body: detail.latestSnapshot
+        ? "Live signals can keep arriving after the latest snapshot. The snapshot is a bounded state summary, not proof that Station hosts or controls the runtime."
+        : "No public snapshot is attached yet. Live signals may still describe recent runtime activity, but there is no curated state summary to compare against.",
+    },
+  ];
+}
+
 export function developerSpaceEvidenceTitle(documents: Pick<DeveloperSpaceLinkedDocument, "role">[]) {
   if (documents.some((document) => document.role === "methodology" || document.role === "finding" || document.role === "field_log")) {
     return "Project evidence";

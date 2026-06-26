@@ -21,6 +21,7 @@ import {
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
   developerSpaceTierOneFramingCopy,
+  developerSpaceVisitorReadingPath,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceEvidenceEmptyCopy,
@@ -451,6 +452,38 @@ test("observatory methodology copy stays honest about public evidence", () => {
   assert.match(ownerMixed.methodology, /0 methodology notes/);
   assert.match(ownerMixed.methodology, /1 field log/);
   assert.match(ownerMixed.methodology, /1 owner-only link/);
+});
+
+test("observatory visitor reading path separates evidence, readback, and snapshots", () => {
+  const path = developerSpaceVisitorReadingPath({
+    nodes: [{ id: "node-1" }, { id: "node-2" }],
+    events: [{ id: "event-1" }],
+    latestSnapshot: { id: "snapshot-1" },
+    linkedDocuments: [
+      { role: "methodology", linkVisibility: "public" },
+      { role: "finding", linkVisibility: "public" },
+      { role: "field_log", linkVisibility: "owner" },
+    ],
+  } as unknown as Parameters<typeof developerSpaceVisitorReadingPath>[0]);
+
+  assert.deepEqual(path.map((step) => step.step), ["1", "2", "3"]);
+  assert.match(path[0].body, /1 methodology note/);
+  assert.match(path[0].body, /1 finding/);
+  assert.doesNotMatch(path[0].body, /owner-only/);
+  assert.match(path[1].body, /2 tracked nodes/);
+  assert.match(path[1].body, /1 public signal/);
+  assert.match(path[1].body, /not raw runtime payloads/);
+  assert.match(path[2].body, /bounded state summary/);
+
+  const thinPath = developerSpaceVisitorReadingPath({
+    nodes: [],
+    events: [],
+    latestSnapshot: null,
+    linkedDocuments: [],
+  } as unknown as Parameters<typeof developerSpaceVisitorReadingPath>[0]);
+
+  assert.match(thinPath[0].body, /No public methodology/);
+  assert.match(thinPath[2].body, /No public snapshot/);
 });
 
 test("observatory evidence labels use role-aware Developer Page language", () => {
