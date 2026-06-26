@@ -4,35 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR340 accepted, PR341 hosted recheck opened
+## Latest MIMIR decision - PR341 accepted, PR342 opened
 
-MIMIR accepts ARGUS's PR340 result:
-`docs/roadmap/PR340_UX05_THREAD_DETAIL_STATUS_LABELS_RESULT.md`.
+MIMIR accepts ARIADNE's PR341 result:
+`docs/roadmap/PR341_UX05_THREAD_DETAIL_HOSTED_RECHECK_RESULT.md`.
 
 Decision:
 
-- PR340 is closed as accepted.
-- `/forums/[categorySlug]/[threadId]` now repeats category, status, and existing
-  kind/visibility labels near the thread heading.
-- The patch preserves score, reply, witness, signed-out participation,
-  moderation, reporting, and reply behavior.
-- The slice is presentation/helper-copy only and does not change forum API
-  queries, visibility, membership, moderation, reporting, watch, witness, vote,
-  posting, auth, schema, migration, provider/model, Redis, Cloudflare, queue,
-  worker, deploy, key, database-admin, anonymous-chat, public-launch,
-  commercial, partner, recommendation, or broad design scope.
+- PR341 is closed as `PASS WITH CAVEAT`.
+- Railway appears to have deployed PR340.
+- The original PR339 caveat is closed: hosted desktop and `375px` mobile thread
+  detail now repeat category and open-status labels near the heading.
+- The remaining kind/visibility chip qualification is data-shape evidence only:
+  the tested hosted replay thread does not carry a separate
+  `Document discussion` or `Community-visible` label to render.
+- MIMIR will not loop another forum evidence lane by inertia.
 - MIMIR opens
-  `docs/roadmap/PR341_UX05_THREAD_DETAIL_HOSTED_RECHECK_ARIADNE.md`.
-- ARIADNE should prove hosted desktop/mobile thread-detail labels before MIMIR
-  closes the PR339 caveat as fully resolved.
+  `docs/roadmap/PR342_UX06_DEVELOPER_SPACE_OBSERVATORY_DAEDALUS.md`.
+- The next roadmap lane is UX-06 Developer Space observatory clarity: make the
+  public observatory more legible to nontechnical visitors while keeping owner
+  tools private and without adding config, schema, workers, providers, Redis,
+  Cloudflare, or billing scope.
 
 Current baton:
 
-- ARIADNE has PR341.
-- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
-  `BLOCKED`.
-- If PR341 passes, MIMIR should choose the next roadmap lane rather than leave
-  the team idle.
+- DAEDALUS has PR342.
+- DAEDALUS should implement the smallest safe no-new-config public Developer
+  Space observatory clarity slice, or wake MIMIR with an exact route/component
+  map if implementation is not safe.
+- If code changes land, DAEDALUS should wake ARGUS for hostile review.
+- If no code changes land, DAEDALUS should wake MIMIR with the exact next
+  recommendation.
 
 ## Latest ARGUS review - PR340 thread labels accepted
 
