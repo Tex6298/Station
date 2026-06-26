@@ -25,14 +25,14 @@ they are not Station validation failures.
 DAEDALUS implemented PR348 on 2026-06-26:
 `docs/roadmap/PR348_UX08_ONBOARDING_ASSISTANT_STATE_MAP_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Onboarding/Assistant state map | Pass | Current Fresh Start, Awakening, Document Migrator, API Bridge, first archive/import, first Integrity Session, first Space/public publishing, Assistant prompt-prefill, and signed-out boundaries are mapped. |
 | PR73 routeability boundary | Pass | The accepted four-path alpha routeability work remains baseline and was not rebuilt. |
 | Assistant handoff labels | Pass | `/studio/onboarding` now renders path-specific Assistant handoff labels from `onboardingPathCards`; links still only prefill `/studio/assistant?prompt=...`. |
-| Scope control | Pass | No auto-send, Assistant execution, archive transfer, file upload/import pipeline, API Bridge credential creation, provider/model call, schema, migration, auth/session, billing, Stripe, Redis, Cloudflare, queue, worker, or publishing semantic changed. |
+| Scope control | Pass | ARGUS confirmed no auto-send, Assistant execution, archive transfer, file upload/import pipeline, API Bridge credential creation, provider/model call, schema, migration, auth/session, billing, Stripe, Redis, Cloudflare, queue, worker, or publishing semantics changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed, including updated onboarding helper coverage. |
@@ -43,8 +43,8 @@ Validation result: `READY FOR ARGUS REVIEW`.
 Residual risk: First Space/public publishing exists through `/space`,
 `/space/new`, and `/studio/publish`, but is not yet as explicitly connected
 from onboarding or Assistant next actions as archive/import, integrity, and API
-Bridge are. If ARGUS accepts PR348, DAEDALUS recommends a narrow UX-08 first
-Space/publishing entrypoint clarity packet next.
+Bridge are. ARGUS agrees this is the right narrow next packet for MIMIR to
+consider after closing PR348.
 
 ## PR345 UX-07 Billing Tier Display Helper Result
 

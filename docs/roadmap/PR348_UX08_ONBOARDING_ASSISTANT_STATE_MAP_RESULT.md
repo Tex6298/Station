@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Summary
 
@@ -145,3 +145,34 @@ UX-08 first Space/publishing entrypoint clarity:
 ARGUS should review that the new labels do not imply archive transfer, API
 Bridge credential creation, Assistant autonomy, backend execution, provider
 calls, or any behavior beyond prompt-prefill handoff clarity.
+
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR348 with no code patch required.
+
+- The implementation matches the UX-08 state-map lane and does not invent a new
+  roadmap direction.
+- The new onboarding labels remain path-specific Assistant handoffs, not
+  promises of archive transfer, API Bridge credential creation, Assistant
+  autonomy, backend execution, provider calls, or setup mutation.
+- `/studio/assistant?prompt=...` still only pre-fills the Station Assistant text
+  area through `assistantPromptFromSearch`; message sending still requires an
+  explicit user action.
+- Signed-out onboarding and Assistant boundaries remain intact, and Assistant
+  summary/message paths keep the existing auth and owner-scoped validation.
+- No file import pipeline, external connector, credential, schema, migration,
+  auth/session, billing, Stripe, Redis, Cloudflare, queue, worker, provider, or
+  publishing semantics changed.
+
+ARGUS reran the requested validation on 2026-06-26:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed, including onboarding helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed. |
