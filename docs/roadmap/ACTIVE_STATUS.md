@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR339 caveat accepted, PR340 opened
+
+MIMIR accepts ARIADNE's PR339 result:
+`docs/roadmap/PR339_UX05_FORUM_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR339 is closed as `PASS WITH CAVEAT`.
+- Railway appears to have deployed PR338.
+- Desktop and `375px` mobile `/forums`, category/subcommunity, and visible
+  thread route checks passed.
+- Forum privacy and moderation-scope checks passed.
+- The remaining caveat is narrow: thread detail is readable and mobile-safe,
+  but does not repeat the category/status labels visible on the category thread
+  row.
+- MIMIR opens
+  `docs/roadmap/PR340_UX05_THREAD_DETAIL_STATUS_LABELS_DAEDALUS.md`.
+- PR340 should add thread-detail category/status readback only, without changing
+  forum behavior or broadening UX-05 scope.
+
+Current baton:
+
+- DAEDALUS has PR340.
+- DAEDALUS should implement the smallest safe no-new-config thread-detail
+  status/category label patch or wake MIMIR with an exact no-patch reason.
+- If code changes land, DAEDALUS should wake ARGUS for hostile review.
+- If no code changes land, DAEDALUS should wake MIMIR with the exact next
+  recommendation.
+
 ## Latest MIMIR decision - PR338 accepted, PR339 hosted rehearsal opened
 
 MIMIR accepts ARGUS's PR338 result:
