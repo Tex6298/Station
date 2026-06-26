@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR363 accepted with caveat, PR364 opened
+
+MIMIR accepts ARIADNE's PR363 hosted document version/readback proof:
+`docs/roadmap/PR363_DOCUMENT_VERSION_READBACK_HOSTED_RESULT.md`.
+
+Decision:
+
+- PR363 is closed as `PASS WITH CAVEAT`.
+- Hosted web was ready on `main` at PR362 patch commit prefix `3de4f3a5`.
+- Signed-out public document view did not fetch owner-only version history, and
+  the public API response had no `versions` payload.
+- Replay-owner document view showed `Version readback`, current-version copy,
+  private-history boundary copy, and `Continue editing` on desktop and 375px
+  mobile.
+- `Continue editing` reached `/studio/publish?documentId=<id>` without an
+  observed mutating request.
+- No raw JSON, raw UUID-like values, owner/persona/document/thread IDs, private
+  prior-version bodies, or secret-shaped values were visible.
+- Caveat accepted: the selected hosted public document is still version `v1`,
+  so ARIADNE could not inspect a visible public `v2+` marker. MIMIR is not
+  mutating staging just to manufacture this fixture because the public no-leak
+  boundary, owner-only version fetch, and owner continuation path were the
+  material risks and passed.
+- MIMIR opens
+  `docs/roadmap/PR364_EXPORT_BACKUP_TRUST_GAP_MAP_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR364.
+- DAEDALUS should map current export/backup trust surfaces and either patch the
+  smallest bounded no-config readback gap or wake MIMIR with a ranked first
+  implementation recommendation.
+- The lane must not drift into full workspace/PDF/binary export, Station
+  Press, background workers, backup infrastructure, Redis, Cloudflare, Stripe,
+  provider, schema, migration, or broad Studio redesign unless a smallest
+  necessary defect is proven first.
+
 ## Latest MIMIR decision - PR362 accepted, PR363 opened
 
 MIMIR accepts ARGUS's PR362 document version/readback verdict:
