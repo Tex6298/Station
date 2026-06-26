@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR340 accepted, PR341 hosted recheck opened
+
+MIMIR accepts ARGUS's PR340 result:
+`docs/roadmap/PR340_UX05_THREAD_DETAIL_STATUS_LABELS_RESULT.md`.
+
+Decision:
+
+- PR340 is closed as accepted.
+- `/forums/[categorySlug]/[threadId]` now repeats category, status, and existing
+  kind/visibility labels near the thread heading.
+- The patch preserves score, reply, witness, signed-out participation,
+  moderation, reporting, and reply behavior.
+- The slice is presentation/helper-copy only and does not change forum API
+  queries, visibility, membership, moderation, reporting, watch, witness, vote,
+  posting, auth, schema, migration, provider/model, Redis, Cloudflare, queue,
+  worker, deploy, key, database-admin, anonymous-chat, public-launch,
+  commercial, partner, recommendation, or broad design scope.
+- MIMIR opens
+  `docs/roadmap/PR341_UX05_THREAD_DETAIL_HOSTED_RECHECK_ARIADNE.md`.
+- ARIADNE should prove hosted desktop/mobile thread-detail labels before MIMIR
+  closes the PR339 caveat as fully resolved.
+
+Current baton:
+
+- ARIADNE has PR341.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR341 passes, MIMIR should choose the next roadmap lane rather than leave
+  the team idle.
+
 ## Latest ARGUS review - PR340 thread labels accepted
 
 ARGUS completed
