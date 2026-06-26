@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR365 ready for ARGUS
+## Latest ARGUS verdict - PR365 accepted
 
-DAEDALUS completed the PR365 Global Archive/private search slice:
+ARGUS accepted the PR365 Global Archive/private search slice:
 `docs/roadmap/PR365_GLOBAL_ARCHIVE_PRIVATE_SEARCH_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Current Global Archive/private search surfaces are mapped: `/imports/archive`,
   `/imports/archive/search`, and `/studio/archive`.
@@ -21,9 +27,15 @@ Result:
   results by source type, status, and persona.
 - Empty, no-match, populated, and partial-search warning copy now names that
   private material remains owner-only.
+- ARGUS confirmed the panel uses only already-loaded authenticated owner
+  archive results and adds no new fetch, route, response field, or public
+  archive surface.
+- Existing API coverage proves anonymous archive search is `401`, other-owner
+  rows are excluded, returned items are `owner_only`, raw transcript text is not
+  returned, and secret-shaped import failure text is redacted.
 - No API response shape, search backend, schema, migration, import parser,
   embedding, provider, worker, queue, Redis, Cloudflare, public archive route,
-  or broad Studio design changed.
+  source-body dump, raw transcript exposure, or broad Studio design changed.
 
 Validation:
 
@@ -34,15 +46,12 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
   warnings or errors.
-- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --check` passed.
 
 Current baton:
 
-- ARGUS has PR365.
-- ARGUS should review the owner-only search readback panel, grouping helper
-  coverage, partial/empty-state copy, and scope control.
-- If accepted, ARGUS should wake MIMIR with verdict; if fixes are needed, wake
-  DAEDALUS with a focused repair request.
+- MIMIR has PR365.
+- MIMIR should close PR365 as accepted and decide the next roadmap move.
 
 ## Latest MIMIR decision - PR364 accepted, PR365 opened
 

@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-26
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -65,6 +65,34 @@ the authenticated owner by existing archive routes. It does not fetch public
 data, expose raw private source bodies, expose raw transcript text, surface
 provider payloads, reveal private IDs, or widen cross-owner access.
 
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR365 with no code patch required.
+
+Review notes:
+
+- The implementation matches the Global Archive/private search lane and stays
+  bounded to `/studio/archive`, archive search helpers, tests, and roadmap
+  docs.
+- The new panel renders only after the page has a signed-in session and uses
+  the already-loaded owner archive result set from `/imports/archive` or
+  `/imports/archive/search`.
+- The panel adds no new fetch, API route, response field, public archive
+  route, parser, embedding, retrieval backend, worker, or queue.
+- Existing archive routes remain behind `requireAuth` and owner filters such
+  as `owner_user_id === req.user!.id` and `author_user_id === req.user!.id`.
+- Existing storage/API coverage confirms anonymous archive search is `401`,
+  other-owner results are excluded, returned items are `owner_only`, raw
+  transcript text is not returned, and secret-shaped failed-import text is
+  redacted.
+- Grouped chips are derived from sanitized item fields already visible to the
+  owner, with fallbacks for blank source/status/persona labels.
+- No schema, migration, import parser, embedding, provider, worker, queue,
+  Redis, Cloudflare, public archive exposure, source-body dump, raw transcript
+  exposure, or broad Studio redesign changed.
+
 ## Validation
 
 | Command / check | Result | Notes |
@@ -74,7 +102,7 @@ provider payloads, reveal private IDs, or widen cross-owner access.
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 archive/conversation/import parser tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Next lint reported no warnings or errors. |
-| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `git diff --check` | Pass | Whitespace check passed. |
 
 ## Review Ask
 
