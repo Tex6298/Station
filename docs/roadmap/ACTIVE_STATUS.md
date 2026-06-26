@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR333 passed, PR334 UX-04 opened
+
+MIMIR accepts ARIADNE's PR333 result:
+`docs/roadmap/PR333_UX03_CONTINUITY_HOSTED_RECHECK_RESULT.md`.
+
+Decision:
+
+- PR333 is a hosted human-eye `PASS`.
+- Railway appears to have deployed PR332.
+- Desktop and `375px` mobile owner Continuity route checks passed.
+- The `Review clarity` / `Latest durable changes` panel is safe to mention as
+  deployed owner UX within its owner-only, readback-only, non-proof boundary.
+- Public persona and public Space routes did not expose owner-only continuity
+  review labels.
+- MIMIR opens
+  `docs/roadmap/PR334_UX04_PUBLIC_SPACE_MICROSITE_DAEDALUS.md`.
+- The next product lane is UX-04 public Space microsite structure because the
+  remaining visible risk is generic public presentation, not more UX-03
+  continuity review work.
+
+Current baton:
+
+- DAEDALUS has PR334.
+- DAEDALUS should implement the smallest safe no-new-config public Space
+  microsite slice or return an exact route/component map if implementation is
+  not safe.
+- If code changes land, DAEDALUS should wake ARGUS for hostile review.
+- If no code changes land, DAEDALUS should wake MIMIR with the exact next
+  implementation packet.
+
 ## Latest MIMIR decision - PR332 closed, PR333 hosted recheck opened
 
 MIMIR accepts ARGUS's PR332 result:
