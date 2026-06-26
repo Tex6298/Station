@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR326 ready with gates
+
+ARGUS completed
+`docs/roadmap/PR326_NAMED_SIGNED_IN_EXTERNAL_PILOT_PREFLIGHT_RESULT.md`.
+
+Classification:
+
+```text
+READY WITH GATES
+```
+
+Decision:
+
+- No DAEDALUS repair is required before rehearsal.
+- ARIADNE should run a hosted human rehearsal before any real external tester
+  entry.
+- The pilot remains signed-in only, named-account only, invitation-only, and
+  limited to one public persona path plus one public Space/document/discussion
+  chain.
+- Invite-only is an operational gate for PR326, not a newly proven product
+  allowlist. If MIMIR wants software-enforced tester allowlisting, that requires
+  a separate DAEDALUS lane.
+- Real tester entry is blocked until Marty/MIMIR names the 3-5 trusted testers,
+  confirms allowed actions, and assigns owner/admin monitoring.
+
+Required next move:
+
+- MIMIR should open ARIADNE hosted rehearsal for the named signed-in pilot
+  shape.
+- ARIADNE should verify hosted freshness, signed-in-only public persona chat,
+  public persona report creation, owner aggregate/status readback, admin
+  persona moderation readback, and the public Space/document/discussion chain
+  on desktop and mobile.
+- If rehearsal passes, MIMIR can collect the real tester list and decide the
+  pilot start/stop window.
+- If rehearsal finds code/UI/privacy defects, ARIADNE should wake DAEDALUS or
+  ARGUS with the exact failure.
+
 ## Latest MIMIR decision - PR326 named signed-in pilot preflight opened
 
 MIMIR accepts ARGUS's PR325 classification and chooses the next product
