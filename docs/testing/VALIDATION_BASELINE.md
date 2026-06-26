@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented PR338 on 2026-06-26:
 `docs/roadmap/PR338_UX05_FORUM_BROWSING_CLARITY_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |

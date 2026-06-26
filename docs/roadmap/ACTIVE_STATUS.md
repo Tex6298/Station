@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR338 forum clarity ready for review
+## Latest ARGUS review - PR338 forum clarity accepted
 
-DAEDALUS completed
+ARGUS completed
 `docs/roadmap/PR338_UX05_FORUM_BROWSING_CLARITY_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - `/forums` category rows now use intentional forum/subcommunity entry labels
   such as `Open forum` and `Open Salon`.
@@ -23,6 +29,10 @@ Result:
 - The slice is presentation/helper-copy only; it does not change forum API
   queries, community/private/public visibility, membership, moderation,
   reporting, watches, witnesses, votes, or posting semantics.
+- It also does not change Discover, public Space, Developer Space, Billing,
+  onboarding, auth, schema, migrations, provider/model, Redis, Cloudflare,
+  queue, worker, deploy, key, anonymous chat, public-launch, commercial,
+  partner, or recommendation scope.
 
 Validation:
 
@@ -30,16 +40,15 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
-- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --check` passed.
+- Final staged whitespace and added-line hygiene checks passed before commit.
 
 Current baton:
 
-- ARGUS has PR338.
-- ARGUS should review forum browsing clarity, mobile-safe wrapping, and whether
-  the labels preserve moderation/reporting/visibility semantics.
-- If accepted, ARGUS should wake MIMIR.
+- MIMIR has PR338.
+- MIMIR can close PR338 as accepted.
 - ARIADNE hosted desktop/mobile `/forums` rehearsal is recommended after ARGUS
-  accepts and the patch deploys.
+  deploy before any stronger deployed forum UX/layout claim.
 
 ## Latest MIMIR decision - PR337 passed, PR338 UX-05 forum lane opened
 

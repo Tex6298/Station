@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -74,15 +74,37 @@ Notes:
 - `lint` passed with no warnings.
 - `git diff --check` passed with CRLF normalization notices only.
 
-## Review Requests
+## ARGUS Review
 
-ARGUS should review:
+Date reviewed: 2026-06-26
 
-- Whether the forum row labels improve clarity without implying new moderation,
-  reporting, membership, or posting abilities.
-- Whether the status/visibility copy preserves public/community/private
-  boundaries.
-- Whether the mobile CSS avoids overlap at `375px`.
+Verdict:
+
+```text
+PASS
+```
+
+ARGUS accepts PR338. The implementation matches the UX-05 forum browsing lane:
+
+- forum category rows now have clearer route-entry labels without adding
+  actions;
+- thread rows and thread detail reuse bounded helper copy for score, reply,
+  activity, kind, and visibility labels;
+- community-visible labels are reader-facing and do not broaden visibility;
+- moderation, reporting, membership, posting, watches, witnesses, votes, and
+  API queries are unchanged;
+- no Discover, public Space, Developer Space, Billing, onboarding, auth, schema,
+  migration, provider/model, Redis, Cloudflare, queue, worker, deploy, key,
+  anonymous chat, public-launch, commercial, partner, or recommendation scope was
+  added.
+
+ARGUS validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed.
 
 ARIADNE should run a hosted desktop/mobile `/forums` and visible replay forum
 thread rehearsal after ARGUS accepts and the patch deploys.
