@@ -76,6 +76,7 @@ test("discover feed controls filter loaded public-safe items by type", () => {
   const items = [
     { id: "essay-1", type: "document" as const, meta: "essay" },
     { id: "field-1", type: "document" as const, meta: "field_log" },
+    { id: "space-1", type: "space" as const, meta: "Public Space" },
     { id: "thread-1", type: "thread" as const, meta: "Forum" },
     { id: "dev-1", type: "developer_space" as const, meta: "radial" },
   ];
@@ -83,11 +84,13 @@ test("discover feed controls filter loaded public-safe items by type", () => {
   assert.deepEqual(filterDiscoverFeedItems(items, "all").map((item) => item.id), [
     "essay-1",
     "field-1",
+    "space-1",
     "thread-1",
     "dev-1",
   ]);
   assert.deepEqual(filterDiscoverFeedItems(items, "essay").map((item) => item.id), ["essay-1"]);
   assert.deepEqual(filterDiscoverFeedItems(items, "field_log").map((item) => item.id), ["field-1"]);
+  assert.deepEqual(filterDiscoverFeedItems(items, "space").map((item) => item.id), ["space-1"]);
   assert.deepEqual(filterDiscoverFeedItems(items, "forum").map((item) => item.id), ["thread-1"]);
   assert.deepEqual(filterDiscoverFeedItems(items, "developer_space").map((item) => item.id), ["dev-1"]);
 });

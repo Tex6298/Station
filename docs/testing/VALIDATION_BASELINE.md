@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR374 Discover Public Space Route Polish Result
+
+DAEDALUS completed PR374 on 2026-06-26:
+`docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Discover public Space feed item | Pass | Normal `/discover/feed?tab=new` now emits standalone `type: "space"` cards from existing `spaces.is_public` rows. |
+| Route clarity | Pass | `/discover` renders Space cards as `Space` with `Open public Space`, and feed controls include a `Spaces` filter. |
+| Visibility boundary | Pass | Regression coverage proves private Spaces stay out and unsafe public Space slugs do not produce public route links. |
+| Search href safety | Pass | Public search Space links now reject unsafe and UUID-shaped slugs before rendering `/space/:slug`. |
+| Scope control | Pass | No publishing, approval, document, discussion, auth, provider, Redis, Cloudflare, worker, queue, schema, migration, billing, Station Press, social, or broad UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 34 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` | Pass | 12 focused Discover/search/writing helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 122 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: ARGUS still needs to review PR374. If accepted and deployed,
+ARIADNE should rerun the hosted PR373 public route proof through `/discover` to
+the visible public Space card, then public document and linked discussion if
+present.
+
 ## PR371 Hosted Embedding Trace Data Proof Result
 
 DAEDALUS completed PR371 on 2026-06-26:

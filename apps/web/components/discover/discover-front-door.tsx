@@ -125,6 +125,7 @@ function FeedCard({ item }: { item: FeedItem }) {
   const bg = TYPE_COLOURS[colourKey] ?? TYPE_COLOURS.document;
   const col = TYPE_TEXT[colourKey] ?? TYPE_TEXT.document;
   const discussionCue = discoverDiscussionCue({ type: item.type, discussionThreadId: item.discussionThreadId });
+  const spaceCue = item.type === "space" ? "Open public Space" : null;
 
   return (
     <Link href={item.href} style={{ textDecoration: "none" }}>
@@ -133,7 +134,7 @@ function FeedCard({ item }: { item: FeedItem }) {
           <span style={{ fontSize: "0.68rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: bg, color: col, border: `1px solid ${col}44` }}>
             {typeLabel}
           </span>
-          {item.space && <span style={{ fontSize: "0.68rem", color: "var(--public-home-muted)" }}>in {item.space.title}</span>}
+          {item.space && item.type !== "space" && <span style={{ fontSize: "0.68rem", color: "var(--public-home-muted)" }}>in {item.space.title}</span>}
           {item.provenanceType && (
             <span style={{ fontSize: "0.68rem", color: "#7dd3fc" }}>
               {PROVENANCE_LABELS[item.provenanceType] ?? item.provenanceType}
@@ -190,11 +191,16 @@ function FeedCard({ item }: { item: FeedItem }) {
               {discussionCue}
             </span>
           )}
+          {spaceCue && (
+            <span style={{ fontSize: "0.72rem", color: "#86efac", marginLeft: item.author || item.persona || item.sourceLabel || discussionCue ? "auto" : 0 }}>
+              {spaceCue}
+            </span>
+          )}
           {item.type === "developer_space" && item.developerSpace ? (
             <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>
               {item.developerSpace.visualisationType.replace("_", " ")}
             </span>
-          ) : !discussionCue && item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
+          ) : !discussionCue && !spaceCue && item.replyCount > 0 && <span style={{ fontSize: "0.72rem", color: "var(--public-home-muted)", marginLeft: "auto" }}>Replies {item.replyCount}</span>}
         </div>
       </article>
     </Link>

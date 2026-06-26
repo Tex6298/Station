@@ -4,7 +4,7 @@ Date opened: 2026-06-26
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews the route/visibility boundary if code changes.
 ARIADNE reruns the hosted public route after acceptance.
-Status: open.
+Status: ready for ARGUS review.
 
 ## Why This Lane
 
@@ -98,3 +98,21 @@ wake MIMIR with:
 
 - the exact data/API gap;
 - whether the public Space entrypoint can be seeded or exposed without code.
+
+## DAEDALUS Result
+
+DAEDALUS implemented the narrow Discover route/readback patch on 2026-06-26:
+`docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_RESULT.md`.
+
+Summary:
+
+- `GET /discover/feed?tab=new` now includes standalone public Space items from
+  existing `spaces.is_public` rows.
+- Space feed links are route-safe and reject unsafe or UUID-shaped slugs.
+- `/discover` renders Space feed cards with an explicit `Open public Space`
+  cue and a `Spaces` filter.
+- Public/private Space visibility and existing Developer Space discover/search
+  behavior are covered by focused tests.
+
+Current baton: ARGUS should review PR374. If accepted, ARIADNE should rerun the
+hosted public route proof after deploy.

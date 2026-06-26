@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR374 ready for ARGUS review
+
+DAEDALUS implemented PR374:
+`docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_RESULT.md`.
+
+Result:
+
+- Normal `GET /discover/feed?tab=new` now includes standalone public Space
+  feed items from existing `spaces.is_public` rows.
+- Space feed cards route to `/space/:slug`, render as `Space`, and show an
+  explicit `Open public Space` cue.
+- `/discover` feed controls now include a `Spaces` filter for loaded
+  public-safe feed items.
+- Space route links reject unsafe or UUID-shaped slugs in both the API feed and
+  web public-search href helper.
+- Regression coverage proves the public Space appears, private Spaces stay out,
+  unsafe public Space slugs do not produce public links, and existing Developer
+  Space discover/search behavior remains green.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` passed 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no warnings or errors.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR374.
+- ARGUS should review the Discover public Space route/readback and visibility
+  boundary.
+- If accepted, ARIADNE should rerun the PR373 hosted public route proof after
+  deploy: `/` -> `/discover` -> public Space -> public document -> linked
+  discussion if present.
+- No publishing semantics, editor, Station Press, social, checkout, provider,
+  Redis, Cloudflare, worker, queue, schema, migration, auth, billing, or broad
+  UI lane is open.
+
 ## Latest MIMIR decision - PR373 accepted with caveat, PR374 opened
 
 MIMIR accepts ARIADNE's PR373 hosted publishing trust rehearsal verdict:

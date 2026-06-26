@@ -3398,14 +3398,43 @@ test("featured Discover feed filters to public-safe and community-eligible items
   }
 });
 
-test("Discover feed and search include public-safe Developer Spaces", async () => {
+test("Discover feed and search include public-safe Spaces and Developer Spaces", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
 
   try {
+    db.insertRow("spaces", {
+      ...space("55555555-5555-4555-8555-555555555554", "550e8400-e29b-41d4-a716-446655440000", true),
+      title: "Unsafe Public Space",
+    });
+
     const visitorFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
     assert.equal(visitorFeed.status, 200);
+    const visitorSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "space");
+    assert.deepEqual(visitorSpaces.map((item: Row) => item.id), [PUBLIC_SPACE_ID]);
+    assert.deepEqual(visitorSpaces[0], {
+      id: PUBLIC_SPACE_ID,
+      type: "space",
+      title: "public-space",
+      excerpt: null,
+      href: "/space/public-space",
+      meta: "Public Space",
+      visibility: "public",
+      space: { slug: "public-space", title: "public-space" },
+      author: null,
+      persona: null,
+      score: 0,
+      replyCount: 0,
+      createdAt: "2026-05-25T09:00:00.000Z",
+      promoted: false,
+    });
+    const visitorFeedText = JSON.stringify(visitorFeed.body.items);
+    assert.equal(visitorFeedText.includes(PRIVATE_SPACE_ID), false);
+    assert.equal(visitorFeedText.includes("private-space"), false);
+    assert.equal(visitorFeedText.includes("Unsafe Public Space"), false);
+    assert.equal(visitorFeedText.includes("550e8400-e29b-41d4-a716-446655440000"), false);
+
     const visitorDeveloperSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "developer_space");
     assert.deepEqual(visitorDeveloperSpaces.map((item: Row) => item.id), [PUBLIC_DEV_SPACE_ID]);
 

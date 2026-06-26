@@ -37,7 +37,11 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
     case "personas":
       return publicPersonaHref(result.publicSlug ?? result.public_slug);
     case "spaces":
-      return result.slug ? `/space/${result.slug}` : null;
+      return typeof result.slug === "string" &&
+        SAFE_ROUTE_SLUG_PATTERN.test(result.slug) &&
+        !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(result.slug)
+        ? `/space/${result.slug}`
+        : null;
     case "documents":
       return result.id && result.space?.slug ? `/space/${result.space.slug}/documents/${result.id}` : null;
     case "threads":

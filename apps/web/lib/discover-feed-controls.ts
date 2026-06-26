@@ -50,6 +50,7 @@ export const DISCOVER_FEED_FILTERS = [
   { id: "research", label: "Research" },
   { id: "field_log", label: "Field Log" },
   { id: "theory", label: "Theory" },
+  { id: "space", label: "Spaces" },
   { id: "forum", label: "Forum" },
   { id: "developer_space", label: "Developer Spaces" },
 ] as const;
@@ -79,6 +80,7 @@ export function discoverFeedItemMatchesFilter(item: Pick<DiscoverFeedItem, "type
   if (filter === "all") return true;
   if (filter === "forum") return item.type === "thread";
   if (filter === "developer_space") return item.type === "developer_space";
+  if (filter === "space") return item.type === "space";
   if (item.type !== "document") return false;
   return normalizeDiscoverDocumentType(item.meta) === filter;
 }

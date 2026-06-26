@@ -29,6 +29,8 @@ test("public search hrefs only target supported public routes", () => {
   assert.equal(searchHref("personas", { href: "/admin" }), null);
   assert.equal(searchHref("personas", { publicSlug: "550e8400-e29b-41d4-a716-446655440000" }), null);
   assert.equal(searchHref("spaces", { slug: "field-notes" }), "/space/field-notes");
+  assert.equal(searchHref("spaces", { slug: "Bad Slug" }), null);
+  assert.equal(searchHref("spaces", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
   assert.equal(
     searchHref("documents", { id: "doc-1", space: { slug: "field-notes" } }),
     "/space/field-notes/documents/doc-1"

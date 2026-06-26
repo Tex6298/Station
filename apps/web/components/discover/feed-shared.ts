@@ -1,6 +1,6 @@
 export interface FeedItem {
   id: string;
-  type: "document" | "thread" | "developer_space";
+  type: "document" | "thread" | "developer_space" | "space";
   title: string;
   excerpt: string | null;
   href: string;

@@ -393,6 +393,46 @@ async function developerSpaceFeedItems(req: Request, tab: string, offset: number
   }));
 }
 
+function safeSpaceHref(slug: unknown) {
+  return typeof slug === "string" &&
+    SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug)
+    ? `/space/${slug}`
+    : null;
+}
+
+async function publicSpaceFeedItems(tab: string, offset: number, limit: number) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("spaces")
+    .select("id, slug, title, short_description, theme, created_at, updated_at")
+    .eq("is_public", true)
+    .order(tab === "rising" ? "updated_at" : "created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  return (data ?? []).flatMap((space: any) => {
+    const href = safeSpaceHref(space.slug);
+    if (!href) return [];
+
+    return [{
+      id: space.id,
+      type: "space" as const,
+      title: space.title,
+      excerpt: excerpt(space.short_description),
+      href,
+      meta: "Public Space",
+      visibility: "public",
+      space: { slug: space.slug, title: space.title },
+      author: null,
+      persona: null,
+      score: 0,
+      replyCount: 0,
+      createdAt: space.updated_at ?? space.created_at,
+      promoted: false,
+    }];
+  });
+}
+
 // --- Unified feed item shape -------------------------------------------------
 // Each item has a normalised shape so the frontend can render generically.
 // type: 'document' | 'thread' | 'space' | 'persona'
@@ -405,7 +445,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
   const sb = getSupabaseAdmin();
 
   try {
-    const [docResults, threadResults, developerSpaceItems] = await Promise.all([
+    const [docResults, threadResults, developerSpaceItems, spaceItems] = await Promise.all([
       Promise.all(
         discoverableDocumentVisibilities(req).map((visibility) =>
           documentFeedQuery(sb, visibility, tab, offset, limit)
@@ -427,6 +467,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
           .range(offset, offset + limit - 1)
       )),
       developerSpaceFeedItems(req, tab, offset, limit),
+      publicSpaceFeedItems(tab, offset, limit),
     ]);
 
     // Normalise into a unified feed shape
@@ -470,7 +511,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
     }));
 
     // Interleave docs and threads, then sort
-    let items = [...docItems, ...threadItems, ...developerSpaceItems];
+    let items = [...docItems, ...threadItems, ...developerSpaceItems, ...spaceItems];
 
     if (tab === "rising") {
       // Rising: weight = replyCount * 3 + score, decay by age
