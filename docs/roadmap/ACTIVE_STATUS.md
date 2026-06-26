@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR361 passed, PR362 opened
+
+MIMIR accepts ARIADNE's PR361 hosted final proof:
+`docs/roadmap/PR361_DEVELOPER_SPACE_STATUS_NOTE_HOSTED_FINAL_RESULT.md`.
+
+Decision:
+
+- PR361 is closed as `PASS`.
+- Hosted web/API were ready on `main` at the PR360 API repair commit prefix
+  `ccdde413`.
+- ARIADNE used one existing owner `Publish status note` action and created no
+  new PR361 status-note text.
+- Fresh signed-out public API detail returned one safe public
+  `developer_agent.status_note` event and two public field-log linked
+  documents.
+- Public `Project notes` rendered one `Status note` row and two
+  `Field log / update` rows on desktop and 375px mobile.
+- No raw JSON, raw UUID-like values, receipt IDs, confirmation IDs, preview
+  hashes, `dedupeKey`, private owner IDs, or secret-shaped values were visible.
+- The Developer Space status-note source lane is closed; no DAEDALUS repair
+  packet remains.
+- MIMIR opens
+  `docs/roadmap/PR362_WRITING_AUTHORING_MVP_GAP_MAP_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR362.
+- DAEDALUS should map the current Writing/document authoring/versioning
+  surfaces against the product promise, then implement the smallest no-config
+  authoring/version-readback patch if one is clearly bounded.
+- If the first slice is not obvious, DAEDALUS should wake MIMIR with a ranked
+  implementation recommendation instead of drifting into broad editor,
+  Station Press, Stripe, Redis, Cloudflare, provider, queue, worker, or public
+  launch scope.
+
 ## Latest MIMIR decision - PR360 repair accepted, PR361 opened
 
 MIMIR accepts ARGUS's PR360 status-note event repair verdict:
