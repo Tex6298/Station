@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-26
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -65,6 +65,31 @@ system was added.
 Existing live package readback remains scoped to authenticated owner routes and
 existing export APIs.
 
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR364 with no code patch required.
+
+Review notes:
+
+- The implementation matches the export/backup trust lane and stays bounded to
+  `/studio/export`, export-trust helpers, tests, and roadmap docs.
+- `/studio/export` no longer presents future-scope checkboxes or any control
+  that could imply a live global workspace export job.
+- The three live package kinds match existing export routes:
+  `/exports/persona/:personaId`, `/exports/developer-spaces/:spaceId`, and
+  `/exports/projects/:projectIdOrSlug`.
+- Those export routes remain behind `requireAuth` and owner filters, including
+  `loadOwnedPersona`, `loadOwnedDeveloperSpace`, `loadOwnedProject`, and
+  `owner_user_id === req.user!.id` package queries.
+- Bundle readback remains authenticated owner-only; this patch adds no public
+  export URL, signed download URL, storage backend, file body dump, or
+  cross-owner access path.
+- Future full workspace export, PDF/binary/original-file packages, managed
+  backup/restore, Station Press, Stripe/checkout, queues/workers, Redis,
+  Cloudflare, providers, schema, and migrations remain out of scope.
+
 ## Validation
 
 | Command / check | Result | Notes |
@@ -73,7 +98,7 @@ existing export APIs.
 | `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 export route tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Next lint reported no warnings or errors. |
-| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `git diff --check` | Pass | Whitespace check passed. |
 
 ## Review Ask
 

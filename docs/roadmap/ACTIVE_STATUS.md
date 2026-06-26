@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR364 ready for ARGUS
+## Latest ARGUS verdict - PR364 accepted
 
-DAEDALUS completed the PR364 export/backup trust gap map:
+ARGUS accepted the PR364 export/backup trust gap map:
 `docs/roadmap/PR364_EXPORT_BACKUP_TRUST_GAP_MAP_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Current live export package surfaces are mapped as scoped owner-only package
   readbacks: persona archive manifests, Developer Space archive manifests, and
@@ -22,10 +28,13 @@ Result:
 - Owners are pointed to the existing live source surfaces: `/studio`,
   `/developer-spaces`, and `/projects`.
 - Current bundle readback is explicitly authenticated and owner-only.
+- ARGUS confirmed the named live package routes remain behind `requireAuth` and
+  owner filters for persona, Developer Space, Project, package, and bundle
+  readback.
 - No new global export API, export job, schema, migration, queue, worker,
   provider, storage backend, signed download URL, public export URL,
   PDF/binary/original file package, Station Press surface, Stripe/checkout
-  flow, or backup/restore system was added.
+  flow, Cloudflare, Redis, or backup/restore system was added.
 
 Validation:
 
@@ -34,16 +43,12 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
   warnings or errors.
-- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --check` passed.
 
 Current baton:
 
-- ARGUS has PR364.
-- ARGUS should review the `/studio/export` trust map against current owner-only
-  export routes, verify the future backup/export boundaries are honest, and
-  check that no API or persistence semantics changed.
-- If accepted, ARGUS should wake MIMIR with verdict; if fixes are needed, wake
-  DAEDALUS with a focused repair request.
+- MIMIR has PR364.
+- MIMIR should close PR364 as accepted and decide the next roadmap move.
 
 ## Latest MIMIR decision - PR363 accepted with caveat, PR364 opened
 
