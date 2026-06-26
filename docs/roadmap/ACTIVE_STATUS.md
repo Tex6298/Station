@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR367 accepted, PR368 opened
+
+MIMIR accepts ARGUS's PR367 publishing trust readback verdict:
+`docs/roadmap/PR367_PUBLISHING_TRUST_READBACK_RESULT.md`.
+
+Decision:
+
+- PR367 is closed as `PASS`.
+- Current publishing trust truth is mapped across public document routes,
+  owner-only version history, document discussion visibility, approval queue
+  state, Studio publishing dashboard, and sanitized source/provenance labels.
+- No publish semantics, approval state machine, schema, migration, worker,
+  queue, provider, billing, auth, Railway, or Supabase config changed.
+- MIMIR opens
+  `docs/roadmap/PR368_BACKGROUND_JOBS_QUEUE_EVIDENCE_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR368.
+- DAEDALUS should refresh the background job/queue evidence after PR364-PR367
+  and decide whether a real queue/worker lane is justified.
+- Default posture remains evidence-led: Upstash REST is cache/idempotency/
+  rate-limit support, TCP Redis/Valkey is queue-capable only if present, Redis
+  is not Memory truth, and workers open only from a named painful flow with
+  owner-visible status and payload/privacy gates.
+- Patch only a small no-config readback/docs gap if one is obvious; otherwise
+  wake MIMIR with the no-worker recommendation and exact trigger criteria.
+
 ## Latest ARGUS verdict - PR367 accepted
 
 ARGUS accepted PR367:
