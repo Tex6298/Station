@@ -4,7 +4,7 @@ Date opened: 2026-06-26
 Opened by: A1 / MIMIR
 Owner: DAEDALUS audits and patches. ARGUS reviews hostile privacy/overclaim
 paths. ARIADNE rehearses only if user-visible route behavior changes.
-Status: open.
+Status: completed by DAEDALUS; awaiting ARGUS review.
 
 ## Why This Lane
 

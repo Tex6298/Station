@@ -261,13 +261,17 @@ function sanitizeTraceMetadata(value: unknown) {
   const finalizer = sanitizeSelectedPairFinalizerMetadata(metadata.finalizer);
   const candidates: Array<[string, unknown]> = [
     ["route", metadata.providerRoute ?? budgetProvider?.route],
-    ["profile", metadata.providerProfile ?? metadata.profileCode ?? embedding?.profileCode],
-    ["provider", metadata.provider ?? embedding?.provider],
+    ["profile", metadata.providerProfile ?? metadata.profileCode],
+    ["provider", metadata.provider],
     ["model", metadata.model ?? budgetProvider?.model],
     ["modelTier", metadata.modelTier ?? runtimeBudget?.modelTier],
     ["providerPolicy", metadata.providerPolicy],
     ["providerPosture", metadata.providerPosture],
     ["domain", metadata.domain],
+    ["embeddingProfile", embedding?.profileCode],
+    ["embeddingProvider", embedding?.provider],
+    ["embeddingModel", embedding?.model],
+    ["embeddingDimension", embedding?.dimension],
   ];
 
   return {

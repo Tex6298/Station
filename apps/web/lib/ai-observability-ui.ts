@@ -173,10 +173,14 @@ export function metadataFacts(metadata?: Record<string, unknown> | null) {
   const embedding = asRecord(metadata.embedding);
   const candidates = [
     labelValue("Route", metadata.providerRoute ?? metadata.route ?? budgetProvider?.route),
-    labelValue("Profile", metadata.providerProfile ?? metadata.profile ?? metadata.profileCode ?? embedding?.profileCode),
-    labelValue("Provider", metadata.provider ?? embedding?.provider),
+    labelValue("Profile", metadata.providerProfile ?? metadata.profile ?? metadata.profileCode),
+    labelValue("Provider", metadata.provider),
     labelValue("Model", metadata.model ?? budgetProvider?.model),
     labelValue("Model tier", metadata.modelTier ?? runtimeBudget?.modelTier),
+    labelValue("Embedding profile", metadata.embeddingProfile ?? embedding?.profileCode),
+    labelValue("Embedding provider", metadata.embeddingProvider ?? embedding?.provider),
+    labelValue("Embedding model", metadata.embeddingModel ?? embedding?.model),
+    labelValue("Embedding dimension", metadata.embeddingDimension ?? embedding?.dimension),
     labelValue("Policy", metadata.providerPolicy),
     labelValue("Posture", metadata.providerPosture),
     labelValue("Domain", metadata.domain),

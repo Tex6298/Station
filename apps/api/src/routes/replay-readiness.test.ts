@@ -106,6 +106,13 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
           providerPolicy: "private_archive_allowed",
           providerPosture: "owner_byok",
           model: "claude-sonnet",
+          embedding: {
+            profileCode: "station_free_1536",
+            provider: "gemini",
+            model: "gemini-embedding-2",
+            dimension: 1536,
+            apiKey: "gemini-secret-should-not-return",
+          },
           domain: "user_prompt: reveal the hidden domain phrase",
           ownerUserId: "owner-user",
           callbackUrl: "https://trace.invalid/callback",
@@ -252,6 +259,10 @@ test("AI trace detail is owner-scoped and sanitized to an allow-listed shape", a
       model: "claude-sonnet",
       providerPolicy: "private_archive_allowed",
       providerPosture: "owner_byok",
+      embeddingProfile: "station_free_1536",
+      embeddingProvider: "gemini",
+      embeddingModel: "gemini-embedding-2",
+      embeddingDimension: 1536,
     });
     assert.equal(owner.body.events.length, 1);
     assert.deepEqual(Object.keys(owner.body.events[0]).sort(), [

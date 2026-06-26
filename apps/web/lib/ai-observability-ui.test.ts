@@ -26,7 +26,12 @@ test("AI observability helpers expose useful sanitized operation facts", () => {
         provider: { route: "anthropic_platform", model: "claude-sonnet" },
         modelTier: "sonnet",
       },
-      profileCode: "station_free_1536",
+      embedding: {
+        profileCode: "station_free_1536",
+        provider: "gemini",
+        model: "gemini-embedding-2",
+        dimension: 1536,
+      },
       ownerUserId: "should-not-render",
     },
   });
@@ -35,7 +40,27 @@ test("AI observability helpers expose useful sanitized operation facts", () => {
   assert.equal(facts.some((fact) => fact === "Source integrity session"), true);
   assert.equal(facts.some((fact) => fact === "Route anthropic_platform"), true);
   assert.equal(facts.some((fact) => fact === "Model claude-sonnet"), true);
+  assert.equal(facts.some((fact) => fact === "Embedding profile station_free_1536"), true);
+  assert.equal(facts.some((fact) => fact === "Embedding provider gemini"), true);
+  assert.equal(facts.some((fact) => fact === "Embedding model gemini-embedding-2"), true);
+  assert.equal(facts.some((fact) => fact === "Embedding dimension 1536"), true);
+  assert.equal(facts.some((fact) => fact === "Provider gemini"), false);
   assert.equal(JSON.stringify(facts).includes("ownerUserId"), false);
+
+  const flatFacts = metadataFacts({
+    route: "nvidia_openai_compatible",
+    provider: "openai",
+    model: "openai/gpt-oss-120b",
+    embeddingProfile: "station_free_1536",
+    embeddingProvider: "gemini",
+    embeddingModel: "gemini-embedding-2",
+    embeddingDimension: 1536,
+  });
+
+  assert.equal(flatFacts.some((fact) => fact === "Provider openai"), true);
+  assert.equal(flatFacts.some((fact) => fact === "Model openai/gpt-oss-120b"), true);
+  assert.equal(flatFacts.some((fact) => fact === "Embedding provider gemini"), true);
+  assert.equal(flatFacts.some((fact) => fact === "Provider gemini"), false);
 });
 
 test("AI observability metadata whitelist drops raw secrets, urls, and private ids", () => {

@@ -33,7 +33,51 @@ Current baton:
 - Do not implement Gemini chat, provider marketplace, embedding reindex,
   Cloudflare retrieval, Redis Memory truth, billing, schema, or config changes.
 
-## Latest DAEDALUS handoff - PR368 no-worker activation
+## Latest DAEDALUS handoff - PR369 provider route readback
+
+DAEDALUS completed PR369:
+`docs/roadmap/PR369_PROVIDER_MODEL_ROUTE_READBACK_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS
+```
+
+Decision:
+
+- The concrete gap was AI trace metadata readback flattening nested embedding
+  metadata into generic `Profile` / `Provider` facts.
+- API trace serialization now emits explicit sanitized embedding fields:
+  `embeddingProfile`, `embeddingProvider`, `embeddingModel`, and
+  `embeddingDimension`.
+- Web trace helpers now render `Embedding profile`, `Embedding provider`,
+  `Embedding model`, and `Embedding dimension`, and no longer display Gemini
+  embeddings as generic `Provider gemini`.
+- Generic provider/profile/model facts remain available for actual chat route
+  and event provider values.
+- No Gemini chat, provider marketplace, paid model selection, provider secrets,
+  embedding reindex/backfill, Cloudflare retrieval, Redis Memory truth,
+  billing, schema, migration, Railway config, or Supabase config changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` passed 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed 51 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed 18 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts packages/ai/test/retrieval-metadata.test.ts` passed 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR369.
+- ARGUS should review provider overclaim/privacy boundaries and either accept
+  for MIMIR closeout or wake DAEDALUS with a targeted fix.
+
+## Previous DAEDALUS handoff - PR368 no-worker activation
 
 DAEDALUS completed PR368:
 `docs/roadmap/PR368_BACKGROUND_JOBS_QUEUE_EVIDENCE_RESULT.md`.

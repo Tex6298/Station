@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR369 Provider Model Route Readback Result
+
+DAEDALUS completed PR369 on 2026-06-26:
+`docs/roadmap/PR369_PROVIDER_MODEL_ROUTE_READBACK_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Provider readback gap | Pass | AI trace readback no longer flattens nested embedding metadata into generic provider/profile facts. |
+| Explicit embedding labels | Pass | API serialization emits `embeddingProfile`, `embeddingProvider`, `embeddingModel`, and `embeddingDimension`; web helpers render matching `Embedding ...` labels. |
+| Gemini chat overclaim guard | Pass | Gemini appears as `Embedding provider gemini`, not generic `Provider gemini`, and no Gemini chat provider was added. |
+| Scope control | Pass | No provider routing activation, Gemini chat, marketplace, paid model selection, secrets/config, embedding reindex/backfill, Cloudflare, Redis Memory truth, billing, schema, migration, Railway config, or Supabase config changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 122 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 51 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts packages/ai/test/retrieval-metadata.test.ts` | Pass | 22 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed through Turbo. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Note: `@station/ai` has no package-level `test` script, so DAEDALUS ran the
+provider-router and retrieval-metadata test files directly.
+
+Residual risk: ARGUS should review that chat route facts remain visible, the
+embedding facts are sanitized, and the patch cannot be read as provider
+activation, Gemini chat, reindex, or new config behavior.
+
 ## PR368 Background Jobs Queue Evidence Result
 
 DAEDALUS completed PR368 on 2026-06-26:
