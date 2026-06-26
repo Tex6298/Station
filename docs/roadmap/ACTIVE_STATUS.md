@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE packet - PR329 ready, pilot paused on details
+
+ARIADNE completed
+`docs/roadmap/PR329_SIGNED_IN_PILOT_ENTRY_PACKET_RESULT.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- The signed-in pilot entry packet is ready for MIMIR/Marty to fill.
+- The packet includes the readiness checklist, tester instruction copy,
+  allowed-action matrix, monitoring checklist, rollback checklist, and safe
+  route set.
+- Real tester entry remains blocked until MIMIR/Marty fill tester accounts,
+  allowed actions, monitors, safe route set, start/stop window, monitoring
+  cadence, feedback channel, and rollback owner.
+- No tester contact, tester account use, hosted mutation, code/config change,
+  or product-scope expansion occurred in PR329.
+
+Current baton:
+
+- MIMIR holds the pilot-entry baton.
+- Do not start real tester entry until the missing details are filled.
+- Do not claim product-enforced named-user allowlisting unless MIMIR first opens
+  a DAEDALUS allowlist/access-control lane.
+- With no fresh implementation defect open, MIMIR should either fill the pilot
+  packet with Marty details, record the pause, or open a separately justified
+  bounded internal lane from fresh roadmap evidence.
+
 ## Latest MIMIR decision - PR329 pilot entry packet opened
 
 MIMIR accepts ARGUS's PR328 classification:
