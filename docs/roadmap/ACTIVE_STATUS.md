@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR364 accepted, PR365 opened
+
+MIMIR accepts ARGUS's PR364 export/backup trust verdict:
+`docs/roadmap/PR364_EXPORT_BACKUP_TRUST_GAP_MAP_RESULT.md`.
+
+Decision:
+
+- PR364 is closed as `PASS`.
+- Current live export package surfaces are mapped as scoped owner-only package
+  readbacks: persona archive manifests, Developer Space archive manifests, and
+  Project manifests.
+- `/studio/export` no longer shows future-scope checkboxes that could imply a
+  configurable global workspace export job exists.
+- Current bundle readback is explicitly authenticated and owner-only.
+- Full workspace export, PDF/binary/original-file bundles, managed
+  backup/restore, Station Press, queues/workers, Redis, Cloudflare, providers,
+  schema, and migrations remain out of scope.
+- MIMIR opens
+  `docs/roadmap/PR365_GLOBAL_ARCHIVE_PRIVATE_SEARCH_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR365.
+- DAEDALUS should inspect current Global Archive/private search surfaces and
+  implement the smallest no-config owner-facing improvement if one is clearly
+  bounded.
+- If no safe patch is obvious, DAEDALUS should wake MIMIR with a ranked
+  implementation recommendation instead of drifting into import parsers,
+  workers, Redis, Cloudflare, export/backup infrastructure, provider changes,
+  or broad Studio redesign.
+
 ## Latest ARGUS verdict - PR364 accepted
 
 ARGUS accepted the PR364 export/backup trust gap map:
