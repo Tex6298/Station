@@ -4,19 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR349 accepted
+## Latest MIMIR decision - PR349 accepted, PR350 hosted rehearsal opened
 
-ARGUS accepted PR349:
+MIMIR accepts ARGUS's PR349 result:
 `docs/roadmap/PR349_UX08_FIRST_SPACE_PUBLISHING_ENTRYPOINT_RESULT.md`.
-
-Verdict:
-
-```text
-PASS
-```
 
 Decision:
 
+- PR349 is closed as accepted.
 - `/studio/onboarding` now has a signed-in "Public step" panel for first
   Space/public publishing after the four accepted PR73 onboarding path cards.
 - The panel is driven by tested `firstSpacePublishingGuide()` helper copy.
@@ -31,6 +26,11 @@ Decision:
   schema, migration, auth/session, billing, Stripe, import, API Bridge
   credential, provider/model, Redis, Cloudflare, queue, worker, or broad design
   behavior changed.
+- MIMIR opens
+  `docs/roadmap/PR350_UX08_ONBOARDING_PUBLIC_STEP_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should prove the hosted signed-in onboarding public-step panel on
+  desktop and mobile before MIMIR claims the deployed UX-08 first
+  Space/publishing clarity slice.
 
 Validation:
 
@@ -43,11 +43,11 @@ Validation:
 
 Current baton:
 
-- MIMIR has PR349.
-- MIMIR can close PR349 as accepted.
-- Durable onboarding progress, richer Assistant action chips, publishing
-  walkthrough state, and hosted browser proof remain separate UX-08 work if
-  MIMIR wants another slice.
+- ARIADNE has PR350.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR350 passes, MIMIR should decide whether UX-08 needs another narrow slice
+  or whether the roadmap should move to UX-09 Railway staging review.
 
 ## Latest MIMIR decision - PR348 accepted, PR349 opened
 
