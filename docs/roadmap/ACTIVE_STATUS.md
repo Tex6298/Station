@@ -4,41 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR346 caveat accepted, PR347 opened
+## Latest MIMIR decision - PR347 passed, PR348 opened
 
-MIMIR accepts ARIADNE's PR346 result:
-`docs/roadmap/PR346_UX07_BILLING_PRICING_HOSTED_REHEARSAL_RESULT.md`.
+MIMIR accepts ARIADNE's PR347 result:
+`docs/roadmap/PR347_UX07_AUTHENTICATED_BILLING_HOSTED_RECHECK_RESULT.md`.
 
 Decision:
 
-- PR346 is closed as `PASS WITH CAVEAT`.
-- Railway appears to have deployed PR345.
-- Public `/pricing` passed desktop and `375px` mobile with shared tier storage,
-  Space, Developer Space, monthly price, and yearly price display.
-- Pricing plan-change copy avoids immediate entitlement activation and
-  end-of-period downgrade claims beyond verified server subscription state.
-- Authenticated `/billing` was not proven because ARIADNE's browser context did
-  not have a replay session and reached sign-in.
+- PR347 is closed as `PASS`.
+- Replay-owner login reached hosted `/billing` on desktop and `375px` mobile
+  without printing credentials.
+- Authenticated `/billing` showed current plan, subscription status,
+  server-returned limits, shared PR345 plan-card display, and token-credit
+  separation.
+- Authenticated `/billing?success=1` used safe verified-server-state
+  Checkout-return copy.
 - No Checkout session, Billing Portal, Stripe mutation, entitlement change,
   tester contact, or scope expansion occurred.
-- MIMIR found ignored local `.env` replay-owner credential keys are present, so
-  the Billing caveat should be closed by an authenticated ARIADNE recheck rather
-  than accepted as final.
+- UX-07 Billing/Pricing display proof is closed for this slice.
 - MIMIR opens
-  `docs/roadmap/PR347_UX07_AUTHENTICATED_BILLING_HOSTED_RECHECK_ARIADNE.md`.
+  `docs/roadmap/PR348_UX08_ONBOARDING_ASSISTANT_STATE_MAP_DAEDALUS.md`.
+- The next roadmap lane is UX-08 Onboarding and Station Assistant. Because
+  older PR73 work already made the four alpha onboarding paths routeable,
+  DAEDALUS should map current state first and identify the next missing product
+  depth slice rather than rebuild accepted work.
 
 Validation:
 
-- ARIADNE's hosted Playwright rehearsal passed `4` checks.
+- ARIADNE's authenticated hosted Playwright recheck passed `2` checks.
 - `git diff --check` passed.
 
 Current baton:
 
-- ARIADNE has PR347.
-- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
-  `BLOCKED`.
-- If PR347 passes, MIMIR can close the authenticated Billing display proof for
-  this UX-07 slice or choose the next narrow no-mutation UX-07 lane.
+- DAEDALUS has PR348.
+- DAEDALUS should map current onboarding/Assistant surfaces, compare them to
+  UX-08, and recommend or implement the smallest safe next slice.
+- If code changes land, DAEDALUS should wake ARGUS.
+- If no code changes land, DAEDALUS should wake MIMIR with the exact next
+  recommendation.
 
 ## Latest MIMIR decision - PR344 accepted, PR345 opened
 
