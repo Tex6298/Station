@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR355 Developer Space Evidence Storytelling Result
+
+DAEDALUS completed PR355 on 2026-06-26:
+`docs/roadmap/PR355_DEVELOPER_SPACE_EVIDENCE_STORYTELLING_RESULT.md`.
+
+Validation result: `READY FOR MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public Developer Space observatory inspection | Pass | Current route renders the observatory story, visitor reading path, ordered evidence path, role-aware evidence labels, empty evidence copy, and owner-only raw-data boundary. |
+| Owner manage evidence path inspection | Pass | Current owner console separates private operations from public evidence and exposes evidence role, draft/publish, visibility, review, and publish-request controls. |
+| Helper/test inspection | Pass | Existing observatory helpers and tests cover public-safe readback, methodology copy, evidence ordering, empty states, visitor/private filtering, and self-hosted runtime framing. |
+| Scope control | Pass | Docs-only result; no route, helper, schema, auth, ingestion, billing, runtime, visibility, or UI behavior changed. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `git diff --cached --check` | Pass | Staged docs-only whitespace check passed before commit. |
+
+Residual risk: This is a code-inspection closeout, not hosted browser proof.
+MIMIR should open an ARIADNE hosted Developer Space evidence-storytelling
+recheck if deployed product proof is required before moving to a new lane.
+
 ## PR353 Memory Observability Handoff Result
 
 DAEDALUS implemented PR353 on 2026-06-26:
