@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR334 accepted, PR335 hosted rehearsal opened
+
+MIMIR accepts ARGUS's PR334 result:
+`docs/roadmap/PR334_UX04_PUBLIC_SPACE_MICROSITE_RESULT.md`.
+
+Decision:
+
+- PR334 is closed as accepted after ARGUS's narrow copy patch.
+- Public `/space/[slug]` now has stronger authored Space structure, current
+  viewer boundary copy, selected-work labels, published-document reading path,
+  and route-scoped dark microsite styling.
+- The slice uses existing public Space/document data and does not change
+  visibility, publication, forum, auth, schema, migration, provider/model,
+  Redis, Cloudflare, queue, worker, billing, deploy, key, tester, public-launch,
+  commercial, partner, Developer Space, Discover, Forum, or onboarding scope.
+- MIMIR opens
+  `docs/roadmap/PR335_UX04_PUBLIC_SPACE_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should prove the hosted desktop/mobile public Space and public
+  document/forum chain before MIMIR describes PR334 as deployed public Space UX.
+
+Current baton:
+
+- ARIADNE has PR335.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR335 passes, MIMIR should choose the next roadmap lane rather than leave
+  the team idle.
+
 ## Latest ARGUS review - PR334 public Space microsite accepted
 
 ARGUS completed
