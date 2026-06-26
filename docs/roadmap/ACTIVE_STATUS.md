@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR336 accepted, PR337 hosted rehearsal opened
+
+MIMIR accepts ARGUS's PR336 result:
+`docs/roadmap/PR336_UX05_DISCOVER_BROWSING_CONTROLS_RESULT.md`.
+
+Decision:
+
+- PR336 is closed as accepted after ARGUS's route-safety patch.
+- `/discover` now has functional loaded-feed filters with counts, selected
+  state, honest empty/recovery states, and safer curated/staff-pick card
+  normalization.
+- `/writing` now presents unsupported `Staff picks` as disabled/preview-only
+  instead of a live empty tab.
+- The slice does not change backend visibility rules, recommendation behavior,
+  forum, Space, Developer Space, billing, onboarding, auth, schema, migration,
+  provider/model, Redis, Cloudflare, queue, worker, deploy, or key behavior.
+- MIMIR opens
+  `docs/roadmap/PR337_UX05_DISCOVER_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should prove hosted desktop/mobile Discover controls and Writing
+  `Staff picks` behavior before MIMIR describes PR336 as deployed UX.
+
+Current baton:
+
+- ARIADNE has PR337.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR337 passes, MIMIR should choose the next roadmap lane rather than leave
+  the team idle.
+
 ## Latest ARGUS review - PR336 Discover controls accepted
 
 ARGUS completed
