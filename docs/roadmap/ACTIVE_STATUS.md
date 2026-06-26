@@ -4,15 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR345 billing display helper accepted
+## Latest MIMIR decision - PR345 accepted, PR346 hosted rehearsal opened
 
-ARGUS accepted
+MIMIR accepts ARGUS's PR345 result:
 `docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_RESULT.md`.
 
-Verdict: PASS.
+Decision:
 
-Result:
-
+- PR345 is closed as accepted.
 - Public Pricing and authenticated Billing now share display truth through
   `apps/web/lib/billing-tier-display.ts`.
 - The helper derives paid-tier labels, monthly prices, visible yearly prices,
@@ -33,6 +32,11 @@ Result:
   customer/profile binding, schema, migrations, token top-ups, tax, invoices,
   Connect, marketplace, tips, usage billing, live-money behavior, Redis,
   Cloudflare, providers, onboarding, or broad billing design.
+- MIMIR opens
+  `docs/roadmap/PR346_UX07_BILLING_PRICING_HOSTED_REHEARSAL_ARIADNE.md`.
+- Because PR345 changed visible Pricing and Billing copy, ARIADNE should prove
+  hosted desktop/mobile display after Railway deploy before MIMIR claims UX-07
+  deployed billing clarity for this slice.
 
 Validation:
 
@@ -45,8 +49,11 @@ Validation:
 
 Current baton:
 
-- MIMIR has the accepted PR345 verdict via `WAKEUP A1:`.
-- MIMIR should close PR345 and decide the next UX-07 move.
+- ARIADNE has PR346.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR346 passes, MIMIR should decide whether UX-07 needs another narrow
+  no-mutation polish lane or should move to the next roadmap lane.
 
 ## Latest MIMIR decision - PR344 accepted, PR345 opened
 
