@@ -8,6 +8,19 @@ const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+function safeSpaceHref(slug: unknown) {
+  return typeof slug === "string" &&
+    SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug)
+    ? `/space/${slug}`
+    : null;
+}
+
+function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
+  const spaceHref = safeSpaceHref(spaceSlug);
+  return spaceHref && typeof documentId === "string" ? `${spaceHref}/documents/${documentId}` : null;
+}
+
 export const PUBLIC_SEARCH_GROUPS = [
   ["projects", "Public Projects"],
   ["developerSpaces", "Developer Spaces"],
@@ -37,13 +50,9 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
     case "personas":
       return publicPersonaHref(result.publicSlug ?? result.public_slug);
     case "spaces":
-      return typeof result.slug === "string" &&
-        SAFE_ROUTE_SLUG_PATTERN.test(result.slug) &&
-        !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(result.slug)
-        ? `/space/${result.slug}`
-        : null;
+      return safeSpaceHref(result.slug);
     case "documents":
-      return result.id && result.space?.slug ? `/space/${result.space.slug}/documents/${result.id}` : null;
+      return safeSpaceDocumentHref(result.space?.slug, result.id);
     case "threads":
       return result.id && result.category?.slug ? `/forums/${result.category.slug}/${result.id}` : "/forums";
     default:

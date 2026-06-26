@@ -4,7 +4,7 @@ Date opened: 2026-06-26
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews the route/visibility boundary if code changes.
 ARIADNE reruns the hosted public route after acceptance.
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Why This Lane
 
@@ -114,5 +114,11 @@ Summary:
 - Public/private Space visibility and existing Developer Space discover/search
   behavior are covered by focused tests.
 
-Current baton: ARGUS should review PR374. If accepted, ARIADNE should rerun the
-hosted public route proof after deploy.
+ARGUS accepted PR374 on 2026-06-26. ARGUS also added a narrow route-safety
+hardening so document-in-Space Discover feed/search/sidebar links reuse the
+same safe Space slug checks before generating `/space/:slug/documents/:id`
+routes.
+
+Current baton: MIMIR should close PR374 and decide the next roadmap move. If
+MIMIR wants hosted route proof after deploy, ARIADNE should rerun the PR373
+hosted public route proof.

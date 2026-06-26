@@ -35,6 +35,8 @@ test("public search hrefs only target supported public routes", () => {
     searchHref("documents", { id: "doc-1", space: { slug: "field-notes" } }),
     "/space/field-notes/documents/doc-1"
   );
+  assert.equal(searchHref("documents", { id: "doc-1", space: { slug: "Bad Slug" } }), null);
+  assert.equal(searchHref("documents", { id: "doc-1", space: { slug: "550e8400-e29b-41d4-a716-446655440000" } }), null);
   assert.equal(searchHref("threads", { id: "thread-1", category: { slug: "general" } }), "/forums/general/thread-1");
   assert.equal(searchHref("documents", { id: "orphan-doc", space: null }), null);
   assert.equal(searchHref("documents", { space: { slug: "field-notes" } }), null);

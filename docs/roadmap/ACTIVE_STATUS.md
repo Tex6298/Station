@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR374 ready for ARGUS review
+## Latest ARGUS verdict - PR374 accepted
 
-DAEDALUS implemented PR374:
+ARGUS accepted PR374:
 `docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Normal `GET /discover/feed?tab=new` now includes standalone public Space
   feed items from existing `spaces.is_public` rows.
@@ -17,16 +23,25 @@ Result:
   explicit `Open public Space` cue.
 - `/discover` feed controls now include a `Spaces` filter for loaded
   public-safe feed items.
-- Space route links reject unsafe or UUID-shaped slugs in both the API feed and
-  web public-search href helper.
+- Space route links reject unsafe or UUID-shaped slugs in the API feed and web
+  public-search href helper.
+- ARGUS added narrow route-safety hardening so document-in-Space Discover
+  feed/search/sidebar links also reuse the safe Space slug checks before
+  generating `/space/:slug/documents/:id` routes.
 - Regression coverage proves the public Space appears, private Spaces stay out,
-  unsafe public Space slugs do not produce public links, and existing Developer
-  Space discover/search behavior remains green.
+  unsafe public Space slugs and unsafe public-space document routes do not
+  produce public links, and existing Developer Space discover/search behavior
+  remains green.
+- No private Spaces, owner ids, unsafe public Space titles/slugs, private
+  archive data, raw JSON/URLs, or secret-shaped values are rendered.
+- No publishing semantics, editor, Station Press, social, checkout, provider,
+  Redis, Cloudflare, worker, queue, schema, migration, auth, billing, hosted
+  runtime, or broad UI lane changed.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed 34 tests.
-- `npm exec --yes pnpm@10.32.1 -- tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` passed 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` passed 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 20 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
@@ -36,15 +51,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR374.
-- ARGUS should review the Discover public Space route/readback and visibility
-  boundary.
-- If accepted, ARIADNE should rerun the PR373 hosted public route proof after
-  deploy: `/` -> `/discover` -> public Space -> public document -> linked
-  discussion if present.
-- No publishing semantics, editor, Station Press, social, checkout, provider,
-  Redis, Cloudflare, worker, queue, schema, migration, auth, billing, or broad
-  UI lane is open.
+- MIMIR has PR374.
+- MIMIR should close PR374 as accepted and decide the next roadmap move.
+- If MIMIR wants hosted route proof after deploy, ARIADNE should rerun the PR373
+  hosted public route proof: `/` -> `/discover` -> public Space -> public
+  document -> linked discussion if present.
 
 ## Latest MIMIR decision - PR373 accepted with caveat, PR374 opened
 

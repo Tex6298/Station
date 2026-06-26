@@ -401,6 +401,11 @@ function safeSpaceHref(slug: unknown) {
     : null;
 }
 
+function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
+  const spaceHref = safeSpaceHref(spaceSlug);
+  return spaceHref && typeof documentId === "string" ? `${spaceHref}/documents/${documentId}` : null;
+}
+
 async function publicSpaceFeedItems(tab: string, offset: number, limit: number) {
   const sb = getSupabaseAdmin();
   const { data } = await sb
@@ -472,26 +477,31 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
 
     // Normalise into a unified feed shape
     const docRows = docResults.flatMap((result) => result.data ?? []);
-    const docItems = docRows.map((d: any) => ({
-      id:          d.id,
-      type:        "document" as const,
-      title:       d.title,
-      excerpt:     excerpt(d.body),
-      href:        d.space ? `/space/${d.space.slug}/documents/${d.id}` : `/documents/${d.id}`,
-      meta:        d.document_type,
-      visibility:  d.visibility,
-      provenanceType: d.provenance_type,
-      sourceType:  d.source_type,
-      sourceLabel: d.source_label,
-      discussionThreadId: d.discussion_thread_id ?? null,
-      space:       d.space  ?? null,
-      author:      d.author ?? null,
-      persona:     d.persona ?? null,
-      score:       0,
-      replyCount:  0,
-      createdAt:   d.published_at ?? d.created_at,
-      promoted:    false,
-    }));
+    const docItems = docRows.flatMap((d: any) => {
+      const href = d.space ? safeSpaceDocumentHref(d.space.slug, d.id) : `/documents/${d.id}`;
+      if (!href) return [];
+
+      return [{
+        id:          d.id,
+        type:        "document" as const,
+        title:       d.title,
+        excerpt:     excerpt(d.body),
+        href,
+        meta:        d.document_type,
+        visibility:  d.visibility,
+        provenanceType: d.provenance_type,
+        sourceType:  d.source_type,
+        sourceLabel: d.source_label,
+        discussionThreadId: d.discussion_thread_id ?? null,
+        space:       d.space  ?? null,
+        author:      d.author ?? null,
+        persona:     d.persona ?? null,
+        score:       0,
+        replyCount:  0,
+        createdAt:   d.published_at ?? d.created_at,
+        promoted:    false,
+      }];
+    });
 
     const threadRows = threadResults.flatMap((result) => result.data ?? []);
     const threadItems = threadRows.filter((t: any) => !t.linked_document_id).map((t: any) => ({
@@ -587,7 +597,7 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
       recentPosts: [
         ...(recentDocs.data ?? []).map((d: any) => ({
           id: d.id, title: d.title, type: "document",
-          href: d.space ? `/space/${d.space.slug}/documents/${d.id}` : `/documents/${d.id}`,
+          href: safeSpaceDocumentHref(d.space?.slug, d.id) ?? `/documents/${d.id}`,
           date: d.published_at,
         })),
         ...(recentThreads.data ?? []).map((t: any) => ({

@@ -3408,6 +3408,13 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
       ...space("55555555-5555-4555-8555-555555555554", "550e8400-e29b-41d4-a716-446655440000", true),
       title: "Unsafe Public Space",
     });
+    db.insertRow("documents", document(
+      "88888888-8888-4888-8888-888888888889",
+      "Unsafe Space Document",
+      "unsafe-space-document",
+      "public",
+      { space_id: "55555555-5555-4555-8555-555555555554" },
+    ));
 
     const visitorFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
     assert.equal(visitorFeed.status, 200);
@@ -3433,6 +3440,7 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
     assert.equal(visitorFeedText.includes(PRIVATE_SPACE_ID), false);
     assert.equal(visitorFeedText.includes("private-space"), false);
     assert.equal(visitorFeedText.includes("Unsafe Public Space"), false);
+    assert.equal(visitorFeedText.includes("Unsafe Space Document"), false);
     assert.equal(visitorFeedText.includes("550e8400-e29b-41d4-a716-446655440000"), false);
 
     const visitorDeveloperSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "developer_space");
