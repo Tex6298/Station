@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 
-Status: Implemented - awaiting ARGUS review
+Status: Accepted by ARGUS - awaiting MIMIR closeout
 
 ## Why This Opens
 

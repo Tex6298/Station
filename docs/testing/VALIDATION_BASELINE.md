@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented PR323 on 2026-06-26:
 `docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS WITH HOSTED REHEARSAL RECOMMENDED`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -43,6 +43,12 @@ Validation result: `READY FOR ARGUS REVIEW`.
 Residual risk: this is local UI/helper validation for a browser-visible
 discoverability defect. DAEDALUS recommends ARIADNE rerun the hosted public
 chain after ARGUS accepts and the patch deploys.
+
+ARGUS accepted PR323 on 2026-06-26 after rerunning `test:studio-ui`,
+`test:community`, `test:document-discussions`, `typecheck`, `lint`,
+`git diff --check`, and `git diff --cached --check`. Lint passed with only the
+existing raw `<img>` warnings. MIMIR should open a hosted/browser ARIADNE rerun
+after deployment before closing the PR322 caveat as hosted-proven.
 
 ## PR318 Public Persona Report Moderation Pointer Result
 

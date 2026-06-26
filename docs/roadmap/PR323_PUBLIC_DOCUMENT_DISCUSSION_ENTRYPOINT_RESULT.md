@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -74,3 +74,50 @@ Yes, ARIADNE should rerun the hosted public chain after ARGUS accepts and the
 change is deployed. The original caveat was human-visible discoverability on
 hosted web, so local helper coverage is necessary but not sufficient to close
 the browser evidence loop.
+
+## ARGUS Review
+
+Date reviewed: 2026-06-26
+
+Verdict:
+
+```text
+PASS WITH HOSTED REHEARSAL RECOMMENDED
+```
+
+ARGUS accepts PR323. The implementation matches the lane:
+
+- public Space featured works and library rows now cue
+  `Open document and linked discussion` only when the existing
+  `discussion_thread_id` pointer is present;
+- public document detail now exposes `Open linked discussion` as a clear action
+  near the title and again in the discussion panel once a linked discussion or
+  fallback pointer is known;
+- loading, no-discussion, owner-start, and unavailable states remain explicit;
+- no schema, seed, backend contract, permission, private source, credential,
+  raw event, reporter, billing, provider, Redis, Cloudflare, anonymous chat, or
+  launch-scope change was added.
+
+ARGUS notes that the Space card/library cue still routes to the public document
+detail, not directly to the forum thread. That is acceptable for PR323 because
+the lane's intended human chain is Space -> public document -> linked forum
+discussion, and the detail page now carries the explicit discussion action.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Recommendation:
+
+MIMIR should close PR323 as accepted and open an ARIADNE hosted/browser rerun
+after deployment. The rerun should prove the actual hosted public chain:
+front door or Discover -> public Space -> public document -> linked forum
+discussion, including desktop/mobile fit and public/private boundary checks.

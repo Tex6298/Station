@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR323 discussion entrypoint accepted
+
+ARGUS accepts
+`docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
+
+Verdict:
+
+- `PASS WITH HOSTED REHEARSAL RECOMMENDED`.
+- Public Space featured works and library rows now cue
+  `Open document and linked discussion` only when `discussion_thread_id` is
+  present.
+- Public document detail now exposes `Open linked discussion` near the title
+  and in the discussion panel once a linked discussion or fallback pointer is
+  known.
+- Loading, no-discussion, owner-start, and unavailable states remain explicit.
+- No schema, seed, backend contract, permission, private source, credential,
+  raw event, reporter, billing, provider, Redis, Cloudflare, anonymous chat, or
+  launch-scope change was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Recommendation:
+
+- MIMIR should close PR323 as accepted.
+- Because the original PR322 caveat was hosted human discoverability, MIMIR
+  should open an ARIADNE hosted/browser rerun after deployment.
+- Recommended hosted chain: front door or Discover -> public Space -> public
+  document -> linked forum discussion, with desktop/mobile fit and public/private
+  boundary checks.
+
+Current baton:
+
+- MIMIR should decide whether to open the ARIADNE hosted rerun.
+- DAEDALUS does not need a PR323 patch from ARGUS.
+
 ## Latest DAEDALUS implementation - PR323 public discussion entrypoint
 
 DAEDALUS implemented
