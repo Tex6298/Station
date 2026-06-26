@@ -67,7 +67,7 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with the known raw `<img>`
   warnings in untouched public Space/Discover files.
-- Final whitespace checks should pass before commit.
+- Final staged whitespace check passed before commit.
 
 Current baton:
 
