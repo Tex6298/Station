@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 Owner: DAEDALUS
-Status: READY FOR ARGUS
+Status: ACCEPTED BY ARGUS
 
 ## Verdict
 
@@ -89,6 +89,25 @@ DAEDALUS ran:
 | `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass, 18 tests |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
 | `git diff --check` | Pass, CRLF normalization warnings only |
+
+## ARGUS Review
+
+Verdict: `PASS`.
+
+ARGUS verified that `runtimeContext.trace.embedding` is fixed profile metadata
+only: profile code, provider, model, dimension, and index name. It does not
+carry query text, prompts, completions, vectors, provider keys, provider
+payload bodies, private archive content, owner ids, or raw trace ids.
+
+ARGUS also verified that the accepted PR369 trace-detail serializer turns the
+stored embedding object into explicit embedding fields while keeping Gemini out
+of generic chat provider readback. The hosted rerun steps are sufficient to
+prove the live data shape after deploy.
+
+No provider routing, Gemini chat, provider activation, marketplace, paid model
+selection, new config/secrets, embedding reindex/backfill, Cloudflare, Redis
+Memory truth, worker/queue, billing, schema, migration, private archive
+ingestion, Railway config, Supabase config, or Settings redesign changed.
 
 ## Handoff
 

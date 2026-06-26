@@ -4,7 +4,7 @@ Date opened: 2026-06-26
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews if code changes. ARIADNE rehearses if a hosted
 trace can be produced or after any accepted patch deploys.
-Status: completed by DAEDALUS; awaiting ARGUS review.
+Status: accepted by ARGUS.
 
 ## Why This Lane
 

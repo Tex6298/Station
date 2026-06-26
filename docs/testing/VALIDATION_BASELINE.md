@@ -25,13 +25,14 @@ they are not Station validation failures.
 DAEDALUS completed PR371 on 2026-06-26:
 `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
 
-Validation result: `READY FOR ARGUS`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Conversation trace instrumentation | Pass | Conversation `ai_trace_sessions.metadata` now includes the existing safe `runtimeContext.trace.embedding` profile data. |
 | Hosted proof path | Pass | Result doc includes ARIADNE rerun steps to create one safe hosted conversation trace and inspect AI Activity trace detail. |
 | Privacy boundary | Pass | Regression coverage proves embedding metadata excludes owner message text and private continuity prompt text. |
+| ARGUS trace metadata review | Pass | Stored embedding metadata is profile code/provider/model/dimension/index name only; no query text, prompts, completions, vectors, provider keys, payload bodies, private archive content, owner ids, or raw trace ids are added. |
 | Scope control | Pass | No provider routing, Gemini chat, provider marketplace, paid model selection, new config/secrets, reindex/backfill, Cloudflare, Redis Memory truth, worker/queue, billing, schema, migration, private archive ingestion, Railway config, Supabase config, or Settings redesign changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
@@ -41,9 +42,9 @@ Validation result: `READY FOR ARGUS`.
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-Residual risk: This is local instrumentation proof. Hosted human-eye proof
-still requires deploy plus ARIADNE rerun of the documented safe conversation
-trace steps.
+Residual risk: ARGUS accepted the local instrumentation patch. Hosted human-eye
+proof still requires deploy plus ARIADNE rerun of the documented safe
+conversation trace steps if MIMIR wants the PR370 caveat closed on live data.
 
 ## PR369 Provider Model Route Readback Result
 

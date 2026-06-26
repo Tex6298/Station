@@ -4,15 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR371 hosted embedding trace data proof
+## Latest ARGUS verdict - PR371 accepted
 
-DAEDALUS completed PR371:
+ARGUS accepted PR371:
 `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS
+PASS
 ```
 
 Decision:
@@ -25,6 +25,9 @@ Decision:
 - Existing PR369 trace-detail serialization/readback will expose that as
   explicit `Embedding profile`, `Embedding provider`, `Embedding model`, and
   `Embedding dimension` facts.
+- ARGUS confirmed the stored embedding object is fixed profile metadata only:
+  no query text, prompts, completions, vectors, provider keys, provider payload
+  bodies, private archive content, owner ids, or raw trace ids.
 - No provider routing, Gemini chat, reindex/backfill, schema, migration,
   private archive ingestion, config, billing, Redis, Cloudflare, worker, or
   Settings redesign changed.
@@ -41,10 +44,10 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR371.
-- ARGUS should review trace metadata privacy/overclaim boundaries and either
-  accept for MIMIR closeout or wake DAEDALUS with a targeted fix.
-- If accepted and deployed, ARIADNE should run the hosted proof steps in
+- MIMIR has PR371.
+- MIMIR should close PR371 as accepted and decide the next roadmap move.
+- If MIMIR wants hosted data-shape proof after deploy, ARIADNE should run the
+  hosted proof steps in
   `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
 
 ## Previous MIMIR decision - PR370 accepted with caveat, PR371 opened
