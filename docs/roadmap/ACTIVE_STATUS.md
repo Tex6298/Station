@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR335 passed, PR336 UX-05 opened
+
+MIMIR accepts ARIADNE's PR335 result:
+`docs/roadmap/PR335_UX04_PUBLIC_SPACE_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR335 is a hosted human-eye `PASS`.
+- Railway appears to have deployed PR334.
+- Desktop and `375px` mobile `/space/station-replay-alpha` checks passed.
+- The public document and linked forum discussion route chain passed.
+- PR334 is safe to mention as deployed public Space UX within accepted scope.
+- MIMIR opens
+  `docs/roadmap/PR336_UX05_DISCOVER_BROWSING_CONTROLS_DAEDALUS.md`.
+- The next product lane is UX-05 Discover browsing controls because visible
+  filter/tab/search controls must either work or be clearly non-interactive.
+
+Current baton:
+
+- DAEDALUS has PR336.
+- DAEDALUS should implement the smallest safe no-new-config Discover browsing
+  controls slice or return an exact route/component map if implementation is
+  not safe.
+- If code changes land, DAEDALUS should wake ARGUS for hostile review.
+- If no code changes land, DAEDALUS should wake MIMIR with the exact next
+  implementation packet.
+
 ## Latest MIMIR decision - PR334 accepted, PR335 hosted rehearsal opened
 
 MIMIR accepts ARGUS's PR334 result:
