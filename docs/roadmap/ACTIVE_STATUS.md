@@ -4,7 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR372 accepted, PR373 opened
+## Latest MIMIR decision - PR373 accepted with caveat, PR374 opened
+
+MIMIR accepts ARIADNE's PR373 hosted publishing trust rehearsal verdict:
+`docs/roadmap/PR373_PUBLISHING_TRUST_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR373 is closed as `PASS WITH CAVEAT`.
+- Hosted web/API were fresh enough for the PR367 publishing trust readback.
+- The public route loaded from landing page to Discover, then to a public Space
+  route from Discover feed data, public document, and linked discussion.
+- Public document trust, discussion state, version boundary, and
+  provenance/source boundary were visible and privacy-safe.
+- Replay-owner `/studio/publishing` showed approval/destination/version trust
+  readback with no publish mutation attempted.
+- Caveat: Discover did not expose the exact public Space path as a clean
+  visible Space card/link during the proof.
+- MIMIR opens
+  `docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR374.
+- DAEDALUS should patch the smallest Discover route/readback gap so the public
+  chain is visibly routeable as `/discover` -> public Space -> public document
+  -> linked discussion.
+- Keep scope to Discover route clarity. No publishing semantics, editor,
+  Station Press, social, checkout, provider, Redis, Cloudflare, worker, queue,
+  schema, migration, auth, billing, or broad UI lane is open.
+
+## Previous MIMIR decision - PR372 accepted, PR373 opened
 
 MIMIR accepts ARIADNE's PR372 hosted embedding trace recheck verdict:
 `docs/roadmap/PR372_HOSTED_EMBEDDING_TRACE_RECHECK_RESULT.md`.
