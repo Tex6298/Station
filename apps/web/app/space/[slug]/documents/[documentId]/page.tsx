@@ -6,13 +6,20 @@ import { useParams } from "next/navigation";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { documentReadRoute, shouldFallbackToPublicDocumentRead } from "@/lib/document-read-route";
+import {
+  documentEditHref,
+  documentPublicVersionLabel,
+  documentVersionSummaryLabel,
+  type PublishingDocumentVersion,
+} from "@/lib/publishing";
 import { publicDocumentDiscussionEntrypointCopy } from "@/lib/public-story-polish";
 import { PostComposer } from "@/components/social/post-composer";
 
 interface Document {
   id: string; title: string; slug: string; body: string | null;
   document_type: string; status: string; visibility: string;
-  published_at: string | null; author_user_id: string;
+  published_at: string | null; updated_at?: string | null; created_at?: string | null;
+  author_user_id: string; version?: number | null;
   persona_id: string | null; space_id: string | null;
   provenance_type?: string | null;
   source_type?: string | null;
@@ -79,6 +86,9 @@ export default function DocumentPage() {
   const [loading, setLoading]       = useState(true);
   const [isOwner, setIsOwner]       = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [versions, setVersions] = useState<PublishingDocumentVersion[]>([]);
+  const [versionsLoading, setVersionsLoading] = useState(false);
+  const [versionError, setVersionError] = useState<string | null>(null);
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [discussionEligible, setDiscussionEligible] = useState(false);
   const [discussionLoading, setDiscussionLoading] = useState(false);
@@ -93,16 +103,22 @@ export default function DocumentPage() {
     getSession().then(async (session) => {
       if (session) setToken(session.access_token);
       const hasSession = Boolean(session?.access_token);
+      setVersions([]);
+      setVersionError(null);
       try {
         const data = await apiGet<{ document: Document; access?: "owner" | "reader" }>(
           documentReadRoute(documentId, hasSession),
           session?.access_token
         );
+        const ownerAccess = data.access === "owner";
         setDoc(data.document);
-        setIsOwner(data.access === "owner");
+        setIsOwner(ownerAccess);
         const fallbackDiscussion = discussionFallbackFromDocument(data.document);
         if (fallbackDiscussion) setDiscussion(fallbackDiscussion);
         void loadDiscussionForDocument(data.document.id, session?.access_token, fallbackDiscussion);
+        if (ownerAccess && session?.access_token) {
+          void loadVersionHistoryForDocument(data.document.id, session.access_token);
+        }
       } catch {
         if (!shouldFallbackToPublicDocumentRead(hasSession)) {
           setError("Document not found.");
@@ -112,6 +128,8 @@ export default function DocumentPage() {
         try {
           const data = await apiGet<{ document: Document }>(`/documents/public/${documentId}`);
           setDoc(data.document);
+          setIsOwner(false);
+          setVersions([]);
           const fallbackDiscussion = discussionFallbackFromDocument(data.document);
           if (fallbackDiscussion) setDiscussion(fallbackDiscussion);
           void loadDiscussionForDocument(data.document.id, session?.access_token, fallbackDiscussion);
@@ -122,6 +140,27 @@ export default function DocumentPage() {
       setLoading(false);
     });
   }, [documentId]);
+
+  async function loadVersionHistoryForDocument(id: string, accessToken: string) {
+    setVersionsLoading(true);
+    setVersionError(null);
+    try {
+      const data = await apiGet<{ currentVersion: number; versions: PublishingDocumentVersion[] }>(
+        `/documents/${id}/versions`,
+        accessToken
+      );
+      setVersions(data.versions ?? []);
+      setDoc((current) =>
+        current && current.id === id
+          ? { ...current, version: data.currentVersion ?? current.version }
+          : current
+      );
+    } catch (e) {
+      setVersionError(e instanceof Error ? e.message : "Version history is unavailable.");
+    } finally {
+      setVersionsLoading(false);
+    }
+  }
 
   async function loadDiscussionForDocument(id: string, accessToken?: string, fallbackDiscussion?: Discussion | null) {
     setDiscussionLoading(true);
@@ -190,6 +229,8 @@ export default function DocumentPage() {
   const discussionBody = discussion
     ? `${discussion.comment_count ?? 0} ${(discussion.comment_count ?? 0) === 1 ? "reply" : "replies"} / ${discussion.visibility}. ${discussionCopy.body}`
     : discussionCopy.body;
+  const currentVersion = doc.version && doc.version > 0 ? doc.version : 1;
+  const editHref = documentEditHref(doc.id);
 
   return (
     <main className="container" style={{ maxWidth: 720 }}>
@@ -222,6 +263,11 @@ export default function DocumentPage() {
               {new Date(doc.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
             </span>
           )}
+          {currentVersion > 1 && (
+            <span style={{ fontSize: "0.72rem", color: "#4f5a63", background: "#f1f4f6", border: "1px solid #d8d3c8", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
+              Version v{currentVersion}
+            </span>
+          )}
         </div>
 
         <h1 style={{ margin: "0 0 0.75rem", fontSize: "1.9rem", lineHeight: 1.2 }}>{doc.title}</h1>
@@ -245,6 +291,13 @@ export default function DocumentPage() {
                 {publishing ? "Publishing..." : "Publish"}
               </button>
             )}
+            <Link
+              className="button"
+              href={editHref}
+              style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #d8d3c8", borderRadius: 7, color: "#1f2529", fontSize: "0.82rem" }}
+            >
+              Continue editing
+            </Link>
             <button
               onClick={() => setShowComposer((v) => !v)}
               style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #d8d3c8", borderRadius: 7, color: "#687078", cursor: "pointer", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
@@ -259,6 +312,57 @@ export default function DocumentPage() {
           </div>
         )}
       </div>
+
+      {(isOwner || currentVersion > 1) && (
+        <section className="card" style={{ marginBottom: "1.5rem", padding: "1rem 1.1rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "0.9rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 260px" }}>
+              <div style={{ fontSize: "0.72rem", color: "#687078", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+                Version readback
+              </div>
+              <div style={{ color: "#1f2529", fontWeight: 650 }}>
+                {isOwner
+                  ? documentVersionSummaryLabel(currentVersion, versions)
+                  : documentPublicVersionLabel(currentVersion)}
+              </div>
+              <div style={{ color: "#687078", fontSize: "0.82rem", marginTop: "0.25rem" }}>
+                {isOwner
+                  ? "Prior versions are private owner history. Public readers only see the current published copy and its discussion thread."
+                  : "Public readers are seeing the current published copy. Prior drafts and owner version history stay private."}
+              </div>
+              {isOwner && versionsLoading && (
+                <div style={{ color: "#8b8f92", fontSize: "0.8rem", marginTop: "0.55rem" }}>Loading version history...</div>
+              )}
+              {isOwner && versionError && (
+                <div style={{ color: "#eb5757", fontSize: "0.8rem", marginTop: "0.55rem" }}>{versionError}</div>
+              )}
+              {isOwner && versions.length > 0 && (
+                <div style={{ marginTop: "0.7rem", display: "grid", gap: "0.45rem" }}>
+                  {versions.slice(0, 3).map((version) => (
+                    <div key={version.id} style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", borderTop: "1px solid #eee9df", paddingTop: "0.45rem", color: "#687078", fontSize: "0.8rem" }}>
+                      <span>v{version.versionNumber} / {version.title}</span>
+                      <span style={{ whiteSpace: "nowrap" }}>
+                        {version.capturedAt
+                          ? new Date(version.capturedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+                          : version.visibility}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {isOwner && (
+              <Link
+                className="button primary"
+                href={editHref}
+                style={{ fontSize: "0.82rem", whiteSpace: "nowrap" }}
+              >
+                Continue editing
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Social composer panel */}
       {showComposer && (

@@ -158,6 +158,15 @@ export function publicDocumentHref(
   return space ? `/space/${space.slug}/documents/${document.id}` : null;
 }
 
+export function documentEditHref(documentId: string): string {
+  return `/studio/publish?documentId=${encodeURIComponent(documentId)}`;
+}
+
+export function documentPublicVersionLabel(currentVersion: number | null | undefined): string {
+  const current = currentVersion && currentVersion > 0 ? currentVersion : 1;
+  return `Current public version v${current}.`;
+}
+
 export function documentDestinationLabel(
   document: Pick<PublishingDocument, "space_id">,
   spaces: PublishingSpace[],

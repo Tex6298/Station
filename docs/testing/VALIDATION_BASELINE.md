@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR362 Writing Authoring MVP Gap Map Result
+
+DAEDALUS implemented PR362 on 2026-06-26:
+`docs/roadmap/PR362_WRITING_AUTHORING_MVP_GAP_MAP_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Writing authoring surface map | Pass | `/writing`, Studio publishing, Space-local document creation, public/owner document readback, document version APIs, and linked discussion affordances are documented. |
+| Document version readback patch | Pass | Public/owner document pages now show current version context; owners get owner-only prior version readback and `Continue editing` back to Studio. |
+| Privacy boundary | Pass | Prior version history is fetched only after authenticated owner access; public readers see only current published version context. |
+| Scope control | Pass | No schema, migration, auth, persistence, visibility, publish, discussion, billing, provider, queue, worker, Station Press, rich-text, or broad UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 115 tests passed, including publishing helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: ARGUS should review the UI boundary because this is the first
+public document read page affordance that names version history. The API already
+keeps prior versions owner-only.
+
 ## PR360 Developer Space Status Note Event Repair Result
 
 DAEDALUS repaired PR360 on 2026-06-26:

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   approvalForDocument,
+  documentEditHref,
+  documentPublicVersionLabel,
   documentVersionSummaryLabel,
   documentDestinationLabel,
   documentTypeLabel,
@@ -50,6 +52,10 @@ test("publishing helpers group live documents for the Studio dashboard", () => {
 test("publishing helpers only expose public links when a Space slug is known", () => {
   assert.equal(publicDocumentHref(documents[1], spaces), "/space/station/documents/pub-1");
   assert.equal(publicDocumentHref(documents[0], spaces), null);
+  assert.equal(documentEditHref("draft-1"), "/studio/publish?documentId=draft-1");
+  assert.equal(documentEditHref("doc id/with spaces"), "/studio/publish?documentId=doc%20id%2Fwith%20spaces");
+  assert.equal(documentPublicVersionLabel(3), "Current public version v3.");
+  assert.equal(documentPublicVersionLabel(null), "Current public version v1.");
   assert.equal(documentDestinationLabel(documents[1], spaces), "Station / Station");
   assert.equal(documentDestinationLabel(documents[0], spaces), "Station draft");
 });

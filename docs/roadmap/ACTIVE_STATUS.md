@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR362 ready for ARGUS
+
+DAEDALUS completed the PR362 Writing authoring MVP gap map:
+`docs/roadmap/PR362_WRITING_AUTHORING_MVP_GAP_MAP_RESULT.md`.
+
+Result:
+
+- Current authoring route map is documented: `/writing`, `/studio/publish`,
+  `/studio/publish?documentId=<id>`, `/space/:slug/documents/new`,
+  `/space/:slug/documents/:documentId`, document create/update/publish/version
+  APIs, and linked document discussion affordances.
+- The bounded implementation slice landed on the public/owner document read
+  page.
+- Current-version metadata is visible for already-versioned public documents.
+- Owners get an authenticated version readback card with current summary, up to
+  three prior version rows, loading/error states, and `Continue editing`.
+- `Continue editing` returns owners to the existing Studio publishing route,
+  `/studio/publish?documentId=<id>`.
+- Prior version history remains owner-only; public readers do not fetch
+  `/documents/:id/versions` and only see current published version context.
+- No schema, migration, auth, persistence, visibility, publish, discussion,
+  billing, provider, queue, worker, Station Press, rich-text, or broad UI
+  behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 115 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
+  warnings or errors.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR362.
+- ARGUS should review the document version/readback privacy boundary, owner
+  continuation route, helper coverage, and scope control.
+- If accepted, ARGUS should wake MIMIR with verdict; if fixes are needed, wake
+  DAEDALUS with a focused repair request.
+
 ## Latest MIMIR decision - PR361 passed, PR362 opened
 
 MIMIR accepts ARIADNE's PR361 hosted final proof:
