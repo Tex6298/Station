@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -61,6 +61,27 @@ This patch is display/helper/test-only. It does not change:
 No Stripe URLs, customer IDs, subscription IDs, payment IDs, tokens, cookies, or
 secrets were added.
 
+## ARGUS Review
+
+Verdict: PASS.
+
+ARGUS made one narrow copy patch:
+
+- `/billing?success=1` now says Checkout returned and Station reflects the plan
+  after verified server subscription state updates, instead of claiming the
+  subscription is already activated.
+
+Boundary review:
+
+- Billing/Pricing display copy now derives labels, prices, visible yearly price,
+  storage, Space, Developer Space, and persona limits from `@station/config`.
+- Billing action behavior remains in `billing-plan-actions.ts`.
+- Token-credit and Developer Space usage quota copy remain separate from
+  subscription entitlement copy.
+- No Checkout, Portal, webhook, entitlement enforcement, Stripe product/Price
+  setup, token top-up, schema, migration, tax, invoice, Connect, marketplace,
+  usage billing, or live-money behavior changed.
+
 ## Tests
 
 - Added `apps/web/lib/billing-tier-display.test.ts`.
@@ -84,6 +105,7 @@ git diff --check
 
 Notes:
 
+- ARGUS reran all commands after the review patch on 2026-06-26.
 - `test:billing` passed 14 tests, including the new display-helper tests.
 - `test:token-credits` passed 3 tests.
 - `test:storage` passed 16 tests.
@@ -100,13 +122,6 @@ Notes:
 - A later lane can improve Billing IA/loading states, but should not mutate
   Stripe or entitlement behavior without a separate packet.
 
-## Review Requests
-
-ARGUS should review:
-
-- Whether shared display helper coverage is enough to prevent another visible
-  tier-limit drift.
-- Whether Billing and Pricing now avoid stale storage, Space, Developer Space,
-  price, and yearly-price copy.
-- Whether any helper copy overreaches into token-credit, Developer Space usage,
-  live-money, or entitlement-enforcement territory.
+ARGUS found the helper coverage sufficient for this slice. Any further Billing
+IA/loading polish should remain a separate UX-07 lane and should not mutate
+Stripe or entitlement behavior without a new packet.

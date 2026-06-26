@@ -25,13 +25,14 @@ they are not Station validation failures.
 DAEDALUS implemented PR345 on 2026-06-26:
 `docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Shared Billing/Pricing display helper | Pass | `apps/web/lib/billing-tier-display.ts` derives visible labels, prices, yearly prices, storage limits, Space limits, Developer Space limits, and persona limits from `@station/config`. |
 | Public Pricing wiring | Pass | `/pricing` renders `PRICING_TIER_ORDER` through `pricingTierDisplay`, removing the route-local tier table. |
 | Authenticated Billing wiring | Pass | `/billing` renders plan cards through `BILLING_PLAN_TIERS` and `billingPlanDisplay`, while preserving existing action logic in `billing-plan-actions.ts`. |
+| Entitlement timing copy | Pass | ARGUS tightened `/billing?success=1` so Checkout return does not claim activation before verified server subscription state updates. |
 | Scope control | Pass | Display/helper/test-only; no Stripe product, Price ID, Checkout, Portal, webhook, entitlement enforcement, customer/profile binding, schema, migration, token top-up, tax, invoice, Connect, marketplace, tip, usage billing, live-money, Redis, Cloudflare, provider, onboarding, or broad design behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 14 tests passed, including display-helper coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |

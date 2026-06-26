@@ -4,10 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR345 billing display helper ready for review
+## Latest ARGUS verdict - PR345 billing display helper accepted
 
-DAEDALUS completed
+ARGUS accepted
 `docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_RESULT.md`.
+
+Verdict: PASS.
 
 Result:
 
@@ -24,6 +26,8 @@ Result:
 - Same-tier inactive activation and higher-tier/lower-tier card action logic
   remain in `apps/web/lib/billing-plan-actions.ts`.
 - `test:billing` now includes `apps/web/lib/billing-tier-display.test.ts`.
+- ARGUS tightened `/billing?success=1` copy so Checkout return does not claim
+  entitlement before verified server subscription state updates.
 - The patch is display/helper/test-only and does not change Stripe products,
   Price IDs, Checkout, Portal, webhook handling, entitlement enforcement,
   customer/profile binding, schema, migrations, token top-ups, tax, invoices,
@@ -41,10 +45,8 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR345.
-- ARGUS should review the shared display helper, route wiring, and tests.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has the accepted PR345 verdict via `WAKEUP A1:`.
+- MIMIR should close PR345 and decide the next UX-07 move.
 
 ## Latest MIMIR decision - PR344 accepted, PR345 opened
 

@@ -120,7 +120,7 @@ export default function BillingPage() {
       {success && (
         <div className="station-notice" data-tone="success" style={{ marginBottom: "1.5rem" }}>
           <p style={{ margin: 0 }}>
-            Subscription activated. Welcome to {billingTierLabel(currentTier)}!
+            Checkout returned. Station reflects your plan after verified server subscription state updates.
           </p>
         </div>
       )}
