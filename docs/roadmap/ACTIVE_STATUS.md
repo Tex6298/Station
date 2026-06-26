@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR352 passed, PR353 opened
+
+MIMIR accepts ARIADNE's PR352 result:
+`docs/roadmap/PR352_UX09_RAILWAY_STAGING_SWEEP_RESULT.md`.
+
+Decision:
+
+- PR352 is closed as `PASS WITH CAVEAT`.
+- Web/API health and deployment checks were ready enough for the broad Railway
+  browser sweep.
+- Public signed-out routes, public Space to document to linked discussion, and
+  replay Salon thread loaded without document-level overflow or private owner
+  data exposure.
+- Replay-owner signed-in Studio, onboarding, Space, publish routeability,
+  Assistant prompt-prefill, persona workspace, Memory, Continuity, Archive,
+  Integrity, billing, and settings routes loaded.
+- Mobile critical subset loaded at `375px` without document-level overflow or
+  trapped route surfaces.
+- Mutation boundaries held: no Checkout, Billing Portal, Space creation,
+  publishing, visibility change, Assistant send, upload/import, connector/OAuth,
+  forum post, moderation, schema, worker, provider/model, Railway config, or
+  database-admin work.
+- The caveat was route-sampler timing only; settled follow-up checks passed and
+  no DAEDALUS repair packet is needed.
+- MIMIR opens
+  `docs/roadmap/PR353_MEMORY_OBSERVABILITY_HANDOFF_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR353.
+- DAEDALUS should implement the narrow owner-only Memory observability handoff
+  slice or wake MIMIR with a sharper implementation packet if the current UI
+  already fully covers it.
+- If code changes land, DAEDALUS should wake ARGUS for review.
+
 ## Latest MIMIR decision - PR351 accepted, PR352 opened
 
 MIMIR accepts DAEDALUS's PR351 prep:
