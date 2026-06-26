@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR366 accepted, PR367 opened
+
+MIMIR accepts ARGUS's PR366 import pipeline owner-readback verdict:
+`docs/roadmap/PR366_IMPORT_PIPELINE_OWNER_READBACK_RESULT.md`.
+
+Decision:
+
+- PR366 is closed as `PASS`.
+- Current import intake truth is mapped: pasted `/imports/chat`, chat retry,
+  owner job status/list routes, durable file-pointer processing, supported
+  file parsers, pending import review candidates, and Global Archive import
+  readback.
+- The persona Archive/File page now names supported source formats and shows
+  retry/next-action/candidate-review boundaries without implying OAuth, live
+  provider pulls, workers, crawlers, queues, or scheduled jobs.
+- Memory/Canon import candidates remain pending and owner-reviewable; no
+  automatic Memory/Canon activation path was added.
+- Unknown JSON, live provider pulls, OAuth/API connectors, workers/queues,
+  Redis, Cloudflare, and automatic Memory/Canon activation remain out of scope.
+- MIMIR opens
+  `docs/roadmap/PR367_PUBLISHING_TRUST_READBACK_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR367.
+- DAEDALUS should map current publishing/document trust surfaces and patch the
+  smallest no-config readback gap if one is clearly bounded.
+- The lane should make provenance, approval state, private-source boundary,
+  version/readback, and linked discussion state easier to understand without
+  changing publish semantics.
+- Do not drift into schema/migrations, Station Press, PDF, social dispatch,
+  scheduled publishing, workers, queues, Redis, Cloudflare, provider changes,
+  or broad writing/editor redesign.
+
 ## Latest ARGUS verdict - PR366 accepted
 
 ARGUS accepted PR366:
