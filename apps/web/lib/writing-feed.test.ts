@@ -108,7 +108,7 @@ test("discover feed controls expose counts and empty copy without changing visib
 });
 
 test("discover feed normalizes curated staff-pick rows into routeable cards", () => {
-  const [item] = normalizeDiscoverFeedItems([
+  const items = normalizeDiscoverFeedItems([
     {
       id: "feed-1",
       item_type: "space",
@@ -127,8 +127,18 @@ test("discover feed normalizes curated staff-pick rows into routeable cards", ()
       href: "https://example.com/doc-unsafe",
       created_at: "2026-06-26T08:31:00.000Z",
     },
+    {
+      id: "feed-3",
+      item_type: "space",
+      item_id: "space-wrong-route",
+      title: "Wrong local route",
+      href: "/settings",
+      created_at: "2026-06-26T08:32:00.000Z",
+    },
   ]);
+  const [item] = items;
 
+  assert.equal(items.length, 1);
   assert.equal(item.id, "space-1");
   assert.equal(item.type, "space");
   assert.equal(item.href, "/space/station-replay-alpha");

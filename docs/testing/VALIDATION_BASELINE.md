@@ -25,12 +25,13 @@ they are not Station validation failures.
 DAEDALUS implemented PR336 on 2026-06-26:
 `docs/roadmap/PR336_UX05_DISCOVER_BROWSING_CONTROLS_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS AFTER NARROW ROUTE-SAFETY PATCH`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Discover feed filters | Pass | `/discover` filters already-loaded public/community-safe cards by document type, forum, and Developer Spaces without changing API visibility rules. |
-| Staff-pick feed normalization | Pass | Curated `/discover/feed?tab=featured` rows normalize into routeable cards; unsafe non-local `href` values are dropped. |
+| Staff-pick feed normalization | Pass | Curated `/discover/feed?tab=featured` rows normalize into routeable cards; unsafe non-local `href` values and mismatched local route families are dropped. |
+| ARGUS route-safety patch | Pass | Staff-pick rows now have to match the expected local route family for their item type, so a curated `space` row cannot point at `/settings`. Discover avatar CSS background URLs are string-escaped after the raw `<img>` removal. |
 | Writing cluster honesty | Pass | The exact `Latest / Featured / Staff picks` cluster is in `/writing` on current main; unsupported `Staff picks` is disabled/preview-only. |
 | Scope control | Pass | No auth, schema, migration, API visibility, search grouping, forum, Space, Developer Space, billing, onboarding, provider/model, Redis, Cloudflare, queue, worker, deploy, key, anonymous chat, public launch, commercial, or partner behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 tests passed, including Discover filter/count/status and curated row normalization coverage. |

@@ -70,7 +70,7 @@ function Avatar({ author, size = 28 }: { author: FeedItem["author"]; size?: numb
           width: size,
           height: size,
           borderRadius: "50%",
-          backgroundImage: `url("${author.avatar_url}")`,
+          backgroundImage: cssUrl(author.avatar_url),
           backgroundSize: "cover",
           backgroundPosition: "center",
           flexShrink: 0,
@@ -88,6 +88,10 @@ function Avatar({ author, size = 28 }: { author: FeedItem["author"]; size?: numb
       {initials}
     </div>
   );
+}
+
+function cssUrl(value: string) {
+  return `url(${JSON.stringify(value)})`;
 }
 
 const TYPE_COLOURS: Record<string, string> = {

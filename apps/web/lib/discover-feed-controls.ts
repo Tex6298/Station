@@ -117,7 +117,7 @@ export function normalizeDiscoverFeedItems(items: unknown[]): DiscoverFeedItem[]
     const raw = item as RawCuratedFeedItem;
     if (!isDiscoverFeedType(raw.item_type)) return [];
     const id = raw.item_id ?? raw.id;
-    const href = safeLocalHref(raw.href);
+    const href = safeRouteHref(raw.href, raw.item_type);
     if (!id || !href) return [];
 
     return [{
@@ -150,8 +150,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function safeLocalHref(value: unknown) {
+function safeRouteHref(value: unknown, type: DiscoverFeedType) {
   if (typeof value !== "string") return null;
   if (!value.startsWith("/") || value.startsWith("//")) return null;
-  return value;
+  if (/[\s\\]/.test(value)) return null;
+
+  const allowedPrefixes: Record<DiscoverFeedType, string[]> = {
+    document: ["/space/", "/documents/"],
+    thread: ["/forums/"],
+    developer_space: ["/developer-spaces/"],
+    space: ["/space/"],
+    persona: ["/personas/"],
+  };
+
+  return allowedPrefixes[type].some((prefix) => value.startsWith(prefix)) ? value : null;
 }

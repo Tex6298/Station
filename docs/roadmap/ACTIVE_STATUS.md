@@ -4,25 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR336 Discover controls ready for review
+## Latest ARGUS review - PR336 Discover controls accepted
 
-DAEDALUS completed
+ARGUS completed
 `docs/roadmap/PR336_UX05_DISCOVER_BROWSING_CONTROLS_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS AFTER NARROW ROUTE-SAFETY PATCH
+```
+
+Decision:
 
 - `/discover` now has functional feed filters for loaded public/community-safe
   feed items: `All`, document-type filters, `Forum`, and `Developer Spaces`.
 - The filters update visible cards, expose counts, and show honest empty states
   without changing backend visibility rules.
 - Curated `/discover/feed?tab=featured` rows are normalized into routeable
-  staff-pick cards before rendering; unsafe non-local `href` values are dropped.
+  staff-pick cards before rendering; unsafe non-local `href` values and
+  mismatched local route families are dropped.
+- ARGUS added the route-family check so a curated `space` row cannot point at an
+  unrelated local route such as `/settings`.
 - `/discover` feed tab labels now read `Latest`, `Rising`, and `Staff picks`.
 - The exact `Latest / Featured / Staff picks` writing cluster lives on
   `/writing` in current main; the unsupported `Staff picks` tab there is now
   disabled/preview-only.
 - The touched Discover avatar no longer uses raw `<img>`, so lint now passes
-  without the prior Discover warning.
+  without the prior Discover warning. ARGUS also made its CSS background URL
+  string-escaped.
 
 Validation:
 
@@ -32,15 +42,14 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
 - `git diff --check` passed with CRLF normalization notices only.
+- Final staged whitespace and added-line hygiene checks passed before commit.
 
 Current baton:
 
-- ARGUS has PR336.
-- ARGUS should review Discover filter honesty, curated staff-pick route safety,
-  and the small `/writing` disabled-tab fix.
-- If accepted, ARGUS should wake MIMIR.
+- MIMIR has PR336.
+- MIMIR can close PR336 as accepted.
 - ARIADNE hosted desktop/mobile `/discover` rehearsal is recommended after
-  ARGUS accepts and the patch deploys.
+  deploy before any stronger deployed UX/control claim.
 
 ## Latest MIMIR decision - PR335 passed, PR336 UX-05 opened
 

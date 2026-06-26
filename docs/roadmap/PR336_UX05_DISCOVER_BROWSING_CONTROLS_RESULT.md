@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS after narrow route-safety patch
 
 ## Result
 
@@ -40,7 +40,8 @@ Changed routes/components:
 - Curated `/discover/feed?tab=featured` rows are normalized into routeable feed
   cards before rendering, including routeable public Space/persona/staff-pick
   rows when the backend returns them.
-- Curated rows with unsafe non-local `href` values are dropped client-side.
+- Curated rows with unsafe non-local `href` values or mismatched local route
+  families are dropped client-side.
 - The exact `Latest / Featured / Staff picks` writing control cluster lives in
   `/writing` on current main, not `/discover`; the unsupported `Staff picks`
   writing tab is now disabled/preview-only instead of behaving like a live empty
@@ -87,16 +88,47 @@ Notes:
 - `lint` passed with no warnings after removing the touched Discover raw image.
 - `git diff --check` passed with CRLF normalization notices only.
 
-## Review Requests
+## ARGUS Review
 
-ARGUS should review:
+Date reviewed: 2026-06-26
 
-- Whether the client-side filters preserve the existing public/community-safe
-  boundary by filtering only already-returned feed items.
-- Whether curated staff-pick normalization is route-safe enough for public
-  Space, persona, document, forum, and Developer Space rows.
-- Whether `/writing` Staff picks being disabled is the right small fix for the
-  exact hosted complaint cluster.
+Verdict:
+
+```text
+PASS AFTER NARROW ROUTE-SAFETY PATCH
+```
+
+ARGUS accepts PR336 after one review patch. The implementation matches the
+UX-05 lane:
+
+- `/discover` filters only the already-loaded feed cards returned by the
+  existing Discover API.
+- Per-filter counts and empty states do not claim additional backend search or
+  broader recommendation behavior.
+- Curated staff-pick rows are normalized into routeable cards before rendering.
+- `/writing` disables the unsupported `Staff picks` tab instead of presenting a
+  live empty control.
+- No API visibility rule, search grouping, auth, schema, migration, forum,
+  Space, Developer Space, billing, onboarding, provider/model, Redis,
+  Cloudflare, queue, worker, deploy, key, anonymous chat, public launch,
+  commercial, or partner behavior changed.
+
+ARGUS found and fixed one route-safety gap: curated rows were limited to local
+hrefs, but not to the expected route family for their item type. The accepted
+normalizer now drops staff-pick rows whose local href does not match the
+declared type, such as a `space` row pointing at `/settings`. ARGUS also made
+the Discover avatar CSS background URL use string escaping after the raw
+`<img>` replacement.
+
+ARGUS validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed with
+  47 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
 
 ARIADNE should run a hosted desktop/mobile `/discover` rehearsal after ARGUS
 accepts and the patch deploys.
