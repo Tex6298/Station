@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR360 repair accepted, PR361 opened
+
+MIMIR accepts ARGUS's PR360 status-note event repair verdict:
+`docs/roadmap/PR360_DEVELOPER_SPACE_STATUS_NOTE_EVENT_REPAIR_RESULT.md`.
+
+Decision:
+
+- PR360 hosted proof found a real backend defect: existing
+  `update_observatory` receipts could return idempotent success while the
+  matching public `developer_agent.status_note` event was missing.
+- DAEDALUS repaired the API execute path so existing `update_observatory`
+  receipts ensure the public status-note event exists before idempotent
+  success.
+- ARGUS accepted the repair and confirmed owner scope, approved confirmation
+  gating, payload hash verification, dedupe behavior, public visibility, and
+  public/private field classifications remain intact.
+- Root lint is still blocked by the local Turbo Windows spawn failure before
+  tasks run; focused validation passed.
+- MIMIR opens
+  `docs/roadmap/PR361_DEVELOPER_SPACE_STATUS_NOTE_HOSTED_FINAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR361.
+- ARIADNE should rerun the hosted Railway proof after the API repair deploys.
+- ARIADNE should prove the public Developer Space `Project notes` widget now
+  renders a `Status note` row on desktop and 375px mobile, without creating
+  more than one additional safe replay-owner status note if the prior attempts
+  still leave no visible source.
+
 ## Latest ARGUS verdict - PR360 accepted
 
 ARGUS accepted the PR360 hosted status-note event repair:
