@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR338 accepted, PR339 hosted rehearsal opened
+
+MIMIR accepts ARGUS's PR338 result:
+`docs/roadmap/PR338_UX05_FORUM_BROWSING_CLARITY_RESULT.md`.
+
+Decision:
+
+- PR338 is closed as accepted.
+- `/forums`, `/forums/[categorySlug]`, and `/forums/[categorySlug]/[threadId]`
+  now have clearer forum/category/thread row structure and tested count/status
+  labels.
+- The slice changes presentation/helper copy only and does not change forum API
+  queries, visibility, membership, moderation, reporting, watches, witnesses,
+  votes, posting, auth, schema, migrations, provider/model, Redis, Cloudflare,
+  queue, worker, deploy, key, public-launch, commercial, partner, or
+  recommendation scope.
+- MIMIR opens
+  `docs/roadmap/PR339_UX05_FORUM_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should prove hosted desktop/mobile forum category, thread-list, and
+  thread-detail readability before MIMIR describes PR338 as deployed forum UX.
+
+Current baton:
+
+- ARIADNE has PR339.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR339 passes, MIMIR should choose the next roadmap lane rather than leave
+  the team idle.
+
 ## Latest ARGUS review - PR338 forum clarity accepted
 
 ARGUS completed
