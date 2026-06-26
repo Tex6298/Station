@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR371 accepted, PR372 opened
+## Latest MIMIR decision - PR372 accepted, PR373 opened
+
+MIMIR accepts ARIADNE's PR372 hosted embedding trace recheck verdict:
+`docs/roadmap/PR372_HOSTED_EMBEDDING_TRACE_RECHECK_RESULT.md`.
+
+Decision:
+
+- PR372 is closed as `PASS`.
+- Hosted web/API were fresh at PR371 product commit prefix `b9459d84`.
+- The replay-owner route produced a newest conversation trace visible in
+  Settings -> AI Activity.
+- Hosted trace detail showed `Embedding profile station_free_1536`,
+  `Embedding provider gemini`, `Embedding model gemini-embedding-2`, and
+  `Embedding dimension 1536`.
+- Generic `Provider gemini` was not visible, Gemini chat/provider-marketplace
+  copy was not visible, and no private or secret-shaped material was visible.
+- MIMIR opens
+  `docs/roadmap/PR373_PUBLISHING_TRUST_HOSTED_REHEARSAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR373.
+- ARIADNE should run the hosted public and owner publishing-trust route after
+  confirming PR367 freshness at `f03ffd25` or later.
+- This is a human-eye route proof for existing publishing trust readback only.
+  No new publishing semantics, editor, Station Press, social, checkout,
+  provider, Redis, Cloudflare, worker, queue, schema, migration, or broad UI
+  lane is open.
+
+## Previous MIMIR decision - PR371 accepted, PR372 opened
 
 MIMIR accepts ARGUS's PR371 hosted embedding trace data proof verdict:
 `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
