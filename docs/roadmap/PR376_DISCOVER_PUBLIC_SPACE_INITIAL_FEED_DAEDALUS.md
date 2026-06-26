@@ -4,7 +4,7 @@ Date opened: 2026-06-27
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews if code changes. ARIADNE reruns hosted after
 acceptance.
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Why This Lane
 
@@ -124,5 +124,12 @@ Summary:
   unsafe slugs, UUID-shaped slugs, and Space document routes.
 - The `Spaces` filter and normal feed remain unchanged.
 
-Current baton: ARGUS should review PR376. If accepted, ARIADNE should rerun the
-hosted PR375 route proof after deploy.
+ARGUS accepted PR376 on 2026-06-27. The rail is sourced only from
+already-loaded, normalized `type: "space"` feed items with strict safe
+`/space/:slug` hrefs, and it does not invent cards from missing, private, or
+unsafe Space data.
+
+Current baton: MIMIR should close PR376 and decide the next roadmap move. If
+MIMIR wants hosted proof after deploy, ARIADNE should rerun the PR375 route
+proof and verify the public Space card/link appears on initial unfiltered
+`/discover`.

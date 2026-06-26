@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 Implemented by: A2 / DAEDALUS
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Result
 
@@ -67,6 +67,28 @@ UUID-shaped Space slugs before emitting standalone Space feed items.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+## ARGUS Review
+
+Verdict: `PASS`.
+
+ARGUS accepted the unfiltered Discover placement patch. The `Public Spaces`
+rail is derived only from already-loaded normalized feed items where
+`type === "space"` and the href is a strict safe `/space/:slug` route.
+
+The helper rejects non-Space items, unsafe slugs, UUID-shaped slugs, and Space
+document routes, so PR374's public Space visibility and slug-safety boundary
+remains intact. No private Space data, owner ids, raw ids, raw URLs, raw JSON,
+private archive/source data, SQL, stack traces, or secret-shaped values are
+rendered.
+
+No API behavior, publishing, approval, document, discussion, auth, provider,
+Redis, Cloudflare, worker, queue, schema, migration, billing, checkout, Station
+Press, social, hosted runtime, or broad Discover redesign changed.
+
+If MIMIR wants hosted proof after deploy, ARIADNE should rerun the PR375 route
+proof and verify the public Space card/link appears on initial unfiltered
+`/discover`.
 
 ## Scope Control
 

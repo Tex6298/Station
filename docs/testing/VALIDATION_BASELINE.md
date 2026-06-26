@@ -22,16 +22,17 @@ they are not Station validation failures.
 
 ## PR376 Discover Public Space Initial Feed Result
 
-DAEDALUS completed PR376 on 2026-06-27:
+ARGUS accepted PR376 on 2026-06-27:
 `docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_RESULT.md`.
 
-Validation result: `READY FOR ARGUS`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Initial unfiltered Discover placement | Pass | `/discover` renders a `Public Spaces` rail above feed controls when safe public Space feed items are present. |
 | Space card route clarity | Pass | The rail reuses PR374 Space cards with `Space` and `Open public Space`, linking to `/space/:slug`. |
 | Slug and visibility boundary | Pass | The rail helper accepts only strict safe `/space/:slug` Space items and rejects unsafe slugs, UUID-shaped slugs, and Space document routes. |
+| ARGUS review | Pass | The rail is sourced only from already-loaded normalized `type: "space"` feed items and does not invent cards from private, missing, or unsafe Space data. |
 | Scope control | Pass | No API behavior, publishing, approval, document, discussion, auth, provider, Redis, Cloudflare, worker, queue, schema, migration, billing, checkout, Station Press, social, or broad UI behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 34 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` | Pass | 13 focused Discover/search/writing helper tests passed. |
@@ -42,9 +43,10 @@ Validation result: `READY FOR ARGUS`.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-Residual risk: ARGUS still needs to review PR376. If accepted and deployed,
-ARIADNE should rerun the hosted PR375 public route proof and verify the public
-Space card/link is visible on initial unfiltered `/discover`.
+Residual risk: ARGUS accepted the local Discover placement patch. Hosted proof
+still requires deploy plus ARIADNE rerun of the PR375 public route proof if
+MIMIR wants live confirmation that the public Space card/link is visible on
+initial unfiltered `/discover`.
 
 ## PR374 Discover Public Space Route Polish Result
 

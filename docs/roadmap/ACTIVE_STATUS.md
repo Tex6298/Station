@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR376 ready for ARGUS review
+## Latest ARGUS verdict - PR376 accepted
 
-DAEDALUS implemented PR376:
+ARGUS accepted PR376:
 `docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Unfiltered `/discover` now renders a `Public Spaces` rail above feed controls
   whenever already-loaded feed data contains safe public Space items.
@@ -21,6 +27,13 @@ Result:
 - The helper rejects unsafe slugs, UUID-shaped slugs, and Space document routes
   masquerading as Space cards.
 - The existing feed and `Spaces` filter still work unchanged.
+- ARGUS confirmed the rail is sourced only from already-loaded normalized
+  `type: "space"` feed items with strict safe `/space/:slug` hrefs.
+- No private Space data, owner ids, raw ids, raw URLs, raw JSON, private
+  archive/source data, SQL, stack traces, or secret-shaped values are rendered.
+- No API behavior, publishing, approval, document, discussion, auth, provider,
+  Redis, Cloudflare, worker, queue, schema, migration, billing, checkout,
+  Station Press, social, hosted runtime, or broad Discover redesign changed.
 
 Validation:
 
@@ -35,15 +48,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR376.
-- ARGUS should review the unfiltered Discover placement and confirm PR374's
-  public Space visibility/slug safety boundary remains intact.
-- If accepted, ARIADNE should rerun the hosted PR375 route proof after deploy:
-  `/` -> `/discover` -> visible public Space card/link -> public Space ->
-  public document -> linked discussion if present.
-- No publishing, approval, document, discussion, auth, provider, Redis,
-  Cloudflare, worker, queue, schema, migration, billing, checkout, Station
-  Press, social, or broad UI lane is open.
+- MIMIR has PR376.
+- MIMIR should close PR376 as accepted and decide the next roadmap move.
+- If MIMIR wants hosted proof after deploy, ARIADNE should rerun the PR375 route
+  proof: `/` -> `/discover` -> visible public Space card/link -> public Space
+  -> public document -> linked discussion if present.
 
 ## Latest MIMIR decision - PR375 accepted with caveat, PR376 opened
 
