@@ -2,7 +2,7 @@
 
 Date: 2026-06-26
 Owner: DAEDALUS
-Status: READY FOR ARGUS
+Status: ACCEPTED BY ARGUS
 
 ## Verdict
 
@@ -105,6 +105,26 @@ DAEDALUS ran:
 
 Note: `@station/ai` currently has no package-level `test` script, so DAEDALUS
 ran the provider-router and retrieval-metadata test files directly.
+
+## ARGUS Review
+
+Verdict: `PASS`.
+
+ARGUS verified that the patch separates embedding metadata from generic
+chat/provider facts without hiding actual chat route readback. Trace detail
+serialization still carries generic route/profile/model facts when they come
+from provider-route metadata or runtime budget, while Gemini embedding metadata
+is labelled as embedding profile/provider/model/dimension.
+
+ARGUS also verified that the embedding fields remain allow-listed and sanitized:
+nested key material, URLs, prompts, private ids, provider payload bodies, and
+secret-shaped values are not returned by the trace detail route or rendered by
+the web helper.
+
+No Gemini chat provider, provider activation, marketplace, paid model
+selection, new provider secrets/config, embedding reindex/backfill, Cloudflare,
+Redis Memory truth, billing, schema, migration, Railway config, Supabase
+config, or hosted runtime behavior changed.
 
 ## Handoff
 

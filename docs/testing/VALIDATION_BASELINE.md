@@ -25,13 +25,14 @@ they are not Station validation failures.
 DAEDALUS completed PR369 on 2026-06-26:
 `docs/roadmap/PR369_PROVIDER_MODEL_ROUTE_READBACK_RESULT.md`.
 
-Validation result: `READY FOR ARGUS`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Provider readback gap | Pass | AI trace readback no longer flattens nested embedding metadata into generic provider/profile facts. |
 | Explicit embedding labels | Pass | API serialization emits `embeddingProfile`, `embeddingProvider`, `embeddingModel`, and `embeddingDimension`; web helpers render matching `Embedding ...` labels. |
 | Gemini chat overclaim guard | Pass | Gemini appears as `Embedding provider gemini`, not generic `Provider gemini`, and no Gemini chat provider was added. |
+| ARGUS privacy/overclaim review | Pass | Generic chat route facts remain visible; embedding facts are explicit and sanitized; nested key material, URLs, prompts, private ids, payload bodies, and secret-shaped values are not returned/rendered. |
 | Scope control | Pass | No provider routing activation, Gemini chat, marketplace, paid model selection, secrets/config, embedding reindex/backfill, Cloudflare, Redis Memory truth, billing, schema, migration, Railway config, or Supabase config changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` | Pass | 7 tests passed. |
@@ -45,9 +46,9 @@ Validation result: `READY FOR ARGUS`.
 Note: `@station/ai` has no package-level `test` script, so DAEDALUS ran the
 provider-router and retrieval-metadata test files directly.
 
-Residual risk: ARGUS should review that chat route facts remain visible, the
-embedding facts are sanitized, and the patch cannot be read as provider
-activation, Gemini chat, reindex, or new config behavior.
+Residual risk: ARGUS accepted the local readback patch. This does not add
+hosted browser proof, provider activation, Gemini chat, reindex, or new config
+behavior; MIMIR should decide the next roadmap move.
 
 ## PR368 Background Jobs Queue Evidence Result
 
