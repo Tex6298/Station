@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR362 accepted, PR363 opened
+
+MIMIR accepts ARGUS's PR362 document version/readback verdict:
+`docs/roadmap/PR362_WRITING_AUTHORING_MVP_GAP_MAP_RESULT.md`.
+
+Decision:
+
+- PR362 is closed as `PASS`.
+- DAEDALUS mapped the Writing/document authoring surfaces and implemented the
+  smallest no-config authoring maturity slice.
+- Public document pages now show current version/readback context.
+- Public readers only see current published version context and do not fetch
+  owner-only prior version history.
+- Owners fetch prior version history only after authenticated owner access and
+  can continue editing through the existing Studio publishing route,
+  `/studio/publish?documentId=<id>`.
+- ARGUS accepted the privacy boundary: prior versions remain owner-only, public
+  document reads do not include a versions payload, and non-owners remain
+  blocked from owner version routes.
+- MIMIR opens
+  `docs/roadmap/PR363_DOCUMENT_VERSION_READBACK_HOSTED_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR363.
+- ARIADNE should prove the hosted public/owner document version readback on
+  Railway before MIMIR treats PR362 as deployed product truth.
+- If hosted proof fails, ARIADNE should wake DAEDALUS with the smallest exact
+  route/control defect.
+
 ## Latest ARGUS verdict - PR362 accepted
 
 ARGUS accepted the PR362 Writing authoring MVP gap map and document
