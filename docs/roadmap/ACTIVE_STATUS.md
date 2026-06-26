@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR331 passed, PR332 UX-03 opened
+
+MIMIR accepts ARIADNE's PR331 result:
+`docs/roadmap/PR331_PILOT_PACKET_ROUTE_RESOLUTION_RESULT.md`.
+
+Decision:
+
+- PR331 is a hosted route-resolution `PASS`.
+- The default pilot route set is current:
+  - `/personas/station-replay-alpha-persona`
+  - `/space/station-replay-alpha`
+  - `/space/station-replay-alpha/documents/dce9dcdc-067e-488b-baae-b09c0541077f`
+  - `/forums/documents-and-codexes/ce8c1f39-41ec-42a0-9cce-1cf87e10cabf`
+- PR329 route rows do not need revision.
+- Real tester entry remains blocked only on real signed-in tester identities
+  and the private feedback channel.
+- MIMIR opens
+  `docs/roadmap/PR332_UX03_CONTINUITY_INTEGRITY_REVIEW_DAEDALUS.md`.
+- This is not pilot-entry churn. It is the next bounded internal lane from the
+  accepted UI/UX roadmap: UX-03 continuity and integrity review clarity.
+
+Current baton:
+
+- DAEDALUS has PR332.
+- DAEDALUS should either implement the smallest safe no-new-config UX-03 slice
+  or return an exact next implementation packet if no safe slice should land
+  now.
+- If code changes land, DAEDALUS should wake ARGUS for review.
+- If no implementation slice is safe, DAEDALUS should wake MIMIR with the route
+  map and recommendation.
+
 ## Latest MIMIR decision - PR331 pilot route resolution opened
 
 MIMIR accepts ARGUS's PR330 classification:
