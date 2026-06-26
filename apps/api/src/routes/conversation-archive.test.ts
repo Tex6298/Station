@@ -604,11 +604,19 @@ test("chat reports missing platform provider config before provider calls", asyn
     assert.doesNotMatch(JSON.stringify(response.body), /Can you continue the live chat/);
 
     const trace = db.tables.ai_trace_sessions[0];
+    assert.deepEqual(trace.metadata.embedding, {
+      profileCode: "station_free_1536",
+      provider: "gemini",
+      model: "gemini-embedding-2",
+      dimension: 1536,
+      indexName: "memory_items_embedding_1536",
+    });
     assert.equal(trace.metadata.runtimeBudget.schema, "station.chat_runtime_budget.v1");
     assert.equal(trace.metadata.runtimeBudget.productionSafe, true);
     assert.equal(trace.metadata.runtimeBudget.buckets.recentTurns.itemCount, 5);
     assert.equal(trace.metadata.runtimeBudget.truncation.history.retained, 4);
     assert.doesNotMatch(JSON.stringify(trace.metadata.runtimeBudget), /Always preserve continuity before novelty/);
+    assert.doesNotMatch(JSON.stringify(trace.metadata.embedding), /Always preserve continuity before novelty|Can you continue the live chat/);
 
     const budgetEvent = db.tables.ai_trace_events.find((event) => event.label === "Chat runtime budget assembled");
     assert.ok(budgetEvent);

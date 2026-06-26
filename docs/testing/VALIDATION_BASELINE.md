@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR371 Hosted Embedding Trace Data Proof Result
+
+DAEDALUS completed PR371 on 2026-06-26:
+`docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Conversation trace instrumentation | Pass | Conversation `ai_trace_sessions.metadata` now includes the existing safe `runtimeContext.trace.embedding` profile data. |
+| Hosted proof path | Pass | Result doc includes ARIADNE rerun steps to create one safe hosted conversation trace and inspect AI Activity trace detail. |
+| Privacy boundary | Pass | Regression coverage proves embedding metadata excludes owner message text and private continuity prompt text. |
+| Scope control | Pass | No provider routing, Gemini chat, provider marketplace, paid model selection, new config/secrets, reindex/backfill, Cloudflare, Redis Memory truth, worker/queue, billing, schema, migration, private archive ingestion, Railway config, Supabase config, or Settings redesign changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 122 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: This is local instrumentation proof. Hosted human-eye proof
+still requires deploy plus ARIADNE rerun of the documented safe conversation
+trace steps.
+
 ## PR369 Provider Model Route Readback Result
 
 DAEDALUS completed PR369 on 2026-06-26:

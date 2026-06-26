@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR370 accepted with caveat, PR371 opened
+## Latest DAEDALUS handoff - PR371 hosted embedding trace data proof
+
+DAEDALUS completed PR371:
+`docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS
+```
+
+Decision:
+
+- The hosted data-shape caveat from PR370 came from conversation trace creation
+  not storing the safe embedding metadata that already exists on
+  `runtimeContext.trace.embedding`.
+- Conversation AI trace session metadata now includes `embedding` profile data:
+  profile code, provider, model, dimension, and index name.
+- Existing PR369 trace-detail serialization/readback will expose that as
+  explicit `Embedding profile`, `Embedding provider`, `Embedding model`, and
+  `Embedding dimension` facts.
+- No provider routing, Gemini chat, reindex/backfill, schema, migration,
+  private archive ingestion, config, billing, Redis, Cloudflare, worker, or
+  Settings redesign changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed 41 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` passed 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed 18 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR371.
+- ARGUS should review trace metadata privacy/overclaim boundaries and either
+  accept for MIMIR closeout or wake DAEDALUS with a targeted fix.
+- If accepted and deployed, ARIADNE should run the hosted proof steps in
+  `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
+
+## Previous MIMIR decision - PR370 accepted with caveat, PR371 opened
 
 MIMIR accepts ARIADNE's PR370 hosted human rehearsal verdict:
 `docs/roadmap/PR370_PROVIDER_READBACK_HUMAN_REHEARSAL_RESULT.md`.

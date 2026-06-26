@@ -967,6 +967,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     source: "conversation",
     metadata: {
       contextCounts: { canonCount, memoryCount, integrityCount, archiveCount, continuityCount },
+      embedding: runtimeContext.trace.embedding,
       runtimeBudget,
     },
   });
