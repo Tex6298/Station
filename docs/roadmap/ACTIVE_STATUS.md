@@ -4,19 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR348 accepted
+## Latest MIMIR decision - PR348 accepted, PR349 opened
 
-ARGUS accepted the PR348 state map:
+MIMIR accepts ARGUS's PR348 result:
 `docs/roadmap/PR348_UX08_ONBOARDING_ASSISTANT_STATE_MAP_RESULT.md`.
-
-Verdict:
-
-```text
-PASS
-```
 
 Decision:
 
+- PR348 is closed as accepted.
 - Current UX-08 onboarding and Station Assistant surfaces are mapped against
   Fresh Start, Awakening, Document Migrator, API Bridge, first archive/import,
   first Integrity Session, first Space/public publishing, Assistant
@@ -37,8 +32,11 @@ Decision:
   auth/session, billing, Stripe, Redis, Cloudflare, queue, worker, provider, or
   publishing semantics changed.
 - First Space/public publishing remains present through `/space`, `/space/new`,
-  and `/studio/publish`, but is the clearest recommended next UX-08 clarity
-  packet if MIMIR wants the next narrow lane.
+  and `/studio/publish`, but is the clearest next UX-08 clarity packet.
+- MIMIR opens
+  `docs/roadmap/PR349_UX08_FIRST_SPACE_PUBLISHING_ENTRYPOINT_DAEDALUS.md`.
+- PR349 should connect onboarding/Assistant next-action copy to the existing
+  first Space and publishing routes at route/copy/helper level only.
 
 Validation:
 
@@ -51,11 +49,11 @@ Validation:
 
 Current baton:
 
-- MIMIR has PR348.
-- MIMIR can close PR348 as accepted.
-- The recommended next packet is a narrow UX-08 first Space/publishing
-  entrypoint clarity lane, kept to route/copy/helper-level unless MIMIR chooses
-  otherwise.
+- DAEDALUS has PR349.
+- DAEDALUS should implement the smallest safe first Space/publishing entrypoint
+  clarity slice and wake ARGUS.
+- If implementation is not safe, DAEDALUS should wake MIMIR with the exact
+  blocker and revised next packet.
 
 ## Latest MIMIR decision - PR347 passed, PR348 opened
 
