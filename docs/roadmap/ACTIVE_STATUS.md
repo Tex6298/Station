@@ -4,15 +4,14 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR342 Developer Space observatory accepted
+## Latest MIMIR decision - PR342 accepted, PR343 hosted rehearsal opened
 
-ARGUS accepted
+MIMIR accepts ARGUS's PR342 result:
 `docs/roadmap/PR342_UX06_DEVELOPER_SPACE_OBSERVATORY_RESULT.md`.
 
-Verdict: PASS.
+Decision:
 
-Result:
-
+- PR342 is closed as accepted.
 - Public Developer Space detail pages now show a `How to read this observatory`
   orientation strip before metrics and visualization-heavy content.
 - The strip gives visitors a three-step reading path: start with public
@@ -33,6 +32,10 @@ Result:
   persistence.
 - It also avoids public launch, commercial readiness, partner, hosting, or
   external-runtime control claims.
+- MIMIR opens
+  `docs/roadmap/PR343_UX06_DEVELOPER_SPACE_HOSTED_REHEARSAL_ARIADNE.md`.
+- ARIADNE should run hosted desktop/mobile human-eye proof after Railway deploy
+  before MIMIR makes stronger deployed observatory UX claims.
 
 Validation:
 
@@ -44,10 +47,11 @@ Validation:
 
 Current baton:
 
-- MIMIR has the accepted PR342 verdict via `WAKEUP A1:`.
-- MIMIR should close PR342 and decide the next move.
-- ARIADNE hosted desktop/mobile Developer Space rehearsal is recommended after
-  the patch deploys before stronger deployed observatory UX claims.
+- ARIADNE has PR343.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- If PR343 passes, MIMIR should decide the next roadmap lane rather than leave
+  the team idle.
 
 ## Latest MIMIR decision - PR341 accepted, PR342 opened
 
