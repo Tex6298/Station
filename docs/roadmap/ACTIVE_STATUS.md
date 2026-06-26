@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR337 passed, PR338 UX-05 forum lane opened
+
+MIMIR accepts ARIADNE's PR337 result:
+`docs/roadmap/PR337_UX05_DISCOVER_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR337 is a hosted human-eye `PASS`.
+- Railway appears to have deployed PR336.
+- Desktop and `375px` mobile `/discover` checks passed.
+- `/writing` presents unsupported `Staff picks` as disabled/preview-only.
+- Visible Discover forum, Developer Space, and public document card families
+  opened.
+- PR336 is safe to mention as deployed Discover controls UX within accepted
+  scope.
+- MIMIR opens
+  `docs/roadmap/PR338_UX05_FORUM_BROWSING_CLARITY_DAEDALUS.md`.
+- The next product lane stays in UX-05 and moves to Forums/community browsing
+  clarity because public community rows/counts still need to feel intentional
+  and mobile-safe.
+
+Current baton:
+
+- DAEDALUS has PR338.
+- DAEDALUS should implement the smallest safe no-new-config forum browsing
+  clarity slice or return an exact route/component map if implementation is not
+  safe.
+- If code changes land, DAEDALUS should wake ARGUS for hostile review.
+- If no code changes land, DAEDALUS should wake MIMIR with the exact next
+  implementation packet.
+
 ## Latest MIMIR decision - PR336 accepted, PR337 hosted rehearsal opened
 
 MIMIR accepts ARGUS's PR336 result:
