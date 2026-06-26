@@ -363,7 +363,11 @@ export function developerSpaceMethodologyCopy(detail: Pick<DeveloperSpaceDetail,
 export function developerSpaceVisitorReadingPath(
   detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">
 ) {
-  const publicLinks = detail.linkedDocuments.filter((link) => link.linkVisibility !== "owner");
+  const publicLinks = detail.linkedDocuments.filter((link) =>
+    link.linkVisibility === "public"
+    && link.document?.status === "published"
+    && link.document?.visibility === "public"
+  );
   const methodologyCount = publicLinks.filter((link) => link.role === "methodology").length;
   const findingCount = publicLinks.filter((link) => link.role === "finding").length;
   const fieldLogCount = publicLinks.filter((link) => link.role === "field_log").length;

@@ -25,23 +25,22 @@ they are not Station validation failures.
 DAEDALUS implemented PR342 on 2026-06-26:
 `docs/roadmap/PR342_UX06_DEVELOPER_SPACE_OBSERVATORY_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Developer Space orientation strip | Pass | Public Developer Space detail pages now show a `How to read this observatory` reading path before metrics and visualization-heavy content. |
-| Public evidence boundary | Pass | The helper counts public methodology, finding, and field-log links while excluding owner-only linked documents from public evidence copy. |
+| Public evidence boundary | Pass | ARGUS tightened the helper so public methodology, finding, and field-log counts require a public link and a linked document that is still published and public; owner-only and stale public-link rows are excluded from public evidence copy. |
 | Live/snapshot boundary | Pass | Copy separates current public-safe node/signal readback from the latest snapshot, and makes thin-data states explicit when no snapshot or public evidence notes exist. |
 | Scope control | Pass | No config, env, schema, migration, database-admin, provider/model, Redis, Valkey, Upstash, Cloudflare, queue, worker, billing, Stripe, ingestion key, auth/session, visibility, API serializer, event/node/snapshot payload, linked-document persistence, owner console, public launch, commercial, partner, hosting, or external-runtime-control behavior changed. |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 48 tests passed, including visitor reading path helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 48 tests passed after ARGUS review, including stricter visitor reading path helper coverage. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
 | `git diff --check` | Pass | CRLF normalization notices only. |
 
-Residual risk: this is local code/test validation. ARGUS should review public,
-member, and owner boundary safety before MIMIR closes PR342. ARIADNE hosted
-desktop/mobile Developer Space rehearsal is recommended after ARGUS accepts and
-the patch deploys.
+Residual risk: this is local code/test validation. ARIADNE hosted
+desktop/mobile Developer Space rehearsal is recommended after the patch deploys
+before stronger deployed observatory UX claims.
 
 ## PR340 UX-05 Thread Detail Status Labels Result
 

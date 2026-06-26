@@ -460,15 +460,17 @@ test("observatory visitor reading path separates evidence, readback, and snapsho
     events: [{ id: "event-1" }],
     latestSnapshot: { id: "snapshot-1" },
     linkedDocuments: [
-      { role: "methodology", linkVisibility: "public" },
-      { role: "finding", linkVisibility: "public" },
-      { role: "field_log", linkVisibility: "owner" },
+      { role: "methodology", linkVisibility: "public", document: { status: "published", visibility: "public" } },
+      { role: "finding", linkVisibility: "public", document: { status: "published", visibility: "public" } },
+      { role: "field_log", linkVisibility: "owner", document: { status: "draft", visibility: "private" } },
+      { role: "field_log", linkVisibility: "public", document: { status: "draft", visibility: "private" } },
     ],
   } as unknown as Parameters<typeof developerSpaceVisitorReadingPath>[0]);
 
   assert.deepEqual(path.map((step) => step.step), ["1", "2", "3"]);
   assert.match(path[0].body, /1 methodology note/);
   assert.match(path[0].body, /1 finding/);
+  assert.match(path[0].body, /0 field logs/);
   assert.doesNotMatch(path[0].body, /owner-only/);
   assert.match(path[1].body, /2 tracked nodes/);
   assert.match(path[1].body, /1 public signal/);

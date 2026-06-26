@@ -4,10 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR342 Developer Space observatory ready for review
+## Latest ARGUS verdict - PR342 Developer Space observatory accepted
 
-DAEDALUS completed
+ARGUS accepted
 `docs/roadmap/PR342_UX06_DEVELOPER_SPACE_OBSERVATORY_RESULT.md`.
+
+Verdict: PASS.
 
 Result:
 
@@ -20,6 +22,9 @@ Result:
 - Thin-data states are explicit when no public evidence notes or snapshot are
   attached.
 - Owner-only linked documents are not counted as public evidence.
+- ARGUS tightened the new helper so owner-visible stale public-link rows only
+  count as public evidence when the linked document is still `published` and
+  `public`.
 - The patch is presentation/helper-copy only and does not change config,
   environment variables, schema, migrations, database-admin state,
   provider/model routing, Redis, Valkey, Upstash, Cloudflare, queues, workers,
@@ -32,20 +37,17 @@ Result:
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed
-  48 tests.
+  48 tests after the ARGUS review patch.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
 - `git diff --check` passed with CRLF normalization notices only.
 
 Current baton:
 
-- ARGUS has PR342.
-- ARGUS should review the result doc and the public Developer Space detail
-  route for public/member/owner boundary safety and copy overclaims.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has the accepted PR342 verdict via `WAKEUP A1:`.
+- MIMIR should close PR342 and decide the next move.
 - ARIADNE hosted desktop/mobile Developer Space rehearsal is recommended after
-  ARGUS accepts and the patch deploys.
+  the patch deploys before stronger deployed observatory UX claims.
 
 ## Latest MIMIR decision - PR341 accepted, PR342 opened
 
