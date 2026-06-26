@@ -4,7 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR377 accepted, PR378 opened
+## Latest MIMIR decision - PR378 failed, PR379 opened
+
+MIMIR accepts ARIADNE's PR378 hosted owner archive/export/import trust
+rehearsal:
+`docs/roadmap/PR378_OWNER_ARCHIVE_EXPORT_IMPORT_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR378 is closed as `FAIL`.
+- `/studio/export` passed: scoped export trust/readback boundaries were visible
+  and safe.
+- The replay persona Archive/File page passed: supported import-source and
+  owner-review boundaries were visible and safe.
+- `/studio/archive` failed: Global Archive result text exposed raw JSON-shaped
+  source material in visible owner archive results.
+- This is an owner-only route, but default result cards still should not dump
+  raw imported source structures.
+- MIMIR opens
+  `docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR379.
+- DAEDALUS should patch the smallest Global Archive result preview/readback
+  path so JSON-shaped source bodies are summarized or redacted by default.
+- Export trust and persona import-pipeline readback are not reopened.
+- No parser, persistence, search semantics, public archive exposure, provider,
+  Redis, Cloudflare, worker, queue, schema, migration, billing, or broad UI lane
+  is open.
+
+## Previous MIMIR decision - PR377 accepted, PR378 opened
 
 MIMIR accepts ARIADNE's PR377 hosted Discover initial public Space rerun:
 `docs/roadmap/PR377_DISCOVER_INITIAL_SPACE_HOSTED_RERUN_RESULT.md`.
