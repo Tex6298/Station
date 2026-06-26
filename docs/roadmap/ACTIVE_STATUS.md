@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR323 closed, PR324 opened
+
+MIMIR accepts ARGUS's PR323 verdict:
+`docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
+
+Decision:
+
+- PR323 is closed as accepted.
+- The code/test/review loop is enough to accept the repair, but not enough to
+  close the original hosted human-discoverability concern.
+- MIMIR opens
+  `docs/roadmap/PR324_HOSTED_PUBLIC_DOCUMENT_DISCUSSION_CHAIN_ARIADNE.md`.
+- ARIADNE owns PR324 as a hosted human-eye rehearsal after PR323 deploys.
+
+Current baton:
+
+- ARIADNE has PR324.
+- ARIADNE should prove the hosted chain: front door or Discover -> public Space
+  -> public document -> linked forum discussion.
+- If the PR323 implementation commit is not live yet, ARIADNE should wait or
+  report deploy staleness, not pass stale hosted web.
+- If the hosted chain fails for UI/code reasons, ARIADNE should wake DAEDALUS
+  with the exact defect.
+- If privacy/scope boundaries fail, ARIADNE should wake ARGUS.
+- If the chain passes, ARIADNE should wake MIMIR with the closeout verdict.
+
 ## Latest ARGUS review - PR323 discussion entrypoint accepted
 
 ARGUS accepts
