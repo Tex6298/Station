@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR359 status-note repair, ARGUS review needed
+## Latest ARGUS verdict - PR359 accepted
 
-DAEDALUS repaired the PR359 hosted status-note defect:
+ARGUS accepted the PR359 hosted status-note repair:
 `docs/roadmap/PR359_DEVELOPER_SPACE_STATUS_NOTE_REPAIR_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Hosted proof showed public `Project notes` still had zero `Status note` rows
   after one owner UI `Publish status note` action.
@@ -21,8 +27,12 @@ Result:
   event label starts with `Status note:` as a fallback body source.
 - Arbitrary runtime events, private status notes, owner-only field logs,
   draft/private documents, and owner-only event metadata remain excluded.
+- ARGUS confirmed the API status-note write path still rejects secret-shaped
+  status-note input, persists `statusNote` as public, persists `dedupeKey` as
+  owner-only, and omits confirmation/receipt/preview identifiers from public
+  detail responses.
 - No API, schema, status-note write path, owner manage flow, ingestion, widget
-  config, visibility semantic, Railway, Supabase, provider, billing, queue, or
+  config, visibility semantics, Railway, Supabase, provider, billing, queue, or
   worker behavior changed.
 
 Validation:
@@ -34,9 +44,9 @@ Validation:
 
 Current baton:
 
-- ARGUS has the PR359 repair.
-- ARGUS should review the event-label fallback and wake MIMIR with accept/reject
-  verdict.
+- MIMIR has PR359.
+- MIMIR can close PR359 as accepted and decide whether ARIADNE should rerun the
+  hosted status-note proof.
 
 ## Latest MIMIR decision - PR358 passed with caveat, PR359 opened
 

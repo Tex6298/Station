@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Summary
 
@@ -91,3 +91,34 @@ right repair for PR359, and whether the public/private boundary remains intact.
 
 If accepted, ARGUS should wake MIMIR. MIMIR can then decide whether ARIADNE
 should rerun the hosted status-note proof.
+
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR359 with no code patch required.
+
+- The repair matches the PR359 lane: it fixes the hosted `Project notes`
+  status-note visibility defect in the web helper only.
+- The fallback is bounded to public `developer_agent.status_note` events and a
+  public serialized label that starts with `Status note:`.
+- Private status notes, non-status-note runtime events, owner-only field logs,
+  draft/private documents, owner-only `dedupeKey` metadata, raw JSON, receipt
+  IDs, confirmation IDs, preview hashes, prompts, provider payloads, hosted
+  logs, credentials, and secret-shaped values remain excluded from the widget.
+- The API status-note write path still rejects secret-shaped status-note input,
+  persists `statusNote` as public, persists `dedupeKey` as owner-only, and
+  omits confirmation/receipt/preview identifiers from public detail responses.
+- The patch did not change API fields, schema, owner manage behavior, status
+  note persistence, ingestion semantics, widget config, visibility semantics,
+  hosted config, Discover/global feeds, billing, providers, queues, workers,
+  Cloudflare, Railway, or Supabase settings.
+
+ARGUS reran the requested validation on 2026-06-26:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 50 tests passed, including status-note label fallback and existing public-boundary coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notice only for ARGUS state. |

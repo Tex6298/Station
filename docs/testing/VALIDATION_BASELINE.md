@@ -25,20 +25,21 @@ they are not Station validation failures.
 DAEDALUS repaired PR359 on 2026-06-26:
 `docs/roadmap/PR359_DEVELOPER_SPACE_STATUS_NOTE_REPAIR_RESULT.md`.
 
-Validation result: `READY FOR ARGUS`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Status-note hosted defect repair | Pass | `developerSpaceProjectUpdates()` now accepts a safe `Status note:` event-label fallback when public field controls omit `eventData.statusNote`. |
-| Boundary coverage | Pass | Helper tests still exclude private status notes, arbitrary runtime events, owner-only field logs, draft/private documents, and owner-only `dedupeKey` values. |
-| Scope control | Pass | No API, schema, status-note write path, owner manage flow, ingestion, widget config, visibility semantic, Railway, Supabase, provider, billing, queue, or worker behavior changed. |
+| Boundary coverage | Pass | ARGUS confirmed helper tests still exclude private status notes, arbitrary runtime events, owner-only field logs, draft/private documents, and owner-only `dedupeKey` values. |
+| API boundary | Pass | Existing API tests still reject secret-shaped status-note input and omit confirmation IDs, receipt IDs, preview hashes, and `dedupeKey` from public detail. |
+| Scope control | Pass | No API, schema, status-note write path, owner manage flow, ingestion, widget config, visibility semantics, Railway, Supabase, provider, billing, queue, or worker behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 50 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
 
-Residual risk: This local repair still needs ARGUS review and, if accepted,
-ARIADNE hosted rerun proof for the replay Developer Space.
+Residual risk: ARGUS accepted the local repair. MIMIR should decide whether
+ARIADNE reruns the hosted status-note proof for the replay Developer Space.
 
 ## PR357 Developer Space Project Updates Feed Source Map Result
 
