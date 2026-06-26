@@ -4,15 +4,19 @@ import {
   approvalForDocument,
   documentEditHref,
   documentPublicVersionLabel,
+  documentTrustReadback,
   documentVersionSummaryLabel,
   documentDestinationLabel,
+  documentProvenanceLabel,
   documentTypeLabel,
   filterDocumentsForPublishingTab,
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
   publicDocumentHref,
+  publishingDashboardTrustLine,
   publishingQueueActionGuard,
   publishingApprovalStateLabel,
+  publishingSourceLabelForReadback,
   publishingStatusLabel,
   slugifyDocumentTitle,
   type PublishingApproval,
@@ -87,4 +91,80 @@ test("publishing helpers summarize document version history", () => {
     documentVersionSummaryLabel(null, [{ versionNumber: 1 }]),
     "Current version v1; 1 prior version saved from v1 to v1.",
   );
+});
+
+test("publishing trust readback explains public document boundaries", () => {
+  const rows = documentTrustReadback({
+    document: {
+      document_type: "archive_note",
+      status: "published",
+      visibility: "public",
+      provenance_type: "archive_import",
+      source_label: "https://example.test/source token=abc123 123e4567-e89b-12d3-a456-426614174000",
+      version: 3,
+      discussion_thread_id: "thread-1",
+    },
+    isOwner: false,
+    hasDiscussion: true,
+    discussionEligible: true,
+    discussionLoading: false,
+  });
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["document", "Archive Note / Published", "good"],
+    ["source", "Archive import", "warning"],
+    ["version", "v3", "good"],
+    ["discussion", "Linked", "good"],
+  ]);
+  assert.match(rows.find((row) => row.id === "source")?.body ?? "", /\[redacted-url\]/);
+  assert.match(rows.find((row) => row.id === "source")?.body ?? "", /token=\[redacted\]/);
+  assert.match(rows.find((row) => row.id === "source")?.body ?? "", /\[redacted-id\]/);
+  assert.match(rows.find((row) => row.id === "source")?.body ?? "", /separate curated copy/);
+  assert.match(rows.find((row) => row.id === "version")?.body ?? "", /prior drafts/);
+});
+
+test("publishing trust readback keeps owner draft and discussion state honest", () => {
+  const rows = documentTrustReadback({
+    document: {
+      document_type: "essay",
+      status: "draft",
+      visibility: "private",
+      provenance_type: "user_authored",
+      source_label: "User-authored document",
+      version: 1,
+      discussion_thread_id: null,
+    },
+    isOwner: true,
+    hasDiscussion: false,
+    discussionEligible: true,
+    discussionLoading: false,
+  });
+
+  assert.equal(rows.find((row) => row.id === "document")?.body, "This owner-visible draft is not part of the public Space until it is published.");
+  assert.match(rows.find((row) => row.id === "source")?.body ?? "", /Private Studio records/);
+  assert.equal(rows.find((row) => row.id === "discussion")?.value, "Eligible");
+  assert.match(rows.find((row) => row.id === "discussion")?.body ?? "", /owner can open/i);
+});
+
+test("publishing dashboard trust line summarizes approval without leaking source internals", () => {
+  const line = publishingDashboardTrustLine(
+    {
+      space_id: "space-1",
+      source_label: "source_id=123e4567-e89b-12d3-a456-426614174000 ghp_secret123456",
+      version: 4,
+    },
+    approvals[0],
+    spaces,
+  );
+
+  assert.match(line, /Grounding check/);
+  assert.match(line, /Station \/ Station/);
+  assert.match(line, /v4/);
+  assert.match(line, /source_id=\[redacted\]/);
+  assert.match(line, /\[redacted-secret\]/);
+  assert.match(line, /Private source rows stay private/);
+  assert.doesNotMatch(line, /123e4567|ghp_secret/i);
+
+  assert.equal(documentProvenanceLabel("ai_assisted"), "AI-assisted");
+  assert.equal(publishingSourceLabelForReadback(""), null);
 });

@@ -12,6 +12,7 @@ import {
   documentTypeLabel,
   filterDocumentsForPublishingTab,
   publicDocumentHref,
+  publishingDashboardTrustLine,
   publishingApprovalStateLabel,
   publishingQueueActionGuard,
   publishingStatusLabel,
@@ -198,7 +199,9 @@ export function PublishingDashboard() {
                       <div style={rowMeta}>
                         {documentDestinationLabel(document, spaces)} - {formatDate(document.published_at ?? document.updated_at ?? document.created_at)}
                       </div>
-                      {document.source_label ? <div style={sourceLine}>{document.source_label}</div> : null}
+                      <div style={sourceLine}>
+                        {publishingDashboardTrustLine(document, approval, spaces)}
+                      </div>
                     </div>
                     <div style={buttonRow}>
                       <Link href={`/studio/publish?documentId=${document.id}`} style={miniLink}>Edit</Link>

@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR367 Publishing Trust Readback Result
+
+DAEDALUS implemented PR367 on 2026-06-26:
+`docs/roadmap/PR367_PUBLISHING_TRUST_READBACK_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Publishing trust surface map | Pass | Document read routes, owner version history, discussion routes, approval queue, Studio publish flow, dashboard, and public Space cues are documented. |
+| Public document trust readback | Pass | Document pages now show document state, provenance/source boundary, version, and discussion rows. |
+| Owner dashboard trust line | Pass | Publishing dashboard rows now summarize approval, destination, version, sanitized source, and private-source boundary. |
+| Scope control | Pass | No API, publish transition, visibility, discussion, version persistence, approval state machine, schema, migration, worker, queue, provider, billing, auth, Railway, or Supabase config changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 122 tests passed, including publishing trust helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 public writing/story tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 document discussion route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed; Git emitted only CRLF normalization warnings. |
+
+Residual risk: This is a readback-only UI/helper patch over current publishing
+behavior. It does not add hosted browser proof, approval workflow changes,
+scheduled publishing, social dispatch, Station Press, PDF/export, or new
+provenance persistence; ARGUS should review before MIMIR closes PR367.
+
 ## PR366 Import Pipeline Owner Readback Result
 
 DAEDALUS implemented PR366 on 2026-06-26:

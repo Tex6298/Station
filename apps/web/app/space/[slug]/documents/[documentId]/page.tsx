@@ -8,9 +8,12 @@ import { getSession } from "@/lib/auth";
 import { documentReadRoute, shouldFallbackToPublicDocumentRead } from "@/lib/document-read-route";
 import {
   documentEditHref,
+  documentProvenanceLabel,
   documentPublicVersionLabel,
+  documentTrustReadback,
   documentVersionSummaryLabel,
   type PublishingDocumentVersion,
+  type PublishingTrustRow,
 } from "@/lib/publishing";
 import { publicDocumentDiscussionEntrypointCopy } from "@/lib/public-story-polish";
 import { PostComposer } from "@/components/social/post-composer";
@@ -51,14 +54,6 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   constitution: "Codex",
   update: "Field Log",
   other: "Archive Note",
-};
-
-const PROVENANCE_LABELS: Record<string, string> = {
-  user_authored: "User-authored",
-  ai_assisted: "AI-assisted",
-  archive_import: "Archive import",
-  integrity_session: "Integrity Session",
-  persona_derived: "Persona-derived",
 };
 
 function discussionVisibilityForDocument(doc: Document) {
@@ -231,6 +226,13 @@ export default function DocumentPage() {
     : discussionCopy.body;
   const currentVersion = doc.version && doc.version > 0 ? doc.version : 1;
   const editHref = documentEditHref(doc.id);
+  const trustRows = documentTrustReadback({
+    document: doc,
+    isOwner,
+    hasDiscussion: Boolean(discussion),
+    discussionEligible,
+    discussionLoading,
+  });
 
   return (
     <main className="container" style={{ maxWidth: 720 }}>
@@ -255,7 +257,7 @@ export default function DocumentPage() {
           </span>
           {doc.provenance_type && (
             <span style={{ fontSize: "0.72rem", color: "#174b70", background: "#e7f0f6", border: "1px solid rgba(40, 120, 185, 0.35)", borderRadius: 999, padding: "0.1rem 0.45rem" }}>
-              {PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}
+              {documentProvenanceLabel(doc.provenance_type)}
             </span>
           )}
           {doc.published_at && (
@@ -306,12 +308,9 @@ export default function DocumentPage() {
             </button>
           </div>
         )}
-        {doc.source_label && (
-          <div style={{ marginTop: "0.9rem", color: "#8b8f92", fontSize: "0.82rem" }}>
-            Source: {doc.source_label}
-          </div>
-        )}
       </div>
+
+      <DocumentTrustReadback rows={trustRows} />
 
       {(isOwner || currentVersion > 1) && (
         <section className="card" style={{ marginBottom: "1.5rem", padding: "1rem 1.1rem" }}>
@@ -419,4 +418,50 @@ export default function DocumentPage() {
       </div>
     </main>
   );
+}
+
+function DocumentTrustReadback({ rows }: { rows: PublishingTrustRow[] }) {
+  return (
+    <section className="card" style={{ marginBottom: "1.5rem", padding: "1rem 1.1rem" }}>
+      <div style={{ fontSize: "0.72rem", color: "#687078", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+        Document trust
+      </div>
+      <div style={{ color: "#1f2529", fontWeight: 650, marginBottom: "0.35rem" }}>
+        Provenance, visibility, and discussion readback
+      </div>
+      <div style={{ color: "#687078", fontSize: "0.82rem", marginBottom: "0.75rem", lineHeight: 1.55 }}>
+        This panel explains the public copy without exposing private Studio source rows.
+      </div>
+      <div style={{ display: "grid", gap: "0.55rem" }}>
+        {rows.map((row) => (
+          <div key={row.id} style={trustRowStyle(row.tone)}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", alignItems: "flex-start" }}>
+              <span style={{ color: "#687078", fontSize: "0.72rem", fontWeight: 760, textTransform: "uppercase" }}>
+                {row.label}
+              </span>
+              <strong style={{ color: "#1f2529", fontSize: "0.82rem" }}>{row.value}</strong>
+            </div>
+            <p style={{ margin: "0.35rem 0 0", color: "#687078", fontSize: "0.82rem", lineHeight: 1.55 }}>
+              {row.body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function trustRowStyle(tone: PublishingTrustRow["tone"]) {
+  const toneStyles = {
+    info: { background: "#f8f7f4", borderColor: "#d8d3c8" },
+    good: { background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)" },
+    warning: { background: "#fff7ed", borderColor: "#fed7aa" },
+  }[tone];
+
+  return {
+    border: `1px solid ${toneStyles.borderColor}`,
+    borderRadius: 8,
+    background: toneStyles.background,
+    padding: "0.75rem",
+  };
 }

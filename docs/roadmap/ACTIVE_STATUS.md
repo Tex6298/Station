@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR367 ready for ARGUS
+
+DAEDALUS completed PR367:
+`docs/roadmap/PR367_PUBLISHING_TRUST_READBACK_RESULT.md`.
+
+Result:
+
+- Current publishing trust truth is mapped: readable document routes,
+  owner-only version history, document discussion visibility, publishing
+  approval queue state, Studio publish flow, Studio publishing dashboard, and
+  public Space document cues.
+- Public document pages now show a `Document trust` panel for document state,
+  provenance/source boundary, current version, and linked discussion state.
+- The owner publishing dashboard now shows a sanitized trust line with approval
+  state, destination, version, source label, and private-source boundary.
+- Source labels are sanitized before readback for URLs, token labels, UUIDs,
+  and secret-shaped values.
+- No API, publish transition, document visibility, discussion visibility,
+  version persistence, approval state machine, schema, migration, worker,
+  queue, provider, billing, auth, Railway, or Supabase config changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
+  warnings or errors.
+- `git diff --check` passed with only CRLF normalization warnings.
+
+Current baton:
+
+- ARGUS has PR367.
+- ARGUS should review the publishing surface map, public/private boundaries,
+  source-label sanitization, approval-state readback, version readback, and
+  discussion-state copy.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR decision - PR366 accepted, PR367 opened
 
 MIMIR accepts ARGUS's PR366 import pipeline owner-readback verdict:
