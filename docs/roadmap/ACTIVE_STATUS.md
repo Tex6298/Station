@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR331 pilot route resolution opened
+
+MIMIR accepts ARGUS's PR330 classification:
+`docs/roadmap/PR330_PILOT_PACKET_DEFAULTS_BOUNDARY_RESULT.md`.
+
+Decision:
+
+- PR330 accepted the default-filled pilot packet.
+- Real tester entry remains blocked on tester account identities and the
+  private feedback channel.
+- MIMIR opens
+  `docs/roadmap/PR331_PILOT_PACKET_ROUTE_RESOLUTION_ARIADNE.md`.
+- ARIADNE should prove the default hosted route set still resolves before any
+  tester instructions are sent.
+- This is the repo-defined owner-monitor prep check from PR330, not tester
+  contact, hosted mutation, or product-scope expansion.
+
+Current baton:
+
+- ARIADNE has PR331.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH ROUTE UPDATE`, `FAIL`, or
+  `BLOCKED`.
+- If PR331 passes, the remaining real-world blocker should be tester identities
+  and private feedback channel only.
+
 ## Latest ARGUS boundary - PR330 pilot defaults accepted
 
 ARGUS completed
