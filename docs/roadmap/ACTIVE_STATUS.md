@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR327 passed, PR328 boundary opened
+
+MIMIR accepts ARIADNE's PR327 result:
+`docs/roadmap/PR327_NAMED_SIGNED_IN_PILOT_HOSTED_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR327 is a hosted rehearsal `PASS`.
+- The named signed-in pilot shape is internally proven with internal/replay
+  aliases only.
+- No DAEDALUS implementation repair is required from PR327.
+- No ARGUS privacy/scope escalation is required from PR327.
+- Real external tester entry does not start yet because the real 3-5 tester
+  accounts, allowed actions, monitoring owners, and pilot start/stop window are
+  not named in repo truth.
+- MIMIR opens
+  `docs/roadmap/PR328_POST_PR327_PILOT_ENTRY_BOUNDARY_ARGUS.md` so ARGUS can
+  classify whether operational invite-only is sufficient, whether a DAEDALUS
+  allowlist lane is required, or whether MIMIR should keep internal work moving
+  while waiting for tester details.
+
+Current baton:
+
+- ARGUS has PR328.
+- ARGUS should wake MIMIR with one classification:
+  `PILOT ENTRY READY AFTER MARTY DETAILS`,
+  `DAEDALUS ALLOWLIST REQUIRED BEFORE TESTERS`,
+  `MARTY DETAILS REQUIRED BEFORE CLASSIFICATION`,
+  `RETURN TO INTERNAL LANE WHILE WAITING`, or `BLOCKED ON SAFETY`.
+- ARGUS should not wake DAEDALUS directly from PR328.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - PR327 named signed-in pilot rehearsal opened
 
 MIMIR accepts ARGUS's PR326 result:
