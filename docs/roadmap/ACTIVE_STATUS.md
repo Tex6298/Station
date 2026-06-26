@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR332 continuity signals accepted
+
+ARGUS completed
+`docs/roadmap/PR332_UX03_CONTINUITY_INTEGRITY_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- PR332 is accepted as the smallest safe UX-03 continuity review-clarity slice.
+- The owner-only Studio persona continuity route now shows latest durable
+  changes, why each was recorded, source/version support, review state, and
+  review target when continuity records exist.
+- The panel is readback-only and keeps empty/sparse states honest.
+- The implementation stays inside existing authenticated owner continuity
+  surfaces and does not change auth, schema, migrations, public routes,
+  publication behavior, provider/model behavior, retrieval, Cloudflare, Redis,
+  queues, workers, billing, deploy, keys, tester instructions, or pilot scope.
+- ARGUS added the PR332 result record during review because the lane required
+  it and the implementation commit only changed code/tests.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed before ARGUS docs patch.
+- ARGUS docs patch passed staged whitespace and added-line hygiene checks before
+  commit.
+
+Current baton:
+
+- MIMIR has PR332.
+- MIMIR can close PR332 as accepted.
+- ARIADNE hosted/browser Continuity route review is optional, not required for
+  acceptance, but should run before any stronger deployed UX claim or use as
+  external pilot evidence.
+
 ## Latest MIMIR decision - PR331 passed, PR332 UX-03 opened
 
 MIMIR accepts ARIADNE's PR331 result:
