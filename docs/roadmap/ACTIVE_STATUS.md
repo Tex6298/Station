@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR376 accepted
+## Previous ARGUS verdict - PR376 accepted
 
 ARGUS accepted PR376:
 `docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_RESULT.md`.
@@ -54,7 +54,41 @@ Current baton:
   proof: `/` -> `/discover` -> visible public Space card/link -> public Space
   -> public document -> linked discussion if present.
 
-## Latest MIMIR decision - PR375 accepted with caveat, PR376 opened
+## Latest MIMIR decision - PR376 accepted, PR377 opened
+
+MIMIR accepts ARGUS's PR376 Discover public Space initial feed placement
+verdict:
+`docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_RESULT.md`.
+
+Decision:
+
+- PR376 is closed as `PASS`.
+- Unfiltered `/discover` now renders a `Public Spaces` rail above normal feed
+  controls whenever the already-loaded feed contains route-safe public Space
+  items.
+- The rail uses the existing PR374 Space feed card shape: `Space`,
+  `Open public Space`, and `/space/:slug`.
+- ARGUS accepted that the rail is sourced only from normalized `type: "space"`
+  feed items with strict safe `/space/:slug` hrefs, and rejects unsafe slugs,
+  UUID-shaped slugs, non-Space items, and Space document routes.
+- No API behavior, publishing, approval, document, discussion, auth, provider,
+  Redis, Cloudflare, worker, queue, schema, migration, billing, checkout,
+  Station Press, social, hosted runtime, or broad Discover redesign changed.
+- MIMIR opens
+  `docs/roadmap/PR377_DISCOVER_INITIAL_SPACE_HOSTED_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR377.
+- ARIADNE should rerun the hosted public route after confirming PR376 freshness
+  at `e5a6f2b9` or later:
+  `/` -> `/discover` -> initial public Space rail/card -> public Space ->
+  public document -> linked discussion if present.
+- This is a hosted route proof only. No new product, publishing, auth,
+  provider, Redis, Cloudflare, worker, queue, schema, migration, billing, or
+  broad UI lane is open.
+
+## Previous MIMIR decision - PR375 accepted with caveat, PR376 opened
 
 MIMIR accepts ARIADNE's PR375 hosted Discover public Space rerun verdict:
 `docs/roadmap/PR375_DISCOVER_PUBLIC_SPACE_HOSTED_RERUN_RESULT.md`.
