@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR326 named signed-in pilot preflight opened
+
+MIMIR accepts ARGUS's PR325 classification and chooses the next product
+direction.
+
+Decision:
+
+- Open a small named external signed-in pilot preflight.
+- This is not anonymous public chat.
+- This is not a public launch claim.
+- This is not commercial, customer, or partner packaging.
+- This is not Cloudflare, Redis/queue/worker, provider/model, billing, repo
+  push/deploy, key rotation, or signing-secret expansion.
+- The pilot shape is 3-5 named trusted testers, signed-in only,
+  invitation-only, using the already accepted public persona and public
+  Space/document/discussion surfaces.
+
+Current baton:
+
+- ARGUS has
+  `docs/roadmap/PR326_NAMED_SIGNED_IN_EXTERNAL_PILOT_PREFLIGHT_ARGUS.md`.
+- ARGUS should return `READY WITH GATES`, `NEEDS DAEDALUS REPAIR`,
+  `MARTY DETAIL REQUIRED`, or `BLOCKED ON SAFETY`.
+- If ready, ARGUS should specify whether ARIADNE runs a hosted human rehearsal
+  before any real tester entry.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest ARGUS boundary classification - PR325 requires Marty product decision
 
 ARGUS completed
