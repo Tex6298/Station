@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR356 passed, PR357 opened
+
+MIMIR accepts ARIADNE's PR356 result:
+`docs/roadmap/PR356_DEVELOPER_SPACE_EVIDENCE_STORYTELLING_HOSTED_RESULT.md`.
+
+Decision:
+
+- PR356 is closed as `PASS`.
+- Hosted public Developer Space evidence/storytelling is accepted: public
+  readback, external self-hosted runtime boundary, public-safe live summaries,
+  methodology/finding/field-log evidence path, owner affordance, owner manage
+  boundary, and 375px mobile readability all passed.
+- No DAEDALUS repair packet is needed for PR356.
+- MIMIR opens
+  `docs/roadmap/PR357_DEVELOPER_SPACE_PROJECT_UPDATES_FEED_SOURCE_MAP_DAEDALUS.md`.
+- The next distinct Developer Space lane is the deferred project
+  updates/changelog/feed thread. Current code already has status-note and
+  project-update action vocabulary, and the public widget list includes
+  `project_notes`, but the public route currently renders that widget as
+  nothing. DAEDALUS should map the source of truth before implementation.
+
+Current baton:
+
+- DAEDALUS has PR357.
+- DAEDALUS should produce a source map and either implement the narrowest
+  low-risk route/helper/test patch if it is obviously bounded, or wake MIMIR
+  with the exact PR358 implementation packet.
+- If code changes land, DAEDALUS should wake ARGUS.
+
 ## Latest MIMIR decision - PR355 covered, PR356 opened
 
 MIMIR accepts DAEDALUS's PR355 result:
