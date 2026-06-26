@@ -1,77 +1,7 @@
 import Link from "next/link";
+import { PRICING_TIER_ORDER, pricingTierDisplay } from "@/lib/billing-tier-display";
 
-const TIERS = [
-  {
-    name: "Free",
-    tier: "visitor",
-    price: "GBP 0",
-    interval: null,
-    description: "See what Station is about. No commitment.",
-    features: [
-      "Browse public Spaces and documents",
-      "Read the community forums",
-      "Limited discover feed",
-    ],
-    cta: "Sign up free",
-    href: "/signup",
-    featured: false,
-  },
-  {
-    name: "Basic",
-    tier: "private",
-    price: "GBP 10",
-    interval: "month",
-    description: "Your private studio. Two personas, full archive, community access.",
-    features: [
-      "2 personas",
-      "Private archive with memory + canon",
-      "File and chat imports",
-      "Full forum access",
-      "5 GB storage",
-      "BYOK or platform AI",
-    ],
-    cta: "Start Basic",
-    href: "/signup?tier=private",
-    featured: false,
-  },
-  {
-    name: "Creator",
-    tier: "creator",
-    price: "GBP 100",
-    interval: "month",
-    yearlyPrice: "GBP 1,000",
-    description: "Unlimited personas, a public Space, and the tools to publish and share.",
-    features: [
-      "Unlimited personas",
-      "Full archive + semantic search",
-      "Your own public Space (website)",
-      "Publish essays, codexes, and field logs",
-      "50 GB storage",
-      "BYOK or platform AI",
-      "Forum + community access",
-    ],
-    cta: "Become a Creator",
-    href: "/signup?tier=creator",
-    featured: true,
-  },
-  {
-    name: "Canon / Developer",
-    tier: "canon",
-    price: "GBP 250",
-    interval: "month",
-    description: "For serious practitioners. Everything, plus more space and early access.",
-    features: [
-      "Everything in Creator",
-      "3 Spaces",
-      "200 GB storage",
-      "Priority support",
-      "Early access to new features",
-    ],
-    cta: "Join Canon / Developer",
-    href: "/signup?tier=canon",
-    featured: false,
-  },
-];
+const TIERS = PRICING_TIER_ORDER.map(pricingTierDisplay);
 
 export default function PricingPage() {
   return (
@@ -130,7 +60,7 @@ export default function PricingPage() {
               )}
               {t.yearlyPrice && (
                 <span style={{ display: "block", color: "#534ab7", fontSize: "0.78rem", marginTop: "0.2rem" }}>
-                  or {t.yearlyPrice}/year - save 17%
+                  or {t.yearlyPriceWithInterval} - save 17%
                 </span>
               )}
             </p>

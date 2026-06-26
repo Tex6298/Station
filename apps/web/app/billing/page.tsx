@@ -17,14 +17,12 @@ import {
   type CheckoutTier,
   type BillingPlanAction,
 } from "@/lib/billing-plan-actions";
-
-const TIER_LABELS: Record<string, string> = {
-  visitor:       "Free",
-  private:       "Basic",
-  creator:       "Creator",
-  canon:         "Canon / Developer",
-  institutional: "Institutional",
-};
+import {
+  BILLING_PLAN_TIERS,
+  billingLimitLabel,
+  billingPlanDisplay,
+  billingTierLabel,
+} from "@/lib/billing-tier-display";
 
 const TIER_COLOUR: Record<string, string> = {
   visitor:       "#687078",
@@ -33,11 +31,6 @@ const TIER_COLOUR: Record<string, string> = {
   canon:         "#8a6422",
   institutional: "#2878b9",
 };
-
-function formatLimit(value: number, unit: string) {
-  if (value < 0) return `Unlimited ${unit}`;
-  return `${value} ${unit}`;
-}
 
 function subscriptionSummary(status: string | null | undefined) {
   if (isActiveSubscriptionStatus(status)) {
@@ -127,7 +120,7 @@ export default function BillingPage() {
       {success && (
         <div className="station-notice" data-tone="success" style={{ marginBottom: "1.5rem" }}>
           <p style={{ margin: 0 }}>
-            Subscription activated. Welcome to {TIER_LABELS[currentTier]}!
+            Subscription activated. Welcome to {billingTierLabel(currentTier)}!
           </p>
         </div>
       )}
@@ -155,7 +148,7 @@ export default function BillingPage() {
             fontWeight: 700,
             color: TIER_COLOUR[currentTier] ?? "#1f2529",
           }}>
-            {TIER_LABELS[currentTier] ?? currentTier}
+            {billingTierLabel(currentTier)}
           </span>
           {status?.subscriptionStatus && (
             <span style={{
@@ -208,7 +201,7 @@ export default function BillingPage() {
               fontSize: "0.9rem",
             }}
           >
-            {actionLoading ? "Opening..." : `Activate ${TIER_LABELS[currentTier] ?? currentTier}`}
+            {actionLoading ? "Opening..." : `Activate ${billingTierLabel(currentTier)}`}
           </button>
         )}
 
@@ -216,15 +209,15 @@ export default function BillingPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "0.75rem", marginTop: "1rem" }}>
             <div>
               <p style={{ color: "#687078", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Spaces</p>
-              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{formatLimit(status.limits.spaces, "Spaces")}</p>
+              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{billingLimitLabel(status.limits.spaces, "Space")}</p>
             </div>
             <div>
               <p style={{ color: "#687078", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Developer Spaces</p>
-              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{formatLimit(status.limits.developerSpaces, "Developer Spaces")}</p>
+              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{billingLimitLabel(status.limits.developerSpaces, "Developer Space")}</p>
             </div>
             <div>
               <p style={{ color: "#687078", fontSize: "0.75rem", margin: "0 0 0.25rem" }}>Storage</p>
-              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{formatLimit(status.limits.storageGb, "GB")}</p>
+              <p style={{ margin: 0, color: "#1f2529", fontSize: "0.95rem" }}>{billingLimitLabel(status.limits.storageGb, "GB", "GB")}</p>
             </div>
           </div>
         )}
@@ -243,39 +236,24 @@ export default function BillingPage() {
       </h2>
 
       <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-        <PlanCard
-          name="Basic"
-          tier="private"
-          price="GBP 10"
-          interval="month"
-          features={["2 personas", "Private archive", "Forum access", "Chat (BYOK or platform)"]}
-          action={billingPlanAction({ currentTier, planTier: "private", subscriptionStatus: status?.subscriptionStatus })}
-          onUpgrade={() => handleUpgrade("private", "monthly")}
-          loading={actionLoading}
-        />
-        <PlanCard
-          name="Creator"
-          tier="creator"
-          price="GBP 100"
-          interval="month"
-          yearlyPrice="GBP 1,000/year"
-          features={["Unlimited personas", "Full archive + RAG", "Public page (Space)", "Publish essays & codexes", "Forum access"]}
-          action={billingPlanAction({ currentTier, planTier: "creator", subscriptionStatus: status?.subscriptionStatus })}
-          onUpgrade={() => handleUpgrade("creator", "monthly")}
-          onUpgradeYearly={() => handleUpgrade("creator", "yearly")}
-          loading={actionLoading}
-          featured
-        />
-        <PlanCard
-          name="Canon"
-          tier="canon"
-          price="GBP 250"
-          interval="month"
-          features={["Everything in Creator", "3 Spaces", "50 GB storage", "Priority support", "Early access to new features"]}
-          action={billingPlanAction({ currentTier, planTier: "canon", subscriptionStatus: status?.subscriptionStatus })}
-          onUpgrade={() => handleUpgrade("canon", "monthly")}
-          loading={actionLoading}
-        />
+        {BILLING_PLAN_TIERS.map((tier) => {
+          const plan = billingPlanDisplay(tier);
+          return (
+            <PlanCard
+              key={plan.tier}
+              name={plan.name}
+              price={plan.price}
+              interval={plan.interval}
+              yearlyPrice={plan.yearlyPriceWithInterval ?? undefined}
+              features={plan.features}
+              action={billingPlanAction({ currentTier, planTier: plan.tier, subscriptionStatus: status?.subscriptionStatus })}
+              onUpgrade={() => handleUpgrade(plan.tier, "monthly")}
+              onUpgradeYearly={plan.yearlyPrice ? () => handleUpgrade(plan.tier, "yearly") : undefined}
+              loading={actionLoading}
+              featured={plan.featured}
+            />
+          );
+        })}
       </div>
 
       <div className="station-panel" style={{ marginTop: "2rem" }}>
@@ -296,7 +274,6 @@ export default function BillingPage() {
 
 function PlanCard({
   name,
-  tier,
   price,
   interval,
   yearlyPrice,
@@ -308,7 +285,6 @@ function PlanCard({
   featured,
 }: {
   name: string;
-  tier: string;
   price: string;
   interval: string;
   yearlyPrice?: string;

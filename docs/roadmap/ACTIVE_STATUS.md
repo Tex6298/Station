@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR345 billing display helper ready for review
+
+DAEDALUS completed
+`docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_RESULT.md`.
+
+Result:
+
+- Public Pricing and authenticated Billing now share display truth through
+  `apps/web/lib/billing-tier-display.ts`.
+- The helper derives paid-tier labels, monthly prices, visible yearly prices,
+  storage limits, Space limits, Developer Space limits, and persona limits from
+  `@station/config`.
+- `/pricing` now renders `PRICING_TIER_ORDER` through `pricingTierDisplay`.
+- `/billing` now renders plan cards through `BILLING_PLAN_TIERS` and
+  `billingPlanDisplay`.
+- Billing current-plan limits use the shared limit formatter for Spaces,
+  Developer Spaces, and storage.
+- Same-tier inactive activation and higher-tier/lower-tier card action logic
+  remain in `apps/web/lib/billing-plan-actions.ts`.
+- `test:billing` now includes `apps/web/lib/billing-tier-display.test.ts`.
+- The patch is display/helper/test-only and does not change Stripe products,
+  Price IDs, Checkout, Portal, webhook handling, entitlement enforcement,
+  customer/profile binding, schema, migrations, token top-ups, tax, invoices,
+  Connect, marketplace, tips, usage billing, live-money behavior, Redis,
+  Cloudflare, providers, onboarding, or broad billing design.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR345.
+- ARGUS should review the shared display helper, route wiring, and tests.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR decision - PR344 accepted, PR345 opened
 
 MIMIR accepts ARGUS's PR344 result:

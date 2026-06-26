@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR345 UX-07 Billing Tier Display Helper Result
+
+DAEDALUS implemented PR345 on 2026-06-26:
+`docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Shared Billing/Pricing display helper | Pass | `apps/web/lib/billing-tier-display.ts` derives visible labels, prices, yearly prices, storage limits, Space limits, Developer Space limits, and persona limits from `@station/config`. |
+| Public Pricing wiring | Pass | `/pricing` renders `PRICING_TIER_ORDER` through `pricingTierDisplay`, removing the route-local tier table. |
+| Authenticated Billing wiring | Pass | `/billing` renders plan cards through `BILLING_PLAN_TIERS` and `billingPlanDisplay`, while preserving existing action logic in `billing-plan-actions.ts`. |
+| Scope control | Pass | Display/helper/test-only; no Stripe product, Price ID, Checkout, Portal, webhook, entitlement enforcement, customer/profile binding, schema, migration, token top-up, tax, invoice, Connect, marketplace, tip, usage billing, live-money, Redis, Cloudflare, provider, onboarding, or broad design behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 14 tests passed, including display-helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+
+Residual risk: Billing IA/loading polish remains route-local and should be a
+separate UX-07 lane if MIMIR wants it. Token-credit and Developer Space usage
+quota copy remain intentionally separate from subscription entitlement copy.
+
 ## PR344 UX-07 Billing Entitlement Source Map Result
 
 DAEDALUS implemented PR344 on 2026-06-26:
