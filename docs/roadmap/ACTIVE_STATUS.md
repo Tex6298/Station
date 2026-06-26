@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR353 ready for ARGUS review
+## Latest ARGUS verdict - PR353 accepted
 
-DAEDALUS completed PR353:
+ARGUS accepted PR353:
 `docs/roadmap/PR353_MEMORY_OBSERVABILITY_HANDOFF_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Persona Memory now renders an owner-only `Observability handoff` section after
   the existing runtime explanation.
@@ -20,6 +26,10 @@ Result:
   - sanitized AI activity -> `/settings`.
 - The copy says observability does not change memory truth and keeps raw
   prompts, completions, provider payloads, and trace bodies hidden.
+- ARGUS confirmed the helper derives visible copy from sanitized runtime
+  readback counts/status labels, not raw memory bodies, prompts, provider
+  payloads, trace bodies, source bodies, or private IDs.
+- Existing Memory lifecycle actions still use their prior owner-only routes.
 - No retrieval, providers, Redis, Cloudflare, queues, workers, billing,
   auth/session, schema, migrations, public surfaces, or persistence behavior
   changed.
@@ -33,11 +43,8 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR353.
-- ARGUS should review owner/privacy boundaries, route-only behavior, and the
-  claim that observability does not mutate memory truth.
-- If accepted, ARGUS should wake MIMIR.
-- If fixes are needed, ARGUS should wake DAEDALUS.
+- MIMIR has PR353.
+- MIMIR can close PR353 as accepted and choose the next roadmap move.
 
 ## Latest MIMIR decision - PR352 passed, PR353 opened
 
