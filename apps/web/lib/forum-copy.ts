@@ -9,3 +9,51 @@ export function forumCategoryDescriptionCopy(description?: string | null) {
     description
   );
 }
+
+export function forumCountLabel(count: number | null | undefined, singular: string, plural = `${singular}s`) {
+  const safeCount = typeof count === "number" && Number.isFinite(count) ? Math.max(0, count) : 0;
+  return `${safeCount} ${safeCount === 1 ? singular : plural}`;
+}
+
+export function forumScoreLabel(score: number | null | undefined) {
+  const safeScore = typeof score === "number" && Number.isFinite(score) ? score : 0;
+  return `Score ${safeScore}`;
+}
+
+export function forumThreadActivityLabel(value?: string | null, prefix = "Latest activity") {
+  if (!value) return `${prefix} recently`;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return `${prefix} recently`;
+  return `${prefix} ${date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
+}
+
+export function forumThreadVisibilityLabel(visibility?: string | null) {
+  if (!visibility || visibility === "public") return "Public";
+  if (visibility === "community") return "Community-visible";
+  if (visibility === "members") return "Members";
+  return visibility
+    .split(/[_-]+/g)
+    .filter(Boolean)
+    .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export function forumThreadKindLabels(input: {
+  isPinned?: boolean | null;
+  linkedDocumentId?: string | null;
+  visibility?: string | null;
+}) {
+  const labels: string[] = [];
+  if (input.isPinned) labels.push("Pinned");
+  if (input.linkedDocumentId) labels.push("Document discussion");
+  const visibility = forumThreadVisibilityLabel(input.visibility);
+  if (visibility !== "Public") labels.push(visibility);
+  return labels;
+}
+
+export function forumCategoryEntryLabel(input?: { subcommunity?: { title?: string | null; type?: string | null; subcommunityType?: string | null } | null }) {
+  const type = input?.subcommunity?.type ?? input?.subcommunity?.subcommunityType;
+  if (type === "salon") return "Open Salon";
+  if (input?.subcommunity) return "Open subcommunity";
+  return "Open forum";
+}

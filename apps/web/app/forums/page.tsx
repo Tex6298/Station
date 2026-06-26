@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { CommunitySubcommunityRecord } from "@station/types";
 import { apiGet } from "@/lib/api-client";
 import { subcommunityBadgeLabel } from "@/lib/community-subcommunities";
-import { forumCategoryDescriptionCopy } from "@/lib/forum-copy";
+import { forumCategoryDescriptionCopy, forumCategoryEntryLabel } from "@/lib/forum-copy";
 
 interface Category {
   id: string;
@@ -73,43 +73,32 @@ export default function ForumsPage() {
       )}
 
       {!loading && categories.length > 0 && (
-        <div style={{ display: "grid", gap: "0.75rem" }}>
+        <div className="forum-category-grid">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               href={`/forums/${cat.slug}`}
               style={{ textDecoration: "none" }}
             >
-              <div className="card" style={{ cursor: "pointer", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                <div style={{
-                  width: 42, height: 42, borderRadius: 10, flexShrink: 0,
-                  background: "#f8f7f4", border: "1px solid #d8d3c8",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "1.2rem",
-                }} aria-hidden="true">
-                  <span style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: "999px",
-                    background: "#534ab7",
-                    boxShadow: "0 0 0 4px rgba(83, 74, 183, 0.12)",
-                  }} />
+              <article className="card forum-category-card">
+                <div className="forum-category-marker" aria-hidden="true">
+                  <span />
                 </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: "1rem", marginBottom: "0.2rem" }}>{cat.title}</div>
+                <div className="forum-category-copy">
+                  <div className="forum-category-title">{cat.title}</div>
                   {cat.subcommunity && (
-                    <div style={{ color: "#534ab7", fontSize: "0.72rem", fontWeight: 800, marginBottom: "0.25rem" }}>
+                    <div className="forum-category-badge">
                       {subcommunityBadgeLabel(cat.subcommunity)}
                     </div>
                   )}
                   {cat.description && (
-                    <div style={{ color: "#687078", fontSize: "0.85rem" }}>{forumCategoryDescriptionCopy(cat.description)}</div>
+                    <div className="forum-category-description">{forumCategoryDescriptionCopy(cat.description)}</div>
                   )}
                 </div>
-                <div style={{ marginLeft: "auto", color: "#687078", fontSize: "0.75rem", paddingTop: "0.15rem", whiteSpace: "nowrap" }}>
-                  View
+                <div className="forum-category-entry">
+                  {forumCategoryEntryLabel({ subcommunity: cat.subcommunity })}
                 </div>
-              </div>
+              </article>
             </Link>
           ))}
         </div>

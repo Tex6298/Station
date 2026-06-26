@@ -15,7 +15,13 @@ import {
   canUseDelegatedModerationQueue,
   delegatedModerationPagePath,
 } from "@/lib/delegated-moderation-queue";
-import { forumCategoryDescriptionCopy } from "@/lib/forum-copy";
+import {
+  forumCategoryDescriptionCopy,
+  forumCountLabel,
+  forumScoreLabel,
+  forumThreadActivityLabel,
+  forumThreadKindLabels,
+} from "@/lib/forum-copy";
 
 interface Author { username: string; display_name: string | null; }
 interface CommunityProfile { trustLevel: number; reputationScore: number; }
@@ -173,7 +179,7 @@ export default function ForumCategoryPage() {
         )}
       </div>
 
-      <div className="card" style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", marginBottom: "1rem", padding: "0.75rem 1rem" }}>
+      <div className="card forum-browse-controls">
         <input
           className="input"
           value={search}
@@ -194,34 +200,38 @@ export default function ForumCategoryPage() {
           {subcommunityThreadEmptyCopy(category.subcommunity, canPost)}
         </div>
       ) : (
-        <div style={{ display: "grid", gap: "0.65rem" }}>
-          {threads.map((t) => (
+        <div className="forum-thread-grid">
+          {threads.map((t) => {
+            const kindLabels = forumThreadKindLabels({
+              isPinned: t.is_pinned,
+              linkedDocumentId: t.linked_document_id,
+              visibility: t.visibility,
+            });
+            return (
             <Link key={t.id} href={`/forums/${categorySlug}/${t.id}`} style={{ textDecoration: "none" }}>
-              <div className="card" style={{ cursor: "pointer" }}>
-                <div style={{ display: "grid", gap: "0.55rem", minWidth: 0 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                      {t.is_pinned && <span style={{ fontSize: "0.68rem", color: "#854f0b" }}>Pinned</span>}
-                      {t.linked_document_id && <span style={{ fontSize: "0.68rem", color: "#25633f" }}>Document discussion</span>}
-                      {t.visibility && t.visibility !== "public" && <span style={{ fontSize: "0.68rem", color: "#687078" }}>{t.visibility}</span>}
+              <article className="card forum-thread-card">
+                <div className="forum-thread-main">
+                  <div className="forum-thread-copy">
+                    <div className="forum-thread-labels">
+                      {kindLabels.map((label) => (
+                        <span key={label}>{label}</span>
+                      ))}
                     </div>
-                    <div style={{ fontWeight: 600, fontSize: "0.975rem", marginBottom: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <div className="forum-thread-title">
                       {t.title}
                     </div>
-                    <div style={{ color: "#687078", fontSize: "0.82rem", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                    <div className="forum-thread-excerpt">
                       {t.body}
                     </div>
                   </div>
-                  <div style={{ display: "flex", width: "100%", minWidth: 0, justifyContent: "flex-start", gap: "0.45rem 0.65rem", flexWrap: "wrap", textAlign: "left", color: "#687078" }}>
-                    <div style={{ fontSize: "0.85rem", color: "#1f2529", fontWeight: 700 }}>{t.score} votes</div>
-                    <div style={{ fontSize: "0.75rem", color: "#687078" }}>{t.comment_count} replies</div>
-                    <div style={{ fontSize: "0.7rem", color: "#8b8f92" }}>
-                      {new Date(t.last_activity_at ?? t.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                    </div>
+                  <div className="forum-thread-stats">
+                    <span>{forumScoreLabel(t.score)}</span>
+                    <span>{forumCountLabel(t.comment_count, "reply", "replies")}</span>
+                    <span>{forumThreadActivityLabel(t.last_activity_at ?? t.created_at)}</span>
                   </div>
                 </div>
                 {t.author && (
-                  <div style={{ marginTop: "0.5rem", fontSize: "0.72rem", color: "#687078", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                  <div className="forum-thread-byline">
                     <span>by {t.author.display_name ?? t.author.username}</span>
                     <span>trust {t.author_community_profile?.trustLevel ?? 0}</span>
                     {token && viewerUserId !== t.author_user_id && (
@@ -235,9 +245,10 @@ export default function ForumCategoryPage() {
                     )}
                   </div>
                 )}
-              </div>
+              </article>
             </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </main>

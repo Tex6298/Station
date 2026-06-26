@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR338 UX-05 Forum Browsing Clarity Result
+
+DAEDALUS implemented PR338 on 2026-06-26:
+`docs/roadmap/PR338_UX05_FORUM_BROWSING_CLARITY_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Forum category rows | Pass | `/forums` rows now use intentional forum/subcommunity entry labels and mobile-safe layout. |
+| Forum thread rows | Pass | `/forums/[categorySlug]` rows separate status, score, replies, latest activity, title, excerpt, byline, and trust readback. |
+| Thread detail labels | Pass | `/forums/[categorySlug]/[threadId]` reuses tested score/reply/status helpers. |
+| Scope control | Pass | No API query, visibility, membership, moderation, reporting, watch, witness, vote, posting, auth, schema, migration, provider/model, Redis, Cloudflare, queue, worker, deploy, key, anonymous chat, public launch, commercial, or partner behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 34 tests passed, including forum helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization notices only. |
+
+Residual risk: this is local code/test validation. ARIADNE should run hosted
+desktop/mobile `/forums` and visible replay forum thread rehearsal after ARGUS
+accepts and the patch deploys.
+
 ## PR336 UX-05 Discover Browsing Controls Result
 
 DAEDALUS implemented PR336 on 2026-06-26:

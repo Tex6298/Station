@@ -24,6 +24,12 @@ import {
   removeThreadWitness,
   witnessAvailabilityLabel,
 } from "@/lib/community-witness";
+import {
+  forumCountLabel,
+  forumScoreLabel,
+  forumThreadActivityLabel,
+  forumThreadKindLabels,
+} from "@/lib/forum-copy";
 
 interface Author { username: string; display_name: string | null; avatar_url: string | null; }
 interface Thread {
@@ -299,6 +305,11 @@ export default function ThreadPage() {
   const isLocked   = thread.status === "locked";
   const canComment = !!session && !isLocked;
   const canWatchThread = canUseThreadWatch(session?.user);
+  const threadKindLabels = forumThreadKindLabels({
+    isPinned: thread.is_pinned,
+    linkedDocumentId: thread.linked_document_id,
+    visibility: thread.visibility,
+  });
 
   return (
     <main className="container" style={{ maxWidth: 780 }}>
@@ -318,21 +329,16 @@ export default function ThreadPage() {
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap" }}>
           {isLocked && (
             <span style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#eeedfe", border: "1px solid #d8d3c8", color: "#534ab7" }}>
-              locked
+              Locked
             </span>
           )}
-          {thread.visibility && (
-            <span style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#f8f7f4", border: "1px solid #d8d3c8", color: "#687078" }}>
-              {thread.visibility}
+          {threadKindLabels.map((label) => (
+            <span key={label} style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#f8f7f4", border: "1px solid #d8d3c8", color: label === "Document discussion" ? "#25633f" : "#687078" }}>
+              {label}
             </span>
-          )}
-          {thread.linked_document_id && (
-            <span style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#e9f5ee", border: "1px solid rgba(59, 143, 99, 0.35)", color: "#25633f" }}>
-              document discussion
-            </span>
-          )}
+          ))}
           <span style={{ fontSize: "0.72rem", color: "#8b8f92" }}>
-            {new Date(thread.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            {forumThreadActivityLabel(thread.created_at, "Posted")}
           </span>
         </div>
         <h1 style={{ margin: "0 0 0.75rem", fontSize: "1.5rem", lineHeight: 1.25 }}>{thread.title}</h1>
@@ -345,7 +351,8 @@ export default function ThreadPage() {
           {thread.body}
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center", marginTop: "1rem", color: "#687078", fontSize: "0.78rem" }}>
-          <strong style={{ color: "#1f2529" }}>{thread.score} votes</strong>
+          <strong style={{ color: "#1f2529" }}>{forumScoreLabel(thread.score)}</strong>
+          <span>{forumCountLabel(thread.comment_count, "reply", "replies")}</span>
           {session && (
             <>
               {session.user.id !== thread.author_user_id ? (
@@ -441,7 +448,7 @@ export default function ThreadPage() {
       {/* Comments */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ fontSize: "0.78rem", color: "#687078", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-          {comments.length} {comments.length === 1 ? "reply" : "replies"}
+          {forumCountLabel(comments.length, "reply", "replies")}
         </div>
 
         {comments.length === 0 && (

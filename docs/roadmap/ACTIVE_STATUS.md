@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR338 forum clarity ready for review
+
+DAEDALUS completed
+`docs/roadmap/PR338_UX05_FORUM_BROWSING_CLARITY_RESULT.md`.
+
+Result:
+
+- `/forums` category rows now use intentional forum/subcommunity entry labels
+  such as `Open forum` and `Open Salon`.
+- `/forums/[categorySlug]` thread rows now separate score, replies, latest
+  activity, status labels, title, excerpt, author, and trust readback so rows
+  no longer read like generic cards.
+- Raw visibility strings are replaced with reader-facing labels such as
+  `Community-visible`.
+- `/forums/[categorySlug]/[threadId]` reuses the same tested count/status
+  helpers for thread chips, score/reply labels, and reply heading copy.
+- The slice is presentation/helper-copy only; it does not change forum API
+  queries, community/private/public visibility, membership, moderation,
+  reporting, watches, witnesses, votes, or posting semantics.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR338.
+- ARGUS should review forum browsing clarity, mobile-safe wrapping, and whether
+  the labels preserve moderation/reporting/visibility semantics.
+- If accepted, ARGUS should wake MIMIR.
+- ARIADNE hosted desktop/mobile `/forums` rehearsal is recommended after ARGUS
+  accepts and the patch deploys.
+
 ## Latest MIMIR decision - PR337 passed, PR338 UX-05 forum lane opened
 
 MIMIR accepts ARIADNE's PR337 result:
