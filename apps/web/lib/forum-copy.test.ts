@@ -6,7 +6,9 @@ import {
   forumCountLabel,
   forumScoreLabel,
   forumThreadActivityLabel,
+  forumThreadCategoryLabel,
   forumThreadKindLabels,
+  forumThreadStatusLabel,
   forumThreadVisibilityLabel,
 } from "./forum-copy";
 
@@ -35,6 +37,9 @@ test("forum thread status labels avoid raw visibility jargon", () => {
   assert.equal(forumThreadVisibilityLabel("public"), "Public");
   assert.equal(forumThreadVisibilityLabel("community"), "Community-visible");
   assert.equal(forumThreadVisibilityLabel("members"), "Members");
+  assert.equal(forumThreadStatusLabel("active"), "Open discussion");
+  assert.equal(forumThreadStatusLabel("locked"), "Locked thread");
+  assert.equal(forumThreadCategoryLabel("Replay Salon"), "Category: Replay Salon");
   assert.deepEqual(
     forumThreadKindLabels({ isPinned: true, linkedDocumentId: "doc-1", visibility: "community" }),
     ["Pinned", "Document discussion", "Community-visible"]

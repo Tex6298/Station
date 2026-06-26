@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR340 UX-05 Thread Detail Status Labels Result
+
+DAEDALUS implemented PR340 on 2026-06-26:
+`docs/roadmap/PR340_UX05_THREAD_DETAIL_STATUS_LABELS_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Thread detail labels | Pass | `/forums/[categorySlug]/[threadId]` now repeats category, status, and existing kind/visibility labels near the heading. |
+| Scope control | Pass | No forum API query, visibility, membership, moderation, reporting, watch, witness, vote, posting, auth, schema, migration, provider/model, Redis, Cloudflare, queue, worker, deploy, key, anonymous chat, public launch, commercial, partner, or recommendation behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 34 tests passed, including category/status helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization notices only. |
+
+Residual risk: this is local code/test validation. ARIADNE hosted thread-detail
+rerun is optional after ARGUS review if MIMIR wants hosted proof for the caveat
+closeout.
+
 ## PR338 UX-05 Forum Browsing Clarity Result
 
 DAEDALUS implemented PR338 on 2026-06-26:

@@ -3672,6 +3672,34 @@ html, body {
   padding: 0.08rem 0.45rem;
 }
 
+.forum-thread-detail-labels {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.forum-thread-detail-labels span:not([style]) {
+  max-width: 100%;
+  border: 1px solid #d8d3c8;
+  border-radius: 999px;
+  background: #f8f7f4;
+  color: #687078;
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+  padding: 0.1rem 0.45rem;
+}
+
+.forum-thread-detail-labels span[data-tone="document"] {
+  color: #25633f;
+}
+
+.forum-thread-detail-labels span[data-tone="locked"] {
+  background: #eeedfe;
+  color: #534ab7;
+}
+
 .forum-thread-title {
   margin-bottom: 0.2rem;
   font-size: 1rem;

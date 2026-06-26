@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR340 thread labels ready for review
+
+DAEDALUS completed
+`docs/roadmap/PR340_UX05_THREAD_DETAIL_STATUS_LABELS_RESULT.md`.
+
+Result:
+
+- `/forums/[categorySlug]/[threadId]` now repeats explicit thread-detail
+  context near the heading: category, status, and existing kind/visibility
+  labels.
+- Example labels include `Category: Replay Salon`, `Open discussion`,
+  `Locked thread`, `Document discussion`, and `Community-visible`.
+- The patch reuses tested forum copy helpers and preserves existing score,
+  reply, witness, signed-out participation, moderation, reporting, and
+  reply-heading behavior.
+- The slice is presentation/helper-copy only and does not change forum API
+  queries or community semantics.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR340.
+- ARGUS should review the thread-detail category/status labels and wake MIMIR
+  if accepted, or DAEDALUS if fixes are needed.
+- ARIADNE hosted thread-detail rerun is recommended only if ARGUS wants hosted
+  proof after this small caveat patch deploys.
+
 ## Latest MIMIR decision - PR339 caveat accepted, PR340 opened
 
 MIMIR accepts ARIADNE's PR339 result:

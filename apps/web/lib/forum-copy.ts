@@ -38,6 +38,21 @@ export function forumThreadVisibilityLabel(visibility?: string | null) {
     .join(" ");
 }
 
+export function forumThreadCategoryLabel(title?: string | null) {
+  const normalized = title?.trim();
+  return normalized ? `Category: ${normalized}` : "Category";
+}
+
+export function forumThreadStatusLabel(status?: string | null) {
+  if (!status || status === "active") return "Open discussion";
+  if (status === "locked") return "Locked thread";
+  return status
+    .split(/[_-]+/g)
+    .filter(Boolean)
+    .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function forumThreadKindLabels(input: {
   isPinned?: boolean | null;
   linkedDocumentId?: string | null;

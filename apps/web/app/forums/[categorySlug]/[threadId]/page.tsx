@@ -28,7 +28,9 @@ import {
   forumCountLabel,
   forumScoreLabel,
   forumThreadActivityLabel,
+  forumThreadCategoryLabel,
   forumThreadKindLabels,
+  forumThreadStatusLabel,
 } from "@/lib/forum-copy";
 
 interface Author { username: string; display_name: string | null; avatar_url: string | null; }
@@ -310,6 +312,11 @@ export default function ThreadPage() {
     linkedDocumentId: thread.linked_document_id,
     visibility: thread.visibility,
   });
+  const threadDetailLabels = [
+    forumThreadCategoryLabel(thread.category?.title ?? categorySlug),
+    forumThreadStatusLabel(thread.status),
+    ...threadKindLabels,
+  ];
 
   return (
     <main className="container" style={{ maxWidth: 780 }}>
@@ -326,14 +333,9 @@ export default function ThreadPage() {
 
       {/* Thread body */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap" }}>
-          {isLocked && (
-            <span style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#eeedfe", border: "1px solid #d8d3c8", color: "#534ab7" }}>
-              Locked
-            </span>
-          )}
-          {threadKindLabels.map((label) => (
-            <span key={label} style={{ fontSize: "0.72rem", padding: "0.1rem 0.45rem", borderRadius: 999, background: "#f8f7f4", border: "1px solid #d8d3c8", color: label === "Document discussion" ? "#25633f" : "#687078" }}>
+        <div className="forum-thread-detail-labels">
+          {threadDetailLabels.map((label) => (
+            <span key={label} data-tone={label === "Document discussion" ? "document" : label === "Locked thread" ? "locked" : undefined}>
               {label}
             </span>
           ))}
