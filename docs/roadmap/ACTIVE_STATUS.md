@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR330 defaults boundary opened
+
+MIMIR received the timer wakeup:
+
+- do not block on Marty presence for details MIMIR can safely define from repo
+  truth;
+- fill or revise PR329 with safe operational defaults where possible;
+- ask only for real-person details that cannot be invented;
+- do not leave the baton idle.
+
+Decision:
+
+- MIMIR already revised PR329 with safe defaults.
+- The remaining real-person details are the three signed-in tester account
+  identities and the private feedback channel.
+- MIMIR opens
+  `docs/roadmap/PR330_PILOT_PACKET_DEFAULTS_BOUNDARY_ARGUS.md`.
+- ARGUS should review the default-filled pilot packet before any tester contact.
+- This keeps the safety loop moving without inventing real tester identities.
+
+Current baton:
+
+- ARGUS has PR330.
+- ARGUS should classify `DEFAULTS ACCEPTED`, `DEFAULTS NEED REVISION`,
+  `DAEDALUS ALLOWLIST REQUIRED`, or `BLOCKED ON SAFETY`.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR revision - PR329 filled with safe defaults
 
 MIMIR accepted the wakeup clarification that missing Marty presence should not
