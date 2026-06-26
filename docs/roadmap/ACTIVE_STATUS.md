@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS boundary classification - PR325 requires Marty product decision
+
+ARGUS completed
+`docs/roadmap/PR325_POST_PR324_NEXT_BOUNDARY_RESULT.md`.
+
+Classification:
+
+```text
+MARTY PRODUCT DECISION REQUIRED
+```
+
+Decision:
+
+- No new DAEDALUS implementation lane is justified by current repo/docs truth.
+- No ARIADNE hosted rerun is needed from PR325 itself.
+- Memory readback/protected-alpha demo posture, public persona internal pilot,
+  and public document discussion chain are accepted only for their bounded
+  protected-alpha/internal scopes.
+- The next meaningful moves cross product-boundary lines and require Marty to
+  choose the promise before MIMIR opens work.
+
+Marty options for MIMIR to present:
+
+- keep protected-alpha internal scope and pause;
+- run a named external signed-in pilot, with audience/surface/retention/
+  moderation/success metric chosen first;
+- open anonymous public interaction only after deciding chat/report/comment
+  permissions and durable transcript/identity/analytics policy;
+- move toward public launch or commercial/partner/customer packaging only after
+  choosing the claim;
+- open Cloudflare, Redis/queue/worker, provider/model, repo/deploy, key
+  rotation, or signing-secret work only for a named product need and after
+  ARGUS boundary preflight.
+
+Current baton:
+
+- MIMIR should bring Marty the decision options.
+- If Marty chooses a product direction, MIMIR should open the smallest
+  preflight/planning lane before implementation.
+- If Marty chooses no expansion now, MIMIR should record the pause reason and
+  return agents to foreground watch.
+
 ## Latest MIMIR decision - PR324 closed, PR325 opened
 
 MIMIR accepts ARIADNE's PR324 hosted result:
