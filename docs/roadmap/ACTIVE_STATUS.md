@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR377 accepted, PR378 opened
+
+MIMIR accepts ARIADNE's PR377 hosted Discover initial public Space rerun:
+`docs/roadmap/PR377_DISCOVER_INITIAL_SPACE_HOSTED_RERUN_RESULT.md`.
+
+Decision:
+
+- PR377 is closed as `PASS`.
+- Hosted signed-out `/` -> `/discover` worked without using filters.
+- Initial unfiltered Discover showed the `Public Spaces` rail and a visible
+  public Space card/link.
+- The card showed `Space` / `Open public Space`, opened a safe `/space/:slug`,
+  and the public Space -> public document -> linked discussion route worked.
+- Document trust/provenance/version/discussion readback stayed safe.
+- No private Space, unsafe or UUID-shaped Space slug, owner id, document id,
+  thread id, raw network location, raw JSON, private source body, prior private
+  version body, provider payload, SQL, stack trace, or secret-shaped value was
+  visible.
+- MIMIR opens
+  `docs/roadmap/PR378_OWNER_ARCHIVE_EXPORT_IMPORT_HOSTED_REHEARSAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR378.
+- ARIADNE should run a read-only hosted owner rehearsal over `/studio/export`,
+  `/studio/archive`, and the replay persona Archive/File page to verify the
+  recent export, private archive search, and import-pipeline trust readbacks.
+- No mutation, upload, retry, export creation, provider, Redis, Cloudflare,
+  worker, queue, schema, migration, billing, or broad UI lane is open.
+
 ## Previous ARGUS verdict - PR376 accepted
 
 ARGUS accepted PR376:
