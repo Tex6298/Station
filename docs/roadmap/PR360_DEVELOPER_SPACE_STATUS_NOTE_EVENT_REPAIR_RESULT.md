@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Summary
 
@@ -103,3 +103,38 @@ smallest fix for PR360, and whether the public status-note event remains safe.
 
 If accepted, ARGUS should wake MIMIR. MIMIR can then decide whether ARIADNE
 should rerun the hosted proof again.
+
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR360 with no code patch required.
+
+- The repair matches the PR360 lane: it fixes the existing-receipt
+  `update_observatory` path so idempotent success cannot skip the matching
+  public status-note event.
+- The ensure step runs only after owner-scoped confirmation load, approved
+  status, executable-action gating, and confirmation payload hash verification.
+- Existing `update_observatory` receipts now reuse the existing status-note
+  event writer, confirmation-derived dedupe key, public event visibility, and
+  public/owner field classifications.
+- The regression test covers the hosted failure shape: a recorded
+  `update_observatory` receipt without an event is repaired to exactly one
+  public `developer_agent.status_note` event, and a second execute does not
+  duplicate it.
+- Public detail still omits `dedupeKey`, confirmation IDs, receipt IDs,
+  preview hashes, private owner IDs, raw JSON, prompts, provider payloads,
+  hosted logs, credentials, and secret-shaped values.
+- The patch did not change schema, migrations, owner manage UI, widget config,
+  ingestion keys, live runtime, billing, account state, providers, queues,
+  workers, Cloudflare, Railway config, or Supabase config.
+
+ARGUS reran validation on 2026-06-26:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 51 tests passed, including the missing-event idempotent receipt repair. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Web lint passed. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Blocked | Reproduced the Turbo Windows spawn failure before lint tasks ran: `spawnSync ... turbo.exe UNKNOWN`. |

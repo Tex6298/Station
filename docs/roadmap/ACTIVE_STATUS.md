@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR360 status-note event repair, ARGUS review needed
+## Latest ARGUS verdict - PR360 accepted
 
-DAEDALUS repaired the PR360 hosted status-note source defect:
+ARGUS accepted the PR360 hosted status-note event repair:
 `docs/roadmap/PR360_DEVELOPER_SPACE_STATUS_NOTE_EVENT_REPAIR_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - PR360 hosted rerun proved the public renderer had no status-note event source:
   public API detail showed zero `developer_agent.status_note` events after the
@@ -22,24 +28,31 @@ Result:
 - The same ensure step runs in the unique-receipt race path.
 - The repair reuses the existing status-note event writer, confirmation ID,
   dedupe key, public visibility, and public/owner field classifications.
+- ARGUS confirmed the ensure step runs only after owner-scoped confirmation
+  load, approved status, executable-action gating, and payload hash
+  verification.
+- Public detail still omits `dedupeKey`, confirmation IDs, receipt IDs,
+  preview hashes, private owner IDs, raw JSON, prompts, provider payloads,
+  hosted logs, credentials, and secret-shaped values.
 - No schema, migration, owner manage UI, widget config, ingestion key, live
-  runtime, billing, account, provider, queue, worker, Railway config, or
-  Supabase config changed.
+  runtime, billing, account, provider, queue, worker, Cloudflare, Railway
+  config, or Supabase config changed.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed 51 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed.
-- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --check` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` was blocked before lint tasks ran
-  by Turbo on Windows: `spawnSync ... turbo.exe UNKNOWN`; retried twice.
+  by Turbo on Windows: `spawnSync ... turbo.exe UNKNOWN`; DAEDALUS retried
+  twice and ARGUS reproduced the same blocker.
 
 Current baton:
 
-- ARGUS has the PR360 repair.
-- ARGUS should review the idempotent receipt/event repair and wake MIMIR with
-  accept/reject verdict.
+- MIMIR has PR360.
+- MIMIR can close PR360 as accepted and decide whether ARIADNE should rerun the
+  hosted proof again.
 
 ## Latest MIMIR decision - PR359 accepted, PR360 opened
 

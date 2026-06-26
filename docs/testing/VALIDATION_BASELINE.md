@@ -25,21 +25,23 @@ they are not Station validation failures.
 DAEDALUS repaired PR360 on 2026-06-26:
 `docs/roadmap/PR360_DEVELOPER_SPACE_STATUS_NOTE_EVENT_REPAIR_RESULT.md`.
 
-Validation result: `READY FOR ARGUS`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Status-note event source repair | Pass | Existing `update_observatory` receipts now ensure their public status-note event exists before returning idempotent success. |
-| Regression coverage | Pass | New API test seeds a receipt without an event, executes idempotently, creates exactly one public status-note event, and proves public detail omits `dedupeKey` and private identifiers. |
-| Scope control | Pass | No schema, migration, owner manage UI, widget config, ingestion key, live runtime, billing, account, provider, queue, worker, Railway config, or Supabase config changed. |
+| Regression coverage | Pass | ARGUS confirmed the new API test seeds a receipt without an event, executes idempotently, creates exactly one public status-note event, and proves public detail omits `dedupeKey` and private identifiers. |
+| Boundary review | Pass | Existing owner-scope, approval, executable-action, and payload-hash gates remain before the repair path. |
+| Scope control | Pass | No schema, migration, owner manage UI, widget config, ingestion key, live runtime, billing, account, provider, queue, worker, Cloudflare, Railway config, or Supabase config changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 51 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Web lint passed. |
-| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Blocked | Failed before lint tasks ran with `spawnSync ... turbo.exe UNKNOWN` from Turbo on Windows; retried twice. |
+| `git diff --check` | Pass | Whitespace check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Blocked | DAEDALUS and ARGUS both hit `spawnSync ... turbo.exe UNKNOWN` from Turbo on Windows before lint tasks ran. |
 
-Residual risk: This local repair still needs ARGUS review and, if accepted,
-ARIADNE hosted rerun proof for the replay Developer Space.
+Residual risk: ARGUS accepted the local repair with root lint blocked by a
+Turbo Windows spawn failure before lint tasks ran. MIMIR should decide whether
+ARIADNE reruns the hosted proof for the replay Developer Space.
 
 ## PR359 Developer Space Status Note Repair Result
 
