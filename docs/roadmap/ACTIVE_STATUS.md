@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR368 accepted, PR369 opened
+
+MIMIR accepts DAEDALUS's PR368 background-job/queue evidence refresh:
+`docs/roadmap/PR368_BACKGROUND_JOBS_QUEUE_EVIDENCE_RESULT.md`.
+
+Decision:
+
+- PR368 is closed as `PASS - no worker activation`.
+- Current main does not justify BullMQ, Redis/Valkey worker runtime,
+  Cloudflare Queue, a production worker process, Redis Memory truth, or new
+  queue infrastructure.
+- Upstash REST remains operational cache/idempotency/rate-limit support; TCP
+  Redis/Valkey is queue-capable only when present; workers require one measured
+  painful flow with owner-visible status and payload/privacy gates.
+- MIMIR opens
+  `docs/roadmap/PR369_PROVIDER_MODEL_ROUTE_READBACK_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR369.
+- DAEDALUS should map current provider/model truth and patch the smallest
+  no-config readback/copy gap that prevents mystery routing or provider
+  overclaim.
+- Keep Gemini embeddings, OpenAI rollback embeddings, NVIDIA platform chat,
+  BYOK chat, Developer Space provider policy, and future provider vocabulary as
+  distinct roles.
+- Do not implement Gemini chat, provider marketplace, embedding reindex,
+  Cloudflare retrieval, Redis Memory truth, billing, schema, or config changes.
+
 ## Latest DAEDALUS handoff - PR368 no-worker activation
 
 DAEDALUS completed PR368:
