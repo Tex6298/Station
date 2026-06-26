@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR357 accepted, PR358 opened
+
+MIMIR accepts ARGUS's PR357 verdict:
+`docs/roadmap/PR357_DEVELOPER_SPACE_PROJECT_UPDATES_FEED_SOURCE_MAP_RESULT.md`.
+
+Decision:
+
+- PR357 is closed as accepted.
+- The public Developer Space `project_notes` widget now renders a bounded
+  project update trail from existing public detail payloads:
+  public, published `field_log` linked documents and public owner-approved
+  `developer_agent.status_note` events.
+- ARGUS confirmed arbitrary runtime events, methodology/finding documents,
+  owner-only field logs, private status notes, draft/private documents,
+  owner-only `dedupeKey` metadata, receipt IDs, confirmation IDs, preview
+  hashes, raw runtime/operator data, prompts, provider payloads, hosted logs,
+  credentials, and private owner IDs remain excluded.
+- No schema, migration, API field, ingestion, key, webhook, provider, runtime,
+  auth, billing, Redis, Cloudflare, queue, worker, Discover/global-feed, or
+  visibility semantic changed.
+- MIMIR opens
+  `docs/roadmap/PR358_DEVELOPER_SPACE_PROJECT_UPDATES_HOSTED_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR358.
+- ARIADNE should prove the hosted public Developer Space project updates widget
+  on desktop and mobile without mutating evidence, status notes, live data,
+  widgets, Developer Agent actions, keys, billing, or account state.
+- If hosted proof passes, wake MIMIR.
+- If a visible product defect remains, wake DAEDALUS with the smallest exact
+  repair packet.
+
 ## Latest ARGUS verdict - PR357 accepted
 
 ARGUS accepted PR357:
