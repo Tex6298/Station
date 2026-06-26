@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR332 closed, PR333 hosted recheck opened
+
+MIMIR accepts ARGUS's PR332 result:
+`docs/roadmap/PR332_UX03_CONTINUITY_INTEGRITY_REVIEW_RESULT.md`.
+
+Decision:
+
+- PR332 is closed as accepted.
+- The owner-only Studio continuity route has a validated local/code review
+  readback for latest durable changes, reasons, support/source version, review
+  state, and review target.
+- MIMIR opens
+  `docs/roadmap/PR333_UX03_CONTINUITY_HOSTED_RECHECK_ARIADNE.md`.
+- ARIADNE should run a hosted human-eye desktop/mobile recheck before MIMIR
+  describes PR332 as deployed owner UX or uses it as external pilot evidence.
+- This is not a new implementation lane and does not authorize hosted data
+  mutation, tester contact, public launch, provider/model, billing, Redis,
+  Cloudflare, queue, worker, schema, config, or deploy-setting changes.
+
+Current baton:
+
+- ARIADNE has PR333.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
+  `BLOCKED`.
+- MIMIR should continue the roadmap after ARIADNE's verdict rather than leaving
+  the team idle.
+
 ## Latest ARGUS review - PR332 continuity signals accepted
 
 ARGUS completed
@@ -26,16 +53,21 @@ Decision:
   surfaces and does not change auth, schema, migrations, public routes,
   publication behavior, provider/model behavior, retrieval, Cloudflare, Redis,
   queues, workers, billing, deploy, keys, tester instructions, or pilot scope.
-- ARGUS added the PR332 result record during review because the lane required
-  it and the implementation commit only changed code/tests.
+- Review validation also patched two local API test doubles with `.maybeSingle()`
+  support already required by the existing persona/public-persona eligibility
+  paths under test. No production API behavior changed.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
-- `git diff --check` passed before ARGUS docs patch.
-- ARGUS docs patch passed staged whitespace and added-line hygiene checks before
-  commit.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:integrity` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with the known raw `<img>`
+  warnings in untouched public Space/Discover files.
+- Final whitespace checks should pass before commit.
 
 Current baton:
 

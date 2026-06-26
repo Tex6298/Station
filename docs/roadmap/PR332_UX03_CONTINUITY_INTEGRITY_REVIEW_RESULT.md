@@ -42,6 +42,11 @@ Touched by PR332:
 - `apps/web/lib/continuity-ui.ts`
 - `apps/web/lib/continuity-ui.test.ts`
 
+Review validation fixture patches:
+
+- `apps/api/src/routes/integrity.test.ts`
+- `apps/api/src/routes/continuity-publication.test.ts`
+
 Relevant existing owner route:
 
 - `apps/web/app/studio/personas/[personaId]/continuity/page.tsx`
@@ -65,6 +70,10 @@ Relevant existing owner route:
 - The copy says the source or review state supports the record; it does not
   claim proof, correctness, or full memory truth.
 
+The review fixture patches only add Supabase-test-double `.maybeSingle()`
+support already used by the production persona/public-persona eligibility paths
+under test. They do not change production API behavior.
+
 ## Validation
 
 ARGUS reviewed the code diff, lane doc, owner route, continuity API owner
@@ -73,11 +82,14 @@ boundary, and related tests.
 | Command | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 10 tests passed, including continuity owner boundaries and new review-signal redaction coverage. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
-| `git diff --check` | Pass | Whitespace check passed before ARGUS docs patch. |
-
-Docs-only ARGUS additions are covered by staged whitespace and added-line
-hygiene checks before commit.
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed after the local test double gained `.maybeSingle()` for the existing public-slug path. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed after the local test double gained `.maybeSingle()` for the existing public-persona eligibility path. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
 
 ## ARIADNE Hosted Review
 

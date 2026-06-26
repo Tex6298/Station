@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR332 UX-03 Continuity Review Signals Result
+
+DAEDALUS implemented PR332 on 2026-06-26:
+`docs/roadmap/PR332_UX03_CONTINUITY_INTEGRITY_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED BY ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner continuity review signals | Pass | `/studio/personas/[personaId]/continuity` now shows latest durable changes, why each was recorded, source/version support, review state, and review target when continuity records exist. |
+| Scope control | Pass | Readback-only owner Studio slice; no auth, schema, migrations, public routes, publication behavior, retrieval, provider/model, Cloudflare, Redis, queues, workers, billing, deploy, keys, tester instructions, or pilot scope changed. |
+| Review fixture repair | Pass | `integrity.test.ts` and `continuity-publication.test.ts` local Supabase doubles now support `.maybeSingle()` for existing persona/public-persona eligibility paths under test; production API behavior did not change. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+
 ## PR323 Public Document Discussion Entrypoint Result
 
 DAEDALUS implemented PR323 on 2026-06-26:
