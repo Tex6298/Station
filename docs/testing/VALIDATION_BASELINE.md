@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR366 Import Pipeline Owner Readback Result
+
+DAEDALUS implemented PR366 on 2026-06-26:
+`docs/roadmap/PR366_IMPORT_PIPELINE_OWNER_READBACK_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Import pipeline surface map | Pass | Pasted imports, retry/status/list routes, file-pointer processing, parser support, candidate output, and Global Archive readback are documented. |
+| Persona Archive/File readback patch | Pass | The page now names supported import sources and describes owner-only/private/candidate-review boundaries. |
+| Import job readback patch | Pass | Job cards now use source-name fallbacks, source-format labels, next-action copy, and status boundary copy. |
+| Scope control | Pass | No API, parser, schema, migration, job runner, worker, queue, provider, storage bucket, auth, public archive, or cross-owner behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 119 tests passed, including import pipeline readback helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 storage/API tests passed, including file parser, private chunk, candidate, and sanitized failure coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 archive/conversation/import parser tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed; Git emitted only CRLF normalization warnings. |
+
+Residual risk: This is a readback-only UI/helper patch over current import
+behavior. It does not add hosted browser proof, live provider import, worker
+execution, parser expansion, or automatic Memory/Canon acceptance; ARGUS should
+review before MIMIR closes PR366.
+
 ## PR365 Global Archive Private Search Result
 
 DAEDALUS implemented PR365 on 2026-06-26:

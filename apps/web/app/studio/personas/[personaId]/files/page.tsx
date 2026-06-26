@@ -8,12 +8,14 @@ import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import {
   archiveFileTrustCopy,
+  archiveImportJobReadback,
   archiveJobStatusLabel,
   archiveJobTone,
-  archiveJobTrustCopy,
   archiveTrustStateRows,
   archiveTrustSummary,
+  supportedImportFormatRows,
   type ArchiveTrustStateRow,
+  type SupportedImportFormatRow,
 } from "@/lib/archive-trust";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
 import { ImportReviewInbox } from "@/components/studio/import-review-inbox";
@@ -180,6 +182,7 @@ export default function PersonaFilesPage() {
 
   const summary = archiveTrustSummary(files, jobs);
   const stateRows = archiveTrustStateRows(files, jobs);
+  const supportedImportRows = supportedImportFormatRows();
 
   return (
     <main className="container studio-workspace">
@@ -212,6 +215,8 @@ export default function PersonaFilesPage() {
           <StorageUsagePanel />
         </StudioPanel>
       </section>
+
+      <ImportPipelineReadback rows={supportedImportRows} />
 
       <ImportReviewInbox
         candidates={importCandidates}
@@ -271,34 +276,68 @@ export default function PersonaFilesPage() {
 }
 
 function ImportJobCard({ job }: { job: ImportJob }) {
-  const copy = archiveJobTrustCopy(job);
+  const copy = archiveImportJobReadback(job);
   const canPublish = job.status === "completed";
 
   return (
     <article className="studio-item-card archive-trust-source-card">
       <div>
-        <span>{job.kind}</span>
+        <span>{copy.kindLabel}</span>
         <div className="archive-trust-card-meta">
+          <StudioStatusBadge tone="info">
+            {copy.formatLabel}
+          </StudioStatusBadge>
           <StudioStatusBadge tone={archiveJobTone(job.status)}>
             {archiveJobStatusLabel(job.status)}
           </StudioStatusBadge>
           <time>{formatDate(job.created_at)}</time>
         </div>
       </div>
-      <h3>{job.source_name}</h3>
+      <h3>{copy.sourceLabel}</h3>
       <p>{copy.body}</p>
       {job.status === "failed" && job.error_message ? (
         <div className="archive-trust-error">{job.error_message}</div>
       ) : null}
       <div className="archive-trust-next-action">{copy.nextAction}</div>
+      <div className="archive-trust-next-action">{copy.boundary}</div>
       {canPublish ? (
         <PublishContinuityButton
           sourceType="archive_import"
           sourceId={job.id}
-          defaultTitle={job.source_name}
+          defaultTitle={copy.sourceLabel}
         />
       ) : null}
     </article>
+  );
+}
+
+function ImportPipelineReadback({ rows }: { rows: SupportedImportFormatRow[] }) {
+  return (
+    <section aria-label="Import pipeline readback">
+      <StudioPanel>
+        <div className="studio-section-heading">
+          <div className="section-label">Import Pipeline</div>
+          <h2>Supported owner imports</h2>
+        </div>
+        <p className="archive-trust-copy">
+          Station currently accepts pasted source material on this page and stored uploaded files through the file import path. Parsed provider exports become private archive material first; Memory and Canon candidates stay pending for owner review.
+        </p>
+        <div className="archive-format-grid">
+          {rows.map((row) => (
+            <article key={row.id} className="archive-format-row">
+              <div className="archive-format-row-header">
+                <span>{row.label}</span>
+                <StudioStatusBadge tone="info">Owner-only</StudioStatusBadge>
+              </div>
+              <p>{row.input}</p>
+              <div className="archive-format-detail">{row.result}</div>
+              <div className="archive-format-detail">{row.review}</div>
+              <div className="archive-format-detail">{row.boundary}</div>
+            </article>
+          ))}
+        </div>
+      </StudioPanel>
+    </section>
   );
 }
 

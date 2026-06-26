@@ -3,6 +3,7 @@ export type ArchiveJobTone = "info" | "good" | "warning" | "danger";
 export interface ArchiveImportJobLike {
   kind?: string | null;
   status: string;
+  source_name?: string | null;
   error_message?: string | null;
 }
 
@@ -17,6 +18,24 @@ export interface ArchiveTrustStateRow {
   tone: ArchiveJobTone;
   body: string;
   nextAction: string;
+}
+
+export interface SupportedImportFormatRow {
+  id: "paste" | "text-markdown" | "chatgpt" | "claude" | "reddit" | "discord" | "legacy-json";
+  label: string;
+  input: string;
+  result: string;
+  review: string;
+  boundary: string;
+}
+
+export interface ArchiveImportJobReadback {
+  sourceLabel: string;
+  kindLabel: string;
+  formatLabel: string;
+  body: string;
+  nextAction: string;
+  boundary: string;
 }
 
 export function archiveJobTone(status: string): ArchiveJobTone {
@@ -52,6 +71,99 @@ export function archiveJobTrustCopy(job: ArchiveImportJobLike) {
   return {
     body: "Station is preparing this source as private archive material for this persona.",
     nextAction: "Wait for the job to complete before linking it into continuity.",
+  };
+}
+
+export function supportedImportFormatRows(): SupportedImportFormatRow[] {
+  return [
+    {
+      id: "paste",
+      label: "Pasted source material",
+      input: "Paste notes, chat logs, letters, or research into Archive Import.",
+      result: "Creates a private chat import job and archive chunks for this persona.",
+      review: "No automatic Memory/Canon candidates are created from pasted text today.",
+      boundary: "No live provider pull, OAuth connection, or public exposure is implied.",
+    },
+    {
+      id: "text-markdown",
+      label: "Text and Markdown files",
+      input: ".txt, .text, .md, or .markdown files from the stored file path.",
+      result: "Preserves the file as private archive chunks after file processing.",
+      review: "No automatic Memory/Canon candidates are created for plain text files today.",
+      boundary: "File import uses the owner-scoped uploaded file pointer; it is not a crawler.",
+    },
+    {
+      id: "chatgpt",
+      label: "ChatGPT JSON export",
+      input: "ChatGPT conversation JSON with mapping/message structure.",
+      result: "Parses role-labelled turns into private archive chunks.",
+      review: "Memory and Canon candidates stay pending for owner review.",
+      boundary: "Station reads an uploaded export only; it does not connect to ChatGPT.",
+    },
+    {
+      id: "claude",
+      label: "Claude JSON export",
+      input: "Claude conversation JSON with chat_messages.",
+      result: "Parses chronological turns into private archive chunks.",
+      review: "Memory and Canon candidates stay pending for owner review.",
+      boundary: "Station reads an uploaded export only; it does not connect to Claude.",
+    },
+    {
+      id: "reddit",
+      label: "Reddit JSON archive",
+      input: "Saved Reddit listing or thread-like JSON.",
+      result: "Parses posts and comments into private archive chunks.",
+      review: "Memory and Canon candidates stay pending for owner review.",
+      boundary: "This is file import support, not Reddit OAuth or live subreddit pulling.",
+    },
+    {
+      id: "discord",
+      label: "Discord JSON archive",
+      input: "Saved Discord channel or exporter-style message JSON.",
+      result: "Parses channel messages into private archive chunks.",
+      review: "Memory and Canon candidates stay pending for owner review.",
+      boundary: "This is file import support, not a Discord bot or live API connector.",
+    },
+    {
+      id: "legacy-json",
+      label: "Legacy role/content JSON",
+      input: "JSON arrays of messages with role and content fields.",
+      result: "Parses known role/content arrays into private archive chunks.",
+      review: "No automatic Memory/Canon candidates are created for legacy arrays today.",
+      boundary: "Unknown JSON fails safely instead of being stringified into archive memory.",
+    },
+  ];
+}
+
+export function archiveImportSourceLabel(sourceName?: string | null, kind?: string | null) {
+  const trimmed = sourceName?.trim() ?? "";
+  const normalized = trimmed.toLowerCase();
+  const normalizedKind = kind?.trim().toLowerCase();
+
+  if (!trimmed) {
+    if (normalizedKind === "file") return "Uploaded file";
+    if (normalizedKind === "chat") return "Pasted source";
+    return "Imported source";
+  }
+
+  if (normalized === "pasted-archive") return "Pasted source";
+  if (normalized === "pasted-chat") return "Pasted chat";
+  return trimmed;
+}
+
+export function archiveImportJobReadback(job: ArchiveImportJobLike): ArchiveImportJobReadback {
+  const copy = archiveJobTrustCopy(job);
+  const kindLabel = archiveImportKindLabel(job.kind);
+  const formatLabel = archiveImportFormatLabel(job.source_name, job.kind);
+  const boundary = archiveImportBoundaryCopy(job);
+
+  return {
+    sourceLabel: archiveImportSourceLabel(job.source_name, job.kind),
+    kindLabel,
+    formatLabel,
+    body: copy.body,
+    nextAction: copy.nextAction,
+    boundary,
   };
 }
 
@@ -141,4 +253,50 @@ export function archiveSourceNarrative() {
     processing: "Completed imports become private archive material for retrieval. Failed imports keep the error visible and leave existing archive material untouched.",
     visibility: "Private source material stays owner-only in Studio unless you deliberately publish a separate document or public Space item.",
   };
+}
+
+function archiveImportKindLabel(kind?: string | null) {
+  const normalized = kind?.trim().toLowerCase();
+  if (normalized === "file") return "File import";
+  if (normalized === "chat") return "Pasted import";
+  if (!normalized) return "Import";
+  return normalized.replace(/[_-]+/g, " ");
+}
+
+function archiveImportFormatLabel(sourceName?: string | null, kind?: string | null) {
+  const normalized = sourceName?.trim().toLowerCase() ?? "";
+  const normalizedKind = kind?.trim().toLowerCase();
+
+  if (normalizedKind === "chat") return "Pasted text/chat";
+  if (normalized.includes("chatgpt")) return "ChatGPT JSON";
+  if (normalized.includes("claude")) return "Claude JSON";
+  if (normalized.includes("reddit")) return "Reddit JSON";
+  if (normalized.includes("discord")) return "Discord JSON";
+  if (normalized.endsWith(".md") || normalized.endsWith(".markdown")) return "Markdown file";
+  if (normalized.endsWith(".txt") || normalized.endsWith(".text")) return "Text file";
+  if (normalized.endsWith(".json")) return "Known JSON import";
+  if (normalizedKind === "file") return "Uploaded file";
+  return "Archive import";
+}
+
+function archiveImportBoundaryCopy(job: ArchiveImportJobLike) {
+  const kind = job.kind?.trim().toLowerCase();
+
+  if (job.status === "failed") {
+    if (kind === "chat") {
+      return "Failed pasted imports can be retried only when the owner supplies source content again.";
+    }
+
+    if (kind === "file") {
+      return "Failed file imports depend on the stored owner file pointer; no live provider retry runs here.";
+    }
+
+    return "Failed imports do not publish material or activate Memory/Canon automatically.";
+  }
+
+  if (job.status === "completed") {
+    return "Completed imports remain owner-only archive material; parser candidates require explicit review before Memory/Canon use.";
+  }
+
+  return "Queued and processing imports have no public output while Station prepares private archive material.";
 }

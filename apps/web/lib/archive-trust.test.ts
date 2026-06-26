@@ -10,12 +10,15 @@ import {
 } from "./archive-search";
 import {
   archiveFileTrustCopy,
+  archiveImportJobReadback,
+  archiveImportSourceLabel,
   archiveJobStatusLabel,
   archiveJobTone,
   archiveJobTrustCopy,
   archiveSourceNarrative,
   archiveTrustStateRows,
   archiveTrustSummary,
+  supportedImportFormatRows,
 } from "./archive-trust";
 
 test("archive job status helpers keep failed imports explicit and safe", () => {
@@ -163,4 +166,54 @@ test("archive source narrative explains import safety and visibility", () => {
   assert.match(copy.processing, /untouched/);
   assert.match(copy.visibility, /owner-only/);
   assert.doesNotMatch(`${copy.sourceMaterial} ${copy.processing} ${copy.visibility}`, /quota|public by default/i);
+});
+
+test("supported import format rows name file parsers without implying live pulls", () => {
+  const rows = supportedImportFormatRows();
+  const labels = rows.map((row) => row.label);
+  const rendered = JSON.stringify(rows);
+
+  assert.deepEqual(labels, [
+    "Pasted source material",
+    "Text and Markdown files",
+    "ChatGPT JSON export",
+    "Claude JSON export",
+    "Reddit JSON archive",
+    "Discord JSON archive",
+    "Legacy role/content JSON",
+  ]);
+  assert.match(rendered, /pending for owner review/);
+  assert.match(rendered, /Unknown JSON fails safely/);
+  assert.match(rendered, /not Reddit OAuth or live subreddit pulling/);
+  assert.match(rendered, /not a Discord bot/);
+  assert.doesNotMatch(rendered, /connect your|bot token|pulls automatically/i);
+});
+
+test("archive import source labels and readback keep generic names owner-safe", () => {
+  assert.equal(archiveImportSourceLabel("", "file"), "Uploaded file");
+  assert.equal(archiveImportSourceLabel("   ", "chat"), "Pasted source");
+  assert.equal(archiveImportSourceLabel("pasted-archive", "chat"), "Pasted source");
+  assert.equal(archiveImportSourceLabel("project-notes.md", "file"), "project-notes.md");
+
+  const failedChat = archiveImportJobReadback({
+    kind: "chat",
+    status: "failed",
+    source_name: "pasted-chat",
+    error_message: "Parser refused the source.",
+  });
+  assert.equal(failedChat.sourceLabel, "Pasted chat");
+  assert.equal(failedChat.kindLabel, "Pasted import");
+  assert.equal(failedChat.formatLabel, "Pasted text/chat");
+  assert.match(failedChat.body, /Parser refused/);
+  assert.match(failedChat.boundary, /owner supplies source content again/);
+
+  const completedDiscord = archiveImportJobReadback({
+    kind: "file",
+    status: "completed",
+    source_name: "discord.json",
+  });
+  assert.equal(completedDiscord.sourceLabel, "discord.json");
+  assert.equal(completedDiscord.formatLabel, "Discord JSON");
+  assert.match(completedDiscord.boundary, /owner-only archive material/);
+  assert.match(completedDiscord.boundary, /explicit review/);
 });
