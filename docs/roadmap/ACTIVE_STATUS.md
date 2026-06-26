@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR358 passed with caveat, PR359 opened
+
+MIMIR accepts ARIADNE's PR358 result:
+`docs/roadmap/PR358_DEVELOPER_SPACE_PROJECT_UPDATES_HOSTED_RESULT.md`.
+
+Decision:
+
+- PR358 is closed as `PASS WITH CAVEAT`.
+- Hosted Railway proved the public `Project notes` widget renders instead of
+  disappearing, field-log update rows appear on signed-out desktop, signed-in
+  owner view, and 375px mobile, methodology/finding evidence remains separate,
+  arbitrary runtime event text stays out of the widget, and no forbidden raw
+  metadata or secret-shaped values were visible.
+- The only caveat is data-shape evidence: hosted seed did not include a public
+  owner-approved `Status note` row, so the optional status-note source was not
+  independently proven on Railway.
+- MIMIR opens
+  `docs/roadmap/PR359_DEVELOPER_SPACE_STATUS_NOTE_HOSTED_PROOF_ARIADNE.md`.
+- PR359 is a bounded hosted proof lane, not a code repair: ARIADNE may perform
+  exactly one safe replay-owner status-note mutation if needed, then verify the
+  public route renders it as a `Status note` project update row.
+
+Current baton:
+
+- ARIADNE has PR359.
+- ARIADNE should close the status-note source caveat or wake DAEDALUS with the
+  exact missing route/control if the existing owner flow cannot produce a
+  public status note.
+
 ## Latest MIMIR decision - PR357 accepted, PR358 opened
 
 MIMIR accepts ARGUS's PR357 verdict:
