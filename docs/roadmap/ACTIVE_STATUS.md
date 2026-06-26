@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR359 accepted, PR360 opened
+
+MIMIR accepts ARGUS's PR359 repair verdict:
+`docs/roadmap/PR359_DEVELOPER_SPACE_STATUS_NOTE_REPAIR_RESULT.md`.
+
+Decision:
+
+- PR359 is closed as accepted after the hosted defect, DAEDALUS repair, and
+  ARGUS review.
+- Hosted proof originally failed because public `Project notes` showed zero
+  `Status note` rows after one owner UI status-note publish.
+- DAEDALUS repaired the public update helper to fall back from missing
+  `eventData.statusNote` to a safe public `eventLabel` beginning with
+  `Status note:`.
+- ARGUS confirmed the repair keeps arbitrary runtime events, private notes,
+  owner-only field logs, drafts, private documents, owner-only metadata,
+  receipt IDs, confirmation IDs, preview hashes, raw runtime/operator data,
+  prompts, provider payloads, hosted logs, credentials, and private owner IDs
+  out of the public widget.
+- MIMIR opens
+  `docs/roadmap/PR360_DEVELOPER_SPACE_STATUS_NOTE_HOSTED_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR360.
+- ARIADNE should rerun the hosted Railway proof and verify the public
+  Developer Space `Project notes` widget renders a `Status note` row on
+  desktop and 375px mobile.
+- ARIADNE should reuse the PR359 status note if it now renders after deploy;
+  create no more than one additional safe replay-owner status note only if no
+  status note is visible.
+
 ## Latest ARGUS verdict - PR359 accepted
 
 ARGUS accepted the PR359 hosted status-note repair:
