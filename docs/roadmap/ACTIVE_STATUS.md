@@ -4,12 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR362 ready for ARGUS
+## Latest ARGUS verdict - PR362 accepted
 
-DAEDALUS completed the PR362 Writing authoring MVP gap map:
+ARGUS accepted the PR362 Writing authoring MVP gap map and document
+version/readback patch:
 `docs/roadmap/PR362_WRITING_AUTHORING_MVP_GAP_MAP_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Current authoring route map is documented: `/writing`, `/studio/publish`,
   `/studio/publish?documentId=<id>`, `/space/:slug/documents/new`,
@@ -22,11 +29,13 @@ Result:
   three prior version rows, loading/error states, and `Continue editing`.
 - `Continue editing` returns owners to the existing Studio publishing route,
   `/studio/publish?documentId=<id>`.
-- Prior version history remains owner-only; public readers do not fetch
-  `/documents/:id/versions` and only see current published version context.
+- Prior version history remains owner-only; the UI fetches
+  `/documents/:id/versions` only after authenticated owner access is confirmed.
+- Public readers only see current published version context from the public
+  document row, and do not receive prior version bodies or a `versions` payload.
 - No schema, migration, auth, persistence, visibility, publish, discussion,
-  billing, provider, queue, worker, Station Press, rich-text, or broad UI
-  behavior changed.
+  billing, provider, queue, worker, Cloudflare, Station Press, rich-text, or
+  broad UI behavior changed.
 
 Validation:
 
@@ -35,15 +44,12 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
   warnings or errors.
-- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --check` passed.
 
 Current baton:
 
-- ARGUS has PR362.
-- ARGUS should review the document version/readback privacy boundary, owner
-  continuation route, helper coverage, and scope control.
-- If accepted, ARGUS should wake MIMIR with verdict; if fixes are needed, wake
-  DAEDALUS with a focused repair request.
+- MIMIR has PR362.
+- MIMIR should close PR362 as accepted and decide the next roadmap move.
 
 ## Latest MIMIR decision - PR361 passed, PR362 opened
 

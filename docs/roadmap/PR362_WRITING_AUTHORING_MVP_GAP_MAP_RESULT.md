@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-26
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -65,6 +65,30 @@ This patch does not change document visibility semantics, publish semantics,
 discussion visibility, API persistence, schema, migrations, auth, billing,
 queues, workers, providers, Station Press, or rich-text behavior.
 
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR362 with no code patch required.
+
+Review notes:
+
+- The implementation matches the requested Writing/document authoring MVP lane
+  and stays bounded to the public/owner document read page plus publishing UI
+  helpers.
+- Public readers see only the current published version context derived from
+  the public document row; they do not fetch `/documents/:id/versions`.
+- Owner version history is fetched only after the authenticated document read
+  returns `access === "owner"` and an access token is present.
+- The existing API version route remains owner/admin-only, and existing API
+  coverage proves non-owners receive `404` while public document reads include
+  the current version without a `versions` payload.
+- `Continue editing` uses the encoded existing Studio route,
+  `/studio/publish?documentId=<id>`.
+- No schema, migration, auth, persistence, visibility, publish, discussion,
+  billing, provider, queue, worker, Cloudflare, Station Press, rich-text, or
+  broad UI behavior changed.
+
 ## Validation
 
 | Command / check | Result | Notes |
@@ -73,7 +97,7 @@ queues, workers, providers, Station Press, or rich-text behavior.
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Next lint reported no warnings or errors. |
-| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `git diff --check` | Pass | Whitespace check passed. |
 
 ## Review Ask
 
