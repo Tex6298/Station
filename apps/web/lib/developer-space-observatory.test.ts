@@ -622,6 +622,15 @@ test("observatory project updates combine public field logs and status notes saf
         createdAt: "2026-06-26T16:00:00.000Z",
       },
       {
+        id: "event-label-status-note",
+        eventType: "developer_agent.status_note",
+        eventLabel: "Status note: label fallback public note",
+        eventData: {},
+        visibility: "public",
+        occurredAt: "2026-06-26T17:30:00.000Z",
+        createdAt: "2026-06-26T17:30:00.000Z",
+      },
+      {
         id: "event-runtime",
         eventType: "deploy.preview",
         eventLabel: "Runtime event",
@@ -644,10 +653,11 @@ test("observatory project updates combine public field logs and status notes saf
 
   assert.deepEqual(
     updates.map((update) => update.source),
-    ["status_note", "field_log"],
+    ["status_note", "status_note", "field_log"],
   );
-  assert.match(updates[0].body, /Owner-approved public observatory status note/);
-  assert.match(updates[1].body, /Replay harness passed/);
+  assert.equal(updates[0].body, "label fallback public note");
+  assert.match(updates[1].body, /Owner-approved public observatory status note/);
+  assert.match(updates[2].body, /Replay harness passed/);
   assert.doesNotMatch(JSON.stringify(updates), /owner-only-dedupe-key|Private owner-only body|Runtime event should stay/);
 });
 

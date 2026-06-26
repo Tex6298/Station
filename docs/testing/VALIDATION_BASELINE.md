@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR359 Developer Space Status Note Repair Result
+
+DAEDALUS repaired PR359 on 2026-06-26:
+`docs/roadmap/PR359_DEVELOPER_SPACE_STATUS_NOTE_REPAIR_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Status-note hosted defect repair | Pass | `developerSpaceProjectUpdates()` now accepts a safe `Status note:` event-label fallback when public field controls omit `eventData.statusNote`. |
+| Boundary coverage | Pass | Helper tests still exclude private status notes, arbitrary runtime events, owner-only field logs, draft/private documents, and owner-only `dedupeKey` values. |
+| Scope control | Pass | No API, schema, status-note write path, owner manage flow, ingestion, widget config, visibility semantic, Railway, Supabase, provider, billing, queue, or worker behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 50 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: This local repair still needs ARGUS review and, if accepted,
+ARIADNE hosted rerun proof for the replay Developer Space.
+
 ## PR357 Developer Space Project Updates Feed Source Map Result
 
 DAEDALUS implemented PR357 on 2026-06-26:

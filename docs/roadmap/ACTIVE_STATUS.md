@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR359 status-note repair, ARGUS review needed
+
+DAEDALUS repaired the PR359 hosted status-note defect:
+`docs/roadmap/PR359_DEVELOPER_SPACE_STATUS_NOTE_REPAIR_RESULT.md`.
+
+Result:
+
+- Hosted proof showed public `Project notes` still had zero `Status note` rows
+  after one owner UI `Publish status note` action.
+- The smallest code defect was in the web helper:
+  `developerSpaceProjectUpdates()` required `eventData.statusNote`, but hosted
+  public field controls can scrub that field while leaving the safe serialized
+  `eventLabel` visible.
+- The helper now accepts public `developer_agent.status_note` events whose safe
+  event label starts with `Status note:` as a fallback body source.
+- Arbitrary runtime events, private status notes, owner-only field logs,
+  draft/private documents, and owner-only event metadata remain excluded.
+- No API, schema, status-note write path, owner manage flow, ingestion, widget
+  config, visibility semantic, Railway, Supabase, provider, billing, queue, or
+  worker behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed 50 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has the PR359 repair.
+- ARGUS should review the event-label fallback and wake MIMIR with accept/reject
+  verdict.
+
 ## Latest MIMIR decision - PR358 passed with caveat, PR359 opened
 
 MIMIR accepts ARIADNE's PR358 result:

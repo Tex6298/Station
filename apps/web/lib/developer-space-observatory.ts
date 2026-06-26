@@ -464,6 +464,15 @@ export type DeveloperSpaceProjectUpdateItem = {
   timestamp: string | null;
 };
 
+function developerSpaceStatusNoteBody(event: Pick<DeveloperSpaceDetail["events"][number], "eventData" | "eventLabel">) {
+  const note = typeof event.eventData?.statusNote === "string" ? event.eventData.statusNote.trim() : "";
+  if (note) return truncateText(note, 220);
+
+  const label = typeof event.eventLabel === "string" ? event.eventLabel.trim() : "";
+  const labelNote = label.replace(/^Status note:\s*/i, "").trim();
+  return labelNote && labelNote !== label ? truncateText(labelNote, 220) : "";
+}
+
 export function developerSpaceProjectUpdates(
   detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "events">,
   limit = 5
@@ -485,18 +494,18 @@ export function developerSpaceProjectUpdates(
     }));
 
   const statusNotes = detail.events
-    .filter((event) =>
+    .map((event) => ({ event, body: developerSpaceStatusNoteBody(event) }))
+    .filter(({ event, body }) =>
       event.eventType === "developer_agent.status_note"
       && event.visibility === "public"
-      && typeof event.eventData?.statusNote === "string"
-      && event.eventData.statusNote.trim().length > 0
+      && body.length > 0
     )
-    .map((event) => ({
+    .map(({ event, body }) => ({
       id: `status_note:${event.id}`,
       source: "status_note" as const,
       label: "Status note",
       title: event.eventLabel || "Owner status note",
-      body: truncateText(String(event.eventData.statusNote), 220),
+      body,
       timestamp: latestTimestamp([event.occurredAt, event.createdAt]),
     }));
 
