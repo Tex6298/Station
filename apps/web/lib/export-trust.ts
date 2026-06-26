@@ -1,4 +1,5 @@
 export type ExportPackageTone = "info" | "good" | "warning" | "danger";
+export type ExportBackupSurfaceState = "live" | "preview" | "future";
 
 export interface ArchiveExportPackageLike {
   status: string;
@@ -9,6 +10,18 @@ export interface ArchiveExportPackageLike {
   requestedAt?: string | null;
   completedAt?: string | null;
   createdAt?: string | null;
+}
+
+export interface ExportBackupSurface {
+  id: string;
+  title: string;
+  state: ExportBackupSurfaceState;
+  packageKind?: string;
+  href?: string;
+  actionLabel: string;
+  readback: string;
+  boundary: string;
+  limitation: string;
 }
 
 const SUMMARY_LABELS: Array<[string, string]> = [
@@ -22,6 +35,86 @@ const SUMMARY_LABELS: Array<[string, string]> = [
   ["discussionRefs", "discussions"],
   ["moderationReports", "reports"],
 ];
+
+export function exportBackupTrustSurfaces(): ExportBackupSurface[] {
+  return [
+    {
+      id: "persona-archive",
+      title: "Persona archive manifest",
+      state: "live",
+      packageKind: "persona_archive",
+      href: "/studio",
+      actionLabel: "Open personas",
+      readback: "Owner-only JSON/Markdown manifest and portable bundle readback from each persona workspace.",
+      boundary: "Includes persona archive metadata, continuity, memory/canon, integrity notes, published refs, and discussion refs that the export API can safely package for the owner.",
+      limitation: "Does not package original uploaded files, binary archives, PDF output, or a global workspace bundle.",
+    },
+    {
+      id: "developer-space-archive",
+      title: "Developer Space archive manifest",
+      state: "live",
+      packageKind: "developer_space_archive",
+      href: "/developer-spaces",
+      actionLabel: "Open Developer Spaces",
+      readback: "Owner-only JSON/Markdown manifest and bundle readback from each Developer Space manage page.",
+      boundary: "Includes bounded space, node, event, snapshot, linked public document, and usage readback through authenticated owner routes.",
+      limitation: "Does not expose public download URLs, raw ingestion secrets, live runtime logs, provider payloads, or partner backup infrastructure.",
+    },
+    {
+      id: "project-manifest",
+      title: "Project manifest",
+      state: "live",
+      packageKind: "project_manifest",
+      href: "/projects",
+      actionLabel: "Open Projects",
+      readback: "Owner-only Project manifest and stored bundle file readback from each Project page.",
+      boundary: "Stores project, attached Developer Space, owner evidence reference, public evidence reference, and trust metadata without document bodies.",
+      limitation: "Does not export linked source rows, private document bodies, collaborator roles, or a full institutional archive.",
+    },
+    {
+      id: "workspace-export",
+      title: "Full workspace export",
+      state: "preview",
+      actionLabel: "Not enabled",
+      readback: "This screen is the current workspace export readback map; it does not start a global export job.",
+      boundary: "Existing live packages stay scoped to their owner-controlled persona, Developer Space, or Project source.",
+      limitation: "A cross-Studio workspace package still needs product shape, owner review, background job behavior, and storage policy.",
+    },
+    {
+      id: "pdf-binary-originals",
+      title: "PDF, binary, and original file packages",
+      state: "future",
+      actionLabel: "Future lane",
+      readback: "No PDF, binary archive, original file bundle, or Station Press package is available from current export routes.",
+      boundary: "Current readback is manifest and Markdown/JSON bundle content returned only to the authenticated owner.",
+      limitation: "Original file packaging, print/PDF assembly, fulfilment, shipping, and checkout are out of scope.",
+    },
+    {
+      id: "redundant-backup",
+      title: "Backup and redundancy posture",
+      state: "future",
+      actionLabel: "Future lane",
+      readback: "Export manifests help owners inspect portable state, but they are not a managed backup or restore drill.",
+      boundary: "Station still treats Supabase records and owner-only export packages as the current source of truth.",
+      limitation: "Retention, expiry, restore, redundant storage, queue retry policy, and backup infrastructure remain unimplemented.",
+    },
+  ];
+}
+
+export function exportBackupTrustSummary(surfaces: ExportBackupSurface[] = exportBackupTrustSurfaces()) {
+  return {
+    total: surfaces.length,
+    live: surfaces.filter((surface) => surface.state === "live").length,
+    preview: surfaces.filter((surface) => surface.state === "preview").length,
+    future: surfaces.filter((surface) => surface.state === "future").length,
+  };
+}
+
+export function exportBackupSurfaceStateLabel(state: ExportBackupSurfaceState) {
+  if (state === "live") return "Live scoped package";
+  if (state === "preview") return "Preview only";
+  return "Future lane";
+}
 
 export function exportPackageTone(status: string): ExportPackageTone {
   if (status === "completed") return "good";

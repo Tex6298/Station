@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  exportBackupSurfaceStateLabel,
+  exportBackupTrustSummary,
+  exportBackupTrustSurfaces,
   exportPackageFormatLabel,
   exportPackageSectionLine,
   exportPackageStatusLabel,
@@ -9,6 +12,37 @@ import {
   exportPackageTrustCopy,
   exportPackageTrustSummary,
 } from "./export-trust";
+
+test("export backup trust map names live scoped packages and deferred backups", () => {
+  const surfaces = exportBackupTrustSurfaces();
+  const livePackageKinds = surfaces
+    .filter((surface) => surface.state === "live")
+    .map((surface) => surface.packageKind)
+    .sort();
+
+  assert.deepEqual(livePackageKinds, [
+    "developer_space_archive",
+    "persona_archive",
+    "project_manifest",
+  ]);
+  assert.deepEqual(exportBackupTrustSummary(surfaces), {
+    total: 6,
+    live: 3,
+    preview: 1,
+    future: 2,
+  });
+  assert.equal(exportBackupSurfaceStateLabel("live"), "Live scoped package");
+  assert.equal(exportBackupSurfaceStateLabel("preview"), "Preview only");
+  assert.equal(exportBackupSurfaceStateLabel("future"), "Future lane");
+  assert.equal(
+    surfaces.some((surface) => /global export job/i.test(surface.readback) && surface.state === "preview"),
+    true,
+  );
+  assert.equal(
+    surfaces.some((surface) => /not a managed backup/i.test(surface.readback) && surface.state === "future"),
+    true,
+  );
+});
 
 test("export trust helpers keep completed manifest readback explicit", () => {
   const copy = exportPackageTrustCopy({

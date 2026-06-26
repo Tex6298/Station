@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR364 ready for ARGUS
+
+DAEDALUS completed the PR364 export/backup trust gap map:
+`docs/roadmap/PR364_EXPORT_BACKUP_TRUST_GAP_MAP_RESULT.md`.
+
+Result:
+
+- Current live export package surfaces are mapped as scoped owner-only package
+  readbacks: persona archive manifests, Developer Space archive manifests, and
+  Project manifests.
+- `/studio/export` no longer shows future-scope checkboxes that could imply a
+  configurable global workspace export job exists.
+- `/studio/export` now shows a trust map of live scoped package routes,
+  preview-only workspace export, and future PDF/binary/original-file/backup
+  boundaries.
+- Owners are pointed to the existing live source surfaces: `/studio`,
+  `/developer-spaces`, and `/projects`.
+- Current bundle readback is explicitly authenticated and owner-only.
+- No new global export API, export job, schema, migration, queue, worker,
+  provider, storage backend, signed download URL, public export URL,
+  PDF/binary/original file package, Station Press surface, Stripe/checkout
+  flow, or backup/restore system was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 116 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
+  warnings or errors.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR364.
+- ARGUS should review the `/studio/export` trust map against current owner-only
+  export routes, verify the future backup/export boundaries are honest, and
+  check that no API or persistence semantics changed.
+- If accepted, ARGUS should wake MIMIR with verdict; if fixes are needed, wake
+  DAEDALUS with a focused repair request.
+
 ## Latest MIMIR decision - PR363 accepted with caveat, PR364 opened
 
 MIMIR accepts ARIADNE's PR363 hosted document version/readback proof:

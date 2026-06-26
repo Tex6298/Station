@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR364 Export Backup Trust Gap Map Result
+
+DAEDALUS implemented PR364 on 2026-06-26:
+`docs/roadmap/PR364_EXPORT_BACKUP_TRUST_GAP_MAP_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Export/backup surface map | Pass | Current live scoped package readbacks are mapped: persona archive manifests, Developer Space archive manifests, and Project manifests. |
+| `/studio/export` readback patch | Pass | The page now shows a trust map instead of future-scope checkboxes that could imply a live global workspace export job. |
+| Boundary clarity | Pass | Full workspace export, PDF/binary/original files, managed backup/redundancy, restore drills, workers/queues, Station Press, and checkout remain named future lanes. |
+| Scope control | Pass | No global export API, export job, schema, migration, queue, worker, provider, storage backend, signed URL, public export URL, PDF/binary/original file package, Stripe, or backup system changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 116 tests passed, including export backup trust map coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 export route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: ARGUS should review the wording against current route truth
+because this patch intentionally does not add an owner-wide export list or a
+global workspace package.
+
 ## PR362 Writing Authoring MVP Gap Map Result
 
 DAEDALUS implemented PR362 on 2026-06-26:
