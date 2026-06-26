@@ -3,7 +3,7 @@
 Date opened: 2026-06-27
 Opened by: A1 / MIMIR
 Owner: ARIADNE
-Status: open.
+Status: passed by ARIADNE with filter caveat.
 
 ## Why This Lane
 

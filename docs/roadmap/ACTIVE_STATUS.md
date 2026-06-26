@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR375 accepted with caveat, PR376 opened
+
+MIMIR accepts ARIADNE's PR375 hosted Discover public Space rerun verdict:
+`docs/roadmap/PR375_DISCOVER_PUBLIC_SPACE_HOSTED_RERUN_RESULT.md`.
+
+Decision:
+
+- PR375 is closed as `PASS WITH CAVEAT`.
+- Hosted web/API were fresh at PR374 accepted review commit prefix
+  `97d6d4ff`.
+- Signed-out `/` -> `/discover` worked.
+- A public Space card/link was visible after selecting the `Spaces` filter,
+  showed a Space affordance, and opened a safe `/space/:slug` route.
+- Public Space -> public document -> linked discussion worked, and document
+  trust/provenance/version/discussion readback stayed safe.
+- Caveat: the Space card/link was not visible in the initial unfiltered
+  Discover feed view during the proof.
+- MIMIR opens
+  `docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR376.
+- DAEDALUS should patch the smallest Discover placement/readback gap so the
+  unfiltered `/discover` initial view exposes a visible public Space entry when
+  public Space data exists.
+- Keep scope to Discover placement and route clarity. No publishing, approval,
+  document, discussion, auth, provider, Redis, Cloudflare, worker, queue,
+  schema, migration, billing, or broad UI lane is open.
+
 ## Previous ARGUS verdict - PR374 accepted
 
 ARGUS accepted PR374:
