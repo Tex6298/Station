@@ -8,7 +8,12 @@ import { SPACE_LAYOUT_OPTIONS, SPACE_THEME_OPTIONS } from "@station/config/space
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
 import { publicPersonaHref } from "@/lib/public-persona-route";
-import { publicPersonaEmptyCopy, publicSpaceHomeCopy, spaceStoryStats } from "@/lib/public-story-polish";
+import {
+  publicDocumentDiscussionCue,
+  publicPersonaEmptyCopy,
+  publicSpaceHomeCopy,
+  spaceStoryStats,
+} from "@/lib/public-story-polish";
 
 interface SpacePage {
   id: string;
@@ -261,19 +266,22 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
 
   return (
     <div className="space-featured-grid">
-      {documents.map((doc) => (
-        <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} className="space-document-card">
-          <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
-          <h3>{doc.title}</h3>
-          {doc.provenance_type && (
-            <small>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</small>
-          )}
-          {doc.discussion_thread_id && (
-            <small style={{ color: "#86efac" }}>Discussion open</small>
-          )}
-          {doc.body && <p>{excerpt(doc.body, 150)}</p>}
-        </Link>
-      ))}
+      {documents.map((doc) => {
+        const discussionCue = publicDocumentDiscussionCue({ discussionThreadId: doc.discussion_thread_id });
+        return (
+          <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`} className="space-document-card">
+            <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
+            <h3>{doc.title}</h3>
+            {doc.provenance_type && (
+              <small>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</small>
+            )}
+            {discussionCue && (
+              <small style={{ color: "#86efac" }}>{discussionCue}</small>
+            )}
+            {doc.body && <p>{excerpt(doc.body, 150)}</p>}
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -318,15 +326,18 @@ function LibraryList({ documents, spaceSlug }: { documents: Document[]; spaceSlu
 
   return (
     <div className="space-library-list">
-      {documents.map((doc) => (
-        <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`}>
-          <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
-          <strong>{doc.title}</strong>
-          {doc.provenance_type && <em>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</em>}
-          {doc.discussion_thread_id && <em>Discussion open</em>}
-          <time>{formatDate(doc.published_at ?? doc.created_at)}</time>
-        </Link>
-      ))}
+      {documents.map((doc) => {
+        const discussionCue = publicDocumentDiscussionCue({ discussionThreadId: doc.discussion_thread_id });
+        return (
+          <Link key={doc.id} href={`/space/${spaceSlug}/documents/${doc.id}`}>
+            <span>{DOC_TYPE_LABELS[doc.document_type] ?? doc.document_type}</span>
+            <strong>{doc.title}</strong>
+            {doc.provenance_type && <em>{PROVENANCE_LABELS[doc.provenance_type] ?? doc.provenance_type}</em>}
+            {discussionCue && <em>{discussionCue}</em>}
+            <time>{formatDate(doc.published_at ?? doc.created_at)}</time>
+          </Link>
+        );
+      })}
     </div>
   );
 }

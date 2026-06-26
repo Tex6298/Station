@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 
-Status: Open
+Status: Implemented - awaiting ARGUS review
 
 ## Why This Opens
 
@@ -90,3 +90,35 @@ When implementation is complete, wake ARGUS with:
 - validation run and any skipped command;
 - privacy notes for public/private discussion boundaries;
 - whether ARIADNE should run a hosted human rehearsal after deploy.
+
+## DAEDALUS Result
+
+Implemented in
+`docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
+
+Summary:
+
+- Public Space featured works and library rows now say
+  `Open document and linked discussion` when `discussion_thread_id` exists.
+- Public document detail now shows `Open linked discussion` near the document
+  title and in the discussion panel after discussion state resolves or the
+  fallback pointer is available.
+- Loading, no-discussion, owner-start, and unavailable states stay explicit.
+- No schema, seed, backend contract, public/private discussion permission,
+  anonymous chat, billing, provider, Redis, Cloudflare, or launch-readiness work
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed.
+
+ARIADNE recommendation: yes, rerun hosted public chain after ARGUS accepts and
+the patch deploys, because the original defect was human-visible browser
+discoverability.

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { documentReadRoute, shouldFallbackToPublicDocumentRead } from "@/lib/document-read-route";
+import { publicDocumentDiscussionEntrypointCopy } from "@/lib/public-story-polish";
 import { PostComposer } from "@/components/social/post-composer";
 
 interface Document {
@@ -177,6 +178,19 @@ export default function DocumentPage() {
   if (loading) return <main className="container"><div className="card" style={{ textAlign: "center", padding: "3rem", color: "#687078" }}>Loading...</div></main>;
   if (error || !doc) return <main className="container"><div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>{error ?? "Not found."}</div></main>;
 
+  const discussionHref = discussion
+    ? `/forums/${discussion.category?.slug ?? "documents-and-codexes"}/${discussion.id}`
+    : null;
+  const discussionCopy = publicDocumentDiscussionEntrypointCopy({
+    hasDiscussion: Boolean(discussion),
+    loading: discussionLoading,
+    eligible: discussionEligible,
+    isOwner,
+  });
+  const discussionBody = discussion
+    ? `${discussion.comment_count ?? 0} ${(discussion.comment_count ?? 0) === 1 ? "reply" : "replies"} / ${discussion.visibility}. ${discussionCopy.body}`
+    : discussionCopy.body;
+
   return (
     <main className="container" style={{ maxWidth: 720 }}>
       <div style={{ fontSize: "0.78rem", color: "#8b8f92", marginBottom: "1.5rem" }}>
@@ -211,6 +225,17 @@ export default function DocumentPage() {
         </div>
 
         <h1 style={{ margin: "0 0 0.75rem", fontSize: "1.9rem", lineHeight: 1.2 }}>{doc.title}</h1>
+
+        {discussionHref && (
+          <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap", margin: "0.35rem 0 0.85rem" }}>
+            <Link className="button primary" href={discussionHref} style={{ fontSize: "0.82rem" }}>
+              {discussionCopy.actionLabel}
+            </Link>
+            <span style={{ color: "#687078", fontSize: "0.82rem" }}>
+              Public forum thread attached to this document.
+            </span>
+          </div>
+        )}
 
         {isOwner && (
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -257,32 +282,20 @@ export default function DocumentPage() {
                 Discussion
               </div>
               <div style={{ color: "#1f2529", fontWeight: 650 }}>
-                {discussion
-                  ? "Community thread attached"
-                  : discussionEligible && isOwner
-                    ? "Open a thread for this work"
-                    : discussionEligible
-                      ? "Discussion has not been opened yet"
-                      : "Discussion unavailable"}
+                {discussionCopy.title}
               </div>
               <div style={{ color: "#687078", fontSize: "0.82rem", marginTop: "0.25rem" }}>
-                {discussionLoading
-                  ? "Checking discussion state..."
-                  : discussion
-                    ? `${discussion.comment_count ?? 0} ${(discussion.comment_count ?? 0) === 1 ? "reply" : "replies"} / ${discussion.visibility}`
-                    : discussionEligible
-                      ? "The public copy can be discussed without exposing the private source."
-                      : "This document is not currently discussable."}
+                {discussionBody}
               </div>
               {discussionError && <div style={{ color: "#eb5757", fontSize: "0.8rem", marginTop: "0.4rem" }}>{discussionError}</div>}
             </div>
-            {discussion ? (
+            {discussionHref ? (
               <Link
                 className="button primary"
-                href={`/forums/${discussion.category?.slug ?? "documents-and-codexes"}/${discussion.id}`}
+                href={discussionHref}
                 style={{ fontSize: "0.82rem", whiteSpace: "nowrap" }}
               >
-                Open discussion
+                {discussionCopy.actionLabel}
               </Link>
             ) : discussionEligible && token && isOwner ? (
               <button
@@ -290,7 +303,7 @@ export default function DocumentPage() {
                 disabled={startingDiscussion}
                 style={{ padding: "0.45rem 0.9rem", background: "#1f2529", border: "none", borderRadius: 7, color: "#fff", cursor: "pointer", fontSize: "0.82rem" }}
               >
-                {startingDiscussion ? "Starting..." : "Start discussion"}
+                {startingDiscussion ? "Starting..." : discussionCopy.actionLabel}
               </button>
             ) : null}
           </div>

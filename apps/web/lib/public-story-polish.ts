@@ -66,6 +66,64 @@ export function publicPersonaEmptyCopy(hasDocuments: boolean) {
     : "No public personas are attached to this Space yet.";
 }
 
+export function publicDocumentDiscussionCue({
+  discussionThreadId,
+}: {
+  discussionThreadId?: string | null;
+}) {
+  return discussionThreadId ? "Open document and linked discussion" : null;
+}
+
+export function publicDocumentDiscussionEntrypointCopy({
+  hasDiscussion,
+  loading,
+  eligible,
+  isOwner,
+}: {
+  hasDiscussion: boolean;
+  loading: boolean;
+  eligible: boolean;
+  isOwner: boolean;
+}) {
+  if (hasDiscussion) {
+    return {
+      title: "Linked forum discussion",
+      body: "Continue from this public document into its attached discussion thread.",
+      actionLabel: "Open linked discussion",
+    };
+  }
+
+  if (loading) {
+    return {
+      title: "Checking linked discussion",
+      body: "Looking for the public forum thread attached to this document.",
+      actionLabel: null,
+    };
+  }
+
+  if (eligible && isOwner) {
+    return {
+      title: "Discussion not opened yet",
+      body: "Owners can start a public thread for this work without exposing the private source.",
+      actionLabel: "Start discussion",
+    };
+  }
+
+  if (eligible) {
+    return {
+      title: "No linked discussion yet",
+      body: "This public document is eligible for discussion, but no thread has been opened.",
+      actionLabel: null,
+    };
+  }
+
+  return {
+    title: "No linked discussion",
+    body: "This document is not currently discussable.",
+    actionLabel: null,
+  };
+}
+
 export function discoverDiscussionCue({
   type,
   discussionThreadId,
@@ -74,5 +132,5 @@ export function discoverDiscussionCue({
   discussionThreadId?: string | null;
 }) {
   if (type !== "document" || !discussionThreadId) return null;
-  return "Open document and linked discussion";
+  return publicDocumentDiscussionCue({ discussionThreadId });
 }

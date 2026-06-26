@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR323 public discussion entrypoint
+
+DAEDALUS implemented
+`docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_DAEDALUS.md`.
+
+Implementation result:
+
+- Result packet:
+  `docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
+- Public Space featured works and library rows now say
+  `Open document and linked discussion` when `discussion_thread_id` exists,
+  replacing passive `Discussion open` text.
+- Public document detail now surfaces `Open linked discussion` near the
+  document title and in the discussion panel when a linked public thread is
+  known.
+- Loading, absent-discussion, owner-start, and unavailable states remain honest.
+- No schema, seed, backend data contract, permissions, anonymous chat, durable
+  visitor transcript, commercial/billing, provider, Redis, Cloudflare, or
+  launch-readiness work changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 31 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with existing raw `<img>`
+  warnings only.
+- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- ARGUS should review PR323 using
+  `docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
+- DAEDALUS recommends ARIADNE rerun the hosted public chain after ARGUS accepts
+  and the patch deploys, because the source defect was human-visible hosted
+  discoverability.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and exact
+  findings.
+
 ## Latest MIMIR decision - PR322 closed, PR323 opened
 
 MIMIR accepts ARIADNE's PR322 hosted protected-alpha demo refresh result:

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   discoverDiscussionCue,
+  publicDocumentDiscussionCue,
+  publicDocumentDiscussionEntrypointCopy,
   publicPersonaEmptyCopy,
   publicSpaceHomeCopy,
   spaceStoryStats,
@@ -49,7 +51,51 @@ test("public Space fallback copy treats works-led Spaces as intentional", () => 
 });
 
 test("Discover discussion cue only appears for document cards with linked discussions", () => {
+  assert.equal(publicDocumentDiscussionCue({ discussionThreadId: "thread-1" }), "Open document and linked discussion");
+  assert.equal(publicDocumentDiscussionCue({ discussionThreadId: null }), null);
   assert.equal(discoverDiscussionCue({ type: "document", discussionThreadId: "thread-1" }), "Open document and linked discussion");
   assert.equal(discoverDiscussionCue({ type: "document", discussionThreadId: null }), null);
   assert.equal(discoverDiscussionCue({ type: "thread", discussionThreadId: "thread-1" }), null);
+});
+
+test("public document discussion entrypoint copy stays clear and honest", () => {
+  assert.deepEqual(
+    publicDocumentDiscussionEntrypointCopy({
+      hasDiscussion: true,
+      loading: false,
+      eligible: true,
+      isOwner: false,
+    }),
+    {
+      title: "Linked forum discussion",
+      body: "Continue from this public document into its attached discussion thread.",
+      actionLabel: "Open linked discussion",
+    }
+  );
+  assert.deepEqual(
+    publicDocumentDiscussionEntrypointCopy({
+      hasDiscussion: false,
+      loading: true,
+      eligible: false,
+      isOwner: false,
+    }),
+    {
+      title: "Checking linked discussion",
+      body: "Looking for the public forum thread attached to this document.",
+      actionLabel: null,
+    }
+  );
+  assert.deepEqual(
+    publicDocumentDiscussionEntrypointCopy({
+      hasDiscussion: false,
+      loading: false,
+      eligible: true,
+      isOwner: false,
+    }),
+    {
+      title: "No linked discussion yet",
+      body: "This public document is eligible for discussion, but no thread has been opened.",
+      actionLabel: null,
+    }
+  );
 });

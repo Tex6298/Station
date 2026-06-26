@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR323 Public Document Discussion Entrypoint Result
+
+DAEDALUS implemented PR323 on 2026-06-26:
+`docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public Space discussion cue | Pass | Featured works and library rows now say `Open document and linked discussion` when `discussion_thread_id` exists. |
+| Public document detail entrypoint | Pass | Attached discussions now show `Open linked discussion` near the document title and in the discussion panel; loading, absent, owner-start, and unavailable states stay explicit. |
+| Scope control | Pass | No schema, seed, backend data contract, permissions, anonymous chat, durable visitor transcript, billing, provider, Redis, Cloudflare, or launch-readiness work changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 31 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass with known warnings | Existing raw `<img>` warnings remain in `apps/web/app/space/[slug]/page.tsx` and `apps/web/components/discover/discover-front-door.tsx`. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `git diff --cached --check` | Pass | Staged whitespace check passed. |
+
+Residual risk: this is local UI/helper validation for a browser-visible
+discoverability defect. DAEDALUS recommends ARIADNE rerun the hosted public
+chain after ARGUS accepts and the patch deploys.
+
 ## PR318 Public Persona Report Moderation Pointer Result
 
 DAEDALUS implemented PR318 on 2026-06-25:
