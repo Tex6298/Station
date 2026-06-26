@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { onboardingPathCards, onboardingPathStatusTone } from "@/lib/onboarding-paths";
+import { firstSpacePublishingGuide, onboardingPathCards, onboardingPathStatusTone } from "@/lib/onboarding-paths";
 import {
   StudioEmptyState,
   StudioErrorState,
@@ -48,6 +48,7 @@ export default function StudioOnboardingPage() {
   }, []);
 
   const cards = onboardingPathCards(personas);
+  const publishingGuide = firstSpacePublishingGuide();
 
   return (
     <StudioFrame
@@ -107,6 +108,29 @@ export default function StudioOnboardingPage() {
               </article>
             ))}
           </section>
+
+          <StudioPanel>
+            <div className="studio-section-heading">
+              <div className="section-label">Public step</div>
+              <h2>{publishingGuide.title}</h2>
+            </div>
+            <p style={{ ...copy, maxWidth: 760 }}>{publishingGuide.summary}</p>
+            <div style={publishingStepGrid} aria-label="First Space and publishing routes">
+              {publishingGuide.steps.map((step) => (
+                <Link key={step.href} href={step.href} style={publishingStepLink}>
+                  <strong>{step.label}</strong>
+                  <span>{step.detail}</span>
+                  <code style={routeToken}>{step.href}</code>
+                </Link>
+              ))}
+            </div>
+            <p style={truthCopy}>{publishingGuide.boundary}</p>
+            <div style={actionRow}>
+              <Link href={`/studio/assistant?prompt=${encodeURIComponent(publishingGuide.assistantPrompt)}`} style={secondaryButton}>
+                {publishingGuide.assistantActionLabel}
+              </Link>
+            </div>
+          </StudioPanel>
 
           <StudioPanel>
             <div className="studio-section-heading">
@@ -181,6 +205,27 @@ const routeList = {
   display: "flex",
   gap: 8,
   flexWrap: "wrap" as const,
+};
+
+const publishingStepGrid = {
+  display: "grid",
+  gap: 10,
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  marginTop: 16,
+  marginBottom: 12,
+};
+
+const publishingStepLink = {
+  display: "grid",
+  gap: 7,
+  border: "1px solid var(--station-page-border, #263244)",
+  borderRadius: 8,
+  background: "var(--station-page-soft-2, #0d1420)",
+  color: "var(--station-page-text, #f8fafc)",
+  padding: "12px",
+  textDecoration: "none",
+  fontSize: 13,
+  lineHeight: 1.45,
 };
 
 const stepBox = {

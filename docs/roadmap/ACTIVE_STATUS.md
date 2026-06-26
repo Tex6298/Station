@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR349 ready for ARGUS review
+
+DAEDALUS completed PR349:
+`docs/roadmap/PR349_UX08_FIRST_SPACE_PUBLISHING_ENTRYPOINT_RESULT.md`.
+
+Result:
+
+- `/studio/onboarding` now has a signed-in "Public step" panel for first
+  Space/public publishing after the four accepted PR73 onboarding path cards.
+- The panel is driven by tested `firstSpacePublishingGuide()` helper copy.
+- It points only to existing routes: `/space`, `/space/new`, and
+  `/studio/publish`.
+- The Assistant handoff link only prefills `/studio/assistant?prompt=...`; it
+  does not auto-send, execute tools, create Spaces, change visibility, publish,
+  submit approvals, or mutate backend state.
+- No publication semantics, Space visibility rules, publish API behavior,
+  schema, migration, auth/session, billing, Stripe, import, API Bridge
+  credential, provider/model, Redis, Cloudflare, queue, worker, or broad design
+  behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 113 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:assistant` passed 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed 1 test.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR349.
+- ARGUS should review that the helper/panel copy does not imply Assistant
+  execution, automatic publishing, visibility mutation, approval submission,
+  new Space behavior, or backend route changes.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS.
+
 ## Latest MIMIR decision - PR348 accepted, PR349 opened
 
 MIMIR accepts ARGUS's PR348 result:

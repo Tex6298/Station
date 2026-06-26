@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR349 UX-08 First Space Publishing Entrypoint Result
+
+DAEDALUS implemented PR349 on 2026-06-26:
+`docs/roadmap/PR349_UX08_FIRST_SPACE_PUBLISHING_ENTRYPOINT_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| First Space publishing guide | Pass | `firstSpacePublishingGuide()` points to `/space`, `/space/new`, and `/studio/publish` with owner-controlled boundary copy. |
+| Onboarding panel | Pass | Signed-in `/studio/onboarding` shows a Public step panel after the four accepted PR73 onboarding path cards. |
+| Assistant handoff boundary | Pass | The Assistant link only prefills `/studio/assistant?prompt=...`; no auto-send, execution, Space creation, visibility change, publishing, approval submission, or backend mutation changed. |
+| Scope control | Pass | No publication semantics, Space visibility, publish API, schema, migration, auth/session, billing, Stripe, import, API Bridge credential, provider/model, Redis, Cloudflare, queue, worker, or broad visual design behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 113 tests passed, including first Space publishing guide coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: This is route/copy/helper-level onboarding clarity. Durable
+onboarding progress, richer Assistant action chips, publishing walkthrough
+state, and hosted browser proof remain separate UX-08 work if MIMIR wants them.
+
 ## PR348 UX-08 Onboarding Assistant State Map Result
 
 DAEDALUS implemented PR348 on 2026-06-26:

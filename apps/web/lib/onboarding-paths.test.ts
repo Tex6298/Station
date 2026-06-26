@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { onboardingPathCards } from "./onboarding-paths";
+import { firstSpacePublishingGuide, onboardingPathCards } from "./onboarding-paths";
 
 test("onboarding path map exposes all four documented alpha paths", () => {
   const cards = onboardingPathCards([]);
@@ -73,4 +73,14 @@ test("api bridge points to Developer Spaces without production infrastructure cl
   assert.match(card?.privacy ?? "", /owner-only/);
   assert.match(card?.truth ?? "", /Developer Space ingestion is the alpha bridge/);
   assert.match(card?.truth ?? "", /Production workers/);
+});
+
+test("first Space publishing guide points to existing owner-controlled routes", () => {
+  const guide = firstSpacePublishingGuide();
+
+  assert.equal(guide.assistantActionLabel, "Ask Assistant about first Space");
+  assert.match(guide.assistantPrompt, /without changing visibility or publishing automatically/);
+  assert.match(guide.boundary, /does not create Spaces, change visibility, or publish automatically/);
+  assert.deepEqual(guide.steps.map((step) => step.href), ["/space", "/space/new", "/studio/publish"]);
+  assert.equal(guide.steps.every((step) => step.label.length > 0 && step.detail.length > 0), true);
 });

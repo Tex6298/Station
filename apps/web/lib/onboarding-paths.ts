@@ -24,8 +24,48 @@ export interface OnboardingPathCard {
   truth: string;
 }
 
+export interface FirstSpacePublishingGuide {
+  title: string;
+  summary: string;
+  boundary: string;
+  assistantActionLabel: string;
+  assistantPrompt: string;
+  steps: Array<{
+    label: string;
+    detail: string;
+    href: string;
+  }>;
+}
+
 function firstPersona(personas: PersonaSummary[]) {
   return personas[0] ?? null;
+}
+
+export function firstSpacePublishingGuide(): FirstSpacePublishingGuide {
+  return {
+    title: "First Space and public publishing",
+    summary: "When private setup is ready, create or review a Space before sending owner-reviewed writing into public surfaces.",
+    boundary: "Publishing remains owner-controlled: Station Assistant can explain the steps, but it does not create Spaces, change visibility, or publish automatically.",
+    assistantActionLabel: "Ask Assistant about first Space",
+    assistantPrompt: "Help me plan my first Space and public publishing steps without changing visibility or publishing automatically.",
+    steps: [
+      {
+        label: "Review Spaces",
+        detail: "Open the signed-in Space dashboard before creating or editing public homes.",
+        href: "/space",
+      },
+      {
+        label: "Create first Space",
+        detail: "Create an owner-controlled public home; visibility and content stay explicit owner choices.",
+        href: "/space/new",
+      },
+      {
+        label: "Draft public work",
+        detail: "Use Studio publishing to draft, choose a Space, and review visibility before public release.",
+        href: "/studio/publish",
+      },
+    ],
+  };
 }
 
 export function onboardingPathCards(personas: PersonaSummary[]): OnboardingPathCard[] {
