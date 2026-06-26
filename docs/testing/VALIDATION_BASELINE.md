@@ -25,12 +25,13 @@ they are not Station validation failures.
 DAEDALUS implemented PR334 on 2026-06-26:
 `docs/roadmap/PR334_UX04_PUBLIC_SPACE_MICROSITE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS AFTER NARROW COPY PATCH`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| Public Space microsite slice | Pass | `/space/[slug]` now has public-boundary copy, a public-document reading path, selected-work labels for type/provenance/discussion state, and route-scoped dark microsite styling. |
+| Public Space microsite slice | Pass | `/space/[slug]` now has published-material boundary copy, a published-document reading path, selected-work labels for type/provenance/discussion state, and route-scoped dark microsite styling. |
 | Scope control | Pass | Existing public Space/document data only; no auth, schema, migration, visibility rule, publication semantic, forum semantic, provider/model, Redis, Cloudflare, queue, worker, billing, deploy, key, tester, public launch, or Developer Space change. |
+| ARGUS copy patch | Pass | First-pass copy said only public material appeared, but authenticated community/member viewers can receive community/member-visible published documents through the existing Space API. ARGUS narrowed the copy to material already published for the current viewer. |
 | Touched raw image warning | Pass | The touched Space page no longer emits its previous raw `<img>` warning. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 17 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 1 test passed. |

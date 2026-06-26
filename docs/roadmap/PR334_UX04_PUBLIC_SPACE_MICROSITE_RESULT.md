@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS after narrow copy patch
 
 ## Result
 
@@ -13,7 +13,7 @@ Space route.
 
 The public Space page now reads more like an authored microsite by adding:
 
-- public-boundary copy in the first viewport;
+- published-material boundary copy in the first viewport;
 - a small reading path derived from already-public documents;
 - selected-work labels that connect document type, provenance, and linked
   discussion state;
@@ -38,9 +38,11 @@ Files changed:
 
 - The reading path uses the existing `documents` array returned by the public
   Space API.
-- The boundary copy explicitly says only published public material appears on
-  the Space and that private Studio memory, archive, canon, continuity, and
-  owner data stay hidden.
+- The boundary copy says only material already published for the current viewer
+  appears on the Space and that private Studio memory, archive, canon,
+  continuity, and owner data stay hidden. ARGUS narrowed this wording during
+  review because authenticated community/member viewers can receive
+  community/member-visible published documents through the existing Space API.
 - PR334 did not change Space API visibility, document publication semantics,
   forum discussion semantics, auth/session, schema, migrations, config,
   Railway, Supabase, Stripe, provider/model behavior, Redis, Cloudflare,
@@ -64,18 +66,50 @@ Files changed:
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
 | `git diff --cached --check` | Pass | Staged whitespace check passed. |
 
-## ARGUS Review Ask
+## ARGUS Review
 
-Review:
+Date reviewed: 2026-06-26
 
-- public/private boundary copy;
-- no owner/private field exposure;
-- preservation of public/unlisted/community semantics;
-- public document to linked discussion path;
-- whether route-scoped dark styling creates layout or mobile risk;
-- whether ARIADNE should run hosted desktop/mobile public Space rehearsal after
-  ARGUS accepts.
+Verdict:
+
+```text
+PASS AFTER NARROW COPY PATCH
+```
+
+ARGUS accepts PR334 after one review patch. The implementation matches the
+UX-04 lane:
+
+- `/space/[slug]` now has a stronger authored first viewport and reading path;
+- document cards and library rows preserve the public document to linked forum
+  discussion path;
+- styling is route-scoped under `space-microsite`;
+- no Space API, publication visibility, auth, schema, migration, provider,
+  model, Redis, Cloudflare, queue, worker, billing, deploy, key, tester,
+  public-launch, commercial, partner, Developer Space, Discover, Forum, or
+  onboarding behavior changed.
+
+ARGUS found and fixed one honest-copy issue: the first implementation said only
+`public` works/material appeared, but the existing `/spaces/:slug` route can
+also return community/member-visible published documents for authenticated
+viewers. The accepted copy now says the Space shows material already published
+for the current viewer, while private Studio memory, archive, canon,
+continuity, and owner data stay hidden.
+
+ARGUS validation rerun:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed with 1 test.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed with
+  2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with only the untouched
+  Discover raw `<img>` warning.
+- `git diff --check` passed with CRLF normalization notices only.
+
+ARIADNE should run a hosted desktop/mobile public Space rehearsal after deploy
+before MIMIR makes a stronger deployed UX/layout claim. The remaining risk is
+browser fit and route-specific visual evidence, not repo boundary safety.
 
 ## Next Owner
 
-Wake ARGUS.
+Wake MIMIR.

@@ -61,7 +61,7 @@ test("public Space microsite copy names the public boundary without private leak
 
   assert.equal(
     copy,
-    "Replay Owner is presenting 2 public works and 1 public persona here. Only published public material appears on this Space; private Studio memory, archive, canon, continuity, and owner data stay hidden."
+    "Replay Owner is presenting 2 published works and 1 public persona here. This Space only shows material already published for the current viewer; private Studio memory, archive, canon, continuity, and owner data stay hidden."
   );
   assert.doesNotMatch(copy, /owner_user_id|persona_id|source_id|token|cookie|provider payload/i);
 });

@@ -85,14 +85,14 @@ export function publicSpaceMicrositeCopy({
   personaCount,
 }: PublicSpaceMicrositeCopyInput) {
   const owner = ownerLabel.trim() || "The owner";
-  const works = documentCount === 1 ? "1 public work" : `${documentCount} public works`;
+  const works = documentCount === 1 ? "1 published work" : `${documentCount} published works`;
   const personas = personaCount === 1
     ? " and 1 public persona"
     : personaCount > 1
       ? ` and ${personaCount} public personas`
       : "";
 
-  return `${owner} is presenting ${works}${personas} here. Only published public material appears on this Space; private Studio memory, archive, canon, continuity, and owner data stay hidden.`;
+  return `${owner} is presenting ${works}${personas} here. This Space only shows material already published for the current viewer; private Studio memory, archive, canon, continuity, and owner data stay hidden.`;
 }
 
 export function publicSpaceReadingPathLabel({
