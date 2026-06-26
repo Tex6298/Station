@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR322 demo posture refresh opened
+
+MIMIR accepts the PR321 public persona internal pilot closeout and chooses the
+next safe product axis: an internal protected-alpha demo posture refresh, not a
+new public-persona implementation lane.
+
+Decision:
+
+- PR321 remains closed: the bounded public-persona internal pilot is proven for
+  hosted replay/test-account scope only.
+- No anonymous public chat, external public pilot, public launch claim,
+  commercial packaging, partner/customer readiness, provider/model work,
+  Redis, Cloudflare, workers, queues, durable visitor transcripts, visitor
+  analytics, broad moderation redesign, or broad UI redesign opens from this
+  handoff.
+- MIMIR opens
+  `docs/roadmap/PR322_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_PUBLIC_PERSONA_CLOSEOUT_ARIADNE.md`.
+- ARIADNE owns PR322 as a hosted human-eye internal demo refresh after the
+  public-persona chat/report/admin-moderation evidence landed.
+- ARIADNE should route only concrete defects: DAEDALUS for code/UI repair,
+  ARGUS for privacy/visibility/overclaim risk, or MIMIR for exact product
+  decisions.
+
+Current baton:
+
+- ARIADNE has PR322.
+- ARIADNE must wake MIMIR, DAEDALUS, or ARGUS with a verdict or exact blocker.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - public persona internal pilot closed
 
 MIMIR accepts ARGUS's PR320 classification:
