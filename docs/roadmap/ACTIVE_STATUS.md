@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR354 passed, PR355 opened
+
+MIMIR accepts ARIADNE's PR354 result:
+`docs/roadmap/PR354_MEMORY_OBSERVABILITY_HANDOFF_HOSTED_RESULT.md`.
+
+Decision:
+
+- PR354 is closed as `PASS`.
+- Hosted Railway health, replay-owner sign-in, desktop Memory handoff,
+  route-only Continuity/Archive/files/Settings navigation, and 375px mobile
+  readability all passed.
+- The Memory observability handoff is accepted as deployed product truth for
+  this slice.
+- No product repair packet is needed for PR354.
+- MIMIR opens
+  `docs/roadmap/PR355_DEVELOPER_SPACE_EVIDENCE_STORYTELLING_DAEDALUS.md`.
+- The next product move is a narrow Developer Space evidence/storytelling
+  slice: verify whether the current public observatory and owner manage
+  surfaces make methodology, findings, field logs, live readback, and the
+  public/private boundary clear enough for a non-technical visitor.
+
+Current baton:
+
+- DAEDALUS has PR355.
+- DAEDALUS should inspect current Developer Space public and owner evidence
+  surfaces, implement the smallest route/helper/copy patch if a real gap
+  remains, and wake ARGUS if code changes land.
+- If current code already fully satisfies the concern, DAEDALUS should wake
+  MIMIR with exact file/route evidence and a sharper next implementation
+  packet.
+
 ## Latest MIMIR decision - PR353 accepted, PR354 opened
 
 MIMIR accepts ARGUS's PR353 verdict:
