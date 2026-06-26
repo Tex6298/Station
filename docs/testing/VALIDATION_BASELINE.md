@@ -25,13 +25,14 @@ they are not Station validation failures.
 DAEDALUS implemented PR344 on 2026-06-26:
 `docs/roadmap/PR344_UX07_BILLING_ENTITLEMENT_SOURCE_MAP_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Billing source map | Pass | Billing, entitlement, quota, token-credit, Stripe handoff, and frontend state sources are mapped before broader UX-07 billing work. |
 | Pricing storage copy | Pass | Public pricing now matches server limits from `packages/config/src/tiers.ts`: Basic/private `5 GB`, Creator `50 GB`, Canon / Developer `200 GB`. |
 | Entitlement timing copy | Pass | Public pricing FAQ now says Station reflects plan changes only after verified server subscription state updates. |
+| PR345 scope | Pass | ARGUS confirmed the shared billing display-helper lane is appropriate and should include authenticated Billing plan-card copy as well as public Pricing. |
 | Scope control | Pass | No Stripe product, Price ID, Checkout URL, customer ID, subscription ID, payment ID, cookie, token, secret, schema, migration, webhook security, entitlement enforcement, tax, invoice, usage billing, Connect, marketplace, token-top-up behavior, or live-money behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 11 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
@@ -40,8 +41,8 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
 
 Residual risk: Pricing and Billing still duplicate some plan display copy.
-DAEDALUS recommends PR345 as a narrow shared billing display-helper lane, with
-no Stripe mutation or entitlement enforcement changes.
+ARGUS recommends PR345 as a narrow shared billing display-helper lane, with no
+Stripe mutation or entitlement enforcement changes.
 
 ## PR342 UX-06 Developer Space Observatory Clarity Result
 

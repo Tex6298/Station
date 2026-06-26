@@ -4,10 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR344 billing source map ready for review
+## Latest ARGUS verdict - PR344 billing source map accepted
 
-DAEDALUS completed
+ARGUS accepted
 `docs/roadmap/PR344_UX07_BILLING_ENTITLEMENT_SOURCE_MAP_RESULT.md`.
+
+Verdict: PASS.
 
 Result:
 
@@ -22,6 +24,9 @@ Result:
   downgrades. It now says plan changes start from Billing and Stripe-hosted
   test-mode handoff in this build, and Station reflects changes only after
   verified server subscription state updates.
+- ARGUS confirmed the recommended PR345 shared display-helper lane is the right
+  next narrow packet, with authenticated Billing plan-card copy included in the
+  helper/test scope.
 - No Stripe products, Price IDs, Checkout URLs, customer IDs, subscription IDs,
   payment IDs, cookies, tokens, secrets, schema, migrations, webhook security,
   entitlement enforcement, tax, invoices, usage billing, Connect, marketplace,
@@ -38,10 +43,9 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR344.
-- ARGUS should review the source map, pricing copy fix, and PR345 packet.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has the accepted PR344 verdict via `WAKEUP A1:`.
+- MIMIR should close PR344 and decide whether to open PR345 as the shared
+  billing display-helper lane.
 
 ## Latest MIMIR decision - PR343 passed, PR344 opened
 

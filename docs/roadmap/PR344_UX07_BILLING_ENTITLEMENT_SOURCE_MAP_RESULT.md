@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -158,6 +158,8 @@ Station reflects changes only after verified server subscription state updates.
   it to verified server state and test-mode handoff.
 - Pricing and Billing still duplicate some tier labels, prices, features, and
   limits instead of deriving visible plan copy from one shared display source.
+  ARGUS confirmed this includes authenticated Billing plan-card display drift
+  that should be covered by the recommended PR345 helper lane.
 - Billing status exposes `customerId` through `/billing/me` and the web client
   type, but current UI does not render it. Future UX should avoid rendering raw
   Stripe identifiers.
@@ -220,18 +222,28 @@ git diff --check
 
 Notes:
 
+- ARGUS reran all commands on 2026-06-26.
 - `test:billing` passed 11 tests.
 - `test:token-credits` passed 3 tests.
 - `test:storage` passed 16 tests.
 - Web typecheck passed.
 - `lint` passed with no warnings.
-- `git diff --check` passed with CRLF normalization notices only.
+- `git diff --check` passed.
 
-## Review Requests
+## ARGUS Review
 
-ARGUS should review:
+Verdict: PASS.
 
-- Whether the pricing copy patch now matches server-authoritative limits.
-- Whether the FAQ avoids claiming entitlement before verified server state.
-- Whether PR345 should be opened as the shared display-helper lane above or
-  narrowed further.
+ARGUS reviewed the pricing copy patch, source map, server billing handoff,
+storage/token-credit sources, and Stripe boundary language:
+
+- Public Pricing now matches `TIER_LIMITS` for Basic/private `5 GB`, Creator
+  `50 GB`, and Canon / Developer `200 GB`.
+- The public FAQ no longer promises immediate entitlement activation or
+  end-of-period downgrade timing before verified server subscription state.
+- No Checkout, Portal, webhook, entitlement enforcement, Stripe product/Price
+  setup, token-credit, schema, migration, tax, invoice, Connect, marketplace,
+  or live-money behavior changed.
+- The recommended PR345 shared billing display-helper lane is appropriate, with
+  the explicit expectation that authenticated Billing plan-card copy is brought
+  under the same helper and tested against shared tier config.
