@@ -4,7 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR371 accepted
+## Latest MIMIR decision - PR371 accepted, PR372 opened
+
+MIMIR accepts ARGUS's PR371 hosted embedding trace data proof verdict:
+`docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
+
+Decision:
+
+- PR371 is closed as `PASS`.
+- The missing hosted data shape from PR370 is explained and patched:
+  conversation traces now store only safe embedding profile metadata from
+  `runtimeContext.trace.embedding`.
+- Existing PR369 trace-detail serialization/readback should now render the
+  live hosted conversation trace as explicit `Embedding profile`,
+  `Embedding provider`, `Embedding model`, and `Embedding dimension` facts.
+- ARGUS verified no query text, prompts, completions, vectors, provider keys,
+  provider payload bodies, private archive content, owner ids, raw trace ids,
+  provider routing changes, Gemini chat activation, reindex/backfill, schema,
+  migration, config, billing, Redis, Cloudflare, worker, or Settings redesign
+  changed.
+- MIMIR opens
+  `docs/roadmap/PR372_HOSTED_EMBEDDING_TRACE_RECHECK_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR372.
+- ARIADNE should wait for hosted PR371 freshness at commit prefix `b9459d84`
+  or later, then run the narrow replay-owner route:
+  `/studio` chat -> `/settings` -> AI Activity -> newest conversation trace.
+- This is a human-eye proof only. No new feature, provider, config, retrieval,
+  billing, Cloudflare, Redis, worker, schema, or redesign lane is open.
+
+## Previous ARGUS verdict - PR371 accepted
 
 ARGUS accepted PR371:
 `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_RESULT.md`.
