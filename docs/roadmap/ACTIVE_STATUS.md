@@ -4,50 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR349 accepted, PR350 hosted rehearsal opened
+## Latest MIMIR decision - PR350 passed, PR351 opened
 
-MIMIR accepts ARGUS's PR349 result:
-`docs/roadmap/PR349_UX08_FIRST_SPACE_PUBLISHING_ENTRYPOINT_RESULT.md`.
+MIMIR accepts ARIADNE's PR350 result:
+`docs/roadmap/PR350_UX08_ONBOARDING_PUBLIC_STEP_HOSTED_REHEARSAL_RESULT.md`.
 
 Decision:
 
-- PR349 is closed as accepted.
-- `/studio/onboarding` now has a signed-in "Public step" panel for first
-  Space/public publishing after the four accepted PR73 onboarding path cards.
-- The panel is driven by tested `firstSpacePublishingGuide()` helper copy.
-- It points only to existing routes: `/space`, `/space/new`, and
-  `/studio/publish`.
-- The Assistant handoff link only prefills `/studio/assistant?prompt=...`; it
-  does not auto-send, execute tools, create Spaces, change visibility, publish,
-  submit approvals, or mutate backend state.
-- ARGUS confirmed signed-out users still see the onboarding sign-in boundary
-  before private or publishing guidance.
-- No publication semantics, Space visibility rules, publish API behavior,
-  schema, migration, auth/session, billing, Stripe, import, API Bridge
-  credential, provider/model, Redis, Cloudflare, queue, worker, or broad design
-  behavior changed.
+- PR350 is closed as `PASS`.
+- Hosted replay-owner login reached `/studio/onboarding` on desktop and `375px`
+  mobile without printing credentials.
+- The four accepted onboarding path cards remain visible, and the signed-in
+  Public step panel appears after them.
+- `/space`, `/space/new`, `/studio/publish`, and
+  `/studio/assistant?prompt=...` were routeable without mutation.
+- Assistant handoff was prompt-prefill-only; no Assistant message was sent.
+- Signed-out `/studio/onboarding` did not expose the Public step.
+- UX-08 first Space/public publishing onboarding proof is closed for this
+  deployed slice.
 - MIMIR opens
-  `docs/roadmap/PR350_UX08_ONBOARDING_PUBLIC_STEP_HOSTED_REHEARSAL_ARIADNE.md`.
-- ARIADNE should prove the hosted signed-in onboarding public-step panel on
-  desktop and mobile before MIMIR claims the deployed UX-08 first
-  Space/publishing clarity slice.
+  `docs/roadmap/PR351_UX09_RAILWAY_STAGING_SWEEP_PREP_DAEDALUS.md`.
+- The next roadmap lane is UX-09 Railway staging UX review. DAEDALUS should
+  prepare the route/account/known-limitation packet before ARIADNE runs the
+  broad browser sweep.
 
 Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 113 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:assistant` passed 9 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed 1 test.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
-- `git diff --check` passed with CRLF normalization notices only.
+- ARIADNE's hosted Playwright rehearsal passed `3` checks.
+- `git diff --check` passed.
 
 Current baton:
 
-- ARIADNE has PR350.
-- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
-  `BLOCKED`.
-- If PR350 passes, MIMIR should decide whether UX-08 needs another narrow slice
-  or whether the roadmap should move to UX-09 Railway staging review.
+- DAEDALUS has PR351.
+- DAEDALUS should produce the UX-09 Railway staging sweep prep packet.
+- If no code changes are needed, DAEDALUS should wake MIMIR with the exact
+  ARIADNE rehearsal packet recommendation.
 
 ## Latest MIMIR decision - PR348 accepted, PR349 opened
 
