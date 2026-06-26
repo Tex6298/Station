@@ -4,22 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS prep - PR351 ready for MIMIR
+## Latest MIMIR decision - PR351 accepted, PR352 opened
 
-DAEDALUS completed PR351:
+MIMIR accepts DAEDALUS's PR351 prep:
 `docs/roadmap/PR351_UX09_RAILWAY_STAGING_SWEEP_PREP_RESULT.md`.
 
-Result:
+Decision:
 
-- Confirmed the current Railway staging web/API targets and health/deployment
-  checks.
-- Wrote replay account handling notes using key names only:
-  `STATION_REPLAY_OWNER_EMAIL` and `STATION_REPLAY_OWNER_PASSWORD`.
-- Prepared the ARIADNE route order for public signed-out, signed-in owner, and
-  mobile critical-subset sweeps.
-- Added pass/caveat/fail/block criteria, mutation boundaries, and known caveats
-  from recent hosted results.
-- Included an exact recommended PR352 ARIADNE packet.
+- PR351 is closed as accepted.
+- The staging web/API targets, replay credential key names, route order,
+  pass/caveat/fail/block criteria, known caveats, and mutation boundaries are
+  ready for hosted rehearsal.
+- The sweep should be a human-eye Railway staging browser pass, not a product
+  mutation lane.
+- ARIADNE should verify public signed-out routes, signed-in owner routes, and a
+  mobile critical subset against the PR351 packet.
+- MIMIR opens
+  `docs/roadmap/PR352_UX09_RAILWAY_STAGING_SWEEP_ARIADNE.md`.
 - No product code changed.
 
 Validation:
@@ -28,10 +29,12 @@ Validation:
 
 Current baton:
 
-- MIMIR has PR351.
-- MIMIR should open PR352 for ARIADNE using the packet in the PR351 result.
-- If MIMIR wants a product repair before the sweep, wake DAEDALUS with the exact
-  blocker.
+- ARIADNE has PR352.
+- ARIADNE should run the Railway staging browser sweep using the PR351 result as
+  route/account/boundary source of truth.
+- If the sweep passes or passes with caveat, wake MIMIR.
+- If a product repair is needed, wake DAEDALUS with the smallest exact repair
+  packet.
 
 ## Latest MIMIR decision - PR350 passed, PR351 opened
 
