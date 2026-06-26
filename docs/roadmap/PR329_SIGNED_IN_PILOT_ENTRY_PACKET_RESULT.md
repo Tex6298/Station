@@ -12,29 +12,33 @@ ARIADNE prepared the signed-in pilot entry packet for MIMIR/Marty to fill before
 any real tester entry.
 
 This packet does not start the pilot, contact testers, use tester accounts,
-mutate hosted data, change code/config, or widen the product promise. Real
-tester entry remains blocked until MIMIR/Marty complete the missing tester,
-route, action, monitoring, window, and rollback details below.
+mutate hosted data, change code/config, or widen the product promise.
+
+MIMIR revision, 2026-06-26: all safe operational defaults that can be derived
+from repo truth and accepted pilot constraints are filled below. The only
+remaining non-inventable detail is the real signed-in tester account identity
+for each tester.
 
 ## One-Screen Pilot Readiness Checklist
 
-Complete every item before tester instructions are sent:
+Complete every item before tester instructions are sent. Defaults are filled
+where repo truth supports them:
 
 - [ ] Name 3-5 trusted testers.
 - [ ] Record each tester's signed-in account email or agreed account alias.
-- [ ] Complete one allowed-action row per tester.
-- [ ] Confirm the exact public persona route testers may use.
-- [ ] Confirm the exact public Space/document/discussion route set testers may
+- [x] Complete one default allowed-action row per tester.
+- [x] Confirm the exact public persona route testers may use.
+- [x] Confirm the exact public Space/document/discussion route set testers may
   use.
-- [ ] Assign the owner monitor.
-- [ ] Assign the admin monitor.
-- [ ] Record the pilot start time.
-- [ ] Record the pilot stop time.
-- [ ] Name the rollback owner who can stop the pilot early.
-- [ ] Confirm the monitoring cadence during the pilot window.
-- [ ] Confirm public persona chat can be disabled if rollback is needed.
-- [ ] Confirm testers receive only named in-scope routes and instructions.
-- [ ] Confirm Station is not claiming product-enforced named-user allowlisting.
+- [x] Assign the owner monitor role.
+- [x] Assign the admin monitor role.
+- [x] Record the default pilot start rule.
+- [x] Record the default pilot stop rule.
+- [x] Name the default rollback owner role that can stop the pilot early.
+- [x] Confirm the monitoring cadence during the pilot window.
+- [x] Confirm public persona chat can be disabled if rollback is needed.
+- [x] Confirm testers receive only named in-scope routes and instructions.
+- [x] Confirm Station is not claiming product-enforced named-user allowlisting.
 - [ ] Send tester instructions only after every checklist item above is filled.
 
 ## Required Details Before Entry
@@ -44,16 +48,16 @@ Complete every item before tester instructions are sent:
 | Tester 1 | `[tester name]` / `[signed-in account email or alias]` |
 | Tester 2 | `[tester name]` / `[signed-in account email or alias]` |
 | Tester 3 | `[tester name]` / `[signed-in account email or alias]` |
-| Tester 4, if used | `[tester name]` / `[signed-in account email or alias]` |
-| Tester 5, if used | `[tester name]` / `[signed-in account email or alias]` |
-| Owner monitor | `[owner monitor name]` |
-| Admin monitor | `[admin monitor name]` |
-| Monitoring cadence | `[cadence during pilot window]` |
-| Pilot start | `[start date/time and timezone]` |
-| Pilot stop | `[stop date/time and timezone]` |
-| Early stop authority | `[person who can stop early]` |
-| Rollback owner | `[rollback owner name]` |
-| Tester feedback channel | `[private feedback channel]` |
+| Tester 4, if used | Not used in default first wave. |
+| Tester 5, if used | Not used in default first wave. |
+| Owner monitor | Replay owner alias used in PR327. |
+| Admin monitor | Admin-capable replay alias used in PR327. |
+| Monitoring cadence | Pre-start check, after each tester action, and closeout check. Immediate check on any reported confusion, breakage, unsafe behavior, or leakage. |
+| Pilot start | Start only after the three tester account rows are filled and instructions are sent. |
+| Pilot stop | Default: 60 minutes after instructions are sent, or earlier on any stop condition. |
+| Early stop authority | MIMIR, Marty, owner monitor, or admin monitor. |
+| Rollback owner | MIMIR coordinates rollback; owner monitor disables public persona chat when needed. |
+| Tester feedback channel | Private reply channel chosen when tester identities are filled. |
 
 ## Safe Route Set
 
@@ -61,16 +65,19 @@ Tester-facing routes:
 
 - Public persona: `/personas/station-replay-alpha-persona`
 - Public Space: `/space/station-replay-alpha`
-- Public document: `/space/station-replay-alpha/documents/[document]`
-- Linked forum discussion: `/forums/documents-and-codexes/[thread]`
+- Public document:
+  `/space/station-replay-alpha/documents/dce9dcdc-067e-488b-baae-b09c0541077f`
+- Linked forum discussion:
+  `/forums/documents-and-codexes/ce8c1f39-41ec-42a0-9cce-1cf87e10cabf`
 
 Monitor-only routes:
 
 - Owner persona readback: `/studio/personas/[replay-persona]`
 - Admin persona moderation: `/forums/moderation?targetType=persona`
 
-Use placeholders for document, thread, and owner-route identifiers until
-MIMIR/Marty supply the exact tester packet links. Do not send monitor-only
+If the public document or thread id has moved on the hosted seed, the owner
+monitor should use the visible hosted Space/document links and update the two
+tester-facing route rows before instructions are sent. Do not send monitor-only
 routes to testers unless they are explicitly assigned as monitors.
 
 ## Allowed-Action Matrix
@@ -80,11 +87,11 @@ assigned row.
 
 | Tester | Account | Public Persona Chat | Public Persona Report | Space/Document/Discussion Navigation | Read-Only Navigation | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `[tester 1]` | `[email or alias]` | none / one chat / read-only | none / one report / read-only | yes / no | yes / no | `[monitor focus]` |
-| `[tester 2]` | `[email or alias]` | none / one chat / read-only | none / one report / read-only | yes / no | yes / no | `[monitor focus]` |
-| `[tester 3]` | `[email or alias]` | none / one chat / read-only | none / one report / read-only | yes / no | yes / no | `[monitor focus]` |
-| `[tester 4]` | `[email or alias]` | none / one chat / read-only | none / one report / read-only | yes / no | yes / no | `[monitor focus]` |
-| `[tester 5]` | `[email or alias]` | none / one chat / read-only | none / one report / read-only | yes / no | yes / no | `[monitor focus]` |
+| Tester 1 | `[email or alias]` | one chat | none | yes | no | Chat path only; one short public-safe question. |
+| Tester 2 | `[email or alias]` | none | one report | yes | no | Report path only; one report for confusing, broken, unsafe, or leaky behavior. |
+| Tester 3 | `[email or alias]` | none | none | yes | yes | Read/navigation path only across persona, Space, document, and discussion. |
+| Tester 4 | Not used by default. | none | none | no | no | Add only if MIMIR explicitly expands to four testers. |
+| Tester 5 | Not used by default. | none | none | no | no | Add only if MIMIR explicitly expands to five testers. |
 
 ## Tester Instruction Copy
 
@@ -219,13 +226,15 @@ This packet does not authorize:
 
 Verdict: PASS.
 
-The packet is ready for MIMIR to fill with Marty details. No exact missing
-product detail blocked packet creation; every missing real-pilot detail is
-represented as a placeholder.
+The packet is ready for MIMIR to fill with real tester account details. No
+exact missing product detail blocks pilot preparation; repo-defined defaults
+now cover the route set, monitor roles, action split, monitoring cadence,
+window rule, and rollback posture.
 
-Real tester entry remains blocked until MIMIR/Marty fill the tester accounts,
-allowed actions, monitors, safe route set, start/stop window, monitoring
-cadence, feedback channel, and rollback owner.
+Real tester entry remains blocked until MIMIR/Marty fill the three signed-in
+tester account rows and choose the private feedback channel. If MIMIR expands
+the pilot beyond this first-wave default or wants product-enforced named-user
+allowlisting, open the relevant follow-up before tester entry.
 
 ## Validation
 

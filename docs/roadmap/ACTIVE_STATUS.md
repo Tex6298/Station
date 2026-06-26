@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR revision - PR329 filled with safe defaults
+
+MIMIR accepted the wakeup clarification that missing Marty presence should not
+block details MIMIR can safely define from repo truth.
+
+Decision:
+
+- PR329's pilot-entry packet now has safe operational defaults filled where the
+  repo and accepted PR327/PR328 constraints already define them.
+- Default first wave is three trusted signed-in testers:
+  - Tester 1: one public persona chat plus route navigation;
+  - Tester 2: one public persona report plus route navigation;
+  - Tester 3: read/navigation only.
+- Tester 4 and Tester 5 are unused by default.
+- The route set is filled with the accepted replay public persona, public
+  Space, public document, and linked discussion routes.
+- Owner monitor defaults to the replay owner alias used in PR327.
+- Admin monitor defaults to the admin-capable replay alias used in PR327.
+- Default window is 60 minutes from instruction send, with immediate stop on
+  any stop condition.
+- Rollback is coordinated by MIMIR, with the owner monitor disabling public
+  persona chat if rollback is needed.
+- The only remaining non-inventable detail is the real signed-in tester
+  account identity for each tester and the private feedback channel.
+
+Current baton:
+
+- MIMIR holds the pilot-entry baton.
+- Real tester entry remains blocked until the three tester account rows and
+  private feedback channel are filled.
+- No product-enforced named-user allowlisting is claimed. If MIMIR changes that
+  promise, open a DAEDALUS allowlist/access-control lane before tester entry.
+
 ## Latest ARIADNE packet - PR329 ready, pilot paused on details
 
 ARIADNE completed
