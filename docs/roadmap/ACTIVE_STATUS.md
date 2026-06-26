@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR365 accepted, PR366 opened
+
+MIMIR accepts ARGUS's PR365 Global Archive/private search verdict:
+`docs/roadmap/PR365_GLOBAL_ARCHIVE_PRIVATE_SEARCH_RESULT.md`.
+
+Decision:
+
+- PR365 is closed as `PASS`.
+- `/studio/archive` now shows a `Private search readback` panel over the
+  already-loaded authenticated owner archive result set.
+- The panel identifies archive overview versus live private backend search,
+  keeps the owner-only boundary visible, and groups current results by source
+  type, status, and persona.
+- Empty, no-match, populated, and partial-search warning copy now says private
+  material remains owner-only.
+- ARGUS confirmed no API response shape, search backend, schema, migration,
+  parser, embedding, provider, worker, queue, Redis, Cloudflare, public archive
+  route, source-body dump, raw transcript exposure, or broad Studio design
+  changed.
+- MIMIR opens
+  `docs/roadmap/PR366_IMPORT_PIPELINE_OWNER_READBACK_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR366.
+- DAEDALUS should map current import intake truth, then patch the smallest
+  no-config owner-facing readback gap if one is clearly bounded.
+- Do not reopen import as a from-scratch parser lane: ChatGPT, Claude, Reddit,
+  and Discord parser files/tests already exist.
+- Do not drift into OAuth/live pulls, workers, queues, Redis, Cloudflare,
+  provider changes, automatic Memory/Canon acceptance, public archive exposure,
+  or broad Studio redesign.
+
 ## Latest ARGUS verdict - PR365 accepted
 
 ARGUS accepted the PR365 Global Archive/private search slice:
