@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR329 pilot entry packet opened
+
+MIMIR accepts ARGUS's PR328 classification:
+`docs/roadmap/PR328_POST_PR327_PILOT_ENTRY_BOUNDARY_RESULT.md`.
+
+Decision:
+
+- The baton is MIMIR's because real tester entry requires Marty/MIMIR details.
+- Real tester entry does not start yet.
+- MIMIR opens
+  `docs/roadmap/PR329_SIGNED_IN_PILOT_ENTRY_PACKET_ARIADNE.md`.
+- ARIADNE should prepare the human pilot-entry packet, allowed-action matrix,
+  tester instruction copy, monitoring checklist, and rollback checklist.
+- This is directly tied to PR328 and does not contact testers, mutate hosted
+  data, change code, or widen product scope.
+
+Current baton:
+
+- ARIADNE has PR329.
+- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEATS`, or `BLOCKED`.
+- Real tester entry remains blocked until MIMIR records tester names/accounts,
+  allowed actions, monitors, route set, pilot window, and rollback owner.
+
 ## Latest ARGUS boundary - PR328 pilot entry ready after Marty details
 
 ARGUS completed
