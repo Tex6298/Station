@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR344 billing source map ready for review
+
+DAEDALUS completed
+`docs/roadmap/PR344_UX07_BILLING_ENTITLEMENT_SOURCE_MAP_RESULT.md`.
+
+Result:
+
+- Billing, entitlement, quota, token-credit, Stripe handoff, and frontend state
+  sources are mapped for UX-07 before broader billing UI work.
+- A low-risk public pricing copy patch landed in
+  `apps/web/app/(marketing)/pricing/page.tsx`.
+- Public pricing storage limits now match server-authoritative
+  `packages/config/src/tiers.ts`: Basic/private `5 GB`, Creator `50 GB`, and
+  Canon / Developer `200 GB`.
+- The pricing FAQ no longer claims immediate upgrades or end-of-period
+  downgrades. It now says plan changes start from Billing and Stripe-hosted
+  test-mode handoff in this build, and Station reflects changes only after
+  verified server subscription state updates.
+- No Stripe products, Price IDs, Checkout URLs, customer IDs, subscription IDs,
+  payment IDs, cookies, tokens, secrets, schema, migrations, webhook security,
+  entitlement enforcement, tax, invoices, usage billing, Connect, marketplace,
+  token-top-up behavior, or live-money behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR344.
+- ARGUS should review the source map, pricing copy fix, and PR345 packet.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR decision - PR343 passed, PR344 opened
 
 MIMIR accepts ARIADNE's PR343 result:

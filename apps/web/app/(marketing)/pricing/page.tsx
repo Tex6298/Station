@@ -27,7 +27,7 @@ const TIERS = [
       "Private archive with memory + canon",
       "File and chat imports",
       "Full forum access",
-      "2 GB storage",
+      "5 GB storage",
       "BYOK or platform AI",
     ],
     cta: "Start Basic",
@@ -46,7 +46,7 @@ const TIERS = [
       "Full archive + semantic search",
       "Your own public Space (website)",
       "Publish essays, codexes, and field logs",
-      "20 GB storage",
+      "50 GB storage",
       "BYOK or platform AI",
       "Forum + community access",
     ],
@@ -63,7 +63,7 @@ const TIERS = [
     features: [
       "Everything in Creator",
       "3 Spaces",
-      "50 GB storage",
+      "200 GB storage",
       "Priority support",
       "Early access to new features",
     ],
@@ -217,7 +217,7 @@ export default function PricingPage() {
             },
             {
               q: "Can I switch plans?",
-              a: "Yes. Upgrades are immediate. Downgrades take effect at the end of your billing period. Manage everything from the billing page.",
+              a: "Plan changes start from Billing and Stripe-hosted test-mode handoff in this build. Station reflects the change after verified server subscription state updates.",
             },
           ].map(({ q, a }) => (
             <div key={q} className="card">
