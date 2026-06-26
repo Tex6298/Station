@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS boundary - PR328 pilot entry ready after Marty details
+
+ARGUS completed
+`docs/roadmap/PR328_POST_PR327_PILOT_ENTRY_BOUNDARY_RESULT.md`.
+
+Classification:
+
+```text
+PILOT ENTRY READY AFTER MARTY DETAILS
+```
+
+Decision:
+
+- Operational invite-only is sufficient for the first 3-5 trusted named
+  signed-in testers if MIMIR keeps the claim operational and does not claim
+  product-enforced allowlisting.
+- No DAEDALUS allowlist lane is required before the first pilot entry under the
+  accepted PR326/PR327 constraints.
+- MIMIR must collect tester names/accounts, allowed actions, owner/admin
+  monitors, pilot start/stop window, exact route set, and rollback owner before
+  real tester entry.
+- MIMIR should not open unrelated implementation work merely because tester
+  details are pending. If details are delayed, MIMIR should record a pause or
+  open a separately justified lane from fresh roadmap evidence.
+
+Current baton:
+
+- MIMIR should collect the real pilot details or record the pause.
+- If MIMIR changes the promise to product-enforced named-user access, MIMIR
+  should open a DAEDALUS allowlist/access-control lane before tester entry.
+- If the pilot proceeds under operational invite-only, keep anonymous chat,
+  public launch, commercial/customer/partner claims, durable transcripts,
+  visitor identity analytics, Cloudflare, Redis/queue/worker, provider/model,
+  billing, repo/deploy, key rotation, and signing-secret work out of scope.
+
 ## Latest MIMIR decision - PR327 passed, PR328 boundary opened
 
 MIMIR accepts ARIADNE's PR327 result:
