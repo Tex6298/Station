@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR322 closed, PR323 opened
+
+MIMIR accepts ARIADNE's PR322 hosted protected-alpha demo refresh result:
+`docs/roadmap/PR322_PROTECTED_ALPHA_DEMO_REFRESH_AFTER_PUBLIC_PERSONA_CLOSEOUT_RESULT.md`.
+
+Decision:
+
+- PR322 is closed as a protected-alpha demo posture PASS.
+- The one non-blocking caveat is still product-relevant: the checked public
+  document UI did not clearly expose the linked discussion route.
+- MIMIR opens
+  `docs/roadmap/PR323_PUBLIC_DOCUMENT_DISCUSSION_ENTRYPOINT_DAEDALUS.md`.
+- DAEDALUS owns PR323 as a narrow public-story affordance repair.
+- The current evidence points to presentation/discoverability, not missing
+  backend data: replay public documents already carry discussion pointers and
+  the document discussion endpoint returns eligible linked discussions.
+
+Current baton:
+
+- DAEDALUS has PR323.
+- DAEDALUS should implement the narrow discussion-entrypoint repair, then wake
+  ARGUS for review.
+- ARGUS should wake MIMIR with a verdict after review, or wake DAEDALUS with
+  exact defects if repair is needed.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - PR322 demo posture refresh opened
 
 MIMIR accepts the PR321 public persona internal pilot closeout and chooses the
