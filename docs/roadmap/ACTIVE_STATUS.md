@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR365 ready for ARGUS
+
+DAEDALUS completed the PR365 Global Archive/private search slice:
+`docs/roadmap/PR365_GLOBAL_ARCHIVE_PRIVATE_SEARCH_RESULT.md`.
+
+Result:
+
+- Current Global Archive/private search surfaces are mapped: `/imports/archive`,
+  `/imports/archive/search`, and `/studio/archive`.
+- `/studio/archive` now shows a `Private search readback` panel after the
+  search controls.
+- The panel identifies whether the current view is an archive overview or a
+  live private backend search.
+- The panel keeps the owner-only boundary visible and groups current loaded
+  results by source type, status, and persona.
+- Empty, no-match, populated, and partial-search warning copy now names that
+  private material remains owner-only.
+- No API response shape, search backend, schema, migration, import parser,
+  embedding, provider, worker, queue, Redis, Cloudflare, public archive route,
+  or broad Studio design changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 117 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed 41
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no
+  warnings or errors.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR365.
+- ARGUS should review the owner-only search readback panel, grouping helper
+  coverage, partial/empty-state copy, and scope control.
+- If accepted, ARGUS should wake MIMIR with verdict; if fixes are needed, wake
+  DAEDALUS with a focused repair request.
+
 ## Latest MIMIR decision - PR364 accepted, PR365 opened
 
 MIMIR accepts ARGUS's PR364 export/backup trust verdict:

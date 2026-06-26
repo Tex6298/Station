@@ -5,8 +5,12 @@ import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
 import {
   ARCHIVE_SEARCH_FILTERS,
+  archiveSearchGroupCounts,
+  archiveSearchModeLabel,
   archiveSearchPath,
+  archiveSearchReadbackCopy,
   archiveSearchUsesBackend,
+  type ArchiveSearchGroupRow,
 } from "@/lib/archive-search";
 import { archiveSourceNarrative } from "@/lib/archive-trust";
 import { getSession } from "@/lib/auth";
@@ -95,6 +99,12 @@ export function ArchiveLibrary() {
       return Date.parse(b.date ?? "") - Date.parse(a.date ?? "");
     });
   }, [items, sort]);
+  const searchInput = useMemo(() => ({ filter, query, sort }), [filter, query, sort]);
+  const searchMode = archiveSearchModeLabel(searchInput);
+  const searchReadback = archiveSearchReadbackCopy(searchInput, visibleItems.length, warnings.length);
+  const sourceGroups = useMemo(() => archiveSearchGroupCounts(visibleItems, "type"), [visibleItems]);
+  const statusGroups = useMemo(() => archiveSearchGroupCounts(visibleItems, "status"), [visibleItems]);
+  const personaGroups = useMemo(() => archiveSearchGroupCounts(visibleItems, "persona"), [visibleItems]);
 
   const summarySource = summaryItems.length > 0 ? summaryItems : items;
   const failedCount = summarySource.filter((item) => item.status === "failed").length;
@@ -191,6 +201,15 @@ export function ArchiveLibrary() {
                 </div>
               </div>
 
+              <ArchiveSearchReadbackPanel
+                mode={searchMode}
+                title={searchReadback.title}
+                body={searchReadback.body}
+                sourceGroups={sourceGroups}
+                statusGroups={statusGroups}
+                personaGroups={personaGroups}
+              />
+
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
                 {visibleItems.map((item) => (
                   <article key={`${item.type}-${item.id}`} style={card}>
@@ -231,6 +250,61 @@ export function ArchiveLibrary() {
         ) : null}
       </div>
     </main>
+  );
+}
+
+function ArchiveSearchReadbackPanel({
+  mode,
+  title,
+  body,
+  sourceGroups,
+  statusGroups,
+  personaGroups,
+}: {
+  mode: string;
+  title: string;
+  body: string;
+  sourceGroups: ArchiveSearchGroupRow[];
+  statusGroups: ArchiveSearchGroupRow[];
+  personaGroups: ArchiveSearchGroupRow[];
+}) {
+  return (
+    <section style={panel} aria-label="Private search readback">
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 10 }}>
+        <div>
+          <div style={{ color: "var(--station-page-accent)", fontSize: 11, textTransform: "uppercase", letterSpacing: 0, fontWeight: 800 }}>
+            {mode}
+          </div>
+          <h2 style={{ ...sectionTitle, margin: "4px 0 0" }}>{title}</h2>
+        </div>
+        <span style={ownerOnlyPill}>Owner-only</span>
+      </div>
+      <p style={{ margin: "0 0 12px", color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
+        {body}
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+        <ArchiveGroup label="Sources" rows={sourceGroups} />
+        <ArchiveGroup label="Statuses" rows={statusGroups} />
+        <ArchiveGroup label="Personas" rows={personaGroups} />
+      </div>
+    </section>
+  );
+}
+
+function ArchiveGroup({ label, rows }: { label: string; rows: ArchiveSearchGroupRow[] }) {
+  return (
+    <div style={{ border: "1px solid var(--station-page-border)", borderRadius: 8, padding: 10, background: "var(--station-page-soft-2)" }}>
+      <div style={{ color: "var(--station-page-muted)", fontSize: 11, fontWeight: 800, marginBottom: 8 }}>{label}</div>
+      {rows.length > 0 ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {rows.map((row) => (
+            <span key={row.label} style={pill}>{row.label} / {row.count}</span>
+          ))}
+        </div>
+      ) : (
+        <div style={{ color: "var(--station-page-muted)", fontSize: 12 }}>No grouped results yet.</div>
+      )}
+    </div>
   );
 }
 
@@ -347,6 +421,13 @@ const pill = {
   padding: "5px 8px",
   fontSize: 11,
   fontWeight: 800,
+};
+
+const ownerOnlyPill = {
+  ...pill,
+  borderColor: "rgba(40, 120, 185, 0.35)",
+  color: "var(--station-page-accent)",
+  background: "#e7f0f6",
 };
 
 const primaryButton = {

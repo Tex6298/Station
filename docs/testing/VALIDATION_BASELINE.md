@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR365 Global Archive Private Search Result
+
+DAEDALUS implemented PR365 on 2026-06-26:
+`docs/roadmap/PR365_GLOBAL_ARCHIVE_PRIVATE_SEARCH_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Global Archive/private search map | Pass | `/imports/archive`, `/imports/archive/search`, and `/studio/archive` are documented as the current owner-only surfaces. |
+| `/studio/archive` readback patch | Pass | The page now labels overview vs live private search mode and groups loaded results by source type, status, and persona. |
+| Privacy boundary | Pass | The panel uses already-loaded authenticated owner archive items only; no API response shape or public archive behavior changed. |
+| Scope control | Pass | No schema, migration, import parser, embedding, provider, worker, queue, Redis, Cloudflare, public route, source-body dump, raw transcript exposure, or broad Studio redesign changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 117 tests passed, including archive search readback helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 storage/API tests passed, including owner-scoped sanitized archive search. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 archive/conversation/import parser tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: ARGUS should review whether the readback grouping is useful
+enough for launch-core without implying new backend search breadth. This patch
+intentionally does not add new archive sources, parsers, workers, or retrieval
+infrastructure.
+
 ## PR364 Export Backup Trust Gap Map Result
 
 DAEDALUS implemented PR364 on 2026-06-26:

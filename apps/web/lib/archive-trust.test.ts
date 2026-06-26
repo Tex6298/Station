@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  archiveSearchGroupCounts,
+  archiveSearchModeLabel,
   archiveSearchPath,
+  archiveSearchReadbackCopy,
   archiveSearchTypeParam,
   archiveSearchUsesBackend,
 } from "./archive-search";
@@ -109,6 +112,45 @@ test("archive search controls build backend search routes", () => {
   assert.equal(
     path,
     "/imports/archive/search?q=blue+lantern&type=continuity&sort=title&limit=25",
+  );
+});
+
+test("archive search readback groups owner-only results honestly", () => {
+  const items = [
+    { type: "memory", source: "Memory", persona: "Harbor", status: "indexed" },
+    { type: "memory", source: "Memory", persona: "Harbor", status: "indexed" },
+    { type: "import", source: "Chat import", persona: "Shared/global", status: "failed" },
+    { type: "document", source: "", persona: "", status: "" },
+  ];
+
+  assert.equal(
+    archiveSearchModeLabel({ filter: "All", query: "", sort: "date" }),
+    "Archive overview",
+  );
+  assert.equal(
+    archiveSearchModeLabel({ filter: "Memory", query: "", sort: "date" }),
+    "Live private search",
+  );
+  assert.deepEqual(archiveSearchGroupCounts(items, "type"), [
+    { label: "memory", count: 2 },
+    { label: "document", count: 1 },
+    { label: "import", count: 1 },
+  ]);
+  assert.deepEqual(archiveSearchGroupCounts(items, "persona"), [
+    { label: "Harbor", count: 2 },
+    { label: "Shared/global", count: 2 },
+  ]);
+  assert.match(
+    archiveSearchReadbackCopy({ filter: "All", query: "lantern", sort: "date" }, 3).body,
+    /owner-scoped archive sources/,
+  );
+  assert.match(
+    archiveSearchReadbackCopy({ filter: "All", query: "lantern", sort: "date" }, 0).body,
+    /Existing material remains private/,
+  );
+  assert.match(
+    archiveSearchReadbackCopy({ filter: "All", query: "lantern", sort: "date" }, 3, 2).body,
+    /2 archive sources could not be searched/,
   );
 });
 
