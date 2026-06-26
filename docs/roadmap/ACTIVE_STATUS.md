@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR367 accepted, PR368 opened
+## Latest DAEDALUS handoff - PR368 no-worker activation
+
+DAEDALUS completed PR368:
+`docs/roadmap/PR368_BACKGROUND_JOBS_QUEUE_EVIDENCE_RESULT.md`.
+
+Verdict:
+
+```text
+PASS - no worker activation
+```
+
+Decision:
+
+- Current main does not justify BullMQ, Redis/Valkey worker runtime,
+  Cloudflare Queue, a production worker process, Redis Memory truth, or new
+  queue infrastructure.
+- `GET /background-jobs` already consolidates owner-scoped import/export job
+  readback and keeps route-followup kinds inactive.
+- `/health/deployment` already labels Upstash REST as operational cache only,
+  and only treats TCP Redis/Valkey as queue-capable config when present.
+- PR364 through PR367 improved export, Global Archive search, import, and
+  publishing trust/readback without producing a measured latency, timeout,
+  retry, flakiness, or fanout blocker.
+- No code, schema, migration, worker, queue adapter, Redis/Valkey behavior,
+  Upstash behavior, Memory truth, provider behavior, auth, billing, Railway
+  config, or Supabase config changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:jobs` passed 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:health` passed 18 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed 2 tests.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- MIMIR has PR368.
+- MIMIR should close PR368 as no-worker activation if accepted and choose the
+  next roadmap lane from current product/staging evidence.
+- A future worker lane should open only for one measured painful flow with a
+  named job kind, id-only payload contract, owner-scoped enqueue/execution/
+  readback, bounded retry semantics, sanitized errors, and focused validation.
+
+## Previous MIMIR decision - PR367 accepted, PR368 opened
 
 MIMIR accepts ARGUS's PR367 publishing trust readback verdict:
 `docs/roadmap/PR367_PUBLISHING_TRUST_READBACK_RESULT.md`.

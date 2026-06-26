@@ -1199,6 +1199,16 @@ outer median is now 1864ms and no counted request exceeded 3000ms. Current docs
 now consolidate protected-alpha evidence and caveats rather than opening
 another optimization by guesswork.
 
+PR368 update, 2026-06-26: DAEDALUS refreshed the current-main background
+jobs/queue evidence after PR364 through PR367. No worker activation is
+recommended. Owner job readback remains covered by import/export status and
+`GET /background-jobs`; route-followup kinds remain inactive; Upstash REST is
+cache-only; TCP Redis/Valkey is queue-capable config only when present; and
+missing TCP Redis/Valkey config does not claim worker readiness. A future
+worker lane should open only from one measured painful flow with a named job
+kind, id-only payload contract, owner-scoped enqueue/execution/readback,
+bounded retries, sanitized errors, and focused validation.
+
 PR181 update, 2026-06-23: the bounded Stripe paid-activation proof is accepted
 for protected-alpha test mode. A clean non-production account completed hosted
 Checkout, entitlement stayed inactive after Checkout creation alone, and
@@ -1295,14 +1305,12 @@ remains available. If MIMIR wants a PR148 before replay, it should be an
 owner-only background job status/readback consolidation lane, not BullMQ,
 Redis/Valkey worker runtime, Cloudflare Queue, or broad job processing.
 
-Current status: PR149 is closed as sufficient hosted measurement, PR150 and
-PR151 are closed, PR152 is closed as repeated hosted latency evidence, PR153 is
-closed as timing instrumentation, PR154 is closed as hosted timing evidence, and
-PR155 is closed as Archive retrieval batch validation, PR156 is closed as hosted
-remeasurement, and PR157 is open for staging alpha evidence refresh.
-Do not open a worker, Redis Memory, Cloudflare, provider, billing, or broad UI
+Current status: PR149 through PR157 closed the measurement and immediate
+Archive-retrieval latency loop without worker activation. PR368 refreshed the
+current-main queue evidence and still recommends no worker activation. Do not
+open a worker, Redis Memory, Cloudflare, provider, billing, or broad UI
 optimization lane from local proof alone; choose future follow-up from hosted
-replay evidence and ARGUS/MIMIR sequencing.
+replay/product evidence and ARGUS/MIMIR sequencing.
 
 Candidate triggers:
 

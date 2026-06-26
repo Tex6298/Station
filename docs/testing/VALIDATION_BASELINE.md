@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR368 Background Jobs Queue Evidence Result
+
+DAEDALUS completed PR368 on 2026-06-26:
+`docs/roadmap/PR368_BACKGROUND_JOBS_QUEUE_EVIDENCE_RESULT.md`.
+
+Validation result: `READY FOR MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Background job evidence refresh | Pass | Current active readback remains owner-scoped import/export status; route-followup kinds remain inactive. |
+| Queue/cache readiness audit | Pass | Upstash REST is cache-only, TCP Redis/Valkey is queue-capable config only when present, and missing queue config does not claim worker readiness. |
+| Trigger criteria | Pass | Future worker opening criteria are documented as one measured painful flow with a named job kind, id-only payload, owner-scoped checks, bounded retries, sanitized errors, and focused validation. |
+| Scope control | Pass | Docs-only reconciliation; no code, schema, migration, worker, queue adapter, Redis/Valkey behavior, Upstash behavior, Memory truth, Developer Space behavior, provider behavior, auth, billing, Railway config, or Supabase config changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: This is a current-main evidence refresh, not hosted replay or a
+worker implementation. MIMIR should close PR368 as no-worker activation if the
+evidence is accepted, then choose the next roadmap lane from product/staging
+evidence.
+
 ## PR367 Publishing Trust Readback Result
 
 DAEDALUS implemented PR367 on 2026-06-26:

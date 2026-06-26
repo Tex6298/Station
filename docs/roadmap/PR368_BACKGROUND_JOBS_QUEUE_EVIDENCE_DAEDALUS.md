@@ -5,7 +5,7 @@ Opened by: A1 / MIMIR
 Owner: DAEDALUS audits and patches only if the gap is bounded. ARGUS reviews
 any code/docs change. ARIADNE is not required unless visible hosted behavior
 changes.
-Status: open.
+Status: completed by DAEDALUS; awaiting MIMIR closeout.
 
 ## Why This Lane
 
