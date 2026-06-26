@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR351 UX-09 Railway Staging Sweep Prep Result
+
+DAEDALUS completed PR351 on 2026-06-26:
+`docs/roadmap/PR351_UX09_RAILWAY_STAGING_SWEEP_PREP_RESULT.md`.
+
+Validation result: `READY FOR MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Staging sweep prep packet | Pass | Routes, account key names, pass/caveat/fail/block criteria, mutation boundaries, known caveats, and PR352 ARIADNE packet are documented. |
+| Scope control | Pass | Docs-only prep; no product code, schema, auth, billing, publishing, import, Assistant, provider/model, Redis, Cloudflare, queue, worker, Railway config, or database behavior changed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: PR351 does not prove hosted UX. It prepares ARIADNE's PR352
+Railway browser sweep so the broad rehearsal can run without guessing routes,
+credentials, scope, or current caveats.
+
 ## PR349 UX-08 First Space Publishing Entrypoint Result
 
 DAEDALUS implemented PR349 on 2026-06-26:

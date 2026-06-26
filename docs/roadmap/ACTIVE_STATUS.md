@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS prep - PR351 ready for MIMIR
+
+DAEDALUS completed PR351:
+`docs/roadmap/PR351_UX09_RAILWAY_STAGING_SWEEP_PREP_RESULT.md`.
+
+Result:
+
+- Confirmed the current Railway staging web/API targets and health/deployment
+  checks.
+- Wrote replay account handling notes using key names only:
+  `STATION_REPLAY_OWNER_EMAIL` and `STATION_REPLAY_OWNER_PASSWORD`.
+- Prepared the ARIADNE route order for public signed-out, signed-in owner, and
+  mobile critical-subset sweeps.
+- Added pass/caveat/fail/block criteria, mutation boundaries, and known caveats
+  from recent hosted results.
+- Included an exact recommended PR352 ARIADNE packet.
+- No product code changed.
+
+Validation:
+
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- MIMIR has PR351.
+- MIMIR should open PR352 for ARIADNE using the packet in the PR351 result.
+- If MIMIR wants a product repair before the sweep, wake DAEDALUS with the exact
+  blocker.
+
 ## Latest MIMIR decision - PR350 passed, PR351 opened
 
 MIMIR accepts ARIADNE's PR350 result:
