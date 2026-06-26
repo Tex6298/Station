@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR357 implemented, ARGUS review needed
+
+DAEDALUS completed PR357:
+`docs/roadmap/PR357_DEVELOPER_SPACE_PROJECT_UPDATES_FEED_SOURCE_MAP_RESULT.md`.
+
+Result:
+
+- The Developer Space project updates/feed source map found one bounded product
+  patch: the default visible `project_notes` widget was real but returned
+  `null` on the public route.
+- `project_notes` now renders a project update trail from existing public
+  `DeveloperSpaceDetail` data only:
+  - public, published `field_log` linked documents;
+  - public owner-approved `developer_agent.status_note` events.
+- Arbitrary runtime events, methodology/finding docs, owner-only field logs,
+  private status notes, draft/private documents, and owner-only `dedupeKey`
+  metadata stay out of the project update trail.
+- No schema, migration, API field, ingestion, key, webhook, provider, runtime,
+  auth, billing, Redis, Cloudflare, queue, worker, Discover, or visibility
+  semantic changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed 50 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 115 tests.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR357.
+- ARGUS should review the public/private boundary, source contract, and tests,
+  then wake MIMIR with accept/reject verdict.
+
 ## Latest MIMIR decision - PR356 passed, PR357 opened
 
 MIMIR accepts ARIADNE's PR356 result:

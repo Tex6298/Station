@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR357 Developer Space Project Updates Feed Source Map Result
+
+DAEDALUS implemented PR357 on 2026-06-26:
+`docs/roadmap/PR357_DEVELOPER_SPACE_PROJECT_UPDATES_FEED_SOURCE_MAP_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Project updates source map | Pass | Current public sources are published public field-log linked documents and public owner-approved `developer_agent.status_note` events. |
+| `project_notes` public widget | Pass | Default visible widget now renders a bounded project update trail instead of returning `null`. |
+| Boundary coverage | Pass | New helper tests exclude owner-only field logs, private status notes, arbitrary runtime events, methodology docs, and owner-only `dedupeKey` metadata. |
+| Scope control | Pass | No schema, migration, API field, ingestion, key, webhook, provider, runtime, auth, billing, Redis, Cloudflare, queue, worker, Discover, or visibility semantic changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 50 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 115 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: This is the first public Developer Space project update widget,
+not Discover/global-feed integration and not a new persistence contract. ARGUS
+should decide whether the current field-log plus status-note source contract is
+acceptable before MIMIR closes PR357.
+
 ## PR355 Developer Space Evidence Storytelling Result
 
 DAEDALUS completed PR355 on 2026-06-26:

@@ -11,6 +11,8 @@ import {
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
   developerSpaceEvidenceTitle,
+  developerSpaceProjectUpdates,
+  developerSpaceProjectUpdatesEmptyCopy,
   developerSpaceSignalStatus,
   developerSpaceStorySummary,
   developerSpaceMethodologyCopy,
@@ -613,7 +615,32 @@ function renderSideWidget(
   }
 
   if (widget.type === "project_notes") {
-    return null;
+    const updates = developerSpaceProjectUpdates(detail);
+    const ownerView = detail.access === "owner";
+    return (
+      <div key={widget.id} className="card">
+        <h2 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>{widget.title}</h2>
+        <p style={{ margin: "0 0 0.75rem", color: "#94a3b8", lineHeight: 1.55, fontSize: "0.86rem" }}>
+          Public field logs and owner-approved status notes form the project update trail. The event stream remains the chronological runtime readback.
+        </p>
+        {updates.length === 0 ? (
+          <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55 }}>{developerSpaceProjectUpdatesEmptyCopy(ownerView)}</p>
+        ) : (
+          <div style={{ display: "grid", gap: "0.65rem" }}>
+            {updates.map((update) => (
+              <article key={update.id} style={{ borderTop: "1px solid #1e293b", paddingTop: "0.65rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                  <span className="pill" style={{ fontSize: "0.68rem" }}>{update.label}</span>
+                  {update.timestamp ? <span className="pill" style={{ fontSize: "0.68rem" }}>{formatDate(update.timestamp)}</span> : null}
+                </div>
+                <strong style={{ display: "block", color: "#e2e8f0", marginTop: "0.45rem", overflowWrap: "anywhere" }}>{update.title}</strong>
+                <p style={{ margin: "0.25rem 0 0", color: "#94a3b8", lineHeight: 1.5, overflowWrap: "anywhere" }}>{update.body}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   }
 
   if (widget.type === "latest_snapshot") {

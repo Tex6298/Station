@@ -28,6 +28,8 @@ import {
   developerSpaceEvidenceCanRequestPublish,
   developerSpaceEvidenceReviewHref,
   developerSpaceEvidenceTitle,
+  developerSpaceProjectUpdates,
+  developerSpaceProjectUpdatesEmptyCopy,
   formatValue,
   moveDeveloperSpaceWidget,
   normaliseDeveloperSpaceWidgets,
@@ -560,6 +562,99 @@ test("observatory evidence reading path orders roles and stays honest when empty
   );
   assert.match(developerSpaceEvidenceEmptyCopy(false), /No public evidence documents/);
   assert.match(developerSpaceEvidenceEmptyCopy(true), /Public visitors will only see/);
+});
+
+test("observatory project updates combine public field logs and status notes safely", () => {
+  const updates = developerSpaceProjectUpdates({
+    linkedDocuments: [
+      {
+        id: "link-public-field-log",
+        role: "field_log",
+        linkVisibility: "public",
+        document: {
+          title: "Replay field log",
+          excerpt: "Replay harness passed in hosted review.",
+          status: "published",
+          visibility: "public",
+          publishedAt: "2026-06-26T15:00:00.000Z",
+          updatedAt: "2026-06-26T15:00:00.000Z",
+          createdAt: "2026-06-26T14:00:00.000Z",
+        },
+      },
+      {
+        id: "link-owner-field-log",
+        role: "field_log",
+        linkVisibility: "owner",
+        document: {
+          title: "Private field log",
+          excerpt: "Private owner-only body should not render.",
+          status: "draft",
+          visibility: "private",
+          updatedAt: "2026-06-26T16:00:00.000Z",
+          createdAt: "2026-06-26T16:00:00.000Z",
+        },
+      },
+      {
+        id: "link-public-method",
+        role: "methodology",
+        linkVisibility: "public",
+        document: {
+          title: "Methodology",
+          excerpt: "Not a changelog item.",
+          status: "published",
+          visibility: "public",
+          updatedAt: "2026-06-26T17:00:00.000Z",
+          createdAt: "2026-06-26T17:00:00.000Z",
+        },
+      },
+    ],
+    events: [
+      {
+        id: "event-status-note",
+        eventType: "developer_agent.status_note",
+        eventLabel: "Status note: public update",
+        eventData: {
+          statusNote: "Owner-approved public observatory status note.",
+          dedupeKey: "owner-only-dedupe-key",
+        },
+        visibility: "public",
+        occurredAt: "2026-06-26T16:00:00.000Z",
+        createdAt: "2026-06-26T16:00:00.000Z",
+      },
+      {
+        id: "event-runtime",
+        eventType: "deploy.preview",
+        eventLabel: "Runtime event",
+        eventData: { statusNote: "Runtime event should stay in the event stream." },
+        visibility: "public",
+        occurredAt: "2026-06-26T17:00:00.000Z",
+        createdAt: "2026-06-26T17:00:00.000Z",
+      },
+      {
+        id: "event-private-note",
+        eventType: "developer_agent.status_note",
+        eventLabel: "Private status note",
+        eventData: { statusNote: "Private status note should not render." },
+        visibility: "private",
+        occurredAt: "2026-06-26T18:00:00.000Z",
+        createdAt: "2026-06-26T18:00:00.000Z",
+      },
+    ],
+  } as any);
+
+  assert.deepEqual(
+    updates.map((update) => update.source),
+    ["status_note", "field_log"],
+  );
+  assert.match(updates[0].body, /Owner-approved public observatory status note/);
+  assert.match(updates[1].body, /Replay harness passed/);
+  assert.doesNotMatch(JSON.stringify(updates), /owner-only-dedupe-key|Private owner-only body|Runtime event should stay/);
+});
+
+test("observatory project updates empty copy separates owner and visitor states", () => {
+  assert.equal(developerSpaceProjectUpdates({ linkedDocuments: [], events: [] }).length, 0);
+  assert.match(developerSpaceProjectUpdatesEmptyCopy(true), /Publish a field-log document/);
+  assert.match(developerSpaceProjectUpdatesEmptyCopy(false), /No public project updates/);
 });
 
 test("observatory widget helpers bound custom dashboard layouts", () => {

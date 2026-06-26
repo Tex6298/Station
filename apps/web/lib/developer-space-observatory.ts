@@ -59,6 +59,15 @@ function truncateText(value: string, maxLength = 120) {
   return clean.length > maxLength ? `${clean.slice(0, maxLength - 3).trim()}...` : clean;
 }
 
+function latestTimestamp(values: Array<string | null | undefined>) {
+  return values
+    .filter((value): value is string => {
+      if (!value) return false;
+      return !Number.isNaN(Date.parse(value));
+    })
+    .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
+}
+
 function formatCompactBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   const units = ["KB", "MB", "GB"];
@@ -444,6 +453,62 @@ export function developerSpaceEvidenceEmptyCopy(ownerView: boolean) {
   return ownerView
     ? "No methodology, finding, field-log, or note documents are attached yet. Public visitors will only see live signals and snapshots until published evidence is linked."
     : "No public evidence documents are attached yet. The live observatory is still visible, but the reading path will appear after public methodology, findings, field logs, or notes are linked.";
+}
+
+export type DeveloperSpaceProjectUpdateItem = {
+  id: string;
+  source: "field_log" | "status_note";
+  label: string;
+  title: string;
+  body: string;
+  timestamp: string | null;
+};
+
+export function developerSpaceProjectUpdates(
+  detail: Pick<DeveloperSpaceDetail, "linkedDocuments" | "events">,
+  limit = 5
+): DeveloperSpaceProjectUpdateItem[] {
+  const fieldLogs = detail.linkedDocuments
+    .filter((link) =>
+      link.role === "field_log"
+      && link.linkVisibility === "public"
+      && link.document.status === "published"
+      && link.document.visibility === "public"
+    )
+    .map((link) => ({
+      id: `field_log:${link.id}`,
+      source: "field_log" as const,
+      label: developerSpaceEvidenceRoleCopy("field_log"),
+      title: link.document.title,
+      body: link.document.excerpt || developerSpaceEvidenceRoleDescription("field_log"),
+      timestamp: latestTimestamp([link.document.publishedAt, link.document.updatedAt, link.document.createdAt]),
+    }));
+
+  const statusNotes = detail.events
+    .filter((event) =>
+      event.eventType === "developer_agent.status_note"
+      && event.visibility === "public"
+      && typeof event.eventData?.statusNote === "string"
+      && event.eventData.statusNote.trim().length > 0
+    )
+    .map((event) => ({
+      id: `status_note:${event.id}`,
+      source: "status_note" as const,
+      label: "Status note",
+      title: event.eventLabel || "Owner status note",
+      body: truncateText(String(event.eventData.statusNote), 220),
+      timestamp: latestTimestamp([event.occurredAt, event.createdAt]),
+    }));
+
+  return [...fieldLogs, ...statusNotes]
+    .sort((left, right) => Date.parse(right.timestamp ?? "") - Date.parse(left.timestamp ?? ""))
+    .slice(0, Math.max(0, limit));
+}
+
+export function developerSpaceProjectUpdatesEmptyCopy(ownerView: boolean) {
+  return ownerView
+    ? "No public field-log updates or owner-approved status notes are visible yet. Publish a field-log document or approved status note when visitors need a changelog-style readback."
+    : "No public project updates are visible yet. Visitors can still use the evidence path, live readback, and snapshots while the owner prepares field logs or status notes.";
 }
 
 export function developerSpaceEvidenceReviewHref(
