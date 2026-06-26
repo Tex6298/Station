@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import {
+  discoverFeedFilterCounts,
+  discoverFeedFilterEmptyCopy,
+  discoverFeedFilterStatusCopy,
+  filterDiscoverFeedItems,
+  normalizeDiscoverFeedItems,
+} from "./discover-feed-controls";
 import { normalizeWritingFeedItem } from "./writing-feed";
 
 test("writing feed keeps normalized document items only", () => {
@@ -63,4 +70,67 @@ test("writing feed drops raw curated rows that are not documents", () => {
     }),
     null
   );
+});
+
+test("discover feed controls filter loaded public-safe items by type", () => {
+  const items = [
+    { id: "essay-1", type: "document" as const, meta: "essay" },
+    { id: "field-1", type: "document" as const, meta: "field_log" },
+    { id: "thread-1", type: "thread" as const, meta: "Forum" },
+    { id: "dev-1", type: "developer_space" as const, meta: "radial" },
+  ];
+
+  assert.deepEqual(filterDiscoverFeedItems(items, "all").map((item) => item.id), [
+    "essay-1",
+    "field-1",
+    "thread-1",
+    "dev-1",
+  ]);
+  assert.deepEqual(filterDiscoverFeedItems(items, "essay").map((item) => item.id), ["essay-1"]);
+  assert.deepEqual(filterDiscoverFeedItems(items, "field_log").map((item) => item.id), ["field-1"]);
+  assert.deepEqual(filterDiscoverFeedItems(items, "forum").map((item) => item.id), ["thread-1"]);
+  assert.deepEqual(filterDiscoverFeedItems(items, "developer_space").map((item) => item.id), ["dev-1"]);
+});
+
+test("discover feed controls expose counts and empty copy without changing visibility", () => {
+  const items = [
+    { id: "codex-1", type: "document" as const, meta: "constitution" },
+    { id: "thread-1", type: "thread" as const, meta: "Forum" },
+  ];
+
+  const counts = discoverFeedFilterCounts(items);
+
+  assert.equal(counts.all, 2);
+  assert.equal(counts.codex, 1);
+  assert.equal(counts.theory, 0);
+  assert.equal(discoverFeedFilterStatusCopy("codex", 1, 2), "1 of 2 public-safe items match Codex.");
+  assert.equal(discoverFeedFilterEmptyCopy("theory"), "No Theory items are in this public-safe view yet.");
+});
+
+test("discover feed normalizes curated staff-pick rows into routeable cards", () => {
+  const [item] = normalizeDiscoverFeedItems([
+    {
+      id: "feed-1",
+      item_type: "space",
+      item_id: "space-1",
+      event_type: "featured",
+      title: "Station Replay Alpha",
+      description: "Curated public Space.",
+      href: "/space/station-replay-alpha",
+      created_at: "2026-06-26T08:30:00.000Z",
+    },
+    {
+      id: "feed-2",
+      item_type: "document",
+      item_id: "doc-unsafe",
+      title: "Unsafe href",
+      href: "https://example.com/doc-unsafe",
+      created_at: "2026-06-26T08:31:00.000Z",
+    },
+  ]);
+
+  assert.equal(item.id, "space-1");
+  assert.equal(item.type, "space");
+  assert.equal(item.href, "/space/station-replay-alpha");
+  assert.equal(item.promoted, true);
 });

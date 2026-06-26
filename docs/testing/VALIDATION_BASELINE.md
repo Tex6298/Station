@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR336 UX-05 Discover Browsing Controls Result
+
+DAEDALUS implemented PR336 on 2026-06-26:
+`docs/roadmap/PR336_UX05_DISCOVER_BROWSING_CONTROLS_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Discover feed filters | Pass | `/discover` filters already-loaded public/community-safe cards by document type, forum, and Developer Spaces without changing API visibility rules. |
+| Staff-pick feed normalization | Pass | Curated `/discover/feed?tab=featured` rows normalize into routeable cards; unsafe non-local `href` values are dropped. |
+| Writing cluster honesty | Pass | The exact `Latest / Featured / Staff picks` cluster is in `/writing` on current main; unsupported `Staff picks` is disabled/preview-only. |
+| Scope control | Pass | No auth, schema, migration, API visibility, search grouping, forum, Space, Developer Space, billing, onboarding, provider/model, Redis, Cloudflare, queue, worker, deploy, key, anonymous chat, public launch, commercial, or partner behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 20 tests passed, including Discover filter/count/status and curated row normalization coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 31 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 47 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization notices only. |
+
+Residual risk: this is local code/test validation. ARIADNE should run hosted
+desktop/mobile `/discover` rehearsal after ARGUS accepts and the patch deploys.
+
 ## PR334 UX-04 Public Space Microsite Result
 
 DAEDALUS implemented PR334 on 2026-06-26:

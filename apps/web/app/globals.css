@@ -3457,6 +3457,56 @@ html, body {
   text-decoration: none;
 }
 
+.discover-public-feed-controls {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.discover-public-filter-row {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.discover-public-filter-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--public-home-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--public-home-muted);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.55rem;
+}
+
+.discover-public-filter-button[aria-pressed="true"] {
+  border-color: var(--public-home-accent);
+  background: rgba(124, 106, 247, 0.14);
+  color: var(--public-home-text);
+}
+
+.discover-public-filter-button small {
+  display: inline-grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--public-home-soft);
+  color: var(--public-home-muted);
+  font-size: 0.68rem;
+}
+
+.discover-public-filter-status {
+  color: var(--public-home-muted);
+  font-size: 0.76rem;
+}
+
 .discover-public-feed-list {
   display: grid;
   gap: 12px;
@@ -3571,6 +3621,17 @@ html, body {
   .discover-public-feed-links {
     justify-content: space-between;
     margin-left: 0;
+  }
+
+  .discover-public-filter-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow-x: visible;
+  }
+
+  .discover-public-filter-button {
+    justify-content: space-between;
+    width: 100%;
   }
 }
 

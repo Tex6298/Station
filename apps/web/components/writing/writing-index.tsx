@@ -80,12 +80,16 @@ export function WritingIndex() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
             {tabs.map((tab) => {
               const active = tab === activeTab;
+              const disabled = tab === "Staff picks";
               return (
               <button
                 key={tab}
                 type="button"
                 aria-pressed={active}
+                disabled={disabled}
+                title={disabled ? "Staff picks are preview-only until curated writing is available." : undefined}
                 onClick={() => {
+                  if (disabled) return;
                   setActiveTab(tab);
                   setActiveFilter("All");
                   setQuery("");
@@ -95,6 +99,8 @@ export function WritingIndex() {
                   borderColor: active ? "#1f2529" : "#d8d3c8",
                   background: active ? "#1f2529" : "#fff",
                   color: active ? "#fff" : "#1f2529",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  opacity: disabled ? 0.5 : 1,
                 }}
               >
                 {tab}
