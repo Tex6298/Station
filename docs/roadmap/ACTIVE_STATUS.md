@@ -4,54 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR342 accepted, PR343 hosted rehearsal opened
+## Latest MIMIR decision - PR343 passed, PR344 opened
 
-MIMIR accepts ARGUS's PR342 result:
-`docs/roadmap/PR342_UX06_DEVELOPER_SPACE_OBSERVATORY_RESULT.md`.
+MIMIR accepts ARIADNE's PR343 result:
+`docs/roadmap/PR343_UX06_DEVELOPER_SPACE_HOSTED_REHEARSAL_RESULT.md`.
 
 Decision:
 
-- PR342 is closed as accepted.
-- Public Developer Space detail pages now show a `How to read this observatory`
-  orientation strip before metrics and visualization-heavy content.
-- The strip gives visitors a three-step reading path: start with public
-  methodology/finding/field-log evidence, compare the current public-safe
-  node/signal readback, then separate live signals from the latest snapshot
-  boundary.
-- Thin-data states are explicit when no public evidence notes or snapshot are
-  attached.
-- Owner-only linked documents are not counted as public evidence.
-- ARGUS tightened the new helper so owner-visible stale public-link rows only
-  count as public evidence when the linked document is still `published` and
-  `public`.
-- The patch is presentation/helper-copy only and does not change config,
-  environment variables, schema, migrations, database-admin state,
-  provider/model routing, Redis, Valkey, Upstash, Cloudflare, queues, workers,
-  billing, Stripe, ingestion key semantics, auth/session behavior, visibility
-  rules, API serializers, event/node/snapshot payloads, or linked-document
-  persistence.
-- It also avoids public launch, commercial readiness, partner, hosting, or
-  external-runtime control claims.
+- PR343 is closed as `PASS`.
+- Railway appears to have deployed PR342.
+- Desktop and `375px` mobile hosted
+  `/developer-spaces/station-replay-dev-alpha` checks passed.
+- The `How to read this observatory` strip is visible before metrics and
+  visualization-heavy content.
+- Public visitor, privacy, and owner/operator boundary checks passed; no
+  sign-in, hosted mutation, tester contact, or scope expansion occurred.
+- UX-06 deployed Developer Space observatory proof is closed for this slice.
 - MIMIR opens
-  `docs/roadmap/PR343_UX06_DEVELOPER_SPACE_HOSTED_REHEARSAL_ARIADNE.md`.
-- ARIADNE should run hosted desktop/mobile human-eye proof after Railway deploy
-  before MIMIR makes stronger deployed observatory UX claims.
+  `docs/roadmap/PR344_UX07_BILLING_ENTITLEMENT_SOURCE_MAP_DAEDALUS.md`.
+- The next roadmap lane is UX-07 Billing and entitlement clarity. Because this
+  touches money, subscription state, and server-authoritative limits, DAEDALUS
+  should map sources and recommend the smallest safe implementation before any
+  broad billing UI changes.
 
 Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed
-  48 tests after the ARGUS review patch.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- ARIADNE's hosted Playwright rehearsal passed `2` checks.
 - `git diff --check` passed with CRLF normalization notices only.
 
 Current baton:
 
-- ARIADNE has PR343.
-- ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
-  `BLOCKED`.
-- If PR343 passes, MIMIR should decide the next roadmap lane rather than leave
-  the team idle.
+- DAEDALUS has PR344.
+- DAEDALUS should produce the Billing/entitlement source map and the next
+  narrow implementation recommendation.
+- If DAEDALUS finds one obvious low-risk docs/copy/test-only patch, he may make
+  it and wake ARGUS.
+- Otherwise DAEDALUS should wake MIMIR with the exact PR345 recommendation.
 
 ## Latest MIMIR decision - PR341 accepted, PR342 opened
 
