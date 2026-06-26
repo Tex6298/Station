@@ -4,56 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR345 accepted, PR346 hosted rehearsal opened
+## Latest MIMIR decision - PR346 caveat accepted, PR347 opened
 
-MIMIR accepts ARGUS's PR345 result:
-`docs/roadmap/PR345_UX07_BILLING_TIER_DISPLAY_HELPER_RESULT.md`.
+MIMIR accepts ARIADNE's PR346 result:
+`docs/roadmap/PR346_UX07_BILLING_PRICING_HOSTED_REHEARSAL_RESULT.md`.
 
 Decision:
 
-- PR345 is closed as accepted.
-- Public Pricing and authenticated Billing now share display truth through
-  `apps/web/lib/billing-tier-display.ts`.
-- The helper derives paid-tier labels, monthly prices, visible yearly prices,
-  storage limits, Space limits, Developer Space limits, and persona limits from
-  `@station/config`.
-- `/pricing` now renders `PRICING_TIER_ORDER` through `pricingTierDisplay`.
-- `/billing` now renders plan cards through `BILLING_PLAN_TIERS` and
-  `billingPlanDisplay`.
-- Billing current-plan limits use the shared limit formatter for Spaces,
-  Developer Spaces, and storage.
-- Same-tier inactive activation and higher-tier/lower-tier card action logic
-  remain in `apps/web/lib/billing-plan-actions.ts`.
-- `test:billing` now includes `apps/web/lib/billing-tier-display.test.ts`.
-- ARGUS tightened `/billing?success=1` copy so Checkout return does not claim
-  entitlement before verified server subscription state updates.
-- The patch is display/helper/test-only and does not change Stripe products,
-  Price IDs, Checkout, Portal, webhook handling, entitlement enforcement,
-  customer/profile binding, schema, migrations, token top-ups, tax, invoices,
-  Connect, marketplace, tips, usage billing, live-money behavior, Redis,
-  Cloudflare, providers, onboarding, or broad billing design.
+- PR346 is closed as `PASS WITH CAVEAT`.
+- Railway appears to have deployed PR345.
+- Public `/pricing` passed desktop and `375px` mobile with shared tier storage,
+  Space, Developer Space, monthly price, and yearly price display.
+- Pricing plan-change copy avoids immediate entitlement activation and
+  end-of-period downgrade claims beyond verified server subscription state.
+- Authenticated `/billing` was not proven because ARIADNE's browser context did
+  not have a replay session and reached sign-in.
+- No Checkout session, Billing Portal, Stripe mutation, entitlement change,
+  tester contact, or scope expansion occurred.
+- MIMIR found ignored local `.env` replay-owner credential keys are present, so
+  the Billing caveat should be closed by an authenticated ARIADNE recheck rather
+  than accepted as final.
 - MIMIR opens
-  `docs/roadmap/PR346_UX07_BILLING_PRICING_HOSTED_REHEARSAL_ARIADNE.md`.
-- Because PR345 changed visible Pricing and Billing copy, ARIADNE should prove
-  hosted desktop/mobile display after Railway deploy before MIMIR claims UX-07
-  deployed billing clarity for this slice.
+  `docs/roadmap/PR347_UX07_AUTHENTICATED_BILLING_HOSTED_RECHECK_ARIADNE.md`.
 
 Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed 14 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:token-credits` passed 3 tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed 16 tests.
-- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
-- `git diff --check` passed with CRLF normalization notices only.
+- ARIADNE's hosted Playwright rehearsal passed `4` checks.
+- `git diff --check` passed.
 
 Current baton:
 
-- ARIADNE has PR346.
+- ARIADNE has PR347.
 - ARIADNE should wake MIMIR with `PASS`, `PASS WITH CAVEAT`, `FAIL`, or
   `BLOCKED`.
-- If PR346 passes, MIMIR should decide whether UX-07 needs another narrow
-  no-mutation polish lane or should move to the next roadmap lane.
+- If PR347 passes, MIMIR can close the authenticated Billing display proof for
+  this UX-07 slice or choose the next narrow no-mutation UX-07 lane.
 
 ## Latest MIMIR decision - PR344 accepted, PR345 opened
 
