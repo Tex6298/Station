@@ -3065,6 +3065,107 @@ test("Developer Space agent update-observatory gate publishes one sanitized publ
   }
 });
 
+test("Developer Space update-observatory idempotent receipt repairs a missing public status-note event", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Status Note Repair Lane",
+        visibility: "public",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+    const slug = created.body.space.slug;
+    const note = "Status note: replay repair should create the public event.";
+
+    const create = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations`, {
+      token: "owner-token",
+      body: { action: "update_observatory", statusNote: note },
+    });
+    assert.equal(create.status, 201);
+
+    const approved = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/approve`, {
+      token: "owner-token",
+    });
+    assert.equal(approved.status, 200);
+
+    db.insertRow("developer_space_agent_execution_receipts", {
+      developer_space_id: spaceId,
+      owner_user_id: "owner-user",
+      confirmation_id: create.body.confirmation.id,
+      action: "update_observatory",
+      status: "recorded",
+      summary: `Public observatory status note published: ${note}`,
+      receipt_payload: {
+        action: "update_observatory",
+        outcome: "observatory_status_note_published",
+        executionAvailable: true,
+        mutationAvailable: true,
+        externalDispatch: false,
+        nextStep: "Review the public Developer Space observatory and leave broader observatory automation blocked.",
+        boundaries: ["Only one owner-approved public status note event was created."],
+        statusNote: {
+          note,
+          eventType: "developer_agent.status_note",
+          eventLabel: `Status note: ${note}`,
+          visibility: "public",
+          provenance: "user",
+        },
+      },
+      dispatched_at: "2026-05-24T10:00:00.000Z",
+    });
+    assert.equal(db.tables.developer_space_events.length, 0);
+
+    const execute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(execute.status, 200);
+    assert.equal(execute.body.idempotent, true);
+    assert.equal(execute.body.executionAvailable, true);
+    assert.equal(execute.body.receipt.action, "update_observatory");
+    assert.equal(db.tables.developer_space_events.length, 1);
+
+    const eventRow = db.tables.developer_space_events[0];
+    assert.equal(eventRow.event_type, "developer_agent.status_note");
+    assert.equal(eventRow.visibility, "public");
+    assert.equal(eventRow.event_data.statusNote, note);
+    assert.equal(eventRow.observed_runtime_classifications.fields.statusNote, "public");
+    assert.equal(eventRow.observed_runtime_classifications.fields.dedupeKey, "owner");
+
+    const secondExecute = await requestJson(app, "POST", `/developer-spaces/${spaceId}/agent/actions/confirmations/${create.body.confirmation.id}/execute`, {
+      token: "owner-token",
+    });
+    assert.equal(secondExecute.status, 200);
+    assert.equal(secondExecute.body.idempotent, true);
+    assert.equal(db.tables.developer_space_events.length, 1);
+
+    const publicAfter = await requestJson(app, "GET", `/developer-spaces/${slug}`);
+    assert.equal(publicAfter.status, 200);
+    const publicNote = publicAfter.body.events.find((event: Row) =>
+      event.eventType === "developer_agent.status_note" && event.eventData.statusNote === note
+    );
+    assert.ok(publicNote);
+    assert.equal(publicNote.eventLabel, `Status note: ${note}`);
+    assert.equal(publicNote.eventData.dedupeKey, undefined);
+
+    const responseText = JSON.stringify({
+      execute: execute.body,
+      secondExecute: secondExecute.body,
+      publicAfter: publicAfter.body,
+    });
+    assert.doesNotMatch(responseText, /previewHash|dedupeKey/);
+    assert.equal(responseText.includes(create.body.confirmation.id), false);
+    assert.equal(responseText.includes(eventRow.event_data.dedupeKey), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Developer Space agent audit export is owner-only and minimized across receipt actions", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

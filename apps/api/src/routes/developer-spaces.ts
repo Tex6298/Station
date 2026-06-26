@@ -3447,6 +3447,35 @@ async function publishDeveloperSpaceAgentObservatoryStatusNote(input: {
   };
 }
 
+async function ensureDeveloperSpaceAgentObservatoryStatusNoteForReceipt(input: {
+  space: any;
+  confirmation: any;
+  receipt: any;
+  occurredAt: string;
+}) {
+  if (input.receipt.action !== DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION) {
+    return { status: 200 as const };
+  }
+  const statusNote = developerSpaceAgentStatusNoteFromPayload(
+    input.receipt.receipt_payload ?? input.confirmation.sanitized_payload,
+  );
+  const ensured = await publishDeveloperSpaceAgentObservatoryStatusNote({
+    space: input.space,
+    confirmationId: input.confirmation.id,
+    statusNote,
+    occurredAt: input.receipt.dispatched_at ?? input.occurredAt,
+  });
+  if (ensured.status !== 200) {
+    return {
+      status: ensured.status,
+      error: ensured.error,
+      code: "developer_space_agent_status_note_publish_failed",
+      executionAvailable: false,
+    };
+  }
+  return { status: 200 as const };
+}
+
 function buildFreshness(
   space: any,
   nodes: any[],
@@ -5056,6 +5085,19 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
         : existing.receipt.action === DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
           ? DEVELOPER_SPACE_AGENT_OBSERVATORY_UPDATE_ACTION
       : DEVELOPER_SPACE_AGENT_EXECUTION_RECEIPT_ACTION;
+    const ensured = await ensureDeveloperSpaceAgentObservatoryStatusNoteForReceipt({
+      space: ownerLoad.space,
+      confirmation: loaded.confirmation,
+      receipt: existing.receipt,
+      occurredAt: now.toISOString(),
+    });
+    if (ensured.status !== 200) {
+      return res.status(ensured.status).json({
+        error: ensured.error,
+        code: ensured.code,
+        executionAvailable: ensured.executionAvailable,
+      });
+    }
     return res.json({
       receipt: serializeDeveloperSpaceAgentExecutionReceipt(existing.receipt),
       idempotent: true,
@@ -5167,6 +5209,19 @@ developerSpacesRouter.post("/:id/agent/actions/confirmations/:confirmationId/exe
         loaded.confirmation.id,
       );
       if (receipt.status === 200 && receipt.receipt) {
+        const ensured = await ensureDeveloperSpaceAgentObservatoryStatusNoteForReceipt({
+          space: ownerLoad.space,
+          confirmation: loaded.confirmation,
+          receipt: receipt.receipt,
+          occurredAt: now.toISOString(),
+        });
+        if (ensured.status !== 200) {
+          return res.status(ensured.status).json({
+            error: ensured.error,
+            code: ensured.code,
+            executionAvailable: ensured.executionAvailable,
+          });
+        }
         return res.json({
           receipt: serializeDeveloperSpaceAgentExecutionReceipt(receipt.receipt),
           idempotent: true,

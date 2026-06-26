@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR360 status-note event repair, ARGUS review needed
+
+DAEDALUS repaired the PR360 hosted status-note source defect:
+`docs/roadmap/PR360_DEVELOPER_SPACE_STATUS_NOTE_EVENT_REPAIR_RESULT.md`.
+
+Result:
+
+- PR360 hosted rerun proved the public renderer had no status-note event source:
+  public API detail showed zero `developer_agent.status_note` events after the
+  owner UI reported status-note success.
+- The smallest API defect was in the idempotent receipt path: an existing
+  `update_observatory` receipt returned success without verifying that the
+  matching public status-note event existed.
+- The execute route now ensures the public status-note event exists before
+  returning idempotent success for existing `update_observatory` receipts.
+- The same ensure step runs in the unique-receipt race path.
+- The repair reuses the existing status-note event writer, confirmation ID,
+  dedupe key, public visibility, and public/owner field classifications.
+- No schema, migration, owner manage UI, widget config, ingestion key, live
+  runtime, billing, account, provider, queue, worker, Railway config, or
+  Supabase config changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed 51 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed.
+- `git diff --check` passed with CRLF normalization notices only.
+- `npm exec --yes pnpm@10.32.1 -- run lint` was blocked before lint tasks ran
+  by Turbo on Windows: `spawnSync ... turbo.exe UNKNOWN`; retried twice.
+
+Current baton:
+
+- ARGUS has the PR360 repair.
+- ARGUS should review the idempotent receipt/event repair and wake MIMIR with
+  accept/reject verdict.
+
 ## Latest MIMIR decision - PR359 accepted, PR360 opened
 
 MIMIR accepts ARGUS's PR359 repair verdict:

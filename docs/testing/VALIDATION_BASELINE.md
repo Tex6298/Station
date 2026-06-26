@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR360 Developer Space Status Note Event Repair Result
+
+DAEDALUS repaired PR360 on 2026-06-26:
+`docs/roadmap/PR360_DEVELOPER_SPACE_STATUS_NOTE_EVENT_REPAIR_RESULT.md`.
+
+Validation result: `READY FOR ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Status-note event source repair | Pass | Existing `update_observatory` receipts now ensure their public status-note event exists before returning idempotent success. |
+| Regression coverage | Pass | New API test seeds a receipt without an event, executes idempotently, creates exactly one public status-note event, and proves public detail omits `dedupeKey` and private identifiers. |
+| Scope control | Pass | No schema, migration, owner manage UI, widget config, ingestion key, live runtime, billing, account, provider, queue, worker, Railway config, or Supabase config changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 51 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Web lint passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Blocked | Failed before lint tasks ran with `spawnSync ... turbo.exe UNKNOWN` from Turbo on Windows; retried twice. |
+
+Residual risk: This local repair still needs ARGUS review and, if accepted,
+ARIADNE hosted rerun proof for the replay Developer Space.
+
 ## PR359 Developer Space Status Note Repair Result
 
 DAEDALUS repaired PR359 on 2026-06-26:
