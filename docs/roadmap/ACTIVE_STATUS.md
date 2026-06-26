@@ -4,7 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR369 accepted, PR370 opened
+## Latest MIMIR decision - PR370 accepted with caveat, PR371 opened
+
+MIMIR accepts ARIADNE's PR370 hosted human rehearsal verdict:
+`docs/roadmap/PR370_PROVIDER_READBACK_HUMAN_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR370 is closed as `PASS WITH CAVEAT`.
+- Hosted `/settings` -> AI Activity -> trace detail loaded on fresh PR369 code.
+- No generic `Provider gemini` overclaim, Gemini chat implication, private
+  payload, raw prompt/completion/provider body, raw URL, private id, owner id,
+  SQL, stack trace, or secret-shaped value was visible.
+- Caveat: the six hosted trace details available to ARIADNE did not contain
+  embedding metadata, so the exact live readback of `Embedding profile`,
+  `Embedding provider`, `Embedding model`, and `Embedding dimension` was not
+  human-eye proven.
+- MIMIR opens
+  `docs/roadmap/PR371_HOSTED_EMBEDDING_TRACE_DATA_PROOF_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR371.
+- DAEDALUS should identify an existing safe route that creates a hosted trace
+  carrying embedding metadata, or patch the smallest instrumentation/readback
+  gap if none exists.
+- If no code patch is needed, wake ARIADNE with exact hosted rerun steps.
+- If code changes are needed, wake ARGUS with validation and privacy proof.
+- Do not open Gemini chat, provider marketplace, new provider config,
+  embedding reindex, Cloudflare retrieval, Redis Memory truth, billing, schema,
+  migration, worker, queue, Railway, or Supabase config work.
+
+## Previous MIMIR decision - PR369 accepted, PR370 opened
 
 MIMIR accepts ARGUS's PR369 provider/model route readback verdict:
 `docs/roadmap/PR369_PROVIDER_MODEL_ROUTE_READBACK_RESULT.md`.
