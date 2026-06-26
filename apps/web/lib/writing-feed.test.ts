@@ -4,6 +4,7 @@ import {
   discoverFeedFilterCounts,
   discoverFeedFilterEmptyCopy,
   discoverFeedFilterStatusCopy,
+  discoverPublicSpaceHighlights,
   filterDiscoverFeedItems,
   normalizeDiscoverFeedItems,
 } from "./discover-feed-controls";
@@ -108,6 +109,18 @@ test("discover feed controls expose counts and empty copy without changing visib
   assert.equal(counts.theory, 0);
   assert.equal(discoverFeedFilterStatusCopy("codex", 1, 2), "1 of 2 public-safe items match Codex.");
   assert.equal(discoverFeedFilterEmptyCopy("theory"), "No Theory items are in this public-safe view yet.");
+});
+
+test("discover public Space highlights keep only safe Space routes", () => {
+  const items = [
+    { id: "doc-1", type: "document" as const, href: "/space/public/documents/doc-1" },
+    { id: "space-1", type: "space" as const, href: "/space/station-replay-alpha" },
+    { id: "space-bad-slug", type: "space" as const, href: "/space/Bad Slug" },
+    { id: "space-uuid", type: "space" as const, href: "/space/550e8400-e29b-41d4-a716-446655440000" },
+    { id: "space-document", type: "space" as const, href: "/space/station-replay-alpha/documents/doc-1" },
+  ];
+
+  assert.deepEqual(discoverPublicSpaceHighlights(items).map((item) => item.id), ["space-1"]);
 });
 
 test("discover feed normalizes curated staff-pick rows into routeable cards", () => {

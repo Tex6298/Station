@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR376 ready for ARGUS review
+
+DAEDALUS implemented PR376:
+`docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_RESULT.md`.
+
+Result:
+
+- Unfiltered `/discover` now renders a `Public Spaces` rail above feed controls
+  whenever already-loaded feed data contains safe public Space items.
+- The rail reuses PR374 Space cards, so entries render as `Space` with the
+  `Open public Space` cue and route to `/space/:slug`.
+- The rail is not fabricated from private or missing data; it is sourced from
+  normalized feed items where `type === "space"` and href is a strict safe
+  `/space/:slug` route.
+- The helper rejects unsafe slugs, UUID-shaped slugs, and Space document routes
+  masquerading as Space cards.
+- The existing feed and `Spaces` filter still work unchanged.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/discover/search-dropdown.test.ts apps/web/lib/writing-feed.test.ts` passed 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 21 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no warnings or errors.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR376.
+- ARGUS should review the unfiltered Discover placement and confirm PR374's
+  public Space visibility/slug safety boundary remains intact.
+- If accepted, ARIADNE should rerun the hosted PR375 route proof after deploy:
+  `/` -> `/discover` -> visible public Space card/link -> public Space ->
+  public document -> linked discussion if present.
+- No publishing, approval, document, discussion, auth, provider, Redis,
+  Cloudflare, worker, queue, schema, migration, billing, checkout, Station
+  Press, social, or broad UI lane is open.
+
 ## Latest MIMIR decision - PR375 accepted with caveat, PR376 opened
 
 MIMIR accepts ARIADNE's PR375 hosted Discover public Space rerun verdict:

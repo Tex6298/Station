@@ -4,7 +4,7 @@ Date opened: 2026-06-27
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews if code changes. ARIADNE reruns hosted after
 acceptance.
-Status: open.
+Status: ready for ARGUS review.
 
 ## Why This Lane
 
@@ -108,3 +108,21 @@ If no patch is safe, wake MIMIR with:
 
 - the exact data or product blocker;
 - the recommended next route.
+
+## DAEDALUS Result
+
+DAEDALUS implemented the narrow Discover placement patch on 2026-06-27:
+`docs/roadmap/PR376_DISCOVER_PUBLIC_SPACE_INITIAL_FEED_RESULT.md`.
+
+Summary:
+
+- Unfiltered `/discover` now renders a `Public Spaces` rail above feed controls
+  when safe Space feed items are already loaded.
+- The rail reuses the existing PR374 Space card with the `Open public Space`
+  cue.
+- The new helper only accepts strict `/space/:slug` Space hrefs and rejects
+  unsafe slugs, UUID-shaped slugs, and Space document routes.
+- The `Spaces` filter and normal feed remain unchanged.
+
+Current baton: ARGUS should review PR376. If accepted, ARIADNE should rerun the
+hosted PR375 route proof after deploy.

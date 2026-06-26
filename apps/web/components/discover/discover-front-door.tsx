@@ -10,6 +10,7 @@ import {
   discoverFeedFilterCounts,
   discoverFeedFilterEmptyCopy,
   discoverFeedFilterStatusCopy,
+  discoverPublicSpaceHighlights,
   filterDiscoverFeedItems,
   normalizeDiscoverFeedItems,
   type DiscoverFeedFilter,
@@ -456,6 +457,10 @@ export default function DiscoverFrontDoor() {
   );
   const filterCounts = useMemo(() => discoverFeedFilterCounts(items), [items]);
   const filterStatus = discoverFeedFilterStatusCopy(activeFilter, visibleItems.length, items.length);
+  const publicSpaceHighlights = useMemo(
+    () => discoverPublicSpaceHighlights(items),
+    [items]
+  );
 
   return (
     <div className="discover-public">
@@ -611,6 +616,15 @@ export default function DiscoverFrontDoor() {
                 <Link href="#discover-feed">Public feed</Link>
               </div>
             </div>
+
+            {activeFilter === "all" && publicSpaceHighlights.length > 0 && (
+              <section style={{ margin: "0 0 1rem" }} aria-label="Public Spaces">
+                <div className="section-label">Public Spaces</div>
+                <div className="discover-public-feed-list">
+                  {publicSpaceHighlights.map((item) => <FeedCard key={`space-highlight-${item.id}`} item={item} />)}
+                </div>
+              </section>
+            )}
 
             <div className="discover-public-feed-controls" aria-label="Filter public feed">
               <div className="discover-public-filter-row">

@@ -42,6 +42,10 @@ type RawCuratedFeedItem = {
   event_type?: string | null;
 };
 
+const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_ROUTE_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export const DISCOVER_FEED_FILTERS = [
   { id: "all", label: "All" },
   { id: "essay", label: "Essay" },
@@ -109,6 +113,15 @@ export function discoverFeedFilterEmptyCopy(filter: DiscoverFeedFilter) {
   return `No ${discoverFeedFilterLabel(filter)} items are in this public-safe view yet.`;
 }
 
+export function discoverPublicSpaceHighlights<T extends Pick<DiscoverFeedItem, "type" | "href">>(
+  items: T[],
+  limit = 3
+) {
+  return items
+    .filter((item) => item.type === "space" && isSafeSpaceRouteHref(item.href))
+    .slice(0, limit);
+}
+
 export function normalizeDiscoverFeedItems(items: unknown[]): DiscoverFeedItem[] {
   return items.flatMap((item) => {
     if (!isRecord(item)) return [];
@@ -166,4 +179,11 @@ function safeRouteHref(value: unknown, type: DiscoverFeedType) {
   };
 
   return allowedPrefixes[type].some((prefix) => value.startsWith(prefix)) ? value : null;
+}
+
+function isSafeSpaceRouteHref(value: string) {
+  const match = value.match(/^\/space\/([^/]+)$/);
+  if (!match) return false;
+  const slug = match[1];
+  return SAFE_ROUTE_SLUG_PATTERN.test(slug) && !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug);
 }
