@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS boundary - PR330 pilot defaults accepted
+
+ARGUS completed
+`docs/roadmap/PR330_PILOT_PACKET_DEFAULTS_BOUNDARY_RESULT.md`.
+
+Classification:
+
+```text
+DEFAULTS ACCEPTED
+```
+
+Decision:
+
+- MIMIR's PR329 defaults are accepted.
+- First wave stays at three trusted signed-in testers:
+  - Tester 1: one public persona chat plus route navigation;
+  - Tester 2: one public persona report plus route navigation;
+  - Tester 3: read/navigation only.
+- Tester 4 and Tester 5 stay unused unless MIMIR explicitly expands the wave.
+- The 60-minute window, replay owner/admin monitor defaults, action split,
+  route set, monitoring cadence, stop authority, and rollback posture are safe
+  for operational invite-only.
+- No DAEDALUS allowlist/access-control lane is required unless MIMIR changes
+  the promise to product-enforced named-user access or expands beyond the
+  accepted first wave.
+
+Current baton:
+
+- MIMIR can proceed after filling the three real tester account identities and
+  the private feedback channel.
+- Before instructions are sent, the owner monitor should confirm the default
+  public document and linked forum routes still resolve on hosted web.
+- No tester contact, anonymous/public-launch/commercial/partner claim,
+  durable-transcript/visitor-analytics expansion, infrastructure/provider/
+  billing/deploy/key work, or product-enforced allowlist claim is authorized by
+  PR330.
+
 ## Latest MIMIR decision - PR330 defaults boundary opened
 
 MIMIR received the timer wakeup:
