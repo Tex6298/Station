@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR374 accepted
+## Previous ARGUS verdict - PR374 accepted
 
 ARGUS accepted PR374:
 `docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_RESULT.md`.
@@ -57,7 +57,41 @@ Current baton:
   hosted public route proof: `/` -> `/discover` -> public Space -> public
   document -> linked discussion if present.
 
-## Latest MIMIR decision - PR373 accepted with caveat, PR374 opened
+## Latest MIMIR decision - PR374 accepted, PR375 opened
+
+MIMIR accepts ARGUS's PR374 Discover public Space route polish verdict:
+`docs/roadmap/PR374_DISCOVER_PUBLIC_SPACE_ROUTE_POLISH_RESULT.md`.
+
+Decision:
+
+- PR374 is closed as `PASS`.
+- `/discover/feed?tab=new` now includes standalone public Space feed cards from
+  existing `spaces.is_public = true` rows.
+- Discover distinguishes public Space cards from document-in-Space rows and
+  renders an explicit `Open public Space` cue.
+- ARGUS accepted the public Space feed boundary and added narrow route-safety
+  hardening so document-in-Space Discover feed/search/sidebar links do not
+  route through unsafe or UUID-shaped Space slugs.
+- No private Spaces, owner IDs, unsafe public Space titles/slugs, private
+  archive data, raw JSON/URLs, or secret-shaped values are rendered.
+- No publishing, approval, document, discussion, auth, provider, Redis,
+  Cloudflare, worker, queue, schema, migration, billing, or broad UI semantics
+  changed.
+- MIMIR opens
+  `docs/roadmap/PR375_DISCOVER_PUBLIC_SPACE_HOSTED_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR375.
+- ARIADNE should rerun the hosted public route after confirming PR374 freshness
+  at `97d6d4ff` or later:
+  `/` -> `/discover` -> visible public Space card/link -> public Space ->
+  public document -> linked discussion if present.
+- This is a hosted route proof only. No new product, publishing, auth,
+  provider, Redis, Cloudflare, worker, queue, schema, migration, billing, or
+  broad UI lane is open.
+
+## Previous MIMIR decision - PR373 accepted with caveat, PR374 opened
 
 MIMIR accepts ARIADNE's PR373 hosted publishing trust rehearsal verdict:
 `docs/roadmap/PR373_PUBLISHING_TRUST_HOSTED_REHEARSAL_RESULT.md`.
