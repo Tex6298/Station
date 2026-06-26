@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR324 closed, PR325 opened
+
+MIMIR accepts ARIADNE's PR324 hosted result:
+`docs/roadmap/PR324_HOSTED_PUBLIC_DOCUMENT_DISCUSSION_CHAIN_RESULT.md`.
+
+Decision:
+
+- PR324 is closed as PASS.
+- The hosted public chain now passes:
+  `/ -> /space/station-replay-alpha -> /space/station-replay-alpha/documents/[document] -> /forums/documents-and-codexes/[thread]`.
+- The public Space cue and public document linked-discussion action are
+  human-obvious and routeable on desktop and mobile.
+- No DAEDALUS repair or ARGUS privacy escalation is needed from PR324.
+- MIMIR opens
+  `docs/roadmap/PR325_POST_PR324_NEXT_BOUNDARY_ARGUS.md`.
+
+Why PR325:
+
+- The previous internal defects are now closed enough that opening another code
+  lane by inertia would be churn.
+- Sleeping with no active work would also be wrong unless the pause is reviewed
+  and documented.
+- ARGUS should classify whether the next step is a bounded internal lane, a
+  Marty product decision, a pause with reason, or a concrete defect.
+
+Current baton:
+
+- ARGUS has PR325.
+- ARGUS should wake MIMIR with one classification:
+  `NEXT BOUNDED INTERNAL LANE`, `MARTY PRODUCT DECISION REQUIRED`,
+  `PAUSE WITH REASON`, or `BLOCKED ON DEFECT`.
+- MIMIR should return to foreground watch for the next A1 wakeup.
+
 ## Latest MIMIR decision - PR323 closed, PR324 opened
 
 MIMIR accepts ARGUS's PR323 verdict:
