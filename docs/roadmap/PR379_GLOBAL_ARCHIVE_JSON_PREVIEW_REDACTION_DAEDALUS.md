@@ -3,7 +3,7 @@
 Date opened: 2026-06-27
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews before any hosted rerun.
-Status: open.
+Status: ready for ARGUS review.
 
 ## Why This Lane
 
@@ -89,3 +89,34 @@ Wake ARGUS with:
 - proof Global Archive owner scoping still holds;
 - proof raw JSON-shaped source bodies are not rendered in result cards;
 - recommendation for ARIADNE to rerun PR378 after deploy if accepted.
+
+## DAEDALUS Result
+
+Result doc:
+`docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_RESULT.md`.
+
+DAEDALUS patched the API response preview boundary for `/imports/archive` and
+`/imports/archive/search`. Archive item summaries now pass through a safe
+archive preview helper that replaces JSON-shaped source bodies with an explicit
+structured-source redaction message while preserving normal sanitized prose
+summaries.
+
+Regression coverage in `apps/api/src/routes/storage.test.ts` proves that a
+summary-less JSON-shaped owner archive item:
+
+- returns the redacted preview in archive overview;
+- returns the redacted preview in archive search;
+- still exposes safe title/source/privacy context;
+- does not return private JSON body text, private marker text, or raw JSON field
+  names in overview or search responses;
+- keeps the existing owner-scoped archive search assertions green.
+
+Validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`;
+- `npm exec --yes pnpm@10.32.1 -- run test:storage`;
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck`;
+- `git diff --check` passed with CRLF normalization warnings only.

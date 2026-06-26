@@ -37,6 +37,8 @@ const chatImportRetrySchema = z.object({
 const GENERIC_CHAT_IMPORT_SOURCE_NAMES = new Set(["pasted-chat", "pasted-archive"]);
 const ARCHIVE_SEARCH_SOURCE_LIMIT = 120;
 const ARCHIVE_SEARCH_MAX_LIMIT = 50;
+const STRUCTURED_SOURCE_PREVIEW =
+  "Structured source preview redacted. Title, source, status, and persona context remain visible.";
 
 const archiveSearchQuerySchema = z.object({
   q: z.string().max(200).optional().default(""),
@@ -795,7 +797,7 @@ function archiveItem(input: {
 }) {
   return {
     ...input,
-    summary: trimText(input.summary, 220),
+    summary: archivePreviewText(input.summary, 220, "Private archive item."),
     date: input.date ?? null,
   };
 }
@@ -836,7 +838,7 @@ function archiveSearchCandidate(input: {
     occurredAt: input.occurredAt ?? null,
     status: sanitizeSearchText(input.status, 80, "unknown"),
     visibility: input.visibility ?? undefined,
-    summary: sanitizeSearchText(input.summary, 260, "Private archive item."),
+    summary: archivePreviewText(input.summary, 260, "Private archive item."),
     href: input.href,
     privacy: "owner_only" as const,
     fields: input.fields,
@@ -937,6 +939,29 @@ function sanitizeSearchText(value: unknown, limit: number, fallback: string) {
   const raw = typeof value === "string" ? value : value == null ? "" : String(value);
   const safe = raw.trim() ? sanitizeJobErrorMessage(raw) : fallback;
   return trimText(safe, limit);
+}
+
+function archivePreviewText(value: unknown, limit: number, fallback: string) {
+  const raw = typeof value === "string" ? value : value == null ? "" : String(value);
+  const trimmed = raw.trim();
+  if (!trimmed) return fallback;
+  if (isJsonShapedSourceText(trimmed)) return STRUCTURED_SOURCE_PREVIEW;
+  return trimText(sanitizeJobErrorMessage(trimmed), limit);
+}
+
+function isJsonShapedSourceText(value: string) {
+  const text = value.trim();
+  if (text.length < 12) return false;
+  const candidate = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  if (!candidate.startsWith("{") && !candidate.startsWith("[")) return false;
+
+  try {
+    const parsed = JSON.parse(candidate);
+    return typeof parsed === "object" && parsed !== null;
+  } catch {
+    return /^[{\[]\s*["']?[\w-]+["']?\s*:/.test(candidate)
+      || (/^\[\s*[\[{"']/.test(candidate) && /["']?[\w-]+["']?\s*:/.test(candidate));
+  }
 }
 
 function normalizeSearchText(value: string) {

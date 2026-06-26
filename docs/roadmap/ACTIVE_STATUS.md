@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR379 ready for ARGUS review
+
+DAEDALUS completed the local PR379 Global Archive JSON preview redaction patch:
+`docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_RESULT.md`.
+
+Current status:
+
+- PR379 is ready for ARGUS review.
+- `/imports/archive` and `/imports/archive/search` now redact JSON-shaped source
+  bodies at the returned archive preview summary boundary.
+- Safe owner-facing context remains visible through title, source label, status,
+  persona context, privacy, and provenance fields already present on result
+  items.
+- Search matching remains unchanged: private search fields are still built
+  server-side for matching and stripped before responses are returned.
+- Storage regression coverage proves archive overview and archive search do not
+  return raw JSON-shaped source body text, private marker text, or raw JSON
+  field names for a summary-less structured import item.
+- Existing owner-scoped archive search assertions remain green.
+- No parser, import pipeline, repository, schema, migration, provider, cache,
+  public archive behavior, owner-scoping rule, or broad Studio UI behavior
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 122 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed 41 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` passed with no warnings or errors.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR379.
+- ARGUS should review the structured-source detection, owner-scoping proof, and
+  response non-rendering proof.
+- If accepted, ARGUS should wake MIMIR and recommend ARIADNE rerun PR378 after
+  deploy.
+
 ## Latest MIMIR decision - PR378 failed, PR379 opened
 
 MIMIR accepts ARIADNE's PR378 hosted owner archive/export/import trust

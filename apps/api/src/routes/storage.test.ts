@@ -1848,6 +1848,24 @@ test("/imports/archive/search is owner-scoped, filtered, and sanitized", async (
     created_at: now,
     updated_at: now,
   });
+  db.insertRow("memory_items", {
+    id: "memory-json-source",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "ChatGPT JSON import body",
+    content: JSON.stringify({
+      messages: [
+        { role: "user", content: "Private JSON source body must not render in archive cards." },
+      ],
+      secret: "json-shaped-source-secret",
+    }),
+    summary: null,
+    source_type: "import",
+    archive_source_type: "import_job",
+    archive_source_name: "chatgpt-export.json",
+    created_at: now,
+    updated_at: now,
+  });
   db.insertRow("canon_items", {
     id: "canon-silver-compass",
     persona_id: PERSONA_ID,
@@ -1948,6 +1966,37 @@ test("/imports/archive/search is owner-scoped, filtered, and sanitized", async (
     assert.equal(owner.body.items.every((item: Row) => item.privacy === "owner_only"), true);
     assert.equal(owner.body.items.some((item: Row) => item.id === "other-memory-blue-lantern"), false);
     assert.doesNotMatch(JSON.stringify(owner.body), /full transcript must not be returned/i);
+
+    const overview = await requestJson(app, "GET", "/imports/archive", {
+      token: "owner-token",
+    });
+    assert.equal(overview.status, 200);
+    const overviewJsonItem = overview.body.items.find((item: Row) => item.id === "memory-json-source");
+    assert.equal(
+      overviewJsonItem.summary,
+      "Structured source preview redacted. Title, source, status, and persona context remain visible."
+    );
+    assert.doesNotMatch(JSON.stringify(overview.body), /Private JSON source body/);
+    assert.doesNotMatch(JSON.stringify(overview.body), /json-shaped-source-secret/);
+    assert.doesNotMatch(JSON.stringify(overview.body), /"messages"/);
+
+    const jsonSearch = await requestJson(app, "GET", "/imports/archive/search?q=ChatGPT&limit=10", {
+      token: "owner-token",
+    });
+    assert.equal(jsonSearch.status, 200);
+    assert.deepEqual(
+      jsonSearch.body.items
+        .filter((item: Row) => item.id === "memory-json-source")
+        .map((item: Row) => [item.summary, item.source, item.privacy]),
+      [[
+        "Structured source preview redacted. Title, source, status, and persona context remain visible.",
+        "chatgpt-export.json",
+        "owner_only",
+      ]]
+    );
+    assert.doesNotMatch(JSON.stringify(jsonSearch.body), /Private JSON source body/);
+    assert.doesNotMatch(JSON.stringify(jsonSearch.body), /json-shaped-source-secret/);
+    assert.doesNotMatch(JSON.stringify(jsonSearch.body), /"messages"/);
 
     const other = await requestJson(app, "GET", "/imports/archive/search?q=Meridian", {
       token: "other-token",
