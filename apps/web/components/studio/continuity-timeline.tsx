@@ -4,12 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  buildContinuityReviewSignalRows,
   buildContinuitySourceOptions,
   continuityRecordProvenanceLabels,
   continuityRecordText,
   continuityRecordTimestamp,
   continuityRecordTypeLabel,
   sortContinuityRecords,
+  type ContinuityReviewSignalRow,
   type ContinuityConversationLink,
   type ContinuityDocumentLink,
   type ContinuitySourceOption,
@@ -69,6 +71,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
     [documents, conversations],
   );
   const sortedRecords = useMemo(() => sortContinuityRecords(records), [records]);
+  const reviewSignals = useMemo(() => buildContinuityReviewSignalRows(sortedRecords, 4), [sortedRecords]);
   const selectedSource = sourceOptions.find((option) => option.key === form.sourceKey) ?? null;
 
   const loadTimeline = useCallback(async () => {
@@ -177,6 +180,8 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
 
         {error && <div className="space-form-error">{error}</div>}
 
+        <ContinuityReviewSignals rows={reviewSignals} />
+
         {sortedRecords.length === 0 ? (
           <div className="studio-empty">No continuity records yet. Add a private marker or link a document/conversation source when there is something worth preserving.</div>
         ) : (
@@ -256,6 +261,41 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
           {saving ? "Saving..." : "Save Marker"}
         </button>
       </form>
+    </section>
+  );
+}
+
+function ContinuityReviewSignals({ rows }: { rows: ContinuityReviewSignalRow[] }) {
+  if (rows.length === 0) return null;
+
+  return (
+    <section aria-label="Latest continuity review signals" style={{ display: "grid", gap: "0.85rem", margin: "1rem 0 1.25rem", padding: "1rem 0", borderTop: "1px solid var(--station-page-border)", borderBottom: "1px solid var(--station-page-border)" }}>
+      <div>
+        <div className="section-label">Review clarity</div>
+        <h3 style={{ margin: 0, color: "var(--station-page-text)", fontSize: "1rem" }}>Latest durable changes</h3>
+        <p className="studio-continuity-trust-body" style={{ margin: "0.35rem 0 0" }}>
+          Owner-only readback of what changed, why it was recorded, and which source or review state supports it.
+        </p>
+      </div>
+      <div style={{ display: "grid", gap: "0.8rem" }}>
+        {rows.map((row) => (
+          <article key={row.id} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(180px, 0.34fr)", gap: "0.8rem", alignItems: "start" }}>
+            <div style={{ minWidth: 0 }}>
+              <div className="studio-timeline-row" style={{ marginBottom: "0.35rem" }}>
+                <span>{row.typeLabel}</span>
+                <time>{row.timestamp}</time>
+              </div>
+              <h4 style={{ margin: "0 0 0.3rem", color: "#f8fafc", fontSize: "0.98rem", overflowWrap: "anywhere" }}>{row.changed}</h4>
+              <p style={{ margin: 0, color: "#edf4ff", lineHeight: 1.55, overflowWrap: "anywhere" }}>{row.why}</p>
+            </div>
+            <div className="studio-timeline-source" style={{ display: "grid", gap: "0.35rem", minWidth: 0 }}>
+              <span>{row.support}</span>
+              <span>{row.reviewState}</span>
+              <span>{row.reviewTarget}</span>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

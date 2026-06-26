@@ -2,8 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildRuntimeProvenanceReadback,
+  buildContinuityReviewSignalRows,
   buildContinuitySourceOptions,
   continuityRecordProvenanceLabels,
+  continuityRecordReviewTarget,
+  continuityRecordSupportLabel,
   continuityRecordText,
   runtimeProvenanceReviewTarget,
   runtimeContextCountRows,
@@ -139,6 +142,64 @@ test("runtime provenance readback keeps empty and sparse source states honest", 
   assert.equal(archiveGroup?.count, 0);
   assert.equal(archiveGroup?.rows.length, 0);
   assert.equal(archiveGroup?.empty, "No archive material selected.");
+});
+
+test("continuity review signals explain change, reason, support, and review target", () => {
+  const rows = buildContinuityReviewSignalRows([
+    {
+      ...record("old", "2026-06-06T08:00:00.000Z", "Old marker"),
+      source: { table: "conversations", label: "Planning chat", version: 2 },
+      sourceTable: "conversations",
+      sourceLabel: "Planning chat",
+      sourceVersion: 2,
+      metadata: { reason: "Owner marked this after a review" },
+      updatedAt: "2026-06-06T08:10:00.000Z",
+    },
+    {
+      ...record("new", "2026-06-06T10:00:00.000Z", "New boundary"),
+      recordType: "integrity",
+      source: { table: "integrity_sessions", label: "Pre-publication review", version: 4 },
+      sourceTable: "integrity_sessions",
+      sourceLabel: "Pre-publication review",
+      sourceVersion: 4,
+      version: 3,
+      updatedAt: "2026-06-06T10:30:00.000Z",
+    },
+  ]);
+
+  assert.deepEqual(rows.map((row) => row.id), ["new", "old"]);
+  assert.equal(rows[0]?.typeLabel, "Integrity");
+  assert.equal(rows[0]?.changed, "New boundary");
+  assert.equal(rows[0]?.why, "Integrity review output linked into durable continuity.");
+  assert.equal(rows[0]?.support, "Integrity Session: Pre-publication review / source v4");
+  assert.equal(rows[0]?.reviewTarget, "Review Integrity Session");
+  assert.match(rows[0]?.reviewState ?? "", /Private \/ Record v3 \/ Updated 6 Jun 2026/);
+  assert.equal(rows[1]?.why, "Owner marked this after a review");
+  assert.equal(rows[1]?.reviewTarget, "Review linked conversation");
+});
+
+test("continuity review signals redact unsafe metadata and source labels", () => {
+  const rows = buildContinuityReviewSignalRows([
+    {
+      ...record("unsafe", "2026-06-06T08:00:00.000Z", "system prompt: do not render"),
+      source: {
+        table: "documents",
+        label: "source_id=raw-link-1 https://example.invalid token=secret sk_live_secret",
+        version: 5,
+      },
+      metadata: {
+        reason: "provider payload: raw completion text",
+      },
+    },
+  ]);
+
+  const rendered = JSON.stringify(rows);
+  assert.match(rendered, /\[redacted-prompt\]/);
+  assert.match(rendered, /\[redacted-private-source\]/);
+  assert.match(rendered, /source_id=\[redacted\]/);
+  assert.doesNotMatch(rendered, /raw-link-1|https:\/\/example\.invalid|token=secret|sk_live_secret|raw completion text/i);
+  assert.equal(continuityRecordSupportLabel(record("none", "2026-06-06T08:00:00.000Z", "No source")), "No linked source recorded");
+  assert.equal(continuityRecordReviewTarget(record("plain", "2026-06-06T08:00:00.000Z", "Plain")), "Review continuity record");
 });
 
 test("runtime provenance readback redacts raw ids, prompts, urls, secrets, provider payloads, and source bodies", () => {

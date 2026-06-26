@@ -65,6 +65,17 @@ export interface RuntimeProvenanceReadbackGroup {
   rows: RuntimeProvenanceReadbackRow[];
 }
 
+export interface ContinuityReviewSignalRow {
+  id: string;
+  typeLabel: string;
+  changed: string;
+  why: string;
+  support: string;
+  reviewState: string;
+  reviewTarget: string;
+  timestamp: string;
+}
+
 const TYPE_LABELS: Record<ContinuityRecordType, string> = {
   memory: "Memory",
   canon: "Canon",
@@ -124,6 +135,61 @@ export function continuityRecordProvenanceLabels(record: ContinuityRecord) {
   ];
   const occurred = record.occurredAt ? `Occurred ${formatCompactDate(record.occurredAt)}` : null;
   return [...labels, occurred].filter((label): label is string => Boolean(label));
+}
+
+export function continuityRecordSupportLabel(record: ContinuityRecord) {
+  const source = record.source;
+  const sourceTable = source?.table ?? record.sourceTable;
+  const sourceLabel = sanitizeContinuityLabel(source?.label ?? record.sourceLabel);
+  const tableLabel = continuitySourceTableLabel(sourceTable);
+  const sourceVersion = source?.version ?? record.sourceVersion ?? 1;
+
+  if (!sourceTable && !sourceLabel) {
+    return "No linked source recorded";
+  }
+
+  return sourceLabel
+    ? `${tableLabel}: ${sourceLabel} / source v${sourceVersion}`
+    : `${tableLabel} / source v${sourceVersion}`;
+}
+
+export function continuityRecordReviewTarget(record: ContinuityRecord) {
+  const sourceTable = record.source?.table ?? record.sourceTable;
+  if (record.recordType === "memory" || sourceTable === "memory_items") return "Review in Memory";
+  if (record.recordType === "canon" || sourceTable === "canon_items") return "Review in Canon";
+  if (record.recordType === "integrity" || sourceTable === "integrity_sessions") return "Review Integrity Session";
+  if (
+    record.recordType === "archive_file"
+    || record.recordType === "archive_import"
+    || record.recordType === "archived_chat"
+    || sourceTable === "archived_chat_transcripts"
+  ) {
+    return "Review in Archive";
+  }
+  if (record.recordType === "publication" || sourceTable === "documents") return "Review linked document";
+  if (record.recordType === "candidate") return "Review continuity candidate";
+  if (sourceTable === "conversations") return "Review linked conversation";
+  return "Review continuity record";
+}
+
+export function buildContinuityReviewSignalRows(
+  records: ContinuityRecord[],
+  limit = 4,
+): ContinuityReviewSignalRow[] {
+  return sortContinuityRecords(records).slice(0, Math.max(0, limit)).map((record) => ({
+    id: record.id,
+    typeLabel: continuityRecordTypeLabel(record.recordType),
+    changed: sanitizeContinuityLabel(continuityRecordText(record)) ?? "Continuity marker",
+    why: continuityRecordWhyLabel(record),
+    support: continuityRecordSupportLabel(record),
+    reviewState: [
+      continuityRecordVisibilityLabel(record.visibility),
+      `Record v${record.version ?? 1}`,
+      `Updated ${formatCompactDate(record.updatedAt ?? record.createdAt)}`,
+    ].join(" / "),
+    reviewTarget: continuityRecordReviewTarget(record),
+    timestamp: formatCompactDate(continuityRecordTimestamp(record) ?? record.createdAt),
+  }));
 }
 
 export const RUNTIME_CONTEXT_SECTIONS: Array<{ type: RuntimeContextSourceType; label: string; empty: string }> = [
@@ -257,6 +323,49 @@ function sanitizeContinuityLabel(value?: string | null) {
     );
 
   return sanitized.length > 120 ? `${sanitized.slice(0, 117).trim()}...` : sanitized;
+}
+
+function continuityRecordWhyLabel(record: ContinuityRecord) {
+  const metadataReason = continuityMetadataText(record.metadata, ["why", "reason", "rationale", "reviewReason"]);
+  if (metadataReason) return metadataReason;
+
+  const sourceTable = record.source?.table ?? record.sourceTable;
+  if (record.recordType === "integrity" || sourceTable === "integrity_sessions") {
+    return "Integrity review output linked into durable continuity.";
+  }
+  if (record.recordType === "memory" || sourceTable === "memory_items") {
+    return "Memory material was promoted or linked for runtime recall.";
+  }
+  if (record.recordType === "canon" || sourceTable === "canon_items") {
+    return "Canon material was promoted or linked as higher-priority guidance.";
+  }
+  if (record.recordType === "archive_file" || record.recordType === "archive_import") {
+    return "Archive material was linked so the owner can trace the preserved source.";
+  }
+  if (record.recordType === "archived_chat" || sourceTable === "archived_chat_transcripts") {
+    return "Archived conversation material was linked for continuity review.";
+  }
+  if (record.recordType === "publication" || sourceTable === "documents") {
+    return "Document material was linked to explain the continuity source.";
+  }
+  if (record.recordType === "candidate") {
+    return "A candidate needs owner review before it becomes settled continuity.";
+  }
+  if (sourceTable === "conversations") {
+    return "Conversation context was marked as worth preserving.";
+  }
+  return "Saved as an owner continuity marker.";
+}
+
+function continuityMetadataText(metadata: Record<string, unknown> | null | undefined, keys: string[]) {
+  if (!metadata || typeof metadata !== "object") return null;
+  for (const key of keys) {
+    const value = metadata[key];
+    if (typeof value !== "string") continue;
+    const sanitized = sanitizeContinuityLabel(value);
+    if (sanitized) return sanitized;
+  }
+  return null;
 }
 
 function runtimeProvenanceSourceLabel(type: RuntimeContextSourceType, sourceType?: string | null) {
