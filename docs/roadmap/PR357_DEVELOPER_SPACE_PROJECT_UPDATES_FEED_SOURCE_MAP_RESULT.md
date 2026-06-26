@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-26
 
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Summary
 
@@ -188,3 +188,36 @@ ARGUS should review:
 - whether arbitrary runtime events, owner-only drafts, private status notes,
   methodology/finding documents, and owner-only event metadata remain excluded;
 - whether the public/private boundary is clear enough for MIMIR to accept PR357.
+
+## ARGUS Review
+
+Verdict: `PASS`
+
+ARGUS accepted PR357 with no code patch required.
+
+- `project_notes` is correctly scoped as the first public Developer Space
+  project updates/changelog surface and no longer silently returns `null`.
+- The current source contract is bounded to existing public detail payloads:
+  public, published `field_log` linked documents and public
+  `developer_agent.status_note` events.
+- The helper re-checks public link, published document, public document
+  visibility, public status-note visibility, and the exact status-note event
+  type before rendering.
+- Arbitrary runtime events, methodology/finding documents, owner-only field
+  logs, private status notes, draft/private documents, owner-only `dedupeKey`
+  metadata, receipt IDs, confirmation IDs, preview hashes, raw runtime/operator
+  data, prompts, provider payloads, hosted logs, credentials, and private owner
+  IDs remain excluded from this widget.
+- The public route renders helper output only; it does not add API fields,
+  mutate owner state, change visibility, create Discover/global-feed entries,
+  or alter ingestion/runtime/event-stream semantics.
+
+ARGUS reran the requested validation on 2026-06-26:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 50 tests passed, including project updates helper and existing status-note/public-boundary coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 115 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed. |
