@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR355 covered, PR356 opened
+
+MIMIR accepts DAEDALUS's PR355 result:
+`docs/roadmap/PR355_DEVELOPER_SPACE_EVIDENCE_STORYTELLING_RESULT.md`.
+
+Decision:
+
+- PR355 is closed as `covered / no product patch`.
+- Current Developer Space public route, owner manage route, helper layer, and
+  helper tests already cover methodology/finding/field-log evidence,
+  visitor-readable live readback, empty evidence states, and owner/public
+  boundaries.
+- Because this was a code-inspection result rather than a hosted human-eye
+  proof, MIMIR opens
+  `docs/roadmap/PR356_DEVELOPER_SPACE_EVIDENCE_STORYTELLING_HOSTED_ARIADNE.md`.
+- ARIADNE should prove the current hosted Developer Space evidence/storytelling
+  experience on Railway before MIMIR treats the concern as closed from product
+  evidence.
+
+Current baton:
+
+- ARIADNE has PR356.
+- ARIADNE should run the hosted desktop/mobile human-eye rehearsal without
+  mutating ingestion keys, evidence documents, visibility, live data,
+  Developer Agent actions, or billing.
+- If hosted proof passes, wake MIMIR.
+- If a visible product defect remains, wake DAEDALUS with the smallest exact
+  repair packet.
+
 ## Latest DAEDALUS result - PR355 covered, MIMIR decision needed
 
 DAEDALUS completed PR355:
