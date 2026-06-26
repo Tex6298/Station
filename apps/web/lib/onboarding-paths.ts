@@ -18,6 +18,7 @@ export interface OnboardingPathCard {
   privacy: string;
   route: string;
   actionLabel: string;
+  assistantActionLabel: string;
   assistantPrompt: string;
   supportingRoutes: string[];
   truth: string;
@@ -41,6 +42,7 @@ export function onboardingPathCards(personas: PersonaSummary[]): OnboardingPathC
       privacy: "Private Studio material by default; publishing is a later owner action.",
       route: "/studio/new?path=fresh-start",
       actionLabel: "Create private persona",
+      assistantActionLabel: "Ask Assistant to plan first setup",
       assistantPrompt: "Help me start with a private persona and keep the first setup light.",
       supportingRoutes: ["/studio/new", "/studio/personas/<persona-id>"],
       truth: "Requires a signed-in Studio session. Creation is the existing private persona API path, not a mock.",
@@ -55,6 +57,7 @@ export function onboardingPathCards(personas: PersonaSummary[]): OnboardingPathC
       privacy: "Setup notes stay owner-scoped in Studio until you deliberately publish later.",
       route: "/studio/new?path=awakening",
       actionLabel: "Start guided setup",
+      assistantActionLabel: "Ask Assistant to prepare notes",
       assistantPrompt: "Help me choose what to write first for an Awakening setup without overclaiming identity.",
       supportingRoutes: ["/studio/new", "/studio/personas/<persona-id>/calibration", "/studio/personas/<persona-id>/memory"],
       truth: "The first alpha version is the existing creation flow plus real follow-on integrity and memory routes.",
@@ -73,6 +76,7 @@ export function onboardingPathCards(personas: PersonaSummary[]): OnboardingPathC
       privacy: "Imported source material is owner-scoped archive material; external OAuth/recurring pulls are not live here.",
       route: persona ? `/studio/personas/${persona.id}/files` : "/studio/new?path=document-migrator",
       actionLabel: persona ? "Open private archive" : "Create persona for archive",
+      assistantActionLabel: persona ? "Ask Assistant about archive import" : "Ask Assistant to plan archive prep",
       assistantPrompt: persona
         ? `Help me import source material into ${persona.name}'s private archive and review the results.`
         : "Help me prepare for Document Migrator after I create the private persona.",
@@ -89,6 +93,7 @@ export function onboardingPathCards(personas: PersonaSummary[]): OnboardingPathC
       privacy: "Manage keys and raw owner evidence stay owner-only; public observatories show only public-safe state.",
       route: "/developer-spaces",
       actionLabel: "Open Developer Spaces",
+      assistantActionLabel: "Ask Assistant about bridge setup",
       assistantPrompt: "Help me understand the API Bridge path using Developer Spaces without exposing private keys.",
       supportingRoutes: ["/developer-spaces", "/developer-spaces/<slug>/manage"],
       truth: "Developer Space ingestion is the alpha bridge. Production workers, Cloudflare retrieval, provider routing, and Redis memory truth are not part of this path.",

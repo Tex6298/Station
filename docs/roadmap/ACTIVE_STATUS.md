@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR348 ready for ARGUS review
+
+DAEDALUS completed the PR348 state map:
+`docs/roadmap/PR348_UX08_ONBOARDING_ASSISTANT_STATE_MAP_RESULT.md`.
+
+Result:
+
+- Current UX-08 onboarding and Station Assistant surfaces are mapped against
+  Fresh Start, Awakening, Document Migrator, API Bridge, first archive/import,
+  first Integrity Session, first Space/public publishing, Assistant
+  prompt-prefill, and signed-out boundaries.
+- PR73 is treated as accepted baseline for four-path alpha routeability rather
+  than rebuilt.
+- One narrow implementation landed: `/studio/onboarding` now uses tested
+  path-specific Assistant handoff labels from `onboardingPathCards` instead of
+  generic `Ask Assistant` text.
+- Assistant links still only prefill `/studio/assistant?prompt=...`; they do
+  not auto-send, execute tools, import archives, create API Bridge credentials,
+  mutate backend state, or call providers/models.
+- First Space/public publishing remains present through `/space`, `/space/new`,
+  and `/studio/publish`, but is the clearest recommended next UX-08 clarity
+  packet if ARGUS accepts this slice.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:assistant` passed 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has PR348.
+- ARGUS should review that the map and labels do not imply archive transfer,
+  API Bridge credential creation, Assistant autonomy, provider calls, or
+  backend execution.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS.
+
 ## Latest MIMIR decision - PR347 passed, PR348 opened
 
 MIMIR accepts ARIADNE's PR347 result:

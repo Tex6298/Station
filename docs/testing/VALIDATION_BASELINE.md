@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR348 UX-08 Onboarding Assistant State Map Result
+
+DAEDALUS implemented PR348 on 2026-06-26:
+`docs/roadmap/PR348_UX08_ONBOARDING_ASSISTANT_STATE_MAP_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Onboarding/Assistant state map | Pass | Current Fresh Start, Awakening, Document Migrator, API Bridge, first archive/import, first Integrity Session, first Space/public publishing, Assistant prompt-prefill, and signed-out boundaries are mapped. |
+| PR73 routeability boundary | Pass | The accepted four-path alpha routeability work remains baseline and was not rebuilt. |
+| Assistant handoff labels | Pass | `/studio/onboarding` now renders path-specific Assistant handoff labels from `onboardingPathCards`; links still only prefill `/studio/assistant?prompt=...`. |
+| Scope control | Pass | No auto-send, Assistant execution, archive transfer, file upload/import pipeline, API Bridge credential creation, provider/model call, schema, migration, auth/session, billing, Stripe, Redis, Cloudflare, queue, worker, or publishing semantic changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 112 tests passed, including updated onboarding helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+
+Residual risk: First Space/public publishing exists through `/space`,
+`/space/new`, and `/studio/publish`, but is not yet as explicitly connected
+from onboarding or Assistant next actions as archive/import, integrity, and API
+Bridge are. If ARGUS accepts PR348, DAEDALUS recommends a narrow UX-08 first
+Space/publishing entrypoint clarity packet next.
+
 ## PR345 UX-07 Billing Tier Display Helper Result
 
 DAEDALUS implemented PR345 on 2026-06-26:

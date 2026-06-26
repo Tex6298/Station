@@ -14,6 +14,7 @@ test("onboarding path map exposes all four documented alpha paths", () => {
   assert.equal(cards.every((card) => card.route.length > 0), true);
   assert.equal(cards.every((card) => card.firstStep.length > 0), true);
   assert.equal(cards.every((card) => card.privacy.length > 0), true);
+  assert.equal(cards.every((card) => card.assistantActionLabel.length > 0), true);
   assert.equal(cards.every((card) => card.assistantPrompt.length > 0), true);
 });
 
@@ -24,12 +25,14 @@ test("fresh start and awakening route to real persona creation", () => {
 
   assert.equal(freshStart?.status, "live");
   assert.equal(freshStart?.route, "/studio/new?path=fresh-start");
+  assert.equal(freshStart?.assistantActionLabel, "Ask Assistant to plan first setup");
   assert.match(freshStart?.firstStep ?? "", /Name the private persona/);
   assert.match(freshStart?.privacy ?? "", /Private Studio/);
   assert.match(freshStart?.truth ?? "", /existing private persona API path/);
 
   assert.equal(awakening?.status, "live");
   assert.equal(awakening?.route, "/studio/new?path=awakening");
+  assert.equal(awakening?.assistantActionLabel, "Ask Assistant to prepare notes");
   assert.match(awakening?.assistantPrompt ?? "", /Awakening setup/);
   assert.match(awakening?.truth ?? "", /real follow-on integrity and memory routes/);
 });
@@ -38,6 +41,7 @@ test("document migrator is explicit when a persona is required", () => {
   const withoutPersona = onboardingPathCards([]).find((card) => card.id === "document-migrator");
   assert.equal(withoutPersona?.status, "setup-required");
   assert.equal(withoutPersona?.route, "/studio/new?path=document-migrator");
+  assert.equal(withoutPersona?.assistantActionLabel, "Ask Assistant to plan archive prep");
   assert.match(withoutPersona?.firstStep ?? "", /Create the private persona first/);
   assert.match(withoutPersona?.truth ?? "", /does not claim live Reddit, Discord, OAuth/);
 
@@ -54,6 +58,7 @@ test("document migrator is explicit when a persona is required", () => {
 
   assert.equal(withPersona?.status, "alpha-live");
   assert.equal(withPersona?.route, "/studio/personas/persona-1/files");
+  assert.equal(withPersona?.assistantActionLabel, "Ask Assistant about archive import");
   assert.match(withPersona?.summary ?? "", /Archive Owner/);
   assert.match(withPersona?.assistantPrompt ?? "", /Archive Owner/);
 });
@@ -63,6 +68,7 @@ test("api bridge points to Developer Spaces without production infrastructure cl
 
   assert.equal(card?.status, "alpha-live");
   assert.equal(card?.route, "/developer-spaces");
+  assert.equal(card?.assistantActionLabel, "Ask Assistant about bridge setup");
   assert.match(card?.firstStep ?? "", /ingestion keys/);
   assert.match(card?.privacy ?? "", /owner-only/);
   assert.match(card?.truth ?? "", /Developer Space ingestion is the alpha bridge/);

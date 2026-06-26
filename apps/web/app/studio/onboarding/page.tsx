@@ -101,7 +101,7 @@ export default function StudioOnboardingPage() {
                 <div style={actionRow}>
                   <Link href={card.route} style={primaryButton}>{card.actionLabel}</Link>
                   <Link href={`/studio/assistant?prompt=${encodeURIComponent(card.assistantPrompt)}`} style={secondaryButton}>
-                    Ask Assistant
+                    {card.assistantActionLabel}
                   </Link>
                 </div>
               </article>
