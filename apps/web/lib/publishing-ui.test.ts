@@ -166,5 +166,8 @@ test("publishing dashboard trust line summarizes approval without leaking source
   assert.doesNotMatch(line, /123e4567|ghp_secret/i);
 
   assert.equal(documentProvenanceLabel("ai_assisted"), "AI-assisted");
+  const sanitized = publishingSourceLabelForReadback("OpenAI sk-test-secret-token AWS AKIAIOSFODNN7EXAMPLE");
+  assert.match(sanitized ?? "", /\[redacted-secret\].*\[redacted-secret\]/);
+  assert.doesNotMatch(sanitized ?? "", /sk-test|AKIA/);
   assert.equal(publishingSourceLabelForReadback(""), null);
 });

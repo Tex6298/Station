@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Date: 2026-06-26
-Status: Ready for ARGUS
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -101,6 +101,26 @@ prompts, provider payloads, secrets, or cross-owner data.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | Next lint reported no warnings or errors. |
 | `git diff --check` | Pass | Whitespace check passed; Git emitted only CRLF normalization warnings. |
+
+## ARGUS Review
+
+Verdict: `PASS`.
+
+ARGUS verified the publishing surface map against the current document,
+discussion, version-history, and approval routes. The patch is readback-only:
+the document trust panel and dashboard trust line use already-loaded
+document/approval data, and public readers still receive only the current
+readable document copy.
+
+ARGUS accepted the privacy boundary after adding one narrow review hardening:
+source-label sanitization now also redacts common hyphenated provider-key
+shapes and AWS access-key-shaped labels before public/owner readback. The
+helper coverage was extended for that case.
+
+No API, publish transition, document visibility, discussion visibility,
+version persistence, approval state machine, schema, migration, worker, queue,
+provider, billing, auth, Railway, Supabase config, Station Press, PDF/social,
+or broad editor behavior changed.
 
 ## Review Ask
 

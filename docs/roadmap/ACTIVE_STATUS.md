@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR367 ready for ARGUS
+## Latest ARGUS verdict - PR367 accepted
 
-DAEDALUS completed PR367:
+ARGUS accepted PR367:
 `docs/roadmap/PR367_PUBLISHING_TRUST_READBACK_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Current publishing trust truth is mapped: readable document routes,
   owner-only version history, document discussion visibility, publishing
@@ -20,7 +26,10 @@ Result:
 - The owner publishing dashboard now shows a sanitized trust line with approval
   state, destination, version, source label, and private-source boundary.
 - Source labels are sanitized before readback for URLs, token labels, UUIDs,
-  and secret-shaped values.
+  secret-shaped values, hyphenated provider-key shapes, and AWS access-key
+  shaped labels.
+- ARGUS added the narrow sanitizer hardening for those extra secret-shaped
+  source labels before acceptance.
 - No API, publish transition, document visibility, discussion visibility,
   version persistence, approval state machine, schema, migration, worker,
   queue, provider, billing, auth, Railway, or Supabase config changed.
@@ -38,12 +47,8 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR367.
-- ARGUS should review the publishing surface map, public/private boundaries,
-  source-label sanitization, approval-state readback, version readback, and
-  discussion-state copy.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has PR367.
+- MIMIR should close PR367 as accepted and decide the next roadmap move.
 
 ## Latest MIMIR decision - PR366 accepted, PR367 opened
 

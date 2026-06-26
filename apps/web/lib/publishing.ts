@@ -359,6 +359,8 @@ function sanitizePublishingReadbackText(value: string) {
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(/\b(?:postgres(?:ql)?|redis|mysql):\/\/\S+/gi, "[redacted-url]")
     .replace(/\b(?:ghp|sk|pk|rk|whsec)_[a-z0-9_=-]{8,}\b/gi, "[redacted-secret]")
+    .replace(/\b(?:sk|pk|rk)-[a-z0-9][a-z0-9_-]{6,}\b/gi, "[redacted-secret]")
+    .replace(/\bA(?:KIA|SIA)[A-Z0-9]{16}\b/gi, "[redacted-secret]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
     .replace(/\b(token|cookie|authorization|api[_\s-]?key|x-api-key|secret|password|source[_\s-]?id|owner[_\s-]?id)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
