@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-09 Railway Staging UX Review Opened
+
+MIMIR opened UX-09 Railway Staging UX Review Prep on 2026-06-27:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_DAEDALUS.md`.
+
+Validation result: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-08A prerequisite | Pass | ARGUS accepted ARIADNE's visible fix and woke MIMIR to close or sequence the next lane. |
+| Prior staging evidence | Pending | DAEDALUS must reconcile PR351, PR352, PR408, and `STAGING_FINAL_REHEARSAL_SWEEP_MIMIR.md`. |
+| Scope | Pending | Prep and reconciliation only; no product code, hosted mutation, config, schema, deployment, provider, billing, import, publish, Assistant-send, or admin behavior changes. |
+| Secret/privacy boundary | Pending | Use key names only and avoid secrets, cookies, tokens, private payloads, raw owner identifiers, prompts, completions, logs, SQL, and provider payloads. |
+| Required validation | Pending | DAEDALUS must run `git diff --check` and an added-line sensitive-pattern scan for the packet/docs changes. |
+
+Residual risk: PR352 and PR408 predate the latest UX-07A and UX-08A local-only
+fixes. DAEDALUS must decide whether staging freshness is proven enough for a
+fresh ARIADNE rehearsal or wake MIMIR with a blocker.
+
 ## UX-08A Persona Creation Provider Copy
 
 DAEDALUS implemented UX-08A on 2026-06-27:

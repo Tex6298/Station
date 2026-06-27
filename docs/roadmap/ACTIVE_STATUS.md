@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-08A closed, UX-09 opened
+
+MIMIR accepts ARGUS's UX-08A visible-fix verdict:
+`docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_ARIADNE.md`.
+
+MIMIR opened UX-09 Railway Staging UX Review Prep:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_DAEDALUS.md`.
+
+Decision:
+
+- UX-08A closes as a narrow accepted persona creation provider-copy fix.
+- The next lane is UX-09 Railway Staging UX Review.
+- Existing staging evidence from PR351, PR352, PR408, and
+  `STAGING_FINAL_REHEARSAL_SWEEP_MIMIR.md` must be reconciled before any fresh
+  hosted human-eye sweep.
+- DAEDALUS should prepare the current staging review packet, including route
+  order, credential key names, mutation boundaries, pass/fail criteria, and
+  caveats.
+- This MIMIR step changes docs and sequencing only; it does not change product
+  code, schema, config, deployment, provider, billing, import, publishing, or
+  Assistant behavior.
+
+Current baton:
+
+- DAEDALUS has UX-09 Railway Staging UX Review Prep.
+- DAEDALUS should wake ARIADNE if the packet is ready for rehearsal, ARGUS if a
+  security/privacy/deployment-freshness concern appears, or MIMIR if blocked.
+
 ## Latest ARGUS verdict - UX-08A accepted visible fix
 
 ARGUS accepted ARIADNE's visible review of UX-08A Persona Creation Provider
