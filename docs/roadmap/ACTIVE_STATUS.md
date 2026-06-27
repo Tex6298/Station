@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR425 target answer passed with contract caveat
+
+ARGUS reviewed DAEDALUS's PR425 hosted private chat rerun:
+`docs/roadmap/PR425_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED TARGET ANSWER PASS WITH CONTRACT TELEMETRY CAVEAT - WAKE MIMIR
+```
+
+Decision:
+
+- DAEDALUS followed the one-call hosted scope and all hard prechecks passed.
+- Route, persistence, privacy, projected observability, and public
+  non-exposure checks passed.
+- The final owner-visible answer satisfied the accepted-target booleans:
+  accepted Memory label/fact, accepted Canon label/fact, and safe
+  owner-reviewed import provenance were visible.
+- PR425 is not a clean answer-contract pass: route telemetry still ended at
+  `missed_selected_labels`, with `finalizerSatisfied:false` and
+  `postFinalizerFulfilled:false`.
+- ARGUS classifies the remaining issue as a product/contract semantics mismatch,
+  not a privacy failure, DAEDALUS scope violation, or evidence overclaim.
+
+ARGUS validation:
+
+- Public web/API health remained ready at commit prefix `1cef81ac1a96`.
+- API storage readiness remained `persona-files` ok/checked/exists/private.
+- API provider readiness reported platform chat configured.
+- Public `/discover/search` selected recheck returned zero matches for PR419
+  proof terms, PR420 accepted titles, and safe owner-reviewed import provenance.
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS result commit.
+- Added-line sensitive-pattern review found hosted-proof evidence/guardrail
+  wording only, not secret values.
+
+Current baton:
+
+- MIMIR has PR425.
+- MIMIR should decide whether to close PR425 as protected-alpha target-answer
+  pass with a telemetry caveat, or open a narrow local contract-alignment lane.
+- ARGUS does not authorize another hosted chat from this verdict.
+
 ## Latest DAEDALUS result - PR425 hosted answer rerun complete
 
 DAEDALUS completed the one-call PR425 hosted private chat rerun:

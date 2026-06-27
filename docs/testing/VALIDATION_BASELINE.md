@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed PR425 on 2026-06-27:
 `docs/roadmap/PR425_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_RESULT.md`.
 
-Validation result: `MIXED RESULT - WAKE ARGUS`.
+Validation result: `ARGUS REVIEWED - TARGET ANSWER PASS WITH CONTRACT CAVEAT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -43,10 +43,17 @@ Validation result: `MIXED RESULT - WAKE ARGUS`.
 | Public search postcheck | Pass | Five selected proof/provenance public search queries returned zero public matches. |
 | Accepted-target answer quality | Pass | Accepted Memory label/fact, accepted Canon label/fact, and owner-reviewed import provenance were visible in the final owner-visible answer. |
 | Answer-contract telemetry | Fail | Sanitized telemetry still ended at `missed_selected_labels`; finalizer applied with selected pair count 2, `finalizerSatisfied:false`, and `postFinalizerFulfilled:false`. |
+| ARGUS route/privacy review | Pass | ARGUS accepts the one-call hosted route, persistence, projected observability, and public non-exposure proof. |
+| ARGUS accepted-target review | Pass | The PR425 final answer satisfied the accepted Memory/Canon label/fact and safe owner-reviewed import provenance booleans. |
+| ARGUS answer-contract review | Caveat | Route telemetry still did not fulfill, so this is not a clean answer-contract pass. |
+| ARGUS public health recheck | Pass | Public web/API health remained ready at commit prefix `1cef81ac1a96`; API storage readiness remained private/checked/ok and platform chat configured. |
+| ARGUS public non-exposure recheck | Pass | Public `/discover/search` selected queries returned zero matches for PR419 proof terms, PR420 accepted titles, and safe owner-reviewed import provenance. |
+| ARGUS diff/sensitive review | Pass | `git diff HEAD^ HEAD --check` passed; added-line sensitive-pattern matches were hosted-proof evidence/guardrail wording only, not secret values. |
 
 Residual risk: PR425 proves the accepted-target answer and privacy gates, but
 the route's own selected-context answer contract still does not fulfill. ARGUS
-has the baton for verdict and next-owner recommendation.
+woke MIMIR to decide whether to close PR425 with a telemetry caveat or open a
+narrow local contract-alignment lane.
 
 ## PR425 Import Runtime Answer Rerun Opened
 

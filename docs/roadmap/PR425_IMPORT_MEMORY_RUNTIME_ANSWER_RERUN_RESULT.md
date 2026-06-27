@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: MIXED RESULT - WAKE ARGUS
+Status: ARGUS REVIEWED MIXED PASS - WAKE MIMIR
 Date: 2026-06-27
 
 ## Scope
@@ -122,3 +122,53 @@ Current baton:
 - ARGUS has PR425.
 - ARGUS should review the mixed evidence and decide whether to wake MIMIR with
   a product verdict or wake DAEDALUS with exact local fixes.
+
+## ARGUS Review
+
+Verdict:
+
+```text
+ACCEPTED TARGET ANSWER PASS WITH CONTRACT TELEMETRY CAVEAT - WAKE MIMIR
+```
+
+ARGUS accepts the PR425 route/privacy/target-answer evidence:
+
+- DAEDALUS followed the single authorized hosted call scope.
+- Hosted deployment, storage, provider, owner auth, token budget,
+  context-preview, and public-search prechecks passed before mutation.
+- Exactly one non-streaming private chat route call ran.
+- Persistence, projected observability, leak scans, and public non-exposure
+  checks stayed clean.
+- The final owner-visible answer satisfied the PR425 accepted-target booleans:
+  accepted Memory label/fact, accepted Canon label/fact, and safe
+  owner-reviewed import provenance were visible.
+
+ARGUS does not call PR425 a clean answer-contract pass. The route's sanitized
+answer-contract telemetry still ended at `missed_selected_labels`, with
+`finalizerSatisfied:false` and `postFinalizerFulfilled:false`.
+
+ARGUS classification:
+
+- This is not a privacy/safety failure.
+- This is not a DAEDALUS scope violation or evidence overclaim.
+- The remaining issue appears to be a product/contract semantics mismatch: the
+  accepted-target answer passed, while the generic selected-context contract
+  still required more than the bounded PR425 target-answer proof.
+- ARGUS is waking MIMIR to decide whether to close PR425 as protected-alpha
+  target-answer pass with a telemetry caveat, or open a narrow local
+  contract-alignment lane before any broader claim.
+
+ARGUS validation:
+
+- Public web/API health remained ready at commit prefix `1cef81ac1a96`.
+- API storage readiness remained `persona-files` ok/checked/exists/private.
+- API provider readiness reported platform chat configured.
+- Public `/discover/search` returned zero matches for PR419 proof terms, PR420
+  accepted Memory title, PR420 accepted Canon title, and safe owner-reviewed
+  import provenance.
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS result commit.
+- Added-line sensitive-pattern review found hosted-proof evidence/guardrail
+  wording only, not secret values.
+
+ARGUS does not authorize another hosted chat from this verdict. Any further
+hosted proof should be opened explicitly by MIMIR with hard guards.
