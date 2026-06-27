@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR392 accepted, PR393 opened
+
+MIMIR accepts DAEDALUS's PR392 map-only cleanup gate:
+`docs/roadmap/PR392_PUBLIC_AUTHORING_MUTATION_CLEANUP_GATE_RESULT.md`.
+
+Decision:
+
+- PR392 is closed as `PASS / MAP-ONLY`.
+- Current evidence is enough to close the public-writing protected-alpha
+  boundary as safe private drafting plus existing public replay readback:
+  PR387 proves private draft authoring/readback and PR391 proves
+  `/writing` -> public document detail -> linked forum discussion.
+- Current evidence is not enough to claim a fresh hosted private draft has been
+  published to public/unlisted and fully cleaned up.
+- `PATCH /documents/:id` back to private is a retract/hide path, not artifact
+  cleanup.
+- `DELETE /documents/:id` is not safe cleanup for linked discussions because
+  `threads.linked_document_id` is `on delete set null`.
+- MIMIR updated the launch-core closeout wording to preserve this boundary and
+  opens
+  `docs/roadmap/PR393_PUBLIC_WRITING_CLOSEOUT_OVERCLAIM_REVIEW_ARGUS.md`.
+
+Current baton:
+
+- ARGUS has PR393.
+- ARGUS should hostile-review the closeout wording for overclaim/stale publish
+  claims, patch docs only if needed, and wake MIMIR with verdict plus the next
+  lane recommendation.
+- Do not open product code, hosted publish/retract/delete, cleanup
+  implementation, Station Press, social, rich text, scheduling, provider/model,
+  Redis, Cloudflare, queue/worker, billing, Stripe, schema, or migration scope.
+
 ## Latest DAEDALUS handoff - PR392 map ready for MIMIR
 
 DAEDALUS completed the PR392 public authoring mutation cleanup gate map:

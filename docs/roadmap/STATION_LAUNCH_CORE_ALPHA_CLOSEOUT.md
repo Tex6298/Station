@@ -19,16 +19,19 @@ developer intervention:
 5. review and accept/edit/reject Memory and Canon candidates;
 6. search private archive;
 7. inspect owner-only export bundles;
-8. publish a private draft as a labelled public document;
-9. read that document on a public Space;
-10. open the linked forum discussion;
+8. create and save a private draft, then inspect owner publishing readback;
+9. read an accepted replay public document on a public Space;
+10. open that document's linked forum discussion;
 11. use Station Assistant as an operational map over the above.
 
 This is not a production readiness claim and not a complete Station MVP claim.
+It is also not a claim that the default current replay should publish a fresh
+hosted public/unlisted document and fully clean it up afterward.
 
 ## Current Evidence Refresh
 
-Last refreshed: 2026-06-22 by PR161 ARGUS review.
+Last refreshed: 2026-06-27 by PR392 DAEDALUS cleanup-gate map and PR393 MIMIR
+closeout decision.
 
 - PR157 public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
@@ -65,6 +68,17 @@ Last refreshed: 2026-06-22 by PR161 ARGUS review.
   later accepted app-code runtime.
 - Current replay evidence remains protected-alpha evidence. It supports a
   staged proof/demo loop, not production readiness or product completeness.
+- PR387 proves safe hosted private draft authoring/readback:
+  `/writing` -> `/studio/publish` -> saved private draft ->
+  `/studio/publishing` owner dashboard -> edit reload.
+- PR391 proves hosted existing public writing route-through readback:
+  `/writing` -> public document detail -> linked forum discussion, using
+  accepted replay public data and no new public mutation.
+- PR392 confirms current Station has retract/hide behavior, but no reliable
+  owner-safe cleanup path for a test public/unlisted document plus linked
+  discussion artifact. Full fresh hosted publish-and-cleanup remains deferred
+  until MIMIR opens a cleanup/retract lane or explicitly accepts a long-lived
+  owner-only/retracted artifact.
 
 ## Evidence Map
 
@@ -76,8 +90,8 @@ Last refreshed: 2026-06-22 by PR161 ARGUS review.
 | Review candidates | PR17 import-backed candidates and PR21 Import Review Inbox closeout. |
 | Private archive search | PR12 owner-scoped `/imports/archive/search` and deployed `/studio/archive` rehearsal. |
 | Export data | Owner-only JSON/Markdown manifest and portable bundle readback for persona and Developer Space exports. |
-| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, and PR23 Creator-capable staging proof. |
-| Public Space/document/discussion | PR23 public Space, document, linked discussion, and forum route proof. |
+| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, and PR387 safe private draft owner readback. Fresh hosted publish-and-cleanup is not part of the default current replay. |
+| Public Space/document/discussion | PR23 public Space/document/linked discussion proof and PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data. |
 | Station Assistant | PR22 sanitized operational action cards and desktop/mobile browser closeout. |
 | Manual social archive intake | PR19 Reddit and PR20 Discord uploaded/pasted intake with fail-closed parser behavior. |
 
@@ -97,10 +111,13 @@ Use public-safe synthetic content only.
 8. Open export status and inspect a completed JSON/Markdown bundle readback.
 9. Open Station Assistant and ask what to finish next; check action cards point
    to real Studio routes.
-10. Using a Creator-capable staging owner, create or use a public-safe draft,
-    send it through approval, publish it, and open the public Space/document.
+10. Open an accepted replay public document from `/writing` or its public Space,
+    then inspect public document trust/readback.
 11. Open the linked forum discussion and confirm the route follows document
     visibility.
+12. Do not run a fresh public/unlisted publish mutation in the default replay
+    unless a cleanup/retract lane has been accepted or MIMIR explicitly accepts
+    a long-lived owner-only/retracted artifact.
 
 ## Required Caveats
 
@@ -118,6 +135,12 @@ Use public-safe synthetic content only.
 - Export is JSON/Markdown bundle readback, not full workspace/PDF/binary export.
 - Community proof covers document discussion visibility, not full Community
   Beta.
+- Public writing is protected-alpha complete for safe private drafting plus
+  existing public replay readback. It is not a fresh hosted
+  private-draft-to-public-publish-and-full-cleanup proof.
+- Retracting a published document to private is a visibility/hide mechanism,
+  not full artifact cleanup. Current document delete is not sufficient cleanup
+  for linked discussion artifacts because linked threads are not cascaded.
 - Station Assistant is an operational map, not an autonomous executor or
   persistent persona.
 - Redis memory truth, Cloudflare retrieval, production vector hardening,
