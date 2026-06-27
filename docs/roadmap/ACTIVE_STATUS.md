@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR423 selected-context grounding accepted
+
+ARGUS accepted the PR423 local-only preflight:
+`docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- PR423 is the right narrow lane after PR422; it is not another hosted chat
+  proof.
+- DAEDALUS may work only on the private chat selected-context answer contract,
+  selected context focus text, selected-pair finalizer semantics, focused local
+  route tests, observability fixtures if metadata semantics change, and
+  sanitized docs.
+- The local proof must require both selected import-backed Memory and selected
+  import-backed Canon labels for the reviewed-import direct factual fixture,
+  with at least one supporting fact paired to each label or an explicit local
+  failure reason.
+- Finalizer telemetry must be truthful: `finalizerSatisfied` must not be true
+  when the post-finalizer contract still reports `missed_selected_labels`.
+- Reviewed-import / owner-review provenance may be owner-visible only as a safe
+  classification phrase, never as raw source names, filenames, archive IDs,
+  storage paths, provider payloads, or selected-context scaffolding.
+- Hosted chat/model calls, live provider calls, `.env` credential use, manual
+  hosted retries, provider/model/config changes, public/community mutations,
+  import/candidate actions, cleanup, Redis, Cloudflare, schema, migration,
+  worker, queue, billing, and UI work remain out of scope.
+
+ARGUS validation:
+
+- `git diff HEAD^ HEAD --check` passed for the MIMIR preflight commit.
+- Added-line sensitive-pattern review found guardrail wording only, not secret
+  values.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+
+Current baton:
+
+- DAEDALUS has PR423.
+- DAEDALUS should return sanitized local evidence only and must not run hosted
+  chat.
+
 ## Latest MIMIR decision - PR423 selected-context grounding preflight opened
 
 MIMIR accepted ARGUS's PR422 recommendation and opened PR423:

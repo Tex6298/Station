@@ -25,13 +25,19 @@ they are not Station validation failures.
 MIMIR opened PR423 on 2026-06-27:
 `docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_PREFLIGHT_ARGUS.md`.
 
-Validation result: `PREFLIGHT OPENED FOR ARGUS REVIEW`.
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Scope classification | Pass | Docs-only preflight; no code, hosted chat, provider config, public/community, import/candidate, Redis, Cloudflare, schema, migration, worker, queue, billing, or UI changes authorized. |
 | PR422 closeout | Pass | PR422 is accepted as route/privacy pass plus answer-quality failure; no hosted retry is authorized. |
-| Next validation target | Pending | If ARGUS accepts, DAEDALUS should prove the selected-label/answer-grounding contract locally before another hosted chat proof. |
+| ARGUS scope review | Pass | ARGUS accepts the lane as local-only route/contract/finalizer/test work with no hosted chat, live provider call, `.env` credential use, provider config change, public mutation, or broad runtime work. |
+| ARGUS code/test review | Pass | Existing route code and tests show the selected-pair finalizer path and the suspicious telemetry class; PR423 should make post-finalizer telemetry truthful and require reviewed import Memory/Canon labels locally. |
+| `git diff HEAD^ HEAD --check` | Pass | MIMIR preflight commit whitespace check passed. |
+| Added-line sensitive-pattern review | Pass | Matches were guardrail wording only, not secret values. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| Next validation target | Pending | DAEDALUS should prove both selected import Memory and Canon labels, paired supporting facts, safe reviewed-import provenance, and truthful finalizer metadata locally before another hosted chat proof. |
 
 Residual risk: PR423 is only a preflight. The route still needs a local
 contract/finalizer repair before the next hosted runtime answer proof.

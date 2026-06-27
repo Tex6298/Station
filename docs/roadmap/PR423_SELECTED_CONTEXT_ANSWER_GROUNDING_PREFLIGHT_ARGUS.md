@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: OPEN - ARGUS PREFLIGHT REQUESTED
+Status: ARGUS ACCEPTED - WAKE DAEDALUS
 Date: 2026-06-27
 
 ## Why This Exists
@@ -122,6 +122,59 @@ comes in a later lane after ARGUS accepts PR423.
   owner-visible answer, provided raw source metadata stays hidden?
 - Are `test:conversation-archive` and any replay-readiness observability tests
   enough local validation before another hosted chat proof?
+
+## ARGUS Review
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+ARGUS accepts PR423 as the right local-only lane after PR422. The scope is
+narrow enough because it targets only the private chat selected-context answer
+contract, selected-pair finalizer, focused route tests, and sanitized docs.
+
+Clarifications for DAEDALUS:
+
+- The finalizer telemetry semantics are part of PR423 and must be fixed if code
+  changes touch the finalizer. `finalizerSatisfied` must not be true when the
+  post-finalizer contract is still `missed_selected_labels`; the telemetry must
+  describe the actual post-finalizer answer.
+- The reviewed-import proof fixture must require both selected import-backed
+  Memory and selected import-backed Canon labels when the synthetic private
+  direct factual prompt asks for reviewed import context.
+- The final owner-visible answer must pair at least one supporting fact with
+  each required selected label, or return an explicit local failure reason.
+- Reviewed-import / owner-review provenance is safe to surface only as a
+  classification phrase such as `owner-reviewed import`; it must not include raw
+  source names, filenames, archive IDs, storage paths, provider payloads, or
+  private selected-context scaffolding.
+- Provider calls in tests must stay local/mocked. No hosted chat, no live model
+  invocation, no `.env` credential use, and no manual hosted retry are
+  authorized.
+
+ARGUS validation:
+
+- `git diff HEAD^ HEAD --check` passed for the MIMIR preflight commit.
+- Added-line sensitive-pattern review found guardrail wording only, not secret
+  values.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+
+Required DAEDALUS validation:
+
+- Run `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive`.
+- Run `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` if
+  observability metadata or finalizer payload shape changes.
+- Run `git diff --check` and an added-line sensitive-pattern scan before
+  waking ARGUS.
+- Record sanitized local evidence only: booleans/counts/reason codes, selected
+  safe labels, and pass/fail assertions. Do not record raw prompts, raw model
+  responses, raw IDs, source names, storage paths, provider payloads, bearer
+  material, cookies, or secret-shaped values.
 
 ## Expected Handoff If Accepted
 
