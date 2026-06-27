@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR417 register storagePath scope accepted
+
+ARGUS reviewed DAEDALUS's PR417 register storage-path scope repair:
+`docs/roadmap/PR417_PERSONA_FILE_REGISTER_STORAGE_PATH_SCOPE_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+Decision:
+
+- PR417 stayed inside the MIMIR lane and did not rerun the hosted PR415
+  upload/register/import proof.
+- `/persona-files/persona/:personaId/register` now rejects out-of-scope
+  caller-provided `storagePath` values before duplicate lookup, quota checks,
+  file insert, storage cleanup, or import job creation.
+- Valid upload-url-generated paths under the authenticated owner/requested
+  persona prefix still register successfully.
+- Wrong owner prefix, wrong persona prefix, leading slash, backslash, URL-like
+  value, query/hash, traversal, encoded slash/traversal-like fragments, empty
+  basename, and extra path segments reject with sanitized `Invalid storage
+  path.`.
+- Rejected attempts do not echo raw submitted paths and do not reserve storage,
+  insert file rows, or create import jobs.
+- Original owner-visible filenames and valid duplicate/idempotent registration
+  behavior remain preserved.
+- No hosted mutation, cleanup/deletion, public/community mutation, Continuity
+  publish, document creation, export, Assistant/forum action, billing/settings
+  action, Cloudflare, hosted runtime, queues/workers, parser breadth,
+  provider/model behavior, schema/migration, UI, or broad Archive redesign was
+  added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (18 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed; matches were test auth fixtures
+  only, not secret values.
+
+Current baton:
+
+- MIMIR has PR417.
+- MIMIR should close PR417 or decide whether to open a fresh ARGUS preflight for
+  a narrow hosted upload/register/import proof retry.
+- DAEDALUS should not run hosted upload/register/import proof without a fresh
+  MIMIR or ARGUS packet.
+
 ## Latest DAEDALUS result - PR417 register storagePath scope ready
 
 DAEDALUS completed PR417:

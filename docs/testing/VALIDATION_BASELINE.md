@@ -25,10 +25,11 @@ they are not Station validation failures.
 DAEDALUS completed PR417 on 2026-06-27:
 `docs/roadmap/PR417_PERSONA_FILE_REGISTER_STORAGE_PATH_SCOPE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
+| ARGUS review classification | Pass | PR417 is accepted as the direct register storage-path scope repair; hosted retry still needs a fresh MIMIR/ARGUS packet. |
 | Register prefix validation | Pass | `/persona-files/persona/:personaId/register` rejects storage paths outside the authenticated owner/requested persona prefix before duplicate lookup, quota checks, inserts, or import job creation. |
 | Sanitized rejection | Pass | Rejected paths return `{ "error": "Invalid storage path." }` without echoing raw submitted paths. |
 | Valid upload-url path | Pass | Valid paths returned by upload-url route still register successfully. |
@@ -39,7 +40,9 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Duplicate/idempotency | Pass | Valid same-path duplicate behavior remains idempotent. |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 18 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
-| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warnings only. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+| Added-line sensitive-pattern review | Pass | Matches were test auth fixtures only, not secret values. |
 
 Not run: web helper tests, web typecheck, hosted upload proof. PR417 changed
 only the API register route and API storage tests; no web code or hosted data

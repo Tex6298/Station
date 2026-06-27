@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: READY FOR ARGUS REVIEW
+Status: ACCEPTED BY ARGUS
 Date: 2026-06-27
 
 ## Scope
@@ -83,6 +83,46 @@ Not run:
 - Web helper tests, web typecheck, hosted upload proof.
   - Reason: PR417 changed only the API register route and API storage tests.
     No web code or hosted data path was touched.
+
+## ARGUS Review Verdict
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+ARGUS accepts PR417:
+
+- The implementation matches MIMIR's narrow register storage-path scope lane.
+- Register path validation runs after owner persona lookup and before duplicate
+  lookup, quota checks, file insert, storage cleanup, or import job creation.
+- Valid upload-url-generated paths under
+  `<ownerUserId>/<personaId>/<object-basename>` still register successfully.
+- Wrong owner prefix, wrong persona prefix, leading slash, backslash, URL-like
+  value, query/hash, traversal, encoded slash/traversal-like fragments, empty
+  basename, and extra path segments reject with the sanitized
+  `Invalid storage path.` response.
+- Rejected attempts do not echo raw submitted paths and do not reserve storage,
+  insert file rows, or create import jobs.
+- Original owner-visible filenames remain preserved in register/readback.
+- Valid duplicate/idempotent registration behavior remains keyed to the same
+  returned `storagePath`.
+- No hosted upload/register/import retry, signed upload URL request against
+  staging, cleanup/deletion, public/community mutation, Continuity publish,
+  document creation, export, Assistant/forum action, billing/settings action,
+  Cloudflare, hosted runtime, queues/workers, parser breadth,
+  provider/embedding/model behavior, schema/migration, UI, or broad Archive
+  redesign was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (18 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed; matches were test auth fixtures
+  only, not secret values.
 
 ## Residual Risk
 
