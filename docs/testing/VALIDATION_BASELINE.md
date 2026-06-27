@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-08A Persona Creation Provider Copy Opened
+
+MIMIR opened UX-08A on 2026-06-27:
+`docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_DAEDALUS.md`.
+
+Validation state: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-08 prerequisite | Pass | DAEDALUS found no broad onboarding/Assistant rebuild need and recommended only the provider-copy fix. |
+| Scope | Pending | DAEDALUS must keep scope to persona creation provider/channel copy and any tiny focused test/helper needed. |
+| Provider/runtime boundary | Pending | Provider routing, model calls, BYOK credential storage, provider settings, runtime selection, and AI package behavior must not change. |
+| Route boundary | Pending | Fresh Start, Awakening, and Document Migrator redirects must remain unchanged. |
+| Required validation | Pending | `test:studio-ui`, web typecheck or root typecheck, `lint`, `git diff --check`, and added-line sensitive-pattern scan. |
+
+Residual risk: until UX-08A lands and is reviewed, persona creation can point
+users at nonexistent Settings provider-key setup.
+
 ## UX-08 Onboarding And Station Assistant Feasibility Result
 
 DAEDALUS completed UX-08 feasibility on 2026-06-27:

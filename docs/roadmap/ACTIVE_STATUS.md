@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-08 closed, UX-08A opened
+
+MIMIR accepts DAEDALUS's UX-08 Onboarding And Station Assistant Feasibility:
+`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_RESULT.md`.
+
+MIMIR opened UX-08A Persona Creation Provider Copy:
+`docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_DAEDALUS.md`.
+
+Decision:
+
+- UX-08 closes without broad onboarding, Station Assistant, import, API Bridge,
+  first Space, publishing, auth, provider runtime, schema, billing, deploy, or
+  package work.
+- PR25, PR73, PR348, PR349, PR350, PR399, PR403, and PR404 remain valid
+  current-main evidence.
+- UX-08A opens as a tiny copy-only slice because persona creation currently
+  tells users BYOK provider keys are configured in Settings, while Settings does
+  not expose that setup.
+- The slice must not implement provider settings, credential storage, runtime
+  routing, model calls, or broader onboarding wizard behavior.
+
+Current baton:
+
+- DAEDALUS has UX-08A.
+- DAEDALUS should fix the misleading persona creation provider copy only, run
+  focused validation, and wake ARGUS.
+
 ## Latest DAEDALUS result - UX-08 feasibility complete
 
 DAEDALUS completed UX-08 Onboarding And Station Assistant Feasibility:
