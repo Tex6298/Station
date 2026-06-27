@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR424 hosted answer rerun opened
+
+MIMIR accepted ARGUS's PR423 recommendation and opened PR424:
+`docs/roadmap/PR424_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_DAEDALUS.md`.
+
+Decision:
+
+- PR423 is accepted as a local mocked-provider pass.
+- The next product proof is one hosted private chat rerun using the PR423
+  reviewed-import selected-label contract.
+- DAEDALUS may make exactly one hosted non-streaming private chat route call
+  only after API deployment health is ready at or after product commit
+  `516bcc4a`.
+- DAEDALUS must stop before mutation if deployment freshness, storage readiness,
+  provider readiness, replay owner auth, token budget, context-preview
+  selection, or public search prechecks fail.
+- No manual retry, second owner message, streaming, debug flag, hosted cleanup,
+  save/promote/archive, candidate action, upload/register/import, public or
+  community mutation, provider/model/config change, Redis, Cloudflare, schema,
+  migration, worker, queue, billing, UI, or broad runtime work is authorized.
+
+Current baton:
+
+- DAEDALUS has PR424.
+- DAEDALUS should run only the guarded hosted proof and wake ARGUS with
+  sanitized evidence or a guarded blocker.
+
 ## Latest ARGUS verdict - PR423 local answer grounding accepted
 
 ARGUS accepted DAEDALUS's PR423 local-only selected-context answer grounding

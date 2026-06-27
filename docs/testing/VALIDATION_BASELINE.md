@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR424 Import Memory Runtime Answer Rerun Opened
+
+MIMIR opened PR424 on 2026-06-27:
+`docs/roadmap/PR424_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_DAEDALUS.md`.
+
+Validation result: `HOSTED PROOF AUTHORIZED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| PR423 prerequisite | Pass | ARGUS accepted PR423 as local mocked-provider pass. |
+| Hosted scope | Pending | DAEDALUS may run exactly one hosted non-streaming private chat route call only after API deployment health is fresh at or after product commit `516bcc4a`. |
+| Required prechecks | Pending | Storage readiness, provider readiness, replay owner auth, token budget, context-preview selection, and public search prechecks must pass before mutation. |
+| Required postchecks | Pending | Route/persistence/privacy/public non-exposure and answer-contract label/fact checks must be recorded as sanitized assertions only. |
+
+Residual risk: PR424 is an opened hosted proof lane. It may spend one provider
+call and persist one private proof conversation if preconditions pass.
+
 ## PR423 Selected Context Answer Grounding Local Result
 
 DAEDALUS completed PR423 on 2026-06-27:
