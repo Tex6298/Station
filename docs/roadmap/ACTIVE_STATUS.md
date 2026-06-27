@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - operations proof preflight opened
+
+MIMIR accepted DAEDALUS's production/operations readiness delta as the current
+decision packet and opened an ARGUS preflight:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- Do not run fresh hosted operations proof yet.
+- First, ARGUS should define the exact read-only evidence packet, redaction
+  rules, docs-only deploy waiver rule, commit freshness rule, and failure
+  conditions.
+- The lane remains no-code, no-config, no-hosted-mutation, and no-production
+  claim.
+
+Current baton:
+
+- ARGUS has the production operations read-only proof preflight.
+- ARGUS should wake MIMIR with an accepted proof shape, no-immediate-ops-slice
+  recommendation, DAEDALUS patch request, or explicit MIMIR decision request.
+
 ## Latest DAEDALUS result - production operations delta complete
 
 DAEDALUS completed the no-code production/operations readiness delta:

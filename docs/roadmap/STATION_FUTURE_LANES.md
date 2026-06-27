@@ -103,6 +103,9 @@ readback copy patch in `DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`, and ARGUS
 accepted it. MIMIR then opened
 `PRODUCTION_OPERATIONS_READINESS_DELTA_DAEDALUS.md` because the next unresolved
 roadmap pressure is production/operations truth, not more cleanup churn.
+DAEDALUS recommended ARGUS preflight before any fresh hosted operations proof,
+so MIMIR opened
+`PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_ARGUS.md`.
 
 ## Current staged replay baton
 

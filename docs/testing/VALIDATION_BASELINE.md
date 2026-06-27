@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Operations Read-Only Proof Preflight
+
+MIMIR opened an ARGUS read-only proof preflight on 2026-06-27:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_ARGUS.md`.
+
+Validation status: open, awaiting ARGUS result.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| DAEDALUS delta prerequisite | Pass | DAEDALUS recommended ARGUS preflight before fresh hosted operations checks. |
+| Scope boundary | Open | Preflight is no-code, no-config, no-hosted-mutation, and no-production-claim. |
+| Evidence handling | Open | ARGUS must define allowed fields, forbidden fields, redaction rules, docs-only deploy waiver, commit freshness rule, and failure conditions. |
+| Current baton | Open | ARGUS should produce `PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_RESULT.md` and wake MIMIR. |
+
+Residual risk: no fresh hosted proof is authorized until ARGUS accepts the
+read-only packet shape.
+
 ## Production Operations Readiness Delta
 
 MIMIR opened a no-code production/operations readiness delta on 2026-06-27:
