@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR411 Hosted Cleanup Mutation Preflight Result
+
+ARGUS accepted PR411 on 2026-06-27:
+`docs/roadmap/PR411_HOSTED_CLEANUP_MUTATION_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at `ab272215738b`, after the PR409 route-story baseline `d2674abd`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at `ab272215738b`, after the PR407 cleanup baseline `c4b077d6`. |
+| Mutation scope | Pass | PR411 itself authorizes no mutation; DAEDALUS may run exactly one disposable hosted proof under the approved gates. |
+| Artifact isolation | Pass | Approved proof is limited to one synthetic unlisted owner document in an existing owner-owned route-safe Space, its linked discussion, at most one synthetic owner-authored comment, and deleting that exact document. |
+| Evidence redaction and stop conditions | Pass | Packet requires sanitized evidence, raw-ID/secret/private-data redaction, freshness rechecks, unrelated-route read-only sampling, and immediate stop on any failed gate. |
+| Scope control | Pass | No code, schema, provider, Redis, Cloudflare, worker, queue, billing, auth, deploy, broad UI, hosted runtime, or partner-adapter change is authorized. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment` | Pass | Public readiness and commit prefix checked; no secret values or raw IDs recorded. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment` | Pass | Public readiness and commit prefix checked; no secret values or raw IDs recorded. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Cached whitespace check passed. |
+
+Residual risk: the hosted cleanup mutation itself has not been run. DAEDALUS
+must stop and wake ARGUS on the first failed freshness, auth/session,
+artifact-isolation, cleanup-contract, unrelated-route, or redaction gate.
+
 ## PR409 Publishing Route-Story Copy Result
 
 ARGUS accepted PR409 on 2026-06-27:

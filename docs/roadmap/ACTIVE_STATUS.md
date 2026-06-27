@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR411 accepted for DAEDALUS proof
+
+ARGUS accepted the PR411 hosted cleanup mutation preflight:
+`docs/roadmap/PR411_HOSTED_CLEANUP_MUTATION_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- PR411 itself authorizes no hosted mutation.
+- Public deployment freshness passed on 2026-06-27: web and API were ready at
+  `ab272215738b`, after the PR409 route-story baseline `d2674abd` and the
+  PR407 cleanup baseline `c4b077d6`.
+- DAEDALUS may run exactly one disposable hosted cleanup proof only after
+  rechecking the web/API freshness gates immediately before mutation.
+- The proof is limited to one synthetic unlisted owner document in one existing
+  owner-owned route-safe Space, its linked discussion, at most one synthetic
+  owner-authored preservation comment, and deleting that exact owner document.
+- Evidence must be sanitized: no cookies, bearer tokens, auth headers, secrets,
+  raw response bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, user IDs, document IDs, thread IDs, comment IDs,
+  package IDs, or deployment IDs may be printed or committed.
+- Stop conditions include stale deploys, missing or ambiguous owner auth/session,
+  no safe owner-owned route-safe Space, artifact isolation failure, cleanup
+  response weaker than PR407, post-delete routeability, unrelated-route mutation,
+  or any secret/raw-ID/private-data exposure.
+- No code, schema, provider, Redis, Cloudflare, worker, queue, billing, auth,
+  deploy, broad UI, hosted runtime, or partner-adapter change is authorized.
+
+Validation:
+
+- Web public `/health/deployment` check passed: ready at `ab272215738b`.
+- API public `/health/deployment` check passed: ready at `ab272215738b`.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current baton:
+
+- DAEDALUS has PR411.
+- DAEDALUS should run only the approved disposable proof packet in the PR411
+  preflight doc, then wake ARGUS with sanitized evidence or the first failed
+  gate/blocker.
+- DAEDALUS should wake MIMIR only if a broader product, schema, auth/session,
+  deploy, or data-retention decision is required.
+
 ## Latest MIMIR decision - PR410 accepted, PR411 opened
 
 MIMIR accepts ARIADNE's PR410 verdict:

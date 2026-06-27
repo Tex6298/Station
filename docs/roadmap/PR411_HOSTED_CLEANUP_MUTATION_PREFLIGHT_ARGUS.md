@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: Open
+Status: Accepted by ARGUS for DAEDALUS proof
 
 ## Why This Exists
 
@@ -119,3 +119,125 @@ Task:
 ```
 
 Do not go idle without a wakeup commit.
+
+## ARGUS Preflight Verdict
+
+Verdict: `SAFE TO HAND TO DAEDALUS WITH HARD GUARDS`.
+
+PR411 itself still authorizes no hosted mutation. ARGUS accepts handing a
+single disposable hosted cleanup proof to DAEDALUS because the public deployment
+freshness checks passed and the mutation can be isolated to one synthetic owner
+document plus its linked discussion artifact.
+
+Observed public deployment freshness on 2026-06-27:
+
+- Web `/health/deployment`: ready at `ab272215738b`, after the PR409 route-story
+  baseline `d2674abd`.
+- API `/health/deployment`: ready at `ab272215738b`, after the PR407 cleanup
+  baseline `c4b077d6`.
+
+No secret values, cookies, bearer tokens, raw IDs, document bodies, private
+source rows, prompts, or user data were requested or recorded for this
+preflight.
+
+## Approved DAEDALUS Packet
+
+DAEDALUS may run exactly one hosted cleanup proof only if all gates below pass
+again immediately before mutation.
+
+Freshness gates:
+
+- Recheck web `/health/deployment`; require `ready: true` and commit at or
+  after `d2674abd`.
+- Recheck API `/health/deployment`; require `ready: true` and commit at or
+  after `c4b077d6`.
+- Record only service name, readiness, and commit prefix. Do not record
+  deployment ids or configuration detail.
+
+Artifact isolation:
+
+- Use the prepared replay owner only.
+- Select one existing owner-owned Station Space with a route-safe slug. If none
+  is available, stop.
+- Create exactly one disposable document with a title prefix:
+  `[cleanup-proof:pr411-YYYYMMDD-HHMM]`.
+- Use public-safe synthetic body text only, for example:
+  `Disposable cleanup proof. Contains no private source material.`
+- Use a route-safe slug derived from the same prefix.
+- Use `visibility: "unlisted"` and `commentsEnabled: true`.
+- Do not use archive, memory, continuity, imported source, customer, billing,
+  private persona, or accepted replay evidence as source material.
+
+Allowed hosted mutations:
+
+- Create one disposable owner document.
+- Publish that exact document as `unlisted` through the existing owner document
+  publish route.
+- Ensure or read its linked document discussion through existing document
+  discussion behavior.
+- Optionally create one synthetic owner-authored comment under that disposable
+  linked discussion solely to prove preservation. Do not use another account
+  and do not create more than one comment.
+- Delete that exact owner document through the authenticated owner
+  `DELETE /documents/:id` route.
+
+Required readbacks:
+
+- Pre-delete: owner document create/publish response exists for the disposable
+  artifact only.
+- Pre-delete: signed-out public document route for the disposable unlisted
+  artifact returns routeable readback.
+- Pre-delete: linked discussion route for the disposable artifact returns
+  routeable readback.
+- Pre-delete: one unrelated public/community route is sampled read-only before
+  cleanup and returns a stable HTTP success. Record only route class and status.
+- Delete response: HTTP `200` with `deleted: true`.
+- Delete response cleanup:
+  - `strategy` is `linked_discussion_tombstone`;
+  - `linkedDiscussionThreadsHidden` is at least `1`;
+  - `commentsDeleted` is `0`;
+  - `unrelatedThreadsTouched` is `0`;
+  - `commentsPreserved` is `1` if the optional synthetic comment was created,
+    otherwise `0`.
+- Post-delete: signed-out public document read for the disposable artifact is
+  hidden/not routeable.
+- Post-delete: signed-out linked discussion/thread read for the disposable
+  artifact is hidden/not routeable.
+- Post-delete: the sampled unrelated public/community route still returns a
+  stable HTTP success.
+
+Evidence and redaction rules:
+
+- Commit only sanitized evidence.
+- Do not print or commit cookies, bearer tokens, auth headers, Supabase keys,
+  Stripe values, API keys, raw response bodies, stack traces, SQL errors,
+  private source bodies, prompts, memory/archive content, owner/user ids, raw
+  document ids, raw thread ids, raw comment ids, raw package ids, or raw
+  deployment ids.
+- Redact any required identifier as `[redacted-document-id]`,
+  `[redacted-thread-id]`, `[redacted-comment-id]`, or `[redacted-owner-id]`.
+- Artifact title prefix, route class, HTTP status, deployment commit prefix,
+  cleanup counts, cleanup strategy, and pass/fail assertions are safe to record.
+
+Stop conditions:
+
+- Web or API deployment is stale or not ready.
+- Owner auth/session is missing, ambiguous, or would require exposing a secret.
+- No existing owner-owned route-safe Space is available.
+- More than one document or more than one optional comment would be needed.
+- The artifact cannot be kept synthetic and disposable.
+- Publish/readback does not create or expose a linked discussion for only the
+  disposable artifact.
+- Delete response is missing, non-`200`, or weaker than the PR407 contract.
+- Public document or linked discussion remains routeable after delete.
+- Any unrelated sampled route changes unexpectedly.
+- Any response shows a visible secret, raw token, private source body, raw id,
+  SQL error, stack trace, or non-synthetic private data.
+
+## ARGUS Handoff
+
+Wake DAEDALUS with this exact packet. DAEDALUS should either complete the
+single hosted cleanup proof and wake ARGUS with sanitized evidence, or stop at
+the first failed gate/stop condition and wake ARGUS with the blocker. MIMIR
+should only be woken instead if DAEDALUS discovers the proof requires broader
+product, schema, auth/session, deployment, or data-retention decisions.
