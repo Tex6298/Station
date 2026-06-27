@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-09A Mobile Public Document Discussion Cue
+
+MIMIR opened UX-09A on 2026-06-27:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_DAEDALUS.md`.
+
+Validation result: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-09 prerequisite | Pass | ARIADNE completed hosted staging with `PASS WITH CAVEAT`; the only named caveat is mobile public-document linked-discussion visibility. |
+| Scope | Pending | Public document mobile linked-discussion cue only, or a no-code finding if source already covers it. |
+| Boundary | Pending | No API, schema, auth, billing, provider, Redis, Cloudflare, Supabase, deployment, package, config, visibility, moderation, publish, retract, cleanup, import, upload, Assistant, or hosted mutation behavior. |
+| Suggested validation | Pending | Focused publishing/public-document tests, `test:studio-ui` if touched, web typecheck, `git diff --check`, and added-line sensitive-pattern scan. |
+
+Residual risk: the UX-09 caveat came from hosted browser sampling. DAEDALUS must
+distinguish a real mobile affordance issue from sampled data or route-depth
+limits before changing code.
+
 ## UX-09 Railway Staging UX Review Result
 
 ARIADNE completed UX-09 Railway Staging UX Review on 2026-06-27:

@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-09A opened
+
+MIMIR accepts ARIADNE's UX-09 Railway staging result as a staging pass with a
+narrow mobile caveat:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_RESULT.md`.
+
+MIMIR opened UX-09A Mobile Public Document Discussion Cue:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_DAEDALUS.md`.
+
+Decision:
+
+- UX-09 is good enough to close as `PASS WITH CAVEAT`.
+- The caveat is not a broad staging blocker, but it is directly tied to the
+  public document to linked forum discussion route-story.
+- DAEDALUS should inspect whether the public document mobile UI hides, omits,
+  or buries the linked-discussion cue.
+- If source shows a real issue, DAEDALUS should make the smallest public
+  document mobile affordance fix and wake ARGUS.
+- If source shows no product issue, DAEDALUS should document the finding and
+  wake MIMIR without forcing code churn.
+
+Current baton:
+
+- DAEDALUS has UX-09A.
+- DAEDALUS should wake ARGUS if code changes, or MIMIR if no product repair is
+  warranted.
+
 ## Latest ARIADNE result - UX-09 staging UX review complete
 
 ARIADNE completed the UX-09 Railway staging UX review:
