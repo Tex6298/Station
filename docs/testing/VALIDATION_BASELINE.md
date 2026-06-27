@@ -25,18 +25,25 @@ they are not Station validation failures.
 MIMIR opened artifact retention/deletion design on 2026-06-27:
 `docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_DAEDALUS.md`.
 
-Validation result: `OPEN - WAKE DAEDALUS`.
+DAEDALUS completed the no-code design on 2026-06-27:
+`docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
+
+Validation result:
+`TOMBSTONE CLEANUP REMAINS PROTECTED-ALPHA TRUTH - WAKE ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Hard-delete preflight prerequisite | Pass | ARGUS returned `DESIGN FIRST`; no DAEDALUS implementation packet is approved. |
 | Current cleanup truth | Pass | Tombstone cleanup remains the accepted protected-alpha behavior. |
-| Design boundary | Pending | DAEDALUS must map artifact lifecycle semantics before any code. |
-| Review path | Pending | DAEDALUS should wake ARGUS with a design packet, or wake MIMIR if blocked. |
-| Mutation boundary | Pending | This lane authorizes no hosted mutation, schema/storage change, product code, or cleanup button. |
+| Design boundary | Pass | DAEDALUS mapped document, discussion, community, Space, Developer Space, archive, Memory, Canon, Continuity, Integrity, export, AI Activity, search, cache, and hosted-proof lifecycle semantics. |
+| Review path | Pass | DAEDALUS wakes ARGUS for hostile review of the design packet. |
+| Mutation boundary | Pass | This lane changed docs only; it authorizes no hosted mutation, schema/storage change, product code, or cleanup button. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Passed after staging. |
+| Added-line sensitive-pattern scan | Pass | No matches before or after staging. |
 
-Residual risk: deletion semantics remain unaccepted until DAEDALUS produces a
-design packet and ARGUS reviews it.
+Residual risk: deletion semantics remain unaccepted until ARGUS reviews the
+design and wakes MIMIR or DAEDALUS.
 
 ## Hard-Delete Artifact Removal Preflight
 

@@ -89,6 +89,12 @@ hard-delete cleanup and artifact removal preflight, ARGUS first.
 tombstone cleanup stays accepted protected-alpha truth, and full hard-delete
 artifact removal needs a product/data-retention design before implementation.
 
+2026-06-27 retention design update: DAEDALUS completed
+`ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md` and recommends keeping full
+hard-delete artifact removal deferred. The only safe future implementation
+shape, if ARGUS accepts and MIMIR opens it, is narrow receipt/readback
+hardening around the existing owner document delete tombstone contract.
+
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with

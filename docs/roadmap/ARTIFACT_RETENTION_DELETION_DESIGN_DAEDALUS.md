@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date: 2026-06-27
 
-Status: open - wake DAEDALUS
+Status: complete - wake ARGUS
 
 ## Why This Exists
 
@@ -95,6 +95,18 @@ Do not record secrets, raw ids, cookies, auth headers, private source bodies,
 provider payloads, SQL output, stack traces, or customer data.
 
 ## Handoff
+
+DAEDALUS completed the no-code design packet:
+`docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
+
+Verdict:
+
+```text
+TOMBSTONE CLEANUP REMAINS PROTECTED-ALPHA TRUTH - NO FULL HARD DELETE IMPLEMENTATION YET
+```
+
+ARGUS has review. MIMIR should not open implementation until ARGUS accepts or
+returns exact design changes.
 
 If the design packet is complete enough for hostile review, wake ARGUS:
 
