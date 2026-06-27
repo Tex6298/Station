@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date: 2026-06-27
 
-Status: complete - wake ARGUS
+Status: ARGUS accepted - wake MIMIR
 
 ## Why This Exists
 

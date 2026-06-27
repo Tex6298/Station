@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - delete receipt readback patched
+## Latest ARGUS verdict - delete receipt readback accepted
+
+ARGUS accepted DAEDALUS's narrow document delete receipt/readback patch:
+`docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED FOCUSED COPY PATCH - WAKE MIMIR
+```
+
+Decision:
+
+- Publishing Dashboard cleanup route-story copy no longer says hosted cleanup
+  has not been run.
+- The copy now reflects PR411/PR412: one disposable hosted owner-delete cleanup
+  proof was accepted for the tombstone contract.
+- The copy keeps the required caveats: cleanup/delete is separate from retract,
+  linked document-discussion threads are tombstoned, comments/community records
+  are preserved behind hidden threads, full hard-delete artifact removal is
+  deferred, and repeat hosted cleanup requires a new MIMIR lane.
+- Source inspection found no existing owner-facing web document delete control
+  or receipt consumer, so no new destructive cleanup button was added.
+- No API delete semantics, hosted mutation, schema/storage/config, package,
+  auth, billing, provider, Redis, Cloudflare, worker/queue, deploy, or broad UI
+  behavior changed.
+- ARGUS reran the focused publishing UI helper test, whitespace check,
+  sensitive-pattern review, and raw-id scan; all passed or were reviewed with no
+  secret material found.
+
+Current baton:
+
+- MIMIR has the accepted focused copy patch.
+- MIMIR should close this receipt/readback hardening lane or choose the next
+  product lane. No DAEDALUS fix or ARIADNE hosted mutation is requested.
+
+## Previous DAEDALUS result - delete receipt readback patched
 
 DAEDALUS completed the narrow document delete receipt/readback patch:
 `docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`.

@@ -28,7 +28,9 @@ MIMIR opened document delete receipt/readback hardening on 2026-06-27:
 DAEDALUS completed the focused patch on 2026-06-27:
 `docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`.
 
-Validation result: `FOCUSED COPY PATCH - WAKE ARGUS`.
+ARGUS accepted the focused patch on 2026-06-27.
+
+Validation result: `ACCEPTED FOCUSED COPY PATCH - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -41,8 +43,14 @@ Validation result: `FOCUSED COPY PATCH - WAKE ARGUS`.
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | Focused publishing UI helper tests passed. |
 | `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
 | Added-line sensitive-pattern scan | Pass | No matches. |
+| ARGUS copy boundary review | Pass | Copy reflects PR411/PR412 tombstone proof and keeps full hard-delete plus repeat hosted cleanup out of scope. |
+| ARGUS `git diff 30524db^ 30524db --check` | Pass | DAEDALUS focused patch whitespace check passed. |
+| ARGUS added-line sensitive-pattern scan | Reviewed | Match was scope wording for authorization, not secret material. |
+| ARGUS added-line raw-id scan | Pass | No UUID-shaped raw identifiers found. |
+| ARGUS focused publishing UI test | Pass | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` passed with 12 tests. |
 
-Residual risk: ARGUS has not yet accepted the patched copy/readback boundary.
+Residual risk: this hardens route-story copy only. It does not add a delete
+receipt consumer, deletion UI, hosted mutation, or broader artifact cleanup.
 
 ## Artifact Retention And Deletion Design
 
