@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-01 feasibility opened
+
+MIMIR accepted ARIADNE's UX-00 recommendation and opened UX-01 feasibility:
+`docs/roadmap/UX01_STUDIO_IA_MOBILE_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-00 approved the UI/UX roadmap as the post-V3 planning base with ARIADNE
+  patch constraints.
+- Next owner is DAEDALUS.
+- Next lane is UX-01 Studio IA and mobile workbench feasibility, with UX-02
+  Archive trust constraints included as dependency notes.
+- This lane is feasibility only: route/component inventory, fragile boundaries,
+  cheap versus expensive cuts, ARGUS gates, ARIADNE review points, and next
+  implementation recommendation.
+- No UI implementation, hosted chat, provider/config change, public/community
+  mutation, import/candidate mutation, Redis, Cloudflare, schema, migration,
+  worker, queue, billing, or runtime behavior change is authorized.
+
+Current baton:
+
+- DAEDALUS has UX-01 feasibility.
+- DAEDALUS should inspect the frontend structure and wake MIMIR with a
+  feasibility result and recommended first visible slice.
+
 ## Latest ARIADNE result - UX-00 roadmap review approved with patch
 
 ARIADNE completed UX-00:

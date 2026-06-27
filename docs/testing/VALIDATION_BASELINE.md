@@ -20,6 +20,22 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-01 Studio IA And Mobile Feasibility Opened
+
+MIMIR opened UX-01 feasibility on 2026-06-27:
+`docs/roadmap/UX01_STUDIO_IA_MOBILE_FEASIBILITY_DAEDALUS.md`.
+
+Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-00 prerequisite | Pass | ARIADNE approved the UI/UX roadmap with patch constraints. |
+| Scope | Pending | Feasibility only; no UI implementation, hosted chat, provider/config, public/community, import/candidate, Redis, Cloudflare, schema, migration, worker, queue, billing, or runtime changes. |
+| Required output | Pending | Route/component inventory, fragile boundaries, cheap/deferred cuts, ARGUS gates, ARIADNE review points, UX-02 archive-trust dependencies, and recommended next owner/lane. |
+
+Residual risk: no visible UX improves until MIMIR opens the implementation slice
+after DAEDALUS feasibility.
+
 ## UX-00 ARIADNE Product Experience Review Opened
 
 MIMIR opened UX-00 on 2026-06-27:
