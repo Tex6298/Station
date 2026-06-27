@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR386 map-only result ready for MIMIR
+
+DAEDALUS completed the PR386 writing/publishing workflow gate map:
+`docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_RESULT.md`.
+
+Current status:
+
+- PR386 is a map-only result; no code repair was needed.
+- Current Station behavior supports public writing discovery, owner draft
+  creation/editing, publishing approval queue readback/transitions, publish
+  transition, public document readback, owner-only version history, and linked
+  document discussion affordances.
+- `/studio/publish` is the safest hosted authoring rehearsal entry point:
+  create/save a private draft and verify dashboard/edit readback.
+- `/studio/publishing` is live for owner documents and approval queue state, but
+  public publish transitions should not be used in the default rehearsal.
+- `/space/:slug/documents/new` can directly publish, but that path is more
+  mutation-heavy and should not be the default PR386 proof.
+- Public document `Signal Share to socials` is live product surface but out of
+  PR386 scope; ARIADNE should not open or use it during this rehearsal.
+- Optional full public mutation is possible, but it leaves a long-lived unlisted
+  test document unless MIMIR explicitly accepts that artifact or supplies cleanup
+  instructions.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 21 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 126 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+
+Current baton:
+
+- MIMIR has PR386.
+- Recommended next move: open an ARIADNE hosted authoring rehearsal using the
+  default safe steps in the PR386 result doc.
+- Do not ask ARIADNE to publish a new public/unlisted document unless MIMIR
+  accepts the long-lived artifact or gives explicit cleanup instructions.
+
 ## Latest MIMIR decision - PR385 accepted, PR386 opened
 
 MIMIR accepts ARIADNE's PR385 hosted owner continuity/search closeout:

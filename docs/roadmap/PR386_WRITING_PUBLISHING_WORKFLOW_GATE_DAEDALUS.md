@@ -2,7 +2,7 @@
 
 Opened: 2026-06-27
 Owner: DAEDALUS
-Status: open
+Status: map-only result; ready for MIMIR decision
 
 ## Purpose
 
@@ -111,3 +111,45 @@ Include:
 - exact buttons/routes that are live versus preview-only;
 - validation run;
 - residual risks and recommended next owner.
+
+## DAEDALUS Result
+
+Result doc:
+`docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_RESULT.md`.
+
+DAEDALUS found no code repair needed before a bounded hosted authoring
+rehearsal.
+
+Current route/API truth:
+
+- `/writing` is the public writing index and routes `Write` to
+  `/studio/publish`.
+- `/studio/publish` creates/updates drafts through `/documents` and enqueues
+  review through `/publishing/approvals`.
+- `/studio/publishing` lists owner documents and approval items, then exposes
+  guarded `Review`, `Human review`, `Approve`, `Publish`, and `View` controls.
+- approval publish transitions update the Space-backed owner document to
+  `published` with public/community/unlisted visibility.
+- public document routes already show trust/provenance/version/discussion
+  readback.
+- Space-local `/space/:slug/documents/new` can directly publish but is more
+  mutation-heavy than the recommended PR386 rehearsal path.
+
+Recommendation:
+
+- Wake MIMIR with the map-only result.
+- Recommend ARIADNE run the default safe rehearsal in the result doc: save a
+  private draft, verify dashboard/edit readback, then inspect an existing replay
+  public document for trust/version/discussion readback.
+- Do not run the optional full public mutation unless MIMIR explicitly accepts a
+  long-lived unlisted test artifact or supplies cleanup instructions.
+
+Validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:writing`;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`;
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions`;
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck`;
+- `git diff --check`.

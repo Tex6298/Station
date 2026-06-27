@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR386 Writing Publishing Workflow Gate Result
+
+DAEDALUS completed PR386 on 2026-06-27:
+`docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_RESULT.md`.
+
+Validation result: `MAP-ONLY RESULT READY FOR MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Route map | Pass | `/writing`, `/studio/publish`, `/studio/publishing`, Space-local new document, public document readback, and discussion affordances are mapped. |
+| Live controls | Pass | Draft save, review enqueue, approval transitions, publish transition, public view, edit return, and discussion start/readback are live behind existing guards. |
+| Preview/deferred controls | Pass | Staff picks, rich formatting toolbar, external connectors, and scheduling are disabled/deferred. Social composer is live but explicitly out of PR386 rehearsal scope. |
+| Hosted rehearsal recommendation | Pass | Default safe proof saves a private draft and verifies dashboard/edit/public readback without publishing a new public artifact. Optional full publish is gated on MIMIR approval. |
+| Scope control | Pass | No code changed; no Station Press, social dispatch, scheduled publishing, rich text, checkout, provider, Redis, Cloudflare, worker, queue, schema, migration, billing, or broad redesign opened. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 21 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 126 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 13 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed. |
+
+Residual risk: The optional full public publish proof leaves a long-lived
+unlisted test document unless MIMIR accepts the artifact or supplies cleanup
+instructions.
+
 ## PR384 AI Activity Trace Availability Result
 
 ARGUS accepted PR384 on 2026-06-27:
