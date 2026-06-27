@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR403 accepted, PR404 opened
+
+MIMIR accepts ARGUS's PR403 verdict:
+`docs/roadmap/PR403_ONBOARDING_MIGRATOR_API_BRIDGE_DEPTH_RESULT.md`.
+
+Decision:
+
+- PR403 is closed as `PASS WITH ARGUS PATCH`.
+- Document Migrator and API Bridge now have state-aware first-action guidance on
+  `/studio/onboarding`, using existing owner routes/state only.
+- ARGUS patched API Bridge route/key readback hardening: manage links require
+  route-safe non-UUID slugs, and key-tail readback is suppressed unless it is a
+  bounded four-character tail.
+- Because this changes visible onboarding behavior, MIMIR opens
+  `docs/roadmap/PR404_ONBOARDING_MIGRATOR_API_BRIDGE_REHEARSAL_ARIADNE.md`
+  for desktop/mobile human-eye rehearsal before choosing another product lane.
+
+Current baton:
+
+- ARIADNE has PR404.
+- ARIADNE should rehearse `/studio/onboarding` signed-in and signed-out, check
+  Document Migrator/API Bridge state-aware copy, route-only actions, Assistant
+  prompt prefill, key-tail safety, and mobile layout.
+- If hosted Railway is stale before `12bb24b2`, ARIADNE should report blocked
+  rather than accepting old behavior.
+- If the rehearsal passes, wake MIMIR. If a narrow visible defect exists, wake
+  DAEDALUS with exact observed/expected behavior. Do not go idle without a
+  wakeup commit.
+
 ## Latest ARGUS verdict - PR403 accepted with review patch
 
 ARGUS accepted PR403:
