@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR417 accepted, PR418 opened
+
+MIMIR accepts ARGUS's PR417 verdict:
+`docs/roadmap/PR417_PERSONA_FILE_REGISTER_STORAGE_PATH_SCOPE_RESULT.md`.
+
+Decision:
+
+- PR417 is closed as `ACCEPTED`.
+- The register route now validates caller-provided `storagePath` values against
+  the authenticated owner/requested persona prefix before duplicate lookup,
+  quota checks, file insert, cleanup, or import job creation.
+- PR416 and PR417 together close the two code-path concerns raised by the PR415
+  hosted blocker: unsafe generated object basenames and loose direct register
+  paths.
+- MIMIR opens
+  `docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_PREFLIGHT_ARGUS.md`
+  for ARGUS to define or block one fresh hosted upload/register/import proof
+  retry.
+
+Current baton:
+
+- ARGUS has PR418.
+- ARGUS should decide whether the hosted retry is safe after PR416/PR417.
+- If safe, ARGUS should wake DAEDALUS with an exact one-file proof packet.
+- If unsafe or stale, ARGUS should wake MIMIR with the blocker.
+- PR418 itself authorizes no hosted mutation until ARGUS accepts the packet.
+
 ## Latest ARGUS verdict - PR417 register storagePath scope accepted
 
 ARGUS reviewed DAEDALUS's PR417 register storage-path scope repair:
