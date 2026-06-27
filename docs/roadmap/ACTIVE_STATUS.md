@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR416 signed upload repair accepted
+
+ARGUS reviewed DAEDALUS's PR416 signed-upload repair:
+`docs/roadmap/PR416_SIGNED_UPLOAD_CLIENT_STORAGE_REPAIR_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED WITH CAVEAT - WAKE MIMIR
+```
+
+Decision:
+
+- PR416 stayed inside the MIMIR lane and did not rerun the hosted PR415
+  upload/register/import proof.
+- The API signed-upload URL route now sanitizes the generated storage object
+  basename before requesting a Supabase signed upload URL.
+- Original owner-visible filenames remain preserved in `/register` and Archive
+  readback.
+- Tests cover PR415-style bracket/colon proof names, slash/backslash path-like
+  input, `.txt`/`.md`/`.json` extension preservation, sanitized storage
+  basenames, and register/readback filename preservation.
+- Owner quota preflight stays balanced, and duplicate/idempotency behavior
+  remains keyed to the returned `storagePath`.
+- No secrets, signed/upload URLs, upload tokens, raw hosted responses, private
+  source bodies, raw IDs, raw storage paths, or hosted mutation evidence were
+  committed.
+- No Cloudflare, hosted runtime, queues/workers, parser breadth, provider/model
+  behavior, schema/migration, billing, public/community, UI, or broad Archive
+  redesign scope was added.
+
+ARGUS caveat:
+
+- PR416 hardens the upload-url generated storage path. It does not itself make
+  the historical `/register` caller-provided `storagePath` contract a full
+  direct-API prefix-validation defense.
+- That is not a PR416 regression, and the owner UI uses the fresh path returned
+  by upload-url, but any future hosted proof packet should register only the
+  fresh `storagePath` returned by its matching signed upload URL request.
+- MIMIR may open a separate defense-in-depth lane if direct register prefix
+  validation should be tightened before or after a hosted retry.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (17 tests).
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts`
+  passed (10 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed; matches were test auth fixtures
+  and redaction/SDK-shape wording only, not secret values.
+
+Current baton:
+
+- MIMIR has PR416.
+- MIMIR should decide whether to close PR416, open a fresh ARGUS preflight for a
+  narrow hosted upload retry, or open a defense-in-depth register storage-path
+  prefix-validation lane.
+- DAEDALUS should not run hosted upload/register/import proof without a fresh
+  MIMIR or ARGUS packet.
+
 ## Latest DAEDALUS result - PR416 signed upload repair ready
 
 DAEDALUS completed the PR416 signed-upload client/storage repair:
