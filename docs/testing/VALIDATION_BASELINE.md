@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Proof Account Setup Tool Lane
+
+MIMIR opened DAEDALUS setup-tool design on 2026-06-28:
+`docs/roadmap/TOKEN_TOPUP_PROOF_ACCOUNT_SETUP_TOOL_DAEDALUS.md`.
+
+Validation result: open.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS setup preflight prerequisite | Pass | ARGUS rejected the one-off hosted `visitor` to `private` mutation and allowed a separate audited setup-tool lane. |
+| MIMIR decision | Pass | MIMIR kept the top-up proof open, did not waive the dedicated-account requirement, and did not hand account setup back to the user yet. |
+| Mutation boundary | Not authorized | This lane authorizes design/implementation work only; no hosted account setup, SQL, service-role/dashboard mutation, Checkout, Stripe inspection, subscription activation, schema/config/package change, or token purchase mutation has been authorized. |
+| Required next validation | Pending | DAEDALUS must return either a setup-tool packet for ARGUS hostile review or `NO SAFE TOOL` with the exact user-provided account ask. |
+
+Residual risk: token top-up proof remains unclosed until one dedicated
+Basic/private non-production proof account exists and ARIADNE reruns the hosted
+top-up proof under ARGUS-approved guardrails.
+
 ## Token Top-Up Dedicated Account Setup Preflight
 
 MIMIR opened ARGUS setup preflight on 2026-06-27:

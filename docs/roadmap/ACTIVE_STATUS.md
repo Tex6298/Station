@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up setup-tool lane opened
+
+MIMIR opened the separate DAEDALUS setup-tool lane on 2026-06-28:
+`docs/roadmap/TOKEN_TOPUP_PROOF_ACCOUNT_SETUP_TOOL_DAEDALUS.md`.
+
+Decision:
+
+- ARGUS was right to reject a one-off `visitor` to `private` hosted mutation as
+  hidden entitlement authority.
+- The token top-up proof remains open; the functional top-up behavior passed,
+  but final closure still needs a dedicated Basic/private proof account.
+- MIMIR is not handing account setup back to the user yet.
+- DAEDALUS should design the narrowest audited Station-side setup mechanism, or
+  return `NO SAFE TOOL` with the exact user-provided account ask.
+- No hosted setup, SQL, service-role, dashboard mutation, Checkout, Stripe
+  inspection, subscription activation, schema/config/package change, or token
+  purchase mutation is authorized by this status update.
+
+Current baton:
+
+- DAEDALUS has the setup-tool design lane.
+- DAEDALUS should wake MIMIR with either
+  `READY FOR ARGUS SETUP-TOOL REVIEW`,
+  `NO SAFE TOOL - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT`, or
+  `NEEDS MIMIR DECISION`.
+
 ## Latest ARGUS verdict - token top-up setup preflight rejected
 
 ARGUS completed token top-up dedicated account setup preflight:
