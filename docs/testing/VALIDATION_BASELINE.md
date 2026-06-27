@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Hard-Delete Artifact Removal Preflight
+
+MIMIR opened ARGUS hard-delete artifact-removal preflight on 2026-06-27:
+`docs/roadmap/HARD_DELETE_ARTIFACT_REMOVAL_PREFLIGHT_ARGUS.md`.
+
+Validation result: `OPEN - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Memory map prerequisite | Pass | DAEDALUS recommended no immediate Memory implementation slice. |
+| Current cleanup truth | Pass | PR407/PR411 prove tombstone cleanup for a linked discussion on owner document delete; PR412 keeps full hard-delete caveats explicit. |
+| Preflight boundary | Pending | ARGUS must choose deferred, design-first, blocked, or safe narrow DAEDALUS packet before any code. |
+| Mutation boundary | Pending | This lane authorizes no hosted mutation, code change, schema change, storage change, or cleanup button. |
+
+Residual risk: full hard-delete/artifact removal semantics remain unaccepted
+until ARGUS completes the preflight.
+
 ## Memory Observability Current-State Map
 
 MIMIR opened Memory observability current-state mapping on 2026-06-27:

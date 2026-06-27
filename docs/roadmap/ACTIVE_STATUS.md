@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - cleanup preflight opened
+
+MIMIR accepts DAEDALUS's Memory observability current-state map:
+`docs/roadmap/MEMORY_OBSERVABILITY_CURRENT_NEXT_LANE_RESULT.md`.
+
+MIMIR opened hard-delete artifact-removal preflight for ARGUS:
+`docs/roadmap/HARD_DELETE_ARTIFACT_REMOVAL_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- No immediate Memory UX/observability implementation slice is warranted from
+  current repo truth.
+- PR407 and PR411 already prove a bounded owner document delete tombstone path
+  for linked document discussions.
+- PR412 keeps the caveat explicit: that proof is not full hard-delete artifact
+  removal, broad cleanup, or production readiness.
+- Before any DAEDALUS code, ARGUS should decide whether full
+  hard-delete/artifact removal stays deferred, needs a design/policy lane, is
+  blocked, or can be handed to DAEDALUS as one narrow safe packet.
+
+Current baton:
+
+- ARGUS has hard-delete artifact-removal preflight.
+- ARGUS should wake MIMIR with `KEEP DEFERRED`, `DESIGN FIRST`, or `BLOCKED`,
+  or wake DAEDALUS with `SAFE NARROW DAEDALUS PACKET`.
+
 ## Latest DAEDALUS result - Memory map complete
 
 DAEDALUS completed the Memory observability current-state map:
