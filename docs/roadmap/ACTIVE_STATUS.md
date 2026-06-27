@@ -4,31 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - UX-02C opened
+## Latest DAEDALUS result - UX-02C ready for ARGUS
 
-MIMIR accepts DAEDALUS's UX-02 feasibility recommendation and opens UX-02C:
-`docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_DAEDALUS.md`.
+DAEDALUS implemented UX-02C Global Archive Trust Readback and Rehearsal:
+`docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_RESULT.md`.
 
 Decision:
 
-- UX-02 feasibility is accepted as the current Archive/export/storage map.
-- Per-persona Archive trust, import source wording, storage/quota readback,
-  persona export status, Export Workspace trust mapping, and live owner-scoped
-  Global Archive search already exist.
-- The next smallest visible slice is Global Archive trust readback and
-  rehearsal, because older notes that call Global Archive static are stale and
-  current `/studio/archive` needs a current acceptance trail.
-- Scope is narrow: clarify `/studio/archive` and its relation to per-persona
-  Archive, Export Workspace, and storage/quota. Do not touch storage accounting,
-  upload/register, import parsing, candidate mutation, export assembly,
-  auth/session, runtime retrieval/context, provider/model, Redis, Cloudflare,
-  schema, migrations, workers, queues, Railway, or Supabase config.
+- The patch keeps scope narrow to Global Archive readback and related
+  helper/route-story copy.
+- `/studio/archive` now has a tested route-map that distinguishes Global
+  Archive search from per-persona Archive source intake, Export Workspace
+  package readback, and Settings storage/quota.
+- Empty, error, partial-search, and overview copy now explicitly keep existing
+  Archive material owner-only, private, safe, and preserved.
+- No API route, storage accounting, upload/register, import parser, candidate
+  mutation, export assembly, auth/session, runtime retrieval/context,
+  provider/model, public/community visibility, Redis, Cloudflare, schema,
+  migration, worker, queue, Railway, or Supabase config behavior changed.
+- Validation is green for whitespace, `test:studio-ui`,
+  `test:conversation-archive`, `test:exports`, `typecheck`, and `lint`.
+  Build compiled and generated static pages before the known local Windows
+  standalone symlink `EPERM` caveat.
 
 Current baton:
 
-- DAEDALUS has UX-02C.
-- DAEDALUS should implement the smallest visible Global Archive trust readback
-  slice or stop with a precise blocker, then wake ARGUS.
+- ARGUS has UX-02C technical/boundary review.
+- If ARGUS accepts, ARGUS should wake ARIADNE for visible desktop and
+  375px/390px rehearsal.
 
 ## Latest DAEDALUS result - UX-02 feasibility complete
 

@@ -7,6 +7,7 @@ import {
   archiveSearchReadbackCopy,
   archiveSearchTypeParam,
   archiveSearchUsesBackend,
+  globalArchiveTrustBoundaryRows,
 } from "./archive-search";
 import {
   ARCHIVE_FILE_IMPORT_ACCEPT,
@@ -159,6 +160,29 @@ test("archive search readback groups owner-only results honestly", () => {
     archiveSearchReadbackCopy({ filter: "All", query: "lantern", sort: "date" }, 3, 2).body,
     /2 archive sources could not be searched/,
   );
+  assert.match(
+    archiveSearchReadbackCopy({ filter: "All", query: "", sort: "date" }, 3).body,
+    /persona Archive tabs/,
+  );
+});
+
+test("global archive boundary rows separate archive, export, and storage surfaces", () => {
+  const rows = globalArchiveTrustBoundaryRows();
+  const rendered = JSON.stringify(rows);
+
+  assert.deepEqual(rows.map((row) => row.id), [
+    "global-archive",
+    "persona-archive",
+    "export-workspace",
+    "storage-quota",
+  ]);
+  assert.equal(rows.find((row) => row.id === "global-archive")?.href, "#archive-search-input");
+  assert.match(rendered, /owner-only material/);
+  assert.match(rendered, /source intake/);
+  assert.match(rendered, /portable bundle readback/);
+  assert.match(rendered, /server-reported storage usage/);
+  assert.match(rendered, /does not create public download URLs/);
+  assert.doesNotMatch(rendered, /full original-file backup|global managed backup|creates public download/i);
 });
 
 test("archive source narrative explains import safety and visibility", () => {

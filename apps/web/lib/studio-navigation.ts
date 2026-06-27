@@ -132,10 +132,10 @@ const studioStaticRouteContexts: StudioRouteContext[] = [
   {
     label: "Global Archive",
     href: "/studio/archive",
-    detail: "Owner-only archive search",
+    detail: "Live owner-only archive search",
     privacy: "Private archive",
-    state: "Searches stay inside preserved owner-only archive material.",
-    nextAction: { label: "Open Personas", href: "/studio" },
+    state: "Global Archive searches preserved owner-only material; persona Archive tabs handle source intake.",
+    nextAction: { label: "Review Exports", href: "/studio/export" },
   },
   {
     label: "Export Workspace",

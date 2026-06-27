@@ -10,7 +10,9 @@ import {
   archiveSearchPath,
   archiveSearchReadbackCopy,
   archiveSearchUsesBackend,
+  globalArchiveTrustBoundaryRows,
   type ArchiveSearchGroupRow,
+  type GlobalArchiveTrustBoundaryRow,
 } from "@/lib/archive-search";
 import { archiveSourceNarrative } from "@/lib/archive-trust";
 import { getSession } from "@/lib/auth";
@@ -82,8 +84,8 @@ export function ArchiveLibrary() {
         }
         setItems(data.items ?? []);
         setWarnings(data.warnings ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Could not load archive.");
+      } catch {
+        setError("Could not load Global Archive. Existing archive material remains owner-only and safe; try again or check your session.");
       } finally {
         setLoading(false);
       }
@@ -110,6 +112,7 @@ export function ArchiveLibrary() {
   const failedCount = summarySource.filter((item) => item.status === "failed").length;
   const queuedCount = summarySource.filter((item) => ["queued", "processing", "in_progress"].includes(item.status)).length;
   const sourceNarrative = archiveSourceNarrative();
+  const boundaryRows = useMemo(() => globalArchiveTrustBoundaryRows(), []);
 
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "var(--station-page-bg)", color: "var(--station-page-text)" }}>
@@ -126,7 +129,10 @@ export function ArchiveLibrary() {
               Live owner-only view across imports, uploaded files, archived chats, Integrity Sessions, documents, memory, and canon-adjacent material.
             </p>
           </div>
-          <Link href="/studio/assistant" style={primaryButton}>Ask Assistant</Link>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "flex-end", flexWrap: "wrap" }}>
+            <span style={ownerOnlyPill}>Live owner-only</span>
+            <Link href="/studio/assistant" style={primaryButton}>Ask Assistant</Link>
+          </div>
         </header>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10, marginBottom: 18 }}>
@@ -143,6 +149,8 @@ export function ArchiveLibrary() {
             <p style={{ margin: 0 }}>{sourceNarrative.visibility}</p>
           </div>
         </section>
+
+        <GlobalArchiveBoundaryPanel rows={boundaryRows} />
 
         {!signedIn && !loading ? <section style={panel}>Sign in to view your private archive.</section> : null}
         {loading ? <section style={panel}>Loading archive...</section> : null}
@@ -179,7 +187,7 @@ export function ArchiveLibrary() {
               </div>
             </aside>
 
-            <section style={{ display: "grid", gap: 14, minWidth: 0 }}>
+            <section id="archive-results" style={{ display: "grid", gap: 14, minWidth: 0 }}>
               <div style={panel}>
                 <label htmlFor="archive-search-input" style={{ display: "block", color: "var(--station-page-text)", fontSize: 13, fontWeight: 800, marginBottom: 8 }}>
                   Search private archive
@@ -242,7 +250,7 @@ export function ArchiveLibrary() {
 
               {visibleItems.length === 0 ? (
                 <div style={{ ...panel, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
-                  No archive items match this view. Your existing material remains private and owner-only; broaden the search or add source material from a persona Archive tab.
+                  No Global Archive items match this view. Existing material remains private and safe; broaden the search, add source material from a persona Archive tab, or use Export Workspace for package readback.
                 </div>
               ) : null}
             </section>
@@ -250,6 +258,32 @@ export function ArchiveLibrary() {
         ) : null}
       </div>
     </main>
+  );
+}
+
+function GlobalArchiveBoundaryPanel({ rows }: { rows: GlobalArchiveTrustBoundaryRow[] }) {
+  return (
+    <section style={{ marginBottom: 18 }} aria-label="Global Archive boundaries">
+      <div style={{ maxWidth: 760, marginBottom: 10 }}>
+        <h2 style={{ ...sectionTitle, marginBottom: 6 }}>Archive route map</h2>
+        <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
+          Global Archive is the live owner-wide search surface. Persona Archive tabs handle source intake, Export Workspace handles portable package readback, and Settings reports storage usage.
+        </p>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 10 }}>
+        {rows.map((row) => (
+          <article key={row.id} style={boundaryCard}>
+            <h3 style={{ margin: 0, color: "var(--station-page-text)", fontSize: 14, lineHeight: 1.3 }}>
+              {row.label}
+            </h3>
+            <p style={{ margin: "8px 0 14px", color: "var(--station-page-muted)", fontSize: 12, lineHeight: 1.55 }}>
+              {row.body}
+            </p>
+            <Link href={row.href} style={boundaryLink}>{row.actionLabel}</Link>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -374,6 +408,13 @@ const card = {
   flexDirection: "column" as const,
 };
 
+const boundaryCard = {
+  ...panel,
+  minHeight: 178,
+  display: "flex",
+  flexDirection: "column" as const,
+};
+
 const sectionTitle = {
   margin: "0 0 12px",
   color: "var(--station-page-text)",
@@ -459,4 +500,11 @@ const miniLink = {
   fontWeight: 800,
   textDecoration: "none",
   marginTop: "auto",
+};
+
+const boundaryLink = {
+  ...miniLink,
+  alignSelf: "flex-start",
+  textAlign: "center" as const,
+  lineHeight: 1.2,
 };

@@ -49,11 +49,11 @@ test("Studio persona workspace exposes Memory as a primary owner action", () => 
 test("Studio route context names static Studio stops for mobile summaries", () => {
   assert.deepEqual(studioRouteContext("/studio/archive"), {
     label: "Global Archive",
-    detail: "Owner-only archive search",
+    detail: "Live owner-only archive search",
     privacy: "Private archive",
-    state: "Searches stay inside preserved owner-only archive material.",
+    state: "Global Archive searches preserved owner-only material; persona Archive tabs handle source intake.",
     href: "/studio/archive",
-    nextAction: { label: "Open Personas", href: "/studio" },
+    nextAction: { label: "Review Exports", href: "/studio/export" },
   });
 
   assert.equal(studioRouteContext("/studio/assistant").label, "Station Assistant");
