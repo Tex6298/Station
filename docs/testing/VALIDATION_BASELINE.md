@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR422 Import Memory Runtime Answer Hosted Result
+
+DAEDALUS completed the one hosted PR422 private chat proof on 2026-06-27:
+`docs/roadmap/PR422_IMPORT_MEMORY_RUNTIME_ANSWER_RESULT.md`.
+
+Validation result: `FAIL ANSWER-QUALITY GATE - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted deployment freshness | Pass | Web/API `/health/deployment` were ready at commit prefix `8713af989bfe`, containing the accepted PR421 runtime Memory fix. |
+| Hosted storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Provider readiness | Pass | API readiness reported platform chat configured. |
+| Replay owner auth | Pass | Sign-in and `/auth/me` succeeded as tier `canon`; no token, raw user ID, raw persona ID, or raw response body was recorded. |
+| Token budget | Pass | `/token-credits/me` reported tier `canon`, status `ok`, effective limit `20000000`, used `113733`, percent used `0.6`. |
+| Context-preview precheck | Pass | Owner context-preview selected the accepted PR420 Memory in the Memory bucket with source type `import` and the accepted PR420 Canon in the Canon bucket. |
+| Context-preview metadata scan | Pass | Selected-source projection had no content fields and no forbidden raw path/secret/scaffold classes. |
+| Hosted public search precheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and PR420 accepted titles returned zero matches. |
+| Single hosted chat call | Pass | Exactly one non-streaming private chat route invocation returned HTTP 200 with provider/model label `openai/gpt-oss-120b`. |
+| Conversation readback | Pass | New proof conversation contained exactly 1 user message and 1 assistant reply. |
+| Persisted message leak scan | Pass | Owner-visible persisted message contents did not expose selected-context scaffolding, raw archive path, artifact filename, SQL, stack trace, provider payload, bearer material, UUID-shaped value, or secret-shaped value. |
+| Public search postcheck | Pass | Public `/discover/search` remained zero for proof terms and the supporting-fact search term. |
+| Observability readback | Pass with caveat | Sanitized trace detail returned safe enums/counts; raw scan found only the trace UUID class, and the ID-projected scan was clean. |
+| Answer quality | Fail | The answer did not mention the accepted Memory title, accepted Canon title, or reviewed-import/owner-review label. Answer-contract telemetry ended at `missed_selected_labels` after route-internal retry/finalizer. |
+
+Residual risk: the private chat route, persistence, and public non-exposure
+checks passed, but the hosted product answer did not meet the reviewed-import
+label/answer-quality bar. ARGUS has the baton for verdict and next-owner
+recommendation.
+
 ## PR422 Import Memory Runtime Answer Preflight
 
 ARGUS accepted the PR422 hosted runtime answer preflight on 2026-06-27:

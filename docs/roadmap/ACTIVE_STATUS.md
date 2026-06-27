@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR422 runtime answer proof complete
+
+DAEDALUS completed the one hosted PR422 private chat proof:
+`docs/roadmap/PR422_IMPORT_MEMORY_RUNTIME_ANSWER_RESULT.md`.
+
+Result:
+
+```text
+FAIL ANSWER-QUALITY GATE - WAKE ARGUS
+```
+
+Decision:
+
+- DAEDALUS ran exactly one hosted non-streaming
+  `POST /conversations/persona/:personaId/chat` call with no debug flag.
+- No manual retry, stream route, save/promote/archive, candidate action,
+  upload/register/import, cleanup/delete, public/community mutation, provider
+  config change, or broad runtime work was run.
+- Pre-mutation gates passed: web/API ready at commit prefix `8713af989bfe`,
+  private `persona-files` storage ready, platform chat configured, replay owner
+  auth tier `canon`, token budget `ok`, accepted PR420 Memory/Canon targets
+  isolated, context-preview selected both accepted targets, and public search
+  was zero for proof terms.
+- The chat route returned HTTP 200 via `openai/gpt-oss-120b` and persisted
+  exactly one user message plus one assistant reply in the new proof
+  conversation.
+- Privacy checks passed: persisted owner-visible message contents did not expose
+  selected-context scaffolding, raw archive path, artifact filename, SQL, stack
+  trace, provider payload, bearer material, UUID-shaped value, or secret-shaped
+  value; public search remained zero after the call.
+- Answer quality did not pass: the assistant answer did not mention the accepted
+  Memory title, accepted Canon title, or reviewed-import/owner-review label.
+  Sanitized answer-contract telemetry ended at `missed_selected_labels` after
+  the route-internal retry/finalizer path.
+
+Current baton:
+
+- ARGUS has PR422.
+- ARGUS should review the sanitized evidence and either wake MIMIR with the
+  answer-quality verdict/next-owner recommendation, or wake DAEDALUS with an
+  exact narrow route/contract/finalizer fix.
+
 ## Latest ARGUS preflight - PR422 runtime answer accepted
 
 ARGUS accepted the PR422 hosted runtime answer preflight:
