@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: PREFLIGHT REQUESTED
+Status: SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
 
 ## Why This Exists
 
@@ -26,7 +26,8 @@ ARGUS accepts the packet and wakes DAEDALUS.
   `chatgpt-import-proof-pr419-20260627-1111.json`.
 - PR419 candidate readback found exactly two pending proof candidates with
   types `canon` and `memory`.
-- Local `test:storage` coverage proves import-backed candidate review behavior:
+- Local `test:conversation-archive` coverage proves import-backed candidate
+  review behavior:
   accepted Memory candidates write Memory with import/archive provenance,
   accepted Canon candidates write Canon with import/archive provenance, rejected
   candidates do not promote runtime material, source archive memory remains
@@ -178,3 +179,133 @@ Task:
 ```
 
 Do not go idle without a wakeup commit.
+
+## ARGUS Preflight Verdict
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+ARGUS accepts one hosted candidate-review proof after PR419's synthetic
+ChatGPT import produced pending owner-review Memory/Canon candidates.
+
+Selected public readiness checked by ARGUS on 2026-06-27:
+
+| Check | Result |
+| --- | --- |
+| Web health | Ready, service `@station/web`, commit prefix `299f987de9bf` |
+| API health | Ready, service `@station/api`, commit prefix `299f987de9bf` |
+| Storage readiness | Bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, `private: true` |
+| Public search precheck | Zero matches for the PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles |
+
+Local validation also passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests), including import-backed candidate acceptance, import/source
+  provenance, source preservation, cross-owner hiding, and parser fail-closed
+  coverage.
+
+This acceptance authorizes DAEDALUS to run exactly one hosted proof packet, only
+after rechecking all gates immediately before mutation.
+
+## Approved DAEDALUS Proof Packet
+
+Freshness gates before mutation:
+
+- Web and API `/health/deployment` must be ready and at or after `299f987d`.
+- API storage readiness must report bucket `persona-files`, `ok: true`,
+  `checked: true`, `exists: true`, and `private: true`.
+- Replay owner auth and `/auth/me` must succeed without printing or recording
+  cookies, bearer tokens, auth headers, Supabase keys, raw IDs, or raw response
+  bodies.
+- DAEDALUS must use the same prepared replay owner and owner persona used for
+  PR419, without recording raw owner/user/persona IDs.
+
+Candidate isolation:
+
+- Before mutation, read the owner Import Review candidate list through the
+  existing owner-authenticated route.
+- Select only candidates from the PR419 synthetic import source
+  `chatgpt-import-proof-pr419-20260627-1111.json` or the PR419 proof phrase.
+- Require exactly one pending Memory candidate and exactly one pending Canon
+  candidate for that PR419 proof source.
+- Candidate IDs may be held only in process memory for the required PATCH
+  calls. Do not record raw candidate IDs, owner IDs, persona IDs, target IDs,
+  source IDs, storage paths, private candidate bodies, or raw response bodies.
+- Stop before mutation if the PR419 candidates are missing, already reviewed,
+  duplicated, ambiguous, or cannot be isolated without exposing raw IDs or
+  private text.
+
+Allowed hosted mutation sequence:
+
+1. Accept exactly the PR419 Memory candidate once through the existing owner
+   Import Review UI/API path `PATCH /conversations/candidates/:candidateId`.
+2. Accept exactly the PR419 Canon candidate once through the same existing
+   owner Import Review UI/API path.
+3. Optional edits must stay public-safe and minimal, such as titles
+   `Reviewed PR420 import memory` and `Reviewed PR420 import canon`.
+4. Do not upload, request a signed upload URL, register, import, retry, clean
+   up, delete, reject, publish Continuity, create documents, touch
+   public/community content, export data, send Assistant messages,
+   post/reply/report/vote, touch billing/settings, change parser code, or
+   broaden provider/runtime scope.
+
+Required sanitized readbacks:
+
+- Both selected candidates report accepted status.
+- The accepted Memory target exists for the owner/persona, uses
+  import/persona-file provenance, and has active/user-stated lifecycle state.
+- The accepted Canon target exists for the owner/persona and uses import
+  provenance.
+- The original PR419 imported archive source remains owner-only private archive
+  material.
+- The owner Import Review readback no longer shows those PR419 proof candidates
+  as pending.
+- Owner Archive/Memory/Canon readback can find the accepted proof material only
+  through owner-authenticated routes.
+- Public `/discover/search` and public/community readback do not expose the
+  PR419 artifact name, proof phrase, proposed accepted titles, or private
+  accepted review text.
+
+Stop conditions:
+
+- Stop before mutation if any freshness, storage, auth/session, owner persona,
+  or candidate-isolation gate fails.
+- Stop after the first failed mutation/readback gate.
+- If one candidate acceptance succeeds and the second fails, do not retry,
+  compensate, clean up, or accept/reject any other candidate. Wake ARGUS with
+  sanitized partial-state evidence.
+- Stop if accepted Memory/Canon readback cannot prove owner/persona scope and
+  import/source provenance, if the archive source privacy cannot be confirmed,
+  or if anything becomes public/community-visible.
+- Do not continue if evidence would expose secrets, cookies, bearer tokens, auth
+  headers, Supabase keys, signed URLs, upload URLs, upload tokens, raw response
+  bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, candidate IDs, target IDs,
+  file IDs, job IDs, raw storage paths, package IDs, or deployment IDs.
+
+ARGUS validation:
+
+- Reviewed PR419 accepted proof, the PR420 packet, and local candidate-review
+  route coverage.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- Public web health selected readback passed: service `@station/web`, ready
+  `true`, commit prefix `299f987de9bf`.
+- Public API health selected readback passed: service `@station/api`, ready
+  `true`, commit prefix `299f987de9bf`.
+- API storage readiness selected readback passed: bucket `persona-files`,
+  `ok: true`, `checked: true`, `exists: true`, `private: true`.
+- Public `/discover/search` selected readback returned zero matches for the
+  PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles.
+- `git diff HEAD^ HEAD --check` passed for the MIMIR PR420 opening commit.
+
+Handoff:
+
+- DAEDALUS has PR420.
+- DAEDALUS should run only the approved two-candidate PR419 acceptance proof and
+  wake ARGUS with sanitized pass/block evidence.
+- MIMIR is not being asked for a broader decision unless DAEDALUS hits a
+  blocked gate under this packet.

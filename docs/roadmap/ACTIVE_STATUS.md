@@ -4,7 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR420 import review preflight opened
+## Latest ARGUS preflight - PR420 import review accepted
+
+ARGUS accepted the PR420 import candidate review hosted preflight:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- PR420 stays bounded to the two pending PR419 synthetic import candidates:
+  exactly one Memory candidate and exactly one Canon candidate.
+- The proof may accept those two candidates once through the existing owner
+  Import Review UI/API path only.
+- Candidate IDs may be held only in process memory for the PATCH calls and must
+  not be recorded in evidence.
+- If either candidate action or readback fails, DAEDALUS must stop and wake
+  ARGUS without retry, cleanup, compensation, or additional candidate actions.
+- Public web/API health is ready at service `@station/web`/`@station/api`,
+  commit prefix `299f987de9bf`.
+- API storage readiness reports bucket `persona-files`, `ok: true`,
+  `checked: true`, `exists: true`, and `private: true`.
+- Public `/discover/search` selected precheck returned zero matches for the
+  PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles.
+- Local `test:conversation-archive` passed (41 tests), including import-backed
+  candidate acceptance, import/source provenance, source preservation,
+  cross-owner hiding, and parser fail-closed coverage.
+- The proof must not upload, request a signed upload URL, register, import,
+  retry, clean up, delete, reject candidates, publish Continuity, create
+  documents, touch public/community content, export data, send Assistant
+  messages, post/reply/report/vote, touch billing/settings, change parser code,
+  or broaden provider/runtime scope.
+- Evidence must stay sanitized: no secrets, cookies, bearer tokens, auth
+  headers, Supabase keys, signed URLs, upload URLs, upload tokens, raw response
+  bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, candidate IDs, target IDs,
+  file IDs, job IDs, raw storage paths, package IDs, or deployment IDs.
+
+Validation:
+
+- Reviewed PR419 accepted proof, the PR420 packet, and local candidate-review
+  route coverage.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- Public web/API readiness selected readbacks passed at commit prefix
+  `299f987de9bf`.
+- API storage readiness selected readback passed for private `persona-files`.
+- Public `/discover/search` selected precheck returned zero matches.
+- `git diff HEAD^ HEAD --check` passed for the MIMIR PR420 opening commit.
+
+Current baton:
+
+- DAEDALUS has PR420.
+- DAEDALUS should run only the approved two-candidate PR419 acceptance proof and
+  wake ARGUS with sanitized pass/block evidence.
+
+## Previous MIMIR decision - PR420 import review preflight opened
 
 MIMIR closed PR419 as accepted and opened PR420:
 `docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_PREFLIGHT_ARGUS.md`.

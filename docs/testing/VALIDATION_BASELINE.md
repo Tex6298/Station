@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR420 Import Candidate Review Hosted Preflight Result
+
+ARGUS accepted PR420 on 2026-06-27:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| PR419 proof review | Pass | PR419 proved one hosted synthetic ChatGPT JSON import and created exactly two pending owner-review candidates, one Memory and one Canon. |
+| Candidate-review scope | Pass | PR420 authorizes only accepting those two PR419 candidates once through the existing owner Import Review UI/API path. |
+| Candidate ID handling | Pass | Candidate IDs may be held only in process memory for required PATCH calls and must not be recorded. |
+| Partial-failure guard | Pass | If either candidate action/readback fails, DAEDALUS must stop without retry, cleanup, compensation, or extra candidate actions. |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Public search precheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles returned zero matches. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed, including import-backed candidate acceptance, import/source provenance, source preservation, cross-owner hiding, and parser fail-closed coverage. |
+| `git diff HEAD^ HEAD --check` | Pass | MIMIR PR420 opening commit whitespace check passed. |
+
+Residual risk: the hosted PR420 candidate acceptance proof has not been run.
+DAEDALUS must recheck freshness/storage/auth/candidate gates immediately before
+mutation, must not record raw IDs or private text, and must stop after the first
+failed gate.
+
 ## PR419 ChatGPT Export Import Hosted Result
 
 DAEDALUS completed PR419 on 2026-06-27:
