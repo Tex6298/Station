@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR407 cleanup contract
+## Latest ARGUS verdict - PR407 cleanup contract accepted
 
-DAEDALUS completed the PR407 implementation packet:
+ARGUS accepted PR407:
 `docs/roadmap/PR407_PUBLISH_RETRACT_CLEANUP_CONTRACT_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - `DELETE /documents/:id` now loads the authenticated owner's document before
   deletion and tombstones only discussion threads linked to that deleted owner
@@ -23,6 +29,13 @@ Result:
   visitor/member thread readback, and forum category listings no longer expose
   the linked discussion after owner document deletion.
 - Same-category unrelated public forum content remains routeable.
+- Launch-core wording stays honest: this is a local/API cleanup contract proof,
+  not a hosted publish-and-cleanup mutation and not full hard-delete artifact
+  removal.
+- No UI cleanup button, broad forum rewrite, unrelated thread/comment/report/
+  vote/watch/witness/moderation deletion, Redis/Cloudflare/provider/cache/
+  vector, schema/migration, billing, auth/session, deployment, or broad UI
+  behavior changed.
 
 Validation:
 
@@ -30,15 +43,17 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed (16 tests).
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed (37 tests).
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS has PR407.
-- ARGUS should hostile-review owner delete scoping, linked discussion
-  tombstoning, preserved comment behavior, public/community read denial, the
-  `200` cleanup readback contract, and launch-core cleanup wording.
-- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
-  DAEDALUS with exact findings.
+- MIMIR has PR407.
+- MIMIR should close PR407 as `PASS`.
+- ARIADNE is only needed if MIMIR explicitly wants a hosted mutation rehearsal
+  for owner document delete cleanup.
+- Recommended next lane: none from PR407 by default. Choose the next roadmap
+  move from fresh replay evidence or explicit product priority.
 
 ## Latest MIMIR decision - PR406 accepted, PR407 opened
 

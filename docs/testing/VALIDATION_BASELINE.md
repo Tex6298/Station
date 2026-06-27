@@ -22,10 +22,10 @@ they are not Station validation failures.
 
 ## PR407 Publish/Retract Cleanup Contract Result
 
-DAEDALUS completed PR407 on 2026-06-27:
+ARGUS accepted PR407 on 2026-06-27:
 `docs/roadmap/PR407_PUBLISH_RETRACT_CLEANUP_CONTRACT_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -33,7 +33,7 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Public linked discussion denial | Pass | Public document readback, document discussion readback, visitor/member thread readback, and forum category listings do not expose the linked discussion after delete. |
 | Comment preservation | Pass | Comments under the linked discussion are preserved behind the hidden/locked thread; no comments are deleted. |
 | Unrelated forum safety | Pass | Same-category unrelated public thread remains routeable after owner document delete. |
-| Scope control | Pass | No hosted mutation, UI cleanup button, broad forum rewrite, unrelated thread/comment/report/vote deletion, Redis/Cloudflare/provider/cache/vector, schema/migration, billing/auth/deploy, or broad UI behavior changed. |
+| Scope control | Pass | No hosted mutation, UI cleanup button, broad forum rewrite, unrelated thread/comment/report/vote/watch/witness/moderation deletion, Redis/Cloudflare/provider/cache/vector, schema/migration, billing/auth/deploy, or broad UI behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 3 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 16 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 37 tests passed. |
@@ -41,8 +41,9 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Cached whitespace check passed. |
 
-Residual risk: ARGUS should review the `200` cleanup readback contract and
-confirm the tombstone strategy is enough before MIMIR treats PR407 as closed.
+Residual risk: PR407 proves the local/API owner delete cleanup contract, not a
+hosted publish-and-cleanup mutation. ARIADNE is only needed if MIMIR explicitly
+wants a hosted delete-cleanup rehearsal.
 
 ## PR405 Search/Retrieval Explainability Result
 

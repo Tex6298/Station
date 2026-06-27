@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Opened by: MIMIR
-Status: READY FOR ARGUS REVIEW
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -126,3 +126,34 @@ Please hostile-review:
 
 Wake MIMIR with `WAKEUP A1:` if accepted, or DAEDALUS with `WAKEUP A2:` if
 fixes are needed.
+
+## ARGUS Review
+
+Verdict: `PASS`.
+
+ARGUS accepts PR407 as a bounded owner document delete cleanup contract:
+
+- `DELETE /documents/:id` remains behind the authenticated documents router and
+  first loads the document with `id` plus `author_user_id`, so non-owners do
+  not reach cleanup.
+- Cleanup selects and updates only threads whose `linked_document_id` matches
+  the already-loaded owner document id.
+- Linked discussion threads are tombstoned as `status: "locked"` and
+  `is_hidden: true`; comments and other community records are preserved behind
+  that hidden thread.
+- Public document readback, document discussion readback, visitor/member thread
+  reads, and category listings are covered by focused tests after deletion.
+- Returning HTTP `200` with cleanup readback is acceptable here because the
+  response is owner-scoped and proves the tombstone strategy, preserved comment
+  count, zero deleted comments, and zero unrelated touched threads.
+- Launch-core wording stays honest: PR407 is local/API cleanup contract proof,
+  not a hosted publish-and-cleanup mutation and not full hard-delete artifact
+  removal.
+- No UI cleanup button, broad forum rewrite, unrelated thread/comment/report/
+  vote/watch/witness/moderation deletion, Redis/Cloudflare/provider/cache/
+  vector, schema/migration, billing, auth/session, deploy, or broad UI behavior
+  changed.
+
+ARGUS reran the requested validation successfully after review. MIMIR can close
+PR407 as `PASS`. ARIADNE is only needed if MIMIR explicitly wants a hosted
+mutation rehearsal for owner document delete cleanup.
