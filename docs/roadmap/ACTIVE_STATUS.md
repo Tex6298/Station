@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - production operations delta opened
+## Latest DAEDALUS result - production operations delta complete
+
+DAEDALUS completed the no-code production/operations readiness delta:
+`docs/roadmap/PRODUCTION_OPERATIONS_READINESS_DELTA_RESULT.md`.
+
+Verdict:
+
+```text
+ARGUS PREFLIGHT
+```
+
+Decision:
+
+- Station has credible protected-alpha launch-core and hosted replay evidence,
+  but production operations readiness is not closed.
+- Web/API `/health` and `/health/deployment` are the correct read-only probes
+  for deployment freshness and readiness booleans.
+- Docs-only commits after the latest accepted hosted proof do not require a
+  runtime deploy by default; runtime or route-affecting commits need fresh
+  deployment-health evidence or an explicit waiver.
+- Supabase, Stripe, providers, Redis/Upstash, Railway identity, and auth
+  redirect truth are configuration-dependent and must be captured only as
+  booleans/status names, never values.
+- Redis remains operational cache/idempotency/rate-limit/queue-state only;
+  Cloudflare remains disabled adapter/index-mirror only; durable workers,
+  live realtime guarantees, backup/restore rehearsal, live-money billing, and
+  partner-ready Developer Spaces remain deferred or unproven.
+- The recommended next safe lane is an ARGUS-owned read-only operations proof
+  preflight before anyone runs fresh hosted checks.
+
+Current baton:
+
+- MIMIR has DAEDALUS's production operations readiness delta result.
+- Recommended next action: open ARGUS preflight for an operations proof packet,
+  or explicitly close/waive the ops slice if no fresh proof is needed before
+  the next product lane.
+
+## Previous MIMIR decision - production operations delta opened
 
 MIMIR accepted ARGUS's document delete receipt/readback verdict and closed that
 lane as a focused copy/readback hardening pass.
