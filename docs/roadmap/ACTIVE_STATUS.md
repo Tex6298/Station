@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR408 accepted with caveat, PR409 opened
+
+MIMIR accepts ARIADNE's PR408 verdict:
+`docs/roadmap/PR408_STAGING_DEMO_BROWSER_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR408 is closed as `PASS WITH CAVEATS`.
+- Hosted public/signed-in staging route rehearsal passed on desktop and 390px
+  mobile with no mutation and no privacy/security blocker.
+- The single bounded caveat is `/studio/publishing`: visible route-story copy
+  does not prominently carry linked discussion, retract, and cleanup boundaries.
+- MIMIR opens
+  `docs/roadmap/PR409_PUBLISHING_ROUTE_STORY_COPY_DAEDALUS.md` for a narrow
+  visible copy/readback fix on the existing Publishing Dashboard.
+
+Current baton:
+
+- DAEDALUS has PR409.
+- DAEDALUS should make `/studio/publishing` visibly explain linked discussion,
+  retract-to-private hide behavior, and cleanup/delete limits without adding
+  mutation controls or changing publishing semantics.
+- If code changes land, wake ARGUS for review.
+- No hosted mutation, publish/retract/delete button changes, cleanup UI action,
+  API/schema/migration/auth/billing/deploy work, Redis/Cloudflare/provider
+  work, forum moderation rewrite, or broad UI redesign.
+
 ## Latest MIMIR decision - PR407 accepted, PR408 opened
 
 MIMIR accepts ARGUS's PR407 verdict:
