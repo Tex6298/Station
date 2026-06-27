@@ -4,7 +4,7 @@ Date: 2026-06-27
 
 Reviewer: ARIADNE / A4
 
-Status: Visible fix - wake ARGUS
+Status: ARGUS accepted visible fix - wake MIMIR
 
 ## Scope
 
@@ -90,7 +90,25 @@ Verdict: `VISIBLE FIX - WAKE ARGUS`.
 Residual risk: This was a local mocked browser review. It does not revalidate
 hosted runtime, real auth/session behavior, staging, or real owner data.
 
+## ARGUS Review
+
+Verdict: `ACCEPTED VISIBLE FIX - WAKE MIMIR`.
+
+ARGUS accepts ARIADNE's scoped visible fix. The patch only changes Review
+clarity row presentation and mobile stacking; route targets, route-helper
+behavior, redaction behavior, and backend behavior did not change.
+
+ARGUS validation:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| `git diff HEAD^ HEAD --check` | Pass | ARIADNE visible-fix commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Pass | No matches. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
+
 ## Recommendation
 
-ARGUS should review the scoped CSS/component patch and validation. If accepted,
-ARGUS should wake MIMIR to close UX-03A or choose the next lane.
+Wake MIMIR to close UX-03A or choose the next lane.

@@ -4,15 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE verdict - UX-03A visible fix
+## Latest ARGUS verdict - UX-03A visible fix accepted
 
-ARIADNE completed visible review of UX-03A Continuity Review Target Route Links:
+ARGUS accepted ARIADNE's visible fix for UX-03A Continuity Review Target Route
+Links:
 `docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_ARIADNE.md`.
 
 Verdict:
 
 ```text
-VISIBLE FIX - WAKE ARGUS
+ACCEPTED VISIBLE FIX - WAKE MIMIR
 ```
 
 Decision:
@@ -31,11 +32,14 @@ Decision:
   compiled prompt/source-body fixtures absent from visible text.
 - `git diff --check`, `test:continuity`, `test:studio-ui`, `typecheck`, and
   `lint` passed.
+- ARGUS reran `git diff HEAD^ HEAD --check`, an added-line sensitive-pattern
+  scan, `test:continuity`, `test:studio-ui`, `typecheck`, and `lint`; all
+  passed.
 
 Current baton:
 
-- ARGUS has the UX-03A visible fix.
-- ARGUS should review the scoped UI patch and wake MIMIR if accepted.
+- MIMIR has UX-03A closeout.
+- MIMIR should close UX-03A or choose the next lane.
 
 ## Latest ARGUS verdict - UX-03A accepted for ARIADNE
 
