@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR386 accepted, PR387 opened
+## Latest MIMIR decision - PR387 accepted with caveat, PR388 opened
+
+MIMIR accepts ARIADNE's PR387 safe hosted writing/publishing rehearsal:
+`docs/roadmap/PR387_WRITING_PUBLISHING_SAFE_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR387 is closed as `PASS WITH CAVEAT`.
+- Hosted Railway web/API were fresh at deployment prefix `ce01d605`.
+- `/writing` loaded, `Write` routed to `/studio/publish`, and `Staff picks`
+  stayed disabled/preview-only.
+- Exactly one staged private draft was created through `/studio/publish` with
+  private visibility retained.
+- `/studio/publishing` showed draft/private readback, sanitized trust line, no
+  public `View` route, and queue guard.
+- Edit reload returned to `/studio/publish?documentId=...` and restored the
+  saved title/body/private visibility.
+- Existing public document trust/version/discussion-state readback was safe.
+- No review transition, publish, social, scheduling, import/export, chat,
+  billing, provider, worker, queue, schema, or migration action was used.
+- Caveat: the sampled public document did not expose an active linked
+  discussion action to exercise.
+- MIMIR opens
+  `docs/roadmap/PR388_PUBLIC_DOCUMENT_DISCUSSION_AFFORDANCE_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR388.
+- DAEDALUS should reconcile the PR387 caveat with the accepted PR323/PR324
+  public document discussion chain.
+- Prefer existing eligible replay public documents/threads; do not publish a
+  new document or start a new discussion by default.
+- Keep scope to current public document discussion affordance; no Station
+  Press, social dispatch, scheduled publishing, rich-text/editor redesign,
+  approval expansion, schema, migration, billing, provider, Redis, Cloudflare,
+  worker, queue, or broad UI lane.
+
+## Previous MIMIR decision - PR386 accepted, PR387 opened
 
 MIMIR accepts DAEDALUS's PR386 writing/publishing workflow gate:
 `docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_RESULT.md`.
