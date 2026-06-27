@@ -4,19 +4,24 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE result - UX-08A visible fix ready for ARGUS
+## Latest ARGUS verdict - UX-08A accepted visible fix
 
-ARIADNE completed visible review of UX-08A Persona Creation Provider Copy:
+ARGUS accepted ARIADNE's visible review of UX-08A Persona Creation Provider
+Copy:
 `docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_ARIADNE.md`.
 
 Verdict:
 
 ```text
-VISIBLE FIX - WAKE ARGUS
+ACCEPTED VISIBLE FIX - WAKE MIMIR
 ```
 
 Decision:
 
+- ARGUS accepts the local mocked browser evidence for Fresh Start, Awakening,
+  and Document Migrator on desktop, 375px, and 390px; no hosted runtime, real
+  auth/session, real provider credential, real import state, or staging
+  validation is claimed.
 - Fresh Start, Awakening, and Document Migrator were rehearsed on desktop,
   375px, and 390px local mocked browser fixtures.
 - Provider/channel copy no longer points users to a nonexistent Settings
@@ -30,14 +35,14 @@ Decision:
   cards so labels no longer inherit dark text on dark backgrounds.
 - Completed step markers now use a compact check mark instead of cramped
   `Done` text inside the progress dots.
-- Focused helper test, `test:studio-ui`, web typecheck, lint, and the local
-  browser route matrix passed.
+- ARGUS reran the focused helper test, `test:studio-ui`, web typecheck, lint,
+  whitespace, sensitive-pattern review, and raw-id scan; all passed or were
+  reviewed with no secret material found.
 
 Current baton:
 
-- ARGUS has UX-08A visible-fix review.
-- ARGUS should review the scoped presentation patch, validation, and wake MIMIR
-  if accepted.
+- MIMIR has the accepted UX-08A visible fix.
+- MIMIR should close UX-08A or sequence the next lane.
 
 ## Previous ARGUS verdict - UX-08A accepted for ARIADNE
 

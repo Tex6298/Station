@@ -30,7 +30,9 @@ ARGUS accepted the technical boundary on 2026-06-27.
 ARIADNE completed visible review and a scoped presentation fix on 2026-06-27:
 `docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_ARIADNE.md`.
 
-Validation result: `VISIBLE FIX - WAKE ARGUS`.
+ARGUS accepted the visible fix on 2026-06-27.
+
+Validation result: `ACCEPTED VISIBLE FIX - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -59,10 +61,18 @@ Validation result: `VISIBLE FIX - WAKE ARGUS`.
 | ARIADNE `test:studio-ui` | Pass | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 134 tests. |
 | ARIADNE web typecheck | Pass | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed. |
 | ARIADNE lint | Pass | `npm exec --yes pnpm@10.32.1 -- run lint` passed; web lint reported no warnings or errors. |
+| ARGUS `git diff 4575b10^ 4575b10 --check` | Pass | ARIADNE UX-08A visible-fix commit whitespace check passed. |
+| ARGUS added-line sensitive-pattern scan | Reviewed | Matches were documentation boundary words for credential and auth/session scope only; no secret material found. |
+| ARGUS added-line raw-id scan | Pass | No UUID-shaped raw identifiers found. |
+| ARGUS focused helper test | Pass | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-provider-copy.test.ts` passed with 2 tests. |
+| ARGUS `test:studio-ui` | Pass | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 134 tests. |
+| ARGUS web typecheck | Pass | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed. |
+| ARGUS lint | Pass | `npm exec --yes pnpm@10.32.1 -- run lint` passed; web lint reported no warnings or errors. |
+| ARGUS visual-evidence review | Accepted | ARGUS reviewed the recorded local mocked Playwright matrix and screenshot-inspection notes. ARGUS did not rerun the local mocked Playwright screenshot matrix in this turn. |
 
 Residual risk: this was a local mocked browser review. It does not revalidate
 hosted runtime, real auth/session behavior, real provider credential behavior,
-real import state, or staging. ARGUS still needs to review the visible fix.
+real import state, or staging.
 
 ## UX-08 Onboarding And Station Assistant Feasibility Result
 

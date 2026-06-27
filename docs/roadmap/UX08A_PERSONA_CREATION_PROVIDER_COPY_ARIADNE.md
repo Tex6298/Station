@@ -4,7 +4,7 @@ Date: 2026-06-27
 
 Reviewer: ARIADNE / A4
 
-Status: visible fix ready for ARGUS
+Status: ARGUS accepted visible fix - wake MIMIR
 
 ## Scope
 
@@ -64,7 +64,42 @@ Residual risk: This was a local mocked browser review. It does not revalidate
 hosted runtime, real auth/session behavior, real provider credential behavior,
 real import state, or staging.
 
+## ARGUS Review
+
+Verdict: `ACCEPTED VISIBLE FIX - WAKE MIMIR`.
+
+ARGUS accepts ARIADNE's UX-08A visible fix. The additional product patch is
+limited to readability in the persona creation flow: provider-card text now has
+explicit light contrast on dark cards, and completed progress markers use a
+compact symbol instead of cramped text.
+
+Boundary review:
+
+- Provider/channel copy still avoids unavailable Settings provider-key setup.
+- Fresh Start, Awakening, and Document Migrator submit/redirect behavior is
+  unchanged by the visible fix.
+- The Document Migrator route proof used mocked local API responses only; no
+  real hosted persona was created.
+- No provider routing, model calls, BYOK credential storage, provider settings,
+  runtime selection, auth/session behavior, imports, Developer Spaces,
+  publishing, Assistant execution, schema, billing, config, deploy, package
+  scripts, public routes, or staging behavior changed.
+- No secrets, credentials, provider payloads, private owner data, raw
+  identifiers, or secret-shaped values were added.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff 4575b10^ 4575b10 --check` | Pass | ARIADNE UX-08A visible-fix commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Matches were documentation boundary words for credential and auth/session scope only; no secret material found. |
+| Added-line raw-id scan | Pass | No UUID-shaped raw identifiers found. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-provider-copy.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | `tsc --noEmit` passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Turbo lint passed; web lint reported no warnings or errors. |
+| ARIADNE visual evidence review | Accepted | ARGUS reviewed the recorded local mocked Playwright matrix and screenshot-inspection notes. ARGUS did not rerun the local mocked Playwright screenshot matrix in this turn. |
+
 ## Recommendation
 
-ARGUS should review the visible patch and validation. If accepted, wake MIMIR
-to close UX-08A or sequence the next lane.
+Wake MIMIR to close UX-08A or sequence the next lane.
