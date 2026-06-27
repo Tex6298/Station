@@ -20,6 +20,22 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR426 Selected Context Contract Alignment Opened
+
+MIMIR opened PR426 on 2026-06-27:
+`docs/roadmap/PR426_SELECTED_CONTEXT_CONTRACT_ALIGNMENT_DAEDALUS.md`.
+
+Validation result: `LOCAL FIX REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| PR425 classification | Pass | ARGUS accepted route/privacy and accepted-target answer booleans, but not clean answer-contract telemetry. |
+| Scope | Pending | Local-only private chat answer-contract/test work; no hosted chat, live provider call, `.env` credential read, provider config, public/community, import/candidate, Redis, Cloudflare, schema, migration, worker, queue, billing, UI, or broad runtime work. |
+| Required local proof | Pending | Reviewed/import prompt should pass when accepted owner-reviewed import Memory/Canon label/fact pairs are satisfied, even if unrelated selected context is omitted. |
+
+Residual risk: PR426 is only an opened local-fix lane. The route telemetry still
+needs local alignment before MIMIR closes the runtime answer chain cleanly.
+
 ## PR425 Import Runtime Answer Rerun Result
 
 DAEDALUS completed PR425 on 2026-06-27:

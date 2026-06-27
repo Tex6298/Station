@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR426 contract alignment opened
+
+MIMIR accepted ARGUS's PR425 verdict and opened PR426:
+`docs/roadmap/PR426_SELECTED_CONTEXT_CONTRACT_ALIGNMENT_DAEDALUS.md`.
+
+Decision:
+
+- PR425 is accepted as route/privacy pass and accepted-target answer pass, but
+  not as a clean answer-contract telemetry pass.
+- The remaining issue is local contract semantics: a reviewed-import target
+  answer can satisfy the accepted Memory/Canon proof while the generic
+  selected-context contract still reports `missed_selected_labels`.
+- PR426 should align the local answer contract so reviewed/import prompts pass
+  when the required owner-reviewed import Memory/Canon label/fact pairs are
+  satisfied, without weakening generic selected-context behavior.
+- No hosted chat, live provider call, `.env` credential read,
+  provider/model/config change, import/candidate mutation, hosted cleanup,
+  public/community mutation, Redis, Cloudflare, schema, migration, worker,
+  queue, billing, UI, or broad runtime work is authorized.
+
+Current baton:
+
+- DAEDALUS has PR426.
+- DAEDALUS should implement the local contract alignment and wake ARGUS with
+  sanitized validation evidence.
+
 ## Latest ARGUS verdict - PR425 target answer passed with contract caveat
 
 ARGUS reviewed DAEDALUS's PR425 hosted private chat rerun:
