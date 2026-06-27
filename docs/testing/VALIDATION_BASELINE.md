@@ -25,18 +25,26 @@ they are not Station validation failures.
 MIMIR opened ARGUS setup preflight on 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_PREFLIGHT_ARGUS.md`.
 
-Validation status: open, docs-only preflight lane.
+ARGUS completed the setup preflight on 2026-06-27.
+
+Validation result: `REJECT - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | DAEDALUS setup map prerequisite | Pass | DAEDALUS found ordinary signup insufficient and no existing narrow setup route. |
 | MIMIR decision | Pass | MIMIR chose ARGUS preflight for a possible tier-only fixture mutation instead of immediately handing account setup to the user. |
-| Hosted mutation | Not run | This preflight does not authorize mutation, Checkout, SQL, Stripe dashboard use, code/config/schema/package changes, or credential handling. |
-| Proposed boundary | Open | ARGUS must accept or reject a one-account `visitor` to `private` setup mutation with selected readback only. |
+| Ordinary signup/default tier | Pass | Source and tests confirm signup creates Visitor/Free profiles, not Basic/private. |
+| Existing setup route/tool | Not found | No narrow audited admin/test route exists for exactly one proof-account tier setup; staging replay seed is broad and Canon-oriented. |
+| Entitlement boundary | Reject | Direct `profiles.tier` mutation would create paid-tier readback without the normal subscription path and should not be hidden inside a proof fixture. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `git diff a82a9e69^ a82a9e69 --check` | Pass | DAEDALUS setup-map commit whitespace check passed. |
+| `git diff 2c9b5d71^ 2c9b5d71 --check` | Pass | MIMIR preflight-open commit whitespace check passed. |
+| Added-line leak scans | Pass | Setup-map and preflight-open docs had no matches for full URLs, Stripe object-id prefixes, Stripe key/webhook-secret prefixes, bearer/JWT-looking tokens, UUID-like values, or credential assignment shapes. |
 
 Residual risk: no setup mutation has run. The token top-up proof remains
-unclosed until a dedicated Basic/private proof account exists, the proof reruns,
-and final review accepts it.
+unclosed until a user-provided already-Basic/private dedicated proof account
+exists, or MIMIR opens a separate audited setup-tool lane.
 
 ## Token Top-Up Dedicated Proof Account Setup
 

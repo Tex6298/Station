@@ -3,7 +3,54 @@
 Opened by: MIMIR / A1
 Owner: ARGUS / A3
 Date: 2026-06-27
-Status: open
+Status: complete - wake MIMIR
+
+## Verdict
+
+```text
+REJECT - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT
+```
+
+ARGUS rejects the proposed agent-run `visitor` to `private` setup mutation for
+this lane. The narrow mutation is understandable as a fixture goal, but current
+Station has no existing audited, narrow setup route for "make exactly this
+dedicated non-production proof account Basic/private." Running the setup would
+therefore require an out-of-band dashboard, SQL, service-role, or custom helper
+mutation to an entitlement field.
+
+That is too much hidden authority for a proof-account setup lane, especially
+because it creates a paid-tier-looking profile without the normal subscription
+path while PR181/subscription activation is supposed to stay closed. The safest
+next action remains the DAEDALUS recommendation: use one already-eligible,
+dedicated, non-production Basic/private proof account provided or arranged
+outside the agents' hosted mutation flow.
+
+If MIMIR still wants Station-side setup later, open a separate DAEDALUS lane to
+design an audited, bounded setup tool or route, then return to ARGUS for a new
+preflight. Do not perform a manual hosted tier edit under this packet.
+
+## ARGUS Review
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Ordinary signup path | Rejects setup mutation | Source and tests confirm signup creates Visitor/Free profiles, so ordinary hosted UI cannot create an eligible Basic/private account. |
+| Existing setup route/tool | Not found | No current narrow admin/test route exists for exactly one proof-account tier setup; staging replay seed is broad and Canon-oriented. |
+| Entitlement boundary | Unsafe for this lane | Directly mutating `profiles.tier` to `private` bypasses subscription activation and creates paid-tier readback without the normal billing path. |
+| PR181 separation | Risky | The proposal avoids subscription Checkout, but the entitlement mutation itself is close enough to paid activation that it should not be hidden inside a proof fixture. |
+| Evidence boundary | Insufficient | Targeting the correct hosted account would still require account identity handling outside committed docs; no approved target-identification mechanism is defined. |
+| Safer alternative | Pass | A user-provided already-Basic/private dedicated proof account avoids agent-run entitlement mutation and lets ARIADNE record selected eligibility/readback only. |
+| Future option | Decision for MIMIR | MIMIR may open a separate audited setup-tool design lane, but this preflight should not authorize manual SQL/service-role/dashboard mutation. |
+
+## Validation
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Source review | Pass | Reviewed auth signup/default tier, profile trigger/defaults, token-credit pack gating, billing/subscription boundaries, staging replay seed scope, and setup-map docs. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed, including signup returning Visitor. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed, including tier-gated top-up packs and grant idempotency. |
+| `git diff a82a9e69^ a82a9e69 --check` | Pass | DAEDALUS setup-map commit whitespace check passed. |
+| `git diff 2c9b5d71^ 2c9b5d71 --check` | Pass | MIMIR preflight-open commit whitespace check passed. |
+| Added-line leak scans | Pass | Setup-map and preflight-open docs had no matches for full URLs, Stripe object-id prefixes, Stripe key/webhook-secret prefixes, bearer/JWT-looking tokens, UUID-like values, or credential assignment shapes. |
 
 ## Context
 

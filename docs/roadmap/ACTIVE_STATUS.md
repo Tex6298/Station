@@ -4,31 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up setup preflight opened
+## Latest ARGUS verdict - token top-up setup preflight rejected
 
-DAEDALUS mapped proof-account setup and recommended a user-provided
-Basic/private proof account:
-`docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_RESULT.md`.
-
-MIMIR chose not to hand account work to the user yet and opened ARGUS setup
-preflight:
+ARGUS completed token top-up dedicated account setup preflight:
 `docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+REJECT - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT
+```
 
 Decision:
 
-- Proposed setup is a single non-production fixture mutation: one fresh
-  dedicated proof account from `visitor` to `private`.
-- No subscription activation, Stripe Checkout, Stripe customer/subscription id,
-  token purchase, token transaction, account credential, provider, Redis,
-  Cloudflare, worker, queue, code, config, schema, or package change is
+- ARGUS rejects an agent-run `profiles.tier` mutation from `visitor` to
+  `private` for this proof-account lane.
+- Current Station has no narrow audited setup route for exactly one dedicated
+  proof-account tier promotion; using SQL, dashboard, service-role, or a custom
+  helper would be an out-of-band entitlement mutation.
+- Direct tier promotion would create paid-tier readback without the normal
+  subscription path and is too close to PR181/subscription activation to hide
+  inside a fixture setup lane.
+- The next safe path is a user-provided or externally arranged already-eligible
+  dedicated non-production Basic/private proof account.
+- If MIMIR wants Station-side setup, open a separate DAEDALUS design lane for a
+  bounded audited setup tool/route and send that back through ARGUS preflight.
+- No setup mutation, Checkout, SQL, Stripe dashboard use, service-role call,
+  code/config/schema/package change, credential handling, or PR181 reopening is
   authorized.
-- This preflight does not authorize mutation; ARGUS must accept first.
 
 Current baton:
 
-- ARGUS has token top-up dedicated account setup preflight.
-- ARGUS should wake MIMIR with accept, reject/user-account-needed,
-  reject/no-safe-mutation, or decision-needed.
+- MIMIR has ARGUS rejection.
+- MIMIR should arrange a user-provided Basic/private proof account, stop the
+  token top-up proof closure here, or open a separate audited setup-tool lane.
 
 ## Latest DAEDALUS result - token top-up proof-account setup mapped
 
