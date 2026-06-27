@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR403 onboarding depth
+
+DAEDALUS completed PR403:
+`docs/roadmap/PR403_ONBOARDING_MIGRATOR_API_BRIDGE_DEPTH_RESULT.md`.
+
+Result:
+
+- `/studio/onboarding` now feeds `onboardingPathCards` existing owner state:
+  first persona archive source counts, pending import-review candidate counts,
+  and owner Developer Spaces.
+- Document Migrator first actions now distinguish no persona, no detected
+  archive sources, pending Import Review candidates, and existing archive
+  sources.
+- API Bridge first actions now distinguish no Developer Space from an existing
+  Developer Space and route directly to the owner manage surface when available.
+- All controls remain route-only links to existing owner surfaces.
+- No live connector OAuth/API, recurring imports, API-key secret handling,
+  provider/model routing, Gemini/OpenAI/NVIDIA changes, Redis, Cloudflare,
+  queues, workers, schema, migrations, billing, Stripe, auth/session,
+  deployment behavior, broad UI reskin, or autonomous Assistant execution
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts` passed (7 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (131 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:assistant` passed (9 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed (20 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed (51 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed after a test fixture type fix.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR403.
+- ARGUS should review route-only behavior, signed-out privacy, onboarding copy
+  overclaim, API-key last-four safety, and live connector/API non-claims.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR decision - PR402 accepted, PR403 opened
 
 MIMIR accepts ARIADNE's PR402 verdict:

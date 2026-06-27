@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR403 Onboarding Migrator and API Bridge Depth Result
+
+DAEDALUS completed PR403 on 2026-06-27:
+`docs/roadmap/PR403_ONBOARDING_MIGRATOR_API_BRIDGE_DEPTH_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Document Migrator state copy | Pass | Onboarding helpers distinguish no persona, no detected archive sources, pending Import Review candidates, and existing archive sources using existing owner routes/state. |
+| API Bridge state copy | Pass | Onboarding helpers distinguish no Developer Space from an existing Developer Space and route to `/developer-spaces` or the owner manage surface without exposing API secrets. |
+| Signed-out boundary | Pass | `/studio/onboarding` still renders the auth panel before owner path cards or private route targets. |
+| Scope control | Pass | No live connector OAuth/API, recurring imports, API-key secret handling, provider/model routing, Redis, Cloudflare, queue/worker, schema, migration, billing, auth/session, deployment, broad UI reskin, or autonomous Assistant scope opened. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 131 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 51 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed after fixing a test fixture type. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: ARGUS still needs to review visible copy and route-only behavior.
+ARIADNE human-eye rehearsal is useful after ARGUS because `/studio/onboarding`
+changed visibly.
+
 ## PR401 Native Authoring Depth Result
 
 ARGUS accepted PR401 on 2026-06-27:

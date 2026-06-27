@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { DeveloperSpaceRecord } from "@station/types/developer-space";
 import type { PersonaSummary } from "@station/types/persona";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { firstSpacePublishingGuide, onboardingPathCards, onboardingPathStatusTone } from "@/lib/onboarding-paths";
+import { firstSpacePublishingGuide, onboardingPathCards, onboardingPathStatusTone, type OnboardingPathState } from "@/lib/onboarding-paths";
 import {
   StudioEmptyState,
   StudioErrorState,
@@ -14,8 +15,13 @@ import {
   StudioStatusBadge,
 } from "@/components/studio/studio-frame";
 
+type PersonaFileRead = { id: string };
+type ImportJobRead = { id: string };
+type ImportCandidateRead = { id: string; status?: string | null };
+
 export default function StudioOnboardingPage() {
   const [personas, setPersonas] = useState<PersonaSummary[]>([]);
+  const [pathState, setPathState] = useState<OnboardingPathState>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
@@ -33,8 +39,16 @@ export default function StudioOnboardingPage() {
 
       setSignedIn(true);
       try {
-        const data = await apiGet<{ personas: PersonaSummary[] }>("/personas", session.access_token);
-        if (mounted) setPersonas(data.personas ?? []);
+        const [personaData, developerSpaceData] = await Promise.all([
+          apiGet<{ personas: PersonaSummary[] }>("/personas", session.access_token),
+          apiGet<{ spaces: DeveloperSpaceRecord[] }>("/developer-spaces", session.access_token).catch(() => ({ spaces: [] })),
+        ]);
+        const nextPersonas = personaData.personas ?? [];
+        const nextPathState = await loadOnboardingPathState(nextPersonas, developerSpaceData.spaces ?? [], session.access_token);
+        if (mounted) {
+          setPersonas(nextPersonas);
+          setPathState(nextPathState);
+        }
       } catch (e) {
         if (mounted) setError(e instanceof Error ? e.message : "Could not load onboarding paths.");
       } finally {
@@ -47,7 +61,7 @@ export default function StudioOnboardingPage() {
     };
   }, []);
 
-  const cards = onboardingPathCards(personas);
+  const cards = onboardingPathCards(personas, pathState);
   const publishingGuide = firstSpacePublishingGuide();
 
   return (
@@ -152,6 +166,47 @@ export default function StudioOnboardingPage() {
       )}
     </StudioFrame>
   );
+}
+
+async function loadOnboardingPathState(
+  personas: PersonaSummary[],
+  developerSpaces: DeveloperSpaceRecord[],
+  token: string,
+): Promise<OnboardingPathState> {
+  const firstPersona = personas[0] ?? null;
+  let archiveSourceCount: number | null = null;
+  let pendingImportReviewCount: number | null = null;
+
+  if (firstPersona) {
+    const [filesData, jobsData, candidatesData] = await Promise.all([
+      apiGet<{ files: PersonaFileRead[] }>(`/persona-files/persona/${firstPersona.id}`, token).catch(() => null),
+      apiGet<{ jobs: ImportJobRead[] }>(`/imports/persona/${firstPersona.id}`, token).catch(() => null),
+      apiGet<{ candidates: ImportCandidateRead[] }>(
+        `/conversations/persona/${firstPersona.id}/candidates?source=import&status=all`,
+        token,
+      ).catch(() => null),
+    ]);
+
+    if (filesData && jobsData) {
+      archiveSourceCount = (filesData.files ?? []).length + (jobsData.jobs ?? []).length;
+    }
+    if (candidatesData) {
+      pendingImportReviewCount = (candidatesData.candidates ?? [])
+        .filter((candidate) => candidate.status === "pending")
+        .length;
+    }
+  }
+
+  return {
+    archiveSourceCount,
+    pendingImportReviewCount,
+    developerSpaces: developerSpaces.map((space) => ({
+      id: space.id,
+      projectName: space.projectName,
+      slug: space.slug,
+      apiKeyLastFour: space.apiKeyLastFour ?? null,
+    })),
+  };
 }
 
 const heading = {
