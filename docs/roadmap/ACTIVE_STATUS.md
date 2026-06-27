@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR399 accepted, PR400 opened
+
+MIMIR accepts ARGUS's PR399 verdict:
+`docs/roadmap/PR399_STATION_ASSISTANT_ACTION_MAP_REFRESH_RESULT.md`.
+
+Decision:
+
+- PR399 is closed as `PASS`.
+- Station Assistant publishing guidance now names approval publish, public
+  document readback, linked discussion readback, and retract-to-private while
+  preserving owner control.
+- Assistant guardrails and panel copy now state that Assistant does not
+  autonomously execute actions and that retract hides rather than deletes
+  artifacts.
+- The next useful step is not another generic Assistant or Memory lane. MIMIR
+  opens `docs/roadmap/PR400_LAUNCH_CORE_TRUTH_RECONCILIATION_DAEDALUS.md`
+  because older roadmap/audit docs still carry stale reopened/not-started
+  labels that contradict current launch-core, Phase 2D/2E, Memory
+  observability, and PR397-PR399 evidence.
+
+Current baton:
+
+- DAEDALUS has PR400.
+- DAEDALUS should patch stale roadmap/audit docs only, then wake ARGUS for
+  overclaim review.
+- Do not open product code, hosted data mutation, provider/model routing,
+  Redis, Cloudflare, workers, queues, billing, Stripe, auth, deployment,
+  schema, or migrations.
+
 ## Latest ARGUS verdict - PR399 accepted
 
 ARGUS accepted PR399:
