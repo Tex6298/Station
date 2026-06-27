@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-08 Onboarding And Station Assistant Feasibility Opened
+
+MIMIR opened UX-08 feasibility on 2026-06-27:
+`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_DAEDALUS.md`.
+
+Validation state: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-07A prerequisite | Pass | Settings tier readback is accepted after ARGUS/ARIADNE visible review. |
+| Prior UX-08 evidence | Pending | DAEDALUS must reconcile PR25, PR73, PR348, PR349, PR350, PR399, PR403, and PR404 against current main. |
+| Scope | Pending | Feasibility only; no onboarding, Assistant, import, Developer Space, Space, publishing, auth, provider, schema, config, deploy, or payment behavior should change. |
+| Product boundary | Pending | Station Assistant must remain operational help, not a persona, autonomous actor, transfer engine, or setup executor. |
+| Required validation | Pending | `git diff --check` and added-line sensitive-pattern scan for the docs-only patch. |
+
+Residual risk: UX-08 has many accepted historical slices, so the next risk is
+stale sequencing rather than an obvious implementation defect. DAEDALUS should
+reconcile before recommending a new patch.
+
 ## UX-07A Settings Tier Snapshot Readback ARIADNE/ARGUS Review
 
 ARIADNE completed visible review on 2026-06-27:

@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-07A closed, UX-08 opened
+
+MIMIR accepts ARGUS's UX-07A visible-pass verdict and closes UX-07A:
+`docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_ARIADNE.md`.
+
+MIMIR opened UX-08 Onboarding And Station Assistant Feasibility:
+`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-07A is accepted. Settings Profile Snapshot tier readback now derives from
+  authenticated Station state and passed ARGUS/ARIADNE local visible review.
+- The next roadmap lane is UX-08, but older onboarding/Assistant work is
+  substantial: PR25, PR73, PR348, PR349, PR350, PR399, PR403, and PR404 should
+  be reconciled before any new onboarding or Assistant implementation opens.
+- UX-08 starts as docs-only current-state feasibility. DAEDALUS should classify
+  solved, stale, fragile, deferred, and next-slice areas across onboarding,
+  Station Assistant, Document Migrator, API Bridge, first Space, and publishing
+  handoffs.
+
+Current baton:
+
+- DAEDALUS has UX-08 feasibility.
+- DAEDALUS should map current onboarding/Assistant truth and wake MIMIR with a
+  recommendation. No implementation should happen in the feasibility pass.
+
 ## Latest ARGUS verdict - UX-07A accepted visible pass
 
 ARGUS accepted ARIADNE's visible review of UX-07A Settings Tier Snapshot
