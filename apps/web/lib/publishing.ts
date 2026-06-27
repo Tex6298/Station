@@ -336,6 +336,8 @@ export function stationAuthoringGuidance(input: {
   documentType: string;
   visibility: string;
   hasSpace: boolean;
+  stationDestination?: boolean;
+  canSubmitReview?: boolean;
   commentsEnabled: boolean;
   hasDocumentId: boolean;
   currentVersion?: number | null;
@@ -346,7 +348,9 @@ export function stationAuthoringGuidance(input: {
   const currentVersion = input.currentVersion && input.currentVersion > 0 ? input.currentVersion : 1;
   const priorVersionCount = Math.max(0, input.priorVersionCount ?? 0);
   const publicReady = input.visibility !== "private";
-  const queueReady = publicReady && input.hasSpace;
+  const stationDestination = input.stationDestination !== false;
+  const destinationReady = publicReady && stationDestination && input.hasSpace;
+  const queueReady = destinationReady && input.canSubmitReview !== false;
 
   return [
     {
@@ -359,11 +363,19 @@ export function stationAuthoringGuidance(input: {
     {
       id: "visibility",
       label: "Visibility",
-      value: queueReady ? `${capitalize(visibility)} ready` : publicReady ? "Needs Space" : "Private draft",
-      tone: queueReady ? "good" : publicReady ? "warning" : "info",
-      body: queueReady
+      value: destinationReady
+        ? `${capitalize(visibility)} ready`
+        : publicReady && !stationDestination
+          ? "Needs Station"
+          : publicReady
+            ? "Needs Space"
+            : "Private draft",
+      tone: destinationReady ? "good" : publicReady ? "warning" : "info",
+      body: destinationReady
         ? "A non-private Space destination is selected, so this draft can move into owner review when saved."
-        : publicReady
+        : publicReady && !stationDestination
+          ? "Enable the Station document destination before queueing this non-private draft for owner review."
+          : publicReady
           ? "Choose a Station Space before queueing this non-private draft for owner review."
           : "Private drafts stay owner-only until you choose a Space and non-private visibility.",
     },
@@ -383,6 +395,10 @@ export function stationAuthoringGuidance(input: {
       tone: queueReady ? "good" : "info",
       body: queueReady
         ? "Publishing still goes through grounding check and human review before public movement."
+        : destinationReady
+          ? "Review controls are still disabled; finish the save/review requirements before sending this draft for owner review."
+          : publicReady && !stationDestination
+            ? "Enable Station document destination before sending this draft for review."
         : "You can save this now, then add destination and visibility before sending it for review.",
     },
     {

@@ -147,17 +147,38 @@ export function PublishFlow() {
     [form.spaceId, spaces],
   );
 
+  const authoringReviewReady = Boolean(
+    publishingAllowed &&
+    stationDestination &&
+    form.spaceId &&
+    form.visibility !== "private" &&
+    form.title.trim() &&
+    form.slug.trim(),
+  );
+
   const authoringGuidance = useMemo(
     () => stationAuthoringGuidance({
       documentType: form.documentType,
       visibility: form.visibility,
       hasSpace: Boolean(form.spaceId),
+      stationDestination,
+      canSubmitReview: authoringReviewReady,
       commentsEnabled: form.commentsEnabled,
       hasDocumentId: Boolean(documentId),
       currentVersion,
       priorVersionCount: versions.length,
     }),
-    [currentVersion, documentId, form.commentsEnabled, form.documentType, form.spaceId, form.visibility, versions.length],
+    [
+      authoringReviewReady,
+      currentVersion,
+      documentId,
+      form.commentsEnabled,
+      form.documentType,
+      form.spaceId,
+      form.visibility,
+      stationDestination,
+      versions.length,
+    ],
   );
 
   const wordCount = useMemo(() => form.body.trim().split(/\s+/).filter(Boolean).length, [form.body]);

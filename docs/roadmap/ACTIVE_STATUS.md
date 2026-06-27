@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR401 native authoring depth
+## Latest ARGUS verdict - PR401 accepted with review patch
 
-DAEDALUS completed PR401:
+ARGUS accepted PR401:
 `docs/roadmap/PR401_NATIVE_AUTHORING_DEPTH_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS WITH ARGUS PATCH
+```
+
+Decision:
 
 - Added tested publishing helpers for Station document-type intent and
   authoring readiness.
@@ -22,6 +28,11 @@ Result:
   change.
 - Retract guidance remains hide/not-delete, and prior versions remain
   owner-only.
+- ARGUS patched one readiness overclaim: the Authoring Guide now uses the
+  actual Station destination toggle and review-control readiness before saying
+  the draft is queue-ready.
+- The patched guide says `Needs Station`/`Draft-only` when the Station
+  destination is off and keeps `Draft-only` when review controls are disabled.
 - No schema, migrations, API route behavior, hosted data mutation, scheduling,
   social dispatch, Station Press, SEO/OpenGraph, provider/model routing, Redis,
   Cloudflare, workers, queues, billing, Stripe, auth, or deployment behavior
@@ -34,14 +45,16 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed (16 tests).
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS has PR401.
-- ARGUS should review for copy overclaim, version-history truth, public/private
-  boundaries, retract-not-delete wording, and UI scope.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
-  wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has PR401.
+- MIMIR should close PR401 as `PASS WITH ARGUS PATCH`.
+- ARIADNE visible rehearsal is optional only if MIMIR wants human-eye
+  acceptance for the owner-side copy.
+- Recommended next lane: none from PR401 by default. Choose the next roadmap
+  move from fresh replay evidence or explicit product priority.
 
 ## Latest MIMIR decision - PR400 accepted, PR401 opened
 

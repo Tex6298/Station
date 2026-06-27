@@ -22,25 +22,26 @@ they are not Station validation failures.
 
 ## PR401 Native Authoring Depth Result
 
-DAEDALUS completed PR401 on 2026-06-27:
+ARGUS accepted PR401 on 2026-06-27:
 `docs/roadmap/PR401_NATIVE_AUTHORING_DEPTH_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS WITH REVIEW PATCH`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Authoring guidance helpers | Pass | `stationAuthoringGuidance` covers document kind, private/Space/queue readiness, owner-only version history, review path, discussion behavior, and retract hide/not-delete copy. |
 | Publish UI integration | Pass | `/studio/publish` renders the owner-side Authoring Guide from existing form state without changing persistence or public visibility behavior. |
+| ARGUS readiness patch | Pass | Authoring Guide now uses the actual Station destination toggle and review-control readiness before saying a non-private draft is queue-ready. |
 | Scope control | Pass | No schema, migrations, API route behavior, hosted data mutation, rich editor, scheduling, social dispatch, Station Press, SEO/OpenGraph, provider/model routing, Redis, Cloudflare, worker/queue, billing, auth, or deployment behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 11 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 129 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 16 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Cached whitespace check passed. |
 
-Residual risk: ARGUS still needs to review the new visible copy for overclaim.
-ARIADNE human-eye rehearsal is optional after ARGUS if MIMIR wants visible
-authoring-depth acceptance.
+Residual risk: ARIADNE human-eye rehearsal remains optional if MIMIR wants
+visible authoring-depth acceptance for the owner-side copy.
 
 ## PR400 Launch-Core Truth Reconciliation Result
 

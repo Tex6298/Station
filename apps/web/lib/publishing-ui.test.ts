@@ -152,6 +152,8 @@ test("publishing helpers describe Station-native authoring intent and readiness"
     documentType: "archive_note",
     visibility: "unlisted",
     hasSpace: true,
+    stationDestination: true,
+    canSubmitReview: true,
     commentsEnabled: true,
     hasDocumentId: true,
     currentVersion: 4,
@@ -178,6 +180,8 @@ test("publishing helpers keep private or incomplete authoring guidance bounded",
     documentType: "essay",
     visibility: "private",
     hasSpace: false,
+    stationDestination: true,
+    canSubmitReview: false,
     commentsEnabled: false,
     hasDocumentId: false,
   });
@@ -193,6 +197,8 @@ test("publishing helpers keep private or incomplete authoring guidance bounded",
     documentType: "research",
     visibility: "public",
     hasSpace: false,
+    stationDestination: true,
+    canSubmitReview: false,
     commentsEnabled: true,
     hasDocumentId: true,
     currentVersion: 2,
@@ -203,6 +209,36 @@ test("publishing helpers keep private or incomplete authoring guidance bounded",
   assert.equal(noSpaceRows.find((row) => row.id === "visibility")?.tone, "warning");
   assert.match(noSpaceRows.find((row) => row.id === "visibility")?.body ?? "", /Choose a Station Space/);
   assert.match(noSpaceRows.find((row) => row.id === "version")?.body ?? "", /owner-only versions/);
+
+  const stationOffRows = stationAuthoringGuidance({
+    documentType: "field_log",
+    visibility: "public",
+    hasSpace: true,
+    stationDestination: false,
+    canSubmitReview: false,
+    commentsEnabled: true,
+    hasDocumentId: true,
+    currentVersion: 2,
+  });
+
+  assert.equal(stationOffRows.find((row) => row.id === "visibility")?.value, "Needs Station");
+  assert.equal(stationOffRows.find((row) => row.id === "review")?.value, "Draft-only");
+  assert.match(stationOffRows.find((row) => row.id === "visibility")?.body ?? "", /Enable the Station document destination/);
+
+  const blockedReviewRows = stationAuthoringGuidance({
+    documentType: "manifesto",
+    visibility: "community",
+    hasSpace: true,
+    stationDestination: true,
+    canSubmitReview: false,
+    commentsEnabled: true,
+    hasDocumentId: true,
+    currentVersion: 3,
+  });
+
+  assert.equal(blockedReviewRows.find((row) => row.id === "visibility")?.value, "Community ready");
+  assert.equal(blockedReviewRows.find((row) => row.id === "review")?.value, "Draft-only");
+  assert.match(blockedReviewRows.find((row) => row.id === "review")?.body ?? "", /Review controls are still disabled/);
 });
 
 test("publishing trust readback explains public document boundaries", () => {
