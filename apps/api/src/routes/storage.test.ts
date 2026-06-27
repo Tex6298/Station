@@ -389,6 +389,10 @@ function storageRow(db: InMemorySupabase, userId = OWNER_ID) {
   return row;
 }
 
+function validStoragePath(fileName: string, personaId = PERSONA_ID, ownerId = OWNER_ID) {
+  return `${ownerId}/${personaId}/1700000000000_${fileName}`;
+}
+
 function createStorageApp() {
   const app = express();
   app.use(express.json());
@@ -504,7 +508,7 @@ test("/storage/me returns owner-scoped usage, tier limits, and category estimate
     owner_user_id: OWNER_ID,
     file_name: "source.txt",
     file_size: 12,
-    storage_path: "owner/source.txt",
+    storage_path: validStoragePath("source.txt"),
   });
   db.insertRow("import_jobs", {
     persona_id: PERSONA_ID,
@@ -584,7 +588,7 @@ test("persona file upload preflight and registration keep storage accounting bal
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 40,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -606,7 +610,7 @@ test("persona file upload preflight and registration keep storage accounting bal
     assert.equal(deleted.status, 204);
     assert.equal(storageRow(db).bytes_used, 0);
     assert.equal(db.tables.persona_files.length, 0);
-    assert.deepEqual(db.removedStoragePaths, ["owner/source.txt"]);
+    assert.deepEqual(db.removedStoragePaths, [validStoragePath("source.txt")]);
   } finally {
     resetStorageFake();
   }
@@ -689,7 +693,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -706,7 +710,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -728,7 +732,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 11,
-        storagePath: "owner/source-copy.txt",
+        storagePath: validStoragePath("source-copy.txt"),
         processImmediately: false,
       },
     });
@@ -744,7 +748,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -773,7 +777,7 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -791,15 +795,16 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 12,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
 
-    assert.equal(samePathDifferentPersona.status, 201);
-    assert.equal(storageRow(db).bytes_used, 33);
-    assert.equal(db.tables.persona_files.length, 3);
-    assert.equal(db.tables.import_jobs.length, 4);
+    assert.equal(samePathDifferentPersona.status, 400);
+    assert.equal(samePathDifferentPersona.body.error, "Invalid storage path.");
+    assert.equal(storageRow(db).bytes_used, 21);
+    assert.equal(db.tables.persona_files.length, 2);
+    assert.equal(db.tables.import_jobs.length, 3);
 
     const otherOwnerRetry = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "other-token",
@@ -807,14 +812,57 @@ test("persona file registration is idempotent for exact owner persona storage pa
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
 
     assert.equal(otherOwnerRetry.status, 404);
-    assert.equal(db.tables.persona_files.length, 3);
-    assert.equal(db.tables.import_jobs.length, 4);
+    assert.equal(db.tables.persona_files.length, 2);
+    assert.equal(db.tables.import_jobs.length, 3);
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("persona file registration rejects out-of-scope and traversal-shaped storage paths", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+
+  try {
+    const invalidPaths = [
+      `${OTHER_ID}/${PERSONA_ID}/source.txt`,
+      `${OWNER_ID}/${SECOND_PERSONA_ID}/source.txt`,
+      `${OWNER_ID}/${PERSONA_ID}/../other/source.txt`,
+      `/${OWNER_ID}/${PERSONA_ID}/source.txt`,
+      `${OWNER_ID}\\${PERSONA_ID}\\source.txt`,
+      `https://storage.example.test/${OWNER_ID}/${PERSONA_ID}/source.txt`,
+      `${OWNER_ID}/${PERSONA_ID}/source.txt?token=fixture`,
+      `${OWNER_ID}/${PERSONA_ID}/source.txt#fragment`,
+      `${OWNER_ID}/${PERSONA_ID}/source%2ftwo.txt`,
+      `${OWNER_ID}/${PERSONA_ID}/`,
+    ];
+
+    for (const storagePath of invalidPaths) {
+      const response = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+        token: "owner-token",
+        body: {
+          fileName: "source.txt",
+          fileType: "text/plain",
+          fileSize: 10,
+          storagePath,
+          processImmediately: false,
+        },
+      });
+
+      assert.equal(response.status, 400);
+      assert.deepEqual(response.body, { error: "Invalid storage path." });
+      assert.doesNotMatch(JSON.stringify(response.body), /source\.txt|storage\.example|token=fixture|fragment/);
+      assert.equal(storageRow(db).bytes_used, 0);
+      assert.equal(db.tables.persona_files.length, 0);
+      assert.equal(db.tables.import_jobs.length, 0);
+    }
   } finally {
     resetStorageFake();
   }
@@ -833,7 +881,7 @@ test("persona file registration rolls back reserved bytes and file rows after jo
         fileName: "bad-source.txt",
         fileType: "text/plain",
         fileSize: 40,
-        storagePath: "owner/bad-source.txt",
+        storagePath: validStoragePath("bad-source.txt"),
         processImmediately: false,
       },
     });
@@ -841,7 +889,7 @@ test("persona file registration rolls back reserved bytes and file rows after jo
     assert.equal(response.status, 500);
     assert.equal(storageRow(db).bytes_used, 0);
     assert.equal(db.tables.persona_files.length, 0);
-    assert.deepEqual(db.removedStoragePaths, ["owner/bad-source.txt"]);
+    assert.deepEqual(db.removedStoragePaths, [validStoragePath("bad-source.txt")]);
   } finally {
     resetStorageFake();
   }
@@ -852,7 +900,7 @@ test("persona file registration makes protected-alpha inline fallback visible", 
   setSupabaseAdminForTests(db.client as any);
   const app = await createPersonaFilesApp();
   storageRow(db).bytes_limit = 1000;
-  db.storageDownloads.set("owner/inline.txt", "inline fallback import text");
+  db.storageDownloads.set(validStoragePath("inline.txt"), "inline fallback import text");
 
   try {
     const registered = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
@@ -861,7 +909,7 @@ test("persona file registration makes protected-alpha inline fallback visible", 
         fileName: "inline.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/inline.txt",
+        storagePath: validStoragePath("inline.txt"),
         processImmediately: true,
       },
     });
@@ -892,7 +940,7 @@ test("persona file duplicate lookup failures fail closed without extra storage o
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -909,7 +957,7 @@ test("persona file duplicate lookup failures fail closed without extra storage o
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -928,7 +976,7 @@ test("persona file duplicate lookup failures fail closed without extra storage o
         fileName: "source.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/source.txt",
+        storagePath: validStoragePath("source.txt"),
         processImmediately: false,
       },
     });
@@ -956,7 +1004,7 @@ test("persona file import quota blocks new work while exact duplicates stay idem
       file_name: "existing.txt",
       file_type: "text/plain",
       file_size: 10,
-      storage_path: "owner/existing.txt",
+      storage_path: validStoragePath("existing.txt"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -983,7 +1031,7 @@ test("persona file import quota blocks new work while exact duplicates stay idem
         fileName: "existing.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/existing.txt",
+        storagePath: validStoragePath("existing.txt"),
         processImmediately: false,
       },
     });
@@ -996,7 +1044,7 @@ test("persona file import quota blocks new work while exact duplicates stay idem
       file_name: "orphaned-file.txt",
       file_type: "text/plain",
       file_size: 10,
-      storage_path: "owner/orphaned-file.txt",
+      storage_path: validStoragePath("orphaned-file.txt"),
     });
     const orphanedRepair = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "owner-token",
@@ -1004,7 +1052,7 @@ test("persona file import quota blocks new work while exact duplicates stay idem
         fileName: "orphaned-file.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/orphaned-file.txt",
+        storagePath: validStoragePath("orphaned-file.txt"),
         processImmediately: false,
       },
     });
@@ -1019,7 +1067,7 @@ test("persona file import quota blocks new work while exact duplicates stay idem
         fileName: "new-work.txt",
         fileType: "text/plain",
         fileSize: 10,
-        storagePath: "owner/new-work.txt",
+        storagePath: validStoragePath("new-work.txt"),
         processImmediately: false,
       },
     });
@@ -1030,7 +1078,7 @@ test("persona file import quota blocks new work while exact duplicates stay idem
     assert.equal(blocked.body.limit, 5);
     assert.equal(blocked.body.used, 5);
     assert.equal(storageRow(db).bytes_used, 0);
-    assert.equal(db.tables.persona_files.some((row) => row.storage_path === "owner/new-work.txt"), false);
+    assert.equal(db.tables.persona_files.some((row) => row.storage_path === validStoragePath("new-work.txt")), false);
     assert.equal(db.tables.import_jobs.some((row) => row.source_name === "new-work.txt"), false);
   } finally {
     resetStorageFake();
@@ -1042,9 +1090,9 @@ test("file import job runner claims durable file pointers, gates owners, and fai
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
   storageRow(db).bytes_limit = 1000;
-  db.storageDownloads.set("owner/runner.txt", "runner import text for deterministic job processing");
+  db.storageDownloads.set(validStoragePath("runner.txt"), "runner import text for deterministic job processing");
   db.storageDownloads.set(
-    "owner/broken.json",
+    validStoragePath("broken.json"),
     JSON.stringify({ unknown: { private: "runner secret should not appear" } })
   );
 
@@ -1055,7 +1103,7 @@ test("file import job runner claims durable file pointers, gates owners, and fai
       file_name: "runner.txt",
       file_type: "text/plain",
       file_size: 20,
-      storage_path: "owner/runner.txt",
+      storage_path: validStoragePath("runner.txt"),
     });
     const job = db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1133,7 +1181,7 @@ test("file import job runner claims durable file pointers, gates owners, and fai
       file_name: "mismatch.txt",
       file_type: "text/plain",
       file_size: 20,
-      storage_path: "owner/mismatch.txt",
+      storage_path: validStoragePath("mismatch.txt"),
     });
     const mismatchJob = db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1169,7 +1217,7 @@ test("file import job runner claims durable file pointers, gates owners, and fai
       file_name: "broken.json",
       file_type: "text/plain",
       file_size: 20,
-      storage_path: "owner/broken.json",
+      storage_path: validStoragePath("broken.json"),
     });
     const brokenJob = db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1320,7 +1368,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
   storageRow(db).bytes_limit = 1000;
 
   db.storageDownloads.set(
-    "owner/chatgpt.json",
+    validStoragePath("chatgpt.json"),
     JSON.stringify({
       mapping: {
         second: {
@@ -1341,7 +1389,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     })
   );
   db.storageDownloads.set(
-    "owner/claude.json",
+    validStoragePath("claude.json"),
     JSON.stringify({
       chat_messages: [
         { sender: "assistant", text: "Claude second.", created_at: "2026-06-17T10:02:00.000Z" },
@@ -1350,22 +1398,22 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     })
   );
   db.storageDownloads.set(
-    "owner/unknown.json",
+    validStoragePath("unknown.json"),
     JSON.stringify({ arbitrary: { private: "this must not become memory" } })
   );
   db.storageDownloads.set(
-    "owner/arbitrary-array.json",
+    validStoragePath("arbitrary-array.json"),
     JSON.stringify([{ text: "array private phrase must not become memory" }])
   );
   db.storageDownloads.set(
-    "owner/generic-permalink.json",
+    validStoragePath("generic-permalink.json"),
     JSON.stringify([{
       text: "generic permalink phrase must not become memory",
       permalink: "/posts/1",
     }])
   );
   db.storageDownloads.set(
-    "owner/generic-discord.json",
+    validStoragePath("generic-discord.json"),
     JSON.stringify([{
       content: "generic Discord-like phrase must not become memory",
       author: "Someone",
@@ -1373,7 +1421,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     }])
   );
   db.storageDownloads.set(
-    "owner/generic-discord-author-object.json",
+    validStoragePath("generic-discord-author-object.json"),
     JSON.stringify([{
       content: "generic Discord object-author phrase must not become memory",
       author: { username: "Someone" },
@@ -1381,14 +1429,14 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     }])
   );
   db.storageDownloads.set(
-    "owner/generic-discord-type.json",
+    validStoragePath("generic-discord-type.json"),
     JSON.stringify([{
       content: "generic Discord type phrase must not become memory",
       type: "note",
     }])
   );
   db.storageDownloads.set(
-    "owner/generic-discord-attachments.json",
+    validStoragePath("generic-discord-attachments.json"),
     JSON.stringify([{
       text: "generic Discord attachment phrase must not become memory",
       attachments: [{ filename: "receipt.pdf" }],
@@ -1402,7 +1450,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "chatgpt.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/chatgpt.json",
+      storage_path: validStoragePath("chatgpt.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1418,7 +1466,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       fileId: chatGptFile.id,
       fileName: "chatgpt.json",
       fileType: "application/json",
-      storagePath: "owner/chatgpt.json",
+      storagePath: validStoragePath("chatgpt.json"),
     });
 
     assert.equal(chatGptProcessed.chunksCreated, 1);
@@ -1442,7 +1490,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "claude.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/claude.json",
+      storage_path: validStoragePath("claude.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1458,7 +1506,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       fileId: claudeFile.id,
       fileName: "claude.json",
       fileType: "application/json",
-      storagePath: "owner/claude.json",
+      storagePath: validStoragePath("claude.json"),
     });
 
     assert.equal(claudeProcessed.chunksCreated, 1);
@@ -1483,7 +1531,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "unknown.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/unknown.json",
+      storage_path: validStoragePath("unknown.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1500,7 +1548,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: unknownFile.id,
         fileName: "unknown.json",
         fileType: "text/plain",
-        storagePath: "owner/unknown.json",
+        storagePath: validStoragePath("unknown.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1519,7 +1567,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "arbitrary-array.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/arbitrary-array.json",
+      storage_path: validStoragePath("arbitrary-array.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1536,7 +1584,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: arbitraryArrayFile.id,
         fileName: "arbitrary-array.json",
         fileType: "application/json",
-        storagePath: "owner/arbitrary-array.json",
+        storagePath: validStoragePath("arbitrary-array.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1555,7 +1603,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "generic-permalink.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/generic-permalink.json",
+      storage_path: validStoragePath("generic-permalink.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1572,7 +1620,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: genericPermalinkFile.id,
         fileName: "generic-permalink.json",
         fileType: "application/json",
-        storagePath: "owner/generic-permalink.json",
+        storagePath: validStoragePath("generic-permalink.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1591,7 +1639,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "generic-discord.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/generic-discord.json",
+      storage_path: validStoragePath("generic-discord.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1608,7 +1656,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: genericDiscordFile.id,
         fileName: "generic-discord.json",
         fileType: "application/json",
-        storagePath: "owner/generic-discord.json",
+        storagePath: validStoragePath("generic-discord.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1627,7 +1675,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "generic-discord-author-object.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/generic-discord-author-object.json",
+      storage_path: validStoragePath("generic-discord-author-object.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1644,7 +1692,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: genericDiscordAuthorFile.id,
         fileName: "generic-discord-author-object.json",
         fileType: "application/json",
-        storagePath: "owner/generic-discord-author-object.json",
+        storagePath: validStoragePath("generic-discord-author-object.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1663,7 +1711,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "generic-discord-type.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/generic-discord-type.json",
+      storage_path: validStoragePath("generic-discord-type.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1680,7 +1728,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: genericDiscordTypeFile.id,
         fileName: "generic-discord-type.json",
         fileType: "application/json",
-        storagePath: "owner/generic-discord-type.json",
+        storagePath: validStoragePath("generic-discord-type.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1699,7 +1747,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
       file_name: "generic-discord-attachments.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/generic-discord-attachments.json",
+      storage_path: validStoragePath("generic-discord-attachments.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1716,7 +1764,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
         fileId: genericDiscordAttachmentsFile.id,
         fileName: "generic-discord-attachments.json",
         fileType: "application/json",
-        storagePath: "owner/generic-discord-attachments.json",
+        storagePath: validStoragePath("generic-discord-attachments.json"),
       }),
       /Unsupported JSON import format/
     );
@@ -1739,7 +1787,7 @@ test("uploaded Reddit JSON creates private archive chunks and import review cand
   setSupabaseAdminForTests(db.client as any);
   storageRow(db).bytes_limit = 1000;
   db.storageDownloads.set(
-    "owner/reddit.json",
+    validStoragePath("reddit.json"),
     JSON.stringify({
       title: "Station archive thread",
       subreddit: "StationLab",
@@ -1766,7 +1814,7 @@ test("uploaded Reddit JSON creates private archive chunks and import review cand
       file_name: "reddit.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/reddit.json",
+      storage_path: validStoragePath("reddit.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1782,7 +1830,7 @@ test("uploaded Reddit JSON creates private archive chunks and import review cand
       fileId: redditFile.id,
       fileName: "reddit.json",
       fileType: "application/json",
-      storagePath: "owner/reddit.json",
+      storagePath: validStoragePath("reddit.json"),
     });
 
     assert.equal(processed.chunksCreated, 1);
@@ -1814,7 +1862,7 @@ test("uploaded Discord JSON creates private archive chunks and import review can
   setSupabaseAdminForTests(db.client as any);
   storageRow(db).bytes_limit = 1000;
   db.storageDownloads.set(
-    "owner/discord.json",
+    validStoragePath("discord.json"),
     JSON.stringify({
       guild: { id: "guild-1", name: "Station Guild" },
       channel: { id: "channel-1", name: "archive-lab" },
@@ -1845,7 +1893,7 @@ test("uploaded Discord JSON creates private archive chunks and import review can
       file_name: "discord.json",
       file_type: "application/json",
       file_size: 10,
-      storage_path: "owner/discord.json",
+      storage_path: validStoragePath("discord.json"),
     });
     db.insertRow("import_jobs", {
       persona_id: PERSONA_ID,
@@ -1861,7 +1909,7 @@ test("uploaded Discord JSON creates private archive chunks and import review can
       fileId: discordFile.id,
       fileName: "discord.json",
       fileType: "application/json",
-      storagePath: "owner/discord.json",
+      storagePath: validStoragePath("discord.json"),
     });
 
     assert.equal(processed.chunksCreated, 1);

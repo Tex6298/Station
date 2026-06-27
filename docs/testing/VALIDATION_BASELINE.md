@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR417 Persona File Register Storage Path Scope Result
+
+DAEDALUS completed PR417 on 2026-06-27:
+`docs/roadmap/PR417_PERSONA_FILE_REGISTER_STORAGE_PATH_SCOPE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Register prefix validation | Pass | `/persona-files/persona/:personaId/register` rejects storage paths outside the authenticated owner/requested persona prefix before duplicate lookup, quota checks, inserts, or import job creation. |
+| Sanitized rejection | Pass | Rejected paths return `{ "error": "Invalid storage path." }` without echoing raw submitted paths. |
+| Valid upload-url path | Pass | Valid paths returned by upload-url route still register successfully. |
+| PR416 proof-style filename | Pass | Sanitized PR416/PR415-style proof filename path still registers and preserves the original owner-visible filename. |
+| Wrong owner/persona prefixes | Pass | Wrong owner prefix and wrong persona prefix reject. |
+| Traversal/URL-shaped input | Pass | Tests cover `..`, leading slash, backslash, URL-like value, query/hash, encoded slash, and empty basename shapes. |
+| Quota/file/job safety | Pass | Rejected attempts reserve no storage and create no file rows/import jobs. |
+| Duplicate/idempotency | Pass | Valid same-path duplicate behavior remains idempotent. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warnings only. |
+
+Not run: web helper tests, web typecheck, hosted upload proof. PR417 changed
+only the API register route and API storage tests; no web code or hosted data
+path was touched.
+
+Residual risk: hosted upload/register/import success remains unproven until
+MIMIR/ARGUS opens a separate hosted proof retry packet.
+
 ## PR416 Signed Upload Client/Storage Repair Result
 
 DAEDALUS completed PR416 on 2026-06-27:

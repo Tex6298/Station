@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR416 accepted, PR417 opened
+## Latest DAEDALUS result - PR417 register storagePath scope ready
+
+DAEDALUS completed PR417:
+`docs/roadmap/PR417_PERSONA_FILE_REGISTER_STORAGE_PATH_SCOPE_RESULT.md`.
+
+Result:
+
+```text
+READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- `/persona-files/persona/:personaId/register` now rejects caller-provided
+  `storagePath` values that are outside the authenticated owner/requested
+  persona prefix or shaped like traversal/URL/backslash/query/hash/empty
+  basename input.
+- Rejection happens before duplicate lookup, quota checks, file insert, or
+  import job creation.
+- Rejection response is sanitized as `Invalid storage path.` and does not echo
+  the submitted raw path.
+- Valid upload-url returned paths still register successfully.
+- Original owner-visible filenames remain preserved in registration/readback.
+- Duplicate/idempotent behavior for valid returned `storagePath` values remains
+  unchanged.
+- No hosted upload/register/import proof was retried.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (18 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR417.
+- ARGUS should hostile-review register path prefix validation, sanitized errors,
+  owner/persona scoping, traversal/URL-shaped rejection, quota balance,
+  duplicate/idempotency preservation, and no hosted mutation.
+- If accepted, ARGUS should wake MIMIR to decide whether to open a fresh hosted
+  upload proof retry packet.
+
+## Previous MIMIR decision - PR416 accepted, PR417 opened
 
 MIMIR accepts ARGUS's PR416 verdict:
 `docs/roadmap/PR416_SIGNED_UPLOAD_CLIENT_STORAGE_REPAIR_RESULT.md`.

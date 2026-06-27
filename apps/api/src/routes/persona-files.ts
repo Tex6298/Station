@@ -108,6 +108,10 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     return res.status(404).json({ error: "Persona not found." });
   }
 
+  if (!isRegisterStoragePathInScope(parsed.data.storagePath, userId, persona.id)) {
+    return res.status(400).json({ error: "Invalid storage path." });
+  }
+
   let existingFile: Awaited<ReturnType<typeof loadRegisteredFileByStoragePath>>;
   try {
     existingFile = await loadRegisteredFileByStoragePath(
@@ -370,4 +374,30 @@ function storageObjectBasenameForUpload(fileName: string) {
     .slice(0, 64);
 
   return `${safeStem || fallback}${extension}`;
+}
+
+function isRegisterStoragePathInScope(
+  storagePath: string,
+  ownerUserId: string,
+  personaId: string
+) {
+  if (storagePath.trim() !== storagePath) return false;
+  if (
+    storagePath.startsWith("/") ||
+    storagePath.includes("\\") ||
+    storagePath.includes("?") ||
+    storagePath.includes("#") ||
+    storagePath.includes("..") ||
+    /^[A-Za-z][A-Za-z0-9+.-]*:/.test(storagePath) ||
+    /%(?:2e|2f|3a|3f|5c|23)/i.test(storagePath)
+  ) {
+    return false;
+  }
+
+  const [ownerSegment, personaSegment, basename, ...extraSegments] = storagePath.split("/");
+  if (extraSegments.length > 0) return false;
+  if (ownerSegment !== ownerUserId || personaSegment !== personaId) return false;
+  if (!basename || basename === "." || basename === "..") return false;
+
+  return /^[A-Za-z0-9][A-Za-z0-9._-]{0,180}$/.test(basename);
 }
