@@ -20,26 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## UX-05 Discover And Community Browsing Feasibility Opened
+## UX-05 Discover And Community Browsing Feasibility Result
 
-MIMIR opened UX-05 on 2026-06-27:
-`docs/roadmap/UX05_DISCOVER_COMMUNITY_FEASIBILITY_DAEDALUS.md`.
+DAEDALUS completed UX-05 on 2026-06-27:
+`docs/roadmap/UX05_DISCOVER_COMMUNITY_FEASIBILITY_RESULT.md`.
 
-Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+Validation result: `COMPLETE - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-03A prerequisite | Pass | Continuity review target links are accepted after ARGUS and ARIADNE review. |
 | UX-04 evidence check | Pass | Prior PR334 public Space microsite work and hosted route checks exist; UX-04 is not being reopened by inertia. |
-| Scope | Pending | Docs-only Discover/community current-state reconciliation. |
-| Control classification | Pending | DAEDALUS should classify Discover filters/tabs/search and forum controls as live, disabled, preview-only, broken, or stale. |
-| Privacy/visibility | Pending | Public/community-visible copy and private Studio exclusion must remain explicit. |
-| Required validation | Pending | DAEDALUS should run whitespace and sensitive-pattern checks for the docs-only result. |
+| Scope | Pass | Docs-only Discover/community current-state reconciliation; no product code changed. |
+| Control classification | Pass | Discover tabs/search/filters, public Space rail, forum category/thread controls, report/reply/vote/watch/moderation states, and disabled/preview-only controls are classified. |
+| Stale assumption review | Pass | Older Discern/public-search assumptions are marked stale where later PR336-PR406 evidence supersedes them. |
+| Privacy/visibility | Pass | Public/community-visible copy, owner-only search buckets, safe public Space slugs, forum visibility, and moderation/report boundaries are called out as gates if touched. |
+| Recommended next move | Pass | No default UX-05 implementation slice; MIMIR should move to the next roadmap lane or request optional evidence-only forum action rehearsal. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| Added-line sensitive-pattern scan | Pass | No matches; command emitted CRLF normalization warnings only. |
 
-Residual risk: UX-05 is not implemented yet. The open risk is public browsing
-drift: routeable links may be working while filters/actions/copy still read as
-generic, placeholder-like, or unclear about public versus community-visible
-scope.
+Residual risk: This was a source/docs feasibility pass, not a hosted browser
+rehearsal. The remaining UX-05 risk is evidence freshness around the full
+signed-in forum action matrix, not a confirmed implementation defect.
 
 ## UX-03A Continuity Review Target Links ARIADNE Review
 

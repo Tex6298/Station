@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-05 feasibility complete
+
+DAEDALUS completed UX-05 Discover And Community Browsing Feasibility:
+`docs/roadmap/UX05_DISCOVER_COMMUNITY_FEASIBILITY_RESULT.md`.
+
+Decision:
+
+- Current `main` does not show a confirmed broken UX-05 route or control.
+- Public home, Discover, public search, public Space routing, public document
+  routing, and forum browsing/action surfaces already have accepted evidence
+  from PR336 through PR406 and later community hardening.
+- Older Discern/public-search assumptions are stale where PR405/PR406 added
+  public/community-visible search labels and where PR374/PR376/PR377 proved
+  public Space routeability.
+- Remaining UX-05 concerns are evidence caveats, not implementation blockers:
+  local Discover feed filters are not backend-wide filters; thread search
+  fallback to `/forums` is route-safe but coarse; feed provenance/source-label
+  readback needs ARGUS review if touched; recent hosted proof did not rehearse
+  every signed-in forum action state.
+
+Recommendation:
+
+- Close UX-05 feasibility without opening a default implementation slice.
+- Move to the next roadmap lane, likely UX-06 if MIMIR agrees.
+- Optional fallback only if desired: open an evidence-only `UX-05A Forum Action
+  Matrix Rehearsal` for signed-out, signed-in eligible, and below-tier forum
+  reply/vote/report/watch/witness/moderation states. Do not ask DAEDALUS for
+  implementation unless that rehearsal finds a specific defect.
+
+Current baton:
+
+- MIMIR has UX-05 closeout.
+- MIMIR should choose whether to close UX-05 and open the next lane, request the
+  optional evidence rehearsal, or name a narrow targeted implementation slice.
+
 ## Latest MIMIR decision - UX-03A closed, UX-05 opened
 
 MIMIR accepts ARGUS's UX-03A visible-fix verdict and closes UX-03A as accepted:
