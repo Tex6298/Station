@@ -1214,9 +1214,31 @@ test("chat finalizer grounds reviewed import Memory and Canon labels with owner-
     archive_source_id: "private-source-id-pr423",
     archive_source_name: "private/storage/pr423-import.json?token=secret",
   });
+  db.insertRow("memory_items", {
+    id: "memory-reviewed-import-pr423-extra",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Extra reviewed import memory",
+    content: "The extra reviewed import memory says unrelated imported material can remain unmentioned.",
+    summary: "Additional owner-reviewed import memory outside the target pair.",
+    source_type: "import",
+    relevance_weight: 9,
+    archive_source_type: "persona_file",
+    archive_source_id: "private-source-id-pr423-extra",
+    archive_source_name: "private/storage/pr423-extra-import.json?token=secret",
+  });
   db.insertRow("memory_item_lifecycle", {
     id: "memory-reviewed-import-pr423-lifecycle",
     memory_item_id: "memory-reviewed-import-pr423",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    status: "active",
+    trust_level: "user_stated",
+    confidence: 1,
+  });
+  db.insertRow("memory_item_lifecycle", {
+    id: "memory-reviewed-import-pr423-extra-lifecycle",
+    memory_item_id: "memory-reviewed-import-pr423-extra",
     persona_id: PERSONA_ID,
     owner_user_id: OWNER_ID,
     status: "active",
@@ -1264,6 +1286,7 @@ test("chat finalizer grounds reviewed import Memory and Canon labels with owner-
     ].join("\n");
     assert.equal(response.status, 200);
     assert.equal(response.body.reply.content, expectedAnswer);
+    assert.doesNotMatch(response.body.reply.content, /Extra reviewed import memory/);
     assert.equal(providerCalls.length, 2);
 
     const firstPayload = JSON.parse(providerCalls[0].body) as { messages: Array<{ role: string; content: string }> };

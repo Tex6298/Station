@@ -384,9 +384,10 @@ function evaluateSelectedContextAnswerContract(
   let unpairedFactCount = 0;
   let requiredMatchedCount = 0;
   let requiredLabelMissCount = 0;
+  let requiredFactMissCount = 0;
   let requiredProvenanceMissCount = 0;
   const requiredItems = contract.requiresReviewedImportPairs
-    ? contract.items.filter(isRequiredReviewedImportItem)
+    ? requiredReviewedImportItems(contract.items)
     : [];
   const normalizedOwnerReviewedImport = normalizeAnswerContractText("owner-reviewed import");
 
@@ -404,17 +405,22 @@ function evaluateSelectedContextAnswerContract(
     if (requiredItems.includes(item)) {
       if (labelMatched && factMatched && provenanceMatched) requiredMatchedCount += 1;
       if (!labelMatched) requiredLabelMissCount += 1;
+      if (!factMatched) requiredFactMissCount += 1;
       if (!provenanceMatched) requiredProvenanceMissCount += 1;
     }
   }
 
   let reasonCode: AnswerContractReasonCode;
-  if (requiredItems.length > 0 && requiredMatchedCount < requiredItems.length) {
-    reasonCode = matchedLabelCount === 0 && matchedFactCount === 0
-      ? "missed_all_selected_focus"
-      : requiredLabelMissCount > 0 || requiredProvenanceMissCount > 0 || unpairedFactCount > 0
-        ? "missed_selected_labels"
-        : "missed_supporting_facts";
+  if (requiredItems.length > 0) {
+    reasonCode = requiredMatchedCount === requiredItems.length
+      ? "fulfilled"
+      : matchedLabelCount === 0 && matchedFactCount === 0
+        ? "missed_all_selected_focus"
+        : requiredLabelMissCount > 0 || requiredProvenanceMissCount > 0
+          ? "missed_selected_labels"
+          : requiredFactMissCount > 0
+            ? "missed_supporting_facts"
+            : "missed_selected_labels";
   } else {
     reasonCode = matchedItemCount > 0 && unpairedFactCount === 0
       ? "fulfilled"
@@ -443,7 +449,7 @@ function buildSelectedPairFinalizerAnswer(
 
   const answerTerms = new Set(answerContractTerms(failedAnswer, 256));
   const requiredItems = contract.requiresReviewedImportPairs
-    ? contract.items.filter(isRequiredReviewedImportItem)
+    ? requiredReviewedImportItems(contract.items)
     : [];
   const matchedFactItems = contract.items.filter((item) =>
     item.hasLabel &&
@@ -477,6 +483,17 @@ function isOwnerReviewedImportSource(source: PersonaContextSource) {
 
 function isRequiredReviewedImportItem(item: AnswerContractItem) {
   return item.ownerReviewedImport && (item.bucket === "memory" || item.bucket === "canon");
+}
+
+function requiredReviewedImportItems(items: AnswerContractItem[]) {
+  const seenBuckets = new Set<AnswerContractItem["bucket"]>();
+  const required: AnswerContractItem[] = [];
+  for (const item of items) {
+    if (!isRequiredReviewedImportItem(item) || seenBuckets.has(item.bucket)) continue;
+    seenBuckets.add(item.bucket);
+    required.push(item);
+  }
+  return required;
 }
 
 function shouldRequireReviewedImportPairs(ownerMessage: string, items: AnswerContractItem[]) {

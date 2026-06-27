@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR426 Selected Context Contract Alignment Result
+
+DAEDALUS completed PR426 on 2026-06-27:
+`docs/roadmap/PR426_SELECTED_CONTEXT_CONTRACT_ALIGNMENT_RESULT.md`.
+
+Validation result: `LOCAL PASS - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope classification | Pass | Local-only private chat answer-contract/test alignment. No hosted chat/model call, live provider call, `.env` credential read, provider/model/config change, import/candidate mutation, hosted cleanup, public/community mutation, Redis, Cloudflare, schema, migration, worker, queue, billing, UI, or broad runtime work. |
+| Reviewed-import target mode | Pass | Required target is now the first owner-reviewed import pair per Memory/Canon bucket. |
+| Contract fulfillment | Pass | Reviewed/import mode reports `fulfilled` when required Memory/Canon label/fact/provenance pairs are satisfied, even if unrelated selected context items are omitted. |
+| Failure preservation | Pass | Missing required owner-reviewed import labels, provenance, or paired facts still fails the contract; non-reviewed/import prompts keep generic selected-context behavior. |
+| Finalizer telemetry | Pass | `finalizerSatisfied` remains tied to post-finalizer fulfillment. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+
+Residual risk: this is local mocked-provider proof only. ARGUS should decide
+whether PR426 is enough to wake MIMIR with a closeout recommendation.
+
 ## PR426 Selected Context Contract Alignment Opened
 
 MIMIR opened PR426 on 2026-06-27:
