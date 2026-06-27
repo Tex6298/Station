@@ -6,6 +6,7 @@ import {
   documentEditHref,
   documentPublicVersionLabel,
   documentTrustReadback,
+  documentTypeAuthoringIntent,
   documentVersionSummaryLabel,
   documentDestinationLabel,
   documentProvenanceLabel,
@@ -21,6 +22,7 @@ import {
   publishingSourceLabelForReadback,
   publishingStatusLabel,
   slugifyDocumentTitle,
+  stationAuthoringGuidance,
   type PublishingApproval,
   type PublishingDocument,
 } from "./publishing";
@@ -137,6 +139,70 @@ test("publishing helpers summarize document version history", () => {
     documentVersionSummaryLabel(null, [{ versionNumber: 1 }]),
     "Current version v1; 1 prior version saved from v1 to v1.",
   );
+});
+
+test("publishing helpers describe Station-native authoring intent and readiness", () => {
+  assert.deepEqual(documentTypeAuthoringIntent("constitution"), {
+    label: "Codex",
+    intent: "Canonical rules, principles, or operating notes.",
+    useWhen: "Use it when the document should become part of a durable persona or Space reference.",
+  });
+
+  const rows = stationAuthoringGuidance({
+    documentType: "archive_note",
+    visibility: "unlisted",
+    hasSpace: true,
+    commentsEnabled: true,
+    hasDocumentId: true,
+    currentVersion: 4,
+    priorVersionCount: 3,
+  });
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["kind", "Archive Note", "info"],
+    ["visibility", "Unlisted ready", "good"],
+    ["version", "Current v4", "good"],
+    ["review", "Queue-ready", "good"],
+    ["discussion", "Linked when public", "good"],
+    ["retract", "Hide, not delete", "warning"],
+  ]);
+  assert.match(rows.find((row) => row.id === "kind")?.body ?? "", /private archive material/i);
+  assert.match(rows.find((row) => row.id === "version")?.body ?? "", /prior owner-only versions \(3 saved\)/);
+  assert.match(rows.find((row) => row.id === "review")?.body ?? "", /grounding check and human review/i);
+  assert.match(rows.find((row) => row.id === "discussion")?.body ?? "", /same visibility boundary/i);
+  assert.doesNotMatch(rows.find((row) => row.id === "retract")?.body ?? "", /cleanup/i);
+});
+
+test("publishing helpers keep private or incomplete authoring guidance bounded", () => {
+  const privateRows = stationAuthoringGuidance({
+    documentType: "essay",
+    visibility: "private",
+    hasSpace: false,
+    commentsEnabled: false,
+    hasDocumentId: false,
+  });
+
+  assert.equal(privateRows.find((row) => row.id === "visibility")?.value, "Private draft");
+  assert.equal(privateRows.find((row) => row.id === "version")?.value, "Unsaved");
+  assert.equal(privateRows.find((row) => row.id === "review")?.value, "Draft-only");
+  assert.equal(privateRows.find((row) => row.id === "discussion")?.value, "Off");
+  assert.match(privateRows.find((row) => row.id === "visibility")?.body ?? "", /stay owner-only/);
+  assert.match(privateRows.find((row) => row.id === "version")?.body ?? "", /first save creates the owner draft/i);
+
+  const noSpaceRows = stationAuthoringGuidance({
+    documentType: "research",
+    visibility: "public",
+    hasSpace: false,
+    commentsEnabled: true,
+    hasDocumentId: true,
+    currentVersion: 2,
+    priorVersionCount: 0,
+  });
+
+  assert.equal(noSpaceRows.find((row) => row.id === "visibility")?.value, "Needs Space");
+  assert.equal(noSpaceRows.find((row) => row.id === "visibility")?.tone, "warning");
+  assert.match(noSpaceRows.find((row) => row.id === "visibility")?.body ?? "", /Choose a Station Space/);
+  assert.match(noSpaceRows.find((row) => row.id === "version")?.body ?? "", /owner-only versions/);
 });
 
 test("publishing trust readback explains public document boundaries", () => {

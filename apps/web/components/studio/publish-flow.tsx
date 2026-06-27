@@ -12,6 +12,7 @@ import {
   documentTypeLabel,
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
+  stationAuthoringGuidance,
   slugifyDocumentTitle,
   type PublishingDocument,
   type PublishingDocumentVersion,
@@ -144,6 +145,19 @@ export function PublishFlow() {
   const selectedSpace = useMemo(
     () => spaces.find((space) => space.id === form.spaceId) ?? null,
     [form.spaceId, spaces],
+  );
+
+  const authoringGuidance = useMemo(
+    () => stationAuthoringGuidance({
+      documentType: form.documentType,
+      visibility: form.visibility,
+      hasSpace: Boolean(form.spaceId),
+      commentsEnabled: form.commentsEnabled,
+      hasDocumentId: Boolean(documentId),
+      currentVersion,
+      priorVersionCount: versions.length,
+    }),
+    [currentVersion, documentId, form.commentsEnabled, form.documentType, form.spaceId, form.visibility, versions.length],
   );
 
   const wordCount = useMemo(() => form.body.trim().split(/\s+/).filter(Boolean).length, [form.body]);
@@ -381,6 +395,21 @@ export function PublishFlow() {
           </section>
 
           <aside style={{ display: "grid", gap: 14 }}>
+            <section style={panel}>
+              <SectionTitle title="Authoring Guide" />
+              <div style={guidanceGrid}>
+                {authoringGuidance.map((item) => (
+                  <div key={item.id} style={guidanceRow(item.tone)}>
+                    <div style={guidanceHeader}>
+                      <span>{item.label}</span>
+                      <strong>{item.value}</strong>
+                    </div>
+                    <p style={guidanceBody}>{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {documentId ? (
               <section style={panel}>
                 <SectionTitle title="Version History" />
@@ -691,6 +720,42 @@ const helperText = {
   fontSize: 12,
   lineHeight: 1.45,
 };
+
+const guidanceGrid = {
+  display: "grid",
+  gap: 8,
+};
+
+const guidanceHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 10,
+  color: "#1f2529",
+  fontSize: 12,
+};
+
+const guidanceBody = {
+  margin: "6px 0 0",
+  color: "#565f67",
+  fontSize: 12,
+  lineHeight: 1.45,
+};
+
+function guidanceRow(tone: "info" | "good" | "warning") {
+  const toneStyles = {
+    info: { borderColor: "#d8d3c8", background: "#f8f7f4" },
+    good: { borderColor: "rgba(59, 143, 99, 0.35)", background: "#e9f5ee" },
+    warning: { borderColor: "rgba(133, 79, 11, 0.35)", background: "#f8efd9" },
+  }[tone];
+
+  return {
+    border: `1px solid ${toneStyles.borderColor}`,
+    borderRadius: 8,
+    background: toneStyles.background,
+    padding: 10,
+  };
+}
 
 const inlineLink = {
   display: "inline-flex",

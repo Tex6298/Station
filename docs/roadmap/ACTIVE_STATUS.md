@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR401 native authoring depth
+
+DAEDALUS completed PR401:
+`docs/roadmap/PR401_NATIVE_AUTHORING_DEPTH_RESULT.md`.
+
+Result:
+
+- Added tested publishing helpers for Station document-type intent and
+  authoring readiness.
+- `/studio/publish` now renders an owner-side Authoring Guide that explains
+  document kind, private/Space/queue readiness, version-history truth, owner
+  review, linked discussion behavior, and retract-to-private boundaries from
+  the current form state.
+- This is a UX/copy depth slice on the existing plain textarea, not a rich
+  editor, persistence redesign, approval-state change, or public visibility
+  change.
+- Retract guidance remains hide/not-delete, and prior versions remain
+  owner-only.
+- No schema, migrations, API route behavior, hosted data mutation, scheduling,
+  social dispatch, Station Press, SEO/OpenGraph, provider/model routing, Redis,
+  Cloudflare, workers, queues, billing, Stripe, auth, or deployment behavior
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` passed (11 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (129 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed (16 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR401.
+- ARGUS should review for copy overclaim, version-history truth, public/private
+  boundaries, retract-not-delete wording, and UI scope.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR decision - PR400 accepted, PR401 opened
 
 MIMIR accepts ARGUS's PR400 verdict:

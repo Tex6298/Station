@@ -73,6 +73,16 @@ export interface PublishingTrustRow {
   tone: "info" | "good" | "warning";
 }
 
+export type AuthoringGuidanceTone = "info" | "good" | "warning";
+
+export interface AuthoringGuidanceRow {
+  id: "kind" | "visibility" | "version" | "review" | "discussion" | "retract";
+  label: string;
+  value: string;
+  body: string;
+  tone: AuthoringGuidanceTone;
+}
+
 export const PUBLISHING_TABS: Array<{ id: PublishingTab; label: string }> = [
   { id: "drafts", label: "Drafts" },
   { id: "published", label: "Published" },
@@ -92,6 +102,37 @@ export const DOCUMENT_TYPE_OPTIONS = STATION_DOCUMENT_TYPES.map((value) => ({
   label: STATION_DOCUMENT_TYPE_LABELS[value],
 }));
 
+const DOCUMENT_TYPE_AUTHORING_INTENT: Record<StationDocumentType, { intent: string; useWhen: string }> = {
+  essay: {
+    intent: "Long-form argument or reflection.",
+    useWhen: "Use it for authored prose that needs a clear public reading path.",
+  },
+  codex: {
+    intent: "Canonical rules, principles, or operating notes.",
+    useWhen: "Use it when the document should become part of a durable persona or Space reference.",
+  },
+  manifesto: {
+    intent: "Public position or statement of intent.",
+    useWhen: "Use it when the piece should read as a declaration rather than a working note.",
+  },
+  field_log: {
+    intent: "Observed work, project evidence, or change notes.",
+    useWhen: "Use it when provenance and dated observations matter more than polish.",
+  },
+  research: {
+    intent: "Structured research, synthesis, or source-backed analysis.",
+    useWhen: "Use it when readers need to understand evidence and conclusions together.",
+  },
+  archive_note: {
+    intent: "Curated note derived from private archive material.",
+    useWhen: "Use it when private source material needs a separate publishable copy.",
+  },
+  transcript: {
+    intent: "Cleaned conversation or session record.",
+    useWhen: "Use it when the shape of an exchange matters and private raw context must stay out.",
+  },
+};
+
 export function normalizeDocumentSlug(value: string): string {
   return value
     .toLowerCase()
@@ -109,6 +150,14 @@ export function slugifyDocumentTitle(value: string): string {
 export function documentTypeLabel(value: string): string {
   const normalized = normalizeDocumentType(value) as StationDocumentType | string;
   return STATION_DOCUMENT_TYPE_LABELS[normalized as keyof typeof STATION_DOCUMENT_TYPE_LABELS] ?? normalized;
+}
+
+export function documentTypeAuthoringIntent(value: string): { label: string; intent: string; useWhen: string } {
+  const normalized = normalizeDocumentTypeForForm(value);
+  return {
+    label: documentTypeLabel(normalized),
+    ...DOCUMENT_TYPE_AUTHORING_INTENT[normalized],
+  };
 }
 
 export function normalizeDocumentTypeForForm(value: string): StationDocumentType {
@@ -283,6 +332,78 @@ export function documentPublicVersionLabel(currentVersion: number | null | undef
   return `Current public version v${current}.`;
 }
 
+export function stationAuthoringGuidance(input: {
+  documentType: string;
+  visibility: string;
+  hasSpace: boolean;
+  commentsEnabled: boolean;
+  hasDocumentId: boolean;
+  currentVersion?: number | null;
+  priorVersionCount?: number;
+}): AuthoringGuidanceRow[] {
+  const type = documentTypeAuthoringIntent(input.documentType);
+  const visibility = visibilityLabel(input.visibility);
+  const currentVersion = input.currentVersion && input.currentVersion > 0 ? input.currentVersion : 1;
+  const priorVersionCount = Math.max(0, input.priorVersionCount ?? 0);
+  const publicReady = input.visibility !== "private";
+  const queueReady = publicReady && input.hasSpace;
+
+  return [
+    {
+      id: "kind",
+      label: "Document kind",
+      value: type.label,
+      tone: "info",
+      body: `${type.intent} ${type.useWhen}`,
+    },
+    {
+      id: "visibility",
+      label: "Visibility",
+      value: queueReady ? `${capitalize(visibility)} ready` : publicReady ? "Needs Space" : "Private draft",
+      tone: queueReady ? "good" : publicReady ? "warning" : "info",
+      body: queueReady
+        ? "A non-private Space destination is selected, so this draft can move into owner review when saved."
+        : publicReady
+          ? "Choose a Station Space before queueing this non-private draft for owner review."
+          : "Private drafts stay owner-only until you choose a Space and non-private visibility.",
+    },
+    {
+      id: "version",
+      label: "Version history",
+      value: input.hasDocumentId ? `Current v${currentVersion}` : "Unsaved",
+      tone: input.hasDocumentId ? "good" : "info",
+      body: input.hasDocumentId
+        ? `Saving changes keeps this editable copy current and preserves prior owner-only versions${priorVersionCount > 0 ? ` (${priorVersionCount} saved)` : ""}.`
+        : "The first save creates the owner draft; later edits can preserve prior owner-only version rows.",
+    },
+    {
+      id: "review",
+      label: "Review path",
+      value: queueReady ? "Queue-ready" : "Draft-only",
+      tone: queueReady ? "good" : "info",
+      body: queueReady
+        ? "Publishing still goes through grounding check and human review before public movement."
+        : "You can save this now, then add destination and visibility before sending it for review.",
+    },
+    {
+      id: "discussion",
+      label: "Discussion",
+      value: input.commentsEnabled ? "Linked when public" : "Off",
+      tone: input.commentsEnabled ? "good" : "info",
+      body: input.commentsEnabled
+        ? "Published public, community, or unlisted documents can attach a linked discussion under the same visibility boundary."
+        : "Comments are disabled, so publishing will not invite a linked discussion from this draft.",
+    },
+    {
+      id: "retract",
+      label: "Retraction",
+      value: "Hide, not delete",
+      tone: "warning",
+      body: "Retract-to-private hides public document and linked discussion reads; the owner-visible Studio record and history remain.",
+    },
+  ];
+}
+
 export function documentDestinationLabel(
   document: Pick<PublishingDocument, "space_id">,
   spaces: PublishingSpace[],
@@ -394,4 +515,8 @@ function sanitizePublishingReadbackText(value: string) {
 function labelize(value: string) {
   const clean = value.replace(/[_-]+/g, " ").trim();
   return clean ? clean[0].toUpperCase() + clean.slice(1) : "Unknown";
+}
+
+function capitalize(value: string) {
+  return value ? value[0].toUpperCase() + value.slice(1) : value;
 }
