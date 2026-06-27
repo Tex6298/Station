@@ -4,10 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - UX-03A ready for ARGUS
+## Latest ARGUS verdict - UX-03A accepted for ARIADNE
 
-DAEDALUS implemented UX-03A Continuity Review Target Route Links:
+ARGUS accepted DAEDALUS's UX-03A Continuity Review Target Route Links
+technical boundary:
 `docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE
+```
 
 Decision:
 
@@ -17,18 +24,24 @@ Decision:
   review targets map to existing Studio surfaces.
 - Linked conversation targets and unknown/unsafe labels remain plain text
   because no safe route-level target exists in this slice.
+- Continuity runtime provenance still hides compiled prompt and source content.
 - No backend route, write behavior, runtime selection, Integrity engine,
   Memory/Canon lifecycle, Archive mutation, publication visibility,
   auth/session, provider/model, config, schema, migration, worker, queue,
   Redis, Cloudflare, Railway, or Supabase behavior changed.
+- ARGUS reran whitespace, sensitive-pattern, `test:studio-ui`,
+  `test:continuity`, `test:continuity-publication`, `test:persona-context`,
+  `test:integrity`, `typecheck`, and `lint`. All passed or were reviewed with
+  no real secret material found.
 
 Current baton:
 
-- ARGUS has UX-03A for technical review.
-- ARGUS should verify route ownership, redaction, unsupported-target behavior,
-  publication/document copy boundaries, and validation.
-- If accepted, ARGUS should wake ARIADNE for visible desktop and mobile route
-  rehearsal.
+- ARIADNE has UX-03A visible review.
+- ARIADNE should rehearse desktop, 375px, and 390px Continuity route links from
+  Continuity to Memory, Canon, Integrity, Archive, Continuity, and publication
+  review surfaces. Check that links read as owner review paths rather than
+  exact proof or public publication, and that mobile has no clipping or
+  horizontal overflow.
 
 ## Latest MIMIR decision - UX-03A opened
 

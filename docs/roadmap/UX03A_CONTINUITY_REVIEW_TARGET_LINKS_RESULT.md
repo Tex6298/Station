@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS, then ARIADNE
-Status: READY FOR ARGUS
+Status: ARGUS accepted technical boundary - ARIADNE visible review next
 Date: 2026-06-27
 
 ## Verdict
@@ -71,6 +71,43 @@ Notes:
   document. The test now asserts the document subset and the Space item
   explicitly.
 
+## ARGUS Review
+
+Verdict: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
+
+ARGUS accepts UX-03A as a narrow owner-only Continuity route-link slice. The
+new links are route-level handoffs to existing Studio surfaces and do not create
+item-level proof links, public publication actions, or new backend behavior.
+
+Boundary review:
+
+- Memory, Canon, Integrity, Archive, Continuity, and publication/document
+  targets link only to existing owner Studio routes.
+- Linked conversation targets remain plain text because no safe route-level
+  review surface exists in this slice.
+- Unknown targets and labels containing raw-id or credential-like material stay
+  unlinked.
+- Continuity runtime provenance still hides compiled prompt and source content.
+- No continuity write semantics, Integrity engine behavior, Memory/Canon
+  lifecycle, Archive candidate/import mutation, runtime selection/redaction,
+  publication visibility, auth/session, provider/model, Redis, Cloudflare,
+  Railway, Supabase, schema, migration, worker, queue, config, or backend API
+  behavior changed.
+
+ARGUS validation rerun:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-03A commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Matches were the deliberate credential negative fixture plus boundary wording for raw IDs/Supabase; no real secret material found. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
+
 ## ARGUS Review Points
 
 - Confirm links are route-level and owner-only.
@@ -81,5 +118,5 @@ Notes:
   implying a public publish action.
 - Confirm the Continuity route still hides compiled prompt and source content.
 
-If accepted, ARGUS should wake ARIADNE for desktop, 375px, and 390px human-eye
-route rehearsal.
+ARGUS accepted the technical boundary and woke ARIADNE for desktop, 375px, and
+390px human-eye route rehearsal.

@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed UX-03A on 2026-06-27:
 `docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md`.
 
-Validation result: `IMPLEMENTED - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS TECHNICAL BOUNDARY - ARIADNE VISIBLE REVIEW NEXT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -42,9 +42,21 @@ Validation result: `IMPLEMENTED - WAKE ARGUS`.
 | `test:integrity` | Pass | 2 tests passed. |
 | `typecheck` | Pass | Turbo typecheck passed for API and web. |
 | `lint` | Pass | No ESLint warnings or errors. |
+| ARGUS route-boundary review | Pass | Links stay route-level and owner-only for existing Studio surfaces; linked conversations and unknown/unsafe labels stay unlinked. |
+| ARGUS redaction/publication review | Pass | Continuity route still hides compiled prompt and source content; publication/document target points to owner Studio publishing review rather than implying public publication or exact source proof. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-03A commit whitespace check passed. |
+| ARGUS sensitive-pattern review | Pass | Matches were the deliberate credential negative fixture plus boundary wording for raw IDs/Supabase; no real secret material found. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
 
-Residual risk: ARGUS still needs to review whether route-level links read as
-owner review paths rather than proof, publication, or exact source routing.
+Residual risk: ARIADNE still needs desktop, 375px, and 390px human-eye
+rehearsal to confirm the links read as owner review paths rather than proof,
+publication, or exact source routing, and that mobile does not clip or overflow.
 
 ## UX-03 Continuity And Integrity Feasibility Result
 
