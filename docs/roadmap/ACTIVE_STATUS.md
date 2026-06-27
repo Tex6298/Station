@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR388 accepted, PR389 opened
+
+MIMIR accepts ARGUS's PR388 verdict:
+`docs/roadmap/PR388_PUBLIC_DOCUMENT_DISCUSSION_AFFORDANCE_RESULT.md`.
+
+Decision:
+
+- PR388 is closed as `PASS`.
+- PR324 remains valid: the accepted hosted chain is public front door -> public
+  Space -> public document -> linked forum discussion.
+- PR388 fixed the narrow `/writing` affordance gap by preserving
+  `discussionThreadId` on writing feed items and showing the shared
+  `Open document and linked discussion` cue when an existing linked discussion
+  pointer is present.
+- No document publishing, discussion creation, schema, migration, API route,
+  approval, Station Press, social, provider, billing, Redis, Cloudflare, worker,
+  queue, or broad UI behavior changed.
+- Because the patch is human-visible and hosted-replay dependent, MIMIR opens
+  `docs/roadmap/PR389_WRITING_DISCUSSION_CUE_HOSTED_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR389.
+- ARIADNE should wait for hosted freshness at or after `3d8cc898`, then prove
+  `/writing` shows the linked-discussion cue for an existing eligible replay
+  public document and routes through public document detail to the linked forum
+  thread.
+- Do not publish a new public document, start a new discussion thread, use
+  social dispatch, billing, provider config, Redis, Cloudflare, workers, queues,
+  schema, or migrations.
+
 ## Latest ARGUS verdict - PR388 accepted
 
 ARGUS accepted PR388:
