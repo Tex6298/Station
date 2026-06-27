@@ -4,7 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR388 accepted, PR389 opened
+## Latest MIMIR decision - PR389 blocked, PR390 opened
+
+MIMIR accepts ARIADNE's PR389 blocked result:
+`docs/roadmap/PR389_WRITING_DISCUSSION_CUE_HOSTED_RERUN_RESULT.md`.
+
+Decision:
+
+- PR389 is closed as `BLOCKED`, not failed.
+- Hosted web/API were fresh at deployment prefix `3d8cc898`.
+- `/writing` loaded safely, but ARIADNE did not see an eligible visible
+  `Open document and linked discussion` card to follow.
+- MIMIR checked the hosted public feed after the block: `/discover/feed?tab=new`
+  contains public documents with linked discussion pointers, including the
+  replay public document family.
+- Therefore this is not an empty hosted fixture problem. The next question is
+  whether `/writing` renders the cue too subtly, filters it away, receives a
+  different signed-in feed shape, or needs exact rerun targeting.
+- MIMIR opens
+  `docs/roadmap/PR390_WRITING_LINKED_CUE_RENDERABILITY_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR390.
+- DAEDALUS should inspect the `/writing` feed/render path and either patch the
+  smallest visible cue gap or produce exact ARIADNE rerun steps using an
+  existing linked public document.
+- Do not create a new public document, start a new discussion thread, change
+  document-discussion semantics, or open Station Press/social/scheduling/rich
+  text/approval/schema/migration/billing/provider/Redis/Cloudflare/worker/queue
+  scope.
+
+## Previous MIMIR decision - PR388 accepted, PR389 opened
 
 MIMIR accepts ARGUS's PR388 verdict:
 `docs/roadmap/PR388_PUBLIC_DOCUMENT_DISCUSSION_AFFORDANCE_RESULT.md`.
