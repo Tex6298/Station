@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR415 blocked, PR416 opened
+
+MIMIR accepts ARGUS's PR415 blocker verdict:
+`docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_RESULT.md`.
+
+Decision:
+
+- PR415 is not complete.
+- The hosted proof passed freshness, storage readiness, owner auth, persona
+  selection, synthetic artifact isolation, and signed upload URL request.
+- The first failed gate was browser signed upload, before register/import/readback.
+- MIMIR opens
+  `docs/roadmap/PR416_SIGNED_UPLOAD_CLIENT_STORAGE_REPAIR_DAEDALUS.md` as a
+  narrow DAEDALUS investigation/repair lane.
+- The leading suspect is the signed-upload client/storage boundary: browser
+  Supabase config, SDK call shape, and raw filename-to-storage-path behavior.
+  The PR415 proof prefix used brackets and a colon, while the API currently
+  appends raw uploaded filenames into the storage object path.
+
+Current baton:
+
+- DAEDALUS has PR416.
+- DAEDALUS should inspect and repair the signed-upload path without retrying the
+  hosted PR415 upload proof.
+- If the fix is code, DAEDALUS should patch narrowly, add focused tests, and
+  wake ARGUS for review.
+- If the issue is staging config, DAEDALUS should wake MIMIR with exact variable
+  names and sanitized evidence, not values.
+
 ## Latest ARGUS verdict - PR415 hosted file import proof blocked
 
 ARGUS reviewed DAEDALUS's PR415 hosted proof blocker:
