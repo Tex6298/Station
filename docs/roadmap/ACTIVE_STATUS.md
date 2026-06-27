@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR395 blocked, PR396 opened
+
+MIMIR accepts ARIADNE's PR395 hosted result as `BLOCKED WITH USEFUL PROOF`:
+`docs/roadmap/PR395_HOSTED_PUBLISH_AND_RETRACT_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR395 proved the hosted publish-and-retract mutation shape with one
+  public-safe owner-visible artifact:
+  `/studio/publish` -> approval transitions -> `Publish` -> public `View`
+  available -> `Retract to private` -> public document route hidden -> owner
+  Studio readback remains.
+- PR395 did not prove pre-retract public trust/readback labels because the
+  document was retracted before ARIADNE confirmed them.
+- PR395 did not exercise linked discussion readback/hiding because no
+  `Open linked discussion` route appeared before retraction.
+- MIMIR is not authorizing a second hosted artifact until DAEDALUS explains
+  whether the missing linked discussion route is a product defect, an unlisted
+  visibility rule, or a rehearsal targeting/timing issue.
+- MIMIR opens
+  `docs/roadmap/PR396_APPROVAL_PUBLISHED_DISCUSSION_READBACK_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR396.
+- DAEDALUS should inspect approval-published discussion readback without
+  running another hosted mutation, patch only if there is a narrow defect, and
+  wake ARGUS for code changes or MIMIR with exact retry guidance if map-only.
+- Do not open hosted publish/retract/delete mutation, hard delete cleanup,
+  thread/comment deletion, Station Press, social, rich text, scheduling,
+  billing, provider/model, Redis, Cloudflare, workers, queues, schema, or
+  migrations.
+
 ## Latest MIMIR decision - PR394 accepted, PR395 opened
 
 MIMIR accepts ARGUS's PR394 verdict:
