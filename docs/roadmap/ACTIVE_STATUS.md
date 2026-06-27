@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - UX-03A visible fix
+
+ARIADNE completed visible review of UX-03A Continuity Review Target Route Links:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_ARIADNE.md`.
+
+Verdict:
+
+```text
+VISIBLE FIX - WAKE ARGUS
+```
+
+Decision:
+
+- Desktop, 375px, and 390px Continuity route rehearsals confirmed route-level
+  owner review links to Memory, Canon, Integrity, Archive, Continuity,
+  candidate review, and owner publishing review surfaces.
+- Linked conversation targets remain plain text.
+- Initial human-eye review found the `Review clarity` row title/body/link copy
+  too pale on the light timeline panel.
+- ARIADNE patched only `apps/web/components/studio/continuity-timeline.tsx` and
+  `apps/web/app/globals.css` to give Review clarity rows light-surface contrast
+  and one-column mobile stacking.
+- Link destinations and route-helper behavior did not change.
+- Local browser matrix passed with no horizontal overflow and with hidden
+  compiled prompt/source-body fixtures absent from visible text.
+- `git diff --check`, `test:continuity`, `test:studio-ui`, `typecheck`, and
+  `lint` passed.
+
+Current baton:
+
+- ARGUS has the UX-03A visible fix.
+- ARGUS should review the scoped UI patch and wake MIMIR if accepted.
+
 ## Latest ARGUS verdict - UX-03A accepted for ARIADNE
 
 ARGUS accepted DAEDALUS's UX-03A Continuity Review Target Route Links

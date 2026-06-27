@@ -281,16 +281,16 @@ function ContinuityReviewSignals({ personaId, rows }: { personaId: string; rows:
       </div>
       <div style={{ display: "grid", gap: "0.8rem" }}>
         {rows.map((row) => (
-          <article key={row.id} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(180px, 0.34fr)", gap: "0.8rem", alignItems: "start" }}>
+          <article key={row.id} className="studio-continuity-review-row">
             <div style={{ minWidth: 0 }}>
               <div className="studio-timeline-row" style={{ marginBottom: "0.35rem" }}>
                 <span>{row.typeLabel}</span>
                 <time>{row.timestamp}</time>
               </div>
-              <h4 style={{ margin: "0 0 0.3rem", color: "#f8fafc", fontSize: "0.98rem", overflowWrap: "anywhere" }}>{row.changed}</h4>
-              <p style={{ margin: 0, color: "#edf4ff", lineHeight: 1.55, overflowWrap: "anywhere" }}>{row.why}</p>
+              <h4 className="studio-continuity-review-title">{row.changed}</h4>
+              <p className="studio-continuity-review-body">{row.why}</p>
             </div>
-            <div className="studio-timeline-source" style={{ display: "grid", gap: "0.35rem", minWidth: 0 }}>
+            <div className="studio-timeline-source studio-continuity-review-meta">
               <span>{row.support}</span>
               <span>{row.reviewState}</span>
               <ReviewTargetLink personaId={personaId} label={row.reviewTarget} />
@@ -304,12 +304,12 @@ function ContinuityReviewSignals({ personaId, rows }: { personaId: string; rows:
 
 function ReviewTargetLink({ personaId, label }: { personaId: string; label: string }) {
   const href = continuityReviewTargetHref(personaId, label);
-  if (!href) return <span>{label}</span>;
+  if (!href) return <span className="studio-continuity-review-plain">{label}</span>;
 
   return (
     <Link
       href={href}
-      style={{ color: "#e0f2fe", overflowWrap: "anywhere", textDecoration: "underline", textUnderlineOffset: 3 }}
+      className="studio-continuity-review-link"
     >
       {label}
     </Link>

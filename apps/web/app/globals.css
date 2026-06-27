@@ -2789,6 +2789,55 @@ html, body {
   text-transform: none;
 }
 
+.studio-continuity-review-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.34fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.studio-continuity-review-row > div {
+  min-width: 0;
+}
+
+.studio-continuity-review-title {
+  margin: 0 0 0.3rem;
+  color: var(--station-page-text);
+  font-size: 0.98rem;
+  overflow-wrap: anywhere;
+}
+
+.studio-continuity-review-body {
+  margin: 0;
+  color: var(--station-page-muted);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.studio-continuity-review-meta {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.studio-continuity-review-link,
+.studio-continuity-review-plain {
+  color: var(--station-page-accent);
+  overflow-wrap: anywhere;
+  text-transform: none;
+}
+
+.studio-continuity-review-link {
+  font-weight: 760;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.studio-continuity-review-plain {
+  color: var(--station-page-muted);
+  font-weight: 700;
+}
+
 .studio-form-field {
   display: grid;
   gap: 0.4rem;
@@ -3033,6 +3082,10 @@ html, body {
   }
 
   .studio-runtime-query {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-continuity-review-row {
     grid-template-columns: 1fr;
   }
 

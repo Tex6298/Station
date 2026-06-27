@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-03A Continuity Review Target Links ARIADNE Review
+
+ARIADNE completed visible review on 2026-06-27:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_ARIADNE.md`.
+
+Validation result: `VISIBLE FIX - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope | Pass | Patched only the owner-only Continuity Review clarity row styling and mobile layout. No backend/write/config behavior changed. |
+| Initial visible review | Found issue | Review clarity row title/body/link text was too pale on the light timeline panel, especially on 375px and 390px. |
+| ARIADNE UI patch | Pass | Added scoped `studio-continuity-review-*` classes for readable light-surface contrast and one-column mobile stacking. |
+| Route targets | Pass | Memory, Canon, Integrity, Archive, Continuity, candidate, and owner publishing review targets route to existing owner Studio surfaces. |
+| Unsupported targets | Pass | Linked conversation review target remains plain text. |
+| Hidden source/prompt check | Pass | Local browser probe confirmed mock compiled prompt and source bodies were not visible. |
+| Local Playwright route matrix | Pass | Desktop, 375px, and 390px Continuity route checks passed after the visible fix. |
+| Overflow scan | Pass | No document-level or element-level horizontal overflow found. |
+| Screenshot inspection | Pass | Desktop, 375px, and 390px screenshots looked readable after the fix. Screenshots were not committed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | No ESLint warnings or errors. |
+
+Residual risk: This was a local mocked browser review. It does not revalidate
+hosted runtime, real auth/session behavior, staging, or real owner data.
+
 ## UX-03A Continuity Review Target Route Links Result
 
 DAEDALUS completed UX-03A on 2026-06-27:
