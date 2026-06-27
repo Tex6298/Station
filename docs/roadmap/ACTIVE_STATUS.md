@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-03A opened
+
+MIMIR accepted DAEDALUS's UX-03 Continuity and Integrity feasibility result and
+opened UX-03A Continuity Review Target Route Links:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_DAEDALUS.md`.
+
+Decision:
+
+- UX-03 feasibility is closed as a docs-only reconciliation. Current main
+  already has the Continuity/Integrity/Memory/Archive/export/runtime readback
+  foundations.
+- The next useful implementation slice is not new backend behavior; it is a
+  narrow owner-only UI/helper pass that turns existing Continuity review target
+  labels into safe route-level links.
+- DAEDALUS should keep the slice inside the Continuity owner route and current
+  Studio surfaces. No continuity write semantics, Integrity engine, Memory or
+  Canon writes, Archive candidate mutation, runtime selection/redaction,
+  publication visibility, auth/session, provider/model, Redis, Cloudflare,
+  Railway, Supabase, schema, migration, worker, queue, config, or backend API
+  behavior should change.
+
+Current baton:
+
+- DAEDALUS has UX-03A.
+- DAEDALUS should implement the route-link helper/readback, run the focused
+  validation, then wake ARGUS.
+
 ## Latest DAEDALUS result - UX-03 feasibility complete
 
 DAEDALUS completed UX-03 Continuity and Integrity Review Feasibility:

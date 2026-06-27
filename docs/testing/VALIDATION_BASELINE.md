@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-03A Continuity Review Target Route Links Opened
+
+MIMIR opened UX-03A on 2026-06-27:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_DAEDALUS.md`.
+
+Validation result: `IMPLEMENTATION REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-03 prerequisite | Pass | DAEDALUS completed Continuity/Integrity feasibility and recommended route-level review target links as the smallest useful implementation slice. |
+| Scope | Pending | Owner-only Continuity UI/helper slice only. |
+| Route mapping | Pending | Memory, Canon, Integrity, Archive, Continuity, and safe publication/document review targets should map to existing Studio routes only. |
+| Redaction/privacy | Pending | Continuity route must preserve existing runtime redaction and avoid raw IDs, source bodies, prompts, storage paths, and provider payloads in link labels. |
+| Required validation | Pending | DAEDALUS should run whitespace, sensitive scan, continuity, studio-ui, persona-context, integrity, typecheck, and lint gates before waking ARGUS. |
+
+Residual risk: UX-03A is not implemented yet. The current risk is accidental
+over-linking: guessed deep links, public/publication implications, raw source
+leakage, or write-behavior drift.
+
 ## UX-03 Continuity And Integrity Feasibility Result
 
 DAEDALUS completed UX-03 feasibility on 2026-06-27:
