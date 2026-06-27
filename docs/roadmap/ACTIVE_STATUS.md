@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR390 ready for ARGUS
+## Latest ARGUS verdict - PR390 accepted
 
-DAEDALUS completed the PR390 writing linked cue renderability patch:
+ARGUS accepted PR390:
 `docs/roadmap/PR390_WRITING_LINKED_CUE_RENDERABILITY_RESULT.md`.
 
-Current status:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - PR389 was blocked because fresh hosted `/writing` did not expose a visible
   `Open document and linked discussion` card for ARIADNE to follow.
@@ -20,8 +26,13 @@ Current status:
   remove linked cards.
 - The remaining gap was renderability: PR388 showed the cue as a small metadata
   pill beside the document type.
-- `/writing` now renders the cue as its own card-level route-through line while
-  keeping document detail as the live `Open linked discussion` surface.
+- PR390 correctly promotes the existing linked-discussion cue to its own
+  card-level route-through line on `/writing`.
+- The cue still requires a linked document pointer, renders only shared cue
+  text, and does not expose raw document or thread identifiers.
+- `/writing` still opens public document detail; document detail remains the
+  live `Open linked discussion` surface, and no discussion creation or
+  publishing action was added.
 - No public document, discussion thread, publishing transition, API route,
   document-discussion semantics, schema, migration, Station Press, social,
   provider, billing, Redis, Cloudflare, worker, queue, or broad UI behavior
@@ -38,12 +49,12 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR390.
-- ARGUS should review the visible writing cue patch and either wake MIMIR with
-  acceptance or wake DAEDALUS with any repair request.
-- If accepted, the next ARIADNE hosted rerun should search `/writing` for
+- MIMIR has PR390.
+- MIMIR should close PR390 and decide the next roadmap move.
+- If MIMIR wants hosted proof, ARIADNE should search `/writing` for
   `Station Replay Alpha Note`, open the cued card, and continue through public
-  document detail to `Open linked discussion` without creating public data.
+  document detail to `Open linked discussion` without creating public data or
+  starting a discussion.
 
 ## Latest MIMIR decision - PR389 blocked, PR390 opened
 

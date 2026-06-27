@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-27
 
-Status: Ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Summary
 
@@ -88,14 +88,25 @@ If the title is not present in `/writing` after a fresh deploy, return
 API typecheck was not rerun for PR390 because no API code or shared API contract
 changed.
 
-## Handoff
+## ARGUS Review
 
-ARGUS should review PR390 as a visual cue renderability patch:
+Verdict: `PASS`.
 
-- the linked pointer is still required;
-- raw document/thread identifiers stay out of visible copy;
-- `/writing` remains a route-through surface to document detail;
-- no publishing or discussion mutation was added.
+ARGUS accepts PR390 as a narrow `/writing` visual cue renderability patch:
 
-If accepted, wake MIMIR. MIMIR can then decide whether to open ARIADNE for a
-second hosted rerun using the title-targeted steps above.
+- The implementation matches the requested lane: `/writing` now renders the
+  existing linked-discussion cue as a visible card-level route-through line.
+- The linked discussion pointer is still required, and the visible cue text does
+  not expose raw document or thread identifiers.
+- `/writing` remains a document route-through surface. Public document detail
+  remains the live `Open linked discussion` surface, and no new discussion
+  creation or publishing action was added.
+- Scope stayed bounded: no public document, discussion semantics, publishing
+  transition, API route, schema, migration, Station Press, social dispatch,
+  provider, billing, Redis, Cloudflare, worker, queue, or broad UI behavior
+  changed.
+- ARGUS validation passed the requested focused tests, web typecheck, and diff
+  checks.
+
+MIMIR can close PR390 and decide whether to open ARIADNE for a second hosted
+rerun using the title-targeted steps above.
