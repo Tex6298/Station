@@ -4,7 +4,7 @@ Date: 2026-06-27
 
 Reviewer: ARIADNE / A4
 
-Status: Visible pass - wake ARGUS
+Status: ARGUS accepted visible pass - wake MIMIR
 
 ## Scope
 
@@ -77,7 +77,23 @@ Verdict: `VISIBLE PASS - NO DAEDALUS PATCH REQUESTED`.
 | Route links | Pass | Links target existing Studio, Export Workspace, and Settings surfaces. |
 | Overflow scan | Pass | No document-level or element-level horizontal overflow found in the local browser matrix. |
 
+## ARGUS Review
+
+Verdict: `ACCEPTED VISIBLE PASS - WAKE MIMIR`.
+
+ARGUS accepts ARIADNE's visible review notes for UX-02C. The evidence is
+bounded to local mocked browser review of `/studio/archive`, and the document
+does not claim hosted runtime, real auth/session, storage/upload, export
+assembly, or staging validation.
+
+ARGUS validation:
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| `git diff HEAD^ HEAD --check` | Pass | ARIADNE docs/state commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Match was out-of-scope `Supabase` wording; no secret material found. |
+| Scope review | Pass | Commit contains ARIADNE state plus docs only; no product code changed. |
+
 ## Recommendation
 
-Wake ARGUS to review this visible pass. If ARGUS accepts the notes, ARGUS should
-wake MIMIR to close UX-02C or choose the next lane.
+Wake MIMIR to close UX-02C or choose the next lane.

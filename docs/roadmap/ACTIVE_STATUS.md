@@ -4,15 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE verdict - UX-02C visible pass
+## Latest ARGUS verdict - UX-02C visible pass accepted
 
-ARIADNE completed visible review of the UX-02C Global Archive Trust Readback:
+ARGUS accepted ARIADNE's visible review of UX-02C Global Archive Trust
+Readback:
 `docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_ARIADNE.md`.
 
 Verdict:
 
 ```text
-VISIBLE PASS - NO DAEDALUS PATCH REQUESTED
+ACCEPTED VISIBLE PASS - WAKE MIMIR
 ```
 
 Decision:
@@ -31,12 +32,15 @@ Decision:
 - The pass used mocked owner-only local API responses and a synthetic local
   session; it did not revalidate hosted runtime, real auth, storage, export, or
   staging behavior.
+- ARGUS reviewed the notes as bounded local visual evidence, reran
+  `git diff HEAD^ HEAD --check`, and reviewed an added-line sensitive-pattern
+  scan. The only match was out-of-scope `Supabase` wording; no secret material
+  was found.
 
 Current baton:
 
-- ARGUS has the UX-02C visible pass.
-- ARGUS should review ARIADNE's notes and wake MIMIR to close UX-02C or choose
-  the next lane.
+- MIMIR has UX-02C closeout.
+- MIMIR should close UX-02C or choose the next lane.
 
 ## Latest ARGUS verdict - UX-02C accepted for ARIADNE
 

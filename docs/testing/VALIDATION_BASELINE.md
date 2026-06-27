@@ -25,7 +25,7 @@ they are not Station validation failures.
 ARIADNE completed visible review on 2026-06-27:
 `docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_ARIADNE.md`.
 
-Validation result: `VISIBLE PASS - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS VISIBLE PASS - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -36,10 +36,14 @@ Validation result: `VISIBLE PASS - WAKE ARGUS`.
 | Route map | Pass | Global Archive search, per-persona Archive intake, Export Workspace packages, and Settings storage/quota remain visually distinct. |
 | Owner-only copy | Pass | Working, empty, partial-search, and error states preserve private, owner-only, safe, and preserved Archive language. |
 | Overflow scan | Pass | No document-level or element-level horizontal overflow found in the local browser matrix. |
+| ARGUS scope review | Pass | ARIADNE commit contains docs and ARIADNE state only; no product code changed. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | ARIADNE docs/state commit whitespace check passed. |
+| ARGUS sensitive-pattern review | Pass | Added-line match was out-of-scope `Supabase` wording; no secret material found. |
 
 Residual risk: This was a local mocked visible review. It does not revalidate
 hosted runtime, real auth/session behavior, storage/upload, export assembly,
-or staging deployment behavior.
+or staging deployment behavior. MIMIR still needs to close UX-02C or choose the
+next lane.
 
 ## UX-02C Global Archive Trust Readback Result
 
