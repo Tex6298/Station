@@ -1,8 +1,9 @@
 # Station UI/UX roadmap
 
 Date: 2026-06-06
-Status: ARIADNE-reviewed post-V3 planning base. This is not active
-implementation scope until MIMIR explicitly opens a UI/UX lane.
+Status: ARIADNE-reviewed post-V3 planning base, patched by UX-00 on
+2026-06-27. This is not active implementation scope until MIMIR explicitly
+opens a UI/UX lane.
 
 ## Why this roadmap exists
 
@@ -39,11 +40,13 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 
 ## Current UI/UX truth
 
-- V3 implementation is closed through V3-05: storage, integrity, token-credit,
-  archive/export job reliability, and visibility-safe search hardening are
-  accepted.
-- MIMIR opened DAEDALUS feasibility review for UX-01 Studio IA/mobile and UX-02
-  Archive trust. This is planning/feasibility only, not implementation.
+- V3 implementation is complete. Storage, integrity, token-credit,
+  archive/export job reliability, visibility-safe search, protected-alpha
+  replay proof, and the PR421 through PR426 import-review runtime answer chain
+  are closed as current roadmap evidence.
+- MIMIR opened UX-00 for ARIADNE product-experience review before any new
+  post-V3 implementation lane. This is planning/sequencing only, not
+  implementation.
 - Post-V3 UI work should not begin as implementation until MIMIR explicitly
   opens a UI/UX lane.
 - Existing frontend surfaces cover many domains, but they need a deliberate
@@ -51,36 +54,24 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
 - The first UX question is wayfinding, not decoration: every major surface
   should make place, privacy state, and the next action obvious before visual
   polish begins.
-- Railway PR30 rehearsal found an existing 375px global top-nav caveat: `My
-  Space` and `Developer` link bounds can sit offscreen without creating
-  document-level horizontal scroll. Treat this as site chrome/mobile IA work,
-  not as a document-versioning blocker.
+- Earlier UX-01A, UX-02A, UX-02B, and mobile top-nav debt work remains useful
+  evidence, but it is no longer the active handoff. Treat it as prior proof
+  that narrow slices work better than broad redesigns.
+- The signed-in mobile top-nav caveat remains a product clue: private
+  destinations should not rely on crowded text links at narrow widths when the
+  avatar/account menu can carry private route pressure.
 - Known lint/build warnings around React hook dependencies and raw `<img>` use
   should become explicit ARGUS acceptance concerns when a lane touches those
   screens.
 - Railway staging should get a real browser review once live; code review alone
   is not enough for the final UX pass.
-- PR198 is the active feasibility lane for UX-01 Studio IA/mobile and UX-02
-  Archive trust after the protected-alpha demo script passed. It should map
-  routes/components and recommend small slices before implementation starts.
-- PR199 opens UX-01A as the first implementation slice: Studio place and mobile
-  workbench clarity using existing route helpers, Studio frame primitives, and
-  scoped CSS.
-- PR200 opens ARIADNE's visible desktop/375px review for UX-01A before MIMIR
-  closes the slice or opens UX-02A/UX-01B.
-- PR200 accepted UX-01A. After PR262/PR263 closed the runtime provenance
-  readback/rehearsal chain, MIMIR opened PR264 as UX-02A Per-Persona Archive
-  Trust States against `/studio/personas/:personaId/files`.
-- PR264 is accepted by ARGUS with a narrow source-count honesty patch. PR265
-  passed ARIADNE hosted desktop/mobile rehearsal before UX-02A closeout.
-- PR266 completed DAEDALUS post-Archive UX lane selection: PR264/PR265 close
-  UX-02A, UX-02B Persona Export Status is current, UX-DEBT-01 mobile top-nav is
-  current, and the next recommendation is staging readiness evidence rather
-  than another local UX implementation lane.
-- PR267 ARGUS staging readiness truth check failed on the staged public
-  `/developer` route returning HTTP 404. `/developer-spaces` and the replay
-  Developer Space route were live, so the next recommended lane is a narrow
-  `/developer` redirect or alias repair before broader UX/product work.
+- The Discern-inspired UI direction is already closed enough for staging:
+  public shell, entry/onboarding language, Discover search clarity, route
+  discipline, and mobile browser evidence have been adapted into Station-native
+  surfaces. Do not reopen generic Discern parity.
+- The next lane should start where protected-alpha replay needs the most
+  product clarity: the private Studio workbench, with Archive trust constraints
+  kept close because archive is the proof layer for continuity.
 
 ## Major surfaces
 
@@ -171,6 +162,41 @@ Empty, loading, and error states should explain three things: what would appear
 here when the product is working, why it is absent or delayed right now, and
 what the user can safely do next. Archive, continuity, billing, export, and
 visibility errors should also say whether existing user material remains safe.
+
+## UX-00 ARIADNE review
+
+Verdict: approved with ARIADNE patch.
+
+The roadmap is a sound planning base. The patch updates the current-truth
+section to the post-V3 and PR421 through PR426 reality, keeps Discern-derived
+work constrained to Station-native direction, and makes the first slice
+explicit.
+
+First recommended owner: DAEDALUS.
+
+First recommended lane: UX-01 Studio IA and mobile workbench feasibility, with
+UX-02 Archive trust treated as the nearest dependency and constraint set.
+
+Product reason: UX-01 best supports protected-alpha replay because it makes the
+private paid workbench legible on desktop and mobile: where the user is, what
+is private, what is preserved, and what to do next. UX-02 should follow close
+behind because archive trust is the continuity proof layer, not a separate
+storage sidebar.
+
+Discern-inspired constraints for DAEDALUS:
+
+- Use Station-native surfaces and existing route/data boundaries; do not port
+  Discern UI wholesale.
+- Prefer explicit place labels, privacy/visibility readback, evidence/source
+  readback, and route-story sections over decorative redesign.
+- Keep private Studio, public Spaces, Discover, Forums, Developer Spaces,
+  Billing, Archive, and Assistant visually and verbally distinct.
+- Avoid generic dashboard KPI grids, always-on global left rails, fake activity,
+  feed-first public browsing, and copy that makes AI behavior sound magical.
+- At 375px and 390px widths, place, privacy state, saved/preserved state, and
+  the next action must remain visible or immediately reachable.
+- No implementation slice should weaken auth, visibility, archive, quota,
+  billing, export, or public/community boundaries for polish.
 
 ## Proposed UI/UX lanes
 
@@ -379,18 +405,20 @@ text, and whether each surface feels like Station rather than generic SaaS.
 
 ## Suggested order of work
 
-1. MIMIR chooses the next handoff: DAEDALUS UI/UX feasibility, ARGUS gates
-   review, maintenance pause, or human decision.
-2. If opened, DAEDALUS reviews accepted lanes for feasibility and cheap/
-   expensive cuts.
-3. ARGUS adds acceptance gates, especially for tests and known warnings.
-4. Start with UX-01 Studio IA/mobile and UX-02 Archive trust
-   because they support the paid center and the archive promise.
-5. After the accepted foundation slices, prefer replay-staging readiness over
-   exhaustive local-dev polish. PR266 specifically recommends a staging
-   readiness truth check next. Open UX-01B or UX-03 before staging only if they
-   block a coherent replay flow.
+1. MIMIR chooses whether to open DAEDALUS feasibility for UX-01/UX-02, request
+   ARGUS gates first, pause for a human product decision, or hold.
+2. If opened, DAEDALUS should start with UX-01 Studio IA and mobile workbench
+   feasibility, not implementation, and name cheap versus expensive changes.
+3. DAEDALUS should carry UX-02 Archive trust as a dependency map in the same
+   feasibility pass or as the immediate next pass, because archive trust is the
+   evidence layer for continuity.
+4. ARGUS should add acceptance gates before implementation begins, especially
+   for auth, visibility, storage, export, billing, known warnings, and mobile
+   regression tests on touched routes.
+5. ARIADNE should review the first visible slice on desktop plus 375px/390px
+   mobile before MIMIR opens another UI slice.
 6. Use staged/online replay to drive the next optimization sequence across
    UX-03 continuity/integrity, UX-04 public Spaces, UX-05 Discover/community,
    UX-06 Developer Spaces, UX-07 billing, UX-08 onboarding/Assistant, and
-   UX-09 staging review.
+   UX-09 staging review. Do not reopen generic Discern parity or broad visual
+   redesign unless MIMIR names a concrete, testable lane.

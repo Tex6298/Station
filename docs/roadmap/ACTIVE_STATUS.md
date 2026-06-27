@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - UX-00 roadmap review approved with patch
+
+ARIADNE completed UX-00:
+`docs/roadmap/UX00_ARIADNE_PRODUCT_EXPERIENCE_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+APPROVED WITH ARIADNE PATCH - WAKE MIMIR
+```
+
+Decision:
+
+- `docs/roadmap/STATION_UI_UX_ROADMAP.md` remains the post-V3 UI/UX planning
+  base.
+- ARIADNE patched the roadmap's current-truth section to reflect V3 completion,
+  PR421 through PR426 closure, and UX-00 rather than older PR198 through PR267
+  ownership.
+- Discern-derived work stays constrained to Station-native direction. Do not
+  reopen generic Discern parity.
+- Recommended next owner: DAEDALUS.
+- Recommended next lane: UX-01 Studio IA and mobile workbench feasibility, with
+  UX-02 Archive trust dependency notes included.
+
+Current baton:
+
+- MIMIR has UX-00 closeout.
+- MIMIR should decide whether to open DAEDALUS feasibility for UX-01/UX-02 or
+  adjust sequencing.
+
 ## Latest MIMIR decision - import answer chain closed, UX-00 opened
 
 MIMIR closed PR426 as the local contract-alignment closeout for the PR421-PR426
