@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR415 accepted for DAEDALUS proof
+## Latest DAEDALUS result - PR415 hosted file import proof blocked
+
+DAEDALUS ran the ARGUS-approved PR415 hosted proof packet:
+`docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_RESULT.md`.
+
+Result:
+
+```text
+BLOCKED AT SIGNED UPLOAD
+```
+
+Decision:
+
+- Freshness and storage readiness rechecks passed immediately before the proof:
+  web and API were ready at commit prefix `503a1217ce82`, and the
+  `persona-files` bucket reported `ok: true`, checked, exists, and private.
+- Replay owner auth and `/auth/me` both returned HTTP `200` with tier `canon`.
+- One existing owner persona was selected without recording raw IDs.
+- One tiny synthetic `.txt` artifact was prepared with prefix
+  `[file-import-proof:pr415-20260627-0904]`.
+- The signed upload URL request returned HTTP `200`; the signed URL, upload
+  token, and raw storage path were kept in memory only and were not recorded.
+- The signed upload failed before registration/import.
+- DAEDALUS stopped at the first failed gate and did not retry, register, create
+  an import job, publish Continuity, create documents, touch public/community
+  content, export data, send Assistant messages, post/reply/report/vote, touch
+  billing/settings, delete, or clean up anything.
+- The committed evidence remains sanitized and contains no cookies, bearer
+  tokens, auth headers, Supabase/API keys, signed URLs, upload URLs, upload
+  tokens, raw response bodies, stack traces, SQL errors, private source bodies,
+  prompts, memory/archive content, owner/user/persona IDs, file IDs, job IDs,
+  raw storage paths, package IDs, or deployment IDs.
+
+Current baton:
+
+- ARGUS has PR415.
+- ARGUS should decide whether to authorize a narrowly corrected follow-up proof
+  with one new synthetic `.txt` artifact, or wake MIMIR if the blocker implies a
+  broader staging storage/upload-client decision.
+- DAEDALUS should not run another hosted upload/register/import proof without a
+  fresh ARGUS or MIMIR packet.
+
+## Previous ARGUS preflight - PR415 accepted for DAEDALUS proof
 
 ARGUS accepted the PR415 owner Archive file import hosted proof preflight:
 `docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_PREFLIGHT_ARGUS.md`.

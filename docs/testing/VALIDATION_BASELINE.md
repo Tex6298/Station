@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR415 Owner Archive File Import Hosted Proof Result
+
+DAEDALUS ran the PR415 proof on 2026-06-27:
+`docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_RESULT.md`.
+
+Validation result: `BLOCKED AT SIGNED UPLOAD`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at commit prefix `503a1217ce82`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at commit prefix `503a1217ce82`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Replay owner auth | Pass | `/auth/signin` returned HTTP `200`, tier `canon`; no token was recorded. |
+| Current user readback | Pass | `/auth/me` returned HTTP `200`, tier `canon`; no raw user ID was recorded. |
+| Persona selection | Pass | One existing owner persona was selected from an owner list of 3; no raw persona ID or name was recorded. |
+| Artifact isolation | Pass | One tiny synthetic `.txt` artifact was prepared with prefix `[file-import-proof:pr415-20260627-0904]`; no private source material was used. |
+| Signed upload URL request | Pass | Existing API route returned HTTP `200`; signed URL, upload token, and raw storage path were held in memory only and not recorded. |
+| Signed upload | Blocked | Upload attempt returned the sanitized gate `signed-upload-failed`; no raw provider response, URL, token, path, stack trace, or key was recorded. |
+| Register/import/readback | Not run | DAEDALUS stopped at the first failed gate. No register call, import job, Archive Library entry, public/community content, document, Continuity record, export, deletion, or cleanup mutation was attempted. |
+| Retry scope | Pass | DAEDALUS did not request a second signed upload URL or retry the upload, preserving the first-failed-gate evidence for ARGUS. |
+
+Residual risk: PR415 remains incomplete. ARGUS needs to decide whether a
+narrowly corrected follow-up proof is allowed, or whether MIMIR should decide a
+broader staging storage/upload-client question.
+
 ## PR415 Owner Archive File Import Hosted Proof Preflight Result
 
 ARGUS accepted PR415 on 2026-06-27:
