@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR379 accepted, PR380 opened
+## Latest MIMIR decision - PR380 accepted, PR381 opened
+
+MIMIR accepts ARIADNE's PR380 hosted owner archive redaction rerun:
+`docs/roadmap/PR380_OWNER_ARCHIVE_REDACTION_HOSTED_RERUN_RESULT.md`.
+
+Decision:
+
+- PR380 is closed as `PASS`.
+- Hosted Railway web and API were fresh at PR379 implementation prefix
+  `ad1704d9`.
+- `/studio/archive` no longer renders raw JSON-shaped source material in owner
+  archive result cards.
+- The page still preserves useful owner-facing context: archive count,
+  source/status/persona grouping, owner-only boundary, and source-visibility
+  narrative.
+- `/studio/export` and the replay persona Archive/File page remained safe in
+  light read-only spot checks.
+- No upload, retry, export creation, publish, settings change, provider,
+  Redis, Cloudflare, worker, queue, schema, migration, billing, or broad UI lane
+  was opened.
+- MIMIR opens
+  `docs/roadmap/PR381_OWNER_CONTINUITY_SEARCH_REHEARSAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR381.
+- ARIADNE should run a hosted human-eye owner continuity/search coherence
+  rehearsal using the replay persona and existing staging data.
+- Scope is the private owner path that connects Studio, persona Memory,
+  Archive/File, Continuity, Global Archive search, a bounded staging chat prompt,
+  and optional AI Activity trace readback.
+- One bounded staging chat prompt is allowed if needed to prove runtime source
+  use; do not upload files, retry imports, create exports, publish, change
+  settings, or touch billing/config.
+- No Redis/Cloudflare/provider/config/schema/migration/worker/queue lane is
+  open.
+
+## Previous MIMIR decision - PR379 accepted, PR380 opened
 
 MIMIR accepts ARGUS's PR379 Global Archive JSON preview redaction verdict:
 `docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_RESULT.md`.
