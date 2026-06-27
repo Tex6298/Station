@@ -1178,6 +1178,143 @@ test("chat finalizes retry answers that still mention facts but omit selected la
   }
 });
 
+test("chat finalizer grounds reviewed import Memory and Canon labels with owner-safe provenance", async () => {
+  const db = new InMemorySupabase();
+  db.tables.profiles[0].ai_mode = "byok";
+  db.tables.profiles[0].byok_openai_key = "test-openai-key";
+  db.tables.personas[0].provider = "openai";
+  db.insertRow("canon_items", {
+    id: "canon-reviewed-import-pr423",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Reviewed PR423 import canon",
+    content: "The reviewed import canon says preserve owner-review before public use.",
+    priority: 9,
+    source_type: "import",
+  });
+  db.insertRow("memory_items", {
+    id: "memory-reviewed-import-pr423",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Reviewed PR423 import memory",
+    content: "The reviewed import memory says imported provider exports stay private until owner review.",
+    summary: "Owner-reviewed import memory for answer grounding.",
+    source_type: "import",
+    relevance_weight: 10,
+    archive_source_type: "persona_file",
+    archive_source_id: "private-source-id-pr423",
+    archive_source_name: "private/storage/pr423-import.json?token=secret",
+  });
+  db.insertRow("memory_item_lifecycle", {
+    id: "memory-reviewed-import-pr423-lifecycle",
+    memory_item_id: "memory-reviewed-import-pr423",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    status: "active",
+    trust_level: "user_stated",
+    confidence: 1,
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createConversationArchiveApp();
+  const originalFetch = globalThis.fetch;
+  const providerCalls: Array<{ url: string; body: string }> = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+    if (url.startsWith("https://api.openai.com/")) {
+      providerCalls.push({ url, body: String(init?.body ?? "") });
+      const content = providerCalls.length === 1
+        ? "I can answer from general continuity, but not the reviewed import labels."
+        : "Preserve owner-review before public use, and keep imported provider exports private until owner review.";
+      return new Response(JSON.stringify({
+        choices: [{ message: { content } }],
+        model: "gpt-4o-mini",
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      ["token"]: "owner-token",
+      body: {
+        conversationId: CONVERSATION_ID,
+        content: "Answer with the reviewed import labels and supporting facts.",
+      },
+    });
+
+    const expectedAnswer = [
+      "owner-reviewed import - Reviewed PR423 import canon: The reviewed import canon says preserve owner-review before public use.",
+      "owner-reviewed import - Reviewed PR423 import memory: The reviewed import memory says imported provider exports stay private until owner review.",
+    ].join("\n");
+    assert.equal(response.status, 200);
+    assert.equal(response.body.reply.content, expectedAnswer);
+    assert.equal(providerCalls.length, 2);
+
+    const firstPayload = JSON.parse(providerCalls[0].body) as { messages: Array<{ role: string; content: string }> };
+    const retryPayload = JSON.parse(providerCalls[1].body) as { messages: Array<{ role: string; content: string }> };
+    assert.match(firstPayload.messages.at(-1)?.content ?? "", /canon: owner-reviewed import; selected label\/name: Reviewed PR423 import canon/);
+    assert.match(firstPayload.messages.at(-1)?.content ?? "", /memory: owner-reviewed import; selected label\/name: Reviewed PR423 import memory/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /selected label\/name: Reviewed PR423 import canon/);
+    assert.match(retryPayload.messages.at(-1)?.content ?? "", /selected label\/name: Reviewed PR423 import memory/);
+
+    const contractEvent = db.tables.ai_trace_events.find((event) =>
+      event.label === "Selected-context answer contract"
+    );
+    assert.ok(contractEvent);
+    assert.equal(contractEvent.payload.firstAnswerContract.reasonCode, "missed_all_selected_focus");
+    assert.equal(contractEvent.payload.preFinalizerAnswerContract.reasonCode, "missed_selected_labels");
+    assert.equal(contractEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.deepEqual(contractEvent.payload.finalizer, {
+      applied: true,
+      reasonCode: "missed_selected_labels",
+      selectedPairCount: 2,
+      finalizerSatisfied: true,
+      preFinalizerReasonCode: "missed_selected_labels",
+      preFinalizerRetryRecommended: true,
+      postFinalizerReasonCode: "fulfilled",
+      postFinalizerRetryRecommended: false,
+      postFinalizerFulfilled: true,
+    });
+
+    const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
+    assert.ok(llmEvent);
+    assert.equal(llmEvent.payload.answerContract.reasonCode, "fulfilled");
+    assert.equal(llmEvent.payload.finalizer.finalizerSatisfied, true);
+    assert.equal(llmEvent.payload.finalizer.postFinalizerFulfilled, true);
+
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.role === "user" && /Station-selected context|Answer-contract retry|owner-reviewed import/.test(row.content)
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.some((row) =>
+        row.content === "Preserve owner-review before public use, and keep imported provider exports private until owner review."
+      ),
+      false
+    );
+    assert.equal(
+      db.tables.conversation_messages.filter((row) => row.content === expectedAnswer).length,
+      1
+    );
+    assert.doesNotMatch(expectedAnswer, /private-source-id|private\/storage|pr423-import\.json|token=secret/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Reviewed PR423|owner-review before public use|imported provider exports|private-source-id|private\/storage|pr423-import\.json/i);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Reviewed PR423|owner-review before public use|imported provider exports|private-source-id|private\/storage|pr423-import\.json/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("chat retries when selected facts are paired with an unrelated selected label", async () => {
   const db = new InMemorySupabase();
   db.tables.profiles[0].ai_mode = "byok";

@@ -138,11 +138,13 @@ type ProviderFocusOptions = {
 };
 
 type AnswerContractItem = {
+  bucket: PersonaContextSource["type"];
   hasLabel: boolean;
   labelText: string;
   factText: string;
   labelTerms: string[];
   factTerms: string[];
+  ownerReviewedImport: boolean;
 };
 
 type SelectedContextAnswerContract = {
@@ -152,6 +154,7 @@ type SelectedContextAnswerContract = {
   applicable: boolean;
   items: AnswerContractItem[];
   reasonCode: AnswerContractReasonCode;
+  requiresReviewedImportPairs: boolean;
 };
 
 type AnswerContractReasonCode =
@@ -235,9 +238,12 @@ function providerSelectedContextItems(label: string, sources: PersonaContextSour
     .map((source) => {
       const title = compactProviderFocusText(source.title ?? "", PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_TITLE_CHARS);
       const content = compactProviderFocusText(source.content, PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_CHARS);
+      const provenance = isOwnerReviewedImportSource(source)
+        ? "owner-reviewed import; "
+        : "";
       return title
-        ? `${label}: selected label/name: ${title}; supporting fact: ${content}`
-        : `${label}: supporting fact: ${content}`;
+        ? `${label}: ${provenance}selected label/name: ${title}; supporting fact: ${content}`
+        : `${label}: ${provenance}supporting fact: ${content}`;
     });
 }
 
@@ -260,6 +266,7 @@ function buildSelectedContextAnswerContract(input: {
     ...answerContractItems(input.runtimeContext.archive, 2),
   ].slice(0, PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS);
   const directFactual = isDirectFactualOwnerMessage(input.ownerMessage);
+  const requiresReviewedImportPairs = shouldRequireReviewedImportPairs(input.ownerMessage, items);
 
   if (!input.privatePersona) {
     return {
@@ -269,6 +276,7 @@ function buildSelectedContextAnswerContract(input: {
       applicable: false,
       items,
       reasonCode: "not_private_persona",
+      requiresReviewedImportPairs,
     };
   }
 
@@ -280,6 +288,7 @@ function buildSelectedContextAnswerContract(input: {
       applicable: false,
       items,
       reasonCode: "not_direct_factual",
+      requiresReviewedImportPairs,
     };
   }
 
@@ -291,6 +300,7 @@ function buildSelectedContextAnswerContract(input: {
       applicable: false,
       items,
       reasonCode: "no_selected_focus",
+      requiresReviewedImportPairs,
     };
   }
 
@@ -301,6 +311,7 @@ function buildSelectedContextAnswerContract(input: {
     applicable: true,
     items,
     reasonCode: "missed_all_selected_focus",
+    requiresReviewedImportPairs,
   };
 }
 
@@ -317,11 +328,13 @@ function answerContractItems(sources: PersonaContextSource[], limit: number): An
         .slice(0, ANSWER_CONTRACT_MAX_TERMS_PER_ITEM);
 
       return {
+        bucket: source.type,
         hasLabel: labelTerms.length > 0,
         labelText,
         factText,
         labelTerms,
         factTerms,
+        ownerReviewedImport: isOwnerReviewedImportSource(source),
       };
     })
     .filter((item) => item.labelTerms.length > 0 || item.factTerms.length > 0);
@@ -358,24 +371,48 @@ function evaluateSelectedContextAnswerContract(
   let matchedLabelCount = 0;
   let matchedFactCount = 0;
   let unpairedFactCount = 0;
+  let requiredMatchedCount = 0;
+  let requiredLabelMissCount = 0;
+  let requiredProvenanceMissCount = 0;
+  const requiredItems = contract.requiresReviewedImportPairs
+    ? contract.items.filter(isRequiredReviewedImportItem)
+    : [];
+  const normalizedOwnerReviewedImport = normalizeAnswerContractText("owner-reviewed import");
 
   for (const item of contract.items) {
     const labelMatched = item.hasLabel ? hasAnswerExactSelectedText(normalizedAnswer, item.labelText) : false;
     const factMentioned = item.factTerms.length > 0 ? hasAnswerTermCoverage(answerTerms, item.factTerms) : false;
     const factMatched = factMentioned;
+    const provenanceMatched = item.ownerReviewedImport
+      ? normalizedAnswer.includes(normalizedOwnerReviewedImport) || normalizeAnswerContractText(answer).includes("reviewed import")
+      : true;
     if (labelMatched) matchedLabelCount += 1;
     if (factMatched) matchedFactCount += 1;
     if (item.hasLabel && factMatched && !labelMatched) unpairedFactCount += 1;
-    if (item.hasLabel ? labelMatched && factMatched : factMatched) matchedItemCount += 1;
+    if (item.hasLabel ? labelMatched && factMatched && provenanceMatched : factMatched && provenanceMatched) matchedItemCount += 1;
+    if (requiredItems.includes(item)) {
+      if (labelMatched && factMatched && provenanceMatched) requiredMatchedCount += 1;
+      if (!labelMatched) requiredLabelMissCount += 1;
+      if (!provenanceMatched) requiredProvenanceMissCount += 1;
+    }
   }
 
-  const reasonCode: AnswerContractReasonCode = matchedItemCount > 0 && unpairedFactCount === 0
-    ? "fulfilled"
-    : matchedLabelCount === 0 && matchedFactCount === 0
+  let reasonCode: AnswerContractReasonCode;
+  if (requiredItems.length > 0 && requiredMatchedCount < requiredItems.length) {
+    reasonCode = matchedLabelCount === 0 && matchedFactCount === 0
       ? "missed_all_selected_focus"
-      : matchedLabelCount === 0 || unpairedFactCount > 0
+      : requiredLabelMissCount > 0 || requiredProvenanceMissCount > 0 || unpairedFactCount > 0
         ? "missed_selected_labels"
         : "missed_supporting_facts";
+  } else {
+    reasonCode = matchedItemCount > 0 && unpairedFactCount === 0
+      ? "fulfilled"
+      : matchedLabelCount === 0 && matchedFactCount === 0
+        ? "missed_all_selected_focus"
+        : matchedLabelCount === 0 || unpairedFactCount > 0
+          ? "missed_selected_labels"
+          : "missed_supporting_facts";
+  }
 
   return {
     ...base,
@@ -394,6 +431,9 @@ function buildSelectedPairFinalizerAnswer(
   if (!contract.applicable) return null;
 
   const answerTerms = new Set(answerContractTerms(failedAnswer, 256));
+  const requiredItems = contract.requiresReviewedImportPairs
+    ? contract.items.filter(isRequiredReviewedImportItem)
+    : [];
   const matchedFactItems = contract.items.filter((item) =>
     item.hasLabel &&
     item.labelText.length > 0 &&
@@ -407,17 +447,34 @@ function buildSelectedPairFinalizerAnswer(
     item.factText.length > 0 &&
     item.factTerms.length > 0
   );
-  const selectedItems = (matchedFactItems.length > 0 ? matchedFactItems : fallbackItems)
+  const selectedItems = (requiredItems.length > 0 ? requiredItems : matchedFactItems.length > 0 ? matchedFactItems : fallbackItems)
     .slice(0, SELECTED_PAIR_FINALIZER_MAX_ITEMS);
 
   if (selectedItems.length === 0) return null;
 
   return {
     content: selectedItems
-      .map((item) => `${item.labelText}: ${selectedPairFinalizerFactText(item.factText)}`)
+      .map((item) => `${selectedPairFinalizerLabel(item)}${item.labelText}: ${selectedPairFinalizerFactText(item.factText)}`)
       .join("\n"),
     selectedPairCount: selectedItems.length,
   };
+}
+
+function isOwnerReviewedImportSource(source: PersonaContextSource) {
+  return (source.type === "memory" || source.type === "canon") && source.sourceType === "import";
+}
+
+function isRequiredReviewedImportItem(item: AnswerContractItem) {
+  return item.ownerReviewedImport && (item.bucket === "memory" || item.bucket === "canon");
+}
+
+function shouldRequireReviewedImportPairs(ownerMessage: string, items: AnswerContractItem[]) {
+  const asksForReviewedImport = /\b(reviewed import|owner[-\s]?reviewed import|owner review|import context|reviewed context)\b/i.test(ownerMessage);
+  return asksForReviewedImport && items.some(isRequiredReviewedImportItem);
+}
+
+function selectedPairFinalizerLabel(item: AnswerContractItem) {
+  return item.ownerReviewedImport ? "owner-reviewed import - " : "";
 }
 
 function selectedPairFinalizerFactText(value: string) {
@@ -1112,7 +1169,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
               applied: true,
               reasonCode: answerContractVerdict.reasonCode,
               selectedPairCount: finalizer.selectedPairCount,
-              finalizerSatisfied: true,
+              finalizerSatisfied: false,
               preFinalizerReasonCode: answerContractVerdict.reasonCode,
               preFinalizerRetryRecommended: answerContractVerdict.retryRecommended,
               postFinalizerReasonCode: answerContractVerdict.reasonCode,
@@ -1123,6 +1180,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
             answerContractVerdict = evaluateSelectedContextAnswerContract(answerContract, aiResponse.content);
             selectedPairFinalizer = {
               ...selectedPairFinalizer,
+              finalizerSatisfied: answerContractVerdict.reasonCode === "fulfilled",
               postFinalizerReasonCode: answerContractVerdict.reasonCode,
               postFinalizerRetryRecommended: answerContractVerdict.retryRecommended,
               postFinalizerFulfilled: answerContractVerdict.reasonCode === "fulfilled",

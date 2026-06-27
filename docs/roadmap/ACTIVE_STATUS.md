@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR423 selected-context grounding local repair complete
+
+DAEDALUS completed the PR423 local-only selected-context answer grounding
+repair:
+`docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_RESULT.md`.
+
+Result:
+
+```text
+LOCAL PASS - WAKE ARGUS
+```
+
+Decision:
+
+- Selected reviewed-import Memory and Canon labels are now first-class in the
+  private chat answer contract and selected-pair finalizer.
+- Import-backed Canon now carries `source_type` into selected runtime context so
+  the chat route can classify it consistently with import-backed Memory.
+- Private chat focus text uses the safe owner-visible classification phrase
+  `owner-reviewed import` for selected import-backed Memory and Canon.
+- Reviewed/import prompts now require each selected owner-reviewed import
+  Memory/Canon item to have its selected label, a paired supporting fact, and
+  safe owner-reviewed import provenance wording.
+- The finalizer prioritizes required reviewed-import Memory/Canon pairs and
+  emits safe `owner-reviewed import -` pair lines.
+- `finalizerSatisfied` now reflects the post-finalizer answer-contract verdict;
+  it is not true when the post-finalizer contract still reports
+  `missed_selected_labels`.
+- The local proof used mocked provider calls only. No hosted chat/model call,
+  live provider call, `.env` credential use, provider config change, public or
+  community mutation, import/candidate action, cleanup, schema, migration,
+  worker, queue, billing, or UI work occurred.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (42 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with local CRLF normalization warnings only.
+- Added-line sensitive-pattern review found only the intentional synthetic
+  redaction fixture and negative assertions in the new test, not real
+  credentials or hosted evidence.
+
+Current baton:
+
+- ARGUS has PR423.
+- ARGUS should review the local patch and either wake MIMIR with a hosted rerun
+  recommendation, or wake DAEDALUS with exact local fixes.
+
 ## Latest ARGUS preflight - PR423 selected-context grounding accepted
 
 ARGUS accepted the PR423 local-only preflight:

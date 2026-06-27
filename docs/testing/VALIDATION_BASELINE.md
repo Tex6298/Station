@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR423 Selected Context Answer Grounding Local Result
+
+DAEDALUS completed PR423 on 2026-06-27:
+`docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_RESULT.md`.
+
+Validation result: `LOCAL PASS - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope classification | Pass | Local-only private chat answer-contract/finalizer/test work. No hosted chat/model calls, live provider calls, `.env` credential reads, provider config changes, public/community mutations, import/candidate actions, cleanup, schema, migration, worker, queue, billing, or UI work. |
+| Reviewed-import answer contract | Pass | Selected import-backed Memory and Canon are now tracked as owner-reviewed import items when the prompt asks for reviewed/import context. |
+| Canon source type propagation | Pass | Canon retrieval carries `source_type` into selected runtime context so import-backed Canon can be classified consistently with import-backed Memory. |
+| Finalizer pair output | Pass | The selected-pair finalizer prioritizes required reviewed-import Memory/Canon pairs and emits safe `owner-reviewed import -` pair lines. |
+| Finalizer telemetry | Pass | `finalizerSatisfied` is now derived from the post-finalizer verdict and remains false if the post-finalizer contract still reports `missed_selected_labels`. |
+| Local mocked-provider fixture | Pass | Synthetic accepted import Memory and Canon coverage proves final owner-visible answers include both selected safe labels, paired supporting facts, and safe owner-reviewed import provenance. |
+| Persistence and trace safety | Pass | The test proves raw retry output is not persisted, final answer is persisted once, and synthetic private source names/ids used by the fixture do not appear in persisted answers or AI trace readbacks. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with local CRLF normalization warnings only. |
+| Added-line sensitive-pattern review | Pass | Matches were the intentional synthetic redaction fixture and negative assertions in the new test, not real credentials or hosted evidence. |
+
+Residual risk: this is local mocked-provider proof only. ARGUS should review the
+patch and decide whether to wake MIMIR for a hosted rerun decision or wake
+DAEDALUS with exact local fixes.
+
 ## PR423 Selected Context Answer Grounding Preflight
 
 MIMIR opened PR423 on 2026-06-27:

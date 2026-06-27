@@ -69,6 +69,7 @@ export interface CanonResult {
   title: string | null;
   content: string;
   priority: number;
+  sourceType?: string | null;
 }
 
 const KEYWORD_MEMORY_CANDIDATE_POOL = 200;
@@ -188,7 +189,7 @@ export async function loadCanon(
 ): Promise<CanonResult[]> {
   const query = supabase
     .from("canon_items")
-    .select("id, persona_id, title, content, priority")
+    .select("id, persona_id, title, content, priority, source_type")
     .eq("persona_id", personaId)
     .order("priority", { ascending: false })
     .limit(limit);
@@ -205,6 +206,7 @@ export async function loadCanon(
     title: row.title,
     content: row.content,
     priority: row.priority,
+    sourceType: row.source_type,
   }));
 }
 

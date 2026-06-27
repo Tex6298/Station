@@ -233,6 +233,7 @@ export async function assemblePersonaRuntimeContext(
       content: item.content,
       priority: 100 + item.priority,
       reason: "Always included canon, ordered by owner priority.",
+      sourceType: item.sourceType,
     }));
 
     const memorySources = memoryRetrieval.results.map<PersonaContextSource>((item) => ({
