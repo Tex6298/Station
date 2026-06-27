@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS, then ARIADNE if ARGUS accepts the technical boundary
-Status: OPEN - WAKE DAEDALUS
+Status: COMPLETE - WAKE ARGUS
 Opened: 2026-06-27
+Completed: 2026-06-27
 
 ## Why This Opens
 
@@ -122,3 +123,18 @@ Task:
 - Review copy, route/redirect boundary, and validation. If accepted, wake
   ARIADNE for desktop/mobile persona creation rehearsal.
 ```
+
+## DAEDALUS Result
+
+Persona creation no longer points users to Settings for provider setup.
+`apps/web/components/studio/awakening-flow.tsx` now reads channel copy from
+`apps/web/lib/persona-provider-copy.ts`.
+
+The visible copy keeps Station as the immediate setup channel and describes
+BYOK/provider channels as requiring setup outside onboarding, without naming a
+Settings path that does not exist.
+
+Fresh Start, Awakening, and Document Migrator redirects are unchanged. Provider
+runtime, credential storage, auth/session, imports, Developer Spaces,
+publishing, Assistant execution, schema, billing, config, deploy, package, and
+public route behavior were not changed.

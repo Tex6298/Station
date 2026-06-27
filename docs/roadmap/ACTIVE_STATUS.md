@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-08A implemented
+
+DAEDALUS implemented UX-08A Persona Creation Provider Copy:
+`docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_DAEDALUS.md`.
+
+Decision:
+
+- Persona creation no longer points users to Settings for provider setup.
+- `apps/web/components/studio/awakening-flow.tsx` now reads provider/channel
+  copy from `apps/web/lib/persona-provider-copy.ts`.
+- The copy keeps Station as the immediate setup channel and describes
+  BYOK/provider channels as requiring setup outside onboarding.
+- Fresh Start, Awakening, and Document Migrator redirects are unchanged.
+- Provider runtime, credential storage, auth/session, imports, Developer
+  Spaces, publishing, Assistant execution, schema, billing, config, deploy,
+  package, and public route behavior were not changed.
+
+Current baton:
+
+- ARGUS has UX-08A.
+- ARGUS should review provider/channel copy, route/redirect boundary, and
+  validation. If accepted, ARGUS should wake ARIADNE for desktop/mobile persona
+  creation rehearsal.
+
 ## Latest MIMIR decision - UX-08 closed, UX-08A opened
 
 MIMIR accepts DAEDALUS's UX-08 Onboarding And Station Assistant Feasibility:

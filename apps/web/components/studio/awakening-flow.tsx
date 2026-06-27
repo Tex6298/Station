@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { apiPost } from "@/lib/api-client";
 import type { Persona, PersonaProvider } from "@station/types/persona";
+import { PERSONA_PROVIDER_CHOICES, PERSONA_PROVIDER_COPY } from "@/lib/persona-provider-copy";
 
 // -- Types ---------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ const STEPS = [
     id: "channel",
     label: "Channel",
     title: "Choose a channel",
-    subtitle: "Select the AI provider that will give this persona its voice. You can change this later.",
+    subtitle: PERSONA_PROVIDER_COPY.channelSubtitle,
   },
   {
     id: "review",
@@ -83,12 +84,7 @@ const ENTRY_PATH_COPY: Record<EntryPath, { label: string; note: string }> = {
 
 // -- Provider options ----------------------------------------------------------
 
-const PROVIDERS: { value: PersonaProvider; label: string; description: string; badge?: string }[] = [
-  { value: "platform",  label: "Station (DeepSeek)",  description: "Station's platform model channel. No API key needed. Good for initial setup.", badge: "Included" },
-  { value: "openai",    label: "OpenAI",               description: "GPT-4o or GPT-4o mini. Requires your OpenAI API key." },
-  { value: "anthropic", label: "Anthropic",            description: "Claude models. Requires your Anthropic API key." },
-  { value: "deepseek",  label: "DeepSeek (BYOK)",      description: "Use your own DeepSeek key for full control." },
-];
+const PROVIDERS = PERSONA_PROVIDER_CHOICES;
 
 // -- Styles -------------------------------------------------------------------
 
@@ -452,7 +448,7 @@ export function AwakeningFlow() {
             </div>
           ))}
           <p style={{ ...S.hint, marginTop: "0.5rem" }}>
-            BYOK keys (Bring Your Own Key) are configured in Settings after creation.
+            {PERSONA_PROVIDER_COPY.setupHint}
           </p>
         </div>
       )}
