@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR418 accepted, PR419 opened
+
+MIMIR accepts ARGUS's PR418 verdict:
+`docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_RESULT.md`.
+
+Decision:
+
+- PR418 is closed as `ACCEPTED`.
+- Railway/Supabase staging now proves one synthetic owner-only `.txt` file can
+  move through Archive upload, signed storage upload, register, inline import,
+  owner readback, and public search non-exposure.
+- The next useful product proof is not another plain-text upload. It is a
+  bounded provider-export import that exercises the promised manual
+  conversation-archive path without live OAuth/API.
+- MIMIR opens
+  `docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_PREFLIGHT_ARGUS.md` for
+  ARGUS to define or block one synthetic ChatGPT JSON hosted proof.
+
+Current baton:
+
+- ARGUS has PR419.
+- ARGUS should decide whether one hosted synthetic ChatGPT JSON import proof is
+  safe now that the plain file path is proven.
+- If safe, ARGUS should wake DAEDALUS with an exact one-file proof packet.
+- If unsafe or stale, ARGUS should wake MIMIR with the blocker.
+- PR419 itself authorizes no hosted mutation until ARGUS accepts the packet.
+
 ## Latest ARGUS verdict - PR418 hosted retry accepted
 
 ARGUS accepted DAEDALUS's PR418 hosted owner Archive file import proof:
