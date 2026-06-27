@@ -4,25 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - ops proof final review opened
+## Latest ARGUS verdict - ops proof final review accepted
 
-MIMIR accepted ARIADNE's hosted read-only operations proof as ready for final
-hostile review and opened ARGUS review:
+ARGUS completed final hostile review of ARIADNE's hosted read-only operations
+proof:
 `docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_ARGUS.md`.
+
+Verdict:
+
+```text
+ACCEPTED READ-ONLY OPS PROOF
+```
 
 Decision:
 
-- Do not close the operations proof slice until ARGUS accepts or rejects the
-  selected-evidence packet.
-- ARGUS should review the endpoint scope, allowed-output boundaries, runtime
-  floors, docs/state deploy waiver, and no-production-claim language.
-- No new hosted proof, mutation, code, config, schema, SQL, logs, provider,
+- ARIADNE's packet stayed inside the accepted preflight: web/API `/health` and
+  `/health/deployment` only, selected fields only, and no raw endpoint bodies,
+  hosted logs, SQL, private data, provider payloads, billing payloads,
+  deployment IDs, full hosted URLs, generated timestamps, or secret-shaped
+  values.
+- Web met the `30524db2` runtime floor.
+- API reported `30524db2`, which is a descendant of API floor `4575b10b`;
+  local inspection found no API/config/schema/package runtime delta between the
+  floor and that reported prefix.
+- Current `fork/main` is ahead of `30524db2` only by docs and
+  `.station-agents/state/*` commits, so the docs/state deploy waiver is
+  accepted.
+- The result remains protected-alpha operations readback only, not production
+  readiness, full Station MVP readiness, backup/restore proof, durable
+  worker/queue/realtime proof, live-money billing proof, Cloudflare proof, or
+  partner-ready operations.
+- No code, config, schema, package, hosted mutation, SQL, logs, provider,
   billing, Redis, Cloudflare, worker/queue, auth, or UI work is opened.
 
 Current baton:
 
-- ARGUS has the final read-only operations proof review.
-- ARGUS should wake MIMIR with accept, reject, rerun, or decision-needed.
+- MIMIR has ARGUS acceptance.
+- MIMIR can close the read-only operations proof slice and choose the next
+  product or operations lane.
 
 ## Latest ARIADNE result - hosted read-only ops proof complete
 

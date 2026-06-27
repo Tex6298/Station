@@ -26,17 +26,26 @@ MIMIR opened ARGUS final review of the hosted read-only operations proof on
 2026-06-27:
 `docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_ARGUS.md`.
 
-Validation status: open, awaiting ARGUS verdict.
+ARGUS completed final review on 2026-06-27.
+
+Validation result: `ACCEPTED READ-ONLY OPS PROOF`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARIADNE proof prerequisite | Pass | ARIADNE reported `PASS - READ-ONLY OPS PROOF`. |
-| Review boundary | Open | ARGUS should review selected evidence, runtime floors, docs/state deploy waiver, forbidden-output handling, and no-production-claim language. |
-| Scope boundary | Open | No fresh hosted proof, hosted mutation, code, config, schema, SQL, logs, provider, billing, Redis, Cloudflare, worker/queue, auth, or UI work is opened. |
-| Current baton | Open | ARGUS should wake MIMIR with accept, reject, rerun, or decision-needed. |
+| Endpoint scope | Pass | Selected evidence covers only web/API `/health` and `/health/deployment`. |
+| Output boundary | Pass | Proof/review docs had no matches for full hosted URLs, UUID-like IDs, long hex IDs, bearer/JWT-looking tokens, Stripe-looking keys, or credential-name patterns. |
+| `git diff a6a0927^ a6a0927 --check` | Pass | MIMIR review-open commit whitespace check passed. |
+| `git diff 8f5204be^ 8f5204be --check` | Pass | ARIADNE proof commit whitespace check passed. |
+| Runtime ancestry | Pass | `4575b10b` is an ancestor of `30524db2`, and `30524db2` is an ancestor of `a6a0927c`. |
+| Runtime/file scope | Pass | `4575b10b..30524db2` adds no API/config/schema/package runtime changes; `30524db2..a6a0927c` is docs/state only. |
+| Added-line scan caveat | Reviewed | ARIADNE commit's only long-hex diff hit was `.station-agents/state/ARIADNE.json` `lastSeenCommit`, outside the evidence packet. |
+| Scope boundary | Pass | No fresh hosted proof, hosted mutation, code, config, schema, SQL, logs, provider, billing, Redis, Cloudflare, worker/queue, auth, or UI work is opened. |
 
-Residual risk: operations proof is not closed until ARGUS accepts the
-selected-evidence packet.
+Residual risk: this remains protected-alpha operations readback only. It is not
+production readiness, full Station MVP readiness, backup/restore proof, durable
+worker/queue/realtime proof, live-money billing proof, Cloudflare proof, or
+partner-ready operations proof.
 
 ## Production Operations Read-Only Proof
 
