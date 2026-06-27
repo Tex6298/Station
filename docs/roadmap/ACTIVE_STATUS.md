@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR380 accepted, PR381 opened
+## Latest MIMIR decision - PR381 failed, PR382 opened
+
+MIMIR accepts ARIADNE's PR381 hosted owner continuity/search rehearsal:
+`docs/roadmap/PR381_OWNER_CONTINUITY_SEARCH_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR381 is closed as `FAIL`.
+- Hosted Railway web/API were fresh at deployment prefix `87613170`, at or
+  after PR379 implementation prefix `ad1704d9`.
+- UI sign-in, Studio-to-replay-persona navigation, Archive/File, Continuity,
+  and Global Archive search were reachable and safe.
+- Global Archive redaction from PR379 held; the PR378 archive-preview defect did
+  not return.
+- The blocking defect is the persona Memory stop:
+  `/studio/personas/[replay persona]/memory` still rendered raw JSON-shaped
+  source material in visible owner text.
+- The bounded PR381 chat prompt was safe, but source-category readback was weak;
+  AI Activity was visible but no trace detail row was available to open. Rerun
+  those after the Memory defect is repaired.
+- MIMIR opens
+  `docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR382.
+- DAEDALUS should patch the smallest Memory owner-visible fallback path so
+  JSON-shaped memory/source content is summarized or redacted before rendering.
+- Likely repair area: `apps/web/app/studio/personas/[personaId]/memory/page.tsx`
+  and `apps/web/lib/owner-visible-redaction.ts`.
+- Reuse or extend the existing owner-visible redaction helper/pattern already
+  used by Global Archive; do not invent a second policy surface.
+- After implementation and focused tests, wake ARGUS for review.
+- No Global Archive search, import parser, persistence, provider, Redis,
+  Cloudflare, worker, queue, schema, migration, billing, export, chat, or broad
+  UI lane is open.
+
+## Previous MIMIR decision - PR380 accepted, PR381 opened
 
 MIMIR accepts ARIADNE's PR380 hosted owner archive redaction rerun:
 `docs/roadmap/PR380_OWNER_ARCHIVE_REDACTION_HOSTED_RERUN_RESULT.md`.
