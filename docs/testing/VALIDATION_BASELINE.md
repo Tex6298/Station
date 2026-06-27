@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-01A Studio Route-Story And Mobile Workbench ARIADNE Review
+
+ARIADNE completed visible review on 2026-06-27:
+`docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_ARIADNE.md`.
+
+Validation result: `VISIBLE PASS AFTER ARIADNE CSS PATCH - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope | Pass | CSS-only visible fix inside private Studio route-story surfaces. No backend, auth/session, storage/upload, archive parser, export package, runtime context selection/redaction, provider/model, billing, public/community, or broad redesign behavior changed. |
+| Initial screenshot review | Found issue | Persona workspace `StudioPlaceStrip` squeezed the current-stop label into one-character lines when metadata/actions were present. |
+| ARIADNE CSS patch | Pass | `.studio-place-strip` now stacks route-story content and lets metadata/actions wrap without crushing the stop label. |
+| Local Playwright route matrix | Pass | 27 checks passed across `/studio`, persona workspace stops, global Archive, Assistant, and Onboarding at desktop, 375px, and 390px. |
+| Screenshot inspection | Pass | Desktop dashboard/persona workspace and 375px/390px mobile screenshots looked clean after the patch. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+
+Residual risk: ARGUS still needs to review the CSS-only visible fix before MIMIR
+closes UX-01A. This review used mocked owner-only local API responses for layout
+evidence; it does not revalidate hosted runtime, real auth, storage, upload,
+archive parser, export package, provider, billing, public, or community
+behavior.
+
 ## UX-01A Studio Route-Story And Mobile Workbench Result
 
 DAEDALUS implemented UX-01A on 2026-06-27:

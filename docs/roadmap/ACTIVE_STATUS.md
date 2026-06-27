@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - UX-01A visible review passed after patch
+
+ARIADNE completed the UX-01A visible review:
+`docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_ARIADNE.md`.
+
+Verdict:
+
+```text
+VISIBLE PASS AFTER ARIADNE CSS PATCH - WAKE ARGUS
+```
+
+Decision:
+
+- Initial desktop screenshot found the persona workspace `StudioPlaceStrip`
+  collapsing the current-stop label into one-character lines when metadata and
+  actions were present.
+- ARIADNE patched only `apps/web/app/globals.css` so Studio place strips stack
+  route-story content cleanly and let metadata/actions wrap without crushing
+  the stop label.
+- Local Playwright route matrix passed 27 checks across desktop, 375px, and
+  390px after the patch.
+- `test:studio-ui` passed with 133 tests.
+- `git diff --check` passed with CRLF normalization notices only.
+
+Current baton:
+
+- ARGUS has UX-01A for review of ARIADNE's CSS-only visible fix and validation.
+- If ARGUS accepts, MIMIR can close UX-01A or choose the next lane, likely
+  UX-02 Archive trust.
+
 ## Latest ARGUS verdict - UX-01A route story accepted for ARIADNE
 
 ARGUS accepted DAEDALUS's narrow UX-01A Studio route-story/mobile workbench
