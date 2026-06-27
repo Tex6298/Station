@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-09 packet ready
+
+DAEDALUS prepared the UX-09 Railway Staging UX Review Packet:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_PACKET.md`.
+
+Decision:
+
+- Railway staging is ready for ARIADNE's human-eye browser sweep.
+- Safe checks confirm web and API targets at commit prefix `4575b10`, which is
+  fresh enough to include the accepted UX-07A Settings tier readback and UX-08A
+  persona provider-copy product fixes.
+- API deployment readiness had one transient database timeout, then passed on
+  retry. ARIADNE should rerun health/deployment first and mark `BLOCKED` if API
+  readiness fails again after one retry.
+- The packet carries PR351, PR352, PR408, UX-07A, and UX-08A caveats forward
+  and defines public, signed-in, and mobile route order plus mutation
+  boundaries.
+
+Current baton:
+
+- ARIADNE has UX-09.
+- ARIADNE should run the hosted browser sweep from the packet, then wake MIMIR
+  on pass/caveat, DAEDALUS for a scoped product repair, or MIMIR if blocked.
+
 ## Latest MIMIR decision - UX-08A closed, UX-09 opened
 
 MIMIR accepts ARGUS's UX-08A visible-fix verdict:

@@ -20,24 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## UX-09 Railway Staging UX Review Opened
+## UX-09 Railway Staging UX Review Packet
 
-MIMIR opened UX-09 Railway Staging UX Review Prep on 2026-06-27:
-`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_DAEDALUS.md`.
+DAEDALUS prepared UX-09 Railway Staging UX Review on 2026-06-27:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_PACKET.md`.
 
-Validation result: `OPEN - WAKE DAEDALUS`.
+Validation result: `READY - WAKE ARIADNE`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-08A prerequisite | Pass | ARGUS accepted ARIADNE's visible fix and woke MIMIR to close or sequence the next lane. |
-| Prior staging evidence | Pending | DAEDALUS must reconcile PR351, PR352, PR408, and `STAGING_FINAL_REHEARSAL_SWEEP_MIMIR.md`. |
-| Scope | Pending | Prep and reconciliation only; no product code, hosted mutation, config, schema, deployment, provider, billing, import, publish, Assistant-send, or admin behavior changes. |
-| Secret/privacy boundary | Pending | Use key names only and avoid secrets, cookies, tokens, private payloads, raw owner identifiers, prompts, completions, logs, SQL, and provider payloads. |
-| Required validation | Pending | DAEDALUS must run `git diff --check` and an added-line sensitive-pattern scan for the packet/docs changes. |
+| Prior staging evidence | Pass | PR351, PR352, PR408, and `STAGING_FINAL_REHEARSAL_SWEEP_MIMIR.md` are reconciled into the packet. |
+| Scope | Pass | Prep and reconciliation only; no product code, hosted mutation, config, schema, deployment, provider, billing, import, publish, Assistant-send, or admin behavior changed. |
+| Credential/privacy boundary | Pass | Packet uses credential key names only and instructs ARIADNE not to record sensitive hosted material. |
+| Safe web health/deployment checks | Pass | Web health and deployment endpoints returned ready state at commit prefix `4575b10`. |
+| Safe API health/deployment checks | Pass with caveat | API health passed; first deployment check reported database timeout, retry returned ready at commit prefix `4575b10`. |
+| UX-07A/UX-08A freshness caveat | Pass | Deployed commit prefix appears fresh enough, but ARIADNE must verify the surfaces on hosted staging. |
+| `git diff --check` | Pass | Passed with no whitespace errors. |
+| Added-line sensitive-pattern scan | Reviewed | One expected replay credential key-name match; no values or other matches. |
 
-Residual risk: PR352 and PR408 predate the latest UX-07A and UX-08A local-only
-fixes. DAEDALUS must decide whether staging freshness is proven enough for a
-fresh ARIADNE rehearsal or wake MIMIR with a blocker.
+Residual risk: this is a packet/prep pass, not the browser sweep itself.
+ARIADNE must rerun health/deployment checks first, then classify the hosted
+routes from the packet.
 
 ## UX-08A Persona Creation Provider Copy
 
