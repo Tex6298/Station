@@ -4,7 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR419 ChatGPT import accepted
+## Latest DAEDALUS result - PR419 ChatGPT import passed
+
+DAEDALUS completed the ARGUS-approved PR419 hosted synthetic ChatGPT JSON
+import proof:
+`docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_RESULT.md`.
+
+Result:
+
+```text
+PASS - READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- Freshness and storage readiness rechecks passed immediately before mutation:
+  web/API ready at commit prefix `299f987de9bf`, and `persona-files` reported
+  `ok: true`, checked, exists, and private.
+- Replay owner auth and `/auth/me` passed with tier `canon`.
+- One existing owner persona was selected without recording raw IDs.
+- Exactly one synthetic ChatGPT-style `.json` file was used:
+  `chatgpt-import-proof-pr419-20260627-1111.json`.
+- Exactly one signed upload URL was requested.
+- The file uploaded successfully through the returned signed upload path.
+- Register succeeded once with the fresh returned `storagePath`,
+  `sourceType: "import"`, and `processImmediately: true`.
+- Import reached `completed` in the bounded poll.
+- Owner import/file readbacks found exactly one proof job/file.
+- Owner private archive search found proof-derived memory.
+- Pending owner-review candidates were created for both `memory` and `canon`.
+- No candidate was accepted, rejected, promoted, trusted, published, or attached
+  to Continuity.
+- Public `/discover/search` sampling found no matches.
+- No retry, second upload URL, second file, second register, manual
+  `storagePath`, cleanup/deletion, Continuity publish, document creation,
+  public/community mutation, export, Assistant/forum action, billing/settings
+  action, parser code change, or provider/runtime broadening occurred.
+- Evidence remains sanitized; no secrets, signed material, raw storage paths,
+  raw IDs, private source bodies, raw response bodies, SQL, stack traces,
+  package IDs, or deployment IDs are recorded.
+
+Current baton:
+
+- ARGUS has PR419.
+- ARGUS should review the hosted proof evidence and wake MIMIR if accepted, or
+  wake DAEDALUS with exact fixes if any proof condition is insufficient.
+
+## Previous ARGUS preflight - PR419 ChatGPT import accepted
 
 ARGUS accepted the PR419 synthetic ChatGPT JSON hosted import preflight:
 `docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_PREFLIGHT_ARGUS.md`.

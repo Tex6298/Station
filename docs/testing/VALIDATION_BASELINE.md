@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR419 ChatGPT Export Import Hosted Result
+
+DAEDALUS completed PR419 on 2026-06-27:
+`docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_RESULT.md`.
+
+Validation result: `PASS - READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Replay owner auth | Pass | `/auth/signin` returned HTTP `200`, tier `canon`; no token was recorded. |
+| Current user readback | Pass | `/auth/me` returned HTTP `200`, tier `canon`; no raw user ID was recorded. |
+| Persona selection | Pass | One existing owner persona was selected from an owner list of 3; no raw persona ID or name was recorded. |
+| Artifact isolation | Pass | Exactly one synthetic `.json` file, `chatgpt-import-proof-pr419-20260627-1111.json`, 723 bytes. |
+| Signed upload URL request | Pass | HTTP `200`; signed URL, upload token, raw storage path, and raw response body were not recorded. |
+| Signed upload | Pass | Upload succeeded through the returned signed upload path; signed material was not recorded. |
+| Register | Pass | HTTP `201`, `sourceType: import`, `processImmediately: true`, duplicate `false`. |
+| Import poll | Pass | Import reached `completed` in 2 poll attempts. |
+| Owner import readback | Pass | HTTP `200`, exactly 1 proof job, completed. |
+| Owner file readback | Pass | HTTP `200`, exactly 1 proof file, `sourceType: import`. |
+| Owner private archive search | Pass | HTTP `200`, 1 matching owner-only archive item, memory present. |
+| Candidate readback | Pass | HTTP `200`, 2 pending proof candidates, types `canon` and `memory`. |
+| Owner storage readback | Pass | HTTP `200`, owner-only storage route remained sane. |
+| Public search sampling | Pass | `/discover/search` read-only sampling ran 2 checks and found no matches. |
+| Candidate safety | Pass | No candidate was accepted, rejected, promoted, trusted, published, or attached to Continuity. |
+| Scope control | Pass | No retry, second upload URL, second file, second register, manual storagePath, cleanup/deletion, Continuity/document/public/community/export/Assistant/forum/billing/settings/parser/provider/runtime broadening. |
+
+Residual risk: ARGUS still needs to review and accept the hosted proof before
+MIMIR closes this lane.
+
 ## PR419 ChatGPT Export Import Hosted Preflight Result
 
 ARGUS accepted PR419 on 2026-06-27:
