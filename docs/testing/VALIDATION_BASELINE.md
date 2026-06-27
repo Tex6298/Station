@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR411 Hosted Cleanup Proof Result
+
+DAEDALUS completed the single approved hosted cleanup proof on 2026-06-27:
+`docs/roadmap/PR411_HOSTED_CLEANUP_PROOF_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at commit prefix `ab272215738b`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at commit prefix `ab272215738b`. |
+| Owner auth/session | Pass | Replay owner sign-in and `/auth/me` returned HTTP `200`; tier readback was `canon`. |
+| Existing owner Space gate | Pass | One existing owner-owned route-safe Space was selected. |
+| Artifact creation | Pass | Exactly one synthetic unlisted owner document was created with title prefix `[cleanup-proof:pr411-20260627-0754]`, comments enabled, and public-safe body text only. |
+| Publish/readback | Pass | The disposable artifact published as `unlisted`; public document read, document discussion read, and thread read returned HTTP `200` before delete. |
+| Synthetic comment | Pass | Exactly one synthetic owner-authored preservation comment was created. |
+| Delete cleanup response | Pass | Owner delete returned HTTP `200`, `deleted: true`, and strategy `linked_discussion_tombstone`. |
+| Cleanup counts | Pass | `linkedDiscussionThreadsHidden: 1`, `commentsPreserved: 1`, `commentsDeleted: 0`, `unrelatedThreadsTouched: 0`. |
+| Post-delete route denial | Pass | Public document, document discussion, and thread reads returned HTTP `404` after delete. |
+| Unrelated/public route sampling | Pass | Public discover search returned HTTP `200` before and after cleanup; web public health returned HTTP `200`. |
+| Evidence redaction | Pass | No cookies, tokens, auth headers, secrets, raw response bodies, stack traces, SQL errors, private source bodies, prompts, memory/archive content, owner/user IDs, document IDs, thread IDs, comment IDs, package IDs, or deployment IDs were recorded. |
+
+Residual risk: ARGUS still needs to review and accept the hosted proof before
+MIMIR closes or rewrites the launch-core cleanup caveat.
+
 ## PR411 Hosted Cleanup Mutation Preflight Result
 
 ARGUS accepted PR411 on 2026-06-27:

@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR411 hosted cleanup proof
+
+DAEDALUS completed the single approved disposable hosted cleanup proof:
+`docs/roadmap/PR411_HOSTED_CLEANUP_PROOF_RESULT.md`.
+
+Result:
+
+- Hosted web and API freshness gates rechecked as ready at commit prefix
+  `ab272215738b`.
+- The proof used one existing owner-owned route-safe Space.
+- DAEDALUS created exactly one synthetic unlisted document with prefix
+  `[cleanup-proof:pr411-20260627-0754]`, public-safe body text, and comments
+  enabled.
+- The artifact was published as `unlisted`, produced linked document and
+  linked discussion readback, received exactly one synthetic owner-authored
+  preservation comment, and was then deleted through the owner API.
+- Delete returned HTTP `200` with `deleted: true` and cleanup strategy
+  `linked_discussion_tombstone`.
+- Cleanup counts were `linkedDiscussionThreadsHidden: 1`,
+  `commentsPreserved: 1`, `commentsDeleted: 0`, and
+  `unrelatedThreadsTouched: 0`.
+- Post-delete public document, discussion, and thread reads returned HTTP
+  `404`; an unrelated public discover route remained HTTP `200` before and
+  after cleanup.
+- Evidence is sanitized; no cookies, tokens, auth headers, secrets, raw IDs,
+  raw response bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, package IDs, or deployment IDs are recorded.
+
+Current baton:
+
+- ARGUS has PR411 proof review.
+- ARGUS should verify the sanitized evidence and guardrail compliance, then
+  wake MIMIR with acceptance or DAEDALUS with exact fix/recheck requirements.
+
 ## Latest ARGUS preflight - PR411 accepted for DAEDALUS proof
 
 ARGUS accepted the PR411 hosted cleanup mutation preflight:
