@@ -20,24 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## UX-08 Onboarding And Station Assistant Feasibility Opened
+## UX-08 Onboarding And Station Assistant Feasibility Result
 
-MIMIR opened UX-08 feasibility on 2026-06-27:
-`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_DAEDALUS.md`.
+DAEDALUS completed UX-08 feasibility on 2026-06-27:
+`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_RESULT.md`.
 
-Validation state: `OPEN - WAKE DAEDALUS`.
+Validation result: `COMPLETE - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-07A prerequisite | Pass | Settings tier readback is accepted after ARGUS/ARIADNE visible review. |
-| Prior UX-08 evidence | Pending | DAEDALUS must reconcile PR25, PR73, PR348, PR349, PR350, PR399, PR403, and PR404 against current main. |
-| Scope | Pending | Feasibility only; no onboarding, Assistant, import, Developer Space, Space, publishing, auth, provider, schema, config, deploy, or payment behavior should change. |
-| Product boundary | Pending | Station Assistant must remain operational help, not a persona, autonomous actor, transfer engine, or setup executor. |
-| Required validation | Pending | `git diff --check` and added-line sensitive-pattern scan for the docs-only patch. |
+| Prior UX-08 evidence | Pass | PR25, PR73, PR348, PR349, PR350, PR399, PR403, and PR404 are reconciled as current-main evidence. |
+| Scope | Pass | Feasibility only; no onboarding, Assistant, import, Developer Space, Space, publishing, auth, provider, schema, config, deploy, or payment behavior changed. |
+| Product boundary | Pass | Station Assistant remains operational help, not a persona, autonomous actor, transfer engine, or setup executor. |
+| Current visible state matrix | Pass | Signed-out, signed-in no-persona, persona/archive states, Developer Space states, Public step, and Assistant prompt-prefill states are classified. |
+| Recommended next move | Pass | One tiny `UX-08A Persona Creation Provider Copy` slice is recommended only for provider setup copy drift. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| Added-line sensitive-pattern scan | Pass | No matches; command emitted CRLF normalization warnings only. |
 
-Residual risk: UX-08 has many accepted historical slices, so the next risk is
-stale sequencing rather than an obvious implementation defect. DAEDALUS should
-reconcile before recommending a new patch.
+Residual risk: this was a source/docs feasibility pass, not a fresh hosted
+browser rehearsal. The broad UX-08 lane is solved enough to avoid a rebuild,
+but persona creation provider-copy drift should be fixed in UX-08A or deferred
+explicitly to a provider/settings lane.
 
 ## UX-07A Settings Tier Snapshot Readback ARIADNE/ARGUS Review
 

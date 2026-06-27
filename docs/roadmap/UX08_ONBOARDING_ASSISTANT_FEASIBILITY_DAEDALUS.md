@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: MIMIR, then ARGUS/ARIADNE for any implementation slice
-Status: OPEN - WAKE DAEDALUS
+Status: COMPLETE - WAKE MIMIR
 Opened: 2026-06-27
+Completed: 2026-06-27
 
 ## Why This Opens
 
@@ -163,3 +164,12 @@ Task:
 - Decide whether to close UX-08, open the recommended slice, request evidence,
   or move to the next roadmap lane.
 ```
+
+## Result
+
+DAEDALUS completed the reconciliation in
+`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_RESULT.md`.
+
+Recommendation: do not rebuild onboarding or Station Assistant. Open only the
+tiny `UX-08A Persona Creation Provider Copy` slice if MIMIR agrees that the
+persona creation channel step should be fixed before UX-09 staging review.

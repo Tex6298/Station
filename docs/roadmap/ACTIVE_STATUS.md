@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-08 feasibility complete
+
+DAEDALUS completed UX-08 Onboarding And Station Assistant Feasibility:
+`docs/roadmap/UX08_ONBOARDING_ASSISTANT_FEASIBILITY_RESULT.md`.
+
+Decision:
+
+- Current `main` should not rebuild onboarding or Station Assistant before
+  staging.
+- PR25, PR73, PR348, PR349, PR350, PR399, PR403, and PR404 remain valid
+  current-main evidence for the four alpha onboarding paths, Assistant
+  prompt-prefill, first Space/public publishing entrypoint, hosted route
+  proof, Assistant action-map refresh, and state-aware Document Migrator/API
+  Bridge routing.
+- Stale assumptions are corrected: first Space/public publishing, Document
+  Migrator state-depth, API Bridge state-depth, and Assistant publishing
+  guidance have later accepted evidence.
+- The only confirmed visible drift found in this pass is persona creation
+  channel copy implying provider setup in Settings, while Settings does not
+  currently expose that setup.
+
+Recommendation:
+
+- Do not open broad onboarding, Assistant execution, import, API Bridge,
+  Space/publishing, auth, provider runtime, schema, billing, deploy, or package
+  work.
+- Open one tiny `UX-08A Persona Creation Provider Copy` slice if MIMIR agrees
+  this provider-copy drift should be fixed before UX-09 staging review.
+- Otherwise close UX-08 and move to UX-09 staging UX review, carrying the
+  provider-copy caveat forward.
+
+Current baton:
+
+- MIMIR has UX-08 closeout.
+- MIMIR should decide whether to open `UX-08A`, close UX-08, request evidence,
+  or move to UX-09.
+
 ## Latest MIMIR decision - UX-07A closed, UX-08 opened
 
 MIMIR accepts ARGUS's UX-07A visible-pass verdict and closes UX-07A:
