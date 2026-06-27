@@ -33,6 +33,14 @@ export const PUBLIC_SEARCH_GROUPS = [
 
 export type PublicSearchGroup = typeof PUBLIC_SEARCH_GROUPS[number][0];
 
+const PROVENANCE_LABELS: Record<string, string> = {
+  user_authored: "User-authored",
+  ai_assisted: "AI-assisted",
+  archive_import: "Archive import",
+  integrity_session: "Integrity Session",
+  persona_derived: "Persona-derived",
+};
+
 export function searchHref(key: PublicSearchGroup, result: any): string | null {
   switch (key) {
     case "projects":
@@ -66,6 +74,93 @@ export function routeablePublicSearchItems(key: PublicSearchGroup, results: any)
     .filter((item): item is { result: any; href: string } => Boolean(item.href));
 }
 
+export function publicSearchResultLabels(key: PublicSearchGroup, result: any): string[] {
+  const labels: Array<string | null> = [];
+
+  switch (key) {
+    case "projects":
+      labels.push("Public Project");
+      break;
+    case "developerSpaces":
+      labels.push(visibilityLabel(result.visibility, "Developer Space"));
+      labels.push(labelize(result.visualisationType ?? result.visualisation_type));
+      break;
+    case "salons":
+      labels.push(visibilityLabel(result.visibility, "Salon"));
+      break;
+    case "personas":
+      labels.push("Public persona");
+      if (result.publicChat?.enabled) labels.push("Signed-in chat alpha");
+      break;
+    case "spaces":
+      labels.push("Public Space");
+      labels.push(spacePresentationLabel(result.presentation));
+      break;
+    case "documents":
+      labels.push(visibilityLabel(result.visibility, "Publication"));
+      labels.push(provenanceLabel(result.provenance_type ?? result.provenanceType));
+      if (result.discussion_thread_id ?? result.discussionThreadId) labels.push("Discussion open");
+      break;
+    case "threads":
+      labels.push(visibilityLabel(result.visibility, "Forum thread"));
+      break;
+    default:
+      break;
+  }
+
+  return labels.filter((label): label is string => Boolean(label));
+}
+
+function SearchResultLink({
+  href,
+  result,
+  group,
+  onNavigate,
+}: {
+  href: string;
+  result: any;
+  group: PublicSearchGroup;
+  onNavigate: () => void;
+}) {
+  const labels = publicSearchResultLabels(group, result);
+  const title = result.name ?? result.title ?? result.projectName;
+
+  return (
+    <Link href={href} onClick={onNavigate}>
+      <span className="public-home-search-title">{title}</span>
+      {labels.length > 0 ? (
+        <span className="public-home-search-readback">{labels.join(" / ")}</span>
+      ) : null}
+    </Link>
+  );
+}
+
+function visibilityLabel(value: unknown, noun: string) {
+  if (value === "community" || value === "members") return `Community-visible ${noun}`;
+  if (value === "public") return `Public ${noun}`;
+  return noun;
+}
+
+function provenanceLabel(value: unknown) {
+  return typeof value === "string" && value
+    ? PROVENANCE_LABELS[value] ?? labelize(value)
+    : null;
+}
+
+function spacePresentationLabel(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+  const presentation = value as { theme?: unknown; layout?: unknown };
+  const theme = labelize(presentation.theme);
+  const layout = labelize(presentation.layout);
+  return [theme, layout].filter(Boolean).join(" / ") || null;
+}
+
+function labelize(value: unknown) {
+  if (typeof value !== "string") return null;
+  const normalized = value.replace(/[_-]+/g, " ").trim();
+  return normalized ? normalized.replace(/^./, (letter) => letter.toUpperCase()) : null;
+}
+
 export function SearchResultsDropdown({
   query,
   results,
@@ -92,9 +187,13 @@ export function SearchResultsDropdown({
             <div key={key} className="public-home-search-group">
               <div>{label}</div>
               {items.map(({ result, href }) => (
-                <Link key={`${key}-${href}`} href={href} onClick={onNavigate}>
-                  {result.name ?? result.title ?? result.projectName}
-                </Link>
+                <SearchResultLink
+                  key={`${key}-${href}`}
+                  group={key}
+                  result={result}
+                  href={href}
+                  onNavigate={onNavigate}
+                />
               ))}
             </div>
           );

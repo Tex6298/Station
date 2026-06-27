@@ -113,6 +113,14 @@ function safePublicProjectHref(slug: unknown) {
     : null;
 }
 
+function safeDeveloperSpaceHref(slug: unknown) {
+  return typeof slug === "string" &&
+    SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug)
+    ? `/developer-spaces/${slug}`
+    : null;
+}
+
 function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearchResult[] {
   const bySlug = new Map<string, any>();
   for (const row of rows) {
@@ -138,6 +146,33 @@ function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearch
       href: `/projects/public/${row.slug}`,
       type: "project",
       label: "Public Project",
+    }));
+}
+
+function developerSpaceSearchResults(rows: any[], limit = 8) {
+  const bySlug = new Map<string, any>();
+  for (const row of rows) {
+    const href = safeDeveloperSpaceHref(row.slug);
+    if (!href || bySlug.has(row.slug)) continue;
+    bySlug.set(row.slug, row);
+  }
+
+  return [...bySlug.values()]
+    .sort((a, b) => {
+      const byDate = new Date(b.updated_at ?? 0).getTime() - new Date(a.updated_at ?? 0).getTime();
+      if (byDate !== 0) return byDate;
+      return String(a.project_name ?? "").localeCompare(String(b.project_name ?? ""));
+    })
+    .slice(0, limit)
+    .map((space) => ({
+      id: space.id,
+      slug: space.slug,
+      projectName: space.project_name,
+      description: space.description ?? null,
+      visibility: space.visibility,
+      visualisationType: space.visualisation_type,
+      updatedAt: space.updated_at,
+      href: `/developer-spaces/${space.slug}`,
     }));
 }
 
@@ -680,13 +715,15 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
         .order("updated_at", { ascending: false })
         .limit(6),
     ]),
-    Promise.all(discoverableDeveloperSpaceVisibilities(req).map((visibility) =>
-      sb
-        .from("developer_spaces")
-        .select("id, slug, project_name, description, visibility, visualisation_type, updated_at")
-        .eq("visibility", visibility)
-        .ilike("project_name", `%${q}%`)
-        .limit(6)
+    Promise.all(discoverableDeveloperSpaceVisibilities(req).flatMap((visibility) =>
+      ["project_name", "description", "slug"].map((field) =>
+        sb
+          .from("developer_spaces")
+          .select("id, slug, project_name, description, visibility, visualisation_type, updated_at")
+          .eq("visibility", visibility)
+          .ilike(field, `%${q}%`)
+          .limit(6)
+      )
     )),
     Promise.all(discoverableSubcommunityVisibilities(req).map((visibility) =>
       (sb as any)
@@ -710,16 +747,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     })),
     personas:  await publicPersonaSearchResults(sb, personas.data ?? []),
     projects: publicProjectSearchResults(projectResults.flatMap((result) => result.data ?? [])),
-    developerSpaces: developerSpaceResults.flatMap((result) => result.data ?? []).slice(0, 8).map((space: any) => ({
-      id: space.id,
-      slug: space.slug,
-      projectName: space.project_name,
-      description: space.description ?? null,
-      visibility: space.visibility,
-      visualisationType: space.visualisation_type,
-      updatedAt: space.updated_at,
-      href: `/developer-spaces/${space.slug}`,
-    })),
+    developerSpaces: developerSpaceSearchResults(developerSpaceResults.flatMap((result) => result.data ?? [])),
     salons: publicSalonSearchResults(salonResults.flatMap((result) => result.data ?? [])).slice(0, 6),
     privateResults,
   });

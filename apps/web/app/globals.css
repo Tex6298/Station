@@ -3290,7 +3290,8 @@ html, body {
 }
 
 .public-home-search-group a {
-  display: block;
+  display: grid;
+  gap: 2px;
   border-radius: 7px;
   padding: 7px 8px;
   color: var(--public-home-text);
@@ -3300,6 +3301,22 @@ html, body {
 
 .public-home-search-group a:hover {
   background: var(--public-home-soft);
+}
+
+.public-home-search-title,
+.public-home-search-readback {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.public-home-search-title {
+  font-weight: 650;
+}
+
+.public-home-search-readback {
+  color: var(--public-home-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .public-home-search-status {

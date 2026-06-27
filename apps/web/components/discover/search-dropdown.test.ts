@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   PUBLIC_SEARCH_GROUPS,
+  publicSearchResultLabels,
   routeablePublicSearchItems,
   searchHref,
 } from "./search-dropdown";
@@ -75,6 +76,51 @@ test("routeable public search items ignore private owner buckets", () => {
     }).map((item) => [item.result.name, item.href]),
     [["Public Persona", "/personas/public-persona"]]
   );
+});
+
+test("public search result labels explain scope and provenance", () => {
+  assert.deepEqual(
+    publicSearchResultLabels("documents", {
+      visibility: "public",
+      provenance_type: "archive_import",
+      discussion_thread_id: "thread-1",
+    }),
+    ["Public Publication", "Archive import", "Discussion open"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("developerSpaces", {
+      visibility: "community",
+      visualisationType: "observed_runtime",
+    }),
+    ["Community-visible Developer Space", "Observed runtime"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("salons", { visibility: "community" }),
+    ["Community-visible Salon"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("personas", { publicChat: { enabled: true } }),
+    ["Public persona", "Signed-in chat alpha"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("spaces", { presentation: { theme: "research", layout: "atlas" } }),
+    ["Public Space", "Research / Atlas"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("threads", { visibility: "public" }),
+    ["Public Forum thread"]
+  );
+});
+
+test("public search result labels do not inspect private owner buckets", () => {
+  const results = {
+    privateResults: {
+      memoryItems: [{ title: "Owner-only runtime memory", visibility: "private" }],
+      continuityRecords: [{ title: "Owner-only continuity", source_label: "private source" }],
+    },
+  };
+
+  assert.deepEqual(PUBLIC_SEARCH_GROUPS.flatMap(([key]) => routeablePublicSearchItems(key, results)), []);
 });
 
 test("routeable public search items include safe Project public profile routes", () => {

@@ -3415,7 +3415,6 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
       "public",
       { space_id: "55555555-5555-4555-8555-555555555554" },
     ));
-
     const visitorFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
     assert.equal(visitorFeed.status, 200);
     const visitorSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "space");
@@ -3489,6 +3488,53 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
       memberSearch.body.developerSpaces.map((space: Row) => space.id).sort(),
       [COMMUNITY_DEV_SPACE_ID, PUBLIC_DEV_SPACE_ID].sort()
     );
+
+    db.insertRow("developer_spaces", {
+      ...developerSpace("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa5", "quiet-depth-lab", "Quiet Lab", "public"),
+      description: "Depth appears only in this Developer Space description.",
+      visualisation_type: "observed_runtime",
+    });
+    db.insertRow("developer_spaces", {
+      ...developerSpace("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6", "slug-depth-lab", "Slug Lab", "public"),
+      description: "No matching description here.",
+      visualisation_type: "knowledge_graph",
+    });
+    db.insertRow("developer_spaces", {
+      ...developerSpace("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa7", "550e8400-e29b-41d4-a716-446655440000", "Unsafe Depth Lab", "public"),
+      description: "Depth appears but the public route slug is unsafe.",
+    });
+
+    const depthSearch = await requestJson(app, "GET", "/discover/search?q=Depth");
+    assert.equal(depthSearch.status, 200);
+    assert.deepEqual(
+      depthSearch.body.developerSpaces.map((space: Row) => [space.projectName, space.href]).sort(),
+      [
+        ["Quiet Lab", "/developer-spaces/quiet-depth-lab"],
+        ["Slug Lab", "/developer-spaces/slug-depth-lab"],
+      ].sort()
+    );
+    assert.deepEqual(Object.keys(depthSearch.body.developerSpaces[0]).sort(), [
+      "description",
+      "href",
+      "id",
+      "projectName",
+      "slug",
+      "updatedAt",
+      "visibility",
+      "visualisationType",
+    ]);
+    const depthText = JSON.stringify(depthSearch.body.developerSpaces);
+    for (const forbidden of [
+      "Unsafe Depth Lab",
+      "550e8400-e29b-41d4-a716-446655440000",
+      "hidden-hash",
+      "api_key_hash",
+      "api_key_last_four",
+      PRIVATE_DEV_SPACE_ID,
+      UNLISTED_DEV_SPACE_ID,
+    ]) {
+      assert.equal(depthText.includes(forbidden), false, `${forbidden} leaked into Developer Space search`);
+    }
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -22,6 +22,7 @@ import {
 } from "@/lib/discover-roulette";
 import {
   PUBLIC_SEARCH_GROUPS,
+  publicSearchResultLabels,
   routeablePublicSearchItems,
 } from "@/components/discover/search-dropdown";
 import { discoverDiscussionCue } from "@/lib/public-story-polish";
@@ -534,39 +535,13 @@ export default function DiscoverFrontDoor() {
                       <div className="public-home-search-group">
                         {results.map(({ result: r, href }) => {
                           const title = r.name ?? r.title ?? r.projectName;
+                          const labels = publicSearchResultLabels(key, r);
                           return (
                             <Link key={href} href={href} onClick={() => setSearch("")}>
-                              {title}
-                              {key === "developerSpaces" && (
-                                <span style={{ color: "#67e8f9", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
-                                  {r.visualisationType?.replace("_", " ")} / {r.visibility}
-                                </span>
-                              )}
-                              {key === "projects" && (
-                                <span style={{ color: "#93c5fd", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
-                                  Public Project
-                                </span>
-                              )}
-                              {key === "salons" && (
-                                <span style={{ color: "#86efac", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
-                                  Salon / {r.visibility}
-                                </span>
-                              )}
-                              {key === "spaces" && r.presentation && (
-                                <span style={{ color: "#a7f3d0", fontSize: "0.72rem", marginLeft: "0.45rem", textTransform: "capitalize" }}>
-                                  {r.presentation.theme} / {r.presentation.layout}
-                                </span>
-                              )}
-                              {key === "documents" && r.provenance_type && (
-                                <span style={{ color: "#7dd3fc", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
-                                  {PROVENANCE_LABELS[r.provenance_type] ?? r.provenance_type}
-                                </span>
-                              )}
-                              {key === "documents" && r.discussion_thread_id && (
-                                <span style={{ color: "#86efac", fontSize: "0.72rem", marginLeft: "0.45rem" }}>
-                                  Discussion open
-                                </span>
-                              )}
+                              <span className="public-home-search-title">{title}</span>
+                              {labels.length > 0 ? (
+                                <span className="public-home-search-readback">{labels.join(" / ")}</span>
+                              ) : null}
                               {(r.short_description || r.description || r.body) && (
                                 <span style={{ color: "#7f8aa0", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
                                   - {(r.short_description ?? r.description ?? r.body ?? "").slice(0, 60)}

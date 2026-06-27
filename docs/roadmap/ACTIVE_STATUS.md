@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR405 search/retrieval explainability
+
+DAEDALUS completed the PR405 implementation packet:
+`docs/roadmap/PR405_SEARCH_RETRIEVAL_EXPLAINABILITY_RESULT.md`.
+
+Result:
+
+- Public/community search result rendering now has compact scope/provenance
+  readback labels derived from existing safe fields.
+- The same readback helper feeds the public home dropdown and the Discover
+  front door search result list.
+- Private owner buckets remain excluded from routeable public result grouping
+  and do not produce public links or labels.
+- `/discover/search` now searches Developer Spaces by project name,
+  description, and slug across the already-eligible public/community
+  visibility set.
+- Developer Space search results are de-duped by route-safe slug and malformed
+  or UUID-shaped slugs are filtered from public search links.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/discover/search-dropdown.test.ts` passed (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed (36 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (131 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed (51 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS has PR405.
+- ARGUS should hostile-review public/community scope labels, Developer Space
+  description/slug search, private owner bucket exclusion, route safety, and
+  non-goal boundaries.
+- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
+  DAEDALUS with exact findings.
+
 ## Latest MIMIR decision - PR404 accepted, PR405 opened
 
 MIMIR accepts ARIADNE's PR404 verdict:
