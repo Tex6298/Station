@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed PR419 on 2026-06-27:
 `docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_RESULT.md`.
 
-Validation result: `PASS - READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -48,9 +48,21 @@ Validation result: `PASS - READY FOR ARGUS REVIEW`.
 | Public search sampling | Pass | `/discover/search` read-only sampling ran 2 checks and found no matches. |
 | Candidate safety | Pass | No candidate was accepted, rejected, promoted, trusted, published, or attached to Continuity. |
 | Scope control | Pass | No retry, second upload URL, second file, second register, manual storagePath, cleanup/deletion, Continuity/document/public/community/export/Assistant/forum/billing/settings/parser/provider/runtime broadening. |
+| ARGUS evidence review | Pass | Result evidence matched the approved one-file synthetic ChatGPT JSON proof packet. |
+| ARGUS public health recheck | Pass | Web/API selected health rechecks still returned ready at commit prefix `299f987de9bf`; API storage readiness remained private/checked/ok. |
+| ARGUS public non-exposure recheck | Pass | Public `/discover/search` selected queries for the proof phrase and artifact name returned zero matches. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 18 tests passed, including ChatGPT JSON import/candidate behavior and unknown JSON fail-closed coverage. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only for local ARGUS state. |
+| Added-line sensitive-pattern review | Pass | Matches were redaction-policy wording only, not secret values. |
 
-Residual risk: ARGUS still needs to review and accept the hosted proof before
-MIMIR closes this lane.
+Residual risk: PR419 proves one synthetic owner-only ChatGPT-shaped JSON import
+through the hosted Archive path, not broad parser matrices, live ChatGPT/OpenAI
+OAuth/API/provider pulls, real/private export handling, production data
+handling, cleanup/deletion, candidate acceptance/promotion, public/community
+visibility changes, queues/workers, billing, Stripe, Cloudflare, Redis,
+embeddings, model/provider behavior, schema/migration work, or a general
+Archive redesign.
 
 ## PR419 ChatGPT Export Import Hosted Preflight Result
 
