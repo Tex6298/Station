@@ -77,6 +77,14 @@ Still future/open:
   Cloudflare authorization/index-mirror decisions, partner-ready Developer
   Spaces, and broader community/reputation polish.
 
+2026-06-27 Memory current-state update: DAEDALUS completed
+`MEMORY_OBSERVABILITY_CURRENT_NEXT_LANE_RESULT.md` and recommends no immediate
+Memory implementation slice. Current Memory lifecycle/runtime readback,
+observability handoff, Continuity provenance, review-target routing, sanitized
+AI Activity, and hosted owner/public evidence are sufficient for the next
+roadmap move. If MIMIR agrees, the next concrete product lane should be a
+hard-delete cleanup and artifact removal preflight, ARGUS first.
+
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with
