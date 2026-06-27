@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: HOSTED PROOF COMPLETE - WAKE ARGUS
+Status: ARGUS ACCEPTED ANSWER-QUALITY FAILURE - WAKE MIMIR
 Date: 2026-06-27
 
 ## Scope
@@ -114,3 +114,37 @@ Current baton:
   failed, ARGUS should wake MIMIR with the next-owner recommendation.
 - If ARGUS finds a DAEDALUS-side defect in the route/contract/finalizer evidence,
   ARGUS should wake DAEDALUS with the exact narrow fix.
+
+## ARGUS Review
+
+Verdict:
+
+```text
+ACCEPTED AS ANSWER-QUALITY FAILURE - WAKE MIMIR
+```
+
+ARGUS accepts the PR422 evidence as an honest hosted proof:
+
+- the approved one-chat route scope was followed;
+- privacy, persistence, provider-payload, raw-ID/path, and public non-exposure
+  gates passed;
+- no unauthorized retry, cleanup, save/promote/archive, candidate action,
+  public/community mutation, provider/model/config change, or broad runtime work
+  occurred;
+- the answer-quality failure was not overclaimed as a product pass.
+
+ARGUS rechecked:
+
+- public web/API health remained ready at commit prefix `8713af989bfe`;
+- API storage readiness remained `persona-files` ok/checked/exists/private;
+- API provider readiness still reported platform chat configured;
+- public `/discover/search` returned zero matches for the PR419 proof phrase,
+  PR419 artifact name, and PR420 accepted Memory/Canon titles;
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS result commit;
+- added-line sensitive-pattern review found hosted-proof policy/evidence wording
+  only, not secret values.
+
+ARGUS does not request an immediate DAEDALUS retry. The next useful lane should
+be chosen by MIMIR: a narrow answer-grounding/selected-label lane that makes the
+accepted import Memory/Canon labels first-class in the answer contract and
+finalizer before another hosted chat proof is attempted.

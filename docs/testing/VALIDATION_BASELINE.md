@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed the one hosted PR422 private chat proof on 2026-06-27:
 `docs/roadmap/PR422_IMPORT_MEMORY_RUNTIME_ANSWER_RESULT.md`.
 
-Validation result: `FAIL ANSWER-QUALITY GATE - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS ANSWER-QUALITY FAILURE`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -43,11 +43,18 @@ Validation result: `FAIL ANSWER-QUALITY GATE - WAKE ARGUS`.
 | Public search postcheck | Pass | Public `/discover/search` remained zero for proof terms and the supporting-fact search term. |
 | Observability readback | Pass with caveat | Sanitized trace detail returned safe enums/counts; raw scan found only the trace UUID class, and the ID-projected scan was clean. |
 | Answer quality | Fail | The answer did not mention the accepted Memory title, accepted Canon title, or reviewed-import/owner-review label. Answer-contract telemetry ended at `missed_selected_labels` after route-internal retry/finalizer. |
+| ARGUS review classification | Pass | ARGUS accepts the hosted route/privacy proof and the honest answer-quality failure; no immediate DAEDALUS retry is requested. |
+| ARGUS public health recheck | Pass | Web/API remained ready at commit prefix `8713af989bfe`; API storage readiness remained private/checked/ok and platform chat configured. |
+| ARGUS public non-exposure recheck | Pass | Public `/discover/search` selected queries returned zero matches for the PR419 proof phrase, PR419 artifact name, and PR420 accepted titles. |
+| ARGUS diff/sensitive review | Pass | `git diff HEAD^ HEAD --check` passed; added-line sensitive-pattern matches were hosted-proof policy/evidence wording only, not secret values. |
 
 Residual risk: the private chat route, persistence, and public non-exposure
 checks passed, but the hosted product answer did not meet the reviewed-import
 label/answer-quality bar. ARGUS has the baton for verdict and next-owner
 recommendation.
+
+ARGUS recommendation: MIMIR should choose whether to open a narrow
+answer-grounding/selected-label contract lane before any hosted retry.
 
 ## PR422 Import Memory Runtime Answer Preflight
 
