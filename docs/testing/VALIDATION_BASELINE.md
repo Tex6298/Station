@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-07A Settings Tier Snapshot Readback ARIADNE Review
+
+ARIADNE completed visible review on 2026-06-27:
+`docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_ARIADNE.md`.
+
+Validation result: `VISIBLE PASS - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope | Pass | Reviewed local `/settings` and `/billing` readback only; no product code changed in ARIADNE's pass. |
+| Local Playwright route matrix | Pass | 12 `/settings` checks across Basic, Creator, Canon / Developer, and unavailable states on desktop, 375px, and 390px. |
+| Billing comparison | Pass | Available tier states also loaded `/billing`; current-plan labels matched Profile Snapshot labels. |
+| Mutation guard | Pass | Probe recorded no Checkout, Portal, or token top-up mutation route calls. |
+| Unavailable state | Pass | Profile Snapshot showed `Tier unavailable` and did not invent a plan. |
+| Separation check | Pass | Profile Snapshot, Usage and Credits, Storage, AI Activity, and Billing/plan controls remained distinct. |
+| Overflow scan | Pass | No document-level or element-level horizontal overflow found. |
+| Screenshot inspection | Pass | Representative desktop, mobile, unavailable, and Billing screenshots looked clean. Screenshots were not committed. |
+
+Residual risk: This was a local mocked browser review. It does not revalidate
+hosted runtime, real auth/session behavior, real Stripe/Billing state, or
+staging.
+
 ## UX-07A Settings Tier Snapshot Readback
 
 DAEDALUS implemented UX-07A on 2026-06-27:

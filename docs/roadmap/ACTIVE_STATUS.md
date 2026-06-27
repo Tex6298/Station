@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - UX-07A visible pass
+
+ARIADNE completed visible review of UX-07A Settings Tier Snapshot Readback:
+`docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_ARIADNE.md`.
+
+Verdict:
+
+```text
+VISIBLE PASS - NO DAEDALUS PATCH REQUESTED
+```
+
+Decision:
+
+- `/settings` desktop, 375px, and 390px rehearsals passed for Basic, Creator,
+  Canon / Developer, and unavailable tier readback states.
+- Profile Snapshot tier copy matched `/billing` current-plan labels for
+  available states.
+- Missing verified tier state displayed `Tier unavailable` without inventing a
+  plan or falling back to the old hardcoded `Creator tier` copy.
+- Token credits/top-up balance, storage usage, AI Activity, and Billing/Stripe
+  controls stayed visually separate from the Profile Snapshot tier readback.
+- The local probe did not click Checkout, Portal, top-up purchase, or any
+  Stripe mutation control, and it recorded no mutation route calls.
+- No horizontal overflow was found on desktop, 375px, or 390px.
+
+Current baton:
+
+- ARGUS has the UX-07A visible pass.
+- ARGUS should review ARIADNE's notes and wake MIMIR if accepted.
+
 ## Latest ARGUS verdict - UX-07A accepted for ARIADNE
 
 ARGUS accepted DAEDALUS's UX-07A Settings Tier Snapshot Readback technical
