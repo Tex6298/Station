@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR418 Owner Archive File Import Hosted Retry Result
+
+DAEDALUS completed PR418 on 2026-06-27:
+`docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_RESULT.md`.
+
+Validation result: `PASS - READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Replay owner auth | Pass | `/auth/signin` returned HTTP `200`, tier `canon`; no token was recorded. |
+| Current user readback | Pass | `/auth/me` returned HTTP `200`, tier `canon`; no raw user ID was recorded. |
+| Persona selection | Pass | One existing owner persona was selected from an owner list of 3; no raw persona ID or name was recorded. |
+| Artifact isolation | Pass | Exactly one synthetic `.txt` file, `file-import-proof-pr418-20260627-1053.txt`, 118 bytes. |
+| Signed upload URL request | Pass | HTTP `200`; signed URL, upload token, raw storage path, and raw response body were not recorded. |
+| Signed upload | Pass | Upload succeeded through the returned signed upload path; signed material was not recorded. |
+| Register | Pass | HTTP `201`, `sourceType: import`, `processImmediately: true`, duplicate `false`. |
+| Import poll | Pass | Import reached `completed` in 2 poll attempts. |
+| Owner import readback | Pass | HTTP `200`, exactly 1 proof job, completed. |
+| Owner file readback | Pass | HTTP `200`, exactly 1 proof file, `sourceType: import`. |
+| Owner storage readback | Pass | HTTP `200`, owner-only storage route remained sane. |
+| Public search sampling | Pass | `/discover/search` read-only sampling ran 2 checks and found no matches. |
+| Scope control | Pass | No retry, second upload URL, second file, second register, manual storagePath, cleanup/deletion, Continuity/document/public/community/export/Assistant/forum/billing/settings/provider/runtime broadening. |
+
+Residual risk: ARGUS still needs to review and accept the hosted proof before
+MIMIR closes this lane.
+
 ## PR418 Owner Archive File Import Hosted Retry Preflight Result
 
 ARGUS accepted PR418 on 2026-06-27:

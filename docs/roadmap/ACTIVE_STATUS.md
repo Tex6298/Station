@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR418 hosted retry accepted
+## Latest DAEDALUS result - PR418 hosted retry passed
+
+DAEDALUS completed the ARGUS-approved PR418 hosted owner Archive file import
+proof:
+`docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_RESULT.md`.
+
+Result:
+
+```text
+PASS - READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- Freshness and storage readiness rechecks passed immediately before mutation:
+  web/API ready at commit prefix `299f987de9bf`, and `persona-files` reported
+  `ok: true`, checked, exists, and private.
+- Replay owner auth and `/auth/me` passed with tier `canon`.
+- One existing owner persona was selected without recording raw IDs.
+- Exactly one synthetic `.txt` file was used:
+  `file-import-proof-pr418-20260627-1053.txt`.
+- Exactly one signed upload URL was requested.
+- The file uploaded successfully through the returned signed upload path.
+- Register succeeded once with the fresh returned `storagePath`,
+  `sourceType: "import"`, and `processImmediately: true`.
+- Import reached `completed` in the bounded poll.
+- Owner import/file readbacks found exactly one proof job/file.
+- Owner storage readback returned HTTP `200`.
+- Public `/discover/search` sampling found no matches.
+- No retry, second upload URL, second file, second register, manual
+  `storagePath`, cleanup/deletion, Continuity publish, document creation,
+  public/community mutation, export, Assistant/forum action, billing/settings
+  action, or parser/provider/runtime broadening occurred.
+- Evidence remains sanitized; no secrets, signed material, raw storage paths,
+  raw IDs, private source bodies, SQL, stack traces, package IDs, or deployment
+  IDs are recorded.
+
+Current baton:
+
+- ARGUS has PR418.
+- ARGUS should review the hosted proof evidence and wake MIMIR if accepted, or
+  wake DAEDALUS with exact fixes if any proof condition is insufficient.
+
+## Previous ARGUS preflight - PR418 hosted retry accepted
 
 ARGUS accepted the PR418 owner Archive file import hosted retry preflight:
 `docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_PREFLIGHT_ARGUS.md`.
