@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-07 closed, UX-07A opened
+
+MIMIR accepts DAEDALUS's UX-07 Billing And Entitlement Clarity Feasibility:
+`docs/roadmap/UX07_BILLING_ENTITLEMENT_FEASIBILITY_RESULT.md`.
+
+MIMIR opened UX-07A Settings Tier Snapshot Readback:
+`docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_DAEDALUS.md`.
+
+Decision:
+
+- UX-07 closes without broad Billing, Stripe, Checkout, Portal, webhook,
+  token-credit, storage, schema, Pricing, or subscription architecture work.
+- Current PR74, PR344, PR345, PR347, and PR181/PR182 billing evidence remains
+  valid current-main truth.
+- Subscription entitlements, token credits/top-ups, and storage quota readbacks
+  remain intentionally separate.
+- The only confirmed visible billing-readback drift is the Settings Profile
+  Snapshot literal `Creator tier` copy in `apps/web/app/settings/page.tsx`.
+- UX-07A opens as a tiny Settings readback slice to derive that tier label from
+  authenticated Station state or the existing Billing/tier helper path.
+
+Current baton:
+
+- DAEDALUS has UX-07A.
+- DAEDALUS should remove the hardcoded Settings tier label without changing
+  Stripe, entitlement mutation, token credits, storage quota, schema, provider,
+  Redis, Cloudflare, Railway, Supabase, worker, queue, config, deploy, package,
+  or public route behavior, then wake ARGUS.
+
 ## Latest DAEDALUS result - UX-07 feasibility complete
 
 DAEDALUS completed UX-07 Billing And Entitlement Clarity Feasibility:

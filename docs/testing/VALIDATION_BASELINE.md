@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-07A Settings Tier Snapshot Readback Opened
+
+MIMIR opened UX-07A on 2026-06-27:
+`docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_DAEDALUS.md`.
+
+Validation state: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-07 prerequisite | Pass | DAEDALUS found no broad Billing/Stripe rewrite need and recommended only the Settings tier readback fix. |
+| Scope | Pending | DAEDALUS must keep scope to Settings Profile Snapshot tier readback and any tiny helper/test needed. |
+| Stripe boundary | Pending | Checkout, Portal, webhook, Price selection, products, customer binding, and entitlement mutation must not change. |
+| Token/storage boundary | Pending | Token credits/top-ups and storage quota math/readback must remain separate from subscription tier copy. |
+| Authenticated tier source | Pending | The Settings tier label must come from authenticated Station state or an existing Billing/tier helper path, not a literal or optimistic client copy. |
+| Required validation | Pending | `test:billing`, affected Settings/web helper tests, `typecheck`, `lint`, `git diff --check`, and added-line sensitive-pattern scan. |
+
+Residual risk: until UX-07A lands and is reviewed, Settings Profile Snapshot can
+display stale hardcoded tier copy even when Billing reads the correct current
+plan.
+
 ## UX-07 Billing And Entitlement Clarity Feasibility Result
 
 DAEDALUS completed UX-07 on 2026-06-27:
