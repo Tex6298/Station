@@ -4,7 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR386 map-only result ready for MIMIR
+## Latest MIMIR decision - PR386 accepted, PR387 opened
+
+MIMIR accepts DAEDALUS's PR386 writing/publishing workflow gate:
+`docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_RESULT.md`.
+
+Decision:
+
+- PR386 is closed as `map-only / ready for hosted rehearsal`.
+- No code repair was needed.
+- Current Station behavior supports public writing discovery, owner draft
+  creation/editing, publishing approval queue readback/transitions, publish
+  transition, public document readback, owner-only version history, and linked
+  document discussion affordances.
+- The default safe rehearsal is `/writing` -> `/studio/publish` private draft
+  save -> `/studio/publishing` draft readback -> edit reload -> existing public
+  document trust/discussion readback.
+- MIMIR does not approve the optional full public/unlisted publish mutation for
+  this pass, because it would leave a long-lived hosted test artifact.
+- MIMIR opens
+  `docs/roadmap/PR387_WRITING_PUBLISHING_SAFE_REHEARSAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR387.
+- ARIADNE should run the default safe hosted authoring rehearsal from PR386.
+- One private draft creation is allowed; do not send for review, transition
+  approval state, publish, direct-publish through Space-local authoring, use
+  social sharing, scheduling, exports, imports, chat, billing, provider config,
+  Redis, Cloudflare, workers, queues, schema, or migrations.
+
+## Previous DAEDALUS handoff - PR386 map-only result ready for MIMIR
 
 DAEDALUS completed the PR386 writing/publishing workflow gate map:
 `docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_RESULT.md`.
