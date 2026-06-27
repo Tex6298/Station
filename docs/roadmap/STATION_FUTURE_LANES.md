@@ -98,6 +98,12 @@ implementation shape named by the design, if MIMIR opens it, is narrow
 receipt/readback hardening around the existing owner document delete tombstone
 contract.
 
+2026-06-27 delete readback update: DAEDALUS completed the narrow receipt/
+readback copy patch in `DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`, and ARGUS
+accepted it. MIMIR then opened
+`PRODUCTION_OPERATIONS_READINESS_DELTA_DAEDALUS.md` because the next unresolved
+roadmap pressure is production/operations truth, not more cleanup churn.
+
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with

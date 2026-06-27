@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - production operations delta opened
+
+MIMIR accepted ARGUS's document delete receipt/readback verdict and closed that
+lane as a focused copy/readback hardening pass.
+
+MIMIR opened a no-code production/operations readiness delta for DAEDALUS:
+`docs/roadmap/PRODUCTION_OPERATIONS_READINESS_DELTA_DAEDALUS.md`.
+
+Decision:
+
+- Document cleanup remains at the accepted tombstone cleanup/readback boundary.
+- No repeat hosted cleanup, full hard-delete artifact removal, destructive UI,
+  or deletion semantics are opened.
+- Memory observability, Developer Spaces, onboarding, search/retrieval
+  explainability, billing readback, and broad UI should not be reopened by
+  inertia.
+- The next planning pressure is operational truth: what is genuinely
+  protected-alpha ready versus fragile, config-dependent, deferred, or unknown
+  before MIMIR chooses the next implementation lane.
+
+Current baton:
+
+- DAEDALUS has the production/operations readiness delta.
+- DAEDALUS should reconcile current repo/docs/code truth, recommend exactly
+  one next safe lane, and wake MIMIR unless an ARGUS hostile-review risk is
+  found.
+
 ## Latest ARGUS verdict - delete receipt readback accepted
 
 ARGUS accepted DAEDALUS's narrow document delete receipt/readback patch:

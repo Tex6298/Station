@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Operations Readiness Delta
+
+MIMIR opened a no-code production/operations readiness delta on 2026-06-27:
+`docs/roadmap/PRODUCTION_OPERATIONS_READINESS_DELTA_DAEDALUS.md`.
+
+Validation status: open, awaiting DAEDALUS result.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Delete-readback prerequisite | Pass | ARGUS accepted the focused copy/readback patch; no further delete-readback fix is requested. |
+| Roadmap pressure | Open | `builds.md` still keeps production readiness, remote deployment truth, durable workers/queues/realtime, limits, and backup posture outside launch-core closeout. |
+| Scope boundary | Open | The delta is docs-only and authorizes no code, config, schema, provider, Redis, Cloudflare, Stripe, worker, queue, hosted mutation, or UI behavior change. |
+| Current baton | Open | DAEDALUS should produce `PRODUCTION_OPERATIONS_READINESS_DELTA_RESULT.md` and wake MIMIR or ARGUS if hostile review is required. |
+
+Residual risk: this is a planning/reconciliation lane. It does not prove new
+runtime behavior or production readiness.
+
 ## Document Delete Receipt Readback
 
 MIMIR opened document delete receipt/readback hardening on 2026-06-27:
