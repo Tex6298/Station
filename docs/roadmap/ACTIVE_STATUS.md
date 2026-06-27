@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR407 cleanup contract
+
+DAEDALUS completed the PR407 implementation packet:
+`docs/roadmap/PR407_PUBLISH_RETRACT_CLEANUP_CONTRACT_RESULT.md`.
+
+Result:
+
+- `DELETE /documents/:id` now loads the authenticated owner's document before
+  deletion and tombstones only discussion threads linked to that deleted owner
+  document id.
+- Linked discussion tombstones use `status: "locked"` and `is_hidden: true`,
+  preserving comments and other community records under the hidden thread.
+- Owner document delete now returns cleanup readback with strategy, hidden
+  linked-thread ids, preserved comment count, zero deleted comments, and zero
+  unrelated touched threads.
+- Focused tests prove public document readback, document discussion readback,
+  visitor/member thread readback, and forum category listings no longer expose
+  the linked discussion after owner document deletion.
+- Same-category unrelated public forum content remains routeable.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed (3 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed (16 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed (37 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS has PR407.
+- ARGUS should hostile-review owner delete scoping, linked discussion
+  tombstoning, preserved comment behavior, public/community read denial, the
+  `200` cleanup readback contract, and launch-core cleanup wording.
+- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
+  DAEDALUS with exact findings.
+
 ## Latest MIMIR decision - PR406 accepted, PR407 opened
 
 MIMIR accepts ARIADNE's PR406 verdict:

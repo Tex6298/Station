@@ -466,6 +466,59 @@ async function syncExistingDiscussion(document: any) {
   return ensureDocumentDiscussion(document);
 }
 
+async function cleanupDeletedDocumentDiscussions(document: any) {
+  const sb = getSupabaseAdmin();
+  const { data: threads, error: threadError } = await sb
+    .from("threads")
+    .select("id")
+    .eq("linked_document_id", document.id);
+
+  if (threadError) throw new Error(threadError.message);
+
+  const linkedThreads = threads ?? [];
+  const threadIds = linkedThreads
+    .map((thread: any) => thread.id)
+    .filter((id: unknown): id is string => typeof id === "string");
+
+  if (threadIds.length === 0) {
+    return {
+      strategy: "linked_discussion_tombstone" as const,
+      linkedDiscussionThreadsHidden: 0,
+      linkedDiscussionThreadIds: [] as string[],
+      commentsPreserved: 0,
+      commentsDeleted: 0,
+      unrelatedThreadsTouched: 0,
+    };
+  }
+
+  const { data: comments, error: commentsError } = await sb
+    .from("comments")
+    .select("id")
+    .eq("parent_type", "thread")
+    .in("parent_id", threadIds);
+
+  if (commentsError) throw new Error(commentsError.message);
+
+  const { data: updated, error: updateError } = await sb
+    .from("threads")
+    .update({ status: "locked", is_hidden: true })
+    .eq("linked_document_id", document.id)
+    .select("id");
+
+  if (updateError) throw new Error(updateError.message);
+
+  return {
+    strategy: "linked_discussion_tombstone" as const,
+    linkedDiscussionThreadsHidden: updated?.length ?? threadIds.length,
+    linkedDiscussionThreadIds: (updated ?? linkedThreads)
+      .map((thread: any) => thread.id)
+      .filter((id: unknown): id is string => typeof id === "string"),
+    commentsPreserved: comments?.length ?? 0,
+    commentsDeleted: 0,
+    unrelatedThreadsTouched: 0,
+  };
+}
+
 function provenanceLabel(value: string) {
   return PROVENANCE_LABELS[value] ?? "Continuity source";
 }
@@ -1008,6 +1061,22 @@ documentsRouter.post("/:id/publish", async (req, res) => {
 // DELETE /documents/:id
 documentsRouter.delete("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
+  const document = await loadOwnedDocumentForUpdate(req.params.id, req.user!.id).catch((error) => {
+    res.status(500).json({ error: error.message ?? "Could not load document." });
+    return undefined;
+  });
+  if (document === undefined) return;
+  if (!document) return res.status(404).json({ error: "Document not found." });
+
+  let cleanup;
+  try {
+    cleanup = await cleanupDeletedDocumentDiscussions(document);
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Could not clean up linked document discussion.",
+    });
+  }
+
   const { error } = await sb
     .from("documents")
     .delete()
@@ -1015,5 +1084,9 @@ documentsRouter.delete("/:id", async (req, res) => {
     .eq("author_user_id", req.user!.id);
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.status(204).send();
+  return res.json({
+    deleted: true,
+    documentId: document.id,
+    cleanup,
+  });
 });

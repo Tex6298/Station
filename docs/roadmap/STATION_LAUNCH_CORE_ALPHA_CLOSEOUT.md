@@ -33,7 +33,8 @@ an owner-visible retracted artifact in Studio.
 ## Current Evidence Refresh
 
 Last refreshed: 2026-06-27 by PR397 hosted publish-and-retract proof, PR398
-MIMIR closeout update, and PR399 Station Assistant action-map refresh.
+MIMIR closeout update, PR399 Station Assistant action-map refresh, and PR407
+owner delete linked-discussion cleanup contract.
 
 - PR157 public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
@@ -76,10 +77,9 @@ MIMIR closeout update, and PR399 Station Assistant action-map refresh.
 - PR391 proves hosted existing public writing route-through readback:
   `/writing` -> public document detail -> linked forum discussion, using
   accepted replay public data and no new public mutation.
-- PR392 confirms current Station has retract/hide behavior, but no reliable
-  owner-safe cleanup path for a test public/unlisted document plus linked
-  discussion artifact. Full fresh hosted publish-and-cleanup remains out of
-  scope; publish-and-retract proofs leave an owner-visible retracted artifact.
+- PR392 confirmed Station had retract/hide behavior, but did not yet have a
+  reliable owner-safe cleanup path for a test public/unlisted document plus
+  linked discussion artifact.
 - PR394 adds the owner-visible `Retract to private` contract in
   `/studio/publishing`, using the authenticated owner `PATCH /documents/:id`
   path and keeping copy explicit that retraction hides public reads but leaves
@@ -91,6 +91,11 @@ MIMIR closeout update, and PR399 Station Assistant action-map refresh.
   public-safe unlisted artifact: approval publish, public document readback,
   `Open linked discussion`, linked discussion route, retract to private,
   post-retract public document/discussion hiding, and owner-private readback.
+- PR407 adds the owner document delete cleanup contract: deleting an owner
+  document tombstones only its linked document discussion threads as hidden and
+  locked, preserves comments/community records behind that tombstone, removes
+  public/member routeability, and returns cleanup readback. No hosted
+  publish-and-cleanup mutation has been run.
 
 ## Evidence Map
 
@@ -102,8 +107,8 @@ MIMIR closeout update, and PR399 Station Assistant action-map refresh.
 | Review candidates | PR17 import-backed candidates and PR21 Import Review Inbox closeout. |
 | Private archive search | PR12 owner-scoped `/imports/archive/search` and deployed `/studio/archive` rehearsal. |
 | Export data | Owner-only JSON/Markdown manifest and portable bundle readback for persona and Developer Space exports. |
-| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, PR387 safe private draft owner readback, PR394 retract contract, and PR397 hosted publish-and-retract proof. This is not hard-delete cleanup. |
-| Public Space/document/discussion | PR23 public Space/document/linked discussion proof, PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data, and PR397 fresh approval-published document -> linked discussion -> retract/hide proof. |
+| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, PR387 safe private draft owner readback, PR394 retract contract, PR397 hosted publish-and-retract proof, and PR407 owner delete cleanup contract. This is not full hard-delete artifact cleanup. |
+| Public Space/document/discussion | PR23 public Space/document/linked discussion proof, PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data, PR397 fresh approval-published document -> linked discussion -> retract/hide proof, and PR407 linked discussion tombstone cleanup after owner document delete. |
 | Station Assistant | PR22 sanitized operational action cards, desktop/mobile browser closeout, and PR399 publish/retract action-map refresh. |
 | Manual social archive intake | PR19 Reddit and PR20 Discord uploaded/pasted intake with fail-closed parser behavior. |
 
@@ -130,7 +135,9 @@ Use public-safe synthetic content only.
     readers and the owner-private Studio record remains readable.
 12. If avoiding hosted mutation, open an accepted replay public document from
     `/writing` or its public Space and follow its linked discussion instead.
-13. Do not hard delete documents, threads, comments, or artifacts in the replay.
+13. Do not run owner document delete cleanup on hosted replay data unless MIMIR
+    explicitly opens that mutation rehearsal; the local/API cleanup contract is
+    tested, but hosted publish-and-cleanup remains opt-in.
 
 ## Required Caveats
 
@@ -152,8 +159,10 @@ Use public-safe synthetic content only.
   public replay readback, and one hosted publish-and-retract proof. It is not a
   fresh hosted private-draft-to-public-publish-and-full-cleanup proof.
 - Retracting a published document to private is a visibility/hide mechanism,
-  not full artifact cleanup. Current document delete is not sufficient cleanup
-  for linked discussion artifacts because linked threads are not cascaded.
+  not artifact cleanup. Owner document delete now tombstones linked document
+  discussion threads for public route safety, but it preserves comments and
+  community records behind the hidden/locked thread and is not full hard-delete
+  artifact removal.
 - Station Assistant is an operational map, not an autonomous executor or
   persistent persona.
 - Redis memory truth, Cloudflare retrieval, production vector hardening,

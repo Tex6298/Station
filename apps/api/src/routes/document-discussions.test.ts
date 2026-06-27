@@ -550,6 +550,102 @@ test("published document discussion readback recovers an existing linked thread 
   }
 });
 
+test("owner document deletion tombstones only its linked discussion artifact", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createDiscussionApp();
+
+  try {
+    const discussion = await requestJson(app, "POST", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+    });
+    assert.equal(discussion.status, 201);
+    const linkedThreadId = discussion.body.discussion.id;
+
+    const comment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: linkedThreadId,
+        body: "Preserve this comment under the cleanup tombstone.",
+      },
+    });
+    assert.equal(comment.status, 201);
+
+    const category = db.rows("forum_categories").find((row) => row.slug === "documents-and-codexes");
+    assert.ok(category);
+    const unrelatedThread = db.insertRow("threads", {
+      category_id: category.id,
+      author_user_id: OWNER_ID,
+      title: "Unrelated public thread",
+      body: "This thread is not linked to the deleted document.",
+      visibility: "public",
+      status: "active",
+      is_hidden: false,
+    });
+
+    const memberDelete = await requestJson(app, "DELETE", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "member-token",
+    });
+    assert.equal(memberDelete.status, 404);
+
+    const deleted = await requestJson(app, "DELETE", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(deleted.status, 200);
+    assert.deepEqual(deleted.body, {
+      deleted: true,
+      documentId: PUBLIC_DOC_ID,
+      cleanup: {
+        strategy: "linked_discussion_tombstone",
+        linkedDiscussionThreadsHidden: 1,
+        linkedDiscussionThreadIds: [linkedThreadId],
+        commentsPreserved: 1,
+        commentsDeleted: 0,
+        unrelatedThreadsTouched: 0,
+      },
+    });
+
+    assert.equal(db.rows("documents").some((row) => row.id === PUBLIC_DOC_ID), false);
+    const linkedThread = db.rows("threads").find((row) => row.id === linkedThreadId);
+    assert.equal(linkedThread.status, "locked");
+    assert.equal(linkedThread.is_hidden, true);
+    assert.equal(linkedThread.linked_document_id, PUBLIC_DOC_ID);
+    assert.equal(db.rows("comments").filter((row) => row.parent_id === linkedThreadId).length, 1);
+
+    const visitorDocument = await requestJson(app, "GET", `/documents/public/${PUBLIC_DOC_ID}`);
+    assert.equal(visitorDocument.status, 404);
+
+    const visitorDiscussion = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
+    assert.equal(visitorDiscussion.status, 404);
+
+    const visitorThread = await requestJson(app, "GET", `/threads/${linkedThreadId}`);
+    assert.equal(visitorThread.status, 404);
+
+    const memberThread = await requestJson(app, "GET", `/threads/${linkedThreadId}`, {
+      token: "member-token",
+    });
+    assert.equal(memberThread.status, 404);
+
+    const unrelatedRead = await requestJson(app, "GET", `/threads/${unrelatedThread.id}`);
+    assert.equal(unrelatedRead.status, 200);
+    assert.equal(unrelatedRead.body.thread.title, "Unrelated public thread");
+
+    const categoryRead = await requestJson(app, "GET", "/forums/categories/documents-and-codexes");
+    assert.equal(categoryRead.status, 200);
+    assert.equal(
+      categoryRead.body.threads.some((thread: Row) => thread.id === linkedThreadId),
+      false
+    );
+    assert.equal(
+      categoryRead.body.threads.some((thread: Row) => thread.id === unrelatedThread.id),
+      true
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("published document discussions respect public, community, unlisted, and private boundaries", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

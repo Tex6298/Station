@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR407 Publish/Retract Cleanup Contract Result
+
+DAEDALUS completed PR407 on 2026-06-27:
+`docs/roadmap/PR407_PUBLISH_RETRACT_CLEANUP_CONTRACT_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner document delete cleanup | Pass | `DELETE /documents/:id` tombstones only threads linked to the deleted owner document and returns cleanup readback. |
+| Public linked discussion denial | Pass | Public document readback, document discussion readback, visitor/member thread readback, and forum category listings do not expose the linked discussion after delete. |
+| Comment preservation | Pass | Comments under the linked discussion are preserved behind the hidden/locked thread; no comments are deleted. |
+| Unrelated forum safety | Pass | Same-category unrelated public thread remains routeable after owner document delete. |
+| Scope control | Pass | No hosted mutation, UI cleanup button, broad forum rewrite, unrelated thread/comment/report/vote deletion, Redis/Cloudflare/provider/cache/vector, schema/migration, billing/auth/deploy, or broad UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 37 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Cached whitespace check passed. |
+
+Residual risk: ARGUS should review the `200` cleanup readback contract and
+confirm the tombstone strategy is enough before MIMIR treats PR407 as closed.
+
 ## PR405 Search/Retrieval Explainability Result
 
 ARGUS accepted PR405 on 2026-06-27:
