@@ -75,6 +75,10 @@ export function billingTierLabel(tier: string | null | undefined): string {
   return tier && tier in TIER_LABELS ? TIER_LABELS[tier as Tier] : tier ?? "Unknown";
 }
 
+export function billingTierReadbackLabel(tier: string | null | undefined): string | null {
+  return tier ? billingTierLabel(tier) : null;
+}
+
 export function billingPriceLabel(tier: Tier): string {
   return formatGbp(TIER_PRICES_GBP[tier]);
 }

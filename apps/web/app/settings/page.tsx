@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { AiObservabilityPanel } from "@/components/settings/ai-observability-panel";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
+import { getSession } from "@/lib/auth";
+import { billingTierReadbackLabel } from "@/lib/billing-tier-display";
 
 const settingSections = [
   {
@@ -53,7 +57,41 @@ const notificationRows = [
   "Event reminders",
 ];
 
+type ProfileSnapshotState = {
+  status: "loading" | "ready" | "unavailable";
+  tierLabel: string | null;
+};
+
+const initialProfileSnapshot: ProfileSnapshotState = {
+  status: "loading",
+  tierLabel: null,
+};
+
 export default function SettingsPage() {
+  const [profileSnapshot, setProfileSnapshot] = useState<ProfileSnapshotState>(initialProfileSnapshot);
+
+  useEffect(() => {
+    let active = true;
+
+    getSession()
+      .then((session) => {
+        if (!active) return;
+        const tierLabel = billingTierReadbackLabel(session?.user.tier);
+        setProfileSnapshot({
+          status: tierLabel ? "ready" : "unavailable",
+          tierLabel,
+        });
+      })
+      .catch(() => {
+        if (!active) return;
+        setProfileSnapshot({ status: "unavailable", tierLabel: null });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <main className="station-page">
       <div className="station-page-inner">
@@ -116,7 +154,11 @@ export default function SettingsPage() {
                 <span style={{ ...markBox, width: 42, height: 42, borderRadius: "50%" }}>A</span>
                 <div>
                   <div style={{ color: "#1f2529", fontSize: 14, fontWeight: 800 }}>Station user</div>
-                  <div style={{ color: "#687078", fontSize: 12 }}>Creator tier</div>
+                  <div style={{ color: "#687078", fontSize: 12 }}>
+                    {profileSnapshot.status === "loading"
+                      ? "Loading tier..."
+                      : profileSnapshot.tierLabel ?? "Tier unavailable"}
+                  </div>
                 </div>
               </div>
               <button type="button" disabled className="station-disabled-action" style={{ width: "100%", marginTop: 14 }}>

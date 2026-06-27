@@ -16,6 +16,7 @@ import {
   billingSpaceLimitLabel,
   billingStorageLimitLabel,
   billingTierLabel,
+  billingTierReadbackLabel,
   billingYearlyPriceLabel,
   pricingTierDisplay,
 } from "./billing-tier-display";
@@ -73,4 +74,12 @@ test("billing helper labels preserve unlimited and unknown tier behavior", () =>
   assert.equal(billingPublicSpaceLimitLabel("creator"), "1 public Space");
   assert.equal(billingDeveloperSpaceLimitLabel("canon"), `${TIER_LIMITS.canon.developerSpaces} Developer Space`);
   assert.equal(pricingTierDisplay("creator").features.includes("Unlimited personas"), true);
+});
+
+test("tier readback labels do not invent unavailable authenticated state", () => {
+  assert.equal(billingTierReadbackLabel("private"), TIER_LABELS.private);
+  assert.equal(billingTierReadbackLabel("canon"), TIER_LABELS.canon);
+  assert.equal(billingTierReadbackLabel("unknown-tier"), "unknown-tier");
+  assert.equal(billingTierReadbackLabel(null), null);
+  assert.equal(billingTierReadbackLabel(undefined), null);
 });

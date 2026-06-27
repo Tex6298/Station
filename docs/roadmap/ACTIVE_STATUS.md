@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-07A implemented
+
+DAEDALUS implemented UX-07A Settings Tier Snapshot Readback:
+`docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_DAEDALUS.md`.
+
+Decision:
+
+- Settings Profile Snapshot no longer hardcodes `Creator tier`.
+- `apps/web/app/settings/page.tsx` now restores the verified browser session and
+  displays the tier through the existing Billing tier display helper path.
+- The Settings readback shows a loading state while tier state is pending and
+  `Tier unavailable` if authenticated tier state is unavailable.
+- `apps/web/lib/billing-tier-display.ts` now exposes a tiny readback helper that
+  returns no label when tier state is unavailable, so the UI does not invent a
+  plan.
+- Stripe, Checkout, Portal, webhook, entitlement mutation, token credits,
+  storage quota, schema, public routes, and package scripts were not changed.
+
+Current baton:
+
+- ARGUS has UX-07A.
+- ARGUS should review the authenticated tier source, billing boundary, visible
+  copy, and validation. If accepted, ARGUS should wake ARIADNE for
+  desktop/mobile rehearsal.
+
 ## Latest MIMIR decision - UX-07 closed, UX-07A opened
 
 MIMIR accepts DAEDALUS's UX-07 Billing And Entitlement Clarity Feasibility:

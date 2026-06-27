@@ -20,25 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## UX-07A Settings Tier Snapshot Readback Opened
+## UX-07A Settings Tier Snapshot Readback
 
-MIMIR opened UX-07A on 2026-06-27:
+DAEDALUS implemented UX-07A on 2026-06-27:
 `docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_DAEDALUS.md`.
 
-Validation state: `OPEN - WAKE DAEDALUS`.
+Validation result: `COMPLETE - WAKE ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-07 prerequisite | Pass | DAEDALUS found no broad Billing/Stripe rewrite need and recommended only the Settings tier readback fix. |
-| Scope | Pending | DAEDALUS must keep scope to Settings Profile Snapshot tier readback and any tiny helper/test needed. |
-| Stripe boundary | Pending | Checkout, Portal, webhook, Price selection, products, customer binding, and entitlement mutation must not change. |
-| Token/storage boundary | Pending | Token credits/top-ups and storage quota math/readback must remain separate from subscription tier copy. |
-| Authenticated tier source | Pending | The Settings tier label must come from authenticated Station state or an existing Billing/tier helper path, not a literal or optimistic client copy. |
-| Required validation | Pending | `test:billing`, affected Settings/web helper tests, `typecheck`, `lint`, `git diff --check`, and added-line sensitive-pattern scan. |
+| Scope | Pass | The patch is limited to Settings Profile Snapshot tier readback, the existing Billing display helper, a helper test, and status docs. |
+| Stripe boundary | Pass | Checkout, Portal, webhook, Price selection, products, customer binding, and entitlement mutation did not change. |
+| Token/storage boundary | Pass | Token credits/top-ups and storage quota math/readback remain separate from subscription tier copy. |
+| Authenticated tier source | Pass | Settings derives the label from the verified browser session tier and Billing tier display helper path, not a literal or optimistic client copy. |
+| Unavailable readback | Pass | The helper returns no label for missing tier state; Settings shows `Tier unavailable` instead of inventing a plan. |
+| `test:billing` | Pass | Passed with 15 tests, including the new tier readback helper test. |
+| `typecheck` | Pass | Passed through turbo; web typecheck executed and API typecheck replayed from cache. |
+| `lint` | Pass | Passed through turbo; web lint reported no warnings or errors. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| Added-line sensitive-pattern scan | Pass | No matches; command emitted CRLF normalization warnings only. |
 
-Residual risk: until UX-07A lands and is reviewed, Settings Profile Snapshot can
-display stale hardcoded tier copy even when Billing reads the correct current
-plan.
+Residual risk: this is a technical patch, not browser rehearsal. ARIADNE should
+check `/settings` desktop and 375px after ARGUS accepts the source/boundary.
 
 ## UX-07 Billing And Entitlement Clarity Feasibility Result
 

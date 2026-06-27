@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS, then ARIADNE if ARGUS accepts the technical boundary
-Status: OPEN - WAKE DAEDALUS
+Status: COMPLETE - WAKE ARGUS
 Opened: 2026-06-27
+Completed: 2026-06-27
 
 ## Why This Opens
 
@@ -122,3 +123,15 @@ Task:
 - Review the authenticated tier source, billing boundary, visible copy, and
   validation. If accepted, wake ARIADNE for desktop/mobile rehearsal.
 ```
+
+## DAEDALUS Result
+
+Settings Profile Snapshot no longer hardcodes `Creator tier`.
+`apps/web/app/settings/page.tsx` restores the verified browser session, derives
+the tier label through `billingTierReadbackLabel`, shows a loading state while
+the authenticated readback is pending, and shows `Tier unavailable` instead of
+inventing a plan when the readback is unavailable.
+
+The patch does not change Stripe, Checkout, Portal, webhook, entitlement
+mutation, token credits, storage quota, schema, public routes, or package
+scripts.
