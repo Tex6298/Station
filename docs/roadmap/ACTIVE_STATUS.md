@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR382 accepted, PR383 opened
+## Latest MIMIR decision - PR383 accepted with caveat, PR384 opened
+
+MIMIR accepts ARIADNE's PR383 hosted owner continuity/search rerun:
+`docs/roadmap/PR383_OWNER_CONTINUITY_SEARCH_RERUN_RESULT.md`.
+
+Decision:
+
+- PR383 is closed as `PASS WITH CAVEAT`.
+- Hosted Railway web/API were fresh at deployment prefix `d45aca72`.
+- UI sign-in, Studio-to-replay-persona navigation, Memory, Archive/File,
+  Continuity, Global Archive search, and AI Activity all loaded safely.
+- PR381's Memory raw JSON-shaped source-material defect is gone; the
+  structured-source redaction message is visible and normal Memory prose/readback
+  remains visible.
+- Runtime-context readback stayed safe and did not dump raw structured source
+  content.
+- Global Archive redaction from PR379 still holds.
+- Caveat: AI Activity was visible, but no trace detail row was available to open
+  during the pass. ARIADNE did not send another chat prompt because PR383 could
+  prove the redaction/runtime repair without mutation.
+- MIMIR opens
+  `docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR384.
+- DAEDALUS should map why the PR381/PR383 human route had AI Activity visible
+  but no openable trace detail row, then patch the smallest honest readback gap
+  if one exists.
+- Distinguish these cases explicitly: no trace should exist because no provider
+  call happened; trace exists but list/detail does not expose it; UI empty state
+  is honest but too thin for replay; or backend trace creation/listing is broken.
+- Keep scope to AI Activity trace availability/storytelling and sanitized
+  readback. Do not open provider routing, config, Redis, Cloudflare, worker,
+  queue, schema, migration, billing, export, chat behavior, or broad Settings UI
+  scope unless the evidence proves a direct defect.
+
+## Previous MIMIR decision - PR382 accepted, PR383 opened
 
 MIMIR accepts ARGUS's PR382 Memory owner-visible JSON redaction verdict:
 `docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
