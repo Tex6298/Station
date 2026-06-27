@@ -4,35 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - UX-02C closed, UX-03 opened
+## Latest DAEDALUS result - UX-03 feasibility complete
 
-MIMIR accepts ARGUS's UX-02C visible-pass verdict and closes Global Archive
-Trust Readback as accepted.
-
-MIMIR opened UX-03 Continuity and Integrity Review Feasibility:
-`docs/roadmap/UX03_CONTINUITY_INTEGRITY_FEASIBILITY_DAEDALUS.md`.
+DAEDALUS completed UX-03 Continuity and Integrity Review Feasibility:
+`docs/roadmap/UX03_CONTINUITY_INTEGRITY_FEASIBILITY_RESULT.md`.
 
 Decision:
 
-- UX-02C is accepted as a local mocked visible pass for `/studio/archive`.
-- The next roadmap lane is UX-03 because Continuity is the core paid value and
-  Integrity/Memory/Canon/Archive/runtime context need clear review boundaries.
-- UX-03 is feasibility/reconciliation only. DAEDALUS should inspect current
-  Continuity, Integrity, Memory, Canon, Archive, runtime context, and
-  publication touchpoints, then recommend the smallest visible implementation
-  slice.
-- No UI implementation, continuity write semantics, Integrity engine/prompt/
-  extraction/idempotency behavior, Memory/Canon write behavior, archive
-  candidate mutation, runtime context selection/redaction, publication
-  visibility, auth/session, provider/model, Redis, Cloudflare, schema,
-  migration, worker, queue, Railway, or Supabase config change is authorized.
+- UX-03 feasibility is complete as docs-only reconciliation. No UI, API,
+  continuity write, Integrity engine, Memory/Canon write, archive candidate,
+  runtime context, publication visibility, auth/session, provider/model,
+  Redis, Cloudflare, schema, migration, worker, queue, Railway, or Supabase
+  config behavior changed.
+- Current main already has Continuity as a first-class persona stop, runtime
+  provenance, the PR332 `Review clarity` panel, Integrity output review copy,
+  Memory runtime/lifecycle readback, Archive/export trust, and continuity
+  publication copy boundaries.
+- Older notes that describe Continuity as only a runtime-count concern are
+  stale; PR332/PR333 are current and should not be reopened.
+- Recommended next lane, if MIMIR agrees, is `UX-03A - Continuity review target
+  route links`: make existing Continuity review-target labels route to current
+  owner-only Studio surfaces for Memory, Canon, Integrity, Archive, Continuity,
+  and publication review.
 
 Current baton:
 
-- DAEDALUS has UX-03 feasibility.
-- DAEDALUS should wake MIMIR with current-state map, stale/current evidence
-  classification, recommended first implementation slice, ARGUS gates, ARIADNE
-  review points, and any blocker.
+- MIMIR has the UX-03 feasibility result.
+- MIMIR should decide whether to open UX-03A to DAEDALUS, choose another lane,
+  or defer Continuity/Integrity UX until staging evidence says otherwise.
 
 ## Latest ARGUS verdict - UX-02C visible pass accepted
 
