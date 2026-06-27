@@ -22,27 +22,27 @@ they are not Station validation failures.
 
 ## PR399 Station Assistant Action Map Refresh Result
 
-DAEDALUS completed PR399 on 2026-06-27:
+ARGUS accepted PR399 on 2026-06-27:
 `docs/roadmap/PR399_STATION_ASSISTANT_ACTION_MAP_REFRESH_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| Assistant route map | Pass | `/assistant/summary` and `/assistant/message` remain auth-gated and owner-scoped; actions route to real owner surfaces. |
-| Publishing guidance refresh | Pass | Assistant publishing actions/replies now name approval publish, public document readback, linked discussion readback, and retract-to-private. |
-| Retract wording | Pass | Assistant copy says retract hides public reads and does not delete artifacts; no cleanup claim was added. |
-| Operational boundary | Pass | Guardrail and panel copy say Assistant does not autonomously execute actions or act as a persona. |
-| Scope control | Pass | No provider/model calls, autonomous Assistant execution, hosted mutation, hard delete cleanup, Station Press, social, scheduling, rich text, billing mutation, Redis, Cloudflare, workers, queues, schema, or migrations opened. |
+| Assistant publishing guidance | Pass | Assistant names approval publish, public document readback, linked discussion readback, and retract-to-private without claiming autonomous execution. |
+| Cleanup wording | Pass | Guardrail and panel copy say retract hides public reads and does not delete artifacts or act as cleanup. |
+| Route reality | Pass | Assistant actions continue to target real owner surfaces including publishing, publish draft, archive/persona file review, continuity/integrity, export, and settings. |
+| Boundary clarity | Pass | Public/private/provenance copy keeps private source material owner-only and frames Assistant as operational guidance, not a persona. |
+| Scope control | Pass | No provider/model calls, hosted mutation, hard-delete cleanup, Station Press, social, scheduling, rich text, billing mutation, Redis, Cloudflare, worker/queue, schema, or migration scope opened. |
 | `npm exec --yes pnpm@10.32.1 -- run test:assistant` | Pass | 9 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 127 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-Residual risk: PR399 is a copy/action-map refresh. It does not add any
-Assistant execution ability, provider/model call, hosted mutation, or new
-workflow surface.
+Residual risk: ARGUS accepted the local Assistant guidance refresh. No hosted
+route mutation was run or needed for PR399 because this lane changed
+operational copy/action guidance only.
 
 ## PR398 Publish Retract Closeout Review Result
 

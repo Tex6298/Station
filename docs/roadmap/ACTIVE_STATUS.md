@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR399 ready for ARGUS
+## Latest ARGUS verdict - PR399 accepted
 
-DAEDALUS completed PR399:
+ARGUS accepted PR399:
 `docs/roadmap/PR399_STATION_ASSISTANT_ACTION_MAP_REFRESH_RESULT.md`.
 
-Current status:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - Station Assistant routes were already owner-scoped and pointed to real
   archive, import review, publishing, continuity/integrity, export, quota, and
@@ -23,6 +29,13 @@ Current status:
   actions and must not frame retract as cleanup or deletion.
 - The Studio Assistant starter prompt now asks about publishing and retracting
   safely.
+- ARGUS confirmed action routes still land on real owner surfaces,
+  public/private/provenance boundaries remain clear, and Assistant remains an
+  operational guide rather than a persona or autonomous executor.
+- No provider/model calls, autonomous Assistant execution, hosted public
+  mutation, hard-delete cleanup, Station Press, social, scheduling, rich text,
+  billing mutation, Redis, Cloudflare, workers, queues, schema, or migration
+  scope was opened.
 
 Validation:
 
@@ -34,16 +47,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR399.
-- ARGUS should hostile-review Assistant guidance for autonomous-action
-  overclaim, cleanup/delete wording, route reality, and public/private/
-  provenance boundary clarity.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
-  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
-- Do not open provider/model calls, autonomous Assistant execution, hosted
-  public mutation, hard-delete cleanup, Station Press, social, scheduling,
-  rich text, billing mutation, Redis, Cloudflare, workers, queues, schema, or
-  migrations.
+- MIMIR has PR399.
+- MIMIR should close PR399 as `PASS`.
+- Recommended next lane: none for Assistant action-map refresh by default.
+  Choose the next roadmap move from fresh replay evidence or explicit product
+  priority.
 
 ## Latest MIMIR decision - PR398 accepted, PR399 opened
 

@@ -1,7 +1,7 @@
 # PR399 - Station Assistant Action Map Refresh Result
 
 Owner: A2 / DAEDALUS
-Status: ready for ARGUS review
+Status: Accepted by ARGUS
 Completed: 2026-06-27
 
 ## Summary
@@ -61,14 +61,28 @@ billing automatically.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-## Review Request
+## ARGUS Review
 
-ARGUS should review the Assistant guidance for overclaim:
+Verdict: `PASS`.
 
-- no autonomous action claims;
-- no cleanup/delete claims for retract;
-- action routes still land on real owner surfaces;
-- public/private/provenance boundaries remain clear.
+ARGUS accepts PR399 as a narrow Station Assistant action-map refresh:
 
-If accepted, wake MIMIR with `WAKEUP A1:`. If fixes are needed, wake DAEDALUS
-with `WAKEUP A2:`.
+- Assistant guidance remains operational and owner-controlled. It does not
+  claim autonomous publishing, retraction, import, billing, Space creation, or
+  visibility changes.
+- Publishing guidance now names the proved approval-publish -> public readback
+  -> linked discussion readback -> retract-to-private path without calling
+  retraction cleanup or deletion.
+- Action routes still land on real owner surfaces: `/studio/publishing`,
+  `/studio/publish`, archive/persona file review, continuity/integrity,
+  `/studio/export`, and `/settings`.
+- Public/private/provenance boundaries remain clear: private archive/source
+  material stays private, public readback is owner-reviewed, and Assistant is
+  not a persona or autonomous executor.
+- Scope stayed closed: no provider/model calls, hosted mutation, hard-delete
+  cleanup, Station Press, social, scheduling, rich text, billing mutation,
+  Redis, Cloudflare, workers, queues, schema, or migrations.
+- ARGUS reran the requested validation successfully.
+
+MIMIR can close PR399 as `PASS` and choose the next roadmap move from fresh
+replay evidence or explicit product priority.
