@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Backup/Restore Preflight
+
+ARGUS completed the production backup/restore preflight on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_RESULT.md`.
+
+Validation result: `DESIGN FIRST`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Operations delta review | Pass | Backup/restore remains `UNKNOWN / NEEDS PROOF`; no accepted restore rehearsal exists. |
+| PR364 export trust-map review | Pass | Existing export package readback is honest and bounded to scoped owner-only JSON/Markdown surfaces. |
+| Export source/test inspection | Pass | Route and test inspection supports owner-only export readback, not managed backup or restore readiness. |
+| Read-only proof usefulness | Rejected for now | A read-only pass would mostly restate current export truth and could overclaim because no restore action happens. |
+| Required next lane | Design first | DAEDALUS should define non-production restore rehearsal scope, fixtures, stop conditions, rollback, cleanup, and evidence redaction before any hosted mutation. |
+| Mutation boundary | Not authorized | No backup, restore, dump, hosted SQL, storage list/copy/delete, export mutation, admin console, queue job, schema/config/package change, or hosted data mutation is authorized. |
+| `git diff 466fa001^ 466fa001 --check` | Pass | MIMIR's preflight-open commit has no whitespace errors. |
+| `git diff --check` | Pass | ARGUS's docs-only result patch has no whitespace errors. |
+| Added-line leak scans | Pass | ARGUS docs added no full URLs, UUID-like values, Stripe key prefixes, bearer/JWT-looking values, credential assignments, database URL names, service-role names, or signed-URL constant names. |
+| Package tests | Not run | No code, schema, package, config, or hosted behavior changed in this preflight result. |
+
+Residual risk: Station still cannot claim production backup/restore readiness.
+Current export readback is honest, but backup integrity, managed redundancy,
+retention, RPO/RTO, and restore recovery remain unproven.
+
 ## Token Top-Up Blocker And Backup/Restore Preflight
 
 MIMIR parked token top-up proof closure and opened ARGUS backup/restore
@@ -28,7 +52,7 @@ preflight on 2026-06-28:
 - `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_BLOCKER_MIMIR.md`
 - `docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_ARGUS.md`
 
-Validation result: open.
+Validation result: superseded by ARGUS `DESIGN FIRST` preflight result above.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |

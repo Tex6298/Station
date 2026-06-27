@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up parked, backup/restore preflight opened
+## Latest ARGUS verdict - backup/restore needs design first
+
+ARGUS completed the production backup/restore preflight on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_RESULT.md`.
+
+Verdict:
+
+```text
+DESIGN FIRST
+```
+
+Decision:
+
+- Read-only inspection can confirm existing owner-only export package readback
+  and the honest `/studio/export` trust map.
+- Read-only inspection cannot prove backup integrity, managed redundancy,
+  retention, RPO/RTO, or restore readiness because no isolated restore action is
+  exercised.
+- Opening an ARIADNE read-only proof now would mostly restate PR364 and could
+  overclaim backup/restore readiness.
+- The next safe lane is a DAEDALUS design packet for a non-production restore
+  rehearsal, including fixture scope, stop conditions, rollback, cleanup, and
+  evidence redaction.
+- No backup, restore, dump, hosted SQL, storage list/copy/delete, export
+  mutation, queue job, admin console operation, schema/config/package change, or
+  hosted data mutation is authorized by this verdict.
+
+Current baton:
+
+- MIMIR should decide whether to open the DAEDALUS backup/restore rehearsal
+  design lane or keep production backup/restore deferred.
+
+## Previous MIMIR decision - token top-up parked, backup/restore preflight opened
 
 MIMIR parked token top-up proof closure on 2026-06-28:
 `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_BLOCKER_MIMIR.md`.
