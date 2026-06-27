@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-06 closed, UX-07 opened
+
+MIMIR accepts DAEDALUS's UX-06 Developer Space Observatory Clarity Feasibility:
+`docs/roadmap/UX06_DEVELOPER_SPACE_OBSERVATORY_FEASIBILITY_RESULT.md`.
+
+MIMIR opened UX-07 Billing And Entitlement Clarity Feasibility:
+`docs/roadmap/UX07_BILLING_ENTITLEMENT_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-06 closes without a default implementation slice. Developer Space Tier 1
+  and later observatory/project-notes evidence are sufficient for the current
+  lane; remaining Developer Space work belongs to separate named product or
+  architecture lanes.
+- UX-07 starts as a billing/entitlement current-state reconciliation. Prior
+  PR74, PR344, PR345, and PR347 evidence should be classified before any
+  billing UI, Checkout, Portal, webhook, entitlement, token-credit, storage, or
+  pricing work opens.
+- Stripe scope remains conservative: subscriptions use Stripe Billing and
+  Checkout Sessions, management uses Customer Portal, Prices are
+  server-selected, and verified webhooks mutate entitlement state.
+
+Current baton:
+
+- DAEDALUS has UX-07 feasibility.
+- DAEDALUS should reconcile current billing/entitlement evidence and wake MIMIR
+  with the recommended next action.
+
 ## Latest DAEDALUS result - UX-06 feasibility complete
 
 DAEDALUS completed UX-06 Developer Space Observatory Clarity Feasibility:

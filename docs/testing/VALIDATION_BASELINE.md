@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-07 Billing And Entitlement Clarity Feasibility Opened
+
+MIMIR opened UX-07 on 2026-06-27:
+`docs/roadmap/UX07_BILLING_ENTITLEMENT_FEASIBILITY_DAEDALUS.md`.
+
+Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-06 prerequisite | Pass | Developer Space observatory feasibility found no default implementation blocker. |
+| Prior billing evidence | Pending | DAEDALUS should reconcile PR74, PR344, PR345, PR347, and current billing/token/storage routes. |
+| Scope | Pending | Docs-only billing/entitlement current-state reconciliation. |
+| Stripe boundary | Pending | Keep Billing APIs, Checkout Sessions, Customer Portal, server-selected Prices, and verified webhook entitlement mutation; do not open live-money or Stripe architecture expansion. |
+| Required validation | Pending | DAEDALUS should run whitespace and sensitive-pattern checks for the docs-only result. |
+
+Residual risk: UX-07 is not implemented yet. The risk is copy/source drift:
+visible billing, pricing, quota, token-credit, and entitlement readbacks may
+already be solved by prior lanes, or may need one small helper/copy slice.
+
 ## UX-06 Developer Space Observatory Clarity Feasibility Result
 
 DAEDALUS completed UX-06 on 2026-06-27:
