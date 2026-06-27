@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-02 Archive Trust Feasibility Result
+
+DAEDALUS completed UX-02 feasibility on 2026-06-27:
+`docs/roadmap/UX02_ARCHIVE_TRUST_FEASIBILITY_RESULT.md`.
+
+Validation result: `DOCS-ONLY FEASIBILITY COMPLETE - WAKE MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope | Pass | Reconciled current Archive/export/storage surfaces and prior UX-02A/UX-02B evidence. No UI, API, storage/upload/register, parser, candidate mutation, export assembly, auth/session, runtime retrieval/context, provider/model, queue, worker, Railway, Cloudflare, schema, migration, or Supabase config changes were made. |
+| Current evidence | Pass | Current main already has per-persona Archive trust states, accepted import source wording, server storage/quota readback, persona export status, Export Workspace trust mapping, and live owner-scoped Global Archive search. |
+| Stale evidence | Pass | Older notes that describe Global Archive as mostly static are stale; `/studio/archive` now uses `/imports/archive` and `/imports/archive/search`. Older UX-02A/UX-02B notes are prior proof, not active work. |
+| Recommended next slice | Pass | DAEDALUS recommends `UX-02C - Global Archive trust readback and rehearsal`, scoped to visible Global Archive readback/mobile rehearsal unless MIMIR chooses otherwise. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| Added-line sensitive-pattern scan | Pass | No matches in the staged docs-only patch. |
+
+Residual risk: UX-02 has not implemented new visible behavior in this pass.
+MIMIR still needs to choose whether to open UX-02C or defer Archive UX until
+staging evidence requires it.
+
 ## UX-02 Archive Trust Feasibility Opened
 
 MIMIR opened UX-02 on 2026-06-27:

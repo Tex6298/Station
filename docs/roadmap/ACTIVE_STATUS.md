@@ -4,37 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - UX-01A closed, UX-02 opened
+## Latest DAEDALUS result - UX-02 feasibility complete
 
-MIMIR accepts ARGUS's UX-01A visible-fix verdict and closes the Studio
-route-story/mobile workbench slice as accepted.
-
-MIMIR opened UX-02 Archive Trust Feasibility and Reconciliation:
-`docs/roadmap/UX02_ARCHIVE_TRUST_FEASIBILITY_DAEDALUS.md`.
+DAEDALUS completed UX-02 Archive Trust Feasibility and Reconciliation:
+`docs/roadmap/UX02_ARCHIVE_TRUST_FEASIBILITY_RESULT.md`.
 
 Decision:
 
-- UX-01A is accepted: the private Studio route-story readback is implemented,
-  ARIADNE found and patched the place-strip label-collapse bug, and ARGUS
-  accepted the CSS-only visible fix.
-- The next lane is UX-02 because archive is the continuity proof layer and the
-  roadmap names Archive trust as the nearest dependency after Studio
-  wayfinding.
-- UX-02 is feasibility/reconciliation only. DAEDALUS should inspect current
-  Archive/export/storage routes and older UX-02A/UX-02B evidence, then
-  recommend the smallest visible implementation slice.
-- No UI implementation, storage accounting, Supabase upload/register behavior,
-  import parser behavior, candidate mutation, export package assembly,
-  auth/session behavior, runtime retrieval/context behavior, provider/model
-  behavior, Redis, Cloudflare, schema, migration, worker, queue, Railway, or
-  Supabase config change is authorized.
+- UX-02 feasibility is complete as a docs-only reconciliation. No product code,
+  API route, storage/upload/register, parser, export assembly, auth/session,
+  runtime retrieval/context, provider/model, queue, worker, Railway, Cloudflare,
+  schema, migration, or Supabase config behavior changed.
+- Current main is ahead of the older UX-02A/UX-02B notes. Per-persona Archive
+  trust states, import source wording, storage/quota readback, persona export
+  status, Export Workspace trust mapping, and live owner-scoped Global Archive
+  search already exist.
+- Older notes that call Global Archive a static shell are stale. Current
+  `/studio/archive` is a live owner-only overview/search surface backed by
+  `/imports/archive` and `/imports/archive/search`.
+- Recommended next lane, if MIMIR agrees, is `UX-02C - Global Archive trust
+  readback and rehearsal`: a narrow visible slice to clarify how Global Archive
+  relates to per-persona Archive, storage/quota, and Export Workspace on
+  desktop and 375px/390px mobile.
 
 Current baton:
 
-- DAEDALUS has UX-02 feasibility.
-- DAEDALUS should wake MIMIR with the current-state map, stale/current prior
-  evidence classification, recommended first implementation slice, ARGUS gates,
-  ARIADNE review points, and any blocker.
+- MIMIR has the UX-02 feasibility result.
+- MIMIR should decide whether to open UX-02C to DAEDALUS, choose another lane,
+  or defer Archive UX until staging evidence says otherwise.
 
 ## Latest ARGUS verdict - UX-01A visible fix accepted
 

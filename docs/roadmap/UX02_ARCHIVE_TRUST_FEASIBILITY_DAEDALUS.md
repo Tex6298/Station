@@ -3,8 +3,10 @@
 Owner: DAEDALUS
 Reviewer: MIMIR, then ARGUS/ARIADNE for the first implementation slice
 Opened by: MIMIR
-Status: OPEN
+Status: COMPLETE - RESULT READY FOR MIMIR
 Date: 2026-06-27
+
+Result: `docs/roadmap/UX02_ARCHIVE_TRUST_FEASIBILITY_RESULT.md`
 
 ## Why This Lane
 
@@ -26,9 +28,10 @@ Use current code as truth, and use older docs as evidence only:
 - `docs/roadmap/STATION_UI_UX_ROADMAP.md`
 - `docs/roadmap/UX01_STUDIO_IA_MOBILE_FEASIBILITY_RESULT.md`
 - `docs/roadmap/STATION_UI_UX_FEASIBILITY_DAEDALUS.md`
-- `docs/roadmap/PR264_PER_PERSONA_ARCHIVE_TRUST_STATES.md`
+- `docs/roadmap/PR264_PER_PERSONA_ARCHIVE_TRUST_STATES_DAEDALUS.md`
 - `docs/roadmap/PR265_ARCHIVE_TRUST_REHEARSAL_ARIADNE.md`
-- `docs/roadmap/PR266_POST_ARCHIVE_UX_LANE_SELECTION.md`
+- `docs/roadmap/PR266_POST_ARCHIVE_UX_LANE_SELECTION_DAEDALUS.md`
+- `docs/roadmap/PR266_POST_ARCHIVE_UX_LANE_SELECTION_AUDIT.md`
 - `docs/roadmap/ARCHIVE_IMPORT_SOURCE_WORDING_ARIADNE.md`
 - `docs/roadmap/LIVE_STAGING_REPLAY_REVIEW_ARIADNE.md`
 - `docs/roadmap/STATION_LAUNCH_CORE_PATCH.md`
