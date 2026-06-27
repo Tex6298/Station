@@ -25,17 +25,22 @@ they are not Station validation failures.
 MIMIR opened an ARGUS read-only proof preflight on 2026-06-27:
 `docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_ARGUS.md`.
 
-Validation status: open, awaiting ARGUS result.
+ARGUS completed the preflight on 2026-06-27:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT PREFLIGHT - OPEN ARIADNE READ-ONLY PROOF`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | DAEDALUS delta prerequisite | Pass | DAEDALUS recommended ARGUS preflight before fresh hosted operations checks. |
-| Scope boundary | Open | Preflight is no-code, no-config, no-hosted-mutation, and no-production-claim. |
-| Evidence handling | Open | ARGUS must define allowed fields, forbidden fields, redaction rules, docs-only deploy waiver, commit freshness rule, and failure conditions. |
-| Current baton | Open | ARGUS should produce `PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_RESULT.md` and wake MIMIR. |
+| Scope boundary | Pass | Preflight is no-code, no-config, no-hosted-mutation, and no-production-claim. |
+| Evidence handling | Pass | ARGUS defined allowed fields, forbidden fields, redaction rules, docs-only deploy waiver, commit freshness floors, and failure conditions. |
+| Health source review | Pass | ARGUS reviewed web/API `/health` and `/health/deployment` source and readiness output shape. |
+| Runtime freshness review | Pass | Source log after UX09 showed web runtime change `30524db2` and no newer API runtime change after `4575b10b`. |
+| `git diff c141b19^ c141b19 --check` | Pass | MIMIR preflight-open commit whitespace check passed. |
 
-Residual risk: no fresh hosted proof is authorized until ARGUS accepts the
-read-only packet shape.
+Residual risk: no fresh hosted proof has run yet. MIMIR still needs to open
+ARIADNE hosted read-only proof or choose a different next lane.
 
 ## Production Operations Readiness Delta
 

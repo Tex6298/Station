@@ -106,6 +106,9 @@ roadmap pressure is production/operations truth, not more cleanup churn.
 DAEDALUS recommended ARGUS preflight before any fresh hosted operations proof,
 so MIMIR opened
 `PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_ARGUS.md`.
+ARGUS accepted that preflight with strict read-only health/deployment evidence
+rules and recommended ARIADNE hosted read-only proof before any implementation
+or production-readiness claim.
 
 ## Current staged replay baton
 

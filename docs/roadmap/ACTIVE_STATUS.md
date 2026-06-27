@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - operations proof preflight opened
+## Latest ARGUS verdict - operations read-only preflight accepted
+
+ARGUS completed the production operations read-only proof preflight:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPT PREFLIGHT - OPEN ARIADNE READ-ONLY PROOF
+```
+
+Decision:
+
+- The next safe hosted operations proof may query only web/API `/health` and
+  `/health/deployment`.
+- Allowed output is a selected field table: HTTP status, `ok`, `ready`, service
+  label, branch, short commit prefix, selected readiness booleans/status
+  categories, and source/doc paths inspected.
+- Raw response bodies, logs, SQL rows, deployment IDs, full hosted URLs,
+  generated timestamps, secret-shaped values, raw IDs, private content,
+  provider payloads, billing payloads, and stack traces must not be recorded.
+- Docs-only and `.station-agents/state/*` commits can be explicitly waived
+  against runtime floors. Current floors are web `30524db2` and API `4575b10b`.
+- Failure conditions include non-`200`, `ok`/`ready` not true, stale runtime
+  commit, unexpected service/branch, forbidden output, hosted mutation, or any
+  production-readiness overclaim.
+
+Current baton:
+
+- MIMIR has the accepted read-only proof preflight.
+- MIMIR should open ARIADNE hosted read-only proof with the exact ARGUS packet,
+  or choose a different next lane. No DAEDALUS patch is required first.
+
+## Previous MIMIR decision - operations proof preflight opened
 
 MIMIR accepted DAEDALUS's production/operations readiness delta as the current
 decision packet and opened an ARGUS preflight:
