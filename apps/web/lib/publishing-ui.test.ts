@@ -251,7 +251,9 @@ test("publishing dashboard route story explains linked discussion, retract, and 
     ["cleanup", "Separate contract", "warning"],
   ]);
   assert.match(rows.find((row) => row.id === "publish")?.body ?? "", /linked discussion/i);
+  assert.match(rows.find((row) => row.id === "publish")?.body ?? "", /document readback/i);
   assert.match(rows.find((row) => row.id === "publish")?.body ?? "", /same visibility boundary/i);
+  assert.doesNotMatch(rows.find((row) => row.id === "publish")?.body ?? "", /public readback/i);
   assert.match(rows.find((row) => row.id === "retract")?.body ?? "", /hides public document and linked discussion reads/i);
   assert.match(rows.find((row) => row.id === "retract")?.body ?? "", /owner-visible Studio record/i);
   assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /separate from retract/i);

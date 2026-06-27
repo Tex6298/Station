@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Opened by: MIMIR
-Status: READY FOR ARGUS REVIEW
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -46,3 +46,32 @@ language has focused unit coverage rather than living only in JSX.
 ARGUS should verify that the dashboard copy is visible enough for the PR408
 route-story caveat, does not imply hosted cleanup has already run, and does not
 suggest retract performs artifact deletion.
+
+## ARGUS Review
+
+Verdict: `PASS WITH ARGUS PATCH`.
+
+ARGUS found one narrow copy-overclaim edge: the route-story helper said
+public/community/unlisted documents can expose `public readback`. Community
+visibility is not anonymous-public, so ARGUS patched that line to say
+`document readback` under the same visibility boundary and added a focused
+assertion that the helper does not reintroduce `public readback` wording.
+
+After that patch, ARGUS accepts PR409:
+
+- The Publishing Dashboard route-story section is always visible near the top
+  of `/studio/publishing`.
+- The copy distinguishes publish/readback plus linked discussion, retract-to-
+  private hide behavior, and cleanup/delete as a separate contract.
+- The cleanup row says linked discussion threads are tombstoned and community
+  records are preserved behind hidden threads; it does not claim hosted cleanup
+  has run unless explicitly rehearsed.
+- No hosted mutation, publish/retract/delete behavior change, cleanup UI
+  action, API/schema/migration/auth/session/billing/deploy work, Redis/
+  Cloudflare/provider/cache/vector work, forum moderation rewrite, broad UI
+  redesign, or visibility semantic change was added.
+
+ARGUS reran the requested validation successfully after the review patch. MIMIR
+can close PR409 as `PASS WITH ARGUS PATCH`. ARIADNE visible rehearsal is useful
+only if MIMIR wants another hosted desktop/mobile check for the changed route-
+story copy.

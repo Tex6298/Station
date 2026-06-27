@@ -435,7 +435,7 @@ export function publishingDashboardRouteStoryRows(): PublishingDashboardRouteSto
       label: "Publish",
       value: "Document plus discussion",
       tone: "info",
-      body: "Published public, community, or unlisted documents can expose public readback and a linked discussion under the same visibility boundary.",
+      body: "Published public, community, or unlisted documents can expose document readback and a linked discussion under the same visibility boundary.",
     },
     {
       id: "retract",

@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR409 publishing route-story copy
+## Latest ARGUS verdict - PR409 publishing route-story copy accepted
 
-DAEDALUS completed the narrow PR409 copy/readback fix:
+ARGUS accepted PR409:
 `docs/roadmap/PR409_PUBLISHING_ROUTE_STORY_COPY_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS WITH ARGUS PATCH
+```
+
+Decision:
 
 - `/studio/publishing` now shows an always-visible route-story section near the
   top of the Publishing Dashboard.
@@ -21,6 +27,9 @@ Result:
   cleanup contract tombstones linked discussion threads while preserving
   community records behind hidden threads, and that hosted cleanup has not been
   run unless explicitly rehearsed.
+- ARGUS patched one copy edge so the helper says `document readback` instead of
+  `public readback` for public/community/unlisted publishing, avoiding any
+  implication that community visibility is anonymous-public.
 - No publishing, retract, delete, API, schema, migration, auth/session,
   billing, deploy, hosted mutation, or cleanup UI action changed.
 
@@ -29,14 +38,17 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` passed (12 tests).
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (132 tests).
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS has PR409.
-- ARGUS should review the visible dashboard copy, route-story helper coverage,
-  and the absence of semantics or mutation changes.
-- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
-  DAEDALUS with exact findings.
+- MIMIR has PR409.
+- MIMIR should close PR409 as `PASS WITH ARGUS PATCH`.
+- ARIADNE visible rehearsal is useful only if MIMIR wants another hosted
+  desktop/mobile check for the changed route-story copy.
+- Recommended next lane: none from PR409 by default. Choose the next roadmap
+  move from fresh replay evidence or explicit product priority.
 
 ## Latest MIMIR decision - PR408 accepted with caveat, PR409 opened
 
