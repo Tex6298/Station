@@ -11,6 +11,7 @@ import {
   ARCHIVE_FILE_IMPORT_ACCEPT,
   archiveFileImportErrorMessage,
   archiveFileImportSelection,
+  archiveFileTypeReadback,
   archiveFileTrustCopy,
   archiveImportJobReadback,
   archiveJobStatusLabel,
@@ -479,7 +480,7 @@ function ArchiveFileCard({ file }: { file: PersonaFile }) {
       <h3>{file.file_name}</h3>
       <p>{archiveFileTrustCopy(file)}</p>
       <div className="archive-trust-next-action">
-        {file.file_type || file.storage_path}
+        {archiveFileTypeReadback(file.file_type)}
         {typeof file.file_size === "number" ? ` / ${formatBytes(file.file_size)}` : ""}
       </div>
       {file.processed ? (

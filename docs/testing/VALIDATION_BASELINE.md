@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed PR413 on 2026-06-27:
 `docs/roadmap/PR413_OWNER_ARCHIVE_FILE_IMPORT_UI_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS WITH REVIEW PATCH`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -34,6 +34,8 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Existing API flow | Pass | UI requests signed upload URL with file name and size, uploads directly, then registers with `sourceType: "import"` and `processImmediately: true`. |
 | Upload-token secrecy | Pass | Signed URL/token remains inside submit handling and is not rendered or included in owner-visible errors. |
 | Error sanitization | Pass | Helper redacts signed URL/token-shaped failures and keeps existing archive safety visible. |
+| ARGUS storage path display patch | Pass | File cards now show generic private-file readback instead of raw `storage_path` when MIME type is absent. |
+| ARGUS camelCase redaction patch | Pass | Helper sanitization now catches `storagePath`, `uploadUrl`, and `signedUrl` error shapes. |
 | No provider overclaim | Pass | UI says ChatGPT/Claude/Reddit/Discord exports are uploaded owner-only file imports, not live provider/OAuth/bot/API pulls. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 10 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
@@ -41,10 +43,12 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including upload preflight/register/idempotency/quota/parser coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+| Cached sensitive-pattern review | Pass | Matches were redaction-policy fixtures only, not secret values. |
 
-Residual risk: ARGUS should review the browser upload path for owner scope,
-storage quota/error surfacing, duplicate registration/idempotency preservation,
-and signed upload URL/token secrecy. No hosted upload proof was run.
+Residual risk: no hosted upload proof was run. MIMIR should close PR413 as
+`PASS WITH ARGUS PATCH` or explicitly open a hosted upload rehearsal later.
 
 ## PR412 Launch-Core Cleanup Caveat Review Result
 

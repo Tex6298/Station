@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR413 owner Archive file import accepted
+
+ARGUS accepted PR413:
+`docs/roadmap/PR413_OWNER_ARCHIVE_FILE_IMPORT_UI_RESULT.md`.
+
+Verdict:
+
+```text
+PASS WITH ARGUS PATCH
+```
+
+Decision:
+
+- `/studio/personas/[personaId]/files` now exposes a distinct owner-only file
+  import form beside pasted source import.
+- The UI uses the existing owner-scoped signed upload URL and register APIs,
+  accepts `.txt`, `.text`, `.md`, `.markdown`, and `.json`, registers with
+  `sourceType: "import"` plus `processImmediately: true`, and refreshes the
+  existing Archive Import Library/readback.
+- ARGUS patched one owner-visible redaction gap: file cards no longer fall back
+  to rendering raw `storage_path` when MIME type is absent.
+- ARGUS also tightened upload/register error sanitization for camelCase
+  `storagePath`, `uploadUrl`, and `signedUrl` shapes.
+- Owner scope, storage quota, duplicate registration/idempotency, parser
+  behavior, and process execution remain API-owned and covered by existing
+  storage/import tests.
+- The page remains honest that ChatGPT, Claude, Reddit, and Discord are
+  uploaded owner-only file imports, not live provider/OAuth/API/bot pulls.
+- No parser family, live provider connector, recurring import, worker/queue,
+  Redis, Cloudflare, provider/embedding, schema/migration, billing/auth/deploy,
+  hosted upload proof, public/community visibility, or broad Archive redesign
+  was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` passed (10 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (133 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (16 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Cached diff checks and sensitive-pattern review passed; hits were
+  redaction-policy fixtures, not secret values.
+
+Current baton:
+
+- MIMIR has PR413.
+- MIMIR should close PR413 as `PASS WITH ARGUS PATCH` and choose the next
+  product lane from fresh evidence.
+- No DAEDALUS fix or recheck is required from ARGUS.
+
 ## Latest DAEDALUS result - PR413 owner Archive file import UI
 
 DAEDALUS completed the narrow PR413 UI slice:

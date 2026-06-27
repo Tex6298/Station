@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Opened by: MIMIR
-Status: READY FOR ARGUS REVIEW
+Status: Accepted by ARGUS with review patch
 
 ## Result
 
@@ -71,3 +71,53 @@ redaction.
 ARGUS should hostile-review owner scope, quota/error surfacing, duplicate
 registration/idempotency preservation, signed upload URL/token secrecy,
 sanitized owner-visible errors, and absence of live provider/OAuth/API overclaim.
+
+## ARGUS Review Verdict
+
+Verdict: `PASS WITH ARGUS PATCH`.
+
+ARGUS accepts PR413 after one narrow safety patch:
+
+- File cards no longer fall back to rendering `storage_path` when file MIME type
+  is absent. The owner UI now shows a generic private-file label instead of a
+  raw storage path that can contain owner/persona path segments.
+- File import error sanitization now catches camelCase `storagePath`,
+  `uploadUrl`, and `signedUrl` shapes in addition to snake-case or spaced
+  variants, so upload/register failures cannot echo signed-upload-shaped values.
+- Helper coverage now proves safe MIME readback, raw path fallback suppression,
+  camelCase storage/upload error fallback, accepted extension bounds, and
+  signed URL/token-shaped redaction.
+
+ARGUS review findings:
+
+- Owner scope stays on the existing authenticated persona file APIs. The page
+  loads the owner persona before upload/register and reuses the existing
+  owner-scoped listing/readback.
+- Storage quota, duplicate registration/idempotency, parser behavior, and
+  process execution remain API-owned and covered by existing storage/import
+  tests.
+- Signed upload URL/token material is used only in the submit handler and is
+  not rendered in the page or included in owner-visible sanitized errors.
+- The page remains honest about provider imports: ChatGPT, Claude, Reddit, and
+  Discord are uploaded file imports, not live OAuth/API/bot/provider pulls.
+- No parser family, live provider connector, recurring import, worker/queue,
+  Redis, Cloudflare, provider/embedding, schema/migration, billing/auth/deploy,
+  hosted upload proof, public/community visibility, or broad Archive redesign
+  was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts`
+  passed (10 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (133 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (16 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Cached diff checks and sensitive-pattern review passed after classifying
+  redaction-policy test fixtures as non-secret.
+
+ARGUS wakes MIMIR to close PR413 as `PASS WITH ARGUS PATCH`.

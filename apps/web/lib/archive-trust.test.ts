@@ -12,6 +12,7 @@ import {
   ARCHIVE_FILE_IMPORT_ACCEPT,
   archiveFileImportErrorMessage,
   archiveFileImportSelection,
+  archiveFileTypeReadback,
   archiveFileTrustCopy,
   archiveImportJobReadback,
   archiveImportSourceLabel,
@@ -204,8 +205,23 @@ test("archive file import helpers bound file selection and sanitize errors", () 
   assert.equal(emptyFile.ok, false);
   assert.match(emptyFile.message, /Existing archive material remains safe/);
 
+  assert.equal(archiveFileTypeReadback("text/markdown"), "text/markdown");
+  assert.equal(archiveFileTypeReadback(null), "Private archive file");
+  assert.equal(
+    archiveFileTypeReadback("11111111-1111-4111-8111-111111111111/33333333-3333-4333-8333-333333333333/source.txt"),
+    "Private archive file",
+  );
+
   assert.equal(
     archiveFileImportErrorMessage(new Error("storage_path=https://example.invalid/private token=abc123")),
+    "File import failed. Existing archive material remains safe.",
+  );
+  assert.equal(
+    archiveFileImportErrorMessage(new Error("storagePath=11111111-1111-4111-8111-111111111111/private/source.txt")),
+    "File import failed. Existing archive material remains safe.",
+  );
+  assert.equal(
+    archiveFileImportErrorMessage(new Error("uploadUrl=signed-upload-value")),
     "File import failed. Existing archive material remains safe.",
   );
   assert.equal(

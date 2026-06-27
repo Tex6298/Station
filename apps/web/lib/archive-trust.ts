@@ -179,6 +179,22 @@ export function archiveFileTrustCopy(file: ArchiveFileLike) {
   return "This file is still queued for processing. Existing archive material remains safe.";
 }
 
+export function archiveFileTypeReadback(fileType?: string | null) {
+  const trimmed = fileType?.trim() ?? "";
+  if (!trimmed) return "Private archive file";
+
+  const redacted = trimmed
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
+    .replace(/\s+/g, " ")
+    .slice(0, 80);
+
+  if (/https?:|bearer|token|authorization|cookie|secret|password|storage(?: path|_path|-path|Path)|upload(?: url|_url|-url|Url)|signed(?: url|_url|-url|Url)|\/.+\//i.test(redacted)) {
+    return "Private archive file";
+  }
+
+  return redacted;
+}
+
 export function archiveFileImportSelection(file: Pick<File, "name" | "size"> | null | undefined) {
   if (!file) {
     return { ok: false as const, message: "Choose one .txt, .md, .markdown, .text, or .json file to import." };
@@ -205,12 +221,12 @@ export function archiveFileImportErrorMessage(error: unknown) {
   const redacted = trimmed
     .replace(/https?:\/\/\S+/gi, "[redacted-url]")
     .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
-    .replace(/\b(token|authorization|cookie|secret|password|storage[_\s-]?path)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\b(token|authorization|cookie|secret|password|storage(?:[_\s-]?path|Path)|upload(?:[_\s-]?url|Url)|signed(?:[_\s-]?url|Url))\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
     .replace(/\s+/g, " ")
     .slice(0, 180);
 
-  if (/sql|postgres|pgrst|stack|trace|signed|storage path|storage_path|authorization|cookie|secret|password|token/i.test(redacted)) {
+  if (/sql|postgres|pgrst|stack|trace|signed|storage path|storage_path|storagePath|upload url|upload_url|uploadUrl|authorization|cookie|secret|password|token/i.test(redacted)) {
     return fallback;
   }
 
