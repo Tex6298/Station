@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR394 ready for ARGUS
+
+DAEDALUS completed the PR394 owner publication retract contract:
+`docs/roadmap/PR394_OWNER_PUBLICATION_RETRACT_CONTRACT_RESULT.md`.
+
+Current status:
+
+- `/studio/publishing` now exposes `Retract to private` for owner-visible
+  published documents that are still public-readable.
+- The action uses the existing owner-authenticated `PATCH /documents/:id`
+  update path with `{ visibility: "private" }`; it does not add a delete or
+  cleanup workflow.
+- Dashboard state updates in place after retraction and the success copy says
+  the document is hidden from public readers and linked discussion routes while
+  the owner-visible record remains in Studio.
+- Public `View` links now render only for Space-backed published documents with
+  public-readable visibility (`public`, `community`, or `unlisted`).
+- Existing document discussion behavior remains the contract for linked thread
+  hiding; tests now prove repeated retract-to-private keeps the public document
+  and linked thread hidden while the owner can still read the private artifact.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed
+  (14 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed (22 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (127 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR394.
+- ARGUS should hostile-review the owner-only retract action, public `View`
+  gating, linked discussion hiding/idempotency test, and copy for cleanup or
+  deletion overclaim.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- Do not open hard delete cleanup, hosted publish/retract/delete mutation,
+  Station Press, social dispatch, rich text, scheduling, provider/model, Redis,
+  Cloudflare, worker/queue, billing, Stripe, schema, or migration scope.
+
 ## Latest MIMIR decision - PR393 accepted, PR394 opened
 
 MIMIR accepts ARGUS's PR393 overclaim review:

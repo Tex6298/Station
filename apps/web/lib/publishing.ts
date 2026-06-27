@@ -244,10 +244,32 @@ export function spaceForDocument(
   return spaces.find((space) => space.id === document.space_id) ?? null;
 }
 
+const PUBLIC_READABLE_DOCUMENT_VISIBILITIES = new Set(["public", "community", "unlisted"]);
+
+export function isPublicReadableDocument(
+  document: Pick<PublishingDocument, "status" | "visibility">,
+): boolean {
+  return document.status === "published" && PUBLIC_READABLE_DOCUMENT_VISIBILITIES.has(document.visibility);
+}
+
+export function canRetractPublishedDocument(
+  document: Pick<PublishingDocument, "status" | "visibility">,
+): boolean {
+  return isPublicReadableDocument(document);
+}
+
+export function publicationRetractNotice(
+  document: Pick<PublishingDocument, "title">,
+): string {
+  const title = sanitizePublishingReadbackText(document.title) || "Document";
+  return `${title} is now private. Public readers and linked discussion routes can no longer open it; the owner-visible record remains in Studio.`;
+}
+
 export function publicDocumentHref(
-  document: Pick<PublishingDocument, "id" | "space_id">,
+  document: Pick<PublishingDocument, "id" | "space_id" | "status" | "visibility">,
   spaces: PublishingSpace[],
 ): string | null {
+  if (!isPublicReadableDocument(document)) return null;
   const space = spaceForDocument(document, spaces);
   return space ? `/space/${space.slug}/documents/${document.id}` : null;
 }

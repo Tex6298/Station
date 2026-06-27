@@ -717,6 +717,26 @@ test("published document discussions respect public, community, unlisted, and pr
 
     const hiddenPublicThread = await requestJson(app, "GET", `/threads/${publicDiscussion.body.discussion.id}`);
     assert.equal(hiddenPublicThread.status, 404);
+
+    const repeatedPrivatized = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { visibility: "private" },
+    });
+    assert.equal(repeatedPrivatized.status, 200);
+    assert.equal(repeatedPrivatized.body.document.visibility, "private");
+    assert.equal(repeatedPrivatized.body.discussion, null);
+
+    const stillHiddenPublicThread = await requestJson(app, "GET", `/threads/${publicDiscussion.body.discussion.id}`);
+    assert.equal(stillHiddenPublicThread.status, 404);
+
+    const publicDocument = await requestJson(app, "GET", `/documents/public/${PUBLIC_DOC_ID}`);
+    assert.equal(publicDocument.status, 404);
+
+    const ownerDocument = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerDocument.status, 200);
+    assert.equal(ownerDocument.body.document.visibility, "private");
   } finally {
     setSupabaseAdminForTests(null);
   }

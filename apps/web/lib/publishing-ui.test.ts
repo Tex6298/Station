@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   approvalForDocument,
+  canRetractPublishedDocument,
   documentEditHref,
   documentPublicVersionLabel,
   documentTrustReadback,
@@ -12,6 +13,7 @@ import {
   filterDocumentsForPublishingTab,
   normalizeDocumentSlug,
   normalizeDocumentTypeForForm,
+  publicationRetractNotice,
   publicDocumentHref,
   publishingDashboardTrustLine,
   publishingQueueActionGuard,
@@ -53,15 +55,59 @@ test("publishing helpers group live documents for the Studio dashboard", () => {
   assert.equal(approvalForDocument(approvals, "pub-1"), null);
 });
 
-test("publishing helpers only expose public links when a Space slug is known", () => {
+test("publishing helpers only expose public links for public-readable Space documents", () => {
+  const retracted: PublishingDocument = {
+    id: "private-published-1",
+    title: "Retracted",
+    document_type: "essay",
+    status: "published",
+    visibility: "private",
+    space_id: "space-1",
+  };
+  const unlisted: PublishingDocument = {
+    id: "unlisted-1",
+    title: "Unlisted",
+    document_type: "essay",
+    status: "published",
+    visibility: "unlisted",
+    space_id: "space-1",
+  };
+  const community: PublishingDocument = {
+    id: "community-1",
+    title: "Community",
+    document_type: "essay",
+    status: "published",
+    visibility: "community",
+    space_id: "space-1",
+  };
   assert.equal(publicDocumentHref(documents[1], spaces), "/space/station/documents/pub-1");
   assert.equal(publicDocumentHref(documents[0], spaces), null);
+  assert.equal(publicDocumentHref(retracted, spaces), null);
+  assert.equal(publicDocumentHref(unlisted, spaces), "/space/station/documents/unlisted-1");
+  assert.equal(publicDocumentHref(community, spaces), "/space/station/documents/community-1");
   assert.equal(documentEditHref("draft-1"), "/studio/publish?documentId=draft-1");
   assert.equal(documentEditHref("doc id/with spaces"), "/studio/publish?documentId=doc%20id%2Fwith%20spaces");
   assert.equal(documentPublicVersionLabel(3), "Current public version v3.");
   assert.equal(documentPublicVersionLabel(null), "Current public version v1.");
   assert.equal(documentDestinationLabel(documents[1], spaces), "Station / Station");
   assert.equal(documentDestinationLabel(documents[0], spaces), "Station draft");
+});
+
+test("publishing helpers describe owner-safe publication retraction", () => {
+  assert.equal(canRetractPublishedDocument(documents[1]), true);
+  assert.equal(canRetractPublishedDocument({ status: "published", visibility: "unlisted" }), true);
+  assert.equal(canRetractPublishedDocument({ status: "published", visibility: "community" }), true);
+  assert.equal(canRetractPublishedDocument({ status: "published", visibility: "members" }), false);
+  assert.equal(canRetractPublishedDocument({ status: "published", visibility: "private" }), false);
+  assert.equal(canRetractPublishedDocument(documents[0]), false);
+  assert.equal(canRetractPublishedDocument(documents[2]), false);
+  assert.match(
+    publicationRetractNotice({ title: "Public Field Log token=abc123" }),
+    /Public Field Log token=\[redacted\] is now private/,
+  );
+  assert.match(publicationRetractNotice({ title: "Public Field Log" }), /Public readers and linked discussion routes/);
+  assert.match(publicationRetractNotice({ title: "Public Field Log" }), /owner-visible record remains in Studio/);
+  assert.doesNotMatch(publicationRetractNotice({ title: "Public Field Log" }), /delete|cleanup/i);
 });
 
 test("publishing queue action guard preserves no-Space and entitlement reasons", () => {

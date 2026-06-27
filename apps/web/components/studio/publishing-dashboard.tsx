@@ -3,14 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { canPublishDocuments } from "@station/auth";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   PUBLISHING_TABS,
   approvalForDocument,
+  canRetractPublishedDocument,
   documentDestinationLabel,
   documentTypeLabel,
   filterDocumentsForPublishingTab,
+  publicationRetractNotice,
   publicDocumentHref,
   publishingDashboardTrustLine,
   publishingApprovalStateLabel,
@@ -131,6 +133,28 @@ export function PublishingDashboard() {
     }
   }
 
+  async function retractDocument(document: PublishingDocument) {
+    if (!token) return;
+    setBusyApprovalId(document.id);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await apiPatch<{ document: PublishingDocument }>(
+        `/documents/${document.id}`,
+        { visibility: "private" },
+        token,
+      );
+      setDocuments((current) => current.map((item) =>
+        item.id === response.document.id ? { ...item, ...response.document } : item
+      ));
+      setNotice(publicationRetractNotice(response.document));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not retract document.");
+    } finally {
+      setBusyApprovalId(null);
+    }
+  }
+
   return (
     <main className="station-page">
       <div className="station-page-inner">
@@ -186,6 +210,7 @@ export function PublishingDashboard() {
               {visible.map((document) => {
                 const href = publicDocumentHref(document, spaces);
                 const approval = approvalForDocument(approvals, document.id);
+                const busy = busyApprovalId === document.id || busyApprovalId === approval?.id;
                 return (
                   <article key={document.id} style={row}>
                     <div style={{ minWidth: 0 }}>
@@ -209,11 +234,22 @@ export function PublishingDashboard() {
                         approval={approval}
                         document={document}
                         canPublish={publishingAllowed}
-                        busy={busyApprovalId === document.id || busyApprovalId === approval?.id}
+                        busy={busy}
                         onEnqueue={enqueueApproval}
                         onTransition={transitionApproval}
                       />
-                      {href && document.status === "published" ? (
+                      {canRetractPublishedDocument(document) ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          title="Hide this published document from public readers and linked discussion reads. The owner-visible record remains in Studio."
+                          onClick={() => void retractDocument(document)}
+                          style={miniButton}
+                        >
+                          {busy ? "Retracting..." : "Retract to private"}
+                        </button>
+                      ) : null}
+                      {href ? (
                         <Link href={href} style={miniLink}>View</Link>
                       ) : (
                         <button type="button" disabled title="A Space-backed published route is required before this can be viewed publicly." style={disabledMiniButton}>

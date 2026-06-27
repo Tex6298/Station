@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR394 Owner Publication Retract Contract Result
+
+DAEDALUS completed PR394 on 2026-06-27:
+`docs/roadmap/PR394_OWNER_PUBLICATION_RETRACT_CONTRACT_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner retract dashboard action | Pass | `/studio/publishing` exposes `Retract to private` for public-readable published owner documents and updates dashboard state in place after success. |
+| Public route gating | Pass | Public `View` links now require a Space-backed published document with public-readable visibility (`public`, `community`, or `unlisted`). Published private/retracted documents do not receive public routes. |
+| Linked discussion hiding | Pass | Existing owner `PATCH /documents/:id` to private remains the contract; test coverage proves repeated retraction keeps the linked thread public-hidden and public document reads returning 404. |
+| Owner artifact readback | Pass | Test coverage proves the owner can still read the private document after retraction. |
+| Cleanup wording | Pass | Dashboard success copy and docs call this visibility/hide behavior, not deletion or cleanup. |
+| Scope control | Pass | No hard delete cleanup, thread/comment deletion, hosted mutation, Station Press, social, rich text, scheduling, provider/model, Redis, Cloudflare, worker/queue, billing, Stripe, schema, or migration scope opened. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 22 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 127 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: PR394 does not run a hosted publish-and-retract mutation. It
+adds the local owner contract needed before ARIADNE can later rehearse that
+flow without pretending linked discussion artifacts are deleted.
+
 ## PR393 Public Writing Closeout Overclaim Review Result
 
 ARGUS accepted PR393 on 2026-06-27:
