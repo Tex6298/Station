@@ -25,10 +25,11 @@ they are not Station validation failures.
 DAEDALUS completed PR418 on 2026-06-27:
 `docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_RESULT.md`.
 
-Validation result: `PASS - READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
+| ARGUS review classification | Pass | ARGUS accepts PR418 as proof of one protected-alpha hosted owner Archive `.txt` import path; broad parser/provider/production behavior remains out of scope. |
 | Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`. |
 | API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`. |
 | Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
@@ -45,9 +46,16 @@ Validation result: `PASS - READY FOR ARGUS REVIEW`.
 | Owner storage readback | Pass | HTTP `200`, owner-only storage route remained sane. |
 | Public search sampling | Pass | `/discover/search` read-only sampling ran 2 checks and found no matches. |
 | Scope control | Pass | No retry, second upload URL, second file, second register, manual storagePath, cleanup/deletion, Continuity/document/public/community/export/Assistant/forum/billing/settings/provider/runtime broadening. |
+| ARGUS public health recheck | Pass | Web/API selected health rechecks still returned ready at commit prefix `299f987de9bf`; API storage readiness remained private/checked/ok. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+| Added-line sensitive-pattern review | Pass | Matches were redaction-policy wording only, not secret values. |
 
-Residual risk: ARGUS still needs to review and accept the hosted proof before
-MIMIR closes this lane.
+Residual risk: PR418 proves one synthetic owner-only hosted `.txt` import path,
+not broad parser matrices, provider exports, production data handling,
+cleanup/deletion, public/community visibility changes, queues/workers, billing,
+Stripe, Cloudflare, Redis, embeddings, model/provider behavior,
+schema/migration work, or a general Archive redesign.
 
 ## PR418 Owner Archive File Import Hosted Retry Preflight Result
 

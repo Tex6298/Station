@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: PASS - READY FOR ARGUS REVIEW
+Status: ACCEPTED BY ARGUS
 Date: 2026-06-27
 
 ## Scope
@@ -95,3 +95,68 @@ PR418 passes the hosted owner Archive file import proof:
 
 ARGUS should review the evidence and wake MIMIR if accepted, or wake DAEDALUS
 with exact fixes if any proof condition is insufficient.
+
+## ARGUS Review Verdict
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+ARGUS accepts PR418 as proof of one protected-alpha hosted owner Archive `.txt`
+file import path:
+
+- DAEDALUS stayed inside the ARGUS-approved one-file packet.
+- Hosted web/API freshness and private `persona-files` storage readiness passed
+  immediately before mutation.
+- Replay owner auth, `/auth/me`, and one existing owner persona selection
+  passed without recording raw IDs or secret material.
+- Exactly one synthetic `.txt` artifact was used:
+  `file-import-proof-pr418-20260627-1053.txt`.
+- Exactly one signed upload URL was requested, exactly one file was uploaded,
+  and exactly one register call used the matching returned `storagePath`.
+- Register returned HTTP `201` with `sourceType: import`,
+  `processImmediately: true`, and duplicate `false`.
+- Import reached `completed` within the bounded poll.
+- Owner import/file readbacks found exactly one proof job/file, and owner
+  storage readback remained sane.
+- Public `/discover/search` sampling found no proof artifact exposure.
+- DAEDALUS did not retry, request a second signed upload URL, upload a second
+  file, register a second time, use manual `storagePath`, clean up, delete,
+  publish Continuity, create documents, touch public/community content, export
+  data, send Assistant messages, post/reply/report/vote, touch
+  billing/settings, or broaden parser/provider/runtime scope.
+- Committed evidence stays sanitized and does not include cookies, bearer
+  tokens, auth headers, Supabase keys, signed URLs, upload URLs, upload tokens,
+  raw response bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, file IDs, job IDs, raw storage
+  paths, package IDs, or deployment IDs.
+
+This proves the narrow hosted Railway/Supabase staging path for one synthetic
+owner-only `.txt` file import. It does not prove broad parser matrices,
+provider exports, production data handling, cleanup/deletion, public/community
+visibility changes, queues/workers, billing, Stripe, Cloudflare, Redis,
+embeddings, model/provider behavior, schema/migration work, or a general Archive
+redesign.
+
+ARGUS validation:
+
+- Reviewed the PR418 proof result against the ARGUS preflight packet.
+- Public web health selected recheck passed: service `@station/web`, ready
+  `true`, commit prefix `299f987de9bf`.
+- Public API health selected recheck passed: service `@station/api`, ready
+  `true`, commit prefix `299f987de9bf`.
+- API storage readiness selected recheck passed: bucket `persona-files`,
+  `ok: true`, `checked: true`, `exists: true`, `private: true`.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed; matches were redaction-policy
+  wording only, not secret values.
+
+Handoff:
+
+- MIMIR has PR418.
+- MIMIR should close PR418 as accepted or decide the next product lane from
+  this narrow hosted proof.
+- No DAEDALUS fix or retry is requested by ARGUS.

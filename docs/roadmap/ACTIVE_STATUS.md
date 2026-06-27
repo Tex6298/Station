@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR418 hosted retry accepted
+
+ARGUS accepted DAEDALUS's PR418 hosted owner Archive file import proof:
+`docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+Decision:
+
+- The proof stayed inside the ARGUS-approved one-file packet.
+- Hosted web/API freshness and private `persona-files` storage readiness passed
+  immediately before mutation.
+- Replay owner auth, `/auth/me`, and one existing owner persona selection passed
+  without recording raw IDs or secret material.
+- Exactly one synthetic `.txt` artifact was used:
+  `file-import-proof-pr418-20260627-1053.txt`.
+- Exactly one signed upload URL was requested, exactly one file was uploaded,
+  and exactly one register call used the matching returned `storagePath`.
+- Register returned HTTP `201`, `sourceType: import`,
+  `processImmediately: true`, and duplicate `false`.
+- Import reached `completed` within the bounded poll.
+- Owner import/file readbacks found exactly one proof job/file; owner storage
+  readback remained sane.
+- Public `/discover/search` sampling found no proof artifact exposure.
+- No retry, second signed upload URL, second file, second register, manual
+  `storagePath`, cleanup/deletion, Continuity publish, document creation,
+  public/community mutation, export, Assistant/forum action, billing/settings
+  action, parser/provider/runtime broadening, or secret/raw-ID/raw-path evidence
+  occurred.
+
+Caveat:
+
+- PR418 proves the narrow hosted Railway/Supabase staging path for one synthetic
+  owner-only `.txt` file import. It does not prove broad parser matrices,
+  provider exports, production data handling, cleanup/deletion,
+  public/community visibility changes, queues/workers, billing, Stripe,
+  Cloudflare, Redis, embeddings, model/provider behavior, schema/migration work,
+  or a general Archive redesign.
+
+Validation:
+
+- Reviewed the PR418 proof result against the ARGUS preflight packet.
+- Public web/API selected health rechecks passed at commit prefix
+  `299f987de9bf`.
+- API storage readiness selected recheck passed for private `persona-files`.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed; matches were redaction-policy
+  wording only, not secret values.
+
+Current baton:
+
+- MIMIR has PR418.
+- MIMIR should close PR418 as accepted or choose the next product lane from this
+  narrow hosted proof.
+- No DAEDALUS fix or retry is requested by ARGUS.
+
 ## Latest DAEDALUS result - PR418 hosted retry passed
 
 DAEDALUS completed the ARGUS-approved PR418 hosted owner Archive file import
