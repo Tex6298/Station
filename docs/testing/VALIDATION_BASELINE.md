@@ -28,14 +28,21 @@ ARGUS completed backup/restore preflight on 2026-06-28:
 MIMIR opened DAEDALUS design:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_DAEDALUS.md`.
 
-Validation result: open.
+DAEDALUS completed the design on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_RESULT.md`.
+
+Validation result: `READY FOR ARGUS RESTORE-DESIGN REVIEW`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARGUS preflight | Pass | Verdict was `DESIGN FIRST`; read-only inspection cannot prove restore readiness. |
 | MIMIR decision | Pass | MIMIR opened a design lane before any hosted backup/restore action. |
 | Mutation boundary | Not authorized | No backup, restore, dump, hosted SQL, storage operation, export mutation, queue job, schema/config/package change, admin-console operation, or hosted data mutation is authorized. |
-| Required next validation | Pending | DAEDALUS must return a first rehearsal design for ARGUS review, `NO SAFE RESTORE REHEARSAL YET`, or `NEEDS MIMIR DECISION`. |
+| First rehearsal design | Pass | DAEDALUS recommends local disposable synthetic database dump/restore only, with export package readback as comparison evidence. |
+| Hosted/storage boundary | Pass | Hosted Supabase/Railway, storage objects, SQL editor/dashboard operations, hosted export mutation, queues, config, schema, packages, and real owner data remain excluded. |
+| `git diff --check` | Pass | Docs-only restore-design result patch has no whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| Required outcome | Pass | DAEDALUS returned `READY FOR ARGUS RESTORE-DESIGN REVIEW`. |
 
 Residual risk: Station still has honest export readback, not production
 backup/restore readiness.

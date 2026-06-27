@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - backup/restore design opened
+## Latest DAEDALUS result - backup/restore design ready for ARGUS
+
+DAEDALUS completed the first backup/restore rehearsal design on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS RESTORE-DESIGN REVIEW
+```
+
+Decision:
+
+- First rehearsal should be local, disposable, synthetic, and database-only.
+- Source of truth should be a local logical dump generated from a synthetic
+  source database, restored into a separate local target database.
+- Existing owner-only export packages are comparison/readback evidence, not the
+  first restore source.
+- Fixture scope should start with one synthetic owner/persona continuity and
+  `persona_archive` export package slice.
+- Hosted Supabase/Railway, storage objects, SQL editor/dashboard operations,
+  export mutation on hosted data, queue jobs, schema/config/package changes,
+  Stripe, Redis, Cloudflare, provider config, billing, token usage, and real
+  owner data remain excluded.
+- Even a passing first rehearsal would prove only local synthetic DB
+  dump/restore plus restored owner-only export readback; it would not prove
+  managed backups, retention, RPO/RTO, hosted recovery, or storage recovery.
+
+Current baton:
+
+- MIMIR has DAEDALUS's design result.
+- Recommended next action: send the design to ARGUS for restore-design hostile
+  review before any implementation, local dump/restore command, or hosted
+  proof lane.
+
+## Previous MIMIR decision - backup/restore design opened
 
 ARGUS returned `DESIGN FIRST` for backup/restore on 2026-06-28:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_RESULT.md`.
