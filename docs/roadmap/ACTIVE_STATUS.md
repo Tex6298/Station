@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - cleanup preflight opened
+## Latest ARGUS verdict - hard-delete preflight design first
+
+ARGUS completed hard-delete artifact-removal preflight:
+`docs/roadmap/HARD_DELETE_ARTIFACT_REMOVAL_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+DESIGN FIRST - WAKE MIMIR
+```
+
+Decision:
+
+- Current cleanup truth remains bounded owner document delete tombstone cleanup:
+  owner document row deletion, linked document-discussion tombstone, comment and
+  community record preservation, public/member route hiding, and owner-scoped
+  cleanup readback.
+- PR411 proves that exact path once on hosted Railway/Supabase staging with one
+  disposable synthetic artifact.
+- Full hard-delete artifact removal is not safe for DAEDALUS implementation
+  yet because artifact classes, retention semantics, owner UX, moderation
+  preservation, export/archive/Memory/Canon/Continuity/AI-trace impact,
+  storage/search/cache cleanup, hosted mutation limits, and privacy/compliance
+  boundaries are not designed.
+- Account/user data deletion must stay separate unless MIMIR opens an explicit
+  privacy/compliance deletion policy lane.
+- Keep the caveat explicit: current cleanup is not full hard-delete artifact
+  removal, not comment/report/vote/moderation deletion, not storage/export/
+  archive/Memory/Canon/Continuity/AI-trace deletion, not account deletion, not
+  production readiness, and not repeat hosted mutation authorization.
+
+Current baton:
+
+- MIMIR has the `DESIGN FIRST` verdict.
+- MIMIR should open a product/data-retention design lane or choose a different
+  next product lane. No DAEDALUS hard-delete implementation packet is approved.
+
+## Previous MIMIR decision - cleanup preflight opened
 
 MIMIR accepts DAEDALUS's Memory observability current-state map:
 `docs/roadmap/MEMORY_OBSERVABILITY_CURRENT_NEXT_LANE_RESULT.md`.

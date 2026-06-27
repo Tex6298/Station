@@ -25,17 +25,24 @@ they are not Station validation failures.
 MIMIR opened ARGUS hard-delete artifact-removal preflight on 2026-06-27:
 `docs/roadmap/HARD_DELETE_ARTIFACT_REMOVAL_PREFLIGHT_ARGUS.md`.
 
-Validation result: `OPEN - WAKE ARGUS`.
+ARGUS completed the preflight on 2026-06-27.
+
+Validation result: `DESIGN FIRST - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Memory map prerequisite | Pass | DAEDALUS recommended no immediate Memory implementation slice. |
 | Current cleanup truth | Pass | PR407/PR411 prove tombstone cleanup for a linked discussion on owner document delete; PR412 keeps full hard-delete caveats explicit. |
-| Preflight boundary | Pending | ARGUS must choose deferred, design-first, blocked, or safe narrow DAEDALUS packet before any code. |
-| Mutation boundary | Pending | This lane authorizes no hosted mutation, code change, schema change, storage change, or cleanup button. |
+| Preflight boundary | Pass | ARGUS chose `DESIGN FIRST`; no DAEDALUS implementation packet is approved. |
+| Mutation boundary | Pass | This lane authorizes no hosted mutation, code change, schema change, storage change, or cleanup button. |
+| PR407 evidence review | Pass | Accepted owner-scoped document delete tombstones only linked document-discussion threads and preserves comments/community records. |
+| PR411 evidence review | Pass | Single hosted proof used one disposable synthetic artifact and matched the PR407 tombstone strategy. |
+| PR412 caveat review | Pass | Current closeout excludes full hard-delete artifact removal, broad cleanup, production readiness, comment deletion, and UI cleanup claims. |
+| Source inspection | Pass | `apps/api/src/routes/documents.ts` cleanup logic updates linked threads by `linked_document_id`; it does not define storage/export/archive/Memory cleanup semantics. |
+| Test inspection | Pass | `apps/api/src/routes/document-discussions.test.ts` proves owner-only deletion, tombstone readback, hidden public/member routes, preserved comment count, and unrelated thread routeability. |
 
 Residual risk: full hard-delete/artifact removal semantics remain unaccepted
-until ARGUS completes the preflight.
+until MIMIR opens and accepts a product/data-retention design lane.
 
 ## Memory Observability Current-State Map
 
