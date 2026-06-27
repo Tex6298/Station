@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ContinuityTimeline } from "@/components/studio/continuity-timeline";
 import {
@@ -11,6 +12,7 @@ import {
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
 import {
   buildRuntimeProvenanceReadback,
+  continuityReviewTargetHref,
   type RuntimeContextPreviewLike,
 } from "@/lib/continuity-ui";
 import { apiGet } from "@/lib/api-client";
@@ -87,7 +89,7 @@ export default function PersonaContinuityPage() {
         showCompiledPrompt={false}
         showSourceContent={false}
       />
-      <RuntimeProvenanceReadback preview={runtimeProvenance} error={runtimeProvenanceError} />
+      <RuntimeProvenanceReadback personaId={persona.id} preview={runtimeProvenance} error={runtimeProvenanceError} />
       <ContinuityTimeline personaId={persona.id} personaName={persona.name} onRecordCreated={refreshPersona} />
     </main>
   );
@@ -109,9 +111,11 @@ async function fetchRuntimeProvenance(sessionToken: string, personaId: string) {
 }
 
 function RuntimeProvenanceReadback({
+  personaId,
   preview,
   error,
 }: {
+  personaId: string;
   preview: RuntimeContextPreviewLike | null;
   error: string | null;
 }) {
@@ -135,7 +139,7 @@ function RuntimeProvenanceReadback({
               <span>{group.label}</span>
               <strong>{group.count}</strong>
             </div>
-            <p className="studio-continuity-trust-label" style={{ margin: "0.35rem 0 0" }}>{group.reviewTarget}</p>
+            <ReviewTargetLink personaId={personaId} label={group.reviewTarget} className="studio-continuity-trust-label" />
             <div style={{ display: "grid", gap: "0.55rem", marginTop: "0.75rem" }}>
               {group.rows.length === 0 ? (
                 <p className="studio-continuity-trust-body" style={{ margin: 0 }}>{group.empty}</p>
@@ -162,6 +166,26 @@ function RuntimeProvenanceReadback({
         </div>
       ) : null}
     </section>
+  );
+}
+
+function ReviewTargetLink({ personaId, label, className }: { personaId: string; label: string; className?: string }) {
+  const href = continuityReviewTargetHref(personaId, label);
+  const style: CSSProperties = {
+    display: "inline-flex",
+    margin: "0.35rem 0 0",
+    color: "#e0f2fe",
+    fontWeight: 820,
+    overflowWrap: "anywhere",
+    textDecoration: "underline",
+    textUnderlineOffset: 3,
+  };
+  if (!href) return <p className={className} style={{ ...style, textDecoration: "none" }}>{label}</p>;
+
+  return (
+    <Link href={href} className={className} style={style}>
+      {label}
+    </Link>
   );
 }
 

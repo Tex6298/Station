@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   buildContinuityReviewSignalRows,
   buildContinuitySourceOptions,
   continuityRecordProvenanceLabels,
+  continuityReviewTargetHref,
   continuityRecordText,
   continuityRecordTimestamp,
   continuityRecordTypeLabel,
@@ -180,7 +182,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
 
         {error && <div className="space-form-error">{error}</div>}
 
-        <ContinuityReviewSignals rows={reviewSignals} />
+        <ContinuityReviewSignals personaId={personaId} rows={reviewSignals} />
 
         {sortedRecords.length === 0 ? (
           <div className="studio-empty">No continuity records yet. Add a private marker or link a document/conversation source when there is something worth preserving.</div>
@@ -265,7 +267,7 @@ export function ContinuityTimeline({ personaId, personaName, onRecordCreated }: 
   );
 }
 
-function ContinuityReviewSignals({ rows }: { rows: ContinuityReviewSignalRow[] }) {
+function ContinuityReviewSignals({ personaId, rows }: { personaId: string; rows: ContinuityReviewSignalRow[] }) {
   if (rows.length === 0) return null;
 
   return (
@@ -291,12 +293,26 @@ function ContinuityReviewSignals({ rows }: { rows: ContinuityReviewSignalRow[] }
             <div className="studio-timeline-source" style={{ display: "grid", gap: "0.35rem", minWidth: 0 }}>
               <span>{row.support}</span>
               <span>{row.reviewState}</span>
-              <span>{row.reviewTarget}</span>
+              <ReviewTargetLink personaId={personaId} label={row.reviewTarget} />
             </div>
           </article>
         ))}
       </div>
     </section>
+  );
+}
+
+function ReviewTargetLink({ personaId, label }: { personaId: string; label: string }) {
+  const href = continuityReviewTargetHref(personaId, label);
+  if (!href) return <span>{label}</span>;
+
+  return (
+    <Link
+      href={href}
+      style={{ color: "#e0f2fe", overflowWrap: "anywhere", textDecoration: "underline", textUnderlineOffset: 3 }}
+    >
+      {label}
+    </Link>
   );
 }
 

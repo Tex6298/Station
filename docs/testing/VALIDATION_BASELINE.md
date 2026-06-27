@@ -20,24 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## UX-03A Continuity Review Target Route Links Opened
+## UX-03A Continuity Review Target Route Links Result
 
-MIMIR opened UX-03A on 2026-06-27:
-`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_DAEDALUS.md`.
+DAEDALUS completed UX-03A on 2026-06-27:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md`.
 
-Validation result: `IMPLEMENTATION REQUESTED FROM DAEDALUS`.
+Validation result: `IMPLEMENTED - WAKE ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-03 prerequisite | Pass | DAEDALUS completed Continuity/Integrity feasibility and recommended route-level review target links as the smallest useful implementation slice. |
-| Scope | Pending | Owner-only Continuity UI/helper slice only. |
-| Route mapping | Pending | Memory, Canon, Integrity, Archive, Continuity, and safe publication/document review targets should map to existing Studio routes only. |
-| Redaction/privacy | Pending | Continuity route must preserve existing runtime redaction and avoid raw IDs, source bodies, prompts, storage paths, and provider payloads in link labels. |
-| Required validation | Pending | DAEDALUS should run whitespace, sensitive scan, continuity, studio-ui, persona-context, integrity, typecheck, and lint gates before waking ARGUS. |
+| Scope | Pass | Owner-only Continuity UI/helper slice only; no backend/write/config behavior changed. |
+| Route mapping | Pass | Memory, Canon, Integrity, Archive, Continuity, and publication/document review targets map to existing Studio routes. Unknown and linked-conversation targets remain plain text. |
+| Redaction/privacy | Pass | Link labels reuse sanitized review-target text and do not add raw IDs, source bodies, prompts, storage paths, or provider payloads. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
+| Added-line sensitive-pattern scan | Pass | Match was the deliberate credential negative fixture in `continuity-ui.test.ts`; it is not real credential material. |
+| `test:studio-ui` | Pass | 134 tests passed. |
+| `test:continuity` | Pass | 12 tests passed, including route-level review-target helper coverage. |
+| `test:continuity-publication` | Pass | 1 test passed after correcting stale Discover feed fixture expectations for public Space items. |
+| `test:persona-context` | Pass | 8 tests passed. |
+| `test:integrity` | Pass | 2 tests passed. |
+| `typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `lint` | Pass | No ESLint warnings or errors. |
 
-Residual risk: UX-03A is not implemented yet. The current risk is accidental
-over-linking: guessed deep links, public/publication implications, raw source
-leakage, or write-behavior drift.
+Residual risk: ARGUS still needs to review whether route-level links read as
+owner review paths rather than proof, publication, or exact source routing.
 
 ## UX-03 Continuity And Integrity Feasibility Result
 

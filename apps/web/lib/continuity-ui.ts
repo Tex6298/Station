@@ -76,6 +76,15 @@ export interface ContinuityReviewSignalRow {
   timestamp: string;
 }
 
+const PERSONA_STUDIO_REVIEW_ROUTES: Record<string, string> = {
+  "review in memory": "memory",
+  "review in canon": "canon",
+  "review integrity session": "calibration",
+  "review in archive": "files",
+  "review continuity record": "continuity",
+  "review continuity candidate": "continuity",
+};
+
 const TYPE_LABELS: Record<ContinuityRecordType, string> = {
   memory: "Memory",
   canon: "Canon",
@@ -170,6 +179,18 @@ export function continuityRecordReviewTarget(record: ContinuityRecord) {
   if (record.recordType === "candidate") return "Review continuity candidate";
   if (sourceTable === "conversations") return "Review linked conversation";
   return "Review continuity record";
+}
+
+export function continuityReviewTargetHref(personaId: string, reviewTarget: string) {
+  const sanitizedTarget = sanitizeContinuityLabel(reviewTarget);
+  if (!personaId || !sanitizedTarget) return null;
+
+  const normalizedTarget = sanitizedTarget.toLowerCase();
+  const route = PERSONA_STUDIO_REVIEW_ROUTES[normalizedTarget];
+  const encodedPersonaId = encodeURIComponent(personaId);
+  if (route) return `/studio/personas/${encodedPersonaId}/${route}`;
+  if (normalizedTarget === "review linked document") return "/studio/publishing";
+  return null;
 }
 
 export function buildContinuityReviewSignalRows(

@@ -6,6 +6,7 @@ import {
   buildContinuitySourceOptions,
   continuityRecordProvenanceLabels,
   continuityRecordReviewTarget,
+  continuityReviewTargetHref,
   continuityRecordSupportLabel,
   continuityRecordText,
   runtimeProvenanceReviewTarget,
@@ -200,6 +201,23 @@ test("continuity review signals redact unsafe metadata and source labels", () =>
   assert.doesNotMatch(rendered, /raw-link-1|https:\/\/example\.invalid|token=secret|sk_live_secret|raw completion text/i);
   assert.equal(continuityRecordSupportLabel(record("none", "2026-06-06T08:00:00.000Z", "No source")), "No linked source recorded");
   assert.equal(continuityRecordReviewTarget(record("plain", "2026-06-06T08:00:00.000Z", "Plain")), "Review continuity record");
+});
+
+test("continuity review target links stay route-level and owner-only", () => {
+  assert.equal(continuityReviewTargetHref("persona 1", "Review in Memory"), "/studio/personas/persona%201/memory");
+  assert.equal(continuityReviewTargetHref("persona-1", "Review in Canon"), "/studio/personas/persona-1/canon");
+  assert.equal(continuityReviewTargetHref("persona-1", "Review Integrity Session"), "/studio/personas/persona-1/calibration");
+  assert.equal(continuityReviewTargetHref("persona-1", "Review in Archive"), "/studio/personas/persona-1/files");
+  assert.equal(continuityReviewTargetHref("persona-1", "Review Continuity record"), "/studio/personas/persona-1/continuity");
+  assert.equal(continuityReviewTargetHref("persona-1", "Review continuity candidate"), "/studio/personas/persona-1/continuity");
+  assert.equal(continuityReviewTargetHref("persona-1", "Review linked document"), "/studio/publishing");
+});
+
+test("continuity review target links do not guess unknown or raw-id labels", () => {
+  assert.equal(continuityReviewTargetHref("persona-1", "Review linked conversation"), null);
+  assert.equal(continuityReviewTargetHref("persona-1", "Review in Memory source_id=raw-link-1"), null);
+  assert.equal(continuityReviewTargetHref("persona-1", "token=secret"), null);
+  assert.equal(continuityReviewTargetHref("", "Review in Memory"), null);
 });
 
 test("runtime provenance readback redacts raw ids, prompts, urls, secrets, provider payloads, and source bodies", () => {

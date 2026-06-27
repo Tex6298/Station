@@ -517,7 +517,14 @@ test("continuity artifacts publish as separate provenance-labelled documents", a
 
     const visitorFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=20");
     assert.equal(visitorFeed.status, 200);
-    assert.deepEqual(visitorFeed.body.items.map((item: Row) => item.title), ["Published Canon"]);
+    assert.deepEqual(
+      visitorFeed.body.items.filter((item: Row) => item.type === "document").map((item: Row) => item.title),
+      ["Published Canon"],
+    );
+    assert.equal(
+      visitorFeed.body.items.some((item: Row) => item.type === "space" && item.title === "Mirror Archive"),
+      true,
+    );
 
     const memberFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=20", {
       token: "owner-token",

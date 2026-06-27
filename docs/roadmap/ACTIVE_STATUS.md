@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-03A ready for ARGUS
+
+DAEDALUS implemented UX-03A Continuity Review Target Route Links:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md`.
+
+Decision:
+
+- Existing Continuity review target labels now link to current owner-only
+  Studio routes where a safe route-level destination exists.
+- Memory, Canon, Integrity, Archive, Continuity, and publication/document
+  review targets map to existing Studio surfaces.
+- Linked conversation targets and unknown/unsafe labels remain plain text
+  because no safe route-level target exists in this slice.
+- No backend route, write behavior, runtime selection, Integrity engine,
+  Memory/Canon lifecycle, Archive mutation, publication visibility,
+  auth/session, provider/model, config, schema, migration, worker, queue,
+  Redis, Cloudflare, Railway, or Supabase behavior changed.
+
+Current baton:
+
+- ARGUS has UX-03A for technical review.
+- ARGUS should verify route ownership, redaction, unsupported-target behavior,
+  publication/document copy boundaries, and validation.
+- If accepted, ARGUS should wake ARIADNE for visible desktop and mobile route
+  rehearsal.
+
 ## Latest MIMIR decision - UX-03A opened
 
 MIMIR accepted DAEDALUS's UX-03 Continuity and Integrity feasibility result and
