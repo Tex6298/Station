@@ -157,6 +157,7 @@ const S = {
   providerCard: (selected: boolean): React.CSSProperties => ({
     border: `1px solid ${selected ? "#7c6af7" : "#2a3242"}`,
     background: selected ? "#1a1535" : "#121826",
+    color: selected ? "#f8fafc" : "#e2e8f0",
     borderRadius: 10,
     padding: "0.85rem 1rem",
     cursor: "pointer",
@@ -304,7 +305,7 @@ export function AwakeningFlow() {
         {STEPS.map((s, i) => (
           <div key={s.id} style={{ display: "contents" }}>
             <div style={S.stepDot(i === step, i < step)} title={s.label}>
-              {i < step ? "Done" : i + 1}
+              {i < step ? "✓" : i + 1}
             </div>
             {i < STEPS.length - 1 && <div style={S.stepLine(i < step)} />}
           </div>
@@ -443,7 +444,7 @@ export function AwakeningFlow() {
                     </span>
                   )}
                 </div>
-                <p style={{ margin: "0.2rem 0 0", color: "#888", fontSize: "0.825rem" }}>{p.description}</p>
+                <p style={{ margin: "0.2rem 0 0", color: data.provider === p.value ? "#cbd5e1" : "#a8b3c7", fontSize: "0.825rem" }}>{p.description}</p>
               </div>
             </div>
           ))}

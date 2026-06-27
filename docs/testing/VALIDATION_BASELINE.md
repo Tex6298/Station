@@ -27,7 +27,10 @@ DAEDALUS implemented UX-08A on 2026-06-27:
 
 ARGUS accepted the technical boundary on 2026-06-27.
 
-Validation result: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
+ARIADNE completed visible review and a scoped presentation fix on 2026-06-27:
+`docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_ARIADNE.md`.
+
+Validation result: `VISIBLE FIX - WAKE ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -47,10 +50,19 @@ Validation result: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
 | ARGUS lint | Pass | `npm exec --yes pnpm@10.32.1 -- run lint` passed; web lint reported no warnings or errors. |
 | ARGUS `git diff 175b409^ 175b409 --check` | Pass | DAEDALUS UX-08A commit whitespace check passed. |
 | ARGUS added-line sensitive-pattern scan | Reviewed | Matches were documentation boundary words for credential and auth/session scope only; no secret material found. |
+| ARIADNE local Playwright route matrix | Pass | 9 path/viewport checks across Fresh Start, Awakening, and Document Migrator on desktop, 375px, and 390px. |
+| ARIADNE copy guard | Pass | Flow-scoped copy did not mention Settings or unavailable provider-key setup paths. |
+| ARIADNE channel readback | Pass | Platform channel read as immediately usable; provider/BYOK channels read as configured outside onboarding. |
+| ARIADNE Document Migrator route | Pass | Mocked local submit routed to `/studio/personas/[personaId]/files`; no real hosted persona was created. |
+| ARIADNE visible fix | Pass | Provider-card labels and completed-step markers were readable after the scoped presentation patch. |
+| ARIADNE focused helper test | Pass | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-provider-copy.test.ts` passed with 2 tests. |
+| ARIADNE `test:studio-ui` | Pass | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 134 tests. |
+| ARIADNE web typecheck | Pass | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed. |
+| ARIADNE lint | Pass | `npm exec --yes pnpm@10.32.1 -- run lint` passed; web lint reported no warnings or errors. |
 
-Residual risk: this is a technical copy patch, not browser rehearsal. ARIADNE
-should check `/studio/new` desktop and mobile after ARGUS accepts the
-source/boundary.
+Residual risk: this was a local mocked browser review. It does not revalidate
+hosted runtime, real auth/session behavior, real provider credential behavior,
+real import state, or staging. ARGUS still needs to review the visible fix.
 
 ## UX-08 Onboarding And Station Assistant Feasibility Result
 

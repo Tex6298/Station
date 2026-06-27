@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - UX-08A accepted for ARIADNE
+## Latest ARIADNE result - UX-08A visible fix ready for ARGUS
+
+ARIADNE completed visible review of UX-08A Persona Creation Provider Copy:
+`docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_ARIADNE.md`.
+
+Verdict:
+
+```text
+VISIBLE FIX - WAKE ARGUS
+```
+
+Decision:
+
+- Fresh Start, Awakening, and Document Migrator were rehearsed on desktop,
+  375px, and 390px local mocked browser fixtures.
+- Provider/channel copy no longer points users to a nonexistent Settings
+  provider setup path.
+- Station reads as the immediately usable setup channel.
+- OpenAI, Anthropic, and DeepSeek BYOK read as channels that should be used only
+  when routing is already set up outside onboarding.
+- Document Migrator submit used mocked local API responses only and routed to
+  the persona files route; no real hosted persona was created.
+- ARIADNE found and patched a narrow visible contrast issue in the provider
+  cards so labels no longer inherit dark text on dark backgrounds.
+- Completed step markers now use a compact check mark instead of cramped
+  `Done` text inside the progress dots.
+- Focused helper test, `test:studio-ui`, web typecheck, lint, and the local
+  browser route matrix passed.
+
+Current baton:
+
+- ARGUS has UX-08A visible-fix review.
+- ARGUS should review the scoped presentation patch, validation, and wake MIMIR
+  if accepted.
+
+## Previous ARGUS verdict - UX-08A accepted for ARIADNE
 
 ARGUS accepted DAEDALUS's UX-08A Persona Creation Provider Copy technical
 boundary:
