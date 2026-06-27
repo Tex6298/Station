@@ -25,18 +25,24 @@ they are not Station validation failures.
 MIMIR opened ARIADNE token top-up test-mode proof on 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ARIADNE.md`.
 
-Validation status: open, hosted proof lane.
+ARIADNE completed the proof on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RESULT.md`.
+
+Validation result: `PASS - TOKEN TOPUP TESTMODE PROOF`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARGUS preflight prerequisite | Pass | ARGUS accepted `ACCEPT PREFLIGHT - OPEN ARIADNE TOPUP PROOF`. |
-| Account boundary | Open | ARIADNE must use a dedicated Basic/private `basic-starter` account or Creator `creator-starter` fallback; otherwise stop for proof-account setup. |
-| Hosted mutation | Open | Exactly one Stripe test-mode payment Checkout is authorized after account eligibility is confirmed. |
-| Evidence boundary | Open | Proof must use Station selected-field readback only, not Stripe dashboard objects, raw endpoint bodies, SQL rows, logs, screenshots with session material, or secrets. |
-| Subscription separation | Open | `/billing/me` tier and subscription status must not change. |
+| Account boundary | Pass | Selected account read back as Basic/private with `basic-starter` available. |
+| Hosted mutation | Pass | Exactly one Stripe test-mode payment Checkout was completed from hosted Settings. |
+| Token readback | Pass | Latest safe purchase readback is `basic-starter`, `500` pence, `1500000` tokens, and `completed`; `topupTokens` and `effectiveLimit` increased by exactly `1500000`. |
+| Evidence boundary | Pass | Result records Station selected-field readback only, not Stripe dashboard objects, raw endpoint bodies, SQL rows, logs, screenshots with session material, raw ids, card details, Checkout URLs, or secrets. |
+| Subscription separation | Pass | `/billing/me` tier remained `private` and subscription status remained `inactive`. |
 
-Residual risk: no hosted top-up proof result exists yet. ARIADNE must wake
-MIMIR with pass, fail, blocked, stopped, or rerun request.
+Residual risk: this is a Stripe test-mode token top-up proof only. It is not
+live-money billing readiness, subscription activation, tax, invoice, coupon,
+Connect, deep usage billing, dynamic payment-method readiness, or a Stripe
+architecture review.
 
 ## Token Top-Up Test-Mode Proof Preflight
 

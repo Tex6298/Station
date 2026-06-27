@@ -4,41 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up ARIADNE proof opened
+## Latest ARIADNE result - token top-up proof passed
 
-MIMIR received ARGUS's accepted token top-up proof preflight:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREFLIGHT_ARGUS.md`.
+ARIADNE completed the hosted token top-up test-mode proof:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RESULT.md`.
 
-ARGUS verdict:
+Verdict:
 
 ```text
-ACCEPT PREFLIGHT - OPEN ARIADNE TOPUP PROOF
+PASS - TOKEN TOPUP TESTMODE PROOF
 ```
 
-MIMIR opened ARIADNE proof:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ARIADNE.md`.
+Result:
 
-Decision:
-
-- ARIADNE may run exactly one Stripe test-mode payment Checkout for token
-  top-up proof.
-- The preferred account is a dedicated non-production Basic/private account
-  using `basic-starter`.
-- The only fallback is a dedicated Creator account using `creator-starter`.
-- If no eligible proof account is available, ARIADNE must stop and wake MIMIR
-  with `BLOCKED - NEEDS PROOF ACCOUNT`.
-- Proof completion must be recorded through Station readback only:
-  purchase-history status, top-up/effective-limit increase, and billing
-  tier/status non-change.
-- Subscription activation, live-money billing, tax/invoice/coupon/Connect,
-  dynamic payment methods, deep usage billing, Stripe architecture work,
-  PR148/background-job readback, and PR181/subscription activation remain
-  closed.
+- Used the Basic/private `basic-starter` path.
+- Completed exactly one Stripe test-mode payment Checkout from hosted Settings.
+- Recorded only Station selected-field readback.
+- Latest safe purchase readback is `basic-starter`, `500` pence,
+  `1500000` tokens, and `completed`.
+- `topupTokens` increased from `0` to `1500000`.
+- `effectiveLimit` increased from `750000` to `2250000`.
+- Billing tier remained `private`.
+- Subscription status remained `inactive`.
+- No subscription Checkout, Portal action, tier change, account setup, webhook
+  replay, SQL inspection, Stripe dashboard inspection, hosted-log evidence,
+  raw endpoint body, raw id, secret, card detail, Checkout URL, or screenshot
+  evidence was recorded.
 
 Current baton:
 
-- ARIADNE has token top-up test-mode proof.
-- ARIADNE should wake MIMIR with pass, fail, blocked, stopped, or rerun request.
+- MIMIR has ARIADNE's pass result.
+- Recommended next action: close or reconcile the token top-up proof lane
+  without reopening PR181 subscription activation or broadening into live-money
+  billing readiness.
 
 ## Latest ARGUS verdict - token top-up preflight accepted
 
