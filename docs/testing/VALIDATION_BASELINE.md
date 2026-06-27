@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR398 Publish Retract Closeout Review Result
+
+ARGUS accepted PR398 on 2026-06-27:
+`docs/roadmap/PR398_PUBLISH_RETRACT_CLOSEOUT_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED BY ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Closeout overclaim review | Pass | Launch-core closeout now states that publish-and-retract is proved, while hard-delete cleanup and artifact removal remain unproved. |
+| Stale instruction check | Pass | The closeout keeps both the full publish-and-retract replay script and the no-mutation public replay path. |
+| Scope control | Pass | No product code, hosted mutation, hard delete, thread/comment deletion, Station Press, social, rich text, scheduling, provider/model, Redis, Cloudflare, worker/queue, billing, Stripe, schema, or migration scope opened. |
+| `git diff --check` | Pass | Docs-only review; whitespace check passed. |
+
+No product code changed, so package tests and typechecks were not rerun for
+PR398.
+
+Residual risk: no functional public-writing residual remains from PR397/PR398.
+The caveat is scope honesty: publish-and-retract is not publish-and-cleanup, and
+any future hard-delete cleanup lane still needs separate roadmap approval.
+
 ## PR396 Approval-Published Discussion Readback Result
 
 ARGUS accepted PR396 on 2026-06-27:

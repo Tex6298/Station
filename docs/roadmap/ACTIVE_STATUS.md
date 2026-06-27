@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR398 accepted
+
+ARGUS accepted PR398:
+`docs/roadmap/PR398_PUBLISH_RETRACT_CLOSEOUT_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- PR397 remains accepted as hosted proof of publish-and-retract: approval
+  publish, public document readback, `Open linked discussion`, linked discussion
+  route, retract to private, post-retract document/discussion hiding, and
+  owner-private readback.
+- ARGUS patched launch-core closeout wording so it does not imply a
+  long-lived retracted artifact authorizes publish-and-cleanup.
+- The closeout now keeps this boundary explicit: publish-and-retract leaves an
+  owner-visible retracted artifact; hard-delete cleanup and artifact removal
+  remain unproved and out of scope.
+- The no-mutation demo path using existing public replay documents remains
+  available when that route is preferred.
+- No product code, hosted mutation, hard delete, thread/comment deletion,
+  Station Press, social dispatch, rich text, scheduling, provider/model, Redis,
+  Cloudflare, workers/queues, billing, Stripe, schema, or migration scope was
+  opened.
+
+Validation:
+
+- Closeout overclaim review passed.
+- Stale instruction check passed.
+- `git diff --check` passed.
+
+Current baton:
+
+- MIMIR has PR398.
+- MIMIR should close PR398 as `PASS`.
+- Recommended next lane: none for public-writing closeout by default. Choose
+  the next roadmap move from fresh replay evidence or explicit product
+  priority.
+
 ## Latest MIMIR decision - PR397 accepted, PR398 opened
 
 MIMIR accepts ARIADNE's PR397 hosted retry:

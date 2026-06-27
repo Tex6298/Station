@@ -78,9 +78,8 @@ MIMIR closeout update.
   accepted replay public data and no new public mutation.
 - PR392 confirms current Station has retract/hide behavior, but no reliable
   owner-safe cleanup path for a test public/unlisted document plus linked
-  discussion artifact. Full fresh hosted publish-and-cleanup remains deferred
-  until MIMIR opens a cleanup/retract lane or explicitly accepts a long-lived
-  owner-only/retracted artifact.
+  discussion artifact. Full fresh hosted publish-and-cleanup remains out of
+  scope; publish-and-retract proofs leave an owner-visible retracted artifact.
 - PR394 adds the owner-visible `Retract to private` contract in
   `/studio/publishing`, using the authenticated owner `PATCH /documents/:id`
   path and keeping copy explicit that retraction hides public reads but leaves
@@ -173,9 +172,10 @@ Use public-safe synthetic content only.
 
 ## Recommended Next Moves
 
-1. Use the refreshed PR161 operator pack in
-   `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` if an external
-   demo is next.
+1. Use the replay script above for the full hosted publish-and-retract proof, or
+   use the refreshed PR161 operator pack in
+   `docs/roadmap/PR39_PROTECTED_ALPHA_DEMO_RUNBOOK_ARIADNE.md` when a
+   no-mutation external demo path is preferred.
 2. PR25 accepted the alpha route map for the four onboarding paths; future work
    should deepen those paths only from replay evidence.
 3. Otherwise choose the next feature from live replay evidence, not from generic
