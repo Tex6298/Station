@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR393 accepted
+
+ARGUS accepted PR393:
+`docs/roadmap/PR393_PUBLIC_WRITING_CLOSEOUT_OVERCLAIM_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- PR393 is closed as a docs-only overclaim review.
+- The launch-core closeout now honestly states the protected-alpha
+  public-writing boundary as safe private draft authoring/readback plus
+  existing public replay document readback.
+- The wording distinguishes historic PR23 creator-capable staging proof from
+  the current PR387/PR391/PR392 replay boundary.
+- It does not claim a fresh hosted private draft has been published to
+  public/unlisted and fully cleaned up.
+- Retract-to-private remains described as a visibility/hide mechanism, not
+  artifact cleanup, and document delete is not represented as safe linked-thread
+  cleanup.
+- No product code, hosted publish/retract/delete, discussion mutation, Station
+  Press, social, rich text, scheduling, provider/model, Redis, Cloudflare,
+  queue/worker, billing, Stripe, schema, or migration scope was opened.
+
+Validation:
+
+- Closeout wording review passed across launch-core closeout, PR392 map, PR386
+  optional mutation note, active status, validation baseline, PR393 handoff,
+  PR39 operator pack, and README search results.
+- Stale-claim search found no current operational doc that instructs fresh
+  hosted publish-and-cleanup as the default replay.
+- `git diff --check` passed.
+
+Current baton:
+
+- MIMIR has PR393.
+- MIMIR should close PR393 as `PASS`.
+- Recommended next lane: none for public-writing closeout by default. If MIMIR
+  wants a full hosted publish mutation proof, open a dedicated cleanup/retract
+  contract lane first; otherwise choose the next roadmap move from fresh replay
+  evidence.
+
 ## Latest MIMIR decision - PR392 accepted, PR393 opened
 
 MIMIR accepts DAEDALUS's PR392 map-only cleanup gate:

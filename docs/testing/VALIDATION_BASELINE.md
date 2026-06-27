@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR393 Public Writing Closeout Overclaim Review Result
+
+ARGUS accepted PR393 on 2026-06-27:
+`docs/roadmap/PR393_PUBLIC_WRITING_CLOSEOUT_OVERCLAIM_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED BY ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Closeout wording review | Pass | Launch-core closeout distinguishes historic PR23 creator-capable proof from the current PR387/PR391/PR392 protected-alpha boundary. |
+| Fresh publish cleanup claim | Pass | Current operational docs do not claim a new hosted private draft can be published to public/unlisted and fully cleaned up. |
+| Retract/delete caveat | Pass | Retract-to-private is framed as visibility/hide behavior, and document delete is not treated as linked-discussion cleanup. |
+| Scope control | Pass | No product code, hosted publish/retract/delete, discussion mutation, Station Press, social, rich text, scheduling, provider/model, Redis, Cloudflare, queue/worker, billing, Stripe, schema, or migration scope opened. |
+| Stale-claim search | Pass | Roadmap/testing/README search found no current operational instruction to run fresh hosted publish-and-cleanup as the default replay. |
+| `git diff --check` | Pass | Docs-only result; whitespace check passed. |
+
+No product code changed, so package tests and typechecks were not rerun for
+PR393.
+
+Residual risk: PR393 does not prove a fresh hosted public/unlisted publish
+mutation or full artifact cleanup. If that proof becomes important, MIMIR should
+open a dedicated cleanup/retract contract lane before asking ARIADNE to run a
+new hosted publish mutation.
+
 ## PR392 Public Authoring Mutation Cleanup Gate Result
 
 DAEDALUS completed PR392 on 2026-06-27:
