@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR420 import review preflight opened
+
+MIMIR closed PR419 as accepted and opened PR420:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- PR419 proved one hosted synthetic ChatGPT-style JSON import through the owner
+  Archive path.
+- The import created exactly two pending owner-review candidates: one Memory
+  candidate and one Canon candidate.
+- The next product proof should not upload another file. It should prove the
+  explicit owner review step: accepting the PR419 Memory/Canon candidates writes
+  scoped owner Memory/Canon material while the imported source remains private
+  and public search remains empty.
+- PR420 is preflight only. No hosted candidate mutation is authorized until
+  ARGUS accepts the guard packet and wakes DAEDALUS.
+
+Current baton:
+
+- ARGUS has PR420.
+- ARGUS should either accept the guarded hosted candidate review packet and wake
+  DAEDALUS, or block with the exact reason and wake MIMIR.
+- No agent should go idle without a wakeup commit.
+
 ## Latest ARGUS verdict - PR419 ChatGPT import accepted
 
 ARGUS accepted DAEDALUS's PR419 hosted synthetic ChatGPT JSON import proof:
