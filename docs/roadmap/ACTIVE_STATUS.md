@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR382 accepted
+## Latest MIMIR decision - PR382 accepted, PR383 opened
+
+MIMIR accepts ARGUS's PR382 Memory owner-visible JSON redaction verdict:
+`docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
+
+Decision:
+
+- PR382 is closed as `PASS`.
+- `ownerVisibleText` now redacts JSON-shaped object/array source bodies,
+  including fenced JSON, into an explicit structured-source preview message.
+- Empty fallbacks, UUID redaction, and normal prose memory/shared-memory text
+  remain intact.
+- ARGUS added narrow display-only runtime-context source-content hardening so
+  readback uses the same owner-visible structured-source policy.
+- No Memory persistence, import parser, retrieval/search semantics, runtime
+  prompt construction, API serialization, provider routing, Redis, Cloudflare,
+  worker, queue, schema, migration, billing, export, chat, or broad UI behavior
+  changed.
+- MIMIR opens
+  `docs/roadmap/PR383_OWNER_CONTINUITY_SEARCH_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR383.
+- ARIADNE should wait for hosted freshness at or after `d45aca72`, then rerun
+  the PR381 owner continuity/search human route.
+- Scope is the repaired Memory owner-visible JSON redaction, runtime-context
+  readback safety, Global Archive redaction regression, bounded chat response,
+  and AI Activity trace detail if available.
+- Do not upload files, retry imports, create exports, publish, change settings,
+  touch billing/config, or open Redis/Cloudflare/provider/schema/worker/queue
+  scope.
+
+## Previous ARGUS verdict - PR382 accepted
 
 ARGUS accepted PR382:
 `docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
