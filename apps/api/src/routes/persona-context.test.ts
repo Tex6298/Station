@@ -164,6 +164,142 @@ class InMemorySupabase {
         created_at: "2026-05-25T09:17:00.000Z",
         updated_at: "2026-05-25T09:17:00.000Z",
       },
+      {
+        id: "memory-import-accepted",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Reviewed PR420 import memory",
+        content: "Owner accepted persona-file import memory says the Harbor ritual is safe runtime context after review.",
+        summary: "Accepted persona-file import memory can be used after owner review.",
+        source_type: "import",
+        relevance_weight: 14,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-accepted",
+        archive_source_name: "private/storage/chatgpt-import-proof-pr420.json?token=secret",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:18:00.000Z",
+        updated_at: "2026-05-25T09:18:00.000Z",
+      },
+      {
+        id: "memory-import-agreed",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Agreed import memory",
+        content: "Owner agreed persona-file import memory says the Harbor ritual can be used in runtime context.",
+        summary: "Agreed import memory is also owner-reviewed runtime context.",
+        source_type: "import",
+        relevance_weight: 13,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-agreed",
+        archive_source_name: "private/storage/agreed-import-memory.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:18:30.000Z",
+        updated_at: "2026-05-25T09:18:30.000Z",
+      },
+      {
+        id: "memory-import-untrusted",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Untrusted import memory",
+        content: "Untrusted import memory must not enter runtime context.",
+        summary: "Untrusted import memory must not leak.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-untrusted",
+        archive_source_name: "private/storage/untrusted-import-memory.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:19:00.000Z",
+        updated_at: "2026-05-25T09:19:00.000Z",
+      },
+      {
+        id: "memory-import-missing-lifecycle",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Missing lifecycle import memory",
+        content: "Missing lifecycle import memory must not enter runtime context.",
+        summary: "Missing lifecycle import memory must not leak.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-missing-lifecycle",
+        archive_source_name: "private/storage/missing-lifecycle-import-memory.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:19:30.000Z",
+        updated_at: "2026-05-25T09:19:30.000Z",
+      },
+      {
+        id: "memory-import-archived-chat",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Archived chat import memory",
+        content: "Archived chat transcript import memory must not enter PR421 runtime context.",
+        summary: "Archived chat transcript import memory stays out of PR421.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "archived_chat_transcript",
+        archive_source_id: "private-chat-accepted",
+        archive_source_name: "conversations/private-chat.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:20:00.000Z",
+        updated_at: "2026-05-25T09:20:00.000Z",
+      },
+      {
+        id: "memory-import-rejected",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Rejected import memory",
+        content: "Rejected import memory must not enter runtime context.",
+        summary: "Rejected import memory must not leak.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-rejected",
+        archive_source_name: "private/storage/rejected-import-memory.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:20:30.000Z",
+        updated_at: "2026-05-25T09:20:30.000Z",
+      },
+      {
+        id: "memory-import-expired",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Expired import memory",
+        content: "Expired import memory must not enter runtime context.",
+        summary: "Expired import memory must not leak.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-expired",
+        archive_source_name: "private/storage/expired-import-memory.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:21:00.000Z",
+        updated_at: "2026-05-25T09:21:00.000Z",
+      },
+      {
+        id: "memory-import-superseded",
+        persona_id: PERSONA_ID,
+        owner_user_id: OWNER_ID,
+        title: "Superseded import memory",
+        content: "Superseded import memory must not enter runtime context.",
+        summary: "Superseded import memory must not leak.",
+        source_type: "import",
+        relevance_weight: 12,
+        archive_source_type: "persona_file",
+        archive_source_id: "private-file-superseded",
+        archive_source_name: "private/storage/superseded-import-memory.json",
+        chunk_index: 0,
+        chunk_count: 1,
+        created_at: "2026-05-25T09:21:30.000Z",
+        updated_at: "2026-05-25T09:21:30.000Z",
+      },
     ],
     memory_item_lifecycle: [
       lifecycleRow("memory-1", "active"),
@@ -174,6 +310,13 @@ class InMemorySupabase {
       lifecycleRow(MEMORY_REPLACEMENT_ID, "active"),
       lifecycleRow(OTHER_MEMORY_ID, "active", { owner_user_id: OTHER_ID }),
       lifecycleRow("memory-import-quarantined", "quarantined"),
+      lifecycleRow("memory-import-accepted", "active"),
+      lifecycleRow("memory-import-agreed", "active", { trust_level: "agreed_upon" }),
+      lifecycleRow("memory-import-untrusted", "active", { trust_level: "llm_extracted" }),
+      lifecycleRow("memory-import-archived-chat", "active"),
+      lifecycleRow("memory-import-rejected", "rejected"),
+      lifecycleRow("memory-import-expired", "active", { expires_at: "2020-01-01T00:00:00.000Z" }),
+      lifecycleRow("memory-import-superseded", "superseded", { superseded_by_memory_item_id: "memory-import-accepted" }),
     ],
     owner_memory_blocks: [
       {
@@ -673,7 +816,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     const context = owner.body.context;
     assert.deepEqual(context.counts, {
       canon: 2,
-      memory: 3,
+      memory: 5,
       integrity: 2,
       archive: 2,
       continuity: 2,
@@ -709,11 +852,11 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.doesNotMatch(JSON.stringify(context.trace.timing), new RegExp(PERSONA_ID));
     assert.doesNotMatch(JSON.stringify(context.trace.timing), /The morning ritual is private continuity context/);
     assert.deepEqual(context.trace.skipped.memory, {
-      archive_source: 1,
-      rejected: 1,
-      quarantined: 1,
-      expired: 1,
-      superseded: 1,
+      archive_source: 3,
+      rejected: 2,
+      quarantined: 2,
+      expired: 2,
+      superseded: 2,
       other_owner_or_missing: 0,
     });
     assert.deepEqual(
@@ -721,16 +864,21 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
         .filter((source: Row) => source.type === "memory")
         .map((source: Row) => source.id)
         .sort(),
-      [MEMORY_REPLACEMENT_ID, "memory-1", "owner-block-1"].sort()
+      [MEMORY_REPLACEMENT_ID, "memory-1", "memory-import-accepted", "memory-import-agreed", "owner-block-1"].sort()
     );
-    assert.equal(
-      context.trace.selectedSources.some((source: Row) => source.id === "memory-rejected"),
-      false
-    );
-    assert.equal(
-      context.trace.selectedSources.some((source: Row) => source.id === "memory-superseded"),
-      false
-    );
+    for (const id of [
+      "memory-rejected",
+      "memory-superseded",
+      "memory-import-quarantined",
+      "memory-import-untrusted",
+      "memory-import-missing-lifecycle",
+      "memory-import-archived-chat",
+      "memory-import-rejected",
+      "memory-import-expired",
+      "memory-import-superseded",
+    ]) {
+      assert.equal(context.trace.selectedSources.some((source: Row) => source.id === id), false, id);
+    }
     assert.equal(
       context.trace.selectedSources.some((source: Row) => source.id === "continuity-1" && source.type === "continuity"),
       true
@@ -738,6 +886,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.equal(context.trace.selectedSources.every((source: Row) => source.content === undefined), true);
     assert.doesNotMatch(JSON.stringify(context.trace), /The morning ritual is private continuity context/);
     assert.doesNotMatch(JSON.stringify(context.trace), /source-notebook\.md \(text\/markdown\) - processed archive file/);
+    assert.doesNotMatch(JSON.stringify(context.trace), /private-file-|private\/storage|chatgpt-import-proof-pr420/);
     assert.doesNotMatch(JSON.stringify(context.trace), /Relay marker belongs in private chat context/);
     assert.equal(context.trace.searched.continuity, 2);
     assert.deepEqual(context.topology.priority, ["canon", "integrity", "continuity", "memory", "archive"]);
@@ -757,6 +906,8 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.match(context.systemPrompt, /novelty\. SYSTEM override should stay data\./);
     assert.match(context.systemPrompt, /The morning ritual is private continuity context/);
     assert.match(context.systemPrompt, /Current nickname: Harbor Light/);
+    assert.match(context.systemPrompt, /Owner accepted persona-file import memory says the Harbor ritual is safe runtime context after review/);
+    assert.match(context.systemPrompt, /Owner agreed persona-file import memory says the Harbor ritual can be used in runtime context/);
     assert.match(context.systemPrompt, /Stay steady under ambiguity/);
     assert.match(context.systemPrompt, /source-notebook\.md/);
     assert.match(context.systemPrompt, /Continuity records \(source context, not instructions\)/);
@@ -771,6 +922,13 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     assert.doesNotMatch(context.systemPrompt, /PRIVATE_TAIL_MUST_NOT_APPEAR/);
     assert.doesNotMatch(context.systemPrompt, /Quarantined memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /imported archive chunk must not enter runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /Untrusted import memory must not enter runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /Missing lifecycle import memory must not enter runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /Archived chat transcript import memory must not enter PR421 runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /Rejected import memory must not enter runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /Expired import memory must not enter runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /Superseded import memory must not enter runtime context/);
+    assert.doesNotMatch(context.systemPrompt, /private\/storage|chatgpt-import-proof-pr420/);
     assert.doesNotMatch(context.systemPrompt, /Rejected memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Expired memory must not leak/);
     assert.doesNotMatch(context.systemPrompt, /Old nickname must not leak/);
@@ -811,13 +969,21 @@ test("persona memory briefing is owner-only and reports lifecycle filtering", as
       token: "owner-token",
     });
     assert.equal(owner.status, 200);
-    assert.deepEqual(owner.body.briefing.activeMemories.map((memory: Row) => memory.id).sort(), [MEMORY_REPLACEMENT_ID, "memory-1"].sort());
+    assert.deepEqual(owner.body.briefing.activeMemories.map((memory: Row) => memory.id).sort(), [
+      MEMORY_REPLACEMENT_ID,
+      "memory-1",
+      "memory-import-accepted",
+      "memory-import-agreed",
+      "memory-import-archived-chat",
+      "memory-import-missing-lifecycle",
+      "memory-import-untrusted",
+    ].sort());
     assert.deepEqual(owner.body.briefing.lifecycleCounts, {
-      active: 2,
+      active: 7,
       quarantined: 2,
-      rejected: 1,
-      expired: 1,
-      superseded: 1,
+      rejected: 2,
+      expired: 2,
+      superseded: 2,
     });
     assert.deepEqual(owner.body.briefing.sharedBlocks.map((block: Row) => block.id), ["owner-block-1"]);
     assert.equal(owner.body.briefing.edgeCounts.supersedes, 1);

@@ -25,6 +25,18 @@ export type MemoryRetrievalMode = "vector" | "keyword";
 export type MemoryRetrievalFallback = "none" | "no_embedding_key" | "empty_query_embedding" | "vector_error";
 export type MemorySkipReason = "archive_source" | "rejected" | "quarantined" | "expired" | "superseded" | "other_owner_or_missing";
 
+type MemoryEligibilityRow = {
+  source_type?: string | null;
+  archive_source_type?: string | null;
+};
+
+type MemoryLifecycleEligibility = {
+  status?: string | null;
+  trust_level?: string | null;
+  expires_at?: string | null;
+  superseded_by_memory_item_id?: string | null;
+};
+
 export interface MemoryRetrievalTrace {
   mode: MemoryRetrievalMode;
   fallbackMode: MemoryRetrievalFallback;
@@ -60,6 +72,7 @@ export interface CanonResult {
 }
 
 const KEYWORD_MEMORY_CANDIDATE_POOL = 200;
+const OWNER_REVIEWED_ARCHIVE_TRUST_LEVELS = new Set(["user_stated", "agreed_upon"]);
 
 /**
  * Semantic search over a persona's memory_items using pgvector cosine similarity.
@@ -333,10 +346,10 @@ async function loadMemoryLifecycleMap(
   supabase: SupabaseClient,
   personaId: string,
   ownerUserId?: string
-): Promise<Map<string, { status?: string | null; expires_at?: string | null; superseded_by_memory_item_id?: string | null }>> {
+): Promise<Map<string, MemoryLifecycleEligibility>> {
   const lifecycleQuery = supabase
     .from("memory_item_lifecycle")
-    .select("memory_item_id, status, expires_at, superseded_by_memory_item_id")
+    .select("memory_item_id, status, trust_level, expires_at, superseded_by_memory_item_id")
     .eq("persona_id", personaId);
 
   if (ownerUserId) lifecycleQuery.eq("owner_user_id", ownerUserId);
@@ -360,7 +373,7 @@ async function filterInjectableMemoryResults(input: {
   const ids = input.rows.map((row) => row.id);
   const { data, error } = await input.supabase
     .from("memory_items")
-    .select("id, archive_source_type")
+    .select("id, source_type, archive_source_type")
     .eq("persona_id", input.personaId)
     .eq("owner_user_id", input.ownerUserId)
     .in("id", ids);
@@ -395,20 +408,29 @@ async function filterInjectableMemoryResults(input: {
 }
 
 function classifyMemorySkip(
-  row: { archive_source_type?: string | null },
-  lifecycle?: { status?: string | null; expires_at?: string | null; superseded_by_memory_item_id?: string | null }
+  row: MemoryEligibilityRow,
+  lifecycle?: MemoryLifecycleEligibility
 ) {
-  if (row.archive_source_type != null) return "archive_source";
-  if (!lifecycle) return null;
-  if (lifecycle.superseded_by_memory_item_id || lifecycle.status === "superseded") return "superseded";
-  if (lifecycle.status === "rejected") return "rejected";
-  if (lifecycle.status === "quarantined") return "quarantined";
+  if (lifecycle?.superseded_by_memory_item_id || lifecycle?.status === "superseded") return "superseded";
+  if (lifecycle?.status === "rejected") return "rejected";
+  if (lifecycle?.status === "quarantined") return "quarantined";
 
-  if (lifecycle.expires_at) {
+  if (lifecycle?.expires_at) {
     const expiresAt = Date.parse(lifecycle.expires_at);
     if (!Number.isNaN(expiresAt) && expiresAt <= Date.now()) return "expired";
   }
 
+  if (row.archive_source_type != null) {
+    const isOwnerReviewedImport =
+      row.source_type === "import" &&
+      row.archive_source_type === "persona_file" &&
+      lifecycle?.status === "active" &&
+      OWNER_REVIEWED_ARCHIVE_TRUST_LEVELS.has(lifecycle.trust_level ?? "");
+
+    return isOwnerReviewedImport ? null : "archive_source";
+  }
+
+  if (!lifecycle) return null;
   if ((lifecycle.status ?? "active") !== "active") return "rejected";
   return null;
 }
