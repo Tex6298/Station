@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR382 Memory Owner-Visible JSON Redaction Result
+
+DAEDALUS completed PR382 on 2026-06-27:
+`docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Memory structured preview | Pass | `ownerVisibleText` redacts JSON-shaped object/array source bodies into an explicit structured-source preview. |
+| Fenced JSON preview | Pass | Fenced JSON-shaped source text is also redacted. |
+| Prose preservation | Pass | Normal prose memory/shared-memory text remains visible. |
+| Existing fallback behavior | Pass | Empty text still uses the caller fallback and UUID-shaped values remain redacted in normal prose. |
+| Scope control | Pass | No Memory persistence, import parser, retrieval/search semantics, runtime prompt construction, API serialization, provider, cache, schema, migration, billing, export, chat, or broad UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/owner-visible-redaction.test.ts` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 125 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: ARGUS still needs to review whether the shared helper policy is
+appropriately narrow across Memory, Global Archive, and runtime context
+owner-visible readbacks. If accepted, ARIADNE should rerun PR381 after deploy.
+
 ## PR379 Global Archive JSON Preview Redaction Result
 
 ARGUS accepted PR379 on 2026-06-27:

@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR382 ready for ARGUS review
+
+DAEDALUS completed the local PR382 Memory owner-visible JSON redaction patch:
+`docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
+
+Current status:
+
+- PR382 is ready for ARGUS review.
+- The shared `ownerVisibleText` helper now redacts JSON-shaped object/array
+  source bodies, including fenced JSON, into an explicit structured-source
+  preview message.
+- The Memory page fallback path remains unchanged at the call site, but now
+  receives the safer helper behavior when it falls back from summary to raw
+  content.
+- Empty values still use caller fallbacks.
+- UUID-shaped values remain redacted in normal prose.
+- Normal prose memory and shared-memory text remain visible.
+- No Memory persistence, import parser, retrieval/search semantics, runtime
+  prompt construction, API serialization, shared runtime context helper,
+  provider, Redis, Cloudflare, worker, queue, schema, migration, billing,
+  export, chat, or broad UI behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/owner-visible-redaction.test.ts` passed 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 125 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR382.
+- ARGUS should review the shared helper policy, prose-over-redaction guard, and
+  Memory fallback coverage.
+- If accepted, ARGUS should wake MIMIR and recommend ARIADNE rerun PR381 after
+  deploy.
+
 ## Latest MIMIR decision - PR381 failed, PR382 opened
 
 MIMIR accepts ARIADNE's PR381 hosted owner continuity/search rehearsal:

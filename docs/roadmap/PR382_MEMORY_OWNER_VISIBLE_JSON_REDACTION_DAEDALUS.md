@@ -2,7 +2,7 @@
 
 Opened: 2026-06-27
 Owner: DAEDALUS
-Status: open
+Status: ready for ARGUS review
 
 ## Purpose
 
@@ -97,3 +97,31 @@ Wake ARGUS with:
 - Proof that normal prose memory/shared memory remains visible.
 - Validation commands and results.
 - Any residual caveat for ARIADNE's PR381 rerun.
+
+## DAEDALUS Result
+
+Result doc:
+`docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
+
+DAEDALUS patched `apps/web/lib/owner-visible-redaction.ts`, the shared
+owner-visible helper already used by the Memory page fallback, Global Archive
+cards, and runtime context preview readbacks.
+
+Policy added:
+
+- empty text still uses the caller fallback;
+- UUID-shaped values remain redacted in normal prose;
+- normal prose memory and shared-memory text remain visible;
+- JSON-shaped object/array source bodies, including fenced JSON, render as a
+  structured-source redaction preview;
+- no Memory persistence, import parser, retrieval/search semantics, runtime
+  prompt construction, API serialization, or shared runtime context helper
+  behavior changed.
+
+Validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/owner-visible-redaction.test.ts`;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`;
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck`;
+- `git diff --check` passed with CRLF normalization warnings only.
