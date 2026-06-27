@@ -449,7 +449,7 @@ export function publishingDashboardRouteStoryRows(): PublishingDashboardRouteSto
       label: "Cleanup",
       value: "Separate contract",
       tone: "warning",
-      body: "Cleanup/delete is separate from retract. The current cleanup contract tombstones linked discussion threads and preserves community records behind hidden threads; hosted cleanup has not been run unless explicitly rehearsed.",
+      body: "Cleanup/delete is separate from retract. The current cleanup contract tombstones linked document-discussion threads and preserves comments and community records behind hidden threads. One disposable hosted cleanup proof was accepted for that contract; full hard-delete artifact removal and repeat hosted cleanup remain out of scope unless MIMIR opens them.",
     },
   ];
 }

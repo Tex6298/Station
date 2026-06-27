@@ -256,9 +256,15 @@ test("publishing dashboard route story explains linked discussion, retract, and 
   assert.doesNotMatch(rows.find((row) => row.id === "publish")?.body ?? "", /public readback/i);
   assert.match(rows.find((row) => row.id === "retract")?.body ?? "", /hides public document and linked discussion reads/i);
   assert.match(rows.find((row) => row.id === "retract")?.body ?? "", /owner-visible Studio record/i);
-  assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /separate from retract/i);
-  assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /tombstones linked discussion threads/i);
-  assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /hosted cleanup has not been run/i);
+  const cleanupBody = rows.find((row) => row.id === "cleanup")?.body ?? "";
+  assert.match(cleanupBody, /separate from retract/i);
+  assert.match(cleanupBody, /tombstones linked document-discussion threads/i);
+  assert.match(cleanupBody, /preserves comments and community records/i);
+  assert.match(cleanupBody, /one disposable hosted cleanup proof was accepted/i);
+  assert.match(cleanupBody, /full hard-delete artifact removal/i);
+  assert.match(cleanupBody, /repeat hosted cleanup remain out of scope/i);
+  assert.doesNotMatch(cleanupBody, /hosted cleanup has not been run/i);
+  assert.doesNotMatch(cleanupBody, /full hard-delete artifact removal is available/i);
 });
 
 test("publishing trust readback explains public document boundaries", () => {

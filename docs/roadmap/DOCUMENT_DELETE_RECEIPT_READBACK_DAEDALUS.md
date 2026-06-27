@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date: 2026-06-27
 
-Status: open - wake DAEDALUS
+Status: complete - wake ARGUS
 
 ## Why This Exists
 
@@ -80,6 +80,13 @@ If API code is touched despite the intended scope, also run:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck`
 
 ## Handoff
+
+DAEDALUS completed the focused patch:
+`docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`.
+
+Scope stayed in route-story copy, helper tests, and roadmap/testing docs. No
+API delete semantics, hosted mutation, schema/storage/config, or new destructive
+cleanup control changed.
 
 Wake ARGUS:
 

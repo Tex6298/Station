@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - delete receipt readback opened
+## Latest DAEDALUS result - delete receipt readback patched
+
+DAEDALUS completed the narrow document delete receipt/readback patch:
+`docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`.
+
+Verdict:
+
+```text
+FOCUSED COPY PATCH - NO DELETE SEMANTICS CHANGED
+```
+
+Decision:
+
+- Publishing Dashboard cleanup route-story copy no longer says hosted cleanup
+  has not been run.
+- The copy now reflects PR411/PR412: one disposable hosted owner-delete cleanup
+  proof was accepted for the tombstone contract.
+- The copy keeps the required caveats: cleanup/delete is separate from retract,
+  linked document-discussion threads are tombstoned, comments/community records
+  are preserved behind hidden threads, full hard-delete artifact removal is
+  deferred, and repeat hosted cleanup requires a new MIMIR lane.
+- Source inspection found no existing owner-facing web document delete control
+  or receipt consumer, so no new destructive cleanup button was added.
+- No API delete semantics, hosted mutation, schema/storage/config, package,
+  auth, billing, provider, Redis, Cloudflare, worker/queue, deploy, or broad UI
+  behavior changed.
+
+Current baton:
+
+- ARGUS has the focused patch.
+- ARGUS should review the copy/readback boundary and wake MIMIR if accepted, or
+  DAEDALUS with exact required changes.
+
+## Previous MIMIR decision - delete receipt readback opened
 
 MIMIR accepts ARGUS's artifact retention/deletion design verdict:
 `docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
@@ -26,9 +59,7 @@ Decision:
 
 Current baton:
 
-- DAEDALUS has document delete receipt/readback hardening.
-- DAEDALUS should wake ARGUS with the focused patch, or wake MIMIR with an exact
-  no-code finding.
+- Superseded by DAEDALUS's focused patch above.
 
 ## Latest ARGUS verdict - artifact retention design accepted
 

@@ -25,18 +25,24 @@ they are not Station validation failures.
 MIMIR opened document delete receipt/readback hardening on 2026-06-27:
 `docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_DAEDALUS.md`.
 
-Validation result: `OPEN - WAKE DAEDALUS`.
+DAEDALUS completed the focused patch on 2026-06-27:
+`docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_RESULT.md`.
+
+Validation result: `FOCUSED COPY PATCH - WAKE ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Design prerequisite | Pass | ARGUS accepted the artifact retention/deletion design and named only receipt/readback hardening as safe. |
 | Current cleanup truth | Pass | Tombstone cleanup remains protected-alpha truth; full hard-delete artifact removal remains deferred. |
-| Stale copy target | Pending | `publishingDashboardRouteStoryRows()` should stop saying hosted cleanup has not been run. |
-| Scope boundary | Pending | No API deletion semantics, hosted mutation, schema/storage/config, or new destructive cleanup button is authorized. |
-| Review path | Pending | DAEDALUS should wake ARGUS with the focused patch or MIMIR with no-code finding. |
+| Stale copy target | Pass | `publishingDashboardRouteStoryRows()` now says one disposable hosted cleanup proof was accepted and no longer says hosted cleanup has not been run. |
+| No-new-control finding | Pass | Source inspection found no existing owner-facing web document delete control or delete cleanup response consumer; no new destructive cleanup button was added. |
+| Scope boundary | Pass | No API deletion semantics, hosted mutation, schema/storage/config, or new destructive cleanup button changed. |
+| Review path | Pass | DAEDALUS wakes ARGUS with the focused patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | Focused publishing UI helper tests passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| Added-line sensitive-pattern scan | Pass | No matches. |
 
-Residual risk: owner-facing cleanup copy remains stale until DAEDALUS completes
-the patch or no-code finding.
+Residual risk: ARGUS has not yet accepted the patched copy/readback boundary.
 
 ## Artifact Retention And Deletion Design
 
