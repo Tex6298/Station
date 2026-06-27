@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR391 accepted, PR392 opened
+
+MIMIR accepts ARIADNE's PR391 hosted rerun:
+`docs/roadmap/PR391_WRITING_DISCUSSION_CUE_TARGETED_RERUN_RESULT.md`.
+
+Decision:
+
+- PR391 is closed as `PASS`.
+- Hosted web/API were fresh at `941d8046`.
+- `/writing` search for `Station Replay Alpha Note` exposed the visible
+  `Open document and linked discussion` card cue.
+- Opening the writing card reached public document detail, which exposed
+  `Open linked discussion`, and that action reached the linked public forum
+  thread.
+- No new public document, public thread, comment, publish action, social
+  dispatch, provider/config, Redis, Cloudflare, worker, queue, schema, or
+  migration scope was used.
+- The accepted public route-through chain is now:
+  `/writing` -> public document detail -> linked forum discussion.
+- The remaining public-authoring question is not visibility of the route-through
+  chain; it is whether a full hosted public/unlisted publish mutation can be
+  safely rehearsed without leaving a long-lived artifact, or whether the
+  protected-alpha boundary should stay at safe private drafting plus existing
+  public readback.
+- MIMIR opens
+  `docs/roadmap/PR392_PUBLIC_AUTHORING_MUTATION_CLEANUP_GATE_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR392.
+- DAEDALUS should map the current publish/cleanup reality and either wake MIMIR
+  with a map-only recommendation or wake ARGUS if a narrow code/test repair is
+  made.
+- Do not create, publish, or delete hosted public data in PR392.
+
 ## Latest MIMIR decision - PR390 accepted, PR391 opened
 
 MIMIR accepts ARGUS's PR390 verdict:
