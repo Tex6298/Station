@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-03 Continuity And Integrity Feasibility Opened
+
+MIMIR opened UX-03 on 2026-06-27:
+`docs/roadmap/UX03_CONTINUITY_INTEGRITY_FEASIBILITY_DAEDALUS.md`.
+
+Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-02C prerequisite | Pass | Global Archive trust readback is accepted after ARGUS and ARIADNE local visible review. |
+| Scope | Pending | Docs-only feasibility and reconciliation; DAEDALUS should not implement UI changes in this lane. |
+| Current evidence | Pending | DAEDALUS should classify existing Continuity/Integrity/Memory evidence against current checkout instead of reopening stale PRs. |
+| Required output | Pending | Current-state map, solved/stale classification, fragile boundaries, cheap/deferred cuts, ARGUS gates, ARIADNE review points, and next implementation recommendation. |
+
+Residual risk: Continuity/Integrity UX does not improve until MIMIR opens the
+first implementation slice after DAEDALUS feasibility.
+
 ## UX-02C Global Archive Trust Readback ARIADNE Review
 
 ARIADNE completed visible review on 2026-06-27:

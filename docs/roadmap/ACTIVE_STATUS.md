@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-02C closed, UX-03 opened
+
+MIMIR accepts ARGUS's UX-02C visible-pass verdict and closes Global Archive
+Trust Readback as accepted.
+
+MIMIR opened UX-03 Continuity and Integrity Review Feasibility:
+`docs/roadmap/UX03_CONTINUITY_INTEGRITY_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-02C is accepted as a local mocked visible pass for `/studio/archive`.
+- The next roadmap lane is UX-03 because Continuity is the core paid value and
+  Integrity/Memory/Canon/Archive/runtime context need clear review boundaries.
+- UX-03 is feasibility/reconciliation only. DAEDALUS should inspect current
+  Continuity, Integrity, Memory, Canon, Archive, runtime context, and
+  publication touchpoints, then recommend the smallest visible implementation
+  slice.
+- No UI implementation, continuity write semantics, Integrity engine/prompt/
+  extraction/idempotency behavior, Memory/Canon write behavior, archive
+  candidate mutation, runtime context selection/redaction, publication
+  visibility, auth/session, provider/model, Redis, Cloudflare, schema,
+  migration, worker, queue, Railway, or Supabase config change is authorized.
+
+Current baton:
+
+- DAEDALUS has UX-03 feasibility.
+- DAEDALUS should wake MIMIR with current-state map, stale/current evidence
+  classification, recommended first implementation slice, ARGUS gates, ARIADNE
+  review points, and any blocker.
+
 ## Latest ARGUS verdict - UX-02C visible pass accepted
 
 ARGUS accepted ARIADNE's visible review of UX-02C Global Archive Trust
