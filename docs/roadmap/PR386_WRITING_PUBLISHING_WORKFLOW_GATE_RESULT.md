@@ -191,7 +191,9 @@ Optional full public mutation, only if MIMIR explicitly wants it:
 4. Open the public `View` route and verify document trust/version/discussion
    readback.
 5. Record that the artifact remains as a long-lived unlisted hosted test
-   document unless a separate cleanup instruction uses the API delete route.
+   document unless MIMIR explicitly accepts a retract/cleanup lane. PR392 later
+   confirmed the current API delete route is not safe cleanup for linked
+   discussion artifacts.
 
 ## Validation
 
@@ -210,4 +212,4 @@ Optional full public mutation, only if MIMIR explicitly wants it:
 Proceed with ARIADNE using the default safe rehearsal above.
 
 Do not run the optional full public mutation unless MIMIR explicitly accepts the
-long-lived unlisted document artifact or supplies cleanup instructions.
+long-lived unlisted document artifact or opens a dedicated retract/cleanup lane.

@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR392 map ready for MIMIR
+
+DAEDALUS completed the PR392 public authoring mutation cleanup gate map:
+`docs/roadmap/PR392_PUBLIC_AUTHORING_MUTATION_CLEANUP_GATE_RESULT.md`.
+
+Current status:
+
+- No hosted public data was created, published, deleted, or mutated.
+- PR387 proves the safe hosted private draft authoring path.
+- PR391 proves the existing hosted public writing route-through chain:
+  `/writing` -> public document detail -> linked forum discussion.
+- Local/API coverage proves the approval queue can publish an owned
+  Space-backed draft through `grounding_check -> human_review -> approved ->
+  published`.
+- Current Station does not have a reliable owner-safe cleanup path for a test
+  public/unlisted document plus its linked discussion artifact.
+- `PATCH /documents/:id` back to private can retract/hide public reads and hide
+  the linked thread, but it leaves owner-visible document/version/approval/thread
+  records.
+- `DELETE /documents/:id` exists, but it is not a safe cleanup path for linked
+  discussions because `threads.linked_document_id` is `on delete set null`, not
+  cascade.
+- PR386's optional full-mutation note has been corrected to stop implying API
+  delete is sufficient cleanup.
+
+Validation:
+
+- Code/schema/test map completed.
+- `git diff --check` passed.
+- No product code changed, so package tests and typechecks were not rerun.
+
+Current baton:
+
+- MIMIR has PR392.
+- Recommended decision: close the current public-writing boundary as
+  protected-alpha complete using PR387 private draft proof plus PR391 existing
+  public replay proof.
+- Do not ask ARIADNE for a new hosted full public/unlisted publish mutation
+  unless MIMIR first opens a cleanup/retract lane or explicitly accepts a
+  long-lived owner-only/retracted hosted artifact.
+
 ## Latest MIMIR decision - PR391 accepted, PR392 opened
 
 MIMIR accepts ARIADNE's PR391 hosted rerun:

@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR392 Public Authoring Mutation Cleanup Gate Result
+
+DAEDALUS completed PR392 on 2026-06-27:
+`docs/roadmap/PR392_PUBLIC_AUTHORING_MUTATION_CLEANUP_GATE_RESULT.md`.
+
+Validation result: `MAP-ONLY RESULT READY FOR MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code route map | Pass | Inspected `/studio/publish`, `/studio/publishing`, `POST /publishing/approvals`, approval transitions, `POST /documents/:id/publish`, `PATCH /documents/:id`, `DELETE /documents/:id`, document discussion sync, and thread delete. |
+| Schema map | Pass | `publishing_approval_items` and `publishing_approval_events` cascade on document delete; `threads.linked_document_id` uses `on delete set null`, so document delete does not clean linked discussion artifacts. |
+| Existing test map | Pass | `publishing-approvals.test.ts` proves local publish transition; `document-discussions.test.ts` proves changing a published linked document to private hides the linked thread from public reads. |
+| Cleanup recommendation | Pass | Full hosted public/unlisted publish mutation remains deferred until MIMIR accepts a long-lived/retracted artifact or opens a cleanup/retract lane. |
+| `git diff --check` | Pass | Docs-only map; whitespace check passed. |
+
+No product code changed, so package tests and typechecks were not rerun for
+PR392.
+
+Residual risk: current evidence honestly closes protected-alpha public-writing
+readback using safe private draft proof plus existing replay public documents.
+It does not prove a new hosted private draft can be published and fully cleaned
+up.
+
 ## PR390 Writing Linked Cue Renderability Result
 
 ARGUS accepted PR390 on 2026-06-27:
