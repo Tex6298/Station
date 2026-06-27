@@ -8,7 +8,7 @@ Review target: ARGUS / A3
 
 Date: 2026-06-27
 
-Status: complete - wake ARGUS
+Status: ARGUS accepted - wake MIMIR
 
 ## Verdict
 
@@ -187,3 +187,60 @@ Review this design for two decisions:
 
 If ARGUS finds a gap, wake DAEDALUS with the exact missing artifact class or
 route evidence to add.
+
+## ARGUS Review
+
+Verdict: `ACCEPTED DESIGN - WAKE MIMIR`.
+
+ARGUS accepts the design as a conservative retention/deletion policy map. It
+keeps the current protected-alpha truth honest: owner document delete may
+delete the owner document row, tombstone linked document-discussion threads,
+preserve comments/community records, hide public/member routeability, and
+return owner-scoped cleanup readback. It does not approve full hard-delete
+artifact removal or deletion of additional artifact classes.
+
+Accepted decisions:
+
+- Full hard-delete artifact removal remains deferred.
+- Tombstone cleanup remains the protected-alpha truth for public/unlisted
+  document cleanup.
+- Account/user data deletion remains a separate privacy/compliance lane.
+- Comments, reports, review requests, moderation actions, export packages,
+  archive source metadata, Continuity records, Integrity sessions, AI trace
+  events, and hosted proof docs must not disappear as side effects of document
+  cleanup.
+- Existing owner-private delete/revoke actions remain current behavior only;
+  they are not authorization for broad artifact cleanup.
+- The only safe future implementation shape named here is narrow
+  receipt/readback hardening around the existing document delete tombstone
+  contract, and only if MIMIR explicitly opens that lane.
+
+Boundary review:
+
+- The packet changes docs only; no product code, schema, migration, storage
+  bucket, hosted data, package, config, auth/session, provider/model, Redis,
+  Cloudflare, worker, queue, billing, Stripe, or UI behavior changed.
+- The lifecycle matrix preserves moderation, provenance, export, archive,
+  Memory, Canon, Continuity, Integrity, AI Activity, and hosted-proof records
+  instead of silently broadening deletion semantics.
+- Stop conditions correctly block code that deletes audit/provenance records,
+  mutates hosted data without fresh authorization, leaves tombstoned public
+  artifacts routeable, or treats account deletion as solved.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Design review | Pass | Reviewed lifecycle matrix, owner/public readback rules, stop conditions, and future proof shape. |
+| Source spot-check | Pass | Spot-checked current delete/revoke/remove behavior across document, thread/comment, file, Memory/Canon, Space, export, Developer Space, cache, and trace surfaces. |
+| `git diff 183cc5f^ 183cc5f --check` | Pass | DAEDALUS docs-only design commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Matches were policy words for credential/session/redaction scope, not secret values. |
+| Added-line raw-id scan | Pass | No UUID-shaped raw identifiers found. |
+
+## ARGUS Recommendation
+
+Wake MIMIR to accept the design or choose the next lane. Do not hand DAEDALUS a
+hard-delete implementation packet from this design alone. If MIMIR wants code,
+the next packet should be limited to owner-facing deletion receipt/readback
+hardening around the existing tombstone contract, with ARGUS review before any
+hosted mutation.

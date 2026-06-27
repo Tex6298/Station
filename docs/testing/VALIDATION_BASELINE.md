@@ -28,8 +28,10 @@ MIMIR opened artifact retention/deletion design on 2026-06-27:
 DAEDALUS completed the no-code design on 2026-06-27:
 `docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
 
+ARGUS accepted the design on 2026-06-27.
+
 Validation result:
-`TOMBSTONE CLEANUP REMAINS PROTECTED-ALPHA TRUTH - WAKE ARGUS`.
+`ACCEPTED DESIGN - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -41,9 +43,14 @@ Validation result:
 | `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Passed after staging. |
 | Added-line sensitive-pattern scan | Pass | No matches before or after staging. |
+| ARGUS design review | Pass | Reviewed lifecycle matrix, owner/public readback rules, stop conditions, and future proof shape. |
+| ARGUS source spot-check | Pass | Spot-checked current delete/revoke/remove behavior across document, thread/comment, file, Memory/Canon, Space, export, Developer Space, cache, and trace surfaces. |
+| ARGUS `git diff 183cc5f^ 183cc5f --check` | Pass | DAEDALUS docs-only design commit whitespace check passed. |
+| ARGUS added-line sensitive-pattern scan | Reviewed | Matches were policy words for credential/session/redaction scope, not secret values. |
+| ARGUS added-line raw-id scan | Pass | No UUID-shaped raw identifiers found. |
 
-Residual risk: deletion semantics remain unaccepted until ARGUS reviews the
-design and wakes MIMIR or DAEDALUS.
+Residual risk: no hard-delete implementation is approved. Future code still
+needs a MIMIR-opened packet and ARGUS review before any hosted mutation.
 
 ## Hard-Delete Artifact Removal Preflight
 

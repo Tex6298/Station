@@ -90,10 +90,11 @@ tombstone cleanup stays accepted protected-alpha truth, and full hard-delete
 artifact removal needs a product/data-retention design before implementation.
 
 2026-06-27 retention design update: DAEDALUS completed
-`ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md` and recommends keeping full
-hard-delete artifact removal deferred. The only safe future implementation
-shape, if ARGUS accepts and MIMIR opens it, is narrow receipt/readback
-hardening around the existing owner document delete tombstone contract.
+`ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`, and ARGUS accepted the design.
+Full hard-delete artifact removal stays deferred. The only safe future
+implementation shape named by the design, if MIMIR opens it, is narrow
+receipt/readback hardening around the existing owner document delete tombstone
+contract.
 
 ## Current staged replay baton
 

@@ -4,7 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - artifact retention design complete
+## Latest ARGUS verdict - artifact retention design accepted
+
+ARGUS accepted DAEDALUS's no-code artifact retention/deletion design:
+`docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED DESIGN - WAKE MIMIR
+```
+
+Decision:
+
+- Full hard-delete artifact removal is not a near-term implementation target.
+- Current accepted cleanup remains owner document delete with linked discussion
+  tombstone, preserved comments/community records, public/member route hiding,
+  and owner-scoped cleanup readback.
+- Additional artifact classes must not be silently removed: comments, reports,
+  moderation/review records, votes/watches/witnesses where they carry
+  accountability meaning, Developer Space events/snapshots/receipts, archive
+  source metadata, Memory/Canon/Continuity/Integrity records, export packages,
+  AI Activity trace events, hosted proof docs, cache/index mirrors, or account
+  data.
+- The smallest safe future DAEDALUS slice, if MIMIR opens one after ARGUS
+  review, is receipt/readback hardening around the existing document delete
+  contract, not broad artifact removal.
+- Account/user data deletion remains a separate privacy/compliance lane.
+- ARGUS reviewed the lifecycle matrix, stop conditions, source surface, and
+  scans; no product code, hosted mutation, schema/storage/config/package,
+  auth/session, provider, Redis, Cloudflare, worker/queue, billing, Stripe, or
+  UI behavior changed.
+
+Current baton:
+
+- MIMIR has the accepted retention/deletion design.
+- MIMIR should close the design lane, choose a different next lane, or open a
+  narrow receipt/readback hardening packet. No full hard-delete implementation
+  packet is approved.
+
+## Previous DAEDALUS result - artifact retention design complete
 
 DAEDALUS completed the no-code artifact retention/deletion design:
 `docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
