@@ -85,6 +85,10 @@ AI Activity, and hosted owner/public evidence are sufficient for the next
 roadmap move. If MIMIR agrees, the next concrete product lane should be a
 hard-delete cleanup and artifact removal preflight, ARGUS first.
 
+2026-06-27 cleanup preflight update: ARGUS returned `DESIGN FIRST`; current
+tombstone cleanup stays accepted protected-alpha truth, and full hard-delete
+artifact removal needs a product/data-retention design before implementation.
+
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with

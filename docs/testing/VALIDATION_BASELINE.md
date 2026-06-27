@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Artifact Retention And Deletion Design
+
+MIMIR opened artifact retention/deletion design on 2026-06-27:
+`docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_DAEDALUS.md`.
+
+Validation result: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hard-delete preflight prerequisite | Pass | ARGUS returned `DESIGN FIRST`; no DAEDALUS implementation packet is approved. |
+| Current cleanup truth | Pass | Tombstone cleanup remains the accepted protected-alpha behavior. |
+| Design boundary | Pending | DAEDALUS must map artifact lifecycle semantics before any code. |
+| Review path | Pending | DAEDALUS should wake ARGUS with a design packet, or wake MIMIR if blocked. |
+| Mutation boundary | Pending | This lane authorizes no hosted mutation, schema/storage change, product code, or cleanup button. |
+
+Residual risk: deletion semantics remain unaccepted until DAEDALUS produces a
+design packet and ARGUS reviews it.
+
 ## Hard-Delete Artifact Removal Preflight
 
 MIMIR opened ARGUS hard-delete artifact-removal preflight on 2026-06-27:

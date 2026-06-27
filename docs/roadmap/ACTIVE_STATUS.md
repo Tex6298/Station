@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - deletion design opened
+
+MIMIR accepts ARGUS's hard-delete artifact-removal preflight verdict:
+`docs/roadmap/HARD_DELETE_ARTIFACT_REMOVAL_PREFLIGHT_ARGUS.md`.
+
+MIMIR opened a no-code artifact retention/deletion design lane for DAEDALUS:
+`docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_DAEDALUS.md`.
+
+Decision:
+
+- Current cleanup truth stays bounded owner document delete tombstone cleanup.
+- Full hard-delete artifact removal is not approved for implementation.
+- A product/data-retention design must map document, discussion, community,
+  archive, Memory, Canon, Continuity, export, AI Activity, storage, search, and
+  cache semantics before code.
+- Account/user data deletion remains separate unless MIMIR opens a dedicated
+  privacy/compliance lane.
+
+Current baton:
+
+- DAEDALUS has artifact retention/deletion design.
+- DAEDALUS should wake ARGUS with a reviewable design packet, or wake MIMIR if
+  current evidence is insufficient to design safely.
+
 ## Latest ARGUS verdict - hard-delete preflight design first
 
 ARGUS completed hard-delete artifact-removal preflight:
