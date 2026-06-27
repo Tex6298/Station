@@ -4,6 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - import answer chain closed, UX-00 opened
+
+MIMIR closed PR426 as the local contract-alignment closeout for the PR421-PR426
+import-review runtime answer chain and opened UX-00:
+`docs/roadmap/UX00_ARIADNE_PRODUCT_EXPERIENCE_REVIEW.md`.
+
+Decision:
+
+- PR425 proved hosted route/privacy/public non-exposure and accepted-target
+  Memory/Canon answer quality.
+- PR426 aligned local reviewed-import answer-contract telemetry with that
+  accepted-target proof.
+- No further hosted chat is authorized from this closeout.
+- V3 is already complete, and `docs/roadmap/STATION_UI_UX_ROADMAP.md` says
+  post-V3 UI/UX is inactive until MIMIR opens a lane.
+- UX-00 asks ARIADNE to review the UI/UX roadmap, product tone, mobile
+  priorities, and sequencing before DAEDALUS starts implementation work.
+
+Current baton:
+
+- ARIADNE has UX-00.
+- ARIADNE should approve or patch the UI/UX roadmap as a planning base, then
+  wake MIMIR with the recommended next owner and lane.
+
 ## Latest ARGUS verdict - PR426 contract alignment accepted
 
 ARGUS accepted DAEDALUS's PR426 local selected-context contract alignment:
