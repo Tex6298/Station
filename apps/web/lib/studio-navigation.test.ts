@@ -51,11 +51,16 @@ test("Studio route context names static Studio stops for mobile summaries", () =
     label: "Global Archive",
     detail: "Owner-only archive search",
     privacy: "Private archive",
+    state: "Searches stay inside preserved owner-only archive material.",
     href: "/studio/archive",
+    nextAction: { label: "Open Personas", href: "/studio" },
   });
 
   assert.equal(studioRouteContext("/studio/assistant").label, "Station Assistant");
+  assert.match(studioRouteContext("/studio/assistant").state, /does not publish/);
+  assert.equal(studioRouteContext("/studio/assistant").nextAction.href, "/studio/archive");
   assert.equal(studioRouteContext("/studio").detail, "Private workbench overview");
+  assert.equal(studioRouteContext("/studio").nextAction.href, "/studio/new");
 });
 
 test("Studio route context names persona workspace stops without exposing raw ids", () => {
@@ -67,11 +72,17 @@ test("Studio route context names persona workspace stops without exposing raw id
   assert.equal(context.label, "Ariadne / Memory");
   assert.equal(context.detail, "Recallable context and lifecycle state");
   assert.equal(context.privacy, "Owner-only persona workspace");
+  assert.equal(context.state, "Saved memory can shape runtime context.");
   assert.equal(context.href, "/studio/personas/persona-1/memory");
+  assert.deepEqual(context.nextAction, {
+    label: "Open Archive",
+    href: "/studio/personas/persona-1/files",
+  });
 
   const fallback = studioRouteContext("/studio/personas/persona-2/files");
   assert.equal(fallback.label, "Persona / Archive");
   assert.equal(fallback.detail, "Private source material and imports");
+  assert.match(fallback.state, /owner-only source material/);
 });
 
 test("Studio mobile navigation exposes an explicit disclosure label", () => {

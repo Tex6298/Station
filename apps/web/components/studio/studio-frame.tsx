@@ -72,11 +72,13 @@ export function StudioPlaceStrip({
   label,
   detail,
   privacy,
+  state,
   action,
 }: {
   label: string;
   detail: string;
   privacy: string;
+  state?: string;
   action?: React.ReactNode;
 }) {
   return (
@@ -88,6 +90,7 @@ export function StudioPlaceStrip({
       </div>
       <div className="studio-place-strip-meta">
         <span>{privacy}</span>
+        {state ? <span>{state}</span> : null}
         {action}
       </div>
     </section>

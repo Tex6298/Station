@@ -7,7 +7,12 @@ export type StudioRouteContext = {
   label: string;
   detail: string;
   privacy: string;
+  state: string;
   href: string;
+  nextAction: {
+    label: string;
+    href: string;
+  };
 };
 
 export const studioPublicLinks = [
@@ -25,24 +30,129 @@ export const studioWorkspaceLinks = [
 ] as const;
 
 const personaWorkspaceTabSpecs = [
-  { label: "Home", suffix: "", detail: "Persona overview and continuity brief" },
-  { label: "Continuity", suffix: "/continuity", detail: "Timeline records and runtime context" },
-  { label: "Memory", suffix: "/memory", detail: "Recallable context and lifecycle state" },
-  { label: "Canon", suffix: "/canon", detail: "Stable rules and commitments" },
-  { label: "Archive", suffix: "/files", detail: "Private source material and imports" },
-  { label: "Integrity", suffix: "/calibration", detail: "Guided checks and history" },
+  {
+    label: "Home",
+    suffix: "",
+    detail: "Persona overview and continuity brief",
+    state: "Chat and continuity stay private until you publish.",
+    nextActionLabel: "Open Memory",
+    nextActionSuffix: "/memory",
+  },
+  {
+    label: "Continuity",
+    suffix: "/continuity",
+    detail: "Timeline records and runtime context",
+    state: "Continuity records are durable owner-only context.",
+    nextActionLabel: "Review Memory",
+    nextActionSuffix: "/memory",
+  },
+  {
+    label: "Memory",
+    suffix: "/memory",
+    detail: "Recallable context and lifecycle state",
+    state: "Saved memory can shape runtime context.",
+    nextActionLabel: "Open Archive",
+    nextActionSuffix: "/files",
+  },
+  {
+    label: "Canon",
+    suffix: "/canon",
+    detail: "Stable rules and commitments",
+    state: "Canon carries priority when runtime context is selected.",
+    nextActionLabel: "Review Continuity",
+    nextActionSuffix: "/continuity",
+  },
+  {
+    label: "Archive",
+    suffix: "/files",
+    detail: "Private source material and imports",
+    state: "Files, imports, and archived chats remain owner-only source material.",
+    nextActionLabel: "Review Continuity",
+    nextActionSuffix: "/continuity",
+  },
+  {
+    label: "Integrity",
+    suffix: "/calibration",
+    detail: "Guided checks and history",
+    state: "Outputs wait for owner review before becoming continuity.",
+    nextActionLabel: "Open Continuity",
+    nextActionSuffix: "/continuity",
+  },
 ] as const;
 
 const studioStaticRouteContexts: StudioRouteContext[] = [
-  { label: "Dashboard", href: "/studio", detail: "Private workbench overview", privacy: "Owner-only Studio" },
-  { label: "New Persona", href: "/studio/new", detail: "Create a private persona workspace", privacy: "Owner-only setup" },
-  { label: "Onboarding Paths", href: "/studio/onboarding", detail: "Choose a starting path", privacy: "Owner-only setup" },
-  { label: "Publish", href: "/studio/publish", detail: "Prepare public-safe work", privacy: "Owner review required" },
-  { label: "Publishing", href: "/studio/publishing", detail: "Drafts and public-writing handoff", privacy: "Owner-controlled publishing" },
-  { label: "Station Assistant", href: "/studio/assistant", detail: "Operational helper for Studio work", privacy: "Owner-only helper" },
-  { label: "Global Archive", href: "/studio/archive", detail: "Owner-only archive search", privacy: "Private archive" },
-  { label: "Export Workspace", href: "/studio/export", detail: "Portable bundle planning", privacy: "Owner-only export planning" },
-  { label: "Notes and Scratchpad", href: "/studio/notes", detail: "Private working notes", privacy: "Owner-only notes" },
+  {
+    label: "Dashboard",
+    href: "/studio",
+    detail: "Private workbench overview",
+    privacy: "Owner-only Studio",
+    state: "Private work stays in Studio until you choose to publish.",
+    nextAction: { label: "New Persona", href: "/studio/new" },
+  },
+  {
+    label: "New Persona",
+    href: "/studio/new",
+    detail: "Create a private persona workspace",
+    privacy: "Owner-only setup",
+    state: "Draft setup stays private while you shape the persona.",
+    nextAction: { label: "Back to Studio", href: "/studio" },
+  },
+  {
+    label: "Onboarding Paths",
+    href: "/studio/onboarding",
+    detail: "Choose a starting path",
+    privacy: "Owner-only setup",
+    state: "Path progress is owner-only and can feed later Studio work.",
+    nextAction: { label: "New Persona", href: "/studio/new" },
+  },
+  {
+    label: "Publish",
+    href: "/studio/publish",
+    detail: "Prepare public-safe work",
+    privacy: "Owner review required",
+    state: "Drafts stay private until an owner publishes them.",
+    nextAction: { label: "Publishing Dashboard", href: "/studio/publishing" },
+  },
+  {
+    label: "Publishing",
+    href: "/studio/publishing",
+    detail: "Drafts and public-writing handoff",
+    privacy: "Owner-controlled publishing",
+    state: "Public copies require owner approval and visibility review.",
+    nextAction: { label: "Create Draft", href: "/studio/publish" },
+  },
+  {
+    label: "Station Assistant",
+    href: "/studio/assistant",
+    detail: "Operational helper for Studio work",
+    privacy: "Owner-only helper",
+    state: "Assistant guidance does not publish or move private material.",
+    nextAction: { label: "Open Archive", href: "/studio/archive" },
+  },
+  {
+    label: "Global Archive",
+    href: "/studio/archive",
+    detail: "Owner-only archive search",
+    privacy: "Private archive",
+    state: "Searches stay inside preserved owner-only archive material.",
+    nextAction: { label: "Open Personas", href: "/studio" },
+  },
+  {
+    label: "Export Workspace",
+    href: "/studio/export",
+    detail: "Portable bundle planning",
+    privacy: "Owner-only export planning",
+    state: "Export readbacks describe what Station can preserve for the owner.",
+    nextAction: { label: "Open Personas", href: "/studio" },
+  },
+  {
+    label: "Notes and Scratchpad",
+    href: "/studio/notes",
+    detail: "Private working notes",
+    privacy: "Owner-only notes",
+    state: "Notes stay in the private scratchpad until copied elsewhere.",
+    nextAction: { label: "Back to Studio", href: "/studio" },
+  },
 ];
 
 export function activeStudioHref(pathname: string, href: string) {
@@ -63,7 +173,12 @@ export function studioPersonaWorkspaceTabs(personaId: string) {
   return personaWorkspaceTabSpecs.map((tab) => ({
     label: tab.label,
     detail: tab.detail,
+    state: tab.state,
     href: `${base}${tab.suffix}`,
+    nextAction: {
+      label: tab.nextActionLabel,
+      href: `${base}${tab.nextActionSuffix}`,
+    },
   }));
 }
 
@@ -95,7 +210,12 @@ export function studioRouteContext(
       label,
       detail: tab.detail,
       privacy: "Owner-only persona workspace",
+      state: tab.state,
       href: `/studio/personas/${personaId}${tab.suffix}`,
+      nextAction: {
+        label: tab.nextActionLabel,
+        href: `/studio/personas/${personaId}${tab.nextActionSuffix}`,
+      },
     };
   }
 
@@ -108,5 +228,7 @@ export function studioRouteContext(
     href: "/studio",
     detail: "Private workbench overview",
     privacy: "Owner-only Studio",
+    state: "Private work stays in Studio until you choose to publish.",
+    nextAction: { label: "New Persona", href: "/studio/new" },
   };
 }

@@ -65,6 +65,7 @@ export function PersonaWorkspaceHeader({ persona }: { persona: PersonaWithContin
         label={`${persona.name} / ${activeTab.label}`}
         detail={activeTab.detail}
         privacy="Owner-only persona workspace"
+        state={activeTab.state}
         action={(
           <div className="studio-place-actions">
             {actions.map((action) => (

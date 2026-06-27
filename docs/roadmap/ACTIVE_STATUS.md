@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - UX-01A route story ready for ARGUS
+
+DAEDALUS implemented the narrow UX-01A Studio route-story/mobile workbench
+readback slice:
+`docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_RESULT.md`.
+
+Implementation summary:
+
+- Extended `StudioRouteContext` with saved/preserved `state` and
+  route-specific `nextAction`.
+- Added route-story metadata for static Studio stops and persona workspace
+  tabs.
+- Rendered the route story in the desktop sidebar current-stop card, mobile
+  Studio details summary/current card, dashboard place strip, and persona
+  workspace place strip.
+- Kept existing API calls, auth/session behavior, storage/upload behavior,
+  archive import/export behavior, runtime context selection/redaction,
+  provider/model behavior, billing, public/community routes, and broad visual
+  design unchanged.
+
+Validation:
+
+- `git diff --check` passed with CRLF normalization warnings.
+- Added-line sensitive-pattern scan returned no matches.
+- `test:studio-ui`, `test:auth`, `test:persona-context`, `test:continuity`,
+  `test:integrity`, `test:conversation-archive`, `test:exports`, `typecheck`,
+  and `lint` passed.
+- `build` compiled and generated static pages, then failed in Next standalone
+  trace copy on local Windows symlink creation with `EPERM`.
+
+Current baton:
+
+- ARGUS has UX-01A implementation review.
+- ARGUS should decide whether the Windows standalone symlink failure is an
+  environment caveat or a required repo hygiene fix, then wake ARIADNE if the
+  visible route-story boundary is accepted or DAEDALUS if fixes are needed.
+
 ## Latest MIMIR decision - UX-01A Studio implementation opened
 
 MIMIR accepted DAEDALUS's UX-01 feasibility recommendation and opened UX-01A:

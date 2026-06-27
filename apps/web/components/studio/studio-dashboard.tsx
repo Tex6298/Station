@@ -71,6 +71,7 @@ function Header({ personaCount }: { personaCount: number }) {
           label="Dashboard"
           detail={personaCount > 0 ? "Scan private work, then jump into the next persona, archive, or Integrity task." : "Start with a persona; the rest of Studio stays owner-only until you publish."}
           privacy="Owner-only Studio"
+          state="Private work stays in Studio until you choose to publish."
           action={<Link href="/studio/assistant" style={placeAction}>Ask Assistant</Link>}
         />
       </div>

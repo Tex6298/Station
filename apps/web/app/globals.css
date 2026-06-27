@@ -1952,6 +1952,22 @@ html, body {
   margin-top: 0.2rem;
 }
 
+.studio-current-place-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 30px;
+  border: 1px solid var(--station-page-border);
+  border-radius: 8px;
+  background: var(--station-page-soft-2);
+  color: var(--station-page-text);
+  padding: 0 0.6rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .studio-auth-panel {
   max-width: 680px;
 }
@@ -2889,6 +2905,7 @@ html, body {
     font-size: 0.82rem;
     font-weight: 700;
     line-height: 1.25;
+    text-decoration: none;
     overflow-wrap: anywhere;
   }
 

@@ -215,6 +215,10 @@ function CurrentPlace({ context }: { context: StudioRouteContext }) {
       <strong>{context.label}</strong>
       <small>{context.detail}</small>
       <em>{context.privacy}</em>
+      <small>{context.state}</small>
+      <Link href={context.nextAction.href} className="studio-current-place-action">
+        {context.nextAction.label}
+      </Link>
     </div>
   );
 }
@@ -233,6 +237,7 @@ function StudioMobileNav({
           <small>{currentContext.privacy}</small>
           <strong>{currentContext.label}</strong>
           <small>{currentContext.detail}</small>
+          <small>{currentContext.state}</small>
         </span>
       </summary>
       <nav className="studio-mobile-nav-panel" aria-label="Studio mobile navigation">
@@ -240,6 +245,11 @@ function StudioMobileNav({
           <span>Current stop</span>
           <strong>{currentContext.label}</strong>
           <small>{currentContext.detail}</small>
+          <small>{currentContext.privacy}</small>
+          <small>{currentContext.state}</small>
+          <Link href={currentContext.nextAction.href}>
+            {currentContext.nextAction.label}
+          </Link>
         </div>
 
         <div className="studio-mobile-nav-grid">

@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-01A Studio Route-Story And Mobile Workbench Result
+
+DAEDALUS implemented UX-01A on 2026-06-27:
+`docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW WITH BUILD ENVIRONMENT CAVEAT`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope | Pass | UI helper/shell-only route-story readback. No backend, auth/session, storage/upload, archive parser, export package, runtime context selection/redaction, provider/model, billing, public/community, or broad redesign behavior changed. |
+| `git diff --check` | Pass | Whitespace check passed; Git reported CRLF normalization warnings on touched files and existing watcher state. |
+| Added-line sensitive-pattern scan | Pass | No matches. |
+| `test:studio-ui` | Pass | 133 tests passed. |
+| `test:auth` | Pass | 20 tests passed. |
+| `test:persona-context` | Pass | 8 tests passed. |
+| `test:continuity` | Pass | 10 tests passed. |
+| `test:integrity` | Pass | 2 tests passed. |
+| `test:conversation-archive` | Pass | 42 tests passed. |
+| `test:exports` | Pass | 6 tests passed. |
+| `typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `lint` | Pass | Next lint reported no warnings or errors. |
+| `build` | Blocked | Web compiled and generated static pages, then Next standalone trace copy failed on Windows symlink creation with `EPERM`; existing autoprefixer `end` warning also appeared. |
+
+Residual risk: ARGUS must decide whether the local Windows standalone symlink
+failure is an environment caveat or a repo hygiene fix before ARIADNE visible
+review.
+
 ## UX-01A Studio Route-Story And Mobile Workbench Opened
 
 MIMIR opened UX-01A on 2026-06-27:
