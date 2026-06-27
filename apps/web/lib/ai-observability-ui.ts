@@ -11,6 +11,11 @@ export type AiTraceLike = {
   metadata?: Record<string, unknown> | null;
 };
 
+export type ObservabilitySummaryLike = {
+  traceCount?: number | null;
+  windowDays?: number | null;
+};
+
 export type AiTraceDetail = {
   trace: AiTraceDetailTrace;
   events: AiTraceDetailEvent[];
@@ -114,6 +119,19 @@ export function sanitizedTraceDetailErrorMessage(message?: string | null) {
 
 export function traceTokenTotal(trace: AiTraceLike) {
   return (trace.total_input_tokens ?? 0) + (trace.total_output_tokens ?? 0);
+}
+
+export function traceListEmptyStateCopy(summary?: ObservabilitySummaryLike | null) {
+  const traceCount = Math.max(0, summary?.traceCount ?? 0);
+  const windowLabel = summary?.windowDays && summary.windowDays > 0
+    ? `${summary.windowDays}-day`
+    : "recent";
+
+  if (traceCount > 0) {
+    return `Trace totals exist for this ${windowLabel} window, but no openable recent trace rows were returned. Refresh after the operation completes.`;
+  }
+
+  return "No openable traces yet. Provider-backed chat and integrity AI calls create trace rows only when observability storage accepts the write; read-only replay pages, Memory, Archive, Continuity, and context previews do not create trace rows.";
 }
 
 export function traceOperationalFacts(trace: AiTraceLike) {

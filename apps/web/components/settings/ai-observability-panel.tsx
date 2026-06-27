@@ -14,6 +14,7 @@ import {
   traceDetailOperationalFacts,
   traceEventOperationalFacts,
   traceEventTitle,
+  traceListEmptyStateCopy,
   traceOperationalFacts,
   traceSourceLabel,
   traceStatusLabel,
@@ -165,7 +166,7 @@ export function AiObservabilityPanel() {
           </div>
         ) : (
           <p style={{ margin: 0, color: "#8ea0b8", fontSize: 12, lineHeight: 1.5 }}>
-            New chat and integrity AI calls will appear here after the next run.
+            {traceListEmptyStateCopy(summary)}
           </p>
         )}
       </div>

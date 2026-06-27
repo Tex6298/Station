@@ -2,7 +2,7 @@
 
 Opened: 2026-06-27
 Owner: DAEDALUS
-Status: open
+Status: ready for ARGUS review
 
 ## Purpose
 
@@ -110,3 +110,45 @@ Wake ARGUS with:
 - Validation commands and results.
 - Whether ARIADNE should rerun the PR381/PR383 human route or run a narrower AI
   Activity hosted proof.
+
+## DAEDALUS Result
+
+Result doc:
+`docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
+
+Investigation result:
+
+```text
+UI empty state was technically safe but too thin for replay.
+```
+
+Evidence:
+
+- normal chat and streaming chat both call `runPersonaChatTurn`;
+- `runPersonaChatTurn` starts an AI trace and records provider/budget events
+  around provider-backed chat work;
+- `/observability/traces?limit=6` already provides rows for the Settings panel
+  to render with `View details`;
+- `/observability/traces/:traceId` already has owner-scoped sanitized detail
+  coverage through `test:replay-readiness`;
+- read-only replay pages, Memory, Archive, Continuity, and context previews do
+  not create traces by themselves.
+
+Patch:
+
+- Added a tested `traceListEmptyStateCopy` helper.
+- Settings AI Activity now explains that no openable traces exist until
+  provider-backed chat or integrity AI calls write trace rows, and that
+  read-only replay pages do not create trace rows.
+- No provider routing, chat behavior, trace storage, API, schema, migration,
+  Redis, Cloudflare, worker, queue, billing, export, or broad Settings behavior
+  changed.
+
+Validation passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness`;
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts`;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck`;
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck`;
+- `git diff --check` passed with CRLF normalization warnings only.

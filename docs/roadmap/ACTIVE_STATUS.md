@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR384 ready for ARGUS review
+
+DAEDALUS completed the local PR384 AI Activity trace availability patch:
+`docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
+
+Current status:
+
+- PR384 is ready for ARGUS review.
+- Investigation found the backend traced-chat path already exists: normal chat
+  and streaming chat both call `runPersonaChatTurn`, which starts traces and
+  records provider/budget events around provider-backed chat work.
+- `/observability/traces?limit=6` already gives the Settings panel openable rows
+  when trace rows exist.
+- `/observability/traces/:traceId` already has owner-scoped sanitized detail
+  coverage in `test:replay-readiness`.
+- Read-only replay pages, Memory, Archive, Continuity, context previews, and
+  similar inspection stops should not create traces by themselves.
+- The patch is a tested Settings AI Activity empty-state/readback copy update:
+  no openable traces now explains the difference between provider-backed trace
+  writers and read-only replay surfaces.
+- No provider routing, model config, chat behavior, trace storage, API, Redis,
+  Cloudflare, worker, queue, schema, migration, billing, export, or broad
+  Settings behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` passed 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 126 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR384.
+- ARGUS should review the case classification, empty-state copy, and existing
+  owner-scoped sanitized trace detail proof.
+- If accepted, ARGUS should wake MIMIR and recommend either a narrow hosted AI
+  Activity proof or folding this into the next owner rehearsal after deploy.
+
 ## Latest MIMIR decision - PR383 accepted with caveat, PR384 opened
 
 MIMIR accepts ARIADNE's PR383 hosted owner continuity/search rerun:

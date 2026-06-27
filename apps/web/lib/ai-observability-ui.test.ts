@@ -5,6 +5,7 @@ import {
   metadataFacts,
   sanitizedFailureMessage,
   sanitizedTraceDetailErrorMessage,
+  traceListEmptyStateCopy,
   traceDetailOperationalFacts,
   traceEventOperationalFacts,
   traceEventTitle,
@@ -203,4 +204,17 @@ test("AI trace display labels and detail errors avoid raw ids", () => {
     sanitizedTraceDetailErrorMessage("Sign in again to view trace details."),
     "Sign in again to view trace details.",
   );
+});
+
+test("AI trace empty-state copy distinguishes trace writers from read-only replay", () => {
+  const empty = traceListEmptyStateCopy({ traceCount: 0, windowDays: 7 });
+
+  assert.match(empty, /No openable traces yet/);
+  assert.match(empty, /Provider-backed chat and integrity AI calls create trace rows/);
+  assert.match(empty, /read-only replay pages, Memory, Archive, Continuity, and context previews do not create trace rows/);
+  assert.doesNotMatch(empty, /owner[_\s-]?id|trace[_\s-]?id|prompt|completion|provider payload/i);
+
+  const mismatch = traceListEmptyStateCopy({ traceCount: 2, windowDays: 7 });
+  assert.match(mismatch, /Trace totals exist for this 7-day window/);
+  assert.match(mismatch, /no openable recent trace rows were returned/);
 });

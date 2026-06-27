@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR384 AI Activity Trace Availability Result
+
+DAEDALUS completed PR384 on 2026-06-27:
+`docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Trace creation investigation | Pass | Normal and streaming chat both call the traced `runPersonaChatTurn` path; read-only replay surfaces do not create traces. |
+| Openable trace row behavior | Pass | Settings AI Activity already renders `View details` for rows returned by `/observability/traces?limit=6`. |
+| Owner-scoped detail proof | Pass | Existing replay-readiness coverage proves `/observability/traces/:traceId` is owner-scoped and sanitized. |
+| Empty-state readback | Pass | No-row copy now distinguishes provider-backed trace writers from read-only replay pages and notes trace rows depend on observability storage accepting the write. |
+| Scope control | Pass | No provider routing, model config, chat behavior, trace storage, API, Redis, Cloudflare, worker, queue, schema, migration, billing, export, or broad Settings behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 126 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: ARGUS still needs to confirm whether this lane should remain an
+empty-state/readback fix or whether a separate hosted trace-storage proof is
+needed after deploy.
+
 ## PR382 Memory Owner-Visible JSON Redaction Result
 
 ARGUS accepted PR382 on 2026-06-27:
