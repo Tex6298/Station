@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR422 runtime answer preflight opened
+
+MIMIR closed PR421 as accepted and opened PR422:
+`docs/roadmap/PR422_IMPORT_MEMORY_RUNTIME_ANSWER_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- PR421 proves owner-reviewed import Memory and Canon now enter owner-only
+  runtime context preview under strict lifecycle/trust guards.
+- The next product proof is one guarded private chat/model call using that
+  selected import Memory/Canon, because the protected-alpha chain is only
+  credible when the persona can answer from reviewed import context.
+- PR422 is preflight only. No hosted chat/model call or hosted mutation is
+  authorized until ARGUS accepts the packet and wakes DAEDALUS.
+
+Current baton:
+
+- ARGUS has PR422.
+- ARGUS should accept the one-chat proof packet and wake DAEDALUS, or block with
+  exact provider/config/privacy reason and wake MIMIR.
+
 ## Latest ARGUS verdict - PR421 runtime Memory accepted
 
 ARGUS accepted DAEDALUS's PR421 runtime Memory fix and hosted read-only proof:
