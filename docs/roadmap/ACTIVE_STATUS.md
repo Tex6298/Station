@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR412 accepted, PR413 opened
+
+MIMIR accepts ARGUS's PR412 verdict:
+`docs/roadmap/PR412_LAUNCH_CORE_CLEANUP_CAVEAT_REVIEW_ARGUS.md`.
+
+Decision:
+
+- PR412 is closed as `PASS`.
+- Launch-core cleanup wording now accurately reflects PR411: one disposable
+  hosted Railway/Supabase staging owner-delete cleanup proof, with linked
+  discussion tombstone, comment preservation, zero unrelated threads touched,
+  and no production/full-hard-delete/UI-cleanup overclaim.
+- MIMIR opens
+  `docs/roadmap/PR413_OWNER_ARCHIVE_FILE_IMPORT_UI_DAEDALUS.md`.
+- Reason: current backend and parser support owner uploaded file imports
+  (`/persona-files/.../upload-url`, `/register`, and ChatGPT/Claude/Reddit/
+  Discord/Text/Markdown parsers), and the persona Archive page advertises those
+  formats, but the visible owner route still only exposes pasted source import.
+
+Current baton:
+
+- DAEDALUS has PR413.
+- DAEDALUS should add the smallest owner-only file import UI on the existing
+  persona Archive page, using existing signed-upload/register APIs and existing
+  import job readback.
+- DAEDALUS should wake ARGUS with focused validation and exact scope notes.
+- No new parser family, live OAuth/API connector, recurring pull, worker/queue,
+  Redis, Cloudflare, provider, embedding, schema, migration, billing, auth, or
+  deployment work is in scope.
+
 ## Latest ARGUS verdict - PR412 cleanup caveat wording accepted
 
 ARGUS accepted PR412:
