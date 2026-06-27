@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
-import { discoverDiscussionCue } from "@/lib/public-story-polish";
-import { type WritingFeedItem, type WritingItem, isWritingItem, normalizeWritingFeedItem } from "@/lib/writing-feed";
+import { type WritingFeedItem, type WritingItem, isWritingItem, normalizeWritingFeedItem, writingCardDiscussionCue } from "@/lib/writing-feed";
 
 type FeedResponse = {
   items: WritingFeedItem[];
@@ -181,7 +180,7 @@ function WritingCard({ item, featured = false }: { item: WritingItem; featured?:
   const author = item.author?.display_name ?? item.author?.username ?? "Station";
   const date = formatDate(item.createdAt);
   const itemType = item.meta ?? "Writing";
-  const discussionCue = discoverDiscussionCue({ type: item.type, discussionThreadId: item.discussionThreadId });
+  const discussionCue = writingCardDiscussionCue(item);
 
   return (
     <Link href={item.href} style={{ textDecoration: "none" }}>
@@ -192,10 +191,10 @@ function WritingCard({ item, featured = false }: { item: WritingItem; featured?:
         <div style={{ padding: 14, display: "grid", gap: 8 }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
             <span style={{ color: "#534ab7", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{itemType}</span>
-            {discussionCue && <span style={discussionCueStyle}>{discussionCue}</span>}
           </div>
           <h3 style={{ margin: 0, color: "#1f2529", fontSize: featured ? 18 : 15, lineHeight: 1.3 }}>{item.title}</h3>
           <p style={{ margin: 0, color: "#687078", fontSize: 13, lineHeight: 1.55 }}>{item.excerpt ?? "No excerpt available."}</p>
+          {discussionCue && <span style={discussionCueStyle}>{discussionCue}</span>}
           <span style={{ color: "#8b8f92", fontSize: 12 }}>{author} - {date}</span>
         </div>
       </article>
@@ -270,13 +269,15 @@ const thumb = {
 };
 
 const discussionCueStyle = {
-  color: "#257047",
+  alignSelf: "start",
   background: "#e6f6ed",
   border: "1px solid #b7e3c8",
-  borderRadius: 999,
-  padding: "2px 7px",
-  fontSize: 10,
+  borderRadius: 6,
+  color: "#14532d",
+  padding: "7px 9px",
+  fontSize: 12,
   fontWeight: 800,
+  lineHeight: 1.35,
 };
 
 const tabButton = {

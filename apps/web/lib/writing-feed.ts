@@ -1,3 +1,5 @@
+import { discoverDiscussionCue } from "./public-story-polish";
+
 export type WritingItem = {
   id: string;
   type: string;
@@ -49,4 +51,8 @@ export function normalizeWritingFeedItem(item: WritingFeedItem): WritingItem | n
 
 export function isWritingItem(item: WritingItem | null): item is WritingItem {
   return item !== null;
+}
+
+export function writingCardDiscussionCue(item: Pick<WritingItem, "type" | "discussionThreadId">) {
+  return discoverDiscussionCue({ type: item.type, discussionThreadId: item.discussionThreadId });
 }

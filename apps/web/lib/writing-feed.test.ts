@@ -8,7 +8,7 @@ import {
   filterDiscoverFeedItems,
   normalizeDiscoverFeedItems,
 } from "./discover-feed-controls";
-import { normalizeWritingFeedItem } from "./writing-feed";
+import { normalizeWritingFeedItem, writingCardDiscussionCue } from "./writing-feed";
 
 test("writing feed keeps normalized document items only", () => {
   const document = normalizeWritingFeedItem({
@@ -62,6 +62,30 @@ test("writing feed maps raw curated featured document rows", () => {
     author: null,
     createdAt: "2026-06-14T08:30:00.000Z",
   });
+});
+
+test("writing card discussion cue is visible only for linked document items", () => {
+  assert.equal(
+    writingCardDiscussionCue({
+      type: "document",
+      discussionThreadId: "thread-1",
+    }),
+    "Open document and linked discussion"
+  );
+  assert.equal(
+    writingCardDiscussionCue({
+      type: "document",
+      discussionThreadId: null,
+    }),
+    null
+  );
+  assert.equal(
+    writingCardDiscussionCue({
+      type: "thread",
+      discussionThreadId: "thread-1",
+    }),
+    null
+  );
 });
 
 test("writing feed drops raw curated rows that are not documents", () => {

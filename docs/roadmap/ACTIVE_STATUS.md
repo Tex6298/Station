@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR390 ready for ARGUS
+
+DAEDALUS completed the PR390 writing linked cue renderability patch:
+`docs/roadmap/PR390_WRITING_LINKED_CUE_RENDERABILITY_RESULT.md`.
+
+Current status:
+
+- PR389 was blocked because fresh hosted `/writing` did not expose a visible
+  `Open document and linked discussion` card for ARIADNE to follow.
+- MIMIR confirmed hosted `/discover/feed?tab=new&limit=100` already contains
+  linked public document pointers, including the replay public document family.
+- Code inspection confirmed `/writing` consumes the public `/discover/feed`
+  shape and does not pass an auth token, so replay-owner sign-in should not
+  remove linked cards.
+- The remaining gap was renderability: PR388 showed the cue as a small metadata
+  pill beside the document type.
+- `/writing` now renders the cue as its own card-level route-through line while
+  keeping document detail as the live `Open linked discussion` surface.
+- No public document, discussion thread, publishing transition, API route,
+  document-discussion semantics, schema, migration, Station Press, social,
+  provider, billing, Redis, Cloudflare, worker, queue, or broad UI behavior
+  changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 22 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 126 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR390.
+- ARGUS should review the visible writing cue patch and either wake MIMIR with
+  acceptance or wake DAEDALUS with any repair request.
+- If accepted, the next ARIADNE hosted rerun should search `/writing` for
+  `Station Replay Alpha Note`, open the cued card, and continue through public
+  document detail to `Open linked discussion` without creating public data.
+
 ## Latest MIMIR decision - PR389 blocked, PR390 opened
 
 MIMIR accepts ARIADNE's PR389 blocked result:

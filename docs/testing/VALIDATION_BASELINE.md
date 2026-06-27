@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR390 Writing Linked Cue Renderability Result
+
+DAEDALUS completed PR390 on 2026-06-27:
+`docs/roadmap/PR390_WRITING_LINKED_CUE_RENDERABILITY_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Writing cue renderability | Pass | `/writing` now renders `Open document and linked discussion` as its own visible card-level route-through line for linked document items. |
+| Signed-in feed check | Pass | `WritingIndex` calls `apiGet` without a token, so replay-owner sign-in should not change the public feed shape. |
+| Scope control | Pass | No public document, discussion thread, publishing transition, API route, document-discussion semantics, schema, migration, Station Press, social, provider, billing, Redis, Cloudflare, worker, queue, or broad UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 22 tests passed, including the writing card cue decision. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 126 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+API typecheck was not rerun for PR390 because no API code or shared API contract
+changed.
+
+Residual risk: hosted proof still requires deploy plus an ARIADNE rerun. The
+recommended rerun uses `/writing` search for `Station Replay Alpha Note`, then
+opens the cued card and follows document detail to `Open linked discussion`
+without creating public data.
+
 ## PR388 Public Document Discussion Affordance Result
 
 ARGUS accepted PR388 on 2026-06-27:
