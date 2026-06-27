@@ -25,7 +25,7 @@ they are not Station validation failures.
 ARIADNE completed visible review on 2026-06-27:
 `docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_ARIADNE.md`.
 
-Validation result: `VISIBLE PASS AFTER ARIADNE CSS PATCH - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS VISIBLE FIX - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -36,12 +36,16 @@ Validation result: `VISIBLE PASS AFTER ARIADNE CSS PATCH - WAKE ARGUS`.
 | Screenshot inspection | Pass | Desktop dashboard/persona workspace and 375px/390px mobile screenshots looked clean after the patch. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+| ARGUS boundary review | Pass | CSS-only fix stays in private Studio route-story layout; no routes, API calls, auth/session, owner scope, storage/upload, archive parser, export package, runtime selection/redaction, provider/model, billing, public/community, schema, migration, worker/queue, Redis, Cloudflare, Railway, or Supabase config changed. |
+| ARGUS sensitive-pattern review | Pass | Added-line match was documentation wording for `Supabase config`; no secret material found. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | ARIADNE CSS/docs commit whitespace check passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+| ARGUS visual-evidence review | Accepted | ARGUS reviewed ARIADNE's recorded route matrix and screenshot-inspection notes; ARGUS did not rerun the mocked local Playwright screenshot matrix. |
 
-Residual risk: ARGUS still needs to review the CSS-only visible fix before MIMIR
-closes UX-01A. This review used mocked owner-only local API responses for layout
-evidence; it does not revalidate hosted runtime, real auth, storage, upload,
-archive parser, export package, provider, billing, public, or community
-behavior.
+Residual risk: MIMIR still needs to close UX-01A or choose the next lane. The
+visible review used mocked owner-only local API responses for layout evidence;
+it does not revalidate hosted runtime, real auth, storage, upload, archive
+parser, export package, provider, billing, public, or community behavior.
 
 ## UX-01A Studio Route-Story And Mobile Workbench Result
 

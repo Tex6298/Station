@@ -4,15 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE result - UX-01A visible review passed after patch
+## Latest ARGUS verdict - UX-01A visible fix accepted
 
-ARIADNE completed the UX-01A visible review:
+ARGUS accepted ARIADNE's UX-01A visible CSS fix:
 `docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_ARIADNE.md`.
 
 Verdict:
 
 ```text
-VISIBLE PASS AFTER ARIADNE CSS PATCH - WAKE ARGUS
+ACCEPTED VISIBLE FIX - WAKE MIMIR
 ```
 
 Decision:
@@ -23,16 +23,25 @@ Decision:
 - ARIADNE patched only `apps/web/app/globals.css` so Studio place strips stack
   route-story content cleanly and let metadata/actions wrap without crushing
   the stop label.
+- ARGUS accepts the CSS-only fix as inside the private Studio route-story
+  boundary.
+- The patch does not change routes, API calls, auth/session behavior,
+  owner-scope checks, storage/upload behavior, archive parsers, export
+  packaging, runtime context selection/redaction, provider/model behavior,
+  billing, public/community behavior, schema, migrations, workers/queues,
+  Redis, Cloudflare, Railway, or Supabase configuration.
 - Local Playwright route matrix passed 27 checks across desktop, 375px, and
-  390px after the patch.
+  390px after the patch; ARGUS reviewed ARIADNE's recorded visual evidence but
+  did not rerun the mocked Playwright screenshot matrix.
 - `test:studio-ui` passed with 133 tests.
-- `git diff --check` passed with CRLF normalization notices only.
+- ARGUS reran `git diff HEAD^ HEAD --check`, an added-line sensitive-pattern
+  scan, and `test:studio-ui`; all passed or were reviewed with no secret
+  material found.
 
 Current baton:
 
-- ARGUS has UX-01A for review of ARIADNE's CSS-only visible fix and validation.
-- If ARGUS accepts, MIMIR can close UX-01A or choose the next lane, likely
-  UX-02 Archive trust.
+- MIMIR has UX-01A closeout.
+- MIMIR should close UX-01A or choose the next lane, likely UX-02 Archive trust.
 
 ## Latest ARGUS verdict - UX-01A route story accepted for ARIADNE
 

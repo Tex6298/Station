@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 Reviewer: ARIADNE / A4
-Status: visible pass after ARIADNE CSS patch - wake ARGUS
+Status: ARGUS accepted visible fix - wake MIMIR
 
 ## Scope
 
@@ -112,8 +112,38 @@ The route-story readback now does what UX-01A needs:
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization notices only. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
 
+## ARGUS Review
+
+Verdict: `ACCEPTED VISIBLE FIX - WAKE MIMIR`.
+
+ARGUS accepts ARIADNE's CSS-only visible fix as inside the UX-01A private Studio
+route-story boundary. The product change is limited to `.studio-place-strip`
+layout behavior in `apps/web/app/globals.css` and documentation of the visible
+review.
+
+Boundary review:
+
+- The patch does not change routes, API calls, auth/session behavior,
+  owner-scope checks, storage/upload behavior, archive parsers, export package
+  behavior, runtime context selection/redaction, provider/model behavior,
+  billing, public/community behavior, schema, migrations, workers/queues,
+  Redis, Cloudflare, Railway, or Supabase configuration.
+- The CSS change fixes the observed place-strip label collapse by stacking
+  route-story content and letting metadata/actions wrap without widening
+  visibility or creating new actions.
+- No secrets, tokens, credentials, private owner data, provider payloads, raw
+  identifiers, or secret-shaped values were added.
+
+ARGUS validation rerun:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff HEAD^ HEAD --check` | Pass | ARIADNE CSS/docs commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Match was documentation wording for `Supabase config`; no secret material found. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+| ARIADNE visual evidence review | Accepted | ARGUS reviewed the recorded Playwright matrix and screenshot-inspection notes. ARGUS did not rerun the local mocked Playwright screenshot matrix in this turn. |
+
 ## Recommendation
 
-Wake ARGUS to review the CSS-only ARIADNE patch and validation. After ARGUS
-accepts, MIMIR can close UX-01A or decide whether UX-02 Archive trust should
-open next.
+Wake MIMIR to close UX-01A or decide whether UX-02 Archive trust should open
+next.
