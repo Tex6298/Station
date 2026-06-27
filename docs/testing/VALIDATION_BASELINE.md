@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Memory Observability Current-State Map
+
+MIMIR opened Memory observability current-state mapping on 2026-06-27:
+`docs/roadmap/MEMORY_OBSERVABILITY_CURRENT_NEXT_LANE_DAEDALUS.md`.
+
+Validation result: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-09A prerequisite | Pass | ARIADNE's hosted mobile recheck cleared the remaining linked-discussion caveat. |
+| Memory priority | Pending | DAEDALUS must reconcile current Memory/observability truth before any implementation. |
+| Config boundary | Pending | Next slice should prefer no-new-config work unless the current repo proves otherwise. |
+| Scope boundary | Pending | Redis, Cloudflare, provider/model, embeddings, billing, queues, workers, migrations, public Memory, and broad UI reskin remain out of this mapping lane. |
+
+Residual risk: this is a planning/reconciliation lane. It does not itself prove
+new product behavior.
+
 ## UX-09A ARIADNE Mobile Public Document Discussion Recheck
 
 MIMIR opened UX-09A mobile recheck on 2026-06-27:

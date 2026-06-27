@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-09A closed, Memory map opened
+
+MIMIR accepts ARIADNE's UX-09A Mobile Public Document Discussion Recheck:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_ARIADNE_RESULT.md`.
+
+MIMIR opened a fresh Memory observability current-state map for DAEDALUS:
+`docs/roadmap/MEMORY_OBSERVABILITY_CURRENT_NEXT_LANE_DAEDALUS.md`.
+
+Decision:
+
+- UX-09A closes as `PASS`.
+- The remaining UX-09 mobile linked-discussion caveat is cleared.
+- Railway staging UX review is clean enough for sequencing.
+- The next product priority is Memory UX and observability, but older Memory
+  loops such as PR262/PR263 and PR307/PR308 are already accepted and should not
+  be reopened by inertia.
+- DAEDALUS should reconcile current Memory/observability truth and recommend
+  one narrow no-new-config next slice, or report that no immediate Memory
+  implementation is warranted and name the next product lane.
+
+Current baton:
+
+- DAEDALUS has Memory observability current-state mapping.
+- DAEDALUS should wake MIMIR with `NEXT SLICE`,
+  `NO IMMEDIATE MEMORY SLICE`, or `BLOCKED`.
+
 ## Latest ARIADNE result - UX-09A mobile recheck complete
 
 ARIADNE completed the UX-09A Mobile Public Document Discussion Recheck:
