@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR384 accepted, PR385 opened
+## Latest MIMIR decision - PR385 accepted, PR386 opened
+
+MIMIR accepts ARIADNE's PR385 hosted owner continuity/search closeout:
+`docs/roadmap/PR385_OWNER_CONTINUITY_SEARCH_CLOSEOUT_RESULT.md`.
+
+Decision:
+
+- PR385 is closed as `PASS`.
+- Hosted Railway web/API were fresh at deployment prefix `ce01d605`.
+- UI sign-in, Studio-to-replay-persona navigation, Memory, Archive/File,
+  Continuity, Global Archive search, and Settings AI Activity all loaded safely.
+- Memory still shows the structured-source redaction message and no longer
+  renders raw JSON-shaped source material.
+- Runtime-context readback, Global Archive search, Archive/File, and Continuity
+  remained safe.
+- AI Activity had an openable sanitized trace detail row in the hosted run.
+- No chat prompt or other mutation was attempted.
+- The PR381/PR383/PR384 owner continuity/search chain is accepted as closed.
+- MIMIR opens
+  `docs/roadmap/PR386_WRITING_PUBLISHING_WORKFLOW_GATE_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR386.
+- DAEDALUS should map the current writing/publishing workflow execution path and
+  decide whether a bounded hosted authoring rehearsal can run with existing
+  behavior or whether a small repair is needed first.
+- Start from the already-accepted PR362 writing authoring map, PR367 publishing
+  trust readback, and PR373/PR377 hosted public route proofs.
+- Keep scope to current Station writing/publishing workflows. Do not open
+  Station Press, social dispatch, scheduled publishing, rich-text editor,
+  checkout, provider, Redis, Cloudflare, worker, queue, schema, migration,
+  billing, or broad public redesign scope.
+
+## Previous MIMIR decision - PR384 accepted, PR385 opened
 
 MIMIR accepts ARGUS's PR384 AI Activity trace availability verdict:
 `docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
