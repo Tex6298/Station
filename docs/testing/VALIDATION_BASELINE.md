@@ -25,17 +25,26 @@ they are not Station validation failures.
 MIMIR opened ARGUS token top-up test-mode proof preflight on 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREFLIGHT_ARGUS.md`.
 
-Validation status: open, docs-only preflight lane.
+ARGUS completed the preflight on 2026-06-27.
+
+Validation result: `ACCEPT PREFLIGHT - OPEN ARIADNE TOPUP PROOF`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | DAEDALUS prep prerequisite | Pass | DAEDALUS returned `READY FOR ARGUS PREFLIGHT`. |
-| Hosted mutation | Not run | ARGUS must accept preflight before any Checkout click, webhook replay, or hosted mutation. |
-| Scope boundary | Pass | Preflight is limited to token top-up payment-mode Checkout proof; subscription activation and background-job readback remain closed. |
-| Evidence boundary | Open | ARGUS must accept or revise selected-field readback and forbidden-output rules. |
+| Source review | Pass | Reviewed token-credit route/service, billing webhook service/controller, app raw-body wiring, Stripe client setup, Settings token usage panel, migrations, and focused tests. |
+| Account/pack boundary | Pass | Proof must use dedicated non-production Basic/private `basic-starter`, with Creator `creator-starter` as the only fallback; dirty replay-owner, soft-cap, Canon/developer/institutional/Visitor, and unknown-tier accounts are excluded. |
+| Readback boundary | Pass | Completion must be proven through Station readback only: `/token-credits/me` purchase status plus top-up/effective-limit increase, and `/billing/me` tier/status non-change. |
+| Scope boundary | Pass | Subscription activation and background-job readback remain closed; no live-money billing, tax, invoice, coupon, Connect, deep usage billing, dynamic payment-method readiness, or Stripe architecture work is opened. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 15 tests passed. |
+| `git diff 46b8553b^ 46b8553b --check` | Pass | DAEDALUS prep commit whitespace check passed. |
+| `git diff d20a413b^ d20a413b --check` | Pass | MIMIR preflight-open commit whitespace check passed. |
+| Added-line leak scans | Pass | DAEDALUS prep and MIMIR preflight-open docs had no matches for full URLs, Stripe object-id prefixes, Stripe key/webhook-secret prefixes, bearer/JWT-looking tokens, or UUID-like values. |
 
-Residual risk: no hosted top-up proof has run. This lane only asks whether the
-proof packet is safe enough to hand to ARIADNE.
+Residual risk: no hosted top-up proof has run yet. If MIMIR opens ARIADNE
+proof, ARIADNE must stop rather than mutate if no eligible dedicated
+non-production proof account is available.
 
 ## Token Top-Up Test-Mode Proof Prep
 
