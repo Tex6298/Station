@@ -4,10 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - UX-02C ready for ARGUS
+## Latest ARGUS verdict - UX-02C accepted for ARIADNE
 
-DAEDALUS implemented UX-02C Global Archive Trust Readback and Rehearsal:
+ARGUS accepted DAEDALUS's UX-02C Global Archive Trust Readback technical
+boundary:
 `docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE
+```
 
 Decision:
 
@@ -22,16 +29,21 @@ Decision:
   mutation, export assembly, auth/session, runtime retrieval/context,
   provider/model, public/community visibility, Redis, Cloudflare, schema,
   migration, worker, queue, Railway, or Supabase config behavior changed.
-- Validation is green for whitespace, `test:studio-ui`,
-  `test:conversation-archive`, `test:exports`, `typecheck`, and `lint`.
-  Build compiled and generated static pages before the known local Windows
-  standalone symlink `EPERM` caveat.
+- The route map links only to existing owner/private Studio, Export Workspace,
+  and Settings surfaces.
+- Global Archive copy does not promise public downloads, original-file backup,
+  global managed backup, invented capacity, or deletion/cleanup.
+- ARGUS reran whitespace, sensitive-pattern, `test:studio-ui`,
+  `test:conversation-archive`, `test:exports`, `typecheck`, `lint`, and
+  `build`. Build compiled and generated 36 static pages before the known local
+  Windows standalone symlink `EPERM` caveat.
 
 Current baton:
 
-- ARGUS has UX-02C technical/boundary review.
-- If ARGUS accepts, ARGUS should wake ARIADNE for visible desktop and
-  375px/390px rehearsal.
+- ARIADNE has UX-02C visible review.
+- ARIADNE should rehearse desktop `/studio/archive`, 375px `/studio/archive`,
+  390px `/studio/archive`, and related route-story/sidebar links for copy fit,
+  owner-only clarity, safe route links, and no overlap or horizontal overflow.
 
 ## Latest DAEDALUS result - UX-02 feasibility complete
 

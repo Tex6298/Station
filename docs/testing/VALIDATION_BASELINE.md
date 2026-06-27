@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented UX-02C on 2026-06-27:
 `docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_RESULT.md`.
 
-Validation result: `IMPLEMENTED - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS TECHNICAL BOUNDARY - ARIADNE VISIBLE REVIEW NEXT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -40,10 +40,21 @@ Validation result: `IMPLEMENTED - WAKE ARGUS`.
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
 | Added-line sensitive-pattern scan | Pass | No matches in the staged patch. |
 | `npm exec --yes pnpm@10.32.1 -- run build` | Environment caveat | Web compiled, linted, checked types, generated 36 static pages, finalized optimization, and collected build traces before the known local Windows standalone traced-file symlink copy failed with `EPERM`; the pre-existing autoprefixer `end` warning also appeared. |
+| ARGUS boundary review | Pass | Global Archive route-map/readback links only to existing owner/private Studio, Export Workspace, and Settings surfaces; no API route, storage accounting, upload/register, parser, candidate mutation, export assembly, auth/session, runtime retrieval/context, provider/model, public/community, worker/queue, Redis, Railway, Cloudflare, schema, migration, or Supabase config behavior changed. |
+| ARGUS claim review | Pass | Copy stays owner-only and live without promising public downloads, original-file backup, global managed backup, invented capacity, deletion, or cleanup. |
+| ARGUS sensitive-pattern review | Pass | Added-line matches were boundary wording for raw IDs and Supabase config; no secret material found. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-02C commit whitespace check passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run build` | Environment caveat | Web compiled, checked validity, generated 36 static pages, finalized optimization, and collected build traces before local Windows standalone symlink copy failed with `EPERM`. |
 
-Residual risk: ARGUS still needs to review owner-only/archive/export/storage
-boundaries and run the added-line sensitive-pattern scan. ARIADNE still needs
-desktop and 375px/390px visible rehearsal if ARGUS accepts.
+Residual risk: ARIADNE still needs desktop and 375px/390px visible rehearsal
+for copy fit, owner-only clarity, safe route links, and no overlap or
+horizontal overflow. ARGUS classified the local Windows standalone symlink
+failure as an environment caveat for this review.
 
 ## UX-02 Archive Trust Feasibility Result
 
