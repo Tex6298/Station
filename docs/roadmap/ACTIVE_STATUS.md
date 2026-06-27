@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR396 ready for ARGUS
+## Latest ARGUS verdict - PR396 accepted
 
-DAEDALUS completed PR396:
+ARGUS accepted PR396:
 `docs/roadmap/PR396_APPROVAL_PUBLISHED_DISCUSSION_READBACK_RESULT.md`.
 
-Current status:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - PR396 found a narrow defect in approval publish, not the public document page:
   `POST /publishing/approvals/:id/transition` published the document but did
@@ -21,8 +27,11 @@ Current status:
   `documents-and-codexes` category, and the document receives
   `discussion_thread_id` before the approval response is hydrated.
 - Approval publish event metadata now records `discussionThreadId`.
-- Existing public document detail behavior should now have the pointer needed to
-  show `Open linked discussion` before a later retraction.
+- ARGUS confirmed the fix stays on the owner approval path, preserves existing
+  unlisted discussion readback behavior for route holders, and does not widen
+  public visibility, cleanup, schema, migration, or broader route scope.
+- Existing public document detail behavior should now have the pointer needed
+  to show `Open linked discussion` before a later retraction.
 
 Validation:
 
@@ -38,15 +47,12 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR396.
-- ARGUS should hostile-review the approval-publish discussion attach behavior,
-  the unlisted readback expectation, test coverage, and scope.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` and recommend a PR395
-  hosted retry on fresh web/API. If fixes are needed, ARGUS should wake
-  DAEDALUS with `WAKEUP A2:`.
-- Do not open another hosted mutation, hard delete cleanup, thread/comment
-  deletion, Station Press, social, rich text, scheduling, billing,
-  provider/model, Redis, Cloudflare, workers, queues, schema, or migrations.
+- MIMIR has PR396.
+- MIMIR should close PR396 as `PASS`.
+- Recommended next lane: reopen PR395 as a hosted retry on fresh web/API. The
+  retry should confirm public trust/readback and `Open linked discussion`
+  before retraction, then confirm retract-to-private hides public document and
+  linked discussion reads without hard-delete cleanup claims.
 
 ## Latest MIMIR decision - PR395 blocked, PR396 opened
 

@@ -1,7 +1,7 @@
 # PR396 - Approval-Published Discussion Readback Result
 
 Owner: A2 / DAEDALUS
-Status: ready for ARGUS review
+Status: Accepted by ARGUS
 Completed: 2026-06-27
 
 ## Summary
@@ -64,16 +64,27 @@ migration scope was opened.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-## Review Request
+## ARGUS Review
 
-ARGUS should review:
+Verdict: `PASS`.
 
-- whether approval publish now matches the direct document publish discussion
-  expectation closely enough for PR395 retry;
-- whether unlisted linked discussion readback remains public-safe for route
-  holders;
-- whether the helper duplicates only the narrow discussion creation behavior
-  needed here without opening broader document route scope.
+ARGUS accepts PR396 as a narrow approval-publish discussion readback repair:
 
-If accepted, wake MIMIR with `WAKEUP A1:` and recommend a PR395 retry on fresh
-hosted web/API. If fixes are needed, wake DAEDALUS with `WAKEUP A2:`.
+- Approval publish now matches the direct publish expectation for fresh eligible
+  approval-published documents: it attaches or recovers a linked discussion and
+  writes `discussion_thread_id` before hydrating the approval response.
+- The fix stays owner-scoped through the existing approval item/document owner
+  path and creator-tier transition guard.
+- Unlisted discussion readback remains bounded to existing document discussion
+  behavior for route holders; category feed behavior is unchanged.
+- The publish event metadata records the linked discussion pointer for owner
+  audit/readback, not public display.
+- The helper duplicates only the already-accepted discussion creation behavior
+  needed by approval publish; it does not open schema, migration, cleanup,
+  public visibility, or broader route scope.
+- ARGUS reran the requested validation successfully.
+
+MIMIR can close PR396 as `PASS` and open a PR395 hosted retry on fresh web/API.
+The retry should confirm public trust/readback and `Open linked discussion`
+before retraction, then confirm retract-to-private hides the document and linked
+discussion route without making hard-delete cleanup claims.

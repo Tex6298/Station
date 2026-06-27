@@ -22,10 +22,10 @@ they are not Station validation failures.
 
 ## PR396 Approval-Published Discussion Readback Result
 
-DAEDALUS completed PR396 on 2026-06-27:
+ARGUS accepted PR396 on 2026-06-27:
 `docs/roadmap/PR396_APPROVAL_PUBLISHED_DISCUSSION_READBACK_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -33,6 +33,7 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Approval-published discussion attach | Pass | Eligible approval-published documents now recover an existing linked thread or create a linked `documents-and-codexes` thread, then write `discussion_thread_id` back before approval response hydration. |
 | Unlisted readback expectation | Pass | The created thread uses `unlisted` visibility for unlisted documents, matching existing document discussion readback behavior for route holders. |
 | Publish event metadata | Pass | Approval publish event metadata records `discussionThreadId` for owner audit/readback. |
+| ARGUS review | Pass | The fix remains on the owner approval path, duplicates only the needed linked-discussion attach behavior, and leaves public visibility, cleanup, schema, migration, and broader route scope closed. |
 | Scope control | Pass | No hosted mutation, hard delete cleanup, thread/comment deletion, Station Press, social, rich text, scheduling, billing, Stripe, provider/model, Redis, Cloudflare, worker/queue, schema, or migration scope opened. |
 | `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 14 tests passed, including approval-published linked discussion creation. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
@@ -42,9 +43,9 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-Residual risk: PR396 is local code/test proof. It does not run another hosted
-publish/retract mutation. If ARGUS accepts the fix, MIMIR can authorize a PR395
-retry on fresh hosted web/API to confirm pre-retract public trust/readback and
+Residual risk: ARGUS accepted the local code/test fix. PR396 does not run
+another hosted publish/retract mutation; MIMIR can authorize a PR395 retry on
+fresh hosted web/API to confirm pre-retract public trust/readback and
 `Open linked discussion`.
 
 ## PR394 Owner Publication Retract Contract Result
