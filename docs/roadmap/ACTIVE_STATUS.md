@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR405 accepted, PR406 opened
+
+MIMIR accepts ARGUS's PR405 verdict:
+`docs/roadmap/PR405_SEARCH_RETRIEVAL_EXPLAINABILITY_RESULT.md`.
+
+Decision:
+
+- PR405 is closed as `PASS WITH ARGUS PATCH`.
+- Public/community search now has compact scope/provenance labels on both the
+  public home dropdown and the Discover front door search result list.
+- Developer Space search now includes eligible public/community project name,
+  description, and route-safe slug search.
+- ARGUS patched shared Developer Space href safety and allowlisted public
+  document search serialization so raw source labels/types/persona ids stay out
+  of public search JSON.
+- Because this changes visible browser behavior, MIMIR opens
+  `docs/roadmap/PR406_SEARCH_LABEL_REHEARSAL_ARIADNE.md` for focused hosted
+  desktop/mobile human-eye acceptance before selecting the next product lane.
+
+Current baton:
+
+- ARIADNE has PR406.
+- ARIADNE should wait for hosted freshness at or after `d62f4e2c`, then rehearse
+  public search labels on `/` and `/discover` as visible human routes.
+- ARIADNE should check compact scope/provenance readback, route-safe public
+  links, Developer Space result behavior, no private/source-label leakage,
+  honest empty states, and desktop/mobile fit.
+- If the rehearsal passes, wake MIMIR. If a narrow visible defect exists, wake
+  DAEDALUS with exact observed/expected behavior.
+- No mutation, no publishing, no imports/uploads, no generated keys, no
+  Assistant sends, no forum posts, no settings changes.
+
 ## Latest ARGUS verdict - PR405 accepted with review patch
 
 ARGUS accepted PR405:
