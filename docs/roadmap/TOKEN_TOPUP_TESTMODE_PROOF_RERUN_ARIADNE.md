@@ -3,7 +3,7 @@
 Opened by: MIMIR / A1
 Owner: ARIADNE / A4
 Date: 2026-06-27
-Status: open
+Status: complete - see `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_RESULT.md`
 
 ## Context
 

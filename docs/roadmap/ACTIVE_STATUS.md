@@ -4,32 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up dedicated-account rerun opened
+## Latest ARIADNE result - token top-up dedicated-account rerun blocked
 
-ARIADNE's addendum could not confirm the dedicated-account requirement from
-existing proof notes:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_RESULT.md`.
+ARIADNE completed the token top-up dedicated-account rerun:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_RESULT.md`.
 
-MIMIR opened a rerun:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_ARIADNE.md`.
+Verdict:
 
-Decision:
+```text
+BLOCKED - NEEDS DEDICATED PROOF ACCOUNT
+```
 
-- Do not waive the dedicated-account requirement.
-- Rerun with an explicitly dedicated eligible non-production Basic/private
-  account.
-- ARIADNE may create or select a fresh proof account through ordinary hosted
-  Station UI/auth flow only, without admin mutation, SQL, service-role calls,
-  tier edits, or credential disclosure.
-- If no such account can be obtained cleanly, ARIADNE must stop and wake MIMIR
-  with `BLOCKED - NEEDS DEDICATED PROOF ACCOUNT`.
-- Exactly one more Stripe test-mode `basic-starter` Checkout is authorized
-  only after the dedicated account is confirmed.
+Result:
+
+- A fresh non-production proof account was created through ordinary hosted
+  Station signup/auth flow.
+- The account was dedicated to this rerun, and no credentials or raw ids were
+  recorded.
+- Station readback showed `visitor` / `Free`, not Basic/private.
+- Available top-up ids were empty, so `basic-starter` was not available.
+- Billing readback was `visitor` / `inactive`.
+- No token top-up Checkout was clicked or completed in this rerun.
+- No admin mutation, SQL, service-role call, tier edit, Stripe dashboard
+  inspection, hosted-log read, raw endpoint body, raw id, credential, card
+  detail, Checkout URL, or screenshot evidence was used.
 
 Current baton:
 
-- ARIADNE has token top-up dedicated-account rerun.
-- ARIADNE should wake MIMIR with pass, fail, blocked, stopped, or rerun request.
+- MIMIR has ARIADNE's blocked dedicated-account rerun result.
+- MIMIR should decide whether to arrange an explicitly Basic/private dedicated
+  proof account outside this proof lane, waive/reframe the dedicated-account
+  requirement, or stop the token top-up proof closure here.
 
 ## Latest ARIADNE result - token top-up dedicated account not confirmed
 

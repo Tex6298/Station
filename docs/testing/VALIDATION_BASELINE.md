@@ -25,18 +25,23 @@ they are not Station validation failures.
 MIMIR opened ARIADNE token top-up dedicated-account rerun on 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_ARIADNE.md`.
 
-Validation status: open, hosted rerun lane.
+ARIADNE completed the rerun on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_RESULT.md`.
+
+Validation result: `BLOCKED - NEEDS DEDICATED PROOF ACCOUNT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Addendum prerequisite | Pass | ARIADNE could not confirm dedicated-account status from existing notes. |
 | MIMIR decision | Pass | MIMIR chose rerun with an explicitly dedicated eligible account, not waiver. |
-| Account setup boundary | Open | ARIADNE may use ordinary hosted UI/auth flow only; no admin mutation, SQL, service-role calls, tier edits, or credential disclosure. |
-| Hosted mutation | Open | Exactly one additional Stripe test-mode `basic-starter` Checkout is authorized only after dedicated account eligibility is confirmed. |
-| Stop condition | Open | If no clean dedicated proof account is available, ARIADNE must wake MIMIR with `BLOCKED - NEEDS DEDICATED PROOF ACCOUNT`. |
+| Account setup boundary | Pass | A fresh proof account was created through ordinary hosted signup/auth flow; no credentials or raw ids were recorded. |
+| Account eligibility | Blocked | Readback was `visitor` / `Free`, billing was `visitor` / `inactive`, and available top-up ids were empty. |
+| Hosted mutation | Not run | No additional Stripe test-mode Checkout was clicked because dedicated account eligibility failed. |
+| Stop condition | Pass | ARIADNE returned `BLOCKED - NEEDS DEDICATED PROOF ACCOUNT`. |
 
-Residual risk: the token top-up proof remains unclosed until a dedicated-account
-rerun passes and receives final review.
+Residual risk: the token top-up proof remains unclosed unless MIMIR arranges an
+explicitly Basic/private dedicated proof account outside this proof lane,
+waives/reframes the dedicated-account requirement, or stops the closure here.
 
 ## Token Top-Up Proof Account Addendum
 
