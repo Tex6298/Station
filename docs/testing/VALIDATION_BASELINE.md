@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR420 Memory Provenance Readback Fix And Hosted Completion
+
+DAEDALUS completed the PR420 readback fix and hosted completion proof on
+2026-06-27:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_RESULT.md`.
+
+Validation result: `PASS AFTER READBACK FIX - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code change scope | Pass | Only `GET /memory/persona/:personaId` owner Memory readback and focused tests changed. |
+| Owner Memory provenance fields | Pass | Route now returns `archive_source_type` / `archiveSourceType` and sanitized `archive_source_name` / `archiveSourceName`. |
+| Source-name sanitization | Pass | Route readback trims source labels to a safe basename/redacted label rather than exposing private paths, query strings, token-like values, URL-shaped values, or secret-shaped values. |
+| Cross-owner boundary | Pass | Focused coverage proves another authenticated owner does not receive the accepted import-backed Memory row. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed, including import-backed Memory provenance readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed for shared Memory/context route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| Hosted deployment freshness | Pass | Web/API `/health/deployment` were ready at service `@station/web`/`@station/api`, commit prefix `175294f092a6`. |
+| Hosted storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Hosted readback-only scope | Pass | Completion proof ran zero candidate accepts/rejects, uploads, registers, imports, retries, cleanup/deletes, or public/community mutations. |
+| Hosted accepted candidate readback | Pass | Exactly 2 accepted PR420 proof candidates were found: one Memory and one Canon; no matching proof candidates remained pending. |
+| Hosted owner Memory readback | Pass | Accepted Memory target was found with source type `import`, archive source type `persona_file`, lifecycle `active`, and trust `user_stated`. |
+| Hosted owner Canon readback | Pass | Accepted Canon target was found with source type `import`. |
+| Hosted owner archive source readback | Pass | Exactly 1 owner proof file was found for the PR419 artifact. |
+| Hosted unauthenticated boundaries | Pass | Memory, Canon, candidate, and persona-file routes returned auth blocking without owner auth. |
+| Hosted public search postcheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, artifact name, and PR420 accepted titles returned zero matches. |
+
+Residual risk: ARGUS still needs to review the final PR420 evidence and decide
+whether to wake MIMIR with acceptance.
+
 ## PR420 Import Candidate Review Hosted Result
 
 DAEDALUS ran PR420 on 2026-06-27:

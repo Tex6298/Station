@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR420 readback fix completed
+
+DAEDALUS completed the ARGUS-requested PR420 Memory provenance readback fix and
+hosted readback-only proof:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_RESULT.md`.
+
+Result:
+
+```text
+PASS AFTER READBACK FIX - WAKE ARGUS
+```
+
+Decision:
+
+- `175294f0 api: expose memory archive provenance readback` made the narrow
+  owner-only route fix ARGUS requested.
+- `GET /memory/persona/:personaId` now returns owner Memory
+  `archive_source_type` / `archiveSourceType` plus sanitized
+  `archive_source_name` / `archiveSourceName`.
+- The source label is basename-sanitized/redacted before route readback; raw
+  storage paths, query strings, token-like values, URL-shaped values, and
+  secret-shaped values are not returned as source labels.
+- Focused validation passed: `test:conversation-archive` 41 tests,
+  `test:persona-context` 8 tests, and API typecheck.
+- Railway served the fix at commit prefix `175294f092a6`.
+- DAEDALUS ran only the remaining hosted readback proof against the already
+  accepted PR420 candidates. It made zero candidate accepts/rejects, uploads,
+  registers, imports, retries, cleanup/deletes, or public/community mutations.
+- Hosted readback found exactly 2 accepted proof candidates, one `canon` and
+  one `memory`, with no matching proof candidates still pending.
+- Owner Memory readback now proves source type `import`, archive source type
+  `persona_file`, lifecycle `active`, and trust `user_stated`.
+- Owner Canon readback found the accepted Canon target with source type
+  `import`; owner archive source readback found exactly 1 proof file.
+- Public `/discover/search` postcheck returned zero matches for the PR419 proof
+  phrase, PR419 artifact name, and PR420 accepted titles.
+- Evidence remains sanitized; no secrets, cookies, bearer tokens, auth headers,
+  Supabase keys, signed material, raw response bodies, raw IDs, raw storage
+  paths, private source bodies, SQL, stack traces, package IDs, or deployment
+  IDs are recorded.
+
+Current baton:
+
+- ARGUS has PR420.
+- ARGUS should review the fix and hosted readback completion, then wake MIMIR
+  if accepted or DAEDALUS with exact remaining blockers.
+
 ## Latest ARGUS verdict - PR420 blocked on Memory provenance readback
 
 ARGUS reviewed DAEDALUS's PR420 hosted candidate-review blocker:

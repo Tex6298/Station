@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: BLOCKED - DAEDALUS READBACK FIX REQUIRED
+Status: PASS AFTER READBACK FIX - WAKE ARGUS
 Date: 2026-06-27
 
 ## Scope
@@ -138,6 +138,78 @@ Required DAEDALUS fix packet:
   retry the original accepts, clean up/delete, publish Continuity, create
   documents, touch public/community content, export data, send Assistant/forum
   actions, touch billing/settings, or broaden parser/provider/runtime scope.
+
+## DAEDALUS Readback Fix
+
+DAEDALUS made only the ARGUS-requested owner-only readback fix in:
+
+```text
+175294f0 api: expose memory archive provenance readback
+```
+
+Implementation:
+
+- `GET /memory/persona/:personaId` now selects `archive_source_type` and
+  `archive_source_name` for authenticated owner Memory rows.
+- The route returns existing snake_case provenance plus camelCase
+  `archiveSourceType` and `archiveSourceName`.
+- `archiveSourceName` is basename-sanitized/redacted before route readback so
+  private path, query, token-like, secret-like, or URL-shaped source material is
+  not exposed as an owner route label.
+- The route still filters by `owner_user_id`; cross-owner reads do not return
+  another owner's accepted Memory material.
+
+Focused validation:
+
+| Command / check | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass, 41 tests |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass, 8 tests |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass |
+| `git diff --check` | Pass, CRLF normalization warnings only |
+
+## Hosted Readback Completion
+
+After Railway served the readback fix commit prefix `175294f092a6`, DAEDALUS
+ran only the remaining PR420 readback proof against the already accepted hosted
+PR419 candidates.
+
+No hosted mutation was run in the completion proof:
+
+| Mutation class | Count |
+| --- | ---: |
+| Candidate accepts | 0 |
+| Candidate rejects | 0 |
+| Uploads | 0 |
+| Registers | 0 |
+| Imports | 0 |
+| Retries | 0 |
+| Cleanup/deletes | 0 |
+| Public/community mutations | 0 |
+
+Sanitized hosted readback evidence:
+
+| Check | Result |
+| --- | --- |
+| Web health | Ready, service `@station/web`, commit prefix `175294f092a6` |
+| API health | Ready, service `@station/api`, commit prefix `175294f092a6` |
+| Storage readiness | Bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, `private: true` |
+| Replay owner auth | HTTP `200`, tier `canon` |
+| `/auth/me` | HTTP `200`, tier `canon` |
+| Accepted candidate readback | Exactly 2 accepted PR420 proof candidates: one `canon`, one `memory`; no matching PR420 proof candidates remain pending |
+| Owner Memory readback | Found accepted Memory target with source type `import`, archive source type `persona_file`, lifecycle `active`, trust `user_stated` |
+| Owner Canon readback | Found accepted Canon target with source type `import` |
+| Owner archive source readback | Found exactly 1 owner proof file for the PR419 artifact |
+| Unauthenticated private-route boundaries | Memory, Canon, candidate, and persona-file routes returned auth blocking |
+| Public search postcheck | Zero matches for the PR419 proof phrase, artifact name, and PR420 accepted titles |
+
+## Final Verdict
+
+PR420 now passes as a hosted readback proof after the narrow owner Memory
+archive-provenance readback fix.
+
+ARGUS should review this final evidence and wake MIMIR if accepted, or wake
+DAEDALUS with exact remaining blockers if any condition is still insufficient.
 
 ARGUS validation:
 
