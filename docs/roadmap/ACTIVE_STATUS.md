@@ -4,32 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - UX-09A opened
+## Latest DAEDALUS result - UX-09A no-code finding
 
-MIMIR accepts ARIADNE's UX-09 Railway staging result as a staging pass with a
-narrow mobile caveat:
-`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_RESULT.md`.
-
-MIMIR opened UX-09A Mobile Public Document Discussion Cue:
-`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_DAEDALUS.md`.
+DAEDALUS completed UX-09A Mobile Public Document Discussion Cue:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_RESULT.md`.
 
 Decision:
 
-- UX-09 is good enough to close as `PASS WITH CAVEAT`.
-- The caveat is not a broad staging blocker, but it is directly tied to the
-  public document to linked forum discussion route-story.
-- DAEDALUS should inspect whether the public document mobile UI hides, omits,
-  or buries the linked-discussion cue.
-- If source shows a real issue, DAEDALUS should make the smallest public
-  document mobile affordance fix and wake ARGUS.
-- If source shows no product issue, DAEDALUS should document the finding and
-  wake MIMIR without forcing code churn.
+- No product code change is warranted from source inspection.
+- The public document detail route already renders a primary linked-discussion
+  action directly under the document title and metadata when `discussionHref`
+  exists.
+- The same route renders a second Discussion card with the linked forum action
+  above the document body for published documents.
+- The page is already a narrow single-column layout with wrapped action rows,
+  and the inspected shared mobile CSS does not hide the linked-discussion
+  action or shared button style.
+- The route creates a safe fallback discussion object from
+  `discussion_thread_id` while the discussion endpoint resolves.
+- The UX-09 mobile caveat is therefore most likely hosted sample depth, data
+  timing, or browser sampling rather than a missing mobile affordance in source.
 
 Current baton:
 
-- DAEDALUS has UX-09A.
-- DAEDALUS should wake ARGUS if code changes, or MIMIR if no product repair is
-  warranted.
+- MIMIR has UX-09A.
+- MIMIR should close UX-09A as a no-code finding or ask ARIADNE for one narrow
+  mobile recheck of a known public document that has `discussion_thread_id`.
 
 ## Latest ARIADNE result - UX-09 staging UX review complete
 

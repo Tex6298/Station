@@ -22,21 +22,26 @@ they are not Station validation failures.
 
 ## UX-09A Mobile Public Document Discussion Cue
 
-MIMIR opened UX-09A on 2026-06-27:
-`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_DAEDALUS.md`.
+DAEDALUS completed UX-09A on 2026-06-27:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_RESULT.md`.
 
-Validation result: `OPEN - WAKE DAEDALUS`.
+Validation result: `NO-CODE FINDING - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-09 prerequisite | Pass | ARIADNE completed hosted staging with `PASS WITH CAVEAT`; the only named caveat is mobile public-document linked-discussion visibility. |
-| Scope | Pending | Public document mobile linked-discussion cue only, or a no-code finding if source already covers it. |
-| Boundary | Pending | No API, schema, auth, billing, provider, Redis, Cloudflare, Supabase, deployment, package, config, visibility, moderation, publish, retract, cleanup, import, upload, Assistant, or hosted mutation behavior. |
-| Suggested validation | Pending | Focused publishing/public-document tests, `test:studio-ui` if touched, web typecheck, `git diff --check`, and added-line sensitive-pattern scan. |
+| Public document detail source inspection | Pass | `apps/web/app/space/[slug]/documents/[documentId]/page.tsx` already renders a linked-discussion action under the document title and a second Discussion card above the body when `discussionHref` exists. |
+| Public Space source inspection | Pass | Public Space cards and reading path already include linked discussion cues for documents with `discussion_thread_id`. |
+| Shared CSS inspection | Pass | No inspected mobile CSS rule hides the linked-discussion action or shared button style. |
+| Scope | Pass | No code changed; no API, schema, auth, billing, provider, deployment, visibility, moderation, publish, retract, cleanup, Space, forum, or public document behavior changed. |
+| Product change | Not needed | No test was added because source already carries the mobile-reachable affordance and no runtime behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-story-polish.test.ts` | Pass | 7 tests passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| Added-line sensitive-pattern scan | Pass | No matches; command emitted CRLF normalization warnings only. |
 
-Residual risk: the UX-09 caveat came from hosted browser sampling. DAEDALUS must
-distinguish a real mobile affordance issue from sampled data or route-depth
-limits before changing code.
+Residual risk: the UX-09 caveat came from hosted browser sampling. If MIMIR
+wants more proof, ask ARIADNE for one narrow mobile recheck of a known public
+document that has `discussion_thread_id`.
 
 ## UX-09 Railway Staging UX Review Result
 

@@ -2,8 +2,9 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS, then ARIADNE
-Status: OPEN - WAKE DAEDALUS
+Status: COMPLETE - WAKE MIMIR
 Opened: 2026-06-27
+Completed: 2026-06-27
 
 ## Why This Exists
 
@@ -30,6 +31,41 @@ able to navigate to it on mobile without guessing.
 
 Do not change the underlying visibility, moderation, discussion, document,
 Space, or forum data contract.
+
+## DAEDALUS Finding
+
+No product code change is warranted from source inspection.
+
+The public document detail route already renders a mobile-reachable linked
+discussion action when a visible discussion exists:
+
+- `apps/web/app/space/[slug]/documents/[documentId]/page.tsx` builds
+  `discussionHref` from the attached forum thread.
+- The first `Open linked discussion` action renders directly under the
+  document title and metadata, before owner controls, document trust readback,
+  version history, composer, discussion readback, and document body.
+- A second Discussion card with the same action renders above the document
+  body for published documents.
+- The page uses a narrow `maxWidth: 720` single-column layout, flex wrapping,
+  and shared `.button` styles; no mobile CSS rule inspected hides or disables
+  the action.
+- `discussionFallbackFromDocument` creates a safe fallback route from
+  `discussion_thread_id`, so a public document row that carries the linked
+  thread still has an immediate cue while the discussion endpoint resolves.
+
+This points to the UX-09 caveat being either hosted sample depth, data timing,
+or screenshot/sampling coverage rather than a missing mobile affordance in the
+current source.
+
+Result:
+
+- No API, route, schema, auth, billing, provider, deployment, visibility,
+  moderation, publish, retract, cleanup, Space, forum, or public document
+  contract changed.
+- No tests were added because no behavior changed.
+- MIMIR should decide whether ARIADNE should rerun only the mobile public
+  document sample after deploy/browser refresh, or simply carry the caveat as
+  non-blocking staging evidence.
 
 ## Likely Source Area
 
