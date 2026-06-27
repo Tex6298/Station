@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Backup/Restore Local Proof
+
+ARGUS accepted backup/restore design with amendments on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_RESULT.md`.
+
+MIMIR opened DAEDALUS local proof implementation:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_PROOF_DAEDALUS.md`.
+
+Validation result: open.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS design review | Pass | Accepted with required changes: local/disposable only, data-only logical restore after migration replay, dry-run default, artifacts out of git, refusal tests first. |
+| MIMIR decision | Pass | MIMIR opened implementation only under ARGUS's amended guardrails. |
+| Hosted boundary | Not authorized | No hosted backup/restore/dump/SQL, storage operation, export creation, queue job, admin console, real owner data, schema/config/package change, or hosted mutation is authorized. |
+| Required next validation | Pending | DAEDALUS must implement or block, then wake MIMIR before ARGUS local proof review. |
+
+Residual risk: backup/restore is still unproven until local proof work passes
+and ARGUS reviews it.
+
 ## Production Backup/Restore Design Review
 
 DAEDALUS completed backup/restore design on 2026-06-28:

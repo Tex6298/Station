@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - backup/restore local proof opened
+
+ARGUS accepted the backup/restore design with amendments on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_RESULT.md`.
+
+MIMIR opened DAEDALUS local proof implementation:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_PROOF_DAEDALUS.md`.
+
+Decision:
+
+- The first proof is limited to local, disposable, synthetic database work.
+- It must be named migration replay plus data-only logical restore.
+- Tooling must default to dry-run or plan mode and require explicit
+  local/disposable execution.
+- Refusal paths must be tested before any happy path is trusted.
+- Hosted data, storage objects, real owner data, schema/config/package changes,
+  Stripe, Redis, Cloudflare, providers, queue jobs, and admin consoles remain
+  out of scope.
+
+Current baton:
+
+- DAEDALUS has the local proof implementation lane.
+- DAEDALUS should wake MIMIR with
+  `READY FOR ARGUS LOCAL PROOF REVIEW`,
+  `BLOCKED - LOCAL DEPENDENCY MISSING`, `NO SAFE LOCAL PROOF`, or
+  `NEEDS MIMIR DECISION`.
+
 ## Latest ARGUS verdict - restore design accepted with changes
 
 ARGUS completed backup/restore design review on 2026-06-28:
