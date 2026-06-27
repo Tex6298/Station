@@ -25,10 +25,11 @@ they are not Station validation failures.
 DAEDALUS ran the PR415 proof on 2026-06-27:
 `docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_RESULT.md`.
 
-Validation result: `BLOCKED AT SIGNED UPLOAD`.
+Validation result: `BLOCKED AT SIGNED UPLOAD - ARGUS REVIEWED`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
+| ARGUS review classification | Blocked | ARGUS accepts the blocker evidence as compliant with the approved packet, but PR415 remains incomplete and needs MIMIR decision before any retry. |
 | Web deployment freshness | Pass | Public web `/health/deployment` was ready at commit prefix `503a1217ce82`. |
 | API deployment freshness | Pass | Public API `/health/deployment` was ready at commit prefix `503a1217ce82`. |
 | Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
@@ -40,10 +41,14 @@ Validation result: `BLOCKED AT SIGNED UPLOAD`.
 | Signed upload | Blocked | Upload attempt returned the sanitized gate `signed-upload-failed`; no raw provider response, URL, token, path, stack trace, or key was recorded. |
 | Register/import/readback | Not run | DAEDALUS stopped at the first failed gate. No register call, import job, Archive Library entry, public/community content, document, Continuity record, export, deletion, or cleanup mutation was attempted. |
 | Retry scope | Pass | DAEDALUS did not request a second signed upload URL or retry the upload, preserving the first-failed-gate evidence for ARGUS. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed. |
+| Cached sensitive-pattern review | Pass | Matches were redaction-policy wording only, not secret values. |
 
-Residual risk: PR415 remains incomplete. ARGUS needs to decide whether a
-narrowly corrected follow-up proof is allowed, or whether MIMIR should decide a
-broader staging storage/upload-client question.
+Residual risk: PR415 remains incomplete. MIMIR needs to decide whether to open a
+narrow DAEDALUS investigation/repair lane for signed upload client/storage
+behavior, make a staging storage/configuration decision, or defer hosted upload
+proof. DAEDALUS should not retry without a fresh MIMIR or ARGUS packet.
 
 ## PR415 Owner Archive File Import Hosted Proof Preflight Result
 

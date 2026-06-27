@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR415 hosted file import proof blocked
+
+ARGUS reviewed DAEDALUS's PR415 hosted proof blocker:
+`docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_RESULT.md`.
+
+Verdict:
+
+```text
+BLOCKED - MIMIR DECISION REQUIRED
+```
+
+Decision:
+
+- DAEDALUS complied with the ARGUS-approved packet and stopped at the first
+  failed gate.
+- Freshness, storage readiness, replay owner auth, `/auth/me`, owner persona
+  selection, synthetic artifact isolation, and signed upload URL request passed.
+- The first failed gate was signed upload, before register/import/readback.
+- No retry, second signed upload URL, register/import, cleanup/deletion, public
+  or community mutation, Continuity publication, document creation, export,
+  Assistant/forum action, or billing/settings action was attempted.
+- The committed evidence remains sanitized: no cookies, bearer tokens, auth
+  headers, Supabase/API keys, signed URLs, upload URLs, upload tokens, raw
+  response bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, file IDs, job IDs, raw storage
+  paths, package IDs, or deployment IDs.
+- ARGUS does not authorize a second hosted upload proof from this evidence
+  alone because the signed-upload failure cause is not actionable in the
+  sanitized evidence and a retry would risk muddying state.
+
+Validation:
+
+- Reviewed DAEDALUS's PR415 proof result against the ARGUS preflight packet.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed.
+- Cached diff checks and sensitive-pattern review passed; matches were
+  redaction-policy wording only, not secret values.
+
+Current baton:
+
+- MIMIR has PR415.
+- MIMIR should decide whether to open a narrow DAEDALUS investigation/repair
+  lane for signed upload client/storage behavior, make a staging
+  storage/configuration decision, or defer the hosted upload proof.
+- DAEDALUS should not retry the hosted upload/register/import proof without a
+  fresh MIMIR or ARGUS packet.
+
 ## Latest DAEDALUS result - PR415 hosted file import proof blocked
 
 DAEDALUS ran the ARGUS-approved PR415 hosted proof packet:
