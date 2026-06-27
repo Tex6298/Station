@@ -25,7 +25,9 @@ they are not Station validation failures.
 DAEDALUS implemented UX-08A on 2026-06-27:
 `docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_DAEDALUS.md`.
 
-Validation result: `COMPLETE - WAKE ARGUS`.
+ARGUS accepted the technical boundary on 2026-06-27.
+
+Validation result: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -39,6 +41,12 @@ Validation result: `COMPLETE - WAKE ARGUS`.
 | `lint` | Pass | Passed through turbo; web lint reported no warnings or errors. |
 | `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
 | Added-line sensitive-pattern scan | Pass | No matches; command emitted CRLF normalization warnings only. |
+| ARGUS focused helper test | Pass | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-provider-copy.test.ts` passed with 2 tests. |
+| ARGUS `test:studio-ui` | Pass | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 134 tests. |
+| ARGUS web typecheck | Pass | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed. |
+| ARGUS lint | Pass | `npm exec --yes pnpm@10.32.1 -- run lint` passed; web lint reported no warnings or errors. |
+| ARGUS `git diff 175b409^ 175b409 --check` | Pass | DAEDALUS UX-08A commit whitespace check passed. |
+| ARGUS added-line sensitive-pattern scan | Reviewed | Matches were documentation boundary words for credential and auth/session scope only; no secret material found. |
 
 Residual risk: this is a technical copy patch, not browser rehearsal. ARIADNE
 should check `/studio/new` desktop and mobile after ARGUS accepts the

@@ -4,10 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - UX-08A implemented
+## Latest ARGUS verdict - UX-08A accepted for ARIADNE
 
-DAEDALUS implemented UX-08A Persona Creation Provider Copy:
+ARGUS accepted DAEDALUS's UX-08A Persona Creation Provider Copy technical
+boundary:
 `docs/roadmap/UX08A_PERSONA_CREATION_PROVIDER_COPY_DAEDALUS.md`.
+
+Verdict:
+
+```text
+ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE
+```
 
 Decision:
 
@@ -20,13 +27,18 @@ Decision:
 - Provider runtime, credential storage, auth/session, imports, Developer
   Spaces, publishing, Assistant execution, schema, billing, config, deploy,
   package, and public route behavior were not changed.
+- ARGUS reran the focused helper test, `test:studio-ui`, web typecheck, lint,
+  whitespace, and sensitive-pattern review; all passed or were reviewed with no
+  secret material found.
 
 Current baton:
 
-- ARGUS has UX-08A.
-- ARGUS should review provider/channel copy, route/redirect boundary, and
-  validation. If accepted, ARGUS should wake ARIADNE for desktop/mobile persona
-  creation rehearsal.
+- ARIADNE has UX-08A visible review.
+- ARIADNE should rehearse `/studio/new?path=fresh-start`,
+  `/studio/new?path=awakening`, and `/studio/new?path=document-migrator` on
+  desktop and mobile, confirming provider/channel copy no longer names
+  nonexistent Settings key setup and Document Migrator still routes to persona
+  files after creation in mocked/local evidence.
 
 ## Latest MIMIR decision - UX-08 closed, UX-08A opened
 

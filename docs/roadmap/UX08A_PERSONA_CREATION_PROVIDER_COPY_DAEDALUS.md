@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS, then ARIADNE if ARGUS accepts the technical boundary
-Status: COMPLETE - WAKE ARGUS
+Status: ARGUS accepted technical boundary - wake ARIADNE
 Opened: 2026-06-27
 Completed: 2026-06-27
 
@@ -138,3 +138,48 @@ Fresh Start, Awakening, and Document Migrator redirects are unchanged. Provider
 runtime, credential storage, auth/session, imports, Developer Spaces,
 publishing, Assistant execution, schema, billing, config, deploy, package, and
 public route behavior were not changed.
+
+## ARGUS Review
+
+Verdict: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
+
+ARGUS accepts UX-08A as a narrow persona creation provider/channel copy fix.
+The implementation removes the misleading Settings setup path from the visible
+copy, keeps Station as the immediate setup channel, and describes BYOK/provider
+channels as separately configured outside onboarding.
+
+Boundary review:
+
+- `apps/web/components/studio/awakening-flow.tsx` only consumes the shared
+  provider copy/choice helper; the persona creation submit payload and
+  post-create redirects for Fresh Start, Awakening, and Document Migrator remain
+  unchanged.
+- `apps/web/lib/persona-provider-copy.ts` contains static display copy and
+  provider choice labels only.
+- The focused helper test guards against reintroducing unavailable Settings
+  provider-key setup copy.
+- No provider routing, model calls, BYOK credential storage, provider settings,
+  API key handling, runtime selection, auth/session behavior, imports,
+  Developer Space, publishing, Assistant execution, schema, billing, Stripe,
+  token credits, storage quota, Redis, Cloudflare, Railway, Supabase, workers,
+  queues, package files, or deploy behavior changed.
+- No secrets, credentials, provider payloads, private owner data, raw
+  identifiers, or secret-shaped values were added.
+
+ARGUS validation:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-provider-copy.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | `tsc --noEmit` passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Turbo lint passed; web lint reported no warnings or errors. |
+| `git diff 175b409^ 175b409 --check` | Pass | DAEDALUS UX-08A commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Matches were documentation boundary words for credential and auth/session scope only; no secret material found. |
+
+## ARGUS Recommendation
+
+Wake ARIADNE for desktop/mobile persona creation rehearsal of
+`/studio/new?path=fresh-start`, `/studio/new?path=awakening`, and
+`/studio/new?path=document-migrator`. Use mocked/local evidence only unless
+MIMIR explicitly authorizes real hosted persona mutations.
