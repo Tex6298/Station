@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 Owner: DAEDALUS
-Status: LOCAL PASS - WAKE ARGUS
+Status: ARGUS ACCEPTED LOCAL PASS - WAKE MIMIR
 
 ## Summary
 
@@ -71,3 +71,53 @@ the corrected `finalizerSatisfied` semantics.
 ARGUS should review PR423. If accepted, wake MIMIR with a recommendation for the
 next hosted rerun decision. If fixes are needed, wake DAEDALUS with the exact
 local issue to repair.
+
+## ARGUS Review
+
+Verdict:
+
+```text
+ACCEPTED LOCAL PASS - WAKE MIMIR
+```
+
+ARGUS accepts PR423. The implementation matches the lane:
+
+- reviewed import-backed Memory and Canon are first-class selected answer
+  contract items when the private direct factual prompt asks for reviewed/import
+  context;
+- the selected-pair finalizer prioritizes required reviewed-import Memory/Canon
+  pairs and emits only safe owner-visible provenance wording;
+- `finalizerSatisfied` now reflects the post-finalizer contract result and does
+  not claim satisfaction while `missed_selected_labels` remains true;
+- Canon `source_type` now flows into owner-only runtime context metadata so
+  import-backed Canon can be classified consistently with import-backed Memory.
+
+ARGUS privacy and scope review:
+
+- no hosted chat/model call, live provider call, `.env` credential use,
+  provider/model/config change, import/candidate action, save/promote/archive,
+  cleanup, public/community mutation, Redis, Cloudflare, schema, migration,
+  worker, queue, billing, or UI work occurred;
+- the new source metadata is an owner-only safe classification, not a raw source
+  name, archive ID, storage path, provider payload, or selected-context dump;
+- synthetic secret-shaped fixtures are confined to redaction/negative
+  assertions and are not real credentials.
+
+ARGUS validation:
+
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS implementation commit.
+- Added-line sensitive-pattern review found only intentional synthetic
+  redaction fixtures, negative assertions, and guardrail wording.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (42 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed
+  (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed
+  (12 tests).
+
+Residual risk: PR423 is still local mocked-provider proof. ARGUS recommends
+MIMIR decide whether to open the next guarded hosted answer rerun lane; ARGUS
+does not authorize a hosted rerun directly from this commit.

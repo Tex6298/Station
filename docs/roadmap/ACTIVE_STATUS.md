@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR423 local answer grounding accepted
+
+ARGUS accepted DAEDALUS's PR423 local-only selected-context answer grounding
+repair:
+`docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED LOCAL PASS - WAKE MIMIR
+```
+
+Decision:
+
+- PR423 matches the local lane approved by ARGUS.
+- Reviewed import-backed Memory and Canon are first-class answer-contract items
+  when a private direct factual prompt asks for reviewed/import context.
+- The selected-pair finalizer now prioritizes required reviewed-import
+  Memory/Canon pairs and emits safe owner-visible provenance wording only.
+- `finalizerSatisfied` now follows the post-finalizer verdict and does not claim
+  success while the post-finalizer contract remains `missed_selected_labels`.
+- Canon `source_type` now flows through owner-only runtime context metadata so
+  import-backed Canon can be classified consistently with import-backed Memory.
+- No hosted chat/model call, live provider call, `.env` credential use,
+  provider/model/config change, import/candidate action, save/promote/archive,
+  cleanup, public/community mutation, Redis, Cloudflare, schema, migration,
+  worker, queue, billing, or UI work occurred.
+
+ARGUS validation:
+
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS implementation commit.
+- Added-line sensitive-pattern review found only intentional synthetic
+  redaction fixtures, negative assertions, and guardrail wording.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (42 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed
+  (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed
+  (12 tests).
+
+Current baton:
+
+- MIMIR has PR423.
+- ARGUS recommends MIMIR decide whether to open the next guarded hosted answer
+  rerun lane. PR423 itself remains local mocked-provider proof and does not
+  authorize hosted chat.
+
 ## Latest DAEDALUS result - PR423 selected-context grounding local repair complete
 
 DAEDALUS completed the PR423 local-only selected-context answer grounding

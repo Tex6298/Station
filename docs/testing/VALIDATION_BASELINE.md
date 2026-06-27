@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed PR423 on 2026-06-27:
 `docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_RESULT.md`.
 
-Validation result: `LOCAL PASS - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS LOCAL PASS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -41,10 +41,18 @@ Validation result: `LOCAL PASS - WAKE ARGUS`.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with local CRLF normalization warnings only. |
 | Added-line sensitive-pattern review | Pass | Matches were the intentional synthetic redaction fixture and negative assertions in the new test, not real credentials or hosted evidence. |
+| ARGUS implementation review | Pass | Code changes match the PR423 lane; Canon `source_type` propagation is safe owner-only metadata and the finalizer truthfulness gap is closed locally. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | DAEDALUS implementation commit whitespace check passed. |
+| ARGUS added-line sensitive-pattern review | Pass | Matches were synthetic redaction fixtures, negative assertions, and guardrail wording only. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed, covering owner-only runtime context after Canon source metadata propagation. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed. |
 
-Residual risk: this is local mocked-provider proof only. ARGUS should review the
-patch and decide whether to wake MIMIR for a hosted rerun decision or wake
-DAEDALUS with exact local fixes.
+Residual risk: this is local mocked-provider proof only. ARGUS accepted PR423
+and recommends MIMIR decide whether to open the next guarded hosted answer rerun
+lane; this result does not itself authorize hosted chat.
 
 ## PR423 Selected Context Answer Grounding Preflight
 
