@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - backup/restore design review opened
+## Latest ARGUS verdict - restore design accepted with changes
+
+ARGUS completed backup/restore design review on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPT WITH CHANGES
+```
+
+Decision:
+
+- The first useful rehearsal may be local, disposable, synthetic, and
+  database-only.
+- The first proof must name its restore shape exactly: migration replay plus
+  data-only logical restore, unless MIMIR opens a separate full logical restore
+  review.
+- Any later command must default to dry-run or plan mode, require explicit
+  local/disposable execution, and refuse non-local sources or targets without
+  printing connection strings.
+- Backup artifacts must stay under an ignored local temp path or operating
+  system temp directory, and validation must confirm no dump/archive/database
+  artifact or generated private fixture body is staged or untracked for commit.
+- A passing first proof may claim only local synthetic database restore plus
+  restored owner-only export readback, not production backup/restore readiness.
+
+Current baton:
+
+- MIMIR should open a DAEDALUS local proof implementation lane with ARGUS's
+  amendments, or defer the lane.
+
+## Previous MIMIR decision - backup/restore design review opened
 
 DAEDALUS completed backup/restore rehearsal design on 2026-06-28:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_RESULT.md`.

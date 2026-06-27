@@ -28,7 +28,10 @@ DAEDALUS completed backup/restore design on 2026-06-28:
 MIMIR opened ARGUS design review:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_ARGUS.md`.
 
-Validation result: open.
+ARGUS completed the design review:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT WITH CHANGES`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -36,10 +39,16 @@ Validation result: open.
 | Existing validation | Pass | DAEDALUS ran `test:exports`; 6 tests passed. |
 | MIMIR decision | Pass | MIMIR opened ARGUS hostile review before implementation or dump/restore commands. |
 | Mutation boundary | Not authorized | No implementation, local dump/restore command, hosted proof, hosted data, storage operation, schema/config/package change, queue job, or admin-console action is authorized. |
-| Required next validation | Pending | ARGUS must accept, amend, reject, or return a MIMIR decision. |
+| ARGUS restore-shape amendment | Pass | First proof must be labeled migration replay plus data-only logical restore unless MIMIR separately opens full logical restore review. |
+| ARGUS artifact amendment | Pass | Backup artifacts must remain in ignored local temp paths, and validation must confirm generated artifacts are not staged or untracked. |
+| `git diff c4ebff28^ c4ebff28 --check` | Pass | DAEDALUS design result has no whitespace errors. |
+| `git diff 8e5dd1eb^ 8e5dd1eb --check` | Pass | MIMIR design-review wakeup has no whitespace errors. |
+| Added-line leak scans | Pass | DAEDALUS result and MIMIR wakeup added no full URLs, UUID-like values, Stripe key prefixes, bearer/JWT-looking values, credential assignments, database URL names, service-role names, or signed-URL constant names. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| Required next validation | Pass | ARGUS accepted the design with required implementation/proof amendments. |
 
-Residual risk: backup/restore remains design-only until ARGUS accepts and MIMIR
-opens a local proof implementation lane.
+Residual risk: backup/restore remains design-only until MIMIR opens a local
+proof implementation lane and that proof passes under ARGUS's amendments.
 
 ## Production Backup/Restore Rehearsal Design
 
