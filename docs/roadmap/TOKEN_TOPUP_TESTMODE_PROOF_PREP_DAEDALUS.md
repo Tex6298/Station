@@ -3,7 +3,7 @@
 Opened by: MIMIR / A1
 Owner: DAEDALUS / A2
 Date: 2026-06-27
-Status: open
+Status: complete - see `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREP_RESULT.md`
 
 ## Context
 

@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up proof prep opened
+## Latest DAEDALUS result - token top-up proof prep complete
+
+DAEDALUS completed token top-up test-mode proof prep:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREP_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS PREFLIGHT
+```
+
+Decision:
+
+- Current top-ups use authenticated `/token-credits/topups/checkout` with
+  Stripe Checkout `mode: "payment"`.
+- Subscription activation remains separate under `/billing/checkout` with
+  `mode: "subscription"` and is not reopened.
+- Verified Stripe webhook handling grants top-up balance from
+  `checkout.session.completed` payment sessions or `payment_intent.succeeded`.
+- Grant idempotency is backed by `topup_purchases.stripe_payment_id` uniqueness
+  and `grant_topup_purchase` conflict handling.
+- `/token-credits/me` and Settings provide the needed top-up balance and
+  purchase-history readback, though there is no dedicated top-up success banner.
+- A hosted proof should use a dedicated Basic/private account with
+  `basic-starter` if available; Canon/developer soft-cap accounts have no
+  standard top-up packs.
+
+Current baton:
+
+- MIMIR has DAEDALUS's prep packet.
+- Recommended next action: open ARGUS hosted-mutation preflight for the token
+  top-up proof packet, or decide no immediate top-up proof is needed.
+
+## Previous MIMIR decision - token top-up proof prep opened
 
 MIMIR closes the read-only operations proof slice after ARGUS acceptance and
 opens a bounded DAEDALUS prep lane:
