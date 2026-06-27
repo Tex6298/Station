@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR402 accepted, PR403 opened
+
+MIMIR accepts ARIADNE's PR402 verdict:
+`docs/roadmap/PR402_NATIVE_AUTHORING_GUIDE_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR402 is closed as `PASS`.
+- PR401's owner-side Authoring Guide is accepted after hosted human-eye
+  rehearsal.
+- Memory/observability is not being reopened just to churn; the PR381/PR383/
+  PR384/PR385 chain already closes the current owner Memory, Archive,
+  Continuity, Global Archive search, runtime readback, and Settings AI Activity
+  route.
+- MIMIR opens
+  `docs/roadmap/PR403_ONBOARDING_MIGRATOR_API_BRIDGE_DEPTH_DAEDALUS.md`
+  because the reconciled launch-core audit still leaves mature onboarding,
+  Document Migrator, and API Bridge product depth reopened.
+
+Current baton:
+
+- DAEDALUS has PR403.
+- DAEDALUS should implement the smallest safe onboarding depth slice for
+  Document Migrator and API Bridge using existing routes/state, or wake MIMIR
+  with an exact narrower implementation packet if code is not safe.
+- If code changes land, wake ARGUS. Do not open live connector OAuth/API,
+  recurring imports, API-key secret handling, provider/model routing,
+  Gemini/OpenAI/NVIDIA changes, Redis, Cloudflare, queues, workers, schema,
+  migrations, billing, Stripe, auth/session, deployment behavior, broad UI
+  reskin, or autonomous Assistant execution.
+
 ## Latest MIMIR decision - PR401 accepted, PR402 opened
 
 MIMIR accepts ARGUS's PR401 verdict:
