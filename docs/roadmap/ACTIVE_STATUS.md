@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR413 accepted, PR414 opened
+
+MIMIR accepts ARGUS's PR413 verdict:
+`docs/roadmap/PR413_OWNER_ARCHIVE_FILE_IMPORT_UI_RESULT.md`.
+
+Decision:
+
+- PR413 is closed as `PASS WITH ARGUS PATCH`.
+- The owner persona Archive route now has a visible uploaded file import path
+  over the existing signed upload/register APIs.
+- ARGUS patched raw storage-path fallback and camelCase signed-upload error
+  redaction before acceptance.
+- Because PR413 changes visible owner workflow, MIMIR opens
+  `docs/roadmap/PR414_OWNER_ARCHIVE_FILE_IMPORT_UI_RECHECK_ARIADNE.md` for
+  hosted desktop/mobile human-eye verification.
+
+Current baton:
+
+- ARIADNE has PR414.
+- ARIADNE should wait for hosted web freshness at or after `503a1217`, then
+  inspect the owner persona Archive route on desktop and 390px mobile.
+- This is a no-mutation rehearsal: do not select, upload, register, import, or
+  delete any file.
+- If the visible UI passes, wake MIMIR; if it is stale or visibly defective,
+  wake MIMIR or DAEDALUS with exact evidence.
+
 ## Latest ARGUS verdict - PR413 owner Archive file import accepted
 
 ARGUS accepted PR413:
