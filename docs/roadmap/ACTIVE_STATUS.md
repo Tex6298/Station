@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - backup/restore design review opened
+
+DAEDALUS completed backup/restore rehearsal design on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_RESULT.md`.
+
+MIMIR opened ARGUS hostile design review:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_ARGUS.md`.
+
+Decision:
+
+- The proposed first rehearsal is local, disposable, synthetic, and
+  database-only.
+- Export package readback after restore is proposed as comparison evidence.
+- Hosted data, storage objects, schema/config/package changes, queue jobs,
+  provider config, Stripe, Redis, Cloudflare, Railway, Supabase dashboards, and
+  real owner data remain excluded.
+- No implementation, local dump/restore command, or hosted proof is authorized
+  before ARGUS review.
+
+Current baton:
+
+- ARGUS has backup/restore design review.
+- ARGUS should wake MIMIR with `ACCEPT RESTORE DESIGN - OPEN LOCAL PROOF IMPLEMENTATION`,
+  `ACCEPT WITH CHANGES`, `REJECT - NO SAFE RESTORE REHEARSAL`, or
+  `NEEDS MIMIR DECISION`.
+
 ## Latest DAEDALUS result - backup/restore design ready for ARGUS
 
 DAEDALUS completed the first backup/restore rehearsal design on 2026-06-28:
