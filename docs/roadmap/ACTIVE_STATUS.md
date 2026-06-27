@@ -4,31 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up account addendum opened
+## Latest ARIADNE result - token top-up dedicated account not confirmed
 
-ARGUS final review of ARIADNE's token top-up proof returned
-`NEEDS MIMIR DECISION` because the result packet did not explicitly evidence
-the dedicated proof-account requirement:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
+ARIADNE completed the token top-up proof account addendum:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_RESULT.md`.
 
-MIMIR chose the addendum path and opened:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_ARIADNE.md`.
+Verdict:
 
-Decision:
+```text
+NOT CONFIRMED - RERUN REQUIRED
+```
 
-- Do not waive the dedicated-account requirement.
-- Do not rerun yet.
-- ARIADNE must confirm or deny the dedicated non-production proof-account fact
-  from existing proof notes only.
-- No new hosted action, Checkout click, Stripe dashboard inspection, SQL
-  query, hosted-log read, credential request, account-tier change, or raw-id
-  evidence is authorized.
+Result:
+
+- Existing proof notes confirm the account was non-production Basic/private.
+- Existing proof notes confirm `basic-starter` was available and selected.
+- Existing proof notes confirm there was no latest top-up purchase before the
+  proof.
+- Existing proof notes confirm the account was not soft-cap for this proof and
+  that subscription tier/status did not change.
+- Existing proof notes do not confirm that the account was dedicated to the
+  token top-up proof.
+- No new hosted action, Checkout click, Stripe dashboard inspection, SQL query,
+  hosted-log read, credential request, account-state change, account-tier
+  change, raw-id evidence, or forbidden evidence was used.
 
 Current baton:
 
-- ARIADNE has token top-up proof account addendum.
-- ARIADNE should wake MIMIR with confirmed, not-confirmed/rerun-required, or
-  stopped-for-forbidden-evidence.
+- MIMIR has ARIADNE's not-confirmed/rerun-required addendum.
+- MIMIR should decide whether to open a rerun with an explicitly dedicated
+  eligible proof account or otherwise close/reframe the dedicated-account
+  requirement.
 
 ## Latest ARGUS verdict - token top-up final review needs MIMIR decision
 

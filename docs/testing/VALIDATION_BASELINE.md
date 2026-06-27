@@ -25,18 +25,23 @@ they are not Station validation failures.
 MIMIR opened ARIADNE token top-up proof account addendum on 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_ARIADNE.md`.
 
-Validation status: open, docs-only addendum lane.
+ARIADNE completed the addendum on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_RESULT.md`.
+
+Validation result: `NOT CONFIRMED - RERUN REQUIRED`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARGUS final review prerequisite | Pass | ARGUS found only the dedicated-account evidence gap; functional proof and leak scans otherwise passed. |
 | MIMIR decision | Pass | MIMIR chose selected-evidence addendum, not waiver and not immediate rerun. |
-| Hosted mutation | Not run | Addendum forbids new Checkout, Stripe dashboard inspection, SQL, hosted logs, account changes, or credential requests. |
-| Required outcome | Open | ARIADNE must confirm dedicated proof account, report not-confirmed/rerun-required, or stop for forbidden evidence. |
+| Existing selected evidence | Reviewed | Notes confirm non-production Basic/private, `basic-starter`, no latest top-up purchase before proof, and no subscription tier/status change. |
+| Dedicated-account evidence | Not confirmed | Existing notes do not state that the account was dedicated to this token top-up proof. |
+| Hosted mutation | Not run | Addendum used no new Checkout, Stripe dashboard inspection, SQL, hosted logs, account changes, credential requests, or forbidden evidence. |
+| Required outcome | Pass | ARIADNE returned `NOT CONFIRMED - RERUN REQUIRED`. |
 
-Residual risk: token top-up proof remains unclosed until the dedicated-account
-condition is confirmed or MIMIR opens a rerun with an explicitly dedicated
-eligible proof account.
+Residual risk: token top-up proof remains unclosed unless MIMIR opens a rerun
+with an explicitly dedicated eligible proof account or reframes the
+dedicated-account requirement.
 
 ## Token Top-Up Test-Mode Proof Final Review
 
