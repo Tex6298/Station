@@ -16,6 +16,7 @@ export type PublishingApprovalState = typeof PUBLISHING_APPROVAL_STATES[number];
 export type PublishingApprovalVisibility = "public" | "community" | "unlisted";
 
 const TERMINAL_STATES = new Set<PublishingApprovalState>(["cancelled", "published", "archived"]);
+const DISCUSSION_CATEGORY_SLUG = "documents-and-codexes";
 
 const ALLOWED_TRANSITIONS: Record<PublishingApprovalState, PublishingApprovalState[]> = {
   draft: ["grounding_check", "cancelled"],
@@ -47,6 +48,26 @@ function normalizeVisibility(value: string | null | undefined): PublishingApprov
 
 function isPublicPublishVisibility(value: string | null | undefined) {
   return value === "public" || value === "community" || value === "unlisted";
+}
+
+function discussionVisibilityForDocument(visibility: string | null | undefined) {
+  if (visibility === "community" || visibility === "members") return "community";
+  if (visibility === "unlisted") return "unlisted";
+  return "public";
+}
+
+function canHaveDocumentDiscussion(document: any) {
+  return (
+    document.status === "published" &&
+    document.comments_enabled !== false &&
+    isPublicPublishVisibility(document.visibility)
+  );
+}
+
+function excerpt(value?: string | null, max = 260) {
+  const clean = (value ?? "").replace(/\s+/g, " ").trim();
+  if (!clean) return "";
+  return clean.length > max ? `${clean.slice(0, max - 1)}...` : clean;
 }
 
 function documentProjection(document: any) {
@@ -172,6 +193,111 @@ async function recordEvent(
 async function hydrateItem(item: any) {
   const document = await loadOwnedDocument(item.document_id, item.owner_user_id);
   return serializeItem({ ...item, document });
+}
+
+async function loadDiscussionCategory() {
+  const sb = getSupabaseAdmin();
+  const { data: existing, error } = await sb
+    .from("forum_categories")
+    .select("id, slug, title")
+    .eq("slug", DISCUSSION_CATEGORY_SLUG)
+    .single();
+
+  if (existing) return existing;
+  if (error && !isMissingSingleError(error)) throw new Error(error.message);
+
+  const { data, error: insertError } = await sb
+    .from("forum_categories")
+    .insert({
+      slug: DISCUSSION_CATEGORY_SLUG,
+      title: "Documents & Codexes",
+      description: "Discussion around published Station documents, codexes, canon texts, and continuity artifacts.",
+      sort_order: 5,
+    })
+    .select("id, slug, title")
+    .single();
+
+  if (insertError) throw new Error(insertError.message);
+  return data;
+}
+
+async function loadLinkedDocumentDiscussion(document: any) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("threads")
+    .select("*")
+    .eq("linked_document_id", document.id)
+    .eq("status", "active")
+    .eq("visibility", discussionVisibilityForDocument(document.visibility))
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data?.[0] ?? null;
+}
+
+async function attachDiscussionThreadToDocument(document: any, thread: any) {
+  const sb = getSupabaseAdmin();
+  const { data: updatedDocument, error: documentError } = await sb
+    .from("documents")
+    .update({ discussion_thread_id: thread.id })
+    .eq("id", document.id)
+    .eq("author_user_id", document.author_user_id)
+    .select("*")
+    .single();
+
+  if (documentError) throw new Error(documentError.message);
+  return updatedDocument ?? { ...document, discussion_thread_id: thread.id };
+}
+
+async function ensureApprovalPublishedDocumentDiscussion(document: any) {
+  if (!canHaveDocumentDiscussion(document) || document.discussion_thread_id) {
+    return { document, thread: null };
+  }
+
+  const recovered = await loadLinkedDocumentDiscussion(document);
+  if (recovered) {
+    const updatedDocument = await attachDiscussionThreadToDocument(document, recovered);
+    return { document: updatedDocument, thread: recovered };
+  }
+
+  const category = await loadDiscussionCategory();
+  if (!category) return { document, thread: null };
+
+  const sb = getSupabaseAdmin();
+  const { data: thread, error: threadError } = await sb
+    .from("threads")
+    .insert({
+      category_id: category.id,
+      author_user_id: document.author_user_id,
+      linked_space_id: document.space_id ?? null,
+      linked_persona_id: document.persona_id ?? null,
+      linked_document_id: document.id,
+      authorship_kind: "user_authored",
+      authorship_source_type: null,
+      authorship_source_id: null,
+      authorship_persona_id: null,
+      title: `Discuss: ${document.title}`,
+      body: [
+        `Discussion attached to the published Station document "${document.title}".`,
+        excerpt(document.body, 260),
+      ].filter(Boolean).join("\n\n"),
+      status: "active",
+      visibility: discussionVisibilityForDocument(document.visibility),
+      is_pinned: false,
+      is_hidden: false,
+      reported_count: 0,
+      score: 0,
+      comment_count: 0,
+    })
+    .select("*")
+    .single();
+
+  if (threadError) throw new Error(threadError.message);
+  if (!thread) return { document, thread: null };
+
+  const updatedDocument = await attachDiscussionThreadToDocument(document, thread);
+  return { document: updatedDocument, thread };
 }
 
 export async function listPublishingApprovals(ownerUserId: string) {
@@ -323,11 +449,14 @@ export async function transitionPublishingApproval(
     update.visibility = visibility;
     update.published_at = now;
     update.scheduled_for = null;
+    const discussionResult = await ensureApprovalPublishedDocumentDiscussion(publishedDocument);
+    const documentForEvent = discussionResult.document;
     await recordEvent(item, actorUserId, "document_published", currentState, nextState, options.note, {
       visibility,
-      documentStatus: publishedDocument.status,
-      provenanceType: publishedDocument.provenance_type,
-      sourceType: publishedDocument.source_type,
+      documentStatus: documentForEvent.status,
+      provenanceType: documentForEvent.provenance_type,
+      sourceType: documentForEvent.source_type,
+      discussionThreadId: discussionResult.thread?.id ?? documentForEvent.discussion_thread_id ?? null,
     });
   }
 

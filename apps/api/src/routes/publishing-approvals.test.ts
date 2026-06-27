@@ -46,6 +46,8 @@ class PublishingApprovalSupabase {
     ],
     publishing_approval_items: [],
     publishing_approval_events: [],
+    forum_categories: [],
+    threads: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -114,6 +116,25 @@ class PublishingApprovalSupabase {
       row.metadata ??= {};
       row.note ??= null;
       row.created_at ??= now;
+    }
+
+    if (table === "forum_categories") {
+      row.description ??= null;
+      row.sort_order ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "threads") {
+      row.status ??= "active";
+      row.visibility ??= "public";
+      row.is_pinned ??= false;
+      row.is_hidden ??= false;
+      row.reported_count ??= 0;
+      row.score ??= 0;
+      row.comment_count ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -370,10 +391,22 @@ test("publishing approvals enforce state transitions and publish through owner d
     assert.equal(published.body.approval.state, "published");
     assert.equal(published.body.approval.document.status, "published");
     assert.equal(published.body.approval.document.visibility, "unlisted");
+    assert.match(published.body.approval.document.discussion_thread_id, /^[0-9a-f-]{36}$/);
 
     const document = db.tables.documents.find((row) => row.id === DOC_ID);
     assert.equal(document?.status, "published");
     assert.equal(document?.visibility, "unlisted");
+    assert.equal(document?.discussion_thread_id, published.body.approval.document.discussion_thread_id);
+
+    const thread = db.tables.threads.find((row) => row.id === document?.discussion_thread_id);
+    assert.equal(thread?.linked_document_id, DOC_ID);
+    assert.equal(thread?.linked_space_id, document?.space_id);
+    assert.equal(thread?.author_user_id, OWNER_ID);
+    assert.equal(thread?.visibility, "unlisted");
+    assert.equal(thread?.status, "active");
+    assert.equal(thread?.is_hidden, false);
+    assert.equal(thread?.category_id, db.tables.forum_categories[0]?.id);
+    assert.equal(db.tables.forum_categories[0]?.slug, "documents-and-codexes");
 
     const events = await requestJson(app, "GET", `/publishing/approvals/${approvalId}/events`, {
       token: "owner-token",
@@ -383,6 +416,8 @@ test("publishing approvals enforce state transitions and publish through owner d
       events.body.events.map((event: Row) => event.toState).sort(),
       ["approved", "grounding_check", "human_review", "published"].sort(),
     );
+    const publishEvent = events.body.events.find((event: Row) => event.eventType === "document_published");
+    assert.equal(publishEvent.metadata.discussionThreadId, document?.discussion_thread_id);
   } finally {
     setSupabaseAdminForTests(null);
   }

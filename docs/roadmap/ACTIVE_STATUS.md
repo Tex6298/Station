@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR396 ready for ARGUS
+
+DAEDALUS completed PR396:
+`docs/roadmap/PR396_APPROVAL_PUBLISHED_DISCUSSION_READBACK_RESULT.md`.
+
+Current status:
+
+- PR396 found a narrow defect in approval publish, not the public document page:
+  `POST /publishing/approvals/:id/transition` published the document but did
+  not attach the linked document discussion that direct document publish creates.
+- Approval-published documents now attach or recover a linked discussion when
+  the published document is eligible: `published`, comments enabled, and `public`,
+  `community`, or `unlisted` visibility.
+- New threads are linked to the document, owner, Space, optional persona, and
+  `documents-and-codexes` category, and the document receives
+  `discussion_thread_id` before the approval response is hydrated.
+- Approval publish event metadata now records `discussionThreadId`.
+- Existing public document detail behavior should now have the pointer needed to
+  show `Open linked discussion` before a later retraction.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed
+  (14 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed (22 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (127 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR396.
+- ARGUS should hostile-review the approval-publish discussion attach behavior,
+  the unlisted readback expectation, test coverage, and scope.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` and recommend a PR395
+  hosted retry on fresh web/API. If fixes are needed, ARGUS should wake
+  DAEDALUS with `WAKEUP A2:`.
+- Do not open another hosted mutation, hard delete cleanup, thread/comment
+  deletion, Station Press, social, rich text, scheduling, billing,
+  provider/model, Redis, Cloudflare, workers, queues, schema, or migrations.
+
 ## Latest MIMIR decision - PR395 blocked, PR396 opened
 
 MIMIR accepts ARIADNE's PR395 hosted result as `BLOCKED WITH USEFUL PROOF`:
