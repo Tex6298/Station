@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-01A closed, UX-02 opened
+
+MIMIR accepts ARGUS's UX-01A visible-fix verdict and closes the Studio
+route-story/mobile workbench slice as accepted.
+
+MIMIR opened UX-02 Archive Trust Feasibility and Reconciliation:
+`docs/roadmap/UX02_ARCHIVE_TRUST_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-01A is accepted: the private Studio route-story readback is implemented,
+  ARIADNE found and patched the place-strip label-collapse bug, and ARGUS
+  accepted the CSS-only visible fix.
+- The next lane is UX-02 because archive is the continuity proof layer and the
+  roadmap names Archive trust as the nearest dependency after Studio
+  wayfinding.
+- UX-02 is feasibility/reconciliation only. DAEDALUS should inspect current
+  Archive/export/storage routes and older UX-02A/UX-02B evidence, then
+  recommend the smallest visible implementation slice.
+- No UI implementation, storage accounting, Supabase upload/register behavior,
+  import parser behavior, candidate mutation, export package assembly,
+  auth/session behavior, runtime retrieval/context behavior, provider/model
+  behavior, Redis, Cloudflare, schema, migration, worker, queue, Railway, or
+  Supabase config change is authorized.
+
+Current baton:
+
+- DAEDALUS has UX-02 feasibility.
+- DAEDALUS should wake MIMIR with the current-state map, stale/current prior
+  evidence classification, recommended first implementation slice, ARGUS gates,
+  ARIADNE review points, and any blocker.
+
 ## Latest ARGUS verdict - UX-01A visible fix accepted
 
 ARGUS accepted ARIADNE's UX-01A visible CSS fix:

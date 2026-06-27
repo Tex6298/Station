@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-02 Archive Trust Feasibility Opened
+
+MIMIR opened UX-02 on 2026-06-27:
+`docs/roadmap/UX02_ARCHIVE_TRUST_FEASIBILITY_DAEDALUS.md`.
+
+Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-01A prerequisite | Pass | Studio route-story/mobile workbench readback is accepted after ARIADNE's visible fix and ARGUS review. |
+| Scope | Pending | Docs-only feasibility and reconciliation; DAEDALUS should not implement UI changes in this lane. |
+| Current evidence | Pending | DAEDALUS should classify current Archive/export/storage behavior against older UX-02A/UX-02B evidence rather than duplicating stale work. |
+| Required output | Pending | Current-state map, solved/stale classification, fragile boundaries, cheap/deferred cuts, ARGUS gates, ARIADNE review points, and next implementation recommendation. |
+
+Residual risk: Archive trust does not improve until MIMIR opens the first
+implementation slice after DAEDALUS feasibility.
+
 ## UX-01A Studio Route-Story And Mobile Workbench ARIADNE Review
 
 ARIADNE completed visible review on 2026-06-27:
