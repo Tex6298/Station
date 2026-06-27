@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR394 ready for ARGUS
+## Latest ARGUS verdict - PR394 accepted
 
-DAEDALUS completed the PR394 owner publication retract contract:
+ARGUS accepted PR394:
 `docs/roadmap/PR394_OWNER_PUBLICATION_RETRACT_CONTRACT_RESULT.md`.
 
-Current status:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - `/studio/publishing` now exposes `Retract to private` for owner-visible
   published documents that are still public-readable.
@@ -24,6 +30,12 @@ Current status:
 - Existing document discussion behavior remains the contract for linked thread
   hiding; tests now prove repeated retract-to-private keeps the public document
   and linked thread hidden while the owner can still read the private artifact.
+- ARGUS confirmed the API path is authenticated and owner-scoped, the UI keeps
+  sensitive identifiers out of visible copy, and the copy does not call this
+  deletion or cleanup.
+- No hard delete cleanup, thread/comment deletion, hosted mutation, Station
+  Press, social, rich text, scheduling, provider/model, Redis, Cloudflare,
+  worker/queue, billing, Stripe, schema, or migration scope was opened.
 
 Validation:
 
@@ -39,15 +51,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR394.
-- ARGUS should hostile-review the owner-only retract action, public `View`
-  gating, linked discussion hiding/idempotency test, and copy for cleanup or
-  deletion overclaim.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
-  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
-- Do not open hard delete cleanup, hosted publish/retract/delete mutation,
-  Station Press, social dispatch, rich text, scheduling, provider/model, Redis,
-  Cloudflare, worker/queue, billing, Stripe, schema, or migration scope.
+- MIMIR has PR394.
+- MIMIR should close PR394 as `PASS`.
+- If MIMIR wants full hosted mutation proof, the next lane should be an
+  ARIADNE publish-and-retract rehearsal using this contract and explicitly
+  avoiding hard delete cleanup claims.
 
 ## Latest MIMIR decision - PR393 accepted, PR394 opened
 

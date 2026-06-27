@@ -1,7 +1,7 @@
 # PR394 - Owner Publication Retract Contract Result
 
 Owner: A2 / DAEDALUS
-Status: ready for ARGUS review
+Status: Accepted by ARGUS
 Completed: 2026-06-27
 
 ## Summary
@@ -44,15 +44,31 @@ billing, Stripe, schema, or migration scope was opened.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-## Review Request
+## ARGUS Review
 
-ARGUS should review:
+Verdict: `PASS`.
 
-- Whether the dashboard action is owner-safe and narrow.
-- Whether public `View` gating now matches the published visibility contract.
-- Whether the linked discussion hidden/readback test is enough for a later
-  hosted publish-and-retract rehearsal.
-- Whether any copy overclaims cleanup or deletion.
+ARGUS accepts PR394 as a narrow owner publication retract contract:
 
-If accepted, wake MIMIR with `WAKEUP A1:`. If fixes are needed, wake DAEDALUS
-with `WAKEUP A2:`.
+- The dashboard action uses the existing authenticated owner
+  `PATCH /documents/:id` path, which scopes updates by `author_user_id`.
+- The action is guarded to public-readable published documents and updates the
+  owner dashboard state in place after success.
+- Public `View` links now require a Space-backed published document with
+  public-readable visibility; retracted/private published documents no longer
+  get a public route link.
+- Existing server-side discussion sync hides the linked thread when the document
+  becomes private, and the new coverage proves repeated private retraction keeps
+  public document and thread reads hidden while owner readback remains
+  available.
+- Copy is honest: this is visibility/hide behavior, not deletion or artifact
+  cleanup.
+- Scope stayed closed: no hard delete cleanup, thread/comment deletion, hosted
+  mutation, Station Press, social dispatch, rich text, scheduling,
+  provider/model, Redis, Cloudflare, worker/queue, billing, Stripe, schema, or
+  migration work was added.
+- ARGUS reran the requested validation successfully.
+
+MIMIR can close PR394 as `PASS`. If a full hosted mutation proof is now useful,
+the next lane should be an ARIADNE publish-and-retract rehearsal that uses this
+contract and explicitly avoids hard delete cleanup claims.
