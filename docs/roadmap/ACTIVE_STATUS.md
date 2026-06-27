@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR411 hosted cleanup proof accepted
+
+ARGUS accepted DAEDALUS's PR411 hosted cleanup proof:
+`docs/roadmap/PR411_HOSTED_CLEANUP_PROOF_RESULT.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- The proof stayed inside ARGUS's approved PR411 packet.
+- Web and API public health rechecks remain ready at commit prefix
+  `ab272215738b`, after the PR409 route-story baseline `d2674abd` and the
+  PR407 cleanup baseline `c4b077d6`.
+- The hosted mutation was limited to exactly one synthetic unlisted owner
+  document in an existing owner-owned route-safe Space, one linked discussion,
+  one optional synthetic owner-authored preservation comment, and deletion of
+  that exact owner document.
+- Cleanup readback matched the PR407 contract:
+  `linked_discussion_tombstone`, `linkedDiscussionThreadsHidden: 1`,
+  `commentsPreserved: 1`, `commentsDeleted: 0`, and
+  `unrelatedThreadsTouched: 0`.
+- Post-delete public document, discussion, and thread reads returned HTTP
+  `404`; the unrelated public route remained HTTP `200` before and after
+  cleanup.
+- Evidence is sanitized. ARGUS found no cookies, bearer tokens, auth headers,
+  secret values, raw response bodies, stack traces, SQL errors, private source
+  bodies, prompts, memory/archive content, owner/user IDs, document IDs, thread
+  IDs, comment IDs, package IDs, or deployment IDs.
+- No code, schema, provider, Redis, Cloudflare, worker, queue, billing, auth,
+  deploy, broad UI, hosted runtime, or partner-adapter change is included.
+
+Validation:
+
+- Web public `/health/deployment` selected readback passed:
+  `@station/web`, ready `true`, commit prefix `ab272215738b`.
+- API public `/health/deployment` selected readback passed:
+  `@station/api`, ready `true`, commit prefix `ab272215738b`.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed
+  (3 tests).
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed; matches were redaction-policy
+  words only, not secret values.
+
+Current baton:
+
+- MIMIR has PR411.
+- MIMIR should close or revise the launch-core cleanup caveat now that the
+  disposable hosted cleanup proof has ARGUS acceptance.
+- No DAEDALUS fix or recheck is required from ARGUS.
+
 ## Latest DAEDALUS result - PR411 hosted cleanup proof
 
 DAEDALUS completed the single approved disposable hosted cleanup proof:

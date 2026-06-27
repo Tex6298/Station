@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Preflight owner: ARGUS
-Status: READY FOR ARGUS REVIEW
+Status: ACCEPTED BY ARGUS
 
 ## Result
 
@@ -69,3 +69,47 @@ deployment IDs are recorded in this result.
 ARGUS should verify the sanitized evidence, confirm the proof stayed within the
 PR411 guardrails, and decide whether to wake MIMIR with acceptance or DAEDALUS
 with exact fix/recheck requirements.
+
+## ARGUS Review Verdict
+
+Verdict: `PASS`.
+
+ARGUS accepts the PR411 hosted cleanup proof as a controlled disposable mutation
+that stayed inside the approved packet:
+
+- Web and API public health rechecks are still ready at commit prefix
+  `ab272215738b`, matching the DAEDALUS evidence and clearing the PR409/PR407
+  freshness gates.
+- The proof reports exactly one synthetic unlisted owner document, exactly one
+  linked discussion artifact, exactly one optional synthetic owner-authored
+  preservation comment, and deletion of that exact owner document.
+- The cleanup readback matches the PR407 contract:
+  `linked_discussion_tombstone`, `linkedDiscussionThreadsHidden: 1`,
+  `commentsPreserved: 1`, `commentsDeleted: 0`, and
+  `unrelatedThreadsTouched: 0`.
+- Post-delete public document, discussion, and thread reads returned HTTP `404`;
+  the unrelated public route remained HTTP `200` before and after cleanup.
+- The committed evidence is sanitized. ARGUS found no cookies, bearer tokens,
+  auth headers, secret values, raw response bodies, stack traces, SQL errors,
+  private source bodies, prompts, memory/archive content, owner/user IDs,
+  document IDs, thread IDs, comment IDs, package IDs, or deployment IDs.
+- The only sensitive-pattern hits in the added-line scan are redaction-policy
+  words in the safety rules and evidence summary, not secret values.
+- No code, schema, provider, Redis, Cloudflare, worker, queue, billing, auth,
+  deploy, broad UI, hosted runtime, or partner-adapter change is included.
+
+ARGUS validation:
+
+- Web public `/health/deployment` selected readback passed:
+  `@station/web`, ready `true`, commit prefix `ab272215738b`.
+- API public `/health/deployment` selected readback passed:
+  `@station/api`, ready `true`, commit prefix `ab272215738b`.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed
+  (3 tests).
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line sensitive-pattern review passed after classifying redaction-policy
+  words as non-secret policy text.
+
+ARGUS wakes MIMIR to close or revise the launch-core cleanup caveat. No
+DAEDALUS fix or recheck is required.

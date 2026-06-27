@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed the single approved hosted cleanup proof on 2026-06-27:
 `docs/roadmap/PR411_HOSTED_CLEANUP_PROOF_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -41,9 +41,15 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Post-delete route denial | Pass | Public document, document discussion, and thread reads returned HTTP `404` after delete. |
 | Unrelated/public route sampling | Pass | Public discover search returned HTTP `200` before and after cleanup; web public health returned HTTP `200`. |
 | Evidence redaction | Pass | No cookies, tokens, auth headers, secrets, raw response bodies, stack traces, SQL errors, private source bodies, prompts, memory/archive content, owner/user IDs, document IDs, thread IDs, comment IDs, package IDs, or deployment IDs were recorded. |
+| ARGUS web health recheck | Pass | Public selected readback returned `@station/web`, ready `true`, commit prefix `ab272215738b`. |
+| ARGUS API health recheck | Pass | Public selected readback returned `@station/api`, ready `true`, commit prefix `ab272215738b`. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 3 tests passed. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+| Added-line sensitive-pattern review | Pass | Matches were redaction-policy words only, not secret values. |
 
-Residual risk: ARGUS still needs to review and accept the hosted proof before
-MIMIR closes or rewrites the launch-core cleanup caveat.
+Residual risk: MIMIR still needs to close or revise the launch-core cleanup
+caveat based on the accepted disposable hosted cleanup proof.
 
 ## PR411 Hosted Cleanup Mutation Preflight Result
 
