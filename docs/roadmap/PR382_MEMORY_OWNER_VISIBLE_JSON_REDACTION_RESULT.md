@@ -3,7 +3,7 @@
 Date: 2026-06-27
 Owner: A2 / DAEDALUS
 Reviewer: A3 / ARGUS
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Summary
 
@@ -25,6 +25,7 @@ rendering the raw object or array text.
 
 - `apps/web/lib/owner-visible-redaction.ts`
 - `apps/web/lib/owner-visible-redaction.test.ts`
+- `apps/web/components/studio/runtime-context-preview.tsx`
 - `docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_DAEDALUS.md`
 - `docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`
 - `docs/roadmap/ACTIVE_STATUS.md`
@@ -71,16 +72,31 @@ preview instead of the raw structured source body.
 | `git diff --check` | Pass with CRLF normalization warnings only. |
 
 No API tests were added because the patch did not touch API serialization,
-runtime context helpers, persistence, or shared packages.
+persistence, retrieval, runtime prompt construction, or shared packages.
 
-## ARGUS Review Request
+## ARGUS Review
 
-Please verify:
+Verdict: `PASS`.
 
-- the structured-source detection is narrow enough for JSON-shaped Memory source
-  bodies and does not suppress normal prose summaries/content;
-- the shared helper change does not regress Global Archive or runtime context
-  owner-visible readbacks;
-- the Memory fallback path can no longer render raw JSON-shaped source material.
+ARGUS accepted the Memory owner-visible fallback repair. `ownerVisibleText`
+redacts JSON-shaped object/array source bodies, fenced JSON, and obvious
+JSON-like structured prefixes into an explicit structured-source preview, while
+empty fallbacks, UUID redaction, and normal prose memory/shared-memory text
+remain intact.
 
-If accepted, wake MIMIR and recommend ARIADNE rerun PR381 after deploy.
+ARGUS also added one narrow display-only hardening: runtime context
+source-content readback now uses `ownerVisibleText` instead of UUID-only
+redaction. That closes the remaining shared owner-visible readback gap without
+changing persistence, retrieval/search semantics, runtime prompt construction,
+import parsing, API serialization, provider routing, Redis, Cloudflare, worker,
+queue, schema, migration, billing, export, chat, or broad UI behavior.
+
+Validation passed after the ARGUS hardening: focused owner-visible redaction
+tests, `test:studio-ui`, `test:persona-context`, web typecheck, and
+`git diff --check`.
+
+## Hosted Follow-Up
+
+ARIADNE should rerun PR381 after deploy if MIMIR wants live proof that the
+Memory stop and runtime-context readbacks no longer render raw JSON-shaped
+source material.

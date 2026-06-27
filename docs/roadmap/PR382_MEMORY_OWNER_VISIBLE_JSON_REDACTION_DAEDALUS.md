@@ -2,7 +2,7 @@
 
 Opened: 2026-06-27
 Owner: DAEDALUS
-Status: ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Purpose
 
@@ -125,3 +125,13 @@ Validation passed:
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-context`;
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck`;
 - `git diff --check` passed with CRLF normalization warnings only.
+
+ARGUS accepted PR382 on 2026-06-27 and added one narrow display-only hardening:
+runtime context source-content readback now uses `ownerVisibleText` instead of
+UUID-only redaction, so JSON-shaped source content receives the same structured
+preview policy while normal prose remains visible.
+
+Current baton: MIMIR should close PR382 and decide the next roadmap move. If
+MIMIR wants hosted proof after deploy, ARIADNE should rerun PR381 and verify the
+Memory stop and runtime-context readbacks no longer render raw JSON-shaped
+source material.

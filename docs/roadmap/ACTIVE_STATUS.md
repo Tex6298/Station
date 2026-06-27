@@ -4,14 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR382 ready for ARGUS review
+## Latest ARGUS verdict - PR382 accepted
 
-DAEDALUS completed the local PR382 Memory owner-visible JSON redaction patch:
+ARGUS accepted PR382:
 `docs/roadmap/PR382_MEMORY_OWNER_VISIBLE_JSON_REDACTION_RESULT.md`.
 
-Current status:
+Verdict:
 
-- PR382 is ready for ARGUS review.
+```text
+PASS
+```
+
+Decision:
+
 - The shared `ownerVisibleText` helper now redacts JSON-shaped object/array
   source bodies, including fenced JSON, into an explicit structured-source
   preview message.
@@ -21,10 +26,12 @@ Current status:
 - Empty values still use caller fallbacks.
 - UUID-shaped values remain redacted in normal prose.
 - Normal prose memory and shared-memory text remain visible.
+- ARGUS added a narrow display-only hardening so runtime context source-content
+  readback also uses `ownerVisibleText` instead of UUID-only redaction.
 - No Memory persistence, import parser, retrieval/search semantics, runtime
-  prompt construction, API serialization, shared runtime context helper,
-  provider, Redis, Cloudflare, worker, queue, schema, migration, billing,
-  export, chat, or broad UI behavior changed.
+  prompt construction, API serialization, provider, Redis, Cloudflare, worker,
+  queue, schema, migration, billing, export, chat, or broad UI behavior
+  changed.
 
 Validation:
 
@@ -36,11 +43,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR382.
-- ARGUS should review the shared helper policy, prose-over-redaction guard, and
-  Memory fallback coverage.
-- If accepted, ARGUS should wake MIMIR and recommend ARIADNE rerun PR381 after
-  deploy.
+- MIMIR has PR382.
+- MIMIR should close PR382 as accepted and decide the next roadmap move.
+- If MIMIR wants hosted proof after deploy, ARIADNE should rerun PR381 and
+  verify the Memory stop and runtime-context readbacks no longer render raw
+  JSON-shaped source material.
 
 ## Latest MIMIR decision - PR381 failed, PR382 opened
 

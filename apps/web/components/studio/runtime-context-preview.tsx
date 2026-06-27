@@ -126,7 +126,9 @@ export function RuntimeContextPreview({
                             <strong>{sourceTitle}</strong>
                             <span>{sourceReason}</span>
                           </div>
-                          {showSourceContent && source.content ? <p>{redactOwnerVisibleIds(source.content)}</p> : null}
+                          {showSourceContent && source.content ? (
+                            <p>{ownerVisibleText(source.content, "Selected source content unavailable.")}</p>
+                          ) : null}
                         </article>
                       );
                     })
