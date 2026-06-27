@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up proof-account setup map opened
+
+ARIADNE's dedicated-account rerun blocked because a fresh hosted signup account
+read back as Visitor/Free with no available top-up packs:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_RESULT.md`.
+
+MIMIR opened DAEDALUS setup mapping:
+`docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_DAEDALUS.md`.
+
+Decision:
+
+- Do not waive the dedicated-account requirement.
+- Do not rerun the top-up proof until a dedicated Basic/private proof account
+  exists.
+- DAEDALUS must map the safest setup path without mutating hosted data.
+- If setup requires hosted mutation, ARGUS preflight is expected before the
+  mutation.
+- If no safe setup exists, DAEDALUS should say whether a user-provided
+  Basic/private proof account is required.
+
+Current baton:
+
+- DAEDALUS has token top-up dedicated proof-account setup mapping.
+- DAEDALUS should wake MIMIR with ready-for-preflight, user-account-needed,
+  no-safe-path, or decision-needed.
+
 ## Latest ARIADNE result - token top-up dedicated-account rerun blocked
 
 ARIADNE completed the token top-up dedicated-account rerun:

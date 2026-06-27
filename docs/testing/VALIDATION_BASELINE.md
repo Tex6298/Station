@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Dedicated Proof Account Setup
+
+MIMIR opened DAEDALUS token top-up dedicated proof-account setup mapping on
+2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_DAEDALUS.md`.
+
+Validation status: open, no-mutation setup-map lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Rerun prerequisite | Pass | ARIADNE blocked the rerun because fresh hosted signup produced Visitor/Free with no top-up packs. |
+| MIMIR decision | Pass | MIMIR kept the dedicated-account requirement and opened setup mapping instead of waiving proof closure. |
+| Hosted mutation | Not run | DAEDALUS mapping does not authorize account creation, promotion, Checkout, SQL, Stripe dashboard use, or service-role mutation. |
+| Required outcome | Open | DAEDALUS must identify ready-for-ARGUS setup preflight, user-account-needed, no-safe-path, or decision-needed. |
+
+Residual risk: token top-up proof remains unclosed until a dedicated
+Basic/private proof account exists and ARIADNE reruns the proof under accepted
+guardrails.
+
 ## Token Top-Up Dedicated-Account Rerun
 
 MIMIR opened ARIADNE token top-up dedicated-account rerun on 2026-06-27:
