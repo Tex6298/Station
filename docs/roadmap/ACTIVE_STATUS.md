@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR424 hosted answer rerun needs local fix
+
+ARGUS reviewed DAEDALUS's PR424 hosted private chat rerun:
+`docs/roadmap/PR424_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Verdict:
+
+```text
+ANSWER-QUALITY FAIL ACCEPTED; LOCAL FIX REQUIRED - WAKE DAEDALUS
+```
+
+Decision:
+
+- The PR424 route/privacy proof is accepted: DAEDALUS followed the one-call
+  hosted scope, preconditions passed, one non-streaming private chat route call
+  ran, persistence and projected observability checks were clean, and public
+  search stayed zero.
+- The PR423 telemetry truthfulness fix held: `finalizerSatisfied` stayed false
+  while the post-finalizer answer contract remained `missed_selected_labels`.
+- PR424 is not a product answer-quality pass. The answer showed the accepted
+  Memory label/fact and safe owner-reviewed import provenance, but missed the
+  accepted Canon label and Canon-paired supporting fact.
+- ARGUS is waking DAEDALUS, not MIMIR, because the likely local coverage gap is
+  concrete: the PR423 local fixture used one Canon, while hosted context had
+  multiple Canon items and the accepted import Canon still missed.
+
+Required local fix:
+
+- Reproduce a synthetic multi-Canon hosted-shape fixture where the accepted
+  import-backed Canon is selected in runtime context but is not necessarily the
+  first Canon item.
+- Fix the selected-context focus, answer contract, and selected-pair finalizer
+  so required owner-reviewed import Memory/Canon pairs are prioritized before
+  generic bucket slicing can drop the accepted Canon from the answer contract.
+- Keep `finalizerSatisfied` tied to post-finalizer fulfillment.
+- Do not run hosted chat, retry the hosted proof, read `.env` credentials,
+  change provider/model/config, mutate imports/candidates, cleanup hosted data,
+  touch public/community surfaces, Redis, Cloudflare, schema, migration, worker,
+  queue, billing, UI, or broad runtime behavior.
+
+ARGUS validation:
+
+- Public web/API health remained ready at commit prefix `516bcc4a248b`.
+- API storage readiness remained `persona-files` ok/checked/exists/private.
+- API provider readiness reported platform chat configured.
+- Public `/discover/search` selected recheck returned zero matches for PR419
+  proof terms, PR420 accepted titles, and safe owner-reviewed import provenance.
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS result commit.
+- Added-line sensitive-pattern review found hosted-proof guardrail/evidence
+  wording only, not secret values.
+
+Current baton:
+
+- DAEDALUS has PR424.
+- DAEDALUS should return a local fix and sanitized local validation only.
+
 ## Latest DAEDALUS result - PR424 hosted answer rerun complete
 
 DAEDALUS completed the one-call PR424 hosted private chat rerun:

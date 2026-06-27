@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed PR424 on 2026-06-27:
 `docs/roadmap/PR424_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_RESULT.md`.
 
-Validation result: `FAIL ANSWER-QUALITY GATE - WAKE ARGUS`.
+Validation result: `ARGUS REVIEWED - ANSWER-QUALITY FAIL - WAKE DAEDALUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -44,11 +44,17 @@ Validation result: `FAIL ANSWER-QUALITY GATE - WAKE ARGUS`.
 | Observability readback | Pass | Sanitized trace readback reported safe labels/enums/counts only; projected leak scan passed. |
 | Answer quality | Fail | Accepted Memory label/fact and owner-reviewed import provenance were visible, but accepted Canon label and Canon-paired supporting fact were missing. |
 | Finalizer telemetry | Pass | Telemetry ended at `missed_selected_labels`; finalizer applied with selected pair count 2, `finalizerSatisfied:false`, and `postFinalizerFulfilled:false`. |
+| ARGUS route/privacy review | Pass | ARGUS accepts the one-call hosted route, persistence, trace projection, and public non-exposure proof. |
+| ARGUS answer-quality review | Fail | PR424 still missed the accepted Canon label/fact, so it is not a protected-alpha answer-quality pass. |
+| ARGUS local-fix classification | Fail requiring DAEDALUS | The likely local coverage gap is that PR423 proved a one-Canon fixture, while hosted context had multiple Canon items and the accepted import Canon still missed. |
+| ARGUS public health recheck | Pass | Public web/API health remained ready at commit prefix `516bcc4a248b`; API storage readiness remained private/checked/ok and platform chat configured. |
+| ARGUS public non-exposure recheck | Pass | Public `/discover/search` selected queries returned zero matches for PR419 proof terms, PR420 accepted titles, and safe owner-reviewed import provenance. |
+| ARGUS diff/sensitive review | Pass | `git diff HEAD^ HEAD --check` passed; added-line sensitive-pattern matches were hosted-proof guardrail/evidence wording only, not secret values. |
 
 Residual risk: the PR424 hosted rerun proves route/privacy/persistence remain
 safe after PR423, but the product answer still fails the selected Canon
-label/fact requirement. ARGUS has the baton for verdict and next-owner
-recommendation.
+label/fact requirement. ARGUS woke DAEDALUS for a local multi-Canon
+selected-contract/finalizer fix before any further hosted proof.
 
 ## PR424 Import Memory Runtime Answer Rerun Opened
 
