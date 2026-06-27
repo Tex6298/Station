@@ -3540,6 +3540,43 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
   }
 });
 
+test("Discover search document provenance omits raw source labels", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const visitor = await requestJson(app, "GET", "/discover/search?q=Document");
+    assert.equal(visitor.status, 200);
+    assert.deepEqual(
+      visitor.body.documents.map((row: Row) => row.id).sort(),
+      [AI_DOC_ID, ARCHIVE_DOC_ID, PUBLIC_DOC_ID].sort()
+    );
+    const aiDocument = visitor.body.documents.find((row: Row) => row.id === AI_DOC_ID);
+    const archiveDocument = visitor.body.documents.find((row: Row) => row.id === ARCHIVE_DOC_ID);
+    assert.equal(aiDocument.provenance_type, "ai_assisted");
+    assert.equal(archiveDocument.provenance_type, "archive_import");
+    for (const documentResult of visitor.body.documents) {
+      assert.equal("source_label" in documentResult, false);
+      assert.equal("source_type" in documentResult, false);
+      assert.equal("source_persona_id" in documentResult, false);
+    }
+
+    const visitorText = JSON.stringify(visitor.body.documents);
+    for (const forbidden of [
+      "owner-only-ai-session-label",
+      "private-archive-file-name.txt",
+      "source_label",
+      "source_type",
+      "source_persona_id",
+    ]) {
+      assert.equal(visitorText.includes(forbidden), false, `${forbidden} leaked into public document search`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Discover search surfaces public Salons through safe forum category routes", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);

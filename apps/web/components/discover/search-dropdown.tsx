@@ -16,6 +16,14 @@ function safeSpaceHref(slug: unknown) {
     : null;
 }
 
+function safeDeveloperSpaceHref(slug: unknown) {
+  return typeof slug === "string" &&
+    SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug)
+    ? `/developer-spaces/${slug}`
+    : null;
+}
+
 function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
   const spaceHref = safeSpaceHref(spaceSlug);
   return spaceHref && typeof documentId === "string" ? `${spaceHref}/documents/${documentId}` : null;
@@ -46,7 +54,7 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
     case "projects":
       return publicProjectHref(result.slug);
     case "developerSpaces":
-      return result.slug ? `/developer-spaces/${result.slug}` : null;
+      return safeDeveloperSpaceHref(result.slug);
     case "salons": {
       const slug = result.categorySlug ?? result.slug;
       return typeof slug === "string" &&

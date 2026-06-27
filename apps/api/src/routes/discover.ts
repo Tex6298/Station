@@ -149,6 +149,19 @@ function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearch
     }));
 }
 
+function publicDocumentSearchResults(rows: any[], limit = 8) {
+  return rows.slice(0, limit).map((row) => ({
+    id: row.id,
+    title: row.title,
+    body: row.body,
+    document_type: row.document_type,
+    visibility: row.visibility,
+    provenance_type: row.provenance_type,
+    discussion_thread_id: row.discussion_thread_id ?? null,
+    space: row.space ? { slug: row.space.slug } : null,
+  }));
+}
+
 function developerSpaceSearchResults(rows: any[], limit = 8) {
   const bySlug = new Map<string, any>();
   for (const row of rows) {
@@ -675,7 +688,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
-        .select("id, title, body, document_type, visibility, provenance_type, source_type, source_label, discussion_thread_id, space:spaces!space_id(slug)")
+        .select("id, title, body, document_type, visibility, provenance_type, discussion_thread_id, space:spaces!space_id(slug)")
         .eq("status", "published")
         .eq("visibility", visibility)
         .ilike("title", `%${q}%`)
@@ -739,7 +752,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
   ]);
 
   res.json({
-    documents: docResults.flatMap((result) => result.data ?? []).slice(0, 8),
+    documents: publicDocumentSearchResults(docResults.flatMap((result) => result.data ?? [])),
     threads:   threadResults.flatMap((result) => result.data ?? []).filter((thread: any) => !thread.linked_document_id).slice(0, 8),
     spaces:    (spaces.data ?? []).map((space: any) => ({
       ...space,

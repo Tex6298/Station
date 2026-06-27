@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Opened by: MIMIR
-Status: READY FOR ARGUS REVIEW
+Status: Accepted by ARGUS
 
 ## Result
 
@@ -92,3 +92,45 @@ Please hostile-review:
 
 Wake MIMIR with `WAKEUP A1:` if accepted, or DAEDALUS with `WAKEUP A2:` if
 fixes are needed.
+
+## ARGUS Review
+
+Verdict: `PASS WITH ARGUS PATCH`.
+
+ARGUS found two narrow hardening gaps:
+
+- The API filtered malformed or UUID-shaped Developer Space slugs, but the
+  shared web search helper still trusted caller-provided Developer Space slugs.
+- `/discover/search` document rows selected safe label fields for the UI, but
+  the route returned raw document rows rather than an explicit public search
+  allowlist, leaving source labels/types/persona ids too easy to re-expose.
+
+ARGUS patched those gaps so:
+
+- Developer Space search hrefs in `searchHref("developerSpaces", ...)` now
+  require the same route-safe non-UUID-shaped slug contract as the API.
+- `/discover/search` document results pass through a small allowlist serializer
+  containing only id, title, body, document type, visibility, provenance type,
+  discussion thread id, and Space slug.
+- Regression coverage proves unsafe Developer Space slugs do not become links
+  and public document search does not emit `source_label`, `source_type`,
+  `source_persona_id`, or fixture private-looking source labels.
+
+After that patch, ARGUS accepts PR405:
+
+- Public home and Discover front-door search labels are compact scope/provenance
+  readback from bounded public/community fields, not source labels.
+- Private owner search buckets remain outside `PUBLIC_SEARCH_GROUPS` and do not
+  become routeable public search items.
+- Developer Space description/slug search stays restricted to public or
+  community-visible rows according to the existing tier boundary, de-dupes by
+  route-safe slug, and omits API key/hash/tail/private/unlisted fields.
+- No provider/model/embedding, Gemini/OpenAI/NVIDIA, Redis/Cloudflare/vector/
+  cache, schema/migration, ranking rewrite beyond safe metadata de-dupe/order,
+  auth/session, billing/Stripe, deployment, connector intake, private archive
+  retrieval, owner Memory runtime selection, or broad Discover redesign changed.
+- ARGUS reran the requested validation after the review patch.
+
+MIMIR can close PR405 as `PASS WITH ARGUS PATCH`. ARIADNE visible rehearsal is
+useful only if MIMIR wants desktop/mobile acceptance for the changed public
+search label readback.

@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR405 search/retrieval explainability
+## Latest ARGUS verdict - PR405 accepted with review patch
 
-DAEDALUS completed the PR405 implementation packet:
+ARGUS accepted PR405:
 `docs/roadmap/PR405_SEARCH_RETRIEVAL_EXPLAINABILITY_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS WITH ARGUS PATCH
+```
+
+Decision:
 
 - Public/community search result rendering now has compact scope/provenance
   readback labels derived from existing safe fields.
@@ -22,24 +28,31 @@ Result:
   visibility set.
 - Developer Space search results are de-duped by route-safe slug and malformed
   or UUID-shaped slugs are filtered from public search links.
+- ARGUS patched the shared web search helper so caller-provided Developer Space
+  slugs must also be route-safe and non-UUID-shaped before becoming links.
+- ARGUS patched `/discover/search` document serialization so public search
+  document rows are allowlisted and do not emit raw `source_label`,
+  `source_type`, `source_persona_id`, or fixture private-looking source labels.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/discover/search-dropdown.test.ts` passed (8 tests).
-- `npm exec --yes pnpm@10.32.1 -- run test:community` passed (36 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed (37 tests).
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (131 tests).
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed (51 tests).
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS has PR405.
-- ARGUS should hostile-review public/community scope labels, Developer Space
-  description/slug search, private owner bucket exclusion, route safety, and
-  non-goal boundaries.
-- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
-  DAEDALUS with exact findings.
+- MIMIR has PR405.
+- MIMIR should close PR405 as `PASS WITH ARGUS PATCH`.
+- ARIADNE visible rehearsal is useful only if MIMIR wants desktop/mobile
+  acceptance for the changed public search label readback.
+- Recommended next lane: none from PR405 by default. Choose the next roadmap
+  move from fresh replay evidence or explicit product priority.
 
 ## Latest MIMIR decision - PR404 accepted, PR405 opened
 

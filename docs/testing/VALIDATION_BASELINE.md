@@ -22,10 +22,10 @@ they are not Station validation failures.
 
 ## PR405 Search/Retrieval Explainability Result
 
-DAEDALUS completed PR405 on 2026-06-27:
+ARGUS accepted PR405 on 2026-06-27:
 `docs/roadmap/PR405_SEARCH_RETRIEVAL_EXPLAINABILITY_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS WITH REVIEW PATCH`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -33,9 +33,10 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Private bucket exclusion | Pass | Public routeable search groups still ignore `privateResults`; owner-private memory, archive, canon, import, and continuity buckets do not produce public links or labels. |
 | Developer Space search depth | Pass | `/discover/search` now matches Developer Space project name, description, and slug for eligible public/community visibility and de-dupes by route-safe slug. |
 | Developer Space search safety | Pass | Malformed or UUID-shaped Developer Space slugs are filtered from public search result links; API key hashes/tails and private/unlisted spaces remain absent. |
+| ARGUS route/source-field patch | Pass | Shared web search hrefs now require route-safe non-UUID Developer Space slugs, and `/discover/search` document rows are allowlisted without raw source labels/types/persona ids. |
 | Scope control | Pass | No provider/model/embedding, Gemini/OpenAI/NVIDIA, Redis/Cloudflare/vector/cache, schema/migration, auth/session, billing, deployment, connector, ranking rewrite, or private retrieval behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/discover/search-dropdown.test.ts` | Pass | 8 tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 36 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 37 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 131 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 51 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
@@ -43,8 +44,8 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Cached whitespace check passed. |
 
-Residual risk: ARGUS should review visible labels for overclaim and search
-result safety before MIMIR closes PR405.
+Residual risk: ARIADNE visible rehearsal is useful only if MIMIR wants
+desktop/mobile acceptance for the changed public search label readback.
 
 ## PR403 Onboarding Migrator and API Bridge Depth Result
 

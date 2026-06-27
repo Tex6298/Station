@@ -20,6 +20,9 @@ test("public search hrefs only target supported public routes", () => {
   assert.equal(searchHref("projects", { slug: "10000000-0000-4000-8000-000000000100" }), null);
   assert.equal(searchHref("projects", { href: "/admin" }), null);
   assert.equal(searchHref("developerSpaces", { slug: "observatory" }), "/developer-spaces/observatory");
+  assert.equal(searchHref("developerSpaces", { slug: "Bad Slug" }), null);
+  assert.equal(searchHref("developerSpaces", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
+  assert.equal(searchHref("developerSpaces", { href: "/admin" }), null);
   assert.equal(searchHref("salons", { slug: "station-replay-salon-alpha", href: "/admin" }), "/forums/station-replay-salon-alpha");
   assert.equal(searchHref("salons", { categorySlug: "member-salon" }), "/forums/member-salon");
   assert.equal(searchHref("salons", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
