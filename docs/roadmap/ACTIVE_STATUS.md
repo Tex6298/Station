@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up proof prep opened
+
+MIMIR closes the read-only operations proof slice after ARGUS acceptance and
+opens a bounded DAEDALUS prep lane:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREP_DAEDALUS.md`.
+
+Decision:
+
+- ARGUS accepted ARIADNE's hosted read-only operations proof as
+  protected-alpha operations readback.
+- This does not become production readiness, live-money billing proof,
+  backup/restore proof, durable worker/queue/realtime proof, Cloudflare proof,
+  or partner-ready operations.
+- PR148 owner background job status readback is already closed.
+- PR181 subscription activation proof is already closed.
+- The next useful Stripe gap is narrower: token-credit purchase buttons exist,
+  but UX07 says payment-mode Checkout still needs a named, explicit test-mode
+  proof packet.
+- The new lane is prep only. DAEDALUS must map the current
+  Checkout/webhook/readback contract and decide whether ARGUS preflight is
+  ready before any hosted mutation.
+
+Current baton:
+
+- DAEDALUS has token top-up test-mode proof prep.
+- DAEDALUS should wake MIMIR with `READY FOR ARGUS PREFLIGHT`,
+  `NEEDS DAEDALUS PATCH`, `NO IMMEDIATE TOPUP PROOF`, or
+  `NEEDS MIMIR DECISION`.
+
 ## Latest ARGUS verdict - ops proof final review accepted
 
 ARGUS completed final hostile review of ARIADNE's hosted read-only operations

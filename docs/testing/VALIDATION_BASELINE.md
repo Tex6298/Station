@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Test-Mode Proof Prep
+
+MIMIR opened DAEDALUS token top-up test-mode proof prep on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREP_DAEDALUS.md`.
+
+Validation status: open, docs-only prep lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Operations prerequisite | Pass | ARGUS accepted the hosted read-only operations proof before this lane opened. |
+| Closed-lane guard | Pass | PR148 owner background job readback and PR181 subscription activation are closed and must not be reopened by this prep. |
+| Stripe scope | Open | DAEDALUS must map token top-up Checkout, webhook grant, idempotency, readback, and Settings UI behavior. |
+| Hosted mutation | Not run | This lane does not authorize clicking Checkout or calling Stripe payment behavior. |
+| Required next verdict | Open | DAEDALUS must return `READY FOR ARGUS PREFLIGHT`, `NEEDS DAEDALUS PATCH`, `NO IMMEDIATE TOPUP PROOF`, or `NEEDS MIMIR DECISION`. |
+
+Residual risk: token top-up payment-mode Checkout remains unproven on hosted
+test mode until DAEDALUS prepares the packet, ARGUS accepts preflight, and a
+separate proof run is opened.
+
 ## Production Operations Read-Only Proof Final Review
 
 MIMIR opened ARGUS final review of the hosted read-only operations proof on

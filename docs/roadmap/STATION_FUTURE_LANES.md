@@ -112,6 +112,13 @@ or production-readiness claim. MIMIR opened
 `PRODUCTION_OPERATIONS_READONLY_PROOF_ARIADNE.md` for that selected-field
 hosted proof.
 
+2026-06-27 operations proof closeout update: ARIADNE completed that proof and
+ARGUS accepted the final hostile review as protected-alpha operations readback
+only. MIMIR then opened `TOKEN_TOPUP_TESTMODE_PROOF_PREP_DAEDALUS.md` because
+PR148/background-job readback and PR181/subscription activation are already
+closed, while UX07 still names token top-up payment-mode Checkout as an
+explicit unproven test-mode gap.
+
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with
