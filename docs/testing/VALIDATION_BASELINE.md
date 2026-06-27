@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR421 Import-Accepted Memory Runtime Fix And Hosted Completion
+
+DAEDALUS implemented PR421 and ARGUS accepted it on 2026-06-27:
+`docs/roadmap/PR421_IMPORT_ACCEPTED_MEMORY_RUNTIME_RESULT.md`.
+
+Validation result: `ACCEPTED BY ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code change scope | Pass | Only runtime Memory eligibility in `semantic-search.ts` and focused hostile tests changed. |
+| Runtime policy | Pass | Accepted `persona_file` import-backed Memory is runtime-eligible only with same owner/persona, source type `import`, active lifecycle, no supersession/expiry, and trust `user_stated` or `agreed_upon`. |
+| Exclusion policy | Pass | Raw import chunks, missing lifecycle, untrusted trust, rejected, expired, superseded, quarantined, other-owner, and `archived_chat_transcript` rows remain excluded. |
+| Trace safety | Pass | Selected-source trace metadata does not include content, raw archive source IDs, archive source names, storage paths, or signed material. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed, including accepted import-backed Memory runtime selection and hostile exclusion cases. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Root typecheck passed. |
+| Hosted deployment freshness | Pass | Web/API `/health/deployment` were ready at service `@station/web`/`@station/api`, commit prefix `8713af989bfe`. |
+| Hosted storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Hosted public search postcheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and PR420 accepted titles returned zero matches. |
+| Hosted owner auth | Pass | Replay owner sign-in succeeded with tier `canon`; no token, raw user ID, raw persona ID, or raw response body was recorded. |
+| Hosted owner Memory/Canon readback | Pass | Accepted PR420 Memory read back as source type `import`, archive source type `persona_file`, lifecycle `active`, trust `user_stated`; accepted PR420 Canon read back as source type `import`. |
+| Hosted context-preview selection | Pass | Owner context-preview selected the accepted PR420 Memory in the Memory bucket with source type `import` and selected the accepted PR420 Canon in the Canon bucket. |
+| Hosted context-preview metadata scan | Pass | Trace selected sources had no content fields and the raw archive metadata/path pattern scan was negative. |
+| Hosted auth boundaries | Pass | Visitor context-preview returned 401 and another replay owner returned 403 for the same persona. |
+| `git diff HEAD^ HEAD --check` | Pass | DAEDALUS implementation commit whitespace check passed. |
+| Added-line sensitive-pattern review | Pass | Matches were hostile redaction fixtures only, not real secret values. |
+
+Residual risk: PR421 proves only accepted `persona_file` import-backed Memory
+runtime eligibility. It does not promote archived-chat transcript Memory, change
+owner Memory briefing semantics, change Cloudflare retrieval, or prove broad
+real/private provider export behavior.
+
 ## PR421 Import-Accepted Memory Runtime Preflight
 
 ARGUS accepted the PR421 preflight on 2026-06-27:

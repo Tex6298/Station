@@ -2,7 +2,9 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: ARGUS PREFLIGHT ACCEPTED - WAKE DAEDALUS
+Status: ARGUS ACCEPTED - WAKE MIMIR
+
+Final result: `docs/roadmap/PR421_IMPORT_ACCEPTED_MEMORY_RUNTIME_RESULT.md`.
 
 ## Why This Exists
 

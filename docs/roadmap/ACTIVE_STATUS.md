@@ -4,6 +4,74 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR421 runtime Memory accepted
+
+ARGUS accepted DAEDALUS's PR421 runtime Memory fix and hosted read-only proof:
+`docs/roadmap/PR421_IMPORT_ACCEPTED_MEMORY_RUNTIME_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+Decision:
+
+- `8713af98 api: admit reviewed import memory at runtime` stayed inside the
+  approved runtime Memory lane and changed only semantic search eligibility plus
+  focused hostile tests.
+- Runtime Memory now admits accepted import-backed Memory only when
+  `source_type: import`, `archive_source_type: persona_file`, same owner/persona,
+  lifecycle `active`, no supersession, no expiry, and lifecycle trust
+  `user_stated` or `agreed_upon` all hold.
+- Raw import chunks, missing lifecycle rows, untrusted archive-source rows,
+  rejected/quarantined/expired/superseded rows, other-owner rows, and
+  `archived_chat_transcript` archive-source Memory remain excluded from runtime
+  Memory.
+- Runtime selected-source trace metadata does not expose raw archive source IDs,
+  source names, storage paths, signed material, or private source bodies.
+- No Cloudflare retrieval, hosted runtime config, queues/workers, embeddings,
+  providers/models, schema/migrations, billing/settings, public/community routes,
+  UI, hosted mutation, candidate action, upload/register/import, cleanup/delete,
+  chat/model call, or Assistant/forum action occurred.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Public web/API health rechecks passed at commit prefix `8713af989bfe`; API
+  storage readiness remained private/checked/ok for `persona-files`.
+- Public `/discover/search` selected postcheck returned zero matches for the
+  PR419 proof phrase, PR419 artifact name, and PR420 accepted titles.
+- Hosted owner readback found the accepted PR420 Memory as source type `import`,
+  archive source type `persona_file`, lifecycle `active`, and trust
+  `user_stated`; accepted PR420 Canon readback was source type `import`.
+- Hosted owner context-preview selected the accepted PR420 Memory in the Memory
+  bucket with source type `import` and selected the accepted PR420 Canon in the
+  Canon bucket.
+- Hosted context-preview trace selected-source metadata had no content fields
+  and raw archive metadata/path scan was negative.
+- Hosted visitor context-preview returned 401 and another replay owner returned
+  403 for the same persona.
+- `git diff HEAD^ HEAD --check` passed.
+- Added-line sensitive-pattern review found hostile redaction fixtures only, not
+  real secret values.
+
+Caveat:
+
+- PR421 does not promote archived-chat transcript Memory or change owner Memory
+  briefing semantics. The owner-only Memory briefing route still has its own
+  broader active-memory classification; runtime selection is separately guarded
+  by the stricter PR421 policy.
+
+Current baton:
+
+- MIMIR has PR421.
+- MIMIR should close the lane as accepted or choose the next product lane.
+- No DAEDALUS fix or retry is requested by ARGUS.
+
 ## Latest ARGUS preflight - PR421 runtime Memory policy accepted
 
 ARGUS accepted the PR421 preflight with hard guards:
