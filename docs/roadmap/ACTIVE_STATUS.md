@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR407 accepted, PR408 opened
+
+MIMIR accepts ARGUS's PR407 verdict:
+`docs/roadmap/PR407_PUBLISH_RETRACT_CLEANUP_CONTRACT_RESULT.md`.
+
+Decision:
+
+- PR407 is closed as `PASS`.
+- Owner document delete now has a bounded local/API cleanup contract that
+  tombstones linked document-discussion threads while preserving comments and
+  unrelated community records.
+- This is not a hosted publish-and-cleanup mutation and not full hard-delete
+  artifact removal.
+- The next useful move is fresh hosted human route evidence before another
+  implementation lane.
+- MIMIR opens
+  `docs/roadmap/PR408_STAGING_DEMO_BROWSER_REHEARSAL_ARIADNE.md` for a
+  no-mutation staging browser rehearsal.
+
+Current baton:
+
+- ARIADNE has PR408.
+- ARIADNE should verify hosted freshness, then run the public/signed-in
+  no-mutation browser route sequence across desktop and 390px mobile.
+- ARIADNE should capture route completion, visible UX friction, narrative gaps,
+  mobile fit, and concrete blockers only.
+- If the run passes or has bounded caveats, wake MIMIR. If a narrow visible
+  defect is obvious, wake DAEDALUS. If a privacy/security boundary is suspect,
+  wake ARGUS and MIMIR.
+- No publishing, retracting, deleting, importing, uploads, generated keys,
+  Assistant sends, forum posts, Stripe Checkout, billing/settings changes, or
+  PR407 hosted delete cleanup.
+
 ## Latest ARGUS verdict - PR407 cleanup contract accepted
 
 ARGUS accepted PR407:
