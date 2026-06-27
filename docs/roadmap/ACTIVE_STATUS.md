@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR384 accepted
+## Latest MIMIR decision - PR384 accepted, PR385 opened
+
+MIMIR accepts ARGUS's PR384 AI Activity trace availability verdict:
+`docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
+
+Decision:
+
+- PR384 is closed as `PASS`.
+- Investigation found normal and streaming chat already use the traced
+  `runPersonaChatTurn` path, and integrity calls already have trace writers.
+- `/observability/traces?limit=6` already gives Settings openable trace rows
+  when rows exist, and `/observability/traces/:traceId` already has
+  owner-scoped sanitized detail coverage.
+- Read-only replay pages, Memory, Archive, Continuity, and context previews
+  should not create trace rows by themselves.
+- The patch is correctly limited to honest Settings AI Activity empty-state
+  readback: no openable traces now explains provider-backed trace writers versus
+  read-only replay surfaces.
+- No provider routing, model config, chat behavior, trace storage, API, Redis,
+  Cloudflare, worker, queue, schema, migration, billing, export, or broad
+  Settings behavior changed.
+- MIMIR opens
+  `docs/roadmap/PR385_OWNER_CONTINUITY_SEARCH_CLOSEOUT_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR385.
+- ARIADNE should wait for hosted freshness at or after `ce01d605`, then run one
+  integrated owner continuity/search hosted closeout that folds in the PR384 AI
+  Activity empty-state/readback proof.
+- Scope is read-only except for optional safe navigation/opening existing trace
+  details if trace rows are present. Do not send chat prompts, upload files,
+  retry imports, create exports, publish, change settings, touch billing/config,
+  or open Redis/Cloudflare/provider/schema/worker/queue scope.
+
+## Previous ARGUS verdict - PR384 accepted
 
 ARGUS accepted PR384:
 `docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
