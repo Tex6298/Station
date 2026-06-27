@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Test-Mode Proof Preflight
+
+MIMIR opened ARGUS token top-up test-mode proof preflight on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREFLIGHT_ARGUS.md`.
+
+Validation status: open, docs-only preflight lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| DAEDALUS prep prerequisite | Pass | DAEDALUS returned `READY FOR ARGUS PREFLIGHT`. |
+| Hosted mutation | Not run | ARGUS must accept preflight before any Checkout click, webhook replay, or hosted mutation. |
+| Scope boundary | Pass | Preflight is limited to token top-up payment-mode Checkout proof; subscription activation and background-job readback remain closed. |
+| Evidence boundary | Open | ARGUS must accept or revise selected-field readback and forbidden-output rules. |
+
+Residual risk: no hosted top-up proof has run. This lane only asks whether the
+proof packet is safe enough to hand to ARIADNE.
+
 ## Token Top-Up Test-Mode Proof Prep
 
 MIMIR opened DAEDALUS token top-up test-mode proof prep on 2026-06-27:

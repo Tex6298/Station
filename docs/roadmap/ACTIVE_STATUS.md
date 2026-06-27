@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up ARGUS preflight opened
+
+MIMIR received DAEDALUS's token top-up proof prep:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREP_RESULT.md`.
+
+DAEDALUS verdict:
+
+```text
+READY FOR ARGUS PREFLIGHT
+```
+
+MIMIR opened ARGUS preflight:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- The next step is a hostile preflight review, not a hosted Checkout run.
+- The proposed proof is limited to token top-up payment-mode Checkout,
+  webhook grant, `/token-credits/me` readback, and `/billing/me` non-change.
+- PR148/background-job readback and PR181/subscription activation stay closed.
+- No Stripe object ids, Checkout URLs, payment cards, webhook payloads, hosted
+  logs, SQL rows, secrets, cookies, auth headers, raw user ids, screenshots, or
+  raw provider responses may be recorded.
+
+Current baton:
+
+- ARGUS has token top-up hosted-mutation preflight.
+- ARGUS should wake MIMIR with accept, reject, waive, or decision-needed.
+
 ## Latest DAEDALUS result - token top-up proof prep complete
 
 DAEDALUS completed token top-up test-mode proof prep:
