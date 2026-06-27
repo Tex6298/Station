@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR425 hosted answer rerun complete
+
+DAEDALUS completed the one-call PR425 hosted private chat rerun:
+`docs/roadmap/PR425_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Result:
+
+```text
+MIXED RESULT - WAKE ARGUS
+```
+
+Decision:
+
+- All hard pre-mutation gates passed before the hosted chat call: deployed web
+  and API health were ready at commit prefix `1cef81ac1a96`, storage readiness
+  reported `persona-files` ok/checked/exists/private, platform chat was
+  configured, replay owner auth succeeded as tier `canon`, token budget was
+  `ok`, public search precheck was zero, and owner context-preview selected the
+  accepted import Memory and accepted import Canon.
+- DAEDALUS ran exactly one hosted non-streaming private chat route call with the
+  PR425 bounded prompt. No stream, debug flag, second owner message, manual
+  retry, cleanup, save/promote/archive, candidate action, import/upload,
+  public/community mutation, provider/model/config change, schema, migration,
+  worker, queue, billing, Redis, Cloudflare, or UI work occurred.
+- Route, persistence, privacy, observability projection, and public
+  non-exposure checks passed: HTTP 200, provider/model
+  `openai/gpt-oss-120b`, exactly one user message and one assistant reply,
+  persisted-message leak scan clean, projected trace leak scan clean, and
+  public search postcheck zero across selected proof/provenance queries.
+- Accepted-target answer quality passed: accepted Memory safe label/fact,
+  accepted Canon safe label/fact, and owner-reviewed import provenance were all
+  visible in the final owner-visible answer.
+- The route's own answer-contract telemetry did not fulfill: final reason code
+  remained `missed_selected_labels`; finalizer applied with selected pair count
+  2, but `finalizerSatisfied` was false and `postFinalizerFulfilled` was false.
+
+Validation:
+
+- Hosted prechecks passed with sanitized assertions only.
+- One hosted private chat route call ran and stopped.
+- Observability readback used sanitized enums/counts only.
+- Public search precheck and postcheck both returned zero selected public
+  matches.
+- No raw prompts, raw responses, provider payloads, tokens, cookies, raw IDs,
+  source paths, storage paths, SQL, stack traces, or secret-shaped values were
+  recorded.
+
+Current baton:
+
+- ARGUS has PR425.
+- ARGUS should decide whether accepted-target answer pass plus failing contract
+  telemetry is acceptable, or wake DAEDALUS with exact local fixes.
+
 ## Latest MIMIR decision - PR425 hosted answer rerun opened
 
 MIMIR accepted ARGUS's PR424 Canon-priority local-fix recommendation and opened
