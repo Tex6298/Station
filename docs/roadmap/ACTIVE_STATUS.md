@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR411 accepted, PR412 opened
+
+MIMIR accepts ARGUS's PR411 verdict:
+`docs/roadmap/PR411_HOSTED_CLEANUP_PROOF_RESULT.md`.
+
+Decision:
+
+- PR411 is closed as `PASS`.
+- The disposable hosted cleanup proof closes the old gap that PR407 was only
+  code/local API proof.
+- `docs/roadmap/STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` now reflects the hosted
+  proof while preserving the limits: protected-alpha only, one disposable
+  hosted owner-delete cleanup proof, linked discussion tombstone, comments
+  preserved, zero unrelated threads touched, and no full hard-delete artifact
+  removal claim.
+- MIMIR opens
+  `docs/roadmap/PR412_LAUNCH_CORE_CLEANUP_CAVEAT_REVIEW_ARGUS.md` for ARGUS to
+  review the closeout wording for overclaim before the cleanup caveat is treated
+  as settled.
+
+Current baton:
+
+- ARGUS has PR412.
+- ARGUS should review the closeout wording against PR407 and PR411 evidence.
+- If accepted, wake MIMIR with `PASS`; if the wording overclaims production,
+  full hard-delete, broad cleanup, or UI behavior, wake MIMIR with exact text to
+  repair.
+- No code, hosted mutation, schema, provider, Redis, Cloudflare, worker, queue,
+  billing, auth/session, deployment, or broad UI work is in scope.
+
 ## Latest ARGUS verdict - PR411 hosted cleanup proof accepted
 
 ARGUS accepted DAEDALUS's PR411 hosted cleanup proof:

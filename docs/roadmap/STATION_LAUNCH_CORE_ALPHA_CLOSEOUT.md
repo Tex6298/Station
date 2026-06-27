@@ -27,14 +27,17 @@ developer intervention:
 11. use Station Assistant as an operational map over the above.
 
 This is not a production readiness claim and not a complete Station MVP claim.
-It is also not a hard-delete cleanup claim: the publish-and-retract proof leaves
-an owner-visible retracted artifact in Studio.
+It is also not a full hard-delete artifact-removal claim: PR411 proves one
+disposable hosted owner-delete cleanup path that tombstones the linked
+discussion and preserves comments, while publish-and-retract remains a
+visibility/hide action that leaves an owner-visible Studio record.
 
 ## Current Evidence Refresh
 
 Last refreshed: 2026-06-27 by PR397 hosted publish-and-retract proof, PR398
-MIMIR closeout update, PR399 Station Assistant action-map refresh, and PR407
-owner delete linked-discussion cleanup contract.
+MIMIR closeout update, PR399 Station Assistant action-map refresh, PR407 owner
+delete linked-discussion cleanup contract, and PR411 disposable hosted cleanup
+proof.
 
 - PR157 public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
@@ -94,8 +97,14 @@ owner delete linked-discussion cleanup contract.
 - PR407 adds the owner document delete cleanup contract: deleting an owner
   document tombstones only its linked document discussion threads as hidden and
   locked, preserves comments/community records behind that tombstone, removes
-  public/member routeability, and returns cleanup readback. No hosted
-  publish-and-cleanup mutation has been run.
+  public/member routeability, and returns cleanup readback.
+- PR411 proves that cleanup contract once on hosted Railway/Supabase staging
+  with disposable public-safe data: one synthetic unlisted owner document, one
+  linked discussion, one synthetic owner-authored preservation comment, then
+  owner document delete. Cleanup readback matched
+  `linked_discussion_tombstone`, hid one linked discussion, preserved one
+  comment, deleted zero comments, touched zero unrelated threads, and returned
+  post-delete public document/discussion/thread reads as HTTP `404`.
 
 ## Evidence Map
 
@@ -107,8 +116,8 @@ owner delete linked-discussion cleanup contract.
 | Review candidates | PR17 import-backed candidates and PR21 Import Review Inbox closeout. |
 | Private archive search | PR12 owner-scoped `/imports/archive/search` and deployed `/studio/archive` rehearsal. |
 | Export data | Owner-only JSON/Markdown manifest and portable bundle readback for persona and Developer Space exports. |
-| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, PR387 safe private draft owner readback, PR394 retract contract, PR397 hosted publish-and-retract proof, and PR407 owner delete cleanup contract. This is not full hard-delete artifact cleanup. |
-| Public Space/document/discussion | PR23 public Space/document/linked discussion proof, PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data, PR397 fresh approval-published document -> linked discussion -> retract/hide proof, and PR407 linked discussion tombstone cleanup after owner document delete. |
+| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, PR387 safe private draft owner readback, PR394 retract contract, PR397 hosted publish-and-retract proof, PR407 owner delete cleanup contract, and PR411 disposable hosted owner-delete cleanup proof. This is not full hard-delete artifact cleanup. |
+| Public Space/document/discussion | PR23 public Space/document/linked discussion proof, PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data, PR397 fresh approval-published document -> linked discussion -> retract/hide proof, PR407 linked discussion tombstone cleanup contract, and PR411 hosted disposable post-delete public document/discussion/thread 404 proof. |
 | Station Assistant | PR22 sanitized operational action cards, desktop/mobile browser closeout, and PR399 publish/retract action-map refresh. |
 | Manual social archive intake | PR19 Reddit and PR20 Discord uploaded/pasted intake with fail-closed parser behavior. |
 
@@ -135,9 +144,9 @@ Use public-safe synthetic content only.
     readers and the owner-private Studio record remains readable.
 12. If avoiding hosted mutation, open an accepted replay public document from
     `/writing` or its public Space and follow its linked discussion instead.
-13. Do not run owner document delete cleanup on hosted replay data unless MIMIR
-    explicitly opens that mutation rehearsal; the local/API cleanup contract is
-    tested, but hosted publish-and-cleanup remains opt-in.
+13. Do not run owner document delete cleanup again on hosted replay data unless
+    MIMIR explicitly opens that mutation rehearsal; PR411 already proved the
+    disposable hosted cleanup path once, and repeat cleanup runs remain opt-in.
 
 ## Required Caveats
 
@@ -156,13 +165,14 @@ Use public-safe synthetic content only.
 - Community proof covers document discussion visibility, not full Community
   Beta.
 - Public writing is protected-alpha complete for safe private drafting, existing
-  public replay readback, and one hosted publish-and-retract proof. It is not a
-  fresh hosted private-draft-to-public-publish-and-full-cleanup proof.
+  public replay readback, one hosted publish-and-retract proof, and one
+  disposable hosted owner-delete cleanup proof. It is not a rich authoring,
+  scheduling, social dispatch, Station Press, or production publishing claim.
 - Retracting a published document to private is a visibility/hide mechanism,
-  not artifact cleanup. Owner document delete now tombstones linked document
-  discussion threads for public route safety, but it preserves comments and
-  community records behind the hidden/locked thread and is not full hard-delete
-  artifact removal.
+  not artifact cleanup. PR411 proves owner document delete can tombstone linked
+  document discussion threads for public route safety on hosted staging, but it
+  preserves comments and community records behind the hidden/locked thread and
+  is not full hard-delete artifact removal.
 - Station Assistant is an operational map, not an autonomous executor or
   persistent persona.
 - Redis memory truth, Cloudflare retrieval, production vector hardening,
