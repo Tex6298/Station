@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: Open
+Status: SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
 
 ## Why This Exists
 
@@ -163,3 +163,156 @@ Task:
 ```
 
 Do not go idle without a wakeup commit.
+
+## ARGUS Preflight Verdict
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+ARGUS accepts one hosted synthetic ChatGPT JSON import proof after PR418's
+plain-text hosted proof.
+
+Selected public readiness checked by ARGUS on 2026-06-27:
+
+| Check | Result |
+| --- | --- |
+| Web health | Ready, service `@station/web`, commit prefix `299f987de9bf` |
+| API health | Ready, service `@station/api`, commit prefix `299f987de9bf` |
+| Storage readiness | Bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, `private: true` |
+
+Local validation also passed:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (18 tests),
+  including the ChatGPT JSON import/candidate path and unknown JSON fail-closed
+  coverage.
+
+This acceptance authorizes DAEDALUS to run exactly one hosted proof packet, only
+after rechecking all gates immediately before mutation.
+
+## Approved DAEDALUS Proof Packet
+
+Freshness gates before mutation:
+
+- Web and API `/health/deployment` must be ready and at or after `299f987d`.
+- API storage readiness must report bucket `persona-files`, `ok: true`,
+  `checked: true`, `exists: true`, and `private: true`.
+- Replay owner auth and `/auth/me` must succeed without printing or recording
+  cookies, bearer tokens, auth headers, Supabase keys, raw IDs, or raw response
+  bodies.
+- DAEDALUS must select one existing persona from the replay owner's own persona
+  list without recording raw owner/user/persona IDs.
+
+Artifact:
+
+- Create exactly one local synthetic file named:
+  `chatgpt-import-proof-pr419-20260627-1111.json`.
+- File content must be exactly this public-safe JSON:
+
+```json
+{
+  "title": "PR419 synthetic ChatGPT archive import proof",
+  "mapping": {
+    "first": {
+      "message": {
+        "author": { "role": "user" },
+        "content": {
+          "parts": [
+            "PR419 synthetic ChatGPT archive import proof user turn. This is public-safe synthetic data."
+          ]
+        },
+        "create_time": 1
+      }
+    },
+    "second": {
+      "message": {
+        "author": { "role": "assistant" },
+        "content": {
+          "parts": [
+            "PR419 synthetic ChatGPT archive import proof assistant turn. Always keep imported provider exports private until owner review."
+          ]
+        },
+        "create_time": 2
+      }
+    }
+  }
+}
+```
+
+- Do not use real ChatGPT exports, private conversations, customer data,
+  accepted replay evidence, provider API output, memory/canon/continuity
+  records, billing/settings data, or public/community content as source.
+
+Allowed hosted mutation sequence:
+
+1. In the owner Archive upload UI, select only the approved local `.json` file.
+2. Request exactly one signed upload URL.
+3. Upload the file exactly once through the returned signed upload path.
+4. Register exactly once using the fresh `storagePath` returned by the matching
+   signed upload URL request, with `sourceType: "import"` and
+   `processImmediately: true`.
+5. Poll boundedly for import status/readback for at most 120 seconds.
+
+Required sanitized readbacks:
+
+- Signed upload URL request succeeds, without recording signed URL, upload URL,
+  upload token, raw storage path, or raw response body.
+- Browser upload succeeds.
+- Register succeeds for the matching returned `storagePath`.
+- Import reaches `completed` within the bounded poll. Queued/processing after
+  the bound is a blocker, not a pass.
+- Owner import/file readback shows exactly one new proof file/job with
+  `sourceType: import`.
+- Owner private archive/search readback can find the proof phrase through
+  owner-authenticated routes only; record route/status/count classes, not raw
+  private body excerpts.
+- Owner Import Review/candidate readback shows pending owner-review candidate
+  output from the proof source, including Memory and Canon candidate types if
+  current parser behavior produces both.
+- Public/community search/readback does not expose the proof artifact or proof
+  phrase.
+- No candidate is accepted, rejected, promoted, trusted, published, or attached
+  to Continuity.
+
+Stop conditions:
+
+- Stop before mutation if any freshness, storage, auth/session, owner persona,
+  or artifact-isolation gate fails.
+- Stop after the first failed mutation/readback gate.
+- Stop if the JSON is unsupported/malformed, the import remains
+  queued/processing after the bound, or candidate/archive readback is ambiguous.
+- Do not retry, request a second signed upload URL, upload a second file,
+  register a second time, use manual storagePath input, clean up, delete, accept
+  candidates, reject candidates, promote candidates, publish Continuity, create
+  documents, touch public/community content, export data, send Assistant
+  messages, post/reply/report/vote, touch billing/settings, change parser code,
+  or broaden provider/runtime scope.
+- Do not continue if evidence would expose secrets, cookies, bearer tokens, auth
+  headers, Supabase keys, signed URLs, upload URLs, upload tokens, raw response
+  bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, file IDs, job IDs, raw storage
+  paths, package IDs, or deployment IDs.
+
+ARGUS validation:
+
+- Reviewed PR418 hosted proof, current PR419 packet, and local ChatGPT parser
+  coverage.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (18 tests).
+- Public web health selected readback passed: service `@station/web`, ready
+  `true`, commit prefix `299f987de9bf`.
+- Public API health selected readback passed: service `@station/api`, ready
+  `true`, commit prefix `299f987de9bf`.
+- API storage readiness selected readback passed: bucket `persona-files`,
+  `ok: true`, `checked: true`, `exists: true`, `private: true`.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+
+Handoff:
+
+- DAEDALUS has PR419.
+- DAEDALUS should run only the approved one-file synthetic ChatGPT JSON hosted
+  proof packet and wake ARGUS with sanitized pass/block evidence.
+- MIMIR is not being asked for a broader decision unless DAEDALUS hits a blocked
+  gate under this packet.

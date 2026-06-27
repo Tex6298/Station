@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR419 ChatGPT Export Import Hosted Preflight Result
+
+ARGUS accepted PR419 on 2026-06-27:
+`docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| PR418 proof review | Pass | PR418 proved the hosted owner Archive upload/register/import path for one synthetic `.txt` file. |
+| ChatGPT parser/local import coverage | Pass | `test:storage` proves ChatGPT JSON creates private archive memory plus pending Memory/Canon candidates, while unknown JSON fails before archive memory. |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Mutation scope | Pass | PR419 itself authorizes no mutation; DAEDALUS may run exactly one approved synthetic ChatGPT-style `.json` hosted proof under the packet gates. |
+| Artifact isolation | Pass | Approved artifact is `chatgpt-import-proof-pr419-20260627-1111.json` with exact public-safe JSON content in the preflight packet. |
+| Candidate safety | Pass | Packet forbids candidate accept/reject/promotion, Continuity publication, public/community mutation, cleanup/deletion, and parser/provider/runtime changes. |
+| Stop/redaction conditions | Pass | Packet requires stop at first failed gate and forbids retries, raw IDs, secrets, signed material, raw storage paths, private bodies, SQL, stack traces, package IDs, and deployment IDs. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 18 tests passed. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+
+Residual risk: the hosted synthetic ChatGPT JSON proof has not been run.
+DAEDALUS must recheck freshness/storage/auth gates immediately before mutation
+and wake ARGUS with sanitized pass/block evidence.
+
 ## PR418 Owner Archive File Import Hosted Retry Result
 
 DAEDALUS completed PR418 on 2026-06-27:

@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR419 ChatGPT import accepted
+
+ARGUS accepted the PR419 synthetic ChatGPT JSON hosted import preflight:
+`docs/roadmap/PR419_CHATGPT_EXPORT_IMPORT_HOSTED_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- PR419 stays bounded to one synthetic ChatGPT-style `.json` file and does not
+  authorize live ChatGPT/OpenAI OAuth/API/provider pulls or a broad parser
+  matrix.
+- Public web/API health is ready at service `@station/web`/`@station/api`,
+  commit prefix `299f987de9bf`.
+- API storage readiness reports bucket `persona-files`, `ok: true`,
+  `checked: true`, `exists: true`, and `private: true`.
+- Local `test:storage` passed (18 tests), including ChatGPT JSON
+  import/candidate behavior and unknown JSON fail-closed coverage.
+- DAEDALUS may run exactly one hosted owner Archive upload/register/import proof
+  using one synthetic file:
+  `chatgpt-import-proof-pr419-20260627-1111.json`.
+- The proof must register only the fresh `storagePath` returned by its matching
+  signed upload URL request, with `sourceType: "import"` and
+  `processImmediately: true`.
+- The proof must stop before candidate accept/reject/promotion, Continuity
+  publication, public document creation, public/community mutation, cleanup, or
+  any parser/provider/runtime change.
+- Evidence must stay sanitized: no secrets, cookies, bearer tokens, auth
+  headers, Supabase keys, signed URLs, upload URLs, upload tokens, raw response
+  bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, file IDs, job IDs, raw storage
+  paths, package IDs, or deployment IDs.
+
+Validation:
+
+- Reviewed PR418 hosted proof, current PR419 packet, and local ChatGPT parser
+  coverage.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (18 tests).
+- Public web/API readiness selected readbacks passed at commit prefix
+  `299f987de9bf`.
+- API storage readiness selected readback passed for private `persona-files`.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+
+Current baton:
+
+- DAEDALUS has PR419.
+- DAEDALUS should run only the approved one-file synthetic ChatGPT JSON hosted
+  proof packet and wake ARGUS with sanitized pass/block evidence.
+- DAEDALUS should not retry, clean up, accept/promote/reject candidates, or
+  broaden parser/provider/runtime scope.
+
 ## Latest MIMIR decision - PR418 accepted, PR419 opened
 
 MIMIR accepts ARGUS's PR418 verdict:
