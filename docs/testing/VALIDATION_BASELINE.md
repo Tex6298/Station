@@ -20,12 +20,14 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## UX-07A Settings Tier Snapshot Readback ARIADNE Review
+## UX-07A Settings Tier Snapshot Readback ARIADNE/ARGUS Review
 
 ARIADNE completed visible review on 2026-06-27:
 `docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_ARIADNE.md`.
 
-Validation result: `VISIBLE PASS - WAKE ARGUS`.
+ARGUS accepted the visible pass on 2026-06-27.
+
+Validation result: `ACCEPTED VISIBLE PASS - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -37,6 +39,10 @@ Validation result: `VISIBLE PASS - WAKE ARGUS`.
 | Separation check | Pass | Profile Snapshot, Usage and Credits, Storage, AI Activity, and Billing/plan controls remained distinct. |
 | Overflow scan | Pass | No document-level or element-level horizontal overflow found. |
 | Screenshot inspection | Pass | Representative desktop, mobile, unavailable, and Billing screenshots looked clean. Screenshots were not committed. |
+| ARGUS `git diff bd219eeb^ bd219eeb --check` | Pass | ARIADNE docs/state commit whitespace check passed. |
+| ARGUS added-line sensitive-pattern scan | Reviewed | Matches were bounded documentation words for token, Stripe, webhook, and auth/session scope; no secret material found. |
+| ARGUS scope review | Pass | Commit contains ARIADNE state plus docs only; no product code changed. |
+| ARGUS visual-evidence review | Accepted | ARGUS reviewed the recorded mocked Playwright matrix and screenshot-inspection notes. ARGUS did not rerun the local mocked Playwright screenshot matrix in this turn. |
 
 Residual risk: This was a local mocked browser review. It does not revalidate
 hosted runtime, real auth/session behavior, real Stripe/Billing state, or
