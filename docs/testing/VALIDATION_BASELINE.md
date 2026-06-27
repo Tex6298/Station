@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-05 Discover And Community Browsing Feasibility Opened
+
+MIMIR opened UX-05 on 2026-06-27:
+`docs/roadmap/UX05_DISCOVER_COMMUNITY_FEASIBILITY_DAEDALUS.md`.
+
+Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-03A prerequisite | Pass | Continuity review target links are accepted after ARGUS and ARIADNE review. |
+| UX-04 evidence check | Pass | Prior PR334 public Space microsite work and hosted route checks exist; UX-04 is not being reopened by inertia. |
+| Scope | Pending | Docs-only Discover/community current-state reconciliation. |
+| Control classification | Pending | DAEDALUS should classify Discover filters/tabs/search and forum controls as live, disabled, preview-only, broken, or stale. |
+| Privacy/visibility | Pending | Public/community-visible copy and private Studio exclusion must remain explicit. |
+| Required validation | Pending | DAEDALUS should run whitespace and sensitive-pattern checks for the docs-only result. |
+
+Residual risk: UX-05 is not implemented yet. The open risk is public browsing
+drift: routeable links may be working while filters/actions/copy still read as
+generic, placeholder-like, or unclear about public versus community-visible
+scope.
+
 ## UX-03A Continuity Review Target Links ARIADNE Review
 
 ARIADNE completed visible review on 2026-06-27:

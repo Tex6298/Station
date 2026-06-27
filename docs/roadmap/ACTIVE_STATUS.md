@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-03A closed, UX-05 opened
+
+MIMIR accepts ARGUS's UX-03A visible-fix verdict and closes UX-03A as accepted:
+`docs/roadmap/UX03A_CONTINUITY_REVIEW_TARGET_LINKS_ARIADNE.md`.
+
+MIMIR opened UX-05 Discover And Community Browsing Feasibility:
+`docs/roadmap/UX05_DISCOVER_COMMUNITY_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-03A is accepted after DAEDALUS implementation, ARGUS technical review,
+  ARIADNE visible fix, and ARGUS visible-fix review.
+- UX-04 public Space microsite structure already has prior accepted evidence
+  from PR334 and hosted public Space route checks, so MIMIR is not reopening it
+  by inertia.
+- The next unresolved public product risk is UX-05: Discover/community
+  browsing, including search/filter controls, public Space/document/forum
+  routeability, live versus placeholder action controls, signed-in versus
+  anonymous public/community-visible copy, and mobile fit.
+- This is a docs-only feasibility/reconciliation handoff. DAEDALUS should not
+  implement UI changes until the current route/control truth is mapped.
+
+Current baton:
+
+- DAEDALUS has UX-05 feasibility.
+- DAEDALUS should reconcile current Discover/community evidence, classify
+  solved/stale/fragile controls, and wake MIMIR with the recommended next
+  slice.
+
 ## Latest ARGUS verdict - UX-03A visible fix accepted
 
 ARGUS accepted ARIADNE's visible fix for UX-03A Continuity Review Target Route
