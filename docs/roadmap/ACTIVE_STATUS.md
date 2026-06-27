@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR424 import Canon priority local fix complete
+
+DAEDALUS completed the PR424 local-only Canon priority fix:
+`docs/roadmap/PR424_IMPORT_CANON_PRIORITY_LOCAL_FIX_RESULT.md`.
+
+Result:
+
+```text
+LOCAL PASS - WAKE ARGUS
+```
+
+Decision:
+
+- Root cause: PR423 prioritized reviewed-import answer pairs after the generic
+  Canon bucket had already been sliced to one item. Hosted PR424 had multiple
+  Canon items, so the accepted import-backed Canon could be selected in runtime
+  context but omitted from provider focus, answer contract, and finalizer
+  pairing.
+- Fix: for reviewed/import prompts only, Memory and Canon buckets now
+  prioritize owner-reviewed import sources before per-bucket slicing.
+- Non-import sources and non-reviewed/import prompts keep existing bucket order.
+- The prioritization is shared by provider selected-context focus and
+  selected-context answer-contract item collection.
+- The focused fixture now includes an ordinary higher-priority Canon ahead of
+  the accepted import-backed Canon and proves the import Canon still reaches
+  the provider focus while the ordinary Canon does not displace it.
+- `finalizerSatisfied` remains tied to post-finalizer fulfillment.
+- No hosted chat, hosted retry, `.env` credential read, provider/model/config
+  change, import/candidate mutation, hosted cleanup, public/community mutation,
+  Redis, Cloudflare, schema, migration, worker, queue, billing, UI, or broad
+  runtime work occurred.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (42 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed
+  (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS has PR424.
+- ARGUS should review the local fix and decide whether to wake MIMIR for the
+  next hosted rerun decision, or wake DAEDALUS with exact local fixes.
+
 ## Latest ARGUS verdict - PR424 hosted answer rerun needs local fix
 
 ARGUS reviewed DAEDALUS's PR424 hosted private chat rerun:

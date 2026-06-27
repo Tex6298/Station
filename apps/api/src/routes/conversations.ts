@@ -198,7 +198,7 @@ function buildProviderUserMessageContent(
   runtimeContext: PersonaRuntimeContext,
   options: ProviderFocusOptions = {},
 ) {
-  const selectedContextFocus = buildProviderSelectedContextFocus(runtimeContext);
+  const selectedContextFocus = buildProviderSelectedContextFocus(runtimeContext, ownerMessage);
   if (!selectedContextFocus) return ownerMessage;
 
   return [
@@ -213,11 +213,12 @@ function buildProviderUserMessageContent(
   ].join("\n\n");
 }
 
-function buildProviderSelectedContextFocus(runtimeContext: PersonaRuntimeContext) {
+function buildProviderSelectedContextFocus(runtimeContext: PersonaRuntimeContext, ownerMessage: string) {
+  const prioritizeReviewedImports = asksForReviewedImportPairs(ownerMessage);
   const items = [
-    ...providerSelectedContextItems("canon", runtimeContext.canon, 1),
+    ...providerSelectedContextItems("canon", runtimeContext.canon, 1, { prioritizeReviewedImports }),
     ...providerSelectedContextItems("integrity", runtimeContext.integrity, 1),
-    ...providerSelectedContextItems("memory", runtimeContext.memory, 3),
+    ...providerSelectedContextItems("memory", runtimeContext.memory, 3, { prioritizeReviewedImports }),
     ...providerSelectedContextItems("continuity", runtimeContext.continuity, 2),
     ...providerSelectedContextItems("archive", runtimeContext.archive, 2),
   ].slice(0, PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS);
@@ -231,8 +232,13 @@ function buildProviderSelectedContextFocus(runtimeContext: PersonaRuntimeContext
   ].join("\n");
 }
 
-function providerSelectedContextItems(label: string, sources: PersonaContextSource[], limit: number) {
-  return sources
+function providerSelectedContextItems(
+  label: string,
+  sources: PersonaContextSource[],
+  limit: number,
+  options: { prioritizeReviewedImports?: boolean } = {},
+) {
+  return prioritizedContextSources(sources, options.prioritizeReviewedImports)
     .filter((source) => source.content.trim().length > 0)
     .slice(0, limit)
     .map((source) => {
@@ -258,10 +264,11 @@ function buildSelectedContextAnswerContract(input: {
   runtimeContext: PersonaRuntimeContext;
   privatePersona: boolean;
 }): SelectedContextAnswerContract {
+  const prioritizeReviewedImports = asksForReviewedImportPairs(input.ownerMessage);
   const items = [
-    ...answerContractItems(input.runtimeContext.canon, 1),
+    ...answerContractItems(input.runtimeContext.canon, 1, { prioritizeReviewedImports }),
     ...answerContractItems(input.runtimeContext.integrity, 1),
-    ...answerContractItems(input.runtimeContext.memory, 3),
+    ...answerContractItems(input.runtimeContext.memory, 3, { prioritizeReviewedImports }),
     ...answerContractItems(input.runtimeContext.continuity, 2),
     ...answerContractItems(input.runtimeContext.archive, 2),
   ].slice(0, PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS);
@@ -315,8 +322,12 @@ function buildSelectedContextAnswerContract(input: {
   };
 }
 
-function answerContractItems(sources: PersonaContextSource[], limit: number): AnswerContractItem[] {
-  return sources
+function answerContractItems(
+  sources: PersonaContextSource[],
+  limit: number,
+  options: { prioritizeReviewedImports?: boolean } = {},
+): AnswerContractItem[] {
+  return prioritizedContextSources(sources, options.prioritizeReviewedImports)
     .filter((source) => source.content.trim().length > 0)
     .slice(0, limit)
     .map((source) => {
@@ -469,8 +480,19 @@ function isRequiredReviewedImportItem(item: AnswerContractItem) {
 }
 
 function shouldRequireReviewedImportPairs(ownerMessage: string, items: AnswerContractItem[]) {
-  const asksForReviewedImport = /\b(reviewed import|owner[-\s]?reviewed import|owner review|import context|reviewed context)\b/i.test(ownerMessage);
-  return asksForReviewedImport && items.some(isRequiredReviewedImportItem);
+  return asksForReviewedImportPairs(ownerMessage) && items.some(isRequiredReviewedImportItem);
+}
+
+function asksForReviewedImportPairs(ownerMessage: string) {
+  return /\b(reviewed import|owner[-\s]?reviewed import|owner review|import context|reviewed context)\b/i.test(ownerMessage);
+}
+
+function prioritizedContextSources(sources: PersonaContextSource[], prioritizeReviewedImports = false) {
+  if (!prioritizeReviewedImports) return sources;
+  const reviewedImports = sources.filter(isOwnerReviewedImportSource);
+  if (reviewedImports.length === 0) return sources;
+  const otherSources = sources.filter((source) => !isOwnerReviewedImportSource(source));
+  return [...reviewedImports, ...otherSources];
 }
 
 function selectedPairFinalizerLabel(item: AnswerContractItem) {

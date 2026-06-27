@@ -1184,6 +1184,15 @@ test("chat finalizer grounds reviewed import Memory and Canon labels with owner-
   db.tables.profiles[0].byok_openai_key = "test-openai-key";
   db.tables.personas[0].provider = "openai";
   db.insertRow("canon_items", {
+    id: "canon-reviewed-import-pr423-ordinary-first",
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    title: "Ordinary higher priority canon",
+    content: "The ordinary canon should not displace the reviewed import canon for reviewed-import prompts.",
+    priority: 10,
+    source_type: "manual",
+  });
+  db.insertRow("canon_items", {
     id: "canon-reviewed-import-pr423",
     persona_id: PERSONA_ID,
     owner_user_id: OWNER_ID,
@@ -1260,6 +1269,7 @@ test("chat finalizer grounds reviewed import Memory and Canon labels with owner-
     const firstPayload = JSON.parse(providerCalls[0].body) as { messages: Array<{ role: string; content: string }> };
     const retryPayload = JSON.parse(providerCalls[1].body) as { messages: Array<{ role: string; content: string }> };
     assert.match(firstPayload.messages.at(-1)?.content ?? "", /canon: owner-reviewed import; selected label\/name: Reviewed PR423 import canon/);
+    assert.doesNotMatch(firstPayload.messages.at(-1)?.content ?? "", /Ordinary higher priority canon/);
     assert.match(firstPayload.messages.at(-1)?.content ?? "", /memory: owner-reviewed import; selected label\/name: Reviewed PR423 import memory/);
     assert.match(retryPayload.messages.at(-1)?.content ?? "", /Answer-contract retry/);
     assert.match(retryPayload.messages.at(-1)?.content ?? "", /selected label\/name: Reviewed PR423 import canon/);

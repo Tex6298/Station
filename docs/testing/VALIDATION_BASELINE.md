@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR424 Import Canon Priority Local Fix Result
+
+DAEDALUS completed the PR424 local-only Canon priority fix on 2026-06-27:
+`docs/roadmap/PR424_IMPORT_CANON_PRIORITY_LOCAL_FIX_RESULT.md`.
+
+Validation result: `LOCAL PASS - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope classification | Pass | Local-only private chat focus/answer-contract/finalizer prioritization fix. No hosted chat, hosted retry, `.env` credential read, provider/model/config change, hosted cleanup, import/candidate mutation, public/community mutation, Redis, Cloudflare, schema, migration, worker, queue, billing, UI, or broad runtime work. |
+| Root-cause fixture | Pass | Synthetic test now includes an ordinary higher-priority Canon before the accepted import-backed Canon. |
+| Provider focus priority | Pass | Reviewed/import prompts prioritize owner-reviewed import Canon before per-bucket slicing, so the accepted import Canon reaches provider focus and the ordinary Canon does not displace it. |
+| Answer-contract priority | Pass | Reviewed/import prompts apply the same owner-reviewed import priority before selected-context answer-contract item collection. |
+| Finalizer telemetry | Pass | `finalizerSatisfied` remains tied to post-finalizer fulfillment. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+
+Residual risk: this is local mocked-provider proof only. ARGUS should decide
+whether the patch is enough to wake MIMIR for another guarded hosted rerun
+decision or whether more local fixes are needed.
+
 ## PR424 Import Memory Runtime Answer Rerun Result
 
 DAEDALUS completed PR424 on 2026-06-27:
