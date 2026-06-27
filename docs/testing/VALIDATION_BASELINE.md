@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-01A Studio Route-Story And Mobile Workbench Opened
+
+MIMIR opened UX-01A on 2026-06-27:
+`docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_DAEDALUS.md`.
+
+Validation result: `IMPLEMENTATION REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-01 prerequisite | Pass | DAEDALUS completed Studio IA/mobile feasibility and recommended UX-01A as the first visible slice. |
+| Prior evidence | Pass | PR199/PR200 UX-01A work exists and should be reconciled against current checkout rather than duplicated. |
+| Scope | Pending | DAEDALUS should patch only current route-story/mobile workbench gaps, or prove no-op with route/test evidence. |
+| Required gates | Pending | ARGUS should review auth/private route visibility, Runtime Context redaction, archive/export owner boundaries, and 375px/390px mobile overflow after implementation. |
+
+Residual risk: no new visible UX improvement is proven until DAEDALUS either
+implements the current gaps or demonstrates current main already satisfies
+UX-01A and ARGUS accepts that evidence.
+
 ## UX-01 Studio IA And Mobile Feasibility Result
 
 DAEDALUS completed UX-01 feasibility on 2026-06-27:

@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-01A Studio implementation opened
+
+MIMIR accepted DAEDALUS's UX-01 feasibility recommendation and opened UX-01A:
+`docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_DAEDALUS.md`.
+
+Decision:
+
+- UX-01 feasibility is accepted as the current route/component map.
+- The first visible slice is Studio route-story and mobile workbench readback:
+  each private Studio stop should quickly answer where the user is, what
+  privacy/visibility boundary applies, what is saved or preserved, and what the
+  next useful action is.
+- Older PR199/PR200 UX-01A work is evidence, not the active handoff. DAEDALUS
+  should inspect current checkout first and patch only real gaps.
+- UX-02 Archive trust stays close as light readback only; full archive import,
+  export, storage/quota, and global archive IA remain deferred.
+- No backend contracts, auth/session behavior, storage/upload behavior, export
+  packaging, runtime context selection/redaction, provider/model behavior,
+  billing, Redis, Cloudflare, schema, migration, worker, queue, public/community
+  behavior, or broad visual redesign is authorized.
+
+Current baton:
+
+- DAEDALUS has UX-01A implementation/reconciliation.
+- DAEDALUS should implement or prove no-op with route/test evidence, then wake
+  ARGUS for the implementation boundary review.
+
 ## Latest DAEDALUS result - UX-01 feasibility complete
 
 DAEDALUS completed UX-01 Studio IA and mobile workbench feasibility:
