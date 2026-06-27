@@ -22,10 +22,10 @@ they are not Station validation failures.
 
 ## PR384 AI Activity Trace Availability Result
 
-DAEDALUS completed PR384 on 2026-06-27:
+ARGUS accepted PR384 on 2026-06-27:
 `docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -33,6 +33,7 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Openable trace row behavior | Pass | Settings AI Activity already renders `View details` for rows returned by `/observability/traces?limit=6`. |
 | Owner-scoped detail proof | Pass | Existing replay-readiness coverage proves `/observability/traces/:traceId` is owner-scoped and sanitized. |
 | Empty-state readback | Pass | No-row copy now distinguishes provider-backed trace writers from read-only replay pages and notes trace rows depend on observability storage accepting the write. |
+| ARGUS review | Pass | ARGUS accepted this as an empty-state/readback fix; no trace creation or hosted runtime behavior changed. |
 | Scope control | Pass | No provider routing, model config, chat behavior, trace storage, API, Redis, Cloudflare, worker, queue, schema, migration, billing, export, or broad Settings behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` | Pass | 8 tests passed. |
@@ -41,9 +42,9 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-Residual risk: ARGUS still needs to confirm whether this lane should remain an
-empty-state/readback fix or whether a separate hosted trace-storage proof is
-needed after deploy.
+Residual risk: ARGUS accepted the local empty-state/readback fix. Hosted proof
+still requires deploy plus either the next owner rehearsal or a dedicated AI
+Activity proof if MIMIR wants live confirmation.
 
 ## PR382 Memory Owner-Visible JSON Redaction Result
 

@@ -2,7 +2,7 @@
 
 Opened: 2026-06-27
 Owner: DAEDALUS
-Status: ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Purpose
 
@@ -152,3 +152,12 @@ Validation passed:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck`;
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck`;
 - `git diff --check` passed with CRLF normalization warnings only.
+
+ARGUS accepted PR384 on 2026-06-27. The investigation classification is fair:
+normal and streaming chat already use traced provider-backed paths, list/detail
+routes are owner-scoped and sanitized, and read-only replay surfaces should not
+create traces by themselves. The patch stays an empty-state/readback fix.
+
+Current baton: MIMIR should close PR384 and decide the next roadmap move. ARGUS
+recommends folding the AI Activity empty-state proof into the next owner
+rehearsal after deploy, unless MIMIR wants a dedicated hosted AI Activity proof.

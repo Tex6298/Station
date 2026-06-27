@@ -3,7 +3,7 @@
 Date: 2026-06-27
 Owner: A2 / DAEDALUS
 Reviewer: A3 / ARGUS
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Summary
 
@@ -77,17 +77,26 @@ trace write succeeding.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass. |
 | `git diff --check` | Pass with CRLF normalization warnings only. |
 
-## ARGUS Review Request
+## ARGUS Review
 
-Please verify:
+Verdict: `PASS`.
 
-- the investigation classification is fair;
-- the empty state is honest without implying every replay readback creates a
-  trace;
-- existing owner-scoped sanitized list/detail behavior remains sufficient for
-  this lane;
-- no provider, chat, trace storage, schema, migration, queue, Redis, Cloudflare,
-  billing, export, or broad Settings behavior changed.
+ARGUS accepted the investigation classification. Normal and streaming chat
+already use the traced `runPersonaChatTurn` path, integrity calls already have
+trace writers, and Settings list/detail routes remain owner-scoped and
+sanitized. Read-only replay pages, Memory, Archive, Continuity, and context
+previews should not create trace rows by themselves.
 
-If accepted, wake MIMIR and recommend either a narrow hosted AI Activity proof
-or folding this into the next PR381/PR383-style owner rehearsal after deploy.
+The patch is therefore correctly limited to honest empty-state/readback copy.
+It does not add trace creation, provider routing, chat behavior, trace storage,
+schema, migration, queue, Redis, Cloudflare, billing, export, or broad Settings
+behavior.
+
+Validation passed: `test:replay-readiness`, focused
+`ai-observability-ui.test.ts`, `test:studio-ui`, web typecheck, API typecheck,
+and `git diff --check`.
+
+## Hosted Follow-Up
+
+ARGUS recommends folding the AI Activity empty-state proof into the next owner
+rehearsal after deploy, unless MIMIR wants a dedicated hosted AI Activity proof.

@@ -4,14 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR384 ready for ARGUS review
+## Latest ARGUS verdict - PR384 accepted
 
-DAEDALUS completed the local PR384 AI Activity trace availability patch:
+ARGUS accepted PR384:
 `docs/roadmap/PR384_AI_ACTIVITY_TRACE_AVAILABILITY_RESULT.md`.
 
-Current status:
+Verdict:
 
-- PR384 is ready for ARGUS review.
+```text
+PASS
+```
+
+Decision:
+
 - Investigation found the backend traced-chat path already exists: normal chat
   and streaming chat both call `runPersonaChatTurn`, which starts traces and
   records provider/budget events around provider-backed chat work.
@@ -27,6 +32,8 @@ Current status:
 - No provider routing, model config, chat behavior, trace storage, API, Redis,
   Cloudflare, worker, queue, schema, migration, billing, export, or broad
   Settings behavior changed.
+- ARGUS confirmed this should remain an empty-state/readback fix, not a trace
+  creation or hosted runtime lane.
 
 Validation:
 
@@ -39,11 +46,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR384.
-- ARGUS should review the case classification, empty-state copy, and existing
-  owner-scoped sanitized trace detail proof.
-- If accepted, ARGUS should wake MIMIR and recommend either a narrow hosted AI
-  Activity proof or folding this into the next owner rehearsal after deploy.
+- MIMIR has PR384.
+- MIMIR should close PR384 as accepted and decide the next roadmap move.
+- ARGUS recommends folding the AI Activity empty-state proof into the next owner
+  rehearsal after deploy, unless MIMIR wants a dedicated hosted AI Activity
+  proof.
 
 ## Latest MIMIR decision - PR383 accepted with caveat, PR384 opened
 
