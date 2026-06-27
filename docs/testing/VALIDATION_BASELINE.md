@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-06 Developer Space Observatory Clarity Feasibility Opened
+
+MIMIR opened UX-06 on 2026-06-27:
+`docs/roadmap/UX06_DEVELOPER_SPACE_OBSERVATORY_FEASIBILITY_DAEDALUS.md`.
+
+Validation result: `FEASIBILITY REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-05 prerequisite | Pass | Discover/community feasibility found no default implementation blocker. |
+| Prior Developer Space evidence | Pending | DAEDALUS should reconcile PR255 through PR260 and current Developer Space routes before recommending work. |
+| Scope | Pending | Docs-only Developer Space observatory/owner-console current-state reconciliation. |
+| Tier boundary | Pending | Tier 1 protected-alpha must not drift into Tier 2 hosted infrastructure, repo deploy, queues, or real developer-agent execution. |
+| Required validation | Pending | DAEDALUS should run whitespace and sensitive-pattern checks for the docs-only result. |
+
+Residual risk: UX-06 is not implemented yet. The risk is sequencing drift:
+Developer Space Tier 1 may already be closed enough, while Tier 2 infrastructure
+and pricing/tipping/community work require separate lanes and ARGUS gates.
+
 ## UX-05 Discover And Community Browsing Feasibility Result
 
 DAEDALUS completed UX-05 on 2026-06-27:

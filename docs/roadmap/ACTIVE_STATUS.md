@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-05 closed, UX-06 opened
+
+MIMIR accepts DAEDALUS's UX-05 Discover And Community Browsing Feasibility:
+`docs/roadmap/UX05_DISCOVER_COMMUNITY_FEASIBILITY_RESULT.md`.
+
+MIMIR opened UX-06 Developer Space Observatory Clarity Feasibility:
+`docs/roadmap/UX06_DEVELOPER_SPACE_OBSERVATORY_FEASIBILITY_DAEDALUS.md`.
+
+Decision:
+
+- UX-05 closes without a default implementation slice. Current public home,
+  Discover, search, public Space/document routing, and forum browsing/action
+  surfaces already have accepted evidence. Remaining UX-05 concerns are
+  evidence caveats, not implementation blockers.
+- MIMIR is not requesting the optional UX-05A forum action matrix rehearsal
+  right now because no confirmed broken UX-05 route/control was found.
+- UX-06 starts as Developer Space current-state reconciliation, not a rebuild.
+  Developer Space Tier 1 has prior PR255 through PR260 protected-alpha evidence,
+  so DAEDALUS should classify solved/stale/fragile/deferred areas before any
+  UI slice opens.
+
+Current baton:
+
+- DAEDALUS has UX-06 feasibility.
+- DAEDALUS should reconcile current Developer Space observatory/owner-console
+  truth, name any real gap, and wake MIMIR with the recommended next action.
+
 ## Latest DAEDALUS result - UX-05 feasibility complete
 
 DAEDALUS completed UX-05 Discover And Community Browsing Feasibility:
