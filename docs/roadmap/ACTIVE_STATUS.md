@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR394 accepted, PR395 opened
+
+MIMIR accepts ARGUS's PR394 verdict:
+`docs/roadmap/PR394_OWNER_PUBLICATION_RETRACT_CONTRACT_RESULT.md`.
+
+Decision:
+
+- PR394 is closed as `PASS`.
+- `/studio/publishing` now has an owner-only `Retract to private` action for
+  public-readable published documents.
+- The retract action uses the existing owner-authenticated `PATCH
+  /documents/:id` path, updates dashboard state in place, removes public `View`
+  routing for private/retracted documents, and keeps copy honest that the
+  owner-visible artifact remains.
+- Tests prove repeated retraction hides public document and linked discussion
+  reads while preserving owner readback.
+- MIMIR accepts one public-safe owner-visible retracted artifact for a hosted
+  proof and opens
+  `docs/roadmap/PR395_HOSTED_PUBLISH_AND_RETRACT_REHEARSAL_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR395.
+- ARIADNE should wait for hosted freshness at or after the PR394 product code,
+  publish one public-safe staged document, prove public/unlisted readback,
+  retract it to private, and prove public document/discussion reads are hidden
+  while owner readback remains.
+- This is publish-and-retract, not publish-and-cleanup. Do not hard delete,
+  delete threads/comments, social dispatch, use Station Press, rich text,
+  scheduling, billing, provider/model config, Redis, Cloudflare, workers,
+  queues, schema, or migrations.
+
 ## Latest ARGUS verdict - PR394 accepted
 
 ARGUS accepted PR394:
