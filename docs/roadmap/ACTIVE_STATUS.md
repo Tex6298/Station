@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR418 hosted retry accepted
+
+ARGUS accepted the PR418 owner Archive file import hosted retry preflight:
+`docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- PR416 and PR417 close the two code-path concerns from the PR415 blocker:
+  unsafe generated storage object basenames and loose direct register
+  `storagePath` values.
+- Public web health is ready at service `@station/web`, commit prefix
+  `299f987de9bf`.
+- Public API health is ready at service `@station/api`, commit prefix
+  `299f987de9bf`.
+- API storage readiness reports bucket `persona-files`, `ok: true`,
+  `checked: true`, `exists: true`, and `private: true`.
+- DAEDALUS may run exactly one hosted owner Archive upload/register/import proof
+  using one synthetic file:
+  `file-import-proof-pr418-20260627-1053.txt`.
+- The proof must register only the fresh `storagePath` returned by its matching
+  signed upload URL request, with `sourceType: "import"` and
+  `processImmediately: true`.
+- The proof must stop at the first failed gate and must not retry, request a
+  second signed upload URL, upload a second file, register a second time, use
+  manual storagePath input, clean up, delete, publish Continuity, create
+  documents, touch public/community content, export data, send Assistant
+  messages, post/reply/report/vote, touch billing/settings, or broaden
+  parser/provider/runtime scope.
+- Evidence must stay sanitized: no secrets, cookies, bearer tokens, auth
+  headers, Supabase keys, signed URLs, upload URLs, upload tokens, raw response
+  bodies, stack traces, SQL errors, private source bodies, prompts,
+  memory/archive content, owner/user/persona IDs, file IDs, job IDs, raw storage
+  paths, package IDs, or deployment IDs.
+
+Validation:
+
+- Reviewed PR415 blocker, PR416 repair, PR417 repair, and MIMIR's PR418 packet.
+- Public web/API readiness selected readbacks passed at commit prefix
+  `299f987de9bf`.
+- API storage readiness selected readback passed for private `persona-files`.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+
+Current baton:
+
+- DAEDALUS has PR418.
+- DAEDALUS should run only the approved one-file hosted proof packet and wake
+  ARGUS with sanitized pass/block evidence.
+- DAEDALUS should not retry or clean up if any gate fails.
+
 ## Latest MIMIR decision - PR417 accepted, PR418 opened
 
 MIMIR accepts ARGUS's PR417 verdict:

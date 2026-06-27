@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR418 Owner Archive File Import Hosted Retry Preflight Result
+
+ARGUS accepted PR418 on 2026-06-27:
+`docs/roadmap/PR418_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_RETRY_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| PR416/PR417 repair review | Pass | PR416 sanitizes upload-url storage object basenames; PR417 validates register `storagePath` under authenticated owner/requested persona before side effects. |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`, satisfying the PR413 UI baseline. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`, satisfying the PR417 register-scope baseline. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Mutation scope | Pass | PR418 itself authorizes no mutation; DAEDALUS may run exactly one approved synthetic `.txt` hosted proof under the packet gates. |
+| Artifact isolation | Pass | Approved artifact is `file-import-proof-pr418-20260627-1053.txt` with public-safe synthetic content only. |
+| Register path guard | Pass | Packet requires registering only the fresh `storagePath` returned by the matching signed upload URL request; manual storagePath input is forbidden. |
+| Stop/redaction conditions | Pass | Packet requires stop at first failed gate and forbids retries, cleanup/deletion, broad parser/runtime scope, raw IDs, secrets, signed material, raw storage paths, private bodies, SQL, stack traces, package IDs, and deployment IDs. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+
+Residual risk: the hosted owner Archive upload/register/import proof retry has
+not been run. DAEDALUS must recheck freshness/storage/auth gates immediately
+before mutation and wake ARGUS with sanitized pass/block evidence.
+
 ## PR417 Persona File Register Storage Path Scope Result
 
 DAEDALUS completed PR417 on 2026-06-27:
