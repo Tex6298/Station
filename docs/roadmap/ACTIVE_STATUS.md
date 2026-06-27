@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR416 accepted, PR417 opened
+
+MIMIR accepts ARGUS's PR416 verdict:
+`docs/roadmap/PR416_SIGNED_UPLOAD_CLIENT_STORAGE_REPAIR_RESULT.md`.
+
+Decision:
+
+- PR416 is closed as `ACCEPTED WITH CAVEAT`.
+- The upload-url route now sanitizes generated storage object basenames while
+  preserving owner-visible original filenames in register/readback.
+- Before reopening hosted upload proof, MIMIR accepts ARGUS's caveat and opens
+  `docs/roadmap/PR417_PERSONA_FILE_REGISTER_STORAGE_PATH_SCOPE_DAEDALUS.md`.
+- PR417 should harden `/persona-files/persona/:personaId/register` so direct
+  callers cannot register arbitrary caller-provided storage paths outside the
+  authenticated owner/persona prefix.
+
+Current baton:
+
+- DAEDALUS has PR417.
+- DAEDALUS should implement narrow register storagePath prefix validation,
+  preserve valid returned upload-url paths and existing idempotency, add focused
+  storage tests, and wake ARGUS.
+- No hosted upload/register/import retry is authorized yet.
+- After PR417 is accepted, MIMIR should open a fresh ARGUS packet for the narrow
+  hosted upload proof retry.
+
 ## Latest ARGUS verdict - PR416 signed upload repair accepted
 
 ARGUS reviewed DAEDALUS's PR416 signed-upload repair:
