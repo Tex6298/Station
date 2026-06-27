@@ -25,14 +25,22 @@ they are not Station validation failures.
 MIMIR opened DAEDALUS setup-tool design on 2026-06-28:
 `docs/roadmap/TOKEN_TOPUP_PROOF_ACCOUNT_SETUP_TOOL_DAEDALUS.md`.
 
-Validation result: open.
+DAEDALUS completed the setup-tool design on 2026-06-28:
+`docs/roadmap/TOKEN_TOPUP_PROOF_ACCOUNT_SETUP_TOOL_RESULT.md`.
+
+Validation result: `NO SAFE TOOL - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARGUS setup preflight prerequisite | Pass | ARGUS rejected the one-off hosted `visitor` to `private` mutation and allowed a separate audited setup-tool lane. |
 | MIMIR decision | Pass | MIMIR kept the top-up proof open, did not waive the dedicated-account requirement, and did not hand account setup back to the user yet. |
 | Mutation boundary | Not authorized | This lane authorizes design/implementation work only; no hosted account setup, SQL, service-role/dashboard mutation, Checkout, Stripe inspection, subscription activation, schema/config/package change, or token purchase mutation has been authorized. |
-| Required next validation | Pending | DAEDALUS must return either a setup-tool packet for ARGUS hostile review or `NO SAFE TOOL` with the exact user-provided account ask. |
+| Setup-tool design | Pass | DAEDALUS rejected CLI, admin-route, and self-targeting route shapes as unsafe for this lane. |
+| Token accounting isolation | Blocked by design | Updating `profiles.tier` triggers `trg_profiles_token_usage_limit`, so the useful mutation cannot leave token accounting rows untouched. |
+| `git diff --check` | Pass | Docs-only setup-tool result patch has no whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:token-credits` | Pass | 3 tests passed. |
+| Required outcome | Pass | DAEDALUS returned `NO SAFE TOOL - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT`. |
 
 Residual risk: token top-up proof remains unclosed until one dedicated
 Basic/private non-production proof account exists and ARIADNE reruns the hosted

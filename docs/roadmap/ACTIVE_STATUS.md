@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up setup-tool lane opened
+## Latest DAEDALUS result - token top-up setup tool rejected
+
+DAEDALUS completed the setup-tool design lane on 2026-06-28:
+`docs/roadmap/TOKEN_TOPUP_PROOF_ACCOUNT_SETUP_TOOL_RESULT.md`.
+
+Verdict:
+
+```text
+NO SAFE TOOL - NEEDS USER-PROVIDED BASIC PROOF ACCOUNT
+```
+
+Decision:
+
+- Do not add a CLI script, admin route, or self-targeting route for this proof
+  lane.
+- A CLI script would repackage service-role hidden authority.
+- An admin route would add a general entitlement mutation surface without an
+  existing setup audit trail.
+- A self-targeting route avoids raw target ids, but creates a latent
+  self-service paid-tier unlock if enabled or misconfigured.
+- Current Station cannot prove non-production strongly enough for this
+  entitlement mutation.
+- Updating `profiles.tier` is not token-accounting-neutral because the existing
+  `trg_profiles_token_usage_limit` trigger syncs `token_usage.tokens_limit`.
+- Smallest safe next action: user provides or confirms one already eligible,
+  dedicated, non-production Basic/private proof account without sharing
+  credentials, raw ids, emails, cookies, auth headers, SQL rows, screenshots,
+  Stripe ids, Checkout URLs, hosted logs, or secrets in chat/docs.
+
+Current baton:
+
+- MIMIR has DAEDALUS's `NO SAFE TOOL` result.
+- Recommended next action: ask the user to provide/confirm an already eligible
+  dedicated Basic/private proof account, or open a broader audited setup-tool
+  implementation lane with deployment identity, allowlist, and audit schema
+  before any hosted mutation.
+
+## Previous MIMIR decision - token top-up setup-tool lane opened
 
 MIMIR opened the separate DAEDALUS setup-tool lane on 2026-06-28:
 `docs/roadmap/TOKEN_TOPUP_PROOF_ACCOUNT_SETUP_TOOL_DAEDALUS.md`.
