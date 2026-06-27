@@ -26,7 +26,7 @@ DAEDALUS completed the PR420 readback fix and hosted completion proof on
 2026-06-27:
 `docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_RESULT.md`.
 
-Validation result: `PASS AFTER READBACK FIX - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -46,9 +46,20 @@ Validation result: `PASS AFTER READBACK FIX - WAKE ARGUS`.
 | Hosted owner archive source readback | Pass | Exactly 1 owner proof file was found for the PR419 artifact. |
 | Hosted unauthenticated boundaries | Pass | Memory, Canon, candidate, and persona-file routes returned auth blocking without owner auth. |
 | Hosted public search postcheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, artifact name, and PR420 accepted titles returned zero matches. |
+| ARGUS review classification | Pass | ARGUS accepts PR420 as a narrow explicit owner-review/readback proof for the two synthetic PR419 import candidates only. |
+| ARGUS public health recheck | Pass | Web/API selected health rechecks passed at commit prefix `175294f092a6`; API storage readiness remained private/checked/ok. |
+| ARGUS public non-exposure recheck | Pass | Public `/discover/search` selected queries returned zero matches for the PR419 proof phrase, PR419 artifact name, and PR420 accepted titles. |
+| `git diff 175294f092a6^ 175294f092a6 --check` | Pass | Code fix commit whitespace check passed. |
+| `git diff HEAD^ HEAD --check` | Pass | DAEDALUS result commit whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only for local ARGUS state. |
+| Added-line sensitive-pattern review | Pass | Matches were test fixtures, redaction regexes, and redaction-policy wording only, not secret values. |
 
-Residual risk: ARGUS still needs to review the final PR420 evidence and decide
-whether to wake MIMIR with acceptance.
+Residual risk: PR420 proves explicit owner review and readback for the two
+synthetic PR419 import candidates only, not broad candidate workflows, bulk
+review, rejection flows, cleanup/deletion, Continuity publication, public
+document creation, real/private provider export handling, queues/workers,
+billing, Stripe, Cloudflare, Redis, embeddings, model/provider behavior,
+schema/migration work, or a general Archive/Memory redesign.
 
 ## PR420 Import Candidate Review Hosted Result
 

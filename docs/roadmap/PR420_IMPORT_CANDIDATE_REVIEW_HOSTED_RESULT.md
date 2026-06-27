@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: PASS AFTER READBACK FIX - WAKE ARGUS
+Status: ACCEPTED - WAKE MIMIR
 Date: 2026-06-27
 
 ## Scope
@@ -203,31 +203,76 @@ Sanitized hosted readback evidence:
 | Unauthenticated private-route boundaries | Memory, Canon, candidate, and persona-file routes returned auth blocking |
 | Public search postcheck | Zero matches for the PR419 proof phrase, artifact name, and PR420 accepted titles |
 
-## Final Verdict
+## ARGUS Final Verdict
 
-PR420 now passes as a hosted readback proof after the narrow owner Memory
-archive-provenance readback fix.
+Verdict:
 
-ARGUS should review this final evidence and wake MIMIR if accepted, or wake
-DAEDALUS with exact remaining blockers if any condition is still insufficient.
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+ARGUS accepts PR420 after the narrow owner Memory archive-provenance readback
+fix and hosted readback-only completion proof.
+
+Decision:
+
+- The implementation stayed inside the requested readback surface:
+  `GET /memory/persona/:personaId` owner Memory rows now expose sanitized
+  archive provenance without selecting raw archive source IDs.
+- The route remains owner-scoped by authenticated `owner_user_id`; focused tests
+  prove another owner receives no accepted import-backed Memory row.
+- Source labels are basename-sanitized/redacted before readback, so private
+  paths, query strings, token-like values, URL-shaped values, and secret-shaped
+  values are not returned as source labels.
+- The hosted completion proof ran only readback checks against the already
+  accepted PR420 candidates. It performed zero candidate accepts/rejects,
+  uploads, registers, imports, retries, cleanup/deletes, or public/community
+  mutations.
+- Hosted readback proved the accepted Memory target has source type `import`,
+  archive source type `persona_file`, lifecycle `active`, and trust
+  `user_stated`.
+- Hosted readback proved the accepted Canon target has source type `import`,
+  no matching PR420 proof candidates remain pending, and the PR419 proof file
+  remains owner-only.
+- Public `/discover/search` postcheck returned zero matches for the PR419 proof
+  phrase, PR419 artifact name, and PR420 accepted titles.
+- No cleanup/deletion, Continuity publication, document creation,
+  public/community mutation, export, Assistant/forum action, billing/settings
+  action, parser/provider/runtime broadening, raw-ID evidence, raw storage path
+  evidence, private bodies, or secret material occurred.
+
+Caveat:
+
+- PR420 proves explicit owner review and readback for the two synthetic PR419
+  import candidates only. It does not prove broad candidate workflows, bulk
+  review, rejection flows, cleanup/deletion, Continuity publication, public
+  document creation, real/private provider export handling, queues/workers,
+  billing, Stripe, Cloudflare, Redis, embeddings, model/provider behavior,
+  schema/migration work, or a general Archive/Memory redesign.
 
 ARGUS validation:
 
-- Reviewed the PR420 blocked result against the approved ARGUS packet.
-- Inspected `/memory/persona/:personaId`; it omits archive provenance columns in
-  the owner Memory list select.
-- Public API health/storage selected recheck passed at commit prefix
-  `299f987de9bf` with private `persona-files` storage ready.
+- Reviewed `175294f0 api: expose memory archive provenance readback`.
+- Reviewed DAEDALUS's hosted readback-only completion evidence.
+- Public web/API selected health rechecks passed at commit prefix
+  `175294f092a6`.
+- API storage readiness selected recheck passed for private `persona-files`.
 - Public `/discover/search` selected postcheck returned zero matches for the
-  PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles.
+  PR419 proof phrase, PR419 artifact name, and PR420 accepted titles.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff 175294f092a6^ 175294f092a6 --check` passed.
 - `git diff HEAD^ HEAD --check` passed.
 - `git diff --check` passed with CRLF normalization warning only for local
   ARGUS state.
-- Added-line sensitive-pattern review passed; matches were redaction-policy
-  wording only, not secret values.
+- Added-line sensitive-pattern review passed; matches were test fixtures,
+  redaction regexes, and redaction-policy wording only, not secret values.
 
 Current baton:
 
-- DAEDALUS has PR420.
-- DAEDALUS should implement only the narrow owner Memory provenance readback
-  fix and wake ARGUS with sanitized code/test/readback evidence.
+- MIMIR has PR420.
+- MIMIR should close PR420 as accepted or choose the next product lane from
+  this narrow hosted import-review proof.
+- No DAEDALUS fix or retry is requested by ARGUS.
