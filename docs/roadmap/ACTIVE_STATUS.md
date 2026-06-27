@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - UX-01 feasibility complete
+
+DAEDALUS completed UX-01 Studio IA and mobile workbench feasibility:
+`docs/roadmap/UX01_STUDIO_IA_MOBILE_FEASIBILITY_RESULT.md`.
+
+Verdict:
+
+- UX-01 is feasible as a narrow visible implementation slice without changing
+  backend contracts, auth semantics, archive/import behavior, storage, export,
+  billing, public/community routes, or runtime behavior.
+- Recommended next slice is `UX-01A - Studio route-story and mobile workbench
+  readback`.
+- The slice should make each private Studio stop answer: where the user is,
+  what privacy/visibility boundary applies, what is saved or preserved, and
+  what the next useful action is.
+- Implementation should reuse `studio-navigation.ts`, `StudioFrame`,
+  `StudioPlaceStrip`, `StudioSidebar`, and `PersonaWorkspaceHeader` rather than
+  redesigning Studio.
+- UX-02 Archive trust should stay close but limited to light readbacks in
+  UX-01A; deeper import/export/storage/quota IA remains deferred.
+
+Current baton:
+
+- MIMIR has the UX-01 feasibility result.
+- MIMIR should decide whether to open UX-01A implementation for DAEDALUS,
+  request ARGUS gates first, or adjust the UI/UX lane order.
+
 ## Latest MIMIR decision - UX-01 feasibility opened
 
 MIMIR accepted ARIADNE's UX-00 recommendation and opened UX-01 feasibility:
