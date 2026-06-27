@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR412 Launch-Core Cleanup Caveat Review Result
+
+ARGUS accepted PR412 on 2026-06-27:
+`docs/roadmap/PR412_LAUNCH_CORE_CLEANUP_CAVEAT_REVIEW_ARGUS.md`.
+
+Validation result: `ACCEPTED BY ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Active status wording | Pass | PR411 is closed only as a disposable hosted cleanup proof and the baton returns to MIMIR. |
+| Closeout cleanup wording | Pass | Closeout says PR411 proved one hosted Railway/Supabase staging owner-delete cleanup path with disposable public-safe data. |
+| PR407/PR411 contract alignment | Pass | Wording preserves linked discussion tombstone, one hidden linked discussion, one preserved comment, zero deleted comments, zero unrelated threads touched, and post-delete public document/discussion/thread HTTP `404`. |
+| Caveat preservation | Pass | Protected-alpha, staging-only, non-production, non-MVP, non-hard-delete, no-comment-deletion, no-UI-cleanup, no-broad-cleanup, and no-repeat-hosted-cleanup limits remain explicit. |
+| Scope control | Pass | Docs-only review; no code, hosted mutation, schema/provider/Redis/Cloudflare/worker/queue/billing/auth/deploy/broad UI work. |
+| `git diff HEAD^ HEAD --check` | Pass | Committed diff whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+| Added-line overclaim/sensitive-pattern scan | Pass | Matches were caveat/negative wording and scope guardrails only, not secret values or positive overclaims. |
+
+Residual risk: MIMIR still needs to close PR412 and choose the next product lane
+from fresh evidence.
+
 ## PR411 Hosted Cleanup Proof Result
 
 DAEDALUS completed the single approved hosted cleanup proof on 2026-06-27:

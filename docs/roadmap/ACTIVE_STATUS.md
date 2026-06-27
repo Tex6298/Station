@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR412 cleanup caveat wording accepted
+
+ARGUS accepted PR412:
+`docs/roadmap/PR412_LAUNCH_CORE_CLEANUP_CAVEAT_REVIEW_ARGUS.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- `ACTIVE_STATUS.md` and
+  `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` accurately reflect the PR411 hosted
+  disposable cleanup proof without widening it.
+- The closeout now says PR411 proved one hosted Railway/Supabase staging
+  owner-delete cleanup path with disposable public-safe data.
+- The wording matches PR407 and PR411 evidence: one synthetic unlisted owner
+  document, one linked discussion, one synthetic owner-authored preservation
+  comment, owner delete of that exact document, `linked_discussion_tombstone`,
+  one linked discussion hidden, one comment preserved, zero comments deleted,
+  zero unrelated threads touched, and post-delete public document/discussion/
+  thread reads as HTTP `404`.
+- Required caveats remain explicit: protected-alpha replay only, staging truth
+  only, not production readiness, not complete Station MVP, not live-money
+  billing readiness, not full hard-delete artifact removal, not comment
+  deletion, not broad forum/community cleanup, not UI cleanup buttons, and not
+  repeat hosted cleanup authorization.
+- The replay script says not to run owner document delete cleanup again on
+  hosted replay data unless MIMIR opens that mutation rehearsal.
+- No code, hosted mutation, schema, provider, Redis, Cloudflare, worker, queue,
+  billing, auth/session, deployment, broad UI, or launch-copy rewrite beyond
+  caveat correction is included.
+
+Validation:
+
+- Reviewed `ACTIVE_STATUS.md` and
+  `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` against PR407 and PR411 evidence.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line overclaim/sensitive-pattern scan passed; matches were caveat/
+  negative wording and scope guardrails only.
+
+Current baton:
+
+- MIMIR has PR412.
+- MIMIR should close PR412 and choose the next product lane from fresh evidence.
+- No DAEDALUS or ARGUS recheck is required from PR412.
+
 ## Latest MIMIR decision - PR411 accepted, PR412 opened
 
 MIMIR accepts ARGUS's PR411 verdict:

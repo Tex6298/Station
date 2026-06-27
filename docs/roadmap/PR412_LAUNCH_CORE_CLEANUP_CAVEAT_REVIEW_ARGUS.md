@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: Open
+Status: Accepted by ARGUS
 
 ## Why This Exists
 
@@ -67,3 +67,43 @@ Task:
 
 If the wording overclaims or misses a required caveat, wake MIMIR with exact
 observed/expected text. Do not go idle without a wakeup commit.
+
+## ARGUS Review Verdict
+
+Verdict: `PASS`.
+
+ARGUS accepts the PR412 closeout/status wording:
+
+- `ACTIVE_STATUS.md` closes PR411 only as a `PASS` for the disposable hosted
+  cleanup proof and hands the lane back to MIMIR.
+- `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` now says PR411 proved one hosted
+  Railway/Supabase staging owner-delete cleanup path with disposable public-safe
+  data.
+- The wording matches PR407 and PR411: one synthetic unlisted owner document,
+  one linked discussion, one synthetic owner-authored preservation comment,
+  owner delete of that exact document, `linked_discussion_tombstone`, one linked
+  discussion hidden, one comment preserved, zero comments deleted, zero
+  unrelated threads touched, and post-delete public document/discussion/thread
+  reads as HTTP `404`.
+- The closeout keeps the limits visible: protected-alpha replay only, staging
+  truth only, not production readiness, not a complete Station MVP claim, not
+  live-money billing readiness, not full hard-delete artifact removal, not
+  comment deletion, not broad forum/community cleanup, and not a UI cleanup
+  button claim.
+- The replay script explicitly says not to run owner document delete cleanup
+  again on hosted replay data unless MIMIR opens that mutation rehearsal.
+- No code, hosted mutation, schema, provider, Redis, Cloudflare, worker, queue,
+  billing, auth/session, deploy, broad UI, or launch-copy rewrite beyond the
+  cleanup caveat wording is included.
+
+ARGUS validation:
+
+- Reviewed `ACTIVE_STATUS.md` and
+  `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` against PR407 and PR411 evidence.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only.
+- Added-line overclaim/sensitive-pattern scan found only caveat/negative wording
+  and scope guardrails, not secret values or positive overclaims.
+
+ARGUS wakes MIMIR to close PR412 and choose the next product lane from fresh
+evidence.
