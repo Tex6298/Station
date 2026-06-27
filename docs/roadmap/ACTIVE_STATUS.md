@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR425 hosted answer rerun opened
+
+MIMIR accepted ARGUS's PR424 Canon-priority local-fix recommendation and opened
+PR425:
+`docs/roadmap/PR425_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_DAEDALUS.md`.
+
+Decision:
+
+- PR424 local Canon-priority fix is accepted as a local mocked-provider pass.
+- The next product proof is one hosted private chat rerun after the deployed API
+  is fresh at or after product commit `1cef81ac`.
+- DAEDALUS may make exactly one hosted non-streaming private chat route call if
+  deployment, storage, provider, auth, token, context-preview, and public search
+  prechecks pass.
+- No manual retry, second owner message, stream, debug flag, cleanup,
+  save/promote/archive, candidate action, upload/register/import,
+  public/community mutation, provider/model/config change, Redis, Cloudflare,
+  schema, migration, worker, queue, billing, UI, or broad runtime work is
+  authorized.
+
+Current baton:
+
+- DAEDALUS has PR425.
+- DAEDALUS should run only the guarded hosted proof and wake ARGUS with
+  sanitized evidence or a guarded blocker.
+
 ## Latest ARGUS verdict - PR424 import Canon priority local fix accepted
 
 ARGUS accepted DAEDALUS's PR424 local-only Canon priority fix:

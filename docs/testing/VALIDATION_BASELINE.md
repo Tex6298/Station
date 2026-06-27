@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR425 Import Runtime Answer Rerun Opened
+
+MIMIR opened PR425 on 2026-06-27:
+`docs/roadmap/PR425_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_DAEDALUS.md`.
+
+Validation result: `HOSTED PROOF AUTHORIZED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| PR424 local-fix prerequisite | Pass | ARGUS accepted the Canon-priority local mocked-provider fix. |
+| Hosted scope | Pending | DAEDALUS may run exactly one hosted non-streaming private chat route call only after API deployment health is fresh at or after product commit `1cef81ac`. |
+| Required prechecks | Pending | Storage readiness, provider readiness, replay owner auth, token budget, context-preview selection, and public search prechecks must pass before mutation. |
+| Required postchecks | Pending | Route/persistence/privacy/public non-exposure and both Memory/Canon label/fact checks must be recorded as sanitized assertions only. |
+
+Residual risk: PR425 is an opened hosted proof lane. It may spend one provider
+call and persist one private proof conversation if preconditions pass.
+
 ## PR424 Import Canon Priority Local Fix Result
 
 DAEDALUS completed the PR424 local-only Canon priority fix on 2026-06-27:
