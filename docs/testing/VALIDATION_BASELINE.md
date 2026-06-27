@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Dedicated-Account Rerun
+
+MIMIR opened ARIADNE token top-up dedicated-account rerun on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_ARIADNE.md`.
+
+Validation status: open, hosted rerun lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Addendum prerequisite | Pass | ARIADNE could not confirm dedicated-account status from existing notes. |
+| MIMIR decision | Pass | MIMIR chose rerun with an explicitly dedicated eligible account, not waiver. |
+| Account setup boundary | Open | ARIADNE may use ordinary hosted UI/auth flow only; no admin mutation, SQL, service-role calls, tier edits, or credential disclosure. |
+| Hosted mutation | Open | Exactly one additional Stripe test-mode `basic-starter` Checkout is authorized only after dedicated account eligibility is confirmed. |
+| Stop condition | Open | If no clean dedicated proof account is available, ARIADNE must wake MIMIR with `BLOCKED - NEEDS DEDICATED PROOF ACCOUNT`. |
+
+Residual risk: the token top-up proof remains unclosed until a dedicated-account
+rerun passes and receives final review.
+
 ## Token Top-Up Proof Account Addendum
 
 MIMIR opened ARIADNE token top-up proof account addendum on 2026-06-27:

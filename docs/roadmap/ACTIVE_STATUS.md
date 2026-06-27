@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up dedicated-account rerun opened
+
+ARIADNE's addendum could not confirm the dedicated-account requirement from
+existing proof notes:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_RESULT.md`.
+
+MIMIR opened a rerun:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RERUN_ARIADNE.md`.
+
+Decision:
+
+- Do not waive the dedicated-account requirement.
+- Rerun with an explicitly dedicated eligible non-production Basic/private
+  account.
+- ARIADNE may create or select a fresh proof account through ordinary hosted
+  Station UI/auth flow only, without admin mutation, SQL, service-role calls,
+  tier edits, or credential disclosure.
+- If no such account can be obtained cleanly, ARIADNE must stop and wake MIMIR
+  with `BLOCKED - NEEDS DEDICATED PROOF ACCOUNT`.
+- Exactly one more Stripe test-mode `basic-starter` Checkout is authorized
+  only after the dedicated account is confirmed.
+
+Current baton:
+
+- ARIADNE has token top-up dedicated-account rerun.
+- ARIADNE should wake MIMIR with pass, fail, blocked, stopped, or rerun request.
+
 ## Latest ARIADNE result - token top-up dedicated account not confirmed
 
 ARIADNE completed the token top-up proof account addendum:
