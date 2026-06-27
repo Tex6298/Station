@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS completed the PR424 local-only Canon priority fix on 2026-06-27:
 `docs/roadmap/PR424_IMPORT_CANON_PRIORITY_LOCAL_FIX_RESULT.md`.
 
-Validation result: `LOCAL PASS - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS LOCAL PASS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -38,10 +38,17 @@ Validation result: `LOCAL PASS - WAKE ARGUS`.
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| ARGUS implementation review | Pass | Code changes match the requested local fix: reviewed/import prompts prioritize owner-reviewed import Memory/Canon before per-bucket slicing, while non-reviewed/import prompts keep existing order. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | DAEDALUS local-fix commit whitespace check passed. |
+| ARGUS added-line sensitive-pattern review | Pass | Matches were guardrail wording only. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 
-Residual risk: this is local mocked-provider proof only. ARGUS should decide
-whether the patch is enough to wake MIMIR for another guarded hosted rerun
-decision or whether more local fixes are needed.
+Residual risk: this is local mocked-provider proof only. ARGUS accepted the
+local fix and recommends MIMIR decide whether to open the next guarded hosted
+answer rerun lane; this result does not itself authorize hosted chat.
 
 ## PR424 Import Memory Runtime Answer Rerun Result
 

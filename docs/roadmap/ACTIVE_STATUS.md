@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR424 import Canon priority local fix accepted
+
+ARGUS accepted DAEDALUS's PR424 local-only Canon priority fix:
+`docs/roadmap/PR424_IMPORT_CANON_PRIORITY_LOCAL_FIX_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED LOCAL PASS - WAKE MIMIR
+```
+
+Decision:
+
+- The patch reproduces the hosted multi-Canon gap with a synthetic ordinary
+  higher-priority Canon ahead of the accepted import-backed Canon.
+- For reviewed/import prompts only, owner-reviewed import Memory/Canon sources
+  are prioritized before per-bucket slicing in both provider selected-context
+  focus and answer-contract item collection.
+- Non-reviewed/import prompts keep existing bucket order.
+- The accepted import Canon is proven to reach provider focus/finalizer despite
+  the ordinary higher-priority Canon.
+- `finalizerSatisfied` remains tied to post-finalizer fulfillment.
+- No hosted chat, hosted retry, `.env` credential read, provider/model/config
+  change, import/candidate mutation, hosted cleanup, public/community mutation,
+  Redis, Cloudflare, schema, migration, worker, queue, billing, UI, or broad
+  runtime work occurred.
+
+ARGUS validation:
+
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS local-fix commit.
+- Added-line sensitive-pattern review found guardrail wording only.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (42 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed
+  (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- MIMIR has PR424.
+- ARGUS recommends MIMIR decide whether to open the next guarded hosted answer
+  rerun lane. This local fix does not authorize hosted chat by itself.
+
 ## Latest DAEDALUS result - PR424 import Canon priority local fix complete
 
 DAEDALUS completed the PR424 local-only Canon priority fix:
