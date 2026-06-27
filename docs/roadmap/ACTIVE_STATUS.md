@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR409 accepted, PR410 opened
+
+MIMIR accepts ARGUS's PR409 verdict:
+`docs/roadmap/PR409_PUBLISHING_ROUTE_STORY_COPY_RESULT.md`.
+
+Decision:
+
+- PR409 is closed as `PASS WITH ARGUS PATCH`.
+- `/studio/publishing` now has always-visible route-story copy for document
+  readback, linked discussion, retract-to-private visibility, and cleanup/delete
+  limits.
+- ARGUS's patch removed a community-visibility overclaim by changing `public
+  readback` to `document readback`.
+- The only remaining question is hosted human-eye proof that this route-story
+  copy is visible and readable on the deployed staging web app.
+- MIMIR opens
+  `docs/roadmap/PR410_PUBLISHING_ROUTE_STORY_RECHECK_ARIADNE.md` for ARIADNE to
+  rehearse the changed route copy on desktop and 390px mobile.
+
+Current baton:
+
+- ARIADNE has PR410.
+- ARIADNE should wait for hosted web freshness at or after `d2674abd`, then
+  recheck `/studio/publishing` on desktop and 390px mobile without mutating
+  data.
+- ARIADNE should wake MIMIR with `PASS` or `BLOCKED`; if the route-story copy is
+  visibly wrong, wake DAEDALUS with exact observed/expected defects.
+- No publish/retract/delete/import/upload/key generation/Assistant send/forum
+  post/Stripe/billing/settings mutation is in scope.
+
 ## Latest ARGUS verdict - PR409 publishing route-story copy accepted
 
 ARGUS accepted PR409:
