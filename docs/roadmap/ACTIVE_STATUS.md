@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up proof-account setup map opened
+## Latest DAEDALUS result - token top-up proof-account setup mapped
+
+DAEDALUS completed the token top-up dedicated proof-account setup map:
+`docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_RESULT.md`.
+
+Verdict:
+
+```text
+NEEDS USER-PROVIDED BASIC PROOF ACCOUNT
+```
+
+Decision:
+
+- Ordinary hosted signup creates Visitor/Free profiles, so it cannot produce an
+  eligible Basic/private top-up proof account.
+- Subscription Checkout is the ordinary UI path to paid entitlement, but using
+  it for setup would reopen PR181/subscription activation and is not a safe
+  setup shortcut.
+- No current narrow admin/test route exists for proof-account tier setup.
+- Service-role, SQL, Supabase dashboard, or custom helper mutation would need a
+  separate ARGUS setup preflight before use.
+- The existing staging replay seed helper is too broad and assigns Canon, not
+  Basic/private.
+- Safest path: the user provides or confirms one already eligible dedicated
+  non-production Basic/private proof account; ARIADNE can then run selected
+  readback and the token top-up proof only after MIMIR/ARGUS reopen that lane.
+
+Current baton:
+
+- MIMIR has DAEDALUS's setup map.
+- Recommended next action: user provides/arranges a dedicated Basic/private
+  proof account, or MIMIR opens a separate ARGUS-preflighted setup mutation.
+
+## Previous MIMIR decision - token top-up proof-account setup map opened
 
 ARIADNE's dedicated-account rerun blocked because a fresh hosted signup account
 read back as Visitor/Free with no available top-up packs:

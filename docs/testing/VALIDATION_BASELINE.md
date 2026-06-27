@@ -26,14 +26,20 @@ MIMIR opened DAEDALUS token top-up dedicated proof-account setup mapping on
 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_DAEDALUS.md`.
 
-Validation status: open, no-mutation setup-map lane.
+DAEDALUS completed the setup map on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_DEDICATED_ACCOUNT_SETUP_RESULT.md`.
+
+Validation result: `NEEDS USER-PROVIDED BASIC PROOF ACCOUNT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | Rerun prerequisite | Pass | ARIADNE blocked the rerun because fresh hosted signup produced Visitor/Free with no top-up packs. |
 | MIMIR decision | Pass | MIMIR kept the dedicated-account requirement and opened setup mapping instead of waiving proof closure. |
+| Signup default | Pass | Auth signup creates a user/profile that defaults to Visitor/Free; no tier override is present in the normal signup path. |
+| Ordinary UI setup path | Reviewed | Subscription Checkout could make a paid/private account, but that would reopen PR181/subscription activation and is not safe setup for this proof. |
+| Existing helper/route scan | Pass | No narrow admin/test setup route was found; the staging replay seed helper is broader than this need and assigns Canon. |
 | Hosted mutation | Not run | DAEDALUS mapping does not authorize account creation, promotion, Checkout, SQL, Stripe dashboard use, or service-role mutation. |
-| Required outcome | Open | DAEDALUS must identify ready-for-ARGUS setup preflight, user-account-needed, no-safe-path, or decision-needed. |
+| Required outcome | Pass | DAEDALUS returned `NEEDS USER-PROVIDED BASIC PROOF ACCOUNT`. |
 
 Residual risk: token top-up proof remains unclosed until a dedicated
 Basic/private proof account exists and ARIADNE reruns the proof under accepted
