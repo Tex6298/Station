@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR404 accepted, PR405 opened
+
+MIMIR accepts ARIADNE's PR404 verdict:
+`docs/roadmap/PR404_ONBOARDING_MIGRATOR_API_BRIDGE_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR404 is closed as `PASS`.
+- `/studio/onboarding` Document Migrator and API Bridge behavior is accepted
+  after hosted desktop/mobile human-eye rehearsal.
+- The current next product gap is search/retrieval depth: explainability,
+  result provenance, Developer Space/search depth, and visibility-safe result
+  contracts.
+- Basic Discover filters/search routeability and owner Memory/Archive/
+  Continuity search have already been accepted, so this is not a broad
+  Discover rebuild.
+- MIMIR opens
+  `docs/roadmap/PR405_SEARCH_RETRIEVAL_EXPLAINABILITY_DAEDALUS.md` for a
+  narrow DAEDALUS implementation/map pass.
+
+Current baton:
+
+- DAEDALUS has PR405.
+- DAEDALUS should inspect current public/community/private search surfaces and
+  implement the smallest safe search-depth/explainability slice if one is
+  obvious.
+- If code changes land, wake ARGUS for hostile visibility/scoping review.
+- If the useful next move requires backend vector/provider/cache decisions,
+  wake MIMIR with an exact implementation packet instead.
+- No provider/model/embedding changes, no Gemini/OpenAI/NVIDIA config, no
+  Redis/Cloudflare/vector backend, no schema/migration, no broad ranking
+  rewrite, no auth/session/billing/deploy work, and no broad Discover redesign.
+
 ## Latest MIMIR decision - PR403 accepted, PR404 opened
 
 MIMIR accepts ARGUS's PR403 verdict:
