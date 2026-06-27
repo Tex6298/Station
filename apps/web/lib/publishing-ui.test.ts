@@ -17,6 +17,7 @@ import {
   publicationRetractNotice,
   publicDocumentHref,
   publishingDashboardTrustLine,
+  publishingDashboardRouteStoryRows,
   publishingQueueActionGuard,
   publishingApprovalStateLabel,
   publishingSourceLabelForReadback,
@@ -239,6 +240,23 @@ test("publishing helpers keep private or incomplete authoring guidance bounded",
   assert.equal(blockedReviewRows.find((row) => row.id === "visibility")?.value, "Community ready");
   assert.equal(blockedReviewRows.find((row) => row.id === "review")?.value, "Draft-only");
   assert.match(blockedReviewRows.find((row) => row.id === "review")?.body ?? "", /Review controls are still disabled/);
+});
+
+test("publishing dashboard route story explains linked discussion, retract, and cleanup boundaries", () => {
+  const rows = publishingDashboardRouteStoryRows();
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["publish", "Document plus discussion", "info"],
+    ["retract", "Hide reads", "warning"],
+    ["cleanup", "Separate contract", "warning"],
+  ]);
+  assert.match(rows.find((row) => row.id === "publish")?.body ?? "", /linked discussion/i);
+  assert.match(rows.find((row) => row.id === "publish")?.body ?? "", /same visibility boundary/i);
+  assert.match(rows.find((row) => row.id === "retract")?.body ?? "", /hides public document and linked discussion reads/i);
+  assert.match(rows.find((row) => row.id === "retract")?.body ?? "", /owner-visible Studio record/i);
+  assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /separate from retract/i);
+  assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /tombstones linked discussion threads/i);
+  assert.match(rows.find((row) => row.id === "cleanup")?.body ?? "", /hosted cleanup has not been run/i);
 });
 
 test("publishing trust readback explains public document boundaries", () => {

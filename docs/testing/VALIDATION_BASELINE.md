@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR409 Publishing Route-Story Copy Result
+
+DAEDALUS completed PR409 on 2026-06-27:
+`docs/roadmap/PR409_PUBLISHING_ROUTE_STORY_COPY_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Visible `/studio/publishing` copy | Pass | Dashboard now has an always-visible route-story section for publish/readback, retract hide behavior, and cleanup/delete limits. |
+| Route-story helper coverage | Pass | `publishingDashboardRouteStoryRows()` covers linked discussion, retract, cleanup, and hosted cleanup caveats in a focused helper test. |
+| Scope control | Pass | No hosted mutation, publish/retract/delete behavior, cleanup UI action, API/schema/migration/auth/billing/deploy, or visibility semantics changed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 132 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+
+Residual risk: ARGUS should confirm the copy is prominent enough for the PR408
+staging route-story caveat and does not overstate hosted cleanup state.
+
 ## PR407 Publish/Retract Cleanup Contract Result
 
 ARGUS accepted PR407 on 2026-06-27:

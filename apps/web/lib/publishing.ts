@@ -83,6 +83,14 @@ export interface AuthoringGuidanceRow {
   tone: AuthoringGuidanceTone;
 }
 
+export interface PublishingDashboardRouteStoryRow {
+  id: "publish" | "retract" | "cleanup";
+  label: string;
+  value: string;
+  body: string;
+  tone: "info" | "warning";
+}
+
 export const PUBLISHING_TABS: Array<{ id: PublishingTab; label: string }> = [
   { id: "drafts", label: "Drafts" },
   { id: "published", label: "Published" },
@@ -416,6 +424,32 @@ export function stationAuthoringGuidance(input: {
       value: "Hide, not delete",
       tone: "warning",
       body: "Retract-to-private hides public document and linked discussion reads; the owner-visible Studio record and history remain.",
+    },
+  ];
+}
+
+export function publishingDashboardRouteStoryRows(): PublishingDashboardRouteStoryRow[] {
+  return [
+    {
+      id: "publish",
+      label: "Publish",
+      value: "Document plus discussion",
+      tone: "info",
+      body: "Published public, community, or unlisted documents can expose public readback and a linked discussion under the same visibility boundary.",
+    },
+    {
+      id: "retract",
+      label: "Retract to private",
+      value: "Hide reads",
+      tone: "warning",
+      body: "Retract to private hides public document and linked discussion reads while the owner-visible Studio record and history remain.",
+    },
+    {
+      id: "cleanup",
+      label: "Cleanup",
+      value: "Separate contract",
+      tone: "warning",
+      body: "Cleanup/delete is separate from retract. The current cleanup contract tombstones linked discussion threads and preserves community records behind hidden threads; hosted cleanup has not been run unless explicitly rehearsed.",
     },
   ];
 }

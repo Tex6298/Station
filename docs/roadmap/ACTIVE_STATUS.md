@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR409 publishing route-story copy
+
+DAEDALUS completed the narrow PR409 copy/readback fix:
+`docs/roadmap/PR409_PUBLISHING_ROUTE_STORY_COPY_RESULT.md`.
+
+Result:
+
+- `/studio/publishing` now shows an always-visible route-story section near the
+  top of the Publishing Dashboard.
+- The section states that public/community/unlisted publish can expose document
+  readback and linked discussion readback under the same visibility boundary.
+- It states that `Retract to private` hides public document and linked
+  discussion reads while preserving the owner-visible Studio record and history.
+- It states that cleanup/delete is separate from retract, that the current
+  cleanup contract tombstones linked discussion threads while preserving
+  community records behind hidden threads, and that hosted cleanup has not been
+  run unless explicitly rehearsed.
+- No publishing, retract, delete, API, schema, migration, auth/session,
+  billing, deploy, hosted mutation, or cleanup UI action changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` passed (12 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (132 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+
+Current baton:
+
+- ARGUS has PR409.
+- ARGUS should review the visible dashboard copy, route-story helper coverage,
+  and the absence of semantics or mutation changes.
+- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
+  DAEDALUS with exact findings.
+
 ## Latest MIMIR decision - PR408 accepted with caveat, PR409 opened
 
 MIMIR accepts ARIADNE's PR408 verdict:

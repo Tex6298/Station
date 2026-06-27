@@ -15,6 +15,7 @@ import {
   publicationRetractNotice,
   publicDocumentHref,
   publishingDashboardTrustLine,
+  publishingDashboardRouteStoryRows,
   publishingApprovalStateLabel,
   publishingQueueActionGuard,
   publishingStatusLabel,
@@ -24,6 +25,8 @@ import {
   type PublishingSpace,
   type PublishingTab,
 } from "@/lib/publishing";
+
+const routeStoryRows = publishingDashboardRouteStoryRows();
 
 export function PublishingDashboard() {
   const [tab, setTab] = useState<PublishingTab>("drafts");
@@ -168,6 +171,24 @@ export function PublishingDashboard() {
           </div>
           <Link href="/studio/publish" className="station-link-button">New document</Link>
         </header>
+
+        <section className="station-panel" aria-label="Publishing route story" style={routeStoryPanel}>
+          <div style={storyHeader}>
+            <div className="station-eyebrow">Route story</div>
+            <h2 style={storyTitle}>Publish, retract, and cleanup are separate steps.</h2>
+          </div>
+          <div style={storyGrid}>
+            {routeStoryRows.map((row) => (
+              <div key={row.id} style={storyItem}>
+                <div style={storyRowHeader}>
+                  <span style={storyLabel}>{row.label}</span>
+                  <span style={storyPill(row.tone)}>{row.value}</span>
+                </div>
+                <p style={storyBody}>{row.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
         {notice ? <div className="station-notice" data-tone="success">{notice}</div> : null}
@@ -457,6 +478,67 @@ const buttonRow = {
   gap: 8,
   flexWrap: "wrap" as const,
   justifyContent: "flex-start",
+};
+
+const routeStoryPanel = {
+  display: "grid",
+  gap: 14,
+  marginBottom: 14,
+};
+
+const storyHeader = {
+  display: "grid",
+  gap: 4,
+};
+
+const storyTitle = {
+  margin: 0,
+  color: "#1f2529",
+  fontSize: 17,
+};
+
+const storyGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  gap: 12,
+};
+
+const storyItem = {
+  display: "grid",
+  gap: 7,
+  minWidth: 0,
+};
+
+const storyRowHeader = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  flexWrap: "wrap" as const,
+};
+
+const storyLabel = {
+  color: "#1f2529",
+  fontSize: 13,
+  fontWeight: 800,
+};
+
+function storyPill(tone: "info" | "warning") {
+  return {
+    border: "1px solid " + (tone === "warning" ? "#fde68a" : "#c7d2fe"),
+    borderRadius: 999,
+    background: tone === "warning" ? "#fef3c7" : "#eef2ff",
+    color: tone === "warning" ? "#92400e" : "#3730a3",
+    padding: "4px 8px",
+    fontSize: 11,
+    fontWeight: 700,
+  };
+}
+
+const storyBody = {
+  margin: 0,
+  color: "#687078",
+  fontSize: 12,
+  lineHeight: 1.45,
 };
 
 const pill = {
