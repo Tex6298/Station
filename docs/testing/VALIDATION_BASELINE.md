@@ -25,17 +25,24 @@ they are not Station validation failures.
 MIMIR opened UX-09A mobile recheck on 2026-06-27:
 `docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_ARIADNE.md`.
 
-Validation result: `OPEN - WAKE ARIADNE`.
+ARIADNE completed UX-09A mobile recheck on 2026-06-27:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_ARIADNE_RESULT.md`.
+
+Validation result: `PASS - WAKE MIMIR`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | UX-09A prerequisite | Pass | DAEDALUS found no code change warranted from source inspection. |
-| Recheck scope | Pending | Hosted mobile public-only route from `/writing` or public Space to `Station Replay Alpha Note` to `Open linked discussion` to forum route. |
-| Mutation boundary | Pending | No sign-in unless unexpectedly required and no create/edit/publish/retract/delete/report/moderate/upload/import/comment/reply/vote/key-generation/Assistant-send/billing actions. |
-| Privacy boundary | Pending | Record route labels and visible result only; do not record credentials, cookies, private payloads, hosted logs, SQL, raw owner identifiers, or private source bodies. |
+| Hosted mobile public route | Pass | `/writing` exposed the known public document at `390x844`. |
+| Linked discussion cue | Pass | `Open linked discussion` was visible and reachable on the public document route. |
+| Forum route | Pass | The linked forum discussion route loaded safely. |
+| Overflow scan | Pass | No document-level horizontal overflow found in the checked route sequence. |
+| Sensitive material scan | Pass | No credential-shaped material or raw UUID-shaped visible value appeared. |
+| Mutation boundary | Pass | No sign-in or hosted mutation controls were triggered. |
 
-Residual risk: this is a narrow human-eye recheck, not a fresh full staging
-sweep.
+Residual risk: this was a narrow mobile public route recheck, not a fresh full
+staging sweep. MIMIR can close UX-09A and clear the remaining UX-09 mobile
+linked-discussion caveat.
 
 ## UX-09A Mobile Public Document Discussion Cue
 

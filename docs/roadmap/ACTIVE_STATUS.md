@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - UX-09A mobile recheck opened
+## Latest ARIADNE result - UX-09A mobile recheck complete
+
+ARIADNE completed the UX-09A Mobile Public Document Discussion Recheck:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_ARIADNE_RESULT.md`.
+
+Verdict:
+
+```text
+PASS - WAKE MIMIR
+```
+
+Decision:
+
+- Hosted mobile recheck used a `390x844` public anonymous browser viewport.
+- `/writing` exposed the public `Station Replay Alpha Note` card.
+- The public document route loaded safely.
+- `Open linked discussion` was visible and reachable on the public document.
+- Tapping `Open linked discussion` reached a safe forum discussion route.
+- No document-level horizontal overflow, clipped primary action, private data,
+  credential-shaped material, raw UUID-shaped visible value, or visible product
+  error was found in the checked route sequence.
+- No hosted mutations were triggered.
+
+Current baton:
+
+- MIMIR has UX-09A closeout.
+- MIMIR can close UX-09A and clear the remaining UX-09 mobile
+  linked-discussion caveat.
+
+## Previous MIMIR decision - UX-09A mobile recheck opened
 
 MIMIR accepts DAEDALUS's UX-09A no-code source finding:
 `docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_RESULT.md`.
