@@ -37,6 +37,26 @@ const trustLevelSchema = z.enum(["user_stated", "agreed_upon", "model_suggested"
 const lifecycleStatusSchema = z.enum(["active", "superseded", "rejected", "expired", "quarantined"]);
 const ownerMemoryScopeSchema = z.enum(["shared_user_profile", "working_style", "preference", "boundary", "project_context"]);
 
+function sanitizeArchiveSourceName(value: string | null | undefined) {
+  if (!value) return null;
+  const compact = value
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\?.*$/, "")
+    .replace(/#.*$/, "");
+
+  if (!compact) return null;
+  if (/^https?:\/\//i.test(compact)) return "[redacted-url]";
+
+  const basename = compact.split(/[\\/]+/).filter(Boolean).at(-1) ?? compact;
+  const redacted = basename
+    .replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [redacted]")
+    .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+\b/gi, "[redacted]")
+    .replace(/\b(?:service[_-]?role|api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, "[redacted]");
+
+  return redacted.slice(0, 160);
+}
+
 const sharedMemorySchema = z.object({
   title: z.string().min(1).max(160),
   content: z.string().min(1).max(4000),
@@ -253,7 +273,7 @@ memoryRouter.get("/persona/:personaId", async (req, res) => {
 
   const { data, error } = await sb
     .from("memory_items")
-    .select("id, persona_id, title, content, summary, source_type, relevance_weight, created_at")
+    .select("id, persona_id, title, content, summary, source_type, relevance_weight, archive_source_type, archive_source_name, created_at")
     .eq("persona_id", req.params.personaId)
     .eq("owner_user_id", userId)
     .order("created_at", { ascending: false });
@@ -271,10 +291,16 @@ memoryRouter.get("/persona/:personaId", async (req, res) => {
     return res.status(500).json({ error: message });
   }
   return res.json({
-    memory: (data ?? []).map((row: any) => ({
-      ...row,
-      lifecycle: serializeMemoryLifecycle(lifecycleByMemoryId.get(row.id) ?? null),
-    })),
+    memory: (data ?? []).map((row: any) => {
+      const archiveSourceName = sanitizeArchiveSourceName(row.archive_source_name);
+      return {
+        ...row,
+        archive_source_name: archiveSourceName,
+        archiveSourceType: row.archive_source_type ?? null,
+        archiveSourceName,
+        lifecycle: serializeMemoryLifecycle(lifecycleByMemoryId.get(row.id) ?? null),
+      };
+    }),
   });
 });
 

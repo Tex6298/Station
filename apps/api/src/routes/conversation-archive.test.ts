@@ -412,14 +412,16 @@ function parseSse(text: string): Array<{ event: string; data: Row }> {
 }
 
 async function createConversationArchiveApp() {
-  const [{ conversationsRouter }, { importsRouter }] = await Promise.all([
+  const [{ conversationsRouter }, { importsRouter }, { memoryRouter }] = await Promise.all([
     import("./conversations.js"),
     import("./imports.js"),
+    import("./memory.js"),
   ]);
   const app = express();
   app.use(express.json());
   app.use("/conversations", conversationsRouter);
   app.use("/imports", importsRouter);
+  app.use("/memory", memoryRouter);
   return app;
 }
 
@@ -1743,6 +1745,31 @@ test("owner can review import-backed continuity candidates without exposing them
     assert.equal(acceptedMemory.body.target.archive_source_id, importFile.id);
     assert.equal(Number.isInteger(acceptedMemory.body.target.relevance_weight), true);
     assert.equal(acceptedMemory.body.target.relevance_weight, 2);
+    const acceptedMemoryRow = db.tables.memory_items.find((row) => row.id === acceptedMemory.body.target.id);
+    assert.ok(acceptedMemoryRow);
+    acceptedMemoryRow.archive_source_name = "private/storage/path/chatgpt-export.json?token=secret";
+
+    const ownerMemory = await requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(ownerMemory.status, 200);
+    const reviewedMemory = ownerMemory.body.memory.find((row: Row) => row.title === "Reviewed import memory");
+    assert.ok(reviewedMemory);
+    assert.equal(reviewedMemory.source_type, "import");
+    assert.equal(reviewedMemory.archive_source_type, "persona_file");
+    assert.equal(reviewedMemory.archiveSourceType, "persona_file");
+    assert.equal(reviewedMemory.archive_source_name, "chatgpt-export.json");
+    assert.equal(reviewedMemory.archiveSourceName, "chatgpt-export.json");
+    assert.equal(reviewedMemory.lifecycle.status, "active");
+    assert.equal(reviewedMemory.lifecycle.trustLevel, "user_stated");
+    assert.doesNotMatch(JSON.stringify(ownerMemory.body), /private\/path|storage\/path|Bearer|secret/);
+
+    const otherMemory = await requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(otherMemory.status, 200);
+    assert.equal(otherMemory.body.memory.length, 0);
+    assert.doesNotMatch(JSON.stringify(otherMemory.body), /Reviewed import memory|chatgpt-export/);
 
     const activatedLifecycle = db.tables.memory_item_lifecycle.find(
       (row) => row.memory_item_id === acceptedMemory.body.target.id
