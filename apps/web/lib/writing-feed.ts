@@ -5,6 +5,7 @@ export type WritingItem = {
   excerpt: string | null;
   href: string;
   meta: string | null;
+  discussionThreadId?: string | null;
   author: { display_name?: string | null; username?: string | null } | null;
   createdAt: string;
 };
@@ -16,6 +17,8 @@ export type RawFeaturedFeedItem = {
   title?: string | null;
   description?: string | null;
   href?: string | null;
+  discussionThreadId?: string | null;
+  discussion_thread_id?: string | null;
   created_at?: string | null;
 };
 
@@ -38,6 +41,7 @@ export function normalizeWritingFeedItem(item: WritingFeedItem): WritingItem | n
     excerpt: item.description ?? null,
     href: item.href || `/documents/${id}`,
     meta: null,
+    discussionThreadId: item.discussionThreadId ?? item.discussion_thread_id ?? null,
     author: null,
     createdAt: item.created_at ?? "",
   };

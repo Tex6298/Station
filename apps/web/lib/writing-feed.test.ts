@@ -18,6 +18,7 @@ test("writing feed keeps normalized document items only", () => {
     excerpt: "A public essay.",
     href: "/space/public/documents/doc-1",
     meta: "essay",
+    discussionThreadId: "thread-1",
     author: null,
     createdAt: "2026-06-14T08:00:00.000Z",
   });
@@ -34,6 +35,7 @@ test("writing feed keeps normalized document items only", () => {
   });
 
   assert.equal(document?.id, "doc-1");
+  assert.equal(document?.discussionThreadId, "thread-1");
   assert.equal(thread, null);
 });
 
@@ -45,6 +47,7 @@ test("writing feed maps raw curated featured document rows", () => {
     title: "Featured public document",
     description: "Curated summary.",
     href: "/space/public/documents/doc-featured",
+    discussion_thread_id: "thread-featured",
     created_at: "2026-06-14T08:30:00.000Z",
   });
 
@@ -55,6 +58,7 @@ test("writing feed maps raw curated featured document rows", () => {
     excerpt: "Curated summary.",
     href: "/space/public/documents/doc-featured",
     meta: null,
+    discussionThreadId: "thread-featured",
     author: null,
     createdAt: "2026-06-14T08:30:00.000Z",
   });

@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR388 Public Document Discussion Affordance Result
+
+DAEDALUS completed PR388 on 2026-06-27:
+`docs/roadmap/PR388_PUBLIC_DOCUMENT_DISCUSSION_AFFORDANCE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `/writing` discussion cue repair | Pass | Writing feed items now preserve `discussionThreadId` and writing cards show `Open document and linked discussion` when an existing linked discussion pointer is present. |
+| PR324 route reconciliation | Pass | Public Space -> public document -> linked forum discussion remains the accepted chain; no API or document-detail regression was found. |
+| Scope control | Pass | No public document, discussion thread, publishing transition, schema, migration, API route, approval, Station Press, social, provider, billing, Redis, Cloudflare, worker, queue, or broad UI behavior changed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/writing-feed.test.ts apps/web/lib/public-story-polish.test.ts` | Pass | 14 focused writing/public-story helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 21 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 126 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+Residual risk: hosted proof still requires deploy plus an ARIADNE rerun if MIMIR
+wants browser evidence that `/writing` now exposes the cue for an existing
+linked replay document. The rerun should not publish new public data or start a
+new discussion by default.
+
 ## PR386 Writing Publishing Workflow Gate Result
 
 DAEDALUS completed PR386 on 2026-06-27:

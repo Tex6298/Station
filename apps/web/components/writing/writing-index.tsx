@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
+import { discoverDiscussionCue } from "@/lib/public-story-polish";
 import { type WritingFeedItem, type WritingItem, isWritingItem, normalizeWritingFeedItem } from "@/lib/writing-feed";
 
 type FeedResponse = {
@@ -180,6 +181,7 @@ function WritingCard({ item, featured = false }: { item: WritingItem; featured?:
   const author = item.author?.display_name ?? item.author?.username ?? "Station";
   const date = formatDate(item.createdAt);
   const itemType = item.meta ?? "Writing";
+  const discussionCue = discoverDiscussionCue({ type: item.type, discussionThreadId: item.discussionThreadId });
 
   return (
     <Link href={item.href} style={{ textDecoration: "none" }}>
@@ -188,7 +190,10 @@ function WritingCard({ item, featured = false }: { item: WritingItem; featured?:
           <span style={{ color: "#1f2529", fontWeight: 900, fontSize: featured ? 24 : 18 }}>{itemType.slice(0, 1).toUpperCase()}</span>
         </div>
         <div style={{ padding: 14, display: "grid", gap: 8 }}>
-          <span style={{ color: "#534ab7", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{itemType}</span>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ color: "#534ab7", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>{itemType}</span>
+            {discussionCue && <span style={discussionCueStyle}>{discussionCue}</span>}
+          </div>
           <h3 style={{ margin: 0, color: "#1f2529", fontSize: featured ? 18 : 15, lineHeight: 1.3 }}>{item.title}</h3>
           <p style={{ margin: 0, color: "#687078", fontSize: 13, lineHeight: 1.55 }}>{item.excerpt ?? "No excerpt available."}</p>
           <span style={{ color: "#8b8f92", fontSize: 12 }}>{author} - {date}</span>
@@ -262,6 +267,16 @@ const thumb = {
   background: "linear-gradient(135deg, #eeedfe, #eceae4)",
   display: "grid",
   placeItems: "center",
+};
+
+const discussionCueStyle = {
+  color: "#257047",
+  background: "#e6f6ed",
+  border: "1px solid #b7e3c8",
+  borderRadius: 999,
+  padding: "2px 7px",
+  fontSize: 10,
+  fontWeight: 800,
 };
 
 const tabButton = {

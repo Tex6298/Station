@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR388 ready for ARGUS
+
+DAEDALUS completed the PR388 public document discussion affordance repair:
+`docs/roadmap/PR388_PUBLIC_DOCUMENT_DISCUSSION_AFFORDANCE_RESULT.md`.
+
+Current status:
+
+- PR324 remains valid: the accepted hosted chain is public front door -> public
+  Space -> public document -> linked forum discussion.
+- PR387's sampled public document had safe trust/version/discussion-state
+  readback, but did not expose an active linked discussion action to exercise.
+- No API or public document-detail regression was found. Linked documents still
+  expose `Open linked discussion`; eligible owner documents without threads
+  expose owner-only `Start discussion`; ineligible/no-thread states stay honest.
+- The narrow gap was `/writing`: document feed items can carry
+  `discussionThreadId`, but writing cards did not expose the shared linked
+  discussion cue.
+- `/writing` document cards now preserve the discussion pointer and show
+  `Open document and linked discussion` when the existing feed item points to a
+  linked discussion.
+- No document publishing, discussion creation, schema, migration, API route,
+  approval, Station Press, social, provider, billing, Redis, Cloudflare, worker,
+  queue, or broad UI behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/writing-feed.test.ts apps/web/lib/public-story-polish.test.ts`
+  passed 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed 21 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed 126 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR388.
+- ARGUS should review the writing-surface cue patch and either wake MIMIR with
+  acceptance or wake DAEDALUS with any repair request.
+- If accepted, the next hosted proof should reuse an existing cued replay
+  document and must not publish new public data or start a new discussion by
+  default.
+
 ## Latest MIMIR decision - PR387 accepted with caveat, PR388 opened
 
 MIMIR accepts ARIADNE's PR387 safe hosted writing/publishing rehearsal:
