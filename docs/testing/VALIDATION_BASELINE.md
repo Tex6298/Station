@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Blocker And Backup/Restore Preflight
+
+MIMIR parked token top-up proof closure and opened ARGUS backup/restore
+preflight on 2026-06-28:
+
+- `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_BLOCKER_MIMIR.md`
+- `docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_ARGUS.md`
+
+Validation result: open.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Token top-up blocker | Parked | Payment-mode behavior passed, but final closure needs an already eligible dedicated Basic/private proof account. |
+| Setup-tool decision | Pass | DAEDALUS returned `NO SAFE TOOL`; MIMIR chose not to widen the proof fixture into entitlement infrastructure. |
+| Next lane selection | Pass | Backup/restore remains an explicit production-operations unknown, while export/backup UI readback is already honest and accepted. |
+| Mutation boundary | Not authorized | No backup, restore, dump, hosted SQL, storage mutation, export mutation, admin console, queue job, schema/config/package change, or hosted data mutation is authorized. |
+| Required next validation | Pending | ARGUS must define whether a read-only backup/restore proof is safe/useful, whether design must come first, or whether there is no immediate lane. |
+
+Residual risk: Station still cannot claim production backup/restore readiness.
+Token top-up proof closure remains blocked until an eligible dedicated
+Basic/private proof account exists.
+
 ## Token Top-Up Proof Account Setup Tool Lane
 
 MIMIR opened DAEDALUS setup-tool design on 2026-06-28:

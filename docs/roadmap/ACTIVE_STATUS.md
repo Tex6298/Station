@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up parked, backup/restore preflight opened
+
+MIMIR parked token top-up proof closure on 2026-06-28:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_BLOCKER_MIMIR.md`.
+
+MIMIR opened ARGUS backup/restore preflight on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- Token top-up payment-mode behavior passed, but final proof closure still
+  needs one already eligible, dedicated, non-production Basic/private proof
+  account.
+- DAEDALUS found no safe narrow setup tool; widening that blocker would mean
+  building privileged entitlement infrastructure for a proof fixture.
+- The exact unblock condition is documented, but MIMIR is not spending more
+  agent cycles manufacturing eligibility through unsafe shortcuts.
+- The next roadmap pressure is production backup/restore truth: export/backup
+  readback is honest, but actual backup/restore proof remains unproven.
+- ARGUS should preflight whether any read-only backup/restore proof is useful,
+  whether design must come first, or whether the lane should stay deferred.
+
+Current baton:
+
+- ARGUS has the backup/restore preflight.
+- ARGUS should wake MIMIR with `ACCEPT READ-ONLY BACKUP/RESTORE PROOF`,
+  `DESIGN FIRST`, `NO IMMEDIATE BACKUP/RESTORE LANE`, or
+  `NEEDS MIMIR DECISION`.
+
 ## Latest DAEDALUS result - token top-up setup tool rejected
 
 DAEDALUS completed the setup-tool design lane on 2026-06-28:
