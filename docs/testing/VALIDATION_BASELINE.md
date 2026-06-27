@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR424 Import Memory Runtime Answer Rerun Result
+
+DAEDALUS completed PR424 on 2026-06-27:
+`docs/roadmap/PR424_IMPORT_MEMORY_RUNTIME_ANSWER_RERUN_RESULT.md`.
+
+Validation result: `FAIL ANSWER-QUALITY GATE - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted deployment freshness | Pass | Web/API `/health/deployment` were ready at commit prefix `516bcc4a248b`, satisfying the PR423 freshness gate. |
+| Hosted storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, ok/checked/exists/private. |
+| Provider readiness | Pass | API readiness reported platform chat configured. |
+| Replay owner auth | Pass | Sign-in and `/auth/me` succeeded as tier `canon`; no credentials, tokens, cookies, raw user IDs, or raw response bodies were recorded. |
+| Token budget | Pass | `/token-credits/me` reported warning `ok`, effective limit `20000000`, used `122258`, percent used `0.6`. |
+| Target isolation | Pass | Owner readback found exactly one persona matching the PR419/PR420 import chain, with one accepted import Memory target and one accepted import Canon target. |
+| Public search precheck | Pass | Four selected proof-term/title public search queries returned zero public matches. |
+| Context-preview precheck | Pass | Owner context-preview selected both accepted import targets; context counts were Canon 4, Memory 6, Integrity 1, Archive 4, Continuity 4. |
+| Single hosted chat call | Pass | Exactly one non-streaming private chat route invocation returned HTTP 200 with provider/model label `openai/gpt-oss-120b`. |
+| Conversation readback | Pass | The proof conversation contained exactly 1 user message and 1 assistant reply. |
+| Persisted message leak scan | Pass | No selected-context scaffolding, raw archive path, SQL, stack trace, provider payload, bearer material, UUID-shaped value, or secret-shaped value was found in persisted message contents. |
+| Public search postcheck | Pass | Five selected proof/provenance public search queries returned zero public matches. |
+| Observability readback | Pass | Sanitized trace readback reported safe labels/enums/counts only; projected leak scan passed. |
+| Answer quality | Fail | Accepted Memory label/fact and owner-reviewed import provenance were visible, but accepted Canon label and Canon-paired supporting fact were missing. |
+| Finalizer telemetry | Pass | Telemetry ended at `missed_selected_labels`; finalizer applied with selected pair count 2, `finalizerSatisfied:false`, and `postFinalizerFulfilled:false`. |
+
+Residual risk: the PR424 hosted rerun proves route/privacy/persistence remain
+safe after PR423, but the product answer still fails the selected Canon
+label/fact requirement. ARGUS has the baton for verdict and next-owner
+recommendation.
+
 ## PR424 Import Memory Runtime Answer Rerun Opened
 
 MIMIR opened PR424 on 2026-06-27:
