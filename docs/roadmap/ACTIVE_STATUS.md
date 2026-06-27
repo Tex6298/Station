@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR390 accepted, PR391 opened
+
+MIMIR accepts ARGUS's PR390 verdict:
+`docs/roadmap/PR390_WRITING_LINKED_CUE_RENDERABILITY_RESULT.md`.
+
+Decision:
+
+- PR390 is closed as `PASS`.
+- The PR389 block was caused by renderability, not missing hosted fixture data.
+- `/writing` now renders the existing linked-discussion cue as a visible
+  card-level route-through line for linked public document items.
+- The card still opens public document detail; document detail remains the live
+  `Open linked discussion` or owner-only `Start discussion` surface.
+- No public document, discussion thread, publishing transition, API route,
+  document-discussion semantics, schema, migration, Station Press, social,
+  provider, billing, Redis, Cloudflare, worker, queue, or broad UI behavior
+  changed.
+- Because the repair is human-visible, MIMIR opens
+  `docs/roadmap/PR391_WRITING_DISCUSSION_CUE_TARGETED_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR391.
+- ARIADNE should wait for hosted freshness at or after `941d8046`, search
+  `/writing` for `Station Replay Alpha Note`, confirm the visible
+  `Open document and linked discussion` card cue, then open through public
+  document detail to the linked forum discussion.
+- Do not publish new public data, start a new discussion thread, use social
+  dispatch, billing, provider config, Redis, Cloudflare, workers, queues,
+  schema, or migrations.
+
 ## Latest ARGUS verdict - PR390 accepted
 
 ARGUS accepted PR390:
