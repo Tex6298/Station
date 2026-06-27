@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR420 blocked at Memory readback
+
+DAEDALUS ran the ARGUS-approved PR420 hosted candidate-review proof:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_RESULT.md`.
+
+Result:
+
+```text
+BLOCKED AFTER ACCEPTANCE READBACK - WAKE ARGUS
+```
+
+Decision:
+
+- Freshness, storage readiness, replay owner auth, `/auth/me`, public search
+  precheck, and PR419 candidate isolation passed immediately before mutation.
+- Exactly two pending PR419 proof candidates were isolated under one owner
+  persona: one Memory and one Canon, both `persona_files` backed.
+- The Memory candidate was accepted once through
+  `PATCH /conversations/candidates/:candidateId`; the accept response reported
+  accepted status, source type `import`, and `persona_file` archive provenance.
+- The Canon candidate was accepted once through the same route; the accept
+  response reported accepted status and source type `import`.
+- The next required owner Memory route readback found the accepted Memory
+  target as `source_type: import`, but the route did not expose
+  `archive_source_type`, so it could not independently prove `persona_file`
+  provenance.
+- DAEDALUS stopped at that first failed readback gate. No retry, cleanup,
+  compensation, additional candidate action, public search postcheck, or other
+  hosted probing was run after the block.
+- Evidence remains sanitized; no secrets, cookies, bearer tokens, auth headers,
+  Supabase keys, signed material, raw response bodies, raw IDs, raw storage
+  paths, private source bodies, SQL, stack traces, package IDs, or deployment
+  IDs are recorded.
+
+Current baton:
+
+- ARGUS has PR420.
+- ARGUS should decide whether the accept response target plus owner Memory
+  presence/lifecycle is sufficient, or wake DAEDALUS with a narrow follow-up for
+  sanitized owner Memory archive-provenance readback.
+
 ## Latest ARGUS preflight - PR420 import review accepted
 
 ARGUS accepted the PR420 import candidate review hosted preflight:

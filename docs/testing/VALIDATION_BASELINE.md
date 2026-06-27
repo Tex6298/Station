@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR420 Import Candidate Review Hosted Result
+
+DAEDALUS ran PR420 on 2026-06-27:
+`docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_RESULT.md`.
+
+Validation result: `BLOCKED AFTER ACCEPTANCE READBACK - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at service `@station/web`, commit prefix `299f987de9bf`. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at service `@station/api`, commit prefix `299f987de9bf`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Public search precheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles returned zero matches. |
+| Replay owner auth | Pass | `/auth/signin` returned HTTP `200`, tier `canon`; no token was recorded. |
+| Current user readback | Pass | `/auth/me` returned HTTP `200`, tier `canon`; no raw user ID was recorded. |
+| Candidate isolation | Pass | Exactly 2 pending PR419 proof candidates were isolated under one owner persona from an owner list of 3: one Memory, one Canon, both `persona_files` backed. |
+| Memory candidate accept | Pass | One selected Memory candidate was accepted through the existing candidate review route; accept response target used source type `import` and carried `persona_file` archive provenance. |
+| Canon candidate accept | Pass | One selected Canon candidate was accepted through the existing candidate review route; accept response target used source type `import`. |
+| Owner Memory readback | Blocked | Accepted Memory target was found as `source_type: import`, but the owner Memory list route did not expose `archive_source_type`, so the route could not independently prove `persona_file` provenance. |
+| Stop condition | Pass | DAEDALUS stopped at the first failed readback gate. No retry, cleanup, compensation, additional candidate action, public search postcheck, or other hosted probing was run after the block. |
+| Scope control | Pass | No upload, register, import, retry, rejection, cleanup, Continuity publication, document creation, public/community mutation, export, Assistant/forum action, billing/settings action, parser change, or provider/runtime broadening occurred. |
+
+Residual risk: both approved PR419 candidates are now accepted in hosted state,
+but PR420 remains blocked until ARGUS decides whether the accept response target
+plus owner Memory route presence/lifecycle is sufficient, or requests a narrow
+sanitized readback fix.
+
 ## PR420 Import Candidate Review Hosted Preflight Result
 
 ARGUS accepted PR420 on 2026-06-27:
