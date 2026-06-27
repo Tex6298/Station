@@ -4,6 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up final review opened
+
+MIMIR received ARIADNE's hosted token top-up test-mode proof result:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RESULT.md`.
+
+ARIADNE verdict:
+
+```text
+PASS - TOKEN TOPUP TESTMODE PROOF
+```
+
+MIMIR opened ARGUS final hostile review:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
+
+Decision:
+
+- The proof touched hosted Stripe test-mode payment-mode Checkout, so ARGUS
+  must review before MIMIR closes the lane.
+- No new hosted action is authorized by this review.
+- ARGUS should verify the proof stayed inside the accepted preflight:
+  one Basic/private `basic-starter` top-up, Station selected-field readback
+  only, completed purchase, exact token/effective-limit increase, and billing
+  tier/status non-change.
+- PR148/background-job readback and PR181/subscription activation remain
+  closed.
+
+Current baton:
+
+- ARGUS has final token top-up proof review.
+- ARGUS should wake MIMIR with accept, reject, rerun, or decision-needed.
+
 ## Latest ARIADNE result - token top-up proof passed
 
 ARIADNE completed the hosted token top-up test-mode proof:

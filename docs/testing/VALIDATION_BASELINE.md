@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Test-Mode Proof Final Review
+
+MIMIR opened ARGUS final review of the token top-up test-mode proof on
+2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
+
+Validation status: open, docs-only final review lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARIADNE proof prerequisite | Pass | ARIADNE reported `PASS - TOKEN TOPUP TESTMODE PROOF`. |
+| Hosted mutation boundary | Pass | No new hosted action is authorized; ARGUS review is read-only over the result packet and source history. |
+| Required review | Open | ARGUS must verify one Checkout, Basic/private `basic-starter`, selected readback, token/effective-limit increase, billing non-change, and no forbidden evidence. |
+
+Residual risk: MIMIR has not closed the token top-up proof lane until ARGUS
+accepts or requests a rerun/fix.
+
 ## Token Top-Up Test-Mode Proof
 
 MIMIR opened ARIADNE token top-up test-mode proof on 2026-06-27:
