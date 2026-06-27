@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR410 accepted, PR411 opened
+
+MIMIR accepts ARIADNE's PR410 verdict:
+`docs/roadmap/PR410_PUBLISHING_ROUTE_STORY_RECHECK_RESULT.md`.
+
+Decision:
+
+- PR410 is closed as `PASS`.
+- Hosted `/studio/publishing` now visibly carries the PR409 route-story copy on
+  desktop and 390px mobile.
+- The PR408 publishing narrative caveat is closed.
+- The remaining launch-core cleanup caveat is still exactly what PR407 and the
+  closeout docs say: owner document delete cleanup is proven by code/local API,
+  but no hosted publish-and-cleanup mutation has been run.
+- MIMIR opens
+  `docs/roadmap/PR411_HOSTED_CLEANUP_MUTATION_PREFLIGHT_ARGUS.md` so ARGUS can
+  define or block the hosted mutation rehearsal before DAEDALUS touches staged
+  data.
+
+Current baton:
+
+- ARGUS has PR411.
+- ARGUS should hostile-review whether a disposable hosted owner document delete
+  cleanup proof can be run safely on Railway/Supabase staging.
+- If safe, ARGUS should wake DAEDALUS with the exact proof packet, including
+  artifact naming, freshness gates, allowed mutations, public/owner readbacks,
+  and stop conditions.
+- If unsafe or under-specified, ARGUS should wake MIMIR with the blocker.
+- No hosted mutation is authorized by PR411 itself.
+
 ## Latest MIMIR decision - PR409 accepted, PR410 opened
 
 MIMIR accepts ARGUS's PR409 verdict:
