@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - UX-09 packet ready
+## Latest ARIADNE result - UX-09 staging UX review complete
+
+ARIADNE completed the UX-09 Railway staging UX review:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+PASS WITH CAVEAT - WAKE MIMIR
+```
+
+Decision:
+
+- Web/API health and deployment checks passed on hosted Railway staging.
+- Web and API deployment endpoints returned `ready:true` at commit prefix
+  `4575b10b`.
+- Public signed-out desktop routes loaded coherently, including public Space,
+  public document, linked forum discussion, forum category/thread, Developer
+  Space, Discover, Writing, and Pricing.
+- Replay-owner login/session restore succeeded without recording credential
+  values, cookies, auth headers, private payloads, or raw owner identifiers.
+- Signed-in owner desktop routes loaded coherently across Studio, onboarding,
+  persona creation Channel steps, Space, publish, Assistant prompt prefill,
+  persona workspace, Memory, Continuity, Archive/files, Integrity/calibration,
+  Global Archive, Publishing, Billing, Settings, Developer Spaces, and owner
+  Developer Space manage route.
+- UX-07A Settings/Billing tier readback was visible on hosted staging; Settings
+  did not show `Tier unavailable`.
+- UX-08A persona creation provider copy was visible on hosted staging; Channel
+  steps no longer point users to nonexistent Settings provider setup.
+- Mobile critical subset passed without document-level horizontal overflow.
+- Caveat: the linked forum discussion from the first visible public document
+  was visible on desktop but not visible in the mobile public-document sampled
+  UI; public document and replay Salon thread routes still loaded safely.
+- Mutation boundaries were respected; no submit/publish/import/upload/report/
+  moderation/key-generation/Assistant-send/Billing actions were triggered.
+
+Current baton:
+
+- MIMIR has UX-09 closeout.
+- MIMIR should decide the next UX/product lane from the `PASS WITH CAVEAT`
+  result.
+
+## Previous DAEDALUS result - UX-09 packet ready
 
 DAEDALUS prepared the UX-09 Railway Staging UX Review Packet:
 `docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_PACKET.md`.

@@ -20,6 +20,28 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-09 Railway Staging UX Review Result
+
+ARIADNE completed UX-09 Railway Staging UX Review on 2026-06-27:
+`docs/roadmap/UX09_RAILWAY_STAGING_UX_REVIEW_RESULT.md`.
+
+Validation result: `PASS WITH CAVEAT - WAKE MIMIR`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted health/deployment | Pass | Web/API health returned HTTP 200 with `ok:true`; web/API deployment returned `ready:true` at commit prefix `4575b10b`. |
+| Hosted browser route sweep | Pass with caveat | 66 route/check labels completed across public desktop, owner desktop, and mobile critical subset. |
+| Auth/session restore | Pass | Replay-owner login reached Studio and protected owner routes loaded without recording credentials, cookies, auth headers, private payloads, or raw owner identifiers. |
+| Public desktop routes | Pass | Home, Discover, Writing, public replay Space, public document, linked forum discussion, Forums, replay Salon category/thread, public Developer Space, and Pricing loaded coherently. |
+| Owner desktop routes | Pass | Studio, onboarding, persona creation Channel steps, Space, new Space, publish, Assistant prompt prefill, persona workspace, Memory, Continuity, Archive/files, Integrity/calibration, Global Archive, Publishing, Billing, Settings, Developer Spaces, and owner manage route loaded coherently. |
+| Mobile critical subset | Pass with caveat | Mobile routes loaded without document-level overflow; the linked forum discussion from the sampled public document was not visible in mobile UI. |
+| UX-07A hosted check | Pass | Settings/Billing tier readback loaded on hosted staging; Settings did not show `Tier unavailable`. |
+| UX-08A hosted check | Pass | Persona creation Channel step copy and provider-card readability were visible on hosted staging. |
+| Mutation boundary | Pass | No submit, publish, import, upload, report, moderation, key-generation, Assistant-send, or Billing/Stripe action was triggered. |
+
+Residual risk: this was a hosted browser sweep, not a backend payload audit or
+hosted log inspection. Screenshots were not retained or committed.
+
 ## UX-09 Railway Staging UX Review Packet
 
 DAEDALUS prepared UX-09 Railway Staging UX Review on 2026-06-27:
