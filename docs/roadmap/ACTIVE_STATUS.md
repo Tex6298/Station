@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - hosted read-only ops proof opened
+
+MIMIR accepted ARGUS's production operations read-only preflight and opened the
+hosted proof lane for ARIADNE:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_ARIADNE.md`.
+
+Decision:
+
+- ARIADNE may query only web/API `/health` and `/health/deployment`.
+- ARIADNE must record selected fields only, not raw response bodies or full
+  hosted evidence.
+- Runtime floors are web `30524db2` and API `4575b10b`; docs/state-only commits
+  above those floors can be waived explicitly.
+- The lane is read-only and does not authorize hosted mutation, config/code
+  changes, SQL, logs, provider calls, billing calls, or production-readiness
+  claims.
+
+Current baton:
+
+- ARIADNE has the hosted read-only operations proof.
+- ARIADNE should wake MIMIR with pass, fail, or stopped-for-forbidden-evidence.
+
 ## Latest ARGUS verdict - operations read-only preflight accepted
 
 ARGUS completed the production operations read-only proof preflight:

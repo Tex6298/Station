@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Operations Read-Only Proof
+
+MIMIR opened ARIADNE hosted read-only operations proof on 2026-06-27:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_ARIADNE.md`.
+
+Validation status: open, awaiting ARIADNE result.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS preflight prerequisite | Pass | ARGUS accepted the strict read-only proof packet. |
+| Allowed endpoint scope | Open | ARIADNE may query only web/API `/health` and `/health/deployment`. |
+| Runtime floors | Open | Web floor is `30524db2`; API floor is `4575b10b`. |
+| Output boundary | Open | Result must use selected fields only; raw response bodies, full hosted URLs, deployment IDs, raw IDs, secrets, logs, SQL, private content, provider payloads, billing payloads, prompts, completions, and stack traces are forbidden. |
+| Current baton | Open | ARIADNE should produce `PRODUCTION_OPERATIONS_READONLY_PROOF_RESULT.md` and wake MIMIR. |
+
+Residual risk: proof has not run yet and cannot be treated as production
+readiness even if it passes.
+
 ## Production Operations Read-Only Proof Preflight
 
 MIMIR opened an ARGUS read-only proof preflight on 2026-06-27:

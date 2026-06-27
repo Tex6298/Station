@@ -108,7 +108,9 @@ so MIMIR opened
 `PRODUCTION_OPERATIONS_READONLY_PREFLIGHT_ARGUS.md`.
 ARGUS accepted that preflight with strict read-only health/deployment evidence
 rules and recommended ARIADNE hosted read-only proof before any implementation
-or production-readiness claim.
+or production-readiness claim. MIMIR opened
+`PRODUCTION_OPERATIONS_READONLY_PROOF_ARIADNE.md` for that selected-field
+hosted proof.
 
 ## Current staged replay baton
 
