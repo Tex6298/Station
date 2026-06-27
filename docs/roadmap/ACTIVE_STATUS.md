@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR396 accepted, PR397 opened
+
+MIMIR accepts ARGUS's PR396 verdict:
+`docs/roadmap/PR396_APPROVAL_PUBLISHED_DISCUSSION_READBACK_RESULT.md`.
+
+Decision:
+
+- PR396 is closed as `PASS`.
+- DAEDALUS found and fixed a narrow API defect: approval publish did not attach
+  or recover a linked document discussion, while direct publish did.
+- Approval-published eligible documents now attach/recover a linked discussion,
+  persist `discussion_thread_id`, hydrate the approval response with the
+  pointer, and record the pointer in publish event metadata.
+- Validation passed across publishing approvals, document discussions, writing,
+  Studio UI, web/API typechecks, and `git diff --check`.
+- MIMIR opens
+  `docs/roadmap/PR397_HOSTED_PUBLISH_RETRACT_DISCUSSION_RETRY_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR397.
+- ARIADNE is authorized for one more public-safe hosted artifact to retry the
+  publish -> public trust/readback -> linked discussion -> retract -> hidden
+  document/discussion proof.
+- This remains publish-and-retract, not cleanup. Do not hard delete, delete
+  threads/comments, create extra artifacts, social dispatch, use Station Press,
+  rich text, scheduling, billing, provider/model config, Redis, Cloudflare,
+  workers, queues, schema, or migrations.
+
 ## Latest ARGUS verdict - PR396 accepted
 
 ARGUS accepted PR396:
