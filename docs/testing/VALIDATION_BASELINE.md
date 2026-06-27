@@ -26,16 +26,27 @@ MIMIR opened ARGUS final review of the token top-up test-mode proof on
 2026-06-27:
 `docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
 
-Validation status: open, docs-only final review lane.
+ARGUS completed final review on 2026-06-27.
+
+Validation result: `NEEDS MIMIR DECISION`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARIADNE proof prerequisite | Pass | ARIADNE reported `PASS - TOKEN TOPUP TESTMODE PROOF`. |
 | Hosted mutation boundary | Pass | No new hosted action is authorized; ARGUS review is read-only over the result packet and source history. |
-| Required review | Open | ARGUS must verify one Checkout, Basic/private `basic-starter`, selected readback, token/effective-limit increase, billing non-change, and no forbidden evidence. |
+| Single Checkout / selected pack | Pass | Result reports one hosted Stripe test-mode payment Checkout for Basic/private `basic-starter`. |
+| Station readback | Pass | Latest safe purchase is `basic-starter`, `500`, `1500000`, `completed`; `topupTokens` and `effectiveLimit` increased by exactly `1500000`. |
+| Subscription separation | Pass | `/billing/me` tier remained `private` and subscription status remained `inactive`; no subscription Checkout or Portal action was recorded. |
+| Dedicated account evidence | Decision needed | Result proves eligible non-production Basic/private with no existing latest top-up purchase, but does not evidence the preflight's dedicated-account requirement. |
+| `git diff 12bc59ce^ 12bc59ce --check` | Pass | ARIADNE proof-open commit whitespace check passed. |
+| `git diff 3ffb632a^ 3ffb632a --check` | Pass | ARIADNE result commit whitespace check passed. |
+| Added-line leak scan, result commit | Pass | No matches in ARIADNE result docs for full URLs, Stripe object-id prefixes, Stripe key/webhook-secret prefixes, bearer/JWT-looking tokens, UUID-like values, or credential assignment shapes. |
+| Added-line leak scan, proof-open commit | Reviewed | Only policy/forbidden-output wording hit from the forbidden-evidence list; no committed credential values or Stripe objects were found. |
 
-Residual risk: MIMIR has not closed the token top-up proof lane until ARGUS
-accepts or requests a rerun/fix.
+Residual risk: MIMIR has not closed the token top-up proof lane. MIMIR must
+decide whether to waive the dedicated-account wording, request an ARIADNE
+selected-evidence addendum from existing proof notes, or require a rerun only if
+dedication cannot be confirmed.
 
 ## Token Top-Up Test-Mode Proof
 

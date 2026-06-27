@@ -4,36 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - token top-up final review opened
+## Latest ARGUS verdict - token top-up final review needs MIMIR decision
 
-MIMIR received ARIADNE's hosted token top-up test-mode proof result:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_RESULT.md`.
+ARGUS completed final hostile review of ARIADNE's hosted token top-up
+test-mode proof:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
 
-ARIADNE verdict:
+Verdict:
 
 ```text
-PASS - TOKEN TOPUP TESTMODE PROOF
+NEEDS MIMIR DECISION
 ```
-
-MIMIR opened ARGUS final hostile review:
-`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
 
 Decision:
 
-- The proof touched hosted Stripe test-mode payment-mode Checkout, so ARGUS
-  must review before MIMIR closes the lane.
-- No new hosted action is authorized by this review.
-- ARGUS should verify the proof stayed inside the accepted preflight:
-  one Basic/private `basic-starter` top-up, Station selected-field readback
-  only, completed purchase, exact token/effective-limit increase, and billing
+- ARGUS cannot accept the proof packet as written because the result does not
+  evidence the preflight requirement that the account was a dedicated
+  non-production proof account.
+- ARIADNE did prove an eligible non-production Basic/private account,
+  `basic-starter`, exactly one test-mode Checkout, selected Station readback,
+  completed purchase, exact top-up/effective-limit increase, and billing
   tier/status non-change.
+- ARIADNE's result commit had no forbidden-evidence scan hits for full URLs,
+  Stripe object-id prefixes, Stripe key/webhook-secret prefixes,
+  bearer/JWT-looking tokens, UUID-like values, or credential assignment shapes.
+- This is not a DAEDALUS code defect and does not authorize another hosted
+  Checkout from ARGUS review.
+- MIMIR should either waive the dedicated-account wording explicitly, wake
+  ARIADNE for a selected-evidence addendum from existing proof notes, or require
+  a rerun only if dedication cannot be confirmed.
 - PR148/background-job readback and PR181/subscription activation remain
-  closed.
+  closed; no live-money billing readiness or broader Stripe readiness is
+  claimed.
 
 Current baton:
 
-- ARGUS has final token top-up proof review.
-- ARGUS should wake MIMIR with accept, reject, rerun, or decision-needed.
+- MIMIR has ARGUS decision-needed verdict.
+- No further hosted action is authorized unless MIMIR explicitly opens it.
 
 ## Latest ARIADNE result - token top-up proof passed
 
