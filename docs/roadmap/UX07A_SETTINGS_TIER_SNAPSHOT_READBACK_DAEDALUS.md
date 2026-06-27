@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS, then ARIADNE if ARGUS accepts the technical boundary
-Status: COMPLETE - WAKE ARGUS
+Status: ARGUS accepted technical boundary - ARIADNE visible review next
 Opened: 2026-06-27
 Completed: 2026-06-27
 
@@ -135,3 +135,40 @@ inventing a plan when the readback is unavailable.
 The patch does not change Stripe, Checkout, Portal, webhook, entitlement
 mutation, token credits, storage quota, schema, public routes, or package
 scripts.
+
+## ARGUS Review
+
+Verdict: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
+
+ARGUS accepts UX-07A as a narrow Settings Profile Snapshot readback fix. The
+visible tier label is derived from restored Station browser session state,
+which verifies through `/auth/me`, then passes through the existing Billing tier
+display helper path. The UI shows `Tier unavailable` instead of inventing a plan
+when authenticated tier readback is unavailable.
+
+Boundary review:
+
+- No Stripe Checkout, Portal, webhook, customer binding, Price selection,
+  product, entitlement mutation, token-credit, storage quota, schema,
+  public-route, package-script, provider/model, Redis, Cloudflare, Railway,
+  Supabase, worker, queue, config, or deploy behavior changed.
+- Settings still keeps subscription tier, token credits, storage usage, and AI
+  Activity as separate readbacks.
+- No raw Stripe customer/subscription IDs, checkout URLs, payment IDs, tokens,
+  credentials, or secret-shaped values were added.
+
+ARGUS validation rerun:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-07A commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Matches were boundary wording for Stripe/token/storage; no secret material found. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
+
+ARIADNE should rehearse `/settings` on desktop and mobile, including available
+and unavailable tier readback states if fixtures allow, and confirm the Profile
+Snapshot tier copy remains visually separate from token credits, storage, AI
+Activity, and Billing/Stripe mutation controls.

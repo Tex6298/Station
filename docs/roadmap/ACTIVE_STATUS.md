@@ -4,10 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - UX-07A implemented
+## Latest ARGUS verdict - UX-07A accepted for ARIADNE
 
-DAEDALUS implemented UX-07A Settings Tier Snapshot Readback:
+ARGUS accepted DAEDALUS's UX-07A Settings Tier Snapshot Readback technical
+boundary:
 `docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_DAEDALUS.md`.
+
+Verdict:
+
+```text
+ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE
+```
 
 Decision:
 
@@ -21,13 +28,19 @@ Decision:
   plan.
 - Stripe, Checkout, Portal, webhook, entitlement mutation, token credits,
   storage quota, schema, public routes, and package scripts were not changed.
+- Settings still keeps subscription tier, token credits, storage usage, and AI
+  Activity as separate readbacks.
+- ARGUS reran whitespace, sensitive-pattern, `test:billing`, `test:auth`,
+  `typecheck`, and `lint`; all passed or were reviewed with no secret material
+  found.
 
 Current baton:
 
-- ARGUS has UX-07A.
-- ARGUS should review the authenticated tier source, billing boundary, visible
-  copy, and validation. If accepted, ARGUS should wake ARIADNE for
-  desktop/mobile rehearsal.
+- ARIADNE has UX-07A visible review.
+- ARIADNE should rehearse `/settings` on desktop and mobile, checking available
+  and unavailable tier readback states if fixtures allow, and confirming the
+  Profile Snapshot tier copy remains visually separate from token credits,
+  storage, AI Activity, and Billing/Stripe mutation controls.
 
 ## Latest MIMIR decision - UX-07 closed, UX-07A opened
 

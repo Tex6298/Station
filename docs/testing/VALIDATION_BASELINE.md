@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented UX-07A on 2026-06-27:
 `docs/roadmap/UX07A_SETTINGS_TIER_SNAPSHOT_READBACK_DAEDALUS.md`.
 
-Validation result: `COMPLETE - WAKE ARGUS`.
+Validation result: `ACCEPTED BY ARGUS AS TECHNICAL BOUNDARY - ARIADNE VISIBLE REVIEW NEXT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -40,9 +40,19 @@ Validation result: `COMPLETE - WAKE ARGUS`.
 | `lint` | Pass | Passed through turbo; web lint reported no warnings or errors. |
 | `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
 | Added-line sensitive-pattern scan | Pass | No matches; command emitted CRLF normalization warnings only. |
+| ARGUS authenticated source review | Pass | Settings uses `getSession()`, which restores stored Station session state and verifies it through `/auth/me`, then displays the tier through the Billing tier helper path. |
+| ARGUS billing boundary review | Pass | Stripe Checkout, Portal, webhook, Price selection, customer/subscription binding, entitlement mutation, token credits, storage quota, schema, public routes, and package scripts were unchanged. |
+| ARGUS copy review | Pass | Missing authenticated tier state renders `Tier unavailable`; Settings keeps subscription tier separate from token credits, storage usage, and AI Activity. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-07A commit whitespace check passed. |
+| ARGUS sensitive-pattern review | Pass | Matches were boundary wording for Stripe/token/storage; no secret material found. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 15 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
 
 Residual risk: this is a technical patch, not browser rehearsal. ARIADNE should
-check `/settings` desktop and 375px after ARGUS accepts the source/boundary.
+check `/settings` desktop and mobile, including available and unavailable tier
+states if fixtures allow.
 
 ## UX-07 Billing And Entitlement Clarity Feasibility Result
 
