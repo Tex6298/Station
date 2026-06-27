@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR422 Import Memory Runtime Answer Preflight
+
+ARGUS accepted the PR422 hosted runtime answer preflight on 2026-06-27:
+`docs/roadmap/PR422_IMPORT_MEMORY_RUNTIME_ANSWER_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted deployment freshness | Pass | Web/API `/health/deployment` were ready at commit prefix `8713af989bfe`, containing the PR421 runtime Memory fix. |
+| Hosted storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Provider readiness | Pass | API readiness reported platform chat configured. |
+| Replay owner auth | Pass | Replay owner sign-in succeeded as tier `canon`; no token, raw user ID, raw persona ID, or raw response body was recorded. |
+| Token budget | Pass | `/token-credits/me` reported tier `canon`, warning `ok`, effective limit `20000000`, used `113733`, percent used `0.6`. |
+| Context-preview precheck | Pass | Owner context-preview selected the accepted PR420 Memory in the Memory bucket with source type `import` and selected the accepted PR420 Canon in the Canon bucket. |
+| Context-preview metadata scan | Pass | Selected-source trace had no content fields and raw archive metadata/path pattern scan was negative. |
+| Hosted public search precheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and PR420 accepted titles returned zero matches. |
+| Chat route review | Pass | Non-streaming private chat route persists only owner message and assistant reply; debug runtime budget is gated off unless debug is explicitly exposed. |
+| Trace sanitizer review | Pass | AI observability sanitizers redact URLs, bearer material, prompt labels, private IDs, secret-shaped values, and unsafe trace text. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed, including chat selected-context contract and provider-payload safety coverage. |
+| `git diff HEAD^ HEAD --check` | Pass | MIMIR PR422 opening commit whitespace check passed. |
+| Added-line sensitive-pattern review | Pass | Matches were policy wording only, not secret values. |
+
+Residual risk: PR422 authorizes one hosted private chat route invocation, which
+mutates hosted private conversation state and may spend provider tokens. It does
+not authorize manual retries, streaming, debug output, save/promote/archive,
+candidate actions, public/community mutation, provider/model/config changes, or
+broad runtime work.
+
 ## PR421 Import-Accepted Memory Runtime Fix And Hosted Completion
 
 DAEDALUS implemented PR421 and ARGUS accepted it on 2026-06-27:

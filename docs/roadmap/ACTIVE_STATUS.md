@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR422 runtime answer accepted
+
+ARGUS accepted the PR422 hosted runtime answer preflight:
+`docs/roadmap/PR422_IMPORT_MEMORY_RUNTIME_ANSWER_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- DAEDALUS may run exactly one hosted non-streaming private chat route
+  invocation against the same replay owner/persona used in PR421.
+- The route must be called without debug output. The route's built-in
+  answer-contract retry/finalizer may run internally, but DAEDALUS must not send
+  a second owner message or manually retry the route.
+- Evidence must be sanitized assertions only: route status, safe error
+  classification if any, selected-label/fact booleans, safe provider/model/count
+  fields, persisted-message counts, and public search counts.
+- DAEDALUS must not record tokens, raw IDs, raw prompts, raw response bodies,
+  provider payloads, selected-context scaffolding, archive source IDs, source
+  names, storage paths, signed material, SQL, stack traces, or secret-shaped
+  values.
+- No save/promote/archive, candidate action, upload/register/import,
+  cleanup/delete, export, document, Continuity publication, forum/Assistant,
+  billing/settings, provider/model/config, Redis, Cloudflare, schema, migration,
+  worker, queue, public/community, or broad runtime work is authorized.
+
+Validation:
+
+- Public web/API health were ready at commit prefix `8713af989bfe`, which
+  contains the PR421 runtime Memory eligibility fix.
+- API storage readiness reported `persona-files` ok/checked/exists/private.
+- API provider readiness reported platform chat configured.
+- Replay owner auth succeeded as tier `canon`; token budget was `ok` with
+  effective limit `20000000`, used `113733`, percent used `0.6`.
+- Owner context-preview selected the accepted PR420 Memory in the Memory bucket
+  with source type `import` and selected the accepted PR420 Canon in the Canon
+  bucket.
+- Context-preview trace had no content fields and raw archive metadata/path scan
+  was negative.
+- Public `/discover/search` selected postcheck returned zero matches for the
+  PR419 proof phrase, PR419 artifact name, and PR420 accepted titles.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests).
+- `git diff HEAD^ HEAD --check` passed for the PR422 opening commit.
+- Added-line sensitive-pattern review found policy wording only, not secret
+  values.
+
+Current baton:
+
+- DAEDALUS has PR422.
+- DAEDALUS should run only the approved one-chat hosted proof and wake ARGUS
+  with sanitized evidence.
+
 ## Latest MIMIR decision - PR422 runtime answer preflight opened
 
 MIMIR closed PR421 as accepted and opened PR422:

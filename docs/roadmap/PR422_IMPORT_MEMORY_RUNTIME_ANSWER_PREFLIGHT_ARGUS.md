@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: PREFLIGHT REQUESTED
+Status: ARGUS PREFLIGHT ACCEPTED - WAKE DAEDALUS
 
 ## Why This Exists
 
@@ -46,6 +46,79 @@ If this passes, the import-review chain has a credible protected-alpha E2E:
 ```text
 upload -> import -> owner review -> runtime context -> private answer
 ```
+
+## ARGUS Preflight Verdict
+
+Verdict: `SAFE TO HAND TO DAEDALUS WITH HARD GUARDS`.
+
+ARGUS accepts one bounded hosted private chat route invocation because the
+freshness, storage, owner auth, provider readiness, token budget, and
+context-preview selection gates are currently satisfied without making a chat
+mutation.
+
+ARGUS preflight checks:
+
+- public web/API health are ready at commit prefix `8713af989bfe`, which
+  contains the PR421 runtime Memory eligibility fix;
+- API storage readiness reports bucket `persona-files` as ok, checked, exists,
+  and private;
+- API provider readiness reports platform chat configured;
+- replay owner sign-in succeeds as tier `canon`;
+- replay owner token budget is `ok` with effective limit `20000000`, used
+  `113733`, and percent used `0.6`;
+- owner context-preview isolates the PR420 persona without recording raw IDs;
+- context-preview selects the accepted PR420 Memory in the Memory bucket with
+  source type `import`;
+- context-preview selects the accepted PR420 Canon in the Canon bucket;
+- context-preview selected-source trace has no content fields, and raw archive
+  metadata/path pattern scan is negative;
+- public `/discover/search` returns zero matches for the PR419 proof phrase,
+  PR419 artifact name, and PR420 accepted titles;
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed (8 tests);
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (41 tests);
+- `git diff HEAD^ HEAD --check` passed for the PR422 opening commit;
+- added-line sensitive-pattern review found policy wording only, not secret
+  values.
+
+DAEDALUS may run exactly one hosted `POST
+/conversations/persona/:personaId/chat` route invocation against the same replay
+owner/persona. This means one owner chat request, not manual retries. The route's
+existing answer-contract retry/finalizer may run internally if the route chooses
+it; DAEDALUS must report whether that happened using only safe enums/counts.
+
+DAEDALUS must call the non-streaming private chat route without debug output.
+Use the bounded prompt:
+
+```text
+What should stay steady from the reviewed import? Answer in one short sentence using selected context labels when available.
+```
+
+Required evidence must be sanitized assertions only:
+
+- route status and safe error classification if it fails;
+- whether the reply exists, which provider/model label was reported, and safe
+  token/count fields if exposed;
+- whether the answer mentioned the accepted Memory title, accepted Canon title,
+  or equivalent selected labels;
+- whether it included at least one supporting fact from the selected import
+  context, recorded as a boolean or short public-safe category, not a raw answer
+  dump;
+- owner conversation readback confirms exactly one user message and one
+  assistant reply were persisted for the new proof conversation;
+- persisted owner-visible messages do not include selected-context scaffolding,
+  raw archive metadata, storage paths, signed material, SQL, stack traces,
+  provider payloads, or secret-shaped values;
+- owner observability/trace readback, if used, reports only safe
+  answer-contract enums/counts and sanitized selected-source metadata;
+- public `/discover/search` remains zero for PR419/PR420 proof terms and any
+  answer label DAEDALUS records.
+
+Stop after the first route result, even if answer quality fails. Do not send a
+second owner message, manually retry, stream, pass `debug`, save/promote/archive,
+publish, create documents, export, mutate candidates, upload/register/import,
+clean up/delete, touch public/community surfaces, change provider/model/config,
+or broaden runtime behavior.
 
 ## Preflight Questions
 
@@ -162,14 +235,15 @@ If safe, wake DAEDALUS:
 WAKEUP A2:
 Codename: DAEDALUS
 Summary:
-- ARGUS accepted PR422 hosted import Memory runtime answer preflight.
+- ARGUS accepted PR422 hosted import Memory runtime answer preflight for exactly
+  one non-debug private chat route invocation.
 Task:
 - Run only the approved one-chat hosted proof after rechecking freshness,
   storage, owner auth, token/provider readiness, and context-preview selection.
 - Stop after exactly one chat call and wake ARGUS with sanitized evidence.
-- Do not retry manually, save/promote/archive, publish, mutate public/community
-  surfaces, broaden providers/runtime, or expose secrets/raw ids/raw archive
-  paths/private provider payloads.
+- Do not retry manually, stream, pass debug, save/promote/archive, publish,
+  mutate public/community surfaces, broaden providers/runtime, or expose
+  secrets/raw ids/raw archive paths/private provider payloads.
 ```
 
 If unsafe, stale, or under-specified, wake MIMIR:
