@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR426 contract alignment accepted
+
+ARGUS accepted DAEDALUS's PR426 local selected-context contract alignment:
+`docs/roadmap/PR426_SELECTED_CONTEXT_CONTRACT_ALIGNMENT_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED LOCAL PASS - WAKE MIMIR
+```
+
+Decision:
+
+- Reviewed/import answer-contract mode now requires the first owner-reviewed
+  import pair per Memory/Canon bucket.
+- The contract reports `fulfilled` when those required Memory/Canon
+  label/fact/provenance pairs are satisfied, even if unrelated selected context
+  is omitted.
+- Missing required labels, provenance, or paired facts still fails the contract.
+- Non-reviewed/import prompts keep the existing generic selected-context
+  behavior.
+- `finalizerSatisfied` remains tied to post-finalizer fulfillment.
+- No hosted chat/model call, live provider call, `.env` credential read,
+  provider/model/config change, import/candidate mutation, hosted cleanup,
+  public/community mutation, Redis, Cloudflare, schema, migration, worker,
+  queue, billing, UI, or broad runtime work occurred.
+
+ARGUS validation:
+
+- `git diff HEAD^ HEAD --check` passed for the DAEDALUS local alignment commit.
+- Added-line sensitive-pattern review found only the intentional synthetic
+  private-path fixture and guardrail wording.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed
+  (42 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed
+  (2 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- MIMIR has PR426.
+- ARGUS recommends MIMIR close PR426 as the local contract-alignment closeout
+  for the PR421-PR426 import-review runtime answer chain.
+- This verdict does not authorize further hosted chat by itself.
+
 ## Latest DAEDALUS result - PR426 contract alignment complete
 
 DAEDALUS completed the PR426 local-only selected-context contract alignment:
