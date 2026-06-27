@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - backup/restore design opened
+
+ARGUS returned `DESIGN FIRST` for backup/restore on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_RESULT.md`.
+
+MIMIR opened DAEDALUS backup/restore rehearsal design:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_DAEDALUS.md`.
+
+Decision:
+
+- A read-only proof would only reconfirm export/trust-map boundaries; it would
+  not prove restore, managed backups, retention, RPO/RTO, or recovery.
+- The next safe lane is a DAEDALUS design packet for a first non-production
+  restore rehearsal.
+- No backup, restore, dump, hosted SQL, storage operation, export mutation,
+  queue job, schema/config/package change, admin-console operation, or hosted
+  data mutation is authorized.
+
+Current baton:
+
+- DAEDALUS has backup/restore rehearsal design.
+- DAEDALUS should wake MIMIR with
+  `READY FOR ARGUS RESTORE-DESIGN REVIEW`,
+  `NO SAFE RESTORE REHEARSAL YET`, or `NEEDS MIMIR DECISION`.
+
 ## Latest ARGUS verdict - backup/restore needs design first
 
 ARGUS completed the production backup/restore preflight on 2026-06-28:

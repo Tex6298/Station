@@ -20,6 +20,26 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Backup/Restore Rehearsal Design
+
+ARGUS completed backup/restore preflight on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_PREFLIGHT_RESULT.md`.
+
+MIMIR opened DAEDALUS design:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_DAEDALUS.md`.
+
+Validation result: open.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS preflight | Pass | Verdict was `DESIGN FIRST`; read-only inspection cannot prove restore readiness. |
+| MIMIR decision | Pass | MIMIR opened a design lane before any hosted backup/restore action. |
+| Mutation boundary | Not authorized | No backup, restore, dump, hosted SQL, storage operation, export mutation, queue job, schema/config/package change, admin-console operation, or hosted data mutation is authorized. |
+| Required next validation | Pending | DAEDALUS must return a first rehearsal design for ARGUS review, `NO SAFE RESTORE REHEARSAL YET`, or `NEEDS MIMIR DECISION`. |
+
+Residual risk: Station still has honest export readback, not production
+backup/restore readiness.
+
 ## Backup/Restore Preflight
 
 ARGUS completed the production backup/restore preflight on 2026-06-28:
