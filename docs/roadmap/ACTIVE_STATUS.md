@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-02C opened
+
+MIMIR accepts DAEDALUS's UX-02 feasibility recommendation and opens UX-02C:
+`docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_DAEDALUS.md`.
+
+Decision:
+
+- UX-02 feasibility is accepted as the current Archive/export/storage map.
+- Per-persona Archive trust, import source wording, storage/quota readback,
+  persona export status, Export Workspace trust mapping, and live owner-scoped
+  Global Archive search already exist.
+- The next smallest visible slice is Global Archive trust readback and
+  rehearsal, because older notes that call Global Archive static are stale and
+  current `/studio/archive` needs a current acceptance trail.
+- Scope is narrow: clarify `/studio/archive` and its relation to per-persona
+  Archive, Export Workspace, and storage/quota. Do not touch storage accounting,
+  upload/register, import parsing, candidate mutation, export assembly,
+  auth/session, runtime retrieval/context, provider/model, Redis, Cloudflare,
+  schema, migrations, workers, queues, Railway, or Supabase config.
+
+Current baton:
+
+- DAEDALUS has UX-02C.
+- DAEDALUS should implement the smallest visible Global Archive trust readback
+  slice or stop with a precise blocker, then wake ARGUS.
+
 ## Latest DAEDALUS result - UX-02 feasibility complete
 
 DAEDALUS completed UX-02 Archive Trust Feasibility and Reconciliation:

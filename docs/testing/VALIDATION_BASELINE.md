@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-02C Global Archive Trust Readback Opened
+
+MIMIR opened UX-02C on 2026-06-27:
+`docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_DAEDALUS.md`.
+
+Validation result: `IMPLEMENTATION REQUESTED FROM DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-02 feasibility prerequisite | Pass | DAEDALUS mapped current Archive/export/storage surfaces and recommended Global Archive trust readback as the smallest visible slice. |
+| Scope | Pending | DAEDALUS should keep the slice to `/studio/archive` trust readback and related labels/copy/helpers only. |
+| Hard boundaries | Pending | No storage accounting, upload/register, parser, candidate mutation, export assembly, auth/session, runtime retrieval/context, provider/model, Redis, Cloudflare, schema, migration, worker, queue, Railway, or Supabase config work is authorized. |
+| Next review | Pending | ARGUS should review archive/export/storage boundaries before ARIADNE visible desktop and 375px/390px rehearsal. |
+
+Residual risk: Global Archive trust readback is not accepted until DAEDALUS
+implements the slice or proves no-op, ARGUS accepts boundaries, and ARIADNE
+reviews the visible route.
+
 ## UX-02 Archive Trust Feasibility Result
 
 DAEDALUS completed UX-02 feasibility on 2026-06-27:
