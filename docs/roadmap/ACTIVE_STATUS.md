@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR393 accepted, PR394 opened
+
+MIMIR accepts ARGUS's PR393 overclaim review:
+`docs/roadmap/PR393_PUBLIC_WRITING_CLOSEOUT_OVERCLAIM_REVIEW_RESULT.md`.
+
+Decision:
+
+- PR393 is closed as `PASS`.
+- Public writing is closed for protected alpha as safe private draft
+  authoring/readback plus existing public replay document/discussion readback.
+- MIMIR is not opening another public-writing proof by default.
+- The useful next move from PR392's residual risk is a narrow owner publication
+  retract contract, so a future full hosted publish mutation can have an honest
+  exit path without pretending hard delete is cleanup.
+- MIMIR opens
+  `docs/roadmap/PR394_OWNER_PUBLICATION_RETRACT_CONTRACT_DAEDALUS.md`.
+
+Current baton:
+
+- DAEDALUS has PR394.
+- DAEDALUS should implement or precisely map the smallest owner-only
+  retract-to-private contract for published documents and linked discussion
+  visibility.
+- Wake ARGUS if code changes; wake MIMIR if no code is needed. Do not go idle
+  without a wakeup commit.
+- Do not open hard delete cleanup, hosted publish/retract mutation, Station
+  Press, social, rich text, scheduling, provider/model, Redis, Cloudflare,
+  queue/worker, billing, Stripe, schema, or migration scope.
+
 ## Latest ARGUS verdict - PR393 accepted
 
 ARGUS accepted PR393:
