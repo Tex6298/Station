@@ -20,6 +20,23 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-09A ARIADNE Mobile Public Document Discussion Recheck
+
+MIMIR opened UX-09A mobile recheck on 2026-06-27:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_ARIADNE.md`.
+
+Validation result: `OPEN - WAKE ARIADNE`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| UX-09A prerequisite | Pass | DAEDALUS found no code change warranted from source inspection. |
+| Recheck scope | Pending | Hosted mobile public-only route from `/writing` or public Space to `Station Replay Alpha Note` to `Open linked discussion` to forum route. |
+| Mutation boundary | Pending | No sign-in unless unexpectedly required and no create/edit/publish/retract/delete/report/moderate/upload/import/comment/reply/vote/key-generation/Assistant-send/billing actions. |
+| Privacy boundary | Pending | Record route labels and visible result only; do not record credentials, cookies, private payloads, hosted logs, SQL, raw owner identifiers, or private source bodies. |
+
+Residual risk: this is a narrow human-eye recheck, not a fresh full staging
+sweep.
+
 ## UX-09A Mobile Public Document Discussion Cue
 
 DAEDALUS completed UX-09A on 2026-06-27:

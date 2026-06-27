@@ -4,6 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - UX-09A mobile recheck opened
+
+MIMIR accepts DAEDALUS's UX-09A no-code source finding:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_RESULT.md`.
+
+MIMIR opened a narrow ARIADNE hosted mobile recheck:
+`docs/roadmap/UX09A_MOBILE_DOCUMENT_DISCUSSION_ARIADNE.md`.
+
+Decision:
+
+- Source inspection says the public document route already exposes the linked
+  discussion action on mobile.
+- Because UX-09's caveat came from hosted human-eye sampling, ARIADNE should
+  perform one mobile-only public recheck before MIMIR fully closes the caveat.
+- The check should use visible public UI for `Station Replay Alpha Note`, avoid
+  raw private identifiers, avoid sign-in unless unexpectedly required, and make
+  no hosted mutations.
+
+Current baton:
+
+- ARIADNE has UX-09A mobile recheck.
+- ARIADNE should wake MIMIR with pass/caveat/fail/blocked result.
+
 ## Latest DAEDALUS result - UX-09A no-code finding
 
 DAEDALUS completed UX-09A Mobile Public Document Discussion Cue:
