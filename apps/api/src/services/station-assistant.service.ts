@@ -310,7 +310,7 @@ function buildNextActions(
     actions.push({
       id: "review-drafts",
       label: "Review publishing drafts",
-      detail: "Check visibility, provenance, and discussion settings before anything enters Discover.",
+      detail: "Use the approval queue to check visibility, provenance, public readback, linked discussion readback, and retract-to-private boundaries.",
       href: "/studio/publishing",
       priority: "high",
     });
@@ -549,7 +549,7 @@ function buildAssistantSummaryActions(input: {
       id: "review-drafts",
       kind: "publishing",
       label: "Review publishing drafts",
-      detail: "Check visibility, provenance, and queue state before anything enters public surfaces.",
+      detail: "Use approval publish, public document readback, linked discussion readback, and retract-to-private; retract hides, it does not delete artifacts.",
       href: "/studio/publishing",
       priority: "high",
       count: input.draftDocuments,
@@ -618,7 +618,7 @@ export function composeStationAssistantReply(message: string, summary: StationAs
   const intent = classifyAssistantIntent(message);
   const baseActions = summary.nextActions ?? [];
   const actions = actionsForIntent(intent, baseActions);
-  const guardrail = "Station Assistant is operational only: no persona canon, no roleplay, no private-to-public move without owner review.";
+  const guardrail = "Station Assistant is operational only: no persona canon, no roleplay, no autonomous execution, no private-to-public move without owner review, and no cleanup/delete claims for retract.";
 
   return {
     role: "assistant" as const,
@@ -648,8 +648,8 @@ function contentForIntent(intent: StationAssistantIntent, summary: StationAssist
         : "Archive next step: add source material, preserve it privately, then review Memory/Canon candidates before promotion.";
     case "publish":
       return draftDocuments > 0
-        ? "Publishing next step: review draft visibility, provenance, and human review before anything becomes public."
-        : "Publishing next step: create a private draft from selected archive or canon material, keep provenance visible, and require human review before publication.";
+        ? "Publishing next step: open the approval queue, review visibility and provenance, publish only after owner review, confirm public document and linked discussion readback, then retract to private if needed. Retract hides public reads; it does not delete artifacts."
+        : "Publishing next step: create a private draft from selected archive or canon material, keep provenance visible, use owner approval before public readback, and treat retract-to-private as hiding rather than cleanup.";
     case "integrity":
       return "Continuity next step: run or review an Integrity Session, then accept/edit/reject Memory and Canon candidates rather than writing directly to Canon.";
     case "export":

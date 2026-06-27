@@ -55,7 +55,7 @@ type AssistantReply = {
 const starterPrompts = [
   "What should I finish next?",
   "Help me clean up archive imports.",
-  "How should I publish this safely?",
+  "How should I publish and retract safely?",
   "What continuity work is pending?",
 ];
 
@@ -154,7 +154,7 @@ export function StationAssistantPanel() {
               style={textarea}
             />
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 12 }}>
-              <span style={mutedSmall}>Human review remains required before public publishing.</span>
+              <span style={mutedSmall}>Publish, public readback, linked discussion readback, and retract-to-private stay owner-controlled. Retract hides; it does not delete artifacts.</span>
               <button type="button" onClick={() => askAssistant()} disabled={sending || !message.trim()} style={primaryButton}>
                 {sending ? "Checking..." : "Ask Assistant"}
               </button>

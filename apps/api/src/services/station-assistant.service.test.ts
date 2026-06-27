@@ -72,8 +72,12 @@ test("Station Assistant keeps publishing behind human review and provenance", ()
 
   assert.equal(reply.intent, "publish");
   assert.match(reply.content, /provenance/);
-  assert.match(reply.content, /human review/);
+  assert.match(reply.content, /owner review/);
+  assert.match(reply.content, /linked discussion readback/);
+  assert.match(reply.content, /retract to private/);
+  assert.match(reply.content, /does not delete artifacts/);
   assert.equal(reply.actions[0].href, "/studio/publishing");
+  assert.doesNotMatch(reply.content, /cleanup/i);
 });
 
 test("Station Assistant does not present itself as a persona", () => {
@@ -103,6 +107,10 @@ test("launch-core private routes require auth and scope assistant summary to the
       true
     );
     assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "publishing"), true);
+    const publishingAction = owner.body.summary.nextActions.find((action: any) => action.kind === "publishing");
+    assert.match(publishingAction.detail, /linked discussion readback/);
+    assert.match(publishingAction.detail, /Retract hides/i);
+    assert.doesNotMatch(publishingAction.detail, /delete artifacts as cleanup/i);
     assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "export"), true);
     assert.equal(JSON.stringify(owner.body.summary).includes("sk-live-secret"), false);
     assert.equal(JSON.stringify(owner.body.summary).includes("private/path/owner-chatgpt.json"), false);

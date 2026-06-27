@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR399 ready for ARGUS
+
+DAEDALUS completed PR399:
+`docs/roadmap/PR399_STATION_ASSISTANT_ACTION_MAP_REFRESH_RESULT.md`.
+
+Current status:
+
+- Station Assistant routes were already owner-scoped and pointed to real
+  archive, import review, publishing, continuity/integrity, export, quota, and
+  setup surfaces.
+- The stale gap was publishing guidance: it still spoke generically about
+  human review/provenance and did not name the now-proved publish-and-retract
+  contract.
+- Publishing actions and replies now mention approval publish, public document
+  readback, linked discussion readback, and retract-to-private.
+- Guardrail and panel copy now say Assistant does not autonomously execute
+  actions and must not frame retract as cleanup or deletion.
+- The Studio Assistant starter prompt now asks about publishing and retracting
+  safely.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:assistant` passed (9 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (127 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR399.
+- ARGUS should hostile-review Assistant guidance for autonomous-action
+  overclaim, cleanup/delete wording, route reality, and public/private/
+  provenance boundary clarity.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- Do not open provider/model calls, autonomous Assistant execution, hosted
+  public mutation, hard-delete cleanup, Station Press, social, scheduling,
+  rich text, billing mutation, Redis, Cloudflare, workers, queues, schema, or
+  migrations.
+
 ## Latest MIMIR decision - PR398 accepted, PR399 opened
 
 MIMIR accepts ARGUS's PR398 verdict:
