@@ -1965,6 +1965,10 @@ test("/imports/archive/search is owner-scoped, filtered, and sanitized", async (
     assert.equal(owner.body.items.some((item: Row) => item.id === "archived-chat-blue"), true);
     assert.equal(owner.body.items.every((item: Row) => item.privacy === "owner_only"), true);
     assert.equal(owner.body.items.some((item: Row) => item.id === "other-memory-blue-lantern"), false);
+    assert.equal(
+      owner.body.items.find((item: Row) => item.id === "memory-blue-lantern")?.summary,
+      "Blue lantern continuity clue."
+    );
     assert.doesNotMatch(JSON.stringify(owner.body), /full transcript must not be returned/i);
 
     const overview = await requestJson(app, "GET", "/imports/archive", {

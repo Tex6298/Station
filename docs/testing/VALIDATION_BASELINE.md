@@ -22,10 +22,10 @@ they are not Station validation failures.
 
 ## PR379 Global Archive JSON Preview Redaction Result
 
-DAEDALUS completed PR379 on 2026-06-27:
+ARGUS accepted PR379 on 2026-06-27:
 `docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED BY ARGUS`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -33,6 +33,7 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | Archive search structured preview | Pass | `/imports/archive/search` returns the structured-source redaction summary while preserving safe source and `owner_only` readback. |
 | Raw body non-rendering proof | Pass | Overview and search responses do not include private JSON body text, private marker text, or raw JSON field names from the fixture. |
 | Owner-scoping proof | Pass | Existing archive search coverage still excludes other-owner items and preserves the authenticated owner boundary. |
+| ARGUS prose-summary guard | Pass | ARGUS added a focused assertion that normal prose archive summaries remain visible and are not over-redacted. |
 | Scope control | Pass | No parser, import pipeline, repository, schema, migration, provider, cache, public archive behavior, owner-scoping rule, or broad Studio UI behavior changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 122 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed. |
@@ -42,10 +43,10 @@ Validation result: `READY FOR ARGUS REVIEW`.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-Residual risk: ARGUS still needs to review whether the structured-source
-detector is appropriately narrow. If accepted, ARIADNE should rerun the PR378
-hosted rehearsal after deploy to prove `/studio/archive` no longer renders raw
-JSON-shaped source material.
+Residual risk: ARGUS accepted the local API preview redaction patch. Hosted
+proof still requires deploy plus ARIADNE rerun of PR378 if MIMIR wants live
+confirmation that `/studio/archive` no longer renders raw JSON-shaped source
+material.
 
 ## PR376 Discover Public Space Initial Feed Result
 

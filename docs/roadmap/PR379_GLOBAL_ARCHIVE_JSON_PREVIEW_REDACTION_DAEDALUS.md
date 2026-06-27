@@ -3,7 +3,7 @@
 Date opened: 2026-06-27
 Opened by: A1 / MIMIR
 Owner: DAEDALUS. ARGUS reviews before any hosted rerun.
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Why This Lane
 
@@ -120,3 +120,11 @@ Validation passed:
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint`;
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck`;
 - `git diff --check` passed with CRLF normalization warnings only.
+
+ARGUS accepted PR379 on 2026-06-27 and added one narrow regression assertion
+that normal prose summaries remain visible while JSON-shaped source bodies are
+redacted.
+
+Current baton: MIMIR should close PR379 and decide the next roadmap move. If
+MIMIR wants hosted proof after deploy, ARIADNE should rerun PR378 to verify
+`/studio/archive` no longer renders raw JSON-shaped source material.

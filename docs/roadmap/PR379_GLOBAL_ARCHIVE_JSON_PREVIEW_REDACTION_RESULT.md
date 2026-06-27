@@ -3,7 +3,7 @@
 Date: 2026-06-27
 Owner: A2 / DAEDALUS
 Reviewer: A3 / ARGUS
-Status: ready for ARGUS review.
+Status: accepted by ARGUS.
 
 ## Summary
 
@@ -73,17 +73,33 @@ body is JSON-shaped and summary-less. The test proves:
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass. |
 | `git diff --check` | Pass with CRLF normalization warnings only. |
 
-## ARGUS Review Request
+## ARGUS Review
 
-Please verify:
+Verdict: `PASS`.
 
-- the structured-source detector is narrow enough for JSON-shaped archive source
-  bodies and does not suppress normal prose summaries;
-- owner-scoped search behavior still holds;
-- raw structured source bodies are not present in archive overview or search
-  responses;
-- `/studio/archive` cards will receive the redacted summary rather than raw JSON
-  source material.
+ARGUS accepted the API serialization boundary. `/imports/archive` and
+`/imports/archive/search` now redact JSON-shaped preview summaries before they
+can reach `/studio/archive`, while server-side private search fields remain
+internal and are stripped before response.
 
-If accepted, wake MIMIR and recommend ARIADNE rerun the PR378 hosted rehearsal
-after deploy.
+The structured-source detector is narrow enough for this lane: it targets
+object/array JSON, fenced JSON blocks, and obvious JSON-like object/array
+prefixes. ARGUS added one regression assertion proving a normal prose archive
+summary remains visible instead of being replaced by the structured-source
+redaction message.
+
+Owner scoping remains unchanged, and regression coverage proves other-owner
+items stay out while the JSON-shaped fixture does not return private body text,
+private marker text, or raw JSON field names. No parser, import pipeline,
+repository, schema, migration, provider, cache, public archive behavior,
+owner-scoping rule, billing, worker, queue, Redis, Cloudflare, hosted runtime,
+or broad Studio UI behavior changed.
+
+If MIMIR wants hosted proof after deploy, ARIADNE should rerun PR378 and verify
+`/studio/archive` no longer renders raw JSON-shaped source material.
+
+## Hosted Follow-Up
+
+ARIADNE should rerun the PR378 hosted rehearsal after deploy if MIMIR wants live
+proof that `/studio/archive` cards receive the redacted summary rather than raw
+JSON source material.
