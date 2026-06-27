@@ -612,6 +612,71 @@ test("persona file upload preflight and registration keep storage accounting bal
   }
 });
 
+test("persona file upload preflight sanitizes storage object basenames", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+
+  try {
+    const cases = [
+      {
+        fileName: "[file-import-proof:pr415-20260627-0904].txt",
+        expectedBasename: /^\d+_file-import-proof-pr415-20260627-0904\.txt$/,
+      },
+      {
+        fileName: "../private\\source notes.md",
+        expectedBasename: /^\d+_source-notes\.md$/,
+      },
+      {
+        fileName: "exports/ChatGPT Export.JSON",
+        expectedBasename: /^\d+_ChatGPT-Export\.json$/,
+      },
+    ];
+
+    const responses = [];
+    for (const input of cases) {
+      const response = await requestJson(
+        app,
+        "GET",
+        `/persona-files/persona/${PERSONA_ID}/upload-url?fileName=${encodeURIComponent(input.fileName)}&fileSize=50`,
+        { token: "owner-token" },
+      );
+
+      assert.equal(response.status, 200);
+      responses.push(response.body);
+    }
+
+    assert.equal(db.signedUploadPaths.length, cases.length);
+    for (const [index, storagePath] of db.signedUploadPaths.entries()) {
+      assert.equal(responses[index].storagePath, storagePath);
+      assert.match(storagePath, new RegExp(`^${OWNER_ID}/${PERSONA_ID}/`));
+
+      const basename = storagePath.split("/").pop() ?? "";
+      assert.match(basename, cases[index].expectedBasename);
+      assert.doesNotMatch(basename, /[\[\]:\\/]/);
+      assert.doesNotMatch(basename, /\.\./);
+    }
+
+    const originalFileName = cases[0].fileName;
+    const registered = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: originalFileName,
+        fileType: "text/plain",
+        fileSize: 50,
+        storagePath: responses[0].storagePath,
+        processImmediately: false,
+      },
+    });
+
+    assert.equal(registered.status, 201);
+    assert.equal(registered.body.file.file_name, originalFileName);
+    assert.equal(registered.body.file.storage_path, responses[0].storagePath);
+  } finally {
+    resetStorageFake();
+  }
+});
+
 test("persona file registration is idempotent for exact owner persona storage paths", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

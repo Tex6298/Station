@@ -79,7 +79,7 @@ personaFilesRouter.get("/persona/:personaId/upload-url", async (req, res) => {
     throw error;
   }
 
-  const storagePath = `${userId}/${persona.id}/${Date.now()}_${fileName}`;
+  const storagePath = `${userId}/${persona.id}/${Date.now()}_${storageObjectBasenameForUpload(fileName)}`;
 
   const { data, error } = await sb.storage
     .from("persona-files")
@@ -348,4 +348,26 @@ async function loadOrRepairFileImportJob(input: {
 
   if (jobErr || !job) throw new Error(jobErr?.message ?? "Import job repair failed.");
   return { job, repaired: true, ambiguous: false };
+}
+
+function storageObjectBasenameForUpload(fileName: string) {
+  const fallback = "archive-import";
+  const lastSegment = fileName
+    .trim()
+    .replace(/\\/g, "/")
+    .split("/")
+    .filter(Boolean)
+    .pop() ?? fallback;
+  const asciiName = lastSegment.normalize("NFKD").replace(/[^\x20-\x7E]/g, "");
+  const extensionMatch = asciiName.match(/\.([A-Za-z0-9]{1,16})$/);
+  const extension = extensionMatch ? `.${extensionMatch[1].toLowerCase()}` : "";
+  const rawStem = extension ? asciiName.slice(0, -extension.length) : asciiName;
+  const safeStem = rawStem
+    .replace(/^\.+/, "")
+    .replace(/[^A-Za-z0-9]+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+
+  return `${safeStem || fallback}${extension}`;
 }

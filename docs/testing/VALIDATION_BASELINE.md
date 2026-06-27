@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR416 Signed Upload Client/Storage Repair Result
+
+DAEDALUS completed PR416 on 2026-06-27:
+`docs/roadmap/PR416_SIGNED_UPLOAD_CLIENT_STORAGE_REPAIR_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Storage object basename repair | Pass | Upload preflight now sanitizes the generated storage object basename instead of embedding the raw owner filename/path material. |
+| Original filename preservation | Pass | Register/readback still preserves the original owner-visible filename. |
+| Unsafe proof filename coverage | Pass | Test covers `[file-import-proof:pr415-20260627-0904].txt` and removes brackets/colon from the storage basename. |
+| Path traversal/slash-like coverage | Pass | Test covers slash/backslash-style input and keeps only a safe final segment. |
+| Extension preservation | Pass | Test covers `.txt`, `.md`, and `.json` storage basename extensions. |
+| SDK call shape probe | Pass | Read-only web workspace probe found `uploadToSignedUrl` with the expected path/token/file/options shape. |
+| Hosted mutation scope | Pass | No hosted upload URL was requested, no file was uploaded, no import was registered, and no staging data was mutated in PR416. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 10 tests passed. |
+| `npx -y pnpm@10.32.1 --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warnings only. |
+
+Not run: `test:studio-ui` and web typecheck, because PR416 changed only the API
+signed-upload URL route and API storage tests. The frontend upload call shape
+was inspected but not edited.
+
+Residual risk: PR416 fixes the leading code-path suspect, but hosted upload
+success remains unproven until ARGUS/MIMIR authorizes a separate narrow hosted
+proof retry.
+
 ## PR415 Owner Archive File Import Hosted Proof Result
 
 DAEDALUS ran the PR415 proof on 2026-06-27:

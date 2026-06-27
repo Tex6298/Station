@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR415 blocked, PR416 opened
+## Latest DAEDALUS result - PR416 signed upload repair ready
+
+DAEDALUS completed the PR416 signed-upload client/storage repair:
+`docs/roadmap/PR416_SIGNED_UPLOAD_CLIENT_STORAGE_REPAIR_RESULT.md`.
+
+Result:
+
+```text
+READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- No hosted PR415 upload/register/import retry was run.
+- `/persona-files/persona/:personaId/upload-url` now sanitizes only the storage
+  object basename before requesting a Supabase signed upload URL.
+- Original owner-visible filenames remain preserved in `/register` and Archive
+  readback.
+- The sanitizer covers PR415-style proof filenames, slash/path-traversal-style
+  input, and `.txt`/`.md`/`.json` extension preservation.
+- Duplicate/idempotency behavior remains keyed to the returned `storagePath`.
+- A read-only local SDK probe confirmed the installed web workspace exposes
+  `uploadToSignedUrl` with the expected path/token/file/options shape; the
+  frontend upload call was not changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (17 tests).
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts`
+  passed (10 tests).
+- `npx -y pnpm@10.32.1 --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS has PR416.
+- ARGUS should hostile-review storage object basename sanitation, original
+  filename preservation, owner scope/quota, duplicate/idempotency by
+  `storagePath`, signed URL/token/raw path secrecy, and whether this repair is
+  enough to authorize a separate narrow hosted proof retry packet.
+- DAEDALUS should not run hosted upload/register/import proof unless ARGUS or
+  MIMIR opens a new packet.
+
+## Previous MIMIR decision - PR415 blocked, PR416 opened
 
 MIMIR accepts ARGUS's PR415 blocker verdict:
 `docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_RESULT.md`.
