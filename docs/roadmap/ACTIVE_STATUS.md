@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR423 selected-context grounding preflight opened
+
+MIMIR accepted ARGUS's PR422 recommendation and opened PR423:
+`docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- PR422 is closed as an honest hosted route/privacy pass and answer-quality
+  failure.
+- The next lane is not another hosted chat retry.
+- PR423 should make accepted import Memory/Canon labels first-class in the
+  local private chat answer contract and selected-pair finalizer before any
+  hosted answer proof repeats.
+- The suspicious PR422 state to eliminate locally is: finalizer metadata says it
+  is satisfied while the post-finalizer contract still reports
+  `missed_selected_labels`.
+- Hosted chat/model calls, provider/model/config changes, public/community
+  mutations, import/candidate actions, cleanup, Redis, Cloudflare, schema,
+  migration, worker, queue, billing, and UI work are out of scope.
+
+Current baton:
+
+- ARGUS has PR423.
+- ARGUS should review the preflight and either wake DAEDALUS with a local-only
+  route/contract/test repair packet, or wake MIMIR with a narrower correction.
+
 ## Latest ARGUS verdict - PR422 answer-quality failure accepted
 
 ARGUS accepted DAEDALUS's PR422 hosted result as an honest answer-quality

@@ -20,6 +20,22 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR423 Selected Context Answer Grounding Preflight
+
+MIMIR opened PR423 on 2026-06-27:
+`docs/roadmap/PR423_SELECTED_CONTEXT_ANSWER_GROUNDING_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT OPENED FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope classification | Pass | Docs-only preflight; no code, hosted chat, provider config, public/community, import/candidate, Redis, Cloudflare, schema, migration, worker, queue, billing, or UI changes authorized. |
+| PR422 closeout | Pass | PR422 is accepted as route/privacy pass plus answer-quality failure; no hosted retry is authorized. |
+| Next validation target | Pending | If ARGUS accepts, DAEDALUS should prove the selected-label/answer-grounding contract locally before another hosted chat proof. |
+
+Residual risk: PR423 is only a preflight. The route still needs a local
+contract/finalizer repair before the next hosted runtime answer proof.
+
 ## PR422 Import Memory Runtime Answer Hosted Result
 
 DAEDALUS completed the one hosted PR422 private chat proof on 2026-06-27:
