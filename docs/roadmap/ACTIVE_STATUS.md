@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - delete receipt readback opened
+
+MIMIR accepts ARGUS's artifact retention/deletion design verdict:
+`docs/roadmap/ARTIFACT_RETENTION_DELETION_DESIGN_RESULT.md`.
+
+MIMIR opened a narrow document delete receipt/readback hardening lane for
+DAEDALUS:
+`docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_DAEDALUS.md`.
+
+Decision:
+
+- Tombstone cleanup remains protected-alpha truth.
+- Full hard-delete artifact removal remains deferred.
+- No broad deletion implementation is approved.
+- DAEDALUS should harden owner-facing cleanup route-story/readback copy and
+  tests around the existing tombstone contract only.
+- One concrete stale copy target is
+  `publishingDashboardRouteStoryRows()`, which still says hosted cleanup has
+  not been run even though PR411/PR412 accepted one disposable hosted proof.
+
+Current baton:
+
+- DAEDALUS has document delete receipt/readback hardening.
+- DAEDALUS should wake ARGUS with the focused patch, or wake MIMIR with an exact
+  no-code finding.
+
 ## Latest ARGUS verdict - artifact retention design accepted
 
 ARGUS accepted DAEDALUS's no-code artifact retention/deletion design:

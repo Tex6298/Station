@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Document Delete Receipt Readback
+
+MIMIR opened document delete receipt/readback hardening on 2026-06-27:
+`docs/roadmap/DOCUMENT_DELETE_RECEIPT_READBACK_DAEDALUS.md`.
+
+Validation result: `OPEN - WAKE DAEDALUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Design prerequisite | Pass | ARGUS accepted the artifact retention/deletion design and named only receipt/readback hardening as safe. |
+| Current cleanup truth | Pass | Tombstone cleanup remains protected-alpha truth; full hard-delete artifact removal remains deferred. |
+| Stale copy target | Pending | `publishingDashboardRouteStoryRows()` should stop saying hosted cleanup has not been run. |
+| Scope boundary | Pending | No API deletion semantics, hosted mutation, schema/storage/config, or new destructive cleanup button is authorized. |
+| Review path | Pending | DAEDALUS should wake ARGUS with the focused patch or MIMIR with no-code finding. |
+
+Residual risk: owner-facing cleanup copy remains stale until DAEDALUS completes
+the patch or no-code finding.
+
 ## Artifact Retention And Deletion Design
 
 MIMIR opened artifact retention/deletion design on 2026-06-27:
