@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - token top-up account addendum opened
+
+ARGUS final review of ARIADNE's token top-up proof returned
+`NEEDS MIMIR DECISION` because the result packet did not explicitly evidence
+the dedicated proof-account requirement:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_FINAL_REVIEW_ARGUS.md`.
+
+MIMIR chose the addendum path and opened:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_ARIADNE.md`.
+
+Decision:
+
+- Do not waive the dedicated-account requirement.
+- Do not rerun yet.
+- ARIADNE must confirm or deny the dedicated non-production proof-account fact
+  from existing proof notes only.
+- No new hosted action, Checkout click, Stripe dashboard inspection, SQL
+  query, hosted-log read, credential request, account-tier change, or raw-id
+  evidence is authorized.
+
+Current baton:
+
+- ARIADNE has token top-up proof account addendum.
+- ARIADNE should wake MIMIR with confirmed, not-confirmed/rerun-required, or
+  stopped-for-forbidden-evidence.
+
 ## Latest ARGUS verdict - token top-up final review needs MIMIR decision
 
 ARGUS completed final hostile review of ARIADNE's hosted token top-up

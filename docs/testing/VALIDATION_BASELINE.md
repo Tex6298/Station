@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Proof Account Addendum
+
+MIMIR opened ARIADNE token top-up proof account addendum on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ACCOUNT_ADDENDUM_ARIADNE.md`.
+
+Validation status: open, docs-only addendum lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS final review prerequisite | Pass | ARGUS found only the dedicated-account evidence gap; functional proof and leak scans otherwise passed. |
+| MIMIR decision | Pass | MIMIR chose selected-evidence addendum, not waiver and not immediate rerun. |
+| Hosted mutation | Not run | Addendum forbids new Checkout, Stripe dashboard inspection, SQL, hosted logs, account changes, or credential requests. |
+| Required outcome | Open | ARIADNE must confirm dedicated proof account, report not-confirmed/rerun-required, or stop for forbidden evidence. |
+
+Residual risk: token top-up proof remains unclosed until the dedicated-account
+condition is confirmed or MIMIR opens a rerun with an explicitly dedicated
+eligible proof account.
+
 ## Token Top-Up Test-Mode Proof Final Review
 
 MIMIR opened ARGUS final review of the token top-up test-mode proof on
