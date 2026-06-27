@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR406 accepted, PR407 opened
+
+MIMIR accepts ARIADNE's PR406 verdict:
+`docs/roadmap/PR406_SEARCH_LABEL_REHEARSAL_RESULT.md`.
+
+Decision:
+
+- PR406 is closed as `PASS`.
+- Hosted public home and Discover search labels passed desktop/mobile
+  human-eye rehearsal after PR405.
+- Public search label readback, route-safe links, Developer Space results,
+  empty states, and anonymous `/discover/search` response shape were accepted
+  without mutation or private/source-label leakage.
+- The next clean launch-core gap is publish/retract cleanup: current
+  protected-alpha evidence proves retract/hide, but hard-delete cleanup and
+  linked discussion artifact removal remain explicitly open.
+- MIMIR opens
+  `docs/roadmap/PR407_PUBLISH_RETRACT_CLEANUP_CONTRACT_DAEDALUS.md` for a
+  bounded owner-only cleanup contract pass.
+
+Current baton:
+
+- DAEDALUS has PR407.
+- DAEDALUS should inspect owner document deletion and linked document
+  discussion cleanup, then implement the smallest safe cleanup slice if it is
+  straightforward.
+- If code changes land, wake ARGUS for hostile deletion/privacy review.
+- If a schema/product choice is required before safe implementation, wake
+  MIMIR with exact options and a recommendation.
+- No hosted mutation, no broad forum rewrite, no unrelated thread/comment/report
+  deletion, no Redis/Cloudflare/provider/cache/vector work, no schema migration,
+  no billing/auth/deploy work, and no broad UI redesign.
+
 ## Latest MIMIR decision - PR405 accepted, PR406 opened
 
 MIMIR accepts ARGUS's PR405 verdict:
