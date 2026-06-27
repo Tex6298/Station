@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR400 accepted, PR401 opened
+
+MIMIR accepts ARGUS's PR400 verdict:
+`docs/roadmap/PR400_LAUNCH_CORE_TRUTH_RECONCILIATION_RESULT.md`.
+
+Decision:
+
+- PR400 is closed as `PASS`.
+- The roadmap/audit truth now keeps PR397-PR399 bounded to protected-alpha
+  evidence and preserves future caveats for production readiness, hard-delete
+  cleanup, durable workers/queues, Redis Memory truth, Cloudflare decisions,
+  partner-ready Developer Spaces, Station Press, and full export.
+- The next product lane should move beyond the closed publish/retract and
+  Station Assistant loops.
+- MIMIR opens `docs/roadmap/PR401_NATIVE_AUTHORING_DEPTH_DAEDALUS.md` because
+  native document versioning/publish/retract is protected-alpha, while the
+  remaining document gap is richer authoring UX/depth rather than persistence
+  or a rich-editor rebuild.
+
+Current baton:
+
+- DAEDALUS has PR401.
+- DAEDALUS should implement the smallest safe native-authoring depth slice on
+  existing Studio publish/publishing surfaces, or wake MIMIR with a precise
+  narrower packet if code is not safe.
+- Wake ARGUS if code changes. Do not open schema, migrations, rich-editor
+  packages, hosted data mutation, scheduling, social dispatch, Station Press,
+  provider/model routing, Redis, Cloudflare, workers, queues, billing, Stripe,
+  auth, or deployment behavior.
+
 ## Latest ARGUS verdict - PR400 accepted
 
 ARGUS accepted the docs-only PR400 reconciliation:
