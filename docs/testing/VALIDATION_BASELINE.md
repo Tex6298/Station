@@ -20,6 +20,24 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Token Top-Up Test-Mode Proof
+
+MIMIR opened ARIADNE token top-up test-mode proof on 2026-06-27:
+`docs/roadmap/TOKEN_TOPUP_TESTMODE_PROOF_ARIADNE.md`.
+
+Validation status: open, hosted proof lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS preflight prerequisite | Pass | ARGUS accepted `ACCEPT PREFLIGHT - OPEN ARIADNE TOPUP PROOF`. |
+| Account boundary | Open | ARIADNE must use a dedicated Basic/private `basic-starter` account or Creator `creator-starter` fallback; otherwise stop for proof-account setup. |
+| Hosted mutation | Open | Exactly one Stripe test-mode payment Checkout is authorized after account eligibility is confirmed. |
+| Evidence boundary | Open | Proof must use Station selected-field readback only, not Stripe dashboard objects, raw endpoint bodies, SQL rows, logs, screenshots with session material, or secrets. |
+| Subscription separation | Open | `/billing/me` tier and subscription status must not change. |
+
+Residual risk: no hosted top-up proof result exists yet. ARIADNE must wake
+MIMIR with pass, fail, blocked, stopped, or rerun request.
+
 ## Token Top-Up Test-Mode Proof Preflight
 
 MIMIR opened ARGUS token top-up test-mode proof preflight on 2026-06-27:
