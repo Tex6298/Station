@@ -32,8 +32,8 @@ an owner-visible retracted artifact in Studio.
 
 ## Current Evidence Refresh
 
-Last refreshed: 2026-06-27 by PR397 hosted publish-and-retract proof and PR398
-MIMIR closeout update.
+Last refreshed: 2026-06-27 by PR397 hosted publish-and-retract proof, PR398
+MIMIR closeout update, and PR399 Station Assistant action-map refresh.
 
 - PR157 public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
@@ -104,7 +104,7 @@ MIMIR closeout update.
 | Export data | Owner-only JSON/Markdown manifest and portable bundle readback for persona and Developer Space exports. |
 | Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, PR387 safe private draft owner readback, PR394 retract contract, and PR397 hosted publish-and-retract proof. This is not hard-delete cleanup. |
 | Public Space/document/discussion | PR23 public Space/document/linked discussion proof, PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data, and PR397 fresh approval-published document -> linked discussion -> retract/hide proof. |
-| Station Assistant | PR22 sanitized operational action cards and desktop/mobile browser closeout. |
+| Station Assistant | PR22 sanitized operational action cards, desktop/mobile browser closeout, and PR399 publish/retract action-map refresh. |
 | Manual social archive intake | PR19 Reddit and PR20 Discord uploaded/pasted intake with fail-closed parser behavior. |
 
 ## Replay Script

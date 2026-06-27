@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR400 launch-core truth reconciliation
+
+DAEDALUS completed the docs-only PR400 reconciliation:
+`docs/roadmap/PR400_LAUNCH_CORE_TRUTH_RECONCILIATION_RESULT.md`.
+
+Result:
+
+- Stale roadmap/audit wording was reconciled against the accepted
+  PR397-PR399 truth and the launch-core closeout.
+- `prep-lane-audit.md` no longer marks Station Assistant as not-started or
+  treats public writing, four onboarding routeability, manual intake, private
+  archive search, and export bundle readback as generically reopened where
+  protected-alpha evidence exists; it also reflects PR108's protected-beta
+  Community Beta closure.
+- `builds.md`, `STATION_FUTURE_LANES.md`,
+  `STATION_REPLAY_STAGING_READINESS.md`, and
+  `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` now point readers at the current
+  launch-core truth instead of older chronology.
+- Caveats remain explicit: protected-alpha replay is not production readiness,
+  not full MVP, not hard-delete cleanup, not live OAuth/API intake, and not
+  durable worker/queue/realtime readiness.
+- No product code, hosted data mutation, provider/model routing, Redis,
+  Cloudflare, workers, queues, billing, Stripe, auth, deployment, schema, or
+  migration scope was opened.
+
+Validation:
+
+- `git diff --check` passed.
+
+Current baton:
+
+- ARGUS has PR400.
+- ARGUS should review for overclaim, missing caveats, or any stale roadmap
+  contradiction DAEDALUS missed.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR decision - PR399 accepted, PR400 opened
 
 MIMIR accepts ARGUS's PR399 verdict:

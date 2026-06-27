@@ -41,7 +41,7 @@ Remote deployment status is tracked separately from local validation. Do not cal
 | Foundation Alpha | Protected | Monorepo typecheck/build/API build and CI gates are in place. Remote deployment truth still needs separate verification. |
 | Studio Alpha | Protected alpha | Persona workspace, Memory, Canon, Archive, Integrity, context preview, archive-chat, export surfaces, Import Review Inbox, private archive search, four alpha onboarding route paths, and Station Assistant operations are protected for replay. Broad polish remains open. |
 | Continuity Alpha | Protected alpha | Continuity data is stored, used in runtime context, publishable as separate public copies, discussable, archivable, and exportable. Candidate extraction and retrieval still need hardening. |
-| Calibration / Integrity Beta | Partial / reopened | Integrity sessions are persisted and used in context/publication/export. The fuller guided reflective workflow still needs product polish and Station Assistant support. |
+| Calibration / Integrity Beta | Partial / reopened | Integrity sessions are persisted and used in context/publication/export, and Station Assistant routes through the Integrity surface. The fuller guided reflective workflow still needs product polish and deeper Assistant-integrity support. |
 | Public Space Beta | Beta candidate | Public Spaces now behave more like authored microsites and are covered by smoke tests. Rich media/page composition and public persona interaction remain open. |
 | Community Beta | Protected beta | PR108 found no protected-beta closure blockers. Forum/community visibility, creation, document discussions, moderation/reporting, review requests, notifications, subcommunities, delegated moderation, witness controls, and private recognition readback are accepted; richer community/reputation/moderator surfaces are future expansion. |
 | Developer Spaces | Protected alpha | Ingestion, observatory, owner/private split, and smoke tests exist. Partner-ready realtime, quotas, scheduled jobs, project ownership, and data export remain open. |
@@ -59,7 +59,7 @@ Remote deployment status is tracked separately from local validation. Do not cal
 7. Published document -> discussion thread.
 8. Persona archive -> owner-only export manifest/bundle readback.
 9. External manual Reddit/Discord archive -> private archive -> review queue.
-10. Creator-capable draft -> approval queue -> public Space document -> forum discussion.
+10. Creator-capable draft -> approval queue -> public Space document -> linked discussion -> retract-to-private.
 11. Station Assistant -> owner-safe operational action map.
 12. Four alpha onboarding paths -> real route targets with honest caveats.
 
@@ -67,8 +67,8 @@ Remote deployment status is tracked separately from local validation. Do not cal
 
 1. Remote deployment truth.
 2. Mature onboarding wizards, Document Migrator, and API Bridge product depth.
-3. Native authoring and versioning.
-4. Full forum/community beta.
+3. Rich native authoring and versioning beyond protected-alpha publish/retract.
+4. Richer community/reputation/moderator expansion beyond protected beta.
 5. Production vector retrieval, Cloudflare adapters, and Redis memory design.
 6. Autonomous Assistant workflows, if ever desired.
 7. Live Reddit/Discord OAuth/API intake and recurring pulls.

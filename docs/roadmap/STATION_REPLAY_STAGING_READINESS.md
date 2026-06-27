@@ -9,6 +9,17 @@ then let staged replay reveal the next optimizations.
 
 ## Current decision
 
+- 2026-06-27 reconciliation: use
+  `STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` as the current launch-core source of
+  truth. PR397/PR398 accept public-writing publish-and-retract for
+  protected-alpha replay, and PR399 accepts Station Assistant's operational
+  action-map refresh. The older staging chronology below remains useful
+  evidence, but it should not reopen generic public writing, Assistant,
+  onboarding routeability, private archive search, manual intake, export
+  bundle readback, or accepted Memory/observability slices.
+- The same caveats remain: this is protected-alpha replay evidence, not a
+  production/MVP claim, not hard-delete cleanup, not live OAuth/API intake, and
+  not durable worker/queue/realtime readiness.
 - ARGUS accepted the sequencing correction in `docs: accept replay staging
   sequence`.
 - UX-01A, UX-02A, UX-02B, and UX-DEBT-01 are accepted enough for staging prep.

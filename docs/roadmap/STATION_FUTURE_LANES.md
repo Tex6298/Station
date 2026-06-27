@@ -48,6 +48,35 @@ This note folds the current external/upstream work into future sequencing:
   work should follow the concrete demands of imported repo ideas rather than
   forcing Station into a Cloudflare-first architecture.
 
+## Current launch-core truth, 2026-06-27
+
+`STATION_LAUNCH_CORE_ALPHA_CLOSEOUT.md` is the current launch-core source of
+truth. The longer staged-replay baton below is retained as history and
+sequencing context; it should not reopen loops that later PRs already accepted.
+
+Do not reopen these by inertia:
+
+- public writing as a generic missing lane: PR397/PR398 accept the
+  protected-alpha publish-and-retract proof, including public document
+  readback, linked discussion readback, retract-to-private, post-retract public
+  hiding, and owner-private readback;
+- Station Assistant as not-started: PR399 accepts the owner-safe operational
+  action map and publish/retract guidance, while keeping autonomous execution
+  out of scope;
+- four onboarding routeability, private archive search, manual archive intake,
+  export manifest/bundle readback, Phase 2D/2E classifications, and Memory
+  observability slices that already have accepted protected-alpha evidence.
+
+Still future/open:
+
+- hard-delete cleanup and artifact removal after publish/retract;
+- production readiness and finished Station MVP claims;
+- mature onboarding wizards, richer Document Migrator/API Bridge product depth,
+  rich authoring/versioning, live OAuth/API connectors, full PDF/binary/
+  workspace export, durable workers/queues/realtime, Redis as Memory truth,
+  Cloudflare authorization/index-mirror decisions, partner-ready Developer
+  Spaces, and broader community/reputation polish.
+
 ## Current staged replay baton
 
 Status, 2026-06-24: PR271 passed ARIADNE's hosted human-eye rehearsal with

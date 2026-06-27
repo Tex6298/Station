@@ -20,6 +20,22 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR400 Launch-Core Truth Reconciliation Result
+
+DAEDALUS completed PR400 on 2026-06-27:
+`docs/roadmap/PR400_LAUNCH_CORE_TRUTH_RECONCILIATION_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Roadmap truth reconciliation | Pass | Stale audit/roadmap wording now points at the accepted PR397-PR399 protected-alpha truth and the launch-core closeout. |
+| Scope control | Pass | Docs-only change; no product code, hosted data mutation, provider/model routing, Redis, Cloudflare, worker/queue, billing, auth, deployment, schema, or migration scope opened. |
+| Caveat preservation | Pass | Production readiness, full MVP, hard-delete cleanup, live OAuth/API intake, durable workers/queues/realtime, Redis Memory truth, Cloudflare decisions, and partner-ready Developer Spaces remain future/open. |
+| `git diff --check` | Pass | Docs-only whitespace check passed. |
+
+No package tests or typechecks were rerun for PR400 because no code changed.
+
 ## PR399 Station Assistant Action Map Refresh Result
 
 ARGUS accepted PR399 on 2026-06-27:
