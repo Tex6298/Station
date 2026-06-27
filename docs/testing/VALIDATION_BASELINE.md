@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## UX-02C Global Archive Trust Readback ARIADNE Review
+
+ARIADNE completed visible review on 2026-06-27:
+`docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_ARIADNE.md`.
+
+Validation result: `VISIBLE PASS - WAKE ARGUS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Scope | Pass | Reviewed `/studio/archive` only for Global Archive route-map clarity, owner-only/private/preserved copy, empty/error/partial-search states, related route links, mobile fit, and overflow. |
+| Local browser setup | Pass | Used mocked owner-only API responses and a synthetic local session; no real owner data, provider calls, uploads, exports, public/community writes, or storage mutations. |
+| Local Playwright route matrix | Pass | 12 checks passed across desktop, 375px, and 390px for normal, empty, partial-search, and error states. |
+| Screenshot inspection | Pass | Desktop normal, 375px normal, 390px partial-search, and desktop error screenshots looked fit for the requested UX pass. Screenshots were not committed. |
+| Route map | Pass | Global Archive search, per-persona Archive intake, Export Workspace packages, and Settings storage/quota remain visually distinct. |
+| Owner-only copy | Pass | Working, empty, partial-search, and error states preserve private, owner-only, safe, and preserved Archive language. |
+| Overflow scan | Pass | No document-level or element-level horizontal overflow found in the local browser matrix. |
+
+Residual risk: This was a local mocked visible review. It does not revalidate
+hosted runtime, real auth/session behavior, storage/upload, export assembly,
+or staging deployment behavior.
+
 ## UX-02C Global Archive Trust Readback Result
 
 DAEDALUS implemented UX-02C on 2026-06-27:

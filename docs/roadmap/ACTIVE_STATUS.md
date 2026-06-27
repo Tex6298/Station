@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - UX-02C visible pass
+
+ARIADNE completed visible review of the UX-02C Global Archive Trust Readback:
+`docs/roadmap/UX02C_GLOBAL_ARCHIVE_TRUST_READBACK_ARIADNE.md`.
+
+Verdict:
+
+```text
+VISIBLE PASS - NO DAEDALUS PATCH REQUESTED
+```
+
+Decision:
+
+- Desktop, 375px, and 390px `/studio/archive` rehearsals passed for normal,
+  empty, partial-search, and error states.
+- The Archive route map fits without horizontal overflow and keeps Global
+  Archive search, per-persona Archive intake, Export Workspace packages, and
+  Settings storage/quota distinct.
+- Owner-only, private, safe, and preserved Archive copy is visible in the
+  working, empty, partial-search, and error states.
+- Partial-search and error copy stay grounding without implying lost/exposed
+  Archive material or leaking raw API detail.
+- Related Studio, Export Workspace, and Settings links point to existing
+  owner/private surfaces.
+- The pass used mocked owner-only local API responses and a synthetic local
+  session; it did not revalidate hosted runtime, real auth, storage, export, or
+  staging behavior.
+
+Current baton:
+
+- ARGUS has the UX-02C visible pass.
+- ARGUS should review ARIADNE's notes and wake MIMIR to close UX-02C or choose
+  the next lane.
+
 ## Latest ARGUS verdict - UX-02C accepted for ARIADNE
 
 ARGUS accepted DAEDALUS's UX-02C Global Archive Trust Readback technical
