@@ -1,5 +1,10 @@
 import type { PersonaSummary } from "@station/types/persona";
 
+const SAFE_DEVELOPER_SPACE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const API_KEY_LAST_FOUR_PATTERN = /^[A-Za-z0-9_-]{4}$/;
+
 export type OnboardingPathId =
   | "fresh-start"
   | "awakening"
@@ -56,6 +61,16 @@ function firstPersona(personas: PersonaSummary[]) {
 
 function firstDeveloperSpace(spaces: OnboardingDeveloperSpaceSummary[] | undefined) {
   return spaces?.[0] ?? null;
+}
+
+function developerSpaceManageRoute(slug: string) {
+  return SAFE_DEVELOPER_SPACE_SLUG_PATTERN.test(slug) && !UUID_SHAPED_SLUG_PATTERN.test(slug)
+    ? `/developer-spaces/${slug}/manage`
+    : "/developer-spaces";
+}
+
+function apiKeyLastFourLabel(value?: string | null) {
+  return value && API_KEY_LAST_FOUR_PATTERN.test(value) ? value : null;
 }
 
 export function firstSpacePublishingGuide(): FirstSpacePublishingGuide {
@@ -228,16 +243,18 @@ function apiBridgeReadiness(
     };
   }
 
-  const keyReadback = developerSpace.apiKeyLastFour
-    ? `ingestion-key readback ending ${developerSpace.apiKeyLastFour}`
+  const keyTail = apiKeyLastFourLabel(developerSpace.apiKeyLastFour);
+  const keyReadback = keyTail
+    ? `ingestion-key readback ending ${keyTail}`
     : "no ingestion-key readback yet";
+  const route = developerSpaceManageRoute(developerSpace.slug);
 
   return {
     summary: developerSpaceCount > 1
       ? `${developerSpaceCount} Developer Spaces exist. Start with ${developerSpace.projectName}'s owner manage surface for bridge setup.`
       : `${developerSpace.projectName} exists as the first API Bridge surface with ${keyReadback}.`,
     firstStep: `Open ${developerSpace.projectName} Manage to review ingestion-key status, owner evidence, and public-safe observatory state.`,
-    route: `/developer-spaces/${developerSpace.slug}/manage`,
+    route,
     actionLabel: "Open bridge manage",
     assistantPrompt: `Help me understand ${developerSpace.projectName}'s API Bridge setup without exposing private keys or running external calls.`,
   };

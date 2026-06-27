@@ -133,6 +133,21 @@ test("api bridge distinguishes missing and existing Developer Space setup", () =
   assert.match(existing?.summary ?? "", /ingestion-key readback ending 1234/);
   assert.match(existing?.firstStep ?? "", /owner evidence/);
   assert.match(existing?.assistantPrompt ?? "", /without exposing private keys or running external calls/);
+
+  const unsafe = onboardingPathCards([], {
+    developerSpaces: [
+      {
+        id: "space-unsafe",
+        projectName: "Unsafe Bridge",
+        slug: "550e8400-e29b-41d4-a716-446655440000",
+        apiKeyLastFour: "tail-value-too-long",
+      },
+    ],
+  }).find((entry) => entry.id === "api-bridge");
+
+  assert.equal(unsafe?.route, "/developer-spaces");
+  assert.doesNotMatch(unsafe?.summary ?? "", /tail-value-too-long/);
+  assert.match(unsafe?.summary ?? "", /no ingestion-key readback yet/);
 });
 
 test("first Space publishing guide points to existing owner-controlled routes", () => {

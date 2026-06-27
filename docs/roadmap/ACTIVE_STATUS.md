@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR403 onboarding depth
+## Latest ARGUS verdict - PR403 accepted with review patch
 
-DAEDALUS completed PR403:
+ARGUS accepted PR403:
 `docs/roadmap/PR403_ONBOARDING_MIGRATOR_API_BRIDGE_DEPTH_RESULT.md`.
 
-Result:
+Verdict:
+
+```text
+PASS WITH ARGUS PATCH
+```
+
+Decision:
 
 - `/studio/onboarding` now feeds `onboardingPathCards` existing owner state:
   first persona archive source counts, pending import-review candidate counts,
@@ -20,6 +26,9 @@ Result:
 - API Bridge first actions now distinguish no Developer Space from an existing
   Developer Space and route directly to the owner manage surface when available.
 - All controls remain route-only links to existing owner surfaces.
+- ARGUS patched API Bridge helper hardening so owner manage deep-links require
+  route-safe non-UUID-shaped slugs and key-tail readback renders only a bounded
+  four-character tail.
 - No live connector OAuth/API, recurring imports, API-key secret handling,
   provider/model routing, Gemini/OpenAI/NVIDIA changes, Redis, Cloudflare,
   queues, workers, schema, migrations, billing, Stripe, auth/session,
@@ -35,14 +44,16 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed (51 tests).
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed after a test fixture type fix.
 - `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 Current baton:
 
-- ARGUS has PR403.
-- ARGUS should review route-only behavior, signed-out privacy, onboarding copy
-  overclaim, API-key last-four safety, and live connector/API non-claims.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
-  wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR has PR403.
+- MIMIR should close PR403 as `PASS WITH ARGUS PATCH`.
+- ARIADNE visible rehearsal is useful if MIMIR wants desktop/mobile acceptance
+  for the changed `/studio/onboarding` behavior.
+- Recommended next lane: none from PR403 by default. Choose the next roadmap
+  move from fresh replay evidence or explicit product priority.
 
 ## Latest MIMIR decision - PR402 accepted, PR403 opened
 

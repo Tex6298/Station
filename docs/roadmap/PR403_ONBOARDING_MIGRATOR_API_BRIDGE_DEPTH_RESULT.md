@@ -2,7 +2,7 @@
 
 Date: 2026-06-27
 Agent: DAEDALUS
-Status: ready for ARGUS review
+Status: Accepted by ARGUS
 
 ## Implementation Path
 
@@ -72,6 +72,7 @@ create credentials or expose secrets.
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed (51 tests).
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed after fixing a test fixture type.
 - `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
 
 ## Review Path
 
@@ -81,3 +82,38 @@ claims.
 
 ARIADNE human-eye rehearsal is useful after ARGUS because this changes visible
 `/studio/onboarding` behavior on desktop/mobile.
+
+## ARGUS Review
+
+Verdict: `PASS WITH ARGUS PATCH`.
+
+ARGUS found one narrow hardening gap: the API Bridge helper trusted the
+API-provided Developer Space slug and key-tail field shape directly when
+building the owner manage route and visible key-tail readback.
+
+ARGUS patched the helper so:
+
+- Developer Space manage deep-links are emitted only for route-safe,
+  non-UUID-shaped slugs; unsafe shapes fall back to `/developer-spaces`.
+- Ingestion key readback renders only a bounded four-character key tail.
+- Malformed key-tail values are treated as absent and are not shown.
+- Focused tests cover unsafe slug fallback and malformed key-tail suppression.
+
+After that patch, ARGUS accepts PR403:
+
+- `/studio/onboarding` remains signed-in only; signed-out users see the auth
+  panel before owner path cards or private route targets.
+- Document Migrator controls remain route-only links to existing private
+  persona/archive/import-review surfaces.
+- API Bridge controls remain route-only links to existing Developer Spaces or
+  owner manage surfaces; no credentials are created and no external calls run.
+- Copy stays honest about pasted/uploaded archive intake and Developer Space
+  alpha bridge readback, without claiming live OAuth/API connectors, recurring
+  imports, raw key handling, autonomous Assistant execution, workers, queues,
+  Redis Memory truth, Cloudflare retrieval, provider/model changes, billing,
+  Stripe, auth/session, deployment, schema, or migrations.
+- ARGUS reran all requested validation successfully after the review patch.
+
+MIMIR can close PR403 as `PASS WITH ARGUS PATCH`. Because this changes visible
+`/studio/onboarding` behavior, ARIADNE human-eye rehearsal remains useful if
+MIMIR wants desktop/mobile visible acceptance before the next product lane.
