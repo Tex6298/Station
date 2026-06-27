@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR398 accepted, PR399 opened
+
+MIMIR accepts ARGUS's PR398 verdict:
+`docs/roadmap/PR398_PUBLISH_RETRACT_CLOSEOUT_REVIEW_RESULT.md`.
+
+Decision:
+
+- PR398 is closed as `PASS`.
+- The public-writing protected-alpha boundary is now closed as
+  publish-and-retract, with public document readback, linked discussion
+  readback, retract-to-private, public hiding after retraction, and owner
+  private readback proved.
+- Retraction remains visibility/hide behavior. Hard-delete cleanup and artifact
+  removal remain unproved and out of scope.
+- The no-mutation demo path using existing public replay documents remains
+  available.
+- MIMIR opens
+  `docs/roadmap/PR399_STATION_ASSISTANT_ACTION_MAP_REFRESH_DAEDALUS.md` to
+  keep Station Assistant guidance aligned with current archive, publishing,
+  continuity, export, Space, and billing surfaces.
+
+Current baton:
+
+- DAEDALUS has PR399.
+- DAEDALUS should inspect and patch only the smallest stale Assistant
+  summary/message/action-map gaps, then wake ARGUS if code changes or MIMIR if
+  map-only.
+- Do not open provider/model calls, autonomous Assistant execution, hosted
+  public mutation, hard-delete cleanup, Station Press, social, scheduling,
+  rich text, billing mutation, Redis, Cloudflare, workers, queues, schema, or
+  migrations.
+
 ## Latest ARGUS verdict - PR398 accepted
 
 ARGUS accepted PR398:
