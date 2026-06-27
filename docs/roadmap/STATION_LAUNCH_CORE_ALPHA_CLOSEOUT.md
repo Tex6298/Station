@@ -20,18 +20,20 @@ developer intervention:
 6. search private archive;
 7. inspect owner-only export bundles;
 8. create and save a private draft, then inspect owner publishing readback;
-9. read an accepted replay public document on a public Space;
-10. open that document's linked forum discussion;
+9. publish one public-safe staged document through approval, inspect public
+   document and linked discussion readback, then retract it to private;
+10. read an accepted replay public document on a public Space when a
+    no-mutation demo path is preferred;
 11. use Station Assistant as an operational map over the above.
 
 This is not a production readiness claim and not a complete Station MVP claim.
-It is also not a claim that the default current replay should publish a fresh
-hosted public/unlisted document and fully clean it up afterward.
+It is also not a hard-delete cleanup claim: the publish-and-retract proof leaves
+an owner-visible retracted artifact in Studio.
 
 ## Current Evidence Refresh
 
-Last refreshed: 2026-06-27 by PR392 DAEDALUS cleanup-gate map and PR393 MIMIR
-closeout decision.
+Last refreshed: 2026-06-27 by PR397 hosted publish-and-retract proof and PR398
+MIMIR closeout update.
 
 - PR157 public Railway web health:
   `https://stationweb-production.up.railway.app/health` returned HTTP 200 with
@@ -79,6 +81,17 @@ closeout decision.
   discussion artifact. Full fresh hosted publish-and-cleanup remains deferred
   until MIMIR opens a cleanup/retract lane or explicitly accepts a long-lived
   owner-only/retracted artifact.
+- PR394 adds the owner-visible `Retract to private` contract in
+  `/studio/publishing`, using the authenticated owner `PATCH /documents/:id`
+  path and keeping copy explicit that retraction hides public reads but leaves
+  the owner-visible record in Studio.
+- PR396 aligns approval publish with direct publish by attaching or recovering
+  eligible linked document discussions and hydrating `discussion_thread_id`
+  before approval response readback.
+- PR397 proves the hosted publish-and-retract path end to end with one
+  public-safe unlisted artifact: approval publish, public document readback,
+  `Open linked discussion`, linked discussion route, retract to private,
+  post-retract public document/discussion hiding, and owner-private readback.
 
 ## Evidence Map
 
@@ -90,8 +103,8 @@ closeout decision.
 | Review candidates | PR17 import-backed candidates and PR21 Import Review Inbox closeout. |
 | Private archive search | PR12 owner-scoped `/imports/archive/search` and deployed `/studio/archive` rehearsal. |
 | Export data | Owner-only JSON/Markdown manifest and portable bundle readback for persona and Developer Space exports. |
-| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, and PR387 safe private draft owner readback. Fresh hosted publish-and-cleanup is not part of the default current replay. |
-| Public Space/document/discussion | PR23 public Space/document/linked discussion proof and PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data. |
+| Publishing/public document | PR10 Studio publish API wiring, PR11 approval queue, PR23 Creator-capable staging proof, PR387 safe private draft owner readback, PR394 retract contract, and PR397 hosted publish-and-retract proof. This is not hard-delete cleanup. |
+| Public Space/document/discussion | PR23 public Space/document/linked discussion proof, PR391 hosted `/writing` -> public document -> linked discussion route-through proof using existing replay public data, and PR397 fresh approval-published document -> linked discussion -> retract/hide proof. |
 | Station Assistant | PR22 sanitized operational action cards and desktop/mobile browser closeout. |
 | Manual social archive intake | PR19 Reddit and PR20 Discord uploaded/pasted intake with fail-closed parser behavior. |
 
@@ -111,13 +124,14 @@ Use public-safe synthetic content only.
 8. Open export status and inspect a completed JSON/Markdown bundle readback.
 9. Open Station Assistant and ask what to finish next; check action cards point
    to real Studio routes.
-10. Open an accepted replay public document from `/writing` or its public Space,
-    then inspect public document trust/readback.
-11. Open the linked forum discussion and confirm the route follows document
-    visibility.
-12. Do not run a fresh public/unlisted publish mutation in the default replay
-    unless a cleanup/retract lane has been accepted or MIMIR explicitly accepts
-    a long-lived owner-only/retracted artifact.
+10. If running the full publish proof, create one public-safe staged document,
+    move it through approval publish, inspect public document trust/readback,
+    open the linked discussion, then retract it to private.
+11. Confirm the retracted document and linked discussion are hidden from public
+    readers and the owner-private Studio record remains readable.
+12. If avoiding hosted mutation, open an accepted replay public document from
+    `/writing` or its public Space and follow its linked discussion instead.
+13. Do not hard delete documents, threads, comments, or artifacts in the replay.
 
 ## Required Caveats
 
@@ -135,9 +149,9 @@ Use public-safe synthetic content only.
 - Export is JSON/Markdown bundle readback, not full workspace/PDF/binary export.
 - Community proof covers document discussion visibility, not full Community
   Beta.
-- Public writing is protected-alpha complete for safe private drafting plus
-  existing public replay readback. It is not a fresh hosted
-  private-draft-to-public-publish-and-full-cleanup proof.
+- Public writing is protected-alpha complete for safe private drafting, existing
+  public replay readback, and one hosted publish-and-retract proof. It is not a
+  fresh hosted private-draft-to-public-publish-and-full-cleanup proof.
 - Retracting a published document to private is a visibility/hide mechanism,
   not full artifact cleanup. Current document delete is not sufficient cleanup
   for linked discussion artifacts because linked threads are not cascaded.

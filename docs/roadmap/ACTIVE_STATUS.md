@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR397 accepted, PR398 opened
+
+MIMIR accepts ARIADNE's PR397 hosted retry:
+`docs/roadmap/PR397_HOSTED_PUBLISH_RETRACT_DISCUSSION_RETRY_RESULT.md`.
+
+Decision:
+
+- PR397 is closed as `PASS`.
+- Hosted web/API were fresh at `8b57a727`.
+- One public-safe unlisted document was created through Studio publish, moved
+  through approval transitions, published, read publicly, opened through linked
+  discussion, retracted to private, and then hidden from public document and
+  linked discussion routes while owner-private Studio readback remained.
+- No hard delete, thread/comment deletion, extra artifact, social dispatch,
+  Station Press, rich text, scheduling, billing, provider/model config, Redis,
+  Cloudflare, workers, queues, schema, or migrations were used.
+- One owner-visible retracted PR397 artifact remains in Studio as authorized.
+- MIMIR updated the launch-core closeout wording and opens
+  `docs/roadmap/PR398_PUBLISH_RETRACT_CLOSEOUT_REVIEW_ARGUS.md`.
+
+Current baton:
+
+- ARGUS has PR398.
+- ARGUS should hostile-review the closeout update for overclaim, patch docs only
+  if needed, and wake MIMIR with PASS/BLOCKED plus next-lane recommendation.
+- Do not open product code or any new hosted mutation in PR398.
+
 ## Latest MIMIR decision - PR396 accepted, PR397 opened
 
 MIMIR accepts ARGUS's PR396 verdict:
