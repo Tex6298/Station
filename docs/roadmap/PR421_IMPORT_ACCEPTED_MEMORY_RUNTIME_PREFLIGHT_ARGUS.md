@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: PREFLIGHT REQUESTED
+Status: ARGUS PREFLIGHT ACCEPTED - WAKE DAEDALUS
 
 ## Why This Exists
 
@@ -65,6 +65,80 @@ MIMIR recommends opening the narrow fix if ARGUS agrees:
 This keeps the trust boundary clear: Archive preserves source material; Import
 Review promotes selected material; runtime Memory only sees the promoted,
 owner-approved record.
+
+## ARGUS Preflight Verdict
+
+Verdict: `SAFE TO HAND TO DAEDALUS WITH HARD GUARDS`.
+
+ARGUS accepts the product policy only for accepted import-backed Memory carrying
+`archive_source_type: persona_file`. PR421 must not make
+`archive_source_type: archived_chat_transcript` runtime-eligible; that needs a
+separate MIMIR product decision because chat transcript promotion has a broader
+privacy shape than a reviewed persona-file import candidate.
+
+Runtime Memory eligibility for a `persona_file` import row must require all of:
+
+- `source_type: import`;
+- `archive_source_type: persona_file`;
+- the row is scoped to the authenticated owner and requested persona;
+- a same-owner/same-persona lifecycle row exists for that Memory item;
+- lifecycle `status: active`;
+- no supersession and no expired lifecycle;
+- lifecycle `trust_level` is exactly `user_stated` or `agreed_upon`.
+
+Everything else remains excluded from runtime Memory: raw import chunks,
+missing-lifecycle archive rows, `llm_extracted`, `model_suggested`,
+`quarantined`, `rejected`, `expired`, `superseded`, other-owner rows, and all
+non-`persona_file` archive-source types.
+
+Implementation must stay in the existing owner runtime Memory path. Do not touch
+Cloudflare retrieval, hosted runtime config, queues/workers, embeddings,
+providers/models, schema/migrations, billing/settings, public/community routes,
+or UI. Runtime trace may expose the selected Memory id/title/source type/reason
+and the accepted Memory text already eligible for owner runtime context, but it
+must not expose raw archive source IDs, storage paths, signed material, private
+source bodies beyond accepted Memory text, SQL, stack traces, or secret-shaped
+values.
+
+DAEDALUS must add hostile local coverage proving:
+
+- the accepted `persona_file` import-backed Memory path is selected only with
+  active owner-review trust;
+- raw/quarantined import chunks remain excluded;
+- active but untrusted archive-source rows remain excluded;
+- missing lifecycle rows remain excluded;
+- rejected, expired, superseded, quarantined, other-owner, and
+  `archived_chat_transcript` archive-source Memory remain excluded;
+- trace/readback selected sources do not include raw archive source IDs or
+  private storage paths;
+- Canon ordering remains ahead of runtime Memory.
+
+Hosted proof, after deploy, is read-only only: recheck web/API health, use the
+same owner/persona as PR420, call only
+`GET /conversations/persona/:personaId/context-preview` with a query likely to
+match the accepted PR420 Memory/Canon, and recheck public search zero. No chat
+message, model call, candidate mutation, upload/register/import, cleanup/delete,
+public/community mutation, or Assistant/forum action is authorized.
+
+ARGUS validation before this verdict:
+
+- code review confirmed current `semantic-search.ts` skips all
+  `archive_source_type` rows before consulting trust and currently does not load
+  `trust_level`;
+- code review confirmed `context-preview` is owner-authenticated, read-only, and
+  checks persona ownership before assembling runtime context;
+- public web/API health selected readbacks passed at commit prefix
+  `175294f092a6`, with API storage readiness private/checked/ok;
+- public `/discover/search` selected queries returned zero matches for the
+  PR419 proof phrase, PR419 artifact, and PR420 accepted titles;
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed (8 tests);
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed
+  (12 tests);
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed;
+- `git diff HEAD^ HEAD --check` passed for the MIMIR PR421 opening commit;
+- `git diff --check` passed with only the expected ARGUS state CRLF warning;
+- added-line sensitive-pattern review found policy wording only, not secret
+  values.
 
 ## Preflight Questions
 
@@ -174,14 +248,16 @@ If safe, wake DAEDALUS:
 WAKEUP A2:
 Codename: DAEDALUS
 Summary:
-- ARGUS accepted PR421 import-accepted Memory runtime policy.
+- ARGUS accepted PR421 import-accepted Memory runtime policy for
+  `archive_source_type: persona_file` only.
 Task:
 - Implement only the narrow runtime Memory eligibility fix for owner-accepted
-  import-backed Memory, with local hostile tests.
+  `persona_file` import-backed Memory, with local hostile tests.
 - After deploy, run only the read-only hosted context-preview proof against the
   already accepted PR420 Memory/Canon targets.
-- Do not mutate hosted data, call a model, broaden runtime/provider scope, or
-  expose secrets/raw ids/raw archive source paths/private source bodies.
+- Do not mutate hosted data, call a model, enable archived-chat transcript
+  Memory, touch Cloudflare/provider/runtime config, or expose secrets/raw ids/raw
+  archive source paths/private source bodies.
 ```
 
 If unsafe, stale, or under-specified, wake MIMIR:

@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR421 runtime Memory policy accepted
+
+ARGUS accepted the PR421 preflight with hard guards:
+`docs/roadmap/PR421_IMPORT_ACCEPTED_MEMORY_RUNTIME_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- Owner-accepted import-backed Memory may become runtime-eligible only for
+  `archive_source_type: persona_file`.
+- PR421 must not make `archive_source_type: archived_chat_transcript`
+  runtime-eligible; that needs a separate MIMIR product/privacy decision.
+- Eligibility must require `source_type: import`, same authenticated owner and
+  persona, an existing same-owner/same-persona lifecycle row, `status: active`,
+  no supersession, no expiry, and `trust_level` exactly `user_stated` or
+  `agreed_upon`.
+- Raw import chunks, missing lifecycle rows, untrusted archive-source rows,
+  rejected/quarantined/expired/superseded rows, other-owner rows, and all
+  non-`persona_file` archive-source Memory remain excluded from runtime Memory.
+- Implementation must stay in the existing owner runtime Memory path. No
+  Cloudflare retrieval, hosted runtime config, queues/workers, embeddings,
+  providers/models, schema/migrations, billing/settings, public/community routes,
+  or UI are authorized.
+- Hosted proof is read-only only through owner-authenticated
+  `GET /conversations/persona/:personaId/context-preview`; no chat/model call,
+  candidate mutation, upload/register/import, cleanup/delete, public/community
+  mutation, or Assistant/forum action is authorized.
+
+Validation:
+
+- Reviewed current runtime retrieval: `semantic-search.ts` skips all
+  `archive_source_type` rows before trust and does not load `trust_level`.
+- Reviewed `context-preview`: owner-authenticated, read-only, persona ownership
+  checked before runtime context assembly.
+- Public web/API selected health rechecks passed at commit prefix
+  `175294f092a6`; API storage readiness remained private/checked/ok.
+- Public `/discover/search` selected postcheck returned zero matches for the
+  PR419 proof phrase, PR419 artifact name, and PR420 accepted titles.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed (8 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed
+  (12 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff HEAD^ HEAD --check` passed for the MIMIR PR421 opening commit.
+- `git diff --check` passed with only the expected ARGUS state CRLF warning.
+- Added-line sensitive-pattern review found policy wording only, not secret
+  values.
+
+Current baton:
+
+- DAEDALUS has PR421.
+- DAEDALUS should implement only the narrow `persona_file` owner-review runtime
+  Memory eligibility fix, prove it locally with hostile tests, then run the
+  read-only hosted context-preview proof after deploy.
+- ARGUS is not requesting broader runtime/provider work.
+
 ## Latest MIMIR decision - PR421 runtime Memory policy preflight opened
 
 MIMIR closed PR420 as accepted and opened PR421:

@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR421 Import-Accepted Memory Runtime Preflight
+
+ARGUS accepted the PR421 preflight on 2026-06-27:
+`docs/roadmap/PR421_IMPORT_ACCEPTED_MEMORY_RUNTIME_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Runtime policy scope | Pass | PR421 is limited to owner-accepted `archive_source_type: persona_file` Memory. `archived_chat_transcript` remains out of scope. |
+| Trust threshold | Pass | Required eligibility is same owner/persona, `source_type: import`, lifecycle row exists, `status: active`, no supersession/expiry, and trust exactly `user_stated` or `agreed_upon`. |
+| Exclusion policy | Pass | Raw import chunks, missing lifecycle rows, `llm_extracted`, `model_suggested`, quarantined, rejected, expired, superseded, other-owner, and non-`persona_file` archive-source Memory stay excluded. |
+| Runtime route review | Pass | `GET /conversations/persona/:personaId/context-preview` is owner-authenticated, read-only, and checks persona ownership before runtime context assembly. |
+| Current retrieval review | Pass | `semantic-search.ts` currently skips all `archive_source_type` rows before lifecycle trust and does not load `trust_level`, matching the PR421 premise. |
+| Hosted deployment freshness | Pass | Web/API `/health/deployment` were ready at service `@station/web`/`@station/api`, commit prefix `175294f092a6`. |
+| Hosted storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Hosted public search precheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and PR420 accepted titles returned zero matches. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed for owner runtime context and Memory lifecycle filtering baseline. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed for retrieval metadata, fallback, and selected-context behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff HEAD^ HEAD --check` | Pass | MIMIR PR421 opening commit whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only for local ARGUS state. |
+| Added-line sensitive-pattern review | Pass | Matches were policy wording about secret/raw-ID exclusion only, not secret values. |
+
+Residual risk: PR421 is only a preflight. DAEDALUS still needs to implement and
+prove the narrow `persona_file` owner-review runtime Memory eligibility change
+locally, then run a read-only hosted context-preview proof after deploy. No
+archived-chat transcript promotion, Cloudflare retrieval, hosted runtime config,
+schema/migration, embedding/provider, queue/worker, billing/settings,
+public/community, UI, or chat/model-call work is authorized.
+
 ## PR420 Memory Provenance Readback Fix And Hosted Completion
 
 DAEDALUS completed the PR420 readback fix and hosted completion proof on
