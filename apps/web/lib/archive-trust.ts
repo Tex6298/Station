@@ -38,6 +38,10 @@ export interface ArchiveImportJobReadback {
   boundary: string;
 }
 
+export const ARCHIVE_FILE_IMPORT_ACCEPT = ".txt,.text,.md,.markdown,.json";
+
+const ARCHIVE_FILE_IMPORT_EXTENSIONS = new Set(["txt", "text", "md", "markdown", "json"]);
+
 export function archiveJobTone(status: string): ArchiveJobTone {
   if (status === "completed") return "good";
   if (status === "failed") return "danger";
@@ -173,6 +177,45 @@ export function archiveFileTrustCopy(file: ArchiveFileLike) {
   }
 
   return "This file is still queued for processing. Existing archive material remains safe.";
+}
+
+export function archiveFileImportSelection(file: Pick<File, "name" | "size"> | null | undefined) {
+  if (!file) {
+    return { ok: false as const, message: "Choose one .txt, .md, .markdown, .text, or .json file to import." };
+  }
+
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!ARCHIVE_FILE_IMPORT_EXTENSIONS.has(extension)) {
+    return { ok: false as const, message: "Station file imports accept .txt, .text, .md, .markdown, or .json files." };
+  }
+
+  if (!Number.isFinite(file.size) || file.size <= 0) {
+    return { ok: false as const, message: "The selected file is empty or unavailable. Existing archive material remains safe." };
+  }
+
+  return { ok: true as const, extension };
+}
+
+export function archiveFileImportErrorMessage(error: unknown) {
+  const fallback = "File import failed. Existing archive material remains safe.";
+  const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  const trimmed = raw.trim();
+  if (!trimmed) return fallback;
+
+  const redacted = trimmed
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(token|authorization|cookie|secret|password|storage[_\s-]?path)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
+    .replace(/\s+/g, " ")
+    .slice(0, 180);
+
+  if (/sql|postgres|pgrst|stack|trace|signed|storage path|storage_path|authorization|cookie|secret|password|token/i.test(redacted)) {
+    return fallback;
+  }
+
+  const sentence = /[.!?]$/.test(redacted) ? redacted : `${redacted}.`;
+  return `${sentence} Existing archive material remains safe.`;
 }
 
 export function archiveTrustSummary(files: ArchiveFileLike[], jobs: ArchiveImportJobLike[]) {

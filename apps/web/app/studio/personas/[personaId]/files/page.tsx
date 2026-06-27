@@ -2,11 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 import type { ArchiveExportPackage } from "@station/types/export";
 import type { ContinuityCandidate } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import {
+  ARCHIVE_FILE_IMPORT_ACCEPT,
+  archiveFileImportErrorMessage,
+  archiveFileImportSelection,
   archiveFileTrustCopy,
   archiveImportJobReadback,
   archiveJobStatusLabel,
@@ -60,6 +64,12 @@ interface ArchiveState {
   exports?: ArchiveExportPackage[];
 }
 
+interface UploadUrlResponse {
+  uploadUrl: string;
+  storagePath: string;
+  token: string;
+}
+
 export default function PersonaFilesPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -69,9 +79,13 @@ export default function PersonaFilesPage() {
   const [importCandidates, setImportCandidates] = useState<ContinuityCandidate[]>([]);
   const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
   const [form, setForm] = useState({ sourceName: "", content: "", relevanceWeight: 1.5 });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [fileImporting, setFileImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fileImportNotice, setFileImportNotice] = useState<string | null>(null);
 
   const fetchArchiveState = useCallback(async (sessionToken: string, options: { includeExports?: boolean } = {}): Promise<ArchiveState> => {
     const includeExports = options.includeExports !== false;
@@ -139,6 +153,7 @@ export default function PersonaFilesPage() {
     if (!token || !persona || !form.content.trim()) return;
     setImporting(true);
     setError(null);
+    setFileImportNotice(null);
     try {
       const response = await apiPost<{ job: ImportJob; chunksCreated: number }>(
         "/imports/chat",
@@ -166,6 +181,67 @@ export default function PersonaFilesPage() {
     }
   }
 
+  async function importFile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token || !persona) return;
+
+    const selection = archiveFileImportSelection(selectedFile);
+    if (!selection.ok) {
+      setError(selection.message);
+      return;
+    }
+
+    const file = selectedFile!;
+    setFileImporting(true);
+    setError(null);
+    setFileImportNotice(null);
+
+    try {
+      const uploadData = await apiGet<UploadUrlResponse>(
+        `/persona-files/persona/${persona.id}/upload-url?fileName=${encodeURIComponent(file.name)}&fileSize=${file.size}`,
+        token,
+      );
+
+      const { error: uploadError } = await createBrowserStorageClient()
+        .storage
+        .from("persona-files")
+        .uploadToSignedUrl(uploadData.storagePath, uploadData.token, file, {
+          contentType: file.type || "application/octet-stream",
+        });
+
+      if (uploadError) {
+        throw new Error(uploadError.message || "Private storage upload failed.");
+      }
+
+      await apiPost(
+        `/persona-files/persona/${persona.id}/register`,
+        {
+          fileName: file.name,
+          fileType: file.type || "application/octet-stream",
+          fileSize: file.size,
+          storagePath: uploadData.storagePath,
+          sourceType: "import",
+          processImmediately: true,
+        },
+        token,
+      );
+
+      setSelectedFile(null);
+      setFileInputKey((current) => current + 1);
+      setFileImportNotice("File import queued for private archive processing.");
+      await refreshArchiveState(token, { includeExports: false });
+    } catch (e) {
+      setError(archiveFileImportErrorMessage(e));
+      try {
+        await refreshArchiveState(token, { includeExports: false });
+      } catch {
+        // Keep the sanitized upload/register error visible if the follow-up refresh fails.
+      }
+    } finally {
+      setFileImporting(false);
+    }
+  }
+
   async function handleCandidateUpdated(candidate: ContinuityCandidate) {
     setImportCandidates((current) => current.map((item) => item.id === candidate.id ? candidate : item));
     if (!token) return;
@@ -188,6 +264,7 @@ export default function PersonaFilesPage() {
     <main className="container studio-workspace">
       <PersonaWorkspaceHeader persona={persona} />
       {error && <div className="space-form-error">{error}</div>}
+      {fileImportNotice && <div className="station-notice" data-tone="success">{fileImportNotice}</div>}
 
       <section className="archive-trust-grid" aria-label="Archive trust status">
         <StudioPanel>
@@ -226,24 +303,51 @@ export default function PersonaFilesPage() {
       />
 
       <section className="studio-two-column">
-        <form className="studio-editor-panel" onSubmit={importText}>
-          <div className="studio-section-heading">
-            <div className="section-label">Archive Import</div>
-            <h2>Paste source material</h2>
-          </div>
-          <p className="archive-trust-copy">
-            This creates a private import job for this persona. If import fails, Station keeps the error visible and leaves existing archive material untouched.
-          </p>
-          <input className="input" value={form.sourceName} onChange={(e) => setForm((f) => ({ ...f, sourceName: e.target.value }))} placeholder="Source name" maxLength={200} />
-          <textarea className="textarea" value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} placeholder="Paste chat logs, notes, letters, or research material." style={{ minHeight: 260 }} required />
-          <label className="studio-range-field">
-            <span>Default memory weight {form.relevanceWeight.toFixed(2)}</span>
-            <input type="range" min={0.1} max={5} step={0.05} value={form.relevanceWeight} onChange={(e) => setForm((f) => ({ ...f, relevanceWeight: Number(e.target.value) }))} />
-          </label>
-          <button className="button primary" type="submit" disabled={importing}>
-            {importing ? "Importing..." : "Import to Archive"}
-          </button>
-        </form>
+        <div style={{ display: "grid", gap: "1rem" }}>
+          <form className="studio-editor-panel" onSubmit={importText}>
+            <div className="studio-section-heading">
+              <div className="section-label">Archive Import</div>
+              <h2>Paste source material</h2>
+            </div>
+            <p className="archive-trust-copy">
+              This creates a private import job for this persona. If import fails, Station keeps the error visible and leaves existing archive material untouched.
+            </p>
+            <input className="input" value={form.sourceName} onChange={(e) => setForm((f) => ({ ...f, sourceName: e.target.value }))} placeholder="Source name" maxLength={200} />
+            <textarea className="textarea" value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} placeholder="Paste chat logs, notes, letters, or research material." style={{ minHeight: 260 }} required />
+            <label className="studio-range-field">
+              <span>Default memory weight {form.relevanceWeight.toFixed(2)}</span>
+              <input type="range" min={0.1} max={5} step={0.05} value={form.relevanceWeight} onChange={(e) => setForm((f) => ({ ...f, relevanceWeight: Number(e.target.value) }))} />
+            </label>
+            <button className="button primary" type="submit" disabled={importing}>
+              {importing ? "Importing..." : "Import pasted source"}
+            </button>
+          </form>
+
+          <form className="studio-editor-panel" onSubmit={importFile}>
+            <div className="studio-section-heading">
+              <div className="section-label">Archive File Import</div>
+              <h2>Upload a private source file</h2>
+            </div>
+            <p className="archive-trust-copy">
+              Upload one .txt, .md, .markdown, .text, or .json file. ChatGPT, Claude, Reddit, and Discord exports are owner-only file imports here; this is not a live provider, OAuth, bot, or API pull.
+            </p>
+            <input
+              key={fileInputKey}
+              className="input"
+              type="file"
+              accept={ARCHIVE_FILE_IMPORT_ACCEPT}
+              onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
+              disabled={fileImporting}
+            />
+            <div className="archive-trust-next-action">
+              The signed upload URL is used only for this browser upload and is never shown in the page.
+              {selectedFile ? ` Selected: ${selectedFile.name} / ${formatBytes(selectedFile.size)}` : ""}
+            </div>
+            <button className="button primary" type="submit" disabled={fileImporting || !selectedFile}>
+              {fileImporting ? "Uploading..." : "Upload file import"}
+            </button>
+          </form>
+        </div>
 
         <section className="studio-list-panel">
           <div className="studio-section-heading">
@@ -387,6 +491,22 @@ function ArchiveFileCard({ file }: { file: PersonaFile }) {
       ) : null}
     </article>
   );
+}
+
+function createBrowserStorageClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Private storage upload is not configured.");
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
 }
 
 function TrustMetric({

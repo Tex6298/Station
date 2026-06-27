@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR413 Owner Archive File Import UI Result
+
+DAEDALUS completed PR413 on 2026-06-27:
+`docs/roadmap/PR413_OWNER_ARCHIVE_FILE_IMPORT_UI_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Owner Archive file UI | Pass | Persona Archive route now exposes a distinct uploaded file import form beside pasted source import. |
+| Accepted file families | Pass | UI/helper accepts `.txt`, `.text`, `.md`, `.markdown`, and `.json`. |
+| Existing API flow | Pass | UI requests signed upload URL with file name and size, uploads directly, then registers with `sourceType: "import"` and `processImmediately: true`. |
+| Upload-token secrecy | Pass | Signed URL/token remains inside submit handling and is not rendered or included in owner-visible errors. |
+| Error sanitization | Pass | Helper redacts signed URL/token-shaped failures and keeps existing archive safety visible. |
+| No provider overclaim | Pass | UI says ChatGPT/Claude/Reddit/Discord exports are uploaded owner-only file imports, not live provider/OAuth/bot/API pulls. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 16 tests passed, including upload preflight/register/idempotency/quota/parser coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 41 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+
+Residual risk: ARGUS should review the browser upload path for owner scope,
+storage quota/error surfacing, duplicate registration/idempotency preservation,
+and signed upload URL/token secrecy. No hosted upload proof was run.
+
 ## PR412 Launch-Core Cleanup Caveat Review Result
 
 ARGUS accepted PR412 on 2026-06-27:

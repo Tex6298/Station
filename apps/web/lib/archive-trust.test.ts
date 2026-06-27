@@ -9,6 +9,9 @@ import {
   archiveSearchUsesBackend,
 } from "./archive-search";
 import {
+  ARCHIVE_FILE_IMPORT_ACCEPT,
+  archiveFileImportErrorMessage,
+  archiveFileImportSelection,
   archiveFileTrustCopy,
   archiveImportJobReadback,
   archiveImportSourceLabel,
@@ -187,6 +190,32 @@ test("supported import format rows name file parsers without implying live pulls
   assert.match(rendered, /not Reddit OAuth or live subreddit pulling/);
   assert.match(rendered, /not a Discord bot/);
   assert.doesNotMatch(rendered, /connect your|bot token|pulls automatically/i);
+});
+
+test("archive file import helpers bound file selection and sanitize errors", () => {
+  assert.equal(ARCHIVE_FILE_IMPORT_ACCEPT, ".txt,.text,.md,.markdown,.json");
+
+  assert.deepEqual(archiveFileImportSelection({ name: "notes.md", size: 42 }), {
+    ok: true,
+    extension: "md",
+  });
+  assert.equal(archiveFileImportSelection({ name: "archive.pdf", size: 42 }).ok, false);
+  const emptyFile = archiveFileImportSelection({ name: "empty.txt", size: 0 });
+  assert.equal(emptyFile.ok, false);
+  assert.match(emptyFile.message, /Existing archive material remains safe/);
+
+  assert.equal(
+    archiveFileImportErrorMessage(new Error("storage_path=https://example.invalid/private token=abc123")),
+    "File import failed. Existing archive material remains safe.",
+  );
+  assert.equal(
+    archiveFileImportErrorMessage(new Error("Storage quota exceeded")),
+    "Storage quota exceeded. Existing archive material remains safe.",
+  );
+  assert.doesNotMatch(
+    archiveFileImportErrorMessage(new Error("Upload failed for https://example.invalid/signed-url token=fixture")),
+    /https?:|fixture|token=/i,
+  );
 });
 
 test("archive import source labels and readback keep generic names owner-safe", () => {

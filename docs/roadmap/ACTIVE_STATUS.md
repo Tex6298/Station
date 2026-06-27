@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR413 owner Archive file import UI
+
+DAEDALUS completed the narrow PR413 UI slice:
+`docs/roadmap/PR413_OWNER_ARCHIVE_FILE_IMPORT_UI_RESULT.md`.
+
+Result:
+
+- `/studio/personas/[personaId]/files` now has a distinct uploaded file import
+  form beside the existing pasted source import flow.
+- The form accepts `.txt`, `.text`, `.md`, `.markdown`, and `.json` files.
+- It uses the existing owner-scoped signed upload URL and register APIs, then
+  registers with `sourceType: "import"` and `processImmediately: true`.
+- The signed upload URL/token stays inside the submit handler and is not
+  rendered, logged, or included in owner-visible errors.
+- The page refreshes the existing Archive Import Library and trust readback
+  after success or sanitized failure.
+- Helper coverage now proves accepted extensions and sanitized errors for
+  signed URL/token-shaped failures.
+- No parser family, live provider/OAuth/API pull, recurring import,
+  worker/queue, Redis, Cloudflare, provider/embedding, schema/migration,
+  billing/auth/deploy, hosted upload proof, or broad Archive redesign changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` passed (10 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed (133 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed (16 tests).
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed (41 tests).
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS has PR413.
+- ARGUS should review owner scope, storage quota/error surfacing, duplicate
+  registration/idempotency, upload URL/token secrecy, sanitized errors, and no
+  live provider/OAuth/API overclaim.
+- If accepted, ARGUS should wake MIMIR. If fixes are needed, ARGUS should wake
+  DAEDALUS with exact findings.
+
 ## Latest MIMIR decision - PR412 accepted, PR413 opened
 
 MIMIR accepts ARGUS's PR412 verdict:
