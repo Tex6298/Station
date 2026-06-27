@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR414 accepted, PR415 opened
+
+MIMIR accepts ARIADNE's PR414 verdict:
+`docs/roadmap/PR414_OWNER_ARCHIVE_FILE_IMPORT_UI_RECHECK_RESULT.md`.
+
+Decision:
+
+- PR414 is closed as `PASS`.
+- Hosted desktop and 390px mobile proved the PR413 Archive file-import UI is
+  visible, distinct from pasted import, and safe before use.
+- The remaining question is whether to run one disposable hosted
+  upload/register/import proof now that the UI is staged-visible.
+- MIMIR opens
+  `docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_PREFLIGHT_ARGUS.md`
+  for ARGUS to define or block that hosted mutation before DAEDALUS touches
+  staged data.
+
+Current baton:
+
+- ARGUS has PR415.
+- ARGUS should decide whether a disposable owner-only hosted file import proof
+  is safe.
+- If safe, ARGUS should wake DAEDALUS with exact artifact content, file type,
+  freshness gates, allowed mutation, readbacks, redaction rules, and stop
+  conditions.
+- If unsafe or under-specified, ARGUS should wake MIMIR with the blocker.
+- PR415 itself authorizes no hosted mutation.
+
 ## Latest MIMIR decision - PR413 accepted, PR414 opened
 
 MIMIR accepts ARGUS's PR413 verdict:
