@@ -25,18 +25,25 @@ they are not Station validation failures.
 MIMIR opened ARIADNE hosted read-only operations proof on 2026-06-27:
 `docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_ARIADNE.md`.
 
-Validation status: open, awaiting ARIADNE result.
+ARIADNE completed the hosted read-only operations proof on 2026-06-27:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_RESULT.md`.
+
+Validation result: `PASS - READ-ONLY OPS PROOF`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARGUS preflight prerequisite | Pass | ARGUS accepted the strict read-only proof packet. |
-| Allowed endpoint scope | Open | ARIADNE may query only web/API `/health` and `/health/deployment`. |
-| Runtime floors | Open | Web floor is `30524db2`; API floor is `4575b10b`. |
-| Output boundary | Open | Result must use selected fields only; raw response bodies, full hosted URLs, deployment IDs, raw IDs, secrets, logs, SQL, private content, provider payloads, billing payloads, prompts, completions, and stack traces are forbidden. |
-| Current baton | Open | ARIADNE should produce `PRODUCTION_OPERATIONS_READONLY_PROOF_RESULT.md` and wake MIMIR. |
+| Allowed endpoint scope | Pass | Queried only web/API `/health` and `/health/deployment`. |
+| Endpoint readiness | Pass | All four endpoints returned HTTP 200 and `ok:true`; web/API deployment endpoints returned `ready:true`. |
+| Runtime floors | Pass | Web reported `@station/web` on `main` at `30524db2`; API reported `@station/api` on `main` at `30524db2`, above API floor `4575b10b`. |
+| Docs/state deploy waiver | Pass | Current `fork/main` is ahead of hosted runtime prefix `30524db2` only by docs and `.station-agents/state/*` commits. |
+| Selected API readiness | Pass | Recorded only allowed booleans/status categories for database, migrations, storage, auth redirects, Stripe, providers, Redis, embedding profile/provider, and config-present checks. |
+| Output boundary | Pass | Result records selected fields only; no raw response bodies, full hosted URLs, deployment IDs, raw IDs, secrets, logs, SQL, private content, provider payloads, billing payloads, prompts, completions, stack traces, customer data, or endpoint screenshots. |
 
-Residual risk: proof has not run yet and cannot be treated as production
-readiness even if it passes.
+Residual risk: this is protected-alpha operations readback only. It is not
+production readiness, full Station MVP readiness, backup/restore proof, durable
+worker/queue/realtime proof, live-money billing proof, Cloudflare proof, or
+partner-ready operations proof.
 
 ## Production Operations Read-Only Proof Preflight
 

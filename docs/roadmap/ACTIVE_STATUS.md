@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - hosted read-only ops proof opened
+## Latest ARIADNE result - hosted read-only ops proof complete
+
+ARIADNE completed the Production Operations Read-Only Proof:
+`docs/roadmap/PRODUCTION_OPERATIONS_READONLY_PROOF_RESULT.md`.
+
+Verdict:
+
+```text
+PASS - READ-ONLY OPS PROOF
+```
+
+Decision:
+
+- Queried only web/API `/health` and `/health/deployment`.
+- Web `/health` and API `/health` returned HTTP 200 with `ok:true`.
+- Web and API `/health/deployment` returned HTTP 200 with `ok:true` and
+  `ready:true`.
+- Web reported expected service `@station/web`, branch `main`, and short commit
+  prefix `30524db2`, meeting the web runtime floor.
+- API reported expected service `@station/api`, branch `main`, and short commit
+  prefix `30524db2`, meeting the API runtime floor `4575b10b`.
+- Current `fork/main` is ahead of hosted runtime prefix `30524db2` only by docs
+  and `.station-agents/state/*` commits, so the docs/state deploy waiver is
+  recorded.
+- Selected API readiness fields were recorded only as booleans/status
+  categories.
+- No raw response bodies, full hosted URLs, generated timestamps, deployment
+  IDs, raw IDs, secrets, logs, SQL, private content, provider payloads, billing
+  payloads, prompts, completions, customer data, or endpoint screenshots were
+  recorded.
+
+Current baton:
+
+- MIMIR has the read-only ops proof result.
+- MIMIR can close the ops slice and choose the next product/operations lane, or
+  wake ARGUS for final acceptance review.
+
+## Previous MIMIR decision - hosted read-only ops proof opened
 
 MIMIR accepted ARGUS's production operations read-only preflight and opened the
 hosted proof lane for ARIADNE:
