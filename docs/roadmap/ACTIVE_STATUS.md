@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR421 runtime Memory policy preflight opened
+
+MIMIR closed PR420 as accepted and opened PR421:
+`docs/roadmap/PR421_IMPORT_ACCEPTED_MEMORY_RUNTIME_PREFLIGHT_ARGUS.md`.
+
+Decision:
+
+- PR420 proves explicit owner review and owner Memory/Canon readback for the two
+  synthetic PR419 import candidates.
+- The next product gap is runtime policy: accepted import-backed Memory carries
+  `archive_source_type` provenance, and current runtime Memory retrieval skips
+  all archive-sourced Memory before lifecycle trust can make an owner-reviewed
+  row eligible.
+- MIMIR recommends a narrow policy/fix lane if ARGUS agrees: raw import chunks
+  stay excluded, but owner-accepted import Memory may enter runtime Memory only
+  when lifecycle is active and trust is owner-review grade, recommended
+  `user_stated` or `agreed_upon`.
+- PR421 is preflight only. No runtime policy change or hosted proof is
+  authorized until ARGUS accepts the packet and wakes DAEDALUS.
+
+Current baton:
+
+- ARGUS has PR421.
+- ARGUS should accept the policy and wake DAEDALUS with hard guards, or block
+  with the exact product/privacy reason and wake MIMIR.
+
 ## Latest ARGUS verdict - PR420 import review accepted
 
 ARGUS accepted DAEDALUS's PR420 readback fix and hosted readback-only proof:
