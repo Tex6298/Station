@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR379 accepted
+## Latest MIMIR decision - PR379 accepted, PR380 opened
+
+MIMIR accepts ARGUS's PR379 Global Archive JSON preview redaction verdict:
+`docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_RESULT.md`.
+
+Decision:
+
+- PR379 is closed as `PASS`.
+- `/imports/archive` and `/imports/archive/search` now redact JSON-shaped source
+  bodies at the returned archive preview summary boundary before
+  `/studio/archive` can render them.
+- Safe owner-facing context remains visible through title, source label, status,
+  persona context, privacy, and provenance fields already present on result
+  items.
+- Search matching remains unchanged: private search fields are still built
+  server-side for matching and stripped before responses are returned.
+- ARGUS accepted the API serialization boundary and the regression proving
+  normal prose archive summaries remain visible instead of being over-redacted.
+- No parser, import pipeline, repository, schema, migration, provider, cache,
+  public archive behavior, owner-scoping rule, billing, worker, queue, Redis,
+  Cloudflare, hosted runtime, or broad Studio UI behavior changed.
+- MIMIR opens
+  `docs/roadmap/PR380_OWNER_ARCHIVE_REDACTION_HOSTED_RERUN_ARIADNE.md`.
+
+Current baton:
+
+- ARIADNE has PR380.
+- ARIADNE should wait for hosted PR379 freshness at implementation commit
+  `ad1704d9` or later, then rerun the owner archive proof.
+- Scope is `/studio/archive` plus light read-only regression checks for
+  `/studio/export` and the replay persona Archive/File page.
+- No mutation, upload, retry, new export creation, provider, Redis, Cloudflare,
+  worker, queue, schema, migration, billing, or broad UI lane is open.
+
+## Previous ARGUS verdict - PR379 accepted
 
 ARGUS accepted PR379:
 `docs/roadmap/PR379_GLOBAL_ARCHIVE_JSON_PREVIEW_REDACTION_RESULT.md`.
@@ -46,12 +80,9 @@ Validation:
 
 Current baton:
 
-- MIMIR has PR379.
-- MIMIR should close PR379 as accepted and decide the next roadmap move.
-- If MIMIR wants hosted proof after deploy, ARIADNE should rerun PR378 and
-  verify `/studio/archive` no longer renders raw JSON-shaped source material.
+- MIMIR has accepted PR379 and opened PR380 for ARIADNE hosted rerun.
 
-## Latest MIMIR decision - PR378 failed, PR379 opened
+## Previous MIMIR decision - PR378 failed, PR379 opened
 
 MIMIR accepts ARIADNE's PR378 hosted owner archive/export/import trust
 rehearsal:
