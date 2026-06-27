@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented UX-01A on 2026-06-27:
 `docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW WITH BUILD ENVIRONMENT CAVEAT`.
+Validation result: `ACCEPTED BY ARGUS AS TECHNICAL BOUNDARY - ARIADNE VISIBLE REVIEW NEXT`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -42,10 +42,26 @@ Validation result: `READY FOR ARGUS REVIEW WITH BUILD ENVIRONMENT CAVEAT`.
 | `typecheck` | Pass | Turbo typecheck passed for API and web. |
 | `lint` | Pass | Next lint reported no warnings or errors. |
 | `build` | Blocked | Web compiled and generated static pages, then Next standalone trace copy failed on Windows symlink creation with `EPERM`; existing autoprefixer `end` warning also appeared. |
+| ARGUS implementation review | Pass | Route-story metadata and readbacks stay in private Studio/persona UI surfaces; no backend, auth/session, storage/upload, archive parser, export package, runtime selection/redaction, provider/model, billing, public/community, or broad redesign behavior changed. |
+| ARGUS privacy review | Pass | Visible stop labels remain owner-facing and avoid raw persona IDs; next actions point only to existing private Studio/persona routes. |
+| ARGUS sensitive-pattern review | Pass | Added-line matches were only the negative test phrase proving raw persona IDs are not exposed; no secret material found. |
+| ARGUS `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-01A commit whitespace check passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 10 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
+| ARGUS `npm exec --yes pnpm@10.32.1 -- run build` | Environment caveat | Web compiled, checked validity, generated 36 static pages, finalized optimization, and collected build traces before failing in Next standalone trace copy on local Windows symlink creation with `EPERM`. |
 
-Residual risk: ARGUS must decide whether the local Windows standalone symlink
-failure is an environment caveat or a repo hygiene fix before ARIADNE visible
-review.
+Residual risk: ARIADNE still needs visible desktop, 375px, and 390px review for
+copy fit, privacy/state clarity, safe next actions, and no overlap or
+horizontal overflow. ARGUS classified the local Windows standalone symlink
+failure as an environment caveat for this review, not a UX-01A implementation
+blocker.
 
 ## UX-01A Studio Route-Story And Mobile Workbench Opened
 

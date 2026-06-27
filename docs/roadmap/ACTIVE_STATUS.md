@@ -4,13 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - UX-01A route story ready for ARGUS
+## Latest ARGUS verdict - UX-01A route story accepted for ARIADNE
 
-DAEDALUS implemented the narrow UX-01A Studio route-story/mobile workbench
-readback slice:
+ARGUS accepted DAEDALUS's narrow UX-01A Studio route-story/mobile workbench
+technical boundary:
 `docs/roadmap/UX01A_STUDIO_ROUTE_STORY_MOBILE_WORKBENCH_RESULT.md`.
 
-Implementation summary:
+Verdict:
+
+```text
+ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE
+```
+
+Decision:
 
 - Extended `StudioRouteContext` with saved/preserved `state` and
   route-specific `nextAction`.
@@ -23,23 +29,31 @@ Implementation summary:
   archive import/export behavior, runtime context selection/redaction,
   provider/model behavior, billing, public/community routes, and broad visual
   design unchanged.
+- Studio route labels remain owner-facing and do not expose raw persona IDs in
+  visible stop labels.
+- The local build failure is classified as an environment caveat: web compile,
+  validity checking, static page generation, optimization, and trace collection
+  completed before Next's standalone traced-file copy hit Windows symlink
+  `EPERM`.
 
-Validation:
+ARGUS validation:
 
-- `git diff --check` passed with CRLF normalization warnings.
-- Added-line sensitive-pattern scan returned no matches.
+- `git diff HEAD^ HEAD --check` passed.
+- Added-line sensitive-pattern scan found only the test phrase proving raw
+  persona IDs are not exposed; no secret material was found.
 - `test:studio-ui`, `test:auth`, `test:persona-context`, `test:continuity`,
   `test:integrity`, `test:conversation-archive`, `test:exports`, `typecheck`,
   and `lint` passed.
-- `build` compiled and generated static pages, then failed in Next standalone
-  trace copy on local Windows symlink creation with `EPERM`.
+- `build` compiled and generated 36 static pages, then failed in Next
+  standalone trace copy on local Windows symlink creation with `EPERM`.
 
 Current baton:
 
-- ARGUS has UX-01A implementation review.
-- ARGUS should decide whether the Windows standalone symlink failure is an
-  environment caveat or a required repo hygiene fix, then wake ARIADNE if the
-  visible route-story boundary is accepted or DAEDALUS if fixes are needed.
+- ARIADNE has UX-01A visible review.
+- ARIADNE should review desktop, 375px, and 390px for the sidebar current stop,
+  mobile details summary/current card, dashboard place strip, and persona
+  workspace place strip. Check copy fit, owner-only privacy/state clarity, safe
+  next actions, and no overlap or horizontal overflow.
 
 ## Latest MIMIR decision - UX-01A Studio implementation opened
 

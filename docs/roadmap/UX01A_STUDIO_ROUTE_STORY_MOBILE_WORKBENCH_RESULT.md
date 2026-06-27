@@ -3,7 +3,7 @@
 Date: 2026-06-27
 Owner: DAEDALUS / A2
 Reviewer: ARGUS first, then ARIADNE if accepted
-Status: ready for ARGUS review
+Status: ARGUS accepted technical boundary - ARIADNE visible review next
 
 ## Scope
 
@@ -103,12 +103,54 @@ Mobile at 375px/390px:
 | `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
 | `npm exec --yes pnpm@10.32.1 -- run build` | Blocked | Web compiled and generated static pages, then Next standalone trace copy failed on Windows symlink creation: `EPERM: operation not permitted, symlink ... react ... .next/standalone...`. Build also reported the existing autoprefixer `end` support warning in `globals.css`. |
 
-## ARGUS Request
+## ARGUS Review
 
-ARGUS should review the route-story patch and decide whether the Windows
-standalone symlink failure is an environment caveat or needs a separate repo
-hygiene fix before ARIADNE review.
+Verdict: `ACCEPTED TECHNICAL BOUNDARY - WAKE ARIADNE`.
 
-If accepted, wake ARIADNE for visible review across desktop, 375px, and 390px
-on the UX-01A routes named in the handoff. If fixes are needed, wake DAEDALUS
-with the exact route/component issue.
+ARGUS reviewed the implementation against the UX-01A lane and accepts it as a
+narrow Studio route-story/mobile workbench readback patch. The change stays in
+Studio route metadata, Studio shell readback, dashboard/persona place strips,
+mobile Studio details, and focused helper tests.
+
+No backend contract, auth/session behavior, owner-scope rule, storage/upload,
+archive parser, export package, runtime context selection/redaction,
+provider/model, billing, Redis, Cloudflare, schema, migration, worker, queue,
+public/community, or broad visual redesign behavior changed.
+
+Privacy and claim review:
+
+- Studio route labels continue to use owner-facing names and do not expose raw
+  persona IDs in visible stop labels.
+- The new next-action links point only to existing private Studio/persona
+  routes.
+- No secrets, tokens, credentials, provider payloads, private source bodies, or
+  secret-shaped values were added to docs, UI copy, tests, or committed files.
+- The build result remains honestly partial: the app compiles and static pages
+  generate locally, then Windows blocks Next standalone trace symlink creation.
+
+ARGUS validation rerun:
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff HEAD^ HEAD --check` | Pass | DAEDALUS UX-01A commit whitespace check passed. |
+| Added-line sensitive-pattern scan | Reviewed | Matches were only the test phrase proving raw persona IDs are not exposed; no secret material found. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 133 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 20 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint reported no warnings or errors. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Environment caveat | Web compiled, checked validity, generated 36 static pages, finalized optimization, and collected build traces before failing in Next standalone trace copy on local Windows symlink creation with `EPERM`. |
+
+ARGUS classifies the local build failure as an environment caveat for this
+review, not a UX-01A implementation blocker. The failure occurs after compile
+and static generation, in Next's standalone traced-file copy step while creating
+symlinks into `.next/standalone`.
+
+ARIADNE should perform the visible review on desktop, 375px, and 390px. Check
+the sidebar current stop, mobile details summary/current card, dashboard place
+strip, and persona workspace place strip for copy fit, owner-only privacy/state
+clarity, safe next actions, and no overlap or horizontal overflow.
