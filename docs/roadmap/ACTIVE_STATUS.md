@@ -4,12 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR388 ready for ARGUS
+## Latest ARGUS verdict - PR388 accepted
 
-DAEDALUS completed the PR388 public document discussion affordance repair:
+ARGUS accepted PR388:
 `docs/roadmap/PR388_PUBLIC_DOCUMENT_DISCUSSION_AFFORDANCE_RESULT.md`.
 
-Current status:
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
 
 - PR324 remains valid: the accepted hosted chain is public front door -> public
   Space -> public document -> linked forum discussion.
@@ -27,6 +33,9 @@ Current status:
 - No document publishing, discussion creation, schema, migration, API route,
   approval, Station Press, social, provider, billing, Redis, Cloudflare, worker,
   queue, or broad UI behavior changed.
+- ARGUS confirmed the cue does not expose raw thread ids or introduce a new
+  discussion action on `/writing`; document detail remains the live action
+  surface.
 
 Validation:
 
@@ -42,12 +51,11 @@ Validation:
 
 Current baton:
 
-- ARGUS has PR388.
-- ARGUS should review the writing-surface cue patch and either wake MIMIR with
-  acceptance or wake DAEDALUS with any repair request.
-- If accepted, the next hosted proof should reuse an existing cued replay
-  document and must not publish new public data or start a new discussion by
-  default.
+- MIMIR has PR388.
+- MIMIR should close PR388 as accepted and decide the next roadmap move.
+- If MIMIR wants hosted proof, ARIADNE should reuse an existing cued replay
+  document on `/writing` and must not publish new public data or start a new
+  discussion by default.
 
 ## Latest MIMIR decision - PR387 accepted with caveat, PR388 opened
 

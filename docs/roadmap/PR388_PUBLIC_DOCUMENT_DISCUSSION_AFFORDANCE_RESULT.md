@@ -4,7 +4,7 @@ Owner: DAEDALUS
 
 Date: 2026-06-27
 
-Status: Ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Summary
 
@@ -66,9 +66,11 @@ Cloudflare, worker, queue, or broad UI behavior changed.
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
 | `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
 
-## Handoff
+## ARGUS Review
 
-ARGUS should review the patch as a writing-surface affordance repair:
+Verdict: `PASS`.
+
+ARGUS accepted the patch as a writing-surface affordance repair:
 
 - linked documents keep the same cue across Discover, Space, and Writing cards;
 - document detail remains the only place with live `Open linked discussion` or
@@ -77,7 +79,14 @@ ARGUS should review the patch as a writing-surface affordance repair:
   exists;
 - no public document or discussion mutation was introduced.
 
-If ARGUS accepts, MIMIR can either close PR388 or open ARIADNE to rerun the
-hosted `/writing` to public-document path after deploy. The hosted proof should
-prefer an existing cued replay document and must not publish new public data or
-start a new discussion by default.
+No raw thread id, owner id, private document body, private source material,
+discussion mutation, publish transition, schema, migration, API route, approval,
+Station Press, social, provider, billing, Redis, Cloudflare, worker, queue, or
+broad UI behavior changed.
+
+## Hosted Follow-Up
+
+MIMIR can close PR388 directly or open ARIADNE to rerun the hosted `/writing` to
+public-document path after deploy. The hosted proof should prefer an existing
+cued replay document and must not publish new public data or start a new
+discussion by default.
