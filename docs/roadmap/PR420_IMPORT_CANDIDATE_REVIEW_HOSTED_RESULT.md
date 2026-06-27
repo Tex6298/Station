@@ -2,7 +2,7 @@
 
 Owner: DAEDALUS
 Reviewer: ARGUS
-Status: BLOCKED AFTER ACCEPTANCE READBACK - WAKE ARGUS
+Status: BLOCKED - DAEDALUS READBACK FIX REQUIRED
 Date: 2026-06-27
 
 ## Scope
@@ -88,3 +88,74 @@ ARGUS should decide whether the accept response target plus owner Memory route
 presence/lifecycle is sufficient evidence, or whether DAEDALUS should make a
 narrow code/readback fix in a separate packet so accepted Memory route readback
 can expose sanitized archive provenance.
+
+## ARGUS Verdict
+
+Verdict:
+
+```text
+BLOCKED - WAKE DAEDALUS WITH NARROW READBACK FIX
+```
+
+ARGUS does not accept PR420 as complete. The approved packet required owner
+Memory readback to prove that the accepted Memory target uses
+import/persona-file provenance. The accept response target is useful evidence,
+but it is not a substitute for the independent owner Memory route readback that
+the packet required.
+
+Accepted state remains important:
+
+- The PR419 Memory candidate was accepted once.
+- The PR419 Canon candidate was accepted once.
+- DAEDALUS correctly stopped after the first failed readback.
+- ARGUS public `/discover/search` postcheck found zero matches for the PR419
+  proof phrase, PR419 artifact name, and proposed PR420 accepted titles.
+- No retry, cleanup, compensation, additional candidate action, public/community
+  mutation, parser/provider/runtime broadening, raw-ID evidence, raw storage
+  path evidence, private bodies, or secret material should be added.
+
+Required DAEDALUS fix packet:
+
+- Make a narrow owner-only readback fix so `GET /memory/persona/:personaId`
+  exposes sanitized archive provenance for owner Memory rows.
+- The route currently selects only
+  `id, persona_id, title, content, summary, source_type, relevance_weight,
+  created_at` from `memory_items`, so it cannot show `archive_source_type`.
+- Add the minimum safe provenance needed for this proof, at least
+  `archive_source_type` / `archiveSourceType` and, if useful, a sanitized
+  archive source name.
+- Do not expose raw `archive_source_id` in public docs or committed evidence;
+  avoid adding raw IDs to UI/docs/logs unless an existing owner-only API
+  contract explicitly requires them.
+- Add focused API coverage proving an accepted import-backed Memory candidate
+  is readable by the owner as `source_type: import` with
+  `archive_source_type: persona_file`, while cross-owner reads remain blocked.
+- After the fix is deployed, DAEDALUS may run only the remaining PR420 readback
+  proof against the already accepted hosted candidates: owner Memory/Canon
+  readback, Import Review reviewed state, archive source privacy, and public
+  non-exposure.
+- DAEDALUS must not accept/reject any candidate, upload, register, import,
+  retry the original accepts, clean up/delete, publish Continuity, create
+  documents, touch public/community content, export data, send Assistant/forum
+  actions, touch billing/settings, or broaden parser/provider/runtime scope.
+
+ARGUS validation:
+
+- Reviewed the PR420 blocked result against the approved ARGUS packet.
+- Inspected `/memory/persona/:personaId`; it omits archive provenance columns in
+  the owner Memory list select.
+- Public API health/storage selected recheck passed at commit prefix
+  `299f987de9bf` with private `persona-files` storage ready.
+- Public `/discover/search` selected postcheck returned zero matches for the
+  PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles.
+- `git diff HEAD^ HEAD --check` passed.
+- `git diff --check` passed with CRLF normalization warning only for local
+  ARGUS state.
+- Added-line sensitive-pattern review passed; matches were redaction-policy
+  wording only, not secret values.
+
+Current baton:
+
+- DAEDALUS has PR420.
+- DAEDALUS should implement only the narrow owner Memory provenance readback
+  fix and wake ARGUS with sanitized code/test/readback evidence.

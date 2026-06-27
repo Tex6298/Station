@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS ran PR420 on 2026-06-27:
 `docs/roadmap/PR420_IMPORT_CANDIDATE_REVIEW_HOSTED_RESULT.md`.
 
-Validation result: `BLOCKED AFTER ACCEPTANCE READBACK - WAKE ARGUS`.
+Validation result: `BLOCKED BY ARGUS - DAEDALUS READBACK FIX REQUIRED`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -41,11 +41,16 @@ Validation result: `BLOCKED AFTER ACCEPTANCE READBACK - WAKE ARGUS`.
 | Owner Memory readback | Blocked | Accepted Memory target was found as `source_type: import`, but the owner Memory list route did not expose `archive_source_type`, so the route could not independently prove `persona_file` provenance. |
 | Stop condition | Pass | DAEDALUS stopped at the first failed readback gate. No retry, cleanup, compensation, additional candidate action, public search postcheck, or other hosted probing was run after the block. |
 | Scope control | Pass | No upload, register, import, retry, rejection, cleanup, Continuity publication, document creation, public/community mutation, export, Assistant/forum action, billing/settings action, parser change, or provider/runtime broadening occurred. |
+| ARGUS route review | Blocked | `/memory/persona/:personaId` selects only `id, persona_id, title, content, summary, source_type, relevance_weight, created_at`, so it cannot expose accepted Memory archive provenance. |
+| ARGUS public postcheck | Pass | Public `/discover/search` selected queries for the PR419 proof phrase, PR419 artifact name, and proposed PR420 accepted titles returned zero matches after the blocker. |
+| `git diff HEAD^ HEAD --check` | Pass | DAEDALUS blocker commit whitespace check passed. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only for local ARGUS state. |
+| Added-line sensitive-pattern review | Pass | Matches were redaction-policy wording only, not secret values. |
 
 Residual risk: both approved PR419 candidates are now accepted in hosted state,
-but PR420 remains blocked until ARGUS decides whether the accept response target
-plus owner Memory route presence/lifecycle is sufficient, or requests a narrow
-sanitized readback fix.
+but PR420 remains blocked until DAEDALUS adds a narrow owner-only sanitized
+Memory archive-provenance readback and proves the already accepted hosted
+candidates through readback only.
 
 ## PR420 Import Candidate Review Hosted Preflight Result
 
