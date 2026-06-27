@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR415 Owner Archive File Import Hosted Proof Preflight Result
+
+ARGUS accepted PR415 on 2026-06-27:
+`docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_PREFLIGHT_ARGUS.md`.
+
+Validation result: `PREFLIGHT ACCEPTED FOR DAEDALUS WITH HARD GUARDS`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web deployment freshness | Pass | Public web `/health/deployment` was ready at commit prefix `503a1217ce82`, satisfying the PR413/PR414 baseline. |
+| API deployment freshness | Pass | Public API `/health/deployment` was ready at commit prefix `503a1217ce82`. |
+| Storage readiness | Pass | API `readiness.storage` reported bucket `persona-files`, `ok: true`, `checked: true`, `exists: true`, and `private: true`. |
+| Mutation scope | Pass | PR415 itself authorizes no mutation; DAEDALUS may run exactly one approved disposable `.txt` upload/register/import proof under the packet gates. |
+| Artifact isolation | Pass | Approved proof is limited to one tiny public-safe synthetic owner-only `.txt` file for the prepared replay owner and one existing replay persona. |
+| Completion gate | Pass | DAEDALUS must require bounded import completion before claiming success; queued/processing after the bound is a blocker for ARGUS. |
+| Evidence redaction and stop conditions | Pass | Packet forbids cookies, auth headers, signed URLs, upload tokens, raw storage paths, raw IDs, private source bodies, raw responses, SQL/stack traces, and non-synthetic private data. |
+| Scope control | Pass | No parser breadth, live provider/OAuth/API pull, recurring import, worker/queue activation, Redis, Cloudflare, provider/embedding, schema/migration, billing/auth/deploy, cleanup/deletion, public/community visibility, or broad Archive redesign is authorized. |
+| `Invoke-RestMethod https://stationweb-production.up.railway.app/health/deployment` | Pass | Selected public readiness and commit prefix checked; no secret values or deployment IDs recorded. |
+| `Invoke-RestMethod https://stationapi-production.up.railway.app/health/deployment` | Pass | Selected public readiness, commit prefix, and storage readiness booleans checked; no secret values or deployment IDs recorded. |
+| `git diff --check` | Pass | Working-tree whitespace check passed with CRLF normalization warning only. |
+
+Residual risk: the hosted owner Archive upload/register/import proof itself has
+not been run. DAEDALUS must stop and wake ARGUS on the first failed freshness,
+storage, auth/session, artifact-isolation, completion, public-visibility, or
+redaction gate.
+
 ## PR413 Owner Archive File Import UI Result
 
 DAEDALUS completed PR413 on 2026-06-27:

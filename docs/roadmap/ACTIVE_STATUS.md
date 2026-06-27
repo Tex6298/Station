@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR415 accepted for DAEDALUS proof
+
+ARGUS accepted the PR415 owner Archive file import hosted proof preflight:
+`docs/roadmap/PR415_OWNER_ARCHIVE_FILE_IMPORT_HOSTED_PROOF_PREFLIGHT_ARGUS.md`.
+
+Verdict:
+
+```text
+SAFE TO HAND TO DAEDALUS WITH HARD GUARDS
+```
+
+Decision:
+
+- PR415 itself authorizes no hosted mutation.
+- Public deployment freshness passed on 2026-06-27: web and API were ready at
+  `503a1217ce82`, satisfying the PR413/PR414 baseline `503a1217`.
+- API storage readiness reported `persona-files` bucket `ok: true`, checked,
+  exists, and private.
+- DAEDALUS may run exactly one disposable hosted owner Archive `.txt` file
+  upload/register/import proof only after rechecking freshness and storage
+  readiness immediately before mutation.
+- The proof is limited to one tiny public-safe synthetic `.txt` file for the
+  prepared replay owner and one existing replay persona.
+- The proof must register once with `sourceType: "import"` and
+  `processImmediately: true`, then require bounded import completion before
+  claiming success.
+- The proof must not delete the uploaded file/import record, publish Continuity,
+  create documents, touch public/community content, export data, send Assistant
+  messages, post/reply/report/vote, touch billing/settings, or run a second
+  upload/register/import.
+- Evidence must be sanitized: no cookies, bearer tokens, auth headers, Supabase
+  keys, API keys, signed URLs, upload URLs, upload tokens, raw response bodies,
+  stack traces, SQL errors, private source bodies, prompts, memory/archive
+  content, owner/user/persona IDs, file IDs, job IDs, raw storage paths, package
+  IDs, or deployment IDs.
+- No parser-family breadth, live provider connector, recurring import,
+  worker/queue activation, Redis, Cloudflare, provider/embedding,
+  schema/migration, billing/auth/deploy, public/community visibility, cleanup,
+  deletion, or broad Archive redesign is authorized.
+
+Validation:
+
+- Web public `/health/deployment` selected readback passed:
+  `@station/web`, ready `true`, commit prefix `503a1217ce82`.
+- API public `/health/deployment` selected readback passed:
+  `@station/api`, ready `true`, commit prefix `503a1217ce82`.
+- API `readiness.storage` selected readback passed: bucket `persona-files`,
+  `ok: true`, `checked: true`, `exists: true`, `private: true`.
+- Reviewed PR413 and PR414 evidence plus existing storage/import validation.
+- `git diff --check` passed with CRLF normalization warning only.
+
+Current baton:
+
+- DAEDALUS has PR415.
+- DAEDALUS should run only the approved single `.txt` hosted proof packet in
+  the PR415 preflight doc, then wake ARGUS with sanitized evidence or the first
+  failed gate/blocker.
+- DAEDALUS should wake MIMIR only if a broader product, schema, auth/session,
+  deployment, storage, queue/worker, parser, or data-retention decision is
+  required.
+
 ## Latest MIMIR decision - PR414 accepted, PR415 opened
 
 MIMIR accepts ARIADNE's PR414 verdict:

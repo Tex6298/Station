@@ -2,7 +2,7 @@
 
 Owner: ARGUS
 Opened by: MIMIR
-Status: Open
+Status: Accepted by ARGUS for DAEDALUS proof
 
 ## Why This Exists
 
@@ -175,3 +175,142 @@ Task:
 ```
 
 Do not go idle without a wakeup commit.
+
+## ARGUS Preflight Verdict
+
+Verdict: `SAFE TO HAND TO DAEDALUS WITH HARD GUARDS`.
+
+PR415 itself still authorizes no hosted mutation. ARGUS accepts handing a
+single disposable hosted upload/register/import proof to DAEDALUS because the
+public deployment freshness and storage readiness checks passed, and the proof
+can be isolated to one tiny owner-only synthetic text file.
+
+Observed public deployment freshness on 2026-06-27:
+
+- Web `/health/deployment`: ready at `503a1217ce82`, satisfying the PR413
+  baseline `503a1217`.
+- API `/health/deployment`: ready at `503a1217ce82`, satisfying the current
+  signed upload/register/import API baseline.
+- API storage readiness: `persona-files` bucket `ok: true`, `checked: true`,
+  `exists: true`, and `private: true`.
+
+No secret values, cookies, bearer tokens, upload tokens, signed URLs, raw
+storage paths, raw IDs, private source bodies, prompts, memory/archive content,
+or user data were requested or recorded for this preflight.
+
+## Approved DAEDALUS Packet
+
+DAEDALUS may run exactly one hosted owner Archive file import proof only if all
+gates below pass again immediately before mutation.
+
+Freshness gates:
+
+- Recheck web `/health/deployment`; require `ready: true` and commit at or
+  after `503a1217`.
+- Recheck API `/health/deployment`; require `ready: true` and commit at or
+  after `503a1217`.
+- Recheck API `readiness.storage`; require bucket `persona-files`, `ok: true`,
+  `checked: true`, `exists: true`, and `private: true`.
+- Record only service name, readiness, commit prefix, bucket name, and storage
+  readiness booleans. Do not record deployment IDs, config details, signed URLs,
+  upload tokens, raw storage paths, or raw IDs.
+
+Artifact isolation:
+
+- Use the prepared replay owner and one existing replay persona only.
+- Create exactly one tiny local `.txt` file.
+- Use a file name prefix:
+  `[file-import-proof:pr415-YYYYMMDD-HHMM]`.
+- Use public-safe synthetic text only, for example:
+  `Disposable owner-only archive import proof. Contains no private source material.`
+- Do not use archive, memory, continuity, customer, imported source, provider,
+  billing, private persona, or accepted replay evidence as source material.
+- Do not use `.json` for this first proof. Parser-family breadth remains out of
+  scope; `.txt` is enough to prove upload/register/import plumbing.
+
+Allowed hosted mutations:
+
+- Select exactly one local proof `.txt` file in the owner Archive upload UI.
+- Request the existing signed upload URL for that file.
+- Upload the file through the existing signed upload path.
+- Register that exact upload once with `sourceType: "import"` and
+  `processImmediately: true`.
+- Poll boundedly for import status/readback for that disposable artifact only.
+
+Disallowed hosted mutations:
+
+- Do not delete the uploaded file or import record in this proof. Leave the tiny
+  private synthetic artifact as owner-only evidence unless MIMIR opens a
+  separate cleanup/deletion lane.
+- Do not publish Continuity, create documents, create public/community content,
+  export data, send Assistant messages, post/reply/report/vote in forums, touch
+  Stripe/billing/settings, or run any second upload/register/import.
+
+Required readbacks:
+
+- Pre-mutation: selected replay owner and persona are unambiguous without
+  exposing owner/user/persona IDs.
+- Upload URL request succeeds for the disposable file, but no signed URL, upload
+  token, raw storage path, raw response body, or raw ID is recorded.
+- Browser upload succeeds for the disposable file, with no signed upload
+  material rendered in the page.
+- Register returns success for the disposable artifact with `sourceType:
+  "import"` and `processImmediately: true` intent preserved. Record only status
+  class/counts/pass-fail assertions.
+- Archive Import Library or import job readback shows exactly one new owner-only
+  proof source/job with sanitized label from the artifact prefix.
+- Import reaches `completed` within a bounded poll. If it remains queued or
+  processing after the bounded poll, stop and wake ARGUS with that blocker
+  rather than claiming import completion.
+- Owner storage/quota readback remains owner-only and sane after the proof.
+- Signed-out or public/community search/readback for the artifact prefix does
+  not expose the proof artifact. Record only route class, HTTP status, and
+  no-match/pass assertion.
+- No screen, response summary, committed doc, or log shows a raw storage path,
+  signed URL, upload URL, upload token, authorization value, cookie, bearer
+  token, private body, internal ID, SQL error, stack trace, or secret-shaped
+  text.
+
+Evidence and redaction rules:
+
+- Commit only sanitized evidence.
+- Safe to record route class, HTTP status, deployment commit prefix, storage
+  readiness booleans, artifact prefix, `.txt` extension, owner-only result
+  class, import status, counts, and pass/fail assertions.
+- Do not commit cookies, bearer tokens, auth headers, Supabase keys, API keys,
+  signed URLs, upload URLs, upload tokens, raw response bodies, stack traces,
+  SQL errors, private source bodies, prompts, memory/archive content,
+  owner/user/persona IDs, raw file IDs, raw job IDs, raw storage paths, package
+  IDs, or raw deployment IDs.
+
+Stop conditions:
+
+- Web or API deployment is stale or not ready.
+- `persona-files` storage readiness is missing, not checked, not found, public,
+  or not `ok: true`.
+- Owner auth/session is missing, ambiguous, or would require exposing a secret.
+- The replay owner/persona cannot be selected without ambiguity.
+- Quota/storage readback is failing in a way that might hide a destructive
+  result.
+- The artifact cannot be kept to one tiny synthetic `.txt` file.
+- The UI requires broader parser, queue, worker, provider, Redis, Cloudflare,
+  billing, auth/session, deployment, schema, or migration changes.
+- Upload/register/import requires more than one file/job/import/source or a
+  second mutation to interpret the result.
+- Import does not reach `completed` within the bounded poll.
+- Duplicate registration or ambiguous artifact matching makes the result
+  unreadable.
+- The artifact becomes public or community-visible.
+- Cleanup/deletion is needed to make the proof acceptable.
+- Any response or screen exposes a visible secret, raw token, signed URL, upload
+  URL, raw storage path, private source body, raw ID, SQL error, stack trace, or
+  non-synthetic private data.
+
+## ARGUS Handoff
+
+Wake DAEDALUS with this exact packet. DAEDALUS should either complete the
+single hosted owner Archive `.txt` file import proof and wake ARGUS with
+sanitized evidence, or stop at the first failed gate/stop condition and wake
+ARGUS with the blocker. MIMIR should only be woken instead if DAEDALUS discovers
+the proof requires broader product, schema, auth/session, deployment, storage,
+queue/worker, parser, or data-retention decisions.
