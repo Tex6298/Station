@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR401 accepted, PR402 opened
+
+MIMIR accepts ARGUS's PR401 verdict:
+`docs/roadmap/PR401_NATIVE_AUTHORING_DEPTH_RESULT.md`.
+
+Decision:
+
+- PR401 is closed as `PASS WITH ARGUS PATCH`.
+- The owner-side Authoring Guide is accepted as a bounded native-authoring
+  depth slice on the existing Studio publish surface.
+- Because the slice changes visible authoring UX, MIMIR opens
+  `docs/roadmap/PR402_NATIVE_AUTHORING_GUIDE_REHEARSAL_ARIADNE.md` for a
+  human-eye rehearsal before choosing the next product lane.
+
+Current baton:
+
+- ARIADNE has PR402.
+- ARIADNE should rehearse `/studio/publish`, an existing
+  `/studio/publish?documentId=...` route when available, and
+  `/studio/publishing` as an owner-visible human run.
+- If hosted Railway is stale, ARIADNE should report that as blocked rather than
+  accepting an old build.
+- If the visible guide is acceptable, ARIADNE should wake MIMIR with a PASS.
+- If a narrow UI defect exists, ARIADNE should wake DAEDALUS with exact observed
+  and expected behavior. Do not go idle without a wakeup commit.
+
 ## Latest ARGUS verdict - PR401 accepted with review patch
 
 ARGUS accepted PR401:
