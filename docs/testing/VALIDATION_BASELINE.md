@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Conversation Continuity Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_CONVERSATION_CONTINUITY_ERROR_RESPONSE_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- import job route-level error responses are accepted;
+- conversation archive routes remain the next private continuity/archive
+  surface;
+- `conversations.ts` has direct route-level raw errors around conversation and
+  candidate lists, archive creation, candidate review, save-to-canon, and
+  delete.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for conversation archive/candidate behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Required for continuity candidate/runtime continuity behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Conditional pass | Required if runtime context or memory lifecycle helper behavior changes. |
+| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and conversation/archive/memory/canon lifecycle behavior did not change. |
+
+Residual risk: export routes and other route-level raw error responses remain
+future audit surface.
+
 ## Production Import Job Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:

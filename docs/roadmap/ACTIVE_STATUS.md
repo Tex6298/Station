@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - conversation continuity error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_CONVERSATION_CONTINUITY_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted import job route-level error responses.
+- Conversation archive routes remain the next private continuity/archive
+  surface after import jobs.
+- The lane covers `conversations.ts` route responses around owner conversation
+  lists, continuity candidate lists, archive creation/readback, candidate
+  review, save-to-canon, and conversation deletion.
+
+Current baton:
+
+- DAEDALUS should harden conversation/continuity route responses, validate the
+  focused archive/continuity gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - import job errors accepted
 
 ARGUS completed import job route-level error response review on
