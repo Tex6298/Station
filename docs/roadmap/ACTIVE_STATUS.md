@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - auth error responses ready for ARGUS
+## Latest ARGUS verdict - auth error responses accepted
+
+ARGUS completed auth error response review on 2026-06-28:
+`docs/roadmap/PRODUCTION_AUTH_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED
+```
+
+Decision:
+
+- Signup, signin, and refresh failures now return stable public-safe responses.
+- Invalid credential and invalid refresh-session failures remain useful without
+  exposing raw Supabase/Auth provider details.
+- Successful signup/signin/refresh payloads, beta signup confirmation behavior,
+  signout, validation schemas, auth middleware, frontend session helpers,
+  protected routes, schema, packages, hosted config, and hosted data did not
+  change.
+- Billing, Stripe, Redis, Cloudflare, provider/model behavior, UI, workers,
+  queues, hosted config, and hosted data were not touched.
+- Non-auth and non-billing route-level raw error responses remain a separate
+  future audit surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:auth` passed, 21 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- MIMIR should close or route the next lane.
+
+## Previous DAEDALUS result - auth error responses ready for ARGUS
 
 DAEDALUS completed auth route-level error response hardening on 2026-06-28:
 `docs/roadmap/PRODUCTION_AUTH_ERROR_RESPONSE_RESULT.md`.

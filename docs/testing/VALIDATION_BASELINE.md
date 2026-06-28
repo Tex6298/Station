@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_AUTH_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS AUTH ERROR RESPONSE REVIEW`.
+ARGUS completed auth error response review:
+`docs/roadmap/PRODUCTION_AUTH_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED`.
 
 Reason:
 
@@ -41,7 +44,10 @@ Reason:
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 21 tests passed; hostile Supabase/Auth messages are not returned from auth routes. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff ef95c2bb^ ef95c2bb --check` | Pass | MIMIR lane-open commit has no whitespace errors. |
+| `git diff 2cee48a5^ 2cee48a5 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic hostile fixtures, fake local passwords/tokens/session IDs, bounded auth copy, or docs text only. |
+| ARGUS review | Pass | Auth response mapping is stable public copy; successful auth payloads, signout, schema validation, middleware, frontend helpers, protected routes, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: non-auth and non-billing route-level raw error responses remain
 future audit surface.
