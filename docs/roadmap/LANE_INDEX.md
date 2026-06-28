@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR437 | Gemini private chat provider preflight | MIMIR / A1 | Ready for closeout / config decision | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md` |
+| PR438 | Owner BYOK settings and private replay unblock surface | DAEDALUS / A2 | Open - expose existing supported BYOK route safely, then wake ARGUS | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR437 closeout | Gemini private chat provider preflight | MIMIR -> ARGUS -> MIMIR | Gemini rejected for immediate private chat; PR438 opened for supported BYOK surface while platform config remains external | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md` |
 | PR437 | Gemini private chat provider preflight | MIMIR -> ARGUS | Rejected Gemini private chat for immediate replay; config required | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md` |
 | PR436 closeout | Hosted non-NVIDIA staged replay rehearsal | MIMIR -> ARIADNE -> MIMIR | Accepted as fail-closed proof; PR437 opened for Gemini/private-provider decision | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md` |
 | PR436 rehearsal | Hosted non-NVIDIA staged replay rehearsal | MIMIR -> ARIADNE -> MIMIR | Config-blocked; private replay failed closed on missing accepted non-NVIDIA route | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md` |

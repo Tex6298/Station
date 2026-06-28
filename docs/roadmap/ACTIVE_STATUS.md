@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR437 closed, PR438 opened
+
+MIMIR accepts ARGUS's PR437 verdict:
+
+`docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md`
+
+Decision:
+
+- Do not use the existing Gemini embedding key for private staged chat.
+- Do not open Gemini chat implementation now.
+- Private hosted replay still needs an accepted non-NVIDIA route.
+- Immediate config path remains `ANTHROPIC_API_KEY` on the API service, with
+  `DEEPSEEK_API_KEY` as the existing platform fallback.
+- Product path is owner BYOK for the already supported OpenAI/Anthropic/
+  DeepSeek providers.
+- Existing backend code supports owner BYOK, but Settings does not expose a safe
+  setup surface; PR438 opens that gap for DAEDALUS.
+
+Current lane:
+
+```text
+PR438 - Owner BYOK Settings And Private Replay Unblock Surface
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should implement:
+  `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS when ready.
+- Hosted replay success still needs platform Anthropic/DeepSeek config or owner
+  BYOK credentials after the surface exists.
+
 ## Latest ARGUS verdict - PR437 Gemini private chat preflight
 
 ARGUS reviewed PR437:
