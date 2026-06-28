@@ -86,6 +86,18 @@ function hasQueryError(result: unknown) {
   return Boolean((result as { error?: unknown } | null)?.error);
 }
 
+function isMissingSingleError(error: unknown) {
+  const value = error as { code?: unknown; message?: unknown } | null;
+  const message = String(value?.message ?? "");
+  return value?.code === "PGRST116" || message.includes("Expected one");
+}
+
+function ensureFeaturedVisibilityQuerySucceeded(error: unknown) {
+  if (error && !isMissingSingleError(error)) {
+    throw new Error("Could not verify featured discovery item visibility.");
+  }
+}
+
 function safeForumCategoryHref(slug: unknown) {
   return typeof slug === "string" &&
     SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
@@ -320,51 +332,56 @@ async function canShowFeaturedItem(item: any, req: Request) {
   const sb = getSupabaseAdmin();
 
   if (item.item_type === "document") {
-    const { data } = await sb
+    const { data, error } = await sb
       .from("documents")
       .select("id, status, visibility")
       .eq("id", item.item_id)
       .single();
+    ensureFeaturedVisibilityQuerySucceeded(error);
     if (!data || data.status !== "published") return false;
     if (data.visibility === "public") return true;
     return (data.visibility === "community" || data.visibility === "members") && canSeeCommunityDocuments(req);
   }
 
   if (item.item_type === "thread") {
-    const { data } = await sb
+    const { data, error } = await sb
       .from("threads")
       .select("id, status, visibility, is_hidden, linked_document_id")
       .eq("id", item.item_id)
       .single();
+    ensureFeaturedVisibilityQuerySucceeded(error);
     if (!data || data.status !== "active" || data.is_hidden || data.linked_document_id) return false;
     if (data.visibility === "public") return true;
     return data.visibility === "community" && canSeeCommunityDocuments(req);
   }
 
   if (item.item_type === "space") {
-    const { data } = await sb
+    const { data, error } = await sb
       .from("spaces")
       .select("id, is_public")
       .eq("id", item.item_id)
       .single();
+    ensureFeaturedVisibilityQuerySucceeded(error);
     return Boolean(data?.is_public);
   }
 
   if (item.item_type === "persona") {
-    const { data } = await sb
+    const { data, error } = await sb
       .from("personas")
       .select("id, visibility")
       .eq("id", item.item_id)
       .single();
+    ensureFeaturedVisibilityQuerySucceeded(error);
     return data?.visibility === "public";
   }
 
   if (item.item_type === "developer_space") {
-    const { data } = await sb
+    const { data, error } = await sb
       .from("developer_spaces")
       .select("id, visibility")
       .eq("id", item.item_id)
       .single();
+    ensureFeaturedVisibilityQuerySucceeded(error);
     if (data?.visibility === "public") return true;
     return data?.visibility === "community" && canSeeCommunityDocuments(req);
   }

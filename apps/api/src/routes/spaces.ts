@@ -11,7 +11,7 @@ import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { serializePublicPersona } from "../lib/persona-serialization";
-import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
+import { canExposeExistingPublicPersona } from "../lib/public-persona-eligibility";
 import { canCreateSpace } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
 
@@ -85,6 +85,37 @@ function isMissingSingleError(error: any) {
   return error?.code === "PGRST116" || message.includes("Expected one");
 }
 
+async function publicSpacePersonaEligibility(sb: any, ownerUserId: string) {
+  const { data: profile, error: profileError } = await sb
+    .from("profiles")
+    .select("id, tier, is_admin")
+    .eq("id", ownerUserId)
+    .maybeSingle();
+
+  if (profileError) return { eligible: false, error: true };
+  if (!profile) return { eligible: false, error: false };
+
+  const { count, error: countError } = await sb
+    .from("personas")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_user_id", ownerUserId)
+    .eq("visibility", "public");
+
+  if (countError || count === null) return { eligible: false, error: true };
+
+  return {
+    eligible: canExposeExistingPublicPersona(
+      {
+        id: ownerUserId,
+        tier: profile.tier ?? "visitor",
+        isAdmin: profile.is_admin ?? false,
+      },
+      count ?? 0
+    ),
+    error: false,
+  };
+}
+
 function buildPresentation(payload: {
   tagline?: string;
   theme?: string;
@@ -124,7 +155,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
     pagesResult,
     documentResults,
     personasResult,
-    canExposePublicPersonas,
+    personaEligibility,
   ] = await Promise.all([
     sb
       .from("space_pages")
@@ -147,12 +178,13 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
       .select("name, short_description, visibility, avatar_url, public_slug, public_chat_enabled")
       .eq("owner_user_id", space.owner_user_id)
       .eq("visibility", "public"),
-    ownerCanExposeExistingPublicPersonas(sb, space.owner_user_id),
+    publicSpacePersonaEligibility(sb, space.owner_user_id),
   ]);
   if (
     pagesResult.error ||
     personasResult.error ||
-    documentResults.some((result) => result.error)
+    documentResults.some((result) => result.error) ||
+    personaEligibility.error
   ) {
     return res.status(500).json(SPACE_ERROR_RESPONSES.publicRead);
   }
@@ -175,7 +207,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
       .flatMap((result) => result.data ?? [])
       .sort((a, b) => new Date(b.published_at ?? b.created_at ?? 0).getTime() - new Date(a.published_at ?? a.created_at ?? 0).getTime())
       .slice(0, 20),
-    personas: canExposePublicPersonas ? (personasResult.data ?? []).map(serializePublicPersona) : [],
+    personas: personaEligibility.eligible ? (personasResult.data ?? []).map(serializePublicPersona) : [],
     owner,
   });
 });

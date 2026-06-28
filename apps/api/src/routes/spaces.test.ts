@@ -415,6 +415,15 @@ test("Space route failures return stable public errors without service details",
       expectedBody: EXPECTED_SPACE_ERRORS.publicRead,
     },
     {
+      name: "public Space persona eligibility",
+      configure: (db) => {
+        addSpaceFixture(db);
+        db.failNext("profiles", "select", hostileSpaceError("public Space persona eligibility"));
+      },
+      request: (app) => requestJson(app, "GET", "/spaces/hostile-space"),
+      expectedBody: EXPECTED_SPACE_ERRORS.publicRead,
+    },
+    {
       name: "owner Space list",
       configure: (db) => db.failNext("spaces", "select", hostileSpaceError("owner Space list")),
       request: (app) => requestJson(app, "GET", "/spaces", { token: "owner-token" }),

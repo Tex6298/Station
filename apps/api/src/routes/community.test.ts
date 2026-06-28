@@ -1504,6 +1504,12 @@ test("Discovery route failures return stable public errors without service detai
       expectedBody: EXPECTED_DISCOVERY_ERRORS.feed,
     },
     {
+      name: "featured persona visibility",
+      configure: (db) => db.failNext("personas", "select", hostileDiscoverySpaceError("featured persona visibility")),
+      request: (app) => requestJson(app, "GET", "/discover/feed?tab=featured&limit=20"),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.feed,
+    },
+    {
       name: "Developer Space feed",
       configure: (db) => db.failNext("developer_spaces", "select", hostileDiscoverySpaceError("Developer Space feed")),
       request: (app) => requestJson(app, "GET", "/discover/feed?tab=new&limit=20"),
