@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { consumeChatStream, sendPersonaChatWithStream } from "./chat-stream";
+import { ChatStreamClientError, consumeChatStream, sendPersonaChatWithStream } from "./chat-stream";
 
 test("chat stream client sends bearer auth in headers and parses status plus completion", async () => {
   const originalFetch = globalThis.fetch;
@@ -52,7 +52,13 @@ test("chat stream parser surfaces production-safe chat errors", async () => {
     () => consumeChatStream(streamFromText([
       `event: chat.error\ndata: ${JSON.stringify({ error: "No Station chat provider is configured for this request.", code: "provider_config_missing", classification: "provider_config" })}\n\n`,
     ])),
-    /No Station chat provider is configured/
+    (error) => {
+      assert.equal(error instanceof ChatStreamClientError, true);
+      assert.equal((error as ChatStreamClientError).code, "provider_config_missing");
+      assert.equal((error as ChatStreamClientError).classification, "provider_config");
+      assert.match((error as Error).message, /No Station chat provider is configured/);
+      return true;
+    }
   );
 });
 

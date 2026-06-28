@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR442 private provider setup UX ready for ARGUS
+
+DAEDALUS implemented PR442:
+
+`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_RESULT.md`
+
+Decision:
+
+- Studio private chat now turns safe provider-config metadata into owner-facing
+  setup copy instead of only showing the raw backend error text.
+- The setup action points to `/settings#ai-provider`.
+- The owner-facing setup path names OpenAI, Anthropic, and DeepSeek only.
+- Gemini remains embeddings-only and NVIDIA remains unavailable for private
+  Studio/replay chat.
+- Backend fail-closed provider routing, encrypted BYOK storage, provider
+  credentials, and live provider calls were not changed.
+
+Current lane:
+
+```text
+PR442 - Private Provider Setup UX
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR442 product behavior, error-metadata handling, leak
+  boundaries, and focused tests.
+- If accepted, ARGUS should wake MIMIR with closeout recommendation.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact patch target.
+
 ## Latest MIMIR closeout - PR441 accepted to provider boundary, PR442 opened
 
 MIMIR accepts PR441 up to the provider-credential boundary:

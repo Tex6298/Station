@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR442 Private Provider Setup UX
+
+DAEDALUS implemented PR442 on 2026-06-28:
+`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- Studio private chat provider-config and private-NVIDIA policy blocks now map
+  to a visible owner setup callout;
+- the setup path points to `/settings#ai-provider`;
+- owner setup copy offers only OpenAI, Anthropic, and DeepSeek;
+- Gemini remains embeddings-only and NVIDIA remains unavailable for private
+  Studio/replay chat;
+- safe chat error `code` and `classification` metadata are preserved in the web
+  client without exposing tokens, raw provider keys, encrypted payloads,
+  prompts, completions, or private source bodies;
+- no provider routing, encrypted BYOK storage, live provider calls, or backend
+  fail-closed behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/chat-stream.test.ts apps/web/lib/private-provider-setup.test.ts apps/web/lib/ai-provider-settings.test.ts` | Pass | 10 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 139 tests passed, including the new private provider setup helper tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed; private NVIDIA fail-closed behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Completed with exit code 0. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: PR442 does not configure a real accepted OpenAI, Anthropic, or
+DeepSeek provider route. Private replay/chat success still depends on external
+provider credentials or owner BYOK setup in the target environment.
+
 ## PR441 Hosted Encrypted BYOK Readiness Rerun
 
 ARIADNE reran PR441 on 2026-06-28:

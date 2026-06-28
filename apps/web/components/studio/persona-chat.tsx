@@ -1,9 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { sendPersonaChatWithStream } from "@/lib/chat-stream";
+import {
+  chatErrorMetadata,
+  privateProviderSetupNoticeFromChatError,
+  type ChatErrorMetadata,
+} from "@/lib/private-provider-setup";
 import type { ArchivedChatTranscript, ContinuityCandidate, ConversationMessage } from "@station/types/persona";
 
 interface Props {
@@ -22,7 +28,7 @@ interface ChatState {
   loading: boolean;
   sending: boolean;
   archiving: boolean;
-  error: string | null;
+  error: ChatErrorMetadata | null;
   streamStatus: string | null;
 }
 
@@ -131,7 +137,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
         ...s,
         sending: false,
         streamStatus: null,
-        error: e instanceof Error ? e.message : "Message failed.",
+        error: chatErrorMetadata(e),
         messages: s.messages.filter((m) => m.id !== tempId),
       }));
       setInput(content); // restore input
@@ -188,7 +194,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
       setState((s) => ({
         ...s,
         archiving: false,
-        error: e instanceof Error ? e.message : "Could not archive this chat.",
+        error: chatErrorMetadata(e, "Could not archive this chat."),
       }));
     }
   }
@@ -233,7 +239,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
     } catch (e) {
       setState((s) => ({
         ...s,
-        error: e instanceof Error ? e.message : "Could not review candidate.",
+        error: chatErrorMetadata(e, "Could not review candidate."),
       }));
     } finally {
       setReviewing(null);
@@ -412,10 +418,10 @@ export function PersonaChat({ personaId, personaName }: Props) {
             background: "#2d1515",
             border: "1px solid #7d2e2e",
             borderRadius: 8,
-            color: "#eb5757",
+            color: "#f2b8b5",
             fontSize: "0.8rem",
           }}>
-            {state.error}
+            <ChatErrorCallout error={state.error} />
           </div>
         )}
 
@@ -486,6 +492,21 @@ export function PersonaChat({ personaId, personaName }: Props) {
           {state.conversationStatus === "archived" ? "Archived" : state.sending ? "..." : "Send"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function ChatErrorCallout({ error }: { error: ChatErrorMetadata }) {
+  const setupNotice = privateProviderSetupNoticeFromChatError(error);
+  if (!setupNotice) return <>{error.message}</>;
+
+  return (
+    <div style={providerSetupStack}>
+      <div style={{ color: "#ffe0de", fontWeight: 800 }}>{setupNotice.title}</div>
+      <p style={providerSetupCopy}>{setupNotice.body}</p>
+      <Link href={setupNotice.href} style={providerSetupLink}>
+        {setupNotice.actionLabel}
+      </Link>
     </div>
   );
 }
@@ -580,3 +601,26 @@ function CandidateReviewCard({
     </div>
   );
 }
+
+const providerSetupStack = {
+  display: "grid",
+  gap: 8,
+};
+
+const providerSetupCopy = {
+  margin: 0,
+  color: "#f2b8b5",
+  lineHeight: 1.5,
+};
+
+const providerSetupLink = {
+  justifySelf: "start",
+  border: "1px solid #b85d5d",
+  borderRadius: 8,
+  color: "#ffffff",
+  background: "#6f2424",
+  padding: "0.45rem 0.65rem",
+  fontSize: "0.78rem",
+  fontWeight: 800,
+  textDecoration: "none",
+};

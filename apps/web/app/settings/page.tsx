@@ -141,7 +141,7 @@ export default function SettingsPage() {
           </section>
 
           <aside style={settingsAside}>
-            <section style={panel}>
+            <section id="ai-provider" style={panel}>
               <h2 style={sectionTitle}>AI Provider</h2>
               <AiProviderSettingsPanel />
             </section>

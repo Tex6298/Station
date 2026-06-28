@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR442 | Private provider setup UX | DAEDALUS / A2 | Open; make missing accepted private provider route visible and actionable for owners | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_DAEDALUS.md` |
+| PR442 | Private provider setup UX | ARGUS / A3 | Ready for review; missing accepted private provider route is visible and actionable for owners | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_RESULT.md` |
 
 ## Recently Closed
 

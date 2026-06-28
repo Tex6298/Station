@@ -3,6 +3,20 @@ const API_URL =
   process.env.API_URL ??
   "http://localhost:4000";
 
+export class ApiRequestError extends Error {
+  readonly status: number;
+  readonly code?: string;
+  readonly classification?: string;
+
+  constructor(input: { message: string; status: number; code?: string; classification?: string }) {
+    super(input.message);
+    this.name = "ApiRequestError";
+    this.status = input.status;
+    this.code = input.code;
+    this.classification = input.classification;
+  }
+}
+
 export function apiUrl(path: string): string {
   return `${API_URL}${path}`;
 }
@@ -28,7 +42,12 @@ async function request<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body?.error ?? `${options.method ?? "GET"} ${path} failed (${res.status})`);
+    throw new ApiRequestError({
+      message: responseString(body, "error") ?? `${options.method ?? "GET"} ${path} failed (${res.status})`,
+      status: res.status,
+      code: responseString(body, "code"),
+      classification: responseString(body, "classification"),
+    });
   }
 
   if (res.status === 204) return undefined as T;
@@ -53,6 +72,12 @@ export function apiPatch<T>(path: string, body: unknown, token?: string): Promis
 
 export function apiDelete<T>(path: string, token?: string): Promise<T> {
   return request<T>(path, { method: "DELETE" }, token);
+}
+
+function responseString(body: unknown, key: string) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return undefined;
+  const value = (body as Record<string, unknown>)[key];
+  return typeof value === "string" ? value : undefined;
 }
 
 // -- Billing -------------------------------------------------------------------

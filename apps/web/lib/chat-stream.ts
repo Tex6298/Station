@@ -18,6 +18,20 @@ export type ChatStreamError = {
   classification?: string;
 };
 
+export class ChatStreamClientError extends Error {
+  readonly status?: number;
+  readonly code?: string;
+  readonly classification?: string;
+
+  constructor(error: ChatStreamError) {
+    super(error.error || "Message failed.");
+    this.name = "ChatStreamClientError";
+    this.status = error.status;
+    this.code = error.code;
+    this.classification = error.classification;
+  }
+}
+
 export type SendPersonaChatInput = {
   personaId: string;
   content: string;
@@ -90,7 +104,7 @@ export async function consumeChatStream(
       }
       if (event.event === "chat.error") {
         const error = event.data as ChatStreamError;
-        throw new Error(error.error || "Message failed.");
+        throw new ChatStreamClientError(error);
       }
     }
 
