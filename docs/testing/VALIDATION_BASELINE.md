@@ -25,23 +25,27 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS INTEGRITY ERROR RESPONSE REVIEW`.
 
 Reason:
 
 - memory/canon route-level error responses are accepted;
 - integrity sessions are the next highest core private trust/continuity
   surface;
-- `integrity.ts` has direct route-level raw errors around session start,
+- `integrity.ts` now uses stable public-safe route responses around session start,
   answer progression, summary confirmation, output listing/review, due/history,
-  and session completion.
+  and session completion failures.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | Required for integrity session, turn, output, due/history, and review behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 3 tests passed; hostile integrity route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
-| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Conditional pass | Required if accepted-output writes touch memory/canon behavior. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic integrity fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Not run | Accepted-output memory/canon write semantics were not changed. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and integrity session/output/review/completion behavior did not change. |
 
 Residual risk: other route-level raw error responses remain future audit

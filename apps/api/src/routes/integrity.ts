@@ -41,6 +41,27 @@ const outputReviewSchema = z.object({
   editedContent: z.string().max(2000).optional(),
 });
 
+const INTEGRITY_ERROR_RESPONSES = {
+  start: { error: "Could not start integrity session.", code: "integrity_session_start_failed" },
+  turnCreate: { error: "Could not create integrity session turn.", code: "integrity_session_turn_create_failed" },
+  answer: { error: "Could not advance integrity session.", code: "integrity_session_answer_failed" },
+  followupCreate: { error: "Could not create integrity follow-up.", code: "integrity_followup_create_failed" },
+  summaryCreate: { error: "Could not create integrity summary.", code: "integrity_summary_create_failed" },
+  summaryConfirm: { error: "Could not confirm integrity summary.", code: "integrity_summary_confirm_failed" },
+  anchorCreate: { error: "Could not create integrity anchor.", code: "integrity_anchor_create_failed" },
+  outputsLoad: { error: "Could not load integrity outputs.", code: "integrity_outputs_load_failed" },
+  outputReview: { error: "Could not update integrity output.", code: "integrity_output_review_failed" },
+  outputWrite: { error: "Could not write integrity output.", code: "integrity_output_write_failed" },
+  dueLoad: { error: "Could not load integrity due status.", code: "integrity_due_load_failed" },
+  historyLoad: { error: "Could not load integrity history.", code: "integrity_history_load_failed" },
+  complete: { error: "Could not complete integrity session.", code: "integrity_session_complete_failed" },
+  outputsCreate: { error: "Could not create integrity outputs.", code: "integrity_outputs_create_failed" },
+} as const;
+
+function isMissingRowError(error: any) {
+  return error?.code === "PGRST116";
+}
+
 export const integrityRouter = Router();
 integrityRouter.use(requireAuth);
 
@@ -49,58 +70,62 @@ integrityRouter.post("/start", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const ownerUserId = req.user!.id;
-  const persona = await loadOwnedPersona(parsed.data.personaId, ownerUserId);
-  if (!persona) return res.status(404).json({ error: "Persona not found." });
+  try {
+    const persona = await loadOwnedPersona(parsed.data.personaId, ownerUserId);
+    if (!persona) return res.status(404).json({ error: "Persona not found." });
 
-  const sessionType = parsed.data.sessionType as IntegritySessionType;
-  const clusters = await selectClusters({
-    ownerUserId,
-    personaId: persona.id,
-    sessionType,
-    manualClusters: parsed.data.clusters as IntegrityCluster[] | undefined,
-  });
-  const firstCluster = clusters[0];
-  const question = await getAnchorQuestion(firstCluster, sessionType);
+    const sessionType = parsed.data.sessionType as IntegritySessionType;
+    const clusters = await selectClusters({
+      ownerUserId,
+      personaId: persona.id,
+      sessionType,
+      manualClusters: parsed.data.clusters as IntegrityCluster[] | undefined,
+    });
+    const firstCluster = clusters[0];
+    const question = await getAnchorQuestion(firstCluster, sessionType);
 
-  const sb = getSupabaseAdmin();
-  const { data: session, error: sessionError } = await (sb as any)
-    .from("integrity_sessions")
-    .insert({
-      owner_user_id: ownerUserId,
-      persona_id: persona.id,
-      session_type: sessionType,
-      status: "in_progress",
-      clusters_planned: clusters,
-      clusters_covered: [],
-    })
-    .select("*")
-    .single();
+    const sb = getSupabaseAdmin();
+    const { data: session, error: sessionError } = await (sb as any)
+      .from("integrity_sessions")
+      .insert({
+        owner_user_id: ownerUserId,
+        persona_id: persona.id,
+        session_type: sessionType,
+        status: "in_progress",
+        clusters_planned: clusters,
+        clusters_covered: [],
+      })
+      .select("*")
+      .single();
 
-  if (sessionError || !session) return res.status(500).json({ error: sessionError?.message ?? "Could not start session." });
+    if (sessionError || !session) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.start);
 
-  const { data: turn, error: turnError } = await (sb as any)
-    .from("integrity_session_turns")
-    .insert({
-      session_id: session.id,
-      owner_user_id: ownerUserId,
-      persona_id: persona.id,
-      cluster: firstCluster,
+    const { data: turn, error: turnError } = await (sb as any)
+      .from("integrity_session_turns")
+      .insert({
+        session_id: session.id,
+        owner_user_id: ownerUserId,
+        persona_id: persona.id,
+        cluster: firstCluster,
+        question,
+        turn_type: "anchor",
+      })
+      .select("*")
+      .single();
+
+    if (turnError || !turn) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.turnCreate);
+
+    return res.status(201).json({
+      sessionId: session.id,
       question,
-      turn_type: "anchor",
-    })
-    .select("*")
-    .single();
-
-  if (turnError || !turn) return res.status(500).json({ error: turnError?.message ?? "Could not create first turn." });
-
-  return res.status(201).json({
-    sessionId: session.id,
-    question,
-    cluster: firstCluster,
-    turnId: turn.id,
-    clustersPlanned: clusters,
-    clusterIndex: 0,
-  });
+      cluster: firstCluster,
+      turnId: turn.id,
+      clustersPlanned: clusters,
+      clusterIndex: 0,
+    });
+  } catch {
+    return res.status(500).json(INTEGRITY_ERROR_RESPONSES.start);
+  }
 });
 
 integrityRouter.post("/answer", async (req, res) => {
@@ -110,82 +135,90 @@ integrityRouter.post("/answer", async (req, res) => {
   const sb = getSupabaseAdmin();
   const ownerUserId = req.user!.id;
 
-  const { data: session } = await (sb as any)
-    .from("integrity_sessions")
-    .select("*")
-    .eq("id", parsed.data.sessionId)
-    .eq("owner_user_id", ownerUserId)
-    .single();
+  try {
+    const { data: session, error: sessionError } = await (sb as any)
+      .from("integrity_sessions")
+      .select("*")
+      .eq("id", parsed.data.sessionId)
+      .eq("owner_user_id", ownerUserId)
+      .single();
 
-  if (!session || session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
+    if (sessionError && !isMissingRowError(sessionError)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.answer);
+    if (!session || session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
 
-  const { data: turn } = await (sb as any)
-    .from("integrity_session_turns")
-    .update({ answer: parsed.data.answer })
-    .eq("id", parsed.data.turnId)
-    .eq("session_id", session.id)
-    .eq("owner_user_id", ownerUserId)
-    .select("*")
-    .single();
-
-  if (!turn) return res.status(404).json({ error: "Integrity turn not found." });
-
-  const { data: turns } = await (sb as any)
-    .from("integrity_session_turns")
-    .select("*")
-    .eq("session_id", session.id)
-    .eq("cluster", turn.cluster)
-    .order("created_at", { ascending: true });
-
-  const currentTurns = turns ?? [];
-  const next = getNextAction(session, currentTurns);
-
-  if (next.action === "followup") {
-    const anchorQuestion = currentTurns.find((item: any) => item.turn_type === "anchor")?.question ?? turn.question;
-    const question = await generateFollowupQuestion({
-      ownerUserId,
-      cluster: turn.cluster,
-      anchorQuestion,
-      userAnswer: parsed.data.answer,
-      usedQuestions: currentTurns.map((item: any) => item.question),
-    });
-    const { data: nextTurn, error } = await (sb as any)
+    const { data: turn, error: turnError } = await (sb as any)
       .from("integrity_session_turns")
-      .insert({
-        session_id: session.id,
-        owner_user_id: ownerUserId,
-        persona_id: session.persona_id,
-        cluster: turn.cluster,
-        question,
-        turn_type: "follow_up",
-      })
+      .update({ answer: parsed.data.answer })
+      .eq("id", parsed.data.turnId)
+      .eq("session_id", session.id)
+      .eq("owner_user_id", ownerUserId)
       .select("*")
       .single();
 
-    if (error || !nextTurn) return res.status(500).json({ error: error?.message ?? "Could not create follow-up." });
-    return res.json({ nextType: "followup", question, turnId: nextTurn.id, cluster: turn.cluster });
-  }
+    if (turnError && !isMissingRowError(turnError)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.answer);
+    if (!turn) return res.status(404).json({ error: "Integrity turn not found." });
 
-  if (next.action === "summary") {
-    const summary = await generateClusterSummary({ ownerUserId, cluster: turn.cluster, turns: currentTurns });
-    const { data: summaryTurn, error } = await (sb as any)
+    const { data: turns, error: turnsError } = await (sb as any)
       .from("integrity_session_turns")
-      .insert({
-        session_id: session.id,
-        owner_user_id: ownerUserId,
-        persona_id: session.persona_id,
-        cluster: turn.cluster,
-        question: summary,
-        turn_type: "summary",
-      })
       .select("*")
-      .single();
+      .eq("session_id", session.id)
+      .eq("cluster", turn.cluster)
+      .order("created_at", { ascending: true });
 
-    if (error || !summaryTurn) return res.status(500).json({ error: error?.message ?? "Could not create summary." });
-    return res.json({ nextType: "summary", summary, turnId: summaryTurn.id, cluster: turn.cluster });
+    if (turnsError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.answer);
+
+    const currentTurns = turns ?? [];
+    const next = getNextAction(session, currentTurns);
+
+    if (next.action === "followup") {
+      const anchorQuestion = currentTurns.find((item: any) => item.turn_type === "anchor")?.question ?? turn.question;
+      const question = await generateFollowupQuestion({
+        ownerUserId,
+        cluster: turn.cluster,
+        anchorQuestion,
+        userAnswer: parsed.data.answer,
+        usedQuestions: currentTurns.map((item: any) => item.question),
+      });
+      const { data: nextTurn, error } = await (sb as any)
+        .from("integrity_session_turns")
+        .insert({
+          session_id: session.id,
+          owner_user_id: ownerUserId,
+          persona_id: session.persona_id,
+          cluster: turn.cluster,
+          question,
+          turn_type: "follow_up",
+        })
+        .select("*")
+        .single();
+
+      if (error || !nextTurn) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.followupCreate);
+      return res.json({ nextType: "followup", question, turnId: nextTurn.id, cluster: turn.cluster });
+    }
+
+    if (next.action === "summary") {
+      const summary = await generateClusterSummary({ ownerUserId, cluster: turn.cluster, turns: currentTurns });
+      const { data: summaryTurn, error } = await (sb as any)
+        .from("integrity_session_turns")
+        .insert({
+          session_id: session.id,
+          owner_user_id: ownerUserId,
+          persona_id: session.persona_id,
+          cluster: turn.cluster,
+          question: summary,
+          turn_type: "summary",
+        })
+        .select("*")
+        .single();
+
+      if (error || !summaryTurn) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.summaryCreate);
+      return res.json({ nextType: "summary", summary, turnId: summaryTurn.id, cluster: turn.cluster });
+    }
+
+    return completeSession(session.id, ownerUserId, res);
+  } catch {
+    return res.status(500).json(INTEGRITY_ERROR_RESPONSES.answer);
   }
-
-  return completeSession(session.id, ownerUserId, res);
 });
 
 integrityRouter.post("/confirm-summary", async (req, res) => {
@@ -194,61 +227,69 @@ integrityRouter.post("/confirm-summary", async (req, res) => {
 
   const sb = getSupabaseAdmin();
   const ownerUserId = req.user!.id;
-  const { data: session } = await (sb as any)
-    .from("integrity_sessions")
-    .select("*")
-    .eq("id", parsed.data.sessionId)
-    .eq("owner_user_id", ownerUserId)
-    .single();
+  try {
+    const { data: session, error: sessionError } = await (sb as any)
+      .from("integrity_sessions")
+      .select("*")
+      .eq("id", parsed.data.sessionId)
+      .eq("owner_user_id", ownerUserId)
+      .single();
 
-  if (!session || session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
+    if (sessionError && !isMissingRowError(sessionError)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.summaryConfirm);
+    if (!session || session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
 
-  if (parsed.data.correction?.trim()) {
-    await (sb as any).from("integrity_session_turns").insert({
-      session_id: session.id,
-      owner_user_id: ownerUserId,
-      persona_id: session.persona_id,
-      cluster: parsed.data.cluster,
-      question: "User correction to summary",
-      answer: parsed.data.correction.trim(),
-      turn_type: "confirmation",
-    });
-  }
+    if (parsed.data.correction?.trim()) {
+      const { error: correctionError } = await (sb as any).from("integrity_session_turns").insert({
+        session_id: session.id,
+        owner_user_id: ownerUserId,
+        persona_id: session.persona_id,
+        cluster: parsed.data.cluster,
+        question: "User correction to summary",
+        answer: parsed.data.correction.trim(),
+        turn_type: "confirmation",
+      });
+      if (correctionError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.summaryConfirm);
+    }
 
-  const covered = Array.from(new Set([...(session.clusters_covered ?? []), parsed.data.cluster]));
-  const planned = (session.clusters_planned ?? []) as IntegrityCluster[];
-  const nextCluster = planned.find((cluster) => !covered.includes(cluster));
+    const covered = Array.from(new Set([...(session.clusters_covered ?? []), parsed.data.cluster]));
+    const planned = (session.clusters_planned ?? []) as IntegrityCluster[];
+    const nextCluster = planned.find((cluster) => !covered.includes(cluster));
 
-  await (sb as any)
-    .from("integrity_sessions")
-    .update({ clusters_covered: covered })
-    .eq("id", session.id)
-    .eq("owner_user_id", ownerUserId);
+    const { error: sessionUpdateError } = await (sb as any)
+      .from("integrity_sessions")
+      .update({ clusters_covered: covered })
+      .eq("id", session.id)
+      .eq("owner_user_id", ownerUserId);
 
-  if (!nextCluster) return completeSession(session.id, ownerUserId, res);
+    if (sessionUpdateError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.summaryConfirm);
 
-  const question = await getAnchorQuestion(nextCluster, session.session_type);
-  const { data: turn, error } = await (sb as any)
-    .from("integrity_session_turns")
-    .insert({
-      session_id: session.id,
-      owner_user_id: ownerUserId,
-      persona_id: session.persona_id,
-      cluster: nextCluster,
+    if (!nextCluster) return completeSession(session.id, ownerUserId, res);
+
+    const question = await getAnchorQuestion(nextCluster, session.session_type);
+    const { data: turn, error } = await (sb as any)
+      .from("integrity_session_turns")
+      .insert({
+        session_id: session.id,
+        owner_user_id: ownerUserId,
+        persona_id: session.persona_id,
+        cluster: nextCluster,
+        question,
+        turn_type: "anchor",
+      })
+      .select("*")
+      .single();
+
+    if (error || !turn) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.anchorCreate);
+    return res.json({
+      nextType: "anchor",
       question,
-      turn_type: "anchor",
-    })
-    .select("*")
-    .single();
-
-  if (error || !turn) return res.status(500).json({ error: error?.message ?? "Could not create next anchor." });
-  return res.json({
-    nextType: "anchor",
-    question,
-    turnId: turn.id,
-    cluster: nextCluster,
-    clusterIndex: planned.indexOf(nextCluster),
-  });
+      turnId: turn.id,
+      cluster: nextCluster,
+      clusterIndex: planned.indexOf(nextCluster),
+    });
+  } catch {
+    return res.status(500).json(INTEGRITY_ERROR_RESPONSES.summaryConfirm);
+  }
 });
 
 integrityRouter.post("/end-early", async (req, res) => {
@@ -259,13 +300,14 @@ integrityRouter.post("/end-early", async (req, res) => {
 
 integrityRouter.get("/outputs/:sessionId", async (req, res) => {
   const sb = getSupabaseAdmin();
-  const { data: session } = await (sb as any)
+  const { data: session, error: sessionError } = await (sb as any)
     .from("integrity_sessions")
     .select("id, status")
     .eq("id", req.params.sessionId)
     .eq("owner_user_id", req.user!.id)
     .single();
 
+  if (sessionError && !isMissingRowError(sessionError)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputsLoad);
   if (!session) return res.status(404).json({ error: "Integrity session not found." });
 
   const { data: outputs, error } = await (sb as any)
@@ -275,7 +317,7 @@ integrityRouter.get("/outputs/:sessionId", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: true });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputsLoad);
   return res.json({ status: session.status === "completed" ? "ready" : "generating", outputs: outputs ?? [] });
 });
 
@@ -294,11 +336,17 @@ integrityRouter.patch("/outputs/:outputId", async (req, res) => {
       .eq("owner_user_id", ownerUserId)
       .select("*")
       .single();
-    if (error || !data) return res.status(404).json({ error: error?.message ?? "Integrity output not found." });
+    if (error && !isMissingRowError(error)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputReview);
+    if (!data) return res.status(404).json({ error: "Integrity output not found." });
     return res.json({ output: data });
   }
 
-  const write = await writeAcceptedOutput(req.params.outputId, ownerUserId, parsed.data.editedContent);
+  let write;
+  try {
+    write = await writeAcceptedOutput(req.params.outputId, ownerUserId, parsed.data.editedContent);
+  } catch {
+    return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputWrite);
+  }
   const { data, error } = await (sb as any)
     .from("integrity_session_outputs")
     .update({
@@ -312,7 +360,8 @@ integrityRouter.patch("/outputs/:outputId", async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !data) return res.status(404).json({ error: error?.message ?? "Integrity output not found." });
+  if (error && !isMissingRowError(error)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputReview);
+  if (!data) return res.status(404).json({ error: "Integrity output not found." });
   return res.json({ output: data });
 });
 
@@ -324,7 +373,7 @@ integrityRouter.get("/due", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: true });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.dueLoad);
 
   const due = (personas ?? []).map((persona: any) => {
     const completed = (persona.integrity_sessions ?? [])
@@ -344,7 +393,12 @@ integrityRouter.get("/due", async (req, res) => {
 
 integrityRouter.get("/history/:personaId", async (req, res) => {
   const ownerUserId = req.user!.id;
-  const persona = await loadOwnedPersona(req.params.personaId, ownerUserId);
+  let persona;
+  try {
+    persona = await loadOwnedPersona(req.params.personaId, ownerUserId);
+  } catch {
+    return res.status(500).json(INTEGRITY_ERROR_RESPONSES.historyLoad);
+  }
   if (!persona) return res.status(404).json({ error: "Persona not found." });
 
   const sb = getSupabaseAdmin();
@@ -355,72 +409,81 @@ integrityRouter.get("/history/:personaId", async (req, res) => {
     .eq("owner_user_id", ownerUserId)
     .order("completed_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.historyLoad);
   return res.json({ sessions: data ?? [] });
 });
 
 async function completeSession(sessionId: string, ownerUserId: string, res: any) {
-  const sb = getSupabaseAdmin();
-  const { data: session } = await (sb as any)
-    .from("integrity_sessions")
-    .select("*")
-    .eq("id", sessionId)
-    .eq("owner_user_id", ownerUserId)
-    .single();
+  try {
+    const sb = getSupabaseAdmin();
+    const { data: session, error: sessionError } = await (sb as any)
+      .from("integrity_sessions")
+      .select("*")
+      .eq("id", sessionId)
+      .eq("owner_user_id", ownerUserId)
+      .single();
 
-  if (!session) return res.status(404).json({ error: "Integrity session not found." });
-  if (session.status === "completed") {
-    const { count } = await (sb as any)
-      .from("integrity_session_outputs")
-      .select("id", { count: "exact", head: true })
+    if (sessionError && !isMissingRowError(sessionError)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.complete);
+    if (!session) return res.status(404).json({ error: "Integrity session not found." });
+    if (session.status === "completed") {
+      const { count, error: countError } = await (sb as any)
+        .from("integrity_session_outputs")
+        .select("id", { count: "exact", head: true })
+        .eq("session_id", session.id)
+        .eq("owner_user_id", ownerUserId);
+
+      if (countError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputsLoad);
+
+      return res.json({
+        nextType: "end",
+        sessionId: session.id,
+        outputsGenerated: count ?? 0,
+        alreadyCompleted: true,
+      });
+    }
+    if (session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
+
+    const { data: turns, error: turnsError } = await (sb as any)
+      .from("integrity_session_turns")
+      .select("*")
       .eq("session_id", session.id)
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: true });
+
+    if (turnsError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.complete);
+
+    const outputs = await generateIntegrityOutputs({ ownerUserId, turns: turns ?? [] });
+    if (outputs.length > 0) {
+      const { error: outputError } = await (sb as any)
+        .from("integrity_session_outputs")
+        .insert(outputs.map((output) => ({
+          session_id: session.id,
+          owner_user_id: ownerUserId,
+          persona_id: session.persona_id,
+          output_type: output.output_type,
+          content: output.content,
+          status: "pending",
+        })));
+
+      if (outputError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputsCreate);
+    }
+
+    const { error: updateError } = await (sb as any)
+      .from("integrity_sessions")
+      .update({
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        clusters_covered: session.clusters_planned?.length ? session.clusters_planned : session.clusters_covered,
+      })
+      .eq("id", session.id)
       .eq("owner_user_id", ownerUserId);
 
-    return res.json({
-      nextType: "end",
-      sessionId: session.id,
-      outputsGenerated: count ?? 0,
-      alreadyCompleted: true,
-    });
+    if (updateError) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.complete);
+
+    return res.json({ nextType: "end", sessionId: session.id, outputsGenerated: outputs.length });
+  } catch {
+    return res.status(500).json(INTEGRITY_ERROR_RESPONSES.complete);
   }
-  if (session.status !== "in_progress") return res.status(404).json({ error: "Active integrity session not found." });
-
-  const { data: turns, error: turnsError } = await (sb as any)
-    .from("integrity_session_turns")
-    .select("*")
-    .eq("session_id", session.id)
-    .eq("owner_user_id", ownerUserId)
-    .order("created_at", { ascending: true });
-
-  if (turnsError) return res.status(500).json({ error: turnsError.message });
-
-  const outputs = await generateIntegrityOutputs({ ownerUserId, turns: turns ?? [] });
-  if (outputs.length > 0) {
-    const { error: outputError } = await (sb as any)
-      .from("integrity_session_outputs")
-      .insert(outputs.map((output) => ({
-        session_id: session.id,
-        owner_user_id: ownerUserId,
-        persona_id: session.persona_id,
-        output_type: output.output_type,
-        content: output.content,
-        status: "pending",
-      })));
-
-    if (outputError) return res.status(500).json({ error: outputError.message });
-  }
-
-  await (sb as any)
-    .from("integrity_sessions")
-    .update({
-      status: "completed",
-      completed_at: new Date().toISOString(),
-      clusters_covered: session.clusters_planned?.length ? session.clusters_planned : session.clusters_covered,
-    })
-    .eq("id", session.id)
-    .eq("owner_user_id", ownerUserId);
-
-  return res.json({ nextType: "end", sessionId: session.id, outputsGenerated: outputs.length });
 }
 
 function dueStatus(lastSession: string | null) {

@@ -4,24 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - integrity error responses
+## Latest DAEDALUS result - integrity errors ready for ARGUS
 
-MIMIR opened the next narrow route-level error response hardening lane on
+DAEDALUS completed the integrity route-level error response implementation on
 2026-06-28:
-`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_DAEDALUS.md`.
+`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_RESULT.md`.
 
-Why now:
+Verdict:
 
-- ARGUS accepted memory/canon route-level error responses.
-- Integrity sessions are the next highest core surface because they generate
-  trust and continuity decisions from private persona material.
-- The lane covers route responses around session start/progression, summary
-  confirmation, outputs, due/history, and session completion.
+```text
+READY FOR ARGUS INTEGRITY ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Integrity session start, answer progression, follow-up/summary/anchor
+  creation, summary confirmation, output listing/review, due/history, and
+  completion failures now return stable public-safe responses with fixed
+  route-specific error codes.
+- Successful session start, answer progression, follow-up/summary/anchor
+  generation, summary confirmation, end-early behavior, output listing/review,
+  due/history readback, completion/idempotent completed-session behavior,
+  generated integrity output behavior, `writeAcceptedOutput` behavior, and
+  owner-only access behavior did not change.
+- Focused integrity tests force hostile service payloads through session, turn,
+  output, due/history, and completion failures and prove private IDs, table
+  names, URLs/tokens, owner answers, generated questions/summaries, output
+  content, cluster details, provider payload labels, and stack-shaped strings
+  are not returned from failing route responses.
+- Scope stayed inside integrity route response mapping, focused integrity
+  tests, and roadmap/testing documentation. No integrity prompt content,
+  cluster selection, question/summary/output generation, `writeAcceptedOutput`
+  semantics, memory/canon schema, lifecycle semantics, provider/model
+  behavior, retrieval, embeddings/vector behavior, migrations, package
+  manifests, Redis, Cloudflare, billing, auth/session semantics, UI, workers,
+  queues, hosted config, or hosted data changes were introduced.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:integrity` passed, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic integrity
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+- `test:continuity` was not run because accepted-output memory/canon write
+  semantics were not changed.
 
 Current baton:
 
-- DAEDALUS should harden integrity route responses, validate the focused
-  integrity gate, then wake ARGUS for hostile review.
+- ARGUS should hostile-review integrity response mapping, no-row ownership
+  semantics, successful session/output/completion behavior preservation, and
+  focused tests. ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are
+  required.
 
 ## Latest ARGUS verdict - memory/canon errors accepted
 
