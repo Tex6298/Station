@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Integrity Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- memory/canon route-level error responses are accepted;
+- integrity sessions are the next highest core private trust/continuity
+  surface;
+- `integrity.ts` has direct route-level raw errors around session start,
+  answer progression, summary confirmation, output listing/review, due/history,
+  and session completion.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | Required for integrity session, turn, output, due/history, and review behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Conditional pass | Required if accepted-output writes touch memory/canon behavior. |
+| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and integrity session/output/review/completion behavior did not change. |
+
+Residual risk: other route-level raw error responses remain future audit
+surface.
+
 ## Production Memory Canon Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:

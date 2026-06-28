@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - integrity error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted memory/canon route-level error responses.
+- Integrity sessions are the next highest core surface because they generate
+  trust and continuity decisions from private persona material.
+- The lane covers route responses around session start/progression, summary
+  confirmation, outputs, due/history, and session completion.
+
+Current baton:
+
+- DAEDALUS should harden integrity route responses, validate the focused
+  integrity gate, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - memory/canon errors accepted
 
 ARGUS completed the memory/canon route-level error response review
