@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR451 | Hosted Continuity review links rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_ARIADNE.md` |
+| PR451 | Hosted Continuity review links rehearsal | MIMIR / A1 | Pass; waiting closeout | `docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR451 rehearsal | Hosted Continuity review links rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; Continuity review links are visible, safe, and readable on desktop/mobile | `docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_RESULT.md` |
 | PR450 closeout | Continuity review target route links | DAEDALUS -> ARGUS -> MIMIR | Closed; PR451 opened for hosted browser verification | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_CLOSEOUT.md` |
 | PR450 review | Continuity review target route links | DAEDALUS -> ARGUS -> MIMIR | Accepted; already implemented and verified by UX-03A route-link work | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_REVIEW_RESULT.md` |
 | PR449 closeout | Hosted Studio Memory orientation rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR450 opened for Continuity review target links | `docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_CLOSEOUT.md` |

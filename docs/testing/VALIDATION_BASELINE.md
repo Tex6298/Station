@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR451 Hosted Continuity Review Links Rehearsal
+
+ARIADNE completed PR451 on 2026-06-28:
+`docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were fresh at a PR448-or-later runtime;
+- replay-owner hosted API sign-in and session verification passed;
+- the replay persona Continuity route rendered owner-only route-level review
+  target links;
+- sampled Memory, Canon, Integrity, and Continuity review links routed to
+  readable Studio surfaces;
+- desktop and 390px mobile layouts had no horizontal overflow or clipped review
+  links;
+- sampled desktop/mobile visible text did not expose raw identifiers, private
+  source bodies, provider payloads, storage paths, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `4a1234c5`. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Replay persona Continuity route | Pass | HTTP 200. |
+| Visible review target links | Pass | 15 route-level links found; sampled supported targets routed to Studio surfaces. |
+| Desktop layout/safety | Pass | No horizontal overflow, clipped review links, raw ids, or secret-shaped visible text. |
+| Narrow mobile layout/safety | Pass | 390px viewport remained readable without horizontal overflow or clipped review links. |
+| `git diff --check` | Pass | Required for the PR451 docs result commit. |
+
+Residual risk: this was a narrow hosted Continuity link/readability rehearsal.
+It did not mutate Memory, Canon, Archive, Integrity, Continuity, publication,
+provider, billing, export, or import state.
+
 ## PR450 Continuity Review Target Route Links
 
 DAEDALUS completed the PR450 verification pass on 2026-06-28:

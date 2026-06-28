@@ -79,3 +79,15 @@ Include route, action, expected behavior, actual behavior, and non-secret
 evidence. Do not commit screenshots, cookies, session values, raw owner ids,
 raw persona ids, raw source ids, private source bodies, prompts, completions,
 provider keys, or raw network payloads.
+
+## Result
+
+ARIADNE completed this hosted rehearsal:
+
+`docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
