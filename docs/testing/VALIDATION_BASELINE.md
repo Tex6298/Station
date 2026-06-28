@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS MEMORY CANON ERROR RESPONSE REVIEW`.
+ARGUS completed memory/canon error response review:
+`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED`.
 
 Reason:
 
@@ -43,9 +46,10 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 9 tests passed; hostile memory/canon route failures return stable public copy. |
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed; continuity behavior adjacent to memory/canon lifecycle remains green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | No whitespace errors. |
-| Added-line sensitive scan | Reviewed | Hits were synthetic memory/canon fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and memory/canon/briefing/graph/lifecycle behavior did not change. |
+| `git diff 997dfb28^ 997dfb28 --check` | Pass | MIMIR lane-open commit has no whitespace errors. |
+| `git diff 3d64db43^ 3d64db43 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic memory/canon fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category docs text only. |
+| ARGUS review | Pass | Memory/canon response mapping is stable public copy; owner readback, lifecycle/graph semantics, embedding behavior, archive source sanitization readback, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: other route-level raw error responses remain future audit
 surface.

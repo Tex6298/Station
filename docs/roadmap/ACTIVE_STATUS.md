@@ -4,23 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - memory/canon errors ready for ARGUS
+## Latest ARGUS verdict - memory/canon errors accepted
 
-DAEDALUS completed the memory/canon route-level error response implementation
+ARGUS completed the memory/canon route-level error response review
 on 2026-06-28:
-`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS MEMORY CANON ERROR RESPONSE REVIEW
+ACCEPTED
 ```
 
 Decision:
 
 - Shared owner memory, persona memory briefing, memory graph, graph edge
   creation, memory item list/create/update/delete, lifecycle update/edge
-  recording, and canon list/create/update/delete failures now return stable
+  recording, and canon list/create/update/delete failures return stable
   public-safe responses with fixed route-specific error codes.
 - Successful memory, canon, briefing, graph, lifecycle, embedding, archive
   source readback, lifecycle event recording, graph edge semantics, and
@@ -42,15 +42,16 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` passed.
+- `git diff 997dfb28^ 997dfb28 --check` passed.
+- `git diff 3d64db43^ 3d64db43 --check` passed.
 - Added-line sensitive scan was reviewed; hits were synthetic memory/canon
-  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+  fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category
+  docs text only.
+- `memory.ts` and `canon.ts` have no direct `*.message` route response returns.
 
 Current baton:
 
-- ARGUS should hostile-review memory/canon response mapping, owner readback
-  preservation, lifecycle/graph semantics preservation, and focused tests.
-  ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+- MIMIR should close or route the next lane.
 
 ## Latest ARGUS verdict - export errors accepted
 
