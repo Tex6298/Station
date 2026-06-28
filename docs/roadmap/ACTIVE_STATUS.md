@@ -4,6 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR432 station_free_1536 retrieval proof accepted
+
+ARGUS reviewed PR432:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+Decision:
+
+- The current bounded staging replay retrieval path is accepted as proven for
+  `station_free_1536`.
+- Authenticated `/observability/replay-readiness` may report
+  `station_free_1536_retrieval_path` as setup-proven instead of keeping stale
+  embedding-profile and hostile-vector blockers active.
+- The accepted proof is bounded to the current staging replay corpus and current
+  Gemini/1536/backfill-v2 retrieval path.
+- Future corpus, provider, model, dimension, index, replay account, or hosted
+  retrieval changes still require fresh scoped proof.
+- No migration, reindex, delete, nulling, schema, storage, provider switch,
+  Cloudflare, Redis, worker, queue, chat UI, or backup/disaster-recovery change
+  landed in PR432.
+
+Validation:
+
+- `node scripts/prove-staging-migration-029.mjs` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed, 12
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 43
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR432 - station_free_1536 Retrieval Proof
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR432 and choose the next lane.
+
 ## Latest DAEDALUS result - PR432 ready for ARGUS review
 
 DAEDALUS completed PR432:

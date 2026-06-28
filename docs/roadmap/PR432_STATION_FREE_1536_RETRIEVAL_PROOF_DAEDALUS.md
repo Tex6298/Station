@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3 if proof or code changes land
 
-Status: proven - ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Why This Lane
 
@@ -102,3 +102,7 @@ required.
 Proof result:
 
 `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md`

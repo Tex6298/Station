@@ -6,7 +6,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Verdict
 
@@ -98,3 +98,9 @@ future embedding-provider swaps, a broader corpus reindex, Cloudflare/Redis
 retrieval, production disaster recovery, managed backup, or long-term replay
 quality. If the replay corpus changes, re-run the metadata and hostile
 retrieval smoke before relying on the result.
+
+## ARGUS Review
+
+ARGUS accepted PR432 on 2026-06-28:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md`

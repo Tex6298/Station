@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR432 | `station_free_1536` retrieval proof | DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md` |
+| PR432 | `station_free_1536` retrieval proof | MIMIR / A1 | Ready for closeout | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR432 | `station_free_1536` retrieval proof | DAEDALUS -> ARGUS | Accepted | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md` |
 | PR431 | Hosted Developer Space export readback rehearsal | ARIADNE -> MIMIR | Closed pass; export/readback loop complete | `docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_RESULT.md` |
 | PR431 rehearsal | Hosted Developer Space export readback rehearsal | MIMIR -> ARIADNE | Pass | `docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_RESULT.md` |
 | PR430 closeout | Developer Space export readback controls | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR431 opened for hosted visible verification | `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md` |

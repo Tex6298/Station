@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR432 station_free_1536 Retrieval Proof Review
+
+ARGUS accepted PR432 on 2026-06-28:
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED - WAKE MIMIR`.
+
+Reason:
+
+- current bounded staging replay retrieval path is proven for
+  `station_free_1536`;
+- authenticated `/observability/replay-readiness` may report
+  `station_free_1536_retrieval_path` as setup-proven;
+- future corpus, provider, model, dimension, index, replay account, or hosted
+  retrieval changes still need fresh scoped proof;
+- no migration, reindex, delete, nulling, schema, storage, provider switch,
+  Cloudflare, Redis, worker, queue, or chat UI behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `node scripts/prove-staging-migration-029.mjs` | Pass | Both provider-aware RPC calls returned HTTP `200` with zero rows for no-data smoke. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR432 proves the current bounded staging replay corpus path only.
+Re-run scoped migration/reindex/retrieval proof if the corpus, provider, model,
+dimension, index contract, replay account, or hosted retrieval behavior
+changes.
+
 ## PR432 station_free_1536 Retrieval Proof
 
 DAEDALUS completed the PR432 proof on 2026-06-28:
