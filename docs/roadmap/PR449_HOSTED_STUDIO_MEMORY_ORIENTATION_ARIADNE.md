@@ -75,3 +75,15 @@ Include route, action, expected behavior, actual behavior, and non-secret
 evidence. Do not commit screenshots, cookies, session values, raw owner ids,
 raw persona ids, private memory bodies, prompts, completions, provider keys, or
 raw network payloads.
+
+## Result
+
+ARIADNE completed this hosted rehearsal:
+
+`docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```

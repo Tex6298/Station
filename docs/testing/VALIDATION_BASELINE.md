@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR449 Hosted Studio Memory Orientation Rehearsal
+
+ARIADNE completed PR449 on 2026-06-28:
+`docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were fresh at the PR448 runtime commit;
+- signed-out `/studio` showed sign-in state and did not expose the owner Memory
+  dashboard panel;
+- replay-owner hosted API sign-in and session verification passed;
+- signed-in `/studio` showed Memory as a distinct owner-only dashboard stop;
+- the Memory stop routed into the replay persona Memory workspace;
+- Archive, Continuity, Integrity, and Personas remained visible alongside
+  Memory.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `4a1234c5`. |
+| Signed-out `/studio` | Pass | Owner Memory dashboard panel was not visible. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Signed-in `/studio` Memory panel | Pass | Memory appeared as an owner-only dashboard stop with status/readback copy. |
+| Persona Memory route | Pass | Persona Memory route returned HTTP 200 with Memory and lifecycle/source copy visible. |
+| `git diff --check` | Pass | Required for the PR449 docs result commit. |
+
+Residual risk: this was a narrow hosted confirmation of PR448. It did not run a
+broad dashboard redesign pass, private provider success test, billing mutation,
+archive import mutation, or publishing mutation.
+
 ## PR448 Studio Dashboard Memory Orientation
 
 DAEDALUS implemented PR448 on 2026-06-28:

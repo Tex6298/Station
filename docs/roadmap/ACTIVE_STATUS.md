@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR449 hosted Memory orientation passed
+
+ARIADNE completed PR449:
+
+`docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR448 runtime commit.
+- Signed-out `/studio` showed sign-in state and did not expose the owner Memory
+  dashboard panel.
+- Signed-in `/studio` showed Memory as a distinct owner-only dashboard stop.
+- The Memory stop routed to the replay persona Memory workspace.
+- Archive, Continuity, Integrity, and Personas remained visible alongside
+  Memory.
+
+Current lane:
+
+```text
+PR449 - Hosted Studio Memory Orientation Rehearsal
+Owner: MIMIR / A1
+State: PASS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR449 or choose the next product-operation lane.
+
 ## Latest MIMIR closeout - PR448 accepted, PR449 opened
 
 MIMIR closes PR448:
