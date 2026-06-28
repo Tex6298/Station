@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR445 | Discover document route repair | DAEDALUS / A2 | Open | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_DAEDALUS.md` |
+| PR445 | Discover document route repair | ARGUS / A3 | Ready for review; Discover public document cards use canonical Space document routes | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_RESULT.md` |
 
 ## Recently Closed
 

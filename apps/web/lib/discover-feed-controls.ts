@@ -169,9 +169,10 @@ function safeRouteHref(value: unknown, type: DiscoverFeedType) {
   if (typeof value !== "string") return null;
   if (!value.startsWith("/") || value.startsWith("//")) return null;
   if (/[\s\\]/.test(value)) return null;
+  if (type === "document") return isSafeSpaceDocumentRouteHref(value) ? value : null;
 
   const allowedPrefixes: Record<DiscoverFeedType, string[]> = {
-    document: ["/space/", "/documents/"],
+    document: [],
     thread: ["/forums/"],
     developer_space: ["/developer-spaces/"],
     space: ["/space/"],
@@ -186,4 +187,14 @@ function isSafeSpaceRouteHref(value: string) {
   if (!match) return false;
   const slug = match[1];
   return SAFE_ROUTE_SLUG_PATTERN.test(slug) && !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug);
+}
+
+function isSafeSpaceDocumentRouteHref(value: string) {
+  const match = value.match(/^\/space\/([^/]+)\/documents\/([^/]+)$/);
+  if (!match) return false;
+  const [, slug, documentId] = match;
+  return SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug) &&
+    documentId.length > 0 &&
+    !/[\s\\]/.test(documentId);
 }

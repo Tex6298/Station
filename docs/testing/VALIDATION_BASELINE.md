@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR445 Discover Document Route Repair
+
+DAEDALUS implemented PR445 on 2026-06-28:
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- Discover feed public document cards now use
+  `/space/<space-slug>/documents/<document-id>`;
+- no-Space or unsafe-Space public documents no longer fall back to the dead
+  `/documents/<document-id>` web route;
+- featured Discover document rows resolve to canonical Space document hrefs;
+- frontend Discover/writing normalizers reject dead document-card hrefs;
+- public/private publication boundaries, forum/comment behavior, and broad
+  Discover layout did not change.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/writing-feed.test.ts apps/web/components/discover/search-dropdown.test.ts` | Pass | 17 focused route helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 39 tests passed; Discover feed and featured routeability/privacy assertions included. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 23 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; document visibility/discussion boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 139 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Completed with exit code 0. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: hosted routeability still needs ARIADNE/browser verification
+after deployment. PR445 is a code/test repair and does not run a hosted sweep.
+
 ## PR444 Hosted Product Operation Sweep
 
 ARIADNE completed PR444 on 2026-06-28:

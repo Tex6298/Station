@@ -64,6 +64,42 @@ test("writing feed maps raw curated featured document rows", () => {
   });
 });
 
+test("writing feed drops raw curated document rows without canonical Space hrefs", () => {
+  assert.equal(
+    normalizeWritingFeedItem({
+      id: "feed-1",
+      item_type: "document",
+      item_id: "doc-featured",
+      title: "Featured public document",
+      description: "Curated summary.",
+      created_at: "2026-06-14T08:30:00.000Z",
+    }),
+    null
+  );
+  assert.equal(
+    normalizeWritingFeedItem({
+      id: "feed-2",
+      item_type: "document",
+      item_id: "doc-dead-route",
+      title: "Dead public document route",
+      href: "/documents/doc-dead-route",
+      created_at: "2026-06-14T08:30:00.000Z",
+    }),
+    null
+  );
+  assert.equal(
+    normalizeWritingFeedItem({
+      id: "feed-3",
+      item_type: "document",
+      item_id: "doc-space-index",
+      title: "Wrong Space route",
+      href: "/space/public",
+      created_at: "2026-06-14T08:30:00.000Z",
+    }),
+    null
+  );
+});
+
 test("writing card discussion cue is visible only for linked document items", () => {
   assert.equal(
     writingCardDiscussionCue({
@@ -154,6 +190,16 @@ test("discover public Space highlights keep only safe Space routes", () => {
 test("discover feed normalizes curated staff-pick rows into routeable cards", () => {
   const items = normalizeDiscoverFeedItems([
     {
+      id: "feed-0",
+      item_type: "document",
+      item_id: "doc-featured",
+      event_type: "featured",
+      title: "Featured public document",
+      description: "Curated public document.",
+      href: "/space/public/documents/doc-featured",
+      created_at: "2026-06-26T08:29:00.000Z",
+    },
+    {
       id: "feed-1",
       item_type: "space",
       item_id: "space-1",
@@ -173,6 +219,14 @@ test("discover feed normalizes curated staff-pick rows into routeable cards", ()
     },
     {
       id: "feed-3",
+      item_type: "document",
+      item_id: "doc-dead-route",
+      title: "Dead route",
+      href: "/documents/doc-dead-route",
+      created_at: "2026-06-26T08:32:00.000Z",
+    },
+    {
+      id: "feed-4",
       item_type: "space",
       item_id: "space-wrong-route",
       title: "Wrong local route",
@@ -180,11 +234,15 @@ test("discover feed normalizes curated staff-pick rows into routeable cards", ()
       created_at: "2026-06-26T08:32:00.000Z",
     },
   ]);
-  const [item] = items;
+  const [document, space] = items;
 
-  assert.equal(items.length, 1);
-  assert.equal(item.id, "space-1");
-  assert.equal(item.type, "space");
-  assert.equal(item.href, "/space/station-replay-alpha");
-  assert.equal(item.promoted, true);
+  assert.equal(items.length, 2);
+  assert.equal(document.id, "doc-featured");
+  assert.equal(document.type, "document");
+  assert.equal(document.href, "/space/public/documents/doc-featured");
+  assert.equal(document.promoted, true);
+  assert.equal(space.id, "space-1");
+  assert.equal(space.type, "space");
+  assert.equal(space.href, "/space/station-replay-alpha");
+  assert.equal(space.promoted, true);
 });

@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR445 Discover document route repair ready for ARGUS
+
+DAEDALUS implemented PR445:
+
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_RESULT.md`
+
+Decision:
+
+- Discover feed document cards now use canonical public Space document hrefs
+  shaped `/space/<space-slug>/documents/<document-id>`.
+- Documents without a safe public Space slug are dropped instead of falling
+  back to the dead `/documents/<document-id>` web route.
+- Featured Discover document rows are resolved server-side to canonical Space
+  document hrefs before return.
+- Sidebar recent document links use canonical Space document hrefs or are
+  omitted when no safe route exists.
+- Frontend Discover/writing normalizers reject dead `/documents/<document-id>`
+  document-card hrefs.
+- Public/private publication boundaries, forum/comment behavior, and broad
+  Discover layout were not changed.
+
+Current lane:
+
+```text
+PR445 - Discover Document Route Repair
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should hostile-review routeability, privacy boundaries, and focused
+  tests for PR445.
+- If accepted, ARGUS should wake MIMIR with closeout recommendation.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact patch target.
+
 ## Latest MIMIR closeout - PR444 closed, PR445 opened
 
 MIMIR closes PR444:

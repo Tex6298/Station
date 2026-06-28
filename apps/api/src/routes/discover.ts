@@ -389,6 +389,33 @@ async function canShowFeaturedItem(item: any, req: Request) {
   return false;
 }
 
+async function resolveFeaturedFeedItem(item: any, req: Request) {
+  const sb = getSupabaseAdmin();
+
+  if (item.item_type === "document") {
+    const { data, error } = await sb
+      .from("documents")
+      .select("id, status, visibility, space:spaces!space_id(slug, title)")
+      .eq("id", item.item_id)
+      .single();
+    ensureFeaturedVisibilityQuerySucceeded(error);
+    if (!data || data.status !== "published") return null;
+    if (data.visibility !== "public" && !((data.visibility === "community" || data.visibility === "members") && canSeeCommunityDocuments(req))) {
+      return null;
+    }
+
+    const href = safeSpaceDocumentHref((data.space as any)?.slug, data.id);
+    if (!href) return null;
+    return {
+      ...item,
+      href,
+      space: data.space ?? null,
+    };
+  }
+
+  return await canShowFeaturedItem(item, req) ? item : null;
+}
+
 async function developerSpaceFeedItems(req: Request, tab: string, offset: number, limit: number) {
   const sb = getSupabaseAdmin();
   const [spaceResults] = await Promise.all([
@@ -561,7 +588,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
     // Normalise into a unified feed shape
     const docRows = docResults.flatMap((result) => result.data ?? []);
     const docItems = docRows.flatMap((d: any) => {
-      const href = d.space ? safeSpaceDocumentHref(d.space.slug, d.id) : `/documents/${d.id}`;
+      const href = safeSpaceDocumentHref(d.space?.slug, d.id);
       if (!href) return [];
 
       return [{
@@ -627,7 +654,8 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
 
       const visible = [];
       for (const item of featured ?? []) {
-        if (await canShowFeaturedItem(item, req)) visible.push(item);
+        const resolved = await resolveFeaturedFeedItem(item, req);
+        if (resolved) visible.push(resolved);
       }
 
       return res.json({ items: visible, tab });
@@ -690,11 +718,16 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
 
     res.json({
       recentPosts: [
-        ...(recentDocs.data ?? []).map((d: any) => ({
-          id: d.id, title: d.title, type: "document",
-          href: safeSpaceDocumentHref(d.space?.slug, d.id) ?? `/documents/${d.id}`,
-          date: d.published_at,
-        })),
+        ...(recentDocs.data ?? []).flatMap((d: any) => {
+          const href = safeSpaceDocumentHref(d.space?.slug, d.id);
+          return href
+            ? [{
+                id: d.id, title: d.title, type: "document",
+                href,
+                date: d.published_at,
+              }]
+            : [];
+        }),
         ...(recentThreads.data ?? []).map((t: any) => ({
           id: t.id, title: t.title, type: "thread",
           href: t.category ? `/forums/${t.category.slug}/${t.id}` : `/forums`,

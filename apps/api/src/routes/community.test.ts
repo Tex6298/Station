@@ -3937,6 +3937,14 @@ test("featured Discover feed filters to public-safe and community-eligible items
       visitor.body.items.map((item: Row) => item.item_id).sort(),
       [PUBLIC_DEV_SPACE_ID, PUBLIC_DOC_ID, PUBLIC_PERSONA_ID, PUBLIC_SPACE_ID, PUBLIC_THREAD_ID].sort()
     );
+    assert.equal(
+      visitor.body.items.find((item: Row) => item.item_id === PUBLIC_DOC_ID)?.href,
+      `/space/public-space/documents/${PUBLIC_DOC_ID}`
+    );
+    assert.equal(
+      visitor.body.items.some((item: Row) => typeof item.href === "string" && item.href.startsWith("/documents/")),
+      false
+    );
 
     const member = await requestJson(app, "GET", "/discover/feed?tab=featured&limit=20", {
       token: "member-token",
@@ -3954,6 +3962,14 @@ test("featured Discover feed filters to public-safe and community-eligible items
         PUBLIC_SPACE_ID,
         PUBLIC_THREAD_ID,
       ].sort()
+    );
+    assert.equal(
+      member.body.items.find((item: Row) => item.item_id === COMMUNITY_DOC_ID)?.href,
+      `/space/public-space/documents/${COMMUNITY_DOC_ID}`
+    );
+    assert.equal(
+      member.body.items.some((item: Row) => typeof item.href === "string" && item.href.startsWith("/documents/")),
+      false
     );
   } finally {
     setSupabaseAdminForTests(null);
@@ -3977,8 +3993,23 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
       "public",
       { space_id: "55555555-5555-4555-8555-555555555554" },
     ));
+    db.insertRow("documents", document(
+      "88888888-8888-4888-8888-888888888890",
+      "No Space Document",
+      "no-space-document",
+      "public",
+      { space_id: null },
+    ));
     const visitorFeed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
     assert.equal(visitorFeed.status, 200);
+    assert.equal(
+      visitorFeed.body.items.find((item: Row) => item.id === PUBLIC_DOC_ID)?.href,
+      `/space/public-space/documents/${PUBLIC_DOC_ID}`
+    );
+    assert.equal(
+      visitorFeed.body.items.some((item: Row) => typeof item.href === "string" && item.href.startsWith("/documents/")),
+      false
+    );
     const visitorSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "space");
     assert.deepEqual(visitorSpaces.map((item: Row) => item.id), [PUBLIC_SPACE_ID]);
     assert.deepEqual(visitorSpaces[0], {
@@ -4002,6 +4033,7 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
     assert.equal(visitorFeedText.includes("private-space"), false);
     assert.equal(visitorFeedText.includes("Unsafe Public Space"), false);
     assert.equal(visitorFeedText.includes("Unsafe Space Document"), false);
+    assert.equal(visitorFeedText.includes("No Space Document"), false);
     assert.equal(visitorFeedText.includes("550e8400-e29b-41d4-a716-446655440000"), false);
 
     const visitorDeveloperSpaces = visitorFeed.body.items.filter((item: Row) => item.type === "developer_space");

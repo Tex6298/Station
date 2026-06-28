@@ -35,13 +35,14 @@ export function normalizeWritingFeedItem(item: WritingFeedItem): WritingItem | n
 
   const id = item.item_id ?? item.id;
   if (!id) return null;
+  if (!item.href || !isSpaceDocumentHref(item.href)) return null;
 
   return {
     id,
     type: "document",
     title: item.title?.trim() || "Untitled writing",
     excerpt: item.description ?? null,
-    href: item.href || `/documents/${id}`,
+    href: item.href,
     meta: null,
     discussionThreadId: item.discussionThreadId ?? item.discussion_thread_id ?? null,
     author: null,
@@ -55,4 +56,17 @@ export function isWritingItem(item: WritingItem | null): item is WritingItem {
 
 export function writingCardDiscussionCue(item: Pick<WritingItem, "type" | "discussionThreadId">) {
   return discoverDiscussionCue({ type: item.type, discussionThreadId: item.discussionThreadId });
+}
+
+const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_ROUTE_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+
+function isSpaceDocumentHref(value: string) {
+  const match = value.match(/^\/space\/([^/]+)\/documents\/([^/]+)$/);
+  if (!match || /[\s\\]/.test(value)) return false;
+  const [, slug, documentId] = match;
+  return SAFE_ROUTE_SLUG_PATTERN.test(slug) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(slug) &&
+    documentId.length > 0;
 }
