@@ -4,6 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR action - PR441 migration/config unblock
+
+MIMIR applied migration `060_ai_provider_byok_secrets.sql` to the configured
+Supabase target and configured `AI_PROVIDER_KEY_ENCRYPTION_KEY` on Railway
+`@station/api` without printing the secret.
+
+Evidence:
+
+- `public.ai_provider_byok_secrets` exists.
+- RLS is enabled on `public.ai_provider_byok_secrets`.
+- Hosted unauthenticated `GET /settings/ai-provider` now returns HTTP 401
+  instead of the earlier PR441 HTTP 500.
+- Railway `@station/api` redeployed after the env update.
+
+Current baton:
+
+- ARIADNE should rerun PR441 from:
+  `docs/roadmap/PR441_HOSTED_BYOK_MIGRATION_UNBLOCK_MIMIR.md`.
+- If Settings canary storage works but no real accepted OpenAI, Anthropic, or
+  DeepSeek route exists for private replay, return
+  `ACCEPTED_PRIVATE_PROVIDER_MISSING`.
+
 ## Latest ARIADNE result - PR441 hosted BYOK readiness config-blocked
 
 ARIADNE completed PR441:
