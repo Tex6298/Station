@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR434 accepted, PR435 opened
+
+MIMIR accepts ARGUS's PR434 policy verdict:
+
+`docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md`
+
+Decision:
+
+- NVIDIA platform chat remains accepted only for public/synthetic-safe use.
+- Private Studio, Memory, Continuity, Archive, Integrity, Canon, selected
+  replay context, owner messages, and replay corpus traffic remain blocked
+  from NVIDIA.
+- Current code evidence shows the platform provider resolver prefers
+  `nvidia_openai_compatible` whenever `NVIDIA_AI_API_KEY` is present, so the
+  next lane must make the accepted policy executable before private staged
+  replay continues.
+
+Current lane:
+
+```text
+PR435 - Private Replay Non-NVIDIA Provider Guard
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_DAEDALUS.md`.
+- DAEDALUS should prove or patch private persona chat so it cannot silently use
+  NVIDIA platform calls. Wake ARGUS with the proof/patch, or MIMIR with the
+  exact non-secret blocker.
+
 ## Latest ARGUS verdict - PR434 NVIDIA provider policy preflight
 
 ARGUS reviewed PR434:
