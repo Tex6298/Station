@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS PERSONA FILE ERROR RESPONSE REVIEW`.
+ARGUS completed persona file error response review:
+`docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED`.
 
 Reason:
 
@@ -42,9 +45,10 @@ Reason:
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 tests passed; hostile persona-file/storage service messages are not returned. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | Patch has no whitespace errors. |
-| `git diff --cached --check` | Pass | Staged patch has no whitespace errors. |
-| Added-line sensitive scan | Reviewed | Hits were synthetic persona-file fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `git diff 50e14040^ 50e14040 --check` | Pass | MIMIR lane-open commit has no whitespace errors. |
+| `git diff c9e0c8f8^ c9e0c8f8 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic persona-file fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category docs text only. |
+| ARGUS review | Pass | Persona file response mapping is stable public copy; successful signed upload/registration/idempotency, cleanup, storage reservation/release, quota handling, import lifecycle, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: non-persona-file archive/import routes and other route-level raw
 error responses remain future audit surface.

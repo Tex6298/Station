@@ -4,30 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - persona file errors ready for ARGUS
+## Latest ARGUS verdict - persona file errors accepted
 
-DAEDALUS completed persona file route-level error response hardening on
+ARGUS completed persona file route-level error response review on
 2026-06-28:
-`docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS PERSONA FILE ERROR RESPONSE REVIEW
+ACCEPTED
 ```
 
 Decision:
 
 - Persona file list, signed upload URL creation, duplicate lookup, import-job
-  repair, and registration failure paths now return stable public-safe
-  responses instead of raw storage or Supabase service text.
+  repair, and registration failure paths return stable public-safe responses
+  with fixed error codes.
 - Successful signed upload URL creation, file registration, duplicate
   idempotency, best-effort cleanup, storage reservation/release, quota handling,
   and import lifecycle behavior did not change.
-- Focused storage tests force hostile persona-file service payloads through
-  route failures and prove storage paths, signed URLs, upload tokens, bucket or
-  table names, owner/persona/file/import-job IDs, provider payload labels,
-  private markers, and stack-shaped strings are not returned.
+- Focused storage tests force hostile persona-file service payloads through the
+  reviewed route failures and prove storage paths, signed upload URLs, upload
+  tokens, bucket or table names, owner/persona/file/import-job IDs, provider
+  payload labels, private markers, and stack-shaped strings are not returned.
+- Scope stayed inside persona file route response hardening, focused storage
+  tests, and roadmap/testing documentation. No schema, package, Redis,
+  Cloudflare, provider adapter, billing, auth, UI, worker, queue, hosted config,
+  or hosted data changes were introduced.
 - Non-persona-file archive/import route-level raw errors and other route-level
   raw errors remain future audit surface.
 
@@ -35,15 +39,15 @@ Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:storage` passed, 19 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` and `git diff --cached --check` passed.
+- `git diff 50e14040^ 50e14040 --check` passed.
+- `git diff c9e0c8f8^ c9e0c8f8 --check` passed.
 - Added-line sensitive scan was reviewed; hits were synthetic persona-file
-  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+  fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category
+  docs text only.
 
 Current baton:
 
-- ARGUS should hostile-review the persona-file route response mapping and
-  focused storage tests.
-- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+- MIMIR should close or route the next lane.
 
 ## Previous ARGUS verdict - Developer Space credential errors accepted
 
