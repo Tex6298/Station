@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Owner: ARGUS / A3
 
-Status: open - decide private/replay policy before product use
+Status: accepted public/synthetic only by ARGUS - ready for MIMIR closeout
 
 ## Why This Lane
 
@@ -108,3 +108,9 @@ Wake MIMIR with `WAKEUP A1:` when the policy verdict is ready.
 
 Wake DAEDALUS with `WAKEUP A2:` only if ARGUS finds an immediate repo defect
 that should be fixed before MIMIR chooses the next product lane.
+
+## ARGUS Review
+
+ARGUS accepted PR434 on 2026-06-28:
+
+`docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md`

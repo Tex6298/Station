@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR434 NVIDIA Provider Data-Policy Preflight Review
+
+ARGUS accepted PR434 on 2026-06-28:
+`docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT PUBLIC/SYNTHETIC ONLY - WAKE MIMIR`.
+
+Reason:
+
+- NVIDIA platform chat remains acceptable only for public-safe synthetic probes
+  and public-safe Developer Space/observatory calls;
+- private Studio/replay context, Memory, Continuity, Archive, Integrity, Canon,
+  owner corpus, persona private profile text, real user prompts, and selected
+  private context remain blocked from NVIDIA platform calls;
+- the PR433 exact-output caveat is acceptable for routeability only;
+- current NVIDIA usage accounting is acceptable only for non-metered probes
+  with estimates labelled as estimates;
+- no embeddings, retrieval schema/dimensions, provider menu, model gateway,
+  Cloudflare, Redis, worker, queue, billing, Stripe, or production provider
+  policy changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; provider policy evaluation blocks private archive by default and keeps observability sanitized. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 10 tests passed; NVIDIA route shape, BYOK precedence, fallback, and missing-config behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; PR433 caveats and sanitized trace detail remain pinned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts` | Pass | 8 tests passed; visible facts redact secrets, URLs, private IDs, prompts, and private archive text. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: private NVIDIA provider use still needs a separate MIMIR lane
+with accepted provider/data contract, observability, export, deletion, audit,
+owner-trust, and usage-accounting gates.
+
 ## PR433 NVIDIA Platform Chat Synthetic Proof Review
 
 ARGUS accepted PR433 on 2026-06-28:

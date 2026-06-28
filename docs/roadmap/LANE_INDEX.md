@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR434 | NVIDIA provider data-policy preflight | ARGUS / A3 | Open - decide private/replay policy before product use | `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_ARGUS.md` |
+| PR434 | NVIDIA provider data-policy preflight | MIMIR / A1 | Ready for closeout | `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR434 | NVIDIA provider data-policy preflight | MIMIR -> ARGUS | Accepted public/synthetic only; private NVIDIA remains blocked | `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md` |
 | PR433 closeout | NVIDIA platform chat synthetic proof | DAEDALUS -> ARGUS -> MIMIR | Accepted as routeability proof only; PR434 opened for provider/data-policy preflight | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md` |
 | PR433 | NVIDIA platform chat synthetic proof | DAEDALUS -> ARGUS | Accepted with exact-output caveat | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md` |
 | PR433 implementation | NVIDIA platform chat synthetic proof | DAEDALUS -> ARGUS | Ready for review; route/model callable with exact-output caveat | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md` |

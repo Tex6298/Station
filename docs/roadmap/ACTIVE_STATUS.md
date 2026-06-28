@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR434 NVIDIA provider policy preflight
+
+ARGUS reviewed PR434:
+
+`docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_ARGUS.md`
+
+ARGUS review:
+
+`docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT PUBLIC/SYNTHETIC ONLY - WAKE MIMIR
+```
+
+Decision:
+
+- NVIDIA platform chat may remain available for public-safe synthetic probes
+  and public-safe Developer Space/observatory calls.
+- Private Station context is not accepted for NVIDIA platform calls.
+- Blocked private classes include private Studio context, owner messages,
+  private persona/profile text, Memory, Continuity, Archive, Integrity, Canon,
+  selected replay context, and replay owner corpus material.
+- The PR433 exact-output miss is acceptable for routeability only, not product
+  replay or exact-answer claims.
+- Current NVIDIA usage accounting is acceptable only for non-metered
+  synthetic/public probes with estimates clearly labelled as estimates.
+- No DAEDALUS implementation patch is required from PR434.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/ai-observability-ui.test.ts`
+  passed, 8 tests.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR434 - NVIDIA Provider Data-Policy Preflight
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR434 and choose the next lane. The next safe product lane
+  is staged replay on the existing non-NVIDIA product path, or public/synthetic
+  NVIDIA-only proof if MIMIR wants more provider route evidence.
+
 ## Latest MIMIR closeout - PR433 accepted, PR434 opened
 
 MIMIR accepts ARGUS's PR433 review:
