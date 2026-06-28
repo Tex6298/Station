@@ -90,3 +90,43 @@ export async function createCheckoutSession(
 export async function createPortalSession(token: string): Promise<{ url: string }> {
   return apiPost<{ url: string }>("/billing/portal", {}, token);
 }
+
+// -- AI provider settings ------------------------------------------------------
+
+export type AiProviderId = "openai" | "anthropic" | "deepseek";
+export type AiProviderMode = "platform" | "byok";
+
+export interface AiProviderReadback {
+  provider: AiProviderId;
+  label: string;
+  configured: boolean;
+  keyLastFour: string | null;
+}
+
+export interface AiProviderSettings {
+  aiMode: AiProviderMode;
+  supportedProviders: AiProviderReadback[];
+  policy: {
+    platform: string;
+    byok: string;
+    gemini: string;
+    nvidia: string;
+  };
+}
+
+export interface AiProviderSettingsPatch {
+  aiMode?: AiProviderMode;
+  keys?: Partial<Record<AiProviderId, string>>;
+  clearKeys?: Partial<Record<AiProviderId, boolean>>;
+}
+
+export function getAiProviderSettings(token: string): Promise<{ settings: AiProviderSettings }> {
+  return apiGet<{ settings: AiProviderSettings }>("/settings/ai-provider", token);
+}
+
+export function updateAiProviderSettings(
+  token: string,
+  patch: AiProviderSettingsPatch
+): Promise<{ settings: AiProviderSettings }> {
+  return apiPatch<{ settings: AiProviderSettings }>("/settings/ai-provider", patch, token);
+}

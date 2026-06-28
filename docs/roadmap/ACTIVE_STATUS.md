@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR438 ready for ARGUS review
+
+DAEDALUS completed the narrow owner BYOK settings and private replay unblock
+surface:
+
+`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md`
+
+Implementation:
+
+- Added authenticated `GET/PATCH /settings/ai-provider` support.
+- Supports `aiMode` values `platform` and `byok`.
+- Supports owner BYOK keys for OpenAI, Anthropic, and DeepSeek only.
+- Supports clearing stored keys.
+- Returns only provider configured state and last-four readback where
+  appropriate; raw keys are not returned.
+- Added `/settings` AI Provider panel for platform/BYOK mode and supported key
+  setup.
+- Updated persona setup and pricing copy so BYOK setup is honest.
+- Added private persona chat route coverage proving owner BYOK OpenAI can serve
+  private chat while the private NVIDIA route remains blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` passed, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+
+Current lane:
+
+```text
+PR438 - Owner BYOK Settings And Private Replay Unblock Surface
+Owner: ARGUS / A3
+State: READY FOR HOSTILE REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md`.
+- Review focus: key non-leak readback, unsupported provider rejection, Settings
+  UI honesty, and private BYOK routing while private NVIDIA remains blocked.
+- If accepted, ARGUS should wake MIMIR with verdict.
+- If fixes are needed, ARGUS should wake DAEDALUS.
+
 ## Latest MIMIR decision - PR437 closed, PR438 opened
 
 MIMIR accepts ARGUS's PR437 verdict:

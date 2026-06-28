@@ -8,30 +8,30 @@ export interface PersonaProviderChoice {
 }
 
 export const PERSONA_PROVIDER_COPY = {
-  channelSubtitle: "Select the channel Station records for this persona. Use Station unless a separate provider route is already set up.",
-  setupHint: "Use Station for setup now. BYOK/provider channels need a separate setup surface and are not configured in this onboarding flow.",
+  channelSubtitle: "Select the channel Station records for this persona. Platform mode lets Station choose the configured route; BYOK mode uses a matching Settings key.",
+  setupHint: "Use Settings AI provider to add OpenAI, Anthropic, or DeepSeek BYOK keys before choosing those channels. Gemini chat is deferred.",
 } as const;
 
 export const PERSONA_PROVIDER_CHOICES: PersonaProviderChoice[] = [
   {
     value: "platform",
-    label: "Station (DeepSeek)",
-    description: "Station's included platform channel for initial setup.",
+    label: "Station platform",
+    description: "Station's managed platform route for initial setup.",
     badge: "Included",
   },
   {
     value: "openai",
     label: "OpenAI",
-    description: "Use only when OpenAI routing is already set up outside onboarding.",
+    description: "Use with OpenAI BYOK in Settings; platform mode still uses Station routing.",
   },
   {
     value: "anthropic",
     label: "Anthropic",
-    description: "Use only when Anthropic routing is already set up outside onboarding.",
+    description: "Use with Anthropic BYOK in Settings; platform mode still uses Station routing.",
   },
   {
     value: "deepseek",
     label: "DeepSeek (BYOK)",
-    description: "Use only when DeepSeek BYOK routing is already set up outside onboarding.",
+    description: "Use with DeepSeek BYOK in Settings; platform mode still uses Station routing.",
   },
 ];

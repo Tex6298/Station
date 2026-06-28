@@ -563,7 +563,39 @@ class InMemorySupabase {
           : { data: { user: null }, error: { message: "Invalid token" } };
       },
     },
-    rpc: async () => ({ data: null, error: { message: "No vector RPC in tests." } }),
+    rpc: async (functionName: string, args: Row = {}) => {
+      if (functionName === "ensure_current_token_usage") {
+        return {
+          data: {
+            id: "token-usage-test",
+            user_id: args.p_user_id,
+            period_start: "2026-06-01",
+            tokens_used: 0,
+            tokens_limit: 750000,
+            topup_tokens: 0,
+            updated_at: "2026-06-28T10:00:00.000Z",
+          },
+          error: null,
+        };
+      }
+
+      if (functionName === "record_token_usage") {
+        return {
+          data: {
+            id: "token-usage-test",
+            user_id: args.p_user_id,
+            period_start: "2026-06-01",
+            tokens_used: (args.p_input_tokens ?? 0) + (args.p_output_tokens ?? 0),
+            tokens_limit: 750000,
+            topup_tokens: 0,
+            updated_at: "2026-06-28T10:00:00.000Z",
+          },
+          error: null,
+        };
+      }
+
+      return { data: null, error: { message: "No vector RPC in tests." } };
+    },
     from: (table: string) => new QueryBuilder(this, table),
   };
 
@@ -1460,6 +1492,116 @@ test("memory lifecycle updates are owner-only and validate supersession targets"
     );
     assert.equal(db.tables.persona_lifecycle_events.some((event) => event.event_type === "memory_graph_update"), true);
   } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("private persona chat uses owner BYOK OpenAI while private NVIDIA remains blocked", async () => {
+  const db = new InMemorySupabase();
+  const ownerProfile = db.tables.profiles.find((row) => row.id === OWNER_ID)!;
+  ownerProfile.ai_mode = "byok";
+  ownerProfile.byok_openai_key = "owner-openai-fixture-9999";
+  const persona = db.tables.personas.find((row) => row.id === PERSONA_ID)!;
+  persona.provider = "openai";
+  persona.visibility = "private";
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaContextApp();
+  const originalFetch = globalThis.fetch;
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousNvidiaModel = process.env.NVIDIA_MODEL;
+  const previousDeepseekKey = process.env.DEEPSEEK_API_KEY;
+  const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
+  const providerFetches: Array<{ url: string; authorization: string | null; body: string }> = [];
+
+  process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+  process.env.NVIDIA_MODEL = "test-nvidia-model";
+  delete process.env.DEEPSEEK_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (!url.startsWith("http://127.0.0.1:")) {
+      if (url.includes("generativelanguage.googleapis.com")) {
+        return new Response(JSON.stringify({ error: "embedding unavailable in test" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("api.openai.com/v1/chat/completions")) {
+        providerFetches.push({
+          url,
+          authorization: (init?.headers as Record<string, string> | undefined)?.Authorization ?? null,
+          body: String(init?.body ?? ""),
+        });
+        return new Response(JSON.stringify({
+          model: "gpt-4o-mini",
+          choices: [{ message: { content: "Hello from owner BYOK." } }],
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (
+        url.includes("integrate.api.nvidia.com") ||
+        url.includes("api.deepseek.com") ||
+        url.includes("api.anthropic.com")
+      ) {
+        providerFetches.push({
+          url,
+          authorization: (init?.headers as Record<string, string> | undefined)?.Authorization ?? null,
+          body: String(init?.body ?? ""),
+        });
+      }
+      return new Response(JSON.stringify({ error: "unexpected provider call" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const response = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: { content: "Please say hello." },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.reply.content, "Hello from owner BYOK.");
+    assert.equal(response.body.reply.provider_used, "gpt-4o-mini");
+    assert.equal(providerFetches.length, 1);
+    assert.equal(providerFetches[0].url, "https://api.openai.com/v1/chat/completions");
+    assert.equal(providerFetches[0].authorization, "Bearer owner-openai-fixture-9999");
+    assert.doesNotMatch(providerFetches[0].url, /nvidia|deepseek|anthropic/i);
+
+    const serializedEvents = JSON.stringify(db.rows("ai_trace_events"));
+    assert.match(serializedEvents, /byok_openai/);
+    assert.doesNotMatch(serializedEvents, /owner-openai-fixture-9999/);
+    assert.doesNotMatch(serializedEvents, /Please say hello/);
+    assert.doesNotMatch(serializedEvents, /test-nvidia-key/);
+    assert.doesNotMatch(serializedEvents, /provider payload/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousNvidiaModel == null) {
+      delete process.env.NVIDIA_MODEL;
+    } else {
+      process.env.NVIDIA_MODEL = previousNvidiaModel;
+    }
+    if (previousDeepseekKey == null) {
+      delete process.env.DEEPSEEK_API_KEY;
+    } else {
+      process.env.DEEPSEEK_API_KEY = previousDeepseekKey;
+    }
+    if (previousAnthropicKey == null) {
+      delete process.env.ANTHROPIC_API_KEY;
+    } else {
+      process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
+    }
     setSupabaseAdminForTests(null);
   }
 });

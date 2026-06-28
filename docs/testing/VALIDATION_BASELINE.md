@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR438 Owner BYOK Settings And Private Replay Unblock
+
+DAEDALUS completed PR438 on 2026-06-28:
+`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+Reason:
+
+- authenticated `/settings/ai-provider` reads and updates current-owner AI
+  provider settings;
+- readback exposes only mode, supported provider configured state, and last-four
+  where appropriate;
+- supported BYOK providers are OpenAI, Anthropic, and DeepSeek only;
+- Settings UI exposes platform/BYOK mode and supported key setup without showing
+  stored raw keys;
+- private persona chat route coverage proves owner BYOK OpenAI works while
+  private NVIDIA remains blocked.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 12 tests passed; BYOK precedence and private NVIDIA fail-closed behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 8 tests passed; API auth/update/clear/non-leak readback plus Settings copy/helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 11 tests passed; includes private owner BYOK OpenAI route proof and private NVIDIA block. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; readiness remains sanitized. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Passed. |
+
+Residual risk: ARGUS still needs hostile review of key storage/readback,
+unsupported provider rejection, Settings UI honesty, and private replay routing.
+No Gemini chat or private NVIDIA route is open.
+
 ## PR437 Gemini Private Chat Provider Preflight Review
 
 ARGUS completed PR437 on 2026-06-28:

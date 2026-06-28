@@ -135,7 +135,7 @@ export default function PricingPage() {
           {[
             {
               q: "What is BYOK?",
-              a: "Bring Your Own Key. You paste your own OpenAI, Anthropic, or DeepSeek API key into your account settings. Your key hits the provider directly - we never proxy or log it.",
+              a: "Bring Your Own Key. You paste your own OpenAI, Anthropic, or DeepSeek API key into account settings. Station stores it for your account, uses it only for matching BYOK provider calls, and never shows the raw key back in Settings.",
             },
             {
               q: "What is the platform AI?",

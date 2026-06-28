@@ -3,12 +3,20 @@
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { AiObservabilityPanel } from "@/components/settings/ai-observability-panel";
+import { AiProviderSettingsPanel } from "@/components/settings/ai-provider-settings-panel";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
 import { getSession } from "@/lib/auth";
 import { billingTierReadbackLabel } from "@/lib/billing-tier-display";
 
 const settingSections = [
+  {
+    title: "AI provider",
+    description: "Choose Station platform routing or configure owner BYOK for OpenAI, Anthropic, and DeepSeek.",
+    href: null,
+    mark: "AI",
+    status: "On this page",
+  },
   {
     title: "Social publishing",
     description: "Connect Bluesky, Mastodon, Tumblr, LinkedIn, Reddit, WordPress, and Ghost to publish directly from Station.",
@@ -133,6 +141,11 @@ export default function SettingsPage() {
           </section>
 
           <aside style={settingsAside}>
+            <section style={panel}>
+              <h2 style={sectionTitle}>AI Provider</h2>
+              <AiProviderSettingsPanel />
+            </section>
+
             <section style={panel}>
               <h2 style={sectionTitle}>Usage and Credits</h2>
               <TokenUsagePanel />
