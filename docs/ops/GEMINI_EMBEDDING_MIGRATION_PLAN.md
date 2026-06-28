@@ -2,29 +2,56 @@
 
 Date: 2026-06-10
 
-Status: corrected embedding-profile direction for replay/staging. The chosen
+Status: PR432 proof current for the bounded staging replay corpus. The chosen
 product-testing profile is `station_free_1536`; today that profile is backed by
-Gemini because Gemini has a free tier. This plan records the work needed to make
-that profile safe and testable.
+Gemini because Gemini has a free tier. This plan remains the historical
+migration/rollback record.
 
 ## Current truth
 
 - Active production/staging retrieval for product testing should move to the
   `station_free_1536` embedding profile over Supabase pgvector `vector(1536)`.
-- Existing staging proof only covers migrations through `028`.
+- PR432 proves the current bounded staging replay corpus on
+  `station_free_1536`: migration `029` is applied, hosted readiness is green,
+  replay memory rows are Gemini/1536/backfill-v2, and read-only hostile
+  retrieval smoke passed without recording raw private corpus text.
 - Migration `029_gemini_embedding_provider_prep.sql` is a forward-compatible
   schema prep: it permits `openai` or `gemini` metadata on 1536-dimensional
   rows and adds provider-aware RPC overloads.
 - The repo default is now `EMBEDDING_PROFILE_CODE=station_free_1536`.
-- That profile currently resolves to Gemini for product testing, then must be
-  proven for data-backed replay after migration `029`, corpus reindex, and
-  hostile retrieval smoke.
+- That profile currently resolves to Gemini for product testing. Future corpus
+  changes or provider/dimension changes still need scoped reindex and hostile
+  retrieval smoke before relying on the new data.
 - OpenAI `text-embedding-3-small` remains the `openai_1536` native/rollback
   profile for the same 1536-dimensional Supabase index shape.
 - NVIDIA remains chat/model provider work; it does not replace embeddings in
   this lane.
 
-## Current staging proof attempt
+## PR432 staging retrieval proof
+
+DAEDALUS completed the PR432 proof on 2026-06-28:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`
+
+Sanitized result:
+
+- hosted `/health/deployment` returned `ready:true`, `station_free_1536`,
+  provider `gemini`, embeddings configured, and green `memory_rpc` plus
+  `archive_rpc`;
+- `node scripts/prove-staging-migration-029.mjs` passed for both
+  provider-aware RPCs;
+- the replay corpus had `5` replay memory rows and all `5` used
+  Gemini/1536/backfill-v2 metadata;
+- read-only hosted retrieval smoke returned vector-mode memory/archive
+  readback, same-owner rows, rejected-control absence, and no raw private
+  corpus text in captured trace evidence;
+- negative RPC smoke returned zero rows for mismatched persona memory and
+  mismatched owner archive queries.
+
+No migration, reindex, delete, nulling operation, provider switch, or
+infrastructure change was performed in PR432.
+
+## Historical staging proof attempt
 
 DAEDALUS rechecked staging on 2026-06-11 after MIMIR opened the migration `029`
 proof lane.

@@ -2,8 +2,9 @@
 
 Date: 2026-06-10
 
-Status: corrected MIMIR operating decision. The selected product-testing
-embedding path is an embedding profile, not a hardcoded provider.
+Status: corrected MIMIR operating decision with PR432 proof current for the
+bounded staging replay corpus. The selected product-testing embedding path is
+an embedding profile, not a hardcoded provider.
 
 ## Verdict
 
@@ -14,15 +15,16 @@ has a free tier and supports the current 1536-dimensional vector shape.
 OpenAI `text-embedding-3-small` remains the `openai_1536` native/rollback
 profile for the existing Supabase pgvector `vector(1536)` contract. NVIDIA
 remains chat/model provider work, not the embedding profile. The
-`station_free_1536` profile still requires the normal safety work before
-data-backed replay is considered proven: migration `029`, bounded corpus
-reindex, and hostile retrieval smoke.
+`station_free_1536` profile requires the normal safety work before a new corpus
+or provider/dimension change is trusted: migration/RPC proof, bounded corpus
+reindex, and hostile retrieval smoke. PR432 completed that proof for the
+current bounded staging replay corpus.
 
 ## Provider comparison
 
 | Candidate | Free shape | Fit for Station now | Recommendation |
 | --- | --- | --- | --- |
-| `station_free_1536` backed by Gemini | Google lists Gemini Embedding 2 and Gemini Embedding on free and paid tiers. Free-tier rows are marked as used to improve Google products; rate limits vary by project/tier and are checked in AI Studio. | Best technical fit of the free testing options because it can output 1536-dimensional vectors and the repo has provider metadata/RPC prep. Needs data-policy, migration `029`, reindex, and hostile retrieval smoke before data-backed replay proof. | Active product-testing profile. Configure the profile first, then prove it with migration/reindex/smoke. |
+| `station_free_1536` backed by Gemini | Google lists Gemini Embedding 2 and Gemini Embedding on free and paid tiers. Free-tier rows are marked as used to improve Google products; rate limits vary by project/tier and are checked in AI Studio. | Best technical fit of the free testing options because it can output 1536-dimensional vectors and the repo has provider metadata/RPC prep. PR432 proves the current bounded staging replay corpus with migration `029`, Gemini/1536/backfill-v2 rows, and hostile read-only retrieval smoke. | Active product-testing profile. Re-run migration/reindex/smoke proof when the corpus, provider, model, dimension, or index contract changes. |
 | Cloudflare Workers AI + Vectorize | Workers AI has a daily free allocation, and Vectorize has a free prototyping tier. | Requires Cloudflare account/setup, a Workers AI embedding adapter, Vectorize or Supabase write path decisions, deletion/export/reindex semantics, and hostile owner-scope review. It is a new platform lane, not minimum config. | Defer. Useful later if Cloudflare is chosen as a remote mirror/index layer. |
 | Hugging Face Inference Providers | Hugging Face gives small monthly free credits for routed inference. | Too small and provider-routed for dependable staging replay; would add another key/provider/reliability lane without solving Station's current privacy/reindex gates. | Reject for current replay. Reconsider only for experiments. |
 | Local/Ollama embeddings | No hosted per-token cost. | Not production-safe on current Railway staging without GPU/hosted model operations, model/version pinning, uptime, and reindex gates. | Reject for current replay. Could be local-dev only later. |
@@ -30,7 +32,8 @@ reindex, and hostile retrieval smoke.
 
 ## Minimum safe testing-profile config
 
-Apply this for the `station_free_1536` embedding lane. The minimum scope is:
+Apply this for any new `station_free_1536` embedding corpus or profile-change
+lane. The minimum scope is:
 
 1. Apply migration `029_gemini_embedding_provider_prep.sql` to staging.
 2. Set only the embedding provider envs needed for the test lane:

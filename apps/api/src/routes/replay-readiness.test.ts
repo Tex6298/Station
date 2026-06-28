@@ -44,27 +44,30 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
     assert.deepEqual(proofIds, [
       "remote_database",
       "supabase_migrations_025_028",
+      "station_free_1536_retrieval_path",
       "persona_files_storage",
       "nvidia_platform_chat",
       "operational_cache_boundary",
     ]);
     assert.equal(owner.body.replay.setupProofs[1].status, "setup_proven");
-    assert.match(owner.body.replay.setupProofs[1].remainingRisk, /Hostile remote vector\/RPC smoke/);
+    assert.match(owner.body.replay.setupProofs[1].remainingRisk, /station_free_1536_retrieval_path/);
     assert.equal(
-      owner.body.replay.setupProofs[4].evidence.some((entry: string) => entry.includes("non-secret Redis/Upstash booleans")),
+      owner.body.replay.setupProofs[2].evidence.some((entry: string) => entry.includes("PR432")),
+      true
+    );
+    assert.equal(
+      owner.body.replay.setupProofs[5].evidence.some((entry: string) => entry.includes("non-secret Redis/Upstash booleans")),
       true
     );
 
     const blockerIds = owner.body.replay.setupBlockers.map((blocker: any) => blocker.id);
     assert.deepEqual(blockerIds, [
-      "hostile_vector_rpc_smoke",
       "supabase_auth_redirects",
-      "embedding_profile_proof",
       "stripe_replay_resources",
       "cloudflare_account_setup",
       "replay_account_data",
     ]);
-    assert.equal(owner.body.replay.setupBlockers[1].evidenceRequired[1].includes("/reset-password/update"), true);
+    assert.equal(owner.body.replay.setupBlockers[0].evidenceRequired[1].includes("/reset-password/update"), true);
 
     assert.deepEqual(owner.body.replay.captureSurfaces.slice(0, 4), [
       "/health/deployment",

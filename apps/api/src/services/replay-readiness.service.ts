@@ -74,30 +74,12 @@ const MEASUREMENT_POINTS: ReplayMeasurementPoint[] = [
 
 const SETUP_BLOCKERS: ReplaySetupBlocker[] = [
   {
-    id: "hostile_vector_rpc_smoke",
-    status: "needs_staging_proof",
-    owner: "staging_replay",
-    evidenceRequired: [
-      "Run remote archive retrieval, memory lifecycle filtering, Developer Space provider-policy, and retrieval-metadata/RPC smoke checks if MIMIR requires more than setup proof before full replay.",
-      "Keep private excerpts out of the evidence package; capture only counts, modes, ratings, statuses, and sanitized labels.",
-    ],
-  },
-  {
     id: "supabase_auth_redirects",
     status: "pending_external",
     owner: "human_dashboard",
     evidenceRequired: [
       "Supabase Auth site URL and allowed redirects include the Railway web URL.",
       "The password-reset target /reset-password/update is deployed and included in the redirect allow-list.",
-    ],
-  },
-  {
-    id: "embedding_profile_proof",
-    status: "pending_external",
-    owner: "human_dashboard",
-    evidenceRequired: [
-      "Embedding profile config is set for the selected free-tier product-testing path: EMBEDDING_PROFILE_CODE=station_free_1536, EMBEDDING_DIM=1536, GEMINI_API_KEY, and no cross-provider EMBEDDING_MODEL override.",
-      "Migration 029, replay-corpus reindex, and hostile retrieval smoke prove the selected profile over vector(1536) before data-backed vector retrieval is considered proven.",
     ],
   },
   {
@@ -143,7 +125,17 @@ const SETUP_PROOFS: ReplaySetupProof[] = [
       "Supabase MCP history includes migrations 025 through 028 on staging.",
       "Public /health/deployment proves the public schema objects introduced by migrations 025 through 028.",
     ],
-    remainingRisk: "Hostile remote vector/RPC smoke may still be required before full replay.",
+    remainingRisk: "Migration 029 and the current bounded replay retrieval path are tracked by station_free_1536_retrieval_path.",
+  },
+  {
+    id: "station_free_1536_retrieval_path",
+    status: "setup_proven",
+    evidence: [
+      "PR432 proves hosted /health/deployment selects station_free_1536 with Gemini embeddings configured.",
+      "Migration 029 provider-aware memory and archive RPC proofs are green on staging.",
+      "The bounded staging replay corpus has Gemini/1536/backfill-v2 memory rows and read-only hostile retrieval smoke passed without storing raw private corpus text.",
+    ],
+    remainingRisk: "Future corpus, provider, model, dimension, or index changes need a fresh scoped reindex and hostile retrieval smoke.",
   },
   {
     id: "persona_files_storage",

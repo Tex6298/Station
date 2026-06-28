@@ -20,6 +20,11 @@ then let staged replay reveal the next optimizations.
 - The same caveats remain: this is protected-alpha replay evidence, not a
   production/MVP claim, not hard-delete cleanup, not live OAuth/API intake, and
   not durable worker/queue/realtime readiness.
+- PR432 proves the current bounded `station_free_1536` staging replay corpus:
+  migration `029`, Gemini/1536/backfill-v2 rows, vector-mode hosted
+  memory/archive readback, rejected-control absence, and mismatched-scope
+  zero-row smoke. Future corpus/provider/model/dimension changes still need
+  fresh scoped retrieval proof.
 - ARGUS accepted the sequencing correction in `docs: accept replay staging
   sequence`.
 - UX-01A, UX-02A, UX-02B, and UX-DEBT-01 are accepted enough for staging prep.

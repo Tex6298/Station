@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR432 | `station_free_1536` retrieval proof | DAEDALUS / A2 | Open - prove or return exact blocker | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_DAEDALUS.md` |
+| PR432 | `station_free_1536` retrieval proof | DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md` |
 
 ## Recently Closed
 

@@ -4,6 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR432 ready for ARGUS review
+
+DAEDALUS completed PR432:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`
+
+Current verdict:
+
+```text
+READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- Migration `029_gemini_embedding_provider_prep.sql` is present in the repo.
+- Hosted `/health/deployment` now reports `ready: true`,
+  `station_free_1536`, provider `gemini`, embeddings configured, and green
+  migration readiness including `memory_rpc` and `archive_rpc`.
+- `node scripts/prove-staging-migration-029.mjs` passed against staging with
+  both provider-aware RPCs returning HTTP `200`.
+- Read-only staging replay-corpus proof found `5` replay memory rows and all
+  `5` are Gemini/1536/backfill-v2 rows.
+- Hosted read-only retrieval smoke returned vector-mode memory/archive results,
+  same-owner rows only, rejected-control absence, and no raw private corpus text
+  in captured trace evidence.
+- Negative hosted RPC smoke returned `0` rows for mismatched persona memory and
+  mismatched owner archive queries.
+- Authenticated `/observability/replay-readiness` now reports
+  `station_free_1536_retrieval_path` as setup-proven instead of keeping
+  embedding profile proof and hostile vector smoke as active blockers.
+- No migration, reindex, delete, nulling, schema, provider switch, Cloudflare,
+  Redis, worker, queue, or UI behavior changed in this PR432 pass.
+
+Validation:
+
+- `node scripts/prove-staging-migration-029.mjs` passed.
+- Hosted `/health/deployment` sanitized readiness probe passed.
+- Hosted read-only replay-corpus metadata probe passed.
+- Hosted read-only retrieval smoke probe passed.
+- Hosted read-only negative RPC smoke probe passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed, 12
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 43
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current lane:
+
+```text
+PR432 - station_free_1536 Retrieval Proof
+Owner: DAEDALUS / A2
+Reviewer: ARGUS / A3
+State: READY FOR ARGUS REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`.
+- ARGUS should wake MIMIR with `WAKEUP A1:` if accepted, or wake DAEDALUS with
+  `WAKEUP A2:` and exact fixes if the proof is insufficient.
+
 ## Latest MIMIR closeout - PR431 passed, PR432 opened
 
 MIMIR accepts ARIADNE's PR431 hosted rehearsal:

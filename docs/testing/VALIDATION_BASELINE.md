@@ -20,6 +20,52 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR432 station_free_1536 Retrieval Proof
+
+DAEDALUS completed the PR432 proof on 2026-06-28:
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+Reason:
+
+- hosted deployment readiness reports `station_free_1536`, provider `gemini`,
+  embeddings configured, `ready: true`, and green migration readiness;
+- staging provider-aware memory/archive RPC smoke passed;
+- current staging replay corpus has `5` replay memory rows and all `5` carry
+  Gemini/1536/backfill-v2 metadata;
+- hosted read-only retrieval smoke returned vector-mode memory/archive context
+  with same-owner rows, rejected-control absence, and no raw private corpus text
+  in captured trace evidence;
+- negative hosted RPC smoke returned zero rows for mismatched persona memory and
+  mismatched owner archive queries;
+- authenticated `/observability/replay-readiness` now reports
+  `station_free_1536_retrieval_path` as setup-proven instead of keeping
+  embedding profile proof and hostile vector smoke as active blockers;
+- no hosted mutation, migration, reindex, delete, nulling, provider switch,
+  Cloudflare/Redis/vector-backend change, worker/queue change, or UI behavior
+  change was performed in this PR432 pass.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `node scripts/prove-staging-migration-029.mjs` | Pass | Both provider-aware RPC calls returned HTTP `200` with zero rows for no-data smoke. |
+| Hosted `/health/deployment` sanitized readiness probe | Pass | `ready:true`, `station_free_1536`, provider `gemini`, embeddings configured, green `memory_rpc` and `archive_rpc`. |
+| Hosted read-only replay-corpus metadata probe | Pass | 5 replay memory rows; 5 Gemini/1536/backfill-v2 rows; 4 active and 1 rejected lifecycle rows. |
+| Hosted read-only retrieval smoke probe | Pass | Vector memory/archive modes, same-owner rows, rejected-control absence, and trace evidence without raw private corpus text. |
+| Hosted read-only negative RPC smoke probe | Pass | 0 mismatched persona memory rows and 0 mismatched owner archive rows. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: PR432 proves the current bounded staging replay corpus path. It
+does not prove future embedding-provider swaps, broader corpus reindexing,
+Cloudflare/Redis retrieval, production disaster recovery, managed backup, or
+long-term replay quality.
+
 ## PR431 Hosted Developer Space Export Readback Rehearsal
 
 ARIADNE completed PR431 on 2026-06-28:

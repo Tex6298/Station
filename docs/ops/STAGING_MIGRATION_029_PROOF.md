@@ -4,7 +4,8 @@ Date: 2026-06-11
 
 Status: applied and proven on staging. The provider-aware RPC signatures are
 available through PostgREST and public deployment health now reports migration
-object proof as green.
+object proof as green. PR432 later proves the current bounded staging replay
+corpus against `station_free_1536`.
 
 ## 2026-06-11 resolution
 
@@ -225,6 +226,9 @@ Expected migration proof once the deployed API and database agree:
 - `readiness.migrations.latest.version: "025-029"`
 - `readiness.migrations.latest.name: "public_schema_object_and_rpc_proof"`
 
-`checks.embeddingsConfigured` still depends on a staging Gemini key. Migration
-proof alone does not prove data-backed replay. Bounded replay-corpus reindex
-and hostile retrieval smoke remain required.
+As of this migration proof, `checks.embeddingsConfigured` still depended on a
+staging Gemini key and migration proof alone did not prove data-backed replay.
+PR432 later completed the current bounded replay-corpus reindex/read-only
+hostile retrieval proof:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`

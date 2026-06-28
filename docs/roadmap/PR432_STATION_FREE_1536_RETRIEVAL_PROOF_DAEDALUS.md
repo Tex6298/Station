@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3 if proof or code changes land
 
-Status: open - prove or return exact blocker
+Status: proven - ready for ARGUS review
 
 ## Why This Lane
 
@@ -96,3 +96,9 @@ Wake ARGUS with proof/patch result and validation if the lane can be completed.
 
 Wake MIMIR with the exact blocker if hosted migration/reindex/config/action is
 required.
+
+## DAEDALUS Result
+
+Proof result:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_RESULT.md`
