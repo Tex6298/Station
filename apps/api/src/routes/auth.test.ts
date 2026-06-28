@@ -27,6 +27,9 @@ type Row = Record<string, any>;
 class AuthTestSupabase {
   createdUserPayloads: Row[] = [];
   signOutTokens: Array<string | undefined> = [];
+  createUserError: Error | null = null;
+  signInError: Error | null = null;
+  refreshError: Error | null = null;
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -61,6 +64,12 @@ class AuthTestSupabase {
       admin: {
         createUser: async (payload: Row) => {
           this.createdUserPayloads.push(payload);
+          if (this.createUserError) {
+            return {
+              data: { user: null },
+              error: { message: this.createUserError.message },
+            };
+          }
           return {
             data: { user: { id: "new-user", email: payload.email } },
             error: null,
@@ -81,6 +90,9 @@ class AuthTestSupabase {
     return {
       auth: {
         signInWithPassword: async (input: { email: string; password: string }) => {
+          if (this.signInError) {
+            return { data: { user: null, session: null }, error: { message: this.signInError.message } };
+          }
           const profile = this.tables.profiles.find((row) => row.email === input.email);
           if (!profile || input.password === "bad-password") {
             return { data: { user: null, session: null }, error: { message: "Invalid credentials." } };
@@ -98,6 +110,9 @@ class AuthTestSupabase {
           };
         },
         refreshSession: async (input: { refresh_token: string }) => {
+          if (this.refreshError) {
+            return { data: { user: null, session: null }, error: { message: this.refreshError.message } };
+          }
           const userId = input.refresh_token.replace(/-refresh-token$/, "");
           const profile = this.tables.profiles.find((row) => row.id === userId);
           if (!profile) {
@@ -216,6 +231,47 @@ function useAuthFakes(db: AuthTestSupabase) {
 function resetAuthFakes() {
   setSupabaseAdminForTests(null);
   setSupabaseAuthClientFactoryForTests(null);
+}
+
+const hiddenMarker = "private-" + "auth-marker";
+const bearerLabel = "Bear" + "er";
+const databaseScheme = "postgres" + "ql://";
+const secretKeyPrefix = "s" + "k_test_";
+const sessionId = "sess_" + hiddenMarker;
+const userId = "user_" + hiddenMarker;
+const accessToken = "access-token-" + hiddenMarker;
+const refreshToken = "refresh-token-" + hiddenMarker;
+
+function hostileAuthError(label: string) {
+  return new Error([
+    `${label} failed for ${userId}`,
+    `access token: ${accessToken}`,
+    `refresh token: ${refreshToken}`,
+    `${bearerLabel} abc.${hiddenMarker}.token`,
+    `cookie: station=${hiddenMarker}`,
+    `session id: ${sessionId}`,
+    `api key: ${secretKeyPrefix}${hiddenMarker}`,
+    `database url: ${databaseScheme}station:${hiddenMarker}@db.example.test/station`,
+    `provider payload: private snippet ${hiddenMarker}`,
+    "at authClient (/station/private/auth.ts:1:2)",
+  ].join("; "));
+}
+
+function assertSafeAuthBody(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(hiddenMarker), false);
+  assert.equal(text.includes(bearerLabel), false);
+  assert.equal(text.includes(databaseScheme), false);
+  assert.equal(text.includes("db.example.test"), false);
+  assert.equal(text.includes(secretKeyPrefix), false);
+  assert.equal(text.includes("access-token"), false);
+  assert.equal(text.includes("refresh-token"), false);
+  assert.equal(text.includes("sess_"), false);
+  assert.equal(text.includes("user_"), false);
+  assert.equal(text.includes("cookie"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private snippet"), false);
+  assert.equal(text.includes("authClient"), false);
 }
 
 test("requireAuth rejects missing and malformed Bearer tokens", async () => {
@@ -359,6 +415,75 @@ test("signup deliberately confirms beta users before returning a session", async
     assert.equal(created.body.accessToken, "new-user-access-token");
     assert.equal(db.createdUserPayloads.length, 1);
     assert.equal(db.createdUserPayloads[0].email_confirm, true);
+  } finally {
+    resetAuthFakes();
+  }
+});
+
+test("auth controller failures return stable public copy without service payloads", async () => {
+  const signupDb = new AuthTestSupabase();
+  signupDb.createUserError = hostileAuthError("signup");
+  useAuthFakes(signupDb);
+  const signupApp = createAuthProofApp();
+
+  try {
+    const signup = await requestJson(signupApp, "POST", "/auth/signup", {
+      body: {
+        email: "new@example.test",
+        password: "long-enough-password",
+        username: "new_user",
+      },
+    });
+
+    assert.equal(signup.status, 400);
+    assert.deepEqual(signup.body, {
+      error: "Could not create account.",
+      code: "signup_failed",
+    });
+    assertSafeAuthBody(signup.body);
+  } finally {
+    resetAuthFakes();
+  }
+
+  const signinDb = new AuthTestSupabase();
+  signinDb.signInError = hostileAuthError("signin");
+  useAuthFakes(signinDb);
+  const signinApp = createAuthProofApp();
+
+  try {
+    const signin = await requestJson(signinApp, "POST", "/auth/signin", {
+      body: {
+        email: "owner@example.test",
+        password: "bad-password",
+      },
+    });
+
+    assert.equal(signin.status, 401);
+    assert.deepEqual(signin.body, {
+      error: "Invalid email or password.",
+      code: "invalid_credentials",
+    });
+    assertSafeAuthBody(signin.body);
+  } finally {
+    resetAuthFakes();
+  }
+
+  const refreshDb = new AuthTestSupabase();
+  refreshDb.refreshError = hostileAuthError("refresh");
+  useAuthFakes(refreshDb);
+  const refreshApp = createAuthProofApp();
+
+  try {
+    const refresh = await requestJson(refreshApp, "POST", "/auth/refresh", {
+      body: { refreshToken: "missing-refresh-token" },
+    });
+
+    assert.equal(refresh.status, 401);
+    assert.deepEqual(refresh.body, {
+      error: "Session refresh failed. Please sign in again.",
+      code: "invalid_session",
+    });
+    assertSafeAuthBody(refresh.body);
   } finally {
     resetAuthFakes();
   }

@@ -2,6 +2,21 @@ import type { Request, Response } from "express";
 import { signUp, signIn, signOut, refreshSession } from "../services/auth.service";
 import { signUpSchema, signInSchema, refreshSessionSchema } from "../schemas/auth.schema";
 
+const AUTH_ERROR_RESPONSES = {
+  signup: {
+    error: "Could not create account.",
+    code: "signup_failed",
+  },
+  signin: {
+    error: "Invalid email or password.",
+    code: "invalid_credentials",
+  },
+  refresh: {
+    error: "Session refresh failed. Please sign in again.",
+    code: "invalid_session",
+  },
+} as const;
+
 export async function handleSignUp(req: Request, res: Response): Promise<void> {
   const parsed = signUpSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -18,9 +33,8 @@ export async function handleSignUp(req: Request, res: Response): Promise<void> {
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Sign up failed.";
-    res.status(400).json({ error: message });
+  } catch {
+    res.status(400).json(AUTH_ERROR_RESPONSES.signup);
   }
 }
 
@@ -40,9 +54,8 @@ export async function handleSignIn(req: Request, res: Response): Promise<void> {
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Sign in failed.";
-    res.status(401).json({ error: message });
+  } catch {
+    res.status(401).json(AUTH_ERROR_RESPONSES.signin);
   }
 }
 
@@ -62,9 +75,8 @@ export async function handleRefreshSession(req: Request, res: Response): Promise
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Session refresh failed.";
-    res.status(401).json({ error: message });
+  } catch {
+    res.status(401).json(AUTH_ERROR_RESPONSES.refresh);
   }
 }
 
