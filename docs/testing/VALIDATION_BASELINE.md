@@ -20,12 +20,53 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## PR427 Backup Restore Local Tooling Preflight
+## PR428 API-Backed Backup Export Proof Spec
+
+ARGUS accepted the PR428 proof spec on 2026-06-28:
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_RESULT.md`.
+
+Validation result: `ACCEPT API-BACKED OWNER EXPORT AND BUNDLE INTEGRITY PROOF - WAKE DAEDALUS`.
+
+Reason:
+
+- Station already has authenticated owner export APIs and bundle readback for
+  persona archives, Developer Space archives, and Project manifests;
+- persona-only coverage would overstate the proof name, so the first proof must
+  cover all three export classes;
+- PR427 local PostgreSQL tooling acquisition is superseded for this lane;
+- DAEDALUS must not acquire or validate local `psql`, `pg_dump`, Docker,
+  Supabase CLI, database dump/restore, hosted SQL, or dashboard workflows for
+  PR428;
+- the accepted evidence is sanitized API/package/bundle integrity evidence,
+  not raw export content or backup/restore readiness.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed; persona, Developer Space, and Project export bundle readback coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; authenticated owner replay readiness and sanitized trace detail remain green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 17 tests passed; Project owner/public scoping and export UI helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; Developer Space owner scope, secret handling, observatory, and non-executing agent-action coverage remain green. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR428 can prove API-backed owner export package and bundle
+integrity. It does not prove database backup/restore, managed backup
+redundancy, storage-object backup, full workspace backup, hosted production
+backup readiness, or disaster recovery.
+
+## PR427 Backup Restore Local Tooling Preflight - Historical Superseded
 
 ARGUS completed the local tooling preflight on 2026-06-28:
 `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md`.
 
-Validation result: `ACCEPT LOCAL TOOLING PATH - WAKE DAEDALUS`.
+Validation result: `HISTORICAL ACCEPTANCE - SUPERSEDED BY PR428`.
+
+Supersession note: Marty corrected the PR427 premise in commit `690c26cb`.
+Local PostgreSQL tooling is not the intended unblock for the current proof, and
+PR428 routes DAEDALUS to API-backed owner export and bundle integrity instead.
+Do not use this PR427 section as current authorization to acquire local
+`psql`/`pg_dump` tooling.
 
 Reason:
 

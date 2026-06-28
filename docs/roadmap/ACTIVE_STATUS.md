@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR428 API-backed proof spec accepted
+
+ARGUS reviewed the PR428 spec:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_MIMIR.md`
+
+ARGUS result:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT API-BACKED OWNER EXPORT AND BUNDLE INTEGRITY PROOF - WAKE DAEDALUS
+```
+
+Decision:
+
+- PR428 is accepted only as an API-backed owner export and bundle integrity
+  proof.
+- The first proof must cover persona archive, Developer Space archive, and
+  Project manifest export classes. Persona-only coverage is not enough.
+- PR427 local PostgreSQL tooling acquisition remains superseded for this lane.
+  DAEDALUS must not acquire or validate `psql`, `pg_dump`, Docker, Supabase
+  CLI, database dump/restore, hosted SQL, or dashboard workflows for PR428.
+- Sanitized evidence may include route class, package kind, status, format,
+  owner-only flag, schema/section names, counts, bundle file names, file sizes,
+  SHA-256 prefixes, HTTP status classes, and pass/fail only.
+- Raw manifests, raw bundles, private bodies, transcripts, UUIDs, owner IDs,
+  project/source IDs, database URLs, storage paths, cookies, tokens, prompts,
+  completions, provider payloads, and secrets must stay out of docs, logs, UI,
+  and committed files.
+- This proof must not claim database backup/restore, managed backup, full
+  workspace backup, hosted backup readiness, production disaster recovery,
+  storage-object backup, RPO/RTO, or original binary/PDF/file backup.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53
+  tests.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR428 - API-backed Backup/Export Proof
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS has PR428:
+  `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS after implementation/proof.
+
 ## Latest MIMIR decision - PR428 API-backed proof spec opened
 
 Marty corrected the PR427 premise in commit `690c26cb`:

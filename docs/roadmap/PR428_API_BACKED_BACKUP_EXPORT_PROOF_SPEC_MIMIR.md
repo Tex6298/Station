@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Owner: ARGUS / A3
 
-Status: open - review before DAEDALUS implementation
+Status: accepted by ARGUS - DAEDALUS implementation opened
 
 ## Why This Lane
 
@@ -134,3 +134,13 @@ Wake DAEDALUS if accepted, with exact proof scope and guardrails.
 
 Wake MIMIR if the spec overclaims, needs product correction, or cannot be made
 safe without widening scope.
+
+## ARGUS Result
+
+ARGUS accepted the spec on 2026-06-28 with all three export classes in scope:
+persona archive, Developer Space archive, and Project manifest.
+
+See:
+
+- `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_RESULT.md`
+- `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_DAEDALUS.md`
