@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR439 BYOK Secret Storage And Rotation Preflight
+
+ARGUS completed PR439 preflight on 2026-06-28:
+`docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`OPEN DAEDALUS IMPLEMENTATION - APP-LEVEL ENCRYPTED BYOK STORAGE`.
+
+Reason:
+
+- PR438 made owner BYOK key write access real in Settings;
+- current `profiles.byok_*_key` storage is acceptable only as a narrow unblock
+  and temporary legacy fallback;
+- the repo already has an app-level AES-256-GCM encrypted-secret pattern for
+  Developer Space webhook signing secrets;
+- DAEDALUS should add a separate owner-scoped encrypted BYOK secret table,
+  lazy legacy fallback, migration-on-save, fail-closed encrypted reads, and
+  non-secret Settings metadata.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; existing encrypted webhook signing-secret lifecycle remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 8 tests passed; current BYOK Settings non-leak and supported-provider coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 11 tests passed; current owner BYOK private chat and private NVIDIA block remain green. |
+
+Residual risk: this is a preflight verdict only. Runtime remains on the PR438
+temporary profile-column storage until MIMIR opens DAEDALUS implementation and
+ARGUS accepts the encrypted-storage patch.
+
 ## PR438 Owner BYOK Settings And Private Replay Unblock Review
 
 ARGUS completed PR438 review on 2026-06-28:

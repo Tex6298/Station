@@ -4,38 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR438 closed, PR439 opened
+## Latest ARGUS verdict - PR439 BYOK secret storage preflight
 
-MIMIR accepts ARGUS's PR438 review:
+ARGUS reviewed PR439:
 
-`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md`
+`docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+OPEN DAEDALUS IMPLEMENTATION - APP-LEVEL ENCRYPTED BYOK STORAGE
+```
 
 Decision:
 
-- PR438 closes the owner BYOK Settings/product gap for supported providers:
-  OpenAI, Anthropic, and DeepSeek.
+- Do not defer BYOK secret hardening beyond the current PR438 narrow unblock.
+- Reuse the existing app-level AES-256-GCM secret pattern with a separate
+  `AI_PROVIDER_KEY_ENCRYPTION_KEY`.
+- Store encrypted OpenAI/Anthropic/DeepSeek owner BYOK keys in a separate
+  owner-scoped table.
+- Keep legacy `profiles.byok_*_key` plaintext as a temporary fallback only when
+  no encrypted row exists, and migrate/clear legacy on next owner save.
+- Fail closed if encrypted storage exists but encryption config or decrypt is
+  unavailable.
 - Gemini remains embeddings-only/deferred for chat.
 - Private NVIDIA remains blocked for private replay/persona chat.
-- Hosted replay still needs accepted non-NVIDIA platform config or owner BYOK
-  credentials after deployment.
-- Because PR438 relies on existing `profiles.byok_*_key` storage, MIMIR opens
-  PR439 for ARGUS to decide secret-storage, rotation, compatibility, and audit
-  posture before broader production hardening claims.
 
 Current lane:
 
 ```text
 PR439 - BYOK Secret Storage And Rotation Preflight
-Owner: ARGUS / A3
-State: OPEN
+Owner: MIMIR / A1
+State: READY TO OPEN DAEDALUS IMPLEMENTATION
 ```
 
 Current baton:
 
-- ARGUS should run:
-  `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_ARGUS.md`.
-- ARGUS should wake MIMIR with a verdict and exact DAEDALUS task packet if
-  implementation should open.
+- MIMIR should open the DAEDALUS implementation lane using the task packet in
+  `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md`.
+- Hosted replay still needs accepted non-NVIDIA platform config or owner BYOK
+  credentials after deployment.
 
 ## Latest ARGUS verdict - PR438 owner BYOK settings accepted
 

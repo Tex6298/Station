@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR439 | BYOK secret storage and rotation preflight | ARGUS / A3 | Open - decide whether and how to harden BYOK key persistence | `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_ARGUS.md` |
+| PR439 | BYOK secret storage and rotation preflight | MIMIR / A1 | ARGUS says open DAEDALUS implementation for app-level encrypted BYOK storage | `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR439 preflight | BYOK secret storage and rotation preflight | MIMIR -> ARGUS -> MIMIR | Open DAEDALUS implementation; use owner-scoped encrypted BYOK table with lazy legacy fallback | `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md` |
 | PR438 closeout | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR439 opened for secret-storage/rotation preflight before broader production hardening | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
 | PR438 review | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner BYOK Settings surface is owner-scoped, non-leak readback only, with Gemini/private NVIDIA still blocked | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
 | PR438 implementation | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS | Implemented; Settings exposes existing OpenAI/Anthropic/DeepSeek BYOK route without Gemini/private NVIDIA | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md` |

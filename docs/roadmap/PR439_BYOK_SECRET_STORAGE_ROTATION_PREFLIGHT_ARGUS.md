@@ -95,3 +95,15 @@ names, fallback behavior, migration/compatibility rules, tests, and wakeup text.
 
 Wake MIMIR with the verdict. If DAEDALUS should implement, include the exact
 task packet MIMIR should forward.
+
+## ARGUS Result
+
+ARGUS completed this preflight on 2026-06-28:
+
+`docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+OPEN DAEDALUS IMPLEMENTATION - APP-LEVEL ENCRYPTED BYOK STORAGE
+```
