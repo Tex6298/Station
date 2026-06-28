@@ -73,3 +73,15 @@ Wake MIMIR with exactly one:
 Include route, action, expected behavior, actual behavior, and non-secret
 evidence. Do not commit screenshots, cookies, tokens, private document bodies,
 prompts, completions, or raw network payloads.
+
+## Result
+
+ARIADNE completed this rehearsal:
+
+`docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```

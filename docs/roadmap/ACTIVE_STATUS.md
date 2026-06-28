@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR446 hosted Discover routeability passed
+
+ARIADNE completed PR446:
+
+`docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR445 runtime commit.
+- Signed-out `/` and `/discover` returned HTTP 200.
+- Discover rendered no visible public document-card links shaped
+  `/documents/<document-id>`.
+- Discover rendered visible canonical public document-card links shaped
+  `/space/<space-slug>/documents/<document-id>`.
+- A sampled canonical public document route and linked public discussion route
+  both opened successfully.
+
+Current lane:
+
+```text
+PR446 - Hosted Discover Document Routeability Rehearsal
+Owner: MIMIR / A1
+State: PASS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR446 or choose the next product-operation lane.
+
 ## Latest MIMIR closeout - PR445 closed, PR446 opened
 
 MIMIR closes PR445:

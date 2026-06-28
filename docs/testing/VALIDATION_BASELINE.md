@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR446 Hosted Discover Document Routeability
+
+ARIADNE completed PR446 on 2026-06-28:
+`docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were fresh at the PR445 runtime commit;
+- signed-out `/` and `/discover` returned HTTP 200;
+- Discover rendered no visible public document links shaped
+  `/documents/<document-id>`;
+- Discover rendered canonical public document links shaped
+  `/space/<space-slug>/documents/<document-id>`;
+- a sampled canonical public document route opened as a readable public page;
+- the linked public discussion from that sampled document opened successfully.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `19d9edff`. |
+| Signed-out `/` | Pass | HTTP 200. |
+| Signed-out `/discover` | Pass | HTTP 200. |
+| Visible Discover `/documents/<document-id>` anchors | Pass | 0 found. |
+| Visible Discover `/space/<space-slug>/documents/<document-id>` anchors | Pass | 5 found. |
+| Sampled canonical public Space document route | Pass | HTTP 200, readable page. |
+| Sampled linked public discussion route | Pass | HTTP 200. |
+| `git diff --check` | Pass | Required for the PR446 docs result commit. |
+
+Residual risk: this is a signed-out hosted routeability check, not a broad
+Discover redesign or private-provider validation.
+
 ## PR445 Discover Document Route Repair
 
 DAEDALUS implemented PR445 on 2026-06-28:
