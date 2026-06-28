@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR455 Empty, Loading, and Error State Clarity Rehearsal
+
+ARIADNE completed PR455 on 2026-06-28:
+`docs/roadmap/PR455_EMPTY_LOADING_ERROR_CLARITY_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_WITH_NEXT_LANE`.
+
+Recommended next lane:
+
+```text
+PR456 - Top-nav and mobile overflow sweep
+```
+
+Reason:
+
+- hosted web/API were fresh at a PR452-or-later runtime;
+- 27 public, Studio, Developer Space, Settings, and Billing route/viewport
+  combinations returned HTTP 200;
+- no stuck loading states were encountered after page settle;
+- empty, error-word, preview, and disabled-control states behaved as
+  explanatory product states rather than unhandled application failures;
+- desktop and 390px mobile layouts had no horizontal overflow or clipped
+  controls in the sampled route set;
+- sampled visible state text did not expose raw identifiers, credentials,
+  storage paths, stack traces, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `60d53367`. |
+| Signed-out public route state check | Pass | `/`, `/discover`, public Space, public document, and linked forum discussion passed. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Signed-in desktop route state check | Pass | Studio, persona, Developer Space, Settings, and Billing route set passed. |
+| Signed-in 390px mobile route state check | Pass | Same route set passed without horizontal overflow or clipped controls. |
+| Raw-id/secret/internal visible text checks | Pass | No raw ids, credentials, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Required for the PR455 docs result commit. |
+
+Residual risk: this was a broad hosted state-clarity rehearsal, not a copy
+rewrite. The next recommended Discern-to-Tex lane is top-nav/mobile overflow.
+
 ## PR454 Mobile Studio Wayfinding Rehearsal
 
 ARIADNE completed PR454 on 2026-06-28:
