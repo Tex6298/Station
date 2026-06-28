@@ -94,6 +94,7 @@ class InMemorySupabase {
 
   failInsertTables = new Set<string>();
   failInsertMessages = new Map<string, string>();
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
   missingImportJobFileIdColumn = false;
 
   private idCounters: Record<string, number> = {};
@@ -318,6 +319,13 @@ class QueryBuilder {
   private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
 
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return { data: mode === "single" ? null : [], error: operationError };
+    }
+
     if (this.operation === "insert") {
       if (this.db.failInsertTables.has(this.table)) {
         return {
@@ -492,6 +500,236 @@ function close(server: Server) {
     server.close((error) => error ? reject(error) : resolve());
   });
 }
+
+const conversationHiddenMarker = "private-" + "conversation-route-marker";
+const conversationBearerLabel = "Bear" + "er";
+const conversationUrl = "https://storage.example.test/conversations/" + conversationHiddenMarker;
+const conversationToken = "conversation-token-" + conversationHiddenMarker;
+const conversationStoragePath = `${OWNER_ID}/${PERSONA_ID}/${CONVERSATION_ID}/${conversationHiddenMarker}.md`;
+
+function hostileConversationError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in conversations, conversation_messages, archived_chat_transcripts, continuity_candidates, memory_items, and canon_items`,
+      `owner_user_id=${OWNER_ID} persona_id=${PERSONA_ID} conversation_id=${CONVERSATION_ID}`,
+      `message_id=55555555-5555-4555-8555-555555555552 transcript_id=archived_chat_transcripts-${conversationHiddenMarker}`,
+      `candidate_id=continuity_candidates-${conversationHiddenMarker} memory_id=memory_items-${conversationHiddenMarker} canon_id=canon_items-${conversationHiddenMarker}`,
+      `storage_path=${conversationStoragePath}`,
+      `url=${conversationUrl}`,
+      `token=${conversationToken}`,
+      `${conversationBearerLabel} abc.${conversationHiddenMarker}.token`,
+      `provider payload: private transcript excerpt ${conversationHiddenMarker}`,
+      "SQL stack trace at conversationRoute (/station/private/conversations.ts:1:2)",
+    ].join("; "),
+    details: `route details ${conversationHiddenMarker}`,
+  };
+}
+
+function assertSafeConversationRouteError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(conversationHiddenMarker), false);
+  assert.equal(text.includes(conversationUrl), false);
+  assert.equal(text.includes(conversationToken), false);
+  assert.equal(text.includes(conversationStoragePath), false);
+  assert.equal(text.includes(conversationBearerLabel), false);
+  assert.equal(text.includes("conversations,"), false);
+  assert.equal(text.includes("conversation_messages"), false);
+  assert.equal(text.includes("archived_chat_transcripts"), false);
+  assert.equal(text.includes("continuity_candidates"), false);
+  assert.equal(text.includes("memory_items"), false);
+  assert.equal(text.includes("canon_items"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("persona_id"), false);
+  assert.equal(text.includes("conversation_id"), false);
+  assert.equal(text.includes("message_id"), false);
+  assert.equal(text.includes("transcript_id"), false);
+  assert.equal(text.includes("candidate_id"), false);
+  assert.equal(text.includes("memory_id"), false);
+  assert.equal(text.includes("canon_id"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private transcript excerpt"), false);
+  assert.equal(text.includes("SQL stack trace"), false);
+  assert.equal(text.includes("conversationRoute"), false);
+}
+
+function seedContinuityCandidate(db: InMemorySupabase, candidateType: "memory" | "canon" = "memory") {
+  return db.insertRow("continuity_candidates", {
+    persona_id: PERSONA_ID,
+    owner_user_id: OWNER_ID,
+    candidate_type: candidateType,
+    title: `${candidateType} candidate`,
+    content: `Owner reviewed ${candidateType} candidate content.`,
+    rationale: "Generated from archived chat continuity.",
+    archived_chat_transcript_id: "archived-chat-transcripts-test",
+  });
+}
+
+test("conversation archive and continuity route errors return stable public copy without private details", async () => {
+  async function expectRouteError(
+    configure: (db: InMemorySupabase) => void,
+    run: (app: Express, db: InMemorySupabase) => Promise<{ status: number; body: any }>,
+    expected: { error: string; code: string },
+    inspect?: (db: InMemorySupabase) => void
+  ) {
+    const db = new InMemorySupabase();
+    configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createConversationArchiveApp();
+
+    try {
+      const response = await run(app, db);
+      assert.equal(response.status, 500);
+      assert.deepEqual(response.body, expected);
+      assertSafeConversationRouteError(response.body);
+      inspect?.(db);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:conversations", hostileConversationError("list conversations")),
+    (app) => requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    {
+      error: "Could not load conversations.",
+      code: "conversation_list_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:continuity_candidates", hostileConversationError("list candidates")),
+    (app) => requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/candidates?source=all&status=all`, {
+      token: "owner-token",
+    }),
+    {
+      error: "Could not load continuity candidates.",
+      code: "continuity_candidate_list_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:canon_items", hostileConversationError("save assistant canon")),
+    (app) => requestJson(app, "POST", `/conversations/${CONVERSATION_ID}/save-canon`, {
+      token: "owner-token",
+      body: { messageId: "55555555-5555-4555-8555-555555555552" },
+    }),
+    {
+      error: "Could not save canon item.",
+      code: "conversation_save_canon_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:conversation_messages", hostileConversationError("load archive messages")),
+    (app) => requestJson(app, "POST", `/conversations/${CONVERSATION_ID}/archive`, { token: "owner-token" }),
+    {
+      error: "Could not load conversation messages.",
+      code: "conversation_archive_messages_failed",
+    },
+    (db) => assert.equal(db.tables.archived_chat_transcripts.length, 0)
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:archived_chat_transcripts", hostileConversationError("create transcript")),
+    (app) => requestJson(app, "POST", `/conversations/${CONVERSATION_ID}/archive`, { token: "owner-token" }),
+    {
+      error: "Could not create archived transcript.",
+      code: "conversation_archive_transcript_failed",
+    },
+    (db) => assert.equal(db.tables.archived_chat_transcripts.length, 0)
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:memory_items", hostileConversationError("index archived conversation")),
+    (app) => requestJson(app, "POST", `/conversations/${CONVERSATION_ID}/archive`, { token: "owner-token" }),
+    {
+      error: "Could not index archived conversation.",
+      code: "conversation_archive_index_failed",
+    },
+    (db) => assert.equal(db.tables.archived_chat_transcripts.length, 0)
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:continuity_candidates", hostileConversationError("create continuity candidates")),
+    (app) => requestJson(app, "POST", `/conversations/${CONVERSATION_ID}/archive`, { token: "owner-token" }),
+    {
+      error: "Could not create continuity candidates.",
+      code: "conversation_archive_candidates_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => {
+      seedContinuityCandidate(db, "memory");
+      db.operationErrors.set("update:continuity_candidates", hostileConversationError("reject candidate"));
+    },
+    (app, db) => requestJson(app, "PATCH", `/conversations/candidates/${db.tables.continuity_candidates[0].id}`, {
+      token: "owner-token",
+      body: { action: "reject" },
+    }),
+    {
+      error: "Could not reject continuity candidate.",
+      code: "continuity_candidate_reject_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => {
+      seedContinuityCandidate(db, "memory");
+      db.operationErrors.set("insert:memory_items", hostileConversationError("accept memory candidate"));
+    },
+    (app, db) => requestJson(app, "PATCH", `/conversations/candidates/${db.tables.continuity_candidates[0].id}`, {
+      token: "owner-token",
+      body: { action: "accept" },
+    }),
+    {
+      error: "Could not accept memory candidate.",
+      code: "continuity_candidate_accept_memory_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => {
+      seedContinuityCandidate(db, "canon");
+      db.operationErrors.set("insert:canon_items", hostileConversationError("accept canon candidate"));
+    },
+    (app, db) => requestJson(app, "PATCH", `/conversations/candidates/${db.tables.continuity_candidates[0].id}`, {
+      token: "owner-token",
+      body: { action: "accept" },
+    }),
+    {
+      error: "Could not accept canon candidate.",
+      code: "continuity_candidate_accept_canon_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => {
+      seedContinuityCandidate(db, "memory");
+      db.operationErrors.set("update:continuity_candidates", hostileConversationError("update accepted candidate"));
+    },
+    (app, db) => requestJson(app, "PATCH", `/conversations/candidates/${db.tables.continuity_candidates[0].id}`, {
+      token: "owner-token",
+      body: { action: "accept" },
+    }),
+    {
+      error: "Could not update continuity candidate.",
+      code: "continuity_candidate_update_failed",
+    },
+    (db) => assert.equal(db.tables.memory_items.some((row) => row.title === "memory candidate"), true)
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("delete:conversations", hostileConversationError("delete conversation")),
+    (app) => requestJson(app, "DELETE", `/conversations/${CONVERSATION_ID}`, { token: "owner-token" }),
+    {
+      error: "Could not delete conversation.",
+      code: "conversation_delete_failed",
+    },
+    (db) => assert.equal(db.tables.conversations.length, 1)
+  );
+});
 
 test("owner can archive a chat into private continuity candidates", async () => {
   const db = new InMemorySupabase();

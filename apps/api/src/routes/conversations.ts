@@ -74,6 +74,57 @@ const candidateListSchema = z.object({
   source: z.enum(["import", "all"]).default("import"),
 });
 
+const CONVERSATION_ERROR_RESPONSES = {
+  list: {
+    error: "Could not load conversations.",
+    code: "conversation_list_failed",
+  },
+  candidateList: {
+    error: "Could not load continuity candidates.",
+    code: "continuity_candidate_list_failed",
+  },
+  saveCanon: {
+    error: "Could not save canon item.",
+    code: "conversation_save_canon_failed",
+  },
+  archiveMessages: {
+    error: "Could not load conversation messages.",
+    code: "conversation_archive_messages_failed",
+  },
+  archiveTranscript: {
+    error: "Could not create archived transcript.",
+    code: "conversation_archive_transcript_failed",
+  },
+  archiveIndex: {
+    error: "Could not index archived conversation.",
+    code: "conversation_archive_index_failed",
+  },
+  archiveCandidates: {
+    error: "Could not create continuity candidates.",
+    code: "conversation_archive_candidates_failed",
+  },
+  candidateReject: {
+    error: "Could not reject continuity candidate.",
+    code: "continuity_candidate_reject_failed",
+  },
+  candidateAcceptMemory: {
+    error: "Could not accept memory candidate.",
+    code: "continuity_candidate_accept_memory_failed",
+  },
+  candidateAcceptCanon: {
+    error: "Could not accept canon candidate.",
+    code: "continuity_candidate_accept_canon_failed",
+  },
+  candidateUpdate: {
+    error: "Could not update continuity candidate.",
+    code: "continuity_candidate_update_failed",
+  },
+  delete: {
+    error: "Could not delete conversation.",
+    code: "conversation_delete_failed",
+  },
+} as const;
+
 type ConversationMessageRow = {
   id: string;
   role: "system" | "user" | "assistant";
@@ -747,7 +798,7 @@ conversationsRouter.get("/persona/:personaId", async (req, res) => {
     .eq("owner_user_id", userId)
     .order("updated_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.list);
   return res.json({ conversations: data });
 });
 
@@ -779,7 +830,7 @@ conversationsRouter.get("/persona/:personaId/candidates", async (req, res) => {
     .eq("owner_user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.candidateList);
 
   const allRows = data ?? [];
   const rows = filterCandidateRows(allRows, parsed.data);
@@ -1498,7 +1549,7 @@ conversationsRouter.post("/:conversationId/save-canon", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.saveCanon);
   return res.status(201).json({ canonItem: canon });
 });
 
@@ -1527,7 +1578,7 @@ conversationsRouter.post("/:conversationId/archive", async (req, res) => {
     .eq("conversation_id", conv.id)
     .order("created_at", { ascending: true });
 
-  if (messageError) return res.status(500).json({ error: messageError.message });
+  if (messageError) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.archiveMessages);
 
   const messageRows = (messages ?? []) as ConversationMessageRow[];
   const messageCount = messageRows.filter((message) => message.role !== "system").length;
@@ -1552,7 +1603,7 @@ conversationsRouter.post("/:conversationId/archive", async (req, res) => {
     .single();
 
   if (transcriptError || !transcript) {
-    return res.status(500).json({ error: transcriptError?.message ?? "Could not archive conversation." });
+    return res.status(500).json(CONVERSATION_ERROR_RESPONSES.archiveTranscript);
   }
 
   let archiveChunksCreated = 0;
@@ -1579,7 +1630,7 @@ conversationsRouter.post("/:conversationId/archive", async (req, res) => {
 
     const storageError = storageErrorResponse(err);
     if (storageError) return res.status(storageError.status).json(storageError.body);
-    return res.status(500).json({ error: err instanceof Error ? err.message : "Could not index archived conversation." });
+    return res.status(500).json(CONVERSATION_ERROR_RESPONSES.archiveIndex);
   }
 
   const candidateSeeds = generateContinuityCandidates(messageRows);
@@ -1599,7 +1650,7 @@ conversationsRouter.post("/:conversationId/archive", async (req, res) => {
       })))
       .select("*");
 
-    if (candidateError) return res.status(500).json({ error: candidateError.message });
+    if (candidateError) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.archiveCandidates);
     candidates = candidateRows ?? [];
   }
 
@@ -1682,7 +1733,7 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
       .select("*")
       .single();
 
-    if (error || !rejected) return res.status(500).json({ error: error?.message ?? "Could not reject candidate." });
+    if (error || !rejected) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.candidateReject);
     return res.json({ candidate: candidateRow(rejected) });
   }
 
@@ -1705,9 +1756,9 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
         archiveSource: candidateSource.archiveSource,
       });
     } catch (error) {
-      return res.status(500).json({
-        error: error instanceof Error ? error.message : "Could not accept memory candidate.",
-      });
+      const storageError = storageErrorResponse(error);
+      if (storageError) return res.status(storageError.status).json(storageError.body);
+      return res.status(500).json(CONVERSATION_ERROR_RESPONSES.candidateAcceptMemory);
     }
     if (candidateSource.sourceType === "import") {
       await updateMemoryLifecycle({
@@ -1738,7 +1789,7 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
       .select("*")
       .single();
 
-    if (error || !canon) return res.status(500).json({ error: error?.message ?? "Could not accept canon candidate." });
+    if (error || !canon) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.candidateAcceptCanon);
     target = canon;
   }
 
@@ -1757,7 +1808,7 @@ conversationsRouter.patch("/candidates/:candidateId", async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !accepted) return res.status(500).json({ error: error?.message ?? "Could not update candidate." });
+  if (error || !accepted) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.candidateUpdate);
   return res.json({
     candidate: candidateRow(accepted),
     target,
@@ -1797,6 +1848,6 @@ conversationsRouter.delete("/:conversationId", async (req, res) => {
     .eq("id", req.params.conversationId)
     .eq("owner_user_id", userId);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.delete);
   return res.status(204).send();
 });
