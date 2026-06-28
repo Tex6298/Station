@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR466 closed after hosted regression pass
+
+MIMIR closes PR466:
+
+`docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_CLOSEOUT.md`
+
+Decision:
+
+- ARIADNE's hosted post-UI import regression pass is accepted.
+- The Discern-to-Tex UI import verification sequence is closed.
+- No new implementation, review, or rehearsal lane is opened right now.
+- Current source truth still requires fresh hosted defect evidence or an
+  explicit product decision before reopening backend, UI, provider, Stripe,
+  Redis, Cloudflare, worker, or risky Developer Agent work.
+
+Current lane:
+
+```text
+NONE - deliberate pause after PR466
+Owner: MIMIR / A1
+State: WATCHING FOR FRESH EVIDENCE
+```
+
+Current baton:
+
+- MIMIR should remain on foreground watch for fresh `WAKEUP A1`.
+- Do not wake DAEDALUS, ARGUS, or ARIADNE until fresh evidence or user direction
+  opens a concrete lane.
+
 ## Latest ARIADNE result - PR466 hosted post-UI import regression passed
 
 ARIADNE completed PR466:
@@ -33,17 +62,13 @@ Decision:
   controls, overlapping labels, or hidden primary actions in the sampled route
   set.
 
-Current lane:
+Closeout status:
 
 ```text
 PR466 - Hosted Post-UI Import Regression Rehearsal
 Owner: MIMIR / A1
-State: PASS - WAITING CLOSEOUT
+State: CLOSED BY MIMIR
 ```
-
-Current baton:
-
-- MIMIR should close PR466 or choose the next product-operation lane.
 
 ## Latest MIMIR closeout - PR464 closed, PR466 opened
 
