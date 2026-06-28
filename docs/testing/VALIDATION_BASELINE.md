@@ -20,6 +20,52 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR464 Onboarding and Station Assistant Comprehension Rehearsal
+
+ARIADNE completed PR464 on 2026-06-28:
+`docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_RESULT.md`.
+
+Validation result: `PASS_WITH_NEXT_LANE`.
+
+Recommended next lane:
+
+```text
+PR465 - Discern-to-Tex UI import closeout and next-lane selection
+```
+
+Reason:
+
+- hosted web/API were fresh at the required PR461 runtime;
+- public home, login, signup, signed-out protected Studio/onboarding auth
+  boundaries, signed-in Studio, onboarding, Station Assistant, Settings, and
+  Studio mobile navigation passed desktop and 390px checks;
+- Studio exposed New Persona, New Chat, Publish, Public Space, Onboarding
+  Paths, Assistant, Archive, Export, Settings, and authoritative usage routes;
+- onboarding preserved Fresh Start, Awakening, Document Migrator, API Bridge,
+  private boundaries, alpha truth, and explicit non-live connector/worker
+  boundaries;
+- Station Assistant read as an operational helper, not a persona;
+- desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, overlapping labels, or hidden route affordances in the sampled route
+  set;
+- sampled visible text did not expose raw identifiers, prompts, private source
+  bodies, provider payloads, credentials, storage paths, stack traces, payment
+  secrets, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `187996cd`. |
+| Temporary Playwright hosted route matrix | Pass | Public home/login/signup, signed-out protected Studio/onboarding auth boundaries, signed-in Studio/onboarding/Assistant/Settings, and 390px Studio mobile navigation passed. |
+| Desktop onboarding/Assistant layout check | Pass | No horizontal overflow or clipped controls. |
+| 390px onboarding/Assistant layout check | Pass | No horizontal overflow or clipped controls. |
+| Raw-id/secret/internal visible text checks | Pass | No raw ids, credentials, payment secrets, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only comprehension rehearsal. It did not
+create accounts, submit credentials through the browser, create personas, start
+chats, run imports, publish, upload, export, run provider setup, open billing
+checkout, or call private model flows.
+
 ## PR463 Discover, Public, and Community Polish Rehearsal
 
 ARIADNE completed PR463 on 2026-06-28:

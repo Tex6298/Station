@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR464 onboarding and Assistant comprehension passed
+
+ARIADNE completed PR464:
+
+`docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```
+
+Recommended next lane:
+
+```text
+PR465 - Discern-to-Tex UI import closeout and next-lane selection
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the required PR461 runtime.
+- Public home, login, signup, signed-out protected Studio/onboarding auth
+  boundaries, signed-in Studio, onboarding, Station Assistant, Settings, and
+  Studio mobile navigation passed the checked desktop and 390px route matrix.
+- Studio surfaces exposed New Persona, New Chat, Publish, Public Space,
+  Onboarding Paths, Assistant, Archive, Export, Settings, and authoritative
+  usage routes for a returning owner.
+- Onboarding preserved Fresh Start, Awakening, Document Migrator, API Bridge,
+  private boundaries, alpha truth, and explicit non-live connector/worker
+  boundaries.
+- Station Assistant read as an operational helper, not a persona, and preserved
+  archive, Memory/Canon, publishing, Space, export, and quota boundaries.
+- Desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, or hidden primary actions in the sampled route set.
+
+Current lane:
+
+```text
+PR464 - Onboarding and Station Assistant Comprehension Rehearsal
+Owner: MIMIR / A1
+State: PASS_WITH_NEXT_LANE - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR464 and decide whether to open PR465 for
+  Discern-to-Tex UI import closeout and next-lane selection.
+
 ## Latest MIMIR closeout - PR463 closed, PR464 opened
 
 MIMIR closes PR463:
