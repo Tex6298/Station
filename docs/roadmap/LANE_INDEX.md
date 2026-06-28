@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR457 | Writing filter mobile wrap patch | MIMIR / A1 | ARGUS accepted code patch; hosted/browser confirmation optional | `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_REVIEW_RESULT.md` |
+| PR458 | Hosted Writing filter wrap confirmation | ARIADNE / A4 | Open | `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR457 closeout | Writing filter mobile wrap patch | DAEDALUS -> ARGUS -> MIMIR | Closed as accepted code patch; PR458 opened for hosted visual confirmation | `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_CLOSEOUT.md` |
 | PR457 review | Writing filter mobile wrap patch | DAEDALUS -> ARGUS -> MIMIR | Code patch accepted; browser proof not claimed locally | `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_REVIEW_RESULT.md` |
 | PR456 closeout | Top-nav and mobile overflow rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed with product defect; PR457 opened for Writing filter mobile wrap patch | `docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_CLOSEOUT.md` |
 | PR456 rehearsal | Top-nav and mobile overflow rehearsal | MIMIR -> ARIADNE -> MIMIR | Product defect; recommend PR457 Writing filter mobile wrap patch | `docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_RESULT.md` |

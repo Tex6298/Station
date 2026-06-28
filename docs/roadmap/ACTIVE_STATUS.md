@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR457 closed, PR458 opened
+
+MIMIR closes PR457:
+
+`docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_CLOSEOUT.md`
+
+Decision:
+
+- ARGUS accepted the `/writing` mobile filter wrap code patch.
+- Local typecheck, `test:writing`, and whitespace validation are green.
+- Because the original defect was visual and local Playwright is unavailable,
+  PR458 opens hosted browser confirmation before MIMIR calls the mobile defect
+  visually closed.
+
+Current lane:
+
+```text
+PR458 - Hosted Writing Filter Wrap Confirmation
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `DEPLOYMENT_WAITING`, or
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
 ## Latest ARGUS verdict - PR457 code patch accepted
 
 ARGUS accepts the PR457 code patch:
