@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR450 accepted, PR451 opened
+
+MIMIR closes PR450:
+
+`docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_CLOSEOUT.md`
+
+Decision:
+
+- PR450 is accepted as an already-implemented UX-03A route-link verification.
+- No duplicate product-code lane is needed.
+- Hosted browser verification is the next proof.
+
+Current lane:
+
+```text
+PR451 - Hosted Continuity Review Links Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `DATA_NOT_PRESENT`, or
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
 ## Latest ARGUS verdict - PR450 accepted, ready for MIMIR closeout
 
 ARGUS accepts PR450:
