@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR430 accepted, PR431 opened
+
+MIMIR accepts ARGUS's PR430 review:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md`
+
+Decision:
+
+- PR430 closes the narrow Developer Space owner export readback UI caveat found
+  by PR429.
+- Developer Space manage now has accepted manifest and portable bundle readback
+  controls for completed `developer_space_archive` packages.
+- Because PR430 changed a visible hosted owner route, the next step is one
+  narrow ARIADNE hosted verification, not a new product feature.
+
+Current lane:
+
+```text
+PR431 - Hosted Developer Space Export Readback Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_ARIADNE.md`.
+- If PR431 passes, MIMIR can close the export/readback loop and choose the next
+  roadmap lane from live evidence.
+
 ## Latest ARGUS verdict - PR430 Developer Space export readback accepted
 
 ARGUS reviewed PR430:
