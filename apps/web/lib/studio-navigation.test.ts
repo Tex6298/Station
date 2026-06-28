@@ -7,6 +7,7 @@ import {
   studioRouteContext,
   studioPersonaHref,
   studioPersonaMeta,
+  studioDashboardMemoryStop,
   studioPersonaWorkspacePrimaryActions,
   studioPersonaWorkspaceTabs,
   studioWorkspaceLinks,
@@ -44,6 +45,32 @@ test("Studio persona workspace exposes Memory as a primary owner action", () => 
   assert.equal(actions[0]?.href, "/studio/personas/persona-1/memory");
   assert.match(actions[0]?.detail ?? "", /lifecycle/);
   assert.equal(actions.some((action) => action.href.startsWith("/space")), false);
+});
+
+test("Studio dashboard Memory stop routes owners into persona Memory", () => {
+  const stop = studioDashboardMemoryStop([
+    { id: "persona-1", name: "Ariadne" },
+    { id: "persona-2", name: "Daedalus" },
+  ]);
+
+  assert.equal(stop.label, "Memory");
+  assert.equal(stop.href, "/studio/personas/persona-1/memory");
+  assert.equal(stop.actionLabel, "Open Memory");
+  assert.equal(stop.statusLabel, "2 persona memory workspaces");
+  assert.match(stop.statusDetail, /Ariadne is ready for Memory review/);
+  assert.match(stop.body, /distinct from Archive sources, Continuity records, Canon commitments, and Integrity checks/);
+  assert.equal(stop.privacy, "Owner-only persona workspace");
+});
+
+test("Studio dashboard Memory stop has a coherent no-persona state", () => {
+  const stop = studioDashboardMemoryStop([]);
+
+  assert.equal(stop.href, "/studio/new");
+  assert.equal(stop.actionLabel, "Create persona");
+  assert.equal(stop.statusLabel, "No persona memory yet");
+  assert.match(stop.statusDetail, /Create a private persona/);
+  assert.match(stop.body, /stays owner-only/);
+  assert.match(stop.body, /separate from Archive source intake, Continuity timeline records, Canon rules, and Integrity sessions/);
 });
 
 test("Studio route context names static Studio stops for mobile summaries", () => {

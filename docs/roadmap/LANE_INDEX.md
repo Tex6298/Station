@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR448 | Studio dashboard Memory orientation and status readback | DAEDALUS / A2 | Open | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_DAEDALUS.md` |
+| PR448 | Studio dashboard Memory orientation and status readback | ARGUS / A3 | Ready for review; Memory is visible as a distinct owner-only Studio dashboard stop | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_RESULT.md` |
 
 ## Recently Closed
 

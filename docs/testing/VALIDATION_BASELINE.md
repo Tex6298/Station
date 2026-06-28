@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR448 Studio Dashboard Memory Orientation
+
+DAEDALUS implemented PR448 on 2026-06-28:
+`docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/studio` now exposes Memory as a distinct owner-only dashboard stop;
+- Memory routes to the first persona Memory workspace when personas exist;
+- the empty state routes to persona creation;
+- Memory status/readback uses the existing owner-only persona list only;
+- Memory copy stays distinct from Archive, Continuity, Canon, and Integrity;
+- no private memory item content, backend route, public route, lifecycle policy,
+  provider, billing, archive import, publishing, or Developer Space behavior
+  changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed, including Memory dashboard populated and empty states. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 141 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed; owner-only memory/context boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+API typecheck was not run because PR448 changed only web/dashboard helper code
+and docs.
+
+Residual risk: hosted visual confirmation should happen after deploy; local
+tests prove helper semantics and existing Studio route behavior only.
+
 ## PR447 Hosted Product Operation Continuation Sweep
 
 ARIADNE completed PR447 on 2026-06-28:

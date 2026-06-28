@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR448 Studio Memory orientation ready for ARGUS
+
+DAEDALUS implemented PR448:
+
+`docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_RESULT.md`
+
+Decision:
+
+- `/studio` now shows Memory as a distinct top-level dashboard panel.
+- The panel derives owner-safe status from the signed-in owner's persona list.
+- Owners with personas route directly into the first persona Memory workspace.
+- Owners without personas see a coherent "Create persona" empty state.
+- Memory copy is distinct from Archive source intake, Continuity records, Canon
+  commitments, and Integrity checks.
+- No backend, lifecycle policy, public visibility, provider, billing, archive,
+  publishing, or private memory body behavior changed.
+
+Current lane:
+
+```text
+PR448 - Studio Dashboard Memory Orientation And Status Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review owner scoping, UI semantics, empty states, and focused
+  tests for PR448.
+- If accepted, ARGUS should wake MIMIR with closeout recommendation.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact patch target.
+
 ## Latest MIMIR closeout - PR447 passed, PR448 opened
 
 MIMIR closes PR447:

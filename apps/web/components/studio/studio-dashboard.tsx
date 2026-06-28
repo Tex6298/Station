@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
+import { studioDashboardMemoryStop } from "@/lib/studio-navigation";
 import {
   StudioActionRow,
   StudioEmptyState,
@@ -112,6 +113,29 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
           ))}
         </div>
       )}
+    </section>
+  );
+}
+
+function MemoryOrientation({ personas }: { personas: PersonaSummary[] }) {
+  const memoryStop = studioDashboardMemoryStop(personas);
+
+  return (
+    <section className="studio-dashboard-panel" style={panel}>
+      <SectionTitle title="Memory" action={memoryStop.actionLabel} href={memoryStop.href} />
+      <Link href={memoryStop.href} style={{ textDecoration: "none" }}>
+        <article className="studio-dashboard-row" style={{ ...listRow, alignItems: "flex-start" }}>
+          <span style={{ ...iconBox, color: "#bbf7d0", borderColor: "#14532d", background: "#052e1a" }}>M</span>
+          <div style={{ minWidth: 0, display: "grid", gap: 6 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{memoryStop.statusLabel}</div>
+              <StudioStatusBadge tone={personas.length > 0 ? "good" : "warning"}>{memoryStop.privacy}</StudioStatusBadge>
+            </div>
+            <div style={mutedLine}>{memoryStop.statusDetail}</div>
+            <div style={{ ...mutedLine, color: "#b7c7d8" }}>{memoryStop.body}</div>
+          </div>
+        </article>
+      </Link>
     </section>
   );
 }
@@ -299,6 +323,7 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
       <div className="studio-dashboard-grid">
         <div className="studio-dashboard-main">
           <ContinueList personas={personas} />
+          <MemoryOrientation personas={personas} />
           <IntegrityList personas={personas} integrityDue={integrityDue} />
           <UsageStats personas={personas} />
           <ArchiveActivity />

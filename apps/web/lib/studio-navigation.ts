@@ -15,6 +15,16 @@ export type StudioRouteContext = {
   };
 };
 
+export type StudioDashboardMemoryStop = {
+  label: "Memory";
+  href: string;
+  actionLabel: string;
+  statusLabel: string;
+  statusDetail: string;
+  body: string;
+  privacy: string;
+};
+
 export const studioPublicLinks = [
   { label: "Blog Posts", href: "/studio/publishing", mark: "B" },
   { label: "Public Space", href: "/space", mark: "P" },
@@ -191,6 +201,35 @@ export function studioPersonaWorkspacePrimaryActions(personaId: string) {
       : []),
     { label: "Ask Assistant", href: "/studio/assistant", detail: "Operational helper for Studio work" },
   ];
+}
+
+export function studioDashboardMemoryStop(
+  personas: Array<Pick<PersonaSummary, "id" | "name">>,
+): StudioDashboardMemoryStop {
+  if (personas.length === 0) {
+    return {
+      label: "Memory",
+      href: "/studio/new",
+      actionLabel: "Create persona",
+      statusLabel: "No persona memory yet",
+      statusDetail: "Create a private persona before Memory can collect owner-reviewed context.",
+      body: "Memory is the recallable context layer inside each private persona workspace. It stays owner-only and separate from Archive source intake, Continuity timeline records, Canon rules, and Integrity sessions.",
+      privacy: "Owner-only Studio",
+    };
+  }
+
+  const firstPersona = personas[0];
+  const countLabel = `${personas.length} persona memory workspace${personas.length === 1 ? "" : "s"}`;
+
+  return {
+    label: "Memory",
+    href: `/studio/personas/${firstPersona.id}/memory`,
+    actionLabel: "Open Memory",
+    statusLabel: countLabel,
+    statusDetail: `${firstPersona.name} is ready for Memory review${personas.length > 1 ? `, with ${personas.length - 1} more persona${personas.length === 2 ? "" : "s"} behind it` : ""}.`,
+    body: "Review recallable context and lifecycle state before it shapes runtime answers. Memory is distinct from Archive sources, Continuity records, Canon commitments, and Integrity checks.",
+    privacy: "Owner-only persona workspace",
+  };
 }
 
 export function studioRouteContext(
