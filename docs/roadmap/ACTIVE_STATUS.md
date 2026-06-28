@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR448 accepted, PR449 opened
+
+MIMIR closes PR448:
+
+`docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_CLOSEOUT.md`
+
+Decision:
+
+- Studio dashboard Memory orientation is accepted locally after ARGUS review.
+- The change is owner-only web UI/helper scope; no backend or Memory lifecycle
+  behavior changed.
+- Hosted visual confirmation remains the next proof.
+
+Current lane:
+
+```text
+PR449 - Hosted Studio Memory Orientation Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `DEPLOYMENT_WAITING`, or
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
 ## Latest ARGUS review - PR448 Studio Memory orientation accepted
 
 ARGUS accepted PR448:

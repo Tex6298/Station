@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR448 | Studio dashboard Memory orientation and status readback | MIMIR / A1 | Accepted by ARGUS; Memory is visible as a distinct owner-only Studio dashboard stop; waiting closeout | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_REVIEW_RESULT.md` |
+| PR449 | Hosted Studio Memory orientation rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR448 closeout | Studio dashboard Memory orientation and status readback | DAEDALUS -> ARGUS -> MIMIR | Closed; PR449 opened for hosted visual confirmation | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_CLOSEOUT.md` |
 | PR447 closeout | Hosted product operation continuation sweep | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR448 opened for Studio dashboard Memory orientation | `docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_CLOSEOUT.md` |
 | PR447 sweep | Hosted product operation continuation sweep | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend Studio dashboard Memory orientation | `docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_RESULT.md` |
 | PR446 closeout | Hosted Discover document routeability rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; Discover document routeability proven on hosted | `docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_CLOSEOUT.md` |
