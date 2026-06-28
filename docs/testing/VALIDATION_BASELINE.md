@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+ARGUS completed Developer Space operations error response review:
+`docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH`.
 
 Reason:
 
@@ -38,6 +41,9 @@ Reason:
   error codes around public gallery, owner listing, create/update, agent
   preview/readback, observatory readback, document attach/template creation,
   project assignment, usage readback, and linked document readback;
+- ARGUS added a narrow patch so real operation entry-point lookup failures
+  return fixed route-specific responses while missing rows preserve existing
+  not-found behavior;
 - focused Developer Space tests force hostile operations service payloads
   through failing route responses and prove raw service details are not
   returned.
@@ -50,7 +56,7 @@ Reason:
 | `git diff --check` | Pass | No whitespace errors. |
 | Direct raw-response grep | Reviewed | Remaining target-file matches are zod validation responses or out-of-scope observed-runtime ingestion/credential helper internals, not non-credential operations route responses returning raw service text. |
 | MIMIR escalation | Not needed | Credential lifecycle and observed-runtime ingestion semantics were not changed. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and Developer Space operations/observatory/project/document/usage behavior did not change. |
+| ARGUS review | Pass | Developer Space operations response mapping is stable public copy after the narrow lookup-error patch; observatory/project/document/usage behavior, credential lifecycle, ingestion semantics, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: reports, publishing approval, social, notification, persona, and
 other route-level raw error responses remain future audit surface.

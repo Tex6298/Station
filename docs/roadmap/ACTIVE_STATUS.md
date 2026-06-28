@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - Developer Space operations errors
+## Latest ARGUS verdict - Developer Space operations errors accepted after narrow patch
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
@@ -13,12 +13,25 @@ MIMIR opened the next narrow route-level error response hardening lane on
 DAEDALUS completed the implementation on 2026-06-28:
 `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_RESULT.md`.
 
+ARGUS completed Developer Space operations error response review on
+2026-06-28:
+`docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED AFTER NARROW ARGUS PATCH
+```
+
 Decision:
 
 - Public Developer Space gallery, owner list, create, update, observatory
   JSON/SSE readback, agent preview, document attach/template, project
   assignment, and usage failures now return stable public-safe responses with
   fixed route-specific error codes.
+- Real Developer Space/document lookup failures on operation entry points now
+  return fixed route-specific responses after ARGUS added a narrow review
+  patch. Missing rows still preserve the existing 404 behavior.
 - Existing successful Developer Space lifecycle, public/owner observatory
   behavior, agent preview semantics, project assignment, document linking,
   usage accounting, not-found behavior, owner/admin access behavior, and
@@ -30,6 +43,12 @@ Decision:
   through failing route responses and prove private markers, table names,
   IDs, URLs/tokens, provider payload labels, and stack-shaped route strings
   are not returned.
+- Scope stayed inside Developer Space operations route response mapping,
+  focused tests, and roadmap/testing documentation. No schema, usage
+  accounting, credential/key lifecycle, webhook signing behavior,
+  observed-runtime ingestion semantics, public observatory UI, package
+  manifests, Redis, Cloudflare, workers, queues, hosted config, or hosted data
+  changes were introduced.
 
 Validation:
 
@@ -37,6 +56,9 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:projects` passed, 16 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `git diff --check` passed.
+- `git diff 7e2c962e^ 7e2c962e --check` passed for the ARGUS patch.
+- Added-line sensitive scans were reviewed; hits were synthetic hostile
+  fixtures, fixed public copy/codes, or docs text only.
 - Direct raw-response grep was reviewed; remaining target-file matches are zod
   validation responses or out-of-scope observed-runtime ingestion/credential
   helper internals, not non-credential operations route responses returning
@@ -44,9 +66,7 @@ Validation:
 
 Current baton:
 
-- ARGUS should hostile-review Developer Space operations response mapping,
-  behavior preservation, test coverage, and the credential/ingestion non-touch
-  boundary.
+- MIMIR should close or route the next lane.
 
 ## Latest ARGUS verdict - discovery/Space errors accepted after narrow patch
 
