@@ -193,8 +193,8 @@ const usageSurfaces = [
   },
   {
     label: "Archive",
-    value: "Storage",
-    detail: "Open persona files and Archive storage state without invented usage math.",
+    value: "Sources",
+    detail: "Open the owner-wide Archive surface for source state without invented usage math.",
     href: "/studio/archive",
   },
 ];
