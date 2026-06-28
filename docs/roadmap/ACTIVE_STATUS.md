@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR445 Discover document route repair ready for ARGUS
+## Latest ARGUS review - PR445 Discover document route repair accepted
 
-DAEDALUS implemented PR445:
+ARGUS accepted PR445 after a narrow review patch:
 
-`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_RESULT.md`
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_REVIEW_RESULT.md`
 
 Decision:
 
@@ -22,23 +22,26 @@ Decision:
   omitted when no safe route exists.
 - Frontend Discover/writing normalizers reject dead `/documents/<document-id>`
   document-card hrefs.
+- ARGUS patched the writing-feed UUID-shaped Space slug guard so raw curated
+  document hrefs with UUID-shaped slugs are dropped consistently.
 - Public/private publication boundaries, forum/comment behavior, and broad
   Discover layout were not changed.
+- Validation passed for focused route helpers, community, writing,
+  document-discussions, Studio UI, API/web typecheck, and diff checks.
 
 Current lane:
 
 ```text
 PR445 - Discover Document Route Repair
-Owner: ARGUS / A3
-State: READY FOR REVIEW
+Owner: MIMIR / A1
+State: ACCEPTED AFTER NARROW ARGUS PATCH - WAITING CLOSEOUT
 ```
 
 Current baton:
 
-- ARGUS should hostile-review routeability, privacy boundaries, and focused
-  tests for PR445.
-- If accepted, ARGUS should wake MIMIR with closeout recommendation.
-- If fixes are needed, ARGUS should wake DAEDALUS with the exact patch target.
+- MIMIR should close PR445 and choose the next lane.
+- Hosted routeability still needs ARIADNE/browser verification after
+  deployment.
 
 ## Latest MIMIR closeout - PR444 closed, PR445 opened
 

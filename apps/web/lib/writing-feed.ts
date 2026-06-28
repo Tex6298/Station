@@ -60,7 +60,7 @@ export function writingCardDiscussionCue(item: Pick<WritingItem, "type" | "discu
 
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function isSpaceDocumentHref(value: string) {
   const match = value.match(/^\/space\/([^/]+)\/documents\/([^/]+)$/);

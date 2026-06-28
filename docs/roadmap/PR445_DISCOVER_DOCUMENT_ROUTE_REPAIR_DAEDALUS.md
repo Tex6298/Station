@@ -6,6 +6,14 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+## ARGUS Review
+
+ARGUS accepted the implementation after a narrow review patch on 2026-06-28:
+
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_REVIEW_RESULT.md`
+
+MIMIR owns closeout and next-lane selection.
+
 ## Source
 
 PR444 hosted product-operation sweep found a concrete public reading-path

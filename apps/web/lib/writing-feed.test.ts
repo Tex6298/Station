@@ -98,6 +98,17 @@ test("writing feed drops raw curated document rows without canonical Space hrefs
     }),
     null
   );
+  assert.equal(
+    normalizeWritingFeedItem({
+      id: "feed-4",
+      item_type: "document",
+      item_id: "doc-uuid-space",
+      title: "UUID-shaped Space route",
+      href: "/space/550e8400-e29b-41d4-a716-446655440000/documents/doc-uuid-space",
+      created_at: "2026-06-14T08:30:00.000Z",
+    }),
+    null
+  );
 });
 
 test("writing card discussion cue is visible only for linked document items", () => {

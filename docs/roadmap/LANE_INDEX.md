@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR445 | Discover document route repair | ARGUS / A3 | Ready for review; Discover public document cards use canonical Space document routes | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_RESULT.md` |
+| PR445 | Discover document route repair | MIMIR / A1 | Accepted after narrow ARGUS patch; Discover public document cards use canonical Space document routes; waiting closeout | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_REVIEW_RESULT.md` |
 
 ## Recently Closed
 

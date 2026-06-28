@@ -25,7 +25,10 @@ they are not Station validation failures.
 DAEDALUS implemented PR445 on 2026-06-28:
 `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+ARGUS accepted PR445 after a narrow review patch on 2026-06-28:
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_AFTER_NARROW_PATCH`.
 
 Reason:
 
@@ -35,6 +38,8 @@ Reason:
   `/documents/<document-id>` web route;
 - featured Discover document rows resolve to canonical Space document hrefs;
 - frontend Discover/writing normalizers reject dead document-card hrefs;
+- ARGUS corrected the writing-feed UUID-shaped Space slug guard and added a
+  regression assertion;
 - public/private publication boundaries, forum/comment behavior, and broad
   Discover layout did not change.
 
@@ -47,7 +52,8 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 139 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Completed with exit code 0. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
-| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 Residual risk: hosted routeability still needs ARIADNE/browser verification
 after deployment. PR445 is a code/test repair and does not run a hosted sweep.

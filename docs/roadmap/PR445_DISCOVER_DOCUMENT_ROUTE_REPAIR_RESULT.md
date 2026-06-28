@@ -4,7 +4,7 @@ Owner: DAEDALUS / A2
 
 Date: 2026-06-28
 
-Status: READY FOR ARGUS REVIEW
+Status: ACCEPTED AFTER NARROW ARGUS PATCH
 
 ## Result
 
@@ -31,6 +31,16 @@ Space document page behavior, or broad Discover layout changed.
 Private, unlisted, owner-only, hidden, draft, and unsafe-slug documents remain
 outside the public routeability repair.
 
+## ARGUS Review
+
+ARGUS accepted PR445 after a narrow review patch on 2026-06-28:
+
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_REVIEW_RESULT.md`
+
+ARGUS corrected the writing-feed UUID-shaped Space slug guard and added a
+regression assertion so raw curated writing document rows with UUID-shaped Space
+slugs are dropped consistently.
+
 ## Files Touched
 
 - `apps/api/src/routes/discover.ts`
@@ -52,6 +62,9 @@ npm exec --yes pnpm@10.32.1 -- run test:studio-ui
 npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck
 npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck
 git diff --check
+git diff --cached --check
 ```
 
-`git diff --check` passed with line-ending normalization warnings only.
+ARGUS reran the validation above after the review patch. `git diff --check`
+passed with CRLF normalization warnings only; `git diff --cached --check`
+passed with no staged whitespace errors.
