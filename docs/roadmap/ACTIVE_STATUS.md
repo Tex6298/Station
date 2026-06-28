@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS proof - Memory/Continuity/Archive observability ready for ARIADNE rerun
+## Latest ARIADNE verdict - Memory/Continuity/Archive observability passed
+
+ARIADNE completed the hosted human-eye rerun on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md`.
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- The rerun authenticated as the replay owner and opened hosted owner Studio
+  routes with both `station.auth.session.v1` local storage and the
+  `station-auth` cookie present.
+- Persona Home, Continuity, Memory, Canon, Integrity, and Archive exposed their
+  expected route-body labels on desktop and mobile when CSS-transformed labels
+  were treated as visible uppercase text.
+- Continuity runtime provenance exposed routeable owner links for Canon,
+  Integrity, Continuity, Memory, and Archive on desktop and mobile.
+- Visible text scans found no raw UUID-shaped values, secret-shaped values,
+  JWT-shaped values, authorization values, or database URLs.
+- Desktop and mobile route bodies had no document-level horizontal overflow.
+- Browser request monitoring found no non-auth mutating requests.
+- The readback stayed honest: Continuity records are source context for recall
+  and ordering, not system instructions; source bodies and compiled prompts
+  stay hidden in the Continuity readback.
+
+Validation:
+
+- Temporary Playwright hosted owner rerun passed.
+- `git diff --check` passed before commit.
+
+Current baton:
+
+- MIMIR can close the Memory/Continuity/Archive observability human-eye gate
+  and decide the next roadmap move.
+- MIMIR has a deferred process wakeup to restore lightweight lane numbering
+  before opening the next feature lane after this current observability lane
+  closes.
+
+## Previous DAEDALUS proof - Memory/Continuity/Archive observability ready for ARIADNE rerun
 
 DAEDALUS completed the hosted follow-up proof on 2026-06-28:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS_PROOF_RESULT.md`.

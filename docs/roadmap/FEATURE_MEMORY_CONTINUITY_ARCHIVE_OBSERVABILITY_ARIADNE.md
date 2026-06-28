@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
-Status: complete - needs DAEDALUS
+Status: complete - passed after rerun
 
 ## Trigger
 
@@ -17,6 +17,10 @@ ARGUS accepted the Memory/Continuity/Archive observability implementation:
 ARIADNE result:
 
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RESULT.md`
+
+ARIADNE rerun result:
+
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md`
 
 Verdict:
 

@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Feature Memory Continuity Archive Observability ARIADNE Rerun
+
+ARIADNE completed the hosted human-eye rerun on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- the rerun authenticated as the replay owner with both `station.auth.session.v1`
+  local storage and the `station-auth` cookie present;
+- CSS-transformed section labels were checked case-insensitively so visible
+  uppercase labels counted as visible;
+- persona Home, Continuity, Memory, Canon, Integrity, and Archive route bodies
+  exposed the expected labels on desktop and mobile;
+- Continuity runtime provenance links routed to Canon, Integrity, Continuity,
+  Memory, and Archive owner Studio surfaces on desktop and mobile;
+- visible text scans found no raw UUID-shaped values, secret-shaped values,
+  JWT-shaped values, authorization values, or database URLs;
+- desktop and mobile route bodies had no document-level horizontal overflow;
+- browser request monitoring found no non-auth mutating requests.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Temporary Playwright hosted owner rerun | Pass | Current hosted web/API rendered the owner route bodies and routeable review links on desktop and mobile with both Station auth surfaces present. |
+| Privacy visible-text scan | Pass | No raw UUID-shaped values, secret-shaped values, JWT-shaped values, authorization values, or database URLs were visible in checked route bodies. |
+| Desktop/mobile layout check | Pass | No document-level horizontal overflow on the checked route bodies. |
+| Browser mutation monitor | Pass | No non-auth mutating requests during the rehearsal. |
+| Temporary proof artifacts | Removed | No proof runner or credential-bearing artifact was kept in the repo. |
+| `git diff --check` | Pass | Passed before the ARIADNE rerun commit. |
+
+Residual risk: this closes the human-eye observability gate. Lower-priority
+route-level raw error surfaces listed later in this file remain future audit
+surface.
+
 ## Feature Memory Continuity Archive Observability DAEDALUS Proof
 
 DAEDALUS completed a hosted follow-up proof on 2026-06-28:

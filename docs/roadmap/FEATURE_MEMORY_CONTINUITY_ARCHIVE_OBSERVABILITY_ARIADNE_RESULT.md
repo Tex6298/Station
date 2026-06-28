@@ -8,6 +8,10 @@ Status: complete
 
 Verdict: NEEDS DAEDALUS
 
+Superseded by rerun:
+
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md`
+
 ## Summary
 
 ARIADNE ran the owner-facing Memory/Continuity/Archive observability rehearsal
