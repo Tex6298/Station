@@ -4,29 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - integrity errors ready for ARGUS
+## Latest ARGUS verdict - integrity errors accepted after narrow patch
 
-DAEDALUS completed the integrity route-level error response implementation on
+ARGUS completed the integrity route-level error response review on
 2026-06-28:
-`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_INTEGRITY_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS INTEGRITY ERROR RESPONSE REVIEW
+ACCEPTED AFTER NARROW ARGUS PATCH
 ```
 
 Decision:
 
 - Integrity session start, answer progression, follow-up/summary/anchor
-  creation, summary confirmation, output listing/review, due/history, and
-  completion failures now return stable public-safe responses with fixed
-  route-specific error codes.
+  creation, summary confirmation, output listing/review/write, due/history,
+  completion, and output creation failures return stable public-safe responses
+  with fixed route-specific error codes.
+- ARGUS added a narrow owner-scoped lookup before the accepted-output write
+  helper so missing or cross-owner accept/edit requests preserve the not-found
+  owner boundary before any memory/canon write is attempted.
 - Successful session start, answer progression, follow-up/summary/anchor
   generation, summary confirmation, end-early behavior, output listing/review,
   due/history readback, completion/idempotent completed-session behavior,
   generated integrity output behavior, `writeAcceptedOutput` behavior, and
-  owner-only access behavior did not change.
+  owner-only access behavior remain unchanged.
 - Focused integrity tests force hostile service payloads through session, turn,
   output, due/history, and completion failures and prove private IDs, table
   names, URLs/tokens, owner answers, generated questions/summaries, output
@@ -34,28 +37,28 @@ Decision:
   are not returned from failing route responses.
 - Scope stayed inside integrity route response mapping, focused integrity
   tests, and roadmap/testing documentation. No integrity prompt content,
-  cluster selection, question/summary/output generation, `writeAcceptedOutput`
-  semantics, memory/canon schema, lifecycle semantics, provider/model
-  behavior, retrieval, embeddings/vector behavior, migrations, package
-  manifests, Redis, Cloudflare, billing, auth/session semantics, UI, workers,
-  queues, hosted config, or hosted data changes were introduced.
+  cluster selection, question/summary/output generation, memory/canon write
+  semantics, memory/canon schema, lifecycle semantics, provider/model behavior,
+  retrieval, embeddings/vector behavior, migrations, package manifests, Redis,
+  Cloudflare, billing, auth/session semantics, UI, workers, queues, hosted
+  config, or hosted data changes were introduced.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:integrity` passed, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` passed.
-- Added-line sensitive scan was reviewed; hits were synthetic integrity
-  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
-- `test:continuity` was not run because accepted-output memory/canon write
-  semantics were not changed.
+- `git diff b25d0b33^ b25d0b33 --check` passed.
+- `git diff 7a5fc0bb^ 7a5fc0bb --check` passed.
+- `git diff 3160efc2^ 3160efc2 --check` passed.
+- Added-line sensitive scans were reviewed; hits were synthetic integrity
+  fixtures, fake tokens/URLs, fixed public copy/codes, owner-scoped lookup/test
+  setup, or docs text only.
+- `integrity.ts` has no direct `*.message` route response returns.
 
 Current baton:
 
-- ARGUS should hostile-review integrity response mapping, no-row ownership
-  semantics, successful session/output/completion behavior preservation, and
-  focused tests. ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are
-  required.
+- MIMIR should close or route the next lane.
 
 ## Latest ARGUS verdict - memory/canon errors accepted
 
