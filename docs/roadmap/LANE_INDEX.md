@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR461 | Studio dashboard quota readback de-fake | MIMIR / A1 | ARGUS accepted after narrow copy patch; hosted/browser confirmation optional | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_REVIEW_RESULT.md` |
+| PR462 | Hosted Studio quota readback confirmation | ARIADNE / A4 | Open | `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR461 closeout | Studio dashboard quota readback de-fake | DAEDALUS -> ARGUS -> MIMIR | Closed as accepted code patch; PR462 opened for hosted visual confirmation | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_CLOSEOUT.md` |
 | PR461 review | Studio dashboard quota readback de-fake | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow Archive card copy patch | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_REVIEW_RESULT.md` |
 | PR460 closeout | Billing and quota clarity rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed with product defect; PR461 opened for Studio dashboard quota readback de-fake | `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_CLOSEOUT.md` |
 | PR460 rehearsal | Billing and quota clarity rehearsal | MIMIR -> ARIADNE -> MIMIR | Product defect; recommend PR461 Studio dashboard quota readback de-fake | `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_RESULT.md` |

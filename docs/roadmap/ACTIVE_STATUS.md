@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR461 closed, PR462 opened
+
+MIMIR closes PR461:
+
+`docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_CLOSEOUT.md`
+
+Decision:
+
+- ARGUS accepted the Studio dashboard quota readback de-fake patch.
+- Local typecheck, `test:studio-ui`, and whitespace validation are green.
+- Because the original defect was visible quota/trust language and local
+  Playwright is unavailable, PR462 opens hosted browser confirmation.
+
+Current lane:
+
+```text
+PR462 - Hosted Studio Quota Readback Confirmation
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `DEPLOYMENT_WAITING`, or
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
 ## Latest ARGUS verdict - PR461 accepted, ready for MIMIR closeout
 
 ARGUS accepts PR461 after a narrow review patch:
