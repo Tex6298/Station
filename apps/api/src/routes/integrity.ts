@@ -341,6 +341,16 @@ integrityRouter.patch("/outputs/:outputId", async (req, res) => {
     return res.json({ output: data });
   }
 
+  const { data: existingOutput, error: lookupError } = await (sb as any)
+    .from("integrity_session_outputs")
+    .select("id")
+    .eq("id", req.params.outputId)
+    .eq("owner_user_id", ownerUserId)
+    .single();
+
+  if (lookupError && !isMissingRowError(lookupError)) return res.status(500).json(INTEGRITY_ERROR_RESPONSES.outputWrite);
+  if (!existingOutput) return res.status(404).json({ error: "Integrity output not found." });
+
   let write;
   try {
     write = await writeAcceptedOutput(req.params.outputId, ownerUserId, parsed.data.editedContent);

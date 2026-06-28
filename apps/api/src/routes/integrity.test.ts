@@ -859,6 +859,12 @@ test("integrity lifecycle selects the question bank, falls back deterministicall
     });
     assert.equal(rejectOther.status, 404);
 
+    const acceptOther = await requestJson(app, "PATCH", `/integrity/outputs/${secondOutput.id}`, {
+      token: "other-token",
+      body: { action: "accept" },
+    });
+    assert.equal(acceptOther.status, 404);
+
     const rejected = await requestJson(app, "PATCH", `/integrity/outputs/${firstOutput.id}`, {
       token: "owner-token",
       body: { action: "reject" },
