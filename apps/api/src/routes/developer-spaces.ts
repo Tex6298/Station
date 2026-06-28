@@ -485,6 +485,12 @@ function developerSpaceErrorBody(result: { error: string; code?: string }) {
   return result.code ? { error: result.error, code: result.code } : { error: result.error };
 }
 
+function isMissingSingleError(error: unknown) {
+  const value = error as { code?: unknown; message?: unknown } | null;
+  const message = String(value?.message ?? "");
+  return value?.code === "PGRST116" || message.includes("Expected one");
+}
+
 function ingestionValidationError(error: z.ZodError) {
   return ingestionErrorBody({
     error: "Developer Space ingestion payload failed validation.",
@@ -1059,7 +1065,11 @@ function publicDocumentLinkIsReadable(link: any, document: any) {
   return link.link_visibility === "public" && isPublicSafeLinkedDocument(document);
 }
 
-async function loadDeveloperSpaceForOwner(id: string, user: AuthenticatedUser) {
+async function loadDeveloperSpaceForOwner(
+  id: string,
+  user: AuthenticatedUser,
+  failureResponse?: DeveloperSpaceOperationErrorResponse
+) {
   const sb = getSupabaseAdmin();
   const { data: space, error } = await sb
     .from("developer_spaces")
@@ -1067,7 +1077,13 @@ async function loadDeveloperSpaceForOwner(id: string, user: AuthenticatedUser) {
     .eq("id", id)
     .single();
 
-  if (error || !space) return { status: 404 as const, error: "Developer Space not found." };
+  if (error) {
+    if (!isMissingSingleError(error) && failureResponse) {
+      return developerSpaceOperationFailure(failureResponse);
+    }
+    return { status: 404 as const, error: "Developer Space not found." };
+  }
+  if (!space) return { status: 404 as const, error: "Developer Space not found." };
   if (!isOwnerOrAdmin(space, user)) return { status: 403 as const, error: "Not authorised." };
   return { status: 200 as const, space };
 }
@@ -3619,7 +3635,13 @@ async function buildDeveloperSpaceLiveUpdate(
     .eq("slug", slug)
     .single();
 
-  if (error || !space) return { status: 404, error: "Developer Space not found." };
+  if (error) {
+    if (!isMissingSingleError(error)) {
+      return developerSpaceOperationFailure(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.observatory);
+    }
+    return { status: 404, error: "Developer Space not found." };
+  }
+  if (!space) return { status: 404, error: "Developer Space not found." };
   if (!canReadDeveloperSpace(space.visibility, space.owner_user_id, user)) {
     return { status: 403, error: "This Developer Space is not public." };
   }
@@ -4684,8 +4706,12 @@ developerSpacesRouter.post("/:id/agent/actions/preview", requireAuth, async (req
   const parsed = developerSpaceAgentActionPreviewSchema.safeParse(req.body ?? {});
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
-  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+  const ownerLoad = await loadDeveloperSpaceForOwner(
+    req.params.id,
+    req.user!,
+    DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview
+  );
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json(developerSpaceErrorBody(ownerLoad));
 
   const action = parsed.data.action;
   if (DEVELOPER_SPACE_AGENT_FUTURE_ACTION_SET.has(action)) {
@@ -5628,8 +5654,12 @@ developerSpacesRouter.post("/:id/documents", requireAuth, async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
-  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
-  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+  const ownerLoad = await loadDeveloperSpaceForOwner(
+    req.params.id,
+    req.user!,
+    DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentAttach
+  );
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json(developerSpaceErrorBody(ownerLoad));
 
   const { data: document, error: documentError } = await sb
     .from("documents")
@@ -5637,7 +5667,13 @@ developerSpacesRouter.post("/:id/documents", requireAuth, async (req, res) => {
     .eq("id", parsed.data.documentId)
     .single();
 
-  if (documentError || !document) return res.status(404).json({ error: "Document not found." });
+  if (documentError) {
+    if (!isMissingSingleError(documentError)) {
+      return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentAttach);
+    }
+    return res.status(404).json({ error: "Document not found." });
+  }
+  if (!document) return res.status(404).json({ error: "Document not found." });
   if (document.author_user_id !== req.user!.id && !req.user!.isAdmin) {
     return res.status(403).json({ error: "Not authorised for that document." });
   }
@@ -5680,8 +5716,12 @@ developerSpacesRouter.post("/:id/documents/template", requireAuth, async (req, r
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
-  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
-  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+  const ownerLoad = await loadDeveloperSpaceForOwner(
+    req.params.id,
+    req.user!,
+    DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentTemplate
+  );
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json(developerSpaceErrorBody(ownerLoad));
 
   const linkVisibility: DeveloperSpaceDocumentLinkVisibility =
     parsed.data.publish || parsed.data.linkVisibility === "public" ? "public" : "owner";
@@ -5756,7 +5796,13 @@ developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
     .eq("id", req.params.id)
     .single();
 
-  if (spaceError || !space) return res.status(404).json({ error: "Developer Space not found." });
+  if (spaceError) {
+    if (!isMissingSingleError(spaceError)) {
+      return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.projectAssign);
+    }
+    return res.status(404).json({ error: "Developer Space not found." });
+  }
+  if (!space) return res.status(404).json({ error: "Developer Space not found." });
   if (space.owner_user_id !== req.user!.id) return res.status(403).json({ error: "Not authorised." });
 
   if (parsed.data.projectId !== null) {
@@ -5797,8 +5843,12 @@ developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
 });
 
 developerSpacesRouter.get("/:id/usage", requireAuth, async (req, res) => {
-  const ownerLoad = await loadDeveloperSpaceForOwner(req.params.id, req.user!);
-  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json({ error: ownerLoad.error });
+  const ownerLoad = await loadDeveloperSpaceForOwner(
+    req.params.id,
+    req.user!,
+    DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.usage
+  );
+  if (ownerLoad.status !== 200) return res.status(ownerLoad.status).json(developerSpaceErrorBody(ownerLoad));
 
   try {
     const usage = await getDeveloperSpaceUsage(ownerLoad.space);
@@ -5819,7 +5869,13 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
     .eq("id", req.params.id)
     .single();
 
-  if (loadError || !existing) return res.status(404).json({ error: "Developer Space not found." });
+  if (loadError) {
+    if (!isMissingSingleError(loadError)) {
+      return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.update);
+    }
+    return res.status(404).json({ error: "Developer Space not found." });
+  }
+  if (!existing) return res.status(404).json({ error: "Developer Space not found." });
   if (existing.owner_user_id !== req.user!.id && !req.user!.isAdmin) {
     return res.status(403).json({ error: "Not authorised." });
   }

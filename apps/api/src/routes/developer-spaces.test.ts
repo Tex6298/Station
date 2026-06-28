@@ -4699,10 +4699,23 @@ test("Developer Space operations route errors return stable public copy", async 
     assert.equal(agentPreview.status, 500);
     assertStableOperationError(agentPreview.body, expected.agentPreview);
 
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("agent preview space load"));
+    const agentPreviewSpaceLoad = await requestJson(app, "POST", `/developer-spaces/${space.id}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "read_logs" },
+    });
+    assert.equal(agentPreviewSpaceLoad.status, 500);
+    assertStableOperationError(agentPreviewSpaceLoad.body, expected.agentPreview);
+
     db.operationErrors.set("select:developer_space_events", hostileOperationError("observatory detail"));
     const observatoryDetail = await requestJson(app, "GET", "/developer-spaces/operation-error-surface");
     assert.equal(observatoryDetail.status, 500);
     assertStableOperationError(observatoryDetail.body, expected.observatory);
+
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("observatory space load"));
+    const observatorySpaceLoad = await requestJson(app, "GET", "/developer-spaces/operation-error-surface");
+    assert.equal(observatorySpaceLoad.status, 500);
+    assertStableOperationError(observatorySpaceLoad.body, expected.observatory);
 
     db.operationErrors.set("select:developer_space_snapshots", hostileOperationError("observatory stream"));
     const observatoryStream = await requestText(app, "GET", "/developer-spaces/operation-error-surface/stream?once=1");
@@ -4720,6 +4733,18 @@ test("Developer Space operations route errors return stable public copy", async 
     });
     assert.equal(documentAttach.status, 500);
     assertStableOperationError(documentAttach.body, expected.documentAttach);
+
+    db.operationErrors.set("select:documents", hostileOperationError("document attach lookup"));
+    const documentAttachLookup = await requestJson(app, "POST", `/developer-spaces/${space.id}/documents`, {
+      token: "owner-token",
+      body: {
+        documentId: document.id,
+        role: "note",
+        linkVisibility: "owner",
+      },
+    });
+    assert.equal(documentAttachLookup.status, 500);
+    assertStableOperationError(documentAttachLookup.body, expected.documentAttach);
 
     db.insertErrors.set("documents", hostileOperationError("document template"));
     const documentTemplate = await requestJson(app, "POST", `/developer-spaces/${space.id}/documents/template`, {
@@ -4740,12 +4765,27 @@ test("Developer Space operations route errors return stable public copy", async 
     assert.equal(projectAssign.status, 500);
     assertStableOperationError(projectAssign.body, expected.projectAssign);
 
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("project assignment space lookup"));
+    const projectAssignSpace = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "owner-token",
+      body: { projectId: ownerProject.id },
+    });
+    assert.equal(projectAssignSpace.status, 500);
+    assertStableOperationError(projectAssignSpace.body, expected.projectAssign);
+
     db.insertErrors.set("developer_space_usage", hostileOperationError("usage insert"));
     const usage = await requestJson(app, "GET", `/developer-spaces/${space.id}/usage`, {
       token: "owner-token",
     });
     assert.equal(usage.status, 500);
     assertStableOperationError(usage.body, expected.usage);
+
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("usage space lookup"));
+    const usageSpace = await requestJson(app, "GET", `/developer-spaces/${space.id}/usage`, {
+      token: "owner-token",
+    });
+    assert.equal(usageSpace.status, 500);
+    assertStableOperationError(usageSpace.body, expected.usage);
 
     db.operationErrors.set("update:developer_spaces", hostileOperationError("space update"));
     const update = await requestJson(app, "PATCH", `/developer-spaces/${space.id}`, {
@@ -4754,6 +4794,14 @@ test("Developer Space operations route errors return stable public copy", async 
     });
     assert.equal(update.status, 500);
     assertStableOperationError(update.body, expected.update);
+
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("space update load"));
+    const updateLoad = await requestJson(app, "PATCH", `/developer-spaces/${space.id}`, {
+      token: "owner-token",
+      body: { description: "Updated copy should not matter." },
+    });
+    assert.equal(updateLoad.status, 500);
+    assertStableOperationError(updateLoad.body, expected.update);
   } finally {
     setSupabaseAdminForTests(null);
     setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
