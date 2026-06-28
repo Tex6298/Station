@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR444 Hosted Product Operation Sweep
+
+ARIADNE completed PR444 on 2026-06-28:
+`docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Recommended next lane: `PR445 - Discover document route repair`.
+
+Reason:
+
+- signed-out `/` returned HTTP 200;
+- signed-out `/discover` returned HTTP 200;
+- Discover rendered public document links shaped `/documents/<document-id>`;
+- a sampled Discover document href returned HTTP 404;
+- public Developer Space and forum routes sampled from Discover/feed returned
+  HTTP 200;
+- the defect is the public reading path, not provider configuration.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Runtime was PR442-or-later for the sweep target. |
+| Signed-out `/` | Pass | HTTP 200. |
+| Signed-out `/discover` | Pass | HTTP 200. |
+| Sampled Discover Developer Space route | Pass | HTTP 200. |
+| Sampled Discover forum route | Pass | HTTP 200. |
+| Sampled Discover document route | Fail | `/documents/<document-id>` returned HTTP 404. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this sweep stopped at the first concrete public
+product-operation blocker. Private replay/chat still needs an accepted
+OpenAI, Anthropic, or DeepSeek provider credential.
+
 ## PR443 Hosted Provider Setup UX Rehearsal
 
 ARIADNE completed PR443 on 2026-06-28:

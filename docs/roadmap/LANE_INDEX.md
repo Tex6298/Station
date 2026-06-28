@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR444 | Hosted product operation sweep | ARIADNE / A4 | Open; use hosted product behavior to recommend the next single product-operation lane | `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_ARIADNE.md` |
+| PR444 | Hosted product operation sweep | MIMIR / A1 | Product defect found - open PR445 Discover document route repair | `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR444 sweep | Hosted product operation sweep | MIMIR -> ARIADNE -> MIMIR | Product defect found; recommend PR445 Discover document route repair | `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_RESULT.md` |
 | PR443 closeout | Hosted provider setup UX rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; visible setup callout behaves as product path on hosted | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_CLOSEOUT.md` |
 | PR443 rehearsal | Hosted provider setup UX rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; visible setup callout links to AI Provider settings and preserves provider boundaries | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_RESULT.md` |
 | PR442 closeout | Private provider setup UX | DAEDALUS -> ARGUS -> MIMIR | Closed by MIMIR; hosted rehearsal opened | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_CLOSEOUT.md` |

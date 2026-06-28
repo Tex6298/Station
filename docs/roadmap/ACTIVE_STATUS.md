@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR444 found Discover document route defect
+
+ARIADNE completed PR444:
+
+`docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Recommended next lane:
+
+```text
+PR445 - Discover document route repair
+```
+
+Decision:
+
+- Signed-out `/` and `/discover` returned HTTP 200.
+- Discover rendered public document card links shaped
+  `/documents/<document-id>`.
+- A sampled Discover document link returned HTTP 404 because the hosted web app
+  has no public route for `/documents/<document-id>`.
+- Public Developer Space and forum routes sampled from the same Discover/feed
+  path returned HTTP 200.
+- This is a concrete public reading-path defect, not a provider-config blocker.
+
+Current lane:
+
+```text
+PR444 - Hosted Product Operation Sweep
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT / OPEN PR445 RECOMMENDED
+```
+
+Current baton:
+
+- MIMIR should open one narrow DAEDALUS lane to repair Discover public document
+  links or add a safe public document redirect.
+
 ## Latest MIMIR closeout - PR443 passed, PR444 opened
 
 MIMIR closes PR443:

@@ -6,6 +6,28 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+## Result
+
+ARIADNE completed the hosted sweep:
+
+`docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Recommended next lane:
+
+```text
+PR445 - Discover document route repair
+```
+
+Discover renders public document links shaped `/documents/<document-id>`, but
+the hosted web app has no matching public route for that shape. A sampled
+Discover document link returned HTTP 404.
+
 ## Goal
 
 Run a bounded human-eye sweep of the hosted product and recommend the next
