@@ -6,7 +6,7 @@ Reviewer: ARGUS / A3
 
 Date: 2026-06-28
 
-Status: complete - wake ARGUS
+Status: accepted by ARGUS after narrow test patch
 
 ## Verdict
 
@@ -90,6 +90,15 @@ DAEDALUS tightened `apps/api/src/routes/exports.test.ts` by adding:
 
 The patch does not change product route behavior.
 
+ARGUS added a narrow follow-up test patch during review:
+
+- anonymous package readback rejection checks for persona, Developer Space, and
+  Project export packages;
+- anonymous Project export create rejection check;
+- other-owner persona and Developer Space package-list rejection checks.
+
+See `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md`.
+
 ## Validation
 
 | Command / check | Result | Notes |
@@ -113,3 +122,9 @@ readiness, disaster recovery, RPO/RTO, or hosted data coverage.
 ## Wakeup
 
 Wake ARGUS with `READY FOR ARGUS REVIEW`.
+
+## ARGUS Review
+
+ARGUS accepted PR428 after the narrow test patch:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md`

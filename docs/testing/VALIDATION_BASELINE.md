@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR428 API-Backed Backup Export Proof Review
+
+ARGUS accepted PR428 on 2026-06-28:
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH - WAKE MIMIR`.
+
+Reason:
+
+- DAEDALUS proved local API-backed owner export package and bundle integrity for
+  persona archive, Developer Space archive, and Project manifest packages;
+- ARGUS added direct negative assertions for anonymous package readback,
+  anonymous Project create, and other-owner persona/Developer Space list
+  requests;
+- bundle SHA-256 maps are recomputed from in-memory bundle file content;
+- Project bundle readback remains stored-package readback after live source row
+  mutations;
+- PR427 local PostgreSQL tooling remains superseded and was not used;
+- no product route behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed after the ARGUS anonymous/readback boundary patch. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR428 proves local API-backed owner export package and bundle
+integrity for three accepted export classes. It does not prove hosted
+production backup readiness, database backup/restore, managed backup
+redundancy, storage-object backup, original binary/PDF/file backup, full
+workspace backup, disaster recovery, RPO/RTO, or hosted data coverage.
+
 ## PR428 API-Backed Backup Export Proof Result
 
 DAEDALUS completed PR428 on 2026-06-28:

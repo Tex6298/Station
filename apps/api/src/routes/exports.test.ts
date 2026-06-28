@@ -1173,6 +1173,11 @@ test("owner can export persona archive while preserving provenance and privacy b
     });
     assert.equal(blocked.status, 404);
 
+    const blockedList = await requestJson(app, "GET", `/exports/persona/${PERSONA_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(blockedList.status, 404);
+
     const created = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, {
       token: "owner-token",
     });
@@ -1297,6 +1302,8 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "owner-token",
     });
     assert.equal(bundleReadBack.status, 200);
+    const anonymousReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`);
+    assert.equal(anonymousReadBack.status, 401);
     const anonymousBundleRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`);
     assert.equal(anonymousBundleRead.status, 401);
     assert.equal(bundleReadBack.body.bundle.package.id, created.body.exportPackage.id);
@@ -1322,6 +1329,11 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "other-token",
     });
     assert.equal(blockedDeveloperSpaceExport.status, 404);
+
+    const blockedDeveloperSpaceList = await requestJson(app, "GET", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(blockedDeveloperSpaceList.status, 404);
 
     const anonymousDeveloperSpaceExport = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`);
     assert.equal(anonymousDeveloperSpaceExport.status, 401);
@@ -1376,6 +1388,8 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "owner-token",
     });
     assert.equal(developerSpaceBundle.status, 200);
+    const anonymousDeveloperSpaceReadBack = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}`);
+    assert.equal(anonymousDeveloperSpaceReadBack.status, 401);
     const anonymousDeveloperSpaceBundle = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}/bundle`);
     assert.equal(anonymousDeveloperSpaceBundle.status, 401);
     const developerBundleFiles = assertBundleIntegrity(developerSpaceBundle.body.bundle, "developer_space_archive");
@@ -1452,6 +1466,9 @@ test("owner can create and read Project manifest bundles from stored readback", 
   try {
     const anonymous = await requestJson(app, "GET", "/exports/projects/animus-project");
     assert.equal(anonymous.status, 401);
+
+    const anonymousCreate = await requestJson(app, "POST", "/exports/projects/animus-project");
+    assert.equal(anonymousCreate.status, 401);
 
     const blockedList = await requestJson(app, "GET", "/exports/projects/animus-project", {
       token: "other-token",
@@ -1626,6 +1643,9 @@ test("owner can create and read Project manifest bundles from stored readback", 
 
     const anonymousBundle = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`);
     assert.equal(anonymousBundle.status, 401);
+
+    const anonymousReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`);
+    assert.equal(anonymousReadBack.status, 401);
 
     const missingBundle = await requestJson(app, "GET", "/exports/missing-project-manifest-package/bundle", {
       token: "owner-token",

@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR428 API-backed export proof accepted
+
+ARGUS reviewed PR428:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED AFTER NARROW ARGUS PATCH - WAKE MIMIR
+```
+
+Decision:
+
+- PR428 is accepted as a local API-backed owner export and bundle integrity
+  proof for persona archives, Developer Space archives, and Project manifests.
+- ARGUS added only direct negative test assertions for anonymous package
+  readback, anonymous Project create, and other-owner persona/Developer Space
+  list requests.
+- No product route behavior changed.
+- Bundle integrity, owner-only package posture, stored Project package
+  readback, privacy boundaries, sanitized evidence, and residual-risk wording
+  are accepted.
+- PR427 local PostgreSQL tooling remains superseded, and PR428 still does not
+  claim database backup/restore, managed backup redundancy, hosted production
+  backup readiness, full workspace backup, storage-object backup, original
+  binary/PDF/file backup, disaster recovery, RPO/RTO, or hosted data coverage.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53
+  tests.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR428 - API-backed Backup/Export Proof
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR428 and choose the next lane.
+
 ## Latest DAEDALUS result - PR428 API-backed export proof ready for ARGUS
 
 DAEDALUS completed PR428:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR428 | API-backed backup/export proof | DAEDALUS / A2 | Complete - wake ARGUS | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md` |
+| PR428 | API-backed backup/export proof | MIMIR / A1 | Ready for closeout | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR428 implementation | API-backed backup/export proof | DAEDALUS -> ARGUS | Accepted after narrow ARGUS test patch | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md` |
 | PR428 spec | API-backed backup/export proof spec | MIMIR -> ARGUS | Accepted with persona, Developer Space, and Project export classes required | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_RESULT.md` |
 | PR427 | Backup/restore local tooling acquisition | ARGUS -> MIMIR | Superseded by Marty correction in `690c26cb`; do not acquire local tooling | `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_DAEDALUS.md` |
 | PR427 preflight | Backup/restore local tooling preflight | MIMIR -> ARGUS | Accepted local tooling path | `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md` |
