@@ -234,7 +234,11 @@ importsRouter.post("/:id/retry", async (req, res) => {
     return res.status(400).json({ error: "content is required to retry a failed chat import." });
   }
 
-  await markImportJobProcessing(job.id, userId);
+  try {
+    await markImportJobProcessing(job.id, userId);
+  } catch {
+    return res.status(500).json(IMPORT_JOB_ERROR_RESPONSES.retry);
+  }
 
   try {
     const chunksCreated = await ingestTextIntoArchive({

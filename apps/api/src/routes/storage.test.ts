@@ -1534,6 +1534,22 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     assert.equal(storageRow(failingDb).bytes_used, 0);
     assert.equal(failingDb.tables.memory_items.length, 0);
     assert.equal(failingDb.tables.import_jobs[0].status, "failed");
+
+    const failedJob = failingDb.tables.import_jobs[0];
+    failingDb.operationErrors.set("update:import_jobs", hostileImportJobError("mark retry processing"));
+    const retryTransitionFailed = await requestJson(failingApp, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "owner-token",
+      body: { content },
+    });
+
+    assert.equal(retryTransitionFailed.status, 500);
+    assert.deepEqual(retryTransitionFailed.body, {
+      error: "Could not retry import job.",
+      code: "import_job_retry_failed",
+    });
+    assertSafeImportJobRouteError(retryTransitionFailed.body);
+    assert.equal(failingDb.tables.memory_items.length, 0);
+    assert.equal(failedJob.status, "failed");
   } finally {
     resetStorageFake();
   }
