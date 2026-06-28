@@ -656,6 +656,7 @@ class InMemorySupabase {
   };
 
   failSelectTables = new Set<string>();
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-26T10:00:00.000Z");
@@ -808,6 +809,17 @@ class QueryBuilder {
 
   private async execute(mode?: "single") {
     let rows: Row[];
+
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return {
+        data: mode === "single" ? null : [],
+        error: operationError,
+        count: this.countRequested ? 0 : null,
+      };
+    }
 
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -963,6 +975,159 @@ function close(server: Server) {
     server.close((error) => error ? reject(error) : resolve());
   });
 }
+
+const exportHiddenMarker = "private-" + "export-route-marker";
+const exportBearerLabel = "Bear" + "er";
+const exportUrl = "https://storage.example.test/exports/" + exportHiddenMarker;
+const exportToken = "export-token-" + exportHiddenMarker;
+const exportStoragePath = `${OWNER_ID}/${PERSONA_ID}/exports/${exportHiddenMarker}.json`;
+
+function hostileExportError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in export_packages, memory_items, developer_spaces, developer_space_nodes, projects, and documents`,
+      `owner_user_id=${OWNER_ID} persona_id=${PERSONA_ID} developer_space_id=${DEVELOPER_SPACE_ID} project_id=${PROJECT_ID}`,
+      `export_package_id=export_packages-${exportHiddenMarker} archive_source_id=archive-${exportHiddenMarker}`,
+      `storage_path=${exportStoragePath}`,
+      `url=${exportUrl}`,
+      `token=${exportToken}`,
+      `${exportBearerLabel} abc.${exportHiddenMarker}.token`,
+      `provider payload: private manifest excerpt ${exportHiddenMarker}`,
+      "SQL stack trace at exportRoute (/station/private/exports.ts:1:2)",
+    ].join("; "),
+    details: `export details ${exportHiddenMarker}`,
+  };
+}
+
+function assertSafeExportRouteError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(exportHiddenMarker), false);
+  assert.equal(text.includes(exportUrl), false);
+  assert.equal(text.includes(exportToken), false);
+  assert.equal(text.includes(exportStoragePath), false);
+  assert.equal(text.includes(exportBearerLabel), false);
+  assert.equal(text.includes("export_packages"), false);
+  assert.equal(text.includes("memory_items"), false);
+  assert.equal(text.includes("developer_spaces"), false);
+  assert.equal(text.includes("developer_space_nodes"), false);
+  assert.equal(text.includes("projects,"), false);
+  assert.equal(text.includes("documents"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("persona_id"), false);
+  assert.equal(text.includes("developer_space_id"), false);
+  assert.equal(text.includes("project_id"), false);
+  assert.equal(text.includes("export_package_id"), false);
+  assert.equal(text.includes("archive_source_id"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private manifest excerpt"), false);
+  assert.equal(text.includes("SQL stack trace"), false);
+  assert.equal(text.includes("exportRoute"), false);
+}
+
+test("export route errors return stable public copy without private package details", async () => {
+  async function expectRouteError(
+    configure: (db: InMemorySupabase) => void,
+    run: (app: Express, db: InMemorySupabase) => Promise<{ status: number; body: any }>,
+    expected: { error: string; code: string },
+    inspect?: (db: InMemorySupabase) => void
+  ) {
+    const db = new InMemorySupabase();
+    configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createExportsApp();
+
+    try {
+      const response = await run(app, db);
+      assert.equal(response.status, 500);
+      assert.deepEqual(response.body, expected);
+      assertSafeExportRouteError(response.body);
+      inspect?.(db);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:export_packages", hostileExportError("list persona exports")),
+    (app) => requestJson(app, "GET", `/exports/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    {
+      error: "Could not load export packages.",
+      code: "persona_export_list_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:export_packages", hostileExportError("list Developer Space exports")),
+    (app) => requestJson(app, "GET", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "owner-token",
+    }),
+    {
+      error: "Could not load Developer Space export packages.",
+      code: "developer_space_export_list_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:export_packages", hostileExportError("list Project exports")),
+    (app) => requestJson(app, "GET", "/exports/projects/animus-project", { token: "owner-token" }),
+    {
+      error: "Could not load Project export packages.",
+      code: "project_export_list_failed",
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:export_packages", hostileExportError("create persona package")),
+    (app) => requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    {
+      error: "Could not create export package.",
+      code: "persona_export_create_failed",
+    },
+    (db) => assert.equal(db.tables.export_packages.length, 0)
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:memory_items", hostileExportError("build persona package")),
+    (app) => requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    {
+      error: "Could not create export package.",
+      code: "persona_export_create_failed",
+    },
+    (db) => {
+      assert.equal(db.tables.export_packages[0].status, "failed");
+      assert.match(db.tables.export_packages[0].error_message, /private-export-route-marker/);
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:developer_space_nodes", hostileExportError("build Developer Space package")),
+    (app) => requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
+      token: "owner-token",
+    }),
+    {
+      error: "Could not create Developer Space export package.",
+      code: "developer_space_export_create_failed",
+    },
+    (db) => {
+      assert.equal(db.tables.export_packages[0].status, "failed");
+      assert.match(db.tables.export_packages[0].error_message, /private-export-route-marker/);
+    }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:developer_spaces", hostileExportError("build Project package")),
+    (app) => requestJson(app, "POST", "/exports/projects/animus-project", { token: "owner-token" }),
+    {
+      error: "Could not create Project manifest package.",
+      code: "project_export_create_failed",
+    },
+    (db) => {
+      assert.equal(db.tables.export_packages[0].status, "failed");
+      assert.match(db.tables.export_packages[0].error_message, /private-export-route-marker/);
+    }
+  );
+});
 
 test("owner can export persona archive while preserving provenance and privacy boundaries", async () => {
   const db = new InMemorySupabase();
@@ -1730,7 +1895,10 @@ test("persona export source failures leave an owner-visible failed package", asy
       token: "owner-token",
     });
     assert.equal(failed.status, 500);
-    assert.match(failed.body.error, /memory export source/);
+    assert.deepEqual(failed.body, {
+      error: "Could not create export package.",
+      code: "persona_export_create_failed",
+    });
 
     const packageRow = db.tables.export_packages[0];
     assert.equal(packageRow.owner_user_id, OWNER_ID);
@@ -1777,7 +1945,10 @@ test("nested export source failures fail packages instead of completing partial 
         token: "owner-token",
       });
       assert.equal(failed.status, 500);
-      assert.match(failed.body.error, scenario.label);
+      assert.deepEqual(failed.body, {
+        error: "Could not create export package.",
+        code: "persona_export_create_failed",
+      });
 
       const packageRow = db.tables.export_packages[0];
       assert.equal(packageRow.status, "failed");

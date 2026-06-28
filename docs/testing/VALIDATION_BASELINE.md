@@ -25,7 +25,10 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS EXPORT ERROR RESPONSE REVIEW`.
 
 Reason:
 
@@ -37,11 +40,13 @@ Reason:
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | Required for persona, Developer Space, Project manifest, manifest readback, and bundle readback export behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
-| `git diff --check` | Pass | No whitespace errors. |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Conditional pass | Required if Developer Space usage accounting behavior changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Conditional pass | Required if Project export helper behavior changes outside route response mapping. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed; hostile export list/create route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | Patch has no whitespace errors. |
+| `git diff --cached --check` | Pass | Staged patch has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic export fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Not run | Developer Space usage accounting behavior was not changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Not run | Project export helper behavior was not changed outside route response mapping. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and export package/manifest/bundle lifecycle behavior did not change. |
 
 Residual risk: other route-level raw error responses remain future audit

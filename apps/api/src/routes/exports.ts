@@ -54,6 +54,33 @@ const PROJECT_INCLUDED_SECTIONS = [
   "trust",
 ];
 
+const EXPORT_ERROR_RESPONSES = {
+  personaList: {
+    error: "Could not load export packages.",
+    code: "persona_export_list_failed",
+  },
+  personaCreate: {
+    error: "Could not create export package.",
+    code: "persona_export_create_failed",
+  },
+  developerSpaceList: {
+    error: "Could not load Developer Space export packages.",
+    code: "developer_space_export_list_failed",
+  },
+  developerSpaceCreate: {
+    error: "Could not create Developer Space export package.",
+    code: "developer_space_export_create_failed",
+  },
+  projectList: {
+    error: "Could not load Project export packages.",
+    code: "project_export_list_failed",
+  },
+  projectCreate: {
+    error: "Could not create Project manifest package.",
+    code: "project_export_create_failed",
+  },
+} as const;
+
 function exportRow(row: any) {
   return {
     id: row.id,
@@ -1423,7 +1450,7 @@ exportsRouter.get("/developer-spaces/:spaceId", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(EXPORT_ERROR_RESPONSES.developerSpaceList);
   return res.json({ exports: (data ?? []).map(exportRow) });
 });
 
@@ -1441,9 +1468,7 @@ exportsRouter.post("/developer-spaces/:spaceId", async (req, res) => {
   } catch (error) {
     const quotaError = quotaErrorResponse(error);
     if (quotaError) return res.status(quotaError.status).json(quotaError.body);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : "Could not create Developer Space export package.",
-    });
+    return res.status(500).json(EXPORT_ERROR_RESPONSES.developerSpaceCreate);
   }
 });
 
@@ -1460,7 +1485,7 @@ exportsRouter.get("/projects/:projectIdOrSlug", async (req, res) => {
     .eq("package_kind", "project_manifest")
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(EXPORT_ERROR_RESPONSES.projectList);
   return res.json({ exports: (data ?? []).map(exportRow) });
 });
 
@@ -1478,9 +1503,7 @@ exportsRouter.post("/projects/:projectIdOrSlug", async (req, res) => {
   } catch (error) {
     const quotaError = quotaErrorResponse(error);
     if (quotaError) return res.status(quotaError.status).json(quotaError.body);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : "Could not create Project manifest package.",
-    });
+    return res.status(500).json(EXPORT_ERROR_RESPONSES.projectCreate);
   }
 });
 
@@ -1496,7 +1519,7 @@ exportsRouter.get("/persona/:personaId", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(EXPORT_ERROR_RESPONSES.personaList);
   return res.json({ exports: (data ?? []).map(exportRow) });
 });
 
@@ -1514,7 +1537,7 @@ exportsRouter.post("/persona/:personaId", async (req, res) => {
   } catch (error) {
     const quotaError = quotaErrorResponse(error);
     if (quotaError) return res.status(quotaError.status).json(quotaError.body);
-    return res.status(500).json({ error: error instanceof Error ? error.message : "Could not create export package." });
+    return res.status(500).json(EXPORT_ERROR_RESPONSES.personaCreate);
   }
 });
 

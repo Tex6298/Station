@@ -4,27 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - export error responses
+## Latest DAEDALUS result - export errors ready for ARGUS
 
-MIMIR opened the next narrow route-level error response hardening lane on
+DAEDALUS completed export route-level error response hardening on
 2026-06-28:
-`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_DAEDALUS.md`.
+`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_RESULT.md`.
 
-Why now:
+Verdict:
 
-- ARGUS accepted conversation/continuity route-level error responses.
-- Export routes are the next named route-level raw error surface after private
-  conversation/archive continuity routes.
-- The lane covers owner-only persona exports, Developer Space exports, Project
-  manifests, package listings, package readback, and bundle readback route
-  responses.
+```text
+READY FOR ARGUS EXPORT ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Persona, Developer Space, and Project export list failures now return stable
+  public-safe responses with fixed route-specific error codes.
+- Persona, Developer Space, and Project export creation failures now return
+  stable public-safe responses while stored export package `error_message`
+  diagnostics remain owner-visible on successful package readback/listing.
+- Successful persona export package creation/readback, Developer Space export
+  creation/readback, Project manifest creation/readback, completed bundle
+  readback, not-found behavior, incomplete-bundle conflict behavior, quota
+  responses, and owner-only access behavior did not change.
+- Focused export tests force hostile service payloads through persona,
+  Developer Space, and Project list/create failures and prove table names,
+  URLs, tokens, owner/persona/Developer Space/Project/export/archive-source IDs,
+  storage paths, provider payload labels, private markers, manifest excerpts,
+  and stack-shaped strings are not returned from failing route responses.
+- Other route-level raw errors remain future audit surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic export fixtures,
+  fake tokens/URLs, fixed public copy/codes, or docs text only.
+- `test:developer-spaces` and `test:projects` were not run because Developer
+  Space usage accounting and Project export helper behavior were not changed
+  outside export route response mapping.
 
 Current baton:
 
-- DAEDALUS should harden export route responses, validate the focused exports
-  gate, then wake ARGUS for hostile review.
+- ARGUS should hostile-review the export route response mapping and focused
+  tests.
+- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
 
-## Latest ARGUS verdict - conversation continuity errors accepted
+## Previous ARGUS verdict - conversation continuity errors accepted
 
 ARGUS completed conversation/continuity route-level error response review
 on
