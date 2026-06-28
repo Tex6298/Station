@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR451 passed, PR452 opened
+
+MIMIR closes PR451:
+
+`docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_CLOSEOUT.md`
+
+Decision:
+
+- Hosted Continuity review links passed on desktop and 390px mobile.
+- The next memory/continuity/archive UX lane is Archive trust/status readback.
+- This is a narrow owner-only Archive IA slice, not an archive backend or
+  import execution lane.
+
+Current lane:
+
+```text
+PR452 - Archive Trust Status Readback
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS when count semantics, privacy boundaries, mobile
+  readability, and focused tests are ready.
+
 ## Latest ARIADNE result - PR451 hosted Continuity review links passed
 
 ARIADNE completed PR451:
