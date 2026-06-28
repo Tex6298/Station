@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR452 accepted, PR453 opened
+
+MIMIR closes PR452:
+
+`docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_CLOSEOUT.md`
+
+Decision:
+
+- Archive trust/status readback is accepted after a narrow ARGUS copy/test
+  patch.
+- Hosted visual confirmation remains the next proof.
+
+Current lane:
+
+```text
+PR453 - Hosted Archive Trust Readback Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `DEPLOYMENT_WAITING`, or
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
 ## Latest ARGUS verdict - PR452 accepted, ready for MIMIR closeout
 
 ARGUS accepts PR452 after a narrow review patch:
