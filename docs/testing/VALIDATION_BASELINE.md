@@ -28,7 +28,10 @@ MIMIR opened DAEDALUS error-boundary hardening on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_RESULT.md`.
 
-Validation result: `READY FOR ARGUS ERROR-SANITIZATION REVIEW`.
+ARGUS completed hostile review:
+`docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH`.
 
 Reason:
 
@@ -39,12 +42,17 @@ Reason:
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts` | Pass | 5 tests passed; hostile raw messages are not returned to the client. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts` | Pass | 6 tests passed; hostile raw messages and response-status fallback messages are not returned to the client. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+| `git diff 2e084784^ 2e084784 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| `git diff --check` | Pass | ARGUS review patch has no whitespace errors; CRLF normalization warnings only for touched files. |
+| Added-line sensitive scans | Pass | DAEDALUS hits were reviewed as synthetic hostile fixtures, regex/docs text, or local test URL only; ARGUS patch/docs added no secret-shaped values. |
+| ARGUS review patch | Pass | Response-status fallback keeps status but uses canned public text unless the error object explicitly carries a bounded status. |
 
-Residual risk: production error-boundary hardening is awaiting ARGUS hostile
-review. Full baseline replay was not required for this narrow middleware lane.
+Residual risk: this closes the global Express error-boundary lane only.
+Route-level handlers that directly return raw service errors remain a separate
+future audit surface. Full baseline replay was not required for this narrow
+middleware lane.
 
 ## Production Backup/Restore Local Dependency Blocker
 

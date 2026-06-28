@@ -16,13 +16,14 @@ export function errorHandler(err: unknown, _req: Request, res: Response, next: N
     return;
   }
 
-  const status = httpStatusFromError(err) ?? httpStatusFromResponse(res.statusCode) ?? 500;
-  const exposeMessage = shouldExposeStatus(status);
+  const errorStatus = httpStatusFromError(err);
+  const status = errorStatus ?? httpStatusFromResponse(res.statusCode) ?? 500;
+  const exposeMessage = errorStatus !== null && shouldExposeStatus(status);
   const fallback = fallbackMessageForStatus(status);
   const message = exposeMessage
     ? sanitizePublicErrorMessage(errorMessage(err), fallback)
-    : GENERIC_SERVER_ERROR;
-  const code = exposeMessage ? codeForStatus(status) : GENERIC_SERVER_ERROR_CODE;
+    : fallback;
+  const code = shouldExposeStatus(status) ? codeForStatus(status) : GENERIC_SERVER_ERROR_CODE;
 
   console.error("API error", {
     status,

@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - error sanitization ready for ARGUS
+## Latest ARGUS verdict - error sanitization accepted after patch
+
+ARGUS completed global error-sanitization review on 2026-06-28:
+`docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED AFTER NARROW ARGUS PATCH
+```
+
+Decision:
+
+- Generic unhandled 500 responses now return a stable public-safe envelope.
+- The global handler logs a minimized sanitized summary instead of raw error
+  objects.
+- ARGUS patched one edge case: response-status fallback now preserves the HTTP
+  status but uses canned public text unless the error object explicitly carries
+  a bounded status.
+- Focused middleware tests now cover hostile 500s, non-Error throws, bounded
+  409 pass-through, exposed 503 and 400 sanitization, and response-status
+  fallback secrecy.
+- Route-level handlers that directly return raw service errors remain separate
+  future audit surface; this result closes only the global Express
+  error-boundary lane.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts`
+  passed, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- MIMIR should close or route the next lane.
+
+## Previous DAEDALUS result - error sanitization ready for ARGUS
 
 DAEDALUS completed the global error sanitization implementation on 2026-06-28:
 `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_RESULT.md`.

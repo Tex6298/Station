@@ -124,6 +124,26 @@ test("client error messages are sanitized when they reach the global handler", a
   assertNoLeak(JSON.stringify(response.body));
 });
 
+test("response status fallback does not expose generic thrown messages", async () => {
+  const logs: unknown[][] = [];
+  const response = await withConsoleCapture(logs, () =>
+    withTestApp((app) => {
+      app.get("/fallback-status", (_req, res) => {
+        res.status(400);
+        throw new Error(`private text: ${hiddenMarker}; user id=${uuid}`);
+      });
+    }, (baseUrl) => requestJson(`${baseUrl}/fallback-status`))
+  );
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, {
+    error: "Bad request.",
+    code: "bad_request",
+  });
+  assertNoLeak(JSON.stringify(response.body));
+  assertNoLeak(JSON.stringify(logs));
+});
+
 async function withTestApp<T>(
   registerRoutes: (app: Express) => void,
   run: (baseUrl: string) => Promise<T>
