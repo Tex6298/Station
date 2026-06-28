@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR433 NVIDIA synthetic chat proof accepted
+
+ARGUS reviewed PR433:
+
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED WITH EXACT-OUTPUT CAVEAT - WAKE MIMIR
+```
+
+Decision:
+
+- PR433 is accepted only as a synthetic NVIDIA platform-chat routeability proof.
+- The current `openai/gpt-oss-120b` NVIDIA route is callable through Station's
+  OpenAI-compatible provider router.
+- Exact-output compliance was noisy and remains a model-behavior caveat.
+- Private/sensitive replay remains blocked until MIMIR accepts provider/data
+  policy, exact-wording expectations, and provider usage-accounting boundaries.
+- PR433 did not send private archive text, Memory, Continuity, persona private
+  profile text, replay corpus anchors, real user prompts, or source snippets to
+  NVIDIA.
+- PR433 did not switch embeddings to NVIDIA, change retrieval schema/dimensions,
+  add a model gateway, add Gemini chat, add Cloudflare/Redis/workers/queues/
+  billing/Stripe, or alter production provider policy.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR433 - NVIDIA Platform Chat Synthetic Proof
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR433 and choose the next lane.
+
 ## Latest DAEDALUS result - PR433 ready for ARGUS review
 
 DAEDALUS completed PR433:

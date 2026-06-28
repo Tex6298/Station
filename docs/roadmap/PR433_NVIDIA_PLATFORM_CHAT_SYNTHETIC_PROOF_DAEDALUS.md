@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3 if proof or code changes land
 
-Status: proven with caveat - ready for ARGUS review
+Status: accepted by ARGUS with exact-output caveat
 
 ## Why This Lane
 
@@ -125,3 +125,7 @@ Summary:
   OpenAI-compatible route;
 - the probe stayed synthetic-only and did not record prompt or completion text;
 - exact phrase compliance was noisy and remains a residual model-behavior caveat.
+
+ARGUS review:
+
+- `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md`

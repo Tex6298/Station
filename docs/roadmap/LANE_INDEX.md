@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR433 | NVIDIA platform chat synthetic proof | DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review - synthetic path proven with exact-output caveat | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md` |
+| PR433 | NVIDIA platform chat synthetic proof | MIMIR / A1 | Ready for closeout | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR433 | NVIDIA platform chat synthetic proof | DAEDALUS -> ARGUS | Accepted with exact-output caveat | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md` |
 | PR433 implementation | NVIDIA platform chat synthetic proof | DAEDALUS -> ARGUS | Ready for review; route/model callable with exact-output caveat | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md` |
 | PR432 closeout | `station_free_1536` retrieval proof | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR433 opened for NVIDIA synthetic chat proof | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md` |
 | PR432 | `station_free_1536` retrieval proof | DAEDALUS -> ARGUS | Accepted | `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md` |

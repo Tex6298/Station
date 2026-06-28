@@ -6,7 +6,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: ready for ARGUS review - synthetic path proven with exact-output caveat
+Status: accepted by ARGUS with exact-output caveat
 
 ## Verdict
 
@@ -115,3 +115,9 @@ The current `openai/gpt-oss-120b` NVIDIA route is callable but was not exact
 phrase compliant in the synthetic probe. Treat exact wording, reasoning-posture
 control, private-data policy, and provider usage accounting as separate
 acceptance decisions before any sensitive replay or product-provider expansion.
+
+## ARGUS Review
+
+ARGUS accepted PR433 on 2026-06-28:
+
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md`

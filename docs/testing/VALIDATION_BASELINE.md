@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR433 NVIDIA Platform Chat Synthetic Proof Review
+
+ARGUS accepted PR433 on 2026-06-28:
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED WITH EXACT-OUTPUT CAVEAT - WAKE MIMIR`.
+
+Reason:
+
+- NVIDIA platform chat is routeable through Station's OpenAI-compatible
+  provider router with current model label `openai/gpt-oss-120b`;
+- the proof is synthetic-only and does not approve private/sensitive replay;
+- exact-output behavior remains a model-behavior caveat;
+- provider usage accounting and provider/data-policy acceptance remain separate
+  future decisions;
+- no embeddings, retrieval schema/dimensions, provider UI, model gateway,
+  Cloudflare, Redis, worker, queue, billing, Stripe, or production provider
+  policy changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 10 tests passed; NVIDIA route shape, alias trimming, BYOK precedence, and fallback behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR433 proves synthetic routeability only. Exact wording,
+sensitive replay, private-data provider policy, provider usage accounting, and
+product-provider expansion require separate acceptance.
+
 ## PR433 NVIDIA Platform Chat Synthetic Proof
 
 DAEDALUS completed the PR433 proof on 2026-06-28:
