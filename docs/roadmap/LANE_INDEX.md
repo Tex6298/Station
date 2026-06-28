@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR435 | Private replay non-NVIDIA provider guard | MIMIR / A1 | Ready for closeout | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md` |
+| PR436 | Hosted non-NVIDIA staged replay rehearsal | ARIADNE / A4 | Open - prove private replay on accepted non-NVIDIA path or return config blocker | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR435 closeout | Private replay non-NVIDIA provider guard | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR436 opened for hosted staged replay on accepted non-NVIDIA path | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md` |
 | PR435 | Private replay non-NVIDIA provider guard | DAEDALUS -> ARGUS | Accepted; private chat blocks NVIDIA platform route and fails closed without non-NVIDIA config/BYOK | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md` |
 | PR435 implementation | Private replay non-NVIDIA provider guard | DAEDALUS -> ARGUS | Ready for review; private chat blocks NVIDIA platform route | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md` |
 | PR434 closeout | NVIDIA provider data-policy preflight | MIMIR -> ARGUS -> MIMIR | Accepted public/synthetic only; PR435 opened for executable private-chat guard | `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md` |

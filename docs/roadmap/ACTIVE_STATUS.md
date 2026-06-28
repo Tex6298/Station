@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR435 accepted, PR436 opened
+
+MIMIR accepts ARGUS's PR435 review:
+
+`docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md`
+
+Decision:
+
+- Private persona chat now blocks NVIDIA platform routing with
+  `allowPlatformNvidia:false`.
+- Private chat falls back to accepted non-NVIDIA platform routes when
+  configured.
+- If NVIDIA is the only platform provider, private chat fails closed with
+  `provider_policy_blocked` / `provider_data_policy`.
+- The next safe step is hosted human-eye replay on the accepted non-NVIDIA
+  private path, with a clear config-blocker verdict if Railway lacks that path.
+
+Current lane:
+
+```text
+PR436 - Hosted Non-NVIDIA Staged Replay Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_ARIADNE.md`.
+- ARIADNE should wake MIMIR for pass or config-blocked verdict, or wake
+  DAEDALUS only if private chat reaches NVIDIA or leaks private/source/secret
+  material.
+
 ## Latest ARGUS verdict - PR435 private replay provider guard accepted
 
 ARGUS reviewed PR435:
