@@ -38,7 +38,13 @@ Validation:
 
 Current baton:
 
-- MIMIR should close or route the next lane.
+- MIMIR routed the first route-level residual to DAEDALUS:
+  `docs/roadmap/PRODUCTION_BILLING_ERROR_RESPONSE_DAEDALUS.md`.
+- Billing is first because it is payment-adjacent and currently has direct
+  `err.message` responses around status, Checkout, Portal, and webhook paths.
+- This is not an all-route rewrite; remaining direct route-level raw error
+  surfaces stay future work unless DAEDALUS finds a tiny shared helper that is
+  clearly safe.
 
 ## Previous DAEDALUS result - error sanitization ready for ARGUS
 
