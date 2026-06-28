@@ -29,6 +29,15 @@ import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/co
 export const threadsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 const LEGACY_PUBLIC_FORUM_CATEGORY_SLUGS = new Set(["general", "documents-and-codexes"]);
+const THREAD_ERROR_RESPONSES = {
+  detailComments: { error: "Could not load thread comments.", code: "thread_comments_load_failed" },
+  watchLoad: { error: "Could not load thread watch.", code: "thread_watch_load_failed" },
+  watchUpdate: { error: "Could not update thread watch.", code: "thread_watch_update_failed" },
+  vote: { error: "Could not vote on thread.", code: "thread_vote_failed" },
+  moderation: { error: "Could not update thread moderation.", code: "thread_moderation_update_failed" },
+  delete: { error: "Could not delete thread.", code: "thread_delete_failed" },
+  subcommunityVisibility: { error: "Could not verify subcommunity visibility.", code: "subcommunity_visibility_check_failed" },
+} as const;
 const THREAD_DETAIL_COMMENTS_SELECT =
   `id, body, status, score, is_pinned, is_hidden, reported_count, created_at, updated_at, author_user_id,
    authorship_kind, authorship_source_type, authorship_source_id, authorship_persona_id,
@@ -95,7 +104,7 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
 
   const { data: comments, error: commentErr } = await loadThreadDetailComments(sb, id);
 
-  if (commentErr) return res.status(500).json({ error: commentErr.message });
+  if (commentErr) return res.status(500).json(THREAD_ERROR_RESPONSES.detailComments);
 
   const [viewerThreadVotes, viewerCommentVotes, moderationActions, threadWitnesses, commentWitnesses, threadModerationActions, commentModerationActions] = await Promise.all([
     listViewerVotes({
@@ -185,7 +194,7 @@ threadsRouter.get("/:id/watch", async (req: Request, res: Response) => {
     .eq("user_id", req.user!.id)
     .maybeSingle();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(THREAD_ERROR_RESPONSES.watchLoad);
   return res.json({
     isWatching: Boolean(data && !data.is_muted),
     watch: data ? serializeCommunityThreadWatch(data) : null,
@@ -221,7 +230,7 @@ threadsRouter.put("/:id/watch", requireTier("private"), async (req: Request, res
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Failed to watch thread." });
+  if (error || !data) return res.status(500).json(THREAD_ERROR_RESPONSES.watchUpdate);
   return res.status(200).json({
     isWatching: true,
     watch: serializeCommunityThreadWatch(data),
@@ -250,7 +259,7 @@ threadsRouter.delete("/:id/watch", requireTier("private"), async (req: Request, 
     .eq("thread_id", thread.id)
     .eq("user_id", req.user!.id);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(THREAD_ERROR_RESPONSES.watchUpdate);
   return res.json({ isWatching: false, watch: null });
 });
 
@@ -326,9 +335,8 @@ threadsRouter.post("/:id/vote", requireTier("private"), async (req: Request, res
       .single();
 
     return res.status(201).json({ vote, thread: updated });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not vote on thread.";
-    return res.status(400).json({ error: message });
+  } catch {
+    return res.status(400).json(THREAD_ERROR_RESPONSES.vote);
   }
 });
 
@@ -386,7 +394,7 @@ threadsRouter.patch("/:id/moderation", async (req: Request, res: Response) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(THREAD_ERROR_RESPONSES.moderation);
 
   const action = await recordModerationAction({
     moderatorUserId: req.user!.id,
@@ -429,7 +437,7 @@ threadsRouter.delete("/:id", async (req: Request, res: Response) => {
     .update({ status: "removed", moderation_state: "removed" } as any)
     .eq("id", req.params.id);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(THREAD_ERROR_RESPONSES.delete);
   res.json({ ok: true });
 });
 
@@ -441,7 +449,6 @@ async function loadSubcommunityForCategoryOrRespond(
   try {
     return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
     if (isMissingSubcommunitySchemaError(error)) {
       if (isLegacyPublicForumCategory(categorySlug)) {
         return { ok: true, subcommunity: null };
@@ -449,7 +456,7 @@ async function loadSubcommunityForCategoryOrRespond(
       res.status(404).json({ error: "Thread not found" });
       return { ok: false };
     }
-    res.status(500).json({ error: message });
+    res.status(500).json(THREAD_ERROR_RESPONSES.subcommunityVisibility);
     return { ok: false };
   }
 }

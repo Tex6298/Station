@@ -4,24 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - discussion error responses
+## Current lane - discussion error responses ready for ARGUS
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_DAEDALUS.md`.
 
-Why now:
+DAEDALUS completed the implementation on 2026-06-28:
+`docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_RESULT.md`.
 
-- ARGUS accepted document route-level error responses.
-- Forum, thread, and comment routes are the next coherent public-chain surface
-  because documents now depend on linked discussion behavior.
-- The lane covers public discussion route responses without changing forum
-  taxonomy, voting, moderation, recognition, or linked document semantics.
+Verdict:
+
+```text
+READY FOR ARGUS DISCUSSION ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Forum/subcommunity, thread, and comment route dependency failures now return
+  stable public-safe responses with fixed route-specific error codes.
+- Recognition readback, delegated moderation report listing, moderator list,
+  moderator assignment, and moderator revoke failures now return stable
+  public-safe responses.
+- Successful forum taxonomy, thread/comment behavior, voting, watch state,
+  moderation, recognition, linked document discussion semantics, public
+  visibility behavior, hosted config, and hosted data did not change.
+- Focused community tests force hostile service payloads through forum,
+  thread, and comment failures and prove private IDs, table markers,
+  URLs/tokens, hidden comment bodies, draft/publication content, moderator
+  internals, provider payload labels, and stack-shaped strings are not returned
+  from failing route responses.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed, 38 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed, 4
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed, 6 tests.
+- Added-line sensitive scan was reviewed; hits were synthetic discussion
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
 
 Current baton:
 
-- DAEDALUS should harden discussion route responses, validate focused community
-  and document-discussion gates, then wake ARGUS for hostile review.
+- ARGUS should hostile-review discussion response mapping, behavior
+  preservation, linked document discussion compatibility, and focused tests.
 
 ## Latest ARGUS verdict - document errors accepted
 

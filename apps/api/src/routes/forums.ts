@@ -83,6 +83,22 @@ const LEGACY_CATEGORY_THREAD_SELECT = `id, title, body, status, visibility, scor
 
 export const forumsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const FORUM_ERROR_RESPONSES = {
+  categories: { error: "Could not load forum categories.", code: "forum_categories_load_failed" },
+  subcommunities: { error: "Could not load subcommunities.", code: "subcommunity_list_failed" },
+  subcommunitiesMine: { error: "Could not load your subcommunities.", code: "subcommunity_mine_load_failed" },
+  subcommunityRead: { error: "Could not load subcommunity.", code: "subcommunity_load_failed" },
+  categoryThreads: { error: "Could not load forum threads.", code: "forum_category_threads_load_failed" },
+  recognitionReadback: { error: "Could not load recognition readback.", code: "community_recognition_load_failed" },
+  delegatedReports: { error: "Could not load moderation reports.", code: "delegated_reports_load_failed" },
+  moderatorsLoad: { error: "Could not load subcommunity moderators.", code: "subcommunity_moderators_load_failed" },
+  moderatorAssign: { error: "Could not assign subcommunity moderator.", code: "subcommunity_moderator_assign_failed" },
+  moderatorRevoke: { error: "Could not revoke subcommunity moderator.", code: "subcommunity_moderator_revoke_failed" },
+  subcommunityCategoryCreate: { error: "Could not create subcommunity category.", code: "subcommunity_category_create_failed" },
+  subcommunityCreate: { error: "Could not create subcommunity.", code: "subcommunity_create_failed" },
+  threadCreate: { error: "Could not create thread.", code: "thread_create_failed" },
+  subcommunityVisibility: { error: "Could not verify subcommunity visibility.", code: "subcommunity_visibility_check_failed" },
+} as const;
 
 function canSeeCommunity(user?: AuthenticatedUser | null) {
   return Boolean(user && COMMUNITY_TIERS.has(user.tier));
@@ -185,13 +201,13 @@ forumsRouter.get("/categories", optionalAuth, async (req: Request, res: Response
     .select("*")
     .order("sort_order", { ascending: true });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.categories);
 
   const { data: subcommunities, error: subcommunityError } = await (sb as any)
     .from("community_subcommunities")
     .select("*");
   if (subcommunityError && !isMissingSubcommunitySchemaError(subcommunityError)) {
-    return res.status(500).json({ error: subcommunityError.message });
+    return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunities);
   }
 
   if (subcommunityError) {
@@ -224,7 +240,7 @@ forumsRouter.get("/subcommunities", optionalAuth, async (req: Request, res: Resp
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunities);
   const subcommunities = (data ?? [])
     .filter((row: any) => canListSubcommunity(row, req.user))
     .map((row: any) => serializeSubcommunity(row, req.user));
@@ -242,7 +258,7 @@ forumsRouter.get("/subcommunities/mine", optionalAuth, async (req: Request, res:
   if (!req.user.isAdmin) query = query.eq("owner_user_id", req.user.id);
 
   const { data, error } = await query;
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunitiesMine);
   return res.json({ subcommunities: (data ?? []).map((row: any) => serializeSubcommunity(row, req.user)) });
 });
 
@@ -254,7 +270,7 @@ forumsRouter.get("/subcommunities/:slug", optionalAuth, async (req: Request, res
     .eq("slug", req.params.slug)
     .maybeSingle();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunityRead);
   if (!data || !canReadSubcommunity(data, req.user)) return res.status(404).json({ error: "Subcommunity not found" });
   return res.json({ subcommunity: await serializeSubcommunityForViewer(data, req.user) });
 });
@@ -294,7 +310,7 @@ forumsRouter.get("/categories/:slug", optionalAuth, async (req: Request, res: Re
 
   const threadErr = threadResults.find((result) => result.error)?.error;
 
-  if (threadErr) return res.status(500).json({ error: threadErr.message });
+  if (threadErr) return res.status(500).json(FORUM_ERROR_RESPONSES.categoryThreads);
 
   const threads = threadResults
     .flatMap((result) => result.data ?? [])
@@ -352,8 +368,7 @@ forumsRouter.get("/witnesses/mine", requireTier("private"), async (req: Request,
     const recognitions = await loadAuthorRecognitions(req.user!, parsed.data.limit);
     return res.json({ recognitions });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not load recognition readback.";
-    return res.status(500).json({ error: message });
+    return res.status(500).json(FORUM_ERROR_RESPONSES.recognitionReadback);
   }
 });
 
@@ -382,7 +397,7 @@ forumsRouter.get("/subcommunities/:slug/moderation/reports", async (req: Request
   }
 
   const { data, error } = await query;
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.delegatedReports);
 
   const reports = (await delegatedReportsForSubcommunity(data ?? [], subcommunity)).slice(0, parsed.data.limit);
   return res.json({ reports });
@@ -436,8 +451,7 @@ forumsRouter.get("/subcommunities/:slug/moderators", async (req: Request, res: R
     const moderators = await loadSubcommunityModerators(subcommunity.id);
     return res.json({ moderators });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not load subcommunity moderators.";
-    return res.status(500).json({ error: message });
+    return res.status(500).json(FORUM_ERROR_RESPONSES.moderatorsLoad);
   }
 });
 
@@ -459,9 +473,13 @@ forumsRouter.post("/subcommunities/:slug/moderators", async (req: Request, res: 
     });
     return res.status(201).json({ moderator });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not assign subcommunity moderator.";
-    const status = message.includes("not found") ? 404 : message.includes("owner") ? 400 : 500;
-    return res.status(status).json({ error: message });
+    const message = error instanceof Error ? error.message : "";
+    const status = /not found/i.test(message)
+      ? 404
+      : /subcommunity owner|owner does not need/i.test(message)
+        ? 400
+        : 500;
+    return res.status(status).json(FORUM_ERROR_RESPONSES.moderatorAssign);
   }
 });
 
@@ -480,8 +498,7 @@ forumsRouter.delete("/subcommunities/:slug/moderators/:userId", async (req: Requ
     if (!moderator) return res.status(404).json({ error: "Subcommunity moderator not found." });
     return res.json({ moderator });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not revoke subcommunity moderator.";
-    return res.status(500).json({ error: message });
+    return res.status(500).json(FORUM_ERROR_RESPONSES.moderatorRevoke);
   }
 });
 
@@ -509,7 +526,7 @@ forumsRouter.post("/subcommunities", async (req: Request, res: Response) => {
     .single();
 
   if (categoryError || !category) {
-    return res.status(500).json({ error: categoryError?.message ?? "Failed to create subcommunity category." });
+    return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunityCategoryCreate);
   }
 
   const { data, error } = await (sb as any)
@@ -529,7 +546,7 @@ forumsRouter.post("/subcommunities", async (req: Request, res: Response) => {
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Failed to create subcommunity." });
+  if (error || !data) return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunityCreate);
   return res.status(201).json({ subcommunity: serializeSubcommunity(data, req.user) });
 });
 
@@ -587,7 +604,7 @@ forumsRouter.post(
       .select()
       .single();
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.threadCreate);
     await Promise.all([
       ensureCommunityProfile(userId).catch(() => undefined),
       bumpCommunityActivity(userId, "thread").catch(() => undefined),
@@ -959,7 +976,6 @@ async function loadSubcommunityForCategoryOrRespond(
   try {
     return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
     if (isMissingSubcommunitySchemaError(error)) {
       if (isLegacyPublicForumCategory(categorySlug)) {
         return { ok: true, subcommunity: null };
@@ -967,7 +983,7 @@ async function loadSubcommunityForCategoryOrRespond(
       res.status(404).json({ error: "Category not found" });
       return { ok: false };
     }
-    res.status(500).json({ error: message });
+    res.status(500).json(FORUM_ERROR_RESPONSES.subcommunityVisibility);
     return { ok: false };
   }
 }

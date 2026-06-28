@@ -25,24 +25,29 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+Validation result: `READY FOR ARGUS REVIEW`.
 
 Reason:
 
 - document route-level error responses are accepted;
 - forum, thread, and comment routes are the next coherent public-chain surface;
-- `forums.ts`, `threads.ts`, and `comments.ts` have direct route-level raw
-  errors around forum/subcommunity list/read/create/update, thread
-  list/read/create/watch/vote/update, comment list/create/vote/update, and
-  moderation/visibility checks.
+- `forums.ts`, `threads.ts`, and `comments.ts` now use stable public-safe
+  route responses with fixed error codes around forum/subcommunity
+  list/read/create/update, thread list/read/create/watch/vote/update,
+  comment list/create/vote/update, and moderation/visibility checks.
+- `apps/api/src/routes/community.test.ts` forces hostile discussion service
+  payloads through forum, thread, and comment failures and proves raw service
+  details are not returned.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | Required for forum, thread, comment, subcommunity, and public discussion behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | Required for linked document discussion compatibility. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 38 tests passed; hostile forum/thread/comment route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; linked document discussion compatibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
-| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Conditional pass | Required if report/moderation behavior changes. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic discussion fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| Direct raw-response grep | Reviewed | Remaining forum/thread/comment matches are zod parse errors, internal status classification, or schema-detection helpers, not route responses returning raw service text. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed because delegated moderation/report-adjacent response paths were touched. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and discussion/moderation/voting/recognition behavior did not change. |
 
 Residual risk: other route-level raw error responses remain future audit

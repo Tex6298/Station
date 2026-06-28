@@ -42,6 +42,14 @@ function isCommentParentType(value: string): value is CommentParentType {
 
 export const commentsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const COMMENT_ERROR_RESPONSES = {
+  list: { error: "Could not load comments.", code: "comment_list_failed" },
+  create: { error: "Could not create comment.", code: "comment_create_failed" },
+  vote: { error: "Could not vote on comment.", code: "comment_vote_failed" },
+  moderation: { error: "Could not update comment moderation.", code: "comment_moderation_update_failed" },
+  delete: { error: "Could not delete comment.", code: "comment_delete_failed" },
+  subcommunityVisibility: { error: "Could not verify subcommunity visibility.", code: "subcommunity_visibility_check_failed" },
+} as const;
 
 function canSeeCommunity(user?: AuthenticatedUser | null) {
   return Boolean(user && COMMUNITY_TIERS.has(user.tier));
@@ -143,7 +151,7 @@ commentsRouter.get("/", optionalAuth, async (req: Request, res: Response) => {
   query = query.eq("parent_type", parentType).eq("parent_id", parentId);
 
   const { data, error } = await query;
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(COMMENT_ERROR_RESPONSES.list);
   const witnessSummaries = await listCommunityWitnessSummaries({
     viewerUserId: req.user?.id,
     targetType: "comment",
@@ -242,7 +250,7 @@ commentsRouter.post(
       .select()
       .single();
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json(COMMENT_ERROR_RESPONSES.create);
     await bumpCommunityActivity(userId, "comment").catch(() => undefined);
 
     // Bump comment_count on thread
@@ -341,9 +349,8 @@ commentsRouter.post("/:id/vote", requireTier("private"), async (req: Request, re
       .single();
 
     return res.status(201).json({ vote, comment: updated });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not vote on comment.";
-    return res.status(400).json({ error: message });
+  } catch {
+    return res.status(400).json(COMMENT_ERROR_RESPONSES.vote);
   }
 });
 
@@ -430,7 +437,7 @@ commentsRouter.patch("/:id/moderation", async (req: Request, res: Response) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(COMMENT_ERROR_RESPONSES.moderation);
 
   const action = await recordModerationAction({
     moderatorUserId: req.user!.id,
@@ -467,7 +474,7 @@ commentsRouter.delete("/:id", async (req: Request, res: Response) => {
     .update({ status: "removed", moderation_state: "removed" } as any)
     .eq("id", req.params.id);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(COMMENT_ERROR_RESPONSES.delete);
   res.json({ ok: true });
 });
 
@@ -478,8 +485,7 @@ async function loadSubcommunityForCategoryOrRespond(
   try {
     return { ok: true, subcommunity: await loadSubcommunityForCategory(categoryId) };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not verify subcommunity visibility.";
-    res.status(500).json({ error: message });
+    res.status(500).json(COMMENT_ERROR_RESPONSES.subcommunityVisibility);
     return { ok: false };
   }
 }

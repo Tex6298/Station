@@ -989,6 +989,379 @@ function close(server: Server) {
   });
 }
 
+const DISCUSSION_HIDDEN_MARKER = "private-discussion-marker";
+const DISCUSSION_BEARER_LABEL = "Bear" + "er";
+const DISCUSSION_URL = `https://station.invalid/${DISCUSSION_HIDDEN_MARKER}/thread?token=discussion-secret`;
+const DISCUSSION_TOKEN = `discussion.${DISCUSSION_HIDDEN_MARKER}.secret`;
+const EXPECTED_DISCUSSION_ERRORS = {
+  forumCategories: { error: "Could not load forum categories.", code: "forum_categories_load_failed" },
+  subcommunities: { error: "Could not load subcommunities.", code: "subcommunity_list_failed" },
+  subcommunitiesMine: { error: "Could not load your subcommunities.", code: "subcommunity_mine_load_failed" },
+  subcommunityRead: { error: "Could not load subcommunity.", code: "subcommunity_load_failed" },
+  categoryThreads: { error: "Could not load forum threads.", code: "forum_category_threads_load_failed" },
+  recognition: { error: "Could not load recognition readback.", code: "community_recognition_load_failed" },
+  delegatedReports: { error: "Could not load moderation reports.", code: "delegated_reports_load_failed" },
+  moderatorsLoad: { error: "Could not load subcommunity moderators.", code: "subcommunity_moderators_load_failed" },
+  moderatorAssign: { error: "Could not assign subcommunity moderator.", code: "subcommunity_moderator_assign_failed" },
+  moderatorRevoke: { error: "Could not revoke subcommunity moderator.", code: "subcommunity_moderator_revoke_failed" },
+  subcommunityCategoryCreate: { error: "Could not create subcommunity category.", code: "subcommunity_category_create_failed" },
+  subcommunityCreate: { error: "Could not create subcommunity.", code: "subcommunity_create_failed" },
+  threadCreate: { error: "Could not create thread.", code: "thread_create_failed" },
+  subcommunityVisibility: { error: "Could not verify subcommunity visibility.", code: "subcommunity_visibility_check_failed" },
+  threadComments: { error: "Could not load thread comments.", code: "thread_comments_load_failed" },
+  threadWatchLoad: { error: "Could not load thread watch.", code: "thread_watch_load_failed" },
+  threadWatchUpdate: { error: "Could not update thread watch.", code: "thread_watch_update_failed" },
+  threadVote: { error: "Could not vote on thread.", code: "thread_vote_failed" },
+  threadModeration: { error: "Could not update thread moderation.", code: "thread_moderation_update_failed" },
+  threadDelete: { error: "Could not delete thread.", code: "thread_delete_failed" },
+  commentList: { error: "Could not load comments.", code: "comment_list_failed" },
+  commentCreate: { error: "Could not create comment.", code: "comment_create_failed" },
+  commentVote: { error: "Could not vote on comment.", code: "comment_vote_failed" },
+  commentModeration: { error: "Could not update comment moderation.", code: "comment_moderation_update_failed" },
+  commentDelete: { error: "Could not delete comment.", code: "comment_delete_failed" },
+} as const;
+
+function hostileDiscussionError(operation: string) {
+  return [
+    `${operation} failed table=forum_categories table=community_subcommunities table=threads table=comments`,
+    "table=community_thread_watches table=community_votes table=community_witnesses table=moderation_reports",
+    `owner_user_id=${OWNER_ID} author_user_id=${OWNER_ID} user_id=${MEMBER_ID}`,
+    `persona_id=${PUBLIC_PERSONA_ID} document_id=${PUBLIC_DOC_ID} forum_id=${CATEGORY_ID}`,
+    `subcommunity_id=subcommunity-${DISCUSSION_HIDDEN_MARKER} thread_id=${PUBLIC_THREAD_ID}`,
+    `comment_id=comment-${DISCUSSION_HIDDEN_MARKER} report_id=report-${DISCUSSION_HIDDEN_MARKER}`,
+    `private hidden comment body ${DISCUSSION_HIDDEN_MARKER}`,
+    `draft publication content ${DISCUSSION_HIDDEN_MARKER}`,
+    `moderator internals ${DISCUSSION_HIDDEN_MARKER}`,
+    `url=${DISCUSSION_URL}`,
+    `token=${DISCUSSION_TOKEN}`,
+    `${DISCUSSION_BEARER_LABEL} abc.${DISCUSSION_HIDDEN_MARKER}.token`,
+    `provider payload: private discussion content ${DISCUSSION_HIDDEN_MARKER}`,
+    "SQL stack trace at discussionRoute (/station/private/forums.ts:1:2)",
+  ].join("; ");
+}
+
+function assertSafeDiscussionRouteError(body: unknown, label: string) {
+  const json = JSON.stringify(body);
+  assert.equal(typeof (body as Row)?.error, "string", label);
+  assert.equal(typeof (body as Row)?.code, "string", label);
+  for (const marker of [
+    DISCUSSION_HIDDEN_MARKER,
+    DISCUSSION_URL,
+    DISCUSSION_TOKEN,
+    DISCUSSION_BEARER_LABEL,
+    "table=forum_categories",
+    "table=community_subcommunities",
+    "table=threads",
+    "table=comments",
+    "table=community_thread_watches",
+    "table=community_votes",
+    "table=community_witnesses",
+    "table=moderation_reports",
+    "owner_user_id",
+    "author_user_id",
+    "user_id",
+    "persona_id",
+    "document_id",
+    "forum_id",
+    "subcommunity_id",
+    "thread_id",
+    "comment_id",
+    "report_id",
+    "private hidden comment body",
+    "draft publication content",
+    "moderator internals",
+    "provider payload",
+    "SQL stack trace",
+    "discussionRoute",
+  ]) {
+    assert.equal(json.includes(marker), false, `${label} leaked ${marker}: ${json}`);
+  }
+}
+
+function addDiscussionSubcommunity(db: CommunitySupabase, overrides: Row = {}) {
+  return db.insertRow("community_subcommunities", {
+    category_id: CATEGORY_ID,
+    owner_user_id: OWNER_ID,
+    slug: "discussion-lab",
+    title: "Discussion Lab",
+    subcommunity_type: "canon",
+    visibility: "public",
+    status: "active",
+    ...overrides,
+  });
+}
+
+function addDiscussionComment(db: CommunitySupabase, overrides: Row = {}) {
+  return db.insertRow("comments", {
+    author_user_id: OWNER_ID,
+    parent_type: "thread",
+    parent_id: PUBLIC_THREAD_ID,
+    body: "Public discussion comment.",
+    ...overrides,
+  });
+}
+
+test("discussion route failures return stable public errors without service details", async () => {
+  const cases: Array<{
+    name: string;
+    configure: (db: CommunitySupabase) => void;
+    request: (app: Express) => Promise<{ status: number; body: any }>;
+    expectedStatus?: number;
+    expectedBody: Row;
+  }> = [
+    {
+      name: "forum categories",
+      configure: (db) => db.failNext("forum_categories", "select", hostileDiscussionError("forum categories")),
+      request: (app) => requestJson(app, "GET", "/forums/categories"),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.forumCategories,
+    },
+    {
+      name: "subcommunity list",
+      configure: (db) => db.failNext("community_subcommunities", "select", hostileDiscussionError("subcommunity list")),
+      request: (app) => requestJson(app, "GET", "/forums/subcommunities"),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunities,
+    },
+    {
+      name: "current-user subcommunity list",
+      configure: (db) => db.failNext("community_subcommunities", "select", hostileDiscussionError("current-user subcommunity list")),
+      request: (app) => requestJson(app, "GET", "/forums/subcommunities/mine", { token: "owner-token" }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunitiesMine,
+    },
+    {
+      name: "subcommunity read",
+      configure: (db) => db.failNext("community_subcommunities", "select", hostileDiscussionError("subcommunity read")),
+      request: (app) => requestJson(app, "GET", "/forums/subcommunities/discussion-lab"),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunityRead,
+    },
+    {
+      name: "forum category subcommunity visibility",
+      configure: (db) => {
+        addDiscussionSubcommunity(db);
+        db.failNext("community_subcommunities", "select", hostileDiscussionError("forum category subcommunity visibility"));
+      },
+      request: (app) => requestJson(app, "GET", "/forums/categories/community"),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunityVisibility,
+    },
+    {
+      name: "forum category threads",
+      configure: (db) => db.failNext("threads", "select", hostileDiscussionError("forum category threads")),
+      request: (app) => requestJson(app, "GET", "/forums/categories/community"),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.categoryThreads,
+    },
+    {
+      name: "author recognition readback",
+      configure: (db) => db.failNext("threads", "select", hostileDiscussionError("author recognition readback")),
+      request: (app) => requestJson(app, "GET", "/forums/witnesses/mine", { token: "owner-token" }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.recognition,
+    },
+    {
+      name: "delegated moderation reports",
+      configure: (db) => {
+        addDiscussionSubcommunity(db);
+        db.failNext("moderation_reports", "select", hostileDiscussionError("delegated moderation reports"));
+      },
+      request: (app) => requestJson(app, "GET", "/forums/subcommunities/discussion-lab/moderation/reports", {
+        token: "owner-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.delegatedReports,
+    },
+    {
+      name: "subcommunity moderators list",
+      configure: (db) => {
+        addDiscussionSubcommunity(db);
+        db.failNext("community_subcommunity_moderators", "select", hostileDiscussionError("subcommunity moderators list"));
+      },
+      request: (app) => requestJson(app, "GET", "/forums/subcommunities/discussion-lab/moderators", {
+        token: "owner-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.moderatorsLoad,
+    },
+    {
+      name: "subcommunity moderator assignment",
+      configure: (db) => {
+        addDiscussionSubcommunity(db);
+        db.failNext("community_subcommunity_moderators", "insert", hostileDiscussionError("subcommunity moderator assignment"));
+      },
+      request: (app) => requestJson(app, "POST", "/forums/subcommunities/discussion-lab/moderators", {
+        token: "owner-token",
+        body: { userId: MEMBER_ID },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.moderatorAssign,
+    },
+    {
+      name: "subcommunity moderator revoke",
+      configure: (db) => {
+        const subcommunity = addDiscussionSubcommunity(db);
+        db.insertRow("community_subcommunity_moderators", {
+          subcommunity_id: subcommunity.id,
+          user_id: MEMBER_ID,
+          status: "active",
+          created_by: OWNER_ID,
+        });
+        db.failNext("community_subcommunity_moderators", "update", hostileDiscussionError("subcommunity moderator revoke"));
+      },
+      request: (app) => requestJson(app, "DELETE", `/forums/subcommunities/discussion-lab/moderators/${MEMBER_ID}`, {
+        token: "owner-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.moderatorRevoke,
+    },
+    {
+      name: "subcommunity category create",
+      configure: (db) => db.failNext("forum_categories", "insert", hostileDiscussionError("subcommunity category create")),
+      request: (app) => requestJson(app, "POST", "/forums/subcommunities", {
+        token: "canon-token",
+        body: { slug: "new-discussion-lab", title: "New Discussion Lab", type: "canon", visibility: "public" },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunityCategoryCreate,
+    },
+    {
+      name: "subcommunity create",
+      configure: (db) => db.failNext("community_subcommunities", "insert", hostileDiscussionError("subcommunity create")),
+      request: (app) => requestJson(app, "POST", "/forums/subcommunities", {
+        token: "canon-token",
+        body: { slug: "new-discussion-lab", title: "New Discussion Lab", type: "canon", visibility: "public" },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunityCreate,
+    },
+    {
+      name: "thread create",
+      configure: (db) => db.failNext("threads", "insert", hostileDiscussionError("thread create")),
+      request: (app) => requestJson(app, "POST", "/forums/threads", {
+        token: "member-token",
+        body: { categoryId: CATEGORY_ID, title: "Route failure thread", body: "Thread body." },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadCreate,
+    },
+    {
+      name: "thread detail comments",
+      configure: (db) => db.failNext("comments", "select", hostileDiscussionError("thread detail comments")),
+      request: (app) => requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}`),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadComments,
+    },
+    {
+      name: "thread watch load",
+      configure: (db) => db.failNext("community_thread_watches", "select", hostileDiscussionError("thread watch load")),
+      request: (app) => requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}/watch`, { token: "member-token" }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadWatchLoad,
+    },
+    {
+      name: "thread watch update",
+      configure: (db) => db.failNext("community_thread_watches", "insert", hostileDiscussionError("thread watch update")),
+      request: (app) => requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`, { token: "member-token" }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadWatchUpdate,
+    },
+    {
+      name: "thread watch delete",
+      configure: (db) => db.failNext("community_thread_watches", "delete", hostileDiscussionError("thread watch delete")),
+      request: (app) => requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/watch`, { token: "member-token" }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadWatchUpdate,
+    },
+    {
+      name: "thread vote",
+      configure: (db) => db.failNext("community_votes", "insert", hostileDiscussionError("thread vote")),
+      request: (app) => requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
+        token: "member-token",
+        body: { value: 1 },
+      }),
+      expectedStatus: 400,
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadVote,
+    },
+    {
+      name: "thread moderation",
+      configure: (db) => db.failNext("threads", "update", hostileDiscussionError("thread moderation")),
+      request: (app) => requestJson(app, "PATCH", `/threads/${PUBLIC_THREAD_ID}/moderation`, {
+        token: "admin-token",
+        body: { action: "hide" },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadModeration,
+    },
+    {
+      name: "thread delete",
+      configure: (db) => db.failNext("threads", "update", hostileDiscussionError("thread delete")),
+      request: (app) => requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}`, { token: "owner-token" }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadDelete,
+    },
+    {
+      name: "comment list",
+      configure: (db) => db.failNext("comments", "select", hostileDiscussionError("comment list")),
+      request: (app) => requestJson(app, "GET", `/comments?parentType=thread&parentId=${PUBLIC_THREAD_ID}`),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentList,
+    },
+    {
+      name: "comment create",
+      configure: (db) => db.failNext("comments", "insert", hostileDiscussionError("comment create")),
+      request: (app) => requestJson(app, "POST", "/comments", {
+        token: "member-token",
+        body: { parentType: "thread", parentId: PUBLIC_THREAD_ID, body: "Comment body." },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentCreate,
+    },
+    {
+      name: "comment subcommunity visibility",
+      configure: (db) => {
+        addDiscussionSubcommunity(db);
+        db.failNext("community_subcommunities", "select", hostileDiscussionError("comment subcommunity visibility"));
+      },
+      request: (app) => requestJson(app, "POST", "/comments", {
+        token: "member-token",
+        body: { parentType: "thread", parentId: PUBLIC_THREAD_ID, body: "Comment body." },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunityVisibility,
+    },
+    {
+      name: "comment vote",
+      configure: (db) => {
+        addDiscussionComment(db, { id: "00000000-0000-4000-8000-000000000900" });
+        db.failNext("community_votes", "insert", hostileDiscussionError("comment vote"));
+      },
+      request: (app) => requestJson(app, "POST", "/comments/00000000-0000-4000-8000-000000000900/vote", {
+        token: "member-token",
+        body: { value: 1 },
+      }),
+      expectedStatus: 400,
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentVote,
+    },
+    {
+      name: "comment moderation",
+      configure: (db) => {
+        addDiscussionComment(db, { id: "00000000-0000-4000-8000-000000000901", author_user_id: MEMBER_ID });
+        db.failNext("comments", "update", hostileDiscussionError("comment moderation"));
+      },
+      request: (app) => requestJson(app, "PATCH", "/comments/00000000-0000-4000-8000-000000000901/moderation", {
+        token: "admin-token",
+        body: { action: "hide" },
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentModeration,
+    },
+    {
+      name: "comment delete",
+      configure: (db) => {
+        addDiscussionComment(db, { id: "00000000-0000-4000-8000-000000000902", author_user_id: MEMBER_ID });
+        db.failNext("comments", "update", hostileDiscussionError("comment delete"));
+      },
+      request: (app) => requestJson(app, "DELETE", "/comments/00000000-0000-4000-8000-000000000902", {
+        token: "member-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentDelete,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const db = new CommunitySupabase();
+    testCase.configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = createCommunityApp();
+    try {
+      const response = await testCase.request(app);
+      assert.equal(response.status, testCase.expectedStatus ?? 500, testCase.name);
+      assert.deepEqual(response.body, testCase.expectedBody, testCase.name);
+      assertSafeDiscussionRouteError(response.body, testCase.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
 test("forum thread creation validates linked entities and preserves visibility", async () => {
   const db = new CommunitySupabase();
   const ineligiblePublicPersona = db.insertRow("personas", {
