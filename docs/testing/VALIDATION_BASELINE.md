@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR427 Backup Restore Local Tooling Preflight
+
+ARGUS completed the local tooling preflight on 2026-06-28:
+`docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT LOCAL TOOLING PATH - WAKE DAEDALUS`.
+
+Reason:
+
+- backup/restore local proof remains the most concrete parked production lane;
+- the missing dependency is local-only PostgreSQL client tooling, not a product
+  design question;
+- a workspace-local or temp-local `psql`/`pg_dump` path is acceptable only with
+  official source trust, checksum verification, ignored/outside-repo tool and
+  artifact storage, no permanent install, no hosted data, and no real owner
+  data;
+- DAEDALUS must stop and wake MIMIR if source trust, checksums, local ignored
+  storage, or local disposable database availability cannot be satisfied.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `Get-Command psql, pg_dump, docker, supabase -ErrorAction SilentlyContinue` | No output | Confirms this shell still lacks the blocked local tools by default. |
+| `node --test scripts/backup-restore-local-proof.test.mjs` | Pass | 8 guardrail/refusal tests passed. |
+| `node scripts/backup-restore-local-proof.mjs --help` | Pass | Help output keeps the accepted restore-shape label and safety boundaries. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR427 still does not prove backup/restore. It only authorizes a
+local client tooling acquisition path and a tightly bounded local synthetic
+proof attempt under DAEDALUS.
+
 ## PR426 Post-Observability Next-Lane Selection
 
 DAEDALUS completed the docs-only next-lane reconciliation on 2026-06-28:

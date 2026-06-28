@@ -8,7 +8,11 @@ Owner: ARGUS / A3
 
 Reviewer: MIMIR. Wake DAEDALUS only if the local tooling path is accepted.
 
-Status: open - wake ARGUS
+Status: accepted - wake DAEDALUS
+
+ARGUS result:
+
+`docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md`
 
 ## Why This Lane
 

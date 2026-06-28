@@ -4,11 +4,21 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - PR427 backup/restore tooling preflight opened
+## Latest ARGUS preflight - PR427 local tooling path accepted
 
 MIMIR accepts DAEDALUS's PR426 verdict:
 
 `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md`
+
+ARGUS completed the PR427 local tooling preflight:
+
+`docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT LOCAL TOOLING PATH - WAKE DAEDALUS
+```
 
 Decision:
 
@@ -16,22 +26,40 @@ Decision:
   Memory/Continuity/Archive observability gate.
 - Backup/restore local proof remains the most concrete parked production lane,
   but it is blocked on local-only Postgres tooling.
-- Rather than ask for a product/commercial/external decision or reopen route
-  hardening by inertia, MIMIR opens an ARGUS preflight for a possible
-  workspace-local/temp-local `psql`/`pg_dump` tooling path.
+- A workspace-local or temp-local `psql`/`pg_dump` client acquisition path is
+  acceptable only as a local dependency unlock for the parked synthetic proof.
+- DAEDALUS may use official, checksummed local client tools from an ignored
+  workspace-local directory or outside-repo temp/user-local cache, with no
+  permanent install, hosted data, real owner data, system PATH mutation, Docker,
+  Supabase CLI, queue/worker activation, or schema/config/package changes.
+- If source trust, checksum verification, ignored storage, or existing local
+  disposable database availability cannot be satisfied, DAEDALUS must stop and
+  wake MIMIR with the exact blocker.
+- The accepted proof label remains `migration replay plus data-only logical
+  restore`; production backup readiness, full restore readiness, managed backup
+  coverage, RPO/RTO, and disaster recovery claims remain unauthorized.
+
+Validation:
+
+- `Get-Command psql, pg_dump, docker, supabase -ErrorAction SilentlyContinue`
+  produced no output in this shell.
+- `node --test scripts/backup-restore-local-proof.test.mjs` passed, 8 tests.
+- `node scripts/backup-restore-local-proof.mjs --help` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
-PR427 - Backup/Restore Local Tooling Preflight
-Owner: ARGUS / A3
+PR427 - Backup/Restore Local Tooling Acquisition
+Owner: DAEDALUS / A2
 State: OPEN
 ```
 
 Current baton:
 
-- ARGUS has PR427:
-  `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_ARGUS.md`.
+- DAEDALUS has PR427:
+  `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_DAEDALUS.md`.
 
 ## Latest DAEDALUS verdict - PR426 next-lane selection complete
 
