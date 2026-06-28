@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR447 Hosted Product Operation Continuation Sweep
+
+ARIADNE completed PR447 on 2026-06-28:
+`docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_RESULT.md`.
+
+Validation result: `PASS_WITH_NEXT_LANE`.
+
+Recommended next lane:
+
+```text
+PR448 - Studio dashboard Memory orientation and status readback
+```
+
+Reason:
+
+- hosted web/API were fresh at the PR445 runtime commit or later;
+- signed-out public routeability passed from Discover through public Space,
+  public document, linked discussion, and Developer Space observatory;
+- Discover continued to render canonical Space document links with no dead
+  `/documents/<document-id>` public document links;
+- replay-owner hosted API sign-in and session verification passed;
+- signed-in Studio, persona Memory, Continuity, Archive/files,
+  Integrity/calibration, Developer Space manage/readback, Settings AI Provider,
+  and Billing routes loaded without visible application errors;
+- the next product-experience lane is top-level Studio Memory orientation, not
+  a routeability blocker.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `19d9edff`. |
+| Signed-out public route chain | Pass | `/`, `/discover`, public Space, public document, linked discussion, and Developer Space observatory returned HTTP 200. |
+| Discover document link shape | Pass | 0 dead `/documents/<document-id>` links and 5 canonical Space document links found. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Signed-in owner Studio chain | Pass | Studio, persona Memory, Continuity, Archive/files, Integrity/calibration, Developer Space manage, Settings, and Billing loaded. |
+| `git diff --check` | Pass | Required for the PR447 docs result commit. |
+
+Residual risk: this sweep recommends a narrow Studio dashboard product lane. It
+does not validate private provider credential success, billing mutations,
+archive import mutations, publishing mutations, or broad mobile polish.
+
 ## PR446 Hosted Discover Document Routeability
 
 ARIADNE completed PR446 on 2026-06-28:

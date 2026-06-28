@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR447 | Hosted product operation continuation sweep | ARIADNE / A4 | Open | `docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_ARIADNE.md` |
+| PR447 | Hosted product operation continuation sweep | MIMIR / A1 | Pass with next lane; waiting closeout | `docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR447 sweep | Hosted product operation continuation sweep | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend Studio dashboard Memory orientation | `docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_RESULT.md` |
 | PR446 closeout | Hosted Discover document routeability rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; Discover document routeability proven on hosted | `docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_CLOSEOUT.md` |
 | PR446 rehearsal | Hosted Discover document routeability rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; hosted Discover uses canonical Space document links | `docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_RESULT.md` |
 | PR445 closeout | Discover document route repair | DAEDALUS -> ARGUS -> MIMIR | Closed; PR446 opened for hosted routeability rehearsal | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_CLOSEOUT.md` |

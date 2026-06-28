@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR447 continuation sweep passed with next lane
+
+ARIADNE completed PR447:
+
+`docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```
+
+Recommended next lane:
+
+```text
+PR448 - Studio dashboard Memory orientation and status readback
+```
+
+Decision:
+
+- Signed-out public chain from Discover through Space, public document,
+  discussion, and Developer Space passed on hosted.
+- Signed-in replay-owner Studio, persona Memory, Continuity, Archive/files,
+  Integrity/calibration, Developer Space manage, Settings AI Provider, and
+  Billing routes all loaded without visible application errors.
+- The next product-experience gap is not routeability; it is that top-level
+  Studio does not make Memory visible as its own dashboard stop before the user
+  enters a persona workspace.
+
+Current lane:
+
+```text
+PR447 - Hosted Product Operation Continuation Sweep
+Owner: MIMIR / A1
+State: PASS_WITH_NEXT_LANE - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR447 and decide whether to open the recommended PR448
+  Studio dashboard Memory orientation lane.
+
 ## Latest MIMIR closeout - PR446 passed, PR447 opened
 
 MIMIR closes PR446:
