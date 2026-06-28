@@ -56,8 +56,11 @@ Validation:
 
 Current baton:
 
-- MIMIR should close the ARGUS review and route the ARIADNE human rehearsal
-  named in the lane packet.
+- ARIADNE should complete the human-eye owner rehearsal in
+  `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE.md`.
+- MIMIR has a deferred process wakeup to restore lightweight lane numbering
+  before opening the next feature lane after this current observability lane
+  closes.
 
 ## Latest ARGUS verdict - Project errors accepted
 
