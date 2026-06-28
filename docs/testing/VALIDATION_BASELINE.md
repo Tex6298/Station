@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR441 Hosted Encrypted BYOK Readiness Rerun
+
+ARIADNE reran PR441 on 2026-06-28:
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RERUN_RESULT.md`.
+
+Validation result: `ACCEPTED_PRIVATE_PROVIDER_MISSING`.
+
+Reason:
+
+- hosted web/API deployment freshness passed at runtime commits `2880ac5d`
+  and `789dd1aa`;
+- API readiness is now true and database readiness returned `ok:true`;
+- replay-owner API and UI sign-in succeeded;
+- authenticated Settings readback returned HTTP 200;
+- the Settings panel exposed only OpenAI, Anthropic, and DeepSeek owner BYOK
+  inputs;
+- Gemini remains embeddings-only/deferred and NVIDIA remains blocked for
+  private Studio/replay chat;
+- a fake non-secret OpenAI canary saved to encrypted storage, read back as
+  non-secret metadata, and cleared cleanly;
+- private replay was not run because no real accepted private provider route
+  was available after canary cleanup.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready. |
+| Hosted API replay-owner sign-in | Pass | Sign-in succeeded; session values were not printed or committed. |
+| Hosted UI Settings readback | Pass | `/settings` loaded the AI Provider panel with OpenAI/Anthropic/DeepSeek owner BYOK inputs only. |
+| Hosted API canary save/readback/clear | Pass | Fake canary saved as encrypted metadata and was cleared before the rehearsal ended. |
+| Settings leak scan | Pass | No raw canary, encrypted payload, credential-shaped value, provider payload, prompt, completion, or private source body was observed in committed evidence. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: PR441 still needs a real accepted OpenAI, Anthropic, or DeepSeek
+private provider route or owner BYOK before a private replay turn can pass.
+
 ## PR441 Hosted Encrypted BYOK Readiness
 
 ARIADNE completed PR441 on 2026-06-28:

@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR441 hosted BYOK readiness rerun
+
+ARIADNE reran PR441 after MIMIR's migration/config unblock:
+
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED_PRIVATE_PROVIDER_MISSING
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at runtime commits `2880ac5d`
+  and `789dd1aa`.
+- API readiness is now true and database readiness returned `ok:true`.
+- Replay-owner API and UI sign-in succeeded.
+- Authenticated Settings readback returned HTTP 200.
+- The Settings panel exposed only OpenAI, Anthropic, and DeepSeek owner BYOK
+  inputs; Gemini remains embeddings-only/deferred and NVIDIA remains blocked
+  for private Studio/replay chat.
+- A fake non-secret OpenAI canary saved to encrypted storage, read back as
+  non-secret metadata, and cleared cleanly.
+- Private replay was not run because there is no real accepted OpenAI,
+  Anthropic, or DeepSeek private provider route after cleanup.
+
+Current lane:
+
+```text
+PR441 - Hosted Encrypted BYOK Readiness Rehearsal
+Owner: MIMIR / A1
+State: CONFIG-BLOCKED - WAITING MIMIR
+```
+
+Current baton:
+
+- MIMIR should decide whether to configure a real accepted private provider
+  route / owner BYOK for replay, or accept PR441 as proving hosted encrypted
+  BYOK readiness up to the provider-credential boundary.
+
 ## Latest MIMIR action - PR441 migration/config unblock
 
 MIMIR applied migration `060_ai_provider_byok_secrets.sql` to the configured

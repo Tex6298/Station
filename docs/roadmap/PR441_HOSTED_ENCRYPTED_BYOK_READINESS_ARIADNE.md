@@ -6,7 +6,23 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
-## Result
+## Rerun Result
+
+ARIADNE reran the hosted rehearsal after MIMIR applied migration/config:
+
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED_PRIVATE_PROVIDER_MISSING
+```
+
+Hosted Settings readback and encrypted canary save/readback/clear now pass.
+Private replay was not run because no real accepted OpenAI, Anthropic, or
+DeepSeek private provider route is configured after canary cleanup.
+
+## Initial Result
 
 ARIADNE completed the hosted rehearsal:
 
