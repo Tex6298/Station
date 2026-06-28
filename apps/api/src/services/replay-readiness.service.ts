@@ -152,8 +152,9 @@ const SETUP_PROOFS: ReplaySetupProof[] = [
       "Public /health/deployment reports platform chat true and NVIDIA true.",
       "PR433 proves the Station provider router selects nvidia_openai_compatible with the current openai/gpt-oss-120b model label.",
       "A synthetic-only NVIDIA probe returned a non-empty response through the OpenAI-compatible route without recording prompt or completion text.",
+      "PR435 makes private persona chat pass allowPlatformNvidia=false, so private/replay context cannot silently use NVIDIA platform calls.",
     ],
-    remainingRisk: "Exact-output compliance was noisy in the synthetic probe, and the current OpenAI-compatible adapter does not parse provider usage tokens from NVIDIA responses. Keep private/sensitive replay blocked until MIMIR accepts provider/data-policy boundaries.",
+    remainingRisk: "NVIDIA remains public/synthetic-only. Private replay needs an accepted non-NVIDIA platform provider or owner BYOK route; exact-output behavior and NVIDIA usage parsing remain separate caveats.",
   },
   {
     id: "operational_cache_boundary",

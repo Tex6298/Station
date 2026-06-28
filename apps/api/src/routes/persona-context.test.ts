@@ -12,6 +12,10 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
 delete process.env.OPENAI_API_KEY;
 delete process.env.GEMINI_API_KEY;
 delete process.env.GOOGLE_API_KEY;
+process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+process.env.NVIDIA_MODEL = "test-nvidia-model";
+delete process.env.DEEPSEEK_API_KEY;
+delete process.env.ANTHROPIC_API_KEY;
 
 type Row = Record<string, any>;
 
@@ -1456,6 +1460,91 @@ test("memory lifecycle updates are owner-only and validate supersession targets"
     );
     assert.equal(db.tables.persona_lifecycle_events.some((event) => event.event_type === "memory_graph_update"), true);
   } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("private persona chat fails closed instead of routing private context to NVIDIA", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaContextApp();
+  const originalFetch = globalThis.fetch;
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousNvidiaModel = process.env.NVIDIA_MODEL;
+  const previousDeepseekKey = process.env.DEEPSEEK_API_KEY;
+  const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
+  const providerFetches: string[] = [];
+
+  process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+  process.env.NVIDIA_MODEL = "test-nvidia-model";
+  delete process.env.DEEPSEEK_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (!url.startsWith("http://127.0.0.1:")) {
+      if (url.includes("generativelanguage.googleapis.com")) {
+        return new Response(JSON.stringify({ error: "embedding unavailable in test" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (
+        url.includes("integrate.api.nvidia.com") ||
+        url.includes("api.deepseek.com") ||
+        url.includes("api.anthropic.com")
+      ) {
+        providerFetches.push(url);
+      }
+      return new Response(JSON.stringify({ error: "unexpected provider call" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const blocked = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: { content: "Use my private Harbor ritual continuity." },
+    });
+
+    assert.equal(blocked.status, 503);
+    assert.deepEqual(blocked.body, {
+      error: "NVIDIA platform chat is not allowed for private Station context. Configure an accepted non-NVIDIA platform provider or owner BYOK provider.",
+      code: "provider_policy_blocked",
+      classification: "provider_data_policy",
+    });
+    assert.deepEqual(providerFetches, []);
+
+    const serializedEvents = JSON.stringify(db.rows("ai_trace_events"));
+    assert.match(serializedEvents, /nvidia_platform_blocked_private_context/);
+    assert.doesNotMatch(serializedEvents, /test-nvidia-key/);
+    assert.doesNotMatch(serializedEvents, /Use my private Harbor ritual continuity/);
+    assert.doesNotMatch(serializedEvents, /The morning ritual is private continuity context/);
+    assert.doesNotMatch(serializedEvents, /provider payload/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousNvidiaModel == null) {
+      delete process.env.NVIDIA_MODEL;
+    } else {
+      process.env.NVIDIA_MODEL = previousNvidiaModel;
+    }
+    if (previousDeepseekKey == null) {
+      delete process.env.DEEPSEEK_API_KEY;
+    } else {
+      process.env.DEEPSEEK_API_KEY = previousDeepseekKey;
+    }
+    if (previousAnthropicKey == null) {
+      delete process.env.ANTHROPIC_API_KEY;
+    } else {
+      process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
+    }
     setSupabaseAdminForTests(null);
   }
 });

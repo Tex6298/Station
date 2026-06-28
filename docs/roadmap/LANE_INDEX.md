@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR435 | Private replay non-NVIDIA provider guard | DAEDALUS / A2 | Open - prove or patch private chat cannot use NVIDIA | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_DAEDALUS.md` |
+| PR435 | Private replay non-NVIDIA provider guard | DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR435 implementation | Private replay non-NVIDIA provider guard | DAEDALUS -> ARGUS | Ready for review; private chat blocks NVIDIA platform route | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md` |
 | PR434 closeout | NVIDIA provider data-policy preflight | MIMIR -> ARGUS -> MIMIR | Accepted public/synthetic only; PR435 opened for executable private-chat guard | `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md` |
 | PR434 | NVIDIA provider data-policy preflight | MIMIR -> ARGUS | Accepted public/synthetic only; private NVIDIA remains blocked | `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md` |
 | PR433 closeout | NVIDIA platform chat synthetic proof | DAEDALUS -> ARGUS -> MIMIR | Accepted as routeability proof only; PR434 opened for provider/data-policy preflight | `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md` |

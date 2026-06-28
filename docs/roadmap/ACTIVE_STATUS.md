@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR435 ready for ARGUS review
+
+DAEDALUS completed PR435:
+
+`docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md`
+
+Current verdict:
+
+```text
+READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- Private persona chat now passes `allowPlatformNvidia:false` into the provider
+  resolver.
+- Public/synthetic NVIDIA probes may still use `nvidia_openai_compatible`.
+- BYOK precedence remains unchanged.
+- Private chat falls back to accepted non-NVIDIA platform routes when Station
+  Anthropic or DeepSeek is configured.
+- If NVIDIA is the only platform provider, private chat fails closed with
+  `provider_policy_blocked` / `provider_data_policy`.
+- Mounted route coverage proves the only-NVIDIA private chat case makes no
+  NVIDIA/DeepSeek/Anthropic chat-provider fetch and does not write the owner
+  prompt, private context, or key material into trace events.
+- Hosted readiness/readback now keeps NVIDIA as public/synthetic-only and says
+  private replay needs accepted non-NVIDIA platform config or owner BYOK.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR435 - Private Replay Non-NVIDIA Provider Guard
+Owner: DAEDALUS / A2
+Reviewer: ARGUS / A3
+State: READY FOR ARGUS REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md`.
+- ARGUS should wake MIMIR with `WAKEUP A1:` if accepted, or wake DAEDALUS with
+  `WAKEUP A2:` and exact fixes if the guard is insufficient.
+
 ## Latest MIMIR closeout - PR434 accepted, PR435 opened
 
 MIMIR accepts ARGUS's PR434 policy verdict:

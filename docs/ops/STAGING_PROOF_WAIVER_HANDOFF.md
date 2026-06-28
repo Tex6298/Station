@@ -141,7 +141,7 @@ before replay-driven optimization starts.
 | Cache provider | Choose Railway Redis/Valkey, Upstash REST, another provider, or explicit deferment. Cache remains operational/non-canonical unless a later durability/export/deletion review promotes it. |
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
-| Platform chat provider | PR433 proves synthetic NVIDIA platform chat through Station's provider router with current `openai/gpt-oss-120b` model label. Exact-output behavior and private-data policy still need explicit acceptance before sensitive replay. |
+| Platform chat provider | PR433 proves synthetic NVIDIA platform chat through Station's provider router with current `openai/gpt-oss-120b` model label. PR435 blocks private persona chat from silently using NVIDIA and requires accepted non-NVIDIA platform config or owner BYOK for private replay. |
 | Embedding profile | PR432 proves the current bounded staging replay corpus: `station_free_1536`, Gemini, migration `029`, Gemini/1536/backfill-v2 replay rows, vector-mode readback, rejected-control absence, and mismatched-scope zero-row smoke. Re-run proof if the corpus, provider, model, dimension, or index contract changes. |
 | Replay account/data | Prepare one staging replay account with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing-path coverage, or explicitly narrow the replay path. |
 

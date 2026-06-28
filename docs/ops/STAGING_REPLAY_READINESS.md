@@ -166,8 +166,11 @@ PR432/PR433 update on 2026-06-28:
 - PR433 proves synthetic-only NVIDIA platform-chat routeability through
   Station's OpenAI-compatible provider router with the current
   `openai/gpt-oss-120b` model label.
-- Exact-output compliance was noisy in PR433, and private/sensitive replay
-  remains blocked pending explicit provider/data-policy acceptance.
+- PR435 makes the private persona chat route pass `allowPlatformNvidia:false`;
+  private replay now needs accepted non-NVIDIA platform config or owner BYOK
+  instead of silently using NVIDIA when the NVIDIA key is present.
+- Exact-output compliance was noisy in PR433, and private NVIDIA use remains
+  blocked unless a later lane accepts a private NVIDIA data contract.
 
 The active follow-up is the populated replay data and Gemini retrieval
 measurement plan in `docs/ops/STAGING_REPLAY_DATA_PLAN.md`.

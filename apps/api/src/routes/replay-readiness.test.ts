@@ -59,7 +59,11 @@ test("replay readiness exposes non-secret measurement prep behind auth", async (
       owner.body.replay.setupProofs[4].evidence.some((entry: string) => entry.includes("PR433")),
       true
     );
-    assert.match(owner.body.replay.setupProofs[4].remainingRisk, /Exact-output compliance/);
+    assert.equal(
+      owner.body.replay.setupProofs[4].evidence.some((entry: string) => entry.includes("PR435")),
+      true
+    );
+    assert.match(owner.body.replay.setupProofs[4].remainingRisk, /public\/synthetic-only/);
     assert.equal(
       owner.body.replay.setupProofs[5].evidence.some((entry: string) => entry.includes("non-secret Redis/Upstash booleans")),
       true

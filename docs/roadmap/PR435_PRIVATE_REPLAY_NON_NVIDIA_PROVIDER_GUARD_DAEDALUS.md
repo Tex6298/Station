@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: open - prove or patch private chat cannot use NVIDIA
+Status: patched - ready for ARGUS review
 
 ## Why This Lane
 
@@ -97,3 +97,19 @@ Wake ARGUS with `WAKEUP A3:` when the proof or patch is ready.
 
 Wake MIMIR with `WAKEUP A1:` only if the lane is blocked by missing accepted
 non-NVIDIA config or an external product decision.
+
+## DAEDALUS Result
+
+Result doc:
+
+- `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md`
+
+Summary:
+
+- private persona chat now passes `allowPlatformNvidia:false`;
+- public/synthetic NVIDIA routing remains available when explicitly allowed;
+- BYOK precedence remains intact;
+- blocked private NVIDIA falls back to accepted non-NVIDIA routes when
+  configured, or fails closed with `provider_policy_blocked` /
+  `provider_data_policy`;
+- focused resolver and mounted private-chat route tests pass.

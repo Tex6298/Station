@@ -175,6 +175,63 @@ test("runtime route resolver prefers NVIDIA platform chat over DeepSeek", () => 
   assert.equal(route.configured, true);
 });
 
+test("runtime route resolver uses accepted non-NVIDIA platform routes when NVIDIA is blocked", () => {
+  const anthropicRoute = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+    platformNvidiaKey: "nvidia-key",
+    platformNvidiaModel: "nvidia/test-model",
+    allowPlatformNvidia: false,
+    stationAnthropicKey: "anthropic-key",
+    stationAnthropicModel: "claude-haiku-test",
+    platformDeepseekKey: "deepseek-key",
+  });
+
+  assert.equal(anthropicRoute.routeLabel, "anthropic_platform");
+  assert.equal(anthropicRoute.providerFamily, "anthropic");
+  assert.equal(anthropicRoute.providerMode, "platform");
+  assert.equal(anthropicRoute.modelLabel, "claude-haiku-test");
+  assert.equal(anthropicRoute.configured, true);
+
+  const deepseekRoute = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+    platformNvidiaKey: "nvidia-key",
+    platformNvidiaModel: "nvidia/test-model",
+    allowPlatformNvidia: false,
+    platformDeepseekKey: "deepseek-key",
+    platformDeepseekModel: "deepseek-test",
+  });
+
+  assert.equal(deepseekRoute.routeLabel, "deepseek_fallback");
+  assert.equal(deepseekRoute.providerFamily, "deepseek");
+  assert.equal(deepseekRoute.providerMode, "platform");
+  assert.equal(deepseekRoute.modelLabel, "deepseek-test");
+  assert.equal(deepseekRoute.configured, true);
+});
+
+test("runtime route resolver fails closed when only NVIDIA is configured for private context", () => {
+  const route = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+    platformNvidiaKey: "nvidia-key",
+    platformNvidiaModel: "nvidia/test-model",
+    allowPlatformNvidia: false,
+  });
+
+  assert.equal(route.routeLabel, "nvidia_platform_blocked_private_context");
+  assert.equal(route.providerFamily, "openai");
+  assert.equal(route.providerMode, "platform");
+  assert.equal(route.modelLabel, "nvidia/test-model");
+  assert.equal(route.configured, false);
+  assert.deepEqual(route.missingConfig, {
+    code: "provider_policy_blocked",
+    classification: "provider_data_policy",
+    error: "NVIDIA platform chat is not allowed for private Station context. Configure an accepted non-NVIDIA platform provider or owner BYOK provider.",
+  });
+  assert.equal(route.provider, null);
+});
+
 test("runtime route resolver reports missing platform config safely", () => {
   const route = resolveChatProviderRuntimeRoute({
     provider: "platform",

@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR435 Private Replay Non-NVIDIA Provider Guard
+
+DAEDALUS completed PR435 on 2026-06-28:
+`docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+Reason:
+
+- private persona chat now passes `allowPlatformNvidia:false`;
+- public/synthetic NVIDIA routing remains available when allowed;
+- BYOK precedence remains unchanged;
+- private chat uses accepted non-NVIDIA platform routes when configured;
+- only-NVIDIA private chat fails closed with `provider_policy_blocked` /
+  `provider_data_policy`;
+- mounted route coverage proves no NVIDIA/DeepSeek/Anthropic chat-provider
+  fetch occurs in the only-NVIDIA private chat case and trace events do not
+  include the owner prompt, private context, or key material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 12 tests passed, including blocked-private NVIDIA fallback/fail-closed behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 10 tests passed, including mounted private chat no-NVIDIA guard. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; readiness labels NVIDIA as public/synthetic-only. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: private replay still needs accepted non-NVIDIA platform config or
+owner BYOK in the target environment. NVIDIA private-data use remains blocked
+unless a later MIMIR lane accepts a private NVIDIA data contract.
+
 ## PR434 NVIDIA Provider Data-Policy Preflight Review
 
 ARGUS accepted PR434 on 2026-06-28:

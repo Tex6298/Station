@@ -10,6 +10,7 @@ export type ChatProviderRuntimeRouteLabel =
   | "byok_deepseek"
   | "anthropic_platform"
   | "nvidia_openai_compatible"
+  | "nvidia_platform_blocked_private_context"
   | "deepseek_fallback";
 
 export type ChatProviderRuntimeRoute = {
@@ -19,8 +20,8 @@ export type ChatProviderRuntimeRoute = {
   modelLabel: string;
   configured: boolean;
   missingConfig?: {
-    code: "provider_config_missing";
-    classification: "provider_config";
+    code: "provider_config_missing" | "provider_policy_blocked";
+    classification: "provider_config" | "provider_data_policy";
     error: string;
   };
   provider: ChatProvider | null;
@@ -46,6 +47,7 @@ export interface ProviderConfig {
   platformNvidiaKey?: string;
   platformNvidiaBaseUrl?: string;
   platformNvidiaModel?: string;
+  allowPlatformNvidia?: boolean;
   stationAnthropicKey?: string;
   stationAnthropicModel?: string;
 }
@@ -71,7 +73,8 @@ export function resolveChatProviderRuntimeRoute(config: ProviderConfig): ChatPro
 
   const stationAnthropicKey = config.stationAnthropicKey?.trim();
   const platformNvidiaKey = config.platformNvidiaKey?.trim();
-  if (config.aiMode !== "byok" && !platformNvidiaKey && stationAnthropicKey) {
+  const allowPlatformNvidia = config.allowPlatformNvidia !== false;
+  if (config.aiMode !== "byok" && (!platformNvidiaKey || !allowPlatformNvidia) && stationAnthropicKey) {
     const model = config.stationAnthropicModel?.trim() || "claude-haiku-4-5-20251001";
     return {
       routeLabel: "anthropic_platform",
@@ -83,7 +86,7 @@ export function resolveChatProviderRuntimeRoute(config: ProviderConfig): ChatPro
     };
   }
 
-  if (platformNvidiaKey) {
+  if (platformNvidiaKey && allowPlatformNvidia) {
     const model = config.platformNvidiaModel?.trim() || DEFAULT_NVIDIA_MODEL;
     return {
       routeLabel: "nvidia_openai_compatible",
@@ -101,6 +104,22 @@ export function resolveChatProviderRuntimeRoute(config: ProviderConfig): ChatPro
 
   const deepseekKey = config.platformDeepseekKey?.trim();
   const deepseekModel = config.platformDeepseekModel?.trim() || "deepseek-chat";
+  if (!deepseekKey && platformNvidiaKey && !allowPlatformNvidia) {
+    return {
+      routeLabel: "nvidia_platform_blocked_private_context",
+      providerFamily: "openai",
+      providerMode: "platform",
+      modelLabel: config.platformNvidiaModel?.trim() || DEFAULT_NVIDIA_MODEL,
+      configured: false,
+      missingConfig: {
+        code: "provider_policy_blocked",
+        classification: "provider_data_policy",
+        error: "NVIDIA platform chat is not allowed for private Station context. Configure an accepted non-NVIDIA platform provider or owner BYOK provider.",
+      },
+      provider: null,
+    };
+  }
+
   const configured = Boolean(deepseekKey);
   return {
     routeLabel: "deepseek_fallback",
@@ -196,7 +215,8 @@ function resolveConfiguredByokRoute(config: ProviderConfig): ChatProviderRuntime
  */
 export function resolveProvider(config: ProviderConfig): ChatProvider {
   const platformNvidiaKey = config.platformNvidiaKey?.trim();
-  const platformProvider = describePlatformProviderRoute({ platformNvidiaKey }).label === "nvidia_openai_compatible"
+  const allowPlatformNvidia = config.allowPlatformNvidia !== false;
+  const platformProvider = allowPlatformNvidia && describePlatformProviderRoute({ platformNvidiaKey }).label === "nvidia_openai_compatible"
     ? new OpenAIProvider({
         apiKey: platformNvidiaKey ?? "",
         baseUrl: normalizeOpenAiCompatibleBaseUrl(config.platformNvidiaBaseUrl),

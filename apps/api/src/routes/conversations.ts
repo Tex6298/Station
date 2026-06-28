@@ -144,7 +144,7 @@ type CandidateSeed = {
 export const conversationsRouter = Router();
 conversationsRouter.use(requireAuth);
 
-type ChatErrorClassification = "archived_state" | "provider_config" | "provider_failure" | "quota";
+type ChatErrorClassification = "archived_state" | "provider_config" | "provider_data_policy" | "provider_failure" | "quota";
 
 function chatError(status: number, code: string, classification: ChatErrorClassification, error: string) {
   return { status, body: { error, code, classification } };
@@ -1091,6 +1091,7 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     platformNvidiaKey,
     platformNvidiaBaseUrl: env.NVIDIA_MODEL_BASE_URL,
     platformNvidiaModel: env.NVIDIA_MODEL,
+    allowPlatformNvidia: false,
     stationAnthropicKey: env.ANTHROPIC_API_KEY,
     stationAnthropicModel: stationModel.model,
   });
