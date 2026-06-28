@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR460 found Studio quota readback defect
+
+ARIADNE completed PR460:
+
+`docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Recommended DAEDALUS patch lane:
+
+```text
+PR461 - Studio dashboard quota readback de-fake
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR457 product commit.
+- Signed-out Pricing, Settings, Billing, and persona Archive/files quota
+  readbacks passed desktop and 390px mobile checks.
+- Billing showed current plan, available plans, disabled current/included plan
+  buttons, Stripe subscription boundary copy, and the separate entitlement vs
+  token-credit explanation.
+- Archive/files showed Storage and Quota with server-reported usage.
+- Studio dashboard still shows a quota-like Tier allocation percentage derived
+  locally from persona count, not server billing/quota state.
+- The smallest patch is to remove or replace that synthetic Studio dashboard
+  quota readback with a route to authoritative Settings/Billing/Storage, or a
+  safe reuse of existing server-backed readback components.
+
+Current lane:
+
+```text
+PR460 - Billing and Quota Clarity Rehearsal
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_NEEDS_DAEDALUS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR460 and decide whether to open PR461 for DAEDALUS:
+  `Studio dashboard quota readback de-fake`.
+
 ## Latest MIMIR closeout - PR459 closed, PR460 opened
 
 MIMIR closes PR459:

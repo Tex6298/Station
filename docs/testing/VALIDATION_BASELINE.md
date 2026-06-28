@@ -20,6 +20,54 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR460 Billing and Quota Clarity Rehearsal
+
+ARIADNE completed PR460 on 2026-06-28:
+`docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Recommended DAEDALUS patch lane:
+
+```text
+PR461 - Studio dashboard quota readback de-fake
+```
+
+Reason:
+
+- hosted web/API were fresh at the required PR457 runtime;
+- replay-owner hosted API sign-in and session verification passed;
+- billing, storage, and token-credit API readbacks returned HTTP 200;
+- signed-out Pricing, Settings, Billing, and persona Archive/files quota
+  readbacks passed desktop and 390px mobile checks;
+- Billing showed current plan, available plans, disabled current/included plan
+  buttons, Stripe subscription boundary copy, and the separate entitlement vs
+  token-credit explanation;
+- Archive/files showed Storage and Quota with server-reported usage;
+- Studio dashboard still shows a quota-like Tier allocation percentage derived
+  locally from persona count instead of server billing/quota state;
+- sampled visible text did not expose raw identifiers, customer ids,
+  subscription ids, payment secrets, provider payloads, credentials, storage
+  paths, stack traces, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `e3809f0a`. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Billing/storage/token-credit API readback checks | Pass | API readbacks returned HTTP 200; no ids or secrets recorded. |
+| Signed-out Pricing desktop/mobile check | Pass | Upgrade/start path and Stripe-hosted boundary copy were readable. |
+| Settings desktop/mobile check | Pass | Billing & plan, Usage and Credits, Storage, and Profile Snapshot were visible. |
+| Billing desktop/mobile check | Pass | Current plan, available plans, disabled states, and Stripe boundary copy were readable. |
+| Persona Archive/files quota desktop/mobile check | Pass | Storage and Quota used server-reported usage copy. |
+| Studio dashboard quota clarity check | Product defect | Synthetic Tier allocation metric is not server-backed. |
+| Layout overflow/control clipping checks | Pass | No horizontal overflow, clipped controls, overlapping labels, or hidden prices in sampled routes. |
+| Raw-id/billing-id/secret/internal visible text checks | Pass | No raw ids, billing ids, credentials, payment secrets, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only billing/quota rehearsal. It did not
+open checkout, customer portal, payment links, provider setup, export, import,
+upload, publication, destructive action, or private model-call state.
+
 ## PR459 Continuity and Integrity Comprehension Rehearsal
 
 ARIADNE completed PR459 on 2026-06-28:

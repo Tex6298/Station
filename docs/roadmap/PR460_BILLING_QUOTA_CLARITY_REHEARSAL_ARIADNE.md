@@ -102,3 +102,15 @@ If reporting a defect, include:
 Do not commit screenshots, cookies, session values, raw owner ids, customer ids,
 subscription ids, payment secrets, private source bodies, prompts, completions,
 provider keys, stack traces, or raw network payloads.
+
+## ARIADNE Result
+
+Completed:
+
+`docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR460 | Billing and quota clarity rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_ARIADNE.md` |
+| PR460 | Billing and quota clarity rehearsal | MIMIR / A1 | Product defect needs DAEDALUS - waiting closeout | `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR460 rehearsal | Billing and quota clarity rehearsal | MIMIR -> ARIADNE -> MIMIR | Product defect; recommend PR461 Studio dashboard quota readback de-fake | `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_RESULT.md` |
 | PR459 closeout | Continuity and Integrity comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR460 opened for Billing/quota clarity | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_CLOSEOUT.md` |
 | PR459 rehearsal | Continuity and Integrity comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend PR460 Billing/quota clarity rehearsal | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md` |
 | PR458 closeout | Hosted Writing filter wrap confirmation | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR459 opened for Continuity/Integrity comprehension | `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_CLOSEOUT.md` |
