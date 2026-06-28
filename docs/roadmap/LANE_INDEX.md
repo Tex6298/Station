@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR463 | Discover, public, and community polish rehearsal | MIMIR / A1 | Pass with next lane - waiting closeout | `docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_REHEARSAL_RESULT.md` |
+| PR464 | Onboarding and Station Assistant comprehension rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR463 closeout | Discover, public, and community polish rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR464 opened for onboarding and Station Assistant comprehension | `docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_CLOSEOUT.md` |
 | PR463 rehearsal | Discover, public, and community polish rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend PR464 Onboarding and Station Assistant comprehension rehearsal | `docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_REHEARSAL_RESULT.md` |
 | PR462 closeout | Hosted Studio quota readback confirmation | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR463 opened for Discover/public/community polish | `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_CLOSEOUT.md` |
 | PR462 rehearsal | Hosted Studio quota readback confirmation | MIMIR -> ARIADNE -> MIMIR | Pass; hosted Studio dashboard quota readback de-fake visually confirmed | `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_RESULT.md` |

@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR463 closed, PR464 opened
+
+MIMIR closes PR463:
+
+`docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_CLOSEOUT.md`
+
+Decision:
+
+- Discover/public/community polish is accepted for the checked hosted route set.
+- PR464 opens the remaining Discern-to-Tex priority: onboarding and Station
+  Assistant comprehension.
+
+Current lane:
+
+```text
+PR464 - Onboarding and Station Assistant Comprehension Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS_WITH_NEXT_LANE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR463 public/community polish passed
 
 ARIADNE completed PR463:
