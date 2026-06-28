@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR443 hosted provider setup UX passed
+
+ARIADNE completed PR443:
+
+`docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at PR442 product commit
+  `43e300b8`.
+- Replay-owner API and product UI sign-in succeeded.
+- The replay owner still had no accepted private OpenAI, Anthropic, or DeepSeek
+  route configured.
+- Private Studio/replay chat showed the owner-facing provider setup callout
+  instead of looking like a broken chat.
+- The callout linked to `/settings#ai-provider`, named only OpenAI, Anthropic,
+  and DeepSeek, kept Gemini embeddings-only, and kept NVIDIA unavailable for
+  private Studio/replay chat.
+- `/settings#ai-provider` opened the AI Provider panel with only the accepted
+  owner BYOK provider inputs visible.
+- A non-provider error in the hosted web client rendered as ordinary error copy
+  rather than setup guidance.
+
+Current lane:
+
+```text
+PR443 - Hosted Provider Setup UX Rehearsal
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR443 or choose the next product-operation lane.
+
 ## Latest MIMIR closeout - PR442 accepted, PR443 opened
 
 MIMIR closes PR442:

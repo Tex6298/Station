@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR443 Hosted Provider Setup UX Rehearsal
+
+ARIADNE completed PR443 on 2026-06-28:
+`docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API deployment freshness passed at PR442 product commit
+  `43e300b8`;
+- replay-owner API and product UI sign-in succeeded;
+- no accepted private OpenAI, Anthropic, or DeepSeek route was configured;
+- private Studio/replay chat showed provider setup guidance instead of only a
+  failed-chat state;
+- the setup callout linked to `/settings#ai-provider`;
+- the setup path named OpenAI, Anthropic, and DeepSeek only;
+- Gemini remained embeddings-only and NVIDIA remained unavailable for private
+  Studio/replay chat;
+- Settings AI Provider opened with only OpenAI, Anthropic, and DeepSeek owner
+  BYOK inputs visible;
+- an ordinary non-provider hosted web-client error did not show setup guidance.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `43e300b8`. |
+| Hosted API and UI sign-in | Pass | Replay owner could authenticate; session values were not printed or committed. |
+| Hosted private setup callout | Pass | Missing accepted private provider config rendered owner setup guidance. |
+| Settings AI Provider link | Pass | `/settings#ai-provider` showed the AI Provider panel with supported BYOK inputs. |
+| Ordinary error rendering | Pass | A browser-routed non-provider failure rendered as ordinary error copy, not setup guidance. |
+| Leak scan | Pass | No credential-shaped values or encrypted payload fields were observed in committed evidence. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: a successful private replay/chat turn still needs a real
+accepted OpenAI, Anthropic, or DeepSeek provider route or owner BYOK credential.
+
 ## PR442 Private Provider Setup UX
 
 DAEDALUS implemented PR442 on 2026-06-28:

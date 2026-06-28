@@ -6,6 +6,22 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+## Result
+
+ARIADNE completed the hosted rehearsal:
+
+`docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+The hosted setup callout appeared for missing accepted private provider config,
+linked to `/settings#ai-provider`, preserved the OpenAI/Anthropic/DeepSeek-only
+setup path, and kept Gemini/NVIDIA out of private chat provider setup.
+
 ## Goal
 
 Prove on hosted Railway that the PR442 private-provider setup UX feels like a
