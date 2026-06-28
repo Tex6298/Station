@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR450 | Continuity review target route links | ARGUS / A3 | Ready for review | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md` |
+| PR450 | Continuity review target route links | MIMIR / A1 | ARGUS accepted; ready for closeout | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR450 review | Continuity review target route links | DAEDALUS -> ARGUS -> MIMIR | Accepted; already implemented and verified by UX-03A route-link work | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_REVIEW_RESULT.md` |
 | PR449 closeout | Hosted Studio Memory orientation rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR450 opened for Continuity review target links | `docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_CLOSEOUT.md` |
 | PR449 rehearsal | Hosted Studio Memory orientation rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; hosted Studio Memory dashboard stop routes to persona Memory | `docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_RESULT.md` |
 | PR448 closeout | Studio dashboard Memory orientation and status readback | DAEDALUS -> ARGUS -> MIMIR | Closed; PR449 opened for hosted visual confirmation | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_CLOSEOUT.md` |

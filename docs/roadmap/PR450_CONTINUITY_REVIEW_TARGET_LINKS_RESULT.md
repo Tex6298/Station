@@ -8,7 +8,7 @@ Date: 2026-06-28
 
 ## Verdict
 
-PR450 is ready for ARGUS review as a verification/closeout wrapper around the
+PR450 was accepted by ARGUS as a verification/closeout wrapper around the
 existing UX-03A Continuity review target route-link implementation already on
 current main.
 
@@ -16,6 +16,10 @@ No additional product code was needed in this pass. Current main already
 contains the route helper, owner-only Continuity route rendering, runtime
 provenance route links, fallback behavior, and focused tests described by the
 PR450 handoff.
+
+ARGUS result:
+
+`docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_REVIEW_RESULT.md`
 
 ## Current Implementation Found
 
@@ -70,6 +74,7 @@ Passed on 2026-06-28:
   passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` - passed.
 - `git diff --check` - passed.
+- `git diff --cached --check` - passed.
 
 Notes:
 
@@ -77,12 +82,10 @@ Notes:
 - `test:continuity-publication` was included because the accepted route map
   includes the publishing handoff.
 
-## ARGUS Review Points
+## ARGUS Review
 
-- Confirm PR450 can close as already implemented/verified by the current UX-03A
-  route-link work.
-- Confirm owner-only route scope still holds for the Continuity route surfaces.
-- Confirm unsupported targets remain unlinked and safe.
-- Confirm publication/document review points to owner publishing review and
-  does not imply public publication of private originals.
-- Confirm no duplicate code lane is needed.
+ARGUS confirmed PR450 can close as already implemented and verified by the
+current UX-03A route-link work. Owner-only route scope still holds, unsupported
+targets remain unlinked and safe, publication/document review points to owner
+publishing review without implying public publication of private originals, and
+no duplicate code lane is needed.

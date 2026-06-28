@@ -25,7 +25,10 @@ they are not Station validation failures.
 DAEDALUS completed the PR450 verification pass on 2026-06-28:
 `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+ARGUS accepted PR450 on 2026-06-28:
+`docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
 
 Reason:
 
@@ -48,9 +51,10 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed; included because publication/document review maps to the owner publishing surface. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
 | `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
-Residual risk: ARGUS should confirm PR450 can close as a verified wrapper around
-the accepted UX-03A implementation rather than requiring duplicate code.
+Residual risk: limited to MIMIR closeout bookkeeping and any future hosted
+visual rehearsal MIMIR chooses to open.
 
 ## PR449 Hosted Studio Memory Orientation Rehearsal
 

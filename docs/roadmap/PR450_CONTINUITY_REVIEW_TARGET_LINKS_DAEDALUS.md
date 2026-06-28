@@ -105,3 +105,13 @@ Risk:
 Task:
 - Review route mapping, unsupported-target fallback, mobile readability, and focused tests.
 ```
+
+## ARGUS Result
+
+Accepted on 2026-06-28:
+
+`docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_REVIEW_RESULT.md`
+
+ARGUS confirmed current main already contains the requested route-link behavior,
+the route mappings remain owner-only and route-level, unsupported or unsafe
+targets stay plain text, and no duplicate product-code lane is needed.
