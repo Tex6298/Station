@@ -295,6 +295,51 @@ test("AI provider settings require encryption config before storing keys", async
   }
 });
 
+test("AI provider settings missing encryption config does not revoke an existing encrypted key", async () => {
+  const db = new AiSettingsSupabase();
+  const previousKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+  process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = "test-ai-provider-key-encryption-key";
+  useSettingsFakes(db);
+  const app = createSettingsProofApp();
+
+  try {
+    const created = await requestJson(app, "PATCH", "/settings/ai-provider", {
+      token: "owner-token",
+      body: { keys: { openai: "owner-openai-initial-1111" } },
+    });
+    assert.equal(created.status, 200);
+    assert.equal(db.rows("ai_provider_byok_secrets")[0].status, "active");
+
+    delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    const blocked = await requestJson(app, "PATCH", "/settings/ai-provider", {
+      token: "owner-token",
+      body: {
+        aiMode: "byok",
+        keys: { openai: "owner-openai-rotated-9999" },
+      },
+    });
+
+    assert.equal(blocked.status, 503);
+    assert.deepEqual(blocked.body, {
+      error: "AI provider key encryption is not configured.",
+      code: "ai_provider_key_encryption_unconfigured",
+    });
+    assert.equal(db.rows("ai_provider_byok_secrets").length, 1);
+    assert.equal(db.rows("ai_provider_byok_secrets")[0].status, "active");
+    assert.equal(db.rows("ai_provider_byok_secrets")[0].key_last_four, "1111");
+    assert.equal(db.rows("ai_provider_byok_secrets")[0].revoked_at ?? null, null);
+    assert.equal(db.rows("profiles").find((row) => row.id === "owner-user")!.ai_mode, "platform");
+    assertNoRawKeys(blocked.body);
+  } finally {
+    resetSettingsFakes();
+    if (previousKey == null) {
+      delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    } else {
+      process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = previousKey;
+    }
+  }
+});
+
 test("AI provider settings encrypt supported keys, clear legacy keys, and keep updates owner-scoped", async () => {
   const db = new AiSettingsSupabase();
   const previousKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;

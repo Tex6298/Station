@@ -87,11 +87,6 @@ settingsRouter.patch("/ai-provider", async (req, res) => {
     const userId = req.user!.id;
     const profile = await loadAiProviderProfile(userId);
 
-    if (parsed.data.aiMode) {
-      await updateAiMode(userId, parsed.data.aiMode);
-      profile.ai_mode = parsed.data.aiMode;
-    }
-
     for (const provider of SUPPORTED_AI_BYOK_PROVIDERS) {
       const value = parsed.data.keys?.[provider];
       if (value !== undefined) {
@@ -108,6 +103,11 @@ settingsRouter.patch("/ai-provider", async (req, res) => {
         await revokeAiProviderKey({ ownerUserId: userId, provider });
         clearLegacyProfileValue(profile, provider);
       }
+    }
+
+    if (parsed.data.aiMode) {
+      await updateAiMode(userId, parsed.data.aiMode);
+      profile.ai_mode = parsed.data.aiMode;
     }
 
     const settings = await loadAiProviderSettings(userId, await loadAiProviderProfile(userId));

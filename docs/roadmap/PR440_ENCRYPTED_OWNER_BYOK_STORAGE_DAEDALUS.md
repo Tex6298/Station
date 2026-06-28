@@ -6,6 +6,8 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+State: IMPLEMENTED - ACCEPTED BY ARGUS AFTER NARROW PATCH
+
 ## Source Contract
 
 Implement the exact DAEDALUS task packet from ARGUS's PR439 preflight result:
@@ -79,3 +81,9 @@ Risk:
 Task:
 - Review PR440, run validation, and wake MIMIR with verdict.
 ```
+
+## ARGUS Review
+
+ARGUS accepted this lane after a narrow review patch on 2026-06-28:
+
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md`

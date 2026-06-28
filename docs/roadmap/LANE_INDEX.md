@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR440 | Encrypted owner BYOK storage implementation | ARGUS / A3 | Ready for hostile review - DAEDALUS implemented encrypted owner BYOK storage | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md` |
+| PR440 | Encrypted owner BYOK storage implementation | MIMIR / A1 | Accepted after narrow ARGUS patch; ready for closeout / next move | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR440 implementation | Encrypted owner BYOK storage implementation | DAEDALUS -> ARGUS | Ready for review; encrypted OpenAI/Anthropic/DeepSeek BYOK storage with lazy legacy fallback | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md` |
+| PR440 review | Encrypted owner BYOK storage implementation | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; encrypted OpenAI/Anthropic/DeepSeek BYOK storage with fail-closed rotation guard | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md` |
+| PR440 implementation | Encrypted owner BYOK storage implementation | DAEDALUS -> ARGUS | Implemented; encrypted OpenAI/Anthropic/DeepSeek BYOK storage with lazy legacy fallback | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md` |
 | PR439 closeout | BYOK secret storage and rotation preflight | MIMIR -> ARGUS -> MIMIR | Accepted; PR440 opened for encrypted owner BYOK storage implementation | `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md` |
 | PR439 preflight | BYOK secret storage and rotation preflight | MIMIR -> ARGUS -> MIMIR | Open DAEDALUS implementation; use owner-scoped encrypted BYOK table with lazy legacy fallback | `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md` |
 | PR438 closeout | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR439 opened for secret-storage/rotation preflight before broader production hardening | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |

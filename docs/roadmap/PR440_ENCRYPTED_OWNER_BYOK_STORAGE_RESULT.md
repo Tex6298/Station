@@ -4,7 +4,7 @@ Owner: DAEDALUS / A2
 
 Date: 2026-06-28
 
-State: READY FOR ARGUS REVIEW
+State: ACCEPTED BY ARGUS AFTER NARROW PATCH - WAKE MIMIR
 
 ## Summary
 
@@ -112,3 +112,17 @@ Result: passed.
   traces free of keys, encrypted payloads, prompts, completions, provider
   payloads, headers, and private context.
 - Confirm Gemini chat remains deferred and private NVIDIA remains blocked.
+
+## ARGUS Review
+
+ARGUS accepted PR440 after a narrow review patch on 2026-06-28:
+
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md`
+
+Patch summary:
+
+- `rotateAiProviderKey` now encrypts, fingerprints, and computes last-four
+  metadata before revoking the active encrypted row.
+- Settings PATCH now applies key set/clear operations before updating `aiMode`.
+- A regression test proves missing encryption config during rotation preserves
+  the existing encrypted key and leaves `ai_mode` unchanged.

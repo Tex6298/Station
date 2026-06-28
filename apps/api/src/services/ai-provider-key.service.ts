@@ -179,18 +179,20 @@ export async function rotateAiProviderKey(input: {
   });
   const now = new Date().toISOString();
   const hadExistingKey = activeRows.length > 0 || Boolean(legacyKey(input.legacyProfile, input.provider));
+  const encryptedKey = encryptAiProviderKey(input.rawKey);
+  const keyFingerprint = fingerprintAiProviderKey(input.provider, input.rawKey);
+  const keyLastFour = aiProviderKeyLastFour(input.rawKey) ?? input.rawKey.slice(-4);
 
   await revokeActiveAiProviderKeyRows(input.ownerUserId, input.provider, now);
 
-  const encryptedKey = encryptAiProviderKey(input.rawKey);
   const { data, error } = await (sb as any)
     .from("ai_provider_byok_secrets")
     .insert({
       owner_user_id: input.ownerUserId,
       provider: input.provider,
       encrypted_key: encryptedKey,
-      key_fingerprint: fingerprintAiProviderKey(input.provider, input.rawKey),
-      key_last_four: aiProviderKeyLastFour(input.rawKey) ?? input.rawKey.slice(-4),
+      key_fingerprint: keyFingerprint,
+      key_last_four: keyLastFour,
       status: "active",
       rotated_at: hadExistingKey ? now : null,
     })

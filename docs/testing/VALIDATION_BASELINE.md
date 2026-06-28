@@ -20,12 +20,15 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## PR440 Encrypted Owner BYOK Storage Implementation
+## PR440 Encrypted Owner BYOK Storage Review
 
-DAEDALUS completed PR440 on 2026-06-28:
+ARGUS completed PR440 review on 2026-06-28:
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md`.
+
+DAEDALUS implementation result:
 `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH - WAKE MIMIR`.
 
 Reason:
 
@@ -37,13 +40,15 @@ Reason:
 - legacy `profiles.byok_*_key` values remain a temporary fallback only when no
   encrypted active row exists for that provider;
 - owner save/rotation/clear clears the matching legacy profile column;
+- ARGUS patched failed rotation behavior so missing encryption config cannot
+  revoke an existing encrypted key or change `ai_mode` during a failed save;
 - private runtime decrypts encrypted keys in memory only and fails closed if
   encrypted storage exists but config/decrypt is unavailable;
 - Gemini chat remains deferred and private NVIDIA remains blocked.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 11 tests passed; encrypted save, missing config, revoke, legacy readback, non-leak, and Settings copy/helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 12 tests passed; encrypted save, missing config, failed-rotation preservation, revoke, legacy readback, non-leak, and Settings copy/helpers. |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed; encrypted BYOK runtime preference, missing encryption fail-closed, and private NVIDIA block. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; readiness remains sanitized. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; existing encrypted Developer Space signing-secret lifecycle remains green. |
@@ -53,9 +58,8 @@ Reason:
 | `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Passed. |
 
-Residual risk: ARGUS still needs hostile review of encryption config
-fail-closed behavior, legacy fallback, Settings readback, and private runtime
-non-leakage before MIMIR closes PR440.
+Residual risk: no live provider call was run. Hosted replay still needs
+accepted non-NVIDIA platform config or owner BYOK credentials after deployment.
 
 ## PR439 BYOK Secret Storage And Rotation Preflight
 

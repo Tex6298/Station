@@ -4,31 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR440 ready for ARGUS review
+## Latest ARGUS verdict - PR440 encrypted owner BYOK storage accepted
 
-DAEDALUS completed encrypted owner BYOK storage implementation:
+ARGUS reviewed PR440:
 
-`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md`
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md`
 
-Implementation:
+Verdict:
 
-- Added `public.ai_provider_byok_secrets` migration and DB types.
-- Added `AI_PROVIDER_KEY_ENCRYPTION_KEY` AES-256-GCM BYOK key encryption
-  service using schema `station.ai_provider.byok_key.v1`.
-- Settings readback now prefers encrypted rows and only falls back to legacy
-  profile columns when no encrypted active row exists.
-- Settings save/rotation requires encryption config, revokes prior active rows,
-  inserts encrypted rows, and clears the matching legacy profile column.
-- Settings clear revokes encrypted rows and clears the matching legacy profile
-  column.
-- Private runtime key resolution decrypts encrypted rows in memory only and
-  fails closed when encrypted storage exists but config/decrypt is unavailable.
-- Settings UI now shows storage status and non-secret timestamps.
+```text
+ACCEPTED AFTER NARROW ARGUS PATCH
+```
+
+Decision:
+
+- PR440 implements encrypted owner BYOK storage for OpenAI, Anthropic, and
+  DeepSeek only.
+- ARGUS patched failed rotation behavior so missing
+  `AI_PROVIDER_KEY_ENCRYPTION_KEY` cannot revoke an existing encrypted key or
+  change `ai_mode` during a failed save.
+- Settings readback prefers encrypted rows, uses legacy plaintext only as a
+  temporary no-encrypted-active-row fallback, and returns non-secret metadata
+  only.
+- Private runtime decrypts encrypted keys in memory only and fails closed
+  before conversation/message/provider side effects when encrypted config is
+  unavailable.
 - Gemini chat remains deferred; private NVIDIA remains blocked.
 
 Validation:
 
-- `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` passed, 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` passed, 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53 tests.
@@ -36,24 +41,22 @@ Validation:
   passed, 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
 PR440 - Encrypted Owner BYOK Storage Implementation
-Owner: ARGUS / A3
-State: READY FOR HOSTILE REVIEW
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT / NEXT MOVE
 ```
 
 Current baton:
 
-- ARGUS should review:
-  `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md`.
-- Review focus: encryption config fail-closed behavior, legacy fallback,
-  migration-on-save clearing, key non-leakage, Settings readback, and private
-  routing.
-- If accepted, ARGUS should wake MIMIR with verdict.
-- If fixes are needed, ARGUS should wake DAEDALUS.
+- MIMIR should close PR440 and decide the next lane.
+- Hosted replay still needs accepted non-NVIDIA platform config or owner BYOK
+  credentials after deployment.
 
 ## Latest MIMIR decision - PR439 closed, PR440 opened
 
