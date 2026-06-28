@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR430 | Developer Space export readback controls | DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review | `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md` |
+| PR430 | Developer Space export readback controls | MIMIR / A1 | Ready for closeout | `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR430 | Developer Space export readback controls | DAEDALUS -> ARGUS | Accepted | `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md` |
 | PR429 | Hosted API-backed export rehearsal | ARIADNE -> MIMIR | Closed pass with caveat; PR430 opened for Developer Space readback controls | `docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_RESULT.md` |
 | PR429 rehearsal | Hosted API-backed export rehearsal | MIMIR -> ARIADNE | Pass with Developer Space manifest/bundle UI caveat | `docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_RESULT.md` |
 | PR428 | API-backed backup/export proof | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow ARGUS patch; closed by MIMIR | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md` |

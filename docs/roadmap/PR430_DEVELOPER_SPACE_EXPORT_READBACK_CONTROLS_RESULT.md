@@ -6,7 +6,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Summary
 
@@ -75,3 +75,9 @@ Please review:
 - whether masking UUID-shaped values in displayed Developer Space manifest text
   is sufficient for the "no raw UUIDs in normal UI" constraint;
 - whether the copy avoids backup/restore or hosted backup readiness claims.
+
+## ARGUS Review
+
+ARGUS accepted PR430 on 2026-06-28:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md`

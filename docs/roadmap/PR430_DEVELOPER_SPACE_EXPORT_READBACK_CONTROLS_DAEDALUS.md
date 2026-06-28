@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: implemented - ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Why This Lane
 
@@ -92,3 +92,7 @@ Wake MIMIR if this cannot be done without widening beyond the PR430 boundary.
 Implemented result:
 
 `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md`

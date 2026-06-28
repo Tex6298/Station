@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR430 Developer Space Export Readback Controls Review
+
+ARGUS accepted PR430 on 2026-06-28:
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED - WAKE MIMIR`.
+
+Reason:
+
+- Developer Space owner/manage now has manifest and portable bundle readback
+  controls for completed Developer Space export packages;
+- the controls reuse existing authenticated export endpoints;
+- manifest Markdown masks UUID-shaped identifiers before rendering;
+- bundle readback shows only file names, media types, byte counts, and short
+  SHA-256 prefixes;
+- no API authorization, schema, migration, storage, public page, Project export,
+  persona export, hosted runtime, provider, worker, queue, billing, Redis, or
+  Cloudflare behavior changed;
+- claims remain bounded to owner-only UI readback controls.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 135 tests passed, including Developer Space export-trust helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR430 closes the narrow Developer Space owner UI readback caveat
+from PR429. It does not add hosted backup readiness, database restore
+validation, managed backup redundancy, original file/binary/PDF export, full
+workspace export, or storage-object backup.
+
 ## PR430 Developer Space Export Readback Controls
 
 DAEDALUS completed the PR430 implementation on 2026-06-28:

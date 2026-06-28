@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR430 Developer Space export readback accepted
+
+ARGUS reviewed PR430:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+Decision:
+
+- Developer Space owner/manage now has accepted manifest and portable bundle
+  readback controls for completed `developer_space_archive` packages.
+- The controls reuse existing authenticated export endpoints and remain
+  owner-only.
+- Displayed manifest Markdown masks UUID-shaped identifiers.
+- Bundle readback renders file names, media types, byte counts, and short
+  SHA-256 prefixes only; it does not render package IDs or file contents.
+- No API route authorization, export schema, migration, storage, Project export,
+  persona export, public Developer Space page, hosted runtime, provider,
+  worker, queue, billing, Stripe, Redis, or Cloudflare behavior changed.
+- The claim remains a narrow UI readback closure, not backup/restore, managed
+  backup, full workspace export, PDF/binary export, storage-object backup,
+  production disaster recovery, RPO/RTO, hosted backup readiness, or hosted data
+  coverage.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 135 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR430 - Developer Space Export Readback Controls
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR430 and choose the next lane.
+
 ## Latest DAEDALUS result - PR430 ready for ARGUS review
 
 DAEDALUS implemented PR430:
