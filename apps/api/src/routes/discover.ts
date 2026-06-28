@@ -21,6 +21,10 @@ const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const DISCOVER_ERROR_RESPONSES = {
+  feed: { error: "Could not load discovery feed.", code: "discover_feed_load_failed" },
+  sidebar: { error: "Could not load discovery sidebar.", code: "discover_sidebar_load_failed" },
+} as const;
 
 function canSeeCommunityDocuments(req: Request) {
   return Boolean(req.user && COMMUNITY_TIERS.has(req.user.tier));
@@ -76,6 +80,10 @@ function emptyPrivateSearchResults() {
     importJobs: [],
     archivedChats: [],
   };
+}
+
+function hasQueryError(result: unknown) {
+  return Boolean((result as { error?: unknown } | null)?.error);
 }
 
 function safeForumCategoryHref(slug: unknown) {
@@ -380,6 +388,9 @@ async function developerSpaceFeedItems(req: Request, tab: string, offset: number
         .range(offset, offset + limit - 1)
     )),
   ]);
+  if (spaceResults.some(hasQueryError)) {
+    throw new Error("Could not load Developer Space feed items.");
+  }
 
   const eventVisibility = discoverableDeveloperSpaceEventVisibilities(req);
   const rows = spaceResults.flatMap((result) => result.data ?? []);
@@ -399,6 +410,9 @@ async function developerSpaceFeedItems(req: Request, tab: string, offset: number
         .order("occurred_at", { ascending: false })
         .limit(12),
     ]);
+    if (hasQueryError(nodesResult) || hasQueryError(eventsResult)) {
+      throw new Error("Could not load Developer Space feed signals.");
+    }
 
     const safeEvents = (eventsResult.data ?? []).map((event: any) =>
       serializeDeveloperSpaceEvent(event, { includeRawData: false })
@@ -456,12 +470,13 @@ function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
 
 async function publicSpaceFeedItems(tab: string, offset: number, limit: number) {
   const sb = getSupabaseAdmin();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("spaces")
     .select("id, slug, title, short_description, theme, created_at, updated_at")
     .eq("is_public", true)
     .order(tab === "rising" ? "updated_at" : "created_at", { ascending: false })
     .range(offset, offset + limit - 1);
+  if (error) throw new Error("Could not load public Space feed items.");
 
   return (data ?? []).flatMap((space: any) => {
     const href = safeSpaceHref(space.slug);
@@ -522,6 +537,9 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       developerSpaceFeedItems(req, tab, offset, limit),
       publicSpaceFeedItems(tab, offset, limit),
     ]);
+    if (docResults.some(hasQueryError) || threadResults.some(hasQueryError)) {
+      return res.status(500).json(DISCOVER_ERROR_RESPONSES.feed);
+    }
 
     // Normalise into a unified feed shape
     const docRows = docResults.flatMap((result) => result.data ?? []);
@@ -582,12 +600,13 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       });
     } else if (tab === "featured") {
       // Featured: pull from discover_feed table (admin-curated)
-      const { data: featured } = await sb
+      const { data: featured, error: featuredError } = await sb
         .from("discover_feed")
         .select("*")
         .eq("event_type", "featured")
         .order("created_at", { ascending: false })
         .limit(limit);
+      if (featuredError) return res.status(500).json(DISCOVER_ERROR_RESPONSES.feed);
 
       const visible = [];
       for (const item of featured ?? []) {
@@ -603,8 +622,8 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
     }
 
     res.json({ items: items.slice(0, limit), tab });
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
+  } catch {
+    res.status(500).json(DISCOVER_ERROR_RESPONSES.feed);
   }
 });
 
@@ -640,6 +659,17 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
     ]);
 
     const [membersRes, personasRes, docsRes, threadsRes] = stats;
+    if (
+      hasQueryError(recentDocs) ||
+      hasQueryError(recentThreads) ||
+      hasQueryError(personas) ||
+      hasQueryError(membersRes) ||
+      hasQueryError(personasRes) ||
+      hasQueryError(docsRes) ||
+      hasQueryError(threadsRes)
+    ) {
+      return res.status(500).json(DISCOVER_ERROR_RESPONSES.sidebar);
+    }
 
     res.json({
       recentPosts: [
@@ -662,8 +692,8 @@ discoverRouter.get("/sidebar", optionalAuth, async (req: Request, res: Response)
         threads:  threadsRes.count  ?? 0,
       },
     });
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
+  } catch {
+    res.status(500).json(DISCOVER_ERROR_RESPONSES.sidebar);
   }
 });
 

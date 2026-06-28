@@ -1416,6 +1416,135 @@ test("discussion route failures return stable public errors without service deta
   }
 });
 
+const DISCOVERY_HIDDEN_MARKER = "private-discovery-space-marker";
+const DISCOVERY_BEARER_LABEL = "Bear" + "er";
+const DISCOVERY_URL = `https://station.invalid/${DISCOVERY_HIDDEN_MARKER}/feed?token=discover-secret`;
+const DISCOVERY_TOKEN = `discover.${DISCOVERY_HIDDEN_MARKER}.secret`;
+const EXPECTED_DISCOVERY_ERRORS = {
+  feed: { error: "Could not load discovery feed.", code: "discover_feed_load_failed" },
+  sidebar: { error: "Could not load discovery sidebar.", code: "discover_sidebar_load_failed" },
+} as const;
+
+function hostileDiscoverySpaceError(operation: string) {
+  return [
+    `${operation} failed table=discover_feed table=spaces table=space_pages table=documents table=personas`,
+    "table=profiles table=threads table=developer_spaces table=developer_space_events table=developer_space_nodes",
+    `owner_user_id=${OWNER_ID} author_user_id=${OWNER_ID} user_id=${MEMBER_ID}`,
+    `persona_id=${PUBLIC_PERSONA_ID} document_id=${PUBLIC_DOC_ID} space_id=${PUBLIC_SPACE_ID}`,
+    `page_id=${PUBLIC_PAGE_ID} forum_id=${CATEGORY_ID} thread_id=${PUBLIC_THREAD_ID}`,
+    `private Space body ${DISCOVERY_HIDDEN_MARKER}`,
+    `private page body ${DISCOVERY_HIDDEN_MARKER}`,
+    `unpublished document content ${DISCOVERY_HIDDEN_MARKER}`,
+    `discover feed internals ${DISCOVERY_HIDDEN_MARKER}`,
+    `url=${DISCOVERY_URL}`,
+    `token=${DISCOVERY_TOKEN}`,
+    `${DISCOVERY_BEARER_LABEL} abc.${DISCOVERY_HIDDEN_MARKER}.token`,
+    `provider payload: private discovery Space content ${DISCOVERY_HIDDEN_MARKER}`,
+    "SQL stack trace at discoverRoute (/station/private/discover.ts:1:2)",
+  ].join("; ");
+}
+
+function assertSafeDiscoveryRouteError(body: unknown, label: string) {
+  const json = JSON.stringify(body);
+  assert.equal(typeof (body as Row)?.error, "string", label);
+  assert.equal(typeof (body as Row)?.code, "string", label);
+  for (const marker of [
+    DISCOVERY_HIDDEN_MARKER,
+    DISCOVERY_URL,
+    DISCOVERY_TOKEN,
+    DISCOVERY_BEARER_LABEL,
+    "table=discover_feed",
+    "table=spaces",
+    "table=space_pages",
+    "table=documents",
+    "table=personas",
+    "table=profiles",
+    "table=threads",
+    "table=developer_spaces",
+    "table=developer_space_events",
+    "table=developer_space_nodes",
+    "owner_user_id",
+    "author_user_id",
+    "user_id",
+    "persona_id",
+    "document_id",
+    "space_id",
+    "page_id",
+    "forum_id",
+    "thread_id",
+    "private Space body",
+    "private page body",
+    "unpublished document content",
+    "discover feed internals",
+    "provider payload",
+    "SQL stack trace",
+    "discoverRoute",
+  ]) {
+    assert.equal(json.includes(marker), false, `${label} leaked ${marker}: ${json}`);
+  }
+}
+
+test("Discovery route failures return stable public errors without service details", async () => {
+  const cases: Array<{
+    name: string;
+    configure: (db: CommunitySupabase) => void;
+    request: (app: Express) => Promise<{ status: number; body: any }>;
+    expectedBody: Row;
+  }> = [
+    {
+      name: "document feed",
+      configure: (db) => db.failNext("documents", "select", hostileDiscoverySpaceError("document feed")),
+      request: (app) => requestJson(app, "GET", "/discover/feed?tab=new&limit=20"),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.feed,
+    },
+    {
+      name: "featured feed",
+      configure: (db) => db.failNext("discover_feed", "select", hostileDiscoverySpaceError("featured feed")),
+      request: (app) => requestJson(app, "GET", "/discover/feed?tab=featured&limit=20"),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.feed,
+    },
+    {
+      name: "Developer Space feed",
+      configure: (db) => db.failNext("developer_spaces", "select", hostileDiscoverySpaceError("Developer Space feed")),
+      request: (app) => requestJson(app, "GET", "/discover/feed?tab=new&limit=20"),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.feed,
+    },
+    {
+      name: "public Space feed",
+      configure: (db) => db.failNext("spaces", "select", hostileDiscoverySpaceError("public Space feed")),
+      request: (app) => requestJson(app, "GET", "/discover/feed?tab=new&limit=20"),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.feed,
+    },
+    {
+      name: "sidebar recent documents",
+      configure: (db) => db.failNext("documents", "select", hostileDiscoverySpaceError("sidebar recent documents")),
+      request: (app) => requestJson(app, "GET", "/discover/sidebar", { token: "owner-token" }),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.sidebar,
+    },
+    {
+      name: "sidebar stats",
+      configure: (db) => db.failNext("profiles", "select", hostileDiscoverySpaceError("sidebar stats")),
+      request: (app) => requestJson(app, "GET", "/discover/sidebar"),
+      expectedBody: EXPECTED_DISCOVERY_ERRORS.sidebar,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const db = new CommunitySupabase();
+    testCase.configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = createCommunityApp();
+    try {
+      const response = await testCase.request(app);
+      assert.equal(response.status, 500, testCase.name);
+      assert.deepEqual(response.body, testCase.expectedBody, testCase.name);
+      assertSafeDiscoveryRouteError(response.body, testCase.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
 test("forum thread creation validates linked entities and preserves visibility", async () => {
   const db = new CommunitySupabase();
   const ineligiblePublicPersona = db.insertRow("personas", {

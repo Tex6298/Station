@@ -32,6 +32,7 @@ class InMemorySupabase {
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-05-25T09:00:00.000Z");
+  private forcedFailures: Array<{ table: string; operation: string; message: string }> = [];
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
   ]);
@@ -63,6 +64,19 @@ class InMemorySupabase {
     const value = new Date(this.clock).toISOString();
     this.clock += 1000;
     return value;
+  }
+
+  failNext(table: string, operation: string, message = "Forced operation failure.") {
+    this.forcedFailures.push({ table, operation, message });
+  }
+
+  consumeFailure(table: string, operation: string) {
+    const index = this.forcedFailures.findIndex(
+      (failure) => failure.table === table && failure.operation === operation
+    );
+    if (index === -1) return null;
+    const [failure] = this.forcedFailures.splice(index, 1);
+    return failure;
   }
 
   private nextId(table: string) {
@@ -200,6 +214,8 @@ class QueryBuilder {
 
   private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
+    const forcedFailure = this.db.consumeFailure(this.table, this.operation);
+    if (forcedFailure) return { data: null, error: { message: forcedFailure.message }, count: null };
 
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -287,6 +303,217 @@ function close(server: Server) {
     server.close((error) => error ? reject(error) : resolve());
   });
 }
+
+const SPACE_HIDDEN_MARKER = "private-space-marker";
+const SPACE_BEARER_LABEL = "Bear" + "er";
+const SPACE_URL = `https://station.invalid/${SPACE_HIDDEN_MARKER}/page?token=space-secret`;
+const SPACE_TOKEN = `space.${SPACE_HIDDEN_MARKER}.secret`;
+const EXPECTED_SPACE_ERRORS = {
+  publicRead: { error: "Could not load Space.", code: "space_public_load_failed" },
+  ownerList: { error: "Could not load your Spaces.", code: "space_list_failed" },
+  create: { error: "Could not create Space.", code: "space_create_failed" },
+  update: { error: "Could not update Space.", code: "space_update_failed" },
+  delete: { error: "Could not delete Space.", code: "space_delete_failed" },
+  pageCreate: { error: "Could not create Space page.", code: "space_page_create_failed" },
+  pageUpdate: { error: "Could not update Space page.", code: "space_page_update_failed" },
+} as const;
+
+function hostileSpaceError(operation: string) {
+  return [
+    `${operation} failed table=spaces table=space_pages table=documents table=personas table=profiles`,
+    "table=discover_feed table=threads",
+    "owner_user_id=owner-user author_user_id=owner-user user_id=owner-user persona_id=persona-private",
+    "document_id=document-private space_id=space-private page_id=page-private forum_id=forum-private thread_id=thread-private",
+    `private Space body ${SPACE_HIDDEN_MARKER}`,
+    `private page body ${SPACE_HIDDEN_MARKER}`,
+    `unpublished document content ${SPACE_HIDDEN_MARKER}`,
+    `discover feed internals ${SPACE_HIDDEN_MARKER}`,
+    `url=${SPACE_URL}`,
+    `token=${SPACE_TOKEN}`,
+    `${SPACE_BEARER_LABEL} abc.${SPACE_HIDDEN_MARKER}.token`,
+    `provider payload: private Space content ${SPACE_HIDDEN_MARKER}`,
+    "SQL stack trace at spaceRoute (/station/private/spaces.ts:1:2)",
+  ].join("; ");
+}
+
+function assertSafeSpaceRouteError(body: unknown, label: string) {
+  const json = JSON.stringify(body);
+  assert.equal(typeof (body as Row)?.error, "string", label);
+  assert.equal(typeof (body as Row)?.code, "string", label);
+  for (const marker of [
+    SPACE_HIDDEN_MARKER,
+    SPACE_URL,
+    SPACE_TOKEN,
+    SPACE_BEARER_LABEL,
+    "table=spaces",
+    "table=space_pages",
+    "table=documents",
+    "table=personas",
+    "table=profiles",
+    "table=discover_feed",
+    "table=threads",
+    "owner_user_id",
+    "author_user_id",
+    "user_id",
+    "persona_id",
+    "document_id",
+    "space_id",
+    "page_id",
+    "forum_id",
+    "thread_id",
+    "private Space body",
+    "private page body",
+    "unpublished document content",
+    "discover feed internals",
+    "provider payload",
+    "SQL stack trace",
+    "spaceRoute",
+  ]) {
+    assert.equal(json.includes(marker), false, `${label} leaked ${marker}: ${json}`);
+  }
+}
+
+function addSpaceFixture(db: InMemorySupabase, overrides: Row = {}) {
+  return db.insertRow("spaces", {
+    id: "space-hostile",
+    owner_user_id: "owner-user",
+    slug: "hostile-space",
+    title: "Hostile Space",
+    short_description: "Public-safe Space fixture.",
+    is_public: true,
+    ...overrides,
+  });
+}
+
+function addPageFixture(db: InMemorySupabase, spaceId = "space-hostile", overrides: Row = {}) {
+  return db.insertRow("space_pages", {
+    id: "page-hostile",
+    space_id: spaceId,
+    slug: "home",
+    title: "Home",
+    page_type: "home",
+    body: "Public page body.",
+    is_published: true,
+    ...overrides,
+  });
+}
+
+test("Space route failures return stable public errors without service details", async () => {
+  const cases: Array<{
+    name: string;
+    configure: (db: InMemorySupabase) => void;
+    request: (app: Express) => Promise<{ status: number; body: any }>;
+    expectedBody: Row;
+  }> = [
+    {
+      name: "public Space composition",
+      configure: (db) => {
+        addSpaceFixture(db);
+        db.failNext("space_pages", "select", hostileSpaceError("public Space composition"));
+      },
+      request: (app) => requestJson(app, "GET", "/spaces/hostile-space"),
+      expectedBody: EXPECTED_SPACE_ERRORS.publicRead,
+    },
+    {
+      name: "owner Space list",
+      configure: (db) => db.failNext("spaces", "select", hostileSpaceError("owner Space list")),
+      request: (app) => requestJson(app, "GET", "/spaces", { token: "owner-token" }),
+      expectedBody: EXPECTED_SPACE_ERRORS.ownerList,
+    },
+    {
+      name: "Space create limit check",
+      configure: (db) => db.failNext("spaces", "select", hostileSpaceError("Space create limit check")),
+      request: (app) => requestJson(app, "POST", "/spaces", {
+        token: "owner-token",
+        body: { title: "Hostile Create", slug: "hostile-create" },
+      }),
+      expectedBody: EXPECTED_SPACE_ERRORS.create,
+    },
+    {
+      name: "Space create insert",
+      configure: (db) => db.failNext("spaces", "insert", hostileSpaceError("Space create insert")),
+      request: (app) => requestJson(app, "POST", "/spaces", {
+        token: "owner-token",
+        body: { title: "Hostile Create", slug: "hostile-create" },
+      }),
+      expectedBody: EXPECTED_SPACE_ERRORS.create,
+    },
+    {
+      name: "Space update presentation load",
+      configure: (db) => {
+        addSpaceFixture(db);
+        db.failNext("spaces", "select", hostileSpaceError("Space update presentation load"));
+      },
+      request: (app) => requestJson(app, "PATCH", "/spaces/space-hostile", {
+        token: "owner-token",
+        body: { theme: "signal" },
+      }),
+      expectedBody: EXPECTED_SPACE_ERRORS.update,
+    },
+    {
+      name: "Space update mutation",
+      configure: (db) => {
+        addSpaceFixture(db);
+        db.failNext("spaces", "update", hostileSpaceError("Space update mutation"));
+      },
+      request: (app) => requestJson(app, "PATCH", "/spaces/space-hostile", {
+        token: "owner-token",
+        body: { title: "Updated Hostile Space" },
+      }),
+      expectedBody: EXPECTED_SPACE_ERRORS.update,
+    },
+    {
+      name: "Space delete",
+      configure: (db) => {
+        addSpaceFixture(db);
+        db.failNext("spaces", "delete", hostileSpaceError("Space delete"));
+      },
+      request: (app) => requestJson(app, "DELETE", "/spaces/space-hostile", { token: "owner-token" }),
+      expectedBody: EXPECTED_SPACE_ERRORS.delete,
+    },
+    {
+      name: "Space page create",
+      configure: (db) => {
+        addSpaceFixture(db);
+        db.failNext("space_pages", "insert", hostileSpaceError("Space page create"));
+      },
+      request: (app) => requestJson(app, "POST", "/spaces/space-hostile/pages", {
+        token: "owner-token",
+        body: { title: "Hostile Page", slug: "hostile-page", pageType: "custom" },
+      }),
+      expectedBody: EXPECTED_SPACE_ERRORS.pageCreate,
+    },
+    {
+      name: "Space page update",
+      configure: (db) => {
+        addSpaceFixture(db);
+        addPageFixture(db);
+        db.failNext("space_pages", "update", hostileSpaceError("Space page update"));
+      },
+      request: (app) => requestJson(app, "PATCH", "/spaces/space-hostile/pages/page-hostile", {
+        token: "owner-token",
+        body: { title: "Updated Hostile Page" },
+      }),
+      expectedBody: EXPECTED_SPACE_ERRORS.pageUpdate,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const db = new InMemorySupabase();
+    testCase.configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = createSpacesApp();
+
+    try {
+      const response = await testCase.request(app);
+      assert.equal(response.status, 500, testCase.name);
+      assert.deepEqual(response.body, testCase.expectedBody, testCase.name);
+      assertSafeSpaceRouteError(response.body, testCase.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
 
 test("Public Spaces smoke covers authored microsite config and owner/private visibility", async () => {
   const db = new InMemorySupabase();

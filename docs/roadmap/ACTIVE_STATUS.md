@@ -4,24 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - discovery/Space error responses
+## Current lane - discovery/Space error responses ready for ARGUS
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_DAEDALUS.md`.
 
-Why now:
+DAEDALUS completed the implementation on 2026-06-28:
+`docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_RESULT.md`.
 
-- ARGUS accepted discussion route-level error responses.
-- Discovery and Spaces are the next coherent public-chain surface after
-  document and linked discussion hardening.
-- The lane covers public discovery feed/sidebar/search-adjacent responses plus
-  public Space readback and owner Space/page management responses.
+Verdict:
+
+```text
+READY FOR ARGUS DISCOVERY SPACE ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- `/discover/feed` and `/discover/sidebar` dependency failures now return
+  stable public-safe responses with fixed route-specific error codes.
+- Owner Space list, Space create, Space update, Space delete, Space page
+  create, Space page update, and public Space composition failures now return
+  stable public-safe responses with fixed route-specific error codes.
+- Existing safe outcomes for not-found Space reads, private Space access,
+  owner manage access, slug conflicts, tier limits, and page authorization
+  remain unchanged.
+- Successful discovery feed/sidebar/search behavior, public Space readback,
+  owner Space management, Space page management, tier checks, visibility
+  policy, presentation encoding, hosted config, and hosted data did not change.
+- Focused tests force hostile service payloads through discovery and Space
+  failures and prove private IDs, table markers, URLs/tokens, private
+  Space/page content, unpublished document content, feed internals, provider
+  payload labels, and stack-shaped strings are not returned.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:spaces` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed, 39 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic discovery/Space
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+- Direct raw-response grep was reviewed; the remaining target-file match is
+  the internal missing-single classifier in `spaces.ts`, not a route response
+  returning raw service text.
+- `test:writing` was not run because public document readback and writing feed
+  behavior were not changed.
 
 Current baton:
 
-- DAEDALUS should harden discovery/Space route responses, validate focused
-  Spaces/community gates, then wake ARGUS for hostile review.
+- ARGUS should hostile-review discovery/Space response mapping, behavior
+  preservation, visibility behavior, and focused tests.
 
 ## Latest ARGUS verdict - discussion errors accepted after narrow patch
 

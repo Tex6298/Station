@@ -54,6 +54,15 @@ const updatePageSchema = createPageSchema.partial();
 
 export const spacesRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
+const SPACE_ERROR_RESPONSES = {
+  publicRead: { error: "Could not load Space.", code: "space_public_load_failed" },
+  ownerList: { error: "Could not load your Spaces.", code: "space_list_failed" },
+  create: { error: "Could not create Space.", code: "space_create_failed" },
+  update: { error: "Could not update Space.", code: "space_update_failed" },
+  delete: { error: "Could not delete Space.", code: "space_delete_failed" },
+  pageCreate: { error: "Could not create Space page.", code: "space_page_create_failed" },
+  pageUpdate: { error: "Could not update Space page.", code: "space_page_update_failed" },
+} as const;
 
 function listedDocumentVisibilities(user: AuthenticatedUser | undefined, ownerAccess: boolean): DocumentVisibility[] {
   if (ownerAccess || (user && COMMUNITY_TIERS.has(user.tier))) {
@@ -112,9 +121,9 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
 
   const documentVisibilities = listedDocumentVisibilities(req.user, hasOwnerAccess);
   const [
-    { data: pages },
+    pagesResult,
     documentResults,
-    { data: personas },
+    personasResult,
     canExposePublicPersonas,
   ] = await Promise.all([
     sb
@@ -140,23 +149,33 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
       .eq("visibility", "public"),
     ownerCanExposeExistingPublicPersonas(sb, space.owner_user_id),
   ]);
+  if (
+    pagesResult.error ||
+    personasResult.error ||
+    documentResults.some((result) => result.error)
+  ) {
+    return res.status(500).json(SPACE_ERROR_RESPONSES.publicRead);
+  }
 
   // Fetch owner profile for display
-  const { data: owner } = await sb
+  const { data: owner, error: ownerError } = await sb
     .from("profiles")
     .select("username, display_name, avatar_url, bio")
     .eq("id", space.owner_user_id)
     .single();
+  if (ownerError && !isMissingSingleError(ownerError)) {
+    return res.status(500).json(SPACE_ERROR_RESPONSES.publicRead);
+  }
 
   return res.json({
     access: hasOwnerAccess ? "owner" : "public",
     space: serializeSpace(space),
-    pages: pages ?? [],
+    pages: pagesResult.data ?? [],
     documents: documentResults
       .flatMap((result) => result.data ?? [])
       .sort((a, b) => new Date(b.published_at ?? b.created_at ?? 0).getTime() - new Date(a.published_at ?? a.created_at ?? 0).getTime())
       .slice(0, 20),
-    personas: canExposePublicPersonas ? (personas ?? []).map(serializePublicPersona) : [],
+    personas: canExposePublicPersonas ? (personasResult.data ?? []).map(serializePublicPersona) : [],
     owner,
   });
 });
@@ -188,7 +207,7 @@ spacesRouter.get("/", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(SPACE_ERROR_RESPONSES.ownerList);
   return res.json({ spaces: (data ?? []).map(serializeSpace) });
 });
 
@@ -201,10 +220,11 @@ spacesRouter.post("/", requireTier("creator"), async (req, res) => {
   const userId = req.user!.id;
 
   // Check space count against tier limit
-  const { count } = await sb
+  const { count, error: countError } = await sb
     .from("spaces")
     .select("id", { count: "exact", head: true })
     .eq("owner_user_id", userId);
+  if (countError) return res.status(500).json(SPACE_ERROR_RESPONSES.create);
 
   const authUser: AuthUser = { id: userId, tier: req.user!.tier, isAdmin: req.user!.isAdmin };
   if (!canCreateSpace(authUser, count ?? 0)) {
@@ -214,11 +234,14 @@ spacesRouter.post("/", requireTier("creator"), async (req, res) => {
   }
 
   // Check slug uniqueness
-  const { data: existing } = await sb
+  const { data: existing, error: existingError } = await sb
     .from("spaces")
     .select("id")
     .eq("slug", parsed.data.slug)
     .single();
+  if (existingError && !isMissingSingleError(existingError)) {
+    return res.status(500).json(SPACE_ERROR_RESPONSES.create);
+  }
 
   if (existing) return res.status(409).json({ error: "That slug is already taken." });
 
@@ -237,7 +260,7 @@ spacesRouter.post("/", requireTier("creator"), async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(SPACE_ERROR_RESPONSES.create);
 
   // Auto-create default pages
   await sb.from("space_pages").insert([
@@ -276,7 +299,10 @@ spacesRouter.patch("/:id", async (req, res) => {
       .eq("owner_user_id", req.user!.id)
       .single();
 
-    if (loadError || !existingSpace) return res.status(404).json({ error: "Space not found." });
+    if (loadError && !isMissingSingleError(loadError)) {
+      return res.status(500).json(SPACE_ERROR_RESPONSES.update);
+    }
+    if (!existingSpace) return res.status(404).json({ error: "Space not found." });
     update.theme = buildPresentation(parsed.data, existingSpace.theme);
   }
 
@@ -288,7 +314,7 @@ spacesRouter.patch("/:id", async (req, res) => {
     .select("*")
     .single();
 
-  if (error && !isMissingSingleError(error)) return res.status(500).json({ error: error.message });
+  if (error && !isMissingSingleError(error)) return res.status(500).json(SPACE_ERROR_RESPONSES.update);
   if (!data) return res.status(404).json({ error: "Space not found." });
   return res.json({ space: serializeSpace(data) });
 });
@@ -302,7 +328,7 @@ spacesRouter.delete("/:id", async (req, res) => {
     .eq("id", req.params.id)
     .eq("owner_user_id", req.user!.id);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(SPACE_ERROR_RESPONSES.delete);
   return res.status(204).send();
 });
 
@@ -314,10 +340,14 @@ spacesRouter.post("/:id/pages", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
-  const { data: space } = await sb.from("spaces").select("id, owner_user_id").eq("id", req.params.id).single();
+  const { data: space, error: spaceError } = await sb.from("spaces").select("id, owner_user_id").eq("id", req.params.id).single();
+  if (spaceError && !isMissingSingleError(spaceError)) {
+    return res.status(500).json(SPACE_ERROR_RESPONSES.pageCreate);
+  }
   if (!space || space.owner_user_id !== req.user!.id) return res.status(404).json({ error: "Space not found." });
 
-  const { count } = await sb.from("space_pages").select("id", { count: "exact", head: true }).eq("space_id", space.id);
+  const { count, error: countError } = await sb.from("space_pages").select("id", { count: "exact", head: true }).eq("space_id", space.id);
+  if (countError) return res.status(500).json(SPACE_ERROR_RESPONSES.pageCreate);
 
   const { data, error } = await sb
     .from("space_pages")
@@ -334,7 +364,7 @@ spacesRouter.post("/:id/pages", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(SPACE_ERROR_RESPONSES.pageCreate);
   return res.status(201).json({ page: data });
 });
 
@@ -344,7 +374,10 @@ spacesRouter.patch("/:id/pages/:pageId", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
-  const { data: space } = await sb.from("spaces").select("id, owner_user_id").eq("id", req.params.id).single();
+  const { data: space, error: spaceError } = await sb.from("spaces").select("id, owner_user_id").eq("id", req.params.id).single();
+  if (spaceError && !isMissingSingleError(spaceError)) {
+    return res.status(500).json(SPACE_ERROR_RESPONSES.pageUpdate);
+  }
   if (!space || space.owner_user_id !== req.user!.id) return res.status(403).json({ error: "Not authorised." });
 
   const update: Record<string, unknown> = {};
@@ -361,6 +394,6 @@ spacesRouter.patch("/:id/pages/:pageId", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(SPACE_ERROR_RESPONSES.pageUpdate);
   return res.json({ page: data });
 });
