@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR449 passed, PR450 opened
+
+MIMIR closes PR449:
+
+`docs/roadmap/PR449_HOSTED_STUDIO_MEMORY_ORIENTATION_CLOSEOUT.md`
+
+Decision:
+
+- Hosted Studio Memory orientation is proven on Railway.
+- The next core memory/continuity/archive UX lane is the existing UX-03A
+  recommendation: Continuity review target route links.
+- This is a narrow owner-only Studio stitching lane, not a backend or
+  publication-semantics lane.
+
+Current lane:
+
+```text
+PR450 - Continuity Review Target Route Links
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS when route mapping, fallback behavior, mobile
+  readability, and focused tests are ready.
+
 ## Latest ARIADNE result - PR449 hosted Memory orientation passed
 
 ARIADNE completed PR449:
