@@ -150,8 +150,10 @@ const SETUP_PROOFS: ReplaySetupProof[] = [
     status: "setup_proven",
     evidence: [
       "Public /health/deployment reports platform chat true and NVIDIA true.",
+      "PR433 proves the Station provider router selects nvidia_openai_compatible with the current openai/gpt-oss-120b model label.",
+      "A synthetic-only NVIDIA probe returned a non-empty response through the OpenAI-compatible route without recording prompt or completion text.",
     ],
-    remainingRisk: "Model choice, budget, and usage expectations still need replay-side confirmation.",
+    remainingRisk: "Exact-output compliance was noisy in the synthetic probe, and the current OpenAI-compatible adapter does not parse provider usage tokens from NVIDIA responses. Keep private/sensitive replay blocked until MIMIR accepts provider/data-policy boundaries.",
   },
   {
     id: "operational_cache_boundary",

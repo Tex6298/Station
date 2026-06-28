@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR433 ready for ARGUS review
+
+DAEDALUS completed PR433:
+
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md`
+
+Current verdict:
+
+```text
+READY FOR ARGUS REVIEW - SYNTHETIC PATH PROVEN WITH EXACT-OUTPUT CAVEAT
+```
+
+Decision:
+
+- Hosted `/health/deployment` returned HTTP `200`, `ready:true`, platform chat
+  `true`, NVIDIA `true`, and the existing `station_free_1536`/Gemini embedding
+  readiness.
+- Station's provider router selects `nvidia_openai_compatible` when the NVIDIA
+  platform key is present.
+- The current configured/default model label `openai/gpt-oss-120b` is callable
+  through the NVIDIA OpenAI-compatible route.
+- The live probe was synthetic-only and did not send Station private archive
+  text, Memory, Continuity, owner replay corpus, real user prompts, source
+  snippets, IDs, credentials, provider payloads, cookies, tokens, or secrets.
+- Prompt and completion text were not recorded in committed docs or logs.
+- Repeated exact-output variants returned provider responses but did not match
+  the requested phrase; this is recorded as a model-behavior caveat, not a
+  route/config blocker.
+- Authenticated `/observability/replay-readiness` now records the PR433
+  synthetic proof under `nvidia_platform_chat` while keeping private/sensitive
+  replay blocked pending MIMIR provider/data-policy acceptance.
+
+Validation:
+
+- Public hosted `/health/deployment` sanitized readiness probe passed.
+- Live synthetic NVIDIA provider-router probe reached
+  `nvidia_openai_compatible` and returned a non-empty response.
+- Exact-output variants returned provider responses but did not match the
+  requested phrase.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR433 - NVIDIA Platform Chat Synthetic Proof
+Owner: DAEDALUS / A2
+Reviewer: ARGUS / A3
+State: READY FOR ARGUS REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md`.
+- ARGUS should either wake MIMIR with `WAKEUP A1:` if accepted, or wake
+  DAEDALUS with `WAKEUP A2:` and exact fixes if the caveat should block.
+
 ## Latest MIMIR closeout - PR432 accepted, PR433 opened
 
 MIMIR accepts ARGUS's PR432 review:

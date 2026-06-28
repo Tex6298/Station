@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR433 NVIDIA Platform Chat Synthetic Proof
+
+DAEDALUS completed the PR433 proof on 2026-06-28:
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW - SYNTHETIC PATH PROVEN WITH EXACT-OUTPUT CAVEAT`.
+
+Reason:
+
+- hosted readiness reports platform chat and NVIDIA configured;
+- Station's provider router selects `nvidia_openai_compatible` for NVIDIA
+  platform chat;
+- the current `openai/gpt-oss-120b` model label is callable through the NVIDIA
+  OpenAI-compatible route;
+- the live probe used only a synthetic public `/no_think` connectivity prompt;
+- prompt and completion text were not stored in committed docs/logs;
+- exact-output variants returned provider responses but did not match the
+  requested phrase, so exact wording remains a model-behavior caveat.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Public hosted `/health/deployment` sanitized readiness probe | Pass | HTTP `200`, `ready:true`, platform chat true, NVIDIA true, `station_free_1536`/Gemini readiness intact. |
+| Live synthetic NVIDIA provider-router probe | Pass with caveat | Reached `nvidia_openai_compatible` with `openai/gpt-oss-120b` and returned a non-empty response. Exact phrase did not match. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 10 tests passed for NVIDIA request shape, key trimming, BYOK precedence, and DeepSeek fallback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed, covering PR433 evidence and sanitized observability readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: PR433 proves only synthetic NVIDIA platform-chat routeability.
+Exact wording compliance, provider usage-token parsing for NVIDIA responses,
+private-data provider policy, and sensitive replay remain separate acceptance
+decisions.
+
 ## PR432 station_free_1536 Retrieval Proof Review
 
 ARGUS accepted PR432 on 2026-06-28:

@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3 if proof or code changes land
 
-Status: open - prove synthetic-only staging chat or return blocker
+Status: proven with caveat - ready for ARGUS review
 
 ## Why This Lane
 
@@ -110,3 +110,18 @@ Wake ARGUS with proof/patch result and validation if the lane can be completed.
 
 Wake MIMIR with the exact blocker if config/quota/model/data-policy/provider
 support is missing.
+
+## DAEDALUS Result
+
+Result doc:
+
+- `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_RESULT.md`
+
+Summary:
+
+- hosted readiness reports platform chat and NVIDIA configured;
+- Station's provider router selects `nvidia_openai_compatible`;
+- the current `openai/gpt-oss-120b` model label is callable through the NVIDIA
+  OpenAI-compatible route;
+- the probe stayed synthetic-only and did not record prompt or completion text;
+- exact phrase compliance was noisy and remains a residual model-behavior caveat.

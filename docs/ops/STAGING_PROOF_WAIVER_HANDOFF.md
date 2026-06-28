@@ -121,7 +121,7 @@ Observed public API readiness facts:
 | Storage | bucket `persona-files`, `exists: true`, `private: true`, `ok: true` | The deployed API can prove the private storage bucket exists. |
 | Supabase Auth redirects | Superseded 2026-06-11: `ok: true`, `checked: true`, `siteUrlMatchesApp: true`, `appUrlRedirectAllowed: true`, `passwordResetRedirectAllowed: true` | Railway `@station/api` now has Management API proof, and Supabase Auth site/redirect settings are staged for the Railway web URL. |
 | Stripe | billing secrets false; all price IDs false; `ready: false` | Test billing resources are not configured on the deployed API. |
-| Providers | platform chat true; NVIDIA true; embedding profile proof pending | Staging can prove NVIDIA platform chat configuration, but still needs the selected embedding profile contract proved. |
+| Providers | platform chat true; NVIDIA true; PR432/PR433 proof current | Staging can prove the selected embedding profile and synthetic NVIDIA platform chat configuration. |
 | Cache | Railway Redis false; Upstash REST false; configured false | Cache provider is not selected or configured. |
 
 No secret values were captured or printed.
@@ -141,7 +141,7 @@ before replay-driven optimization starts.
 | Cache provider | Choose Railway Redis/Valkey, Upstash REST, another provider, or explicit deferment. Cache remains operational/non-canonical unless a later durability/export/deletion review promotes it. |
 | Cloudflare retrieval | Choose or defer Worker/Vectorize account and index setup. Remote candidates must remain reauthorized through Station/Supabase before private records return. |
 | Stripe test resources | Configure test Stripe secret, webhook secret, and all required price IDs for the staged API, or waive billing replay. |
-| Platform chat provider | NVIDIA platform chat is configured and publicly proven. Confirm the selected staging model/usage expectations before replay, or waive chat replay. |
+| Platform chat provider | PR433 proves synthetic NVIDIA platform chat through Station's provider router with current `openai/gpt-oss-120b` model label. Exact-output behavior and private-data policy still need explicit acceptance before sensitive replay. |
 | Embedding profile | PR432 proves the current bounded staging replay corpus: `station_free_1536`, Gemini, migration `029`, Gemini/1536/backfill-v2 replay rows, vector-mode readback, rejected-control absence, and mismatched-scope zero-row smoke. Re-run proof if the corpus, provider, model, dimension, or index contract changes. |
 | Replay account/data | Prepare one staging replay account with persona, archive import, continuity, Space/document, discussion, Developer Space, export, and billing-path coverage, or explicitly narrow the replay path. |
 

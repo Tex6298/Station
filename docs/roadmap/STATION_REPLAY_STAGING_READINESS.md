@@ -25,6 +25,11 @@ then let staged replay reveal the next optimizations.
   memory/archive readback, rejected-control absence, and mismatched-scope
   zero-row smoke. Future corpus/provider/model/dimension changes still need
   fresh scoped retrieval proof.
+- PR433 proves synthetic-only NVIDIA platform-chat routeability through
+  Station's OpenAI-compatible provider router with the current
+  `openai/gpt-oss-120b` model label. Exact-output compliance was noisy, and
+  private/sensitive replay still needs explicit provider/data-policy
+  acceptance.
 - ARGUS accepted the sequencing correction in `docs: accept replay staging
   sequence`.
 - UX-01A, UX-02A, UX-02B, and UX-DEBT-01 are accepted enough for staging prep.

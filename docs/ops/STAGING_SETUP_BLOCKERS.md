@@ -68,7 +68,7 @@ Local `.env` presence-only check:
 | Supabase API/database keys | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are present but empty. |
 | Supabase management token | `SUPABASE_ACCESS_TOKEN` is absent. |
 | Railway token | `RAILWAY_TOKEN` is present and non-empty locally, but Railway CLI project access is unauthorized from this shell. |
-| NVIDIA chat aliases | `NVIDIA_AI_API_KEY` and `NVIDIA_MODEL_BASE_URL` are present and non-empty locally; `NVIDIA_MODEL` is absent locally and defaults in code. |
+| NVIDIA chat aliases | `NVIDIA_AI_API_KEY`, `NVIDIA_MODEL_BASE_URL`, and the current `NVIDIA_MODEL` label are present locally for PR433; values were not printed. |
 | Stripe | Stripe secret, webhook, publishable key, and price IDs are present but empty locally. |
 | JWT | `JWT_SECRET` is present and non-empty locally. |
 
@@ -128,10 +128,10 @@ Current staging proof:
 
 Remaining external facts:
 
-- Apply/prove migration `029` for the selected `station_free_1536` embedding
-  profile; see `docs/ops/STAGING_MIGRATION_029_PROOF.md`.
-- Data-backed retrieval relevance replay with real owner/persona/archive data
-  and the active embedding provider.
+- PR432 supersedes the old migration `029` blocker for the current bounded
+  `station_free_1536` replay corpus.
+- Future data-backed retrieval relevance replay still needs fresh proof if the
+  corpus, provider, model, dimension, or index contract changes.
 
 ## Storage bucket
 
@@ -229,9 +229,10 @@ Important boundary:
 
 Blocked external facts:
 
-- Railway API service variable values for NVIDIA.
-- Final model choice if `openai/gpt-oss-120b` is not the desired staging model.
-- Provider usage/rate-limit expectations for replay.
+- PR433 proves the current NVIDIA platform-chat route and
+  `openai/gpt-oss-120b` model label with a synthetic-only probe.
+- Exact-output compliance was noisy, and provider usage/rate-limit expectations
+  remain policy/replay decisions before sensitive prompts are allowed.
 
 ## Redis role evaluation
 

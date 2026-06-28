@@ -158,6 +158,17 @@ MIMIR/ARGUS follow-up on 2026-06-11 closed the setup/config blockers:
 - live `/health/deployment` returns `ready:true` with auth redirect booleans
   true.
 
+PR432/PR433 update on 2026-06-28:
+
+- PR432 proves the current bounded `station_free_1536` replay retrieval path
+  with migration `029`, Gemini/1536/backfill-v2 rows, hosted vector readback,
+  rejected-control absence, and mismatched-scope zero-row smoke.
+- PR433 proves synthetic-only NVIDIA platform-chat routeability through
+  Station's OpenAI-compatible provider router with the current
+  `openai/gpt-oss-120b` model label.
+- Exact-output compliance was noisy in PR433, and private/sensitive replay
+  remains blocked pending explicit provider/data-policy acceptance.
+
 The active follow-up is the populated replay data and Gemini retrieval
 measurement plan in `docs/ops/STAGING_REPLAY_DATA_PLAN.md`.
 
