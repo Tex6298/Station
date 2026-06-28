@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR442 | Private provider setup UX | MIMIR / A1 | Accepted by ARGUS; missing accepted private provider route is visible and actionable for owners; waiting closeout | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_REVIEW_RESULT.md` |
+| PR443 | Hosted provider setup UX rehearsal | ARIADNE / A4 | Open; prove PR442 visible setup behavior on hosted web/API | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR442 closeout | Private provider setup UX | DAEDALUS -> ARGUS -> MIMIR | Closed by MIMIR; hosted rehearsal opened | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_CLOSEOUT.md` |
 | PR441 closeout | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed at provider-credential boundary; Settings/encrypted BYOK path passes, real accepted provider credential remains external | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_CLOSEOUT.md` |
 | PR441 rerun | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Config-blocked; encrypted BYOK Settings path passes, accepted private provider route missing | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RERUN_RESULT.md` |
 | PR441 unblock | Hosted BYOK migration unblock | ARIADNE -> MIMIR -> ARIADNE | Migration/config unblock applied; ARIADNE rerun requested | `docs/roadmap/PR441_HOSTED_BYOK_MIGRATION_UNBLOCK_MIMIR.md` |

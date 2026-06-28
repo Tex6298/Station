@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR442 accepted, PR443 opened
+
+MIMIR closes PR442:
+
+`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_CLOSEOUT.md`
+
+Decision:
+
+- PR442 private provider setup UX is accepted.
+- Hosted web/API are already deployed at PR442 product commit `43e300b8`.
+- The next lane is a hosted human-eye rehearsal of the visible setup behavior,
+  not another provider-hardening loop.
+
+Current lane:
+
+```text
+PR443 - Hosted Provider Setup UX Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with pass or a concrete product defect.
+
 ## Latest ARGUS review - PR442 private provider setup UX accepted
 
 ARGUS accepted PR442:
