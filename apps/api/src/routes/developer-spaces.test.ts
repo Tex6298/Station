@@ -51,6 +51,7 @@ class InMemorySupabase {
   private clock = Date.parse("2026-05-24T09:00:00.000Z");
   unavailableTables = new Set<string>();
   insertErrors = new Map<string, { code?: string; message: string; details?: string }>();
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
@@ -369,6 +370,13 @@ class QueryBuilder {
       };
     }
 
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return { data: null, error: operationError, count: null };
+    }
+
     if (this.operation === "insert") {
       const insertError = this.db.insertErrors.get(this.table);
       if (insertError) {
@@ -501,6 +509,47 @@ function assertNoPolicySecretLeak(value: unknown) {
   ]) {
     assert.equal(serialized.includes(marker), false, `${marker} leaked into provider-policy observability`);
   }
+}
+
+const credentialHiddenMarker = "private-" + "credential-marker";
+const credentialDatabaseScheme = "postgres" + "ql://";
+const credentialBearerLabel = "Bear" + "er";
+const credentialApiKey = "station_dev_" + credentialHiddenMarker;
+const credentialSigningSecret = "station_whsec_" + credentialHiddenMarker;
+
+function hostileCredentialError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in developer_space_ingestion_keys`,
+      "developer_space_webhook_signing_secrets",
+      "owner_user_id=owner-user developer_space_id=developer-spaces-1",
+      `api key: ${credentialApiKey}`,
+      `signing secret: ${credentialSigningSecret}`,
+      `${credentialBearerLabel} abc.${credentialHiddenMarker}.token`,
+      `database url: ${credentialDatabaseScheme}station:${credentialHiddenMarker}@db.example.test/station`,
+      `provider payload: private snippet ${credentialHiddenMarker}`,
+      "at credentialRoute (/station/private/developer-spaces.ts:1:2)",
+    ].join("; "),
+    details: `secret hash ${credentialHiddenMarker}`,
+  };
+}
+
+function assertSafeCredentialError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(credentialHiddenMarker), false);
+  assert.equal(text.includes(credentialApiKey), false);
+  assert.equal(text.includes(credentialSigningSecret), false);
+  assert.equal(text.includes(credentialBearerLabel), false);
+  assert.equal(text.includes(credentialDatabaseScheme), false);
+  assert.equal(text.includes("db.example.test"), false);
+  assert.equal(text.includes("developer_space_ingestion_keys"), false);
+  assert.equal(text.includes("developer_space_webhook_signing_secrets"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("developer_space_id"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private snippet"), false);
+  assert.equal(text.includes("credentialRoute"), false);
 }
 
 function listen(app: Express) {
@@ -4356,6 +4405,120 @@ test("Observed runtime webhook signing secrets are owner-scoped encrypted and pr
     });
     assert.equal(fallbackAfterRevoke.status, 202);
     assert.equal(fallbackAfterRevoke.body.accepted, true);
+  } finally {
+    if (previousEncryptionKey === undefined) {
+      delete process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;
+    } else {
+      process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY = previousEncryptionKey;
+    }
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  }
+});
+
+test("Developer Space credential route errors return stable public copy", async () => {
+  const previousEncryptionKey = process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;
+  process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY = "test-observed-runtime-webhook-signing-secret-encryption-key";
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/developer-spaces", {
+      token: "owner-token",
+      body: {
+        projectName: "Credential Error Surface",
+        visibility: "private",
+      },
+    });
+    assert.equal(created.status, 201);
+    const spaceId = created.body.space.id;
+
+    db.operationErrors.set("select:developer_space_ingestion_keys", hostileCredentialError("list ingestion keys"));
+    const listKeys = await requestJson(app, "GET", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "owner-token",
+    });
+    assert.equal(listKeys.status, 500);
+    assert.deepEqual(listKeys.body, {
+      error: "Could not load Developer Space ingestion keys.",
+      code: "developer_space_ingestion_key_load_failed",
+    });
+    assertSafeCredentialError(listKeys.body);
+
+    db.insertErrors.set("developer_space_ingestion_keys", hostileCredentialError("create ingestion key"));
+    const createKeyFailed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "owner-token",
+      body: { label: "Hostile create key" },
+    });
+    assert.equal(createKeyFailed.status, 500);
+    assert.deepEqual(createKeyFailed.body, {
+      error: "Could not create Developer Space ingestion key.",
+      code: "developer_space_ingestion_key_create_failed",
+    });
+    assertSafeCredentialError(createKeyFailed.body);
+
+    const createdKey = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys`, {
+      token: "owner-token",
+      body: { label: "Safe key" },
+    });
+    assert.equal(createdKey.status, 201);
+    assert.match(createdKey.body.apiKey, /^station_dev_/);
+
+    db.operationErrors.set("update:developer_space_ingestion_keys", hostileCredentialError("revoke ingestion key"));
+    const revokeKeyFailed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/ingestion-keys/${createdKey.body.key.id}/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(revokeKeyFailed.status, 500);
+    assert.deepEqual(revokeKeyFailed.body, {
+      error: "Could not revoke Developer Space ingestion key.",
+      code: "developer_space_ingestion_key_revoke_failed",
+    });
+    assertSafeCredentialError(revokeKeyFailed.body);
+
+    db.insertErrors.set("developer_space_ingestion_keys", hostileCredentialError("rotate api key"));
+    const rotateKeyFailed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key`, {
+      token: "owner-token",
+    });
+    assert.equal(rotateKeyFailed.status, 500);
+    assert.deepEqual(rotateKeyFailed.body, {
+      error: "Could not rotate Developer Space API key.",
+      code: "developer_space_api_key_rotate_failed",
+    });
+    assertSafeCredentialError(rotateKeyFailed.body);
+
+    db.operationErrors.set("update:developer_spaces", hostileCredentialError("revoke api key"));
+    const revokeApiKeyFailed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/api-key/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(revokeApiKeyFailed.status, 500);
+    assert.deepEqual(revokeApiKeyFailed.body, {
+      error: "Could not revoke Developer Space API key.",
+      code: "developer_space_api_key_revoke_failed",
+    });
+    assertSafeCredentialError(revokeApiKeyFailed.body);
+
+    db.insertErrors.set("developer_space_webhook_signing_secrets", hostileCredentialError("create signing secret"));
+    const createSigningSecretFailed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/observed-runtime-signing-secret`, {
+      token: "owner-token",
+    });
+    assert.equal(createSigningSecretFailed.status, 500);
+    assert.deepEqual(createSigningSecretFailed.body, {
+      error: "Could not create Developer Space webhook signing secret.",
+      code: "developer_space_webhook_signing_secret_create_failed",
+    });
+    assertSafeCredentialError(createSigningSecretFailed.body);
+
+    db.operationErrors.set("update:developer_space_webhook_signing_secrets", hostileCredentialError("revoke signing secret"));
+    const revokeSigningSecretFailed = await requestJson(app, "POST", `/developer-spaces/${spaceId}/observed-runtime-signing-secret/revoke`, {
+      token: "owner-token",
+    });
+    assert.equal(revokeSigningSecretFailed.status, 500);
+    assert.deepEqual(revokeSigningSecretFailed.body, {
+      error: "Could not revoke Developer Space webhook signing secret.",
+      code: "developer_space_webhook_signing_secret_revoke_failed",
+    });
+    assertSafeCredentialError(revokeSigningSecretFailed.body);
   } finally {
     if (previousEncryptionKey === undefined) {
       delete process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY;

@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - auth error responses accepted
+## Latest DAEDALUS result - Developer Space credential errors ready for ARGUS
+
+DAEDALUS completed Developer Space credential-boundary error response hardening
+on 2026-06-28:
+`docs/roadmap/PRODUCTION_DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSE_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS DEVELOPER SPACE CREDENTIAL ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Legacy API key rotate/revoke, named ingestion key list/create/revoke, and
+  observed-runtime webhook signing-secret create/revoke failures now return
+  stable public-safe responses instead of raw service exception text.
+- Successful create/rotate responses still display intended one-time
+  credential values.
+- Owner/admin authorization, not-found behavior, encryption-config `503`,
+  status/readback semantics, credential generation/hash/encryption/fingerprint
+  behavior, Developer Space visibility, observed-runtime ingestion, schema,
+  packages, hosted config, and hosted data did not change.
+- Non-credential Developer Space route-level raw errors and other route-level
+  raw errors remain future audit surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS should hostile-review the credential route response mapping and focused
+  Developer Space test.
+- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+
+## Previous ARGUS verdict - auth error responses accepted
 
 ARGUS completed auth error response review on 2026-06-28:
 `docs/roadmap/PRODUCTION_AUTH_ERROR_RESPONSE_REVIEW_RESULT.md`.

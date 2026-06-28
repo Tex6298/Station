@@ -397,6 +397,37 @@ function signingSecretConfigError() {
   });
 }
 
+const DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES = {
+  rotateApiKey: {
+    error: "Could not rotate Developer Space API key.",
+    code: "developer_space_api_key_rotate_failed",
+  },
+  loadIngestionKeys: {
+    error: "Could not load Developer Space ingestion keys.",
+    code: "developer_space_ingestion_key_load_failed",
+  },
+  createIngestionKey: {
+    error: "Could not create Developer Space ingestion key.",
+    code: "developer_space_ingestion_key_create_failed",
+  },
+  revokeIngestionKey: {
+    error: "Could not revoke Developer Space ingestion key.",
+    code: "developer_space_ingestion_key_revoke_failed",
+  },
+  revokeApiKey: {
+    error: "Could not revoke Developer Space API key.",
+    code: "developer_space_api_key_revoke_failed",
+  },
+  createSigningSecret: {
+    error: "Could not create Developer Space webhook signing secret.",
+    code: "developer_space_webhook_signing_secret_create_failed",
+  },
+  revokeSigningSecret: {
+    error: "Could not revoke Developer Space webhook signing secret.",
+    code: "developer_space_webhook_signing_secret_revoke_failed",
+  },
+} as const;
+
 function ingestionValidationError(error: z.ZodError) {
   return ingestionErrorBody({
     error: "Developer Space ingestion payload failed validation.",
@@ -5297,7 +5328,7 @@ developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {
     .select("*")
     .single();
 
-  if (keyError) return res.status(500).json({ error: keyError.message });
+  if (keyError) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.rotateApiKey);
 
   const { data, error } = await sb
     .from("developer_spaces")
@@ -5310,7 +5341,7 @@ developerSpacesRouter.post("/:id/api-key", requireAuth, async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not rotate API key." });
+  if (error || !data) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.rotateApiKey);
   return res.status(201).json({ apiKey, space: serializeDeveloperSpace(data) });
 });
 
@@ -5324,7 +5355,7 @@ developerSpacesRouter.get("/:id/ingestion-keys", requireAuth, async (req, res) =
     .eq("developer_space_id", ownerLoad.space.id)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.loadIngestionKeys);
   return res.json({ keys: (data ?? []).map(serializeDeveloperSpaceIngestionKey) });
 });
 
@@ -5349,7 +5380,7 @@ developerSpacesRouter.post("/:id/ingestion-keys", requireAuth, async (req, res) 
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not create ingestion key." });
+  if (error || !data) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.createIngestionKey);
   return res.status(201).json({ apiKey, key: serializeDeveloperSpaceIngestionKey(data) });
 });
 
@@ -5366,7 +5397,7 @@ developerSpacesRouter.post("/:id/ingestion-keys/:keyId/revoke", requireAuth, asy
     .select("*")
     .maybeSingle();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.revokeIngestionKey);
   if (!data) return res.status(404).json({ error: "Ingestion key not found." });
   return res.json({ key: serializeDeveloperSpaceIngestionKey(data) });
 });
@@ -5402,7 +5433,7 @@ developerSpacesRouter.post("/:id/api-key/revoke", requireAuth, async (req, res) 
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not revoke API key." });
+  if (error || !data) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.revokeApiKey);
   return res.json({ space: serializeDeveloperSpace(data) });
 });
 
@@ -5445,7 +5476,7 @@ developerSpacesRouter.post("/:id/observed-runtime-signing-secret", requireAuth, 
     .single();
 
   if (error || !secret) {
-    return res.status(500).json({ error: error?.message ?? "Could not create Developer Space webhook signing secret." });
+    return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.createSigningSecret);
   }
 
   return res.status(201).json({
@@ -5475,7 +5506,7 @@ developerSpacesRouter.post("/:id/observed-runtime-signing-secret/revoke", requir
     .eq("status", "active")
     .select("*");
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES.revokeSigningSecret);
   const revoked = Array.isArray(data) ? data.map(serializeWebhookSigningSecret) : [];
   return res.json({ revoked });
 });
