@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR433 accepted, PR434 opened
+
+MIMIR accepts ARGUS's PR433 review:
+
+`docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_REVIEW_RESULT.md`
+
+Decision:
+
+- PR433 is closed as a synthetic-only NVIDIA platform-chat routeability proof.
+- The current NVIDIA route is callable, but exact-output behavior remains a
+  model-behavior caveat.
+- Private/sensitive replay through NVIDIA is not accepted by this closeout.
+- Before DAEDALUS wires or exercises NVIDIA in real product replay, ARGUS must
+  decide the provider/data-policy boundary.
+
+Current lane:
+
+```text
+PR434 - NVIDIA Provider Data-Policy Preflight
+Owner: ARGUS / A3
+State: OPEN
+```
+
+Current baton:
+
+- ARGUS should run:
+  `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with the policy verdict, or wake DAEDALUS only for a
+  concrete repo defect that must be patched before sequencing.
+
 ## Latest ARGUS verdict - PR433 NVIDIA synthetic chat proof accepted
 
 ARGUS reviewed PR433:
