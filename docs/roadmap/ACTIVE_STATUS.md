@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - export error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted conversation/continuity route-level error responses.
+- Export routes are the next named route-level raw error surface after private
+  conversation/archive continuity routes.
+- The lane covers owner-only persona exports, Developer Space exports, Project
+  manifests, package listings, package readback, and bundle readback route
+  responses.
+
+Current baton:
+
+- DAEDALUS should harden export route responses, validate the focused exports
+  gate, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - conversation continuity errors accepted
 
 ARGUS completed conversation/continuity route-level error response review

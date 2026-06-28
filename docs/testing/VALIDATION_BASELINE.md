@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Export Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- conversation/continuity route-level error responses are accepted;
+- export routes remain the next owner-only archive/package route surface;
+- `exports.ts` has direct route-level raw errors around persona export,
+  Developer Space export, Project manifest export, package listing, and package
+  creation failures.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | Required for persona, Developer Space, Project manifest, manifest readback, and bundle readback export behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Conditional pass | Required if Developer Space usage accounting behavior changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Conditional pass | Required if Project export helper behavior changes outside route response mapping. |
+| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and export package/manifest/bundle lifecycle behavior did not change. |
+
+Residual risk: other route-level raw error responses remain future audit
+surface.
+
 ## Production Conversation Continuity Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
