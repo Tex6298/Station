@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR450 Continuity Review Target Route Links
+
+DAEDALUS completed the PR450 verification pass on 2026-06-28:
+`docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- current main already contains the UX-03A route-link implementation requested
+  by PR450;
+- supported Continuity review targets route to existing owner-only Studio
+  surfaces;
+- linked conversation, unknown, and raw-id/credential-like labels remain plain
+  text;
+- runtime provenance still hides compiled prompts and private source bodies;
+- no backend, schema, auth/session, provider, billing, publication visibility,
+  runtime selection, or Developer Space behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed, including route-level review target mappings and unsafe fallback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 141 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:integrity` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed; included because publication/document review maps to the owner publishing surface. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+Residual risk: ARGUS should confirm PR450 can close as a verified wrapper around
+the accepted UX-03A implementation rather than requiring duplicate code.
+
 ## PR449 Hosted Studio Memory Orientation Rehearsal
 
 ARIADNE completed PR449 on 2026-06-28:

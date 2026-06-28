@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR450 | Continuity review target route links | DAEDALUS / A2 | Open | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_DAEDALUS.md` |
+| PR450 | Continuity review target route links | ARGUS / A3 | Ready for review | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_RESULT.md` |
 
 ## Recently Closed
 
