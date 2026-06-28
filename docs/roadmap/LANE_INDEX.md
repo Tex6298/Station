@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR459 | Continuity and Integrity comprehension rehearsal | MIMIR / A1 | Pass with next lane - waiting closeout | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md` |
+| PR460 | Billing and quota clarity rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR459 closeout | Continuity and Integrity comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR460 opened for Billing/quota clarity | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_CLOSEOUT.md` |
 | PR459 rehearsal | Continuity and Integrity comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend PR460 Billing/quota clarity rehearsal | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md` |
 | PR458 closeout | Hosted Writing filter wrap confirmation | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR459 opened for Continuity/Integrity comprehension | `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_CLOSEOUT.md` |
 | PR458 rehearsal | Hosted Writing filter wrap confirmation | MIMIR -> ARIADNE -> MIMIR | Pass; hosted `/writing` filter wrap visually confirmed at mobile widths | `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_RESULT.md` |

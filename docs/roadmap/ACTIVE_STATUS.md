@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR459 closed, PR460 opened
+
+MIMIR closes PR459:
+
+`docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_CLOSEOUT.md`
+
+Decision:
+
+- Continuity and Integrity comprehension is accepted for the checked hosted
+  route set.
+- PR460 opens the next Discern-to-Tex priority: Billing and quota clarity.
+- PR460 is read-only; no checkout, customer portal, subscription mutation, or
+  test-card flow should run.
+
+Current lane:
+
+```text
+PR460 - Billing and Quota Clarity Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR460_BILLING_QUOTA_CLARITY_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS_WITH_NEXT_LANE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR459 Continuity/Integrity comprehension passed
 
 ARIADNE completed PR459:
