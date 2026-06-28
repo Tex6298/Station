@@ -6,7 +6,11 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
-Status: open - DAEDALUS
+Status: complete - wake ARGUS
+
+Result:
+
+`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_RESULT.md`
 
 ## Why This Lane
 

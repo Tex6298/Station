@@ -39,6 +39,28 @@ const ARCHIVE_SEARCH_SOURCE_LIMIT = 120;
 const ARCHIVE_SEARCH_MAX_LIMIT = 50;
 const STRUCTURED_SOURCE_PREVIEW =
   "Structured source preview redacted. Title, source, status, and persona context remain visible.";
+const IMPORT_JOB_ERROR_RESPONSES = {
+  quotaCheck: {
+    error: "Could not verify import job quota.",
+    code: "import_job_quota_check_failed",
+  },
+  create: {
+    error: "Could not create import job.",
+    code: "import_job_create_failed",
+  },
+  import: {
+    error: "Could not import archive content.",
+    code: "import_job_import_failed",
+  },
+  retry: {
+    error: "Could not retry import job.",
+    code: "import_job_retry_failed",
+  },
+  list: {
+    error: "Could not load import jobs.",
+    code: "import_job_list_failed",
+  },
+} as const;
 
 const archiveSearchQuerySchema = z.object({
   q: z.string().max(200).optional().default(""),
@@ -96,7 +118,7 @@ importsRouter.post("/chat", async (req, res) => {
   } catch (error) {
     const quotaError = quotaErrorResponse(error);
     if (quotaError) return res.status(quotaError.status).json(quotaError.body);
-    throw error;
+    return res.status(500).json(IMPORT_JOB_ERROR_RESPONSES.quotaCheck);
   }
 
   // Create import job
@@ -113,7 +135,7 @@ importsRouter.post("/chat", async (req, res) => {
     .single();
 
   if (jobError || !job) {
-    return res.status(500).json({ error: jobError?.message ?? "Import job insert failed." });
+    return res.status(500).json(IMPORT_JOB_ERROR_RESPONSES.create);
   }
   const importJob = normalizeImportJobRow(job);
 
@@ -156,7 +178,7 @@ importsRouter.post("/chat", async (req, res) => {
     }
 
     await markImportJobFailed(importJob.id, userId, message).catch(() => undefined);
-    return res.status(500).json({ error: message });
+    return res.status(500).json(IMPORT_JOB_ERROR_RESPONSES.import);
   }
 });
 
@@ -243,11 +265,9 @@ importsRouter.post("/:id/retry", async (req, res) => {
       storageError?.body.error ?? err,
       [parsed.data.content, job.source_name]
     );
-    const failedJob = await markImportJobFailed(job.id, userId, message).catch(() => null);
-    return res.status(storageError?.status ?? 500).json({
-      error: message,
-      job: failedJob ? serializeImportJob(failedJob) : serializeImportJob({ ...job, status: "failed", error_message: message }),
-    });
+    await markImportJobFailed(job.id, userId, message).catch(() => null);
+    if (storageError) return res.status(storageError.status).json({ error: message });
+    return res.status(500).json(IMPORT_JOB_ERROR_RESPONSES.retry);
   }
 });
 
@@ -723,7 +743,7 @@ importsRouter.get("/persona/:personaId", async (req, res) => {
       .order("created_at", { ascending: false })
   );
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(IMPORT_JOB_ERROR_RESPONSES.list);
   return res.json({ jobs: (data ?? []).map(serializeImportJob) });
 });
 

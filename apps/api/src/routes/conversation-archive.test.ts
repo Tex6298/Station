@@ -2039,7 +2039,10 @@ test("chat import jobs expose completed and failed status transitions owner-only
       },
     });
     assert.equal(failed.status, 500);
-    assert.match(failed.body.error, /Injected memory_items insert failure/);
+    assert.deepEqual(failed.body, {
+      error: "Could not import archive content.",
+      code: "import_job_import_failed",
+    });
 
     const failedJob = db.tables.import_jobs.find((job) => job.source_name === "broken-import.txt");
     assert.equal(failedJob.status, "failed");
@@ -2078,6 +2081,10 @@ test("background job retry reuses failed chat import jobs and redacts private fa
       },
     });
     assert.equal(failed.status, 500);
+    assert.deepEqual(failed.body, {
+      error: "Could not import archive content.",
+      code: "import_job_import_failed",
+    });
     assert.doesNotMatch(failed.body.error, /never leak this archive sentence/);
     assert.doesNotMatch(failed.body.error, /sk-test-secret-token/);
 
@@ -2091,6 +2098,19 @@ test("background job retry reuses failed chat import jobs and redacts private fa
       body: { content: privateContent },
     });
     assert.equal(otherRetry.status, 404);
+
+    const failedRetry = await requestJson(app, "POST", `/imports/${failedJob.id}/retry`, {
+      token: "owner-token",
+      body: { content: privateContent },
+    });
+    assert.equal(failedRetry.status, 500);
+    assert.deepEqual(failedRetry.body, {
+      error: "Could not retry import job.",
+      code: "import_job_retry_failed",
+    });
+    assert.doesNotMatch(JSON.stringify(failedRetry.body), /never leak this archive sentence/);
+    assert.doesNotMatch(JSON.stringify(failedRetry.body), /sk-test-secret-token/);
+    assert.doesNotMatch(JSON.stringify(failedRetry.body), /import_jobs/);
 
     db.failInsertTables.delete("memory_items");
     db.failInsertMessages.delete("memory_items");

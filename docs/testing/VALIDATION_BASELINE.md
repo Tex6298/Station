@@ -25,7 +25,10 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS IMPORT JOB ERROR RESPONSE REVIEW`.
 
 Reason:
 
@@ -36,11 +39,13 @@ Reason:
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for import/archive route behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | Required for adjacent archive storage/import behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
-| `git diff --check` | Pass | No whitespace errors. |
-| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Conditional pass | Required if job helper/status behavior changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed; route failure responses are fixed public copy while stored job failure metadata remains sanitized. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 tests passed; hostile import-job/storage service messages are not returned from import job routes. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | Patch has no whitespace errors. |
+| `git diff --cached --check` | Pass | Staged patch has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic import-job fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Not run | Job helper/status behavior was not changed. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and import/archive lifecycle behavior did not change. |
 
 Residual risk: conversation archive routes, export routes, and other

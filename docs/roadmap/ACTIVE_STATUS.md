@@ -4,27 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - import job error responses
+## Latest DAEDALUS result - import job errors ready for ARGUS
 
-MIMIR opened the next narrow route-level error response hardening lane on
+DAEDALUS completed import job route-level error response hardening on
 2026-06-28:
-`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_DAEDALUS.md`.
+`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_RESULT.md`.
 
-Why now:
+Verdict:
 
-- ARGUS accepted persona file route-level error responses.
-- Non-persona-file archive/import route-level raw errors remain future audit
-  surface.
-- Import job routes are the next bounded backend slice because they cover
-  private archive intake, retry, repair/status readback, and owner-scoped
-  import job listing.
+```text
+READY FOR ARGUS IMPORT JOB ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Import job quota-check, creation, archive-ingest execution, retry, and
+  owner-scoped list failure paths now return stable public-safe responses with
+  fixed error codes.
+- Stored import-job failure metadata still uses the existing
+  `sanitizeJobErrorMessage` path, preserving owner readback without returning
+  that service text from failing route responses.
+- Successful import creation, duplicate/idempotent import behavior, retry
+  success and partial-row recovery, status/readback, quota/storage handling,
+  archive ingestion, and integrity trigger behavior did not change.
+- Focused storage and conversation-archive tests force hostile import-job
+  service payloads through route failures and prove table names, storage paths,
+  URLs, tokens, owner/persona/import-job IDs, source-name fields, provider
+  payload labels, private markers, and stack-shaped strings are not returned.
+- Conversation archive routes, export routes, and other non-import route-level
+  raw errors remain future audit surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 42
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed, 19 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic import-job
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+- `test:jobs` was not run because job helper/status behavior was not changed.
 
 Current baton:
 
-- DAEDALUS should harden import job route responses, validate the focused
-  archive/import gates, then wake ARGUS for hostile review.
+- ARGUS should hostile-review the import-job route response mapping and focused
+  tests.
+- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
 
-## Latest ARGUS verdict - persona file errors accepted
+## Previous ARGUS verdict - persona file errors accepted
 
 ARGUS completed persona file route-level error response review on
 2026-06-28:

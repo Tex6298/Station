@@ -451,6 +451,51 @@ function assertSafePersonaFileError(body: unknown) {
   assert.equal(text.includes("personaFileRoute"), false);
 }
 
+const importJobHiddenMarker = "private-" + "import-job-marker";
+const importJobBearerLabel = "Bear" + "er";
+const importJobSignedUrl = "https://storage.example.test/imports/" + importJobHiddenMarker;
+const importJobUploadToken = "import-token-" + importJobHiddenMarker;
+const importJobStoragePath = `${OWNER_ID}/${PERSONA_ID}/imports/${importJobHiddenMarker}.json`;
+const importJobId = "import_jobs-" + importJobHiddenMarker;
+const importJobSourceName = "source-" + importJobHiddenMarker + ".json";
+
+function hostileImportJobError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in import_jobs and memory_items`,
+      `storage_path=${importJobStoragePath}`,
+      `url=${importJobSignedUrl}`,
+      `token=${importJobUploadToken}`,
+      `owner_user_id=${OWNER_ID} persona_id=${PERSONA_ID} import_job_id=${importJobId}`,
+      `source_name=${importJobSourceName}`,
+      `${importJobBearerLabel} abc.${importJobHiddenMarker}.token`,
+      `provider payload: private import content ${importJobHiddenMarker}`,
+      "SQL stack trace at importJobRoute (/station/private/imports.ts:1:2)",
+    ].join("; "),
+    details: `table import_jobs ${importJobHiddenMarker}`,
+  };
+}
+
+function assertSafeImportJobRouteError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(importJobHiddenMarker), false);
+  assert.equal(text.includes(importJobSignedUrl), false);
+  assert.equal(text.includes(importJobUploadToken), false);
+  assert.equal(text.includes(importJobStoragePath), false);
+  assert.equal(text.includes(importJobBearerLabel), false);
+  assert.equal(text.includes("import_jobs"), false);
+  assert.equal(text.includes("memory_items"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("persona_id"), false);
+  assert.equal(text.includes("import_job_id"), false);
+  assert.equal(text.includes("source_name"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private import content"), false);
+  assert.equal(text.includes("SQL stack trace"), false);
+  assert.equal(text.includes("importJobRoute"), false);
+}
+
 function createStorageApp() {
   const app = express();
   app.use(express.json());
@@ -1438,7 +1483,7 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
   }
 
   const jobFailingDb = new InMemorySupabase();
-  jobFailingDb.failInsertTables.add("import_jobs");
+  jobFailingDb.operationErrors.set("insert:import_jobs", hostileImportJobError("create import job"));
   setSupabaseAdminForTests(jobFailingDb.client as any);
   const jobFailingApp = await createImportsApp();
 
@@ -1453,7 +1498,11 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     });
 
     assert.equal(failedBeforeIngest.status, 500);
-    assert.match(failedBeforeIngest.body.error, /import_jobs/);
+    assert.deepEqual(failedBeforeIngest.body, {
+      error: "Could not create import job.",
+      code: "import_job_create_failed",
+    });
+    assertSafeImportJobRouteError(failedBeforeIngest.body);
     assert.equal(storageRow(jobFailingDb).bytes_used, 0);
     assert.equal(jobFailingDb.tables.memory_items.length, 0);
     assert.equal(jobFailingDb.tables.import_jobs.length, 0);
@@ -1462,7 +1511,7 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
   }
 
   const failingDb = new InMemorySupabase();
-  failingDb.failInsertTables.add("memory_items");
+  failingDb.operationErrors.set("insert:memory_items", hostileImportJobError("ingest archive content"));
   setSupabaseAdminForTests(failingDb.client as any);
   const failingApp = await createImportsApp();
 
@@ -1477,9 +1526,61 @@ test("chat imports reserve text bytes and roll back when archive insert fails", 
     });
 
     assert.equal(failed.status, 500);
+    assert.deepEqual(failed.body, {
+      error: "Could not import archive content.",
+      code: "import_job_import_failed",
+    });
+    assertSafeImportJobRouteError(failed.body);
     assert.equal(storageRow(failingDb).bytes_used, 0);
     assert.equal(failingDb.tables.memory_items.length, 0);
     assert.equal(failingDb.tables.import_jobs[0].status, "failed");
+  } finally {
+    resetStorageFake();
+  }
+
+  const quotaFailingDb = new InMemorySupabase();
+  quotaFailingDb.operationErrors.set("select:import_jobs", hostileImportJobError("check active import quota"));
+  setSupabaseAdminForTests(quotaFailingDb.client as any);
+  const quotaFailingApp = await createImportsApp();
+
+  try {
+    const quotaCheckFailed = await requestJson(quotaFailingApp, "POST", "/imports/chat", {
+      token: "owner-token",
+      body: {
+        personaId: PERSONA_ID,
+        content,
+        sourceName: "pasted-archive",
+      },
+    });
+
+    assert.equal(quotaCheckFailed.status, 500);
+    assert.deepEqual(quotaCheckFailed.body, {
+      error: "Could not verify import job quota.",
+      code: "import_job_quota_check_failed",
+    });
+    assertSafeImportJobRouteError(quotaCheckFailed.body);
+    assert.equal(quotaFailingDb.tables.memory_items.length, 0);
+    assert.equal(quotaFailingDb.tables.import_jobs.length, 0);
+  } finally {
+    resetStorageFake();
+  }
+
+  const listFailingDb = new InMemorySupabase();
+  listFailingDb.operationErrors.set("select:import_jobs", hostileImportJobError("list import jobs"));
+  setSupabaseAdminForTests(listFailingDb.client as any);
+  const listFailingApp = await createImportsApp();
+
+  try {
+    const listed = await requestJson(listFailingApp, "GET", `/imports/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+
+    assert.equal(listed.status, 500);
+    assert.deepEqual(listed.body, {
+      error: "Could not load import jobs.",
+      code: "import_job_list_failed",
+    });
+    assertSafeImportJobRouteError(listed.body);
   } finally {
     resetStorageFake();
   }
