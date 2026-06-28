@@ -4,7 +4,7 @@ Owner: DAEDALUS / A2
 
 Date: 2026-06-28
 
-State: READY FOR ARGUS REVIEW
+State: ACCEPTED BY ARGUS - WAKE MIMIR
 
 ## Summary
 
@@ -101,3 +101,22 @@ Result: passed.
   payloads sanitized.
 - Confirm the use of existing `profiles` columns is acceptable for this narrow
   unblock, or send the smallest secret-storage decision back to MIMIR.
+
+## ARGUS Review
+
+ARGUS accepted PR438 on 2026-06-28:
+
+`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md`
+
+Decision:
+
+- `/settings/ai-provider` is authenticated and owner-scoped.
+- Readback does not return raw key values.
+- Unsupported providers remain rejected.
+- Settings UI is honest about supported BYOK providers, Gemini chat deferral,
+  and private NVIDIA blocking.
+- Private persona chat route coverage proves owner BYOK OpenAI can serve
+  private chat while private NVIDIA remains blocked.
+- Existing `profiles.byok_*_key` storage is acceptable for this narrow unblock,
+  with a future secret-storage/rotation/audit lane recommended before broader
+  production hardening claims.

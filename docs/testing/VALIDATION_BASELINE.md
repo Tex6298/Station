@@ -20,12 +20,15 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## PR438 Owner BYOK Settings And Private Replay Unblock
+## PR438 Owner BYOK Settings And Private Replay Unblock Review
 
-DAEDALUS completed PR438 on 2026-06-28:
+ARGUS completed PR438 review on 2026-06-28:
+`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md`.
+
+DAEDALUS implementation result:
 `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+Validation result: `ACCEPTED - WAKE MIMIR`.
 
 Reason:
 
@@ -37,7 +40,10 @@ Reason:
 - Settings UI exposes platform/BYOK mode and supported key setup without showing
   stored raw keys;
 - private persona chat route coverage proves owner BYOK OpenAI works while
-  private NVIDIA remains blocked.
+  private NVIDIA remains blocked;
+- existing `profiles.byok_*_key` storage is accepted only for this narrow
+  unblock, with future secret-storage/rotation/audit hardening still a separate
+  lane before broader production claims.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
@@ -50,9 +56,10 @@ Reason:
 | `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | Passed. |
 
-Residual risk: ARGUS still needs hostile review of key storage/readback,
-unsupported provider rejection, Settings UI honesty, and private replay routing.
-No Gemini chat or private NVIDIA route is open.
+Residual risk: the existing profile BYOK columns remain the storage surface for
+this narrow unblock. No raw-key readback/log/trace leak was found in the touched
+paths, but broader secret storage, rotation, support access, and audit posture
+still deserve a separate future lane before broader provider-management claims.
 
 ## PR437 Gemini Private Chat Provider Preflight Review
 

@@ -6,6 +6,8 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+State: IMPLEMENTED - ACCEPTED BY ARGUS
+
 ## Context
 
 PR436 proved hosted private replay now fails closed instead of sending private
@@ -104,3 +106,12 @@ Task:
 
 If this cannot be implemented without a broader secret-storage or schema
 decision, wake MIMIR instead with the smallest explicit decision needed.
+
+## ARGUS Review
+
+ARGUS accepted this lane on 2026-06-28:
+
+`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md`
+
+The accepted scope remains OpenAI/Anthropic/DeepSeek owner BYOK settings only.
+Gemini chat remains deferred, and private NVIDIA remains blocked.

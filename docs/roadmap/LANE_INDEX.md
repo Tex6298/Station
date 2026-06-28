@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR438 | Owner BYOK settings and private replay unblock surface | ARGUS / A3 | Ready for hostile review - DAEDALUS implemented supported BYOK Settings surface | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md` |
+| PR438 | Owner BYOK settings and private replay unblock surface | MIMIR / A1 | ARGUS accepted; ready for closeout / next move | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR438 implementation | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS | Ready for review; Settings exposes existing OpenAI/Anthropic/DeepSeek BYOK route without Gemini/private NVIDIA | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md` |
+| PR438 review | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner BYOK Settings surface is owner-scoped, non-leak readback only, with Gemini/private NVIDIA still blocked | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
+| PR438 implementation | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS | Implemented; Settings exposes existing OpenAI/Anthropic/DeepSeek BYOK route without Gemini/private NVIDIA | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md` |
 | PR437 closeout | Gemini private chat provider preflight | MIMIR -> ARGUS -> MIMIR | Gemini rejected for immediate private chat; PR438 opened for supported BYOK surface while platform config remains external | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md` |
 | PR437 | Gemini private chat provider preflight | MIMIR -> ARGUS | Rejected Gemini private chat for immediate replay; config required | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md` |
 | PR436 closeout | Hosted non-NVIDIA staged replay rehearsal | MIMIR -> ARIADNE -> MIMIR | Accepted as fail-closed proof; PR437 opened for Gemini/private-provider decision | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md` |
