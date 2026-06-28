@@ -28,7 +28,10 @@ MIMIR opened the next feature boundary on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_RESULT.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+ARGUS completed the review:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED - READY FOR ARIADNE MEMORY CONTINUITY ARCHIVE HUMAN REHEARSAL`.
 
 Reason:
 
@@ -39,7 +42,9 @@ Reason:
   runtime observability;
 - the existing runtime context preview now exposes routeable review links and
   provenance/trust labels for Memory, Canon, Integrity, Continuity, and Archive
-  source groups without changing API data shape.
+  source groups without changing API data shape;
+- ARGUS found no privacy boundary break, overclaim, or missed validation gate
+  requiring a review patch.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
@@ -49,9 +54,11 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
+| `git diff 34cf2a49 43e464e8 --check` | Pass | DAEDALUS observability commit has no whitespace errors. |
+| Added-line sensitive scans | Reviewed | Hits were owner-only Studio copy, sanitizer helper/test references, fixed route labels, or docs text only. |
 | `test:replay-readiness`, `test:retrieval-metadata`, `test:continuity-publication`, API typecheck | Not run | Replay behavior, retrieval metadata, continuity publication behavior, API data shape, and API routes were not touched. |
-| ARGUS review | Pending | Review privacy boundaries, provenance claims, replay truthfulness, and regression coverage. |
-| ARIADNE rehearsal | Pending after ARGUS | Human-eye owner flow through Memory/Continuity/Archive observability. |
+| ARGUS review | Pass | Owner-only routeability, sanitized provenance labels, replay truthfulness, and regression coverage are accepted. |
+| ARIADNE rehearsal | Pending after MIMIR routing | Human-eye owner flow through Memory/Continuity/Archive observability. |
 
 Residual risk: reports, publishing approval, social, notification, persona,
 calibration, and other lower-priority route-level raw error responses remain

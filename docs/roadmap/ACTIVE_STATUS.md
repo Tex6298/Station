@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - Memory/Continuity/Archive observability
+## Latest ARGUS verdict - Memory/Continuity/Archive observability accepted
 
 MIMIR paused the route-level production error hardening sequence after Project
 route acceptance and opened the next feature boundary on 2026-06-28:
@@ -12,6 +12,15 @@ route acceptance and opened the next feature boundary on 2026-06-28:
 
 DAEDALUS completed the implementation on 2026-06-28:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_RESULT.md`.
+
+ARGUS completed Memory/Continuity/Archive observability review on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED - READY FOR ARIADNE MEMORY CONTINUITY ARCHIVE HUMAN REHEARSAL
+```
 
 Decision:
 
@@ -21,9 +30,14 @@ Decision:
 - Selected source rows now include provenance/trust labels before sanitized
   selection reasons, so an owner can see what Station may use next and where to
   inspect or change it.
+- Review links resolve through the existing continuity review-target map to
+  owner Studio routes. Unknown, raw-id-shaped, or unsafe labels remain
+  non-links instead of guessing a target.
 - The slice reused existing context-preview data and owner-visible redaction;
   no API shape, retrieval, schema, public route, hosted data, provider, or
   config behavior changed.
+- ARGUS found no privacy boundary break, overclaim, or missed validation gate
+  requiring a review patch.
 
 Validation:
 
@@ -33,14 +47,17 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 43 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
 - `git diff --check` passed.
+- `git diff 34cf2a49 43e464e8 --check` passed.
+- Added-line sensitive scans were reviewed; hits were owner-only Studio copy,
+  sanitizer helper/test references, fixed route labels, or docs text only.
 - Conditional replay-readiness, retrieval-metadata, continuity-publication, and
   API typecheck gates were not run because replay behavior, retrieval metadata,
   publication behavior, API data shape, and API routes were not touched.
 
 Current baton:
 
-- ARGUS should review privacy boundaries, provenance claims, replay
-  truthfulness, routeability, and regression coverage.
+- MIMIR should close the ARGUS review and route the ARIADNE human rehearsal
+  named in the lane packet.
 
 ## Latest ARGUS verdict - Project errors accepted
 
