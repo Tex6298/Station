@@ -20,6 +20,55 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR463 Discover, Public, and Community Polish Rehearsal
+
+ARIADNE completed PR463 on 2026-06-28:
+`docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_WITH_NEXT_LANE`.
+
+Recommended next lane:
+
+```text
+PR464 - Onboarding and Station Assistant comprehension rehearsal
+```
+
+Reason:
+
+- hosted web/API were fresh at the required PR461 runtime;
+- public visitors could follow Discover to public Space, public document, and
+  linked discussion;
+- public Space/document surfaces kept authorship, provenance, and discussion
+  cues visible;
+- Forums and a sampled forum category/discussion remained readable on desktop
+  and 390px mobile;
+- Writing tabs, type filters, and search showed reachable state changes or
+  clear filtered/empty states;
+- the public Developer Space sample stayed framed as a public observatory, not
+  a private owner/manage route;
+- desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, overlapping labels, or hidden route affordances in the sampled route
+  set;
+- sampled visible text did not expose raw identifiers, prompts, private source
+  bodies, provider payloads, credentials, storage paths, stack traces, payment
+  secrets, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `187996cd`. |
+| Signed-out Discover to Space/document/discussion route chain | Pass | Public route chain opened and preserved public/private boundaries. |
+| Forums and forum category route checks | Pass | Labels remained readable on desktop and 390px mobile. |
+| Public Developer Space observatory route check | Pass | Public observatory stayed separate from owner/manage affordances. |
+| Writing tabs/type-filter/search interactions | Pass | Latest state, disabled Staff picks, Research filter, and search interaction passed. |
+| Desktop public/community layout check | Pass | No horizontal overflow or clipped controls. |
+| 390px mobile public/community layout check | Pass | No horizontal overflow or clipped controls. |
+| Raw-id/secret/internal visible text checks | Pass | No raw ids, credentials, payment secrets, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only public/community rehearsal. It did
+not post, vote, report, publish, edit, delete, run provider setup, open billing
+checkout, import/export, upload, or call private model flows.
+
 ## PR462 Hosted Studio Quota Readback Confirmation
 
 ARIADNE completed PR462 on 2026-06-28:

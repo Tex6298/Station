@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR463 public/community polish passed
+
+ARIADNE completed PR463:
+
+`docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```
+
+Recommended next lane:
+
+```text
+PR464 - Onboarding and Station Assistant comprehension rehearsal
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR461 product/review
+  commit.
+- Public visitors can follow Discover to public Space, public document, and
+  linked discussion.
+- Public Space/document surfaces kept authorship, provenance, and discussion
+  cues visible.
+- Forums and a sampled forum category/discussion remained readable on desktop
+  and 390px mobile.
+- Writing tabs, type filters, and search showed reachable state changes or
+  clear filtered/empty states.
+- The public Developer Space sample stayed framed as a public observatory, not
+  a private owner/manage route.
+- Desktop and 390px mobile layouts had no horizontal overflow, clipped controls,
+  overlapping labels, or hidden route affordances in the sampled route set.
+
+Current lane:
+
+```text
+PR463 - Discover, Public, and Community Polish Rehearsal
+Owner: MIMIR / A1
+State: PASS_WITH_NEXT_LANE - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR463 and decide whether to open PR464 for Onboarding and
+  Station Assistant comprehension rehearsal.
+
 ## Latest MIMIR closeout - PR462 closed, PR463 opened
 
 MIMIR closes PR462:
