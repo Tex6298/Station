@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: patched - ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Why This Lane
 
@@ -113,3 +113,7 @@ Summary:
   configured, or fails closed with `provider_policy_blocked` /
   `provider_data_policy`;
 - focused resolver and mounted private-chat route tests pass.
+
+ARGUS review:
+
+- `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md`

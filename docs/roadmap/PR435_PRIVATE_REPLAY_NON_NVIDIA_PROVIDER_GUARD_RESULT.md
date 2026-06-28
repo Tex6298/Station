@@ -6,7 +6,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: ready for ARGUS review
+Status: accepted by ARGUS
 
 ## Verdict
 
@@ -86,3 +86,9 @@ Private replay still needs an accepted non-NVIDIA platform route or owner BYOK
 route in the target environment. NVIDIA remains available only for public-safe
 synthetic/provider probes unless a later MIMIR lane explicitly accepts a
 private NVIDIA data contract.
+
+## ARGUS Review
+
+ARGUS accepted PR435 on 2026-06-28:
+
+`docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md`

@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR435 private replay provider guard accepted
+
+ARGUS reviewed PR435:
+
+`docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_RESULT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPTED - WAKE MIMIR
+```
+
+Decision:
+
+- Private persona chat now passes `allowPlatformNvidia:false`.
+- Public/synthetic NVIDIA probes may still use `nvidia_openai_compatible` when
+  allowed.
+- BYOK precedence remains unchanged.
+- Private chat falls back to Station Anthropic or DeepSeek when those accepted
+  non-NVIDIA platform routes are configured.
+- If NVIDIA is the only platform provider, private chat fails closed with
+  `provider_policy_blocked` / `provider_data_policy`.
+- Mounted route coverage proves the only-NVIDIA private chat case makes no
+  NVIDIA/DeepSeek/Anthropic chat-provider fetch and does not write the owner
+  prompt, private context, or key material into trace events.
+- No ARGUS product patch was needed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR435 - Private Replay Non-NVIDIA Provider Guard
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR435 and choose the next lane. Private replay still needs
+  accepted non-NVIDIA platform config or owner BYOK in the target environment;
+  private NVIDIA remains blocked unless a later lane accepts a private NVIDIA
+  data contract.
+
 ## Latest DAEDALUS result - PR435 ready for ARGUS review
 
 DAEDALUS completed PR435:
