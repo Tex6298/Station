@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR428 API-Backed Backup Export Proof Result
+
+DAEDALUS completed PR428 on 2026-06-28:
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+Reason:
+
+- local API/test-fixture proof covers persona archive, Developer Space archive,
+  and Project manifest export classes;
+- bundle file sets are `README.md`, `manifest.json`, and `manifest.md` for all
+  three classes;
+- tests recompute SHA-256 from in-memory bundle file content and compare it to
+  each file entry plus the bundle integrity map;
+- anonymous and other-owner boundaries are covered across create/list/read/
+  bundle paths;
+- Project manifest bundle readback remains stored-package readback rather than
+  live mutable source rows;
+- PR427 local PostgreSQL tooling remains superseded and was not used.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed with PR428 bundle-integrity and anonymous-boundary assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck completed successfully. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 17 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warning only. |
+| `git diff --cached --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: PR428 proves API-backed owner export package and bundle
+integrity under local fixtures. It does not prove database backup/restore,
+managed backup redundancy, storage-object backup, original binary/PDF/file
+backup, full workspace backup, hosted production backup readiness, disaster
+recovery, RPO/RTO, or hosted data coverage.
+
 ## PR428 API-Backed Backup Export Proof Spec
 
 ARGUS accepted the PR428 proof spec on 2026-06-28:

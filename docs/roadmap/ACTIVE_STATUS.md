@@ -4,7 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - PR428 API-backed proof spec accepted
+## Latest DAEDALUS result - PR428 API-backed export proof ready for ARGUS
+
+DAEDALUS completed PR428:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md`
+
+Verdict:
+
+```text
+READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- API-backed owner export and bundle integrity proof now covers all three
+  accepted export classes: persona archive, Developer Space archive, and
+  Project manifest.
+- `apps/api/src/routes/exports.test.ts` now recomputes bundle file SHA-256 from
+  in-memory bundle file contents and checks the bundle integrity map for
+  persona, Developer Space, and Project bundles.
+- Persona and Developer Space export paths now also have explicit anonymous
+  create/list/bundle rejection assertions in addition to existing other-owner
+  boundary checks.
+- Project manifest bundle proof still verifies stored package readback by
+  mutating live source rows after package creation and confirming the bundle
+  remains based on stored manifest/Markdown.
+- No raw manifests, raw bundle bodies, private source text, transcript bodies,
+  prompts, completions, provider payloads, owner IDs, project IDs, source IDs,
+  database URLs, storage paths, cookies, tokens, secrets, or environment values
+  are copied into the result.
+- PR427 local PostgreSQL tooling acquisition remains superseded. DAEDALUS did
+  not acquire or validate `psql`, `pg_dump`, Docker, Supabase CLI, database
+  dump/restore, hosted SQL, dashboard workflows, storage operations, or hosted
+  data.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53 tests.
+- `git diff --check` passed with CRLF normalization warning only.
+- `git diff --cached --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review PR428:
+  `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md`.
+
+## Previous ARGUS verdict - PR428 API-backed proof spec accepted
 
 ARGUS reviewed the PR428 spec:
 

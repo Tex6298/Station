@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -928,6 +929,32 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
 
+function sha256(value: string) {
+  return createHash("sha256").update(value, "utf8").digest("hex");
+}
+
+function assertBundleIntegrity(bundle: Row, expectedPackageKind: string) {
+  assert.equal(bundle.schema, "station.export.bundle.v1");
+  assert.equal(bundle.package.packageKind, expectedPackageKind);
+  assert.equal(bundle.package.format, "json_markdown");
+  assert.equal(bundle.package.status, "completed");
+  assert.equal(bundle.privacy.ownerOnly, true);
+  assert.equal(bundle.integrity.algorithm, "sha256");
+  assert.equal(bundle.integrity.fileCount, 3);
+
+  const files = new Map<string, Row>(bundle.files.map((file: Row) => [file.path, file]));
+  assert.deepEqual([...files.keys()].sort(), ["README.md", "manifest.json", "manifest.md"]);
+  assert.deepEqual(Object.keys(bundle.integrity.files).sort(), ["README.md", "manifest.json", "manifest.md"]);
+
+  for (const file of files.values()) {
+    assert.equal(file.bytes, Buffer.byteLength(file.content, "utf8"));
+    assert.equal(file.sha256, sha256(file.content));
+    assert.equal(bundle.integrity.files[file.path], file.sha256);
+  }
+
+  return files;
+}
+
 async function createExportsApp() {
   const { exportsRouter } = await import("./exports.js");
   const app = express();
@@ -1135,6 +1162,12 @@ test("owner can export persona archive while preserving provenance and privacy b
   const app = await createExportsApp();
 
   try {
+    const anonymousCreate = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`);
+    assert.equal(anonymousCreate.status, 401);
+
+    const anonymousList = await requestJson(app, "GET", `/exports/persona/${PERSONA_ID}`);
+    assert.equal(anonymousList.status, 401);
+
     const blocked = await requestJson(app, "POST", `/exports/persona/${PERSONA_ID}`, {
       token: "other-token",
     });
@@ -1264,15 +1297,10 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "owner-token",
     });
     assert.equal(bundleReadBack.status, 200);
-    assert.equal(bundleReadBack.body.bundle.schema, "station.export.bundle.v1");
+    const anonymousBundleRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`);
+    assert.equal(anonymousBundleRead.status, 401);
     assert.equal(bundleReadBack.body.bundle.package.id, created.body.exportPackage.id);
-    assert.equal(bundleReadBack.body.bundle.privacy.ownerOnly, true);
-    assert.equal(bundleReadBack.body.bundle.integrity.algorithm, "sha256");
-    assert.equal(bundleReadBack.body.bundle.integrity.fileCount, 3);
-    const personaBundleFiles = new Map<string, Row>(bundleReadBack.body.bundle.files.map((file: Row) => [file.path, file]));
-    assert.equal(personaBundleFiles.has("README.md"), true);
-    assert.equal(personaBundleFiles.has("manifest.json"), true);
-    assert.equal(personaBundleFiles.has("manifest.md"), true);
+    const personaBundleFiles = assertBundleIntegrity(bundleReadBack.body.bundle, "persona_archive");
     assert.match(personaBundleFiles.get("manifest.json")?.sha256, /^[a-f0-9]{64}$/);
     assert.match(personaBundleFiles.get("manifest.json")?.content, /"schema": "station.persona.export.v1"/);
     assert.match(personaBundleFiles.get("manifest.md")?.content, /Station Export: Harbor/);
@@ -1294,6 +1322,12 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "other-token",
     });
     assert.equal(blockedDeveloperSpaceExport.status, 404);
+
+    const anonymousDeveloperSpaceExport = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`);
+    assert.equal(anonymousDeveloperSpaceExport.status, 401);
+
+    const anonymousDeveloperSpaceList = await requestJson(app, "GET", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`);
+    assert.equal(anonymousDeveloperSpaceList.status, 401);
 
     const developerSpaceExport = await requestJson(app, "POST", `/exports/developer-spaces/${DEVELOPER_SPACE_ID}`, {
       token: "owner-token",
@@ -1342,8 +1376,9 @@ test("owner can export persona archive while preserving provenance and privacy b
       token: "owner-token",
     });
     assert.equal(developerSpaceBundle.status, 200);
-    assert.equal(developerSpaceBundle.body.bundle.package.packageKind, "developer_space_archive");
-    const developerBundleFiles = new Map<string, Row>(developerSpaceBundle.body.bundle.files.map((file: Row) => [file.path, file]));
+    const anonymousDeveloperSpaceBundle = await requestJson(app, "GET", `/exports/${developerSpaceExport.body.exportPackage.id}/bundle`);
+    assert.equal(anonymousDeveloperSpaceBundle.status, 401);
+    const developerBundleFiles = assertBundleIntegrity(developerSpaceBundle.body.bundle, "developer_space_archive");
     assert.match(developerBundleFiles.get("manifest.json")?.content, /"schema": "station.developer_space.export.v1"/);
     assert.match(developerBundleFiles.get("manifest.md")?.content, /Station Developer Space Export: Animus Field/);
     const developerBundleText = JSON.stringify(developerSpaceBundle.body.bundle);
@@ -1621,13 +1656,7 @@ test("owner can create and read Project manifest bundles from stored readback", 
     assert.equal(bundle.privacy.ownerOnly, true);
     assert.equal(bundle.integrity.algorithm, "sha256");
     assert.equal(bundle.integrity.fileCount, 3);
-    const projectBundleFiles = new Map<string, Row>(bundle.files.map((file: Row) => [file.path, file]));
-    assert.deepEqual([...projectBundleFiles.keys()].sort(), ["README.md", "manifest.json", "manifest.md"]);
-    assert.deepEqual(Object.keys(bundle.integrity.files).sort(), ["README.md", "manifest.json", "manifest.md"]);
-    for (const file of projectBundleFiles.values()) {
-      assert.match(file.sha256, /^[a-f0-9]{64}$/);
-      assert.equal(bundle.integrity.files[file.path], file.sha256);
-    }
+    const projectBundleFiles = assertBundleIntegrity(bundle, "project_manifest");
     assert.deepEqual(JSON.parse(projectBundleFiles.get("manifest.json")?.content ?? "{}"), storedManifest);
     assert.equal(projectBundleFiles.get("manifest.md")?.content, storedMarkdown);
     assert.equal(

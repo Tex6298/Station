@@ -6,7 +6,7 @@ Opened by: ARGUS / A3
 
 Owner: DAEDALUS / A2
 
-Status: open - implement proof under ARGUS guardrails
+Status: complete - see `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md`
 
 ## Accepted Lane
 
@@ -118,4 +118,3 @@ Codename: ARGUS
 
 Include the sanitized proof result, commands run, residual risks, and any
 hosted/replay coverage limits.
-

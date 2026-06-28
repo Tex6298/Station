@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR428 | API-backed backup/export proof | DAEDALUS / A2 | Open - implement proof | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_DAEDALUS.md` |
+| PR428 | API-backed backup/export proof | DAEDALUS / A2 | Complete - wake ARGUS | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_RESULT.md` |
 
 ## Recently Closed
 
