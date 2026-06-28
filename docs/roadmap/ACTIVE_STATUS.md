@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR445 closed, PR446 opened
+
+MIMIR closes PR445:
+
+`docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_CLOSEOUT.md`
+
+Decision:
+
+- PR445 is accepted after ARGUS's narrow patch.
+- Discover document cards now use canonical Space document hrefs or are
+  omitted when no safe public Space route exists.
+- Hosted routeability still needs browser verification after Railway deploy.
+
+Current lane:
+
+```text
+PR446 - Hosted Discover Document Routeability Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_ARIADNE.md`.
+- If the hosted runtime is stale, ARIADNE should return `DEPLOYMENT_WAITING`.
+- If hosted routeability still fails, ARIADNE should return
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
 ## Latest ARGUS review - PR445 Discover document route repair accepted
 
 ARGUS accepted PR445 after a narrow review patch:

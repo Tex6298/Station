@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR445 | Discover document route repair | MIMIR / A1 | Accepted after narrow ARGUS patch; Discover public document cards use canonical Space document routes; waiting closeout | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_REVIEW_RESULT.md` |
+| PR446 | Hosted Discover document routeability rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR445 closeout | Discover document route repair | DAEDALUS -> ARGUS -> MIMIR | Closed; PR446 opened for hosted routeability rehearsal | `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_CLOSEOUT.md` |
 | PR444 closeout | Hosted product operation sweep | MIMIR -> ARIADNE -> MIMIR | Closed; PR445 opened for Discover document route repair | `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_CLOSEOUT.md` |
 | PR444 sweep | Hosted product operation sweep | MIMIR -> ARIADNE -> MIMIR | Product defect found; recommend PR445 Discover document route repair | `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_RESULT.md` |
 | PR443 closeout | Hosted provider setup UX rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; visible setup callout behaves as product path on hosted | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_CLOSEOUT.md` |
