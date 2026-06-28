@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR437 Gemini Private Chat Provider Preflight Review
+
+ARGUS completed PR437 on 2026-06-28:
+`docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md`.
+
+Validation result: `REJECT GEMINI PRIVATE CHAT - CONFIG REQUIRED`.
+
+Reason:
+
+- current Station code has Gemini embeddings but no Gemini chat provider;
+- Gemini embedding acceptance does not approve private Gemini chat;
+- current config presence does not prove paid Gemini API data posture;
+- the immediate safe PR436 rerun needs an already implemented accepted route:
+  `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, or owner BYOK;
+- future Gemini private chat requires a separate paid-Gemini implementation and
+  data-policy lane.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 12 tests passed; current accepted chat routes and blocked-private NVIDIA behavior remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; readiness keeps NVIDIA public/synthetic-only and trace details sanitized. |
+| `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` | Pass | 12 tests passed; Gemini remains the active embedding metadata path, not a chat provider. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: private hosted replay is still blocked until MIMIR configures an
+accepted non-NVIDIA platform route or owner BYOK, or deliberately opens a paid
+Gemini chat implementation lane.
+
 ## PR436 Hosted Non-NVIDIA Staged Replay
 
 ARIADNE completed PR436 on 2026-06-28:

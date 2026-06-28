@@ -6,8 +6,7 @@ Opened by: MIMIR / A1
 
 Owner: ARGUS / A3
 
-Status: open - decide whether Gemini can be the accepted non-NVIDIA private
-staging chat route
+Status: rejected Gemini private chat by ARGUS - config required
 
 ## Why This Lane
 
@@ -107,3 +106,9 @@ Wake MIMIR with `WAKEUP A1:` when the preflight verdict is ready.
 
 Wake DAEDALUS with `WAKEUP A2:` only if there is an immediate unsafe repo claim
 that must be patched before MIMIR can decide.
+
+## ARGUS Review
+
+ARGUS completed PR437 on 2026-06-28:
+
+`docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md`

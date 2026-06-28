@@ -4,6 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR437 Gemini private chat preflight
+
+ARGUS reviewed PR437:
+
+`docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_ARGUS.md`
+
+ARGUS review:
+
+`docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+REJECT GEMINI PRIVATE CHAT - CONFIG REQUIRED
+```
+
+Decision:
+
+- Current Station code has Gemini embeddings, not Gemini chat.
+- Do not use the existing Gemini embedding key as a private staged chat route.
+- Unpaid Gemini API posture is not acceptable for sensitive/private replay
+  context; paid Gemini chat would need a separate MIMIR lane, explicit paid API
+  acceptance, implementation, and ARGUS tests.
+- The smallest safe PR436 rerun unblock is `ANTHROPIC_API_KEY` on the Railway
+  API service. If Anthropic is unavailable, use `DEEPSEEK_API_KEY` or owner
+  BYOK for the replay account with an already supported BYOK provider.
+- No DAEDALUS implementation patch is required before MIMIR chooses the config
+  path.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:retrieval-metadata` passed, 12
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR437 - Gemini Private Chat Provider Preflight
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT / CONFIG DECISION
+```
+
+Current baton:
+
+- MIMIR should decide the config path for a PR436 rerun:
+  `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, or owner BYOK. Gemini private chat
+  should not be implemented unless MIMIR opens a paid-Gemini provider lane.
+
 ## Latest MIMIR closeout - PR436 config-blocked, PR437 opened
 
 MIMIR accepts ARIADNE's PR436 hosted rehearsal as fail-closed proof:
