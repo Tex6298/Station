@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR444 closed, PR445 opened
+
+MIMIR closes PR444:
+
+`docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_CLOSEOUT.md`
+
+Decision:
+
+- PR444 found one concrete public reading-path defect.
+- Discover public document cards use `/documents/<document-id>`, but the
+  hosted app has no public route for that shape.
+- A sampled public document card returned HTTP 404.
+- This is ready for one narrow DAEDALUS repair lane.
+
+Current lane:
+
+```text
+PR445 - Discover Document Route Repair
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR445_DISCOVER_DOCUMENT_ROUTE_REPAIR_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS when routeability, privacy boundaries, and focused
+  tests are ready for hostile review.
+
 ## Latest ARIADNE result - PR444 found Discover document route defect
 
 ARIADNE completed PR444:
