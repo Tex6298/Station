@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - discussion error responses ready for ARGUS
+## Latest ARGUS verdict - discussion errors accepted after narrow patch
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
@@ -13,16 +13,22 @@ MIMIR opened the next narrow route-level error response hardening lane on
 DAEDALUS completed the implementation on 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_RESULT.md`.
 
+ARGUS completed discussion error response review on 2026-06-28:
+`docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
 Verdict:
 
 ```text
-READY FOR ARGUS DISCUSSION ERROR RESPONSE REVIEW
+ACCEPTED AFTER NARROW ARGUS PATCH
 ```
 
 Decision:
 
 - Forum/subcommunity, thread, and comment route dependency failures now return
   stable public-safe responses with fixed route-specific error codes.
+- Thread and comment witness add/remove failures now return stable public-safe
+  responses after ARGUS added a narrow review patch for the missed recognition
+  mutation path.
 - Recognition readback, delegated moderation report listing, moderator list,
   moderator assignment, and moderator revoke failures now return stable
   public-safe responses.
@@ -30,10 +36,15 @@ Decision:
   moderation, recognition, linked document discussion semantics, public
   visibility behavior, hosted config, and hosted data did not change.
 - Focused community tests force hostile service payloads through forum,
-  thread, and comment failures and prove private IDs, table markers,
-  URLs/tokens, hidden comment bodies, draft/publication content, moderator
-  internals, provider payload labels, and stack-shaped strings are not returned
-  from failing route responses.
+  thread, comment, and witness mutation failures and prove private IDs, table
+  markers, URLs/tokens, hidden comment bodies, draft/publication content,
+  moderator internals, provider payload labels, and stack-shaped strings are
+  not returned from failing route responses.
+- Scope stayed inside discussion route response mapping, focused tests, and
+  roadmap/testing documentation. No taxonomy/schema, voting semantics,
+  moderation policy, linked document discussion semantics, UI, package
+  manifests, Redis, Cloudflare, workers, queues, hosted config, or hosted data
+  changes were introduced.
 
 Validation:
 
@@ -45,11 +56,13 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:reports` passed, 6 tests.
 - Added-line sensitive scan was reviewed; hits were synthetic discussion
   fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+- Direct raw-response grep was reviewed; remaining forum/thread/comment route
+  matches are zod validation messages or internal status classification, not
+  route responses returning raw service text.
 
 Current baton:
 
-- ARGUS should hostile-review discussion response mapping, behavior
-  preservation, linked document discussion compatibility, and focused tests.
+- MIMIR should close or route the next lane.
 
 ## Latest ARGUS verdict - document errors accepted
 

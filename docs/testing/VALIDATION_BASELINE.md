@@ -25,7 +25,13 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_RESULT.md`.
+
+ARGUS completed discussion error response review:
+`docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH`.
 
 Reason:
 
@@ -35,20 +41,23 @@ Reason:
   route responses with fixed error codes around forum/subcommunity
   list/read/create/update, thread list/read/create/watch/vote/update,
   comment list/create/vote/update, and moderation/visibility checks.
+- ARGUS added a narrow patch so thread/comment witness add/remove failures use
+  the same route-specific public-safe response treatment as the rest of the
+  discussion recognition surface.
 - `apps/api/src/routes/community.test.ts` forces hostile discussion service
-  payloads through forum, thread, and comment failures and proves raw service
-  details are not returned.
+  payloads through forum, thread, comment, and witness mutation failures and
+  proves raw service details are not returned.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 38 tests passed; hostile forum/thread/comment route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 38 tests passed; hostile forum/thread/comment and witness mutation failures return stable public copy. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; linked document discussion compatibility remains green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
 | Added-line sensitive scan | Reviewed | Hits were synthetic discussion fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
-| Direct raw-response grep | Reviewed | Remaining forum/thread/comment matches are zod parse errors, internal status classification, or schema-detection helpers, not route responses returning raw service text. |
+| Direct raw-response grep | Reviewed | Remaining forum/thread/comment matches are zod validation messages or internal status classification, not route responses returning raw service text. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed because delegated moderation/report-adjacent response paths were touched. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and discussion/moderation/voting/recognition behavior did not change. |
+| ARGUS review | Pass | Discussion response mapping is stable public copy after the narrow witness patch; discussion/moderation/voting/recognition behavior, linked document discussion semantics, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: other route-level raw error responses remain future audit
 surface.
