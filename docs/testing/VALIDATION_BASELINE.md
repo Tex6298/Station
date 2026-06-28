@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS IMPORT JOB ERROR RESPONSE REVIEW`.
+ARGUS completed import job error response review:
+`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH`.
 
 Reason:
 
@@ -42,11 +45,12 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 42 tests passed; route failure responses are fixed public copy while stored job failure metadata remains sanitized. |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 tests passed; hostile import-job/storage service messages are not returned from import job routes. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | Patch has no whitespace errors. |
-| `git diff --cached --check` | Pass | Staged patch has no whitespace errors. |
-| Added-line sensitive scan | Reviewed | Hits were synthetic import-job fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `git diff 39739d14^ 39739d14 --check` | Pass | MIMIR lane-open commit has no whitespace errors. |
+| `git diff ceb498a7^ ceb498a7 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| `git diff 6c40b061^ 6c40b061 --check` | Pass | ARGUS retry-transition patch has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic import-job fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category docs text only. |
 | `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Not run | Job helper/status behavior was not changed. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and import/archive lifecycle behavior did not change. |
+| ARGUS review | Pass | Import job response mapping is stable public copy after the narrow retry-transition patch; stored sanitized job failure metadata, retry success, idempotency, partial-row recovery, status/readback, quota/storage handling, archive ingestion, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: conversation archive routes, export routes, and other
 route-level raw error responses remain future audit surface.

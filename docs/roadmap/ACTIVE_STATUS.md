@@ -4,23 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - import job errors ready for ARGUS
+## Latest ARGUS verdict - import job errors accepted
 
-DAEDALUS completed import job route-level error response hardening on
+ARGUS completed import job route-level error response review on
 2026-06-28:
-`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS IMPORT JOB ERROR RESPONSE REVIEW
+ACCEPTED AFTER NARROW ARGUS PATCH
 ```
 
 Decision:
 
 - Import job quota-check, creation, archive-ingest execution, retry, and
-  owner-scoped list failure paths now return stable public-safe responses with
+  owner-scoped list failure paths return stable public-safe responses with
   fixed error codes.
+- ARGUS added a narrow retry-transition guard so a failure while marking a job
+  `processing` returns `import_job_retry_failed` instead of falling through to
+  generic error handling.
 - Stored import-job failure metadata still uses the existing
   `sanitizeJobErrorMessage` path, preserving owner readback without returning
   that service text from failing route responses.
@@ -31,6 +34,11 @@ Decision:
   service payloads through route failures and prove table names, storage paths,
   URLs, tokens, owner/persona/import-job IDs, source-name fields, provider
   payload labels, private markers, and stack-shaped strings are not returned.
+- Scope stayed inside import job route response hardening, focused storage and
+  conversation-archive tests, and roadmap/testing documentation. No parser,
+  archive chunking, retrieval, embedding/vector, schema, migration, package,
+  Redis, Cloudflare, provider/model, billing, auth/session, UI, worker, queue,
+  hosted config, or hosted data changes were introduced.
 - Conversation archive routes, export routes, and other non-import route-level
   raw errors remain future audit surface.
 
@@ -40,16 +48,17 @@ Validation:
   tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:storage` passed, 19 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` and `git diff --cached --check` passed.
+- `git diff 39739d14^ 39739d14 --check` passed.
+- `git diff ceb498a7^ ceb498a7 --check` passed.
+- `git diff 6c40b061^ 6c40b061 --check` passed.
 - Added-line sensitive scan was reviewed; hits were synthetic import-job
-  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+  fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category
+  docs text only.
 - `test:jobs` was not run because job helper/status behavior was not changed.
 
 Current baton:
 
-- ARGUS should hostile-review the import-job route response mapping and focused
-  tests.
-- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+- MIMIR should close or route the next lane.
 
 ## Previous ARGUS verdict - persona file errors accepted
 
