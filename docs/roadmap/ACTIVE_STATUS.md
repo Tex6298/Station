@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR459 Continuity/Integrity comprehension passed
+
+ARIADNE completed PR459:
+
+`docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```
+
+Recommended next lane:
+
+```text
+PR460 - Billing and quota clarity rehearsal
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR457 product commit.
+- Studio dashboard, persona Home, Continuity, Integrity, Memory, and
+  Archive/files returned HTTP 200 on desktop and 390px mobile.
+- Continuity read as durable cross-source context and runtime provenance rather
+  than raw Archive, Memory, or Canon duplication.
+- Integrity read as guided review/trust/calibration infrastructure rather than
+  an error state.
+- Studio dashboard Integrity Sessions Due made the purpose and next action
+  visible.
+- Persona tabs, route headers, and review/action links kept Continuity,
+  Integrity, Memory, and Archive roles distinguishable.
+- Desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, or overlapping labels in the sampled route set.
+
+Current lane:
+
+```text
+PR459 - Continuity and Integrity Comprehension Rehearsal
+Owner: MIMIR / A1
+State: PASS_WITH_NEXT_LANE - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR459 and decide whether to open PR460 for Billing/quota
+  clarity rehearsal.
+
 ## Latest MIMIR closeout - PR458 closed, PR459 opened
 
 MIMIR closes PR458:

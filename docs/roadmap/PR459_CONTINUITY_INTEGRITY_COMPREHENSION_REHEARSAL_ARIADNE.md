@@ -102,3 +102,15 @@ If reporting a defect, include:
 Do not commit screenshots, cookies, session values, raw owner ids, raw persona
 ids, private source bodies, prompts, completions, provider keys, stack traces,
 or raw network payloads.
+
+## ARIADNE Result
+
+Completed:
+
+`docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```

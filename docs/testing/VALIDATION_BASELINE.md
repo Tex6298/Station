@@ -20,6 +20,54 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR459 Continuity and Integrity Comprehension Rehearsal
+
+ARIADNE completed PR459 on 2026-06-28:
+`docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_WITH_NEXT_LANE`.
+
+Recommended next lane:
+
+```text
+PR460 - Billing and quota clarity rehearsal
+```
+
+Reason:
+
+- hosted web/API were fresh at the required PR457 runtime;
+- replay-owner hosted API sign-in and session verification passed;
+- Studio dashboard, persona Home, Continuity, Integrity, Memory, and
+  Archive/files returned HTTP 200 on desktop and 390px mobile;
+- Studio dashboard Integrity Sessions Due made Integrity visible as a recurring
+  review task tied back to continuity;
+- Continuity read as durable cross-source context and runtime provenance, not
+  raw Archive, Memory, or Canon duplication;
+- Integrity read as guided review/trust/calibration infrastructure, not an
+  unrelated error surface;
+- Memory and Archive comparison stops kept recallable context separate from
+  owner-only source material;
+- desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, or overlapping labels in the sampled route set;
+- sampled visible text did not expose raw identifiers, prompts, private bodies,
+  provider payloads, credentials, storage paths, stack traces, or secret-shaped
+  material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `e3809f0a`. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Desktop Studio/Continuity/Integrity route check | Pass | Studio dashboard, persona Home, Continuity, Integrity, Memory, and Archive/files passed. |
+| 390px mobile Studio/Continuity/Integrity route check | Pass | Same route set passed without horizontal overflow or clipped controls. |
+| Memory and Archive comparison stops | Pass | Terminology stayed distinct from Continuity and Integrity. |
+| Review/action target label check | Pass | Review Memory, Open Continuity, and Review Continuity labels made destinations clear. |
+| Raw-id/secret/internal visible text checks | Pass with note | Protective copy mentions hidden source bodies/prompts/provider payloads; no runtime leak was recorded. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only comprehension rehearsal. It did not
+mutate Integrity Sessions, continuity records, publication, archive, provider,
+billing, key, or private model-call state.
+
 ## PR458 Hosted Writing Filter Wrap Confirmation
 
 ARIADNE completed PR458 on 2026-06-28:

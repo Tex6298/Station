@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR459 | Continuity and Integrity comprehension rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_ARIADNE.md` |
+| PR459 | Continuity and Integrity comprehension rehearsal | MIMIR / A1 | Pass with next lane - waiting closeout | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR459 rehearsal | Continuity and Integrity comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend PR460 Billing/quota clarity rehearsal | `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_RESULT.md` |
 | PR458 closeout | Hosted Writing filter wrap confirmation | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR459 opened for Continuity/Integrity comprehension | `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_CLOSEOUT.md` |
 | PR458 rehearsal | Hosted Writing filter wrap confirmation | MIMIR -> ARIADNE -> MIMIR | Pass; hosted `/writing` filter wrap visually confirmed at mobile widths | `docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_RESULT.md` |
 | PR457 closeout | Writing filter mobile wrap patch | DAEDALUS -> ARGUS -> MIMIR | Closed as accepted code patch; PR458 opened for hosted visual confirmation | `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_CLOSEOUT.md` |
