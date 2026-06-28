@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR431 Hosted Developer Space Export Readback Rehearsal
+
+ARIADNE completed PR431 on 2026-06-28:
+`docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web and API deployment endpoints returned HTTP 200 and served PR430
+  commit `1d9bce0a`;
+- replay owner sign-in succeeded through the product UI;
+- `/developer-spaces/:slug/manage` exposed completed Developer Space export
+  readback controls;
+- desktop and 390px mobile opened manifest readback and portable bundle
+  readback;
+- bundle readback showed file names, media types, byte counts, and short
+  SHA-256 prefixes without raw bundle file contents;
+- desktop and mobile scans found no raw UUID-shaped IDs, secret-shaped values,
+  private bodies, or misleading backup/restore claims;
+- desktop and mobile had no document-level horizontal overflow.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted Playwright/API rehearsal | Pass | Sanitized local temp harness; no raw manifests, bundle bodies, IDs, credentials, or private bodies committed. |
+| `git diff --check` | Pass | Docs/state-only closeout. |
+
+Residual risk: PR431 proves hosted visibility for the PR430 Developer Space
+owner readback controls. It does not prove database backup/restore, managed
+backup redundancy, storage-object backup, original file/binary/PDF export, full
+workspace export, production disaster recovery, RPO/RTO, or hosted backup
+readiness.
+
 ## PR430 Developer Space Export Readback Controls Review
 
 ARGUS accepted PR430 on 2026-06-28:

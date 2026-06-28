@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Owner: ARIADNE / A4
 
-Status: open - hosted visible verification
+Status: complete - PASS
 
 ## Why This Lane
 
@@ -103,3 +103,11 @@ freshness result, and any concrete defect.
 
 Wake DAEDALUS directly only for a concrete reproducible PR430 product defect
 with route, visible label, expected behavior, and actual behavior.
+
+## Result
+
+ARIADNE completed this hosted rehearsal:
+
+`docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_RESULT.md`
+
+Verdict: `PASS`.

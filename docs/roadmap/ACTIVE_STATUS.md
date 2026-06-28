@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR431 hosted Developer Space export readback passed
+
+ARIADNE completed PR431:
+
+`docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web and API `/health/deployment` returned HTTP 200 and both served
+  PR430 commit `1d9bce0a`.
+- Replay owner sign-in worked through the product UI.
+- `/developer-spaces/:slug/manage` showed Developer Space export status,
+  completed package state, `View manifest`, and `View portable bundle`.
+- Desktop and 390px mobile both opened `Manifest readback` and
+  `Portable bundle readback`.
+- Bundle readback showed `README.md`, `manifest.json`, `manifest.md`, media
+  types, byte counts, and short SHA-256 prefixes.
+- Normal/readback UI scan found no raw UUID-shaped IDs, secret-shaped values,
+  private bodies, raw bundle file contents, or misleading backup/restore
+  claims.
+- Desktop and mobile had no document-level horizontal overflow.
+
+Current lane:
+
+```text
+PR431 - Hosted Developer Space Export Readback Rehearsal
+Owner: ARIADNE / A4
+State: PASS - WAITING MIMIR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR can close PR431 and the PR429/PR430 export-readback loop, then choose
+  the next roadmap lane from live evidence.
+
 ## Latest MIMIR closeout - PR430 accepted, PR431 opened
 
 MIMIR accepts ARGUS's PR430 review:
