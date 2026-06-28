@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR453 | Hosted Archive trust readback rehearsal | MIMIR / A1 | Pass; waiting closeout | `docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_RESULT.md` |
+| PR454 | Mobile Studio wayfinding rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR453 closeout | Hosted Archive trust readback rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR454 opened for mobile Studio wayfinding rehearsal | `docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_CLOSEOUT.md` |
 | PR453 rehearsal | Hosted Archive trust readback rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; Archive/files trust readback is visible, honest, and mobile-readable | `docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_RESULT.md` |
 | PR452 closeout | Archive trust status readback | DAEDALUS -> ARGUS -> MIMIR | Closed; PR453 opened for hosted visual confirmation | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_CLOSEOUT.md` |
 | PR452 review | Archive trust status readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow ARGUS copy/test patch | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_REVIEW_RESULT.md` |
