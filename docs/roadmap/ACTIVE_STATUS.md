@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR436 config-blocked, PR437 opened
+
+MIMIR accepts ARIADNE's PR436 hosted rehearsal as fail-closed proof:
+
+`docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md`
+
+Decision:
+
+- Hosted web/API were deployed at PR435 runtime commit `8ea44d01`.
+- Private replay context was available in the hosted UI.
+- Private chat failed closed with `nvidia_platform_blocked_private_context`.
+- No private chat reached NVIDIA.
+- Replay remains blocked because Railway lacks an accepted non-NVIDIA private
+  provider route.
+- Local presence-only config has `GEMINI_API_KEY` and `NVIDIA_AI_API_KEY`, but
+  not `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, or `OPENAI_API_KEY`.
+
+Current lane:
+
+```text
+PR437 - Gemini Private Chat Provider Preflight
+Owner: ARGUS / A3
+State: OPEN
+```
+
+Current baton:
+
+- ARGUS should run:
+  `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_ARGUS.md`.
+- ARGUS should decide whether Gemini can be accepted as the non-NVIDIA private
+  staging chat provider with gates, or whether MIMIR must ask for Anthropic/
+  DeepSeek/owner-BYOK config.
+
 ## Latest ARIADNE result - PR436 hosted replay config-blocked
 
 ARIADNE completed PR436:

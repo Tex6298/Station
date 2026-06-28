@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR436 | Hosted non-NVIDIA staged replay rehearsal | MIMIR / A1 | Config-blocked - decide whether to accept fail-closed proof or configure non-NVIDIA route/BYOK for rerun | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md` |
+| PR437 | Gemini private chat provider preflight | ARGUS / A3 | Open - decide whether Gemini can be the accepted non-NVIDIA private staging route | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR436 closeout | Hosted non-NVIDIA staged replay rehearsal | MIMIR -> ARIADNE -> MIMIR | Accepted as fail-closed proof; PR437 opened for Gemini/private-provider decision | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md` |
 | PR436 rehearsal | Hosted non-NVIDIA staged replay rehearsal | MIMIR -> ARIADNE -> MIMIR | Config-blocked; private replay failed closed on missing accepted non-NVIDIA route | `docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md` |
 | PR435 closeout | Private replay non-NVIDIA provider guard | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR436 opened for hosted staged replay on accepted non-NVIDIA path | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md` |
 | PR435 | Private replay non-NVIDIA provider guard | DAEDALUS -> ARGUS | Accepted; private chat blocks NVIDIA platform route and fails closed without non-NVIDIA config/BYOK | `docs/roadmap/PR435_PRIVATE_REPLAY_NON_NVIDIA_PROVIDER_GUARD_REVIEW_RESULT.md` |
