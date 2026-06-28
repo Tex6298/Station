@@ -25,7 +25,13 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `READY FOR ARGUS REVIEW`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_RESULT.md`.
+
+ARGUS completed discovery/Space error response review:
+`docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED AFTER NARROW ARGUS PATCH`.
 
 Reason:
 
@@ -35,19 +41,23 @@ Reason:
   with fixed error codes around discovery feed/sidebar, public Space
   composition, owner Space list/create/update/delete, and Space page mutation
   failures;
+- ARGUS added a narrow patch so featured discovery item visibility lookup
+  errors and public Space persona eligibility lookup errors return route-specific
+  fixed public copy instead of silently composing from failed dependency
+  results;
 - focused tests force hostile discovery and Space service payloads through
   failing route responses and prove raw service details are not returned.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 2 tests passed; hostile public/owner Space failures return stable public copy. |
-| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 39 tests passed; hostile discovery feed/sidebar failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 2 tests passed; hostile public/owner Space and Space persona eligibility failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 39 tests passed; hostile discovery feed/sidebar and featured visibility failures return stable public copy. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
 | Added-line sensitive scan | Reviewed | Hits were synthetic discovery/Space fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
 | Direct raw-response grep | Reviewed | The remaining target-file match is the internal missing-single classifier in `spaces.ts`, not a route response returning raw service text. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Not run | Public document readback and writing feed behavior were not changed. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and discovery/Space/page/visibility behavior did not change. |
+| ARGUS review | Pass | Discovery/Space response mapping is stable public copy after the narrow dependency-error patch; discovery/search behavior, Space/page/visibility behavior, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: Developer Space operations, Projects, reports, publishing
 approval, social, notification, persona, and other route-level raw error

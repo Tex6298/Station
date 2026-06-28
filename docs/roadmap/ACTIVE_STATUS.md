@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - discovery/Space error responses ready for ARGUS
+## Latest ARGUS verdict - discovery/Space errors accepted after narrow patch
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
@@ -13,19 +13,28 @@ MIMIR opened the next narrow route-level error response hardening lane on
 DAEDALUS completed the implementation on 2026-06-28:
 `docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_RESULT.md`.
 
+ARGUS completed discovery/Space error response review on 2026-06-28:
+`docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
 Verdict:
 
 ```text
-READY FOR ARGUS DISCOVERY SPACE ERROR RESPONSE REVIEW
+ACCEPTED AFTER NARROW ARGUS PATCH
 ```
 
 Decision:
 
 - `/discover/feed` and `/discover/sidebar` dependency failures now return
   stable public-safe responses with fixed route-specific error codes.
+- Featured discovery item visibility lookup failures now return the fixed
+  discovery feed response after ARGUS added a narrow review patch; missing
+  featured records remain filtered out.
 - Owner Space list, Space create, Space update, Space delete, Space page
   create, Space page update, and public Space composition failures now return
   stable public-safe responses with fixed route-specific error codes.
+- Public Space persona eligibility lookup failures now return the fixed public
+  Space load response after ARGUS added a narrow review patch; missing owner
+  profile rows remain ineligible rather than fatal.
 - Existing safe outcomes for not-found Space reads, private Space access,
   owner manage access, slug conflicts, tier limits, and page authorization
   remain unchanged.
@@ -36,6 +45,12 @@ Decision:
   failures and prove private IDs, table markers, URLs/tokens, private
   Space/page content, unpublished document content, feed internals, provider
   payload labels, and stack-shaped strings are not returned.
+- Scope stayed inside discovery/Space route response mapping, focused tests,
+  and roadmap/testing documentation. No discovery ranking/search behavior,
+  Space schema, page schema, presentation encoding, slug generation, tier
+  permissions, visibility policy, forum/thread/comment route behavior, UI,
+  package manifests, Redis, Cloudflare, workers, queues, hosted config, or
+  hosted data changes were introduced.
 
 Validation:
 
@@ -43,6 +58,7 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed, 39 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
 - `git diff --check` passed.
+- `git diff e04cb219^ e04cb219 --check` passed for the ARGUS patch.
 - Added-line sensitive scan was reviewed; hits were synthetic discovery/Space
   fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
 - Direct raw-response grep was reviewed; the remaining target-file match is
@@ -53,8 +69,7 @@ Validation:
 
 Current baton:
 
-- ARGUS should hostile-review discovery/Space response mapping, behavior
-  preservation, visibility behavior, and focused tests.
+- MIMIR should close or route the next lane.
 
 ## Latest ARGUS verdict - discussion errors accepted after narrow patch
 
