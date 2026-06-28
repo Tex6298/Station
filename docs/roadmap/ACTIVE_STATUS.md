@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - error sanitization accepted after patch
+## Latest DAEDALUS result - billing error responses ready for ARGUS
+
+DAEDALUS completed billing route-level error response hardening on 2026-06-28:
+`docs/roadmap/PRODUCTION_BILLING_ERROR_RESPONSE_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS BILLING ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Billing status, Checkout, Portal, and webhook catch paths now return stable
+  public-safe responses instead of raw Stripe/service exception text.
+- Active subscription checkout blocking remains useful with `409` and customer
+  portal guidance.
+- Billing subscription-state unavailability remains useful with `503` and retry
+  guidance.
+- Webhook verification/handling failures now use stable public copy, including
+  unknown Price ID and customer mismatch failures.
+- Missing `stripe-signature` remains a bounded explicit `400`.
+- No Stripe API behavior, entitlement mutation, schema, migration, package,
+  auth/session, UI, Redis, Cloudflare, worker, queue, hosted config, or hosted
+  data changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS should hostile-review the billing controller response mapping and
+  billing tests.
+- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+
+## Previous ARGUS verdict - error sanitization accepted after patch
 
 ARGUS completed global error-sanitization review on 2026-06-28:
 `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_REVIEW_RESULT.md`.

@@ -26,6 +26,11 @@ MIMIR opened the first route-level error-response hardening slice on
 2026-06-28:
 `docs/roadmap/PRODUCTION_BILLING_ERROR_RESPONSE_DAEDALUS.md`.
 
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_BILLING_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS BILLING ERROR RESPONSE REVIEW`.
+
 Reason:
 
 - ARGUS accepted the global Express error-boundary fix;
@@ -34,13 +39,11 @@ Reason:
 - billing is payment-adjacent and currently returns direct service exception
   text from status, Checkout, Portal, and webhook handlers.
 
-Required validation for the DAEDALUS result:
-
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | Hostile Stripe/service messages must not be returned from billing routes. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Required if TypeScript changes. |
-| `git diff --check` | Pass | Required for the patch. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 16 tests passed; hostile Stripe/service messages are not returned from billing routes. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
 
 Residual risk: non-billing route-level raw error responses remain future audit
 surface.

@@ -20,6 +20,8 @@ process.env.STRIPE_PRICE_CANON_YEARLY = "price_canon_yearly";
 type Row = Record<string, any>;
 
 class InMemorySupabase {
+  billingStatusError: Error | null = null;
+
   tables: Record<string, Row[]> = {
     profiles: [
       {
@@ -60,10 +62,12 @@ class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private operation: "select" | "update" = "select";
   private payload: Row | null = null;
+  private columns = "*";
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
-  select(_columns = "*") {
+  select(columns = "*") {
+    this.columns = columns;
     return this;
   }
 
@@ -95,6 +99,10 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single") {
+    if (this.db.billingStatusError && this.table === "profiles" && /stripe_subscription_id/.test(this.columns)) {
+      throw this.db.billingStatusError;
+    }
+
     const rows = this.matchingRows();
 
     if (this.operation === "update") {
@@ -126,10 +134,16 @@ function createFakeStripe() {
     retrievedSubscriptions: [] as string[],
     webhooks: [] as any[],
   };
+  const failures: {
+    checkout?: Error;
+    portal?: Error;
+    webhook?: Error;
+  } = {};
 
   return {
     subscriptionsById: subscriptions,
     calls,
+    failures,
     customers: {
       create: async (params: any) => {
         calls.customers.push(params);
@@ -140,6 +154,7 @@ function createFakeStripe() {
       sessions: {
         create: async (params: any) => {
           calls.checkout.push(params);
+          if (failures.checkout) throw failures.checkout;
           return { id: "cs_test", url: "https://checkout.example.test/session" };
         },
       },
@@ -148,6 +163,7 @@ function createFakeStripe() {
       sessions: {
         create: async (params: any) => {
           calls.portal.push(params);
+          if (failures.portal) throw failures.portal;
           return { id: "bps_test", url: "https://portal.example.test/session" };
         },
       },
@@ -163,7 +179,7 @@ function createFakeStripe() {
     webhooks: {
       constructEvent: (payload: Buffer | string, signature: string, secret: string) => {
         calls.webhooks.push({ signature, secret });
-        if (signature !== "valid-signature") throw new Error("Signature verification failed.");
+        if (signature !== "valid-signature") throw failures.webhook ?? new Error("Signature verification failed.");
         const body = Buffer.isBuffer(payload) ? payload.toString("utf8") : payload;
         return JSON.parse(body);
       },
@@ -248,6 +264,43 @@ function close(server: Server) {
 function resetFakes() {
   setSupabaseAdminForTests(null);
   setStripeForTests(null);
+}
+
+const hiddenMarker = "private-" + "billing-marker";
+const secretKeyPrefix = "s" + "k_test_";
+const webhookSecretPrefix = "wh" + "sec_";
+const bearerLabel = "Bear" + "er";
+const databaseScheme = "postgres" + "ql://";
+const stripeCheckoutId = "c" + "s_test_" + hiddenMarker;
+const stripeCustomerId = "c" + "us_" + hiddenMarker;
+const stripeSubscriptionId = "s" + "ub_" + hiddenMarker;
+const paymentIntentId = "p" + "i_" + hiddenMarker;
+
+function hostileBillingError(label: string) {
+  return new Error([
+    `${label} failed for ${stripeCheckoutId}`,
+    `${stripeCustomerId} ${stripeSubscriptionId} ${paymentIntentId}`,
+    `${bearerLabel} abc.${hiddenMarker}.token`,
+    `api key: ${secretKeyPrefix}${hiddenMarker}`,
+    `webhook secret: ${webhookSecretPrefix}${hiddenMarker}`,
+    `database url: ${databaseScheme}station:${hiddenMarker}@db.example.test/station`,
+    `provider payload: private snippet ${hiddenMarker}`,
+    "at stripeClient (/station/private/route.ts:1:2)",
+  ].join("; "));
+}
+
+function assertSafeBillingBody(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(hiddenMarker), false);
+  assert.equal(text.includes(secretKeyPrefix), false);
+  assert.equal(text.includes(webhookSecretPrefix), false);
+  assert.equal(text.includes(databaseScheme), false);
+  assert.equal(text.includes("db.example.test"), false);
+  assert.equal(text.includes(bearerLabel), false);
+  assert.equal(text.includes("stripeClient"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private snippet"), false);
+  assert.doesNotMatch(text, /cs_test_|cus_|sub_|pi_/);
 }
 
 test("billing routes create Checkout and portal sessions with server pricing", async () => {
@@ -364,6 +417,7 @@ test("billing checkout fails closed when subscription state cannot be verified",
 
     assert.equal(blocked.status, 503);
     assert.match(blocked.body.error, /verify current billing subscription state/i);
+    assert.equal(blocked.body.code, "billing_subscription_state_unavailable");
     assert.equal(stripe.calls.checkout.length, 0);
     assert.equal(stripe.calls.customers.length, 0);
     assert.doesNotMatch(JSON.stringify(blocked.body), /owner-user|owner@example\.test|cus_|sub_/);
@@ -412,6 +466,8 @@ test("billing webhooks require verified signatures before entitlement changes", 
     const invalid = await requestWebhook(app, checkoutEvent, "bad-signature");
 
     assert.equal(invalid.status, 400);
+    assert.equal(invalid.body.error, "Webhook could not be verified or processed.");
+    assert.equal(invalid.body.code, "billing_webhook_failed");
     assert.equal(db.tables.profiles[0].tier, "visitor");
     assert.equal(stripe.calls.retrievedSubscriptions.length, 0);
 
@@ -487,7 +543,8 @@ test("billing webhooks reject unknown active Price IDs without mutating tier", a
     }, "valid-signature");
 
     assert.equal(response.status, 400);
-    assert.match(response.body.error, /unknown Station Price ID/);
+    assert.equal(response.body.error, "Webhook could not be verified or processed.");
+    assert.equal(response.body.code, "billing_webhook_failed");
     assert.equal(db.tables.profiles[0].tier, "creator");
     assert.equal(db.tables.profiles[0].stripe_subscription_id, "sub_existing");
     assert.equal(db.tables.profiles[0].subscription_status, "active");
@@ -529,11 +586,110 @@ test("billing webhooks reject Station user and Stripe customer mismatches", asyn
     }, "valid-signature");
 
     assert.equal(response.status, 400);
-    assert.match(response.body.error, /customer does not match/);
+    assert.equal(response.body.error, "Webhook could not be verified or processed.");
+    assert.equal(response.body.code, "billing_webhook_failed");
     assert.equal(db.tables.profiles[0].tier, "private");
     assert.equal(db.tables.profiles[0].stripe_customer_id, "cus_owner");
     assert.equal(db.tables.profiles[0].stripe_subscription_id, "sub_existing");
     assert.equal(db.tables.profiles[0].subscription_status, "active");
+  } finally {
+    resetFakes();
+  }
+});
+
+test("billing route errors return stable public copy without service payloads", async () => {
+  const statusDb = new InMemorySupabase();
+  statusDb.billingStatusError = hostileBillingError("status");
+  setSupabaseAdminForTests(statusDb.client as any);
+  setStripeForTests(createFakeStripe() as any);
+  const statusApp = createBillingApp();
+
+  try {
+    const status = await requestJson(statusApp, "GET", "/billing/me", {
+      token: "owner-token",
+    });
+
+    assert.equal(status.status, 500);
+    assert.deepEqual(status.body, {
+      error: "Could not load billing status.",
+      code: "billing_status_unavailable",
+    });
+    assertSafeBillingBody(status.body);
+  } finally {
+    resetFakes();
+  }
+
+  const checkoutDb = new InMemorySupabase();
+  checkoutDb.tables.profiles[0].stripe_customer_id = "cus_owner";
+  const checkoutStripe = createFakeStripe();
+  checkoutStripe.failures.checkout = hostileBillingError("checkout");
+  setSupabaseAdminForTests(checkoutDb.client as any);
+  setStripeForTests(checkoutStripe as any);
+  const checkoutApp = createBillingApp();
+
+  try {
+    const checkout = await requestJson(checkoutApp, "POST", "/billing/checkout", {
+      token: "owner-token",
+      body: {
+        tier: "creator",
+        interval: "monthly",
+      },
+    });
+
+    assert.equal(checkout.status, 400);
+    assert.deepEqual(checkout.body, {
+      error: "Could not create Checkout session.",
+      code: "checkout_creation_failed",
+    });
+    assertSafeBillingBody(checkout.body);
+  } finally {
+    resetFakes();
+  }
+
+  const portalDb = new InMemorySupabase();
+  portalDb.tables.profiles[0].stripe_customer_id = "cus_owner";
+  const portalStripe = createFakeStripe();
+  portalStripe.failures.portal = hostileBillingError("portal");
+  setSupabaseAdminForTests(portalDb.client as any);
+  setStripeForTests(portalStripe as any);
+  const portalApp = createBillingApp();
+
+  try {
+    const portal = await requestJson(portalApp, "POST", "/billing/portal", {
+      token: "owner-token",
+      body: {},
+    });
+
+    assert.equal(portal.status, 400);
+    assert.deepEqual(portal.body, {
+      error: "Could not create customer portal session.",
+      code: "billing_portal_failed",
+    });
+    assertSafeBillingBody(portal.body);
+  } finally {
+    resetFakes();
+  }
+
+  const webhookDb = new InMemorySupabase();
+  const webhookStripe = createFakeStripe();
+  webhookStripe.failures.webhook = hostileBillingError("webhook");
+  setSupabaseAdminForTests(webhookDb.client as any);
+  setStripeForTests(webhookStripe as any);
+  const webhookApp = createBillingApp();
+
+  try {
+    const webhook = await requestWebhook(webhookApp, {
+      id: "evt_hostile",
+      type: "checkout.session.completed",
+      data: { object: {} },
+    }, "bad-signature");
+
+    assert.equal(webhook.status, 400);
+    assert.deepEqual(webhook.body, {
+      error: "Webhook could not be verified or processed.",
+      code: "billing_webhook_failed",
+    });
+    assertSafeBillingBody(webhook.body);
   } finally {
     resetFakes();
   }

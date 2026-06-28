@@ -11,13 +11,44 @@ import { checkoutSchema, portalSchema } from "../schemas/billing.schema";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+const BILLING_ERROR_RESPONSES = {
+  status: {
+    error: "Could not load billing status.",
+    code: "billing_status_unavailable",
+  },
+  checkout: {
+    error: "Could not create Checkout session.",
+    code: "checkout_creation_failed",
+  },
+  portal: {
+    error: "Could not create customer portal session.",
+    code: "billing_portal_failed",
+  },
+  webhook: {
+    error: "Webhook could not be verified or processed.",
+    code: "billing_webhook_failed",
+  },
+  missingSignature: {
+    error: "Missing stripe-signature header.",
+    code: "missing_stripe_signature",
+  },
+  activeSubscription: {
+    error: "An active subscription is already recorded. Use the customer portal to manage billing.",
+    code: "active_subscription_exists",
+  },
+  subscriptionStateUnavailable: {
+    error: "Could not verify current billing subscription state. Try again before starting Checkout.",
+    code: "billing_subscription_state_unavailable",
+  },
+} as const;
+
 // -- GET /billing/me -----------------------------------------------------------
 export async function handleGetBillingStatus(req: Request, res: Response): Promise<void> {
   try {
     const status = await getBillingStatus(req.user!.id);
     res.json(status);
-  } catch (err) {
-    res.status(500).json({ error: err instanceof Error ? err.message : "Failed to fetch billing status." });
+  } catch {
+    res.status(500).json(BILLING_ERROR_RESPONSES.status);
   }
 }
 
@@ -40,16 +71,15 @@ export async function handleCreateCheckout(req: Request, res: Response): Promise
     });
     res.json({ url });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Checkout creation failed.";
     if (err instanceof ActiveSubscriptionCheckoutBlockedError) {
-      res.status(409).json({ error: message });
+      res.status(409).json(BILLING_ERROR_RESPONSES.activeSubscription);
       return;
     }
     if (err instanceof BillingSubscriptionStateUnavailableError) {
-      res.status(503).json({ error: message });
+      res.status(503).json(BILLING_ERROR_RESPONSES.subscriptionStateUnavailable);
       return;
     }
-    res.status(400).json({ error: message });
+    res.status(400).json(BILLING_ERROR_RESPONSES.checkout);
   }
 }
 
@@ -68,9 +98,8 @@ export async function handleCreatePortal(req: Request, res: Response): Promise<v
       returnUrl: parsed.data.returnUrl ?? `${APP_URL}/billing`,
     });
     res.json({ url });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Portal creation failed.";
-    res.status(400).json({ error: message });
+  } catch {
+    res.status(400).json(BILLING_ERROR_RESPONSES.portal);
   }
 }
 
@@ -80,15 +109,14 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
   const signature = req.headers["stripe-signature"] as string;
 
   if (!signature) {
-    res.status(400).json({ error: "Missing stripe-signature header." });
+    res.status(400).json(BILLING_ERROR_RESPONSES.missingSignature);
     return;
   }
 
   try {
     const eventType = await handleWebhookEvent(req.body as Buffer, signature);
     res.json({ received: true, type: eventType });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Webhook handling failed.";
-    res.status(400).json({ error: message });
+  } catch {
+    res.status(400).json(BILLING_ERROR_RESPONSES.webhook);
   }
 }
