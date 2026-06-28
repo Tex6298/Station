@@ -20,6 +20,49 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR458 Hosted Writing Filter Wrap Confirmation
+
+ARIADNE completed PR458 on 2026-06-28:
+`docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web was fresh at the PR457 product commit;
+- hosted API health also passed as a companion check;
+- `/writing` returned HTTP 200 at desktop, 430px, 390px, 375px, and 320px;
+- all writing type filters were present, visible, and within the viewport at
+  every sampled width;
+- Field Log, Theory, and Research were visible inside the panel at the mobile
+  widths that failed in PR456;
+- clicking Research updated the active filter state without creating horizontal
+  overflow;
+- Latest, Featured, and Staff picks remained present, with Staff picks visibly
+  disabled;
+- search stayed reachable and readable at every sampled width;
+- sampled visible text did not expose raw identifiers, prompts, private bodies,
+  provider payloads, credentials, storage paths, stack traces, or secret-shaped
+  material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Web returned HTTP 200 and ready at commit `e3809f0a`. |
+| Hosted API `/health/deployment` | Pass | API returned HTTP 200 and ready at commit `e3809f0a`; recorded as companion health. |
+| Desktop `/writing` layout check | Pass | Type filters fit; no page-wide horizontal overflow. |
+| 430px `/writing` layout check | Pass | Type filters fit; no page-wide horizontal overflow. |
+| 390px `/writing` layout check | Pass | Type filters fit; no page-wide horizontal overflow. |
+| 375px `/writing` layout check | Pass | Type filters fit; no page-wide horizontal overflow. |
+| 320px `/writing` layout check | Pass | Type filters fit; no page-wide horizontal overflow. |
+| Type filter click check | Pass | Research active state updated without layout breakage. |
+| Staff picks disabled-state check | Pass | Staff picks remained visibly disabled. |
+| Raw-id/secret/internal visible text checks | Pass | No raw ids, credentials, private bodies, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only visual confirmation. It did not
+mutate publication, archive, provider, billing, key, or private model-call
+state.
+
 ## PR457 Writing Filter Mobile Wrap Patch
 
 DAEDALUS implemented PR457 on 2026-06-28:

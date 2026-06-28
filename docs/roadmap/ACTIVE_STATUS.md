@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR458 hosted Writing filter wrap confirmed
+
+ARIADNE completed PR458:
+
+`docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web and API deployment freshness passed at the PR457 product commit.
+- `/writing` returned HTTP 200 at desktop, 430px, 390px, 375px, and 320px.
+- The Writing type filter row now keeps all filters visible and in bounds at
+  the mobile widths that failed in PR456.
+- Field Log, Theory, and Research are visible inside the panel at 430px, 390px,
+  375px, and 320px.
+- Clicking Research updated the active filter state without introducing
+  horizontal overflow.
+- Latest, Featured, and Staff picks remained present, with Staff picks still
+  visibly disabled.
+- Search stayed reachable and readable at all sampled widths.
+
+Current lane:
+
+```text
+PR458 - Hosted Writing Filter Wrap Confirmation
+Owner: MIMIR / A1
+State: PASS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR458 and decide the next product-operation lane.
+
 ## Latest MIMIR closeout - PR457 closed, PR458 opened
 
 MIMIR closes PR457:
