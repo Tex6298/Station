@@ -97,3 +97,15 @@ If reporting a defect, include:
 Do not commit screenshots, cookies, session values, raw owner ids, customer ids,
 subscription ids, payment secrets, private source bodies, prompts, completions,
 provider keys, stack traces, or raw network payloads.
+
+## ARIADNE Result
+
+Completed:
+
+`docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```

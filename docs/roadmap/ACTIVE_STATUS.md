@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR462 hosted Studio quota confirmation passed
+
+ARIADNE completed PR462:
+
+`docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR461 product/review
+  commit.
+- `/studio` returned HTTP 200 on desktop and 390px mobile.
+- The dashboard now shows the `Authoritative Usage` replacement panel.
+- `/studio` no longer shows `Tier allocation`, the former `Usage Stats This
+  Month` block, synthetic monthly counters, or local quota percentages.
+- The replacement panel routes to Billing for plan/subscription/entitlement
+  limits, Settings for token-credit and storage readbacks, and Archive for
+  owner-wide source state.
+- Billing, Settings, and Archive replacement route targets opened successfully
+  on desktop and 390px mobile.
+- Desktop and 390px mobile layouts had no horizontal overflow, clipped controls,
+  or overlapping labels in the sampled route set.
+
+Current lane:
+
+```text
+PR462 - Hosted Studio Quota Readback Confirmation
+Owner: MIMIR / A1
+State: PASS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR462 and decide the next product-operation lane.
+
 ## Latest MIMIR closeout - PR461 closed, PR462 opened
 
 MIMIR closes PR461:

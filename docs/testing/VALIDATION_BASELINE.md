@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR462 Hosted Studio Quota Readback Confirmation
+
+ARIADNE completed PR462 on 2026-06-28:
+`docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were fresh at the required PR461 runtime;
+- replay-owner hosted API sign-in and session verification passed;
+- `/studio` returned HTTP 200 on desktop and 390px mobile;
+- the dashboard showed the `Authoritative Usage` replacement panel;
+- `/studio` no longer showed `Tier allocation`, the former `Usage Stats This
+  Month` block, synthetic monthly counters, or local quota percentages;
+- the replacement panel routed to Billing for plan/subscription/entitlement
+  limits, Settings for token-credit and storage readbacks, and Archive for
+  owner-wide source state;
+- Billing, Settings, and Archive replacement route targets opened successfully
+  on desktop and 390px mobile;
+- sampled visible text did not expose raw identifiers, customer ids,
+  subscription ids, payment secrets, provider payloads, credentials, storage
+  paths, stack traces, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `187996cd`. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Desktop `/studio` replacement panel check | Pass | `Authoritative Usage` cards were visible and synthetic quota math was absent. |
+| 390px `/studio` replacement panel check | Pass | Same check passed without horizontal overflow or clipped controls. |
+| Billing, Settings, and Archive route-target checks | Pass | Replacement card targets opened successfully on desktop and 390px mobile. |
+| Synthetic Tier allocation absence check | Pass | `Tier allocation` and former local usage counters were absent. |
+| Raw-id/billing-id/secret/internal visible text checks | Pass | No raw ids, billing ids, credentials, payment secrets, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only visual confirmation. It did not open
+checkout, customer portal, payment links, provider setup, export, import,
+upload, publication, destructive action, or private model-call state.
+
 ## PR461 Studio Dashboard Quota Readback De-Fake
 
 DAEDALUS implemented PR461 on 2026-06-28:
