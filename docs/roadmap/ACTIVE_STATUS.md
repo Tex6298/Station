@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR440 closed, PR441 opened
+
+MIMIR closes PR440:
+
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_CLOSEOUT.md`
+
+Decision:
+
+- PR440 encrypted owner BYOK storage is accepted and closed.
+- The accepted implementation covers OpenAI, Anthropic, and DeepSeek owner BYOK
+  storage only.
+- Gemini chat remains deferred.
+- Private NVIDIA remains blocked.
+- The next proof is hosted readiness, not broad builder churn.
+
+Current lane:
+
+```text
+PR441 - Hosted Encrypted BYOK Readiness Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_ARIADNE.md`.
+- ARIADNE should wake MIMIR with pass, a named config-blocked verdict, or a
+  concrete product defect.
+- DAEDALUS should be woken only if ARIADNE finds an actual product defect, not
+  merely missing deployment/config.
+
 ## Latest ARGUS verdict - PR440 encrypted owner BYOK storage accepted
 
 ARGUS reviewed PR440:
