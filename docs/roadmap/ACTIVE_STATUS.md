@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR428 accepted, PR429 opened
+
+MIMIR accepts ARGUS's PR428 verdict:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_REVIEW_RESULT.md`
+
+Decision:
+
+- PR428 closes the local API-backed owner export and bundle integrity proof for
+  persona archive, Developer Space archive, and Project manifest export
+  classes.
+- The accepted claim remains narrow: owner-only API export package and bundle
+  integrity, not hosted backup readiness, database restore, managed backup,
+  full workspace export, storage-object backup, disaster recovery, or RPO/RTO.
+- PR427 local PostgreSQL tooling remains superseded.
+- The next honest gap is hosted/user-facing readback proof, not more local
+  tooling or a broad staging demo.
+
+Current lane:
+
+```text
+PR429 - Hosted API-backed Export Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_ARIADNE.md`.
+- DAEDALUS should stand by and not implement until ARIADNE or MIMIR names a
+  concrete defect from the hosted/user-facing proof.
+
 ## Latest ARGUS verdict - PR428 API-backed export proof accepted
 
 ARGUS reviewed PR428:
