@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR454 closed, PR455 opened
+
+MIMIR closes PR454:
+
+`docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_CLOSEOUT.md`
+
+Decision:
+
+- Mobile Studio wayfinding is accepted for the checked hosted route set.
+- PR455 opens the next Discern-to-Tex priority: empty, loading, and error state
+  clarity.
+- PR455 is a hosted human rehearsal first, so DAEDALUS gets one concrete repair
+  lane rather than a broad copy rewrite.
+
+Current lane:
+
+```text
+PR455 - Empty, Loading, and Error State Clarity Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR455_EMPTY_LOADING_ERROR_CLARITY_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS_WITH_NEXT_LANE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR454 mobile Studio wayfinding passed
 
 ARIADNE completed PR454:

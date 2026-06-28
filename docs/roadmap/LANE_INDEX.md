@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR454 | Mobile Studio wayfinding rehearsal | MIMIR / A1 | Pass with next lane; waiting closeout | `docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_REHEARSAL_RESULT.md` |
+| PR455 | Empty, loading, and error state clarity rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR455_EMPTY_LOADING_ERROR_CLARITY_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR454 closeout | Mobile Studio wayfinding rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR455 opened for empty/loading/error clarity | `docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_CLOSEOUT.md` |
 | PR454 rehearsal | Mobile Studio wayfinding rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend empty/loading/error state clarity audit | `docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_REHEARSAL_RESULT.md` |
 | PR453 closeout | Hosted Archive trust readback rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR454 opened for mobile Studio wayfinding rehearsal | `docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_CLOSEOUT.md` |
 | PR453 rehearsal | Hosted Archive trust readback rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; Archive/files trust readback is visible, honest, and mobile-readable | `docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_RESULT.md` |
