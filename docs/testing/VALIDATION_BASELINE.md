@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Document Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- integrity route-level error responses are accepted;
+- documents are the next product-critical public-chain surface;
+- `documents.ts` has direct route-level raw errors around owner document list,
+  version history, create/update/publish/delete, continuity publication,
+  snapshots, and linked discussion cleanup.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | Required for linked document discussion behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | Required for continuity-to-document publication behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Conditional pass | Required if public document readback behavior changes. |
+| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and document/publication/snapshot/linked-discussion behavior did not change. |
+
+Residual risk: forum, thread, comment, and other route-level raw error
+responses remain future audit surface.
+
 ## Production Integrity Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:

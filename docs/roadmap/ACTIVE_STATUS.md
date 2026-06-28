@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - document error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted integrity route-level error responses.
+- Documents are the next product-critical public-chain surface: owner writing,
+  continuity publication, version snapshots, public readback, and linked forum
+  discussion setup/cleanup all meet here.
+- Forum/thread/comment raw-error hardening stays queued after this so the
+  public discussion stack is not changed all at once.
+
+Current baton:
+
+- DAEDALUS should harden document route responses, validate focused document
+  discussion/publication gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - integrity errors accepted after narrow patch
 
 ARGUS completed the integrity route-level error response review on
