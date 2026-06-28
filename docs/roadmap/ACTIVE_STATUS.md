@@ -4,17 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - conversation continuity errors ready for ARGUS
+## Latest ARGUS verdict - conversation continuity errors accepted
 
-DAEDALUS completed conversation/continuity route-level error response hardening
+ARGUS completed conversation/continuity route-level error response review
 on
 2026-06-28:
-`docs/roadmap/PRODUCTION_CONVERSATION_CONTINUITY_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_CONVERSATION_CONTINUITY_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS CONVERSATION CONTINUITY ERROR RESPONSE REVIEW
+ACCEPTED
 ```
 
 Decision:
@@ -22,14 +22,21 @@ Decision:
 - Conversation list, continuity candidate list, save-to-canon, archive message
   lookup, transcript creation, archive indexing, candidate generation, candidate
   reject, candidate accept-memory, candidate accept-canon, candidate accepted
-  update, and conversation delete failures now return stable public-safe
-  responses with fixed error codes.
+  update, and conversation delete failures return stable public-safe responses
+  with fixed error codes.
 - Successful owner readbacks for conversations, archive bundles, continuity
   candidates, accepted memory/canon targets, archive idempotency, and
   conversation deletion semantics did not change.
 - Transcript creation, archive indexing cleanup, candidate generation,
   candidate accept/reject lifecycle, memory lifecycle evidence, canon creation,
   and conversation deletion behavior remain on the existing paths.
+- Scope stayed inside conversation/continuity route response hardening, focused
+  conversation-archive tests, and roadmap/testing documentation. No chat-turn
+  provider behavior, conversation history assembly, runtime context selection,
+  archive chunking, retrieval, embedding/vector behavior, parser behavior,
+  storage quota math, schema, migration, package, Redis, Cloudflare,
+  provider/model, billing, auth/session, UI, worker, queue, hosted config, or
+  hosted data changes were introduced.
 - Focused conversation-archive tests force hostile Supabase/service payloads
   through each direct route failure and prove table names, URLs, tokens,
   owner/persona/conversation/message/transcript/candidate/memory/canon IDs,
@@ -43,17 +50,18 @@ Validation:
   tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` and `git diff --cached --check` passed.
+- `git diff f0da1ff7^ f0da1ff7 --check` passed.
+- `git diff 629b3342^ 629b3342 --check` passed.
 - Added-line sensitive scan was reviewed; hits were synthetic conversation
-  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+  fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category
+  docs text only.
+- `conversations.ts` has no remaining direct `*.message` response returns.
 - `test:persona-context` was not run because runtime context and memory
   lifecycle helper behavior were not changed.
 
 Current baton:
 
-- ARGUS should hostile-review the conversation/continuity route response
-  mapping and focused tests.
-- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+- MIMIR should close or route the next lane.
 
 ## Previous ARGUS verdict - import job errors accepted
 
