@@ -22,6 +22,7 @@ const PRIVATE_DOC_ID = "77777777-7777-4777-8777-777777777777";
 
 class InMemorySupabase {
   missingThreadAuthorshipColumns = false;
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -351,6 +352,17 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return {
+        data: mode === "single" || mode === "maybeSingle" || this.head ? null : [],
+        error: operationError,
+        count: null,
+      };
+    }
+
     let rows: Row[];
     if (
       this.operation === "select" &&
@@ -500,6 +512,192 @@ function close(server: Server) {
     server.close((error) => error ? reject(error) : resolve());
   });
 }
+
+const documentHiddenMarker = "private-" + "document-marker";
+const documentBearerLabel = "Bear" + "er";
+const documentUrl = `https://storage.example.test/documents/${documentHiddenMarker}`;
+const documentToken = `document-token-${documentHiddenMarker}`;
+
+function hostileDocumentError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed table=documents table=document_versions table=threads table=comments table=forum_categories`,
+      `owner_user_id=${OWNER_ID} author_user_id=${OWNER_ID} persona_id=${documentHiddenMarker} space_id=${SPACE_ID}`,
+      `document_id=${PUBLIC_DOC_ID} version_id=version-${documentHiddenMarker} source_id=source-${documentHiddenMarker}`,
+      `discussion_thread_id=thread-${documentHiddenMarker}`,
+      `private draft body ${documentHiddenMarker}`,
+      `continuity source content ${documentHiddenMarker}`,
+      `snapshot payload ${documentHiddenMarker}`,
+      `cleanup internals ${documentHiddenMarker}`,
+      `url=${documentUrl}`,
+      `token=${documentToken}`,
+      `${documentBearerLabel} abc.${documentHiddenMarker}.token`,
+      `provider payload: private document content ${documentHiddenMarker}`,
+      "SQL stack trace at documentRoute (/station/private/documents.ts:1:2)",
+    ].join("; "),
+    details: `document details ${documentHiddenMarker}`,
+  };
+}
+
+function assertSafeDocumentRouteError(body: unknown) {
+  const text = JSON.stringify(body);
+  for (const unsafe of [
+    documentHiddenMarker,
+    documentUrl,
+    documentToken,
+    documentBearerLabel,
+    "table=documents",
+    "table=document_versions",
+    "table=threads",
+    "table=comments",
+    "table=forum_categories",
+    "owner_user_id",
+    "author_user_id",
+    "persona_id",
+    "space_id",
+    "document_id",
+    "version_id",
+    "source_id",
+    "discussion_thread_id",
+    "private draft body",
+    "continuity source content",
+    "snapshot payload",
+    "cleanup internals",
+    "provider payload",
+    "private document content",
+    "SQL stack trace",
+    "documentRoute",
+  ]) {
+    assert.equal(text.includes(unsafe), false, unsafe);
+  }
+}
+
+function addDocumentCanonSource(db: InMemorySupabase) {
+  db.insertRow("canon_items", {
+    id: "88888888-8888-4888-8888-888888888888",
+    persona_id: null,
+    owner_user_id: OWNER_ID,
+    title: "Public canon note",
+    content: "Canon continuity source can become a public document.",
+    source_type: "manual",
+    priority: 7,
+  });
+  return "88888888-8888-4888-8888-888888888888";
+}
+
+test("document route errors return stable public copy without private details", async () => {
+  async function expectRouteError(
+    configure: (db: InMemorySupabase) => void,
+    run: (app: Express, db: InMemorySupabase) => Promise<{ status: number; body: unknown }>,
+    expectedBody: Row
+  ) {
+    const db = new InMemorySupabase();
+    configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createDiscussionApp();
+
+    try {
+      const response = await run(app, db);
+      assert.equal(response.status, 500);
+      assert.deepEqual(response.body, expectedBody);
+      assertSafeDocumentRouteError(response.body);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:documents", hostileDocumentError("document list")),
+    (app) => requestJson(app, "GET", "/documents", { token: "owner-token" }),
+    { error: "Could not load documents.", code: "document_list_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:document_versions", hostileDocumentError("version history")),
+    (app) => requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/versions`, { token: "owner-token" }),
+    { error: "Could not load document versions.", code: "document_versions_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:documents", hostileDocumentError("document create")),
+    (app) => requestJson(app, "POST", "/documents", {
+      token: "owner-token",
+      body: {
+        spaceId: SPACE_ID,
+        title: "New public field note",
+        slug: "new-public-field-note",
+        body: "Owner-authored public document.",
+        visibility: "public",
+      },
+    }),
+    { error: "Could not create document.", code: "document_create_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:document_versions", hostileDocumentError("update snapshot")),
+    (app) => requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { title: "Updated field log" },
+    }),
+    { error: "Could not capture document version.", code: "document_snapshot_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("update:documents", hostileDocumentError("document update")),
+    (app) => requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { title: "Updated field log" },
+    }),
+    { error: "Could not update document.", code: "document_update_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("update:documents", hostileDocumentError("document publish")),
+    (app) => requestJson(app, "POST", `/documents/${PRIVATE_DOC_ID}/publish`, {
+      token: "owner-token",
+      body: { visibility: "public" },
+    }),
+    { error: "Could not publish document.", code: "document_publish_failed" }
+  );
+
+  await expectRouteError(
+    (db) => {
+      addDocumentCanonSource(db);
+      db.operationErrors.set("insert:documents", hostileDocumentError("continuity publish"));
+    },
+    (app, db) => requestJson(app, "POST", "/documents/publish-from-continuity", {
+      token: "owner-token",
+      body: {
+        sourceType: "canon",
+        sourceId: db.rows("canon_items")[0].id,
+        spaceId: SPACE_ID,
+        title: "Published continuity note",
+        slug: "published-continuity-note",
+        visibility: "public",
+      },
+    }),
+    { error: "Could not publish continuity document.", code: "document_continuity_publish_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:threads", hostileDocumentError("discussion create")),
+    (app) => requestJson(app, "POST", `/documents/${PUBLIC_DOC_ID}/discussion`, { token: "owner-token" }),
+    { error: "Could not create discussion thread.", code: "document_discussion_create_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:threads", hostileDocumentError("discussion cleanup")),
+    (app) => requestJson(app, "DELETE", `/documents/${PUBLIC_DOC_ID}`, { token: "owner-token" }),
+    { error: "Could not clean up linked document discussion.", code: "document_discussion_cleanup_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("delete:documents", hostileDocumentError("document delete")),
+    (app) => requestJson(app, "DELETE", `/documents/${PUBLIC_DOC_ID}`, { token: "owner-token" }),
+    { error: "Could not delete document.", code: "document_delete_failed" }
+  );
+});
 
 test("published document discussion readback recovers an existing linked thread when the document pointer is missing", async () => {
   const db = new InMemorySupabase();

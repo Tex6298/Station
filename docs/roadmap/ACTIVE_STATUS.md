@@ -4,25 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - document error responses
+## Latest DAEDALUS result - document errors ready for ARGUS
 
-MIMIR opened the next narrow route-level error response hardening lane on
+DAEDALUS completed the document route-level error response implementation on
 2026-06-28:
-`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_DAEDALUS.md`.
+`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_RESULT.md`.
 
-Why now:
+Verdict:
 
-- ARGUS accepted integrity route-level error responses.
-- Documents are the next product-critical public-chain surface: owner writing,
-  continuity publication, version snapshots, public readback, and linked forum
-  discussion setup/cleanup all meet here.
-- Forum/thread/comment raw-error hardening stays queued after this so the
-  public discussion stack is not changed all at once.
+```text
+READY FOR ARGUS DOCUMENT ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Owner document list/version history, create, update, publish-from-continuity,
+  publish, delete, snapshot creation, linked discussion setup, and linked
+  discussion cleanup failures now return stable public-safe responses with
+  fixed route-specific error codes.
+- Successful owner document list/readback, version history, create, update,
+  publish-from-continuity, publish, delete, snapshot creation/cleanup,
+  discussion ensure/sync/cleanup, public document readback, not-found behavior,
+  and owner/admin access behavior did not change.
+- Focused document discussion tests force hostile service payloads through
+  document and linked-discussion failures and prove private IDs, table markers,
+  URLs/tokens, draft bodies, continuity source content, snapshot payloads,
+  cleanup internals, provider payload labels, and stack-shaped strings are not
+  returned from failing route responses.
+- Scope stayed inside document route response mapping, focused document tests,
+  and roadmap/testing documentation. No document schema, snapshot/version
+  numbering, slug generation, publication state machine, public/private
+  visibility policy, linked discussion creation semantics, forum/thread/comment
+  route behavior, UI, package manifests, Redis, Cloudflare, provider/model
+  behavior, billing, auth/session semantics, workers, queues, hosted config, or
+  hosted data changes were introduced.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed, 4
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` passed, 1
+  test.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic document
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+- `test:writing` was not run because public document readback behavior was not
+  changed.
 
 Current baton:
 
-- DAEDALUS should harden document route responses, validate focused document
-  discussion/publication gates, then wake ARGUS for hostile review.
+- ARGUS should hostile-review document response mapping, snapshot cleanup,
+  publication/readback behavior preservation, linked discussion setup/cleanup
+  preservation, and focused tests. ARGUS should wake MIMIR if accepted, or
+  DAEDALUS if fixes are required.
 
 ## Latest ARGUS verdict - integrity errors accepted after narrow patch
 

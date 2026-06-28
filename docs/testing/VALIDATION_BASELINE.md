@@ -25,23 +25,27 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS DOCUMENT ERROR RESPONSE REVIEW`.
 
 Reason:
 
 - integrity route-level error responses are accepted;
 - documents are the next product-critical public-chain surface;
-- `documents.ts` has direct route-level raw errors around owner document list,
+- `documents.ts` now uses stable public-safe route responses around owner document list,
   version history, create/update/publish/delete, continuity publication,
-  snapshots, and linked discussion cleanup.
+  snapshots, linked discussion setup, and linked discussion cleanup failures.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | Required for linked document discussion behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | Required for continuity-to-document publication behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; hostile document/discussion route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed; continuity-to-document publication behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
-| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Conditional pass | Required if public document readback behavior changes. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic document fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Not run | Public document readback behavior was not changed. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and document/publication/snapshot/linked-discussion behavior did not change. |
 
 Residual risk: forum, thread, comment, and other route-level raw error

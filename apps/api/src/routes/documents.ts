@@ -55,6 +55,20 @@ const publishFromContinuitySchema = z.object({
   commentsEnabled: z.boolean().default(true),
 });
 
+const DOCUMENT_ERROR_RESPONSES = {
+  list: { error: "Could not load documents.", code: "document_list_failed" },
+  versions: { error: "Could not load document versions.", code: "document_versions_failed" },
+  create: { error: "Could not create document.", code: "document_create_failed" },
+  loadForWrite: { error: "Could not load document.", code: "document_load_failed" },
+  snapshot: { error: "Could not capture document version.", code: "document_snapshot_failed" },
+  update: { error: "Could not update document.", code: "document_update_failed" },
+  publishFromContinuity: { error: "Could not publish continuity document.", code: "document_continuity_publish_failed" },
+  publish: { error: "Could not publish document.", code: "document_publish_failed" },
+  discussionCreate: { error: "Could not create discussion thread.", code: "document_discussion_create_failed" },
+  discussionCleanup: { error: "Could not clean up linked document discussion.", code: "document_discussion_cleanup_failed" },
+  delete: { error: "Could not delete document.", code: "document_delete_failed" },
+} as const;
+
 export const documentsRouter = Router();
 
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -754,7 +768,7 @@ documentsRouter.post("/:id/discussion", requireAuth, requireTier("private"), asy
   }
 
   const thread = await ensureDocumentDiscussion(document);
-  if (!thread) return res.status(500).json({ error: "Could not create discussion thread." });
+  if (!thread) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.discussionCreate);
   return res.status(document.discussion_thread_id ? 200 : 201).json({ discussion: thread });
 });
 
@@ -776,7 +790,7 @@ documentsRouter.get("/", async (req, res) => {
   if (personaId) query = query.eq("persona_id", personaId as string);
 
   const { data, error } = await query;
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.list);
   return res.json({ documents: data ?? [] });
 });
 
@@ -803,7 +817,7 @@ documentsRouter.get("/:id/versions", async (req, res) => {
     .eq("owner_user_id", document.author_user_id)
     .order("version_number", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.versions);
   return res.json({
     currentVersion: currentDocumentVersion(document),
     versions: (data ?? []).map(serializeDocumentVersion),
@@ -883,7 +897,7 @@ documentsRouter.post("/", requireTier("creator"), async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.create);
   return res.status(201).json({ document: data });
 });
 
@@ -920,7 +934,7 @@ documentsRouter.patch("/:id", async (req, res) => {
   }
 
   const current = await loadOwnedDocumentForUpdate(req.params.id, userId).catch((error) => {
-    res.status(500).json({ error: error.message ?? "Could not load document." });
+    res.status(500).json(DOCUMENT_ERROR_RESPONSES.loadForWrite);
     return undefined;
   });
   if (current === undefined) return;
@@ -928,7 +942,7 @@ documentsRouter.patch("/:id", async (req, res) => {
   let snapshotId: string | null = null;
   if (documentVersionChanged(current, update)) {
     const snapshot = await snapshotDocumentVersion(current);
-    if (snapshot.error) return res.status(500).json({ error: snapshot.error.message });
+    if (snapshot.error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.snapshot);
     snapshotId = snapshot.data?.id ?? null;
     update.version = currentDocumentVersion(current) + 1;
   }
@@ -943,7 +957,7 @@ documentsRouter.patch("/:id", async (req, res) => {
 
   if (error && !isMissingSingleError(error)) {
     await deleteDocumentVersionSnapshot(snapshotId, userId).catch(() => undefined);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json(DOCUMENT_ERROR_RESPONSES.update);
   }
   if (!data) {
     await deleteDocumentVersionSnapshot(snapshotId, userId).catch(() => undefined);
@@ -999,7 +1013,7 @@ documentsRouter.post("/publish-from-continuity", requireTier("creator"), async (
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.publishFromContinuity);
   const discussion = await ensureDocumentDiscussion(data);
   return res.status(201).json({
     document: discussion && !data.discussion_thread_id ? { ...data, discussion_thread_id: discussion.id } : data,
@@ -1015,7 +1029,7 @@ documentsRouter.post("/:id/publish", async (req, res) => {
 
   const sb = getSupabaseAdmin();
   const current = await loadOwnedDocumentForUpdate(req.params.id, req.user!.id).catch((error) => {
-    res.status(500).json({ error: error.message ?? "Could not load document." });
+    res.status(500).json(DOCUMENT_ERROR_RESPONSES.loadForWrite);
     return undefined;
   });
   if (current === undefined) return;
@@ -1030,7 +1044,7 @@ documentsRouter.post("/:id/publish", async (req, res) => {
   let snapshotId: string | null = null;
   if (documentVersionChanged(current, update)) {
     const snapshot = await snapshotDocumentVersion(current);
-    if (snapshot.error) return res.status(500).json({ error: snapshot.error.message });
+    if (snapshot.error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.snapshot);
     snapshotId = snapshot.data?.id ?? null;
     update.version = currentDocumentVersion(current) + 1;
   }
@@ -1045,7 +1059,7 @@ documentsRouter.post("/:id/publish", async (req, res) => {
 
   if (error && !isMissingSingleError(error)) {
     await deleteDocumentVersionSnapshot(snapshotId, req.user!.id).catch(() => undefined);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json(DOCUMENT_ERROR_RESPONSES.publish);
   }
   if (!data) {
     await deleteDocumentVersionSnapshot(snapshotId, req.user!.id).catch(() => undefined);
@@ -1062,7 +1076,7 @@ documentsRouter.post("/:id/publish", async (req, res) => {
 documentsRouter.delete("/:id", async (req, res) => {
   const sb = getSupabaseAdmin();
   const document = await loadOwnedDocumentForUpdate(req.params.id, req.user!.id).catch((error) => {
-    res.status(500).json({ error: error.message ?? "Could not load document." });
+    res.status(500).json(DOCUMENT_ERROR_RESPONSES.loadForWrite);
     return undefined;
   });
   if (document === undefined) return;
@@ -1071,10 +1085,8 @@ documentsRouter.delete("/:id", async (req, res) => {
   let cleanup;
   try {
     cleanup = await cleanupDeletedDocumentDiscussions(document);
-  } catch (error) {
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : "Could not clean up linked document discussion.",
-    });
+  } catch {
+    return res.status(500).json(DOCUMENT_ERROR_RESPONSES.discussionCleanup);
   }
 
   const { error } = await sb
@@ -1083,7 +1095,7 @@ documentsRouter.delete("/:id", async (req, res) => {
     .eq("id", req.params.id)
     .eq("author_user_id", req.user!.id);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.delete);
   return res.json({
     deleted: true,
     documentId: document.id,
