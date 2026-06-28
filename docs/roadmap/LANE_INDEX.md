@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR448 | Studio dashboard Memory orientation and status readback | ARGUS / A3 | Ready for review; Memory is visible as a distinct owner-only Studio dashboard stop | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_RESULT.md` |
+| PR448 | Studio dashboard Memory orientation and status readback | MIMIR / A1 | Accepted by ARGUS; Memory is visible as a distinct owner-only Studio dashboard stop; waiting closeout | `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
