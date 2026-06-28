@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - Developer Space operations error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted discovery/Space route-level error responses.
+- Developer Space operations are the next product-critical route surface after
+  public discovery and Spaces.
+- Credential lifecycle and observed-runtime ingestion security paths remain out
+  of scope unless only shared response mapping is touched.
+
+Current baton:
+
+- DAEDALUS should harden non-credential Developer Space operations route
+  responses, validate focused Developer Space/project gates, then wake ARGUS
+  for hostile review.
+
 ## Latest ARGUS verdict - discovery/Space errors accepted after narrow patch
 
 MIMIR opened the next narrow route-level error response hardening lane on
