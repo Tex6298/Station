@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - Project error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted Developer Space operations route-level error responses.
+- Projects are the adjacent product surface after Developer Space assignment
+  and operations.
+- The lane covers public project readback, owner project CRUD, attached
+  Developer Space readback, project usage/activity, membership creation, and
+  evidence loading responses.
+
+Current baton:
+
+- DAEDALUS should harden Project route responses, validate focused Projects and
+  Developer Space gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - Developer Space operations errors accepted after narrow patch
 
 MIMIR opened the next narrow route-level error response hardening lane on

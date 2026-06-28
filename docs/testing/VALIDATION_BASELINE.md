@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Project Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- Developer Space operations route-level error responses are accepted;
+- Projects are the adjacent product surface after Developer Space assignment
+  and operations;
+- `projects.ts` has direct route-level raw errors around public project
+  readback, owner project list/read/create, membership creation, attached
+  Developer Spaces, usage/activity, and evidence loading.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | Required for public/owner Project behavior and evidence readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | Required for adjacent Developer Space attachment behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Conditional pass | Required if replay-readiness behavior changes. |
+| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and Project/membership/evidence/usage behavior did not change. |
+
+Residual risk: reports, publishing approval, social, notification, persona,
+calibration, and other route-level raw error responses remain future audit
+surface.
+
 ## Production Developer Space Operations Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
