@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR466 hosted post-UI import regression passed
+
+ARIADNE completed PR466:
+
+`docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the required PR461 runtime.
+- Public home, Discover, public Space, public document, linked discussion,
+  Writing, Forums, Developer Spaces, and public Developer Space observatory
+  passed desktop and 390px checks.
+- Owner Studio, authoritative usage panel, replay persona Home, Memory,
+  Continuity, Archive/files, Integrity, Billing, Settings, Station Assistant,
+  Onboarding, and Studio mobile navigation passed desktop and 390px checks.
+- Studio dashboard still avoids synthetic `Tier allocation` and local quota
+  counters while routing to Billing, Settings, and Archive source surfaces.
+- Public Developer Space stayed a public observatory, not an owner manage
+  surface.
+- Desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, overlapping labels, or hidden primary actions in the sampled route
+  set.
+
+Current lane:
+
+```text
+PR466 - Hosted Post-UI Import Regression Rehearsal
+Owner: MIMIR / A1
+State: PASS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR466 or choose the next product-operation lane.
+
 ## Latest MIMIR closeout - PR464 closed, PR466 opened
 
 MIMIR closes PR464 and the Discern-to-Tex UI import priority sequence:

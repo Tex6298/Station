@@ -20,6 +20,50 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR466 Hosted Post-UI Import Regression Rehearsal
+
+ARIADNE completed PR466 on 2026-06-29:
+`docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were fresh at the required PR461 runtime;
+- public home, Discover, public Space, public document, linked discussion,
+  Writing, Forums, Developer Spaces, and public Developer Space observatory
+  passed desktop and 390px checks;
+- owner Studio, authoritative usage panel, replay persona Home, Memory,
+  Continuity, Archive/files, Integrity, Billing, Settings, Station Assistant,
+  Onboarding, and Studio mobile navigation passed desktop and 390px checks;
+- Studio dashboard still avoids synthetic `Tier allocation` and local quota
+  counters while routing to Billing, Settings, and Archive source surfaces;
+- Memory, Continuity, Archive, and Integrity remained distinguishable;
+- Billing/quota copy remained server-authoritative and Checkout was not opened;
+- desktop and 390px mobile layouts had no horizontal overflow, clipped
+  controls, overlapping labels, or hidden route affordances in the sampled route
+  set;
+- sampled visible text did not expose raw identifiers, prompts, private source
+  bodies, provider payloads, credentials, storage paths, stack traces, payment
+  secrets, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `187996cd`. |
+| Temporary Playwright hosted route matrix | Pass | 41 public/owner route and viewport stops passed. |
+| Public route chain | Pass | Home, Discover, Space, document, linked discussion, Writing, Forums, Developer Spaces, and public observatory checked. |
+| Owner route chain | Pass | Studio, persona Home/Memory/Continuity/Archive/Integrity, Billing, Settings, Assistant, Onboarding, and mobile nav checked. |
+| Desktop layout check | Pass | No horizontal overflow or clipped controls. |
+| 390px layout check | Pass | No horizontal overflow or clipped controls. |
+| Raw-id/secret/internal visible text checks | Pass | No raw ids, credentials, payment secrets, storage paths, stack traces, or secret-shaped material in sampled text. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only regression rehearsal. It did not
+create accounts, submit credentials through the browser, create personas, start
+chats, run imports, publish, upload, export, run provider setup, open billing
+checkout, vote/report/post, mutate Developer Agent actions, or call private
+model flows.
+
 ## PR464 Onboarding and Station Assistant Comprehension Rehearsal
 
 ARIADNE completed PR464 on 2026-06-28:

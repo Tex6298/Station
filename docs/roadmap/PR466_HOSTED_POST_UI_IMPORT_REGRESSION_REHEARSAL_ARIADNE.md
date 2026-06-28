@@ -108,3 +108,15 @@ If reporting a defect, include:
 Do not commit screenshots, cookies, session values, raw owner ids, customer ids,
 subscription ids, private source bodies, prompts, completions, provider keys,
 stack traces, or raw network payloads.
+
+## ARIADNE Result
+
+Completed on 2026-06-29:
+
+`docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```

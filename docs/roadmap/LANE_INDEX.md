@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR466 | Hosted post-UI import regression rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_ARIADNE.md` |
+| PR466 | Hosted post-UI import regression rehearsal | MIMIR / A1 | Pass; waiting closeout | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR466 rehearsal | Hosted post-UI import regression rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; hosted public and owner route regression is clean | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md` |
 | PR465 closeout | Discern-to-Tex UI import closeout and next-lane selection | MIMIR | Closed; PR466 opened for hosted post-UI import regression rehearsal | `docs/roadmap/PR465_DISCERN_TO_TEX_UI_IMPORT_CLOSEOUT_NEXT_LANE.md` |
 | PR464 closeout | Onboarding and Station Assistant comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR465 closeout selected PR466 | `docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_CLOSEOUT.md` |
 | PR464 rehearsal | Onboarding and Station Assistant comprehension rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend PR465 Discern-to-Tex UI import closeout and next-lane selection | `docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_RESULT.md` |
