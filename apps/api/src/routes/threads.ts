@@ -33,6 +33,7 @@ const THREAD_ERROR_RESPONSES = {
   detailComments: { error: "Could not load thread comments.", code: "thread_comments_load_failed" },
   watchLoad: { error: "Could not load thread watch.", code: "thread_watch_load_failed" },
   watchUpdate: { error: "Could not update thread watch.", code: "thread_watch_update_failed" },
+  witness: { error: "Could not update thread recognition.", code: "thread_witness_update_failed" },
   vote: { error: "Could not vote on thread.", code: "thread_vote_failed" },
   moderation: { error: "Could not update thread moderation.", code: "thread_moderation_update_failed" },
   delete: { error: "Could not delete thread.", code: "thread_delete_failed" },
@@ -271,15 +272,19 @@ threadsRouter.put("/:id/witness/:kind", requireTier("private"), async (req: Requ
     return res.status(400).json({ error: "You cannot witness your own contribution." });
   }
 
-  await setCommunityWitness({
-    witnessUserId: req.user!.id,
-    targetType: "thread",
-    targetId: target.id,
-    witnessKind: req.params.kind,
-  });
-  return res.status(200).json({
-    witness: await witnessSummaryFor("thread", target.id, req.user!.id),
-  });
+  try {
+    await setCommunityWitness({
+      witnessUserId: req.user!.id,
+      targetType: "thread",
+      targetId: target.id,
+      witnessKind: req.params.kind,
+    });
+    return res.status(200).json({
+      witness: await witnessSummaryFor("thread", target.id, req.user!.id),
+    });
+  } catch {
+    return res.status(500).json(THREAD_ERROR_RESPONSES.witness);
+  }
 });
 
 threadsRouter.delete("/:id/witness/:kind", requireTier("private"), async (req: Request, res: Response) => {
@@ -290,15 +295,19 @@ threadsRouter.delete("/:id/witness/:kind", requireTier("private"), async (req: R
     return res.status(400).json({ error: "You cannot witness your own contribution." });
   }
 
-  await removeCommunityWitness({
-    witnessUserId: req.user!.id,
-    targetType: "thread",
-    targetId: target.id,
-    witnessKind: req.params.kind,
-  });
-  return res.status(200).json({
-    witness: await witnessSummaryFor("thread", target.id, req.user!.id),
-  });
+  try {
+    await removeCommunityWitness({
+      witnessUserId: req.user!.id,
+      targetType: "thread",
+      targetId: target.id,
+      witnessKind: req.params.kind,
+    });
+    return res.status(200).json({
+      witness: await witnessSummaryFor("thread", target.id, req.user!.id),
+    });
+  } catch {
+    return res.status(500).json(THREAD_ERROR_RESPONSES.witness);
+  }
 });
 
 // --- Vote on a thread --------------------------------------------------------

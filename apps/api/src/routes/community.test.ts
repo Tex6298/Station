@@ -1011,11 +1011,13 @@ const EXPECTED_DISCUSSION_ERRORS = {
   threadComments: { error: "Could not load thread comments.", code: "thread_comments_load_failed" },
   threadWatchLoad: { error: "Could not load thread watch.", code: "thread_watch_load_failed" },
   threadWatchUpdate: { error: "Could not update thread watch.", code: "thread_watch_update_failed" },
+  threadWitness: { error: "Could not update thread recognition.", code: "thread_witness_update_failed" },
   threadVote: { error: "Could not vote on thread.", code: "thread_vote_failed" },
   threadModeration: { error: "Could not update thread moderation.", code: "thread_moderation_update_failed" },
   threadDelete: { error: "Could not delete thread.", code: "thread_delete_failed" },
   commentList: { error: "Could not load comments.", code: "comment_list_failed" },
   commentCreate: { error: "Could not create comment.", code: "comment_create_failed" },
+  commentWitness: { error: "Could not update comment recognition.", code: "comment_witness_update_failed" },
   commentVote: { error: "Could not vote on comment.", code: "comment_vote_failed" },
   commentModeration: { error: "Could not update comment moderation.", code: "comment_moderation_update_failed" },
   commentDelete: { error: "Could not delete comment.", code: "comment_delete_failed" },
@@ -1257,6 +1259,30 @@ test("discussion route failures return stable public errors without service deta
       expectedBody: EXPECTED_DISCUSSION_ERRORS.threadWatchUpdate,
     },
     {
+      name: "thread witness add",
+      configure: (db) => db.failNext("community_witnesses", "insert", hostileDiscussionError("thread witness add")),
+      request: (app) => requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+        token: "member-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadWitness,
+    },
+    {
+      name: "thread witness remove",
+      configure: (db) => {
+        db.insertRow("community_witnesses", {
+          witness_user_id: MEMBER_ID,
+          target_type: "thread",
+          target_id: PUBLIC_THREAD_ID,
+          witness_kind: "helpful",
+        });
+        db.failNext("community_witnesses", "update", hostileDiscussionError("thread witness remove"));
+      },
+      request: (app) => requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/witness/helpful`, {
+        token: "member-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.threadWitness,
+    },
+    {
       name: "thread vote",
       configure: (db) => db.failNext("community_votes", "insert", hostileDiscussionError("thread vote")),
       request: (app) => requestJson(app, "POST", `/threads/${PUBLIC_THREAD_ID}/vote`, {
@@ -1307,6 +1333,34 @@ test("discussion route failures return stable public errors without service deta
         body: { parentType: "thread", parentId: PUBLIC_THREAD_ID, body: "Comment body." },
       }),
       expectedBody: EXPECTED_DISCUSSION_ERRORS.subcommunityVisibility,
+    },
+    {
+      name: "comment witness add",
+      configure: (db) => {
+        addDiscussionComment(db, { id: "00000000-0000-4000-8000-000000000903" });
+        db.failNext("community_witnesses", "insert", hostileDiscussionError("comment witness add"));
+      },
+      request: (app) => requestJson(app, "PUT", "/comments/00000000-0000-4000-8000-000000000903/witness/grounded", {
+        token: "member-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentWitness,
+    },
+    {
+      name: "comment witness remove",
+      configure: (db) => {
+        addDiscussionComment(db, { id: "00000000-0000-4000-8000-000000000904" });
+        db.insertRow("community_witnesses", {
+          witness_user_id: MEMBER_ID,
+          target_type: "comment",
+          target_id: "00000000-0000-4000-8000-000000000904",
+          witness_kind: "grounded",
+        });
+        db.failNext("community_witnesses", "update", hostileDiscussionError("comment witness remove"));
+      },
+      request: (app) => requestJson(app, "DELETE", "/comments/00000000-0000-4000-8000-000000000904/witness/grounded", {
+        token: "member-token",
+      }),
+      expectedBody: EXPECTED_DISCUSSION_ERRORS.commentWitness,
     },
     {
       name: "comment vote",

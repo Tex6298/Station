@@ -45,6 +45,7 @@ const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]
 const COMMENT_ERROR_RESPONSES = {
   list: { error: "Could not load comments.", code: "comment_list_failed" },
   create: { error: "Could not create comment.", code: "comment_create_failed" },
+  witness: { error: "Could not update comment recognition.", code: "comment_witness_update_failed" },
   vote: { error: "Could not vote on comment.", code: "comment_vote_failed" },
   moderation: { error: "Could not update comment moderation.", code: "comment_moderation_update_failed" },
   delete: { error: "Could not delete comment.", code: "comment_delete_failed" },
@@ -286,15 +287,19 @@ commentsRouter.put("/:id/witness/:kind", requireTier("private"), async (req: Req
     return res.status(400).json({ error: "You cannot witness your own contribution." });
   }
 
-  await setCommunityWitness({
-    witnessUserId: req.user!.id,
-    targetType: "comment",
-    targetId: target.id,
-    witnessKind: req.params.kind,
-  });
-  return res.status(200).json({
-    witness: await witnessSummaryFor("comment", target.id, req.user!.id),
-  });
+  try {
+    await setCommunityWitness({
+      witnessUserId: req.user!.id,
+      targetType: "comment",
+      targetId: target.id,
+      witnessKind: req.params.kind,
+    });
+    return res.status(200).json({
+      witness: await witnessSummaryFor("comment", target.id, req.user!.id),
+    });
+  } catch {
+    return res.status(500).json(COMMENT_ERROR_RESPONSES.witness);
+  }
 });
 
 commentsRouter.delete("/:id/witness/:kind", requireTier("private"), async (req: Request, res: Response) => {
@@ -305,15 +310,19 @@ commentsRouter.delete("/:id/witness/:kind", requireTier("private"), async (req: 
     return res.status(400).json({ error: "You cannot witness your own contribution." });
   }
 
-  await removeCommunityWitness({
-    witnessUserId: req.user!.id,
-    targetType: "comment",
-    targetId: target.id,
-    witnessKind: req.params.kind,
-  });
-  return res.status(200).json({
-    witness: await witnessSummaryFor("comment", target.id, req.user!.id),
-  });
+  try {
+    await removeCommunityWitness({
+      witnessUserId: req.user!.id,
+      targetType: "comment",
+      targetId: target.id,
+      witnessKind: req.params.kind,
+    });
+    return res.status(200).json({
+      witness: await witnessSummaryFor("comment", target.id, req.user!.id),
+    });
+  } catch {
+    return res.status(500).json(COMMENT_ERROR_RESPONSES.witness);
+  }
 });
 
 // --- Vote on a comment -------------------------------------------------------
