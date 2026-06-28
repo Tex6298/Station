@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Owner: ARIADNE / A4
 
-Status: open - hosted/user-facing proof
+Status: complete - PASS WITH CAVEAT
 
 ## Why This Lane
 
@@ -121,3 +121,11 @@ Wake MIMIR with:
 
 Wake DAEDALUS directly only if there is a concrete, reproducible product defect
 with route, visible label, expected behavior, and actual behavior.
+
+## Result
+
+ARIADNE completed this rehearsal:
+
+`docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_RESULT.md`
+
+Verdict: `PASS WITH CAVEAT`.

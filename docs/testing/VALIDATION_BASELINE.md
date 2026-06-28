@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR429 Hosted API-Backed Export Rehearsal
+
+ARIADNE completed PR429 on 2026-06-28:
+`docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS WITH CAVEAT`.
+
+Reason:
+
+- hosted web/API health and deployment-readiness checks returned HTTP 200;
+- replay owner sign-in succeeded through the product UI;
+- persona archive export/status and Project manifest export surfaces exposed
+  user-facing owner-only JSON/Markdown readback controls;
+- Developer Space manage exposed owner-only export creation/status and clear
+  private-readback copy, while manifest/bundle details were verified through
+  authenticated API readback only;
+- all three export classes had completed owner-only JSON/Markdown package and
+  bundle readback with `README.md`, `manifest.json`, and `manifest.md`;
+- mobile persona export/status spot check passed at 390px with no
+  document-level horizontal overflow;
+- normal UI scan found no raw UUID-shaped IDs, secret-shaped values, private
+  source bodies, transcript bodies, or misleading backup/restore claims.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted Playwright/API rehearsal | Pass with caveat | Sanitized local temp harness; no raw manifests, bundles, IDs, credentials, or private bodies committed. |
+| `git diff --check` | Pass | Docs/state-only closeout. |
+
+Residual risk: PR429 proves hosted owner-facing export/readback posture for the
+accepted API-backed export classes. It does not prove database backup/restore,
+managed backup redundancy, storage-object backup, original binary/PDF/file
+backup, full workspace backup, production disaster recovery, RPO/RTO, or hosted
+data coverage.
+
 ## PR428 API-Backed Backup Export Proof Review
 
 ARGUS accepted PR428 on 2026-06-28:

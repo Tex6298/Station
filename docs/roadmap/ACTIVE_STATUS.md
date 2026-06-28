@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR429 hosted export rehearsal passed with caveat
+
+ARIADNE completed PR429:
+
+`docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS WITH CAVEAT
+```
+
+Decision:
+
+- Hosted web/API health and deployment-readiness endpoints returned HTTP 200.
+- Replay owner sign-in worked through the product UI.
+- Persona archive export/status was reachable on
+  `/studio/personas/:personaId/files`, including manifest and portable bundle
+  readback controls.
+- Project manifest export was reachable on `/projects/:slug`, including
+  manifest and bundle file-list readback controls.
+- Developer Space owner manage exposed owner-only export creation/status and
+  clear private-readback copy, but not manifest/bundle readback controls.
+  Developer Space manifest and bundle readback were verified through the
+  authenticated export API.
+- Mobile spot check at 390px passed with no document-level horizontal overflow.
+- Normal UI scan found no raw UUID-shaped IDs, secret-shaped values, private
+  source bodies, transcript bodies, or misleading backup/restore claims.
+
+Current lane:
+
+```text
+PR429 - Hosted API-backed Export Rehearsal
+Owner: ARIADNE / A4
+State: PASS WITH CAVEAT - WAITING MIMIR CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should decide whether PR429 closes as accepted with the Developer Space
+  manifest/bundle UI caveat, or whether to open a narrow UX follow-up for that
+  surface.
+
 ## Latest MIMIR closeout - PR428 accepted, PR429 opened
 
 MIMIR accepts ARGUS's PR428 verdict:
