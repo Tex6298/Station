@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - import job error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_IMPORT_JOB_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted persona file route-level error responses.
+- Non-persona-file archive/import route-level raw errors remain future audit
+  surface.
+- Import job routes are the next bounded backend slice because they cover
+  private archive intake, retry, repair/status readback, and owner-scoped
+  import job listing.
+
+Current baton:
+
+- DAEDALUS should harden import job route responses, validate the focused
+  archive/import gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - persona file errors accepted
 
 ARGUS completed persona file route-level error response review on
