@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Feature Memory Continuity Archive Observability DAEDALUS Proof
+
+DAEDALUS completed a hosted follow-up proof on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS_PROOF_RESULT.md`.
+
+Validation result: `READY FOR ARIADNE RERUN`.
+
+Reason:
+
+- hosted web is serving implementation commit `43e464e83809`;
+- a sanitized browser proof signed in through hosted API, verified `/auth/me`,
+  selected one owned persona, and loaded protected owner Studio routes with both
+  expected auth surfaces present: `station.auth.session.v1` local storage and
+  the `station-auth` cookie;
+- persona home, Continuity, Memory, Canon, Integrity, and Archive route bodies
+  exposed the expected labels;
+- Continuity exposed routeable owner review links for Canon, Integrity,
+  Continuity, Memory, and Archive;
+- checked route bodies did not redirect to `/login` and did not expose
+  UUID-shaped visible text;
+- no product code repair was needed in this follow-up.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted browser proof with replay owner env | Pass | Current hosted web/API rendered the expected owner route bodies and review links when both Station auth surfaces were present. |
+| Hosted deployment identity | Pass | Web reported `43e464e83809`, matching DAEDALUS' implementation commit. |
+| Temporary proof artifacts | Removed | No proof runner or credential-bearing artifact was kept in the repo. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: ARIADNE still needs the human-eye rerun on desktop/mobile. The
+rerun should sign in through the product UI or otherwise ensure both local
+storage session and `station-auth` cookie are present; exact-case text scans can
+false-negative on CSS-transformed section labels because browser `innerText`
+returns those labels in uppercase.
+
 ## Feature Memory Continuity Archive Observability
 
 MIMIR opened the next feature boundary on 2026-06-28:

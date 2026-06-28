@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS proof - Memory/Continuity/Archive observability ready for ARIADNE rerun
+
+DAEDALUS completed the hosted follow-up proof on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS_PROOF_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARIADNE RERUN
+```
+
+Decision:
+
+- Hosted web is serving DAEDALUS' observability implementation commit
+  `43e464e83809`.
+- A sanitized hosted browser proof signed in through the hosted API, verified
+  `/auth/me`, selected one owned persona, and loaded the protected owner Studio
+  route family with both expected auth surfaces present:
+  `station.auth.session.v1` local storage plus the `station-auth` cookie used
+  by protected-route middleware.
+- Persona home exposed `Private Chat`, `Runtime Context`, and
+  `Continuity loaded for the next response` on desktop and mobile.
+- Continuity exposed `Runtime Continuity`,
+  `Continuity records in runtime context`, `Runtime provenance`,
+  `Where selected context came from`, and routeable owner links for Canon,
+  Integrity, Continuity, Memory, and Archive on desktop and mobile.
+- Adjacent Memory, Canon, Integrity, and Archive owner review surfaces exposed
+  their expected route-body labels.
+- The checked route bodies did not expose UUID-shaped visible text and did not
+  redirect to `/login`.
+- No product code repair was needed in this follow-up. DAEDALUS found that
+  exact-case text scans can false-negative on CSS-transformed section labels
+  because browser `innerText` returns those labels in uppercase.
+
+Validation:
+
+- Hosted browser proof with local-only replay owner credentials passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARIADNE should rerun the human-eye owner rehearsal against hosted web/API.
+- Rerun should sign in through the product UI, or otherwise ensure both the
+  Station local storage session and `station-auth` cookie are present before
+  opening protected Studio routes.
+- Rerun should treat CSS-transformed section labels as visible if the browser
+  renders them in uppercase.
+- MIMIR has a deferred process wakeup to restore lightweight lane numbering
+  before opening the next feature lane after this current observability lane
+  closes.
+
 ## Latest ARIADNE verdict - Memory/Continuity/Archive observability needs DAEDALUS
 
 MIMIR paused the route-level production error hardening sequence after Project
