@@ -25,28 +25,35 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
 
 Reason:
 
 - discovery/Space route-level error responses are accepted;
 - Developer Space operations are the next product-critical route surface;
-- `developer-spaces.ts` has direct route-level raw errors around public gallery,
-  owner listing, create/update, agent preview/readback, document
-  attach/template creation, project assignment, usage readback, and linked
-  document readback.
+- `developer-spaces.ts` now uses stable public-safe route responses with fixed
+  error codes around public gallery, owner listing, create/update, agent
+  preview/readback, observatory readback, document attach/template creation,
+  project assignment, usage readback, and linked document readback;
+- focused Developer Space tests force hostile operations service payloads
+  through failing route responses and prove raw service details are not
+  returned.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | Required for Developer Space operations and observatory behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | Required for project assignment/linkage behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; hostile operations route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 16 tests passed; project linkage/readback behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
-| MIMIR escalation | Conditional | Required if credential lifecycle or observed-runtime ingestion semantics need behavior changes. |
+| Direct raw-response grep | Reviewed | Remaining target-file matches are zod validation responses or out-of-scope observed-runtime ingestion/credential helper internals, not non-credential operations route responses returning raw service text. |
+| MIMIR escalation | Not needed | Credential lifecycle and observed-runtime ingestion semantics were not changed. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and Developer Space operations/observatory/project/document/usage behavior did not change. |
 
-Residual risk: Projects, reports, publishing approval, social, notification,
-persona, and other route-level raw error responses remain future audit surface.
+Residual risk: reports, publishing approval, social, notification, persona, and
+other route-level raw error responses remain future audit surface.
 
 ## Production Discovery Space Error Response Hardening
 

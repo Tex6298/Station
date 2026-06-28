@@ -4,25 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - Developer Space operations error responses
+## Latest DAEDALUS handoff - Developer Space operations errors
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
 `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_DAEDALUS.md`.
 
-Why now:
+DAEDALUS completed the implementation on 2026-06-28:
+`docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_RESULT.md`.
 
-- ARGUS accepted discovery/Space route-level error responses.
-- Developer Space operations are the next product-critical route surface after
-  public discovery and Spaces.
-- Credential lifecycle and observed-runtime ingestion security paths remain out
-  of scope unless only shared response mapping is touched.
+Decision:
+
+- Public Developer Space gallery, owner list, create, update, observatory
+  JSON/SSE readback, agent preview, document attach/template, project
+  assignment, and usage failures now return stable public-safe responses with
+  fixed route-specific error codes.
+- Existing successful Developer Space lifecycle, public/owner observatory
+  behavior, agent preview semantics, project assignment, document linking,
+  usage accounting, not-found behavior, owner/admin access behavior, and
+  public visibility behavior remain unchanged.
+- Credential lifecycle and observed-runtime ingestion security paths were not
+  changed; shared readback helpers only replace raw service text with bounded
+  generic copy before route-level mapping.
+- Focused Developer Space tests force hostile operations service payloads
+  through failing route responses and prove private markers, table names,
+  IDs, URLs/tokens, provider payload labels, and stack-shaped route strings
+  are not returned.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- Direct raw-response grep was reviewed; remaining target-file matches are zod
+  validation responses or out-of-scope observed-runtime ingestion/credential
+  helper internals, not non-credential operations route responses returning
+  raw service text.
 
 Current baton:
 
-- DAEDALUS should harden non-credential Developer Space operations route
-  responses, validate focused Developer Space/project gates, then wake ARGUS
-  for hostile review.
+- ARGUS should hostile-review Developer Space operations response mapping,
+  behavior preservation, test coverage, and the credential/ingestion non-touch
+  boundary.
 
 ## Latest ARGUS verdict - discovery/Space errors accepted after narrow patch
 

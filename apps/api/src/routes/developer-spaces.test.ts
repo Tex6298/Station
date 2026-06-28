@@ -516,6 +516,9 @@ const credentialDatabaseScheme = "postgres" + "ql://";
 const credentialBearerLabel = "Bear" + "er";
 const credentialApiKey = "station_dev_" + credentialHiddenMarker;
 const credentialSigningSecret = "station_whsec_" + credentialHiddenMarker;
+const operationHiddenMarker = "private-" + "developer-space-operation-marker";
+const operationDatabaseScheme = "postgres" + "ql://";
+const operationBearerLabel = "Bear" + "er";
 
 function hostileCredentialError(operation: string) {
   return {
@@ -550,6 +553,50 @@ function assertSafeCredentialError(body: unknown) {
   assert.equal(text.includes("provider payload"), false);
   assert.equal(text.includes("private snippet"), false);
   assert.equal(text.includes("credentialRoute"), false);
+}
+
+function hostileOperationError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in developer_spaces`,
+      "developer_space_documents",
+      "developer_space_nodes",
+      "developer_space_usage",
+      "documents",
+      "projects",
+      "owner_user_id=owner-user developer_space_id=developer-spaces-1",
+      `${operationBearerLabel} abc.${operationHiddenMarker}.token`,
+      `database url: ${operationDatabaseScheme}station:${operationHiddenMarker}@db.example.test/station`,
+      `raw route payload: private snippet ${operationHiddenMarker}`,
+      "at operationRoute (/station/private/developer-spaces.ts:1:2)",
+    ].join("; "),
+    details: `private operation detail ${operationHiddenMarker}`,
+  };
+}
+
+function assertSafeOperationError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(operationHiddenMarker), false);
+  assert.equal(text.includes(operationBearerLabel), false);
+  assert.equal(text.includes(operationDatabaseScheme), false);
+  assert.equal(text.includes("db.example.test"), false);
+  assert.equal(text.includes("developer_spaces"), false);
+  assert.equal(text.includes("developer_space_documents"), false);
+  assert.equal(text.includes("developer_space_nodes"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("developer_space_id"), false);
+  assert.equal(text.includes("raw route payload"), false);
+  assert.equal(text.includes("private snippet"), false);
+  assert.equal(text.includes("operationRoute"), false);
+}
+
+function assertStableOperationError(
+  body: unknown,
+  expected: { error: string; code: string }
+) {
+  assert.deepEqual(body, expected);
+  assertSafeOperationError(body);
 }
 
 function listen(app: Express) {
@@ -4525,6 +4572,189 @@ test("Developer Space credential route errors return stable public copy", async 
     } else {
       process.env.DEVELOPER_SPACE_WEBHOOK_SIGNING_SECRET_ENCRYPTION_KEY = previousEncryptionKey;
     }
+    setSupabaseAdminForTests(null);
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  }
+});
+
+test("Developer Space operations route errors return stable public copy", async () => {
+  const db = new InMemorySupabase();
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000201",
+    owner_user_id: "owner-user",
+    name: "Operation Project",
+    slug: "operation-project",
+  });
+  const space = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000201",
+    owner_user_id: "owner-user",
+    project_id: ownerProject.id,
+    project_name: "Operation Error Surface",
+    slug: "operation-error-surface",
+    visibility: "public",
+    visualisation_type: "node_field",
+  });
+  const document = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000201",
+    author_user_id: "owner-user",
+    title: "Operation Route Note",
+    slug: "operation-route-note",
+    status: "published",
+    visibility: "public",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+  const app = createDeveloperSpacesApp();
+
+  const expected = {
+    publicGallery: {
+      error: "Could not load public Developer Spaces.",
+      code: "developer_space_public_gallery_load_failed",
+    },
+    ownerList: {
+      error: "Could not load your Developer Spaces.",
+      code: "developer_space_owner_list_failed",
+    },
+    create: {
+      error: "Could not create Developer Space.",
+      code: "developer_space_create_failed",
+    },
+    update: {
+      error: "Could not update Developer Space.",
+      code: "developer_space_update_failed",
+    },
+    observatory: {
+      error: "Could not load Developer Space observatory.",
+      code: "developer_space_observatory_load_failed",
+    },
+    agentPreview: {
+      error: "Could not preview Developer Space agent action.",
+      code: "developer_space_agent_preview_failed",
+    },
+    documentAttach: {
+      error: "Could not link Developer Space document.",
+      code: "developer_space_document_link_failed",
+    },
+    documentTemplate: {
+      error: "Could not create Developer Space document template.",
+      code: "developer_space_document_template_failed",
+    },
+    projectAssign: {
+      error: "Could not update Developer Space project assignment.",
+      code: "developer_space_project_assignment_failed",
+    },
+    usage: {
+      error: "Could not load Developer Space usage.",
+      code: "developer_space_usage_load_failed",
+    },
+  };
+
+  try {
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("public gallery"));
+    const publicGallery = await requestJson(app, "GET", "/developer-spaces/public");
+    assert.equal(publicGallery.status, 500);
+    assertStableOperationError(publicGallery.body, expected.publicGallery);
+
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("owner list"));
+    const ownerList = await requestJson(app, "GET", "/developer-spaces", {
+      token: "owner-token",
+    });
+    assert.equal(ownerList.status, 500);
+    assertStableOperationError(ownerList.body, expected.ownerList);
+
+    db.operationErrors.set("select:projects", hostileOperationError("owner project readback"));
+    const ownerProjectReadback = await requestJson(app, "GET", "/developer-spaces", {
+      token: "owner-token",
+    });
+    assert.equal(ownerProjectReadback.status, 500);
+    assertStableOperationError(ownerProjectReadback.body, expected.ownerList);
+
+    db.operationErrors.set("select:developer_spaces", hostileOperationError("create count"));
+    const createCount = await requestJson(app, "POST", "/developer-spaces", {
+      token: "other-token",
+      body: {
+        projectName: "Create Count Failure",
+        visibility: "private",
+      },
+    });
+    assert.equal(createCount.status, 500);
+    assertStableOperationError(createCount.body, expected.create);
+
+    db.insertErrors.set("developer_spaces", hostileOperationError("create insert"));
+    const createInsert = await requestJson(app, "POST", "/developer-spaces", {
+      token: "other-token",
+      body: {
+        projectName: "Create Insert Failure",
+        visibility: "private",
+      },
+    });
+    assert.equal(createInsert.status, 500);
+    assertStableOperationError(createInsert.body, expected.create);
+
+    db.operationErrors.set("select:developer_space_nodes", hostileOperationError("agent preview readback"));
+    const agentPreview = await requestJson(app, "POST", `/developer-spaces/${space.id}/agent/actions/preview`, {
+      token: "owner-token",
+      body: { action: "read_logs" },
+    });
+    assert.equal(agentPreview.status, 500);
+    assertStableOperationError(agentPreview.body, expected.agentPreview);
+
+    db.operationErrors.set("select:developer_space_events", hostileOperationError("observatory detail"));
+    const observatoryDetail = await requestJson(app, "GET", "/developer-spaces/operation-error-surface");
+    assert.equal(observatoryDetail.status, 500);
+    assertStableOperationError(observatoryDetail.body, expected.observatory);
+
+    db.operationErrors.set("select:developer_space_snapshots", hostileOperationError("observatory stream"));
+    const observatoryStream = await requestText(app, "GET", "/developer-spaces/operation-error-surface/stream?once=1");
+    assert.equal(observatoryStream.status, 500);
+    assertStableOperationError(JSON.parse(observatoryStream.body), expected.observatory);
+
+    db.operationErrors.set("upsert:developer_space_documents", hostileOperationError("document attach"));
+    const documentAttach = await requestJson(app, "POST", `/developer-spaces/${space.id}/documents`, {
+      token: "owner-token",
+      body: {
+        documentId: document.id,
+        role: "note",
+        linkVisibility: "owner",
+      },
+    });
+    assert.equal(documentAttach.status, 500);
+    assertStableOperationError(documentAttach.body, expected.documentAttach);
+
+    db.insertErrors.set("documents", hostileOperationError("document template"));
+    const documentTemplate = await requestJson(app, "POST", `/developer-spaces/${space.id}/documents/template`, {
+      token: "owner-token",
+      body: {
+        role: "note",
+        title: "Template Failure",
+      },
+    });
+    assert.equal(documentTemplate.status, 500);
+    assertStableOperationError(documentTemplate.body, expected.documentTemplate);
+
+    db.operationErrors.set("select:projects", hostileOperationError("project assignment lookup"));
+    const projectAssign = await requestJson(app, "PATCH", `/developer-spaces/${space.id}/project`, {
+      token: "owner-token",
+      body: { projectId: ownerProject.id },
+    });
+    assert.equal(projectAssign.status, 500);
+    assertStableOperationError(projectAssign.body, expected.projectAssign);
+
+    db.insertErrors.set("developer_space_usage", hostileOperationError("usage insert"));
+    const usage = await requestJson(app, "GET", `/developer-spaces/${space.id}/usage`, {
+      token: "owner-token",
+    });
+    assert.equal(usage.status, 500);
+    assertStableOperationError(usage.body, expected.usage);
+
+    db.operationErrors.set("update:developer_spaces", hostileOperationError("space update"));
+    const update = await requestJson(app, "PATCH", `/developer-spaces/${space.id}`, {
+      token: "owner-token",
+      body: { description: "Updated copy should not matter." },
+    });
+    assert.equal(update.status, 500);
+    assertStableOperationError(update.body, expected.update);
+  } finally {
     setSupabaseAdminForTests(null);
     setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
   }

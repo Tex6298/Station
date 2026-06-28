@@ -428,6 +428,63 @@ const DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSES = {
   },
 } as const;
 
+const DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES = {
+  publicGallery: {
+    error: "Could not load public Developer Spaces.",
+    code: "developer_space_public_gallery_load_failed",
+  },
+  ownerList: {
+    error: "Could not load your Developer Spaces.",
+    code: "developer_space_owner_list_failed",
+  },
+  create: {
+    error: "Could not create Developer Space.",
+    code: "developer_space_create_failed",
+  },
+  update: {
+    error: "Could not update Developer Space.",
+    code: "developer_space_update_failed",
+  },
+  observatory: {
+    error: "Could not load Developer Space observatory.",
+    code: "developer_space_observatory_load_failed",
+  },
+  agentPreview: {
+    error: "Could not preview Developer Space agent action.",
+    code: "developer_space_agent_preview_failed",
+  },
+  documentAttach: {
+    error: "Could not link Developer Space document.",
+    code: "developer_space_document_link_failed",
+  },
+  documentTemplate: {
+    error: "Could not create Developer Space document template.",
+    code: "developer_space_document_template_failed",
+  },
+  projectAssign: {
+    error: "Could not update Developer Space project assignment.",
+    code: "developer_space_project_assignment_failed",
+  },
+  usage: {
+    error: "Could not load Developer Space usage.",
+    code: "developer_space_usage_load_failed",
+  },
+} as const;
+
+type DeveloperSpaceOperationErrorResponse =
+  (typeof DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES)[keyof typeof DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES];
+
+function developerSpaceOperationFailure(response: DeveloperSpaceOperationErrorResponse) {
+  return {
+    status: 500 as const,
+    ...response,
+  };
+}
+
+function developerSpaceErrorBody(result: { error: string; code?: string }) {
+  return result.code ? { error: result.error, code: result.code } : { error: result.error };
+}
+
 function ingestionValidationError(error: z.ZodError) {
   return ingestionErrorBody({
     error: "Developer Space ingestion payload failed validation.",
@@ -1026,7 +1083,7 @@ async function loadLinkedDocumentsForSpace(space: any, access: "owner" | "member
   if (access !== "owner") query = query.eq("link_visibility", "public");
 
   const { data: links, error: linkError } = await query;
-  if (linkError) throw new Error(linkError.message);
+  if (linkError) throw new Error("Could not load linked documents.");
 
   const documentIds = [...new Set((links ?? []).map((link: any) => link.document_id))];
   if (documentIds.length === 0) {
@@ -1042,7 +1099,7 @@ async function loadLinkedDocumentsForSpace(space: any, access: "owner" | "member
     .select("id, author_user_id, title, slug, body, document_type, status, visibility, published_at, created_at, updated_at")
     .in("id", documentIds);
 
-  if (documentError) throw new Error(documentError.message);
+  if (documentError) throw new Error("Could not load linked documents.");
 
   const documentById = new Map((documents ?? []).map((document: any) => [document.id, document]));
   const readablePairs = (links ?? [])
@@ -1724,18 +1781,18 @@ async function loadDeveloperSpaceAgentReadback(space: any): Promise<DeveloperSpa
       .limit(20),
   ]);
 
-  if (nodesResult.error) throw new Error(nodesResult.error.message);
-  if (eventsResult.error) throw new Error(eventsResult.error.message);
-  if (snapshotsResult.error) throw new Error(snapshotsResult.error.message);
-  if (contextResult.error) throw new Error(contextResult.error.message);
+  if (nodesResult.error) throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
+  if (eventsResult.error) throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
+  if (snapshotsResult.error) throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
+  if (contextResult.error) throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
   if (webhookReceiptResult.error && !developerSpaceObservedRuntimeWebhookReceiptStoreUnavailable(webhookReceiptResult.error)) {
-    throw new Error(webhookReceiptResult.error.message);
+    throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
   }
   if (agentConfirmationResult.error && !developerSpaceAgentConfirmationStoreUnavailable(agentConfirmationResult.error)) {
-    throw new Error(agentConfirmationResult.error.message);
+    throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
   }
   if (agentReceiptResult.error && !developerSpaceAgentExecutionReceiptStoreUnavailable(agentReceiptResult.error)) {
-    throw new Error(agentReceiptResult.error.message);
+    throw new Error(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview.error);
   }
 
   const linkedDocumentsResult = await loadLinkedDocumentsForSpace(space, "owner");
@@ -3550,7 +3607,11 @@ function buildFreshness(
 async function buildDeveloperSpaceLiveUpdate(
   slug: string,
   user?: AuthenticatedUser | null
-): Promise<{ status: 200; update: DeveloperSpaceLiveUpdate } | { status: 403 | 404 | 500; error: string }> {
+): Promise<
+  | { status: 200; update: DeveloperSpaceLiveUpdate }
+  | { status: 403 | 404; error: string }
+  | { status: 500; error: string; code: string }
+> {
   const sb = getSupabaseAdmin();
   const { data: space, error } = await sb
     .from("developer_spaces")
@@ -3595,10 +3656,10 @@ async function buildDeveloperSpaceLiveUpdate(
       .limit(200),
   ]);
 
-  if (nodesResult.error) return { status: 500, error: nodesResult.error.message };
-  if (eventsResult.error) return { status: 500, error: eventsResult.error.message };
-  if (snapshotsResult.error) return { status: 500, error: snapshotsResult.error.message };
-  if (contextResult.error) return { status: 500, error: contextResult.error.message };
+  if (nodesResult.error) return developerSpaceOperationFailure(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.observatory);
+  if (eventsResult.error) return developerSpaceOperationFailure(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.observatory);
+  if (snapshotsResult.error) return developerSpaceOperationFailure(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.observatory);
+  if (contextResult.error) return developerSpaceOperationFailure(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.observatory);
 
   const nodes = nodesResult.data ?? [];
   const events = eventsResult.data ?? [];
@@ -3606,8 +3667,8 @@ async function buildDeveloperSpaceLiveUpdate(
   let linkedDocumentsResult: Awaited<ReturnType<typeof loadLinkedDocumentsForSpace>>;
   try {
     linkedDocumentsResult = await loadLinkedDocumentsForSpace(space, access);
-  } catch (e) {
-    return { status: 500, error: e instanceof Error ? e.message : "Could not load linked documents." };
+  } catch {
+    return developerSpaceOperationFailure(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.observatory);
   }
   const includeRawData = access === "owner";
   const publicFieldControls = includeRawData
@@ -4516,7 +4577,7 @@ developerSpacesRouter.get("/public", optionalAuth, async (_req, res) => {
     .order("updated_at", { ascending: false })
     .limit(24);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.publicGallery);
   return res.json({ spaces: (data ?? []).map((space) => serializeDeveloperSpace(space, { includeOperationalFields: false })) });
 });
 
@@ -4529,7 +4590,7 @@ developerSpacesRouter.get("/", requireAuth, async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("updated_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.ownerList);
 
   const assignedProjectIds = Array.from(new Set((data ?? [])
     .map((space) => space.project_id)
@@ -4542,7 +4603,7 @@ developerSpacesRouter.get("/", requireAuth, async (req, res) => {
       .eq("owner_user_id", req.user!.id)
     : { data: [], error: null };
 
-  if (projectsError) return res.status(500).json({ error: projectsError.message });
+  if (projectsError) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.ownerList);
 
   const ownerProjectsById = new Map((projects ?? []).map((project) => [project.id, project]));
   return res.json({
@@ -4565,10 +4626,12 @@ developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, r
   const sb = getSupabaseAdmin();
   const slug = parsed.data.slug ?? slugifyProjectName(parsed.data.projectName);
 
-  const { count } = await sb
+  const { count, error: countError } = await sb
     .from("developer_spaces")
     .select("id", { count: "exact", head: true })
     .eq("owner_user_id", req.user!.id);
+
+  if (countError) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.create);
 
   const authUser: AuthUser = {
     id: req.user!.id,
@@ -4598,7 +4661,7 @@ developerSpacesRouter.post("/", requireAuth, requireTier("canon"), async (req, r
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.create);
   return res.status(201).json({ space: serializeDeveloperSpace(data) });
 });
 
@@ -4639,10 +4702,8 @@ developerSpacesRouter.post("/:id/agent/actions/preview", requireAuth, async (req
       ownerLoad.space,
       readback,
     ));
-  } catch (e) {
-    return res.status(500).json({
-      error: e instanceof Error ? e.message : "Could not preview Developer Space agent action.",
-    });
+  } catch {
+    return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.agentPreview);
   }
 });
 
@@ -5600,9 +5661,14 @@ developerSpacesRouter.post("/:id/documents", requireAuth, async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !link) return res.status(500).json({ error: error?.message ?? "Could not link document." });
+  if (error || !link) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentAttach);
 
-  const linkedDocuments = await loadLinkedDocumentsForSpace(ownerLoad.space, "owner");
+  let linkedDocuments: Awaited<ReturnType<typeof loadLinkedDocumentsForSpace>>;
+  try {
+    linkedDocuments = await loadLinkedDocumentsForSpace(ownerLoad.space, "owner");
+  } catch {
+    return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentAttach);
+  }
   return res.status(201).json({
     link: serializeDeveloperSpaceLinkedDocument(link, document),
     linkedDocuments: linkedDocuments.linkedDocuments,
@@ -5648,7 +5714,7 @@ developerSpacesRouter.post("/:id/documents/template", requireAuth, async (req, r
     .single();
 
   if (documentError || !document) {
-    return res.status(500).json({ error: documentError?.message ?? "Could not create document." });
+    return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentTemplate);
   }
 
   const { data: link, error: linkError } = await sb
@@ -5664,9 +5730,14 @@ developerSpacesRouter.post("/:id/documents/template", requireAuth, async (req, r
     .select("*")
     .single();
 
-  if (linkError || !link) return res.status(500).json({ error: linkError?.message ?? "Could not link document." });
+  if (linkError || !link) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentTemplate);
 
-  const linkedDocuments = await loadLinkedDocumentsForSpace(ownerLoad.space, "owner");
+  let linkedDocuments: Awaited<ReturnType<typeof loadLinkedDocumentsForSpace>>;
+  try {
+    linkedDocuments = await loadLinkedDocumentsForSpace(ownerLoad.space, "owner");
+  } catch {
+    return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.documentTemplate);
+  }
   return res.status(201).json({
     link: serializeDeveloperSpaceLinkedDocument(link, document),
     document,
@@ -5696,7 +5767,7 @@ developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
       .eq("owner_user_id", req.user!.id)
       .maybeSingle();
 
-    if (projectError) return res.status(500).json({ error: projectError.message });
+    if (projectError) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.projectAssign);
     if (!project) return res.status(404).json({ error: "Project not found." });
   }
 
@@ -5708,7 +5779,7 @@ developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
     .select("*")
     .single();
 
-  if (error || !data) return res.status(500).json({ error: error?.message ?? "Could not update Developer Space project." });
+  if (error || !data) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.projectAssign);
 
   const { error: usageError } = await sb
     .from("developer_space_usage")
@@ -5720,7 +5791,7 @@ developerSpacesRouter.patch("/:id/project", requireAuth, async (req, res) => {
     .select("developer_space_id")
     .single();
 
-  if (usageError) return res.status(500).json({ error: usageError.message });
+  if (usageError) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.projectAssign);
 
   return res.json({ space: serializeDeveloperSpace(data), projectId: data.project_id ?? null });
 });
@@ -5732,8 +5803,8 @@ developerSpacesRouter.get("/:id/usage", requireAuth, async (req, res) => {
   try {
     const usage = await getDeveloperSpaceUsage(ownerLoad.space);
     return res.json({ usage });
-  } catch (e) {
-    return res.status(500).json({ error: e instanceof Error ? e.message : "Could not load usage." });
+  } catch {
+    return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.usage);
   }
 });
 
@@ -5769,7 +5840,7 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(DEVELOPER_SPACE_OPERATION_ERROR_RESPONSES.update);
   if (!data) return res.status(404).json({ error: "Developer Space not found." });
   return res.json({ space: serializeDeveloperSpace(data) });
 });
@@ -5778,7 +5849,7 @@ developerSpacesRouter.patch("/:id", requireAuth, async (req, res) => {
 developerSpacesRouter.get("/:slug/stream", optionalAuth, async (req, res) => {
   await attachSseQueryUser(req);
   const initial = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
-  if (initial.status !== 200) return res.status(initial.status).json({ error: initial.error });
+  if (initial.status !== 200) return res.status(initial.status).json(developerSpaceErrorBody(initial));
   if (initial.update.detail.access !== "owner") {
     await recordUsageSilently({
       id: initial.update.detail.space.id,
@@ -5815,7 +5886,7 @@ developerSpacesRouter.get("/:slug/stream", optionalAuth, async (req, res) => {
   const timer = setInterval(async () => {
     const next = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
     if (next.status !== 200) {
-      writeSse(res, "developer_space.error", { error: next.error }, new Date().toISOString());
+      writeSse(res, "developer_space.error", developerSpaceErrorBody(next), new Date().toISOString());
       clearInterval(timer);
       res.end();
       return;
@@ -5828,7 +5899,7 @@ developerSpacesRouter.get("/:slug/stream", optionalAuth, async (req, res) => {
 
 developerSpacesRouter.get("/:slug", optionalAuth, async (req, res) => {
   const result = await buildDeveloperSpaceLiveUpdate(req.params.slug, req.user);
-  if (result.status !== 200) return res.status(result.status).json({ error: result.error });
+  if (result.status !== 200) return res.status(result.status).json(developerSpaceErrorBody(result));
   if (result.update.detail.access !== "owner") {
     await recordUsageSilently({
       id: result.update.detail.space.id,
