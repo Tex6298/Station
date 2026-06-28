@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR462 | Hosted Studio quota readback confirmation | MIMIR / A1 | Pass - waiting closeout | `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_RESULT.md` |
+| PR463 | Discover, public, and community polish rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR462 closeout | Hosted Studio quota readback confirmation | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR463 opened for Discover/public/community polish | `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_CLOSEOUT.md` |
 | PR462 rehearsal | Hosted Studio quota readback confirmation | MIMIR -> ARIADNE -> MIMIR | Pass; hosted Studio dashboard quota readback de-fake visually confirmed | `docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_RESULT.md` |
 | PR461 closeout | Studio dashboard quota readback de-fake | DAEDALUS -> ARGUS -> MIMIR | Closed as accepted code patch; PR462 opened for hosted visual confirmation | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_CLOSEOUT.md` |
 | PR461 review | Studio dashboard quota readback de-fake | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow Archive card copy patch | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_REVIEW_RESULT.md` |

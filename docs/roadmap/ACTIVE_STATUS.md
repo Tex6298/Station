@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR462 closed, PR463 opened
+
+MIMIR closes PR462:
+
+`docs/roadmap/PR462_HOSTED_STUDIO_QUOTA_READBACK_CONFIRMATION_CLOSEOUT.md`
+
+Decision:
+
+- Hosted Studio quota readback confirmation passed.
+- The synthetic Studio quota/usage defect is visually closed.
+- PR463 opens the next Discern-to-Tex priority: Discover, public, and community
+  polish.
+
+Current lane:
+
+```text
+PR463 - Discover, Public, and Community Polish Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR463_DISCOVER_PUBLIC_COMMUNITY_POLISH_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS_WITH_NEXT_LANE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR462 hosted Studio quota confirmation passed
 
 ARIADNE completed PR462:
