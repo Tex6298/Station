@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR461 Studio Dashboard Quota Readback De-Fake
+
+DAEDALUS implemented PR461 on 2026-06-28:
+`docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/studio` no longer shows a `Tier allocation` percentage derived from local
+  persona count;
+- the former invented Studio usage metric block now routes users to existing
+  authoritative Billing, Settings, and Archive usage surfaces;
+- no Billing, Settings, Archive/files, Stripe, auth/session, API, database,
+  provider/model, package script, or lockfile behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 143 tests passed. |
+| `node -e "require.resolve('@playwright/test')"` | Expected local gap | Local Playwright package is not installed in this checkout. |
+
+Residual risk: local `/studio` desktop and 390px browser screenshots were not
+captured. ARGUS should decide whether to accept code review plus local checks or
+request ARIADNE/hosted browser confirmation.
+
 ## PR460 Billing and Quota Clarity Rehearsal
 
 ARIADNE completed PR460 on 2026-06-28:

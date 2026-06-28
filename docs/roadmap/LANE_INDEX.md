@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR461 | Studio dashboard quota readback de-fake | DAEDALUS / A2 | Open | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_DAEDALUS.md` |
+| PR461 | Studio dashboard quota readback de-fake | ARGUS / A3 | Ready for review | `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_RESULT.md` |
 
 ## Recently Closed
 

@@ -178,24 +178,38 @@ function IntegrityList({ personas, integrityDue }: { personas: PersonaSummary[];
   );
 }
 
-function UsageStats({ personas }: { personas: PersonaSummary[] }) {
-  const publicCount = personas.filter((persona) => persona.visibility === "public").length;
-  const stats = [
-    ["Conversations", Math.max(personas.length * 2, personas.length).toString()],
-    ["Archive items", Math.max(personas.length * 3, 1).toString()],
-    ["Published posts", publicCount.toString()],
-    ["Tier allocation", `${Math.min(18 + personas.length * 9, 82)}%`],
-  ];
+const usageSurfaces = [
+  {
+    label: "Billing",
+    value: "Plan",
+    detail: "Review subscription state, entitlement limits, and token-credit separation.",
+    href: "/billing",
+  },
+  {
+    label: "Settings",
+    value: "Tokens",
+    detail: "Check token-credit balance and storage usage from server readbacks.",
+    href: "/settings",
+  },
+  {
+    label: "Archive",
+    value: "Storage",
+    detail: "Open persona files and Archive storage state without invented usage math.",
+    href: "/studio/archive",
+  },
+];
 
+function UsageStats() {
   return (
     <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Usage Stats This Month" />
+      <SectionTitle title="Authoritative Usage" action="Billing" href="/billing" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: 10 }}>
-        {stats.map(([label, value]) => (
-          <div key={label} style={metricCard}>
-            <div style={{ color: "#f8fafc", fontSize: 24, fontWeight: 800, lineHeight: 1 }}>{value}</div>
-            <div style={{ color: "#8ea0b8", fontSize: 12, marginTop: 8 }}>{label}</div>
-          </div>
+        {usageSurfaces.map((surface) => (
+          <Link key={surface.label} href={surface.href} style={metricCardLink}>
+            <div style={{ color: "#f8fafc", fontSize: 18, fontWeight: 800, lineHeight: 1 }}>{surface.value}</div>
+            <div style={{ color: "#93c5fd", fontSize: 12, marginTop: 2, fontWeight: 700 }}>{surface.label}</div>
+            <p style={{ color: "#8ea0b8", fontSize: 12, lineHeight: 1.45, margin: "2px 0 0" }}>{surface.detail}</p>
+          </Link>
         ))}
       </div>
     </section>
@@ -325,7 +339,7 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
           <ContinueList personas={personas} />
           <MemoryOrientation personas={personas} />
           <IntegrityList personas={personas} integrityDue={integrityDue} />
-          <UsageStats personas={personas} />
+          <UsageStats />
           <ArchiveActivity />
         </div>
         <PersonaOverview personas={personas} />
@@ -412,6 +426,13 @@ const metricCard = {
   borderRadius: 8,
   background: "#0d1420",
   padding: 14,
+};
+
+const metricCardLink = {
+  ...metricCard,
+  display: "grid",
+  gap: 6,
+  textDecoration: "none",
 };
 
 const iconBox = {

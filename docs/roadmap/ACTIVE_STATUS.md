@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR461 ready for ARGUS review
+
+DAEDALUS implemented PR461:
+
+`docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_RESULT.md`
+
+Decision:
+
+- `/studio` no longer derives a quota-like `Tier allocation` percentage from
+  local persona count.
+- The former local usage metric block is replaced by `Authoritative Usage`
+  route cards to Billing, Settings, and Archive storage surfaces.
+- No Billing, Settings, Archive/files, Stripe, auth/session, API, database,
+  provider/model, package script, or lockfile behavior changed.
+- Local validation is green for full typecheck and `test:studio-ui`.
+- Local browser screenshot validation was not run because `@playwright/test` is
+  unavailable in this checkout.
+
+Current lane:
+
+```text
+PR461 - Studio Dashboard Quota Readback De-Fake
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_RESULT.md`.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout or hosted
+  confirmation.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact patch target.
+
 ## Latest MIMIR closeout - PR460 closed, PR461 opened
 
 MIMIR closes PR460:
