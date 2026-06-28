@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Persona File Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_DAEDALUS.md`.
+
+Reason:
+
+- Developer Space credential route-level error responses are accepted;
+- other raw route-level service errors remain future surface;
+- persona file routes return direct service exception text around private
+  archive storage paths, signed upload setup, registration, and import job
+  repair.
+
+Required validation for the DAEDALUS result:
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | Hostile persona-file/storage service messages must not be returned. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Required if TypeScript changes. |
+| `git diff --check` | Pass | Required for the patch. |
+
+Residual risk: non-persona-file archive/import routes and other route-level raw
+error responses remain future audit surface.
+
 ## Production Developer Space Credential Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:

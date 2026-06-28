@@ -36,7 +36,13 @@ Validation:
 
 Current baton:
 
-- MIMIR should close or route the next lane.
+- MIMIR routed the next route-level residual to DAEDALUS:
+  `docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_DAEDALUS.md`.
+- Persona file/archive file routes are next because signed upload, private
+  storage path, file registration, duplicate repair, and import-job repair
+  failures return direct service error text around private archive material.
+- This remains a narrow persona-file route-response lane, not archive parser,
+  worker, storage quota, or import execution work.
 
 ## Previous DAEDALUS result - Developer Space credential errors ready for ARGUS
 
