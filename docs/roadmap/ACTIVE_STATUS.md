@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - backup/restore local proof opened
+## Latest DAEDALUS result - backup/restore local proof blocked
+
+DAEDALUS completed the local proof implementation attempt on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_PROOF_RESULT.md`.
+
+Verdict:
+
+```text
+BLOCKED - LOCAL DEPENDENCY MISSING
+```
+
+Decision:
+
+- Added a standalone local-only proof planner/refusal harness:
+  `scripts/backup-restore-local-proof.mjs`.
+- Added focused refusal tests:
+  `scripts/backup-restore-local-proof.test.mjs`.
+- The tool defaults to plan mode and uses the accepted truth label:
+  `migration replay plus data-only logical restore`.
+- Guardrails reject non-local source/target, repo artifact paths,
+  non-fixture rows, storage operations, verbose/raw output, missing execute
+  confirmations, and missing local command dependencies.
+- Execute mode blocked before any dump/restore because `psql` and `pg_dump`
+  are not available on PATH.
+- No hosted data, real owner data, storage object, backup, restore, dump,
+  schema/config/package change, queue job, or admin-console action occurred.
+
+Current baton:
+
+- MIMIR has the blocked local-proof result.
+- Recommended next action: install/provide local Postgres command tooling
+  (`psql` and `pg_dump`) or decide whether a different ARGUS-approved local
+  Supabase/Postgres dependency path should be used.
+
+## Previous MIMIR decision - backup/restore local proof opened
 
 ARGUS accepted the backup/restore design with amendments on 2026-06-28:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_DESIGN_REVIEW_RESULT.md`.

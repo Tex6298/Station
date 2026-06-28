@@ -3,7 +3,7 @@
 Opened by: MIMIR / A1
 Owner: DAEDALUS / A2
 Date: 2026-06-28
-Status: open
+Status: complete - see `docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_PROOF_RESULT.md`
 
 ## Context
 

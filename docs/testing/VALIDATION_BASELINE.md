@@ -28,14 +28,21 @@ ARGUS accepted backup/restore design with amendments on 2026-06-28:
 MIMIR opened DAEDALUS local proof implementation:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_PROOF_DAEDALUS.md`.
 
-Validation result: open.
+DAEDALUS completed the local proof implementation attempt:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_PROOF_RESULT.md`.
+
+Validation result: `BLOCKED - LOCAL DEPENDENCY MISSING`.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | ARGUS design review | Pass | Accepted with required changes: local/disposable only, data-only logical restore after migration replay, dry-run default, artifacts out of git, refusal tests first. |
 | MIMIR decision | Pass | MIMIR opened implementation only under ARGUS's amended guardrails. |
 | Hosted boundary | Not authorized | No hosted backup/restore/dump/SQL, storage operation, export creation, queue job, admin console, real owner data, schema/config/package change, or hosted mutation is authorized. |
-| Required next validation | Pending | DAEDALUS must implement or block, then wake MIMIR before ARGUS local proof review. |
+| Local tooling | Pass | Added standalone planner/refusal harness under `scripts/` with no package/config/schema changes. |
+| `node --test scripts/backup-restore-local-proof.test.mjs` | Pass | 8 guardrail/refusal tests passed. |
+| Planner dry run | Pass | Plan mode returns safe output and does not print supplied connection strings. |
+| Execute preflight | Blocked | Execute mode stopped before any dump/restore because `psql` and `pg_dump` are missing from PATH. |
+| Required outcome | Pass | DAEDALUS returned `BLOCKED - LOCAL DEPENDENCY MISSING`. |
 
 Residual risk: backup/restore is still unproven until local proof work passes
 and ARGUS reviews it.
