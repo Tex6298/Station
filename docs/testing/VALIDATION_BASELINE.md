@@ -25,7 +25,10 @@ they are not Station validation failures.
 DAEDALUS implemented PR442 on 2026-06-28:
 `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+ARGUS accepted PR442 on 2026-06-28:
+`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
 
 Reason:
 
@@ -49,7 +52,8 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed; private NVIDIA fail-closed behavior remains green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Completed with exit code 0. |
-| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 Residual risk: PR442 does not configure a real accepted OpenAI, Anthropic, or
 DeepSeek provider route. Private replay/chat success still depends on external

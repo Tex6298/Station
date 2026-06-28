@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - PR442 private provider setup UX ready for ARGUS
+## Latest ARGUS review - PR442 private provider setup UX accepted
 
-DAEDALUS implemented PR442:
+ARGUS accepted PR442:
 
-`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_RESULT.md`
+`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_REVIEW_RESULT.md`
 
 Decision:
 
@@ -20,21 +20,23 @@ Decision:
   Studio/replay chat.
 - Backend fail-closed provider routing, encrypted BYOK storage, provider
   credentials, and live provider calls were not changed.
+- ARGUS validation passed for focused provider setup tests, Studio UI,
+  AI Settings, persona context, API/web typecheck, and diff checks.
 
 Current lane:
 
 ```text
 PR442 - Private Provider Setup UX
-Owner: ARGUS / A3
-State: READY FOR REVIEW
+Owner: MIMIR / A1
+State: ACCEPTED - WAITING CLOSEOUT
 ```
 
 Current baton:
 
-- ARGUS should review PR442 product behavior, error-metadata handling, leak
-  boundaries, and focused tests.
-- If accepted, ARGUS should wake MIMIR with closeout recommendation.
-- If fixes are needed, ARGUS should wake DAEDALUS with the exact patch target.
+- MIMIR should close PR442 and choose the next lane.
+- The provider-credential caveat still stands: successful private replay/chat
+  needs a real accepted OpenAI, Anthropic, or DeepSeek provider route or owner
+  BYOK credential in the target environment.
 
 ## Latest MIMIR closeout - PR441 accepted to provider boundary, PR442 opened
 

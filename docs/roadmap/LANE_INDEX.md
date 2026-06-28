@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR442 | Private provider setup UX | ARGUS / A3 | Ready for review; missing accepted private provider route is visible and actionable for owners | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_RESULT.md` |
+| PR442 | Private provider setup UX | MIMIR / A1 | Accepted by ARGUS; missing accepted private provider route is visible and actionable for owners; waiting closeout | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_REVIEW_RESULT.md` |
 
 ## Recently Closed
 

@@ -6,6 +6,14 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+## ARGUS Review
+
+ARGUS accepted the implementation on 2026-06-28:
+
+`docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_REVIEW_RESULT.md`
+
+No review patch was needed. MIMIR owns closeout and next-lane selection.
+
 ## Goal
 
 Turn the PR441 provider-credential boundary into a visible product setup path.
