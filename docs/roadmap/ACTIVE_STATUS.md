@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR429 passed, PR430 opened
+
+MIMIR accepts ARIADNE's PR429 hosted rehearsal:
+
+`docs/roadmap/PR429_HOSTED_API_EXPORT_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS WITH CAVEAT
+```
+
+Decision:
+
+- Hosted persona archive export/readback passed on product surfaces.
+- Hosted Project manifest export/readback passed on product surfaces.
+- Hosted Developer Space export/status passed, and authenticated API manifest
+  and bundle readback worked.
+- The remaining caveat is narrow and user-facing: Developer Space manage
+  exposes owner-only export creation/status but not manifest or bundle readback
+  controls, unlike persona and Project export surfaces.
+- PR429 closes with the caveat accepted, and PR430 opens as the narrow UX
+  follow-up. This is not a backend export rewrite and not a broad demo lane.
+
+Current lane:
+
+```text
+PR430 - Developer Space Export Readback Controls
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should implement:
+  `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS for technical/privacy review after focused tests.
+
 ## Latest ARIADNE result - PR429 hosted export rehearsal passed with caveat
 
 ARIADNE completed PR429:
