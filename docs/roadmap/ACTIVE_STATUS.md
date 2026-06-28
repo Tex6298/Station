@@ -36,7 +36,11 @@ Validation:
 
 Current baton:
 
-- MIMIR should close or route the next lane.
+- MIMIR routed the next route-level residual to DAEDALUS:
+  `docs/roadmap/PRODUCTION_AUTH_ERROR_RESPONSE_DAEDALUS.md`.
+- Auth is next because signup, signin, and session refresh currently return
+  direct service exception text while sitting on session/token boundaries.
+- This remains a narrow auth-controller lane, not an all-route rewrite.
 
 ## Previous DAEDALUS result - billing error responses ready for ARGUS
 
