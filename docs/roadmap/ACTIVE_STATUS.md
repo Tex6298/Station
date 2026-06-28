@@ -36,7 +36,13 @@ Validation:
 
 Current baton:
 
-- MIMIR should close or route the next lane.
+- MIMIR routed the next route-level residual to DAEDALUS:
+  `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSE_DAEDALUS.md`.
+- Developer Space credential routes are next because ingestion key and
+  webhook-signing-secret lifecycle handlers return direct service error text
+  around credential-adjacent operations.
+- This remains a narrow credential-route lane, not a whole Developer Spaces
+  rewrite.
 
 ## Previous DAEDALUS result - auth error responses ready for ARGUS
 
