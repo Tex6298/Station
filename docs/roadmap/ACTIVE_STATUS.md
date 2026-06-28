@@ -4,25 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - Project error responses
+## Latest DAEDALUS handoff - Project error responses
 
 MIMIR opened the next narrow route-level error response hardening lane on
 2026-06-28:
 `docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_DAEDALUS.md`.
 
-Why now:
+DAEDALUS completed the implementation on 2026-06-28:
+`docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_RESULT.md`.
 
-- ARGUS accepted Developer Space operations route-level error responses.
-- Projects are the adjacent product surface after Developer Space assignment
-  and operations.
-- The lane covers public project readback, owner project CRUD, attached
-  Developer Space readback, project usage/activity, membership creation, and
-  evidence loading responses.
+Decision:
+
+- Public Project readback, public attached Developer Space lookup, public
+  evidence lookup, owner Project list, owner Project create, owner membership
+  creation, owner Project read, owner attached Developer Space lookup, owner
+  usage/activity aggregation, and owner evidence lookup failures now return
+  stable public-safe responses with fixed route-specific error codes.
+- Existing successful public Project readback, owner Project list/read/create,
+  duplicate slug handling, owner membership creation, attached Developer Space
+  readback, activity aggregation, evidence selection/readback, not-found
+  behavior, owner scoping, and public visibility behavior remain unchanged.
+- Focused Project tests force hostile service payloads through public and
+  owner route failures and prove private markers, table-qualified names, IDs,
+  URLs/tokens, provider payload labels, and stack-shaped route strings are not
+  returned.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:projects` passed, 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- Direct raw-response grep was reviewed; the remaining `projects.ts` match is
+  zod validation response handling, not a 500 route response returning raw
+  service text.
+- `test:replay-readiness` was not run because replay-readiness behavior was
+  not touched.
 
 Current baton:
 
-- DAEDALUS should harden Project route responses, validate focused Projects and
-  Developer Space gates, then wake ARGUS for hostile review.
+- ARGUS should hostile-review Project route response mapping, behavior
+  preservation, docs, and focused tests.
 
 ## Latest ARGUS verdict - Developer Space operations errors accepted after narrow patch
 

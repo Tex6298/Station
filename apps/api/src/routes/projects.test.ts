@@ -31,6 +31,8 @@ class InMemorySupabase {
 
   private idCounters: Record<string, number> = {};
   private clock = Date.parse("2026-06-19T09:00:00.000Z");
+  insertErrors = new Map<string, { code?: string; message: string; details?: string }>();
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
@@ -212,6 +214,21 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return { data: null, error: operationError };
+    }
+
+    if (this.operation === "insert") {
+      const insertError = this.db.insertErrors.get(this.table);
+      if (insertError) {
+        this.db.insertErrors.delete(this.table);
+        return { data: null, error: insertError };
+      }
+    }
+
     const rows = this.operation === "insert"
       ? (Array.isArray(this.payload) ? this.payload : [this.payload as Row]).map((payload) => this.db.insertRow(this.table, payload))
       : this.matchingRows();
@@ -297,6 +314,57 @@ function assertNoPublicEvidenceInternals(value: unknown) {
   assert.doesNotMatch(json, /"author_user_id"|"authorUserId"|"link_visibility"|"linkVisibility"|"sort_order"|"sortOrder"/);
   assert.doesNotMatch(json, /body|excerpt|summary|source_id|source_type|source_label|raw|SQL|stack/i);
   assert.doesNotMatch(json, /activity|member|role|invite|report|export|billing|runtime|provider|Redis|Cloudflare|queue|worker|secret/i);
+}
+
+const projectHiddenMarker = "private-" + "project-route-marker";
+const projectDatabaseScheme = "postgres" + "ql://";
+const projectBearerLabel = "Bear" + "er";
+
+function hostileProjectError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed at public.projects`,
+      "public.project_members",
+      "public.developer_spaces",
+      "public.developer_space_usage",
+      "public.developer_space_documents",
+      "public.documents",
+      "owner_user_id=owner-user project_id=10000000-0000-4000-8000-000000000001",
+      `${projectBearerLabel} abc.${projectHiddenMarker}.token`,
+      `database url: ${projectDatabaseScheme}station:${projectHiddenMarker}@db.example.test/station`,
+      `raw project payload: private snippet ${projectHiddenMarker}`,
+      "at projectRoute (/station/private/projects.ts:1:2)",
+    ].join("; "),
+    details: `private project detail ${projectHiddenMarker}`,
+  };
+}
+
+function assertSafeProjectError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(projectHiddenMarker), false);
+  assert.equal(text.includes(projectBearerLabel), false);
+  assert.equal(text.includes(projectDatabaseScheme), false);
+  assert.equal(text.includes("db.example.test"), false);
+  assert.equal(text.includes("public.projects"), false);
+  assert.equal(text.includes("public.project_members"), false);
+  assert.equal(text.includes("public.developer_spaces"), false);
+  assert.equal(text.includes("public.developer_space_usage"), false);
+  assert.equal(text.includes("public.developer_space_documents"), false);
+  assert.equal(text.includes("public.documents"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("project_id"), false);
+  assert.equal(text.includes("raw project payload"), false);
+  assert.equal(text.includes("private snippet"), false);
+  assert.equal(text.includes("projectRoute"), false);
+}
+
+function assertStableProjectError(
+  body: unknown,
+  expected: { error: string; code: string }
+) {
+  assert.deepEqual(body, expected);
+  assertSafeProjectError(body);
 }
 
 test("anonymous public Project profile returns only safe public metadata and same-owner public Developer Spaces", async () => {
@@ -847,6 +915,193 @@ test("public Project private-only evidence and no-evidence states remain neutral
     );
     assert.equal(none.status, 200);
     assert.deepEqual(none.body.publicEvidence, []);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Project route errors return stable public copy", async () => {
+  const db = new InMemorySupabase();
+  const publicProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000300",
+    owner_user_id: "owner-user",
+    name: "Public Error Surface",
+    slug: "public-error-surface",
+    visibility: "public",
+  });
+  const ownerProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000301",
+    owner_user_id: "owner-user",
+    name: "Owner Error Surface",
+    slug: "owner-error-surface",
+    visibility: "private",
+  });
+  const publicSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000300",
+    owner_user_id: "owner-user",
+    project_id: publicProject.id,
+    project_name: "Public Error Observatory",
+    slug: "public-error-observatory",
+    visibility: "public",
+  });
+  const ownerSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000301",
+    owner_user_id: "owner-user",
+    project_id: ownerProject.id,
+    project_name: "Owner Error Observatory",
+    slug: "owner-error-observatory",
+    visibility: "private",
+  });
+  const publicDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000300",
+    author_user_id: "owner-user",
+    title: "Public Error Evidence",
+    slug: "public-error-evidence",
+    status: "published",
+    visibility: "public",
+    body: "public evidence body should never be in error responses",
+  });
+  const ownerDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000301",
+    author_user_id: "owner-user",
+    title: "Owner Error Evidence",
+    slug: "owner-error-evidence",
+    status: "draft",
+    visibility: "private",
+    body: "owner draft body should never be in error responses",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: publicSpace.id,
+    document_id: publicDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "finding",
+    link_visibility: "public",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: ownerSpace.id,
+    document_id: ownerDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "note",
+    link_visibility: "owner",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  const expected = {
+    publicRead: {
+      error: "Could not load public Project.",
+      code: "project_public_load_failed",
+    },
+    publicDeveloperSpaces: {
+      error: "Could not load public Project Developer Spaces.",
+      code: "project_public_developer_spaces_load_failed",
+    },
+    publicEvidence: {
+      error: "Could not load public Project evidence.",
+      code: "project_public_evidence_load_failed",
+    },
+    ownerList: {
+      error: "Could not load your Projects.",
+      code: "project_owner_list_failed",
+    },
+    create: {
+      error: "Could not create Project.",
+      code: "project_create_failed",
+    },
+    ownerMembership: {
+      error: "Could not create Project owner membership.",
+      code: "project_owner_membership_create_failed",
+    },
+    ownerRead: {
+      error: "Could not load Project.",
+      code: "project_owner_load_failed",
+    },
+    ownerDeveloperSpaces: {
+      error: "Could not load attached Developer Spaces.",
+      code: "project_attached_developer_spaces_load_failed",
+    },
+    ownerActivity: {
+      error: "Could not load Project activity.",
+      code: "project_activity_load_failed",
+    },
+    ownerEvidence: {
+      error: "Could not load Project evidence.",
+      code: "project_evidence_load_failed",
+    },
+  };
+
+  try {
+    db.operationErrors.set("select:projects", hostileProjectError("public project read"));
+    const publicRead = await requestJson(app, "GET", "/projects/public/public-error-surface");
+    assert.equal(publicRead.status, 500);
+    assertStableProjectError(publicRead.body, expected.publicRead);
+
+    db.operationErrors.set("select:developer_spaces", hostileProjectError("public attached spaces"));
+    const publicDeveloperSpaces = await requestJson(app, "GET", "/projects/public/public-error-surface");
+    assert.equal(publicDeveloperSpaces.status, 500);
+    assertStableProjectError(publicDeveloperSpaces.body, expected.publicDeveloperSpaces);
+
+    db.operationErrors.set("select:developer_space_documents", hostileProjectError("public evidence links"));
+    const publicEvidenceLinks = await requestJson(app, "GET", "/projects/public/public-error-surface");
+    assert.equal(publicEvidenceLinks.status, 500);
+    assertStableProjectError(publicEvidenceLinks.body, expected.publicEvidence);
+
+    db.operationErrors.set("select:documents", hostileProjectError("public evidence documents"));
+    const publicEvidenceDocuments = await requestJson(app, "GET", "/projects/public/public-error-surface");
+    assert.equal(publicEvidenceDocuments.status, 500);
+    assertStableProjectError(publicEvidenceDocuments.body, expected.publicEvidence);
+
+    db.operationErrors.set("select:projects", hostileProjectError("owner list"));
+    const ownerList = await requestJson(app, "GET", "/projects", { token: "owner-token" });
+    assert.equal(ownerList.status, 500);
+    assertStableProjectError(ownerList.body, expected.ownerList);
+
+    db.insertErrors.set("projects", hostileProjectError("project create"));
+    const create = await requestJson(app, "POST", "/projects", {
+      token: "owner-token",
+      body: {
+        name: "Create Failure",
+        slug: "create-failure",
+      },
+    });
+    assert.equal(create.status, 500);
+    assertStableProjectError(create.body, expected.create);
+
+    db.insertErrors.set("project_members", hostileProjectError("project owner membership"));
+    const ownerMembership = await requestJson(app, "POST", "/projects", {
+      token: "owner-token",
+      body: {
+        name: "Membership Failure",
+        slug: "membership-failure",
+      },
+    });
+    assert.equal(ownerMembership.status, 500);
+    assertStableProjectError(ownerMembership.body, expected.ownerMembership);
+
+    db.operationErrors.set("select:projects", hostileProjectError("owner read"));
+    const ownerRead = await requestJson(app, "GET", "/projects/owner-error-surface", { token: "owner-token" });
+    assert.equal(ownerRead.status, 500);
+    assertStableProjectError(ownerRead.body, expected.ownerRead);
+
+    db.operationErrors.set("select:developer_spaces", hostileProjectError("owner attached spaces"));
+    const ownerDeveloperSpaces = await requestJson(app, "GET", "/projects/owner-error-surface", { token: "owner-token" });
+    assert.equal(ownerDeveloperSpaces.status, 500);
+    assertStableProjectError(ownerDeveloperSpaces.body, expected.ownerDeveloperSpaces);
+
+    db.operationErrors.set("select:developer_space_usage", hostileProjectError("owner activity"));
+    const ownerActivity = await requestJson(app, "GET", "/projects/owner-error-surface", { token: "owner-token" });
+    assert.equal(ownerActivity.status, 500);
+    assertStableProjectError(ownerActivity.body, expected.ownerActivity);
+
+    db.operationErrors.set("select:developer_space_documents", hostileProjectError("owner evidence links"));
+    const ownerEvidenceLinks = await requestJson(app, "GET", "/projects/owner-error-surface", { token: "owner-token" });
+    assert.equal(ownerEvidenceLinks.status, 500);
+    assertStableProjectError(ownerEvidenceLinks.body, expected.ownerEvidence);
+
+    db.operationErrors.set("select:documents", hostileProjectError("owner evidence documents"));
+    const ownerEvidenceDocuments = await requestJson(app, "GET", "/projects/owner-error-surface", { token: "owner-token" });
+    assert.equal(ownerEvidenceDocuments.status, 500);
+    assertStableProjectError(ownerEvidenceDocuments.body, expected.ownerEvidence);
   } finally {
     setSupabaseAdminForTests(null);
   }

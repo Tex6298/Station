@@ -74,6 +74,49 @@ type PublicProjectEvidenceDocumentRow = Pick<
 
 export const projectsRouter = Router();
 
+const PROJECT_ERROR_RESPONSES = {
+  publicRead: {
+    error: "Could not load public Project.",
+    code: "project_public_load_failed",
+  },
+  publicDeveloperSpaces: {
+    error: "Could not load public Project Developer Spaces.",
+    code: "project_public_developer_spaces_load_failed",
+  },
+  publicEvidence: {
+    error: "Could not load public Project evidence.",
+    code: "project_public_evidence_load_failed",
+  },
+  ownerList: {
+    error: "Could not load your Projects.",
+    code: "project_owner_list_failed",
+  },
+  create: {
+    error: "Could not create Project.",
+    code: "project_create_failed",
+  },
+  ownerMembership: {
+    error: "Could not create Project owner membership.",
+    code: "project_owner_membership_create_failed",
+  },
+  ownerRead: {
+    error: "Could not load Project.",
+    code: "project_owner_load_failed",
+  },
+  ownerDeveloperSpaces: {
+    error: "Could not load attached Developer Spaces.",
+    code: "project_attached_developer_spaces_load_failed",
+  },
+  ownerActivity: {
+    error: "Could not load Project activity.",
+    code: "project_activity_load_failed",
+  },
+  ownerEvidence: {
+    error: "Could not load Project evidence.",
+    code: "project_evidence_load_failed",
+  },
+} as const;
+
 function serializeProject(row: ProjectRow) {
   return {
     id: row.id,
@@ -238,7 +281,7 @@ function serializeProjectEvidence(
 async function loadProjectEvidence(
   developerSpaces: Array<Pick<DeveloperSpaceRow, "id" | "owner_user_id" | "project_name" | "slug">>,
   ownerUserId: string
-): Promise<{ evidence?: ProjectEvidenceItem[]; error?: string }> {
+): Promise<{ evidence?: ProjectEvidenceItem[]; error?: true }> {
   const attachedSpaces = developerSpaces.filter((space) => space.owner_user_id === ownerUserId);
   const spaceIds = attachedSpaces.map((space) => space.id);
   if (spaceIds.length === 0) return { evidence: [] };
@@ -251,7 +294,7 @@ async function loadProjectEvidence(
     .in("developer_space_id", spaceIds)
     .order("updated_at", { ascending: false });
 
-  if (linkError) return { error: linkError.message };
+  if (linkError) return { error: true };
 
   const linkRows = links ?? [];
   const documentIds = [...new Set(linkRows.map((link) => link.document_id))];
@@ -263,7 +306,7 @@ async function loadProjectEvidence(
     .eq("author_user_id", ownerUserId)
     .in("id", documentIds);
 
-  if (documentError) return { error: documentError.message };
+  if (documentError) return { error: true };
 
   const spacesById = new Map(attachedSpaces.map((space) => [space.id, space]));
   const documentsById = new Map((documents ?? []).map((document) => [document.id, document]));
@@ -291,7 +334,7 @@ async function loadProjectEvidence(
 async function loadPublicProjectEvidence(
   developerSpaces: PublicProjectDeveloperSpaceRow[],
   ownerUserId: string
-): Promise<{ publicEvidence?: PublicProjectEvidenceItem[]; error?: string }> {
+): Promise<{ publicEvidence?: PublicProjectEvidenceItem[]; error?: true }> {
   const publicSpaces = developerSpaces.filter(
     (space) => space.owner_user_id === ownerUserId && space.visibility === "public"
   );
@@ -307,7 +350,7 @@ async function loadPublicProjectEvidence(
     .in("developer_space_id", spaceIds)
     .order("updated_at", { ascending: false });
 
-  if (linkError) return { error: linkError.message };
+  if (linkError) return { error: true };
 
   const linkRows = links ?? [];
   const documentIds = [...new Set(linkRows.map((link) => link.document_id))];
@@ -321,7 +364,7 @@ async function loadPublicProjectEvidence(
     .eq("visibility", "public")
     .in("id", documentIds);
 
-  if (documentError) return { error: documentError.message };
+  if (documentError) return { error: true };
 
   const spacesById = new Map(publicSpaces.map((space) => [space.id, space]));
   const documentsById = new Map((documents ?? []).map((document) => [document.id, document]));
@@ -367,7 +410,7 @@ projectsRouter.get("/public/:slug", async (req, res) => {
     .eq("visibility", "public")
     .maybeSingle();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicRead);
   if (!project) return res.status(404).json({ error: "Public Project not found." });
 
   const { data: developerSpaces, error: developerSpacesError } = await sb
@@ -378,7 +421,7 @@ projectsRouter.get("/public/:slug", async (req, res) => {
     .eq("visibility", "public")
     .order("updated_at", { ascending: false });
 
-  if (developerSpacesError) return res.status(500).json({ error: developerSpacesError.message });
+  if (developerSpacesError) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicDeveloperSpaces);
 
   const sortedDeveloperSpaces = [...(developerSpaces ?? [])].sort((a, b) => {
     const updated = Date.parse(b.updated_at) - Date.parse(a.updated_at);
@@ -387,7 +430,7 @@ projectsRouter.get("/public/:slug", async (req, res) => {
   });
 
   const publicEvidenceResult = await loadPublicProjectEvidence(sortedDeveloperSpaces, project.owner_user_id);
-  if (publicEvidenceResult.error) return res.status(500).json({ error: publicEvidenceResult.error });
+  if (publicEvidenceResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicEvidence);
 
   return res.json({
     project: serializePublicProject(project, sortedDeveloperSpaces.length),
@@ -408,7 +451,7 @@ projectsRouter.get("/", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerList);
   return res.json({ projects: (data ?? []).map(serializeProject) });
 });
 
@@ -432,7 +475,7 @@ projectsRouter.post("/", async (req, res) => {
 
   if (error || !project) {
     if (isUniqueViolation(error)) return res.status(409).json({ error: "Project slug is already in use." });
-    return res.status(500).json({ error: error?.message ?? "Could not create project." });
+    return res.status(500).json(PROJECT_ERROR_RESPONSES.create);
   }
 
   const { error: memberError } = await sb
@@ -447,7 +490,7 @@ projectsRouter.post("/", async (req, res) => {
     .single();
 
   if (memberError) {
-    return res.status(500).json({ error: memberError.message ?? "Could not create project owner membership." });
+    return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerMembership);
   }
 
   return res.status(201).json({ project: serializeProject(project) });
@@ -464,7 +507,7 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
   query = isUuid(idOrSlug) ? query.eq("id", idOrSlug) : query.eq("slug", idOrSlug);
 
   const { data, error } = await query.maybeSingle();
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerRead);
   if (!data) return res.status(404).json({ error: "Project not found." });
 
   const { data: developerSpaces, error: developerSpacesError } = await sb
@@ -474,7 +517,7 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
     .eq("owner_user_id", req.user!.id)
     .order("created_at", { ascending: false });
 
-  if (developerSpacesError) return res.status(500).json({ error: developerSpacesError.message });
+  if (developerSpacesError) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerDeveloperSpaces);
 
   const { data: usageRows, error: usageError } = await sb
     .from("developer_space_usage")
@@ -482,10 +525,10 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
     .eq("project_id", data.id)
     .eq("owner_user_id", req.user!.id);
 
-  if (usageError) return res.status(500).json({ error: usageError.message });
+  if (usageError) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerActivity);
 
   const evidenceResult = await loadProjectEvidence(developerSpaces ?? [], req.user!.id);
-  if (evidenceResult.error) return res.status(500).json({ error: evidenceResult.error });
+  if (evidenceResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerEvidence);
 
   return res.json({
     project: serializeProject(data),

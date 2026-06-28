@@ -25,24 +25,31 @@ they are not Station validation failures.
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 `docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
 
 Reason:
 
 - Developer Space operations route-level error responses are accepted;
 - Projects are the adjacent product surface after Developer Space assignment
   and operations;
-- `projects.ts` has direct route-level raw errors around public project
-  readback, owner project list/read/create, membership creation, attached
-  Developer Spaces, usage/activity, and evidence loading.
+- `projects.ts` now uses stable public-safe route responses with fixed error
+  codes around public project readback, owner project list/read/create,
+  membership creation, attached Developer Spaces, usage/activity, and evidence
+  loading;
+- focused Project tests force hostile service payloads through failing public
+  and owner route responses and prove raw service details are not returned.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | Required for public/owner Project behavior and evidence readback. |
-| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | Required for adjacent Developer Space attachment behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | 17 tests passed; hostile Project route failures return stable public copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; adjacent Developer Space attachment behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
-| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Conditional pass | Required if replay-readiness behavior changes. |
+| Direct raw-response grep | Reviewed | The remaining `projects.ts` match is zod validation response handling, not a 500 route response returning raw service text. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Not run | Replay-readiness behavior was not touched. |
 | ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and Project/membership/evidence/usage behavior did not change. |
 
 Residual risk: reports, publishing approval, social, notification, persona,
