@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS DOCUMENT ERROR RESPONSE REVIEW`.
+ARGUS completed document error response review:
+`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED`.
 
 Reason:
 
@@ -36,17 +39,23 @@ Reason:
 - documents are the next product-critical public-chain surface;
 - `documents.ts` now uses stable public-safe route responses around owner document list,
   version history, create/update/publish/delete, continuity publication,
-  snapshots, linked discussion setup, and linked discussion cleanup failures.
+  snapshots, explicit linked discussion setup, and linked discussion cleanup
+  failures;
+- existing best-effort discussion ensure/sync after document update or publish
+  remains best-effort and was not converted into a hard failure.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; hostile document/discussion route failures return stable public copy. |
 | `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed; continuity-to-document publication behavior remains green. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | No whitespace errors. |
+| `git diff e945d7ef^ e945d7ef --check` | Pass | MIMIR lane-open commit has no whitespace errors. |
+| `git diff 40dadf86^ 40dadf86 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| `git diff --check` | Pass | ARGUS review docs have no whitespace errors. |
 | Added-line sensitive scan | Reviewed | Hits were synthetic document fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| Direct raw-response grep | Pass | `documents.ts` has no direct `*.message` route response returns; the remaining match is the internal missing-row classifier. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Not run | Public document readback behavior was not changed. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and document/publication/snapshot/linked-discussion behavior did not change. |
+| ARGUS review | Pass | Document response mapping is stable public copy; document lifecycle, publication, versioning, public readback, explicit linked discussion setup failure handling, best-effort discussion sync, cleanup behavior, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: forum, thread, comment, and other route-level raw error
 responses remain future audit surface.

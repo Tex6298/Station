@@ -4,28 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - document errors ready for ARGUS
+## Latest ARGUS verdict - document errors accepted
 
-DAEDALUS completed the document route-level error response implementation on
+ARGUS completed the document route-level error response review on
 2026-06-28:
-`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_DOCUMENT_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS DOCUMENT ERROR RESPONSE REVIEW
+ACCEPTED
 ```
 
 Decision:
 
 - Owner document list/version history, create, update, publish-from-continuity,
-  publish, delete, snapshot creation, linked discussion setup, and linked
-  discussion cleanup failures now return stable public-safe responses with
+  publish, delete, snapshot creation, explicit linked discussion setup, and
+  linked discussion cleanup failures return stable public-safe responses with
   fixed route-specific error codes.
 - Successful owner document list/readback, version history, create, update,
   publish-from-continuity, publish, delete, snapshot creation/cleanup,
   discussion ensure/sync/cleanup, public document readback, not-found behavior,
-  and owner/admin access behavior did not change.
+  and owner/admin access behavior remain unchanged.
+- ARGUS treats the linked-discussion setup claim narrowly: the explicit
+  `POST /documents/:id/discussion` setup failure now returns fixed public copy,
+  while existing best-effort discussion ensure/sync after update or publish
+  remains best-effort and was not converted into a hard failure.
 - Focused document discussion tests force hostile service payloads through
   document and linked-discussion failures and prove private IDs, table markers,
   URLs/tokens, draft bodies, continuity source content, snapshot payloads,
@@ -46,18 +50,19 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` passed, 1
   test.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` passed.
-- Added-line sensitive scan was reviewed; hits were synthetic document
+- `git diff e945d7ef^ e945d7ef --check` passed.
+- `git diff 40dadf86^ 40dadf86 --check` passed.
+- `git diff --check` passed for ARGUS review docs.
+- Added-line sensitive scans were reviewed; hits were synthetic document
   fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+- `documents.ts` has no direct `*.message` route response returns; the
+  remaining match is the internal missing-row classifier.
 - `test:writing` was not run because public document readback behavior was not
   changed.
 
 Current baton:
 
-- ARGUS should hostile-review document response mapping, snapshot cleanup,
-  publication/readback behavior preservation, linked discussion setup/cleanup
-  preservation, and focused tests. ARGUS should wake MIMIR if accepted, or
-  DAEDALUS if fixes are required.
+- MIMIR should close or route the next lane.
 
 ## Latest ARGUS verdict - integrity errors accepted after narrow patch
 
