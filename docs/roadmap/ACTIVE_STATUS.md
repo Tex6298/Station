@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR460 closed, PR461 opened
+
+MIMIR closes PR460:
+
+`docs/roadmap/PR460_BILLING_QUOTA_CLARITY_CLOSEOUT.md`
+
+Decision:
+
+- Billing, Settings, signed-out Pricing, and Archive quota readbacks are
+  accepted for the checked hosted route set.
+- Studio dashboard still shows a synthetic quota-like Tier allocation metric.
+- PR461 opens a bounded DAEDALUS patch to remove or replace that invented quota
+  readback without changing billing systems.
+
+Current lane:
+
+```text
+PR461 - Studio Dashboard Quota Readback De-Fake
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR461_STUDIO_DASHBOARD_QUOTA_READBACK_DEFAKE_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation notes and validation.
+
 ## Latest ARIADNE result - PR460 found Studio quota readback defect
 
 ARIADNE completed PR460:
