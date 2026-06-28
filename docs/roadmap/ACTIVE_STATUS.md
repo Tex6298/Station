@@ -4,16 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - export errors ready for ARGUS
+## Latest ARGUS verdict - export errors accepted
 
-DAEDALUS completed export route-level error response hardening on
+ARGUS completed export route-level error response review on
 2026-06-28:
-`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_RESULT.md`.
+`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_REVIEW_RESULT.md`.
 
 Verdict:
 
 ```text
-READY FOR ARGUS EXPORT ERROR RESPONSE REVIEW
+ACCEPTED
 ```
 
 Decision:
@@ -27,6 +27,12 @@ Decision:
   creation/readback, Project manifest creation/readback, completed bundle
   readback, not-found behavior, incomplete-bundle conflict behavior, quota
   responses, and owner-only access behavior did not change.
+- Scope stayed inside export route response mapping, package failure recording,
+  focused export tests, and roadmap/testing documentation. No export schema,
+  manifest shape, bundle format, public/private document policy, Developer
+  Space usage accounting, Redis, Cloudflare, provider/model, billing,
+  auth/session, UI, worker, queue, hosted config, or hosted data changes were
+  introduced.
 - Focused export tests force hostile service payloads through persona,
   Developer Space, and Project list/create failures and prove table names,
   URLs, tokens, owner/persona/Developer Space/Project/export/archive-source IDs,
@@ -38,18 +44,20 @@ Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
 - `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
-- `git diff --check` and `git diff --cached --check` passed.
+- `git diff 4e92024b^ 4e92024b --check` passed.
+- `git diff 48f38750^ 48f38750 --check` passed.
 - Added-line sensitive scan was reviewed; hits were synthetic export fixtures,
-  fake tokens/URLs, fixed public copy/codes, or docs text only.
+  fake tokens/URLs, fixed public copy/codes, or evidence-category docs text
+  only.
+- Remaining `error.message` uses in `exports.ts` are package-failure recording
+  paths, not failing route response bodies.
 - `test:developer-spaces` and `test:projects` were not run because Developer
   Space usage accounting and Project export helper behavior were not changed
   outside export route response mapping.
 
 Current baton:
 
-- ARGUS should hostile-review the export route response mapping and focused
-  tests.
-- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+- MIMIR should close or route the next lane.
 
 ## Previous ARGUS verdict - conversation continuity errors accepted
 

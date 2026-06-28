@@ -28,7 +28,10 @@ MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
 DAEDALUS completed the implementation:
 `docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_RESULT.md`.
 
-Validation result: `READY FOR ARGUS EXPORT ERROR RESPONSE REVIEW`.
+ARGUS completed export error response review:
+`docs/roadmap/PRODUCTION_EXPORT_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPTED`.
 
 Reason:
 
@@ -42,12 +45,12 @@ Reason:
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed; hostile export list/create route failures return stable public copy. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
-| `git diff --check` | Pass | Patch has no whitespace errors. |
-| `git diff --cached --check` | Pass | Staged patch has no whitespace errors. |
-| Added-line sensitive scan | Reviewed | Hits were synthetic export fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only. |
+| `git diff 4e92024b^ 4e92024b --check` | Pass | MIMIR lane-open commit has no whitespace errors. |
+| `git diff 48f38750^ 48f38750 --check` | Pass | DAEDALUS implementation commit has no whitespace errors. |
+| Added-line sensitive scan | Reviewed | Hits were synthetic export fixtures, fake tokens/URLs, fixed public copy/codes, or evidence-category docs text only. |
 | `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Not run | Developer Space usage accounting behavior was not changed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:projects` | Not run | Project export helper behavior was not changed outside route response mapping. |
-| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and export package/manifest/bundle lifecycle behavior did not change. |
+| ARGUS review | Pass | Export route response mapping is stable public copy; owner-visible package failure diagnostics, package lifecycle, manifest/bundle readback, quota/not-found/conflict behavior, schema, packages, hosted config, and hosted data did not change. |
 
 Residual risk: other route-level raw error responses remain future audit
 surface.
