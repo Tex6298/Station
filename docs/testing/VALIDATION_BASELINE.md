@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Memory Canon Error Response Hardening
+
+MIMIR opened the next route-level error-response hardening slice on 2026-06-28:
+`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- export route-level error responses are accepted;
+- private memory and canon are the next highest-product-risk raw error surface;
+- `memory.ts` and `canon.ts` have direct route-level raw errors around shared
+  memory, persona memory briefing, graph reads/writes, memory item lifecycle,
+  and canon item CRUD.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for persona context, briefing, memory, and conversation history behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Required for continuity behavior adjacent to memory/canon lifecycle. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Added focused memory/canon route tests | Conditional pass | Required if implementation adds or expands a new focused route gate. |
+| ARGUS review | Pending | Hostile review should confirm route responses are stable public-safe copy and memory/canon/briefing/graph/lifecycle behavior did not change. |
+
+Residual risk: other route-level raw error responses remain future audit
+surface.
+
 ## Production Export Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:

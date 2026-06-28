@@ -4,6 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - memory/canon error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted export route-level error responses.
+- Private memory and canon are the next highest-product-risk raw error surface:
+  they carry the material Station uses to keep a persona steady.
+- The lane covers route responses around shared owner memory, persona memory
+  briefing, memory graph, lifecycle state, recallable memory items, and canon
+  items.
+
+Current baton:
+
+- DAEDALUS should harden memory/canon route responses, validate focused
+  persona-context/continuity gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - export errors accepted
 
 ARGUS completed export route-level error response review on
