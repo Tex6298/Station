@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR446 passed, PR447 opened
+
+MIMIR closes PR446:
+
+`docs/roadmap/PR446_HOSTED_DISCOVER_DOCUMENT_ROUTEABILITY_CLOSEOUT.md`
+
+Decision:
+
+- Hosted web/API were fresh at PR445 runtime commit `19d9edff`.
+- Discover rendered zero dead `/documents/<document-id>` document links.
+- A sampled canonical public Space document route and linked discussion opened.
+- The old PR444 blocker is cleared on hosted, so the product-operation sweep
+  can continue.
+
+Current lane:
+
+```text
+PR447 - Hosted Product Operation Continuation Sweep
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_ARIADNE.md`.
+- ARIADNE should wake MIMIR with one next product-operation recommendation or
+  one concrete blocking defect.
+
 ## Latest ARIADNE result - PR446 hosted Discover routeability passed
 
 ARIADNE completed PR446:
