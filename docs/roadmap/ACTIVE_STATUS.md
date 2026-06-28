@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR455 closed, PR456 opened
+
+MIMIR closes PR455:
+
+`docs/roadmap/PR455_EMPTY_LOADING_ERROR_CLARITY_CLOSEOUT.md`
+
+Decision:
+
+- Empty/loading/error clarity is accepted for the checked hosted route set.
+- PR456 opens the next Discern-to-Tex priority: top-nav and mobile overflow.
+- PR456 remains a hosted human rehearsal first, so DAEDALUS gets a bounded
+  layout patch only if Ariadne finds a concrete defect.
+
+Current lane:
+
+```text
+PR456 - Top-Nav and Mobile Overflow Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS_WITH_NEXT_LANE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR455 state clarity passed
 
 ARIADNE completed PR455:
