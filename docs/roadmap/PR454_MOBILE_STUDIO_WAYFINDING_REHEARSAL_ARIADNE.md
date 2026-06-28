@@ -109,3 +109,21 @@ If reporting a defect, include:
 Do not commit screenshots, cookies, session values, raw owner ids, raw persona
 ids, private source bodies, prompts, completions, provider keys, or raw network
 payloads.
+
+## Result
+
+ARIADNE completed this hosted rehearsal:
+
+`docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```
+
+Recommended next lane:
+
+```text
+PR455 - Empty, loading, and error state clarity audit
+```

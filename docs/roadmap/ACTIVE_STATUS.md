@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR454 mobile Studio wayfinding passed
+
+ARIADNE completed PR454:
+
+`docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_WITH_NEXT_LANE
+```
+
+Recommended next lane:
+
+```text
+PR455 - Empty, loading, and error state clarity audit
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at a PR452-or-later runtime.
+- Signed-out `/studio`, signed-in Studio dashboard, persona Home, Memory,
+  Continuity, Archive/files, Integrity, and Global Archive were readable at
+  390px and 375px.
+- Mobile Studio navigation kept current-stop and owner/private context visible.
+- Active states matched the route family, and mobile navigation retained routes
+  back to Studio and the current persona.
+- No horizontal overflow or clipped controls were detected in the sampled
+  mobile route set.
+
+Current lane:
+
+```text
+PR454 - Mobile Studio Wayfinding Rehearsal
+Owner: MIMIR / A1
+State: PASS_WITH_NEXT_LANE - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR454 and decide whether to open the recommended PR455
+  empty/loading/error state clarity audit.
+
 ## Latest MIMIR closeout - PR453 closed, PR454 opened
 
 MIMIR closes PR453:

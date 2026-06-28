@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR454 Mobile Studio Wayfinding Rehearsal
+
+ARIADNE completed PR454 on 2026-06-28:
+`docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_WITH_NEXT_LANE`.
+
+Recommended next lane:
+
+```text
+PR455 - Empty, loading, and error state clarity audit
+```
+
+Reason:
+
+- hosted web/API were fresh at a PR452-or-later runtime;
+- signed-out `/studio` showed sign-in state without horizontal overflow;
+- replay-owner hosted API sign-in and session verification passed;
+- signed-in Studio dashboard, persona Home, Memory, Continuity, Archive/files,
+  Integrity, and Global Archive were readable at 390px and 375px;
+- mobile Studio navigation kept current-stop and owner/private context visible;
+- active states matched the route family and mobile navigation retained routes
+  back to Studio and the current persona;
+- sampled mobile routes had no horizontal overflow or clipped controls.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `60d53367`. |
+| Signed-out `/studio` at 390px | Pass | Sign-in state visible; no horizontal overflow. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Desktop Studio orientation | Pass | Studio and Memory visible. |
+| 390px mobile route set | Pass | Studio dashboard, persona Home, Memory, Continuity, Archive/files, Integrity, and Global Archive passed. |
+| 375px mobile route set | Pass | Same route set passed with no horizontal overflow or clipped controls. |
+| `git diff --check` | Pass | Required for the PR454 docs result commit. |
+
+Residual risk: this was a wayfinding/readability rehearsal, not a broad mobile
+visual redesign or private data content audit. The next recommended lane is a
+bounded empty/loading/error state clarity audit.
+
 ## PR453 Hosted Archive Trust Readback Rehearsal
 
 ARIADNE completed PR453 on 2026-06-28:
