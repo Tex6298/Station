@@ -21,6 +21,7 @@ import {
   archiveJobTone,
   archiveJobTrustCopy,
   archiveSourceNarrative,
+  archiveTrustScopeRows,
   archiveTrustStateRows,
   archiveTrustSummary,
   supportedImportFormatRows,
@@ -95,6 +96,48 @@ test("archive trust state rows keep empty state honest without quota invention",
   assert.match(rows[0]?.body ?? "", /No pasted or file archive sources/);
   assert.match(rows[0]?.body ?? "", /Archived chats can still appear/);
   assert.doesNotMatch(rendered, /limit|quota|gb|mb|percent|destroyed/i);
+});
+
+test("archive trust scope rows separate import sources, chats, storage, and continuity", () => {
+  const rows = archiveTrustScopeRows(
+    [{ processed: true }, { processed: false }],
+    [
+      { kind: "chat", status: "completed" },
+      { kind: "file", status: "processing" },
+    ],
+    {
+      archivedChatCount: 3,
+      continuityRecordCount: 5,
+    },
+  );
+  const rendered = JSON.stringify(rows);
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["import-sources", "3", "good"],
+    ["archived-chats", "3", "good"],
+    ["storage-content", "Usage panel", "info"],
+    ["continuity-links", "Not broken out", "info"],
+  ]);
+  assert.match(rendered, /does not include archived conversations/);
+  assert.match(rendered, /counted separately from pasted\/file import sources/);
+  assert.match(rendered, /server-reported storage usage/);
+  assert.match(rendered, /5 total Continuity records exist/);
+  assert.match(rendered, /archive_file, archive_import, and archived_chat/);
+  assert.doesNotMatch(rendered, /raw id|storage path|quota is 0|public/i);
+});
+
+test("archive trust scope rows do not fake unavailable counts", () => {
+  const rows = archiveTrustScopeRows([], [], null);
+
+  assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
+    ["import-sources", "0", "info"],
+    ["archived-chats", "Not tracked here", "info"],
+    ["storage-content", "Usage panel", "info"],
+    ["continuity-links", "Not broken out", "info"],
+  ]);
+  assert.match(rows.find((row) => row.id === "archived-chats")?.body ?? "", /does not guess/);
+  assert.match(rows.find((row) => row.id === "continuity-links")?.body ?? "", /does not guess/);
+  assert.match(rows.find((row) => row.id === "import-sources")?.body ?? "", /Archived conversations are counted separately/);
 });
 
 test("archive search controls build backend search routes", () => {

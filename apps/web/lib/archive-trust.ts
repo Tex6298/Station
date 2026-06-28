@@ -20,6 +20,20 @@ export interface ArchiveTrustStateRow {
   nextAction: string;
 }
 
+export interface ArchiveTrustContinuityLike {
+  archivedChatCount?: number | null;
+  continuityRecordCount?: number | null;
+}
+
+export interface ArchiveTrustScopeRow {
+  id: "import-sources" | "archived-chats" | "storage-content" | "continuity-links";
+  label: string;
+  value: string;
+  tone: ArchiveJobTone;
+  body: string;
+  nextAction: string;
+}
+
 export interface SupportedImportFormatRow {
   id: "paste" | "text-markdown" | "chatgpt" | "claude" | "reddit" | "discord" | "legacy-json";
   label: string;
@@ -246,6 +260,61 @@ export function archiveTrustSummary(files: ArchiveFileLike[], jobs: ArchiveImpor
   };
 }
 
+export function archiveTrustScopeRows(
+  files: ArchiveFileLike[],
+  jobs: ArchiveImportJobLike[],
+  continuity?: ArchiveTrustContinuityLike | null,
+): ArchiveTrustScopeRow[] {
+  const summary = archiveTrustSummary(files, jobs);
+  const archivedChatCount = safeCount(continuity?.archivedChatCount);
+  const continuityRecordCount = safeCount(continuity?.continuityRecordCount);
+
+  return [
+    {
+      id: "import-sources",
+      label: "Pasted and file sources",
+      value: summary.totalSources.toString(),
+      tone: summary.totalSources > 0 ? "good" : "info",
+      body: summary.totalSources > 0
+        ? "Pasted import jobs and uploaded file records attached to this persona. This count does not include archived conversations."
+        : "No pasted import jobs or uploaded file records are attached to this persona yet. Archived conversations are counted separately.",
+      nextAction: summary.totalSources > 0
+        ? "Use the import library below for source status before relying on material in Continuity."
+        : "Add a pasted source or uploaded file when there is owner-only material worth preserving.",
+    },
+    {
+      id: "archived-chats",
+      label: "Archived chats",
+      value: countValue(archivedChatCount),
+      tone: archivedChatCount && archivedChatCount > 0 ? "good" : "info",
+      body: archivedChatCount === null
+        ? "This Archive route has no owner-safe archived-chat count, so it does not guess."
+        : "Archived conversation transcripts are counted separately from pasted/file import sources and may still appear in runtime context or storage usage.",
+      nextAction: archivedChatCount && archivedChatCount > 0
+        ? "Review conversation history or Continuity when archived chats explain current context."
+        : "A zero here only means no archived chat transcript count is reported for this persona.",
+    },
+    {
+      id: "storage-content",
+      label: "Storage and imported content",
+      value: "Usage panel",
+      tone: "info",
+      body: "Imported content is measured by server-reported storage usage, not by source count. A small source can consume more storage than several short notes.",
+      nextAction: "Use the Storage and Quota panel for bytes and category usage; this page does not invent capacity or quota.",
+    },
+    {
+      id: "continuity-links",
+      label: "Continuity-linked archive",
+      value: "Not broken out",
+      tone: "info",
+      body: continuityRecordCount === null
+        ? "This Archive route has no safe count for archive-linked Continuity records, so it does not guess."
+        : `${continuityRecordCount} total Continuity ${continuityRecordCount === 1 ? "record exists" : "records exist"}, but archive-linked records are not separated on this Archive route.`,
+      nextAction: "Open Continuity for source-level review of archive_file, archive_import, and archived_chat records.",
+    },
+  ];
+}
+
 export function archiveTrustStateRows(
   files: ArchiveFileLike[],
   jobs: ArchiveImportJobLike[],
@@ -358,4 +427,12 @@ function archiveImportBoundaryCopy(job: ArchiveImportJobLike) {
   }
 
   return "Queued and processing imports have no public output while Station prepares private archive material.";
+}
+
+function safeCount(value?: number | null) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+function countValue(value: number | null) {
+  return value === null ? "Not tracked here" : value.toString();
 }

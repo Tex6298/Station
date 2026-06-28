@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR452 | Archive trust status readback | DAEDALUS / A2 | Open | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_DAEDALUS.md` |
+| PR452 | Archive trust status readback | ARGUS / A3 | Ready for review | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_RESULT.md` |
 
 ## Recently Closed
 

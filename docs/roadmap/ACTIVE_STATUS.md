@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR452 ready for ARGUS review
+
+DAEDALUS implemented PR452:
+
+`docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_RESULT.md`
+
+Decision:
+
+- Persona Archive/files now has a scope readback separating pasted/file import
+  sources, archived chats, storage/imported content, and Continuity-linked
+  archive material.
+- Archived chats use the existing owner-safe persona continuity summary.
+- Storage/imported content points to the existing server-reported Storage and
+  Quota panel instead of inventing byte usage.
+- Continuity-linked archive material is labelled as not broken out on this
+  Archive route, with Continuity named as the source-level review surface.
+- No backend, schema, archive execution, storage, export, runtime retrieval,
+  publication, provider, billing, or Developer Space behavior changed.
+- Focused validation is green for Archive helper tests, Studio UI, storage,
+  conversation archive, exports, web typecheck, and whitespace.
+
+Current lane:
+
+```text
+PR452 - Archive Trust Status Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_RESULT.md`.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact patch target.
+
 ## Latest MIMIR closeout - PR451 passed, PR452 opened
 
 MIMIR closes PR451:

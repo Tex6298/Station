@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR452 Archive Trust Status Readback
+
+DAEDALUS implemented PR452 on 2026-06-28:
+`docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- persona Archive/files now separates pasted/file import source counts from
+  archived chat counts;
+- storage/imported content readback points to the existing server-reported
+  Storage and Quota panel instead of inventing byte usage;
+- archive-linked Continuity material is explicitly not broken out on this
+  Archive route;
+- empty, failed, processing, and completed import states remain visible through
+  the existing Archive status cards;
+- no backend, schema, auth/session, archive execution, storage, export,
+  runtime retrieval, publication, provider, billing, or Developer Space behavior
+  changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 13 tests passed, including scope rows and no-fake-count fallback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 143 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+API typecheck was not run because PR452 changed only web UI/helper code and
+docs.
+
+Residual risk: ARGUS should confirm the new readback remains owner-only, does
+not fake unavailable Continuity-linked archive counts, and reads cleanly on
+mobile.
+
 ## PR451 Hosted Continuity Review Links Rehearsal
 
 ARIADNE completed PR451 on 2026-06-28:

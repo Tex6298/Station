@@ -16,9 +16,11 @@ import {
   archiveImportJobReadback,
   archiveJobStatusLabel,
   archiveJobTone,
+  archiveTrustScopeRows,
   archiveTrustStateRows,
   archiveTrustSummary,
   supportedImportFormatRows,
+  type ArchiveTrustScopeRow,
   type ArchiveTrustStateRow,
   type SupportedImportFormatRow,
 } from "@/lib/archive-trust";
@@ -258,6 +260,7 @@ export default function PersonaFilesPage() {
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
   const summary = archiveTrustSummary(files, jobs);
+  const scopeRows = archiveTrustScopeRows(files, jobs, persona.continuity);
   const stateRows = archiveTrustStateRows(files, jobs);
   const supportedImportRows = supportedImportFormatRows();
 
@@ -282,6 +285,7 @@ export default function PersonaFilesPage() {
             <TrustMetric label="Needs review" value={summary.failedImports} tone={summary.failedImports > 0 ? "danger" : "info"} />
             <TrustMetric label="Processing" value={summary.processingImports} tone={summary.processingImports > 0 ? "warning" : "info"} />
           </div>
+          <ArchiveTrustScopeReadback rows={scopeRows} />
           <ArchiveTrustStateReadback rows={stateRows} />
         </StudioPanel>
 
@@ -377,6 +381,25 @@ export default function PersonaFilesPage() {
         onRefreshed={setExportPackages}
       />
     </main>
+  );
+}
+
+function ArchiveTrustScopeReadback({ rows }: { rows: ArchiveTrustScopeRow[] }) {
+  return (
+    <div className="studio-item-list" style={{ marginTop: "1rem" }} aria-label="Archive scope readback">
+      {rows.map((row) => (
+        <article key={row.id} className="studio-item-card archive-trust-source-card">
+          <div>
+            <span>{row.label}</span>
+            <div className="archive-trust-card-meta">
+              <StudioStatusBadge tone={row.tone}>{row.value}</StudioStatusBadge>
+            </div>
+          </div>
+          <p>{row.body}</p>
+          <div className="archive-trust-next-action">{row.nextAction}</div>
+        </article>
+      ))}
+    </div>
   );
 }
 
