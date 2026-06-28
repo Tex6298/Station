@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR426 | Post-observability next-lane selection | DAEDALUS / A2 | Open - wake DAEDALUS | `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_DAEDALUS.md` |
+| PR426 | Post-observability next-lane selection | DAEDALUS / A2 | Complete - wake MIMIR | `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md` |
 
 ## Recently Closed
 

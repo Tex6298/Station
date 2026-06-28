@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR426 Post-Observability Next-Lane Selection
+
+DAEDALUS completed the docs-only next-lane reconciliation on 2026-06-28:
+`docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md`.
+
+Validation result: `NO HONEST IMPLEMENTATION DEFAULT`.
+
+Reason:
+
+- backup/restore local proof remains blocked by missing local-only Postgres
+  tooling;
+- token top-up proof closure remains blocked on one already eligible dedicated
+  Basic/private proof account;
+- external/public/commercial/partner-facing lanes require product decisions;
+- infrastructure/provider/worker/queue work is still gated by concrete replay
+  pain or separate product/privacy decisions;
+- no current source-truth defect justifies reopening Memory/Continuity/Archive,
+  route hardening, or docs repair by inertia.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `Get-Command psql, pg_dump, docker, supabase -ErrorAction SilentlyContinue` | Pass | Produced no command output in this shell, so the documented backup/restore dependency blocker still applies. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: PR426 does not run product validation because no product code
+changed. MIMIR still needs to choose the next unblock action or explicitly
+authorize a product/dependency boundary.
+
 ## Feature Memory Continuity Archive Observability ARIADNE Rerun
 
 ARIADNE completed the hosted human-eye rerun on 2026-06-28:
