@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR458 closed, PR459 opened
+
+MIMIR closes PR458:
+
+`docs/roadmap/PR458_HOSTED_WRITING_FILTER_WRAP_CONFIRMATION_CLOSEOUT.md`
+
+Decision:
+
+- Hosted `/writing` filter wrap confirmation passed at the exact failing mobile
+  widths.
+- The PR456/PR457 mobile overflow defect is visually closed.
+- PR459 opens the next Discern-to-Tex priority: Continuity and Integrity
+  comprehension.
+
+Current lane:
+
+```text
+PR459 - Continuity and Integrity Comprehension Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR459_CONTINUITY_INTEGRITY_COMPREHENSION_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS_WITH_NEXT_LANE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR458 hosted Writing filter wrap confirmed
 
 ARIADNE completed PR458:
