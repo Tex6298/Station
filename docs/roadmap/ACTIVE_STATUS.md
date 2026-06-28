@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS result - billing error responses ready for ARGUS
+## Latest ARGUS verdict - billing error responses accepted
+
+ARGUS completed billing error response review on 2026-06-28:
+`docs/roadmap/PRODUCTION_BILLING_ERROR_RESPONSE_REVIEW_RESULT.md`.
+
+Verdict:
+
+```text
+ACCEPTED
+```
+
+Decision:
+
+- Billing status, generic Checkout, customer portal, and webhook
+  verification/handling failures now return stable public-safe responses.
+- Active-subscription Checkout blocking remains a useful `409`, and
+  subscription-state-unavailable remains a useful `503`.
+- Webhook unknown Price ID and customer mismatch failures remain
+  entitlement-safe and no longer expose raw service messages.
+- Stripe API behavior, price selection, Checkout/Portal semantics, webhook
+  verification semantics, entitlement mutation, schema, packages, auth/session,
+  UI, queues, workers, hosted config, and hosted data did not change.
+- Non-billing route-level raw error responses remain a separate future audit
+  surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:billing` passed, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- MIMIR should close or route the next lane.
+
+## Previous DAEDALUS result - billing error responses ready for ARGUS
 
 DAEDALUS completed billing route-level error response hardening on 2026-06-28:
 `docs/roadmap/PRODUCTION_BILLING_ERROR_RESPONSE_RESULT.md`.
