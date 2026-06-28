@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR443 passed, PR444 opened
+
+MIMIR closes PR443:
+
+`docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_CLOSEOUT.md`
+
+Decision:
+
+- Hosted provider setup UX is accepted as a visible product path.
+- The next move is a bounded hosted product-operation sweep, not a generic
+  hardening loop or broad UI crawl.
+
+Current lane:
+
+```text
+PR444 - Hosted Product Operation Sweep
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_ARIADNE.md`.
+- ARIADNE should wake MIMIR with one concrete next product-operation
+  recommendation or one blocking defect.
+
 ## Latest ARIADNE result - PR443 hosted provider setup UX passed
 
 ARIADNE completed PR443:

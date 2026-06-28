@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR443 | Hosted provider setup UX rehearsal | MIMIR / A1 | Pass - hosted provider setup path is visible, safe, and linked to Settings | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_RESULT.md` |
+| PR444 | Hosted product operation sweep | ARIADNE / A4 | Open; use hosted product behavior to recommend the next single product-operation lane | `docs/roadmap/PR444_HOSTED_PRODUCT_OPERATION_SWEEP_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR443 closeout | Hosted provider setup UX rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; visible setup callout behaves as product path on hosted | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_CLOSEOUT.md` |
 | PR443 rehearsal | Hosted provider setup UX rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; visible setup callout links to AI Provider settings and preserves provider boundaries | `docs/roadmap/PR443_HOSTED_PROVIDER_SETUP_UX_REHEARSAL_RESULT.md` |
 | PR442 closeout | Private provider setup UX | DAEDALUS -> ARGUS -> MIMIR | Closed by MIMIR; hosted rehearsal opened | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_CLOSEOUT.md` |
 | PR441 closeout | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed at provider-credential boundary; Settings/encrypted BYOK path passes, real accepted provider credential remains external | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_CLOSEOUT.md` |
