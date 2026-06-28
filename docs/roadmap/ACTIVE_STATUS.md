@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR440 ready for ARGUS review
+
+DAEDALUS completed encrypted owner BYOK storage implementation:
+
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md`
+
+Implementation:
+
+- Added `public.ai_provider_byok_secrets` migration and DB types.
+- Added `AI_PROVIDER_KEY_ENCRYPTION_KEY` AES-256-GCM BYOK key encryption
+  service using schema `station.ai_provider.byok_key.v1`.
+- Settings readback now prefers encrypted rows and only falls back to legacy
+  profile columns when no encrypted active row exists.
+- Settings save/rotation requires encryption config, revokes prior active rows,
+  inserts encrypted rows, and clears the matching legacy profile column.
+- Settings clear revokes encrypted rows and clears the matching legacy profile
+  column.
+- Private runtime key resolution decrypts encrypted rows in memory only and
+  fails closed when encrypted storage exists but config/decrypt is unavailable.
+- Settings UI now shows storage status and non-secret timestamps.
+- Gemini chat remains deferred; private NVIDIA remains blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` passed, 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` passed, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts`
+  passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+
+Current lane:
+
+```text
+PR440 - Encrypted Owner BYOK Storage Implementation
+Owner: ARGUS / A3
+State: READY FOR HOSTILE REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md`.
+- Review focus: encryption config fail-closed behavior, legacy fallback,
+  migration-on-save clearing, key non-leakage, Settings readback, and private
+  routing.
+- If accepted, ARGUS should wake MIMIR with verdict.
+- If fixes are needed, ARGUS should wake DAEDALUS.
+
 ## Latest MIMIR decision - PR439 closed, PR440 opened
 
 MIMIR accepts ARGUS's PR439 preflight:

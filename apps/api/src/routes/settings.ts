@@ -2,17 +2,19 @@ import { Router } from "express";
 import { z } from "zod";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { requireAuth } from "../middleware/require-auth";
+import {
+  AiProviderKeyStorageError,
+  SUPPORTED_AI_BYOK_PROVIDERS,
+  loadAiProviderReadbacks,
+  revokeAiProviderKey,
+  rotateAiProviderKey,
+  type LegacyAiProviderProfile,
+  type SupportedAiByokProvider,
+} from "../services/ai-provider-key.service";
 
-const SUPPORTED_BYOK_PROVIDERS = ["openai", "anthropic", "deepseek"] as const;
-type SupportedByokProvider = typeof SUPPORTED_BYOK_PROVIDERS[number];
 type AiMode = "platform" | "byok";
 
 const PROFILE_SELECT = "ai_mode, byok_openai_key, byok_anthropic_key, byok_deepseek_key";
-const KEY_COLUMNS: Record<SupportedByokProvider, "byok_openai_key" | "byok_anthropic_key" | "byok_deepseek_key"> = {
-  openai: "byok_openai_key",
-  anthropic: "byok_anthropic_key",
-  deepseek: "byok_deepseek_key",
-};
 
 const keyInputSchema = z.string().max(4096).transform((value) => value.trim()).refine(
   (value) => value.length >= 8,
@@ -45,7 +47,7 @@ const aiProviderSettingsSchema = z.object({
     });
   }
 
-  for (const provider of SUPPORTED_BYOK_PROVIDERS) {
+  for (const provider of SUPPORTED_AI_BYOK_PROVIDERS) {
     if (keys[provider] !== undefined && clearKeys[provider]) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -69,7 +71,8 @@ settingsRouter.use(requireAuth);
 
 settingsRouter.get("/ai-provider", async (req, res) => {
   try {
-    const settings = await loadAiProviderSettings(req.user!.id);
+    const profile = await loadAiProviderProfile(req.user!.id);
+    const settings = await loadAiProviderSettings(req.user!.id, profile);
     return res.json({ settings });
   } catch {
     return res.status(500).json({ error: "Could not load AI provider settings." });
@@ -80,35 +83,47 @@ settingsRouter.patch("/ai-provider", async (req, res) => {
   const parsed = aiProviderSettingsSchema.safeParse(req.body ?? {});
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const updates: Record<string, string | null> = {};
-  if (parsed.data.aiMode) updates.ai_mode = parsed.data.aiMode;
-
-  for (const provider of SUPPORTED_BYOK_PROVIDERS) {
-    const value = parsed.data.keys?.[provider];
-    if (value !== undefined) updates[KEY_COLUMNS[provider]] = value;
-    if (parsed.data.clearKeys?.[provider]) updates[KEY_COLUMNS[provider]] = null;
-  }
-
   try {
-    const sb = getSupabaseAdmin();
-    const { data, error } = await sb
-      .from("profiles")
-      .update(updates)
-      .eq("id", req.user!.id)
-      .select(PROFILE_SELECT)
-      .single();
+    const userId = req.user!.id;
+    const profile = await loadAiProviderProfile(userId);
 
-    if (error || !data) {
-      return res.status(500).json({ error: "Could not save AI provider settings." });
+    if (parsed.data.aiMode) {
+      await updateAiMode(userId, parsed.data.aiMode);
+      profile.ai_mode = parsed.data.aiMode;
     }
 
-    return res.json({ settings: serializeAiProviderSettings(data as ProfileAiSettingsRow) });
-  } catch {
+    for (const provider of SUPPORTED_AI_BYOK_PROVIDERS) {
+      const value = parsed.data.keys?.[provider];
+      if (value !== undefined) {
+        await rotateAiProviderKey({
+          ownerUserId: userId,
+          provider,
+          rawKey: value,
+          legacyProfile: profile,
+        });
+        clearLegacyProfileValue(profile, provider);
+      }
+
+      if (parsed.data.clearKeys?.[provider]) {
+        await revokeAiProviderKey({ ownerUserId: userId, provider });
+        clearLegacyProfileValue(profile, provider);
+      }
+    }
+
+    const settings = await loadAiProviderSettings(userId, await loadAiProviderProfile(userId));
+    return res.json({ settings });
+  } catch (error) {
+    if (error instanceof AiProviderKeyStorageError && error.code === "ai_provider_key_encryption_unconfigured") {
+      return res.status(503).json({
+        error: "AI provider key encryption is not configured.",
+        code: "ai_provider_key_encryption_unconfigured",
+      });
+    }
     return res.status(500).json({ error: "Could not save AI provider settings." });
   }
 });
 
-async function loadAiProviderSettings(userId: string) {
+async function loadAiProviderProfile(userId: string): Promise<ProfileAiSettingsRow> {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("profiles")
@@ -117,23 +132,25 @@ async function loadAiProviderSettings(userId: string) {
     .single();
 
   if (error || !data) throw new Error("Could not load AI provider settings.");
-  return serializeAiProviderSettings(data as ProfileAiSettingsRow);
+  return data as ProfileAiSettingsRow;
 }
 
-function serializeAiProviderSettings(row: ProfileAiSettingsRow) {
-  const aiMode: AiMode = row.ai_mode === "byok" ? "byok" : "platform";
+async function updateAiMode(userId: string, aiMode: AiMode) {
+  const sb = getSupabaseAdmin();
+  const { error } = await sb
+    .from("profiles")
+    .update({ ai_mode: aiMode })
+    .eq("id", userId);
+
+  if (error) throw new Error("Could not save AI provider settings.");
+}
+
+async function loadAiProviderSettings(userId: string, profile: ProfileAiSettingsRow) {
+  const aiMode: AiMode = profile.ai_mode === "byok" ? "byok" : "platform";
+  const readbacks = await loadAiProviderReadbacks(userId, profile);
   return {
     aiMode,
-    supportedProviders: SUPPORTED_BYOK_PROVIDERS.map((provider) => {
-      const key = row[KEY_COLUMNS[provider]];
-      const lastFour = keyLastFour(key);
-      return {
-        provider,
-        label: providerLabel(provider),
-        configured: Boolean(key?.trim()),
-        keyLastFour: lastFour,
-      };
-    }),
+    supportedProviders: readbacks,
     policy: {
       platform: "Station platform mode uses the configured Station provider route.",
       byok: "BYOK mode uses the stored owner key for personas set to OpenAI, Anthropic, or DeepSeek.",
@@ -143,19 +160,16 @@ function serializeAiProviderSettings(row: ProfileAiSettingsRow) {
   };
 }
 
-function keyLastFour(value?: string | null) {
-  const trimmed = value?.trim();
-  if (!trimmed || trimmed.length < 8) return null;
-  return trimmed.slice(-4);
-}
-
-function providerLabel(provider: SupportedByokProvider) {
+function clearLegacyProfileValue(profile: LegacyAiProviderProfile, provider: SupportedAiByokProvider) {
   switch (provider) {
     case "openai":
-      return "OpenAI";
+      profile.byok_openai_key = null;
+      return;
     case "anthropic":
-      return "Anthropic";
+      profile.byok_anthropic_key = null;
+      return;
     case "deepseek":
-      return "DeepSeek";
+      profile.byok_deepseek_key = null;
+      return;
   }
 }

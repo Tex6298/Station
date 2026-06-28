@@ -37,6 +37,7 @@ class AiSettingsSupabase {
         byok_deepseek_key: null,
       },
     ],
+    ai_provider_byok_secrets: [],
   };
 
   private usersByToken = new Map([
@@ -64,7 +65,9 @@ class AiSettingsSupabase {
 
 class Query {
   private filters: Array<[string, unknown]> = [];
-  private patch: Row | null = null;
+  private operation: "select" | "insert" | "update" = "select";
+  private payload: Row | null = null;
+  private orderSpec: { field: string; ascending: boolean } | null = null;
 
   constructor(private db: AiSettingsSupabase, private table: string) {}
 
@@ -73,7 +76,14 @@ class Query {
   }
 
   update(patch: Row) {
-    this.patch = patch;
+    this.operation = "update";
+    this.payload = patch;
+    return this;
+  }
+
+  insert(payload: Row) {
+    this.operation = "insert";
+    this.payload = payload;
     return this;
   }
 
@@ -82,17 +92,65 @@ class Query {
     return this;
   }
 
+  order(field: string, options: { ascending?: boolean } = {}) {
+    this.orderSpec = { field, ascending: options.ascending ?? true };
+    return this;
+  }
+
   single() {
-    const row = this.db.rows(this.table).find((candidate) =>
+    return this.execute("single");
+  }
+
+  then(onfulfilled: any, onrejected: any) {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+
+  private matchingRows() {
+    let rows = [...this.db.rows(this.table)].filter((candidate) =>
       this.filters.every(([field, value]) => candidate[field] === value)
     );
 
-    if (!row) {
-      return Promise.resolve({ data: null, error: { message: `Expected one ${this.table} row.` } });
+    if (this.orderSpec) {
+      const { field, ascending } = this.orderSpec;
+      rows.sort((left, right) => {
+        if (left[field] === right[field]) return 0;
+        if (left[field] == null) return 1;
+        if (right[field] == null) return -1;
+        return (left[field] > right[field] ? 1 : -1) * (ascending ? 1 : -1);
+      });
     }
 
-    if (this.patch) Object.assign(row, this.patch);
-    return Promise.resolve({ data: row, error: null });
+    return rows;
+  }
+
+  private async execute(mode?: "single") {
+    let rows: Row[];
+    if (this.operation === "insert") {
+      const row = {
+        id: `${this.table}-${this.db.rows(this.table).length + 1}`,
+        created_at: "2026-06-28T12:00:00.000Z",
+        updated_at: "2026-06-28T12:00:00.000Z",
+        ...(this.payload ?? {}),
+      };
+      this.db.rows(this.table).push(row);
+      rows = [row];
+    } else if (this.operation === "update") {
+      rows = this.matchingRows();
+      for (const row of rows) {
+        Object.assign(row, this.payload);
+        row.updated_at = "2026-06-28T12:05:00.000Z";
+      }
+    } else {
+      rows = this.matchingRows();
+    }
+
+    if (mode === "single") {
+      return rows.length === 1
+        ? { data: rows[0], error: null }
+        : { data: null, error: { message: `Expected one ${this.table} row.` } };
+    }
+
+    return { data: rows, error: null };
   }
 }
 
@@ -157,6 +215,11 @@ function assertNoRawKeys(body: unknown) {
   assert.equal(serialized.includes("sk-owner-deepseek"), false);
   assert.equal(serialized.includes("sk-owner-anthropic"), false);
   assert.equal(serialized.includes("sk-other-openai"), false);
+  assert.equal(serialized.includes("owner-openai-rotated"), false);
+  assert.equal(serialized.includes("sk-gemini-not-supported"), false);
+  assert.equal(serialized.includes("ciphertext"), false);
+  assert.equal(serialized.includes("authTag"), false);
+  assert.equal(serialized.includes("encrypted_key"), false);
 }
 
 test("AI provider settings require auth and return masked owner readback only", async () => {
@@ -177,8 +240,10 @@ test("AI provider settings require auth and return masked owner readback only", 
     );
     assert.equal(owner.body.settings.supportedProviders[0].configured, true);
     assert.equal(owner.body.settings.supportedProviders[0].keyLastFour, "1234");
+    assert.equal(owner.body.settings.supportedProviders[0].storageStatus, "legacy_plaintext");
     assert.equal(owner.body.settings.supportedProviders[1].configured, false);
     assert.equal(owner.body.settings.supportedProviders[2].keyLastFour, "5678");
+    assert.equal(owner.body.settings.supportedProviders[2].storageStatus, "legacy_plaintext");
     assert.equal(
       owner.body.settings.supportedProviders.some((provider: Row) => provider.provider === "gemini"),
       false
@@ -195,8 +260,45 @@ test("AI provider settings require auth and return masked owner readback only", 
   }
 });
 
-test("AI provider settings update ai_mode, store supported keys, and clear keys owner-scoped", async () => {
+test("AI provider settings require encryption config before storing keys", async () => {
   const db = new AiSettingsSupabase();
+  const previousKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+  delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+  useSettingsFakes(db);
+  const app = createSettingsProofApp();
+
+  try {
+    const missingConfig = await requestJson(app, "PATCH", "/settings/ai-provider", {
+      token: "owner-token",
+      body: {
+        keys: {
+          openai: "owner-openai-rotated-9999",
+        },
+      },
+    });
+
+    assert.equal(missingConfig.status, 503);
+    assert.deepEqual(missingConfig.body, {
+      error: "AI provider key encryption is not configured.",
+      code: "ai_provider_key_encryption_unconfigured",
+    });
+    assert.equal(db.rows("ai_provider_byok_secrets").length, 0);
+    assert.equal(db.rows("profiles").find((row) => row.id === "owner-user")!.byok_openai_key, "sk-owner-openai-1234");
+    assertNoRawKeys(missingConfig.body);
+  } finally {
+    resetSettingsFakes();
+    if (previousKey == null) {
+      delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    } else {
+      process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = previousKey;
+    }
+  }
+});
+
+test("AI provider settings encrypt supported keys, clear legacy keys, and keep updates owner-scoped", async () => {
+  const db = new AiSettingsSupabase();
+  const previousKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+  process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = "test-ai-provider-key-encryption-key";
   useSettingsFakes(db);
   const app = createSettingsProofApp();
 
@@ -206,10 +308,10 @@ test("AI provider settings update ai_mode, store supported keys, and clear keys 
       body: {
         aiMode: "byok",
         keys: {
-          anthropic: " sk-owner-anthropic-9999 ",
+          openai: " owner-openai-rotated-9999 ",
         },
         clearKeys: {
-          openai: true,
+          deepseek: true,
         },
       },
     });
@@ -219,17 +321,77 @@ test("AI provider settings update ai_mode, store supported keys, and clear keys 
     const otherProfile = db.rows("profiles").find((row) => row.id === "other-user")!;
     assert.equal(ownerProfile.ai_mode, "byok");
     assert.equal(ownerProfile.byok_openai_key, null);
-    assert.equal(ownerProfile.byok_anthropic_key, "sk-owner-anthropic-9999");
-    assert.equal(ownerProfile.byok_deepseek_key, "sk-owner-deepseek-5678");
+    assert.equal(ownerProfile.byok_anthropic_key, null);
+    assert.equal(ownerProfile.byok_deepseek_key, null);
     assert.equal(otherProfile.byok_openai_key, "sk-other-openai-4444");
 
+    const rows = db.rows("ai_provider_byok_secrets");
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].owner_user_id, "owner-user");
+    assert.equal(rows[0].provider, "openai");
+    assert.equal(rows[0].status, "active");
+    assert.equal(rows[0].key_last_four, "9999");
+    assert.equal(typeof rows[0].key_fingerprint, "string");
+    assert.equal(rows[0].key_fingerprint.length, 12);
+    assert.equal(typeof rows[0].encrypted_key.ciphertext, "string");
+    assert.equal(JSON.stringify(rows[0].encrypted_key).includes("owner-openai-rotated-9999"), false);
+    assert.equal(typeof rows[0].rotated_at, "string");
+
     const providers = updated.body.settings.supportedProviders;
-    assert.equal(providers.find((provider: Row) => provider.provider === "openai").configured, false);
-    assert.equal(providers.find((provider: Row) => provider.provider === "anthropic").configured, true);
-    assert.equal(providers.find((provider: Row) => provider.provider === "anthropic").keyLastFour, "9999");
+    assert.equal(providers.find((provider: Row) => provider.provider === "openai").configured, true);
+    assert.equal(providers.find((provider: Row) => provider.provider === "openai").keyLastFour, "9999");
+    assert.equal(providers.find((provider: Row) => provider.provider === "openai").storageStatus, "encrypted");
+    assert.equal(providers.find((provider: Row) => provider.provider === "deepseek").configured, false);
+    assert.equal(providers.find((provider: Row) => provider.provider === "deepseek").storageStatus, "none");
     assertNoRawKeys(updated.body);
   } finally {
     resetSettingsFakes();
+    if (previousKey == null) {
+      delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    } else {
+      process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = previousKey;
+    }
+  }
+});
+
+test("AI provider settings clear revokes active encrypted keys and returns revoked metadata", async () => {
+  const db = new AiSettingsSupabase();
+  const previousKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+  process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = "test-ai-provider-key-encryption-key";
+  useSettingsFakes(db);
+  const app = createSettingsProofApp();
+
+  try {
+    const created = await requestJson(app, "PATCH", "/settings/ai-provider", {
+      token: "owner-token",
+      body: { keys: { openai: "owner-openai-rotated-9999" } },
+    });
+    assert.equal(created.status, 200);
+
+    const cleared = await requestJson(app, "PATCH", "/settings/ai-provider", {
+      token: "owner-token",
+      body: { clearKeys: { openai: true } },
+    });
+
+    assert.equal(cleared.status, 200);
+    const row = db.rows("ai_provider_byok_secrets")[0];
+    assert.equal(row.status, "revoked");
+    assert.equal(typeof row.revoked_at, "string");
+    assert.equal(db.rows("profiles").find((profile) => profile.id === "owner-user")!.byok_openai_key, null);
+
+    const openai = cleared.body.settings.supportedProviders.find((provider: Row) => provider.provider === "openai");
+    assert.equal(openai.configured, false);
+    assert.equal(openai.storageStatus, "revoked");
+    assert.equal(openai.keyLastFour, "9999");
+    assert.equal(typeof openai.revokedAt, "string");
+    assertNoRawKeys(cleared.body);
+  } finally {
+    resetSettingsFakes();
+    if (previousKey == null) {
+      delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    } else {
+      process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = previousKey;
+    }
   }
 });
 

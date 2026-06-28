@@ -14,6 +14,8 @@ import {
   AI_PROVIDER_SETTINGS_COPY,
   buildAiProviderSettingsPatch,
   configuredKeyLabel,
+  storageStatusLabel,
+  timestampReadbackRows,
 } from "@/lib/ai-provider-settings";
 
 type PanelState =
@@ -144,12 +146,19 @@ export function AiProviderSettingsPanel() {
       <div style={providerList}>
         {AI_PROVIDER_SETUP_PROVIDERS.map((provider) => {
           const readback = providerReadback.get(provider.id);
+          const timestamps = timestampReadbackRows(readback);
           return (
             <div key={provider.id} style={providerRow}>
               <div style={{ minWidth: 0 }}>
                 <div style={providerHeader}>
                   <span>{provider.label}</span>
                   <span style={statusPill(readback?.configured ?? false)}>{configuredKeyLabel(readback)}</span>
+                </div>
+                <div style={metadataRows}>
+                  <span>{storageStatusLabel(readback)}</span>
+                  {timestamps.map((row) => (
+                    <span key={row}>{row}</span>
+                  ))}
                 </div>
                 <input
                   type="password"
@@ -250,6 +259,16 @@ const providerHeader: CSSProperties = {
   color: "#1f2529",
   fontSize: 13,
   fontWeight: 900,
+};
+
+const metadataRows: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "0.35rem 0.5rem",
+  marginBottom: 8,
+  color: "#687078",
+  fontSize: 11,
+  lineHeight: 1.35,
 };
 
 const statusPill = (configured: boolean): CSSProperties => ({

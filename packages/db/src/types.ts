@@ -13,6 +13,8 @@ export type DocumentType = "essay" | "codex" | "manifesto" | "field_log" | "rese
 export type DocumentProvenanceType = "user_authored" | "ai_assisted" | "archive_import" | "integrity_session" | "persona_derived";
 export type DocumentSourceType = "manual" | "canon" | "integrity" | "archive_file" | "archive_import" | "persona" | "publication";
 export type Provider = "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
+export type AiProviderByokProvider = "openai" | "anthropic" | "deepseek";
+export type AiProviderByokSecretStatus = "active" | "revoked";
 export type SourceType = "chat" | "import" | "document" | "calibration" | "integrity_session" | "manual";
 export type ArchiveSourceType = "import_job" | "persona_file" | "archived_chat_transcript";
 export type EmbeddingProvider = "openai" | "gemini";
@@ -138,6 +140,30 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+      };
+      ai_provider_byok_secrets: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          provider: AiProviderByokProvider;
+          encrypted_key: Record<string, unknown>;
+          key_fingerprint: string;
+          key_last_four: string;
+          status: AiProviderByokSecretStatus;
+          created_at: string;
+          updated_at: string;
+          rotated_at: string | null;
+          revoked_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["ai_provider_byok_secrets"]["Row"], "id" | "status" | "created_at" | "updated_at" | "rotated_at" | "revoked_at"> & {
+          id?: string;
+          status?: AiProviderByokSecretStatus;
+          created_at?: string;
+          updated_at?: string;
+          rotated_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_provider_byok_secrets"]["Insert"]>;
       };
       projects: {
         Row: {

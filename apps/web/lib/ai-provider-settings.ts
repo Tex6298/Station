@@ -20,6 +20,29 @@ export function configuredKeyLabel(readback?: Pick<AiProviderReadback, "configur
   return readback.keyLastFour ? `Configured, ending ${readback.keyLastFour}` : "Configured";
 }
 
+export function storageStatusLabel(readback?: Pick<AiProviderReadback, "storageStatus"> | null) {
+  switch (readback?.storageStatus) {
+    case "encrypted":
+      return "Encrypted storage";
+    case "legacy_plaintext":
+      return "Legacy storage, migrates on next save";
+    case "revoked":
+      return "Revoked";
+    case "none":
+    default:
+      return "No stored key";
+  }
+}
+
+export function timestampReadbackRows(readback?: Pick<AiProviderReadback, "updatedAt" | "rotatedAt" | "revokedAt"> | null) {
+  if (!readback) return [];
+  return [
+    readback.updatedAt ? `Updated ${readback.updatedAt}` : null,
+    readback.rotatedAt ? `Rotated ${readback.rotatedAt}` : null,
+    readback.revokedAt ? `Revoked ${readback.revokedAt}` : null,
+  ].filter((value): value is string => Boolean(value));
+}
+
 export function buildAiProviderSettingsPatch(input: {
   aiMode: AiProviderMode;
   keyInputs: Partial<Record<AiProviderId, string>>;

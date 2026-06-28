@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR440 Encrypted Owner BYOK Storage Implementation
+
+DAEDALUS completed PR440 on 2026-06-28:
+`docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+Reason:
+
+- owner BYOK keys for OpenAI, Anthropic, and DeepSeek now use a separate
+  encrypted owner-scoped table;
+- Settings readback prefers encrypted rows, exposes only configured state,
+  last-four, storage status, and non-secret timestamps, and never returns raw
+  keys or encrypted payloads;
+- legacy `profiles.byok_*_key` values remain a temporary fallback only when no
+  encrypted active row exists for that provider;
+- owner save/rotation/clear clears the matching legacy profile column;
+- private runtime decrypts encrypted keys in memory only and fails closed if
+  encrypted storage exists but config/decrypt is unavailable;
+- Gemini chat remains deferred and private NVIDIA remains blocked.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 11 tests passed; encrypted save, missing config, revoke, legacy readback, non-leak, and Settings copy/helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed; encrypted BYOK runtime preference, missing encryption fail-closed, and private NVIDIA block. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; readiness remains sanitized. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed; existing encrypted Developer Space signing-secret lifecycle remains green. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/provider-router.test.ts` | Pass | 12 tests passed; provider routing behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript check passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript check passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | Passed. |
+
+Residual risk: ARGUS still needs hostile review of encryption config
+fail-closed behavior, legacy fallback, Settings readback, and private runtime
+non-leakage before MIMIR closes PR440.
+
 ## PR439 BYOK Secret Storage And Rotation Preflight
 
 ARGUS completed PR439 preflight on 2026-06-28:

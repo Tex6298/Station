@@ -13,7 +13,12 @@ import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../se
 import { env } from "../lib/env";
 import { storageErrorResponse } from "../services/storage.service";
 import { updateMemoryLifecycle } from "../services/memory-continuity.service";
-import { resolveEmbeddingApiKey } from "../services/embedding-key.service";
+import { resolveActiveEmbeddingProvider, resolveEmbeddingApiKey } from "../services/embedding-key.service";
+import {
+  AiProviderKeyStorageError,
+  loadRuntimeAiProviderKeys,
+  type RuntimeAiProviderKeys,
+} from "../services/ai-provider-key.service";
 import {
   assertTokenBudgetForEstimate,
   estimateConversationTokens,
@@ -148,6 +153,25 @@ type ChatErrorClassification = "archived_state" | "provider_config" | "provider_
 
 function chatError(status: number, code: string, classification: ChatErrorClassification, error: string) {
   return { status, body: { error, code, classification } };
+}
+
+function providerKeyStorageChatError(error: unknown) {
+  if (!(error instanceof AiProviderKeyStorageError)) return null;
+  return chatError(
+    503,
+    error.code,
+    "provider_config",
+    "AI provider key storage is not available. Update or clear BYOK settings before private chat."
+  );
+}
+
+async function resolveOwnerEmbeddingApiKey(userId: string, profile: { byok_openai_key?: string | null } | null | undefined) {
+  if (resolveActiveEmbeddingProvider() !== "openai") return resolveEmbeddingApiKey(profile);
+  const runtimeByokKeys = await loadRuntimeAiProviderKeys(userId, profile);
+  return resolveEmbeddingApiKey({
+    byokOpenaiKey: runtimeByokKeys.openai,
+    byok_openai_key: profile?.byok_openai_key,
+  });
 }
 
 const PROVIDER_SELECTED_CONTEXT_FOCUS_MAX_ITEMS = 8;
@@ -870,6 +894,15 @@ conversationsRouter.get("/persona/:personaId/context-preview", async (req, res) 
     .single();
 
   const query = parsed.data.query?.trim() || "Preview how this persona loads private continuity.";
+  let embeddingApiKey: string | null;
+  try {
+    embeddingApiKey = await resolveOwnerEmbeddingApiKey(userId, profile);
+  } catch (error) {
+    const keyStorageError = providerKeyStorageChatError(error);
+    if (keyStorageError) return res.status(keyStorageError.status).json(keyStorageError.body);
+    throw error;
+  }
+
   const context = await assemblePersonaRuntimeContext({
     supabase: sb,
     persona: {
@@ -883,7 +916,7 @@ conversationsRouter.get("/persona/:personaId/context-preview", async (req, res) 
     },
     ownerUserId: userId,
     userQuery: query,
-    embeddingApiKey: resolveEmbeddingApiKey(profile),
+    embeddingApiKey,
   });
 
   return res.json({ query, context });
@@ -918,6 +951,15 @@ conversationsRouter.get("/persona/:personaId/archive-retrieval", async (req, res
     .single();
 
   const query = parsed.data.query?.trim() || "Retrieve relevant private archive material.";
+  let embeddingApiKey: string | null;
+  try {
+    embeddingApiKey = await resolveOwnerEmbeddingApiKey(userId, profile);
+  } catch (error) {
+    const keyStorageError = providerKeyStorageChatError(error);
+    if (keyStorageError) return res.status(keyStorageError.status).json(keyStorageError.body);
+    throw error;
+  }
+
   const retrieval = await retrievePrivateArchive({
     supabase: sb,
     ownerUserId: userId,
@@ -925,7 +967,7 @@ conversationsRouter.get("/persona/:personaId/archive-retrieval", async (req, res
     query,
     limit: parsed.data.limit,
     maxCharacters: parsed.data.maxCharacters,
-    embeddingApiKey: resolveEmbeddingApiKey(profile),
+    embeddingApiKey,
   });
 
   return res.json({ query, retrieval });
@@ -982,6 +1024,22 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     .select("ai_mode, byok_openai_key, byok_anthropic_key, byok_deepseek_key")
     .eq("id", userId)
     .single();
+
+  const aiMode = (profile?.ai_mode ?? "platform") as "platform" | "byok";
+  let runtimeByokKeys: RuntimeAiProviderKeys = {
+    openai: profile?.byok_openai_key?.trim() || null,
+    anthropic: profile?.byok_anthropic_key?.trim() || null,
+    deepseek: profile?.byok_deepseek_key?.trim() || null,
+  };
+  if (aiMode === "byok" || resolveActiveEmbeddingProvider() === "openai") {
+    try {
+      runtimeByokKeys = await loadRuntimeAiProviderKeys(userId, profile);
+    } catch (error) {
+      const keyStorageError = providerKeyStorageChatError(error);
+      if (keyStorageError) return { ok: false, ...keyStorageError };
+      throw error;
+    }
+  }
 
   // Get or create conversation
   let convId = conversationId;
@@ -1056,7 +1114,10 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
     },
     ownerUserId: userId,
     userQuery: content,
-    embeddingApiKey: resolveEmbeddingApiKey(profile),
+    embeddingApiKey: resolveEmbeddingApiKey({
+      byokOpenaiKey: runtimeByokKeys.openai,
+      byok_openai_key: profile?.byok_openai_key,
+    }),
   });
   const { systemPrompt } = runtimeContext;
   const {
@@ -1081,10 +1142,10 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
   const platformNvidiaKey = env.NVIDIA_AI_API_KEY?.trim() || undefined;
   const chatRoute = resolveChatProviderRuntimeRoute({
     provider: persona.provider as "platform" | "openai" | "anthropic" | "deepseek" | "gemini",
-    aiMode: (profile?.ai_mode ?? "platform") as "platform" | "byok",
-    byokOpenaiKey: profile?.byok_openai_key,
-    byokAnthropicKey: profile?.byok_anthropic_key,
-    byokDeepseekKey: profile?.byok_deepseek_key,
+    aiMode,
+    byokOpenaiKey: runtimeByokKeys.openai,
+    byokAnthropicKey: runtimeByokKeys.anthropic,
+    byokDeepseekKey: runtimeByokKeys.deepseek,
     platformDeepseekKey: env.DEEPSEEK_API_KEY,
     platformDeepseekBaseUrl: env.DEEPSEEK_BASE_URL,
     platformDeepseekModel: env.DEEPSEEK_MODEL,

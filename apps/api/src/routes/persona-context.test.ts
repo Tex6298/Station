@@ -4,6 +4,10 @@ import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
+import {
+  encryptAiProviderKey,
+  fingerprintAiProviderKey,
+} from "../services/ai-provider-key.service";
 
 process.env.NODE_ENV = "test";
 process.env.SUPABASE_URL ??= "http://localhost";
@@ -1500,7 +1504,7 @@ test("private persona chat uses owner BYOK OpenAI while private NVIDIA remains b
   const db = new InMemorySupabase();
   const ownerProfile = db.tables.profiles.find((row) => row.id === OWNER_ID)!;
   ownerProfile.ai_mode = "byok";
-  ownerProfile.byok_openai_key = "owner-openai-fixture-9999";
+  ownerProfile.byok_openai_key = "legacy-openai-should-not-be-used-1111";
   const persona = db.tables.personas.find((row) => row.id === PERSONA_ID)!;
   persona.provider = "openai";
   persona.visibility = "private";
@@ -1508,12 +1512,27 @@ test("private persona chat uses owner BYOK OpenAI while private NVIDIA remains b
   setSupabaseAdminForTests(db.client as any);
   const app = await createPersonaContextApp();
   const originalFetch = globalThis.fetch;
+  const previousByokEncryptionKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
   const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
   const previousNvidiaModel = process.env.NVIDIA_MODEL;
   const previousDeepseekKey = process.env.DEEPSEEK_API_KEY;
   const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
   const providerFetches: Array<{ url: string; authorization: string | null; body: string }> = [];
 
+  process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = "test-ai-provider-key-encryption-key";
+  db.rows("ai_provider_byok_secrets").push({
+    id: "byok-secret-openai",
+    owner_user_id: OWNER_ID,
+    provider: "openai",
+    encrypted_key: encryptAiProviderKey("owner-openai-fixture-9999"),
+    key_fingerprint: fingerprintAiProviderKey("openai", "owner-openai-fixture-9999"),
+    key_last_four: "9999",
+    status: "active",
+    created_at: "2026-06-28T12:00:00.000Z",
+    updated_at: "2026-06-28T12:00:00.000Z",
+    rotated_at: null,
+    revoked_at: null,
+  });
   process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
   process.env.NVIDIA_MODEL = "test-nvidia-model";
   delete process.env.DEEPSEEK_API_KEY;
@@ -1577,11 +1596,18 @@ test("private persona chat uses owner BYOK OpenAI while private NVIDIA remains b
     const serializedEvents = JSON.stringify(db.rows("ai_trace_events"));
     assert.match(serializedEvents, /byok_openai/);
     assert.doesNotMatch(serializedEvents, /owner-openai-fixture-9999/);
+    assert.doesNotMatch(serializedEvents, /legacy-openai-should-not-be-used/);
     assert.doesNotMatch(serializedEvents, /Please say hello/);
     assert.doesNotMatch(serializedEvents, /test-nvidia-key/);
+    assert.doesNotMatch(serializedEvents, /ciphertext|authTag|encrypted_key/);
     assert.doesNotMatch(serializedEvents, /provider payload/);
   } finally {
     globalThis.fetch = originalFetch;
+    if (previousByokEncryptionKey == null) {
+      delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    } else {
+      process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = previousByokEncryptionKey;
+    }
     if (previousNvidiaKey == null) {
       delete process.env.NVIDIA_AI_API_KEY;
     } else {
@@ -1601,6 +1627,76 @@ test("private persona chat uses owner BYOK OpenAI while private NVIDIA remains b
       delete process.env.ANTHROPIC_API_KEY;
     } else {
       process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
+    }
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("private persona chat fails closed when encrypted BYOK storage exists but encryption config is missing", async () => {
+  const db = new InMemorySupabase();
+  const ownerProfile = db.tables.profiles.find((row) => row.id === OWNER_ID)!;
+  ownerProfile.ai_mode = "byok";
+  ownerProfile.byok_openai_key = "legacy-openai-fallback-must-not-run-1111";
+  const persona = db.tables.personas.find((row) => row.id === PERSONA_ID)!;
+  persona.provider = "openai";
+  persona.visibility = "private";
+
+  const previousByokEncryptionKey = process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+  process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = "test-ai-provider-key-encryption-key";
+  db.rows("ai_provider_byok_secrets").push({
+    id: "byok-secret-openai",
+    owner_user_id: OWNER_ID,
+    provider: "openai",
+    encrypted_key: encryptAiProviderKey("owner-openai-fixture-9999"),
+    key_fingerprint: fingerprintAiProviderKey("openai", "owner-openai-fixture-9999"),
+    key_last_four: "9999",
+    status: "active",
+    created_at: "2026-06-28T12:00:00.000Z",
+    updated_at: "2026-06-28T12:00:00.000Z",
+    rotated_at: null,
+    revoked_at: null,
+  });
+  delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaContextApp();
+  const originalFetch = globalThis.fetch;
+  const providerFetches: string[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (!url.startsWith("http://127.0.0.1:")) {
+      providerFetches.push(`${url} ${String((init?.headers as Record<string, string> | undefined)?.Authorization ?? "")}`);
+      return new Response(JSON.stringify({ error: "unexpected provider call" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const blocked = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
+      token: "owner-token",
+      body: { content: "Please say hello." },
+    });
+
+    assert.equal(blocked.status, 503);
+    assert.deepEqual(blocked.body, {
+      error: "AI provider key storage is not available. Update or clear BYOK settings before private chat.",
+      code: "ai_provider_key_encryption_unconfigured",
+      classification: "provider_config",
+    });
+    assert.deepEqual(providerFetches, []);
+    assert.equal(db.rows("conversations").length, 0);
+    assert.equal(db.rows("conversation_messages").length, 0);
+    const serialized = JSON.stringify(blocked.body);
+    assert.doesNotMatch(serialized, /legacy-openai-fallback|owner-openai-fixture|ciphertext|authTag|encrypted_key/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousByokEncryptionKey == null) {
+      delete process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY;
+    } else {
+      process.env.AI_PROVIDER_KEY_ENCRYPTION_KEY = previousByokEncryptionKey;
     }
     setSupabaseAdminForTests(null);
   }

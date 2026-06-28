@@ -2,6 +2,7 @@ import { env } from "../lib/env";
 
 type EmbeddingKeyProfile = {
   byok_openai_key?: string | null;
+  byokOpenaiKey?: string | null;
 };
 
 type EmbeddingProvider = "openai" | "gemini";
@@ -41,5 +42,5 @@ export function resolveEmbeddingApiKey(profile?: EmbeddingKeyProfile | null) {
     );
   }
 
-  return firstValue(profile?.byok_openai_key, env.OPENAI_API_KEY, process.env.OPENAI_API_KEY);
+  return firstValue(profile?.byokOpenaiKey, profile?.byok_openai_key, env.OPENAI_API_KEY, process.env.OPENAI_API_KEY);
 }

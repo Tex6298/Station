@@ -5,6 +5,8 @@ import {
   AI_PROVIDER_SETTINGS_COPY,
   buildAiProviderSettingsPatch,
   configuredKeyLabel,
+  storageStatusLabel,
+  timestampReadbackRows,
 } from "./ai-provider-settings";
 
 test("AI provider settings copy exposes only supported owner BYOK providers", () => {
@@ -52,4 +54,20 @@ test("configured key labels never require raw key readback", () => {
   assert.equal(configuredKeyLabel({ configured: false, keyLastFour: null }), "Not configured");
   assert.equal(configuredKeyLabel({ configured: true, keyLastFour: "1234" }), "Configured, ending 1234");
   assert.equal(configuredKeyLabel({ configured: true, keyLastFour: null }), "Configured");
+});
+
+test("AI provider storage metadata labels are non-secret", () => {
+  assert.equal(storageStatusLabel({ storageStatus: "encrypted" }), "Encrypted storage");
+  assert.equal(storageStatusLabel({ storageStatus: "legacy_plaintext" }), "Legacy storage, migrates on next save");
+  assert.equal(storageStatusLabel({ storageStatus: "revoked" }), "Revoked");
+  assert.equal(storageStatusLabel({ storageStatus: "none" }), "No stored key");
+
+  assert.deepEqual(timestampReadbackRows({
+    updatedAt: "2026-06-28T12:00:00.000Z",
+    rotatedAt: "2026-06-28T12:05:00.000Z",
+    revokedAt: null,
+  }), [
+    "Updated 2026-06-28T12:00:00.000Z",
+    "Rotated 2026-06-28T12:05:00.000Z",
+  ]);
 });

@@ -101,6 +101,10 @@ export interface AiProviderReadback {
   label: string;
   configured: boolean;
   keyLastFour: string | null;
+  storageStatus: "encrypted" | "legacy_plaintext" | "revoked" | "none";
+  updatedAt: string | null;
+  rotatedAt: string | null;
+  revokedAt: string | null;
 }
 
 export interface AiProviderSettings {
