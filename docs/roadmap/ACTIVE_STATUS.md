@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - discovery/Space error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_DISCOVERY_SPACE_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted discussion route-level error responses.
+- Discovery and Spaces are the next coherent public-chain surface after
+  document and linked discussion hardening.
+- The lane covers public discovery feed/sidebar/search-adjacent responses plus
+  public Space readback and owner Space/page management responses.
+
+Current baton:
+
+- DAEDALUS should harden discovery/Space route responses, validate focused
+  Spaces/community gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - discussion errors accepted after narrow patch
 
 MIMIR opened the next narrow route-level error response hardening lane on
