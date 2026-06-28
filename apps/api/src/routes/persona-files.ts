@@ -25,6 +25,29 @@ const registerSchema = z.object({
   processImmediately: z.boolean().default(true),
 });
 
+const PERSONA_FILE_ERROR_RESPONSES = {
+  list: {
+    error: "Could not load persona files.",
+    code: "persona_file_list_failed",
+  },
+  uploadUrl: {
+    error: "Could not create signed upload URL.",
+    code: "persona_file_upload_url_failed",
+  },
+  lookup: {
+    error: "Could not verify existing persona file.",
+    code: "persona_file_lookup_failed",
+  },
+  importRepair: {
+    error: "Could not repair persona file import job.",
+    code: "persona_file_import_job_repair_failed",
+  },
+  register: {
+    error: "Could not register persona file.",
+    code: "persona_file_register_failed",
+  },
+} as const;
+
 export const personaFilesRouter = Router();
 personaFilesRouter.use(requireAuth);
 
@@ -40,7 +63,7 @@ personaFilesRouter.get("/persona/:personaId", async (req, res) => {
     .eq("owner_user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(PERSONA_FILE_ERROR_RESPONSES.list);
   return res.json({ files: data });
 });
 
@@ -85,7 +108,7 @@ personaFilesRouter.get("/persona/:personaId/upload-url", async (req, res) => {
     .from("persona-files")
     .createSignedUploadUrl(storagePath);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(PERSONA_FILE_ERROR_RESPONSES.uploadUrl);
 
   return res.json({ uploadUrl: data.signedUrl, storagePath, token: data.token });
 });
@@ -120,7 +143,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
       parsed.data.storagePath
     );
   } catch (error) {
-    return res.status(500).json({ error: error instanceof Error ? error.message : "File lookup failed." });
+    return res.status(500).json(PERSONA_FILE_ERROR_RESPONSES.lookup);
   }
   if (existingFile) {
     let jobState: Awaited<ReturnType<typeof loadOrRepairFileImportJob>>;
@@ -134,7 +157,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     } catch (error) {
       const quotaError = quotaErrorResponse(error);
       if (quotaError) return res.status(quotaError.status).json(quotaError.body);
-      return res.status(500).json({ error: error instanceof Error ? error.message : "Import job repair failed." });
+      return res.status(500).json(PERSONA_FILE_ERROR_RESPONSES.importRepair);
     }
 
     return res.json({
@@ -239,7 +262,7 @@ personaFilesRouter.post("/persona/:personaId/register", async (req, res) => {
     if (storageReserved) await releaseStorageBytes(userId, parsed.data.fileSize).catch(() => null);
     const storageError = storageErrorResponse(error);
     if (storageError) return res.status(storageError.status).json(storageError.body);
-    return res.status(500).json({ error: error instanceof Error ? error.message : "File insert failed." });
+    return res.status(500).json(PERSONA_FILE_ERROR_RESPONSES.register);
   }
 });
 

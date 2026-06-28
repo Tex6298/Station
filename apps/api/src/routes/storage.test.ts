@@ -80,6 +80,8 @@ class InMemorySupabase {
 
   failInsertTables = new Set<string>();
   failSelectTables = new Set<string>();
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
+  storageUploadError: { message: string } | null = null;
   removedStoragePaths: string[] = [];
   signedUploadPaths: string[] = [];
   storageDownloads = new Map<string, string>();
@@ -115,6 +117,9 @@ class InMemorySupabase {
       from: (_bucket: string) => ({
         createSignedUploadUrl: async (path: string) => {
           this.signedUploadPaths.push(path);
+          if (this.storageUploadError) {
+            return { data: null, error: this.storageUploadError };
+          }
           return {
             data: {
               signedUrl: `https://storage.example.test/${path}`,
@@ -338,6 +343,13 @@ class QueryBuilder {
   private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
 
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return { data: null, error: operationError };
+    }
+
     if (this.operation === "insert") {
       if (this.db.failInsertTables.has(this.table)) {
         return { data: null, error: { message: `Forced insert failure for ${this.table}.` } };
@@ -391,6 +403,52 @@ function storageRow(db: InMemorySupabase, userId = OWNER_ID) {
 
 function validStoragePath(fileName: string, personaId = PERSONA_ID, ownerId = OWNER_ID) {
   return `${ownerId}/${personaId}/1700000000000_${fileName}`;
+}
+
+const personaFileHiddenMarker = "private-" + "persona-file-marker";
+const personaFileBearerLabel = "Bear" + "er";
+const personaFileDatabaseScheme = "postgres" + "ql://";
+const personaFileSignedUrl = "https://storage.example.test/persona-files/" + personaFileHiddenMarker;
+const personaFileUploadToken = "upload-token-" + personaFileHiddenMarker;
+const personaFileStoragePath = `${OWNER_ID}/${PERSONA_ID}/1700000000000_${personaFileHiddenMarker}.txt`;
+const personaFileImportJobId = "import_jobs-" + personaFileHiddenMarker;
+
+function hostilePersonaFileError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in persona_files and import_jobs`,
+      `storage_path=${personaFileStoragePath}`,
+      `signedUrl=${personaFileSignedUrl}`,
+      `token=${personaFileUploadToken}`,
+      `owner_user_id=${OWNER_ID} persona_id=${PERSONA_ID} file_id=persona_files-1 import_job_id=${personaFileImportJobId}`,
+      `${personaFileBearerLabel} abc.${personaFileHiddenMarker}.token`,
+      `database url: ${personaFileDatabaseScheme}station:${personaFileHiddenMarker}@db.example.test/station`,
+      `provider payload: private snippet ${personaFileHiddenMarker}`,
+      "at personaFileRoute (/station/private/persona-files.ts:1:2)",
+    ].join("; "),
+    details: `bucket persona-files ${personaFileHiddenMarker}`,
+  };
+}
+
+function assertSafePersonaFileError(body: unknown) {
+  const text = JSON.stringify(body);
+  assert.equal(text.includes(personaFileHiddenMarker), false);
+  assert.equal(text.includes(personaFileSignedUrl), false);
+  assert.equal(text.includes(personaFileUploadToken), false);
+  assert.equal(text.includes(personaFileStoragePath), false);
+  assert.equal(text.includes(personaFileBearerLabel), false);
+  assert.equal(text.includes(personaFileDatabaseScheme), false);
+  assert.equal(text.includes("db.example.test"), false);
+  assert.equal(text.includes("persona_files"), false);
+  assert.equal(text.includes("import_jobs"), false);
+  assert.equal(text.includes("owner_user_id"), false);
+  assert.equal(text.includes("persona_id"), false);
+  assert.equal(text.includes("file_id"), false);
+  assert.equal(text.includes("import_job_id"), false);
+  assert.equal(text.includes("provider payload"), false);
+  assert.equal(text.includes("private snippet"), false);
+  assert.equal(text.includes("personaFileRoute"), false);
 }
 
 function createStorageApp() {
@@ -611,6 +669,60 @@ test("persona file upload preflight and registration keep storage accounting bal
     assert.equal(storageRow(db).bytes_used, 0);
     assert.equal(db.tables.persona_files.length, 0);
     assert.deepEqual(db.removedStoragePaths, [validStoragePath("source.txt")]);
+  } finally {
+    resetStorageFake();
+  }
+});
+
+test("persona file route errors return stable public copy without private storage details", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createPersonaFilesApp();
+
+  try {
+    db.operationErrors.set("select:persona_files", hostilePersonaFileError("list persona files"));
+    const listFailed = await requestJson(app, "GET", `/persona-files/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listFailed.status, 500);
+    assert.deepEqual(listFailed.body, {
+      error: "Could not load persona files.",
+      code: "persona_file_list_failed",
+    });
+    assertSafePersonaFileError(listFailed.body);
+
+    db.storageUploadError = hostilePersonaFileError("signed upload url");
+    const uploadUrlFailed = await requestJson(app, "GET", `/persona-files/persona/${PERSONA_ID}/upload-url?fileName=source.txt&fileSize=50`, {
+      token: "owner-token",
+    });
+    assert.equal(uploadUrlFailed.status, 500);
+    assert.deepEqual(uploadUrlFailed.body, {
+      error: "Could not create signed upload URL.",
+      code: "persona_file_upload_url_failed",
+    });
+    assertSafePersonaFileError(uploadUrlFailed.body);
+    db.storageUploadError = null;
+
+    db.operationErrors.set("insert:persona_files", hostilePersonaFileError("register persona file"));
+    const registerFailed = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
+      token: "owner-token",
+      body: {
+        fileName: "source.txt",
+        fileType: "text/plain",
+        fileSize: 10,
+        storagePath: validStoragePath("source.txt"),
+        processImmediately: false,
+      },
+    });
+    assert.equal(registerFailed.status, 500);
+    assert.deepEqual(registerFailed.body, {
+      error: "Could not register persona file.",
+      code: "persona_file_register_failed",
+    });
+    assertSafePersonaFileError(registerFailed.body);
+    assert.equal(storageRow(db).bytes_used, 0);
+    assert.equal(db.tables.persona_files.length, 0);
+    assert.equal(db.tables.import_jobs.length, 0);
   } finally {
     resetStorageFake();
   }
@@ -870,7 +982,7 @@ test("persona file registration rejects out-of-scope and traversal-shaped storag
 
 test("persona file registration rolls back reserved bytes and file rows after job failure", async () => {
   const db = new InMemorySupabase();
-  db.failInsertTables.add("import_jobs");
+  db.operationErrors.set("insert:import_jobs", hostilePersonaFileError("register import job"));
   setSupabaseAdminForTests(db.client as any);
   const app = await createPersonaFilesApp();
 
@@ -887,6 +999,11 @@ test("persona file registration rolls back reserved bytes and file rows after jo
     });
 
     assert.equal(response.status, 500);
+    assert.deepEqual(response.body, {
+      error: "Could not register persona file.",
+      code: "persona_file_register_failed",
+    });
+    assertSafePersonaFileError(response.body);
     assert.equal(storageRow(db).bytes_used, 0);
     assert.equal(db.tables.persona_files.length, 0);
     assert.deepEqual(db.removedStoragePaths, [validStoragePath("bad-source.txt")]);
@@ -950,7 +1067,7 @@ test("persona file duplicate lookup failures fail closed without extra storage o
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
 
-    db.failSelectTables.add("persona_files");
+    db.operationErrors.set("select:persona_files", hostilePersonaFileError("duplicate lookup"));
     const fileLookupFailed = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "owner-token",
       body: {
@@ -963,13 +1080,16 @@ test("persona file duplicate lookup failures fail closed without extra storage o
     });
 
     assert.equal(fileLookupFailed.status, 500);
-    assert.match(fileLookupFailed.body.error, /persona_files/);
+    assert.deepEqual(fileLookupFailed.body, {
+      error: "Could not verify existing persona file.",
+      code: "persona_file_lookup_failed",
+    });
+    assertSafePersonaFileError(fileLookupFailed.body);
     assert.equal(storageRow(db).bytes_used, 10);
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);
 
-    db.failSelectTables.delete("persona_files");
-    db.failSelectTables.add("import_jobs");
+    db.operationErrors.set("select:import_jobs", hostilePersonaFileError("duplicate import job repair"));
     const jobLookupFailed = await requestJson(app, "POST", `/persona-files/persona/${PERSONA_ID}/register`, {
       token: "owner-token",
       body: {
@@ -982,7 +1102,11 @@ test("persona file duplicate lookup failures fail closed without extra storage o
     });
 
     assert.equal(jobLookupFailed.status, 500);
-    assert.match(jobLookupFailed.body.error, /import_jobs/);
+    assert.deepEqual(jobLookupFailed.body, {
+      error: "Could not repair persona file import job.",
+      code: "persona_file_import_job_repair_failed",
+    });
+    assertSafePersonaFileError(jobLookupFailed.body);
     assert.equal(storageRow(db).bytes_used, 10);
     assert.equal(db.tables.persona_files.length, 1);
     assert.equal(db.tables.import_jobs.length, 1);

@@ -4,7 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - Developer Space credential errors accepted
+## Latest DAEDALUS result - persona file errors ready for ARGUS
+
+DAEDALUS completed persona file route-level error response hardening on
+2026-06-28:
+`docs/roadmap/PRODUCTION_PERSONA_FILE_ERROR_RESPONSE_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS PERSONA FILE ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Persona file list, signed upload URL creation, duplicate lookup, import-job
+  repair, and registration failure paths now return stable public-safe
+  responses instead of raw storage or Supabase service text.
+- Successful signed upload URL creation, file registration, duplicate
+  idempotency, best-effort cleanup, storage reservation/release, quota handling,
+  and import lifecycle behavior did not change.
+- Focused storage tests force hostile persona-file service payloads through
+  route failures and prove storage paths, signed URLs, upload tokens, bucket or
+  table names, owner/persona/file/import-job IDs, provider payload labels,
+  private markers, and stack-shaped strings are not returned.
+- Non-persona-file archive/import route-level raw errors and other route-level
+  raw errors remain future audit surface.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:storage` passed, 19 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic persona-file
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
+
+Current baton:
+
+- ARGUS should hostile-review the persona-file route response mapping and
+  focused storage tests.
+- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+
+## Previous ARGUS verdict - Developer Space credential errors accepted
 
 ARGUS completed Developer Space credential error response review on 2026-06-28:
 `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_CREDENTIAL_ERROR_RESPONSE_REVIEW_RESULT.md`.
