@@ -108,7 +108,18 @@ export function WritingIndex() {
               );
             })}
           </div>
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, marginBottom: 12 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+              alignItems: "center",
+              maxWidth: "100%",
+              overflowX: "visible",
+              paddingBottom: 4,
+              marginBottom: 12,
+            }}
+          >
             {filters.map((filter) => {
               const active = filter === activeFilter;
               return (

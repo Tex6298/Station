@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR457 | Writing filter mobile wrap patch | DAEDALUS / A2 | Open | `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_DAEDALUS.md` |
+| PR457 | Writing filter mobile wrap patch | ARGUS / A3 | Ready for review | `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_RESULT.md` |
 
 ## Recently Closed
 

@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR457 ready for ARGUS review
+
+DAEDALUS implemented PR457:
+
+`docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_RESULT.md`
+
+Decision:
+
+- `/writing` type filter controls now wrap inside the panel instead of using
+  horizontal overflow.
+- The patch touches only `apps/web/components/writing/writing-index.tsx`.
+- Latest/Featured feed behavior, type filter state, public-writing visibility,
+  and disabled Staff picks behavior are unchanged.
+- Local validation is green for full typecheck, `test:writing`, and whitespace.
+- Local browser screenshot validation was not run because Playwright is not
+  available in this checkout; ARGUS should decide whether to accept the CSS
+  review or ask for hosted/browser confirmation.
+
+Current lane:
+
+```text
+PR457 - Writing Filter Mobile Wrap Patch
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_RESULT.md`.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout or hosted
+  confirmation.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact patch target.
+
 ## Latest MIMIR closeout - PR456 closed, PR457 opened
 
 MIMIR closes PR456:

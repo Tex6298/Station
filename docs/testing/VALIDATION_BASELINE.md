@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR457 Writing Filter Mobile Wrap Patch
+
+DAEDALUS implemented PR457 on 2026-06-28:
+`docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/writing` type filter controls now wrap inside the panel rather than relying
+  on horizontal overflow;
+- only the Writing type filter row changed;
+- Latest/Featured feed behavior, type filter state, disabled Staff picks
+  behavior, public-writing visibility, and route behavior are unchanged;
+- no backend, API, database, auth/session, billing, provider/model, embedding,
+  Railway, Supabase, package script, or lockfile behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 23 tests passed. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+| Local browser screenshot check | Not run | `@playwright/test` is not available to require in this checkout; ARGUS should decide whether to request hosted/browser confirmation. |
+
+Residual risk: the layout fix is a narrow CSS-in-JS wrap change. Browser visual
+confirmation at 430px, 390px, 375px, and 320px remains useful before MIMIR
+marks the hosted defect closed.
+
 ## PR456 Top-Nav and Mobile Overflow Rehearsal
 
 ARIADNE completed PR456 on 2026-06-28:
