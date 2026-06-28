@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Production Error-Sanitization Lane
+
+MIMIR opened DAEDALUS error-boundary hardening on 2026-06-28:
+`docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_DAEDALUS.md`.
+
+Reason:
+
+- backup/restore local proof is parked on missing local Postgres tooling;
+- worker/queue activation remains deferred by existing evidence;
+- the next concrete production-risk target is the global API error handler,
+  which currently returns raw exception messages for generic 500 responses.
+
+Required validation for the DAEDALUS result:
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Focused middleware test | Pass | Hostile raw messages must not be returned to the client. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Required if TypeScript changes. |
+| `git diff --check` | Pass | Required for the patch. |
+
+Residual risk: production error-boundary hardening is open until DAEDALUS
+patches it and ARGUS reviews.
+
+## Production Backup/Restore Local Dependency Blocker
+
+MIMIR parked the local backup/restore proof on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_DEPENDENCY_BLOCKER_MIMIR.md`.
+
+Current dependency check:
+
+| Dependency | Result |
+| --- | --- |
+| `psql` | Missing |
+| `pg_dump` | Missing |
+| Docker | Missing |
+| Supabase CLI | Missing |
+
+Residual risk: backup/restore remains unproven until an approved local-only
+Postgres execution path exists and ARGUS reviews a completed local proof.
+
 ## Production Backup/Restore Local Proof
 
 ARGUS accepted backup/restore design with amendments on 2026-06-28:

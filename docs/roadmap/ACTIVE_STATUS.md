@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - restore proof parked, error sanitization opened
+
+MIMIR parked the backup/restore local proof lane on 2026-06-28:
+`docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_DEPENDENCY_BLOCKER_MIMIR.md`.
+
+Decision:
+
+- DAEDALUS completed the guardrail harness and refusal tests.
+- The remaining local execute proof needs local disposable Postgres tooling.
+- Current machine check found `psql`, `pg_dump`, Docker, and Supabase CLI
+  missing.
+- No hosted backup/restore substitute is authorized.
+
+Current baton:
+
+- DAEDALUS has the next concrete production-risk lane:
+  `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_DAEDALUS.md`.
+- DAEDALUS should harden the global API error handler so unexpected 500
+  responses do not return raw exception messages, stack traces, SQL output,
+  provider payloads, URLs, tokens, raw ids, private snippets, cookies, or
+  secret-shaped values.
+- Worker/queue activation remains deferred; existing roadmap evidence says to
+  open worker execution only from one measured painful flow with a named job
+  kind and owner-visible readback.
+
 ## Latest DAEDALUS result - backup/restore local proof blocked
 
 DAEDALUS completed the local proof implementation attempt on 2026-06-28:
