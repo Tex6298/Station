@@ -25,7 +25,10 @@ they are not Station validation failures.
 DAEDALUS implemented PR457 on 2026-06-28:
 `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+ARGUS accepted the PR457 code patch on 2026-06-28:
+`docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_CODE_PATCH`.
 
 Reason:
 
@@ -42,11 +45,12 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- typecheck` | Pass | Turbo typecheck passed for API and web. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 23 tests passed. |
 | `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 | Local browser screenshot check | Not run | `@playwright/test` is not available to require in this checkout; ARGUS should decide whether to request hosted/browser confirmation. |
 
-Residual risk: the layout fix is a narrow CSS-in-JS wrap change. Browser visual
-confirmation at 430px, 390px, 375px, and 320px remains useful before MIMIR
-marks the hosted defect closed.
+Residual risk: the layout fix is a narrow CSS-in-JS wrap change accepted by code
+review and tests. Browser visual confirmation at 430px, 390px, 375px, and 320px
+remains useful before MIMIR marks the hosted defect visually closed.
 
 ## PR456 Top-Nav and Mobile Overflow Rehearsal
 
