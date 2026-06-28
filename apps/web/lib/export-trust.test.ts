@@ -68,6 +68,29 @@ test("export trust helpers show failed exports without implying data loss", () =
   assert.match(copy.nextAction, /Private archive material remains safe/);
 });
 
+test("export trust helpers keep Developer Space readback bounded", () => {
+  const completed = exportPackageTrustCopy({ status: "completed" }, "developer_space");
+  const failed = exportPackageTrustCopy({
+    status: "failed",
+    errorMessage: "database URL leaked into upstream error",
+  }, "developer_space");
+
+  assert.match(completed.body, /Developer Space manifest is complete/);
+  assert.match(completed.nextAction, /JSON\/Markdown package/);
+  assert.match(failed.body, /Developer Space export did not complete/);
+  assert.doesNotMatch(failed.body, /database URL/);
+  assert.equal(
+    exportPackageSummaryLine({
+      nodes: 2,
+      events: 8,
+      snapshots: 1,
+      linkedPublicDocuments: 3,
+      memory: 99,
+    }, "developer_space"),
+    "2 nodes / 8 events / 1 snapshots / 3 public docs",
+  );
+});
+
 test("export trust helpers group package state and manifest content summary", () => {
   assert.deepEqual(
     exportPackageTrustSummary([

@@ -37,6 +37,15 @@ import {
   defaultDeveloperSpaceVisualConfig,
   normaliseDeveloperSpaceVisualConfig,
 } from "@/lib/developer-space-visual-config";
+import {
+  exportPackageFormatLabel,
+  exportPackageSectionLine,
+  exportPackageStatusLabel,
+  exportPackageSummaryLine,
+  exportPackageTone,
+  exportPackageTrustCopy,
+  exportPackageTrustSummary,
+} from "@/lib/export-trust";
 import type {
   DeveloperSpaceAgentActionPreview,
   DeveloperSpaceAgentActionRegistryEntry,
@@ -52,9 +61,10 @@ import type {
   DeveloperSpaceUsage,
   DeveloperSpaceVisualisationType,
 } from "@station/types/developer-space";
-import type { ArchiveExportPackage } from "@station/types/export";
+import type { ArchiveExportBundle, ArchiveExportPackage } from "@station/types/export";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const UUID_PATTERN = /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi;
 const DEVELOPER_SPACE_EVIDENCE_ROLES: DeveloperSpaceDocumentRole[] = [
   "methodology",
   "finding",
@@ -146,6 +156,10 @@ function safeDeveloperSpacePreviewHref(href?: string | null) {
   return href;
 }
 
+function maskExportReadbackText(value: string) {
+  return value.replace(UUID_PATTERN, "[masked-id]");
+}
+
 export default function DeveloperSpaceManagePage() {
   const { slug } = useParams<{ slug: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -165,6 +179,9 @@ export default function DeveloperSpaceManagePage() {
   const [usage, setUsage] = useState<DeveloperSpaceUsage | null>(null);
   const [exportsList, setExportsList] = useState<ArchiveExportPackage[]>([]);
   const [exporting, setExporting] = useState(false);
+  const [exportManifest, setExportManifest] = useState<{ packageId: string; text: string } | null>(null);
+  const [exportBundle, setExportBundle] = useState<ArchiveExportBundle | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [agentActions, setAgentActions] = useState<DeveloperSpaceAgentActionRegistryEntry[]>([]);
   const [agentBoundary, setAgentBoundary] = useState<DeveloperSpaceAgentRegistryBoundary | null>(null);
   const [selectedAgentAction, setSelectedAgentAction] = useState<string>("");
@@ -490,18 +507,61 @@ export default function DeveloperSpaceManagePage() {
   async function createExportPackage() {
     if (!token || !detail) return;
     setExporting(true);
-    setError(null);
+    setExportError(null);
     try {
       const data = await apiPost<{
         exportPackage: ArchiveExportPackage;
+        manifestMarkdown?: string | null;
       }>(`/exports/developer-spaces/${detail.space.id}`, {}, token);
-      setExportsList([data.exportPackage, ...exportsList]);
+      setExportsList((current) => [
+        data.exportPackage,
+        ...current.filter((item) => item.id !== data.exportPackage.id),
+      ]);
+      setExportBundle(null);
+      setExportManifest({
+        packageId: data.exportPackage.id,
+        text: maskExportReadbackText(data.manifestMarkdown || "Manifest readback is not available for this package yet."),
+      });
       const usageData = await apiGet<{ usage: DeveloperSpaceUsage }>(`/developer-spaces/${detail.space.id}/usage`, token);
       setUsage(usageData.usage);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not create export package.");
+      setExportError(e instanceof Error ? e.message : "Could not create export package.");
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function loadExportManifest(packageId: string) {
+    if (!token) return;
+    setExportError(null);
+    try {
+      const data = await apiGet<{
+        exportPackage: ArchiveExportPackage;
+        manifestMarkdown?: string | null;
+      }>(`/exports/${packageId}`, token);
+      if (data.exportPackage.packageKind !== "developer_space_archive") {
+        throw new Error("That package is not a Developer Space export.");
+      }
+      setExportManifest({
+        packageId,
+        text: maskExportReadbackText(data.manifestMarkdown || "Manifest readback is not available for this package yet."),
+      });
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Could not load export manifest.");
+    }
+  }
+
+  async function loadExportBundle(packageId: string) {
+    if (!token) return;
+    setExportError(null);
+    try {
+      const data = await apiGet<{ bundle: ArchiveExportBundle }>(`/exports/${packageId}/bundle`, token);
+      if (data.bundle.package.packageKind !== "developer_space_archive") {
+        throw new Error("That package is not a Developer Space export.");
+      }
+      setExportBundle(data.bundle);
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Could not load export bundle.");
     }
   }
 
@@ -698,6 +758,7 @@ export default function DeveloperSpaceManagePage() {
   const orderedEvidence = orderedDeveloperSpaceEvidence(detail.linkedDocuments ?? []);
   const currentState = developerSpaceOwnerCurrentState(detail);
   const usageReadback = developerSpaceUsageReadback(usage, detail, exportsList.length);
+  const exportSummary = exportPackageTrustSummary(exportsList);
   const agentActionGroups = developerSpaceAgentActionGroups(agentActions);
   const selectedAgentEntry = agentActions.find((action) => action.action === selectedAgentAction) ?? null;
   const selectedFutureAction = agentActionGroups.future.find((action) => action.action === agentPreview?.action)?.action as DeveloperSpaceAgentFutureAction | undefined;
@@ -1420,28 +1481,52 @@ export default function DeveloperSpaceManagePage() {
               <div>
                 <h2 style={{ margin: "0 0 0.35rem", fontSize: "1.05rem" }}>Exports</h2>
                 <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>
-                  Owner-only JSON/Markdown packages include nodes, events, snapshots, usage, and public-safe linked document refs. They are private readbacks, not public downloads.
+                  Owner-only JSON/Markdown packages include nodes, events, snapshots, usage, and public-safe linked document refs. Manifest and portable bundle readbacks stay private to this owner console.
                 </p>
               </div>
               <button className="button primary" onClick={createExportPackage} disabled={exporting}>
-                {exporting ? "Exporting..." : "Create export"}
+                {exporting ? "Exporting..." : "Create JSON/Markdown export"}
               </button>
             </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 128px), 1fr))", gap: "0.55rem" }}>
+              <DeveloperSpaceExportMetric label="Packages" value={exportSummary.total} />
+              <DeveloperSpaceExportMetric label="Completed" value={exportSummary.completed} />
+              <DeveloperSpaceExportMetric label="Failed" value={exportSummary.failed} tone={exportSummary.failed > 0 ? "danger" : "info"} />
+              <DeveloperSpaceExportMetric label="In progress" value={exportSummary.inProgress} tone={exportSummary.inProgress > 0 ? "warning" : "info"} />
+            </div>
+
+            {exportError ? (
+              <div style={{ background: "#2d1515", border: "1px solid #7d2e2e", borderRadius: 8, color: "#fca5a5", padding: "0.75rem", fontSize: "0.84rem" }}>
+                {exportError}
+              </div>
+            ) : null}
+
             {exportsList.length === 0 ? (
               <p style={{ margin: 0, color: "#687078" }}>No export packages yet.</p>
             ) : (
               <div style={{ display: "grid", gap: "0.55rem" }}>
                 {exportsList.slice(0, 5).map((item) => (
-                  <div key={item.id} style={{ borderTop: "1px solid #d8d3c8", paddingTop: "0.55rem", display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <div>
-                      <strong style={{ display: "block" }}>{item.packageKind.replaceAll("_", " ")}</strong>
-                      <span style={{ color: "#8b8f92", fontSize: "0.78rem" }}>{formatDate(item.completedAt ?? item.requestedAt)}</span>
-                    </div>
-                    <span className="pill" style={{ textTransform: "capitalize" }}>{item.status}</span>
-                  </div>
+                  <DeveloperSpaceExportPackageCard
+                    key={item.id}
+                    exportPackage={item}
+                    manifestOpen={exportManifest?.packageId === item.id}
+                    bundleOpen={exportBundle?.package.id === item.id}
+                    onLoadManifest={() => loadExportManifest(item.id)}
+                    onLoadBundle={() => loadExportBundle(item.id)}
+                  />
                 ))}
               </div>
             )}
+
+            {exportManifest ? (
+              <details style={exportReadbackBox} open>
+                <summary style={{ cursor: "pointer", fontWeight: 800 }}>Manifest readback</summary>
+                <pre style={exportReadbackPre}>{exportManifest.text}</pre>
+              </details>
+            ) : null}
+
+            {exportBundle ? <DeveloperSpaceExportBundleReadback bundle={exportBundle} /> : null}
           </div>
 
           <div className="card" style={{ display: "grid", gap: "0.9rem" }}>
@@ -1574,6 +1659,145 @@ export default function DeveloperSpaceManagePage() {
     </main>
   );
 }
+
+function DeveloperSpaceExportPackageCard({
+  exportPackage,
+  manifestOpen,
+  bundleOpen,
+  onLoadManifest,
+  onLoadBundle,
+}: {
+  exportPackage: ArchiveExportPackage;
+  manifestOpen: boolean;
+  bundleOpen: boolean;
+  onLoadManifest: () => void;
+  onLoadBundle: () => void;
+}) {
+  const tone = exportPackageTone(exportPackage.status);
+  const copy = exportPackageTrustCopy(exportPackage, "developer_space");
+  const canReadPackage = exportPackage.status === "completed";
+
+  return (
+    <article style={developerSpaceExportRow}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+        <div style={{ display: "grid", gap: "0.25rem" }}>
+          <strong style={{ display: "block" }}>{exportPackageFormatLabel(exportPackage.format)} package</strong>
+          <span style={{ color: "#8b8f92", fontSize: "0.78rem" }}>
+            {formatDate(exportPackage.completedAt ?? exportPackage.requestedAt)}
+          </span>
+        </div>
+        <span className="pill" style={{ color: exportToneColor(tone), textTransform: "capitalize", width: "fit-content" }}>
+          {exportPackageStatusLabel(exportPackage.status)}
+        </span>
+      </div>
+
+      <p style={{ margin: 0, color: "#687078", lineHeight: 1.55 }}>{copy.body}</p>
+      <div style={{ color: "#854f0b", fontSize: "0.82rem", lineHeight: 1.45 }}>{copy.nextAction}</div>
+
+      <div style={{ display: "grid", gap: "0.3rem", color: "#8b8f92", fontSize: "0.78rem", lineHeight: 1.45 }}>
+        <span>{exportPackageSummaryLine(exportPackage.contentSummary, "developer_space")}</span>
+        <span>{exportPackageSectionLine(exportPackage.includedSections)}</span>
+        {exportPackage.completedAt ? <span>Completed {formatDate(exportPackage.completedAt)}</span> : null}
+      </div>
+
+      {canReadPackage ? (
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <button className="button" type="button" onClick={onLoadManifest} disabled={manifestOpen} style={exportActionButton}>
+            {manifestOpen ? "Manifest open" : "View manifest"}
+          </button>
+          <button className="button" type="button" onClick={onLoadBundle} disabled={bundleOpen} style={exportActionButton}>
+            {bundleOpen ? "Bundle open" : "View portable bundle"}
+          </button>
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function DeveloperSpaceExportBundleReadback({ bundle }: { bundle: ArchiveExportBundle }) {
+  return (
+    <details style={exportReadbackBox} open>
+      <summary style={{ cursor: "pointer", fontWeight: 800 }}>Portable bundle readback</summary>
+      <div style={{ display: "grid", gap: "0.65rem", marginTop: "0.75rem" }}>
+        {bundle.files.map((file) => (
+          <div key={file.path} style={{ display: "grid", gap: "0.2rem" }}>
+            <strong>{file.path}</strong>
+            <span style={{ color: "#8b8f92", fontSize: "0.78rem", lineHeight: 1.45 }}>
+              {file.mediaType} / {file.bytes.toLocaleString()} bytes / sha256 {file.sha256.slice(0, 12)}...
+            </span>
+          </div>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function DeveloperSpaceExportMetric({
+  label,
+  value,
+  tone = "info",
+}: {
+  label: string;
+  value: number;
+  tone?: "info" | "warning" | "danger";
+}) {
+  return (
+    <div style={{
+      background: "#ffffff",
+      border: "1px solid #e7e0d4",
+      borderRadius: 8,
+      display: "grid",
+      gap: "0.2rem",
+      padding: "0.6rem",
+    }}>
+      <span style={{ color: "#8b8f92", fontSize: "0.72rem" }}>{label}</span>
+      <strong style={{ color: exportToneColor(tone), fontSize: "1rem" }}>{value}</strong>
+    </div>
+  );
+}
+
+function exportToneColor(tone: "info" | "good" | "warning" | "danger") {
+  if (tone === "good") return "#25633f";
+  if (tone === "warning") return "#854f0b";
+  if (tone === "danger") return "#b91c1c";
+  return "#534ab7";
+}
+
+const developerSpaceExportRow = {
+  borderTop: "1px solid #d8d3c8",
+  display: "grid",
+  gap: "0.55rem",
+  paddingTop: "0.65rem",
+};
+
+const exportActionButton = {
+  minHeight: 34,
+  padding: "0 0.7rem",
+  whiteSpace: "normal" as const,
+};
+
+const exportReadbackBox = {
+  background: "#fbfaf7",
+  border: "1px solid #d8d3c8",
+  borderRadius: 8,
+  display: "grid",
+  gap: "0.65rem",
+  padding: "0.8rem",
+};
+
+const exportReadbackPre = {
+  background: "#020617",
+  border: "1px solid #1e293b",
+  borderRadius: 8,
+  color: "#cbd5e1",
+  fontSize: "0.78rem",
+  lineHeight: 1.55,
+  margin: 0,
+  maxHeight: 420,
+  overflow: "auto",
+  padding: "0.9rem",
+  whiteSpace: "pre-wrap" as const,
+};
 
 const widgetRow = {
   display: "flex",

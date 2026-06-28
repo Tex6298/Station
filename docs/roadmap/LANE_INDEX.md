@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR430 | Developer Space export readback controls | DAEDALUS / A2 | Open - implement narrow UX follow-up | `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_DAEDALUS.md` |
+| PR430 | Developer Space export readback controls | DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review | `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md` |
 
 ## Recently Closed
 

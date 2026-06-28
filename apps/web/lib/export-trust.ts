@@ -1,5 +1,6 @@
 export type ExportPackageTone = "info" | "good" | "warning" | "danger";
 export type ExportBackupSurfaceState = "live" | "preview" | "future";
+export type ExportPackageTrustScope = "persona" | "developer_space";
 
 export interface ArchiveExportPackageLike {
   status: string;
@@ -24,17 +25,26 @@ export interface ExportBackupSurface {
   limitation: string;
 }
 
-const SUMMARY_LABELS: Array<[string, string]> = [
-  ["memory", "memory"],
-  ["canon", "canon"],
-  ["archiveFiles", "files"],
-  ["archiveImports", "imports"],
-  ["integritySessions", "integrity"],
-  ["continuityRecords", "continuity"],
-  ["publishedDocuments", "published"],
-  ["discussionRefs", "discussions"],
-  ["moderationReports", "reports"],
-];
+const SUMMARY_LABELS: Record<ExportPackageTrustScope, Array<[string, string]>> = {
+  persona: [
+    ["memory", "memory"],
+    ["canon", "canon"],
+    ["archiveFiles", "files"],
+    ["archiveImports", "imports"],
+    ["integritySessions", "integrity"],
+    ["continuityRecords", "continuity"],
+    ["publishedDocuments", "published"],
+    ["discussionRefs", "discussions"],
+    ["moderationReports", "reports"],
+  ],
+  developer_space: [
+    ["nodes", "nodes"],
+    ["events", "events"],
+    ["snapshots", "snapshots"],
+    ["linkedPublicDocuments", "public docs"],
+    ["usage", "usage"],
+  ],
+};
 
 export function exportBackupTrustSurfaces(): ExportBackupSurface[] {
   return [
@@ -137,7 +147,31 @@ export function exportPackageFormatLabel(format?: string | null) {
   return format.replace(/_/g, " / ");
 }
 
-export function exportPackageTrustCopy(exportPackage: ArchiveExportPackageLike) {
+export function exportPackageTrustCopy(
+  exportPackage: ArchiveExportPackageLike,
+  scope: ExportPackageTrustScope = "persona",
+) {
+  if (scope === "developer_space") {
+    if (exportPackage.status === "failed") {
+      return {
+        body: "This Developer Space export did not complete.",
+        nextAction: "Private Developer Space material remains owner-only. Create a new JSON/Markdown package when ready.",
+      };
+    }
+
+    if (exportPackage.status === "completed") {
+      return {
+        body: "This owner-only Developer Space manifest is complete.",
+        nextAction: "Use manifest or portable bundle readback to inspect the JSON/Markdown package.",
+      };
+    }
+
+    return {
+      body: "Station is preparing an owner-only Developer Space manifest from the current space state.",
+      nextAction: "Wait for the status to complete before relying on manifest or bundle readback.",
+    };
+  }
+
   if (exportPackage.status === "failed") {
     return {
       body: exportPackage.errorMessage || "This export failed before Station could finish the manifest.",
@@ -158,8 +192,11 @@ export function exportPackageTrustCopy(exportPackage: ArchiveExportPackageLike) 
   };
 }
 
-export function exportPackageSummaryLine(summary: Record<string, unknown> = {}) {
-  const parts = SUMMARY_LABELS.flatMap(([key, label]) => {
+export function exportPackageSummaryLine(
+  summary: Record<string, unknown> = {},
+  scope: ExportPackageTrustScope = "persona",
+) {
+  const parts = SUMMARY_LABELS[scope].flatMap(([key, label]) => {
     const value = summary[key];
     return typeof value === "number" ? [`${value} ${label}`] : [];
   });

@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR430 ready for ARGUS review
+
+DAEDALUS implemented PR430:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md`
+
+Current verdict:
+
+```text
+READY FOR ARGUS REVIEW
+```
+
+Decision:
+
+- Developer Space manage now exposes owner-only controls to read completed
+  Developer Space export manifests and portable bundle file summaries.
+- The implementation reuses existing authenticated export endpoints and does
+  not change export schema, route authorization, background jobs, storage,
+  migrations, persona export behavior, Project export behavior, or public
+  Developer Space pages.
+- Displayed Developer Space manifest text masks UUID-shaped identifiers.
+- Developer Space bundle readback shows package file names, media types, byte
+  counts, and SHA-256 prefixes without rendering package IDs or bundle file
+  contents.
+- The claim remains limited to owner-only JSON/Markdown readback controls, not
+  backup/restore, managed backup, full workspace export, disaster recovery,
+  RPO/RTO, or hosted backup readiness.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 135 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` passed, 53
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed, 7 tests.
+
+Current lane:
+
+```text
+PR430 - Developer Space Export Readback Controls
+Owner: DAEDALUS / A2
+Reviewer: ARGUS / A3
+State: READY FOR ARGUS REVIEW
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md`.
+- ARGUS should either wake MIMIR if accepted or wake DAEDALUS with exact fixes.
+
 ## Latest MIMIR closeout - PR429 passed, PR430 opened
 
 MIMIR accepts ARIADNE's PR429 hosted rehearsal:

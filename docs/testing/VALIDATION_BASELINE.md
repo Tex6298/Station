@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR430 Developer Space Export Readback Controls
+
+DAEDALUS completed the PR430 implementation on 2026-06-28:
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
+
+Reason:
+
+- Developer Space manage now has owner-only completed-package controls for
+  manifest and portable bundle readback;
+- readback uses the existing authenticated export package and bundle endpoints;
+- the page rejects non-Developer-Space package readback before rendering;
+- displayed Developer Space manifest text masks UUID-shaped identifiers;
+- Developer Space bundle readback shows file names, media types, byte counts,
+  and SHA-256 prefixes without rendering package IDs or bundle file contents;
+- no API route behavior, export schema, migrations, storage behavior, Project
+  export behavior, persona export behavior, public Developer Space page, or
+  infrastructure behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 135 tests passed, including Developer Space export trust copy coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 53 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
+Residual risk: PR430 proves product-surface controls for owner-only Developer
+Space manifest and portable bundle readback. It does not prove database
+backup/restore, managed backup redundancy, storage-object backup, original
+binary/PDF/file backup, full workspace backup, production disaster recovery,
+RPO/RTO, or hosted backup readiness.
+
 ## PR429 Hosted API-Backed Export Rehearsal
 
 ARIADNE completed PR429 on 2026-06-28:

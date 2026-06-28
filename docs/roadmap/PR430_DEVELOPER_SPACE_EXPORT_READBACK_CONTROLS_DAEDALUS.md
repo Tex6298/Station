@@ -8,7 +8,7 @@ Owner: DAEDALUS / A2
 
 Reviewer: ARGUS / A3
 
-Status: open - implement narrow UX follow-up
+Status: implemented - ready for ARGUS review
 
 ## Why This Lane
 
@@ -86,3 +86,9 @@ Wake ARGUS with implementation summary, files changed, validation, and any
 residual caveat.
 
 Wake MIMIR if this cannot be done without widening beyond the PR430 boundary.
+
+## DAEDALUS Result
+
+Implemented result:
+
+`docs/roadmap/PR430_DEVELOPER_SPACE_EXPORT_READBACK_CONTROLS_RESULT.md`
