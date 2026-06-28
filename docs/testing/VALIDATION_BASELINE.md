@@ -20,6 +20,49 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR456 Top-Nav and Mobile Overflow Rehearsal
+
+ARIADNE completed PR456 on 2026-06-28:
+`docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Recommended DAEDALUS patch lane:
+
+```text
+PR457 - Writing filter mobile wrap patch
+```
+
+Reason:
+
+- hosted web/API were fresh at the required PR452 runtime;
+- 95 public, Studio, Developer Space, Settings, and Billing route/viewport
+  combinations were sampled across desktop, 430px, 390px, 375px, and 320px;
+- no page-wide horizontal overflow was detected;
+- global top navigation did not render out of bounds;
+- account/menu controls stayed reachable in the sampled route set;
+- `/writing` type filter pills overflowed the right edge on mobile, with Field
+  Log and Theory offscreen at 430px, 390px, and 375px, and Research also
+  starting offscreen at 320px;
+- sampled visible text did not expose raw identifiers, credentials, private
+  bodies, storage paths, stack traces, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `60d53367`. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Desktop route set | Pass | Nineteen public, Studio, Developer Space, Settings, and Billing routes completed without page-wide overflow. |
+| 430px route set | Product defect | `/writing` filter pills overflowed the right edge. |
+| 390px route set | Product defect | `/writing` filter pills overflowed the right edge. |
+| 375px route set | Product defect | `/writing` filter pills overflowed the right edge. |
+| 320px route set | Product defect | `/writing` filter pills overflowed the right edge. |
+| Raw-id/secret/internal visible text checks | Pass with note | Memory protective copy mentions hidden raw prompts/provider payloads; no runtime leak was recorded. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: this was a hosted read-only route rehearsal. It did not mutate
+archive import, upload, export, publication, provider, billing, key, or private
+model-call state.
+
 ## PR455 Empty, Loading, and Error State Clarity Rehearsal
 
 ARIADNE completed PR455 on 2026-06-28:

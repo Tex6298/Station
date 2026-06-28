@@ -120,3 +120,15 @@ If reporting a defect, include:
 Do not commit screenshots, cookies, session values, raw owner ids, raw persona
 ids, private source bodies, prompts, completions, provider keys, stack traces,
 or raw network payloads.
+
+## ARIADNE Result
+
+Completed:
+
+`docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```

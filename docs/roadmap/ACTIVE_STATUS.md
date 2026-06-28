@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR456 found Writing mobile filter overflow
+
+ARIADNE completed PR456:
+
+`docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Recommended DAEDALUS patch lane:
+
+```text
+PR457 - Writing filter mobile wrap patch
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the required PR452 runtime.
+- The rehearsal sampled 95 public, Studio, Developer Space, Settings, and
+  Billing route/viewport combinations across desktop, 430px, 390px, 375px, and
+  320px.
+- No page-wide horizontal overflow was detected, and the global top navigation
+  did not render out of bounds.
+- `/writing` type filter pills overflow the right edge on mobile: Field Log and
+  Theory are offscreen at 430px, 390px, and 375px; Research also starts
+  offscreen at 320px.
+- The smallest patch is to make the Writing type filter row wrap or collapse
+  cleanly without changing feed/filter semantics.
+
+Current lane:
+
+```text
+PR456 - Top-Nav and Mobile Overflow Rehearsal
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_NEEDS_DAEDALUS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR456 and decide whether to open PR457 for DAEDALUS:
+  `Writing filter mobile wrap patch`.
+
 ## Latest MIMIR closeout - PR455 closed, PR456 opened
 
 MIMIR closes PR455:

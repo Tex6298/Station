@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR456 | Top-nav and mobile overflow rehearsal | ARIADNE / A4 | Open | `docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_ARIADNE.md` |
+| PR456 | Top-nav and mobile overflow rehearsal | MIMIR / A1 | Product defect needs DAEDALUS - waiting closeout | `docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR456 rehearsal | Top-nav and mobile overflow rehearsal | MIMIR -> ARIADNE -> MIMIR | Product defect; recommend PR457 Writing filter mobile wrap patch | `docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_REHEARSAL_RESULT.md` |
 | PR455 closeout | Empty, loading, and error state clarity rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR456 opened for top-nav/mobile overflow | `docs/roadmap/PR455_EMPTY_LOADING_ERROR_CLARITY_CLOSEOUT.md` |
 | PR455 rehearsal | Empty, loading, and error state clarity rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass with next lane; recommend top-nav/mobile overflow sweep | `docs/roadmap/PR455_EMPTY_LOADING_ERROR_CLARITY_REHEARSAL_RESULT.md` |
 | PR454 closeout | Mobile Studio wayfinding rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass with next lane; PR455 opened for empty/loading/error clarity | `docs/roadmap/PR454_MOBILE_STUDIO_WAYFINDING_CLOSEOUT.md` |
