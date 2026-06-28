@@ -31,7 +31,10 @@ DAEDALUS completed the implementation:
 ARGUS completed the review:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_REVIEW_RESULT.md`.
 
-Validation result: `ACCEPTED - READY FOR ARIADNE MEMORY CONTINUITY ARCHIVE HUMAN REHEARSAL`.
+ARIADNE completed the human-eye owner rehearsal:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RESULT.md`.
+
+Validation result: `NEEDS DAEDALUS`.
 
 Reason:
 
@@ -44,7 +47,11 @@ Reason:
   provenance/trust labels for Memory, Canon, Integrity, Continuity, and Archive
   source groups without changing API data shape;
 - ARGUS found no privacy boundary break, overclaim, or missed validation gate
-  requiring a review patch.
+  requiring a review patch;
+- ARIADNE's hosted owner browser rehearsal authenticated and loaded the persona
+  Studio route family, but the required runtime provenance/readback labels and
+  Canon, Integrity, Memory, and Archive review links were not browser-visible
+  on desktop or mobile.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
@@ -58,7 +65,8 @@ Reason:
 | Added-line sensitive scans | Reviewed | Hits were owner-only Studio copy, sanitizer helper/test references, fixed route labels, or docs text only. |
 | `test:replay-readiness`, `test:retrieval-metadata`, `test:continuity-publication`, API typecheck | Not run | Replay behavior, retrieval metadata, continuity publication behavior, API data shape, and API routes were not touched. |
 | ARGUS review | Pass | Owner-only routeability, sanitized provenance labels, replay truthfulness, and regression coverage are accepted. |
-| ARIADNE rehearsal | Pending after MIMIR routing | Human-eye owner flow through Memory/Continuity/Archive observability. |
+| Temporary Playwright hosted owner rehearsal | Fail | Replay-owner sign-in and desktop/mobile route loading succeeded without visible secret-shaped values, raw UUID-shaped values, horizontal overflow, or non-auth mutations, but the required observability readback and review links were absent in the browser route family. |
+| ARIADNE rehearsal | Needs DAEDALUS | Human-eye owner flow through Memory/Continuity/Archive observability is not accepted until DAEDALUS repairs or proves the route-body/readback issue and wakes ARIADNE for rerun. |
 
 Residual risk: reports, publishing approval, social, notification, persona,
 calibration, and other lower-priority route-level raw error responses remain

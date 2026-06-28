@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS verdict - Memory/Continuity/Archive observability accepted
+## Latest ARIADNE verdict - Memory/Continuity/Archive observability needs DAEDALUS
 
 MIMIR paused the route-level production error hardening sequence after Project
 route acceptance and opened the next feature boundary on 2026-06-28:
@@ -16,10 +16,13 @@ DAEDALUS completed the implementation on 2026-06-28:
 ARGUS completed Memory/Continuity/Archive observability review on 2026-06-28:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_REVIEW_RESULT.md`.
 
+ARIADNE completed the human-eye owner rehearsal on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RESULT.md`.
+
 Verdict:
 
 ```text
-ACCEPTED - READY FOR ARIADNE MEMORY CONTINUITY ARCHIVE HUMAN REHEARSAL
+NEEDS DAEDALUS
 ```
 
 Decision:
@@ -38,6 +41,13 @@ Decision:
   config behavior changed.
 - ARGUS found no privacy boundary break, overclaim, or missed validation gate
   requiring a review patch.
+- ARIADNE could authenticate as the replay owner and load the persona Studio
+  route family on hosted web, but the browser-visible owner flow did not expose
+  the required runtime context/provenance labels or routeable Canon, Integrity,
+  Memory, and Archive review links on desktop or mobile.
+- ARIADNE found no visible raw UUID-shaped values, secret-shaped values,
+  JWT-shaped values, authorization values, database URLs, document-level mobile
+  overflow, or non-auth mutating browser requests during the failed rehearsal.
 
 Validation:
 
@@ -50,14 +60,17 @@ Validation:
 - `git diff 34cf2a49 43e464e8 --check` passed.
 - Added-line sensitive scans were reviewed; hits were owner-only Studio copy,
   sanitizer helper/test references, fixed route labels, or docs text only.
+- Temporary Playwright hosted owner rehearsal failed the human-eye gate because
+  the required observability readback was not visible in the browser route
+  family.
 - Conditional replay-readiness, retrieval-metadata, continuity-publication, and
   API typecheck gates were not run because replay behavior, retrieval metadata,
   publication behavior, API data shape, and API routes were not touched.
 
 Current baton:
 
-- ARIADNE should complete the human-eye owner rehearsal in
-  `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE.md`.
+- DAEDALUS should repair or prove the owner-visible route-body/readback issue
+  and then wake ARIADNE for a rerun.
 - MIMIR has a deferred process wakeup to restore lightweight lane numbering
   before opening the next feature lane after this current observability lane
   closes.

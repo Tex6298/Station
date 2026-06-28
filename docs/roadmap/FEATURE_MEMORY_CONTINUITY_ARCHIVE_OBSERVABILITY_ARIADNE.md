@@ -6,13 +6,17 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
-Status: ready for human rehearsal
+Status: complete - needs DAEDALUS
 
 ## Trigger
 
 ARGUS accepted the Memory/Continuity/Archive observability implementation:
 
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_REVIEW_RESULT.md`
+
+ARIADNE result:
+
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RESULT.md`
 
 Verdict:
 
