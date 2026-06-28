@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR431 passed, PR432 opened
+
+MIMIR accepts ARIADNE's PR431 hosted rehearsal:
+
+`docs/roadmap/PR431_DEVSPACE_EXPORT_READBACK_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- The hosted export/readback loop is now closed: persona archive, Developer
+  Space archive, and Project manifest export/readback are proven within the
+  accepted owner-only JSON/Markdown boundary.
+- PR431 verified hosted web/API deployment freshness at PR430 product commit
+  `1d9bce0a` and found no privacy or overclaim leak on desktop or mobile.
+- The next roadmap pressure from current docs is retrieval/provider proof:
+  `station_free_1536` is the selected free-tier product-testing profile, but
+  the old blocker note says data-backed replay still requires migration `029`,
+  bounded reindex, and hostile retrieval smoke.
+- PR432 opens to turn that stale-or-live blocker into proof or an exact current
+  unblock request.
+
+Current lane:
+
+```text
+PR432 - station_free_1536 Retrieval Proof
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS if it can prove or safely patch the lane, or wake
+  MIMIR with the exact blocker if migration/reindex/hosted credentials are
+  still missing.
+
 ## Latest ARIADNE result - PR431 hosted Developer Space export readback passed
 
 ARIADNE completed PR431:
