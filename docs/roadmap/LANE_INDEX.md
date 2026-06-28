@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR438 | Owner BYOK settings and private replay unblock surface | MIMIR / A1 | ARGUS accepted; ready for closeout / next move | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
+| PR439 | BYOK secret storage and rotation preflight | ARGUS / A3 | Open - decide whether and how to harden BYOK key persistence | `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR438 closeout | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS -> MIMIR | Accepted; PR439 opened for secret-storage/rotation preflight before broader production hardening | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
 | PR438 review | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner BYOK Settings surface is owner-scoped, non-leak readback only, with Gemini/private NVIDIA still blocked | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md` |
 | PR438 implementation | Owner BYOK settings and private replay unblock surface | DAEDALUS -> ARGUS | Implemented; Settings exposes existing OpenAI/Anthropic/DeepSeek BYOK route without Gemini/private NVIDIA | `docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_RESULT.md` |
 | PR437 closeout | Gemini private chat provider preflight | MIMIR -> ARGUS -> MIMIR | Gemini rejected for immediate private chat; PR438 opened for supported BYOK surface while platform config remains external | `docs/roadmap/PR437_GEMINI_PRIVATE_CHAT_PROVIDER_PREFLIGHT_REVIEW_RESULT.md` |

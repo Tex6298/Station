@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR438 closed, PR439 opened
+
+MIMIR accepts ARGUS's PR438 review:
+
+`docs/roadmap/PR438_OWNER_BYOK_SETTINGS_UNBLOCK_REVIEW_RESULT.md`
+
+Decision:
+
+- PR438 closes the owner BYOK Settings/product gap for supported providers:
+  OpenAI, Anthropic, and DeepSeek.
+- Gemini remains embeddings-only/deferred for chat.
+- Private NVIDIA remains blocked for private replay/persona chat.
+- Hosted replay still needs accepted non-NVIDIA platform config or owner BYOK
+  credentials after deployment.
+- Because PR438 relies on existing `profiles.byok_*_key` storage, MIMIR opens
+  PR439 for ARGUS to decide secret-storage, rotation, compatibility, and audit
+  posture before broader production hardening claims.
+
+Current lane:
+
+```text
+PR439 - BYOK Secret Storage And Rotation Preflight
+Owner: ARGUS / A3
+State: OPEN
+```
+
+Current baton:
+
+- ARGUS should run:
+  `docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_ARGUS.md`.
+- ARGUS should wake MIMIR with a verdict and exact DAEDALUS task packet if
+  implementation should open.
+
 ## Latest ARGUS verdict - PR438 owner BYOK settings accepted
 
 ARGUS reviewed PR438:
