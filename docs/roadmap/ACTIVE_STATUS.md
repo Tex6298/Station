@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR428 API-backed proof spec opened
+
+Marty corrected the PR427 premise in commit `690c26cb`:
+
+```text
+Local Postgres tooling is not the intended unblock.
+```
+
+Decision:
+
+- PR427 local tooling acquisition is superseded.
+- DAEDALUS must stop local `psql`/`pg_dump` acquisition work and wait for the
+  corrected PR428 review result.
+- Station already has API-backed owner export and bundle readback routes, so
+  PR428 reframes the proof around those existing surfaces instead of local
+  database tooling.
+- The proof is an owner-only export and bundle integrity proof. It is not a
+  database restore proof, managed backup proof, full workspace backup, or
+  production disaster-recovery claim.
+
+Current lane:
+
+```text
+PR428 - API-backed Backup/Export Proof Spec
+Owner: ARGUS / A3
+State: OPEN
+```
+
+Current baton:
+
+- ARGUS should review:
+  `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_MIMIR.md`.
+- If accepted, ARGUS should wake DAEDALUS with exact proof guardrails.
+- If overclaimed or unsafe, ARGUS should wake MIMIR for correction.
+
 ## Latest ARGUS preflight - PR427 local tooling path accepted
 
 MIMIR accepts DAEDALUS's PR426 verdict:

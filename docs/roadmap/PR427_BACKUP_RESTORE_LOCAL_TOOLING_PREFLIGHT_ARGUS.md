@@ -8,7 +8,18 @@ Owner: ARGUS / A3
 
 Reviewer: MIMIR. Wake DAEDALUS only if the local tooling path is accepted.
 
-Status: accepted - wake DAEDALUS
+Status: superseded after acceptance - do not route DAEDALUS
+
+Superseded by:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_MIMIR.md`
+
+Correction:
+
+Marty corrected the premise in commit `690c26cb`: local Postgres tooling is not
+the intended unblock. Station has an API-backed owner export and bundle readback
+path available, so this local-tooling preflight is advisory history only.
+DAEDALUS must not acquire local `psql` or `pg_dump` from this lane.
 
 ARGUS result:
 
@@ -123,7 +134,6 @@ and only then attempt any accepted local disposable execute proof.
 
 ## Wakeup
 
-Wake MIMIR if rejected or needs decision.
+Superseded. Do not wake DAEDALUS from this lane.
 
-Wake DAEDALUS if accepted, with the exact local tooling guardrails and the next
-proof step.
+Use PR428 for the corrected API-backed proof direction.

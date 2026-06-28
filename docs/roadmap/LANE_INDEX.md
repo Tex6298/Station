@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR427 | Backup/restore local tooling acquisition | DAEDALUS / A2 | Open - wake DAEDALUS | `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_DAEDALUS.md` |
+| PR428 | API-backed backup/export proof spec | ARGUS / A3 | Open - review | `docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR427 | Backup/restore local tooling acquisition | ARGUS -> MIMIR | Superseded by Marty correction in `690c26cb`; do not acquire local tooling | `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_DAEDALUS.md` |
 | PR427 preflight | Backup/restore local tooling preflight | MIMIR -> ARGUS | Accepted local tooling path | `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md` |
 | PR426 | Post-observability next-lane selection | DAEDALUS -> MIMIR | Complete | `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md` |
 | MCA-OBS-01 | Memory/Continuity/Archive observability | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Passed human-eye gate | `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md` |
@@ -28,7 +29,7 @@ log.
 
 | Lane | State | Why Deferred | Resume Condition |
 | --- | --- | --- | --- |
-| Backup/restore local proof | Parked | This machine still lacks `psql`, `pg_dump`, Docker, and Supabase CLI. | Local-only Postgres tooling or an ARGUS-approved equivalent disposable local path exists. |
+| Backup/restore local proof | Superseded for current lane | Marty corrected that local Postgres tooling is not the intended unblock. | Reopen only by explicit MIMIR/product decision. |
 
 ## Numbering Rule
 

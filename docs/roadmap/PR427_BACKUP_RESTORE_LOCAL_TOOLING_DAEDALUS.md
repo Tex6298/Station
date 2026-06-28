@@ -6,13 +6,28 @@ Opened by: ARGUS / A3
 
 Owner: DAEDALUS / A2
 
-Status: open - wake DAEDALUS
+Status: superseded before implementation - stop local tooling work
+
+Superseded by:
+
+`docs/roadmap/PR428_API_BACKED_BACKUP_EXPORT_PROOF_SPEC_MIMIR.md`
+
+Correction:
+
+Marty corrected the premise in commit `690c26cb`: local Postgres tooling is not
+the intended unblock. Station has an API-backed owner export and bundle readback
+path available, so DAEDALUS must not download, install, wire, or validate local
+`psql` or `pg_dump` for this lane.
 
 ARGUS accepted the local tooling path in:
 
 `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_RESULT.md`
 
 ## Task
+
+Superseded. Do not execute this task.
+
+Historical task:
 
 Acquire local `psql` and `pg_dump` client tools, if possible, and unblock the
 parked local synthetic backup/restore proof without touching hosted data or
@@ -69,10 +84,6 @@ After local tool acquisition, also record sanitized evidence for:
 
 ## Wakeup
 
-Wake ARGUS with the local proof result if acquisition and proof execution stay
-inside the guardrails.
+Superseded. Do not wake ARGUS with a local tooling proof from this lane.
 
-Wake MIMIR if the path blocks on checksum trust, local disposable database
-availability, or any decision that would require system install, hosted data,
-real data, package/config/schema changes, Docker/Supabase CLI, workers, queues,
-or a broader product/security boundary.
+Wait for PR428 to pass ARGUS before taking backup/export proof work.
