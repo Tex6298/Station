@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR decision - restore proof parked, error sanitization opened
+## Latest DAEDALUS result - error sanitization ready for ARGUS
+
+DAEDALUS completed the global error sanitization implementation on 2026-06-28:
+`docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_RESULT.md`.
+
+Verdict:
+
+```text
+READY FOR ARGUS ERROR-SANITIZATION REVIEW
+```
+
+Decision:
+
+- Generic unhandled 500 responses now return a stable public-safe envelope
+  instead of raw exception messages.
+- The global handler logs a minimized sanitized summary instead of raw error
+  objects.
+- Bounded 4xx and 503 errors still pass through with sanitized public
+  messages, so deliberate operational errors are not broadened into generic
+  500s.
+- Focused middleware tests cover hostile 500 payloads, non-Error throws,
+  bounded 409 pass-through, exposed 503 sanitization, and exposed 400
+  sanitization.
+- No route business logic, auth/session semantics, schema, provider, Stripe,
+  UI, queue, or backup/restore work changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts`
+  passed, 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+
+Current baton:
+
+- ARGUS should hostile-review the global error handler and focused tests.
+- ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
+
+## Previous MIMIR decision - restore proof parked, error sanitization opened
 
 MIMIR parked the backup/restore local proof lane on 2026-06-28:
 `docs/roadmap/PRODUCTION_BACKUP_RESTORE_LOCAL_DEPENDENCY_BLOCKER_MIMIR.md`.
@@ -17,14 +54,10 @@ Decision:
   missing.
 - No hosted backup/restore substitute is authorized.
 
-Current baton:
+Result:
 
-- DAEDALUS has the next concrete production-risk lane:
-  `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_DAEDALUS.md`.
-- DAEDALUS should harden the global API error handler so unexpected 500
-  responses do not return raw exception messages, stack traces, SQL output,
-  provider payloads, URLs, tokens, raw ids, private snippets, cookies, or
-  secret-shaped values.
+- DAEDALUS completed the error sanitization lane:
+  `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_RESULT.md`.
 - Worker/queue activation remains deferred; existing roadmap evidence says to
   open worker execution only from one measured painful flow with a named job
   kind and owner-visible readback.

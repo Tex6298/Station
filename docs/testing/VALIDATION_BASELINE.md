@@ -25,6 +25,11 @@ they are not Station validation failures.
 MIMIR opened DAEDALUS error-boundary hardening on 2026-06-28:
 `docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_DAEDALUS.md`.
 
+DAEDALUS completed the implementation:
+`docs/roadmap/PRODUCTION_GLOBAL_ERROR_SANITIZATION_RESULT.md`.
+
+Validation result: `READY FOR ARGUS ERROR-SANITIZATION REVIEW`.
+
 Reason:
 
 - backup/restore local proof is parked on missing local Postgres tooling;
@@ -32,16 +37,14 @@ Reason:
 - the next concrete production-risk target is the global API error handler,
   which currently returns raw exception messages for generic 500 responses.
 
-Required validation for the DAEDALUS result:
-
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| Focused middleware test | Pass | Hostile raw messages must not be returned to the client. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | Required if TypeScript changes. |
-| `git diff --check` | Pass | Required for the patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts` | Pass | 5 tests passed; hostile raw messages are not returned to the client. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API TypeScript typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
 
-Residual risk: production error-boundary hardening is open until DAEDALUS
-patches it and ARGUS reviews.
+Residual risk: production error-boundary hardening is awaiting ARGUS hostile
+review. Full baseline replay was not required for this narrow middleware lane.
 
 ## Production Backup/Restore Local Dependency Blocker
 
