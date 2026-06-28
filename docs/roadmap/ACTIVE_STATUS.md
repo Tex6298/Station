@@ -4,6 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR steering - after PR441, bias toward product operation
+
+MIMIR received a steering wakeup on 2026-06-28:
+
+- Do not interrupt ARIADNE's active PR441 hosted readiness rehearsal unless her
+  verdict requires it.
+- After PR441 returns, harden only enough to make the current hosted/demo path
+  work safely.
+- If the next choice is between another extended hardening loop and visible
+  feature/product operation, bias toward getting Station running as a product.
+
 ## Latest MIMIR closeout - PR440 closed, PR441 opened
 
 MIMIR closes PR440:
