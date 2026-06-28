@@ -6,6 +6,22 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
+## Result
+
+ARIADNE completed the hosted rehearsal:
+
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RESULT.md`
+
+Verdict:
+
+```text
+MIGRATION_060_NOT_APPLIED
+```
+
+Hosted web/API deployment freshness passed at runtime commit `2880ac5d`, but
+authenticated `GET /settings/ai-provider` returned HTTP 500 before canary
+storage or private replay could safely run.
+
 ## Goal
 
 Run a human-eye hosted rehearsal for the encrypted owner BYOK path that PR440

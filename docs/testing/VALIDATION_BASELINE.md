@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR441 Hosted Encrypted BYOK Readiness
+
+ARIADNE completed PR441 on 2026-06-28:
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RESULT.md`.
+
+Validation result: `MIGRATION_060_NOT_APPLIED`.
+
+Reason:
+
+- hosted web/API deployment freshness passed at runtime commit `2880ac5d`;
+- runtime commit `2880ac5d` is after PR440 implementation commit `db18f104`;
+- replay-owner hosted API sign-in succeeded;
+- authenticated `GET /settings/ai-provider` returned HTTP 500 before provider
+  metadata could load;
+- no canary save, clear, private replay chat, or hosted mutation was attempted
+  after the Settings readback blocker.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 at runtime commit `2880ac5d`. |
+| Hosted API replay-owner sign-in | Pass | Sign-in succeeded; session values were not printed or committed. |
+| Hosted API `GET /settings/ai-provider` | Config-blocked | HTTP 500, matching the named migration/schema access blocker. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: PR441 still needs hosted migration/schema access, encryption
+config proof through canary save/readback/clear, and a real accepted private
+provider route or owner BYOK before a full pass is possible.
+
 ## PR440 Encrypted Owner BYOK Storage Review
 
 ARGUS completed PR440 review on 2026-06-28:

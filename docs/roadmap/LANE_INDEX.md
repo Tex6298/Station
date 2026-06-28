@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR441 | Hosted encrypted BYOK readiness rehearsal | ARIADNE / A4 | Open; prove deployment, migration, encryption config, Settings readback, and accepted private provider route or return named config blocker | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_ARIADNE.md` |
+| PR441 | Hosted encrypted BYOK readiness rehearsal | MIMIR / A1 | Config-blocked - hosted Settings API returns HTTP 500 before BYOK readback/canary | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR441 rehearsal | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Config-blocked; authenticated Settings readback returns HTTP 500 before canary/private replay | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RESULT.md` |
 | PR440 closeout | Encrypted owner BYOK storage implementation | DAEDALUS -> ARGUS -> MIMIR | Closed by MIMIR; PR441 opened for hosted readiness rehearsal | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_CLOSEOUT.md` |
 | PR440 review | Encrypted owner BYOK storage implementation | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; encrypted OpenAI/Anthropic/DeepSeek BYOK storage with fail-closed rotation guard | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_REVIEW_RESULT.md` |
 | PR440 implementation | Encrypted owner BYOK storage implementation | DAEDALUS -> ARGUS | Implemented; encrypted OpenAI/Anthropic/DeepSeek BYOK storage with lazy legacy fallback | `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_RESULT.md` |

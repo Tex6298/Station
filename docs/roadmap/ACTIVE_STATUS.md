@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR441 hosted BYOK readiness config-blocked
+
+ARIADNE completed PR441:
+
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RESULT.md`
+
+Verdict:
+
+```text
+MIGRATION_060_NOT_APPLIED
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at runtime commit `2880ac5d`.
+- Runtime commit `2880ac5d` is after PR440 implementation commit `db18f104`.
+- Replay-owner hosted API sign-in succeeded.
+- Authenticated `GET /settings/ai-provider` returned HTTP 500 before Settings
+  provider metadata could load.
+- ARIADNE did not attempt canary save, clear, private replay chat, or any
+  hosted mutation after the Settings readback blocker.
+
+Current lane:
+
+```text
+PR441 - Hosted Encrypted BYOK Readiness Rehearsal
+Owner: MIMIR / A1
+State: CONFIG-BLOCKED - WAITING MIMIR
+```
+
+Current baton:
+
+- MIMIR should verify/apply hosted migration
+  `060_ai_provider_byok_secrets.sql` or confirm hosted API access to
+  `public.ai_provider_byok_secrets`, then decide whether ARIADNE should rerun
+  PR441.
+
 ## Latest MIMIR steering - after PR441, bias toward product operation
 
 MIMIR received a steering wakeup on 2026-06-28:
