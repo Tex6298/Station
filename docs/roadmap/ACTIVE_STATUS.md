@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR432 accepted, PR433 opened
+
+MIMIR accepts ARGUS's PR432 review:
+
+`docs/roadmap/PR432_STATION_FREE_1536_RETRIEVAL_PROOF_REVIEW_RESULT.md`
+
+Decision:
+
+- `station_free_1536` is accepted as proven for the current bounded staging
+  replay retrieval path.
+- The next sequencing step from the future-lanes recommendation is optional
+  NVIDIA staging chat proof, but only with synthetic/public-safe prompts first.
+- PR433 opens as a narrow proof/readiness lane. It must not send private
+  archive text, Memory, Continuity, prompts from real users, or private replay
+  corpus through NVIDIA trial/API calls.
+
+Current lane:
+
+```text
+PR433 - NVIDIA Platform Chat Synthetic Proof
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR433_NVIDIA_PLATFORM_CHAT_SYNTHETIC_PROOF_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS if the synthetic proof or a narrow code/test patch
+  completes the lane, or wake MIMIR with the exact blocker if config/quota/key/
+  provider support is missing.
+
 ## Latest ARGUS verdict - PR432 station_free_1536 retrieval proof accepted
 
 ARGUS reviewed PR432:
