@@ -128,6 +128,7 @@ test("archive trust scope rows separate import sources, chats, storage, and cont
 
 test("archive trust scope rows do not fake unavailable counts", () => {
   const rows = archiveTrustScopeRows([], [], null);
+  const archivedChatRow = rows.find((row) => row.id === "archived-chats");
 
   assert.deepEqual(rows.map((row) => [row.id, row.value, row.tone]), [
     ["import-sources", "0", "info"],
@@ -135,7 +136,9 @@ test("archive trust scope rows do not fake unavailable counts", () => {
     ["storage-content", "Usage panel", "info"],
     ["continuity-links", "Not broken out", "info"],
   ]);
-  assert.match(rows.find((row) => row.id === "archived-chats")?.body ?? "", /does not guess/);
+  assert.match(archivedChatRow?.body ?? "", /does not guess/);
+  assert.match(archivedChatRow?.nextAction ?? "", /cannot show the archived-chat count/);
+  assert.doesNotMatch(archivedChatRow?.nextAction ?? "", /zero/i);
   assert.match(rows.find((row) => row.id === "continuity-links")?.body ?? "", /does not guess/);
   assert.match(rows.find((row) => row.id === "import-sources")?.body ?? "", /Archived conversations are counted separately/);
 });

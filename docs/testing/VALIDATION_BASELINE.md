@@ -25,7 +25,10 @@ they are not Station validation failures.
 DAEDALUS implemented PR452 on 2026-06-28:
 `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+ARGUS accepted PR452 on 2026-06-28 after a narrow copy/test patch:
+`docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
 
 Reason:
 
@@ -37,6 +40,7 @@ Reason:
   Archive route;
 - empty, failed, processing, and completed import states remain visible through
   the existing Archive status cards;
+- unavailable archived-chat counts are not described as zero;
 - no backend, schema, auth/session, archive execution, storage, export,
   runtime retrieval, publication, provider, billing, or Developer Space behavior
   changed.
@@ -50,13 +54,13 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Completed with exit code 0. |
 | `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 API typecheck was not run because PR452 changed only web UI/helper code and
 docs.
 
-Residual risk: ARGUS should confirm the new readback remains owner-only, does
-not fake unavailable Continuity-linked archive counts, and reads cleanly on
-mobile.
+Residual risk: limited to hosted visual confirmation if MIMIR wants a browser
+rehearsal.
 
 ## PR451 Hosted Continuity Review Links Rehearsal
 

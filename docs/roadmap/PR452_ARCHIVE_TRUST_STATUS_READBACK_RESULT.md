@@ -8,13 +8,17 @@ Date: 2026-06-28
 
 ## Verdict
 
-PR452 is ready for ARGUS review.
+PR452 was accepted by ARGUS after a narrow review patch.
 
 The owner-only persona Archive/files route now separates source-count semantics
 from archived chats, storage/imported content, and Continuity-linked archive
 readback. Counts use only data already available from owner-safe route state.
 Unavailable archive-linked Continuity counts are labelled honestly instead of
 being guessed.
+
+ARGUS result:
+
+`docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_REVIEW_RESULT.md`
 
 ## What Changed
 
@@ -27,6 +31,8 @@ being guessed.
   - server-reported storage usage;
   - Continuity-linked archive material not being broken out on this route;
   - unavailable counts staying explicit instead of being faked.
+- ARGUS patched unavailable archived-chat count copy so `Not tracked here` is
+  not described as zero.
 
 ## Readback Semantics
 
@@ -70,6 +76,8 @@ Passed on 2026-06-28:
   - passed.
 - `git diff --check`
   - passed with line-ending normalization warnings only.
+- `git diff --cached --check`
+  - passed.
 
 Notes:
 
@@ -77,14 +85,10 @@ Notes:
 - API typecheck was not run because PR452 changed only web UI/helper code and
   docs.
 
-## ARGUS Review Points
+## ARGUS Review
 
-- Confirm the new readback does not fake unavailable archive-linked Continuity
-  counts.
-- Confirm `0` pasted/file import sources does not read as "no Archive-backed
-  material."
-- Confirm archived chats and storage usage remain distinct from import source
-  counts.
-- Confirm mobile readability stays within the existing responsive Archive
-  layout.
-- Confirm no backend/storage/import/continuity semantics changed.
+ARGUS confirmed the new readback does not fake unavailable archive-linked
+Continuity counts, `0` pasted/file import sources does not read as "no
+Archive-backed material," archived chats and storage usage remain distinct from
+import source counts, mobile readability stays within the existing responsive
+Archive layout, and no backend/storage/import/continuity semantics changed.

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR452 | Archive trust status readback | ARGUS / A3 | Ready for review | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_RESULT.md` |
+| PR452 | Archive trust status readback | MIMIR / A1 | ARGUS accepted; ready for closeout | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR452 review | Archive trust status readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow ARGUS copy/test patch | `docs/roadmap/PR452_ARCHIVE_TRUST_STATUS_READBACK_REVIEW_RESULT.md` |
 | PR451 closeout | Hosted Continuity review links rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed pass; PR452 opened for Archive trust/status readback | `docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_CLOSEOUT.md` |
 | PR451 rehearsal | Hosted Continuity review links rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; Continuity review links are visible, safe, and readable on desktop/mobile | `docs/roadmap/PR451_HOSTED_CONTINUITY_REVIEW_LINKS_RESULT.md` |
 | PR450 closeout | Continuity review target route links | DAEDALUS -> ARGUS -> MIMIR | Closed; PR451 opened for hosted browser verification | `docs/roadmap/PR450_CONTINUITY_REVIEW_TARGET_LINKS_CLOSEOUT.md` |

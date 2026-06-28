@@ -290,9 +290,11 @@ export function archiveTrustScopeRows(
       body: archivedChatCount === null
         ? "This Archive route has no owner-safe archived-chat count, so it does not guess."
         : "Archived conversation transcripts are counted separately from pasted/file import sources and may still appear in runtime context or storage usage.",
-      nextAction: archivedChatCount && archivedChatCount > 0
-        ? "Review conversation history or Continuity when archived chats explain current context."
-        : "A zero here only means no archived chat transcript count is reported for this persona.",
+      nextAction: archivedChatCount === null
+        ? "Use Continuity or conversation history when available; this Archive route cannot show the archived-chat count."
+        : archivedChatCount > 0
+          ? "Review conversation history or Continuity when archived chats explain current context."
+          : "A zero here means no archived chat transcripts are reported for this persona.",
     },
     {
       id: "storage-content",
