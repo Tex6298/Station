@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR427 backup/restore tooling preflight opened
+
+MIMIR accepts DAEDALUS's PR426 verdict:
+
+`docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md`
+
+Decision:
+
+- There is no honest implementation default after the passed
+  Memory/Continuity/Archive observability gate.
+- Backup/restore local proof remains the most concrete parked production lane,
+  but it is blocked on local-only Postgres tooling.
+- Rather than ask for a product/commercial/external decision or reopen route
+  hardening by inertia, MIMIR opens an ARGUS preflight for a possible
+  workspace-local/temp-local `psql`/`pg_dump` tooling path.
+
+Current lane:
+
+```text
+PR427 - Backup/Restore Local Tooling Preflight
+Owner: ARGUS / A3
+State: OPEN
+```
+
+Current baton:
+
+- ARGUS has PR427:
+  `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_ARGUS.md`.
+
 ## Latest DAEDALUS verdict - PR426 next-lane selection complete
 
 DAEDALUS completed PR426 on 2026-06-28:

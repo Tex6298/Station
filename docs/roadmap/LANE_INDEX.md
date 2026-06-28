@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR426 | Post-observability next-lane selection | DAEDALUS / A2 | Complete - wake MIMIR | `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md` |
+| PR427 | Backup/restore local tooling preflight | ARGUS / A3 | Open - wake ARGUS | `docs/roadmap/PR427_BACKUP_RESTORE_LOCAL_TOOLING_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR426 | Post-observability next-lane selection | DAEDALUS -> MIMIR | Complete | `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_RESULT.md` |
 | MCA-OBS-01 | Memory/Continuity/Archive observability | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Passed human-eye gate | `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md` |
 | PROD-PROJECT-ERR-01 | Project route error responses | DAEDALUS -> ARGUS -> MIMIR | Accepted | `docs/roadmap/PRODUCTION_PROJECT_ERROR_RESPONSE_REVIEW_RESULT.md` |
 | PROD-DEVSPACE-OPS-ERR-01 | Developer Space operations error responses | DAEDALUS -> ARGUS -> MIMIR | Accepted | `docs/roadmap/PRODUCTION_DEVELOPER_SPACE_OPERATIONS_ERROR_RESPONSE_REVIEW_RESULT.md` |
