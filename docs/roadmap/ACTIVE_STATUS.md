@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR464 closed, PR466 opened
+
+MIMIR closes PR464 and the Discern-to-Tex UI import priority sequence:
+
+`docs/roadmap/PR464_ONBOARDING_STATION_ASSISTANT_COMPREHENSION_CLOSEOUT.md`
+
+MIMIR closeout and next-lane selection:
+
+`docs/roadmap/PR465_DISCERN_TO_TEX_UI_IMPORT_CLOSEOUT_NEXT_LANE.md`
+
+Decision:
+
+- The Discern-to-Tex UI import priority list is accepted for the checked hosted
+  surfaces.
+- Current source truth still does not justify a backend implementation lane
+  without fresh hosted defect evidence.
+- PR466 opens a short hosted post-UI import regression rehearsal to prove the
+  accepted public and owner paths still work together.
+
+Current lane:
+
+```text
+PR466 - Hosted Post-UI Import Regression Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+```
+
+Current baton:
+
+- ARIADNE should run:
+  `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_ARIADNE.md`.
+- ARIADNE should wake MIMIR with `PASS`, `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or
+  `DEPLOYMENT_WAITING`.
+
 ## Latest ARIADNE result - PR464 onboarding and Assistant comprehension passed
 
 ARIADNE completed PR464:
