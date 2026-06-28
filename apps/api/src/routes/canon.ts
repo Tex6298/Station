@@ -10,6 +10,13 @@ const createSchema = z.object({
   priority: z.number().int().min(1).max(10).optional(),
 });
 
+const CANON_ERROR_RESPONSES = {
+  list: { error: "Could not load canon items.", code: "canon_list_failed" },
+  create: { error: "Could not create canon item.", code: "canon_create_failed" },
+  update: { error: "Could not update canon item.", code: "canon_update_failed" },
+  delete: { error: "Could not delete canon item.", code: "canon_delete_failed" },
+} as const;
+
 export const canonRouter = Router();
 canonRouter.use(requireAuth);
 
@@ -25,7 +32,7 @@ canonRouter.get("/persona/:personaId", async (req, res) => {
     .eq("owner_user_id", userId)
     .order("priority", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CANON_ERROR_RESPONSES.list);
   return res.json({ canon: data });
 });
 
@@ -60,7 +67,7 @@ canonRouter.post("/persona/:personaId", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CANON_ERROR_RESPONSES.create);
   return res.status(201).json({ canonItem: data });
 });
 
@@ -84,7 +91,7 @@ canonRouter.patch("/:id", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CANON_ERROR_RESPONSES.update);
   if (!data) return res.status(404).json({ error: "Canon item not found." });
   return res.json({ canonItem: data });
 });
@@ -100,6 +107,6 @@ canonRouter.delete("/:id", async (req, res) => {
     .eq("id", req.params.id)
     .eq("owner_user_id", userId);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(CANON_ERROR_RESPONSES.delete);
   return res.status(204).send();
 });

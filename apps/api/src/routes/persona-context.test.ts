@@ -22,6 +22,8 @@ const MEMORY_REPLACEMENT_ID = "44444444-4444-4444-8444-444444444444";
 const OTHER_MEMORY_ID = "55555555-5555-4555-8555-555555555555";
 
 class InMemorySupabase {
+  operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
+
   tables: Record<string, Row[]> = {
     profiles: [
       {
@@ -573,7 +575,7 @@ class QueryBuilder {
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
   private selectedColumns = "*";
-  private operation: "select" | "insert" | "update" | "upsert" = "select";
+  private operation: "select" | "insert" | "update" | "upsert" | "delete" = "select";
   private payload: Row | Row[] | null = null;
   private upsertConflictFields: string[] = [];
 
@@ -613,6 +615,11 @@ class QueryBuilder {
   update(payload: Row) {
     this.operation = "update";
     this.payload = payload;
+    return this;
+  }
+
+  delete() {
+    this.operation = "delete";
     return this;
   }
 
@@ -663,6 +670,16 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
+    const operationErrorKey = `${this.operation}:${this.table}`;
+    const operationError = this.db.operationErrors.get(operationErrorKey);
+    if (operationError) {
+      this.db.operationErrors.delete(operationErrorKey);
+      return {
+        data: mode === "single" || mode === "maybeSingle" ? null : [],
+        error: operationError,
+      };
+    }
+
     let rows: Row[];
     if (this.operation === "insert") {
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
@@ -676,6 +693,10 @@ class QueryBuilder {
         Object.assign(row, this.payload);
         if ("updated_at" in row) row.updated_at = "2026-05-25T10:30:00.000Z";
       }
+    } else if (this.operation === "delete") {
+      const rowsToDelete = new Set(this.matchingRows());
+      this.db.tables[this.table] = this.db.rows(this.table).filter((row) => !rowsToDelete.has(row));
+      rows = [...rowsToDelete];
     } else {
       rows = this.matchingRows();
     }
@@ -743,13 +764,15 @@ function clone<T>(value: T): T {
 }
 
 async function createPersonaContextApp() {
-  const [{ conversationsRouter }, { memoryRouter }] = await Promise.all([
+  const [{ conversationsRouter }, { canonRouter }, { memoryRouter }] = await Promise.all([
     import("./conversations.js"),
+    import("./canon.js"),
     import("./memory.js"),
   ]);
   const app = express();
   app.use(express.json());
   app.use("/conversations", conversationsRouter);
+  app.use("/canon", canonRouter);
   app.use("/memory", memoryRouter);
   return app;
 }
@@ -793,6 +816,264 @@ function close(server: Server) {
     server.close((error) => error ? reject(error) : resolve());
   });
 }
+
+const memoryCanonHiddenMarker = "private-" + "memory-canon-marker";
+const memoryCanonBearerLabel = "Bear" + "er";
+const memoryCanonUrl = `https://storage.example.test/memory/${memoryCanonHiddenMarker}`;
+const memoryCanonToken = `memory-token-${memoryCanonHiddenMarker}`;
+const memoryCanonStoragePath = `${OWNER_ID}/${PERSONA_ID}/memory/${memoryCanonHiddenMarker}.json`;
+
+function hostileMemoryCanonError(operation: string) {
+  return {
+    code: "XX999",
+    message: [
+      `${operation} failed in memory_items, canon_items, owner_memory_blocks, memory_item_lifecycle, memory_item_edges`,
+      `owner_user_id=${OWNER_ID} persona_id=${PERSONA_ID} memory_id=memory-1 canon_id=canon-high edge_id=memory_item_edges-${memoryCanonHiddenMarker}`,
+      `source_id=persona-file-${memoryCanonHiddenMarker} storage_path=${memoryCanonStoragePath}`,
+      `url=${memoryCanonUrl}`,
+      `token=${memoryCanonToken}`,
+      `${memoryCanonBearerLabel} abc.${memoryCanonHiddenMarker}.token`,
+      `provider payload: private memory canon content ${memoryCanonHiddenMarker}`,
+      "SQL stack trace at memoryCanonRoute (/station/private/memory.ts:1:2)",
+    ].join("; "),
+    details: `memory/canon details ${memoryCanonHiddenMarker}`,
+  };
+}
+
+function assertSafeMemoryCanonRouteError(body: unknown) {
+  const text = JSON.stringify(body);
+  for (const unsafe of [
+    memoryCanonHiddenMarker,
+    memoryCanonUrl,
+    memoryCanonToken,
+    memoryCanonStoragePath,
+    memoryCanonBearerLabel,
+    "memory_items",
+    "canon_items",
+    "owner_memory_blocks",
+    "memory_item_lifecycle",
+    "memory_item_edges",
+    "owner_user_id",
+    "persona_id",
+    "memory_id",
+    "canon_id",
+    "edge_id",
+    "source_id",
+    "provider payload",
+    "private memory canon content",
+    "SQL stack trace",
+    "memoryCanonRoute",
+  ]) {
+    assert.equal(text.includes(unsafe), false, unsafe);
+  }
+}
+
+function addRouteErrorGraphItems(db: InMemorySupabase) {
+  const sourceId = "66666666-6666-4666-8666-666666666666";
+  const targetId = "77777777-7777-4777-8777-777777777777";
+  db.tables.memory_items.push(
+    {
+      id: sourceId,
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      title: "Explicit source",
+      content: "Owner-visible source memory.",
+      summary: "Source summary.",
+      source_type: "manual",
+      relevance_weight: 1,
+      created_at: "2026-05-25T09:31:00.000Z",
+      updated_at: "2026-05-25T09:31:00.000Z",
+    },
+    {
+      id: targetId,
+      persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      title: "Explicit target",
+      content: "Owner-visible target memory.",
+      summary: "Target summary.",
+      source_type: "manual",
+      relevance_weight: 1,
+      created_at: "2026-05-25T09:32:00.000Z",
+      updated_at: "2026-05-25T09:32:00.000Z",
+    }
+  );
+  return { sourceId, targetId };
+}
+
+test("memory and canon route errors return stable public copy without private details", async () => {
+  async function expectRouteError(
+    configure: (db: InMemorySupabase) => void,
+    run: (app: Express, db: InMemorySupabase) => Promise<{ status: number; body: unknown }>,
+    expectedBody: Row,
+    inspect?: (db: InMemorySupabase) => void
+  ) {
+    const db = new InMemorySupabase();
+    configure(db);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createPersonaContextApp();
+
+    try {
+      const response = await run(app, db);
+      assert.equal(response.status, 500);
+      assert.deepEqual(response.body, expectedBody);
+      assertSafeMemoryCanonRouteError(response.body);
+      inspect?.(db);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:owner_memory_blocks", hostileMemoryCanonError("shared list")),
+    (app) => requestJson(app, "GET", "/memory/shared", { token: "owner-token" }),
+    { error: "Could not load shared memory.", code: "shared_memory_list_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:owner_memory_blocks", hostileMemoryCanonError("shared create")),
+    (app) => requestJson(app, "POST", "/memory/shared", {
+      token: "owner-token",
+      body: { title: "Private style", content: "Keep continuity steady." },
+    }),
+    { error: "Could not save shared memory.", code: "shared_memory_create_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:memory_items", hostileMemoryCanonError("briefing")),
+    (app) => requestJson(app, "GET", `/memory/persona/${PERSONA_ID}/briefing`, { token: "owner-token" }),
+    { error: "Could not build memory briefing.", code: "memory_briefing_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:memory_items", hostileMemoryCanonError("graph items")),
+    (app) => requestJson(app, "GET", `/memory/persona/${PERSONA_ID}/graph`, { token: "owner-token" }),
+    { error: "Could not load memory graph items.", code: "memory_graph_items_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:memory_item_edges", hostileMemoryCanonError("graph edges")),
+    (app) => requestJson(app, "GET", `/memory/persona/${PERSONA_ID}/graph`, { token: "owner-token" }),
+    { error: "Could not load memory graph edges.", code: "memory_graph_edges_failed" }
+  );
+
+  await expectRouteError(
+    (db) => {
+      addRouteErrorGraphItems(db);
+      db.operationErrors.set("select:memory_items", hostileMemoryCanonError("edge item verify"));
+    },
+    (app, db) => {
+      const source = db.tables.memory_items.at(-2)!.id;
+      const target = db.tables.memory_items.at(-1)!.id;
+      return requestJson(app, "POST", `/memory/persona/${PERSONA_ID}/edges`, {
+        token: "owner-token",
+        body: { fromMemoryItemId: source, toMemoryItemId: target, edgeType: "supports" },
+      });
+    },
+    { error: "Could not verify memory graph items.", code: "memory_graph_edge_items_failed" }
+  );
+
+  await expectRouteError(
+    (db) => {
+      addRouteErrorGraphItems(db);
+      db.operationErrors.set("upsert:memory_item_edges", hostileMemoryCanonError("edge create"));
+    },
+    (app, db) => {
+      const source = db.tables.memory_items.at(-2)!.id;
+      const target = db.tables.memory_items.at(-1)!.id;
+      return requestJson(app, "POST", `/memory/persona/${PERSONA_ID}/edges`, {
+        token: "owner-token",
+        body: { fromMemoryItemId: source, toMemoryItemId: target, edgeType: "supports" },
+      });
+    },
+    { error: "Could not create memory graph edge.", code: "memory_graph_edge_create_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:memory_items", hostileMemoryCanonError("memory list")),
+    (app) => requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    { error: "Could not load memory items.", code: "memory_list_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:memory_item_lifecycle", hostileMemoryCanonError("memory list lifecycle")),
+    (app) => requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    { error: "Could not load memory lifecycle.", code: "memory_list_lifecycle_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:memory_items", hostileMemoryCanonError("memory create")),
+    (app) => requestJson(app, "POST", `/memory/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+      body: { title: "New memory", content: "Owner-approved memory item.", sourceType: "manual" },
+    }),
+    { error: "Could not create memory item.", code: "memory_create_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("update:memory_item_lifecycle", hostileMemoryCanonError("memory lifecycle")),
+    (app) => requestJson(app, "PATCH", "/memory/memory-1/lifecycle", {
+      token: "owner-token",
+      body: { status: "quarantined" },
+    }),
+    { error: "Could not update memory lifecycle.", code: "memory_lifecycle_update_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("upsert:memory_item_edges", hostileMemoryCanonError("memory lifecycle edge")),
+    (app) => requestJson(app, "PATCH", "/memory/memory-1/lifecycle", {
+      token: "owner-token",
+      body: { status: "superseded", supersededByMemoryItemId: MEMORY_REPLACEMENT_ID },
+    }),
+    { error: "Could not record memory lifecycle edge.", code: "memory_lifecycle_edge_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("update:memory_items", hostileMemoryCanonError("memory update")),
+    (app) => requestJson(app, "PATCH", "/memory/memory-1", {
+      token: "owner-token",
+      body: { summary: "Updated private memory summary." },
+    }),
+    { error: "Could not update memory item.", code: "memory_update_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("delete:memory_items", hostileMemoryCanonError("memory delete")),
+    (app) => requestJson(app, "DELETE", "/memory/memory-1", { token: "owner-token" }),
+    { error: "Could not delete memory item.", code: "memory_delete_failed" },
+    (db) => assert.equal(db.tables.memory_items.some((memory) => memory.id === "memory-1"), true)
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("select:canon_items", hostileMemoryCanonError("canon list")),
+    (app) => requestJson(app, "GET", `/canon/persona/${PERSONA_ID}`, { token: "owner-token" }),
+    { error: "Could not load canon items.", code: "canon_list_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("insert:canon_items", hostileMemoryCanonError("canon create")),
+    (app) => requestJson(app, "POST", `/canon/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+      body: { title: "New canon", content: "Owner-approved canon.", priority: 5 },
+    }),
+    { error: "Could not create canon item.", code: "canon_create_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("update:canon_items", hostileMemoryCanonError("canon update")),
+    (app) => requestJson(app, "PATCH", "/canon/canon-high", {
+      token: "owner-token",
+      body: { title: "Updated canon" },
+    }),
+    { error: "Could not update canon item.", code: "canon_update_failed" }
+  );
+
+  await expectRouteError(
+    (db) => db.operationErrors.set("delete:canon_items", hostileMemoryCanonError("canon delete")),
+    (app) => requestJson(app, "DELETE", "/canon/canon-high", { token: "owner-token" }),
+    { error: "Could not delete canon item.", code: "canon_delete_failed" },
+    (db) => assert.equal(db.tables.canon_items.some((canon) => canon.id === "canon-high"), true)
+  );
+});
 
 test("persona runtime context is owner-only and orders canon ahead of memory", async () => {
   const db = new InMemorySupabase();

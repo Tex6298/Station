@@ -79,6 +79,23 @@ const lifecyclePatchSchema = z.object({
   message: "At least one lifecycle field must be provided.",
 });
 
+const MEMORY_ERROR_RESPONSES = {
+  sharedList: { error: "Could not load shared memory.", code: "shared_memory_list_failed" },
+  sharedCreate: { error: "Could not save shared memory.", code: "shared_memory_create_failed" },
+  briefing: { error: "Could not build memory briefing.", code: "memory_briefing_failed" },
+  graphItems: { error: "Could not load memory graph items.", code: "memory_graph_items_failed" },
+  graphEdges: { error: "Could not load memory graph edges.", code: "memory_graph_edges_failed" },
+  graphEdgeItems: { error: "Could not verify memory graph items.", code: "memory_graph_edge_items_failed" },
+  graphEdgeCreate: { error: "Could not create memory graph edge.", code: "memory_graph_edge_create_failed" },
+  list: { error: "Could not load memory items.", code: "memory_list_failed" },
+  listLifecycle: { error: "Could not load memory lifecycle.", code: "memory_list_lifecycle_failed" },
+  create: { error: "Could not create memory item.", code: "memory_create_failed" },
+  lifecycleEdge: { error: "Could not record memory lifecycle edge.", code: "memory_lifecycle_edge_failed" },
+  lifecycleUpdate: { error: "Could not update memory lifecycle.", code: "memory_lifecycle_update_failed" },
+  update: { error: "Could not update memory item.", code: "memory_update_failed" },
+  delete: { error: "Could not delete memory item.", code: "memory_delete_failed" },
+} as const;
+
 export const memoryRouter = Router();
 memoryRouter.use(requireAuth);
 
@@ -87,9 +104,8 @@ memoryRouter.get("/shared", async (req, res) => {
   try {
     const blocks = await listOwnerMemoryBlocks(req.user!.id);
     return res.json({ blocks: blocks.map(serializeOwnerMemoryBlock) });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to load shared memory.";
-    return res.status(500).json({ error: message });
+  } catch {
+    return res.status(500).json(MEMORY_ERROR_RESPONSES.sharedList);
   }
 });
 
@@ -108,9 +124,8 @@ memoryRouter.post("/shared", async (req, res) => {
       sourceRefs: parsed.data.sourceRefs,
     });
     return res.status(201).json({ block: serializeOwnerMemoryBlock(block) });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to save shared memory.";
-    return res.status(500).json({ error: message });
+  } catch {
+    return res.status(500).json(MEMORY_ERROR_RESPONSES.sharedCreate);
   }
 });
 
@@ -131,9 +146,8 @@ memoryRouter.get("/persona/:personaId/briefing", async (req, res) => {
   try {
     const briefing = await buildPersonaMemoryBriefing(persona.id, userId);
     return res.json({ briefing });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to build memory briefing.";
-    return res.status(500).json({ error: message });
+  } catch {
+    return res.status(500).json(MEMORY_ERROR_RESPONSES.briefing);
   }
 });
 
@@ -168,8 +182,8 @@ memoryRouter.get("/persona/:personaId/graph", async (req, res) => {
       .limit(200),
   ]);
 
-  if (itemsResult.error) return res.status(500).json({ error: itemsResult.error.message });
-  if (edgesResult.error) return res.status(500).json({ error: edgesResult.error.message });
+  if (itemsResult.error) return res.status(500).json(MEMORY_ERROR_RESPONSES.graphItems);
+  if (edgesResult.error) return res.status(500).json(MEMORY_ERROR_RESPONSES.graphEdges);
 
   return res.json({
     graph: {
@@ -219,7 +233,7 @@ memoryRouter.post("/persona/:personaId/edges", async (req, res) => {
     .eq("owner_user_id", userId)
     .in("id", [parsed.data.fromMemoryItemId, parsed.data.toMemoryItemId]);
 
-  if (itemError) return res.status(500).json({ error: itemError.message });
+  if (itemError) return res.status(500).json(MEMORY_ERROR_RESPONSES.graphEdgeItems);
   if ((items ?? []).length !== 2) {
     return res.status(404).json({ error: "Both memory items must belong to this persona." });
   }
@@ -238,7 +252,7 @@ memoryRouter.post("/persona/:personaId/edges", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(MEMORY_ERROR_RESPONSES.graphEdgeCreate);
 
   await recordPersonaLifecycleEvent({
     personaId: persona.id,
@@ -278,7 +292,7 @@ memoryRouter.get("/persona/:personaId", async (req, res) => {
     .eq("owner_user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(MEMORY_ERROR_RESPONSES.list);
   let lifecycleByMemoryId;
   try {
     lifecycleByMemoryId = await loadMemoryLifecycleByItemIds({
@@ -286,9 +300,8 @@ memoryRouter.get("/persona/:personaId", async (req, res) => {
       ownerUserId: userId,
       personaId: req.params.personaId,
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to load memory lifecycle.";
-    return res.status(500).json({ error: message });
+  } catch {
+    return res.status(500).json(MEMORY_ERROR_RESPONSES.listLifecycle);
   }
   return res.json({
     memory: (data ?? []).map((row: any) => {
@@ -340,9 +353,8 @@ memoryRouter.post("/persona/:personaId", async (req, res) => {
       sourceType: parsed.data.sourceType,
     });
     return res.status(201).json({ memoryItem: { ...item, lifecycle: serializeMemoryLifecycle(lifecycle) } });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to create memory item.";
-    return res.status(500).json({ error: message });
+  } catch {
+    return res.status(500).json(MEMORY_ERROR_RESPONSES.create);
   }
 });
 
@@ -417,7 +429,7 @@ memoryRouter.patch("/:id/lifecycle", async (req, res) => {
         .select("*")
         .single();
 
-      if (edgeError) return res.status(500).json({ error: edgeError.message });
+      if (edgeError) return res.status(500).json(MEMORY_ERROR_RESPONSES.lifecycleEdge);
     }
 
     await recordPersonaLifecycleEvent({
@@ -433,9 +445,8 @@ memoryRouter.patch("/:id/lifecycle", async (req, res) => {
     }).catch(() => undefined);
 
     return res.json({ lifecycle: serializeMemoryLifecycle(lifecycle) });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to update memory lifecycle.";
-    return res.status(500).json({ error: message });
+  } catch {
+    return res.status(500).json(MEMORY_ERROR_RESPONSES.lifecycleUpdate);
   }
 });
 
@@ -459,7 +470,7 @@ memoryRouter.patch("/:id", async (req, res) => {
     .select("*")
     .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(MEMORY_ERROR_RESPONSES.update);
   if (!data) return res.status(404).json({ error: "Memory item not found." });
   return res.json({ memoryItem: data });
 });
@@ -475,6 +486,6 @@ memoryRouter.delete("/:id", async (req, res) => {
     .eq("id", req.params.id)
     .eq("owner_user_id", userId);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) return res.status(500).json(MEMORY_ERROR_RESPONSES.delete);
   return res.status(204).send();
 });

@@ -4,25 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - memory/canon error responses
+## Latest DAEDALUS result - memory/canon errors ready for ARGUS
 
-MIMIR opened the next narrow route-level error response hardening lane on
-2026-06-28:
-`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_DAEDALUS.md`.
+DAEDALUS completed the memory/canon route-level error response implementation
+on 2026-06-28:
+`docs/roadmap/PRODUCTION_MEMORY_CANON_ERROR_RESPONSE_RESULT.md`.
 
-Why now:
+Verdict:
 
-- ARGUS accepted export route-level error responses.
-- Private memory and canon are the next highest-product-risk raw error surface:
-  they carry the material Station uses to keep a persona steady.
-- The lane covers route responses around shared owner memory, persona memory
-  briefing, memory graph, lifecycle state, recallable memory items, and canon
-  items.
+```text
+READY FOR ARGUS MEMORY CANON ERROR RESPONSE REVIEW
+```
+
+Decision:
+
+- Shared owner memory, persona memory briefing, memory graph, graph edge
+  creation, memory item list/create/update/delete, lifecycle update/edge
+  recording, and canon list/create/update/delete failures now return stable
+  public-safe responses with fixed route-specific error codes.
+- Successful memory, canon, briefing, graph, lifecycle, embedding, archive
+  source readback, lifecycle event recording, graph edge semantics, and
+  owner-only behavior did not change.
+- Focused persona-context tests force hostile service payloads through
+  memory/canon failures and prove private IDs, table names, URLs/tokens,
+  provider payload labels, evidence/content markers, storage paths, and
+  stack-shaped strings are not returned from failing route responses.
+- Scope stayed inside memory/canon route response mapping, focused
+  persona-context tests, and roadmap/testing documentation. No memory/canon
+  schema, lifecycle state machine semantics, graph edge semantics,
+  embedding/vector behavior, archive source sanitization readback, retrieval,
+  storage quota math, migrations, package manifests, Redis, Cloudflare,
+  provider/model behavior, billing, auth/session semantics, UI, workers,
+  queues, hosted config, or hosted data changes were introduced.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- `git diff --check` passed.
+- Added-line sensitive scan was reviewed; hits were synthetic memory/canon
+  fixtures, fake tokens/URLs, fixed public copy/codes, or docs text only.
 
 Current baton:
 
-- DAEDALUS should harden memory/canon route responses, validate focused
-  persona-context/continuity gates, then wake ARGUS for hostile review.
+- ARGUS should hostile-review memory/canon response mapping, owner readback
+  preservation, lifecycle/graph semantics preservation, and focused tests.
+  ARGUS should wake MIMIR if accepted, or DAEDALUS if fixes are required.
 
 ## Latest ARGUS verdict - export errors accepted
 
