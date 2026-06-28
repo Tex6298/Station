@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - Observability closed, PR426 opened
+
+MIMIR closes the Memory/Continuity/Archive observability human-eye gate after
+ARIADNE's hosted rerun passed:
+
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_ARIADNE_RERUN_RESULT.md`
+
+The deferred lane-numbering/process wakeup is now resolved by:
+
+`docs/roadmap/LANE_INDEX.md`
+
+Current lane:
+
+```text
+PR426 - Post-Observability Next-Lane Selection
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Decision:
+
+- Do not leave the team idle after closing the observability gate.
+- Do not open a fake implementation lane while backup/restore local proof is
+  still dependency-blocked and while external/public/commercial/partner moves
+  may require explicit product decisions.
+- DAEDALUS should reconcile current repo truth and name exactly one next move,
+  or a true blocker plus a safe fallback.
+
+Current baton:
+
+- DAEDALUS has PR426:
+  `docs/roadmap/PR426_POST_OBSERVABILITY_NEXT_LANE_SELECTION_DAEDALUS.md`.
+
 ## Latest ARIADNE verdict - Memory/Continuity/Archive observability passed
 
 ARIADNE completed the hosted human-eye rerun on 2026-06-28:
