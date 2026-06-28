@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Owner: ARIADNE / A4
 
-Status: open - hosted human-eye replay on accepted non-NVIDIA private path
+Status: complete - config-blocked
 
 ## Why This Lane
 
@@ -26,6 +26,23 @@ Relevant inputs:
 - `docs/roadmap/PR434_NVIDIA_PROVIDER_DATA_POLICY_PREFLIGHT_REVIEW_RESULT.md`
 - `docs/roadmap/STATION_BACKEND_PRODUCT_PR_PLAN.md`
 - `docs/roadmap/STATION_REPLAY_STAGING_READINESS.md`
+
+## Result
+
+ARIADNE completed the hosted rehearsal:
+
+`docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md`
+
+Verdict:
+
+```text
+BLOCKED: CONFIG_NON_NVIDIA_ROUTE_MISSING
+```
+
+Hosted web/API deployment freshness passed at runtime commit `8ea44d01`.
+Private staged replay then failed closed on
+`nvidia_platform_blocked_private_context`, with replay context available and no
+private chat turn reaching `nvidia_openai_compatible`.
 
 ## Required Deployment Gate
 

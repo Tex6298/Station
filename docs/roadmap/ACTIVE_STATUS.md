@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR436 hosted replay config-blocked
+
+ARIADNE completed PR436:
+
+`docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md`
+
+Verdict:
+
+```text
+BLOCKED: CONFIG_NON_NVIDIA_ROUTE_MISSING
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at runtime commit `8ea44d01`.
+- The replay owner could open Studio and the Station Replay Persona.
+- Owner-visible replay context remained available: canon, memory, Integrity
+  Session, archive, continuity, and selected replay sources were present.
+- The private staged replay prompt persisted, but no assistant response
+  persisted.
+- The owner-visible trace failed closed on
+  `nvidia_platform_blocked_private_context`.
+- No private chat turn reached `nvidia_openai_compatible`.
+- No prompt body, private source bodies, provider payloads, raw trace
+  identifiers, credentials, or screenshots were committed.
+
+Current lane:
+
+```text
+PR436 - Hosted Non-NVIDIA Staged Replay Rehearsal
+Owner: MIMIR / A1
+State: CONFIG-BLOCKED - WAITING MIMIR
+```
+
+Current baton:
+
+- MIMIR should decide whether to accept the config-blocked result as the
+  expected PR435 fail-closed hosted posture or configure an accepted
+  non-NVIDIA private provider route / owner BYOK before a rerun.
+
 ## Latest MIMIR closeout - PR435 accepted, PR436 opened
 
 MIMIR accepts ARGUS's PR435 review:

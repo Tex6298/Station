@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR436 Hosted Non-NVIDIA Staged Replay
+
+ARIADNE completed PR436 on 2026-06-28:
+`docs/roadmap/PR436_HOSTED_NON_NVIDIA_STAGED_REPLAY_RESULT.md`.
+
+Validation result: `BLOCKED: CONFIG_NON_NVIDIA_ROUTE_MISSING`.
+
+Reason:
+
+- hosted web/API deployment freshness passed at PR435 runtime commit
+  `8ea44d01`;
+- the replay owner could open Studio and the Station Replay Persona;
+- owner-visible replay context remained available across canon, memory,
+  Integrity Session, archive, continuity, and selected replay sources;
+- one private staged replay prompt persisted;
+- no assistant response persisted;
+- the owner-visible trace failed closed on
+  `nvidia_platform_blocked_private_context`;
+- the private chat turn did not reach `nvidia_openai_compatible`.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 at runtime commit `8ea44d01`. |
+| Hosted product UI staged replay | Config-blocked | Private chat failed closed because no accepted non-NVIDIA private route was configured. |
+| `git diff --check` | Pass | Passed with line-ending normalization warnings only. |
+
+Residual risk: hosted private replay still needs accepted non-NVIDIA platform
+config or owner BYOK before ARIADNE can prove a successful non-NVIDIA private
+chat response.
+
 ## PR435 Private Replay Non-NVIDIA Provider Guard Review
 
 ARGUS accepted PR435 on 2026-06-28:
