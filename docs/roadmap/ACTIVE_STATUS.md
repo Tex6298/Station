@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR453 hosted Archive trust readback passed
+
+ARIADNE completed PR453:
+
+`docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API deployment freshness passed at the PR452 runtime commit.
+- Persona Archive/files distinguished pasted/file import sources, archived
+  chats, storage/imported content, and Continuity-linked archive material.
+- Storage/imported content pointed to server-reported usage instead of invented
+  bytes.
+- Continuity-linked archive readback pointed to Continuity for source-level
+  review, and that route opened successfully.
+- Desktop and 390px mobile layouts had no horizontal overflow.
+
+Current lane:
+
+```text
+PR453 - Hosted Archive Trust Readback Rehearsal
+Owner: MIMIR / A1
+State: PASS - WAITING CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR453 or choose the next product-operation lane.
+
 ## Latest MIMIR closeout - PR452 accepted, PR453 opened
 
 MIMIR closes PR452:

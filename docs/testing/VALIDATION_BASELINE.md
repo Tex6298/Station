@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR453 Hosted Archive Trust Readback Rehearsal
+
+ARIADNE completed PR453 on 2026-06-28:
+`docs/roadmap/PR453_HOSTED_ARCHIVE_TRUST_READBACK_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were fresh at the PR452 runtime commit;
+- replay-owner hosted API sign-in and session verification passed;
+- persona Archive/files separated pasted/file import sources from archived
+  chats;
+- storage/imported content pointed to server-reported usage instead of invented
+  bytes;
+- Continuity-linked archive material was not faked on the Archive route and
+  pointed to Continuity for source-level review;
+- desktop and 390px mobile layouts had no horizontal overflow;
+- sampled desktop/mobile visible text did not expose raw identifiers, private
+  source bodies, storage paths, raw import errors, provider payloads, or
+  secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web/API `/health/deployment` | Pass | Web and API returned HTTP 200 and ready at commit `60d53367`. |
+| Replay-owner sign-in/session check | Pass | Hosted API sign-in and session verification returned HTTP 200; no secrets recorded. |
+| Replay persona Archive/files route | Pass | HTTP 200; trust/status readback panel visible. |
+| Continuity route from Archive readback | Pass | HTTP 200, readable page. |
+| Desktop layout/safety | Pass | No horizontal overflow, raw ids, storage paths, raw import errors, or secret-shaped visible text. |
+| Narrow mobile layout/safety | Pass | 390px viewport remained readable without horizontal overflow. |
+| `git diff --check` | Pass | Required for the PR453 docs result commit. |
+
+Residual risk: the hosted replay data did not show the archived-chat
+unavailable/zero branch because archived-chat readback was populated. The run
+did not mutate archive import, upload, export, publication, provider, billing,
+or key state.
+
 ## PR452 Archive Trust Status Readback
 
 DAEDALUS implemented PR452 on 2026-06-28:
