@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR decision - PR439 closed, PR440 opened
+
+MIMIR accepts ARGUS's PR439 preflight:
+
+`docs/roadmap/PR439_BYOK_SECRET_STORAGE_ROTATION_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- Open implementation now; do not defer BYOK secret hardening beyond the PR438
+  narrow unblock.
+- PR440 implements app-level encrypted owner BYOK storage for OpenAI,
+  Anthropic, and DeepSeek only.
+- Use `AI_PROVIDER_KEY_ENCRYPTION_KEY`, a separate owner-scoped table, lazy
+  legacy fallback, migration-on-save, and fail-closed encrypted reads.
+- Gemini remains embeddings-only/deferred for chat.
+- Private NVIDIA remains blocked for private replay/persona chat.
+
+Current lane:
+
+```text
+PR440 - Encrypted Owner BYOK Storage Implementation
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should implement:
+  `docs/roadmap/PR440_ENCRYPTED_OWNER_BYOK_STORAGE_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS when ready.
+- Hosted replay still needs accepted non-NVIDIA platform config or owner BYOK
+  credentials after deployment.
+
 ## Latest ARGUS verdict - PR439 BYOK secret storage preflight
 
 ARGUS reviewed PR439:
