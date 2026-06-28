@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR447 passed, PR448 opened
+
+MIMIR closes PR447:
+
+`docs/roadmap/PR447_HOSTED_PRODUCT_OPERATION_CONTINUATION_CLOSEOUT.md`
+
+Decision:
+
+- Hosted product operation has no immediate blocker in the bounded public and
+  replay-owner paths.
+- The next product-experience gap is Studio dashboard Memory orientation.
+- Memory is routeable inside a persona workspace, but it is not visible as a
+  first-class top-level Studio dashboard stop.
+
+Current lane:
+
+```text
+PR448 - Studio Dashboard Memory Orientation And Status Readback
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR448_STUDIO_DASHBOARD_MEMORY_ORIENTATION_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS when the UI/status readback and focused tests are
+  ready.
+
 ## Latest ARIADNE result - PR447 continuation sweep passed with next lane
 
 ARIADNE completed PR447:
