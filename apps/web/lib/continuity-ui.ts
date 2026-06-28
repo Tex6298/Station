@@ -389,7 +389,7 @@ function continuityMetadataText(metadata: Record<string, unknown> | null | undef
   return null;
 }
 
-function runtimeProvenanceSourceLabel(type: RuntimeContextSourceType, sourceType?: string | null) {
+export function runtimeProvenanceSourceLabel(type: RuntimeContextSourceType, sourceType?: string | null) {
   const sourceLabel = sanitizeContinuityLabel(sourceType);
   if (sourceLabel) return labelize(sourceLabel);
   if (type === "canon") return "Canon source";

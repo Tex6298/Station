@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-28
 
-Status: open - DAEDALUS
+Status: ready for ARGUS review
 
 ## Why This Lane
 
@@ -114,6 +114,10 @@ READY FOR ARGUS MEMORY CONTINUITY ARCHIVE OBSERVABILITY REVIEW
 
 and ask ARGUS to review privacy boundaries, provenance claims, replay
 truthfulness, and regression coverage.
+
+DAEDALUS result:
+
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_RESULT.md`
 
 After ARGUS accepts, wake ARIADNE for a human rehearsal of the owner-facing
 flow:

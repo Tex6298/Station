@@ -14,6 +14,7 @@ import {
   runtimeContextPreviewLabel,
   runtimeContextSourcesByType,
   sortContinuityRecords,
+  runtimeProvenanceSourceLabel,
 } from "./continuity-ui";
 import type { ContinuityRecord } from "@station/types/continuity";
 
@@ -125,7 +126,16 @@ test("runtime provenance readback groups selected sources with review targets", 
     "Review in Memory",
     "Review in Archive",
   ]);
+  assert.deepEqual(readback.flatMap((group) => group.rows.map((row) => row.sourceLabel)), [
+    "Canon item",
+    "Integrity session",
+    "Continuity records",
+    "Memory items",
+    "Archive import",
+  ]);
   assert.equal(runtimeProvenanceReviewTarget("archive"), "Review in Archive");
+  assert.equal(continuityReviewTargetHref("persona-1", runtimeProvenanceReviewTarget("memory")), "/studio/personas/persona-1/memory");
+  assert.equal(runtimeProvenanceSourceLabel("archive", null), "Archive source");
 });
 
 test("runtime provenance readback keeps empty and sparse source states honest", () => {

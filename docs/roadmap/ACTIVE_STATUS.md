@@ -4,26 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - Memory/Continuity/Archive observability
+## Latest DAEDALUS handoff - Memory/Continuity/Archive observability
 
 MIMIR paused the route-level production error hardening sequence after Project
 route acceptance and opened the next feature boundary on 2026-06-28:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS.md`.
 
-Why now:
+DAEDALUS completed the implementation on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_RESULT.md`.
 
-- The primary protected-alpha and public-chain route surfaces are hardened
-  through Project routes.
-- Continuing every remaining low-risk raw-error route immediately would turn
-  the hardening pass into churn.
-- The next product proof should make Memory, Continuity, Archive, and runtime
-  observability feel like one inspectable owner-facing system.
+Decision:
+
+- The existing owner-only runtime context preview now makes each Memory, Canon,
+  Integrity, Continuity, and Archive source group routeable to the relevant
+  Studio review surface.
+- Selected source rows now include provenance/trust labels before sanitized
+  selection reasons, so an owner can see what Station may use next and where to
+  inspect or change it.
+- The slice reused existing context-preview data and owner-visible redaction;
+  no API shape, retrieval, schema, public route, hosted data, provider, or
+  config behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed, 134 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-context` passed, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity` passed, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` passed, 43 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` passed.
+- `git diff --check` passed.
+- Conditional replay-readiness, retrieval-metadata, continuity-publication, and
+  API typecheck gates were not run because replay behavior, retrieval metadata,
+  publication behavior, API data shape, and API routes were not touched.
 
 Current baton:
 
-- DAEDALUS should implement the narrowest useful owner-facing
-  Memory/Continuity/Archive observability slice, validate focused Studio and
-  context gates, then wake ARGUS.
+- ARGUS should review privacy boundaries, provenance claims, replay
+  truthfulness, routeability, and regression coverage.
 
 ## Latest ARGUS verdict - Project errors accepted
 

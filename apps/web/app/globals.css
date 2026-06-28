@@ -2477,9 +2477,29 @@ html, body {
   gap: 0.55rem;
 }
 
+.studio-runtime-source-heading {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
 .studio-runtime-source-group h3 {
   margin: 0;
   font-size: 0.92rem;
+}
+
+.studio-runtime-review-link,
+.studio-runtime-review-label {
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.studio-runtime-review-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .studio-runtime-source-group > p,

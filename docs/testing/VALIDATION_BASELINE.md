@@ -25,7 +25,10 @@ they are not Station validation failures.
 MIMIR opened the next feature boundary on 2026-06-28:
 `docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS.md`.
 
-Validation result: `OPEN`.
+DAEDALUS completed the implementation:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_RESULT.md`.
+
+Validation result: `READY FOR ARGUS REVIEW`.
 
 Reason:
 
@@ -33,17 +36,20 @@ Reason:
 - the primary protected-alpha and public-chain route hardening sequence is
   paused before it becomes self-perpetuating;
 - the next product proof is owner-facing Memory, Continuity, Archive, and
-  runtime observability.
+  runtime observability;
+- the existing runtime context preview now exposes routeable review links and
+  provenance/trust labels for Memory, Canon, Integrity, Continuity, and Archive
+  source groups without changing API data shape.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Required for owner-facing Studio UI changes. |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for runtime context/source readback. |
-| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Required for continuity behavior. |
-| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for archive retrieval/readback behavior. |
-| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck must pass. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 134 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed; runtime provenance helper coverage now includes source labels and review links. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck passed. |
 | `git diff --check` | Pass | No whitespace errors. |
-| `test:replay-readiness`, `test:retrieval-metadata`, `test:continuity-publication`, API typecheck | Conditional pass | Required if touched by the selected slice. |
+| `test:replay-readiness`, `test:retrieval-metadata`, `test:continuity-publication`, API typecheck | Not run | Replay behavior, retrieval metadata, continuity publication behavior, API data shape, and API routes were not touched. |
 | ARGUS review | Pending | Review privacy boundaries, provenance claims, replay truthfulness, and regression coverage. |
 | ARIADNE rehearsal | Pending after ARGUS | Human-eye owner flow through Memory/Continuity/Archive observability. |
 

@@ -1,14 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { ownerVisibleText, redactOwnerVisibleIds } from "@/lib/owner-visible-redaction";
 import {
   RUNTIME_CONTEXT_SECTIONS,
+  continuityReviewTargetHref,
   runtimeContextCountRows,
   runtimeContextPreviewLabel,
   runtimeContextSourcesByType,
+  runtimeProvenanceReviewTarget,
+  runtimeProvenanceSourceLabel,
   type RuntimeContextPreviewLike,
 } from "@/lib/continuity-ui";
 
@@ -106,13 +110,25 @@ export function RuntimeContextPreview({
           <div className="studio-runtime-sources">
             {RUNTIME_CONTEXT_SECTIONS.map((section) => {
               const sources = runtimeContextSourcesByType(preview, section.type);
+              const reviewTarget = runtimeProvenanceReviewTarget(section.type);
+              const reviewHref = continuityReviewTargetHref(personaId, reviewTarget);
               return (
                 <div key={section.type} className="studio-runtime-source-group">
-                  <h3>{section.label}</h3>
+                  <div className="studio-runtime-source-heading">
+                    <h3>{section.label}</h3>
+                    {reviewHref ? (
+                      <Link href={reviewHref} className="studio-runtime-review-link">
+                        {reviewTarget}
+                      </Link>
+                    ) : (
+                      <span className="studio-runtime-review-label">{reviewTarget}</span>
+                    )}
+                  </div>
                   {sources.length === 0 ? (
                     <p>{section.empty}</p>
                   ) : (
                     sources.map((source) => {
+                      const sourceLabel = runtimeProvenanceSourceLabel(section.type, source.sourceType);
                       const sourceTitle = showSourceContent
                         ? ownerVisibleText(source.title, section.label)
                         : redactOwnerVisibleIds(runtimeContextPreviewLabel(source.title, section.label));
@@ -124,7 +140,7 @@ export function RuntimeContextPreview({
                         <article key={`${source.type}-${source.id}`} className="studio-runtime-source">
                           <div>
                             <strong>{sourceTitle}</strong>
-                            <span>{sourceReason}</span>
+                            <span>{sourceLabel} / {sourceReason}</span>
                           </div>
                           {showSourceContent && source.content ? (
                             <p>{ownerVisibleText(source.content, "Selected source content unavailable.")}</p>
