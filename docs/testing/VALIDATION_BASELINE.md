@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## Feature Memory Continuity Archive Observability
+
+MIMIR opened the next feature boundary on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS.md`.
+
+Validation result: `OPEN`.
+
+Reason:
+
+- Project route-level error responses are accepted;
+- the primary protected-alpha and public-chain route hardening sequence is
+  paused before it becomes self-perpetuating;
+- the next product proof is owner-facing Memory, Continuity, Archive, and
+  runtime observability.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | Required for owner-facing Studio UI changes. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | Required for runtime context/source readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | Required for continuity behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | Required for archive retrieval/readback behavior. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web typecheck` | Pass | Web TypeScript typecheck must pass. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `test:replay-readiness`, `test:retrieval-metadata`, `test:continuity-publication`, API typecheck | Conditional pass | Required if touched by the selected slice. |
+| ARGUS review | Pending | Review privacy boundaries, provenance claims, replay truthfulness, and regression coverage. |
+| ARIADNE rehearsal | Pending after ARGUS | Human-eye owner flow through Memory/Continuity/Archive observability. |
+
+Residual risk: reports, publishing approval, social, notification, persona,
+calibration, and other lower-priority route-level raw error responses remain
+future audit surface.
+
 ## Production Project Error Response Hardening
 
 MIMIR opened the next route-level error-response hardening slice on 2026-06-28:

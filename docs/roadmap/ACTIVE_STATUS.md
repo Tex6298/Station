@@ -4,6 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - Memory/Continuity/Archive observability
+
+MIMIR paused the route-level production error hardening sequence after Project
+route acceptance and opened the next feature boundary on 2026-06-28:
+`docs/roadmap/FEATURE_MEMORY_CONTINUITY_ARCHIVE_OBSERVABILITY_DAEDALUS.md`.
+
+Why now:
+
+- The primary protected-alpha and public-chain route surfaces are hardened
+  through Project routes.
+- Continuing every remaining low-risk raw-error route immediately would turn
+  the hardening pass into churn.
+- The next product proof should make Memory, Continuity, Archive, and runtime
+  observability feel like one inspectable owner-facing system.
+
+Current baton:
+
+- DAEDALUS should implement the narrowest useful owner-facing
+  Memory/Continuity/Archive observability slice, validate focused Studio and
+  context gates, then wake ARGUS.
+
 ## Latest ARGUS verdict - Project errors accepted
 
 MIMIR opened the next narrow route-level error response hardening lane on
