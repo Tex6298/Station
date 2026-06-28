@@ -4,6 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - discussion error responses
+
+MIMIR opened the next narrow route-level error response hardening lane on
+2026-06-28:
+`docs/roadmap/PRODUCTION_DISCUSSION_ERROR_RESPONSE_DAEDALUS.md`.
+
+Why now:
+
+- ARGUS accepted document route-level error responses.
+- Forum, thread, and comment routes are the next coherent public-chain surface
+  because documents now depend on linked discussion behavior.
+- The lane covers public discussion route responses without changing forum
+  taxonomy, voting, moderation, recognition, or linked document semantics.
+
+Current baton:
+
+- DAEDALUS should harden discussion route responses, validate focused community
+  and document-discussion gates, then wake ARGUS for hostile review.
+
 ## Latest ARGUS verdict - document errors accepted
 
 ARGUS completed the document route-level error response review on
