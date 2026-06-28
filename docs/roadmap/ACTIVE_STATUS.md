@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR456 closed, PR457 opened
+
+MIMIR closes PR456:
+
+`docs/roadmap/PR456_TOP_NAV_MOBILE_OVERFLOW_CLOSEOUT.md`
+
+Decision:
+
+- Global top navigation and route-level mobile overflow passed broadly.
+- `/writing` type filters overflow on mobile and need a bounded DAEDALUS patch.
+- PR457 opens the Writing filter mobile wrap patch.
+
+Current lane:
+
+```text
+PR457 - Writing Filter Mobile Wrap Patch
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR457_WRITING_FILTER_MOBILE_WRAP_DAEDALUS.md`.
+- DAEDALUS should wake ARGUS with implementation notes and validation.
+
 ## Latest ARIADNE result - PR456 found Writing mobile filter overflow
 
 ARIADNE completed PR456:
