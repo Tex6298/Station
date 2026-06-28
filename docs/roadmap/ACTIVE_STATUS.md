@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR441 accepted to provider boundary, PR442 opened
+
+MIMIR accepts PR441 up to the provider-credential boundary:
+
+`docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_CLOSEOUT.md`
+
+Decision:
+
+- Hosted encrypted owner BYOK readiness is proven through Settings
+  save/readback/clear.
+- Migration `060_ai_provider_byok_secrets.sql` and
+  `AI_PROVIDER_KEY_ENCRYPTION_KEY` are configured on the hosted target.
+- The remaining blocker is not a product defect: no real accepted OpenAI,
+  Anthropic, or DeepSeek private provider route exists after cleanup.
+- Local `.env` has `OPENAI_API_KEY` and `DEEPSEEK_API_KEY` names, but they are
+  empty, so MIMIR cannot configure a real private provider route from here.
+- Do not spin another hardening loop around this missing credential.
+
+Current lane:
+
+```text
+PR442 - Private Provider Setup UX
+Owner: DAEDALUS / A2
+State: OPEN
+```
+
+Current baton:
+
+- DAEDALUS should run:
+  `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_DAEDALUS.md`.
+- The goal is visible product operation: make the missing accepted-provider
+  state understandable and actionable for the owner.
+- DAEDALUS should wake ARGUS if product behavior changes, or wake MIMIR with
+  evidence if the current UI already handles it well.
+
 ## Latest ARIADNE result - PR441 hosted BYOK readiness rerun
 
 ARIADNE reran PR441 after MIMIR's migration/config unblock:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR441 | Hosted encrypted BYOK readiness rehearsal | MIMIR / A1 | Config-blocked - Settings/encrypted canary pass, real accepted private provider route missing | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RERUN_RESULT.md` |
+| PR442 | Private provider setup UX | DAEDALUS / A2 | Open; make missing accepted private provider route visible and actionable for owners | `docs/roadmap/PR442_PRIVATE_PROVIDER_SETUP_UX_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR441 closeout | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed at provider-credential boundary; Settings/encrypted BYOK path passes, real accepted provider credential remains external | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_CLOSEOUT.md` |
 | PR441 rerun | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Config-blocked; encrypted BYOK Settings path passes, accepted private provider route missing | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RERUN_RESULT.md` |
 | PR441 unblock | Hosted BYOK migration unblock | ARIADNE -> MIMIR -> ARIADNE | Migration/config unblock applied; ARIADNE rerun requested | `docs/roadmap/PR441_HOSTED_BYOK_MIGRATION_UNBLOCK_MIMIR.md` |
 | PR441 rehearsal | Hosted encrypted BYOK readiness rehearsal | MIMIR -> ARIADNE -> MIMIR | Config-blocked; authenticated Settings readback returns HTTP 500 before canary/private replay | `docs/roadmap/PR441_HOSTED_ENCRYPTED_BYOK_READINESS_RESULT.md` |
