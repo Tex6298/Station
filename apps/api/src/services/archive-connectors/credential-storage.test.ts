@@ -10,6 +10,7 @@ import {
   loadArchiveConnectorCredentialReadbacks,
   revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
+  validateArchiveConnectorOAuthState,
 } from "./credential-storage";
 
 process.env.NODE_ENV = "test";
@@ -374,6 +375,20 @@ test("archive connector OAuth state stores only hashes and consumes exactly once
     assert.equal(stored.session_id_hash.includes("session-fixture"), false);
     assert.equal(typeof stored.session_id_hash, "string");
     assert.equal("session_id" in stored, false);
+
+    const validated = await validateArchiveConnectorOAuthState({
+      ownerUserId: "owner-user",
+      sessionId: "session-fixture",
+      provider: "reddit",
+      nonce: "nonce-fixture",
+      csrf: "csrf-fixture",
+      now: "2026-06-29T21:25:00.000Z",
+    });
+
+    assert.equal(validated.provider, "reddit");
+    assert.equal(validated.consumedAt, null);
+    assert.equal(db.rows("archive_connector_oauth_states")[0].consumed_at, null);
+    assertNoSensitive(validated);
 
     const consumed = await consumeArchiveConnectorOAuthState({
       ownerUserId: "owner-user",

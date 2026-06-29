@@ -130,6 +130,11 @@ export function archiveConnectorProviderOAuthAppStatus(providerId: ArchiveConnec
   return "missing";
 }
 
+export function archiveConnectorProviderOAuthClientId(providerId: ArchiveConnectorProviderId) {
+  const config = ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG[providerId];
+  return process.env[config.clientId]?.trim() || null;
+}
+
 function providerReadinessStatus(
   credentialEncryptionConfigured: boolean,
   oauthAppStatus: ProviderOAuthAppStatus,

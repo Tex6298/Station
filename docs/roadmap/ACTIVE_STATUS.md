@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR484F-D ready for ARGUS review
+
+DAEDALUS implemented the accepted PR484F-D Archive Connector OAuth
+Authorization URL readback:
+
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_RESULT.md`
+
+Current lane:
+
+```text
+PR484F-D - Archive Connector OAuth Authorization URL
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Implementation:
+
+- added authenticated route
+  `POST /archive-connectors/oauth/:provider/authorize`;
+- request body accepts only `{ stateHandle }`;
+- added non-consuming PR484E state validation for owner, current
+  Bearer-derived session, provider, nonce/csrf, purpose, expiry, and
+  unconsumed state;
+- provider app config must be complete before URL readback, while client id is
+  exposed only inside `authorizationUrl`;
+- redirect URI is built from `NEXT_PUBLIC_APP_URL` origin plus the PR484F-C web
+  callback route, not from API request headers or API URL;
+- Reddit uses `scope=identity` and `duration=temporary`;
+- Discord uses `scope=identify`;
+- repeated URL readback for the same unconsumed state leaves `consumed_at`
+  null.
+
+Non-scope confirmation:
+
+- no server redirect, token exchange, token refresh/revocation, credential
+  write/revoke, provider SDK/fetch/call, source inventory, import write, queue,
+  hosted runtime config, Cloudflare, Redis, billing, package, broad connector
+  UI, marketplace, or social posting behavior was added;
+- responses do not return separate client id, state handle, redirect URI,
+  scope list, client secret, env names, env values, provider account details,
+  row id, owner id, session id, nonce/csrf values, nonce/csrf hashes, OAuth
+  code, token material, credential material, source/import data, SQL/table
+  detail, stack trace, hosted log, prompt, signed URL, storage path, or
+  secret-shaped values.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts`
+  passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 64 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review PR484F-D against the accepted preflight boundary.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR484F-D accepted for DAEDALUS
 
 ARGUS completed the PR484F-D Archive Connector OAuth Authorization URL

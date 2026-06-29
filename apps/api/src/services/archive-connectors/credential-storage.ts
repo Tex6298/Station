@@ -252,33 +252,8 @@ export async function consumeArchiveConnectorOAuthState(input: {
   csrf: string;
   now?: string;
 }) {
+  const row = await loadValidArchiveConnectorOAuthState(input);
   const sb = getSupabaseAdmin();
-  const nonceHash = hashArchiveConnectorOAuthValue("nonce", input.nonce);
-  const csrfHash = hashArchiveConnectorOAuthValue("csrf", input.csrf);
-  const sessionIdHash = hashArchiveConnectorOAuthValue("session", input.sessionId);
-  const { data, error } = await (sb as any)
-    .from("archive_connector_oauth_states")
-    .select("*")
-    .eq("nonce_hash", nonceHash)
-    .eq("provider", input.provider)
-    .eq("purpose", ARCHIVE_CONNECTOR_PURPOSE)
-    .single();
-
-  if (error || !data) throw invalidOAuthState();
-
-  const row = data as ArchiveConnectorOAuthStateRow;
-  if (
-    row.owner_user_id !== input.ownerUserId ||
-    row.session_id_hash !== sessionIdHash ||
-    row.provider !== input.provider ||
-    row.purpose !== ARCHIVE_CONNECTOR_PURPOSE ||
-    row.csrf_hash !== csrfHash ||
-    row.consumed_at ||
-    Date.parse(row.expires_at) <= Date.parse(input.now ?? new Date().toISOString())
-  ) {
-    throw invalidOAuthState();
-  }
-
   const consumedAt = input.now ?? new Date().toISOString();
   const { data: updated, error: updateError } = await (sb as any)
     .from("archive_connector_oauth_states")
@@ -290,6 +265,18 @@ export async function consumeArchiveConnectorOAuthState(input: {
 
   if (updateError || !updated) throw invalidOAuthState();
   return serializeArchiveConnectorOAuthStateReadback(updated as ArchiveConnectorOAuthStateRow);
+}
+
+export async function validateArchiveConnectorOAuthState(input: {
+  ownerUserId: string;
+  sessionId: string;
+  provider: ArchiveConnectorProviderId;
+  nonce: string;
+  csrf: string;
+  now?: string;
+}) {
+  const row = await loadValidArchiveConnectorOAuthState(input);
+  return serializeArchiveConnectorOAuthStateReadback(row);
 }
 
 export function serializeArchiveConnectorOAuthStateReadback(row: ArchiveConnectorOAuthStateRow): ArchiveConnectorOAuthStateReadback {
@@ -369,6 +356,44 @@ async function revokeActiveArchiveConnectorCredentialRows(
       "Could not revoke archive connector credential."
     );
   }
+}
+
+async function loadValidArchiveConnectorOAuthState(input: {
+  ownerUserId: string;
+  sessionId: string;
+  provider: ArchiveConnectorProviderId;
+  nonce: string;
+  csrf: string;
+  now?: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const nonceHash = hashArchiveConnectorOAuthValue("nonce", input.nonce);
+  const csrfHash = hashArchiveConnectorOAuthValue("csrf", input.csrf);
+  const sessionIdHash = hashArchiveConnectorOAuthValue("session", input.sessionId);
+  const { data, error } = await (sb as any)
+    .from("archive_connector_oauth_states")
+    .select("*")
+    .eq("nonce_hash", nonceHash)
+    .eq("provider", input.provider)
+    .eq("purpose", ARCHIVE_CONNECTOR_PURPOSE)
+    .single();
+
+  if (error || !data) throw invalidOAuthState();
+
+  const row = data as ArchiveConnectorOAuthStateRow;
+  if (
+    row.owner_user_id !== input.ownerUserId ||
+    row.session_id_hash !== sessionIdHash ||
+    row.provider !== input.provider ||
+    row.purpose !== ARCHIVE_CONNECTOR_PURPOSE ||
+    row.csrf_hash !== csrfHash ||
+    row.consumed_at ||
+    Date.parse(row.expires_at) <= Date.parse(input.now ?? new Date().toISOString())
+  ) {
+    throw invalidOAuthState();
+  }
+
+  return row;
 }
 
 function hashArchiveConnectorOAuthValue(kind: "session" | "nonce" | "csrf", value: string) {

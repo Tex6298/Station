@@ -241,6 +241,18 @@ function archiveConnectorConfiguredEnv() {
   };
 }
 
+function archiveConnectorAuthorizeEnv(updates: Record<string, string | null> = {}) {
+  return {
+    ...archiveConnectorConfiguredEnv(),
+    ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "reddit-public-client-id-fixture",
+    ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: "reddit-private-app-secret-fixture",
+    ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: "discord-public-client-id-fixture",
+    ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: "discord-private-app-secret-fixture",
+    NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+    ...updates,
+  };
+}
+
 async function startArchiveConnectorOAuthState(
   app: Express,
   options: {
@@ -255,6 +267,21 @@ async function startArchiveConnectorOAuthState(
   return requestJson<Row>(app, "POST", `/archive-connectors/oauth/${options.provider ?? "reddit"}/start`, {
     token: options.token ?? OWNER_AUTH_MARKER,
     body,
+  });
+}
+
+async function authorizeArchiveConnectorOAuthState(
+  app: Express,
+  options: {
+    provider?: "reddit" | "discord" | string;
+    token?: string | null;
+    stateHandle?: string;
+    body?: unknown;
+  } = {},
+) {
+  return requestJson<Row>(app, "POST", `/archive-connectors/oauth/${options.provider ?? "reddit"}/authorize`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+    body: options.body ?? { stateHandle: options.stateHandle },
   });
 }
 
@@ -294,6 +321,55 @@ function assertNoSensitiveArchiveConnectorReadback(body: unknown) {
 
   for (const value of forbidden) {
     assert.equal(text.includes(value), false, `${value} leaked into archive connector readiness`);
+  }
+}
+
+function assertNoSensitiveAuthorizeReadback(body: Row, input: {
+  stateHandle?: string;
+  clientId?: string;
+  clientSecret?: string;
+  redirectUri?: string;
+  rowId?: string;
+}) {
+  const text = JSON.stringify(body);
+  const withoutUrl = JSON.stringify({ ...body, authorizationUrl: "" });
+  const outsideUrlForbidden = [
+    input.stateHandle ?? "",
+    input.clientId ?? "",
+    input.redirectUri ?? "",
+    "stateHandle",
+    "clientId",
+    "redirectUri",
+    "scope",
+    "scopes",
+  ].filter(Boolean);
+  const everywhereForbidden = [
+    input.clientSecret ?? "",
+    input.rowId ?? "",
+    OWNER_AUTH_MARKER,
+    "owner-user",
+    "other-user",
+    "session_id_hash",
+    "nonce_hash",
+    "csrf_hash",
+    "archive_connector_oauth_states",
+    "archive_connector_credentials",
+    "access_token",
+    "refresh_token",
+    "oauth_code",
+    "cookie",
+    "provider_payload",
+    "SQL",
+    "stack",
+    "prompt",
+  ].filter(Boolean);
+
+  for (const value of outsideUrlForbidden) {
+    assert.equal(withoutUrl.includes(value), false, `${value} leaked outside authorizationUrl`);
+  }
+
+  for (const value of everywhereForbidden) {
+    assert.equal(text.includes(value), false, `${value} leaked into authorization readback`);
   }
 }
 
@@ -1028,6 +1104,332 @@ test("archive connector OAuth callback verify fails closed on owner provider ses
   }
 });
 
+test("archive connector OAuth authorize requires auth and rejects unsupported or malformed input without URL readback", async () => {
+  const validStateHandle = `${"a".repeat(43)}.${"b".repeat(43)}`;
+
+  const signedOutDb = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(signedOutDb.client as any);
+  const signedOutApp = await createArchiveConnectorApp();
+
+  try {
+    const signedOut = await authorizeArchiveConnectorOAuthState(signedOutApp, {
+      token: null,
+      body: { stateHandle: validStateHandle },
+    });
+
+    assert.equal(signedOut.status, 401);
+    assert.equal(signedOut.body.error, "Missing or invalid Authorization header.");
+    assert.deepEqual(signedOutDb.tableCalls, []);
+    assert.deepEqual(signedOutDb.writeCalls, []);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const unsupportedDb = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(unsupportedDb.client as any);
+  const unsupportedApp = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorAuthorizeEnv(), async () => {
+      const unsupported = await authorizeArchiveConnectorOAuthState(unsupportedApp, {
+        provider: "mastodon",
+        body: { stateHandle: validStateHandle },
+      });
+
+      assert.equal(unsupported.status, 400);
+      assert.equal(unsupported.body.code, "archive_connector_provider_not_supported");
+      assert.equal("authorizationUrl" in unsupported.body, false);
+      assert.deepEqual(unsupportedDb.writeCalls, []);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const malformedBodies = [
+    { stateHandle: "not-a-state" },
+    { stateHandle: validStateHandle, code: "callback-code-fixture" },
+    { stateHandle: validStateHandle, ownerUserId: "owner-user" },
+    {},
+    [],
+  ];
+
+  for (const body of malformedBodies) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorAuthorizeEnv(), async () => {
+        const response = await authorizeArchiveConnectorOAuthState(app, { body });
+
+        assert.equal(response.status, 400);
+        assert.equal(response.body.code, "archive_connector_authorize_invalid");
+        assert.equal("authorizationUrl" in response.body, false);
+        assertAuthorizationUrlSafety(response.body);
+        assertNoSensitiveAuthorizeReadback(response.body, {
+          stateHandle: validStateHandle,
+          clientId: "reddit-public-client-id-fixture",
+          clientSecret: "reddit-private-app-secret-fixture",
+        });
+        assert.equal(db.rows("archive_connector_oauth_states").length, 0);
+        assert.deepEqual(db.writeCalls, []);
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector OAuth authorize requires configured provider app without client id leakage", async () => {
+  const setupCases = [
+    {
+      name: "missing",
+      env: {
+        ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: null,
+        ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
+      },
+    },
+    {
+      name: "partial",
+      env: {
+        ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "reddit-public-client-id-fixture",
+        ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
+      },
+    },
+  ];
+
+  for (const setup of setupCases) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorAuthorizeEnv(setup.env), async () => {
+        const response = await authorizeArchiveConnectorOAuthState(app, {
+          body: { stateHandle: `${"a".repeat(43)}.${"b".repeat(43)}` },
+        });
+
+        assert.equal(response.status, 409, setup.name);
+        assert.equal(response.body.code, "archive_connector_provider_app_setup_required");
+        assert.equal("authorizationUrl" in response.body, false);
+        assertAuthorizationUrlSafety(response.body);
+        assertNoSensitiveAuthorizeReadback(response.body, {
+          clientId: "reddit-public-client-id-fixture",
+          clientSecret: "reddit-private-app-secret-fixture",
+        });
+        assert.equal(db.rows("archive_connector_oauth_states").length, 0);
+        assert.deepEqual(db.writeCalls, []);
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector OAuth authorize rejects missing invalid and unsafe web app origins", async () => {
+  const cases: Array<{
+    name: string;
+    env: Record<string, string | null>;
+    status: number;
+    code: string;
+  }> = [
+    { name: "missing", env: { NEXT_PUBLIC_APP_URL: null }, status: 400, code: "archive_connector_callback_origin_invalid" },
+    { name: "malformed", env: { NEXT_PUBLIC_APP_URL: "not a url" }, status: 400, code: "archive_connector_callback_origin_invalid" },
+    { name: "query", env: { NEXT_PUBLIC_APP_URL: "https://station.example?x=1" }, status: 400, code: "archive_connector_callback_origin_invalid" },
+    { name: "hash", env: { NEXT_PUBLIC_APP_URL: "https://station.example/#frag" }, status: 400, code: "archive_connector_callback_origin_invalid" },
+    { name: "credentials", env: { NEXT_PUBLIC_APP_URL: "https://user:pass@station.example" }, status: 400, code: "archive_connector_callback_origin_invalid" },
+    { name: "scheme", env: { NEXT_PUBLIC_APP_URL: "ftp://station.example" }, status: 400, code: "archive_connector_callback_origin_invalid" },
+    { name: "http-nonlocal", env: { NEXT_PUBLIC_APP_URL: "http://station.example" }, status: 409, code: "archive_connector_callback_origin_unsafe" },
+    { name: "prod-localhost", env: { NEXT_PUBLIC_APP_URL: "http://localhost:3000", NODE_ENV: "production" }, status: 409, code: "archive_connector_callback_origin_unsafe" },
+  ];
+
+  for (const setup of cases) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorAuthorizeEnv(setup.env), async () => {
+        const started = await startArchiveConnectorOAuthState(app);
+        assert.equal(started.status, 201, setup.name);
+
+        const response = await authorizeArchiveConnectorOAuthState(app, {
+          stateHandle: started.body.stateHandle,
+        });
+
+        assert.equal(response.status, setup.status, setup.name);
+        assert.equal(response.body.code, setup.code, setup.name);
+        assert.equal("authorizationUrl" in response.body, false);
+        assertAuthorizationUrlSafety(response.body);
+        assertNoSensitiveAuthorizeReadback(response.body, {
+          stateHandle: started.body.stateHandle,
+          clientId: "reddit-public-client-id-fixture",
+          clientSecret: "reddit-private-app-secret-fixture",
+          rowId: db.rows("archive_connector_oauth_states")[0].id,
+        });
+        assert.deepEqual(db.writeCalls, ["archive_connector_oauth_states.insert"]);
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector OAuth authorize returns bounded Reddit and Discord authorization URLs without consuming state", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorAuthorizeEnv({ NEXT_PUBLIC_APP_URL: "https://station.example/app" }), async () => {
+      const redditStart = await startArchiveConnectorOAuthState(app, { provider: "reddit" });
+      const discordStart = await startArchiveConnectorOAuthState(app, { provider: "discord" });
+      assert.equal(redditStart.status, 201);
+      assert.equal(discordStart.status, 201);
+
+      const reddit = await authorizeArchiveConnectorOAuthState(app, {
+        provider: "reddit",
+        stateHandle: redditStart.body.stateHandle,
+      });
+      const redditAgain = await authorizeArchiveConnectorOAuthState(app, {
+        provider: "reddit",
+        stateHandle: redditStart.body.stateHandle,
+      });
+      const discord = await authorizeArchiveConnectorOAuthState(app, {
+        provider: "discord",
+        stateHandle: discordStart.body.stateHandle,
+      });
+
+      assert.equal(reddit.status, 200);
+      assert.equal(redditAgain.status, 200);
+      assert.equal(discord.status, 200);
+      assert.equal(reddit.body.authorizationUrl, redditAgain.body.authorizationUrl);
+      assertAuthorizationUrlSafety(reddit.body);
+      assertAuthorizationUrlSafety(discord.body);
+      assertNoSensitiveAuthorizeReadback(reddit.body, {
+        stateHandle: redditStart.body.stateHandle,
+        clientId: "reddit-public-client-id-fixture",
+        clientSecret: "reddit-private-app-secret-fixture",
+        redirectUri: "https://station.example/archive-connectors/oauth/callback/reddit",
+        rowId: db.rows("archive_connector_oauth_states")[0].id,
+      });
+      assertNoSensitiveAuthorizeReadback(discord.body, {
+        stateHandle: discordStart.body.stateHandle,
+        clientId: "discord-public-client-id-fixture",
+        clientSecret: "discord-private-app-secret-fixture",
+        redirectUri: "https://station.example/archive-connectors/oauth/callback/discord",
+        rowId: db.rows("archive_connector_oauth_states")[1].id,
+      });
+
+      const redditUrl = new URL(reddit.body.authorizationUrl);
+      assert.equal(`${redditUrl.origin}${redditUrl.pathname}`, "https://www.reddit.com/api/v1/authorize");
+      assert.equal(redditUrl.searchParams.get("client_id"), "reddit-public-client-id-fixture");
+      assert.equal(redditUrl.searchParams.get("response_type"), "code");
+      assert.equal(redditUrl.searchParams.get("state"), redditStart.body.stateHandle);
+      assert.equal(redditUrl.searchParams.get("redirect_uri"), "https://station.example/archive-connectors/oauth/callback/reddit");
+      assert.equal(redditUrl.searchParams.get("duration"), "temporary");
+      assert.equal(redditUrl.searchParams.get("scope"), "identity");
+      assert.equal(redditUrl.searchParams.has("client_secret"), false);
+
+      const discordUrl = new URL(discord.body.authorizationUrl);
+      assert.equal(`${discordUrl.origin}${discordUrl.pathname}`, "https://discord.com/oauth2/authorize");
+      assert.equal(discordUrl.searchParams.get("client_id"), "discord-public-client-id-fixture");
+      assert.equal(discordUrl.searchParams.get("response_type"), "code");
+      assert.equal(discordUrl.searchParams.get("state"), discordStart.body.stateHandle);
+      assert.equal(discordUrl.searchParams.get("redirect_uri"), "https://station.example/archive-connectors/oauth/callback/discord");
+      assert.equal(discordUrl.searchParams.get("scope"), "identify");
+      assert.equal(discordUrl.searchParams.has("client_secret"), false);
+
+      for (const row of db.rows("archive_connector_oauth_states")) {
+        assert.equal(row.consumed_at, null);
+      }
+      assert.deepEqual(db.writeCalls, [
+        "archive_connector_oauth_states.insert",
+        "archive_connector_oauth_states.insert",
+      ]);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector OAuth authorize validates existing state without consuming and fails closed on mismatches", async () => {
+  const cases: Array<{
+    name: string;
+    mutateDb?: (db: ArchiveConnectorReadinessSupabase) => void;
+    verifyProvider?: "reddit" | "discord";
+    verifyToken?: string;
+    stateHandle?: (original: string) => string;
+    addToken?: [string, { id: string; email: string; tier?: string; isAdmin?: boolean }];
+  }> = [
+    {
+      name: "owner",
+      addToken: ["other-owner-marker", { id: "other-user", email: "other@example.test" }],
+      verifyToken: "other-owner-marker",
+    },
+    {
+      name: "session",
+      addToken: ["owner-other-session-marker", { id: "owner-user", email: "owner@example.test" }],
+      verifyToken: "owner-other-session-marker",
+    },
+    {
+      name: "provider",
+      verifyProvider: "discord",
+    },
+    {
+      name: "csrf",
+      stateHandle: (original) => `${original.split(".")[0]}.${"c".repeat(43)}`,
+    },
+    {
+      name: "expiry",
+      mutateDb: (db) => {
+        db.rows("archive_connector_oauth_states")[0].expires_at = "2000-01-01T00:00:00.000Z";
+      },
+    },
+    {
+      name: "consumed",
+      mutateDb: (db) => {
+        db.rows("archive_connector_oauth_states")[0].consumed_at = "2026-06-29T23:00:00.000Z";
+      },
+    },
+  ];
+
+  for (const setup of cases) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    if (setup.addToken) db.addUserToken(...setup.addToken);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorAuthorizeEnv(), async () => {
+        const started = await startArchiveConnectorOAuthState(app);
+        assert.equal(started.status, 201, setup.name);
+        setup.mutateDb?.(db);
+
+        const response = await authorizeArchiveConnectorOAuthState(app, {
+          provider: setup.verifyProvider ?? "reddit",
+          token: setup.verifyToken ?? OWNER_AUTH_MARKER,
+          stateHandle: setup.stateHandle?.(started.body.stateHandle) ?? started.body.stateHandle,
+        });
+
+        assert.equal(response.status, 409, setup.name);
+        assert.equal(response.body.code, "archive_connector_oauth_state_invalid", setup.name);
+        assert.equal("authorizationUrl" in response.body, false);
+        assertAuthorizationUrlSafety(response.body);
+        assertNoSensitiveAuthorizeReadback(response.body, {
+          stateHandle: started.body.stateHandle,
+          clientId: "reddit-public-client-id-fixture",
+          clientSecret: "reddit-private-app-secret-fixture",
+          rowId: db.rows("archive_connector_oauth_states")[0].id,
+        });
+        assert.deepEqual(db.writeCalls, ["archive_connector_oauth_states.insert"]);
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
 test("archive connector readiness source stays read-only and route-only", () => {
   const routeSource = readFileSync("apps/api/src/routes/archive-connectors.ts", "utf8");
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
@@ -1038,11 +1440,14 @@ test("archive connector readiness source stays read-only and route-only", () => 
   );
   const stateCreateMatches = routeSource.match(/createArchiveConnectorOAuthState/g) ?? [];
   const stateConsumeMatches = routeSource.match(/consumeArchiveConnectorOAuthState/g) ?? [];
+  const stateValidateMatches = routeSource.match(/validateArchiveConnectorOAuthState/g) ?? [];
 
   assert.equal(stateCreateMatches.length, 2);
   assert.equal(stateConsumeMatches.length, 2);
+  assert.equal(stateValidateMatches.length, 2);
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /consumeArchiveConnectorOAuthState/i);
+  assert.doesNotMatch(readinessSource, /validateArchiveConnectorOAuthState/i);
   assert.doesNotMatch(source, /storeArchiveConnectorCredential|revokeArchiveConnectorCredential/i);
   assert.doesNotMatch(routeSource, /res\.redirect|redirect\s*\(/i);
   assert.doesNotMatch(sourceWithoutAcceptedArchiveConfig, /REDDIT_CLIENT_ID|REDDIT_CLIENT_SECRET|DISCORD_CLIENT_ID|DISCORD_CLIENT_SECRET/i);
@@ -1064,6 +1469,16 @@ function assertDisabledStartSafety(body: Row) {
 function assertDisabledCallbackVerifySafety(body: Row) {
   assert.equal(body.credentialWritesEnabled, false);
   assert.equal(body.oauthRedirectsEnabled, false);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerCallsEnabled, false);
+  assert.equal(body.sourceInventoryEnabled, false);
+  assert.equal(body.importWritesEnabled, false);
+}
+
+function assertAuthorizationUrlSafety(body: Row) {
+  assert.equal(body.credentialWritesEnabled, false);
+  assert.equal(body.oauthRedirectsEnabled, false);
+  assert.equal(body.oauthCallbacksEnabled, true);
   assert.equal(body.tokenExchangeEnabled, false);
   assert.equal(body.providerCallsEnabled, false);
   assert.equal(body.sourceInventoryEnabled, false);

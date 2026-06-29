@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484F-D implementation | Archive Connector OAuth Authorization URL | DAEDALUS / A2 | Open; implement bounded authorization URL readback only | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_RESULT.md` |
+| PR484F-D review | Archive Connector OAuth Authorization URL | ARGUS / A3 | Ready for review; bounded authorization URL readback implemented without server redirect, token exchange, credential write, provider call, import, hosted runtime config, package, billing, Cloudflare, Redis, or social behavior | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_RESULT.md` |
 
 ## Recently Closed
 
