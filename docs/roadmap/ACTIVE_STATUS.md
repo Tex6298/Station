@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484C accepted for DAEDALUS
+
+ARGUS completed the PR484C Connector OAuth Readiness Route preflight:
+
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484C_CONNECTOR_READINESS_ROUTE
+```
+
+Current lane:
+
+```text
+PR484C - Connector OAuth Readiness Route
+Owner: DAEDALUS / A2
+State: OPEN - OWNER-ONLY READINESS ROUTE ONLY
+```
+
+Current baton:
+
+- DAEDALUS may implement an authenticated read-only
+  `GET /archive-connectors/readiness` API route.
+- The route should report `reddit` and `discord` archive connector readiness,
+  missing connector encryption config, and missing/not-accepted provider app
+  config as safe booleans/statuses only.
+- Missing `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` blocks successful
+  credential writes, but it does not block read-only readiness.
+- Do not implement OAuth state creation, credential writes, redirects,
+  callbacks, token exchange, source inventory, import writes, provider calls,
+  provider SDKs, route UI, package dependencies, or hosted runtime behavior.
+
+Boundaries:
+
+- Do not return env var names, env values, access tokens, refresh tokens, OAuth
+  codes, cookies, credentials, raw external account ids, raw owner or row ids,
+  private source bodies, private messages, archive snippets, provider payloads,
+  storage paths, signed URLs, hosted logs, SQL/table output, table names, stack
+  traces, prompts, or secret-shaped values.
+- ARIADNE hosted rehearsal is not required if PR484C remains API-only,
+  read-only, locally tested, and mutation-free.
+
 ## Latest MIMIR closeout/opening - PR484B closed, PR484C opened
 
 MIMIR closes PR484B Connector Credential Storage as accepted:

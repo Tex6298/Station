@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484C Connector OAuth Readiness Route Preflight
+
+ARGUS accepted PR484C for DAEDALUS on 2026-06-29:
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484C_CONNECTOR_READINESS_ROUTE`.
+
+Reason:
+
+- PR484A and PR484B accepted connector contract and storage primitives, but no
+  route/API behavior exists yet;
+- local `.env` and process env presence-only checks found
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` missing, without printing any
+  value;
+- missing connector encryption config blocks successful credential writes, not
+  read-only readiness;
+- PR484C is accepted only as an authenticated owner-only read-only readiness
+  route, with OAuth state creation, credential writes, redirects, callbacks,
+  token exchange, source inventory, import writes, provider calls, UI, jobs,
+  queues, Redis, Cloudflare, billing, provider/model calls, package
+  dependencies, and hosted runtime behavior out of scope.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Presence-only config check | Pass | `.env` and process env were checked for `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`; both were missing and no values were printed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 40 tests passed across storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Scope scan | Pass | Current route/config matches are existing paused social readiness, accepted storage helpers, docs, or guardrails; no archive connector route exists yet. |
+
 ## PR484B Connector Credential Storage ARGUS Review
 
 ARGUS accepted PR484B on 2026-06-29 after a narrow OAuth state/privacy patch:
