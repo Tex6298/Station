@@ -16,7 +16,6 @@ import {
   type PublishingTrustRow,
 } from "@/lib/publishing";
 import { publicDocumentDiscussionEntrypointCopy } from "@/lib/public-story-polish";
-import { PostComposer } from "@/components/social/post-composer";
 
 interface Document {
   id: string; title: string; slug: string; body: string | null;
@@ -88,7 +87,6 @@ export default function DocumentPage() {
   const [discussionEligible, setDiscussionEligible] = useState(false);
   const [discussionLoading, setDiscussionLoading] = useState(false);
   const [startingDiscussion, setStartingDiscussion] = useState(false);
-  const [showComposer, setShowComposer] = useState(false);
   const [error, setError]           = useState<string | null>(null);
   const [discussionError, setDiscussionError] = useState<string | null>(null);
   const [token, setToken]           = useState<string | null>(null);
@@ -300,12 +298,9 @@ export default function DocumentPage() {
             >
               Continue editing
             </Link>
-            <button
-              onClick={() => setShowComposer((v) => !v)}
-              style={{ padding: "0.4rem 0.9rem", background: "transparent", border: "1px solid #d8d3c8", borderRadius: 7, color: "#687078", cursor: "pointer", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
-            >
-              Signal Share to socials
-            </button>
+            <span style={{ padding: "0.4rem 0.9rem", background: "#f8f7f4", border: "1px solid #d8d3c8", borderRadius: 7, color: "#687078", fontSize: "0.82rem" }}>
+              Social connector readiness paused
+            </span>
           </div>
         )}
       </div>
@@ -361,20 +356,6 @@ export default function DocumentPage() {
             )}
           </div>
         </section>
-      )}
-
-      {/* Social composer panel */}
-      {showComposer && (
-        <div className="card" style={{ marginBottom: "1.5rem" }}>
-          <div style={{ fontSize: "0.72rem", color: "#687078", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.85rem" }}>
-            Share to social media
-          </div>
-          <PostComposer
-            documentId={doc.id}
-            documentTitle={doc.title}
-            onClose={() => setShowComposer(false)}
-          />
-        </div>
       )}
 
       {doc.status === "published" && (

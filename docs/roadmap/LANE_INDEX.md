@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR476A | Owner Social Publishing Readiness | DAEDALUS / A2 | Open; implement owner-only readback fence and disable live connect/OAuth/compose actions | `docs/roadmap/PR476_SOCIAL_PUBLISHING_CONNECTOR_PREFLIGHT_RESULT.md` |
+| PR476A | Owner Social Publishing Readiness | ARGUS / A3 | Ready for review; DAEDALUS implemented owner-only readback fence and disabled live connect/OAuth/compose actions | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_RESULT.md` |
 
 ## Recently Closed
 

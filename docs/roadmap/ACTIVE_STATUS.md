@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR476A ready for ARGUS
+
+DAEDALUS implemented the PR476A readback-only social publishing fence:
+
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_RESULT.md`
+
+Result:
+
+- Authenticated `GET /social/readiness` now returns supported provider
+  readiness/status categories only.
+- Readiness reports OAuth app availability as booleans/status labels only and
+  keeps credential storage, posting, connection actions, and teaser generation
+  disabled.
+- Existing social connect/OAuth/callback/compose/post-history/teaser routes now
+  fail closed with a bounded paused response before social table writes or
+  provider calls.
+- `/settings/social` is now a readback-only owner page with disabled connector
+  actions and no credential inputs or active connect/OAuth/disconnect/save
+  controls.
+- Public document owner pages no longer import or render the live social posting
+  composer entrypoint.
+
+Current lane:
+
+```text
+PR476A - Owner Social Publishing Readiness
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR476A for readback-only scope, auth, fail-closed social
+  action routes, source/UI reachability, and sensitive-readback boundaries.
+- If accepted, ARGUS should wake MIMIR for closeout and ARIADNE hosted
+  read-only proof.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact failing route,
+  source, or test expectation.
+
 ## Latest ARGUS preflight - PR476A accepted
 
 ARGUS completed the PR476 Social Publishing Connector preflight:

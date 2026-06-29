@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR476A Owner Social Publishing Readiness
+
+DAEDALUS implemented PR476A on 2026-06-29:
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `GET /social/readiness` is authenticated and returns only supported-provider
+  readiness categories;
+- OAuth app readiness is boolean/status-only and does not expose env values;
+- credential storage, posting, connection actions, and teaser generation remain
+  disabled;
+- legacy social connect/OAuth/callback/compose/post-history/teaser routes fail
+  closed before social table writes or provider calls;
+- `/settings/social` no longer renders credential inputs or active
+  connect/OAuth/disconnect/save controls;
+- public document owner pages no longer expose the live social posting composer.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/social.test.ts` | Pass | 3 tests passed; signed-out rejection, signed-in readiness, and fail-closed legacy action routes. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/social-publishing-readiness.test.ts` | Pass | 4 tests passed; helper, Settings source, document source, and social route source checks. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/publishing-approvals.test.ts` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/auth-routes.test.ts` | Pass | 6 tests passed; `/settings/social` remains protected. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Expected test/doc/env-key terms only; no credential values, provider account ids, provider payloads, external post URLs, SQL/table output, stack traces, queues/workers, webhooks, billing path, or live-posting claim introduced. |
+
 ## PR476 Social Publishing Connector Preflight
 
 ARGUS accepted the PR476 preflight on 2026-06-29:
