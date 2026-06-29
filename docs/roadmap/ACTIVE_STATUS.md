@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR470A hosted rehearsal opened
+
+MIMIR routes PR470A to ARIADNE for the hosted owner-route visual rehearsal
+required by the PR470 preflight result:
+
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR470A as owner-only, private Studio-only, web-only, and
+  readback-only.
+- Code/test/typecheck/diff validation passed under ARGUS.
+- The remaining closeout gap is hosted human/browser proof that the owner
+  readiness gate renders cleanly and public routes do not gain voice/avatar
+  controls or claims.
+
+Current lane:
+
+```text
+PR470A - Owner Voice / Avatar Readiness Gate Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER-ROUTE VISUAL REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should check hosted desktop and 390px mobile owner Studio rendering.
+- ARIADNE should sample signed-out public routes and confirm no public
+  voice/avatar controls, media affordances, or availability claims appear.
+- If it passes, wake MIMIR for PR470A closeout.
+- If it fails, wake MIMIR with the smallest repair route.
+- Do not broaden into media behavior, provider calls, storage, public controls,
+  billing, workers/queues, schema, Cloudflare, Redis, or broad UI.
+
 ## Latest ARGUS review - PR470A accepted
 
 ARGUS accepts the owner-only Voice / Avatar readiness gate:
