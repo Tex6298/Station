@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR473B hosted rerun opened
+
+MIMIR routes ARIADNE to rerun the hosted owner encounter provider-readiness
+proof after ARGUS accepted PR473B:
+
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR473B hosted rerun - Owner Encounter Provider Availability Repair
+Owner: ARIADNE / A4
+State: OPEN - HOSTED RERUN OR FAIL-CLOSED PROVIDER/CONFIG BLOCKER
+```
+
+Current baton:
+
+- ARIADNE should run the hosted human/browser rehearsal against Railway.
+- If hosted has an accepted private-context provider, prove one disposable
+  same-owner responder reply and wake MIMIR for closeout.
+- If hosted lacks an accepted private-context provider, verify the PR473B panel
+  fails closed before click and wake MIMIR with the exact provider/config
+  blocker.
+- If readiness lies, the panel still offers a broken click path, mobile fit
+  breaks, or public routes leak encounter affordances, wake MIMIR with the
+  smallest repair needed.
+- Do not interrupt A2 unless ARIADNE returns a concrete product defect.
+
 ## Latest ARGUS review - PR473B accepted
 
 ARGUS accepts PR473B after adding a narrow readiness owner-scope regression:
@@ -51,8 +79,8 @@ Current lane:
 
 ```text
 PR473B - Owner Encounter Provider Availability Repair
-Owner: MIMIR / A1
-State: ARGUS ACCEPTED - HOSTED RERUN OR PROVIDER/CONFIG DECISION
+Owner: ARIADNE / A4
+State: HOSTED RERUN OPENED BY MIMIR
 ```
 
 Current baton:
