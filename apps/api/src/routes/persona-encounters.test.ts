@@ -10,6 +10,7 @@ import {
   setOperationalCacheProviderForTests,
   type OperationalCacheProvider,
 } from "../services/operational-cache.service";
+import { estimateConversationTokens } from "../services/token-credits.service";
 import { personaEncountersRouter } from "./persona-encounters";
 
 process.env.NODE_ENV = "test";
@@ -495,12 +496,19 @@ test("owner preview generates one disposable same-owner responder reply without 
       String(message.content).includes("Owner-authored setup")
     ), true);
 
+    const transaction = db.rows("token_transactions")[0];
+    const providerSystemMessage = providerCalls[0].body.messages.find((message: Row) => message.role === "system");
+    const providerUserMessage = providerCalls[0].body.messages.find((message: Row) => message.role === "user");
+    const expectedInputTokens = estimateConversationTokens({
+      systemPrompt: providerSystemMessage.content,
+      userMessage: providerUserMessage.content,
+    });
     assert.equal(db.rows("token_transactions").length, 1);
-    assert.equal(db.rows("token_transactions")[0].user_id, OWNER_ID);
-    assert.equal(db.rows("token_transactions")[0].chat_id, null);
-    assert.equal(db.rows("token_transactions")[0].model_used, "deepseek-chat");
-    assert.equal(db.rows("token_transactions")[0].input_tokens > 0, true);
-    assert.equal(db.rows("token_transactions")[0].output_tokens > 0, true);
+    assert.equal(transaction.user_id, OWNER_ID);
+    assert.equal(transaction.chat_id, null);
+    assert.equal(transaction.model_used, "deepseek-chat");
+    assert.equal(transaction.input_tokens, expectedInputTokens);
+    assert.equal(transaction.output_tokens > 0, true);
 
     assertNoDurableEncounterWrites(db);
     const responseJson = JSON.stringify(response.body);

@@ -20,6 +20,50 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR473A Owner-Initiated Encounter Runtime Preview ARGUS Review
+
+ARGUS accepted PR473A on 2026-06-29 after a narrow token-accounting patch:
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- PR473A remains authenticated, private Studio-only, same-owner-only,
+  owner-initiated, non-durable, and limited to one model-generated responder
+  reply;
+- both selected personas are verified as owned by `req.user!.id` before any
+  provider call;
+- provider config, token budget, and encounter-specific per-minute/per-day
+  rate limits fail closed before provider calls;
+- the route calls `provider.sendMessage` directly and does not use
+  `enqueueLlmCall` or automatic retry behavior;
+- ARGUS split quota estimation from fallback input-token accounting, so quota
+  still reserves input plus output cap while fallback `inputTokens` records only
+  estimated input prompt tokens when provider usage is absent;
+- successful calls record token usage with `chatId: null` and without prompt or
+  generated output text persistence;
+- no conversation, message, transcript, draft, archive, memory, canon,
+  continuity, public/shareable object, storage, schema, migration, queue,
+  worker, Redis, Cloudflare, billing, public route, cross-owner route, or broad
+  UI scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts` | Pass | 6 tests passed, including fallback input-token accounting. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 10 tests passed after package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 158 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only scope scan | Pass | Expected PR473A route/test/UI/doc references only. |
+| Diff-only secret-shaped-pattern scan | Pass | No real committed secret values found; broad token-label hits were dummy `owner-token` test fixtures and token prop/type names only. |
+
+Residual risk: hosted owner-route visual rehearsal has not run. MIMIR should
+decide whether to close PR473A on ARGUS technical acceptance or route ARIADNE
+for the narrow hosted owner desktop/mobile rehearsal.
+
 ## PR473A Owner-Initiated Encounter Runtime Preview
 
 DAEDALUS implemented PR473A on 2026-06-29:

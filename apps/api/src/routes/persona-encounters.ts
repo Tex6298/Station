@@ -122,13 +122,14 @@ personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
     responderName: responder.name,
     setup: input.setup,
   });
-  const estimatedTokens = estimateConversationTokens({
+  const estimatedInputTokens = estimateConversationTokens({
     systemPrompt,
     userMessage,
-  }) + maxOutputTokens;
+  });
+  const quotaTokenEstimate = estimatedInputTokens + maxOutputTokens;
 
   try {
-    await assertTokenBudgetForEstimate(ownerUserId, estimatedTokens);
+    await assertTokenBudgetForEstimate(ownerUserId, quotaTokenEstimate);
   } catch (error) {
     if (error instanceof TokenQuotaError) {
       return res.status(402).json({
@@ -153,7 +154,7 @@ personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
       ...(chatRoute.routeLabel === "anthropic_platform" ? { model: chatRoute.modelLabel } : {}),
       maxOutputTokens,
     });
-    const inputTokens = aiResponse.usage?.inputTokens ?? estimatedTokens;
+    const inputTokens = aiResponse.usage?.inputTokens ?? estimatedInputTokens;
     const outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
 
     await recordLlmTokenUsage({

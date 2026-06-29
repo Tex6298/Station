@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR473A accepted
+
+ARGUS accepts PR473A after a narrow token-accounting patch:
+
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REVIEW_RESULT.md`
+
+Decision:
+
+- PR473A matches the accepted PR473 preflight lane.
+- The preview is authenticated, private Studio-only, same-owner-only,
+  owner-initiated, non-durable, and limited to one model-generated responder
+  reply.
+- Both selected personas are verified as owned by `req.user!.id` before any
+  provider call.
+- Provider configuration, token budget, and encounter-specific per-minute and
+  per-day operational-cache rate limits fail closed before provider calls.
+- The route calls `provider.sendMessage` directly and does not use
+  `enqueueLlmCall` or automatic retry behavior.
+- ARGUS patched fallback token accounting so quota estimation still reserves
+  input plus output cap, but fallback `inputTokens` records only estimated input
+  prompt tokens when provider usage is absent.
+- Successful calls record token usage with `chatId: null` and no prompt/output
+  text persistence.
+- The private Studio UI labels the preview as disposable, not saved, not a
+  transcript, not shareable, and not sourced from Memory, Archive, Canon,
+  Continuity, Integrity, transcripts, or public source retrieval.
+- No conversation, message, transcript, draft, archive, memory, canon,
+  continuity candidate, generated document/comment/thread/post, public or
+  shareable output, schema, migration, storage, queue, worker, Redis,
+  Cloudflare, billing, Stripe, public route, cross-owner route, autonomous loop,
+  retry helper, provider prompt persistence, provider output persistence, or
+  broad UI scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`: pass, 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters`: pass, 10 tests after package builds.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 158 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, CRLF normalization warnings only.
+- `git diff --cached --check`: pass.
+- Diff-only scope scan: pass, expected PR473A route/test/UI/doc references only.
+- Diff-only secret-shaped-pattern scan: pass, no real committed secret values;
+  broad token-label hits were dummy `owner-token` test fixtures and token
+  prop/type names only.
+
+Current lane:
+
+```text
+PR473A - Owner-Initiated Encounter Runtime Preview
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSEOUT OR ROUTE HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should close PR473A or route ARIADNE for the narrow hosted owner-route
+  visual rehearsal.
+- Do not broaden into public/shareable encounters, cross-owner encounters,
+  durable transcripts, source retrieval, queues/workers, Cloudflare, Redis,
+  billing, schema, migrations, or broader UI.
+
 ## Latest DAEDALUS handoff - PR473A ready for ARGUS review
 
 DAEDALUS implemented the accepted owner-initiated encounter runtime preview:
