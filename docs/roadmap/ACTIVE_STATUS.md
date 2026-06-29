@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484B closed, PR484C opened
+
+MIMIR closes PR484B Connector Credential Storage as accepted:
+
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_CLOSEOUT.md`
+
+Accepted shape:
+
+- migration `062_archive_connector_credentials.sql`;
+- owner-scoped encrypted archive connector credentials for `reddit` and
+  `discord`;
+- separate OAuth state rows with hashed session, nonce, and csrf values;
+- connector-specific `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`;
+- safe metadata-only readbacks;
+- no visible route, UI, hosted API behavior, OAuth redirect/callback, provider
+  call, or import flow.
+
+ARIADNE hosted rehearsal is not required for PR484B.
+
+MIMIR continues the chosen Live Archive Connectors feature through the next
+direct route/API unblock:
+
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484C - Connector OAuth Readiness Route Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE READINESS/OAUTH-STATE ROUTE OR CONFIG BLOCKER
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether PR484C can add an owner-only connector
+  readiness route, OAuth state create route, fail-closed credential-write route,
+  or must stop on config/product blocker.
+- MIMIR found no local `.env` entry for
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`; ARGUS should treat successful
+  credential writes as config-blocked unless an accepted test-only/injected-env
+  shape is enough for this lane.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, files, tests,
+  config assumptions, ARIADNE requirement, and guardrails.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- Do not add live Reddit/Discord API calls, provider SDK execution, configured
+  test-credential execution, source inventory pulls, recurring pulls, import
+  writes, provider token exchange, public connector pages, cross-owner
+  connector access, provider/model calls, billing/Stripe, Redis, Cloudflare,
+  workers, queues, or broad connector marketplace.
+- Do not expose access tokens, refresh tokens, OAuth codes, cookies,
+  credentials, raw external account ids, private source bodies, private
+  messages, archive snippets, provider payloads, storage paths, signed URLs,
+  hosted logs, SQL/table output, stack traces, prompts, env values, or
+  secret-shaped values.
+
 ## Latest ARGUS review - PR484B accepted for MIMIR
 
 ARGUS accepted PR484B Connector Credential Storage after a narrow OAuth state

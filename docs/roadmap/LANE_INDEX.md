@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484B | Connector Credential Storage | MIMIR / A1 | Accepted; close encrypted archive connector credential storage and choose the next Live Archive Connectors move | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_REVIEW_RESULT.md` |
+| PR484C preflight | Connector OAuth Readiness Route | ARGUS / A3 | Open; decide owner-only readiness route, OAuth state create route, fail-closed credential-write route, or config blocker | `docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484B closeout | Connector Credential Storage | MIMIR | Closed; encrypted credential and OAuth state storage accepted, no visible hosted proof required | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_CLOSEOUT.md` |
 | PR484B review | Connector Credential Storage | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS OAuth state hash/readback patch; encrypted connector credential and OAuth state storage stayed migration/service/test/docs only without live connector behavior | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_REVIEW_RESULT.md` |
 | PR484B implementation | Connector Credential Storage | DAEDALUS -> ARGUS | Ready for review; encrypted connector credential and OAuth state storage added without live provider calls, OAuth routes/callbacks, token exchange, source inventory pulls, import writes, route/UI, jobs, or package dependencies | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_RESULT.md` |
 | PR484B preflight | Connector Credential Storage | MIMIR -> ARGUS -> DAEDALUS | Accepted encrypted connector credential store with separate OAuth state storage; no live provider calls, routes/UI, token exchange, source inventory pulls, or import writes | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_PREFLIGHT_RESULT.md` |
