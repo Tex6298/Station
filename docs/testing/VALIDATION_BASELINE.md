@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484A Connector Credential Contract ARGUS Review
+
+ARGUS accepted PR484A on 2026-06-29:
+`docs/roadmap/PR484A_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR484A_CONNECTOR_CREDENTIAL_CONTRACT`.
+
+Reason:
+
+- the implementation is helper/test/docs only and matches the accepted
+  provider-neutral connector credential contract;
+- provider ids are limited to `reddit` and `discord`;
+- the contract defines owner-only states, OAuth state expectations, secret
+  redaction, future encrypted storage expectations, safe inventory boundaries,
+  and explicit owner-confirmation import boundaries;
+- no live provider call, OAuth route/callback/token exchange, schema/migration,
+  route/UI behavior, package dependency, new config, job/queue/worker, Redis,
+  Cloudflare, billing/Stripe, provider/model call, or import write was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 33 tests passed across the new contract, no-write import preview, Reddit/Discord parsers, social fail-closed route behavior, and web social readiness source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check 479736782723b1de97e758b60b4c65bb52132b83..b30222b05b8ff4a95613127b6e768b2f41b5b0f6` | Pass | No whitespace errors. |
+| Path-scope check | Pass | Changed paths are the archive connector helper/test, architecture note, roadmap docs, and validation baseline. |
+| Diff sensitive/scope scan | Pass | Matches were expected contract terms, redacted fixtures, negative assertions, or guardrail docs; no live connector implementation or secret value was found. |
+
 ## PR484A Connector Credential Contract
 
 DAEDALUS implemented PR484A on 2026-06-29:

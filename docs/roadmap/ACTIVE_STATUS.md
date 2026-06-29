@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484A accepted for MIMIR
+
+ARGUS accepted PR484A Connector Credential Contract:
+
+`docs/roadmap/PR484A_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR484A_CONNECTOR_CREDENTIAL_CONTRACT
+```
+
+Current lane:
+
+```text
+PR484A - Connector Credential Contract
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND DECIDE NEXT MOVE
+```
+
+Current baton:
+
+- MIMIR should close PR484A.
+- ARIADNE hosted rehearsal is not required because no visible route, UI, or
+  hosted API behavior changed.
+- If MIMIR continues live archive connector depth, the next move should be a
+  separate named lane using the accepted credential/callback/redaction/import
+  confirmation contract as the boundary source.
+
+Boundaries confirmed:
+
+- No live Reddit/Discord API calls, OAuth redirects/callbacks, token exchange,
+  provider SDKs, route/UI behavior, schema/migrations, package dependencies,
+  new external config, jobs/queues/workers, Redis, Cloudflare, billing/Stripe,
+  provider/model calls, or import writes were added.
+- Access tokens, refresh tokens, OAuth codes, cookies, credentials,
+  secret-shaped values, raw external account ids, private source bodies,
+  private messages, archive snippets, unsafe permalinks, provider payloads,
+  storage paths, signed URLs, hosted logs, SQL/table details, stack traces, and
+  prompts remain out of readback.
+
 ## Latest DAEDALUS implementation - PR484A ready for ARGUS
 
 DAEDALUS implemented the accepted PR484A Connector Credential Contract:
