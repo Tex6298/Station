@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR474A ready for ARGUS review
+
+DAEDALUS implemented the Developer Space commercial packaging readback:
+
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_RESULT.md`
+
+Implementation:
+
+- Added a small web helper for Developer Space commercial packaging readback.
+- The helper derives the Canon / Developer plan name, Developer Space limit,
+  billing action state, and action labels from existing `billing-tier-display`
+  and `billing-plan-actions` helpers.
+- Added signed-out and signed-in `/developer-spaces` copy explaining that
+  Developer Spaces are a Canon / Developer capability.
+- Added a bounded Station `/billing` link for plan review, upgrade, or
+  management; the Developer Spaces page does not open raw Checkout or Portal
+  URLs.
+- Kept copy explicit that Stripe handoff is test-mode in this build and that
+  Station reflects plan changes only after verified server subscription state.
+- Kept Developer Spaces framed as public-safe observatory/readback for
+  self-hosted project runtimes, not Station-hosted app infrastructure.
+
+Non-scope confirmation:
+
+- No Stripe Checkout, Customer Portal, webhook, customer binding, entitlement
+  mutation, Price selection, product config, tax, invoices, coupons, Connect,
+  marketplace payments, usage billing, trials, plan architecture, live-money
+  claim, schema, migration, storage, hosted runtime, provider policy, API
+  route, or entitlement logic changed.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 56 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:billing`: pass, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 160 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+- Diff-only sensitive-pattern scan: pass; expected terminology-only hits such
+  as Stripe, Checkout, Portal, subscription, and test-mode, with no raw Stripe
+  object ids, Checkout/Portal URLs, payment details, SQL output, logs, tokens,
+  or secrets.
+
+Current lane:
+
+```text
+PR474A - Developer Space Commercial Packaging Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR474A against the accepted PR474 commercial packaging
+  boundary.
+- If accepted, ARGUS should wake MIMIR for closeout or ARIADNE read-only hosted
+  rehearsal.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR474 accepted for DAEDALUS
 
 ARGUS accepts the smallest commercial packaging slice:

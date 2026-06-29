@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import { developerSpaceCommercialPackagingReadback } from "@/lib/developer-space-commercial-packaging";
 import type { DeveloperSpaceRecord, DeveloperSpaceVisibility, DeveloperSpaceVisualisationType } from "@station/types/developer-space";
 
 const VISIBILITY_OPTIONS: Array<{ value: DeveloperSpaceVisibility; label: string; help: string }> = [
@@ -19,6 +20,8 @@ const VISUALISATION_OPTIONS: Array<{ value: DeveloperSpaceVisualisationType; lab
   { value: "world_map", label: "World map" },
   { value: "constellation", label: "Constellation" },
 ];
+
+const COMMERCIAL_PACKAGING = developerSpaceCommercialPackagingReadback();
 
 export default function DeveloperSpacesPage() {
   const [spaces, setSpaces] = useState<DeveloperSpaceRecord[]>([]);
@@ -113,7 +116,19 @@ export default function DeveloperSpacesPage() {
           <p className="station-page-lede">
             Browse public observatories, or sign in to create one, generate a private ingestion key, and stream project nodes, events, and snapshots into Station.
           </p>
-          <Link href="/login" className="station-link-button" style={{ marginTop: "1rem" }}>Sign in to create one</Link>
+          <div style={{ borderTop: "1px solid #d8d3c8", marginTop: "1.25rem", paddingTop: "1rem", display: "grid", gap: "0.65rem" }}>
+            <p style={{ margin: 0, color: "#1f2529", fontWeight: 650 }}>{COMMERCIAL_PACKAGING.badge}</p>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.55 }}>
+              {COMMERCIAL_PACKAGING.entitlementCopy} {COMMERCIAL_PACKAGING.billingBoundaryCopy}
+            </p>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.85rem", lineHeight: 1.5 }}>
+              {COMMERCIAL_PACKAGING.verifiedStateCopy}
+            </p>
+            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+              <Link href="/login" className="station-link-button">Sign in to create one</Link>
+              <Link href={COMMERCIAL_PACKAGING.billingHref} className="station-muted-button">{COMMERCIAL_PACKAGING.routeActionLabel}</Link>
+            </div>
+          </div>
         </section>
         {publicSpaces.length > 0 ? (
           <section style={{ display: "grid", gap: "0.75rem" }}>
@@ -145,6 +160,39 @@ export default function DeveloperSpacesPage() {
         </p>
       </section>
 
+      <section className="station-panel" style={{ display: "grid", gap: "0.75rem" }}>
+        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
+          <div style={{ display: "grid", gap: "0.35rem", maxWidth: 760 }}>
+            <p className="station-status-pill" style={{ margin: 0, color: "#8a6422" }}>{COMMERCIAL_PACKAGING.badge}</p>
+            <h2 style={{ margin: 0, fontSize: "1.15rem" }}>Commercial packaging readback</h2>
+            <p style={{ margin: 0, color: "#687078", fontSize: "0.9rem", lineHeight: 1.55 }}>
+              {COMMERCIAL_PACKAGING.entitlementCopy}
+            </p>
+          </div>
+          <Link href={COMMERCIAL_PACKAGING.billingHref} className="station-muted-button">{COMMERCIAL_PACKAGING.routeActionLabel}</Link>
+        </div>
+        <div style={{ display: "grid", gap: "0.5rem", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+          <div>
+            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Plan boundary</p>
+            <p style={{ margin: 0, color: "#1f2529", fontSize: "0.92rem" }}>{COMMERCIAL_PACKAGING.planName}</p>
+          </div>
+          <div>
+            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Included limit</p>
+            <p style={{ margin: 0, color: "#1f2529", fontSize: "0.92rem" }}>{COMMERCIAL_PACKAGING.includedLimit}</p>
+          </div>
+          <div>
+            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Billing handoff</p>
+            <p style={{ margin: 0, color: "#1f2529", fontSize: "0.92rem" }}>Station /billing</p>
+          </div>
+        </div>
+        <p style={{ margin: 0, color: "#687078", fontSize: "0.85rem", lineHeight: 1.5 }}>
+          {COMMERCIAL_PACKAGING.billingBoundaryCopy} {COMMERCIAL_PACKAGING.verifiedStateCopy}
+        </p>
+        <p style={{ margin: 0, color: "#687078", fontSize: "0.85rem", lineHeight: 1.5 }}>
+          {COMMERCIAL_PACKAGING.runtimeBoundaryCopy}
+        </p>
+      </section>
+
       {error && (
         <div className="station-notice" data-tone="error">
           {error}
@@ -161,7 +209,7 @@ export default function DeveloperSpacesPage() {
           <div>
             <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create a Developer Space</h2>
             <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Canon / Developer tier and above. Start private, then make it public when your feed is ready.
+              {COMMERCIAL_PACKAGING.planName} tier and above. Start private, then make it public when your feed is ready.
             </p>
           </div>
 

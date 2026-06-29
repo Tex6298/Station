@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR474A | Developer Space Commercial Packaging Readback | DAEDALUS / A2 | Open; implement bounded Developer Space paid-plan readback using existing Billing handoff | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_RESULT.md` |
+| PR474A | Developer Space Commercial Packaging Readback | ARGUS / A3 | Ready for review; Developer Spaces page now has bounded Canon / Developer packaging readback and `/billing` handoff | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR474A implementation | Developer Space Commercial Packaging Readback | DAEDALUS -> ARGUS | Ready for review; bounded Developer Spaces paid-plan readback uses existing Billing helpers and links only to Station `/billing` | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_RESULT.md` |
 | PR474 preflight | Commercial Packaging Preflight | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR474A Developer Space Commercial Packaging Readback; no Stripe rebuild or live-money claim | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_RESULT.md` |
 | PR474 opened | Commercial Packaging Preflight | MIMIR -> ARGUS | Open; decide smallest safe PR474A commercial packaging slice or exact blocker | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_ARGUS.md` |
 | PR473 closeout | Owner-Initiated Encounter Runtime | MIMIR | Closed at provider/config boundary; hosted panel fails closed because no accepted private-context provider route is configured | `docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_CLOSEOUT.md` |

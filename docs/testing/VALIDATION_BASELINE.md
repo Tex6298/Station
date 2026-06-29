@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR474A Developer Space Commercial Packaging Readback
+
+DAEDALUS implemented PR474A on 2026-06-29:
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the Developer Spaces page now says Developer Spaces are a Canon / Developer
+  capability;
+- upgrade and management review points to Station `/billing`;
+- the helper derives plan name, Developer Space limit, and billing action copy
+  from existing billing helpers instead of duplicating price constants;
+- Stripe Checkout and Customer Portal mechanics remain owned by `/billing`;
+- copy stays honest about test-mode Stripe handoff and verified server
+  subscription state;
+- Developer Spaces remain framed as public-safe readback for self-hosted
+  runtimes, not Station-hosted developer app infrastructure.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 56 tests passed, including new commercial packaging helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 16 tests passed; billing route, webhook, plan-action, and tier-display coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 160 tests passed after visible Developer Spaces page copy changed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive-pattern scan | Pass | Expected terminology-only matches such as Stripe, Checkout, Portal, subscription, and test-mode; no object ids, payment details, URLs, SQL output, logs, tokens, or secrets. |
+
+Residual risk: ARGUS and, if routed, ARIADNE still need to review the visible
+copy on hosted routes. This PR474A implementation did not change live Stripe
+state, entitlement mutation, schema, or API behavior.
+
 ## PR474 Commercial Packaging Preflight
 
 ARGUS accepted PR474 preflight on 2026-06-29:
