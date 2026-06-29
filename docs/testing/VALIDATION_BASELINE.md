@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR471A Owner Encounter Readiness Gate
+
+DAEDALUS implemented PR471A on 2026-06-29:
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the first Persona-to-Persona Encounters implementation is owner-only readback
+  in the private persona Studio home;
+- the readback says persona-to-persona encounters are not enabled yet;
+- autonomous persona chat, background conversations, scheduled encounters,
+  provider calls, multi-turn model loops, token-credit deductions, durable
+  encounter transcripts, generated encounter output, public/shareable pages,
+  comments, and posts remain disabled or absent;
+- consent, provenance, moderation, reporting, stop controls, revocation, cost,
+  rate-limit, and plan enforcement are listed as prerequisites before any
+  future encounter behavior;
+- the helper test is part of `test:studio-ui`.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 150 tests passed, including the new encounter readiness helper. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck ran. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted owner-route visual rehearsal has not run in this
+DAEDALUS pass. If ARGUS accepts the implementation, MIMIR should decide whether
+to route ARIADNE for the narrow hosted owner-route check from the PR471
+preflight result.
+
 ## PR471 Persona-to-Persona Encounters Preflight
 
 ARGUS accepted PR471 preflight on 2026-06-29:

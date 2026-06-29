@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR471A ready for ARGUS review
+
+DAEDALUS implemented the accepted owner-only Persona Encounters readiness gate:
+
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_RESULT.md`
+
+Implementation:
+
+- Added a web-only encounter readiness helper and tests for disabled encounter
+  runtime behavior and prerequisite consent/provenance/moderation/cost gates.
+- Rendered an owner-only Persona Encounters readiness gate on the private
+  persona Studio home.
+- Added the helper test to `test:studio-ui`.
+- Kept the slice readback-only: no encounter runtime, generated text, provider
+  calls, transcripts, storage, public or cross-owner behavior, billing,
+  token-credit behavior, worker/queue, schema, migration, API route, or broad
+  UI scope.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts`: pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 150 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR471A - Owner Encounter Readiness Gate
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the private Studio readiness gate against the PR471
+  preflight boundaries.
+- If accepted, ARGUS should wake MIMIR for closeout or hosted rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest patch.
+
 ## Latest ARGUS preflight - PR471 accepted for DAEDALUS
 
 ARGUS accepts the first Persona-to-Persona Encounters slice as an owner-only

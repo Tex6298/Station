@@ -8,6 +8,7 @@ import {
   studioPersonaWorkspacePrimaryActions,
   studioPersonaWorkspaceTabs,
 } from "@/lib/studio-navigation";
+import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
 import { voiceAvatarReadinessGate } from "@/lib/voice-avatar-readiness";
 import {
   publicInteractionActivityBoundaryCopy,
@@ -176,8 +177,30 @@ export function PublicInteractionReadback({ persona }: { persona: PersonaWithCon
 export function VoiceAvatarReadinessGate() {
   const gate = voiceAvatarReadinessGate();
 
+  return <ReadinessGatePanel gate={gate} ariaLabel="Voice and avatar readiness" />;
+}
+
+export function PersonaEncounterReadinessGate() {
+  const gate = personaEncounterReadinessGate();
+
+  return <ReadinessGatePanel gate={gate} ariaLabel="Persona encounter readiness" />;
+}
+
+function ReadinessGatePanel({
+  gate,
+  ariaLabel,
+}: {
+  gate: {
+    eyebrow: string;
+    title: string;
+    summary: string;
+    privacy: string;
+    items: Array<{ key: string; label: string; status: string; body: string }>;
+  };
+  ariaLabel: string;
+}) {
   return (
-    <section className="studio-readiness-panel" aria-label="Voice and avatar readiness">
+    <section className="studio-readiness-panel" aria-label={ariaLabel}>
       <div className="studio-section-heading">
         <div className="section-label">{gate.eyebrow}</div>
         <h2>{gate.title}</h2>
