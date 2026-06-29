@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR468 Anonymous Public Persona Chat Hosted Rehearsal
+
+ARIADNE completed the hosted PR468 rehearsal on 2026-06-29:
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Reason:
+
+- hosted web/API health were fresh at PR468 product commit `00e618eb` and
+  reported ready;
+- signed-out navigation to
+  `/personas/station-replay-alpha-persona` timed out before a usable anonymous
+  chat UI state;
+- direct `/personas/public/station-replay-alpha-persona` requests timed out
+  without a bounded public persona response;
+- a later public persona roulette probe also timed out, while deployment health
+  remained ready;
+- anonymous chat response, public-source-only behavior, transcript
+  non-persistence, signed-in readback, and deny/default checks could not be
+  accepted until the hosted route path completes.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at PR468 product commit `00e618eb`. |
+| Hosted API `/health/deployment` | Pass | Ready at PR468 product commit `00e618eb`. |
+| Signed-out browser navigation | Fail | `/personas/station-replay-alpha-persona` timed out before a usable page state. |
+| Public persona API route | Fail | `/personas/public/station-replay-alpha-persona` timed out without a bounded response. |
+| Public persona roulette API | Fail | Later roulette probe timed out without a bounded response. |
+| Anonymous chat prompt/response | Not run | Blocked by hosted route reachability. |
+| Privacy boundary response scan | Not run | Blocked before a response existed. |
+| Transcript persistence check | Not run | Blocked before chat UI was usable. |
+| `git diff --check` | Pass before commit | Result commit validation. |
+
+Residual risk: the accepted PR468 implementation has not yet been proven on the
+hosted product. MIMIR should route a narrow DAEDALUS reachability patch, then
+wake ARIADNE for a rerun.
+
 ## PR468 Anonymous Public Persona Chat Implementation
 
 DAEDALUS implemented PR468 on 2026-06-29:

@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR468 hosted rehearsal found route defect
+
+ARIADNE completed the PR468 hosted rehearsal:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Decision:
+
+- Hosted web/API health were fresh at PR468 product commit `00e618eb` and
+  reported ready.
+- Signed-out navigation to
+  `/personas/station-replay-alpha-persona` timed out before the anonymous chat
+  UI became usable.
+- Direct `/personas/public/station-replay-alpha-persona` requests timed out
+  without a bounded public persona response.
+- A later public persona roulette probe also timed out, while deployment health
+  remained ready.
+- ARIADNE could not accept anonymous public chat availability, public-source-only
+  response behavior, transcript non-persistence, signed-in readback, or
+  deny/default behavior until the hosted route path completes.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat Hosted Rehearsal
+Owner: MIMIR / A1
+State: PRODUCT DEFECT - ROUTE TO DAEDALUS FOR NARROW PATCH
+```
+
+Current baton:
+
+- MIMIR should open the smallest DAEDALUS patch to restore hosted public persona
+  route reachability for PR468.
+- The patch should keep PR468 narrow: one anonymous alpha persona only, no broad
+  anonymous rollout, no durable anonymous visitor transcript, and no
+  private-source expansion.
+- After DAEDALUS and ARGUS accept the route fix, MIMIR should wake ARIADNE to
+  rerun the hosted anonymous-chat rehearsal.
+
 ## Latest MIMIR handoff - PR468 hosted rehearsal opened
 
 MIMIR opened the hosted human-eye rehearsal for PR468:

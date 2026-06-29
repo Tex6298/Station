@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468 | Anonymous Public Persona Chat Hosted Rehearsal | ARIADNE / A4 | Open; hosted rehearsal before MIMIR closeout and before choosing the next named Phase 3 feature | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_ARIADNE.md` |
+| PR468 | Anonymous Public Persona Chat Hosted Rehearsal | MIMIR / A1 | Product defect; hosted public persona page/API route reachability needs a narrow DAEDALUS patch before closeout | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR468 hosted rehearsal | Anonymous Public Persona Chat | MIMIR -> ARIADNE -> MIMIR | Product defect; hosted public persona page/API routes hang before anonymous chat can be accepted | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RESULT.md` |
 | PR468 rehearsal opened | Anonymous Public Persona Chat | MIMIR -> ARIADNE | Open; prove hosted signed-out alpha chat, deny/default boundaries, privacy boundary, and mobile/desktop fit before PR468 closeout | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_ARIADNE.md` |
 | PR468 review | Anonymous Public Persona Chat | DAEDALUS -> ARGUS -> MIMIR | Accepted; one replay persona anonymous chat keeps owner rollback, hashed anonymous rate limit, owner-paid usage, public-source-only prompts, no visitor transcript persistence, and signed-in-only reports | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REVIEW_RESULT.md` |
 | PR468 implementation | Anonymous Public Persona Chat | DAEDALUS -> ARGUS | Ready for review; anonymous chat implemented only for `station-replay-alpha-persona` with owner rollback, hashed anonymous rate limit, owner-paid usage, and no visitor transcript persistence | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md` |

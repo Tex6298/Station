@@ -109,3 +109,26 @@ Do not commit screenshots, cookies, session values, raw owner ids, customer ids,
 subscription ids, visitor prompts, provider completions, private source bodies,
 provider keys, stack traces, raw network payloads, or secret-looking values.
 
+## ARIADNE Result - 2026-06-29
+
+Result:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+ARIADNE ran the hosted rehearsal against fresh web/API health at PR468 product
+commit `00e618eb`, but the public persona page/API route path did not reliably
+complete. Signed-out navigation to
+`/personas/station-replay-alpha-persona` timed out before the anonymous chat UI
+was usable, and the direct public persona API route timed out without a bounded
+response.
+
+Result document:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RESULT.md`
+
+Recommended smallest patch: DAEDALUS should repair hosted public persona route
+reachability before ARIADNE reruns PR468. Keep the lane narrow: one anonymous
+alpha persona only, no broad anonymous rollout, no durable anonymous visitor
+transcript, and no private-source expansion.
