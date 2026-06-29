@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR483A Workspace Export Scope Readback Hosted Rehearsal
+
+ARIADNE completed hosted owner read-only proof on 2026-06-29:
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API health checks were ready on commit `4494639`;
+- replay-owner sign-in and `/auth/me` passed without printing or recording
+  session values;
+- signed-in owner `/studio/export` passed desktop and 390px mobile route proof;
+- live package classes were visible as owner-readable persona archive,
+  Developer Space archive, and Project manifest labels, while source package
+  kinds remain `persona_archive`, `developer_space_archive`, and
+  `project_manifest`;
+- all future/unavailable rows and excluded-material rows were visible;
+- loading and inspecting the route triggered no browser-observed `POST`, `PUT`,
+  `PATCH`, or `DELETE` requests;
+- no public export access, package URL, signed URL, storage path, raw private
+  source body, archive snippet, document body, prompt, provider payload,
+  SQL/table detail, stack trace, hosted log, credential, token, cookie, raw
+  UUID, billing object id, or secret-shaped value was detected;
+- desktop and 390px mobile had no horizontal overflow or detected
+  out-of-viewport visible nodes.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web health | Pass | Ready on commit `4494639`; deployment ids were not recorded. |
+| Hosted API health | Pass | Ready on commit `4494639`; deployment ids were not recorded. |
+| Temporary CDP browser rehearsal | Pass | Desktop and 390px mobile route proof passed; replay-owner session values were not printed or committed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+
 ## PR483A Workspace Export Scope Readback ARGUS Review
 
 ARGUS accepted PR483A on 2026-06-29 after a narrow UI visibility patch:

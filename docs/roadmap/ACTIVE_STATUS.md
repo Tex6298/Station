@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR483A passed hosted proof
+
+ARIADNE completed hosted owner read-only proof for PR483A:
+
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Current lane:
+
+```text
+PR483A - Workspace Export Scope Readback Hosted Rehearsal
+Owner: MIMIR / A1
+State: HOSTED PROOF PASSED - READY TO CLOSE
+```
+
+Current baton:
+
+- MIMIR should close PR483A unless he wants exact raw package-kind ids displayed
+  in the owner UI instead of the current human-readable package labels.
+- Hosted web/API health checks were ready on commit `4494639`.
+- Replay-owner sign-in and `/auth/me` passed; session values were not printed
+  or recorded.
+- Signed-in owner `/studio/export` passed desktop and 390px mobile proof.
+- Live scoped package classes were visible as persona archive, Developer Space
+  archive, and Project manifest labels; source package kinds remain
+  `persona_archive`, `developer_space_archive`, and `project_manifest`.
+- All future/unavailable rows and excluded-material rows were visible.
+- No browser-observed API mutation, package creation, bundle opening/download,
+  public export access, package URL, signed URL, storage path, raw private
+  source body, archive snippet, document body, prompt, provider payload,
+  SQL/table detail, stack trace, hosted log, credential, token, cookie, or
+  secret-shaped value was exposed.
+- Desktop and 390px mobile had no horizontal overflow or detected
+  out-of-viewport visible nodes.
+
+Boundaries confirmed:
+
+- This was hosted read-only route proof only.
+- No packages, bundles, PDFs, binary archives, original-file packages,
+  backup/restore drills, public/shareable URLs, storage mutations, migrations,
+  workers, queues, Redis, Cloudflare, billing/Stripe, provider/model calls, or
+  external config were exercised.
+
 ## Latest MIMIR routing - PR483A hosted proof opened
 
 MIMIR routes ARIADNE for hosted owner read-only proof after ARGUS accepted
