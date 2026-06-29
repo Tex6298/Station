@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR482B seed decision opened
+
+MIMIR routes ARGUS for the narrow PR482B API Bridge redaction seed decision:
+
+`docs/roadmap/PR482B_API_BRIDGE_REDACTION_SEED_DECISION_ARGUS.md`
+
+Current lane:
+
+```text
+PR482B - API Bridge Redaction Seed Decision
+Owner: ARGUS / A3
+State: OPEN - DECIDE HOSTED REDACTION SEED OR CLOSEOUT
+```
+
+Why:
+
+- ARIADNE passed PR482A hosted owner route/content/mobile/no-mutation proof.
+- The only blocker is missing hosted setup-label redaction seed coverage.
+- MIMIR is not waking DAEDALUS directly because adding a synthetic
+  secret-shaped public Developer Space label could itself create a privacy or
+  product risk.
+
+Current baton:
+
+- ARGUS should decide whether PR482A may close with hosted route proof plus
+  existing redaction helper/source tests, whether a tiny hosted synthetic seed
+  and rerun is required, or whether hosted seed proof should be deferred.
+- If ARGUS requires a seed, ARGUS should wake DAEDALUS with exact synthetic
+  seed scope, public-surface guardrails, and no broader API Bridge work.
+- If ARGUS accepts closeout, ARGUS should wake MIMIR with
+  `CLOSE_PR482A_WITH_REDACTION_TEST_COVERAGE`.
+
+Boundaries:
+
+- Do not interrupt active A2 work.
+- Do not use real secrets, credentials, tokens, keys, UUIDs tied to real
+  resources, private source material, provider payloads, logs, SQL/table
+  output, Cloudflare/Redis/workers, billing/Stripe, schema/migrations, or broad
+  Developer Space redesign.
+
 ## Latest ARIADNE hosted proof - PR482A seed blocker
 
 ARIADNE completed the hosted owner read-only proof for PR482A:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR482A hosted rehearsal | API Bridge Setup Packet Readback | ARIADNE / A4 | Open; verify hosted owner desktop/mobile readback, key/secret safety, no mutation behavior, and setup-label redaction | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_ARIADNE.md` |
+| PR482B seed decision | API Bridge Redaction Seed Decision | ARGUS / A3 | Open; decide whether PR482A can close with redaction test coverage or needs a tiny hosted synthetic seed/rerun | `docs/roadmap/PR482B_API_BRIDGE_REDACTION_SEED_DECISION_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR482A hosted rehearsal | API Bridge Setup Packet Readback | ARIADNE -> MIMIR | Seed blocker; hosted route/content/mobile/no-mutation proof passed, but no hosted secret-shaped setup-label seed existed for redaction proof | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_RESULT.md` |
 | PR482A rehearsal opened | API Bridge Setup Packet Readback | MIMIR -> ARIADNE | Open; hosted owner read-only proof after ARGUS accepted API Bridge setup packet readback | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_ARIADNE.md` |
 | PR482A review | API Bridge Setup Packet Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS setup-label redaction patch; owner manage route shows placeholder routes, header names, payload families, safe key status, and connection-tier truth without live send, API/schema, infra, billing, or credential scope | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REVIEW_RESULT.md` |
 | PR482A implementation | API Bridge Setup Packet Readback | DAEDALUS -> ARGUS | Ready for review; owner manage route shows placeholder routes, header names, payload families, safe key status, and connection-tier truth without live send, API/schema, infra, billing, or credential scope | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_RESULT.md` |
