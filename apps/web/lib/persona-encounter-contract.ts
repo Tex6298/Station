@@ -61,3 +61,10 @@ export function personaEncounterContractIsReadbackOnly(
     || item.status === "Blocked"
   ));
 }
+
+export function personaEncounterContractCanRenderForOwner(
+  persona: { ownerUserId?: string | null } | null | undefined,
+  viewerUserId: string | null | undefined,
+) {
+  return Boolean(persona?.ownerUserId && viewerUserId && persona.ownerUserId === viewerUserId);
+}

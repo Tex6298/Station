@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR472A accepted
+
+ARGUS accepts the owner-only Encounter Consent / Provenance contract readback
+after a narrow owner-readback render guard:
+
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REVIEW_RESULT.md`
+
+Decision:
+
+- PR472A matches the accepted PR472 preflight lane.
+- The implementation is web-only, private Studio-only, owner-only, and
+  contract/readback-only.
+- The UI says persona-to-persona encounters still have no runtime and lists the
+  prerequisite same-owner consent, cross-owner consent blockers, provenance
+  labels, stop/revocation controls, cost/rate-limit/plan controls, and
+  public/shareable moderation/reporting blockers.
+- ARGUS patched the new panel so it renders only when the persona owner readback
+  matches the authenticated viewer id; non-owner public serializer reads do not
+  render the PR472A panel.
+- No encounter runtime, provider calls, generated encounter text, durable
+  transcripts, draft persistence, storage, cross-owner behavior, public routes,
+  public controls, billing/token-credit behavior, Redis, Cloudflare, queues,
+  workers, schema, migrations, API route, or broad UI scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-contract.test.ts`: pass, 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts`: pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 154 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+- Diff-only scope and secret-shaped-pattern scans: pass.
+
+Current lane:
+
+```text
+PR472A - Owner Encounter Consent / Provenance Contract
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSEOUT OR ROUTE HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should close PR472A or route ARIADNE for the narrow hosted owner-route
+  visual rehearsal named in the PR472 preflight result.
+- Do not broaden into encounter runtime, generated output, provider calls,
+  transcripts, storage, cross-owner behavior, public controls, billing,
+  workers/queues, schema, API routes, Cloudflare, Redis, or broad UI.
+
 ## Latest DAEDALUS handoff - PR472A ready for ARGUS review
 
 DAEDALUS implemented the accepted owner-only Encounter Consent / Provenance

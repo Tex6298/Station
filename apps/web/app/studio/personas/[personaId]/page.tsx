@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import type { ArchiveExportPackage } from "@station/types/export";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
+import { personaEncounterContractCanRenderForOwner } from "@/lib/persona-encounter-contract";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
 import { PersonaChat } from "@/components/studio/persona-chat";
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
@@ -25,6 +26,7 @@ export default function PersonaPage() {
   const [documents, setDocuments] = useState<PublishedContinuityDocument[]>([]);
   const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  const [viewerUserId, setViewerUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +42,7 @@ export default function PersonaPage() {
           return;
         }
         setToken(session.access_token);
+        setViewerUserId(session.user.id);
 
         const [personaData, documentData, exportData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
@@ -85,7 +88,7 @@ export default function PersonaPage() {
       <PublicInteractionReadback persona={persona} />
       <VoiceAvatarReadinessGate />
       <PersonaEncounterReadinessGate />
-      <PersonaEncounterContractPanel />
+      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
 
       <section className="studio-home-grid">
         <div className="studio-home-main">

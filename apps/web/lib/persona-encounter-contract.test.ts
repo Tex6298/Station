@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  personaEncounterContractCanRenderForOwner,
   personaEncounterContractGate,
   personaEncounterContractIsReadbackOnly,
 } from "./persona-encounter-contract";
@@ -56,4 +57,12 @@ test("persona encounter contract helper returns defensive item copies", () => {
 
   assert.equal(second.items[0]!.status, "Same-owner only");
   assert.equal(personaEncounterContractIsReadbackOnly(first), true);
+});
+
+test("persona encounter contract owner render guard rejects non-owner and public readbacks", () => {
+  assert.equal(personaEncounterContractCanRenderForOwner({ ownerUserId: "owner-1" }, "owner-1"), true);
+  assert.equal(personaEncounterContractCanRenderForOwner({ ownerUserId: "owner-1" }, "owner-2"), false);
+  assert.equal(personaEncounterContractCanRenderForOwner({ ownerUserId: null }, "owner-1"), false);
+  assert.equal(personaEncounterContractCanRenderForOwner({}, "owner-1"), false);
+  assert.equal(personaEncounterContractCanRenderForOwner({ ownerUserId: "owner-1" }, null), false);
 });

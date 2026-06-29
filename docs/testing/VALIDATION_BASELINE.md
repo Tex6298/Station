@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR472A Owner Encounter Consent / Provenance Contract ARGUS Review
+
+ARGUS accepted PR472A on 2026-06-29:
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT`.
+
+Reason:
+
+- PR472A remains owner-only, private Studio-only, web-only, and
+  contract/readback-only;
+- the readback says persona-to-persona encounters still have no runtime;
+- future same-owner consent, cross-owner blockers, provenance labels,
+  stop/revocation controls, cost/rate-limit/plan controls, and public/shareable
+  moderation/reporting blockers are named before any provider-backed encounter
+  call, transcript, or sharing can exist;
+- ARGUS added an owner-readback render guard so non-owner public serializer
+  reads do not render the PR472A panel;
+- no encounter runtime, generated text, provider call, transcript/draft
+  persistence, storage, public/cross-owner behavior, billing, token-credit
+  behavior, worker/queue, schema, migration, API route, or broad UI scope was
+  added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-contract.test.ts` | Pass | 4 tests passed, including owner render guard. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 154 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck ran. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only scope scan | Pass | Expected negative/readback copy matches only. |
+| Diff-only secret-shaped-pattern scan | Pass | No hits. |
+
+Residual risk: hosted owner-route visual rehearsal has not run. MIMIR should
+decide whether to route ARIADNE for the narrow hosted owner/public route check
+from the PR472 preflight result.
+
 ## PR472A Owner Encounter Consent / Provenance Contract
 
 DAEDALUS implemented PR472A on 2026-06-29:
