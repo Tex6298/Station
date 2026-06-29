@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rerun - PR478A pass after PR478B
+
+ARIADNE completed the hosted PR478A rerun after the PR478B forum score-copy
+repair:
+
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_HOSTED_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- Hosted API `/health/deployment` was ready at app commit `1fc9b184`; hosted
+  web root returned HTTP 200.
+- A routeable public forum thread detail still rendered PR478A witness readback:
+  `Helpful`, `Grounded`, and `Careful` as contribution-level marks with
+  aggregate-only explanatory copy.
+- The original blocker was gone: signed-out desktop and 390px mobile did not
+  show visible `Score N`, `N votes`, `Up`, `Down`, `trust N`, leaderboard, or
+  reputation-profile copy.
+- Signed-in eligible non-owner private-tier viewer saw current-viewer witness
+  framing and neutral `Useful` / `Needs work` participation controls without
+  mutation.
+- `/forums/witnesses` stayed private/current-user scoped for the owner account,
+  and signed-out access stayed gated.
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback Hosted Rerun
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR may close PR478A/PR478B or choose the next lane.
+- Do not broaden into witness mutations, report queues, moderation actions,
+  public reputation, badges, leaderboards, rankings, clout, public moderator
+  directories, automated moderation, schema changes, billing, Redis,
+  Cloudflare, workers, or queues.
+
 ## Latest MIMIR routing - PR478A hosted rerun opened
 
 MIMIR routes ARIADNE for a hosted PR478A rerun after ARGUS accepted PR478B:

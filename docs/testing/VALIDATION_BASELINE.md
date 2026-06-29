@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478A Community Trust Readback Hosted Rerun
+
+ARIADNE completed the hosted PR478A rerun after PR478B on 2026-06-29:
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_HOSTED_RERUN_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted API health was ready at app commit `1fc9b184`, and hosted web returned
+  HTTP 200;
+- a routeable public forum thread detail still rendered Helpful, Grounded, and
+  Careful witness readback as contribution-level aggregate marks;
+- the original blocker was gone: signed-out desktop and 390px mobile did not
+  show visible `Score N`, `N votes`, `Up`, `Down`, `trust N`, leaderboard, or
+  reputation-profile copy;
+- signed-in eligible non-owner private-tier viewer saw current-viewer witness
+  framing and neutral `Useful` / `Needs work` controls without mutation;
+- `/forums/witnesses` remained private/current-user scoped for the owner
+  account and signed-out access stayed gated.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `1fc9b184`. |
+| Hosted web root | Pass | Returned HTTP 200. |
+| Public thread routeability | Pass | Public forum thread detail was routeable. |
+| Signed-out public thread desktop | Pass | Helpful/Grounded/Careful aggregate trust readback rendered without old score/vote labels. |
+| Signed-out public thread 390px mobile | Pass | Trust readback and neutral participation feedback stayed readable without overflow, clipped buttons, or forbidden score/vote copy. |
+| Signed-in eligible viewer | Pass | Non-owner private-tier viewer saw current-viewer witness framing and neutral feedback controls; no mutation was performed. |
+| Private `/forums/witnesses` owner page | Pass | Private aggregate author-recognition readback rendered without witnesser/reporter/moderation leakage. |
+| Signed-out `/forums/witnesses` | Pass | Sign-in gate rendered; recognition rows did not leak. |
+| Optional direct API samples | Pass | Public thread readback returned witness counts without signed-out viewer witness state; private recognition API remained auth-gated/current-user scoped. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed read-only rerun after PR478B score-copy repair. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR478B Public Forum Score Copy Repair ARGUS Review
 
 ARGUS accepted PR478B on 2026-06-29:
