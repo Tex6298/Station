@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478A Community Trust Readback ARGUS Review
+
+ARGUS accepted PR478A on 2026-06-29:
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR478A_COMMUNITY_TRUST_READBACK`.
+
+Reason:
+
+- the implementation stayed readback-only on existing witness and private
+  author-recognition surfaces;
+- witness panels show aggregate counts and current-viewer state without
+  witnesser identity;
+- `/forums/witnesses` remains signed-in-author scoped and aggregate-only;
+- no API route, schema, serializer, report queue, moderation action, witness
+  write, public score/ranking/badge/clout/reputation profile, worker, billing,
+  or provider scope changed;
+- diff-only sensitive and secret scans found only negative-boundary copy/tests.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 39 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 168 tests passed, including PR478A trust-readback helper/source assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| API/schema diff check | Pass | No changed files under API, packages/types, packages/db, db, migrations, or Supabase paths. |
+| Diff-only sensitive/scope scan | Pass | Expected negative-boundary docs/tests/UI copy only. |
+| Secret-shaped diff scan | Pass | No secret-shaped values or provider key material found. |
+
 ## PR478A Community Trust Readback
 
 DAEDALUS implemented PR478A on 2026-06-29:

@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR478A accepted
+
+ARGUS accepted the PR478A Community Trust Readback implementation:
+
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ARGUS_ACCEPTED_PR478A_COMMUNITY_TRUST_READBACK
+```
+
+Review result:
+
+- DAEDALUS stayed within the accepted readback-only trust context lane.
+- Witness panels explain aggregate marks and current-viewer state without
+  witnesser identity.
+- `/forums/witnesses` remains private-tier and signed-in-author scoped.
+- No API route, schema, serializer, report queue, moderation action, witness
+  write, public score, ranking, badge, clout, reputation profile, Redis,
+  Cloudflare, worker/queue, billing, or provider scope changed.
+- ARGUS reran `test:community`, `test:reports`, `test:document-discussions`,
+  `test:studio-ui`, typecheck, whitespace checks, API/schema diff check,
+  diff-only sensitive/scope scan, and secret-shaped diff scan.
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT AND ARIADNE HOSTED PROOF ROUTING
+```
+
+Current baton:
+
+- MIMIR should close PR478A as accepted or route ARIADNE for hosted read-only
+  proof before full closeout.
+- Hosted proof should cover signed-out aggregate readback, signed-in
+  current-viewer state, private `/forums/witnesses`, and below-tier/signed-out
+  gates.
+- Do not broaden into public reputation, moderator directories, new
+  moderation powers, automated moderation, broad forum redesign, Redis,
+  Cloudflare, workers/queues, billing, schema changes, or private moderation
+  leakage.
+
 ## Latest DAEDALUS implementation - PR478A ready for ARGUS
 
 DAEDALUS implemented the PR478A Community Trust Readback slice:
