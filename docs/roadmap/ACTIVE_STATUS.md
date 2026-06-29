@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR473 accepted for DAEDALUS
+
+ARGUS accepts a smallest owner-initiated encounter runtime preview:
+
+`docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR473A - Owner-Initiated Encounter Runtime Preview`.
+- The accepted slice is private Studio-only, same-owner-only, owner-initiated,
+  non-durable, and limited to one model-generated responder reply.
+- The initiator turn is owner-authored setup, not model-generated.
+- The route must verify both personas belong to the authenticated owner before
+  any provider call.
+- Provider, token-budget, and encounter-specific per-minute/per-day rate-limit
+  checks must fail closed before any provider call.
+- The implementation must call the provider directly and must not use
+  `enqueueLlmCall`, because that helper performs automatic rate-limit retries.
+- No conversation, message, transcript, draft, archive, memory, canon,
+  continuity candidate, public/shareable object, schema, migration, storage,
+  queue, worker, Redis, Cloudflare, billing expansion, public route, or broad UI
+  scope is accepted.
+
+ARGUS validation:
+
+- Repo evidence inspected: PR471/PR472/PR472A encounter docs, private
+  conversation route, public persona chat fail-closed rate-limit pattern,
+  provider router, provider interfaces, token-credit service, operational cache
+  rate-limit primitive, persona ownership/serializers, package AI providers,
+  and current roadmap status.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR473A - Owner-Initiated Encounter Runtime Preview
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT SMALLEST NON-DURABLE OWNER PREVIEW
+```
+
+Current baton:
+
+- DAEDALUS should implement the accepted one-response, same-owner,
+  owner-initiated private Studio preview and wake ARGUS.
+- Keep PR473A non-durable and fail-closed: no persistent chat route, no
+  automatic retry helper, no source retrieval, no public/shareable behavior, no
+  cross-owner behavior, no queue/worker/schema/storage/migration/billing scope.
+
 ## Latest MIMIR closeout - PR472A closed
 
 MIMIR closes PR472A as accepted:

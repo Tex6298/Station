@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR473 Owner-Initiated Encounter Runtime Preflight
+
+ARGUS accepted PR473 preflight on 2026-06-29:
+`docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- the accepted PR473A slice is same-owner, owner-initiated, private Studio-only,
+  non-durable, and limited to one model-generated responder reply;
+- both personas must be verified as owned by `req.user!.id` before any provider
+  call;
+- provider config, token budget, and encounter-specific per-minute/per-day
+  rate limits must fail closed before any provider call;
+- the implementation must call the provider directly and must not use
+  `enqueueLlmCall`, because that helper automatically retries rate-limit
+  failures;
+- PR473A must not write conversations, conversation messages, transcripts,
+  drafts, archive rows, memory/canon rows, continuity candidates, public or
+  shareable output, storage, schema, migrations, queues, workers, Redis,
+  Cloudflare, billing expansion, public routes, or broad UI;
+- token usage may be recorded only with `chatId: null` and without prompt or
+  generated output text.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | Docs-only preflight whitespace check. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR473A implementation is not done in this preflight. DAEDALUS
+must prove same-owner pass, cross-owner/provider/quota/rate-limit fail-closed
+behavior, no retry, no persistence, bounded provenance labels, and no
+public/shareable surfaces before waking ARGUS.
+
 ## PR472A Owner Encounter Consent / Provenance Contract Hosted Rehearsal
 
 ARIADNE completed the hosted PR472A rehearsal on 2026-06-29:
