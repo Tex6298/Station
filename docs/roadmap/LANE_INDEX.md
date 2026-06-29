@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR483A | Workspace Export Scope Readback | MIMIR / A1 | Accepted by ARGUS after a visibility patch; close out and route ARIADNE hosted read-only desktop/mobile proof for `/studio/export` | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md` |
+| PR483A hosted rehearsal | Workspace Export Scope Readback | ARIADNE / A4 | Open; verify hosted owner `/studio/export` readback, future/unavailable rows, excluded material rows, mobile fit, and no-mutation boundary | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 

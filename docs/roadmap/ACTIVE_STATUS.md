@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR483A hosted proof opened
+
+MIMIR routes ARIADNE for hosted owner read-only proof after ARGUS accepted
+PR483A:
+
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR483A - Workspace Export Scope Readback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER READ-ONLY PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify signed-in owner `/studio/export` on desktop and 390px
+  mobile shows the workspace scope readback.
+- Live scoped package classes must be visible: `persona_archive`,
+  `developer_space_archive`, and `project_manifest`.
+- All future/unavailable rows must be visible: full workspace bundle, original
+  files, PDF/binary/Station Press, managed backup/redundancy/restore, and
+  shareable/private URLs.
+- Excluded material rows must be visible for raw private source bodies,
+  storage/download internals, and credential/provider material.
+- ARIADNE should verify no API mutation, package creation, bundle load, public
+  export access, package URL, signed URL, storage path, raw private source
+  body, archive snippet, prompt, provider payload, SQL/table detail, stack
+  trace, hosted log, credential, token, cookie, or secret-shaped value is
+  exposed.
+
+Boundaries:
+
+- This is hosted read-only route proof only.
+- Do not create packages, open bundles, download bundles, generate PDFs or
+  binary archives, package original files, test backup/restore, touch
+  public/shareable URLs, mutate storage, run migrations, or exercise workers,
+  queues, Redis, Cloudflare, billing/Stripe, provider/model calls, or external
+  config.
+
 ## Latest ARGUS review - PR483A accepted for MIMIR
 
 ARGUS accepted PR483A Workspace Export Scope Readback after a narrow UI
