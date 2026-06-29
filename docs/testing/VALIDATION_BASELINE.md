@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR479 Native Authoring / Versioning Preflight ARGUS Decision
+
+ARGUS accepted the PR479A owner version compare/readback slice on 2026-06-29:
+`docs/roadmap/PR479_NATIVE_AUTHORING_VERSIONING_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR479A_VERSION_COMPARE_READBACK`.
+
+Reason:
+
+- existing document version history is authenticated and owner/admin-only;
+- public document reads expose current document readback only and do not include
+  prior versions;
+- `/studio/publish` already loads owner-only version history, but lacks a
+  metadata compare/readback helper;
+- PR479A can be a web/helper/test slice with no API/schema/auth/mutation,
+  rich-editor, provider, queue, billing, Cloudflare, or deployment changes;
+- no app-code change was made in the preflight verdict.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 12 tests passed, including current version-history summary and authoring guidance coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 168 tests passed, including publishing helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed, including owner-only document update/version and public-read no-versions assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; linked document discussion boundaries remain intact. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 17 tests passed, including owner-scoped approval and private body redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from turbo cache. |
+| `git diff --check` | Pass | No whitespace errors before the roadmap edit. |
+| `git diff --cached --check` | Pass | No staged whitespace errors before the roadmap edit. |
+| Source/scope scan | Pass | Matches were limited to existing owner-only implementation/test fields and explicit PR479 guardrails; no app-code change was made in this preflight. |
+
 ## PR478A Community Trust Readback Hosted Rerun
 
 ARIADNE completed the hosted PR478A rerun after PR478B on 2026-06-29:

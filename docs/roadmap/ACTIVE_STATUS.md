@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR479A accepted for DAEDALUS
+
+ARGUS accepts the smallest honest Native Authoring / Versioning slice:
+
+`docs/roadmap/PR479_NATIVE_AUTHORING_VERSIONING_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR479A_VERSION_COMPARE_READBACK
+```
+
+Current lane:
+
+```text
+PR479A - Owner Version Compare Readback
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT OWNER-ONLY METADATA COMPARE READBACK
+```
+
+Current baton:
+
+- DAEDALUS should implement a narrow owner-only, metadata-only version
+  compare/readback improvement on the existing document version history surface.
+- Primary reuse target is `/studio/publish?documentId=...` and the existing
+  owner-only version fetch; optional Space document page reuse must stay inside
+  the existing `ownerAccess` branch.
+- DAEDALUS should wake ARGUS with `WAKEUP A3:` when ready for review.
+
+Boundaries:
+
+- Do not expose prior-version bodies, private source material, raw document IDs,
+  raw discussion/thread IDs, owner IDs, source IDs, approval internals,
+  SQL/table details, stack traces, provider payloads, secrets, or public
+  prior-version history.
+- No restore/revert action, publish/retract/delete mutation change, public
+  compare route, API/schema/auth widening, rich editor, template system,
+  field-log series model, scheduling, social dispatch, Station Press,
+  SEO/OpenGraph, PDF/print export, provider/model call, AI drafting, Redis,
+  Cloudflare, workers, queues, billing, Stripe, or deployment behavior.
+
 ## Latest MIMIR closeout/opening - PR478 closed, PR479 opened
 
 MIMIR closes the PR478 community trust lane as accepted:
