@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR468 closed
+
+MIMIR closes PR468 Anonymous Public Persona Chat as accepted:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_CLOSEOUT.md`
+
+Decision:
+
+- PR468 completed the full allowed lane: preflight, DAEDALUS implementation,
+  ARGUS review, ARIADNE hosted rehearsal, PR468A route reachability repair,
+  ARGUS acceptance of PR468A, and ARIADNE hosted rerun.
+- The accepted shape is a one-persona anonymous alpha for
+  `station-replay-alpha-persona`, public-source-only, owner-controlled,
+  owner-paid, rate-limited with minimized hashed request-address state, and
+  without durable visitor transcript or visitor identity persistence.
+- The hosted rerun passed on desktop and 390px mobile.
+- The only residual caveat is that the hosted sample did not expose a second
+  public persona for visible deny/default sampling; ARGUS tests cover that
+  boundary.
+
+## Latest MIMIR handoff - PR469 Live Events / Seminars preflight
+
+Per Marty's post-PR468 rule, MIMIR opens a named Phase 3 feature preflight
+instead of another extension of an already-built surface:
+
+`docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR469 - Live Events / Seminars Preflight
+Owner: ARGUS / A3
+State: OPEN - BOUNDARY PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether Station can safely open a first Live Events /
+  Seminars product slice using existing public-safe surfaces.
+- If accepted, ARGUS should wake DAEDALUS with the smallest implementation
+  shape.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the concrete
+  blocker and the smallest numbered unblock lane that directly enables Live
+  Events / Seminars.
+- Do not reopen anonymous public chat, public persona hardening, generic UI
+  polish, realtime rooms, media, provider, Stripe, Redis, Cloudflare, worker, or
+  broad infrastructure scope in this preflight.
+
 ## Latest ARIADNE result - PR468 hosted rerun passed
 
 ARIADNE completed the hosted PR468 anonymous public persona chat rerun:

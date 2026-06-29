@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468 | Anonymous Public Persona Chat Hosted Rehearsal Rerun | MIMIR / A1 | Pass; ready for PR468 closeout before the next named Phase 3 feature choice | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md` |
+| PR469 | Live Events / Seminars Preflight | ARGUS / A3 | Open; decide the smallest safe first customer-facing Live Events / Seminars slice or name the concrete blocker | `docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR468 closeout | Anonymous Public Persona Chat | MIMIR | Closed as accepted after ARGUS review, PR468A route reachability repair, and ARIADNE hosted desktop/mobile rerun pass | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_CLOSEOUT.md` |
 | PR468 hosted rerun | Anonymous Public Persona Chat | MIMIR -> ARIADNE -> MIMIR | Pass; hosted anonymous alpha chat, public-source boundary, no transcript persistence, route reachability, and desktop/mobile fit confirmed after PR468A | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md` |
 | PR468 rerun opened | Anonymous Public Persona Chat | MIMIR -> ARIADNE | Open; rerun hosted anonymous-chat proof after PR468A route reachability acceptance | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_ARIADNE.md` |
 | PR468A review | Public Persona Hosted Route Reachability Patch | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS optional-read sanitizer patch; public persona read routes fail bounded and optional page reads cannot leak raw rejected errors | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_REVIEW_RESULT.md` |
@@ -126,7 +127,7 @@ log.
 | --- | --- | --- | --- |
 | Backup/restore local proof | Superseded for current lane | Marty corrected that local Postgres tooling is not the intended unblock. | Reopen only by explicit MIMIR/product decision. |
 | Named signed-in external pilot details | Deferred real-world blocker | PR329-PR331 require three real signed-in tester identities and a private feedback channel before tester entry. | Resume when Marty/MIMIR supplies real tester rows and feedback channel, or when a product-enforced tester access lane is deliberately opened. |
-| Post-PR468 named Phase 3 feature choice | Deferred until PR468 closes | Marty clarified that PR468 should run through review/rehearsal/closeout first. | After PR468 closes, choose live events/seminars, voice, Institutional Spaces, Research/commercialisation, or another documented Phase 3 feature; if blocked, open the smallest numbered unblock lane for that feature. |
+| Post-PR468 named Phase 3 feature choice | Closed into PR469 | Marty clarified that PR468 should run through review/rehearsal/closeout first. | PR469 opens Live Events / Seminars preflight; if blocked, ARGUS must name the concrete blocker and smallest numbered unblock lane. |
 
 ## Numbering Rule
 
