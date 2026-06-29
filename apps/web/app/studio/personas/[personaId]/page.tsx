@@ -11,6 +11,7 @@ import { PersonaChat } from "@/components/studio/persona-chat";
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
 import {
   ContinuityCards,
+  PersonaEncounterContractPanel,
   PersonaEncounterReadinessGate,
   PersonaWorkspaceHeader,
   PublicInteractionReadback,
@@ -84,6 +85,7 @@ export default function PersonaPage() {
       <PublicInteractionReadback persona={persona} />
       <VoiceAvatarReadinessGate />
       <PersonaEncounterReadinessGate />
+      <PersonaEncounterContractPanel />
 
       <section className="studio-home-grid">
         <div className="studio-home-main">

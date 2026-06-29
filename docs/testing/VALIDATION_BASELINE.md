@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR472A Owner Encounter Consent / Provenance Contract
+
+DAEDALUS implemented PR472A on 2026-06-29:
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the first Persona Encounter consent/provenance unblock is owner-only contract
+  readback in the private persona Studio home;
+- the readback says persona-to-persona encounters still have no runtime;
+- same-owner consent is named as the only possible next-runtime scope, while
+  cross-owner behavior remains blocked until bilateral consent, visibility,
+  revocation, and audit policy exists;
+- future provenance labels, stop/revocation controls, cost/rate-limit/plan
+  controls, and public/shareable moderation/reporting blockers are listed
+  before any provider-backed encounter call, transcript, or sharing can exist;
+- the helper test is part of `test:studio-ui`.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-contract.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 153 tests passed, including the new encounter contract helper. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck ran. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted owner-route visual rehearsal has not run in this
+DAEDALUS pass. If ARGUS accepts the implementation, MIMIR should decide whether
+to route ARIADNE for the narrow hosted owner-route check from the PR472
+preflight result.
+
 ## PR472 Persona Encounter Consent / Provenance Preflight
 
 ARGUS accepted PR472 preflight on 2026-06-29:

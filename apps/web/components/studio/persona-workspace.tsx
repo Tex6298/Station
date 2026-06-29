@@ -8,6 +8,7 @@ import {
   studioPersonaWorkspacePrimaryActions,
   studioPersonaWorkspaceTabs,
 } from "@/lib/studio-navigation";
+import { personaEncounterContractGate } from "@/lib/persona-encounter-contract";
 import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
 import { voiceAvatarReadinessGate } from "@/lib/voice-avatar-readiness";
 import {
@@ -184,6 +185,12 @@ export function PersonaEncounterReadinessGate() {
   const gate = personaEncounterReadinessGate();
 
   return <ReadinessGatePanel gate={gate} ariaLabel="Persona encounter readiness" />;
+}
+
+export function PersonaEncounterContractPanel() {
+  const gate = personaEncounterContractGate();
+
+  return <ReadinessGatePanel gate={gate} ariaLabel="Persona encounter consent and provenance contract" />;
 }
 
 function ReadinessGatePanel({
