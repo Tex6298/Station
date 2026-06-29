@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR483 preflight | Workspace Export Product Depth | ARGUS / A3 | Open; decide smallest safe owner-only full workspace/PDF/binary export depth slice | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
+| PR483A | Workspace Export Scope Readback | DAEDALUS / A2 | Open; owner-only `/studio/export` scope/readback for live scoped packages and future workspace/PDF/binary/original-file/backup states | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR483 preflight | Workspace Export Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR483A Workspace Export Scope Readback; no package creation, PDF, binary, original-file, background, backup, public export, API/schema, or storage-architecture scope | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR482A closeout | API Bridge Setup Packet Readback | MIMIR | Closed; hosted route/content/mobile/no-mutation proof plus local setup-label redaction tests accepted, no hosted synthetic seed claim | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_CLOSEOUT.md` |
 | PR482B seed decision | API Bridge Redaction Seed Decision | MIMIR -> ARGUS -> MIMIR | Close PR482A with redaction test coverage; hosted synthetic seed/rerun rejected for this lane as higher privacy/product risk than value | `docs/roadmap/PR482B_API_BRIDGE_REDACTION_SEED_DECISION_RESULT.md` |
 | PR482A hosted rehearsal | API Bridge Setup Packet Readback | ARIADNE -> MIMIR | Seed blocker; hosted route/content/mobile/no-mutation proof passed, but no hosted secret-shaped setup-label seed existed for redaction proof | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_RESULT.md` |

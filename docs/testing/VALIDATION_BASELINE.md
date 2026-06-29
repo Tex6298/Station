@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR483 Workspace Export Product Depth Preflight
+
+ARGUS accepted PR483A on 2026-06-29:
+`docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR483A_WORKSPACE_EXPORT_SCOPE_READBACK`.
+
+Reason:
+
+- current real export truth is owner-only persona archive, Developer Space
+  archive, and Project manifest packages plus stored JSON/Markdown bundle
+  readback;
+- `/studio/export` is already a trust/readback map, not a global workspace
+  export job;
+- PR483A can safely deepen scope/readback without new API routes, package
+  kinds, file downloads, PDFs, binary archives, original-file bundles,
+  background jobs, backup/redundancy, storage policy, schema, or public access;
+- export bundle file inventory and PDF preview are deferred until dedicated
+  file-manifest and PDF privacy contracts exist.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed, preserving owner-only persona, Developer Space, Project manifest, bundle, malformed-readback, and route-error boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/export-trust.test.ts` | Pass | 5 tests passed against current export trust helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran fresh and passed. |
+
 ## PR482B API Bridge Redaction Seed Decision
 
 ARGUS completed the hosted redaction seed decision on 2026-06-29:

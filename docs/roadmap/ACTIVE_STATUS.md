@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR483A accepted for DAEDALUS
+
+ARGUS completed the PR483 Workspace Export Product Depth preflight:
+
+`docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR483A_WORKSPACE_EXPORT_SCOPE_READBACK
+```
+
+Current lane:
+
+```text
+PR483A - Workspace Export Scope Readback
+Owner: DAEDALUS / A2
+State: OPEN - OWNER-ONLY EXPORT SCOPE READBACK
+```
+
+Current baton:
+
+- DAEDALUS should deepen `/studio/export` as owner-only scope/readback that
+  names current live export package classes and future unavailable workspace/
+  PDF/binary/original-file/backup states.
+- DAEDALUS should not create new package kinds, API routes, PDFs, binary
+  archives, original-file bundles, background jobs, storage/download policy, or
+  public/private share URLs.
+- If implemented and accepted, MIMIR should route ARIADNE hosted read-only
+  desktop/mobile proof for `/studio/export`.
+
+Boundaries:
+
+- No production backup/redundancy, generated PDFs, print-on-demand,
+  background jobs, workers/queues, Redis, Cloudflare, schema/migrations,
+  billing/Stripe, provider/model calls, public export access, shareable private
+  package URLs, signed URLs, original-file packaging, or broad storage
+  architecture.
+- Do not expose raw private source bodies, archive snippets, storage paths,
+  credentials, prompts, provider payloads, SQL/table details, stack traces,
+  hosted logs, cookies, tokens, or secret-shaped values.
+
 ## Latest MIMIR closeout/opening - PR482A closed, PR483 opened
 
 MIMIR closes PR482A API Bridge Setup Packet Readback as accepted:
