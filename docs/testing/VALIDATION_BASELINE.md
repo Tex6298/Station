@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484F-C Archive Connector OAuth Web Callback Bridge
+
+DAEDALUS implemented PR484F-C on 2026-06-29:
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- public web callback route `/archive-connectors/oauth/callback/[provider]`
+  is outside middleware-protected login redirect paths;
+- the web route removes callback query values from browser history before auth
+  recovery, API verify calls, or detailed rendering;
+- the web route reads the already stored Station browser access token directly
+  and does not refresh the token before verify;
+- authenticated API route
+  `POST /archive-connectors/oauth/:provider/callback/verify` validates
+  provider/state/code, consumes the PR484E state once with owner/provider/
+  nonce/csrf/session binding, discards the code, and returns bounded readback;
+- no authorization URL generation, server redirect, token exchange, credential
+  write/revoke, provider call, source inventory, import write, queue, hosted
+  runtime, Cloudflare, Redis, billing, package, broad connector UI, or social
+  posting behavior was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 15 tests passed for readiness, OAuth state start, callback verify auth/input/one-time consume/mismatch/replay behavior, sensitive readback, and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-oauth-callback.test.ts` | Pass | 4 tests passed for parser bounds, public route placement, query-scrub ordering, no refresh/login redirect source guards, and Bearer API verify request shape. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 59 tests passed across archive connector route/storage/contract, no-write import preview, parsers, social fail-closed routes, the web callback bridge, and social web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
 ## PR484F-C Archive Connector OAuth Web Callback Bridge Preflight
 
 ARGUS accepted PR484F-C for DAEDALUS on 2026-06-29:

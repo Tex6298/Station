@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR484F-C ready for ARGUS review
+
+DAEDALUS implemented the accepted PR484F-C Archive Connector OAuth Web
+Callback Bridge:
+
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_RESULT.md`
+
+Current lane:
+
+```text
+PR484F-C - Archive Connector OAuth Web Callback Bridge
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Implementation:
+
+- added public web callback route
+  `/archive-connectors/oauth/callback/[provider]`;
+- the web route removes callback query values from browser history before auth
+  recovery, API verify work, or detailed rendering;
+- the web route reads the already stored Station browser access token directly
+  and does not call session refresh or login redirect helpers before verify;
+- added authenticated API verify route
+  `POST /archive-connectors/oauth/:provider/callback/verify`;
+- the API route stays behind existing archive connector `requireAuth`,
+  validates provider/state/code, consumes the PR484E OAuth state once with
+  owner/provider/nonce/csrf/Bearer-derived session binding, discards the code,
+  and returns bounded readback only.
+
+Non-scope confirmation:
+
+- no authorization URL generation, server redirect, token exchange, credential
+  write/revoke, provider SDK/fetch, source inventory, import write, queue,
+  hosted runtime, Cloudflare, Redis, billing, package, broad settings UI, or
+  social posting behavior was added;
+- callback responses and restart states do not return raw callback code, raw
+  state handle, nonce, csrf, session hash, owner id, row id, auth token,
+  provider payload, credential material, raw external account id, table/schema
+  detail, stack trace, hosted log, secret-shaped values, or provider
+  `error_description` text.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-oauth-callback.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 59 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review PR484F-C against the accepted preflight boundary.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR484F-C accepted for DAEDALUS
 
 ARGUS completed the PR484F-C Archive Connector OAuth Web Callback Bridge
