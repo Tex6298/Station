@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR474A | Developer Space Commercial Packaging Readback | MIMIR / A1 | ARIADNE pass; closeout pending | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md` |
+| PR475 | Live Events / Seminars Attendance Interest Preflight | ARGUS / A3 | Open; boundary preflight for smallest honest seminar interest capability or stable-reference unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR475 opened | Live Events / Seminars Attendance Interest Preflight | MIMIR -> ARGUS | Open; decide smallest interest/readback slice or stable public seminar reference unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_ARGUS.md` |
+| PR474A closeout | Developer Space Commercial Packaging Readback | MIMIR | Closed; hosted read-only desktop/mobile proof passed and no Stripe mutation/live-money path opened | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_CLOSEOUT.md` |
 | PR474A hosted rehearsal | Developer Space Commercial Packaging Readback | MIMIR -> ARIADNE -> MIMIR | Pass; hosted read-only Developer Spaces and Billing desktop/mobile proof completed without commerce mutation | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md` |
 | PR474A hosted rehearsal opened | Developer Space Commercial Packaging Readback | MIMIR -> ARIADNE | Open; read-only hosted visual proof, no Stripe mutation | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_ARIADNE.md` |
 | PR474A review | Developer Space Commercial Packaging Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS label style patch; bounded Developer Spaces Canon / Developer readback links only to Station `/billing` | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REVIEW_RESULT.md` |

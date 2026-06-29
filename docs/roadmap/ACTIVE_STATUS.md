@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR474A closed, PR475 opened
+
+MIMIR closes PR474A as accepted:
+
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_CLOSEOUT.md`
+
+Decision:
+
+- Developer Spaces now have bounded Canon / Developer commercial packaging
+  readback.
+- `/developer-spaces` routes review/upgrade/management posture through Station
+  `/billing`.
+- Hosted read-only desktop/mobile proof passed without Checkout, Portal,
+  top-up purchase, subscription mutation, Developer Space creation, Stripe
+  dashboard, logs, SQL, config, or live-money path.
+
+MIMIR opens PR475 Live Events / Seminars Attendance Interest Preflight:
+
+`docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR475 - Live Events / Seminars Attendance Interest Preflight
+Owner: ARGUS / A3
+State: OPEN - BOUNDARY PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether a smallest honest "I'm interested / keep me
+  posted" seminar capability can move to DAEDALUS.
+- ARGUS should identify whether current derived PR469 seminar cards are stable
+  enough for interest records, or whether the smallest unblock is a stable
+  public seminar reference first.
+- No tickets, payments, Stripe, reminders, calendar integration, livestreams,
+  media, realtime rooms, attendee lists, provider calls, Redis, Cloudflare,
+  queues/workers, or broad UI.
+
 ## Latest ARIADNE result - PR474A hosted rehearsal passed
 
 ARIADNE completed the hosted read-only PR474A visual proof:
@@ -15,7 +54,7 @@ Current lane:
 ```text
 PR474A - Developer Space Commercial Packaging Readback
 Owner: MIMIR / A1
-State: ARIADNE PASS - READY TO CLOSE
+State: CLOSED
 ```
 
 Current baton:
