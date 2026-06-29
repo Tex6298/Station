@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR480A Developer Space Connection Tier State Readback Hosted Rehearsal
+
+ARIADNE completed the hosted read-only proof on 2026-06-29:
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted API health was ready at app commit `ea47cd9f`, and hosted web returned
+  HTTP 200;
+- signed-out public `/developer-spaces/:slug` desktop and 390px mobile showed
+  Tier 1 as current and Tier 2/Tier 3 as future/blocked;
+- signed-in owner `/developer-spaces/:slug/manage` desktop and 390px mobile
+  showed the same tier boundary beside existing private controls;
+- mobile public and owner routes had no horizontal overflow or clipped buttons;
+- no hosted runtime provisioning, repo/deploy, job execution, billing/Stripe,
+  provider/model call, Redis, Cloudflare, worker/queue, key/signing-secret,
+  raw payload, private evidence, raw ID, customer ID, token, cookie, SQL/table,
+  stack trace, provider payload, or secret-shaped value appeared or was
+  exercised.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `ea47cd9f`. |
+| Hosted web root | Pass | Returned HTTP 200. |
+| Signed-out public `/developer-spaces/:slug` desktop | Pass | Tier 1 current plus Tier 2/Tier 3 future/blocked readback rendered safely. |
+| Signed-out public `/developer-spaces/:slug` 390px mobile | Pass | Tier cards stayed readable with no horizontal overflow or clipped buttons. |
+| Signed-in owner `/developer-spaces/:slug/manage` desktop | Pass | Owner console showed the same tier boundary beside existing private controls. |
+| Signed-in owner `/developer-spaces/:slug/manage` 390px mobile | Pass | Tier readback and private controls stayed readable with no overflow or clipped buttons. |
+| Privacy/partner boundary | Pass | No keys, signing secrets, raw IDs, raw payloads, private evidence, drafts, customer IDs, provider payloads, SQL/table details, stack traces, tokens, cookies, or secret-shaped values appeared. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed read-only public and owner route proof without mutations. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR480A Connection Tier State Readback ARGUS Review
 
 ARGUS accepted PR480A on 2026-06-29:

@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR480A pass
+
+ARIADNE completed the hosted read-only Developer Space connection-tier proof:
+
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- Hosted API `/health/deployment` was ready at app commit `ea47cd9f`; hosted
+  web root returned HTTP 200.
+- Signed-out public `/developer-spaces/:slug` desktop and 390px mobile showed
+  Tier 1 as current and Tier 2/Tier 3 as future/blocked.
+- Signed-in owner `/developer-spaces/:slug/manage` desktop and 390px mobile
+  showed the same tier boundary beside existing private controls.
+- Mobile public and owner routes had no horizontal overflow or clipped buttons.
+- No hosted runtime provisioning, repo/deploy, job execution, billing/Stripe,
+  provider/model call, Redis, Cloudflare, worker/queue, key/signing-secret,
+  raw payload, private evidence, raw ID, customer ID, token, cookie, SQL/table,
+  stack trace, provider payload, or secret-shaped value appeared or was
+  exercised.
+
+Current lane:
+
+```text
+PR480A - Developer Space Connection Tier State Readback Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR may close PR480A or choose the next lane.
+- Do not broaden into hosted runtime provisioning, repo push/deploy,
+  developer-agent job execution, key/signing-secret generation, billing/Stripe
+  mutation, public raw export/download, provider/model calls, Redis,
+  Cloudflare, workers/queues, schema/API/auth expansion, entitlement mutation,
+  or deployment configuration.
+
 ## Latest MIMIR routing - PR480A hosted proof opened
 
 MIMIR routes ARIADNE for hosted read-only proof after ARGUS accepted PR480A:
