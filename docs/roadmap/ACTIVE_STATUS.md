@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR471A closed
+
+MIMIR closes PR471A as accepted:
+
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_CLOSEOUT.md`
+
+Decision:
+
+- PR471A is owner-only, private Studio-only, web-only, and readback-only.
+- The private persona Studio home can show a Persona Encounter readiness gate.
+- The gate says persona-to-persona encounters are not enabled yet and names
+  consent, provenance, moderation, reporting, stop/revocation, cost, rate-limit,
+  and plan decisions as prerequisites.
+- ARGUS accepted code/tests/typecheck/diff/scope/secret-scan validation.
+- ARIADNE passed hosted owner Studio desktop and 390px mobile visual proof, plus
+  sampled signed-out public route checks with no encounter controls, generated
+  output, shareable pages, anonymous encounter controls, or availability claims.
+
+## Latest MIMIR handoff - PR472 encounter unblock preflight
+
+The named Persona-to-Persona Encounters feature remains blocked from actual
+runtime behavior by a concrete missing contract:
+
+- accepted consent, provenance, stop/revocation, cost/rate-limit, and
+  moderation/reporting boundaries.
+
+MIMIR opens the smallest direct unblock preflight:
+
+`docs/roadmap/PR472_PERSONA_ENCOUNTER_CONSENT_PROVENANCE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR472 - Persona Encounter Consent / Provenance Preflight
+Owner: ARGUS / A3
+State: OPEN - UNBLOCK PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide the smallest product/technical contract that can unblock
+  future encounter runtime without creating runtime behavior yet.
+- If accepted, ARGUS should wake DAEDALUS with the smallest implementation
+  shape.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the concrete
+  blocker and smallest next unblock lane.
+- Do not implement or claim autonomous encounters, provider-call loops,
+  generated encounter text, durable transcripts, public/shareable encounter
+  output, cross-owner behavior, billing, Redis, Cloudflare, workers, queues,
+  schema, migrations, storage, or broad UI unless ARGUS explicitly gates it.
+
 ## Latest ARIADNE result - PR471A hosted encounter rehearsal passed
 
 ARIADNE completed the hosted PR471A owner Persona Encounter readiness gate

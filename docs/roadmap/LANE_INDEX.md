@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR471A | Owner Encounter Readiness Gate Hosted Rehearsal | MIMIR / A1 | Pass; hosted owner/public visual proof complete, ready for closeout | `docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_RESULT.md` |
+| PR472 | Persona Encounter Consent / Provenance Preflight | ARGUS / A3 | Open; smallest unblock preflight for actual encounter runtime | `docs/roadmap/PR472_PERSONA_ENCOUNTER_CONSENT_PROVENANCE_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR471A closeout | Owner Encounter Readiness Gate | MIMIR | Closed as accepted after ARGUS review and ARIADNE hosted owner-route rehearsal | `docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_CLOSEOUT.md` |
 | PR471A rehearsal | Owner Encounter Readiness Gate | MIMIR -> ARIADNE -> MIMIR | Pass; owner Studio gate renders on desktop/mobile and sampled public routes expose no encounter controls | `docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_RESULT.md` |
 | PR471A rehearsal opened | Owner Encounter Readiness Gate | MIMIR -> ARIADNE | Open; hosted owner Studio desktop/mobile readiness-gate check plus signed-out public route sample | `docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_ARIADNE.md` |
 | PR471A review | Owner Encounter Readiness Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted; private persona Studio home shows owner-only Persona Encounter readiness readback, no encounter runtime/provider/transcript/public controls | `docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REVIEW_RESULT.md` |
