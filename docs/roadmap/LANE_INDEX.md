@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475 | Live Events / Seminars Attendance Interest Preflight | ARGUS / A3 | Open; boundary preflight for smallest honest seminar interest capability or stable-reference unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_ARGUS.md` |
+| PR475A | Signed-In Seminar Interest Toggle | DAEDALUS / A2 | Open; implement ARGUS-scoped signed-in interest toggle with stable server-side source reference, aggregate count, and withdrawal | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR475 preflight | Live Events / Seminars Attendance Interest | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR475A signed-in interest toggle; public digest is a handle only, durable target is server-resolved public source reference | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_RESULT.md` |
 | PR475 opened | Live Events / Seminars Attendance Interest Preflight | MIMIR -> ARGUS | Open; decide smallest interest/readback slice or stable public seminar reference unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_ARGUS.md` |
 | PR474A closeout | Developer Space Commercial Packaging Readback | MIMIR | Closed; hosted read-only desktop/mobile proof passed and no Stripe mutation/live-money path opened | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_CLOSEOUT.md` |
 | PR474A hosted rehearsal | Developer Space Commercial Packaging Readback | MIMIR -> ARIADNE -> MIMIR | Pass; hosted read-only Developer Spaces and Billing desktop/mobile proof completed without commerce mutation | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md` |

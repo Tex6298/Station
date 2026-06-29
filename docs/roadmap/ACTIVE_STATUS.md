@@ -4,6 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR475 accepted for DAEDALUS
+
+ARGUS accepts a narrow Live Events / Seminars Attendance Interest slice:
+
+`docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR475A - Signed-In Seminar Interest Toggle`.
+- The public `seminar_<digest>` id is only a client handle; durable interest
+  must persist against a server-resolved public source reference
+  (`document`, `thread`, or `space` plus internal source id).
+- PR475A requires one narrow migration for signed-in interest rows.
+- The first slice is signed-in only; no anonymous interest, hashed visitor
+  identity, IP/header/user-agent storage, cookies, or raw auth values.
+- Privacy posture is aggregate public count plus current viewer state only; no
+  public attendee list and no owner/admin identity list.
+- Withdrawal must remove the viewer from the count, preferably by hard-deleting
+  the interest row.
+
+Accepted DAEDALUS scope:
+
+- Add a narrow `public_seminar_interests` table with actor-only RLS, unique
+  `(user_id, source_type, source_id)`, and aggregate target index.
+- Keep `GET /events/seminars` public with optional auth only for viewer state.
+- Add signed-in-only mark and withdraw endpoints under `/events/seminars`.
+- Reuse the PR469 public seminar resolver and fail closed for stale, private,
+  hidden, community-only, unsafe-slug, removed, missing, or unrouteable targets.
+- Update `/events/seminars` UI with aggregate count, signed-in toggle,
+  signed-out sign-in prompt, and clear negative safety copy.
+
+Non-scope:
+
+- No tickets, payments, Stripe, billing entitlements, RSVP/booking guarantees,
+  waitlists, calendar integration, reminders, livestreams, media rooms,
+  attendee lists, event-host management, admin curation UI, provider calls,
+  Redis, Cloudflare, queues/workers, hosted runtime expansion, or broad UI.
+
+ARGUS validation:
+
+- Repo evidence inspection: pass.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts`: pass, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+- Diff-only sensitive-pattern scan: pass.
+- Diff-only scope scan: pass; expected guardrail and negative-scope wording
+  only.
+
+Current lane:
+
+```text
+PR475A - Signed-In Seminar Interest Toggle
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT EXACT ARGUS SCOPE
+```
+
+Current baton:
+
+- DAEDALUS should implement PR475A exactly as scoped and wake ARGUS.
+- If the PR469 resolver cannot safely map a public digest back to a server-only
+  source reference, DAEDALUS should stop and wake MIMIR with that concrete
+  blocker instead of persisting interest against the digest alone.
+
 ## Latest MIMIR closeout/opening - PR474A closed, PR475 opened
 
 MIMIR closes PR474A as accepted:

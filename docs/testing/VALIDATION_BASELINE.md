@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475 Live Events / Seminars Attendance Interest Preflight
+
+ARGUS accepted PR475 preflight on 2026-06-29:
+`docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- PR475A is limited to signed-in seminar interest/readback;
+- the public `seminar_<digest>` id is only a client handle;
+- durable interest must use a server-resolved public source reference
+  (`document`, `thread`, or `space` plus internal source id);
+- anonymous interest, visitor identity hashing, IP/header/user-agent storage,
+  cookies, auth values, tickets, payments, reminders, livestreams, attendee
+  lists, provider calls, queues/workers, Redis, Cloudflare, hosted runtime, and
+  broad UI are out of scope;
+- privacy posture is aggregate public count plus current viewer state only.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | PR469 docs, events API route, web route helper/page, shared types, auth middleware, and community witness/counter patterns inspected. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 2 tests passed for public routeability and bounded errors. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 2 tests passed for readback-only copy and safe route helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors; line-ending normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive-pattern scan | Pass | No payment ids, secrets, auth tokens, cookies, IP/user-agent/header storage, raw source ids, SQL/table output, or visitor identity values. |
+| Diff-only scope scan | Pass | Expected guardrail and negative-scope wording only. |
+
+Residual risk: PR475A implementation is not done in this preflight. DAEDALUS
+must prove the public digest maps server-side to a stable public source
+reference before persisting interest; if that mapping is not safe, DAEDALUS
+must stop and wake MIMIR.
+
 ## PR474A Developer Space Commercial Packaging Readback Hosted Rehearsal
 
 ARIADNE completed the hosted PR474A rehearsal on 2026-06-29:
