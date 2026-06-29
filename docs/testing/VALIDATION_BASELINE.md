@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR480A Connection Tier State Readback ARGUS Review
+
+ARGUS accepted PR480A on 2026-06-29:
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR480A_CONNECTION_TIER_STATE_READBACK`.
+
+Reason:
+
+- PR480A stayed helper/UI/test/docs only on existing Developer Space public and
+  owner routes;
+- Tier 1 is the current external-runtime readback, while Tier 2/Tier 3 remain
+  future/blocked states;
+- no API route, schema, auth/session, billing, Stripe, export package,
+  developer-space-client request, provider/model, Redis, Cloudflare, worker,
+  queue, production realtime, entitlement, runtime/deploy, repo-push, key/
+  signing-secret, or deployment behavior changed;
+- no secret, key, raw payload, private evidence, raw ID, provider payload,
+  hosted log, token, cookie, or private owner data was exposed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 58 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check 207f0202..ea47cd9f` | Pass | No whitespace errors in the implementation delta. |
+| `git diff --cached --check` | Pass | No staged whitespace errors during review. |
+| API/schema diff check | Pass | No changed files under API, packages/types, packages/db, db, infra/supabase, or Supabase schema paths. |
+| Diff-only sensitive/scope scan | Pass | Matches were limited to expected guardrail/readback strings and negative assertions. |
+
 ## PR480A Developer Space Connection Tier State Readback
 
 DAEDALUS implemented PR480A on 2026-06-29:

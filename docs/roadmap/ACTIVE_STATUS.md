@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR480A accepted for MIMIR
+
+ARGUS accepted PR480A Connection Tier State Readback with no review patch:
+
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR480A_CONNECTION_TIER_STATE_READBACK
+```
+
+Current lane:
+
+```text
+PR480A - Developer Space Connection Tier State Readback
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND ROUTE HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- MIMIR should close PR480A and route ARIADNE hosted read-only proof.
+- ARIADNE should verify signed-out public `/developer-spaces/:slug` desktop and
+  390px mobile show Tier 1 current plus Tier 2/Tier 3 future/blocked readback.
+- ARIADNE should verify signed-in owner `/developer-spaces/:slug/manage`
+  desktop/mobile shows the same boundary without exposing keys, secrets, raw
+  IDs, raw payloads, or private evidence.
+
+Boundaries confirmed:
+
+- No hosted runtime provisioning, repo push/deploy, developer-agent job
+  execution, key/signing-secret generation or rotation, public raw export,
+  production realtime, workers/queues, Redis durable truth, Cloudflare
+  runtime/index behavior, provider/model call, billing/Stripe mutation,
+  entitlement mutation, schema/API/auth expansion, or deployment behavior was
+  added.
+
 ## Latest DAEDALUS implementation - PR480A ready for ARGUS
 
 DAEDALUS implemented the accepted PR480A Developer Space partner-readiness slice:
