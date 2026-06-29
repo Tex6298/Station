@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR482A API Bridge Setup Packet Readback Hosted Rehearsal
+
+ARIADNE completed the hosted owner read-only proof on 2026-06-29:
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `SEED_OR_ROUTE_BLOCKER`.
+
+Reason:
+
+- hosted web and API were ready at commit `7f8aabcc`;
+- signed-in owner `/developer-spaces/animus-field-lab/manage` rendered the API
+  Bridge setup packet on desktop and 390px mobile;
+- placeholder routes, header names, payload-family labels, safe no-key status,
+  Tier 1 current plus Tier 2/Tier 3 future/blocked truth, and bounded next
+  actions were visible and readable;
+- the browser route rehearsal observed no API `POST`, `PUT`, `PATCH`, or
+  `DELETE` request;
+- visible setup packet and owner route text did not expose full keys, signing
+  secrets, raw payloads, private evidence, prompts, raw IDs, cookies, tokens,
+  SQL/table details, stack traces, hosted logs, provider payloads, or
+  secret-shaped values;
+- hosted staging had no existing owner Developer Space name/label containing
+  URL, authorization-token text, UUID, token/key/secret assignment, or
+  key-shaped material, and the read-only rehearsal did not create one.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `node .codex-tmp\pr482a-bridge-rehearsal.mjs` | Pass with seed blocker | Hosted CDP/browser rehearsal completed read-only; all owner UI checks passed except missing redaction seed. |
+| `pnpm typecheck` | Not run | Docs/result update only; no imports or scripts were touched in committed files. |
+
 ## PR482A API Bridge Setup Packet Readback ARGUS Review
 
 ARGUS accepted PR482A on 2026-06-29 after a narrow setup-label redaction patch:

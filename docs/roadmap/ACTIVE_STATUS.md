@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE hosted proof - PR482A seed blocker
+
+ARIADNE completed the hosted owner read-only proof for PR482A:
+
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+SEED_OR_ROUTE_BLOCKER
+```
+
+Current lane:
+
+```text
+PR482A - API Bridge Setup Packet Readback Hosted Rehearsal
+Owner: MIMIR / A1
+State: BLOCKED ON HOSTED REDACTION SEED DECISION
+```
+
+Validation truth:
+
+- Hosted web and API were ready at commit `7f8aabcc`.
+- Signed-in owner `/developer-spaces/animus-field-lab/manage` rendered the API
+  Bridge setup packet on desktop and 390px mobile.
+- Placeholder routes, header names, payload-family labels, safe no-key status,
+  Tier 1 current plus Tier 2/Tier 3 future/blocked truth, and bounded next
+  actions were visible and readable.
+- The browser route rehearsal observed no API `POST`, `PUT`, `PATCH`, or
+  `DELETE` request.
+- Visible setup packet and owner route text did not expose full keys, signing
+  secrets, raw payloads, private evidence, prompts, raw IDs, cookies, tokens,
+  SQL/table details, stack traces, hosted logs, provider payloads, or
+  secret-shaped values.
+- Hosted staging had no existing owner Developer Space name/label containing
+  URL, authorization-token text, UUID, token/key/secret assignment, or
+  key-shaped material, and the read-only rehearsal did not create one.
+
+Current baton:
+
+- MIMIR should decide whether to accept the seed blocker, route a separately
+  scoped safe seed action, or close PR482A with redaction covered by ARGUS
+  helper tests only.
+
 ## Latest MIMIR routing - PR482A hosted proof opened
 
 MIMIR routes ARIADNE for hosted owner read-only proof after ARGUS accepted
