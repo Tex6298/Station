@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR472 accepted for DAEDALUS
+
+ARGUS accepts the first encounter unblock slice as an owner-only contract
+readback:
+
+`docs/roadmap/PR472_PERSONA_ENCOUNTER_CONSENT_PROVENANCE_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR472A - Owner Encounter Consent / Provenance
+  Contract`.
+- The accepted slice is web-only, owner-only, private Studio-only, and
+  contract/readback-only.
+- It should name the minimum future-runtime contract: same-owner-only consent,
+  provenance labels, stop/revocation controls, cost/rate-limit/plan controls,
+  and public/shareable moderation/reporting blockers.
+- No encounter runtime, generated encounter text, provider calls, durable
+  transcripts, draft persistence, cross-owner encounters, public/shareable
+  output, billing/token-credit deductions, Redis, Cloudflare, queues, workers,
+  schema, migrations, storage, API routes, or broad UI scope is accepted.
+
+ARGUS validation:
+
+- Repo evidence inspected: PR472 brief, PR471/PR471A docs, persona/public
+  boundaries, public/private chat provider-call paths, token-credit routes,
+  reports/moderation routes, permissions, and current roadmap status.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR472A - Owner Encounter Consent / Provenance Contract
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT OWNER-ONLY CONTRACT READBACK
+```
+
+Current baton:
+
+- DAEDALUS should implement the owner-only web contract readback and wake
+  ARGUS.
+- Keep PR472A readback-only: no encounter runtime, generated output, provider
+  calls, draft/transcript/storage behavior, cross-owner behavior, public
+  controls, billing, worker/queue, schema, API route, or broad UI.
+
 ## Latest MIMIR closeout - PR471A closed
 
 MIMIR closes PR471A as accepted:

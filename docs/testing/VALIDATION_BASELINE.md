@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR472 Persona Encounter Consent / Provenance Preflight
+
+ARGUS accepted PR472 preflight on 2026-06-29:
+`docs/roadmap/PR472_PERSONA_ENCOUNTER_CONSENT_PROVENANCE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- the first safe unblock slice is owner-only contract readback in the private
+  persona Studio workspace;
+- PR472A does not allow encounter runtime, provider calls, generated encounter
+  text, durable transcripts, draft persistence, cross-owner behavior,
+  public/shareable output, billing/token-credit deductions, Redis, Cloudflare,
+  queues, workers, schema, migrations, storage, API routes, or broad UI scope;
+- same-owner consent is acceptable only for a future owner-only, non-public,
+  owner-initiated runtime slice; cross-owner behavior remains blocked until
+  bilateral consent, visibility, revocation, and audit policy exists;
+- provenance, stop/revocation, cost/rate-limit/plan, and moderation/reporting
+  contracts remain prerequisites before any future provider-backed encounter
+  call or shareable output.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR472A implementation is not done in this preflight. DAEDALUS
+must keep the unblock owner-only, web-only, and readback-only before waking
+ARGUS.
+
 ## PR471A Owner Encounter Readiness Gate Hosted Rehearsal
 
 ARIADNE completed the hosted PR471A rehearsal on 2026-06-29:
