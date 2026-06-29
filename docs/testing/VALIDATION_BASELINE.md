@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR477 Document Migrator Product Depth Preflight
+
+ARGUS accepted the PR477 preflight on 2026-06-29:
+`docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR477A_DOCUMENT_MIGRATOR_PREVIEW`.
+
+Reason:
+
+- current onboarding readback already routes Document Migrator honestly without
+  live connector claims;
+- current pasted/file import paths write immediately, so PR477A must add a
+  dedicated no-write preview path instead of reusing submit/register actions;
+- existing import parsers can identify text, Markdown, ChatGPT JSON, Claude
+  JSON, Reddit JSON, Discord JSON, and legacy role/content JSON;
+- parser output includes full private text, so PR477A preview must return only
+  redacted summaries and never raw parser text, snippets, permalinks, URLs,
+  storage paths, signed URLs, SQL/table detail, stack traces, tokens, account
+  ids, or provider payloads;
+- explicit owner confirmation must remain required before any import job,
+  archive source, persona file, Memory, Canon, Continuity, public document,
+  queue/worker, or provider call exists.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | PR477 handoff, future lanes, PR403/PR404, onboarding helper/tests, persona files page, import/persona-file routes, parser contracts/tests, archive trust helpers/tests, and import review helpers/tests inspected. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/imports/parsers/import-parsers.test.ts` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/import-review.test.ts` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from turbo cache. |
+
 ## PR476A Owner Social Publishing Readiness Hosted Rehearsal
 
 ARIADNE completed the hosted read-only proof on 2026-06-29:

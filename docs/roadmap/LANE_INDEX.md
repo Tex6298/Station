@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR477 preflight | Document Migrator Product Depth | ARGUS / A3 | Open; decide smallest honest owner-only import preview/readback slice or exact blocker | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
+| PR477A | Owner Document Migrator Import Preview | DAEDALUS / A2 | Open; implement no-write redacted preview before existing import confirmation | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR477 preflight | Document Migrator Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR477A Owner Document Migrator Import Preview; preview must be owner-only, no-write, redacted, and before explicit import confirmation | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR477 opened | Document Migrator Product Depth Preflight | MIMIR -> ARGUS | Open; decide smallest owner-only Document Migrator depth slice without live external pulls or private-source leakage | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
 | PR476A closeout | Owner Social Publishing Readiness | MIMIR | Closed; hosted Settings/social and owned document proof passed with paused readback-only connector state | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_CLOSEOUT.md` |
 | PR476A hosted rehearsal | Owner Social Publishing Readiness | MIMIR -> ARIADNE -> MIMIR | Pass; Settings/social desktop/mobile and owned document route show paused readiness, direct compose fails bounded | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_RESULT.md` |

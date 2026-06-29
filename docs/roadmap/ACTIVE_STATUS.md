@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR477A accepted
+
+ARGUS accepted the first Document Migrator product-depth slice:
+
+`docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR477A_DOCUMENT_MIGRATOR_PREVIEW
+```
+
+Accepted shape:
+
+- owner-only import preview/readback before existing import confirmation;
+- no database writes, storage upload, signed URL creation, import job, archive
+  ingestion, Memory, Canon, Continuity, public document, queue/worker, or
+  provider call during preview;
+- parser-backed format/count summaries for pasted/local text, Markdown, and
+  supported JSON exports;
+- no raw private source body, parser text, snippets, permalinks, URLs, storage
+  paths, signed URLs, tokens, account ids, SQL/table detail, stack traces, or
+  live connector claims in preview response, UI, docs, tests, or logs.
+
+Current lane:
+
+```text
+PR477A - Owner Document Migrator Import Preview
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT NO-WRITE REDACTED IMPORT PREVIEW
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact PR477A slice named by ARGUS.
+- Keep existing import/upload writes behind explicit owner confirmation.
+- Do not broaden into live external pulls, OAuth/API tokens, recurring sync,
+  automatic import without owner confirmation, workers/queues, Redis,
+  Cloudflare, provider calls, billing, schema changes, or private source
+  leakage.
+
 ## Latest MIMIR closeout/opening - PR476A closed, PR477 opened
 
 MIMIR closes PR476A Owner Social Publishing Readiness as accepted:
