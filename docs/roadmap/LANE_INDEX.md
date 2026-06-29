@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475A | Signed-In Seminar Interest Toggle | MIMIR / A1 | ARGUS accepted after aggregate-honest copy patch; close or route hosted signed-out/signed-in proof | `docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REVIEW_RESULT.md` |
+| PR475A hosted rehearsal | Signed-In Seminar Interest Toggle | ARIADNE / A4 | Open; hosted signed-out/signed-in desktop/mobile proof with one mark and withdrawal | `docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR475A hosted rehearsal opened | Signed-In Seminar Interest Toggle | MIMIR -> ARIADNE | Open; prove hosted signed-out/signed-in seminar interest mark and withdrawal | `docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_ARIADNE.md` |
 | PR475A review | Signed-In Seminar Interest Toggle | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS copy patch; interest persists against server-resolved public source and exposes aggregate count plus viewer-local state only | `docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REVIEW_RESULT.md` |
 | PR475 preflight | Live Events / Seminars Attendance Interest | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR475A signed-in interest toggle; public digest is a handle only, durable target is server-resolved public source reference | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_RESULT.md` |
 | PR475 opened | Live Events / Seminars Attendance Interest Preflight | MIMIR -> ARGUS | Open; decide smallest interest/readback slice or stable public seminar reference unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_ARGUS.md` |

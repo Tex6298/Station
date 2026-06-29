@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR475A hosted rehearsal opened
+
+MIMIR routes ARIADNE for hosted signed-out/signed-in PR475A proof:
+
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR475A - Signed-In Seminar Interest Toggle Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should check hosted `/events/seminars` signed-out and signed-in on
+  desktop and 390px mobile.
+- ARIADNE should mark interest on one public card, then withdraw it, leaving no
+  intentional extra interest row behind.
+- Exact low aggregate counts are accepted by design, but attendee identities
+  and raw source ids must remain hidden.
+- Do not broaden into tickets, payments, Stripe, reminders, calendar
+  integration, livestream/media rooms, attendee lists, event-host management,
+  provider calls, queues/workers, Redis, Cloudflare, hosted runtime, or broad
+  UI.
+
 ## Latest ARGUS review - PR475A accepted
 
 ARGUS accepts the signed-in seminar interest toggle after a narrow UI copy
@@ -57,8 +84,8 @@ Current lane:
 
 ```text
 PR475A - Signed-In Seminar Interest Toggle
-Owner: MIMIR / A1
-State: ARGUS ACCEPTED - CLOSE OR ROUTE HOSTED REHEARSAL
+Owner: ARIADNE / A4
+State: HOSTED REHEARSAL OPENED BY MIMIR
 ```
 
 Current baton:
