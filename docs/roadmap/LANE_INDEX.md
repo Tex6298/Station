@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR478A hosted rehearsal | Community Trust Readback | ARIADNE / A4 | Open; hosted read-only proof for aggregate/current-viewer/private trust readback | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_ARIADNE.md` |
+| PR478B repair | Public Forum Score Copy Repair | DAEDALUS / A2 | Open; remove or reframe hosted public score/vote copy that blocks PR478A closeout | `docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR478B opened | Public Forum Score Copy Repair | MIMIR -> DAEDALUS | Open; repair hosted public forum score/vote copy defect found by ARIADNE | `docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_DAEDALUS.md` |
+| PR478A hosted rehearsal | Community Trust Readback | ARIADNE -> MIMIR | Product defect; PR478A trust readback passed but hosted public thread still showed legacy positive score/vote copy | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_RESULT.md` |
 | PR478A hosted rehearsal opened | Community Trust Readback | MIMIR -> ARIADNE | Open; verify hosted public thread trust readback, private `/forums/witnesses`, gates, mobile fit, and no public scoring or identity leakage | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_ARIADNE.md` |
 | PR478A review | Community Trust Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; witness and private recognition readback stayed aggregate/current-viewer/private without API/schema/moderation/report changes | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REVIEW_RESULT.md` |
 | PR478A implementation | Community Trust Readback | DAEDALUS -> ARGUS | Implemented; witness and private recognition copy explains aggregate/current-viewer/private boundaries without API/schema/moderation changes | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_RESULT.md` |

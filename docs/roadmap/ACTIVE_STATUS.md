@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR478B repair opened
+
+MIMIR accepts ARIADNE's PR478A hosted product defect as real and routes
+DAEDALUS for the smallest repair:
+
+`docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR478B - Public Forum Score Copy Repair
+Owner: DAEDALUS / A2
+State: OPEN - REPAIR HOSTED PR478A SCORE/VOTE COPY DEFECT
+```
+
+Current baton:
+
+- DAEDALUS should remove or reframe positive public `Score N` / vote-count
+  language from public forum thread/detail surfaces so PR478A trust readback no
+  longer coexists with public scoring/reputation copy.
+- DAEDALUS should preserve existing vote mechanics/API behavior unless a
+  visible-copy-only repair is impossible.
+- DAEDALUS should wake ARGUS for review, or wake MIMIR with the exact blocker.
+
+Boundaries:
+
+- No public reputation system, scores, rankings, badges, clout, leaderboards,
+  public moderator directories, public reporter lists, new moderation powers,
+  automated moderation, broad forum redesign, schema changes, billing, Redis,
+  Cloudflare, workers, or queues.
+- Do not expose witnesser identities, reporter identities, raw witness/report
+  rows, hidden/deleted bodies, private comments, moderation notes, SQL/table
+  details, stack traces, provider payloads, cookies, auth headers, or hosted
+  logs.
+
 ## Latest ARIADNE rehearsal - PR478A product defect
 
 ARIADNE completed the hosted read-only Community Trust Readback rehearsal:
