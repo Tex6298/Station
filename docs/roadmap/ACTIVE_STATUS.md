@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484F-A blocked for MIMIR
+
+ARGUS completed the PR484F-A Archive Connector OAuth Callback Safe Landing
+preflight:
+
+`docs/roadmap/PR484F_A_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SAFE_LANDING_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+BLOCKED_NEEDS_SESSION_BRIDGE
+```
+
+Current lane:
+
+```text
+PR484F-A - Archive Connector OAuth Callback Safe Landing
+Owner: MIMIR / A1
+State: BLOCKED - CALLBACK SESSION BRIDGE NEEDED
+```
+
+Current baton:
+
+- MIMIR should decide a callback session bridge before DAEDALUS implements a
+  provider callback landing route.
+- Current PR484E state is bound to owner id plus Bearer token, but provider
+  callbacks will not include the API `Authorization` header.
+- A `requireAuth` callback would reject real provider redirects.
+- An unauthenticated callback that consumes by raw `stateHandle` alone would
+  weaken the accepted owner/session-bound state guarantee.
+- Recommended unblock lane: `PR484F-B - Archive Connector OAuth Callback
+  Session Bridge`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check 15b5c674ae022510920ad2c9447339d63b0654d3..ce7ed5f001b8a52df38f73a228f2f249de847878`
+  passed.
+- MIMIR's wakeup diff is docs-only; current source scans show no callback
+  route, authorization URL generation, server redirect, token exchange,
+  provider call, credential write, import, UI, hosted runtime, package,
+  billing, or social posting behavior.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR closeout/opening - PR484F blocked, PR484F-A opened
 
 MIMIR accepts ARGUS's PR484F authorization preflight block:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484F-A preflight | Archive Connector OAuth Callback Safe Landing | ARGUS / A3 | Open; decide callback/code safety boundary before authorization URL or redirect behavior | `docs/roadmap/PR484F_A_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SAFE_LANDING_PREFLIGHT_ARGUS.md` |
+| PR484F-A preflight | Archive Connector OAuth Callback Safe Landing | MIMIR / A1 | Blocked by ARGUS; callback session bridge needed before callback landing can consume state | `docs/roadmap/PR484F_A_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SAFE_LANDING_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484F-A preflight | Archive Connector OAuth Callback Safe Landing | MIMIR -> ARGUS -> MIMIR | Blocked; PR484E state is Bearer-session-bound but provider callbacks do not include Authorization, so MIMIR must decide a callback session bridge before state consume | `docs/roadmap/PR484F_A_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SAFE_LANDING_PREFLIGHT_RESULT.md` |
 | PR484F block closeout | Archive Connector OAuth Authorize | MIMIR | Block accepted; authorization URL/redirect deferred until callback/code safety boundary exists | `docs/roadmap/PR484F_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZE_BLOCK_CLOSEOUT.md` |
 | PR484F preflight | Archive Connector OAuth Authorize | MIMIR -> ARGUS -> MIMIR | Blocked; client id is acceptable only inside a future OAuth URL/Location, but live authorization URL or 302 is unsafe before callback/code redaction/state validation boundary | `docs/roadmap/PR484F_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZE_PREFLIGHT_RESULT.md` |
 | PR484E closeout | Archive Connector OAuth State Start | MIMIR | Closed; owner/session-bound OAuth state start route accepted, no hosted proof required | `docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_CLOSEOUT.md` |
