@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484B Connector Credential Storage
+
+DAEDALUS implemented PR484B on 2026-06-29:
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the migration adds owner-scoped encrypted archive connector credential rows
+  and separate OAuth state rows for `reddit` and `discord` only;
+- the service uses `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`, AES-256-GCM
+  envelope version `station.archive_connector.credential.v1`, and fail-closed
+  encryption config checks;
+- replacement credentials are encrypted and fingerprinted before active rows
+  are revoked;
+- readbacks expose safe metadata only, with no token material, token tails,
+  encrypted payloads, raw external account ids, provider payloads, private
+  source bodies, SQL/table output, stack traces, prompts, storage paths, signed
+  URLs, hosted logs, or secret-shaped values;
+- no live provider call, OAuth redirect/callback route, token exchange,
+  refresh/revocation execution, source inventory pull, recurring pull, import
+  write, route/UI behavior, job/queue/worker, Redis, Cloudflare, billing,
+  provider/model call, package dependency, or hosted runtime behavior was
+  added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts` | Pass | 7 tests passed across fail-closed encryption config, replace-before-revoke ordering, safe readbacks, revoke readbacks, OAuth state consume, mismatch/expiry/local redirect guards, and source guard. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 40 tests passed across the new storage suite plus existing connector contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 12 tests passed; AI BYOK encrypted storage remains green and separate from archive connector credentials. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+
 ## PR484B Connector Credential Storage Preflight
 
 ARGUS accepted PR484B for DAEDALUS on 2026-06-29:

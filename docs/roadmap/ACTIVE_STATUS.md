@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484B ready for ARGUS
+
+DAEDALUS implemented the PR484B Connector Credential Storage slice:
+
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR484B - Connector Credential Storage
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the migration, DB type surface, storage service, OAuth
+  state helpers, focused tests, and architecture/status docs.
+- Confirm archive connector credentials use the connector-specific
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`, fail closed when missing or
+  malformed, and return only safe metadata.
+- Confirm replacement credentials are encrypted and fingerprinted before any
+  active credential row is revoked.
+- Confirm OAuth state rows are separate from credential rows and bind
+  owner/session/provider/purpose with hashed nonce/csrf values, expiry, local
+  redirect validation, and one-time consume behavior.
+- If accepted, wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, wake DAEDALUS with `WAKEUP A2:`.
+
+Boundaries:
+
+- No live Reddit/Discord API calls, OAuth redirects/callback routes, token
+  exchange, token refresh/revocation execution, provider SDKs, configured test
+  credentials, source inventory pulls, recurring pulls, import writes, route/UI
+  behavior, public connector pages, cross-owner connector access, jobs, queues,
+  workers, Redis, Cloudflare, billing/Stripe, provider/model calls, package
+  dependencies, or hosted runtime behavior.
+
 ## Latest ARGUS preflight - PR484B accepted for DAEDALUS
 
 ARGUS completed the PR484B Connector Credential Storage preflight:

@@ -63,6 +63,9 @@ export type DiscoverEventType = "published" | "created" | "featured" | "updated"
 export type PublicSeminarInterestSourceType = "document" | "thread" | "space";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
+export type ArchiveConnectorProvider = "reddit" | "discord";
+export type ArchiveConnectorPurpose = "archive_connector";
+export type ArchiveConnectorCredentialStatus = "active" | "revoked";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
 export type DeveloperSpaceProviderPolicy = "public_synthetic_only" | "public_context_allowed" | "private_archive_allowed" | "owner_byok_only" | "platform_allowed";
 export type DeveloperSpaceVisualisationType = "node_field" | "timeline" | "world_map" | "constellation";
@@ -165,6 +168,57 @@ export interface Database {
           revoked_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["ai_provider_byok_secrets"]["Insert"]>;
+      };
+      archive_connector_credentials: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          provider: ArchiveConnectorProvider;
+          purpose: ArchiveConnectorPurpose;
+          encrypted_credential: Record<string, unknown>;
+          credential_fingerprint: string;
+          external_account_fingerprint: string | null;
+          account_label: string | null;
+          status: ArchiveConnectorCredentialStatus;
+          created_at: string;
+          updated_at: string;
+          rotated_at: string | null;
+          revoked_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["archive_connector_credentials"]["Row"], "id" | "purpose" | "status" | "created_at" | "updated_at" | "rotated_at" | "revoked_at"> & {
+          id?: string;
+          purpose?: ArchiveConnectorPurpose;
+          status?: ArchiveConnectorCredentialStatus;
+          created_at?: string;
+          updated_at?: string;
+          rotated_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["archive_connector_credentials"]["Insert"]>;
+      };
+      archive_connector_oauth_states: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          session_id: string;
+          provider: ArchiveConnectorProvider;
+          purpose: ArchiveConnectorPurpose;
+          nonce_hash: string;
+          csrf_hash: string;
+          local_redirect_path: string | null;
+          expires_at: string;
+          consumed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["archive_connector_oauth_states"]["Row"], "id" | "purpose" | "consumed_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          purpose?: ArchiveConnectorPurpose;
+          consumed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["archive_connector_oauth_states"]["Insert"]>;
       };
       projects: {
         Row: {
