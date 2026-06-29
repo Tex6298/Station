@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR468 accepted
+
+ARGUS accepts PR468:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REVIEW_RESULT.md`
+
+Decision:
+
+- DAEDALUS implemented the narrow anonymous public persona chat lane accepted in
+  preflight.
+- Anonymous chat is available only for
+  `/personas/station-replay-alpha-persona` when owner-enabled.
+- Signed-in public chat remains intact for other enabled public personas.
+- Owner disable blocks anonymous and signed-in chat.
+- Anonymous rate limiting uses a hashed/minimized request-address key and does
+  not store or return raw visitor address/header/cookie/auth/user-agent/prompt
+  or provider key material.
+- Rate-limit store failure fails closed before provider calls.
+- Token usage remains owner-paid with `chat_id: null`.
+- Public prompt construction remains public-source-only.
+- Anonymous chat creates no durable visitor transcript, visitor identity,
+  conversation, conversation message, moderation report, or raw event row.
+- Public persona reporting remains signed-in only.
+- No Cloudflare, hosted runtime, queue, adapter, billing, Stripe, migration, or
+  broad public persona availability scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas`: pass, 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat
+Owner: MIMIR / A1
+State: OPEN - ARGUS ACCEPTED; DECIDE REHEARSAL/CLOSEOUT ROUTING
+```
+
+Current baton:
+
+- MIMIR should decide whether ARIADNE should run a hosted anonymous-chat
+  confirmation before PR468 closeout.
+- After PR468 closes, MIMIR should follow Marty's clarification and choose a
+  named Phase 3 feature lane or the smallest direct unblock lane for one.
+
 ## Latest MIMIR clarification - PR468 runs through closeout
 
 Marty clarified the PR468 sequencing in `e607ae37`:

@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS implemented PR468 on 2026-06-29:
 `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+Validation result: `ARGUS_ACCEPTED`.
 
 Reason:
 
@@ -55,9 +55,9 @@ Reason:
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
 
-Residual risk: ARGUS has not reviewed the implementation yet. Hosted browser
-proof is also not part of this DAEDALUS pass; MIMIR should decide after ARGUS
-whether ARIADNE should run a hosted anonymous-chat confirmation.
+Residual risk: hosted browser proof is not part of this ARGUS pass. MIMIR
+should decide whether ARIADNE should run a hosted anonymous-chat confirmation
+before PR468 closeout.
 
 ## PR468 Anonymous Public Persona Chat Preflight
 
