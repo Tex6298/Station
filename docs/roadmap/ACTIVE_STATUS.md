@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR471 accepted for DAEDALUS
+
+ARGUS accepts the first Persona-to-Persona Encounters slice as an owner-only
+readiness gate:
+
+`docs/roadmap/PR471_PERSONA_TO_PERSONA_ENCOUNTERS_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR471A - Owner Encounter Readiness Gate`.
+- The accepted slice is web-only, owner-only, private Studio-only, and
+  readback-only.
+- It should honestly say persona-to-persona encounters are not enabled yet and
+  name the consent, provenance, transcript, provider-call, cost, rate-limit,
+  moderation, public/shareable, and cross-owner gates required before any
+  encounter behavior exists.
+- No autonomous persona chat, background conversations, scheduled encounters,
+  model-call loops, provider calls, generated encounter output, durable
+  transcripts, cross-owner encounters, public encounter pages, public controls,
+  billing/token-credit deductions, Redis, Cloudflare, queues, workers, schema,
+  migrations, API routes, or broad UI scope is accepted.
+
+ARGUS validation:
+
+- Repo evidence inspected: PR471 brief, PR215 gate, persona/public serializer
+  boundaries, public/private chat provider-call paths, token-credit routes,
+  reports/moderation routes, permissions, and current roadmap status.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR471A - Owner Encounter Readiness Gate
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT OWNER-ONLY READINESS GATE
+```
+
+Current baton:
+
+- DAEDALUS should implement the owner-only web readiness gate and wake ARGUS.
+- Keep PR471A readback-only: no encounter runtime, generated text, provider
+  calls, transcript/storage behavior, cross-owner behavior, public controls,
+  billing, worker/queue, schema, API route, or broad UI.
+
 ## Latest MIMIR closeout - PR470A closed
 
 MIMIR closes PR470A as accepted:

@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR471 Persona-to-Persona Encounters Preflight
+
+ARGUS accepted PR471 preflight on 2026-06-29:
+`docs/roadmap/PR471_PERSONA_TO_PERSONA_ENCOUNTERS_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- the first safe Persona-to-Persona Encounters slice is owner-only readiness
+  readback in the private persona Studio workspace;
+- PR471A does not allow autonomous persona chat, background conversations,
+  scheduled encounters, model-call loops, provider calls, generated encounter
+  output, durable encounter transcripts, cross-owner encounters, public
+  encounter pages, public controls, billing/token-credit deductions, Redis,
+  Cloudflare, queues, workers, schema, migrations, API routes, or broad UI
+  scope;
+- existing private/public chat provider paths prove single-persona calls and
+  token accounting exist, but they are not a safe encounter runtime without
+  explicit consent, provenance, transcript, moderation, cost, rate-limit, and
+  loop-prevention decisions;
+- cross-owner and public/shareable encounter behavior remain blocked until
+  bilateral consent, visibility, revocation, moderation, reporting, and
+  provenance policy exists.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR471A implementation is not done in this preflight. DAEDALUS
+must keep the first slice owner-only, web-only, and readback-only before waking
+ARGUS.
+
 ## PR470A Owner Voice / Avatar Readiness Gate Hosted Rehearsal
 
 ARIADNE completed the hosted PR470A rehearsal on 2026-06-29:
