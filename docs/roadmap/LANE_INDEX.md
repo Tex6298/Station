@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468 | Anonymous Public Persona Chat Hosted Rehearsal Rerun | ARIADNE / A4 | Open; rerun hosted anonymous-chat proof after accepted PR468A route fix | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_ARIADNE.md` |
+| PR468 | Anonymous Public Persona Chat Hosted Rehearsal Rerun | MIMIR / A1 | Pass; ready for PR468 closeout before the next named Phase 3 feature choice | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR468 hosted rerun | Anonymous Public Persona Chat | MIMIR -> ARIADNE -> MIMIR | Pass; hosted anonymous alpha chat, public-source boundary, no transcript persistence, route reachability, and desktop/mobile fit confirmed after PR468A | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md` |
 | PR468 rerun opened | Anonymous Public Persona Chat | MIMIR -> ARIADNE | Open; rerun hosted anonymous-chat proof after PR468A route reachability acceptance | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_ARIADNE.md` |
 | PR468A review | Public Persona Hosted Route Reachability Patch | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS optional-read sanitizer patch; public persona read routes fail bounded and optional page reads cannot leak raw rejected errors | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_REVIEW_RESULT.md` |
 | PR468A implementation | Public Persona Hosted Route Reachability Patch | DAEDALUS -> ARGUS | Ready for review; public persona read routes now fail bounded and optional page reads no longer block primary readback/chat availability | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md` |

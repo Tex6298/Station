@@ -20,6 +20,54 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR468 Anonymous Public Persona Chat Hosted Rerun
+
+ARIADNE completed the hosted PR468 rerun on 2026-06-29:
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API health were fresh at PR468A accepted commit `cd8cb866` and
+  reported ready;
+- the alpha public persona primary readback succeeded;
+- optional public context-preview, events, and roulette reads returned bounded
+  public responses;
+- `/personas/station-replay-alpha-persona` reached a usable public persona/chat
+  state on desktop and 390px mobile;
+- signed-out anonymous chat worked for the alpha persona without sign-in;
+- the response reported `mode=anonymous_alpha` and `transcriptStored=false`;
+- response sources were present and did not look private or owner-scoped;
+- refresh did not show a durable anonymous visitor transcript or retained
+  prompt text;
+- sampled visible UI text did not expose private source text, raw prompt
+  history, provider payloads, credentials, stack traces, storage paths, raw ids,
+  visitor identity, or secret-shaped material;
+- no second public persona was visible in the hosted sample, so the broad
+  non-alpha deny/default guarantee remains covered by accepted ARGUS tests.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at PR468A accepted commit `cd8cb866`. |
+| Hosted API `/health/deployment` | Pass | Ready at PR468A accepted commit `cd8cb866`. |
+| Alpha primary public readback | Pass | HTTP 200. |
+| Optional context preview/events/roulette reads | Pass | HTTP 200 for each sampled route. |
+| Signed-out anonymous chat, desktop | Pass | Chat worked and did not persist after refresh. |
+| Signed-out anonymous chat, 390px mobile | Pass | Chat worked and did not persist after refresh. |
+| Public-source-only/source classification | Pass | Response sources were present and did not look private or owner-scoped. |
+| Visible safety scan | Pass | No private/secret/internal material in sampled UI. |
+| Layout scan | Pass | No horizontal overflow or clipped interactive controls. |
+| Other public persona deny sample | Not visible | No second public persona appeared in the hosted public sample. |
+| Signed-in visible alpha readback | Pass | Replay-owner signed-in readback stayed usable on desktop and 390px mobile. |
+| Temporary Playwright/Node hosted harness | Pass | Rerun completed with no defects. |
+| `git diff --check` | Pass before commit | Result commit validation. |
+
+Residual risk: this was a narrow hosted rehearsal. It did not broaden anonymous
+public chat beyond the one alpha persona, mutate owner settings, disable the
+owner toggle, open billing/provider flows, or prove a second hosted public
+persona deny route because no second public persona was visible.
+
 ## PR468A Public Persona Hosted Route Reachability Patch
 
 DAEDALUS patched PR468A on 2026-06-29:

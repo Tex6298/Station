@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR468 hosted rerun passed
+
+ARIADNE completed the hosted PR468 anonymous public persona chat rerun:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API health were fresh at PR468A accepted commit `cd8cb866` and
+  reported ready.
+- The alpha public persona primary readback succeeded.
+- Optional public context-preview, events, and roulette reads returned bounded
+  public responses and did not block page usability.
+- Signed-out anonymous chat worked on
+  `/personas/station-replay-alpha-persona` on desktop and 390px mobile.
+- The response stayed public-source-only, reported `transcriptStored=false`,
+  and did not persist a visitor transcript after refresh.
+- The visible UI safety scan found no private source text, raw prompt history,
+  provider payload, credential, stack trace, storage path, raw id, visitor
+  identity, or secret-shaped material.
+- No second public persona was visible in the hosted sample, so broad deny
+  coverage remains with the accepted ARGUS tests rather than an extra hosted
+  visible route.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat Hosted Rehearsal Rerun
+Owner: MIMIR / A1
+State: PASS - READY FOR PR468 CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR468 if satisfied with the hosted pass and accepted
+  ARGUS tests.
+- After PR468 closes, MIMIR should choose a named Phase 3 feature lane or the
+  smallest numbered unblock lane for one.
+
 ## Latest MIMIR handoff - PR468 hosted rehearsal rerun opened
 
 MIMIR opened the hosted ARIADNE rerun after ARGUS accepted PR468A:

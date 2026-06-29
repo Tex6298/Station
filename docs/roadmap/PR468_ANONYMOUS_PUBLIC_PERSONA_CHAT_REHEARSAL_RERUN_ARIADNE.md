@@ -116,3 +116,25 @@ Do not commit screenshots, cookies, session values, raw owner ids, customer ids,
 subscription ids, visitor prompts, provider completions, private source bodies,
 provider keys, stack traces, raw network payloads, or secret-looking values.
 
+## ARIADNE Result - 2026-06-29
+
+Result:
+
+```text
+PASS
+```
+
+ARIADNE reran the hosted PR468 anonymous public persona chat rehearsal against
+fresh web/API health at PR468A accepted commit `cd8cb866`. The alpha public
+persona primary readback, optional public context/events/roulette reads, public
+page usability, signed-out anonymous chat, public-source-only response boundary,
+no durable anonymous transcript after refresh, desktop layout, and 390px mobile
+layout all passed.
+
+Result document:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md`
+
+The hosted public-persona sample did not expose a second public persona, so the
+deny/default expansion check remains covered by the accepted ARGUS tests rather
+than an additional hosted visible route.
