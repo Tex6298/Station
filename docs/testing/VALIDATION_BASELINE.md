@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR476A Owner Social Publishing Readiness ARGUS Review
+
+ARGUS accepted PR476A on 2026-06-29:
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- `GET /social/readiness` is authenticated and readback-only;
+- legacy social routes fail closed before credential storage, OAuth exchange,
+  social table writes, post dispatch, teaser generation, or provider calls;
+- `/settings/social` shows disabled readiness readback, not credential inputs
+  or live Connect/OAuth/post controls;
+- public document owner pages no longer expose the live social composer;
+- no live posting, syndication, OAuth/token storage, provider calls,
+  queues/workers, webhooks, billing, migration, schema, real accounts, or
+  secret exposure was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/social.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/social-publishing-readiness.test.ts` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/publishing-approvals.test.ts` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/auth-routes.test.ts` | Pass | 6 tests passed; `/settings/social` remains protected. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check 428d62a1..a2e0ca1e` | Pass | No whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Expected removed-code/docs/fixture terms only; no new credential values, provider account ids, provider payloads, external post URLs, SQL/table output, stack traces, queue/worker/webhook behavior, billing path, or live-posting claim. |
+
 ## PR476A Owner Social Publishing Readiness
 
 DAEDALUS implemented PR476A on 2026-06-29:

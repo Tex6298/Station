@@ -4,44 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR476A ready for ARGUS
+## Latest ARGUS review - PR476A accepted
 
-DAEDALUS implemented the PR476A readback-only social publishing fence:
+ARGUS accepted the PR476A owner-only Social Publishing readiness fence:
 
-`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_RESULT.md`
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REVIEW_RESULT.md`
 
-Result:
+Review finding:
 
-- Authenticated `GET /social/readiness` now returns supported provider
-  readiness/status categories only.
-- Readiness reports OAuth app availability as booleans/status labels only and
-  keeps credential storage, posting, connection actions, and teaser generation
-  disabled.
-- Existing social connect/OAuth/callback/compose/post-history/teaser routes now
-  fail closed with a bounded paused response before social table writes or
+- `GET /social/readiness` is authenticated and returns status/category readback
+  only.
+- Legacy social action routes fail closed with bounded paused status before
+  social table writes, OAuth exchange, post dispatch, teaser generation, or
   provider calls.
-- `/settings/social` is now a readback-only owner page with disabled connector
-  actions and no credential inputs or active connect/OAuth/disconnect/save
-  controls.
-- Public document owner pages no longer import or render the live social posting
-  composer entrypoint.
+- `/settings/social` shows disabled readiness cards and no credential inputs or
+  live Connect/OAuth/post controls.
+- The public document owner page no longer exposes the live social composer.
+- No new live posting, OAuth/token storage, provider calls, queue/worker,
+  webhook, billing, migration, schema, or real provider-account setup was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/social.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/social-publishing-readiness.test.ts`: pass, 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts`: pass, 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/publishing-approvals.test.ts`: pass, 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/auth-routes.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check 428d62a1..a2e0ca1e`: pass.
+- Diff-only sensitive/scope scan: pass, expected removed-code/docs/fixture
+  terms only.
 
 Current lane:
 
 ```text
 PR476A - Owner Social Publishing Readiness
-Owner: ARGUS / A3
-State: READY FOR REVIEW
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSE OR ROUTE HOSTED READ-ONLY PROOF
 ```
 
 Current baton:
 
-- ARGUS should review PR476A for readback-only scope, auth, fail-closed social
-  action routes, source/UI reachability, and sensitive-readback boundaries.
-- If accepted, ARGUS should wake MIMIR for closeout and ARIADNE hosted
-  read-only proof.
-- If fixes are needed, ARGUS should wake DAEDALUS with the exact failing route,
-  source, or test expectation.
+- MIMIR should close PR476A or route ARIADNE for hosted read-only proof.
+- Recommended proof: signed-in `/settings/social` desktop and 390px mobile,
+  public document owner page paused social readiness, and optional direct API
+  sample showing `/social/readiness` readback plus bounded paused legacy action.
+- Do not broaden into live posting, OAuth/token storage, provider API calls,
+  syndication, queues/workers, webhooks, billing, real provider accounts, or
+  secret exposure.
 
 ## Latest ARGUS preflight - PR476A accepted
 
