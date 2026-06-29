@@ -44,7 +44,7 @@ comment on table public.archive_connector_credentials is
 create table if not exists public.archive_connector_oauth_states (
   id                   uuid primary key default gen_random_uuid(),
   owner_user_id        uuid not null references public.profiles (id) on delete cascade,
-  session_id           text not null,
+  session_id_hash      text not null,
   provider             text not null check (provider in ('reddit', 'discord')),
   purpose              text not null default 'archive_connector' check (purpose = 'archive_connector'),
   nonce_hash           text not null unique,
@@ -83,4 +83,4 @@ create policy "archive_connector_oauth_states_all_owner"
   with check (auth.uid() = owner_user_id);
 
 comment on table public.archive_connector_oauth_states is
-  'Owner/session-bound one-time OAuth state records for future archive connector OAuth. Stores hashes and local redirect paths only, never callback codes or tokens.';
+  'Owner/session-bound one-time OAuth state records for future archive connector OAuth. Stores session, nonce, and csrf hashes plus local redirect paths only, never callback codes or tokens.';

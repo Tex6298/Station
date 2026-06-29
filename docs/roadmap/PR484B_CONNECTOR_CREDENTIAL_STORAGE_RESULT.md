@@ -23,7 +23,8 @@ Implemented:
 - replacement ordering that encrypts and fingerprints new material before
   revoking any active row;
 - revocation helpers returning safe metadata only;
-- one-time OAuth state creation and consume helpers using nonce/csrf hashes;
+- one-time OAuth state creation and consume helpers using session/nonce/csrf
+  hashes;
 - architecture notes for storage, encryption, readback, OAuth state, and
   non-goals.
 

@@ -31,7 +31,7 @@ export type ArchiveConnectorCredentialRow = {
 export type ArchiveConnectorOAuthStateRow = {
   id?: string;
   owner_user_id: string;
-  session_id: string;
+  session_id_hash: string;
   provider: ArchiveConnectorProviderId;
   purpose: "archive_connector";
   nonce_hash: string;
@@ -44,7 +44,6 @@ export type ArchiveConnectorOAuthStateRow = {
 };
 
 export type ArchiveConnectorCredentialReadback = {
-  id?: string;
   provider: ArchiveConnectorProviderId;
   purpose: "archive_connector";
   status: ArchiveConnectorCredentialStatus;
@@ -59,7 +58,6 @@ export type ArchiveConnectorCredentialReadback = {
 };
 
 export type ArchiveConnectorOAuthStateReadback = {
-  id?: string;
   provider: ArchiveConnectorProviderId;
   purpose: "archive_connector";
   expiresAt: string;
@@ -195,7 +193,6 @@ export async function revokeArchiveConnectorCredential(input: {
 
 export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnectorCredentialRow): ArchiveConnectorCredentialReadback {
   return {
-    id: row.id,
     provider: row.provider,
     purpose: ARCHIVE_CONNECTOR_PURPOSE,
     status: row.status,
@@ -225,7 +222,7 @@ export async function createArchiveConnectorOAuthState(input: {
     .from("archive_connector_oauth_states")
     .insert({
       owner_user_id: input.ownerUserId,
-      session_id: input.sessionId,
+      session_id_hash: hashArchiveConnectorOAuthValue("session", input.sessionId),
       provider: input.provider,
       purpose: ARCHIVE_CONNECTOR_PURPOSE,
       nonce_hash: hashArchiveConnectorOAuthValue("nonce", input.nonce),
@@ -258,6 +255,7 @@ export async function consumeArchiveConnectorOAuthState(input: {
   const sb = getSupabaseAdmin();
   const nonceHash = hashArchiveConnectorOAuthValue("nonce", input.nonce);
   const csrfHash = hashArchiveConnectorOAuthValue("csrf", input.csrf);
+  const sessionIdHash = hashArchiveConnectorOAuthValue("session", input.sessionId);
   const { data, error } = await (sb as any)
     .from("archive_connector_oauth_states")
     .select("*")
@@ -271,7 +269,7 @@ export async function consumeArchiveConnectorOAuthState(input: {
   const row = data as ArchiveConnectorOAuthStateRow;
   if (
     row.owner_user_id !== input.ownerUserId ||
-    row.session_id !== input.sessionId ||
+    row.session_id_hash !== sessionIdHash ||
     row.provider !== input.provider ||
     row.purpose !== ARCHIVE_CONNECTOR_PURPOSE ||
     row.csrf_hash !== csrfHash ||
@@ -286,6 +284,7 @@ export async function consumeArchiveConnectorOAuthState(input: {
     .from("archive_connector_oauth_states")
     .update({ consumed_at: consumedAt })
     .eq("id", row.id)
+    .eq("consumed_at", null)
     .select("*")
     .single();
 
@@ -295,7 +294,6 @@ export async function consumeArchiveConnectorOAuthState(input: {
 
 export function serializeArchiveConnectorOAuthStateReadback(row: ArchiveConnectorOAuthStateRow): ArchiveConnectorOAuthStateReadback {
   return {
-    id: row.id,
     provider: row.provider,
     purpose: ARCHIVE_CONNECTOR_PURPOSE,
     expiresAt: row.expires_at,
@@ -373,7 +371,7 @@ async function revokeActiveArchiveConnectorCredentialRows(
   }
 }
 
-function hashArchiveConnectorOAuthValue(kind: "nonce" | "csrf", value: string) {
+function hashArchiveConnectorOAuthValue(kind: "session" | "nonce" | "csrf", value: string) {
   return createHash("sha256")
     .update(`station.archive_connector.oauth.${kind}:${value}`)
     .digest("hex");

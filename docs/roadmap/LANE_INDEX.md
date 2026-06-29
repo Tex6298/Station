@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484B | Connector Credential Storage | ARGUS / A3 | Ready for review; encrypted archive connector credential storage and separate OAuth state storage implemented as migration/service/test/docs only | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_RESULT.md` |
+| PR484B | Connector Credential Storage | MIMIR / A1 | Accepted; close encrypted archive connector credential storage and choose the next Live Archive Connectors move | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484B review | Connector Credential Storage | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS OAuth state hash/readback patch; encrypted connector credential and OAuth state storage stayed migration/service/test/docs only without live connector behavior | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_REVIEW_RESULT.md` |
 | PR484B implementation | Connector Credential Storage | DAEDALUS -> ARGUS | Ready for review; encrypted connector credential and OAuth state storage added without live provider calls, OAuth routes/callbacks, token exchange, source inventory pulls, import writes, route/UI, jobs, or package dependencies | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_RESULT.md` |
 | PR484B preflight | Connector Credential Storage | MIMIR -> ARGUS -> DAEDALUS | Accepted encrypted connector credential store with separate OAuth state storage; no live provider calls, routes/UI, token exchange, source inventory pulls, or import writes | `docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_PREFLIGHT_RESULT.md` |
 | PR484A closeout | Connector Credential Contract | MIMIR | Closed; helper/test/docs-only Reddit/Discord archive connector credential contract accepted, no hosted proof required | `docs/roadmap/PR484A_CONNECTOR_CREDENTIAL_CONTRACT_CLOSEOUT.md` |

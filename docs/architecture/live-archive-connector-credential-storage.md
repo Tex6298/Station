@@ -35,7 +35,7 @@ It has one active credential per owner/provider/purpose and owner-only RLS.
 from credentials:
 
 - owner id;
-- session id;
+- session hash;
 - provider and purpose;
 - nonce hash;
 - csrf hash;
@@ -43,7 +43,8 @@ from credentials:
 - expiry and consumed timestamps.
 
 It never stores callback codes, access tokens, refresh tokens, cookies, raw
-provider payloads, raw nonce/csrf values, raw redirect URLs, or credentials.
+provider payloads, raw session/nonce/csrf values, raw redirect URLs, or
+credentials.
 
 ## Encryption
 
@@ -79,10 +80,10 @@ hosted logs, SQL/table details, stack traces, prompts, or secret-shaped values.
 
 ## OAuth State
 
-OAuth state helpers create one-time state records with owner, session, provider,
-purpose, nonce hash, csrf hash, and expiry. Consumption succeeds once and fails
-closed on expiry, reuse, owner mismatch, session mismatch, provider mismatch,
-purpose mismatch, or csrf mismatch.
+OAuth state helpers create one-time state records with owner, session hash,
+provider, purpose, nonce hash, csrf hash, and expiry. Consumption succeeds once
+and fails closed on expiry, reuse, owner mismatch, session mismatch, provider
+mismatch, purpose mismatch, or csrf mismatch.
 
 PR484B does not implement redirect or callback route behavior.
 

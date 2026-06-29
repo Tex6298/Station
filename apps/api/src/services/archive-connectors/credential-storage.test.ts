@@ -238,6 +238,7 @@ test("archive connector credential replacement encrypts before revoking existing
       assert.equal(created.status, "active");
       assert.equal(created.provider, "reddit");
       assert.equal(created.purpose, "archive_connector");
+      assert.equal("id" in created, false);
       assert.equal(created.accountLabel, "Owner Reddit");
       assert.equal(created.fingerprintPresent, true);
       assert.equal(created.externalAccountFingerprintPresent, true);
@@ -362,6 +363,7 @@ test("archive connector OAuth state stores only hashes and consumes exactly once
     });
 
     assert.equal(created.provider, "reddit");
+    assert.equal("id" in created, false);
     assert.equal(created.localRedirectPath, "/studio/archive");
     assert.equal(created.consumedAt, null);
     assertNoSensitive(created);
@@ -369,7 +371,9 @@ test("archive connector OAuth state stores only hashes and consumes exactly once
     const stored = db.rows("archive_connector_oauth_states")[0];
     assert.equal(stored.nonce_hash.includes("nonce-fixture"), false);
     assert.equal(stored.csrf_hash.includes("csrf-fixture"), false);
-    assert.equal(stored.session_id, "session-fixture");
+    assert.equal(stored.session_id_hash.includes("session-fixture"), false);
+    assert.equal(typeof stored.session_id_hash, "string");
+    assert.equal("session_id" in stored, false);
 
     const consumed = await consumeArchiveConnectorOAuthState({
       ownerUserId: "owner-user",
@@ -381,6 +385,7 @@ test("archive connector OAuth state stores only hashes and consumes exactly once
     });
 
     assert.equal(consumed.provider, "reddit");
+    assert.equal("id" in consumed, false);
     assert.equal(consumed.consumedAt, "2026-06-29T21:30:00.000Z");
     assertNoSensitive(consumed);
 

@@ -75,10 +75,11 @@ token material for OAuth-style credentials and are not needed for the accepted
 readback. Use a fingerprint and sanitized account label instead.
 
 Add separate OAuth state storage. It should include owner/session/provider/
-purpose binding, nonce hash, csrf hash, expiry, one-time consume status, and
-timestamps. It must not store callback codes, access tokens, refresh tokens,
-cookies, raw provider payloads, or raw redirect URLs. Any redirect path stored
-for later use must be a local path only.
+purpose binding, session hash, nonce hash, csrf hash, expiry, one-time consume
+status, and timestamps. It must not store callback codes, access tokens,
+refresh tokens, cookies, raw provider payloads, raw session/nonce/csrf values,
+or raw redirect URLs. Any redirect path stored for later use must be a local
+path only.
 
 OAuth state storage should be separate from credential storage, either as a
 separate table or a clearly separate service/table namespace. Credential rows
@@ -107,12 +108,12 @@ Add an API service under `apps/api/src/services/archive-connectors/` that:
 Add OAuth state helpers that:
 
 - create one-time state records with owner/session/provider/purpose binding,
-  nonce hash, csrf hash, and expiry;
+  session hash, nonce hash, csrf hash, and expiry;
 - consume state exactly once;
 - fail closed on expired, consumed, owner-mismatched, session-mismatched,
   provider-mismatched, or purpose-mismatched state;
-- never store or return callback codes, tokens, cookies, raw nonce, raw csrf,
-  or provider payloads;
+- never store or return callback codes, tokens, cookies, raw session ids, raw
+  nonce, raw csrf, or provider payloads;
 - do not implement redirect or callback route behavior in PR484B.
 
 ## Config Assumptions

@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484B Connector Credential Storage ARGUS Review
+
+ARGUS accepted PR484B on 2026-06-29 after a narrow OAuth state/privacy patch:
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR484B_CONNECTOR_CREDENTIAL_STORAGE`.
+
+Reason:
+
+- PR484B stayed inside the accepted migration/service/test/docs scope;
+- ARGUS patched OAuth state storage to persist `session_id_hash` instead of raw
+  `session_id`;
+- ARGUS removed internal row ids from safe credential/OAuth readback shapes;
+- OAuth state consume now updates only unconsumed rows;
+- connector credentials use `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` and
+  remain separate from AI BYOK;
+- live provider calls, OAuth routes/callbacks, token exchange, source inventory
+  pulls, import writes, UI, jobs/queues/workers, Redis, Cloudflare, billing,
+  provider/model calls, package dependencies, and hosted runtime behavior
+  remain out of scope.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts` | Pass | 7 tests passed after the ARGUS hash/readback patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 40 tests passed across storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 12 tests passed; AI BYOK encrypted storage remains green and separate from archive connector credentials. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| Path/scope and sensitive scan | Pass | Changed paths stayed within A3 receipt plus accepted PR484B files; hits were expected encrypted payload fields, negative fixtures, tests, or guardrail docs. |
+
 ## PR484B Connector Credential Storage
 
 DAEDALUS implemented PR484B on 2026-06-29:
@@ -36,6 +66,8 @@ Reason:
   encryption config checks;
 - replacement credentials are encrypted and fingerprinted before active rows
   are revoked;
+- OAuth state rows store session, nonce, and csrf hashes rather than raw
+  session/csrf/nonce values;
 - readbacks expose safe metadata only, with no token material, token tails,
   encrypted payloads, raw external account ids, provider payloads, private
   source bodies, SQL/table output, stack traces, prompts, storage paths, signed

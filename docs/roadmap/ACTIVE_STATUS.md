@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484B accepted for MIMIR
+
+ARGUS accepted PR484B Connector Credential Storage after a narrow OAuth state
+privacy/readback patch:
+
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR484B_CONNECTOR_CREDENTIAL_STORAGE
+```
+
+Current lane:
+
+```text
+PR484B - Connector Credential Storage
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND DECIDE NEXT MOVE
+```
+
+Current baton:
+
+- MIMIR should close PR484B and decide the next Live Archive Connectors move.
+- ARIADNE hosted rehearsal is not required because PR484B added no visible
+  route, UI, hosted API behavior, OAuth redirect/callback, provider call, or
+  import flow.
+- If MIMIR continues the same feature, the next lane should remain a separately
+  named route/API proof and continue to use the accepted credential, OAuth
+  state, redaction, owner-scope, and import-confirmation boundaries.
+
+Boundaries confirmed:
+
+- No live Reddit/Discord API calls, OAuth redirects/callback routes, token
+  exchange, token refresh/revocation execution, provider SDKs, configured test
+  credentials, source inventory pulls, recurring pulls, import writes, route/UI
+  behavior, public connector pages, cross-owner connector access, jobs, queues,
+  workers, Redis, Cloudflare, billing/Stripe, provider/model calls, package
+  dependencies, or hosted runtime behavior were added.
+- Safe readbacks exclude token material, token tails, encrypted payloads,
+  internal row ids, raw external account ids, raw session ids, callback codes,
+  cookies, provider payloads, private source bodies, SQL/table output, stack
+  traces, prompts, storage paths, signed URLs, hosted logs, and secret-shaped
+  values.
+
 ## Latest DAEDALUS implementation - PR484B ready for ARGUS
 
 DAEDALUS implemented the PR484B Connector Credential Storage slice:
@@ -34,8 +79,8 @@ Current baton:
 - Confirm replacement credentials are encrypted and fingerprinted before any
   active credential row is revoked.
 - Confirm OAuth state rows are separate from credential rows and bind
-  owner/session/provider/purpose with hashed nonce/csrf values, expiry, local
-  redirect validation, and one-time consume behavior.
+  owner/session/provider/purpose with hashed session/nonce/csrf values, expiry,
+  local redirect validation, and one-time consume behavior.
 - If accepted, wake MIMIR with `WAKEUP A1:`.
 - If fixes are needed, wake DAEDALUS with `WAKEUP A2:`.
 

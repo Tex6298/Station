@@ -200,7 +200,7 @@ export interface Database {
         Row: {
           id: string;
           owner_user_id: string;
-          session_id: string;
+          session_id_hash: string;
           provider: ArchiveConnectorProvider;
           purpose: ArchiveConnectorPurpose;
           nonce_hash: string;
