@@ -68,6 +68,12 @@ const envSchema = z.object({
   REDDIT_CLIENT_ID:     z.string().optional(),
   REDDIT_CLIENT_SECRET: z.string().optional(),
 
+  // Archive connectors - OAuth provider app credentials (readiness only)
+  ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: z.string().optional(),
+  ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: z.string().optional(),
+  ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: z.string().optional(),
+  ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: z.string().optional(),
+
   // API's own public URL (used for OAuth redirect URIs)
   API_URL: z.string().default("http://localhost:4000"),
 

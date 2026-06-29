@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484D Archive Connector Provider App Config
+
+DAEDALUS implemented PR484D on 2026-06-29:
+`docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- optional archive-specific provider app config names were added for Reddit and
+  Discord archive connectors;
+- provider app readiness now reports `missing`, `partial`, and `configured`
+  statuses without exposing which partial side is present;
+- both client id and secret are required for a provider to be configured;
+- paused social publishing Reddit config remains ignored by archive connector
+  readiness;
+- provider app config does not enable credential writes, OAuth state creation,
+  redirects/callbacks, token exchange, provider calls, source inventory, import
+  writes, UI, jobs, queues, workers, Redis, Cloudflare, billing, provider/model
+  calls, package dependencies, hosted runtime behavior, public connector pages,
+  broad connector marketplace, or social posting behavior.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 7 tests passed for auth, missing/partial/configured provider app status, provider independence, social config isolation, no mutation, sensitive readback, and source guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 47 tests passed across readiness route, storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+
 ## PR484D Archive Connector Provider App Config Preflight
 
 ARGUS accepted PR484D for DAEDALUS on 2026-06-29:

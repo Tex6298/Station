@@ -169,6 +169,10 @@ function assertNoSensitiveArchiveConnectorReadback(body: unknown) {
     "CLIENT_ID",
     "CLIENT_SECRET",
     "archive-readiness-secret-marker",
+    "archive-reddit-id-marker",
+    "archive-reddit-secret-marker",
+    "archive-discord-id-marker",
+    "archive-discord-secret-marker",
     "reddit-client-id-marker",
     "reddit-client-secret-marker",
     "access_token",
@@ -244,6 +248,10 @@ test("archive connector readiness reports reddit and discord with missing encryp
   try {
     await withEnv({
       ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: null,
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: null,
       REDDIT_CLIENT_ID: "reddit-client-id-marker",
       REDDIT_CLIENT_SECRET: "reddit-client-secret-marker",
     }, async () => {
@@ -257,22 +265,27 @@ test("archive connector readiness reports reddit and discord with missing encryp
       assert.equal(response.body.ownerOnly, true);
       assert.equal(response.body.credentialStorageAccepted, true);
       assert.equal(response.body.credentialEncryptionConfigured, false);
-      assert.equal(response.body.providerOAuthAppsAccepted, false);
+      assert.equal(response.body.providerOAuthAppConfigAccepted, true);
+      assert.equal(response.body.providerOAuthAppsConfigured, false);
       assert.deepEqual(
         response.body.providers.map((provider: Row) => provider.id),
         ["reddit", "discord"],
       );
       assert.deepEqual(
         response.body.providers.map((provider: Row) => provider.status),
-        ["setup_required", "setup_required"],
+        ["credential_encryption_required", "credential_encryption_required"],
+      );
+      assert.deepEqual(
+        response.body.providers.map((provider: Row) => provider.oauthAppStatus),
+        ["missing", "missing"],
       );
       for (const provider of response.body.providers) {
         assert.equal(provider.purpose, "archive_connector");
         assert.equal(provider.ownerOnly, true);
         assert.equal(provider.authStyle, "oauth");
         assert.equal(provider.credentialEncryptionConfigured, false);
+        assert.equal(provider.providerOAuthAppConfigAccepted, true);
         assert.equal(provider.oauthAppConfigured, false);
-        assert.equal(provider.oauthAppStatus, "not_accepted");
       }
       assertDisabledSafety(response.body);
       assertNoSensitiveArchiveConnectorReadback(response.body);
@@ -292,6 +305,10 @@ test("archive connector readiness flips encryption boolean without enabling rout
   try {
     await withEnv({
       ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: "archive-readiness-secret-marker-32-plus",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: null,
       REDDIT_CLIENT_ID: "reddit-client-id-marker",
       REDDIT_CLIENT_SECRET: "reddit-client-secret-marker",
     }, async () => {
@@ -301,11 +318,128 @@ test("archive connector readiness flips encryption boolean without enabling rout
 
       assert.equal(response.status, 200);
       assert.equal(response.body.credentialEncryptionConfigured, true);
+      assert.equal(response.body.providerOAuthAppConfigAccepted, true);
+      assert.equal(response.body.providerOAuthAppsConfigured, false);
       assert.deepEqual(
-        response.body.providers.map((provider: Row) => [provider.id, provider.status, provider.oauthAppConfigured]),
+        response.body.providers.map((provider: Row) => [provider.id, provider.status, provider.oauthAppStatus, provider.oauthAppConfigured]),
         [
-          ["reddit", "provider_app_not_accepted", false],
-          ["discord", "provider_app_not_accepted", false],
+          ["reddit", "provider_app_missing", "missing", false],
+          ["discord", "provider_app_missing", "missing", false],
+        ],
+      );
+      assertDisabledSafety(response.body);
+      assertNoSensitiveArchiveConnectorReadback(response.body);
+      assert.deepEqual(db.tableCalls, ["profiles"]);
+      assert.deepEqual(db.writeCalls, []);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector readiness reports id-only and secret-only provider app config as partial", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: "archive-readiness-secret-marker-32-plus",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "archive-reddit-id-marker",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: "archive-discord-secret-marker",
+      REDDIT_CLIENT_ID: "reddit-client-id-marker",
+      REDDIT_CLIENT_SECRET: "reddit-client-secret-marker",
+    }, async () => {
+      const response = await requestJson(app, "GET", "/archive-connectors/readiness", {
+        token: "owner-token",
+      });
+
+      assert.equal(response.status, 200);
+      assert.equal(response.body.providerOAuthAppConfigAccepted, true);
+      assert.equal(response.body.providerOAuthAppsConfigured, false);
+      assert.deepEqual(
+        response.body.providers.map((provider: Row) => [provider.id, provider.status, provider.oauthAppStatus, provider.oauthAppConfigured]),
+        [
+          ["reddit", "provider_app_partial", "partial", false],
+          ["discord", "provider_app_partial", "partial", false],
+        ],
+      );
+      assertDisabledSafety(response.body);
+      assertNoSensitiveArchiveConnectorReadback(response.body);
+      assert.deepEqual(db.tableCalls, ["profiles"]);
+      assert.deepEqual(db.writeCalls, []);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector readiness reports configured provider pairs independently", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: "archive-readiness-secret-marker-32-plus",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "archive-reddit-id-marker",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: "archive-reddit-secret-marker",
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: null,
+      REDDIT_CLIENT_ID: "reddit-client-id-marker",
+      REDDIT_CLIENT_SECRET: "reddit-client-secret-marker",
+    }, async () => {
+      const response = await requestJson(app, "GET", "/archive-connectors/readiness", {
+        token: "owner-token",
+      });
+
+      assert.equal(response.status, 200);
+      assert.equal(response.body.providerOAuthAppsConfigured, false);
+      assert.deepEqual(
+        response.body.providers.map((provider: Row) => [provider.id, provider.status, provider.oauthAppStatus, provider.oauthAppConfigured]),
+        [
+          ["reddit", "provider_app_configured", "configured", true],
+          ["discord", "provider_app_missing", "missing", false],
+        ],
+      );
+      assertDisabledSafety(response.body);
+      assertNoSensitiveArchiveConnectorReadback(response.body);
+      assert.deepEqual(db.tableCalls, ["profiles"]);
+      assert.deepEqual(db.writeCalls, []);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector readiness reports all provider app pairs configured without enabling actions", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: "archive-readiness-secret-marker-32-plus",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "archive-reddit-id-marker",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: "archive-reddit-secret-marker",
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: "archive-discord-id-marker",
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: "archive-discord-secret-marker",
+      REDDIT_CLIENT_ID: "reddit-client-id-marker",
+      REDDIT_CLIENT_SECRET: "reddit-client-secret-marker",
+    }, async () => {
+      const response = await requestJson(app, "GET", "/archive-connectors/readiness", {
+        token: "owner-token",
+      });
+
+      assert.equal(response.status, 200);
+      assert.equal(response.body.providerOAuthAppsConfigured, true);
+      assert.deepEqual(
+        response.body.providers.map((provider: Row) => [provider.id, provider.status, provider.oauthAppStatus, provider.oauthAppConfigured]),
+        [
+          ["reddit", "provider_app_configured", "configured", true],
+          ["discord", "provider_app_configured", "configured", true],
         ],
       );
       assertDisabledSafety(response.body);
@@ -322,9 +456,14 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const routeSource = readFileSync("apps/api/src/routes/archive-connectors.ts", "utf8");
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
   const source = `${routeSource}\n${readinessSource}`;
+  const sourceWithoutAcceptedArchiveConfig = source.replace(
+    /ARCHIVE_CONNECTOR_(REDDIT|DISCORD)_CLIENT_(ID|SECRET)/g,
+    "",
+  );
 
   assert.doesNotMatch(source, /createArchiveConnectorOAuthState|storeArchiveConnectorCredential|revokeArchiveConnectorCredential/i);
-  assert.doesNotMatch(source, /fetch\s*\(|providerSdk|REDDIT_CLIENT|DISCORD_CLIENT|clientSecret|access_token|refresh_token/i);
+  assert.doesNotMatch(sourceWithoutAcceptedArchiveConfig, /REDDIT_CLIENT_ID|REDDIT_CLIENT_SECRET|DISCORD_CLIENT_ID|DISCORD_CLIENT_SECRET/i);
+  assert.doesNotMatch(source, /fetch\s*\(|providerSdk|access_token|refresh_token/i);
   assert.doesNotMatch(source, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates/i);
   assert.doesNotMatch(source, /new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
 });

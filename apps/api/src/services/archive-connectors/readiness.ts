@@ -5,18 +5,26 @@ import {
 } from "./credential-contract";
 import { archiveConnectorCredentialEncryptionConfigured } from "./credential-storage";
 
+type ProviderOAuthAppStatus = "missing" | "partial" | "configured";
+type ProviderReadinessStatus =
+  | "credential_encryption_required"
+  | "provider_app_missing"
+  | "provider_app_partial"
+  | "provider_app_configured";
+
 export type ArchiveConnectorReadinessProvider = {
   id: ArchiveConnectorProviderId;
   label: string;
   authStyle: "oauth";
   ownerOnly: true;
   purpose: "archive_connector";
-  status: "setup_required" | "provider_app_not_accepted";
+  status: ProviderReadinessStatus;
   nextAction: string;
   credentialStorageAccepted: true;
   credentialEncryptionConfigured: boolean;
-  oauthAppConfigured: false;
-  oauthAppStatus: "not_accepted";
+  providerOAuthAppConfigAccepted: true;
+  oauthAppConfigured: boolean;
+  oauthAppStatus: ProviderOAuthAppStatus;
   credentialWritesEnabled: false;
   oauthStateCreationEnabled: false;
   oauthRedirectsEnabled: false;
@@ -33,7 +41,8 @@ export type ArchiveConnectorReadiness = {
   ownerOnly: true;
   credentialStorageAccepted: true;
   credentialEncryptionConfigured: boolean;
-  providerOAuthAppsAccepted: false;
+  providerOAuthAppConfigAccepted: true;
+  providerOAuthAppsConfigured: boolean;
   providers: ArchiveConnectorReadinessProvider[];
   safety: {
     credentialWritesEnabled: false;
@@ -47,8 +56,25 @@ export type ArchiveConnectorReadiness = {
   };
 };
 
+const ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG: Record<
+  ArchiveConnectorProviderId,
+  { clientId: string; clientSecret: string }
+> = {
+  reddit: {
+    clientId: "ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID",
+    clientSecret: "ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET",
+  },
+  discord: {
+    clientId: "ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID",
+    clientSecret: "ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET",
+  },
+};
+
 export function archiveConnectorReadiness(): ArchiveConnectorReadiness {
   const credentialEncryptionConfigured = archiveConnectorCredentialEncryptionConfigured();
+  const providers = ARCHIVE_CONNECTOR_PROVIDER_IDS.map((providerId) =>
+    archiveConnectorProviderReadiness(providerId, credentialEncryptionConfigured)
+  );
 
   return {
     purpose: "archive_connector",
@@ -56,10 +82,9 @@ export function archiveConnectorReadiness(): ArchiveConnectorReadiness {
     ownerOnly: true,
     credentialStorageAccepted: true,
     credentialEncryptionConfigured,
-    providerOAuthAppsAccepted: false,
-    providers: ARCHIVE_CONNECTOR_PROVIDER_IDS.map((providerId) =>
-      archiveConnectorProviderReadiness(providerId, credentialEncryptionConfigured)
-    ),
+    providerOAuthAppConfigAccepted: true,
+    providerOAuthAppsConfigured: providers.every((provider) => provider.oauthAppConfigured),
+    providers,
     safety: disabledSafety(),
   };
 }
@@ -68,7 +93,8 @@ function archiveConnectorProviderReadiness(
   providerId: ArchiveConnectorProviderId,
   credentialEncryptionConfigured: boolean,
 ): ArchiveConnectorReadinessProvider {
-  const status = credentialEncryptionConfigured ? "provider_app_not_accepted" : "setup_required";
+  const oauthAppStatus = providerOAuthAppStatus(providerId);
+  const status = providerReadinessStatus(credentialEncryptionConfigured, oauthAppStatus);
 
   return {
     id: providerId,
@@ -77,13 +103,12 @@ function archiveConnectorProviderReadiness(
     ownerOnly: true,
     purpose: "archive_connector",
     status,
-    nextAction: credentialEncryptionConfigured
-      ? "Accept archive connector provider app configuration before enabling owner OAuth setup."
-      : "Configure archive connector credential encryption before enabling any credential write lane.",
+    nextAction: providerNextAction(status),
     credentialStorageAccepted: true,
     credentialEncryptionConfigured,
-    oauthAppConfigured: false,
-    oauthAppStatus: "not_accepted",
+    providerOAuthAppConfigAccepted: true,
+    oauthAppConfigured: oauthAppStatus === "configured",
+    oauthAppStatus,
     credentialWritesEnabled: false,
     oauthStateCreationEnabled: false,
     oauthRedirectsEnabled: false,
@@ -93,6 +118,43 @@ function archiveConnectorProviderReadiness(
     sourceInventoryEnabled: false,
     importWritesEnabled: false,
   };
+}
+
+function providerOAuthAppStatus(providerId: ArchiveConnectorProviderId): ProviderOAuthAppStatus {
+  const config = ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG[providerId];
+  const hasClientId = hasEnvValue(config.clientId);
+  const hasClientSecret = hasEnvValue(config.clientSecret);
+
+  if (hasClientId && hasClientSecret) return "configured";
+  if (hasClientId || hasClientSecret) return "partial";
+  return "missing";
+}
+
+function providerReadinessStatus(
+  credentialEncryptionConfigured: boolean,
+  oauthAppStatus: ProviderOAuthAppStatus,
+): ProviderReadinessStatus {
+  if (!credentialEncryptionConfigured) return "credential_encryption_required";
+  if (oauthAppStatus === "configured") return "provider_app_configured";
+  if (oauthAppStatus === "partial") return "provider_app_partial";
+  return "provider_app_missing";
+}
+
+function providerNextAction(status: ProviderReadinessStatus) {
+  if (status === "credential_encryption_required") {
+    return "Configure connector credential encryption before enabling provider OAuth setup.";
+  }
+  if (status === "provider_app_configured") {
+    return "Provider app config is present; a future lane must add owner-bound OAuth state creation before redirects.";
+  }
+  if (status === "provider_app_partial") {
+    return "Complete the accepted archive-specific provider app pair; readiness does not expose which side is present.";
+  }
+  return "Add both accepted archive-specific provider app values before enabling owner OAuth setup.";
+}
+
+function hasEnvValue(name: string) {
+  return Boolean(process.env[name]?.trim());
 }
 
 function disabledSafety(): ArchiveConnectorReadiness["safety"] {
