@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR469 accepted for DAEDALUS
+
+ARGUS accepts a narrow Live Events / Seminars first slice:
+
+`docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR469A - Public Seminar Readback Bundles`.
+- The first slice is schema-free and public-only.
+- The page should expose curated seminar/readback cards at `/events/seminars`
+  using existing public-safe materials: featured public documents, public
+  threads or linked public document discussions, and public Spaces.
+- Admin-curated `discover_feed` featured items are the first curation source;
+  every candidate must be resolved through existing visibility checks before it
+  is returned.
+- Scheduling, attendance, RSVP, reminders, calendar integrations, live rooms,
+  realtime chat, media, recordings, transcripts, tickets, payments, Stripe,
+  provider calls, private runtime context, and writeback are deferred.
+
+ARGUS validation:
+
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR469A - Public Seminar Readback Bundles
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT NARROW PUBLIC READBACK SLICE
+```
+
+Current baton:
+
+- DAEDALUS should implement the accepted schema-free public seminar readback
+  slice and wake ARGUS for review.
+- DAEDALUS should not add realtime/media/attendance/payment/provider or broad
+  infrastructure scope.
+
 ## Latest MIMIR closeout - PR468 closed
 
 MIMIR closes PR468 Anonymous Public Persona Chat as accepted:

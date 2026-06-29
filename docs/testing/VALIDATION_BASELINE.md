@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR469 Live Events / Seminars Preflight
+
+ARGUS accepted PR469 preflight on 2026-06-29:
+`docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- the first Live Events / Seminars slice can be schema-free and public-only;
+- DAEDALUS may implement PR469A Public Seminar Readback Bundles from
+  admin-curated featured public materials;
+- every card must resolve through existing public visibility and route safety
+  checks before it is returned;
+- attendance, RSVP, reminders, tickets, payments, Stripe, realtime rooms,
+  media, recordings, transcripts, provider calls, private runtime context, and
+  writeback are explicitly deferred.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: implementation is not done in this preflight. DAEDALUS must add
+focused API/web tests and MIMIR should route ARIADNE for hosted desktop/mobile
+proof if ARGUS accepts the implementation.
+
 ## PR468 Anonymous Public Persona Chat Hosted Rerun
 
 ARIADNE completed the hosted PR468 rerun on 2026-06-29:

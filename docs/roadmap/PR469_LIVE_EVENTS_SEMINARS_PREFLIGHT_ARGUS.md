@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-29
 
-Status: Open - boundary preflight
+Status: Accepted for DAEDALUS
 
 ## Why This Lane
 
@@ -35,6 +35,10 @@ NEEDS_MIMIR_DECISION
 If accepted, wake DAEDALUS with the smallest implementation shape. If blocked
 or decision-dependent, wake MIMIR with the concrete blocker and the smallest
 numbered unblock lane that directly enables Live Events / Seminars.
+
+ARGUS answered in:
+
+`docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_RESULT.md`
 
 ## Starting Interpretation
 
