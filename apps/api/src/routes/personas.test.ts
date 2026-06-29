@@ -497,12 +497,12 @@ async function requestJson<TBody = any>(
   app: Express,
   method: string,
   path: string,
-  options: { token?: string; body?: unknown } = {}
+  options: { token?: string; body?: unknown; headers?: Record<string, string> } = {}
 ) {
   const server = await listen(app);
   try {
     const address = server.address() as AddressInfo;
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
     if (options.body !== undefined) headers["Content-Type"] = "application/json";
     if (options.token) headers.Authorization = `Bearer ${options.token}`;
 
@@ -1071,7 +1071,8 @@ test("signed-in public persona chat alpha is owner-enabled, rate-limited, public
     const anonymousChat = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
       body: { message: "blue lantern" },
     });
-    assert.equal(anonymousChat.status, 401);
+    assert.equal(anonymousChat.status, 409);
+    assert.equal(anonymousChat.body.code, "public_persona_chat_disabled");
 
     const disabledChat = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
       token: "visitor-token",
@@ -1169,6 +1170,254 @@ test("signed-in public persona chat alpha is owner-enabled, rate-limited, public
     assert.equal(aggregateCounters?.report_created_count, 0);
     assert.equal(JSON.stringify(aggregateCounters).includes("visitor-user"), false);
     assert.equal(JSON.stringify(aggregateCounters).includes("What does the blue lantern source say?"), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousNvidiaModel == null) {
+      delete process.env.NVIDIA_MODEL;
+    } else {
+      process.env.NVIDIA_MODEL = previousNvidiaModel;
+    }
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
+test("anonymous public persona chat alpha is replay-slug only, hashed-rate-limited, public-source-only, and owner-paid", async () => {
+  const db = new InMemorySupabase();
+  const rateLimitProvider = new TestRateLimitProvider();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(rateLimitProvider);
+  const app = createPersonasApp();
+  const originalFetch = globalThis.fetch;
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousNvidiaModel = process.env.NVIDIA_MODEL;
+  process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+  process.env.NVIDIA_MODEL = "test-public-model";
+  const providerRequests: Row[] = [];
+
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url.includes("integrate.api.nvidia.com")) {
+      providerRequests.push(JSON.parse(String(init?.body ?? "{}")));
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: "Anonymous public answer from approved sources." } }],
+        model: "test-public-model",
+        usage: { prompt_tokens: 24, completion_tokens: 8, total_tokens: 32 },
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  try {
+    const replayPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Station Replay Alpha Persona",
+      short_description: "Public replay-safe guide.",
+      long_description: "Owner-only memory archive canon continuity integrity setup.",
+      awakening_prompt: "Private prompt with secret-shaped-value.",
+      style_notes: "Private provider settings.",
+      provider: "anthropic",
+      visibility: "public",
+      public_slug: "station-replay-alpha-persona",
+    });
+    const otherPublicPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Blue Lantern Guide",
+      short_description: "Public-safe guide to the blue lantern room.",
+      visibility: "public",
+      public_slug: "blue-lantern-guide",
+      public_chat_enabled: true,
+    });
+    const publicSpace = db.insertRow("spaces", {
+      id: "replay-space",
+      slug: "replay-notes",
+      title: "Replay Notes",
+      is_public: true,
+    });
+    const privateSpace = db.insertRow("spaces", {
+      id: "private-space",
+      slug: "private-notes",
+      title: "Private Notes",
+      is_public: false,
+    });
+    const category = db.insertRow("forum_categories", {
+      id: "category-replay",
+      slug: "replay-discussion",
+      title: "Replay Discussion",
+    });
+    const publicDocument = db.insertRow("documents", {
+      id: "replay-public-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: replayPersona.id,
+      source_persona_id: replayPersona.id,
+      title: "Replay Public Field Notes",
+      body: "Public replay notes about careful source handling.",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-06-29T08:00:00.000Z",
+      discussion_thread_id: "replay-thread",
+    });
+    db.insertRow("documents", {
+      id: "replay-private-doc",
+      author_user_id: "creator-owner",
+      space_id: publicSpace.id,
+      persona_id: replayPersona.id,
+      title: "Private Runtime Source",
+      body: "Private memory archive canon continuity integrity source body.",
+      status: "published",
+      visibility: "private",
+    });
+    db.insertRow("documents", {
+      id: "replay-private-space-doc",
+      author_user_id: "creator-owner",
+      space_id: privateSpace.id,
+      persona_id: replayPersona.id,
+      title: "Private Space Public Row",
+      body: "Public row in a private Space must stay hidden.",
+      status: "published",
+      visibility: "public",
+    });
+    db.insertRow("threads", {
+      id: "replay-thread",
+      category_id: category.id,
+      linked_document_id: publicDocument.id,
+      title: "Replay Public Discussion",
+      body: "Public discussion about source handling.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+
+    const disabledAnonymous = await requestJson(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
+      body: { message: "Can anonymous visitors use the public replay source?" },
+    });
+    assert.equal(disabledAnonymous.status, 409);
+    assert.equal(disabledAnonymous.body.code, "public_persona_chat_disabled");
+
+    const disabledSignedIn = await requestJson(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
+      token: "visitor-token",
+      body: { message: "Signed in but disabled." },
+    });
+    assert.equal(disabledSignedIn.status, 409);
+    assert.equal(disabledSignedIn.body.code, "public_persona_chat_disabled");
+
+    const enabled = await requestJson(app, "PATCH", `/personas/${replayPersona.id}`, {
+      token: "creator-token",
+      body: { publicChatEnabled: true },
+    });
+    assert.equal(enabled.status, 200);
+    assert.equal(enabled.body.persona.publicReadback.publicFields.publicChat.mode, "anonymous_alpha");
+
+    const publicReadback = await requestJson(app, "GET", "/personas/public/station-replay-alpha-persona");
+    assert.equal(publicReadback.status, 200);
+    assert.deepEqual(publicReadback.body.persona.publicChat, {
+      enabled: true,
+      mode: "anonymous_alpha",
+    });
+
+    const otherAnonymous = await requestJson(app, "POST", "/personas/public/blue-lantern-guide/chat", {
+      body: { message: "hello" },
+    });
+    assert.equal(otherAnonymous.status, 401);
+    assert.equal(otherAnonymous.body.code, "public_persona_auth_required");
+    assert.equal(providerRequests.length, 0);
+
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+    const failClosed = await requestJson(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
+      body: { message: "rate limit store down" },
+    });
+    assert.equal(failClosed.status, 503);
+    assert.equal(failClosed.body.code, "public_persona_rate_limit_unavailable");
+    assert.equal(providerRequests.length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+
+    setOperationalCacheProviderForTests(rateLimitProvider);
+    const chat = await requestJson<PublicPersonaChatResponse>(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
+      body: { message: "What do the replay public notes say about source handling?" },
+      headers: {
+        "X-Forwarded-For": "203.0.113.44, 198.51.100.7",
+        "User-Agent": "raw-user-agent-secret",
+        Cookie: "station_session=raw-cookie-secret",
+        Authorization: "Bearer raw-auth-header-secret",
+      },
+    });
+    assert.equal(chat.status, 200);
+    assert.equal(chat.body.reply.content, "Anonymous public answer from approved sources.");
+    assert.equal(chat.body.publicChat.enabled, true);
+    assert.equal(chat.body.publicChat.mode, "anonymous_alpha");
+    assert.equal(chat.body.publicChat.transcriptStored, false);
+    assert.equal(chat.body.sources.some((source) => source.href === "/space/replay-notes/documents/replay-public-doc"), true);
+    assert.equal(chat.body.sources.some((source) => source.href === "/forums/replay-discussion/replay-thread"), true);
+    assert.equal(db.rows("conversations").length, 0);
+    assert.equal(db.rows("conversation_messages").length, 0);
+    assert.equal(db.rows("moderation_reports").length, 0);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("token_transactions")[0].user_id, "creator-owner");
+    assert.equal(db.rows("token_transactions")[0].chat_id, null);
+    assert.equal(db.rows("token_usage").find((row) => row.user_id === "creator-owner")?.tokens_used > 0, true);
+    assert.equal(providerRequests.length, 1);
+
+    const providerPayload = JSON.stringify(providerRequests[0]);
+    assert.match(providerPayload, /Station Replay Alpha Persona/);
+    assert.match(providerPayload, /Replay Public Field Notes/);
+    assert.match(providerPayload, /Public replay notes about careful source handling/);
+    assert.doesNotMatch(providerPayload, /\/space|\/forums|replay-public-doc|replay-thread|creator-owner/);
+    assert.doesNotMatch(providerPayload, /owner_user_id|provider settings|secret-shaped-value|Owner-only memory/);
+    assert.doesNotMatch(providerPayload, /Private Runtime Source|Private Space Public Row|replay-private-doc|persona_id|source_persona_id|linked_document_id|category_id/);
+
+    assert.equal(rateLimitProvider.keys.some((key) => /resource:anonymous_[a-f0-9]{24}/.test(key)), true);
+    for (const raw of [
+      "203.0.113.44",
+      "198.51.100.7",
+      "127.0.0.1",
+      "raw-user-agent-secret",
+      "raw-cookie-secret",
+      "raw-auth-header-secret",
+      "What do the replay public notes",
+      "test-nvidia-key",
+      "visitor-user",
+    ]) {
+      assert.equal(rateLimitProvider.keys.some((key) => key.includes(raw)), false, `${raw} leaked into rate-limit key`);
+    }
+
+    const aggregateCounters = db.rows("public_persona_interaction_counters").find((row) => row.persona_id === replayPersona.id);
+    assert.equal(aggregateCounters?.owner_user_id, "creator-owner");
+    assert.equal(aggregateCounters?.chat_attempt_count, 2);
+    assert.equal(aggregateCounters?.chat_success_count, 1);
+    assert.equal(aggregateCounters?.chat_failure_count, 1);
+    const aggregateJson = JSON.stringify(aggregateCounters);
+    assert.equal(aggregateJson.includes("anonymous_"), false);
+    assert.equal(aggregateJson.includes("raw-cookie-secret"), false);
+    assert.equal(aggregateJson.includes("What do the replay public notes"), false);
+
+    const disabled = await requestJson(app, "PATCH", `/personas/${replayPersona.id}`, {
+      token: "creator-token",
+      body: { publicChatEnabled: false },
+    });
+    assert.equal(disabled.status, 200);
+
+    const anonymousAfterDisable = await requestJson(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
+      body: { message: "after disable" },
+    });
+    assert.equal(anonymousAfterDisable.status, 409);
+    assert.equal(anonymousAfterDisable.body.code, "public_persona_chat_disabled");
+
+    const signedInAfterDisable = await requestJson(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
+      token: "visitor-token",
+      body: { message: "after disable signed in" },
+    });
+    assert.equal(signedInAfterDisable.status, 409);
+    assert.equal(signedInAfterDisable.body.code, "public_persona_chat_disabled");
+    assert.equal(providerRequests.length, 1);
   } finally {
     globalThis.fetch = originalFetch;
     if (previousNvidiaKey == null) {

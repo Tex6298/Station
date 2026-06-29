@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  publicPersonaChatAccess,
   publicPersonaContextPreviewCopy,
   publicPersonaChatCopy,
   publicPersonaChatDisabledCopy,
@@ -43,9 +44,23 @@ test("public persona chat copy stays public-source-only", () => {
   assert.match(copy, /linked public discussions/);
   assert.doesNotMatch(copy, /private memory|private continuity|owner setup|provider settings|token|cookie/i);
 
+  const anonymous = publicPersonaChatCopy("anonymous_alpha");
+  assert.match(anonymous, /Anonymous alpha/);
+  assert.match(anonymous, /public profile/);
+  assert.match(anonymous, /Reports still require sign-in/);
+  assert.doesNotMatch(anonymous, /private memory|private continuity|owner setup|provider settings|token|cookie/i);
+
   const disabled = publicPersonaChatDisabledCopy();
   assert.match(disabled, /not enabled/);
   assert.doesNotMatch(disabled, /provider|quota|ownerUserId|personaId|token|cookie/i);
+});
+
+test("public persona chat access exposes anonymous form only for anonymous alpha", () => {
+  assert.equal(publicPersonaChatAccess({ enabled: false, mode: "anonymous_alpha", hasSession: false }), "disabled");
+  assert.equal(publicPersonaChatAccess({ enabled: true, mode: "anonymous_alpha", hasSession: false }), "anonymous_alpha");
+  assert.equal(publicPersonaChatAccess({ enabled: true, mode: "anonymous_alpha", hasSession: true }), "anonymous_alpha");
+  assert.equal(publicPersonaChatAccess({ enabled: true, mode: "signed_in_alpha", hasSession: false }), "sign_in_required");
+  assert.equal(publicPersonaChatAccess({ enabled: true, mode: "signed_in_alpha", hasSession: true }), "signed_in_alpha");
 });
 
 test("public persona updates copy stays derived and public-source-only", () => {

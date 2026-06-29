@@ -27,7 +27,7 @@ export interface PublicPersonaProfile extends Omit<PersonaPublicFields, "visibil
 
 export interface PublicPersonaChatCapability {
   enabled: boolean;
-  mode: "signed_in_alpha";
+  mode: "signed_in_alpha" | "anonymous_alpha";
 }
 
 export type PublicPersonaContextSourceType =

@@ -1,7 +1,8 @@
-import { Router, type Response } from "express";
+import { createHash } from "node:crypto";
+import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { resolveChatProviderRuntimeRoute } from "@station/ai/providers/router";
-import { requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
+import { optionalAuth, requireAuth, type AuthenticatedUser } from "../middleware/require-auth";
 import { requireTier } from "../middleware/require-tier";
 import { getSupabaseAdmin } from "../lib/supabase";
 import {
@@ -10,6 +11,7 @@ import {
   normalizePublicPersonaContextQuery,
   publicContextSourceExcerpt,
   publicContextSourceMatchesQuery,
+  publicPersonaChatMode,
   publicPersonaRouteHref,
   serializePersonaPublicFields,
   serializePublicPersonaContextPreview,
@@ -660,6 +662,20 @@ async function checkPublicPersonaChatRateLimit(persona: any, visitorUserId: stri
   };
 }
 
+function publicPersonaAnonymousRateLimitKey(req: Request) {
+  const address = normalizePublicPersonaRequestAddress(req.ip || req.socket.remoteAddress || "unknown");
+  const digest = createHash("sha256")
+    .update(`station.public-persona-chat:${address}`)
+    .digest("hex")
+    .slice(0, 24);
+  return `anonymous:${digest}`;
+}
+
+function normalizePublicPersonaRequestAddress(value: string) {
+  const normalized = value.trim().toLowerCase().replace(/^::ffff:/, "");
+  return normalized ? normalized.slice(0, 128) : "unknown";
+}
+
 function platformChatRouteForPublicPersona(ownerTier: string | null | undefined) {
   const stationModel = selectStationModel(ownerTier);
   const platformNvidiaKey = process.env.NVIDIA_AI_API_KEY?.trim() || undefined;
@@ -887,7 +903,7 @@ personasRouter.get("/public/roulette", async (req, res) => {
   }
 });
 
-personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) => {
+personasRouter.post("/public/:publicSlug/chat", optionalAuth, async (req, res) => {
   const parsed = publicChatSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
@@ -905,9 +921,18 @@ personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) =>
     });
   }
 
+  const chatMode = publicPersonaChatMode(persona.public_slug);
+  if (!req.user && chatMode !== "anonymous_alpha") {
+    return res.status(401).json({
+      error: "Sign in to use public persona chat.",
+      code: "public_persona_auth_required",
+    });
+  }
+
   await incrementPublicPersonaInteractionCounters(sb, persona, { chatAttempt: 1 });
 
-  const rateLimit = await checkPublicPersonaChatRateLimit(persona, req.user!.id);
+  const visitorRateLimitId = req.user?.id ?? publicPersonaAnonymousRateLimitKey(req);
+  const rateLimit = await checkPublicPersonaChatRateLimit(persona, visitorRateLimitId);
   if (!rateLimit.allowed) {
     await incrementPublicPersonaInteractionCounters(sb, persona, { chatFailure: 1 });
     return res.status(rateLimit.status).json(rateLimit.body);
@@ -972,7 +997,7 @@ personasRouter.post("/public/:publicSlug/chat", requireAuth, async (req, res) =>
       sources,
       publicChat: {
         enabled: true,
-        mode: "signed_in_alpha",
+        mode: chatMode,
         transcriptStored: false,
       },
       rateLimit: rateLimit.rateLimit,

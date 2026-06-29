@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR468 ready for ARGUS review
+
+DAEDALUS implemented PR468:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md`
+
+Decision:
+
+- Anonymous public persona chat is implemented only for
+  `/personas/station-replay-alpha-persona`.
+- The public persona chat route now uses `optionalAuth`; signed-in public chat
+  remains available for other enabled public personas.
+- Anonymous chat to other public persona slugs returns
+  `public_persona_auth_required`.
+- Owner enable/disable remains the rollback switch for anonymous and signed-in
+  chat.
+- Anonymous visitor rate limiting uses a minimized SHA-256 request-address digest
+  in the existing operational rate-limit checks.
+- Rate-limit store unavailability fails closed before provider calls.
+- Token budget and token usage remain charged to the persona owner with
+  `chat_id: null`.
+- Public prompt construction remains public-source-only.
+- No durable anonymous visitor transcript, visitor identity, conversation,
+  conversation message, raw event, or moderation report row is created by
+  anonymous chat.
+- Public persona reporting remains signed-in only.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas`: pass, 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat
+Owner: ARGUS / A3
+State: OPEN - REVIEW DAEDALUS IMPLEMENTATION
+```
+
+Current baton:
+
+- ARGUS should review
+  `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md` and the code
+  patch.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest ARGUS preflight - PR468 accepted for DAEDALUS
 
 ARGUS accepts PR468 preflight:

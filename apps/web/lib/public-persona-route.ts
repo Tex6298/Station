@@ -1,3 +1,5 @@
+export type PublicPersonaChatMode = "signed_in_alpha" | "anonymous_alpha";
+
 const PUBLIC_PERSONA_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -31,10 +33,24 @@ export function publicPersonaUpdatesEmptyCopy() {
   return "No published documents or public discussions are available for this persona yet.";
 }
 
-export function publicPersonaChatCopy() {
+export function publicPersonaChatCopy(mode: PublicPersonaChatMode = "signed_in_alpha") {
+  if (mode === "anonymous_alpha") {
+    return "Anonymous alpha chat uses this persona's public profile, published public documents, and linked public discussions only. Reports still require sign-in.";
+  }
+
   return "Signed-in public chat uses this persona's public profile, published public documents, and linked public discussions only.";
 }
 
 export function publicPersonaChatDisabledCopy() {
   return "Public chat is not enabled for this persona.";
+}
+
+export function publicPersonaChatAccess(input: {
+  enabled?: boolean | null;
+  mode?: PublicPersonaChatMode | null;
+  hasSession: boolean;
+}) {
+  if (!input.enabled) return "disabled";
+  if (input.mode === "anonymous_alpha") return "anonymous_alpha";
+  return input.hasSession ? "signed_in_alpha" : "sign_in_required";
 }

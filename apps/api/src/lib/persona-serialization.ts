@@ -19,6 +19,7 @@ export const PUBLIC_PERSONA_CONTEXT_EXCLUDED_PRIVATE_BUCKETS = [
   "owner_profile",
   "provider_settings",
 ] as const;
+export const ANONYMOUS_PUBLIC_PERSONA_CHAT_SLUG = "station-replay-alpha-persona";
 
 export function isSafePublicPersonaSlug(value: string | null | undefined): value is string {
   return Boolean(
@@ -49,8 +50,14 @@ export function publicPersonaRouteHref(publicSlug: string | null | undefined) {
 export function publicPersonaChatCapability(row: any): PublicPersonaChatCapability {
   return {
     enabled: Boolean(row.public_chat_enabled),
-    mode: "signed_in_alpha",
+    mode: publicPersonaChatMode(row.public_slug),
   };
+}
+
+export function publicPersonaChatMode(publicSlug: string | null | undefined): PublicPersonaChatCapability["mode"] {
+  return publicSlug === ANONYMOUS_PUBLIC_PERSONA_CHAT_SLUG
+    ? "anonymous_alpha"
+    : "signed_in_alpha";
 }
 
 export function serializePersonaPublicFields(row: any): PersonaPublicFields {

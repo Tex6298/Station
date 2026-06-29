@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR468 Anonymous Public Persona Chat Implementation
+
+DAEDALUS implemented PR468 on 2026-06-29:
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- anonymous public chat is enabled only for
+  `/personas/station-replay-alpha-persona`;
+- signed-in public chat still works for other enabled public personas;
+- owner disable blocks anonymous and signed-in chat;
+- anonymous rate limiting uses a hashed/minimized request-address resource key
+  and excludes raw IP, forwarded header, cookie, auth header, user agent,
+  visitor prompt, provider key, and visitor identity material;
+- rate-limit store failure returns `public_persona_rate_limit_unavailable`
+  before provider calls;
+- prompt construction remains public-source-only;
+- anonymous chat does not create conversations, conversation messages, durable
+  visitor identity, raw event, transcript, or moderation report rows;
+- token usage remains owner-paid with `chat_id: null`;
+- public persona reporting remains signed-in only;
+- the web public persona page exposes an anonymous form only for enabled
+  `anonymous_alpha` chat and keeps sign-in prompt behavior for signed-in alpha.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 13 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: ARGUS has not reviewed the implementation yet. Hosted browser
+proof is also not part of this DAEDALUS pass; MIMIR should decide after ARGUS
+whether ARIADNE should run a hosted anonymous-chat confirmation.
+
 ## PR468 Anonymous Public Persona Chat Preflight
 
 ARGUS accepted PR468 preflight on 2026-06-29:

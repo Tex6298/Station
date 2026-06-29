@@ -12,6 +12,8 @@ import type {
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
+  type PublicPersonaChatMode,
+  publicPersonaChatAccess,
   publicPersonaChatCopy,
   publicPersonaChatDisabledCopy,
   publicPersonaContextPreviewCopy,
@@ -28,7 +30,7 @@ interface PublicPersona {
   publicSlug?: string | null;
   publicChat?: {
     enabled: boolean;
-    mode: "signed_in_alpha";
+    mode: PublicPersonaChatMode;
   };
 }
 
@@ -116,7 +118,13 @@ export default function PublicPersonaPage() {
   }
 
   async function sendPublicChat() {
-    if (!publicSlug || !token || !chatMessage.trim()) return;
+    const chatAccess = publicPersonaChatAccess({
+      enabled: persona?.publicChat?.enabled,
+      mode: persona?.publicChat?.mode,
+      hasSession: Boolean(token),
+    });
+    if (!publicSlug || !chatMessage.trim()) return;
+    if (chatAccess !== "signed_in_alpha" && chatAccess !== "anonymous_alpha") return;
     setChatLoading(true);
     setChatError(null);
     setReportState("idle");
@@ -125,7 +133,7 @@ export default function PublicPersonaPage() {
       const data = await apiPost<PublicPersonaChatResponse>(
         `/personas/public/${publicSlug}/chat`,
         { message: chatMessage.trim() },
-        token
+        token ?? undefined
       );
       setChatReply(data);
     } catch (err) {
@@ -176,6 +184,16 @@ export default function PublicPersonaPage() {
     );
   }
 
+  const chatAccess = publicPersonaChatAccess({
+    enabled: persona.publicChat?.enabled,
+    mode: persona.publicChat?.mode,
+    hasSession: Boolean(token),
+  });
+  const chatModeLabel = persona.publicChat?.enabled
+    ? persona.publicChat.mode === "anonymous_alpha" ? "Anonymous alpha" : "Signed-in alpha"
+    : "Disabled";
+  const canUsePublicChat = chatAccess === "signed_in_alpha" || chatAccess === "anonymous_alpha";
+
   return (
     <main className="public-persona-page">
       <section className="public-persona-header">
@@ -223,9 +241,9 @@ export default function PublicPersonaPage() {
       <section className="public-persona-panel public-persona-chat" aria-label="Public chat">
         <div>
           <span>Public chat</span>
-          <strong>{persona.publicChat?.enabled ? "Signed-in alpha" : "Disabled"}</strong>
+          <strong>{chatModeLabel}</strong>
         </div>
-        <p>{persona.publicChat?.enabled ? publicPersonaChatCopy() : publicPersonaChatDisabledCopy()}</p>
+        <p>{persona.publicChat?.enabled ? publicPersonaChatCopy(persona.publicChat.mode) : publicPersonaChatDisabledCopy()}</p>
 
         {!sessionChecked && <p className="public-persona-chat-state">Checking session...</p>}
 
@@ -233,14 +251,14 @@ export default function PublicPersonaPage() {
           <p className="public-persona-chat-state">The public source preview remains available below.</p>
         )}
 
-        {sessionChecked && persona.publicChat?.enabled && !token && (
+        {sessionChecked && chatAccess === "sign_in_required" && (
           <div className="public-persona-chat-state">
             <p>Sign in to use public chat.</p>
             <Link href={`/login?redirect=/personas/${publicSlug}`}>Sign in</Link>
           </div>
         )}
 
-        {sessionChecked && token && persona.publicChat?.enabled && (
+        {sessionChecked && canUsePublicChat && (
           <form
             className="public-persona-chat-form"
             onSubmit={(event) => {
