@@ -383,7 +383,14 @@ function safeWebAppOrigin() {
   const hostname = url.hostname.toLowerCase();
   const local = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
   const hosted = process.env.NODE_ENV === "production" ||
-    Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID || process.env.VERCEL || process.env.RENDER);
+    Boolean(
+      process.env.RAILWAY_ENVIRONMENT ||
+      process.env.RAILWAY_ENVIRONMENT_NAME ||
+      process.env.RAILWAY_PROJECT_ID ||
+      process.env.RAILWAY_SERVICE_NAME ||
+      process.env.VERCEL ||
+      process.env.RENDER
+    );
 
   if ((url.protocol === "http:" && !local) || (hosted && (url.protocol !== "https:" || local))) {
     throw new ArchiveConnectorAuthorizeConfigError("unsafe_hosted_origin");

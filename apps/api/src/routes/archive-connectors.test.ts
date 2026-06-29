@@ -245,9 +245,9 @@ function archiveConnectorAuthorizeEnv(updates: Record<string, string | null> = {
   return {
     ...archiveConnectorConfiguredEnv(),
     ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "reddit-public-client-id-fixture",
-    ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: "reddit-private-app-secret-fixture",
+    ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: "reddit-private-app-marker",
     ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: "discord-public-client-id-fixture",
-    ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: "discord-private-app-secret-fixture",
+    ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: "discord-private-app-marker",
     NEXT_PUBLIC_APP_URL: "http://localhost:3000",
     ...updates,
   };
@@ -1169,7 +1169,7 @@ test("archive connector OAuth authorize requires auth and rejects unsupported or
         assertNoSensitiveAuthorizeReadback(response.body, {
           stateHandle: validStateHandle,
           clientId: "reddit-public-client-id-fixture",
-          clientSecret: "reddit-private-app-secret-fixture",
+          clientSecret: "reddit-private-app-marker",
         });
         assert.equal(db.rows("archive_connector_oauth_states").length, 0);
         assert.deepEqual(db.writeCalls, []);
@@ -1215,7 +1215,7 @@ test("archive connector OAuth authorize requires configured provider app without
         assertAuthorizationUrlSafety(response.body);
         assertNoSensitiveAuthorizeReadback(response.body, {
           clientId: "reddit-public-client-id-fixture",
-          clientSecret: "reddit-private-app-secret-fixture",
+          clientSecret: "reddit-private-app-marker",
         });
         assert.equal(db.rows("archive_connector_oauth_states").length, 0);
         assert.deepEqual(db.writeCalls, []);
@@ -1241,6 +1241,7 @@ test("archive connector OAuth authorize rejects missing invalid and unsafe web a
     { name: "scheme", env: { NEXT_PUBLIC_APP_URL: "ftp://station.example" }, status: 400, code: "archive_connector_callback_origin_invalid" },
     { name: "http-nonlocal", env: { NEXT_PUBLIC_APP_URL: "http://station.example" }, status: 409, code: "archive_connector_callback_origin_unsafe" },
     { name: "prod-localhost", env: { NEXT_PUBLIC_APP_URL: "http://localhost:3000", NODE_ENV: "production" }, status: 409, code: "archive_connector_callback_origin_unsafe" },
+    { name: "railway-localhost", env: { NEXT_PUBLIC_APP_URL: "http://localhost:3000", RAILWAY_ENVIRONMENT_NAME: "production" }, status: 409, code: "archive_connector_callback_origin_unsafe" },
   ];
 
   for (const setup of cases) {
@@ -1264,7 +1265,7 @@ test("archive connector OAuth authorize rejects missing invalid and unsafe web a
         assertNoSensitiveAuthorizeReadback(response.body, {
           stateHandle: started.body.stateHandle,
           clientId: "reddit-public-client-id-fixture",
-          clientSecret: "reddit-private-app-secret-fixture",
+          clientSecret: "reddit-private-app-marker",
           rowId: db.rows("archive_connector_oauth_states")[0].id,
         });
         assert.deepEqual(db.writeCalls, ["archive_connector_oauth_states.insert"]);
@@ -1309,14 +1310,14 @@ test("archive connector OAuth authorize returns bounded Reddit and Discord autho
       assertNoSensitiveAuthorizeReadback(reddit.body, {
         stateHandle: redditStart.body.stateHandle,
         clientId: "reddit-public-client-id-fixture",
-        clientSecret: "reddit-private-app-secret-fixture",
+        clientSecret: "reddit-private-app-marker",
         redirectUri: "https://station.example/archive-connectors/oauth/callback/reddit",
         rowId: db.rows("archive_connector_oauth_states")[0].id,
       });
       assertNoSensitiveAuthorizeReadback(discord.body, {
         stateHandle: discordStart.body.stateHandle,
         clientId: "discord-public-client-id-fixture",
-        clientSecret: "discord-private-app-secret-fixture",
+        clientSecret: "discord-private-app-marker",
         redirectUri: "https://station.example/archive-connectors/oauth/callback/discord",
         rowId: db.rows("archive_connector_oauth_states")[1].id,
       });
@@ -1419,7 +1420,7 @@ test("archive connector OAuth authorize validates existing state without consumi
         assertNoSensitiveAuthorizeReadback(response.body, {
           stateHandle: started.body.stateHandle,
           clientId: "reddit-public-client-id-fixture",
-          clientSecret: "reddit-private-app-secret-fixture",
+          clientSecret: "reddit-private-app-marker",
           rowId: db.rows("archive_connector_oauth_states")[0].id,
         });
         assert.deepEqual(db.writeCalls, ["archive_connector_oauth_states.insert"]);

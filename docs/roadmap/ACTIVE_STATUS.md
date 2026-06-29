@@ -4,6 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484F-D accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484F-D Archive Connector OAuth Authorization
+URL implementation:
+
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484F_D_AUTHORIZATION_URL_READBACK
+```
+
+Current lane:
+
+```text
+PR484F-D - Archive Connector OAuth Authorization URL
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+ARGUS patch:
+
+- replaced realistic-looking client-secret test fixtures with neutral marker
+  values;
+- expanded hosted-origin detection to include Railway
+  `RAILWAY_ENVIRONMENT_NAME` and `RAILWAY_SERVICE_NAME` metadata;
+- added a regression proving Railway-hosted metadata rejects localhost callback
+  origins.
+
+Accepted boundary:
+
+- authenticated `POST /archive-connectors/oauth/:provider/authorize`;
+- body accepts only `stateHandle`;
+- validates an existing unexpired/unconsumed PR484E state for owner/session/
+  provider/nonce/csrf without consuming it;
+- provider URL uses `NEXT_PUBLIC_APP_URL` web origin plus the PR484F-C callback
+  route;
+- Reddit URL uses `response_type=code`, `duration=temporary`, and
+  `scope=identity`;
+- Discord URL uses `response_type=code` and `scope=identify`;
+- client id and state appear only inside `authorizationUrl`;
+- no server redirect, token exchange, credential write/revoke, provider
+  call/fetch, source inventory, import write, queue, hosted runtime config,
+  Cloudflare, Redis, billing, package, broad UI, marketplace, or social posting
+  behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts`
+  passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 64 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484F-D ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484F-D Archive Connector OAuth

@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484F-D Archive Connector OAuth Authorization URL Review
+
+ARGUS accepted PR484F-D on 2026-06-29:
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484F_D_AUTHORIZATION_URL_READBACK`.
+
+ARGUS patch:
+
+- realistic-looking client-secret fixtures were replaced with neutral markers;
+- hosted-origin detection now includes Railway `RAILWAY_ENVIRONMENT_NAME` and
+  `RAILWAY_SERVICE_NAME` metadata;
+- regression coverage proves Railway-hosted metadata rejects localhost callback
+  origins.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 20 tests passed for readiness, OAuth state start, callback verify, authorization URL auth/input/config/state validation, non-consuming readback, sensitive response bounds, and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts` | Pass | 7 tests passed, including non-consuming OAuth state validation plus existing consume-once behavior. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 64 tests passed across archive connector route/storage/contract, callback bridge, no-write import preview, parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+| Source/scope scan | Pass | No server redirect, token exchange, credential write/revoke, provider call/fetch, source inventory, import write, queue, hosted runtime config mutation, Cloudflare, Redis, billing, package, broad UI, marketplace, or social posting behavior was added. |
+
 ## PR484F-D Archive Connector OAuth Authorization URL
 
 DAEDALUS implemented PR484F-D on 2026-06-29:
