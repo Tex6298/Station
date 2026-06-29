@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475B Public Seminars Hosted Readback Repair Hosted Proof
+
+ARIADNE completed the hosted PR475B proof on 2026-06-29:
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_HOSTED_PROOF_RESULT.md`.
+
+Validation result: `HOSTED_SCHEMA_BLOCKER_NEEDS_MIMIR`.
+
+Reason:
+
+- hosted web/API were ready at app commit `f77b1d43`;
+- public `GET /events/seminars` returned three public seminar cards;
+- signed-out desktop and 390px mobile rendered cards with aggregate-only
+  interest readback and sign-in prompt;
+- signed-in desktop and 390px mobile rendered cards with signed-in interest
+  controls;
+- the first signed-in mark-interest attempt failed bounded with
+  `seminar_interest_unavailable`;
+- no mark succeeded, so no withdrawal was run and no intentional extra interest
+  row was left behind.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at app commit `f77b1d43`. |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `f77b1d43`. |
+| Public API `GET /events/seminars` | Pass | Three public seminar cards returned. |
+| Signed-out `/events/seminars` desktop | Pass | Public cards rendered with aggregate-only readback and sign-in prompt. |
+| Signed-out `/events/seminars` 390px mobile | Pass | Public cards rendered; no horizontal overflow or clipped card controls. |
+| Signed-in `/events/seminars` desktop | Partial | Public cards and signed-in controls rendered. |
+| Signed-in `/events/seminars` 390px mobile | Pass before mutation | Public cards and signed-in controls rendered; no horizontal overflow or clipped card controls. |
+| Signed-in mark interest | Blocked | Bounded `seminar_interest_unavailable`; route hosted `061_public_seminar_interests.sql` apply/verify. |
+| Signed-in withdraw interest | Not run | No mark succeeded. |
+| Temporary Chrome DevTools hosted harness | Hosted schema blocker found | Cards render; mutation fails bounded; no extra row left behind. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this validation update changes docs and
+agent state only.
+
 ## PR475B Public Seminars Hosted Readback Repair ARGUS Review
 
 ARGUS accepted PR475B on 2026-06-29:

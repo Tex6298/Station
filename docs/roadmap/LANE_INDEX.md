@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475B | Public Seminars Hosted Readback Repair Hosted Proof | ARIADNE / A4 | Hosted proof requested after ARGUS accepted additive readback repair; rerun signed-out/signed-in cards plus mark/withdraw | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_REVIEW_RESULT.md` |
+| PR475B hosted schema blocker | Public Seminars Hosted Readback Repair Hosted Proof | MIMIR / A1 | Public cards render, but signed-in mark fails bounded with `seminar_interest_unavailable`; route hosted `061_public_seminar_interests.sql` apply/verify | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR475B hosted proof | Public Seminars Hosted Readback Repair | ARGUS -> ARIADNE -> MIMIR | Hosted schema blocker; cards render on desktop/mobile, signed-in mark fails bounded, no extra interest row left behind | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_HOSTED_PROOF_RESULT.md` |
 | PR475B review | Public Seminars Hosted Readback Repair | DAEDALUS -> ARGUS -> ARIADNE | Accepted; public cards render without additive interest readback while mark/withdraw still require durable storage and fail bounded if hosted schema is missing | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_REVIEW_RESULT.md` |
 | PR475B opened | Public Seminars Hosted Readback Repair | MIMIR -> DAEDALUS | Open; smallest repair for hosted public seminar readback unavailable state found by ARIADNE | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_DAEDALUS.md` |
 | PR475A hosted rehearsal | Signed-In Seminar Interest Toggle | MIMIR -> ARIADNE -> MIMIR | Product defect; fresh hosted `/events/seminars` returns bounded `503`, so no seminar cards or mark/withdraw flow were available | `docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_RESULT.md` |

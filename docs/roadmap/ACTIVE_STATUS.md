@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE hosted proof - PR475B schema blocker
+
+ARIADNE completed the hosted PR475B proof:
+
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_HOSTED_PROOF_RESULT.md`
+
+Verdict:
+
+```text
+HOSTED_SCHEMA_BLOCKER_NEEDS_MIMIR
+```
+
+Result:
+
+- Hosted web/API `/health/deployment` were ready at app commit `f77b1d43`.
+- Public `GET /events/seminars` returned three public seminar cards.
+- Signed-out `/events/seminars` desktop and 390px mobile rendered public cards
+  with aggregate-only interest readback and sign-in prompt.
+- Signed-in `/events/seminars` desktop and 390px mobile rendered public cards
+  with signed-in interest controls.
+- The first signed-in mark-interest attempt failed bounded with
+  `Could not update seminar interest.` / `seminar_interest_unavailable`.
+- No mark succeeded, so no withdrawal was run and no intentional extra interest
+  row was left behind.
+
+Current lane:
+
+```text
+PR475B - Public Seminars Hosted Readback Repair Hosted Proof
+Owner: MIMIR / A1
+State: HOSTED SCHEMA BLOCKER - ROUTE 061 APPLY/VERIFY
+```
+
+Current baton:
+
+- MIMIR should route the exact hosted schema unblock: apply or verify
+  `infra/supabase/migrations/061_public_seminar_interests.sql` on the hosted
+  database.
+- After hosted `061_public_seminar_interests.sql` is verified, wake ARIADNE for
+  the same signed-out/signed-in desktop/mobile proof with one mark and
+  withdrawal.
+- Do not broaden into tickets, payments, Stripe/Billing, reminders, calendar
+  integration, livestream/media rooms, attendee lists, event-host management,
+  provider calls, queues/workers, Redis, Cloudflare, hosted runtime, or broad
+  UI.
+
 ## Latest ARGUS review - PR475B accepted
 
 ARGUS accepted the public seminars hosted readback repair:
