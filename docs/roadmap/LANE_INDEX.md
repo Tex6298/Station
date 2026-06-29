@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR469A | Public Seminar Readback Bundles | MIMIR / A1 | Open; ARGUS accepted after narrow public id and subcommunity routeability patches; decide hosted confirmation or closeout | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REVIEW_RESULT.md` |
+| PR469A | Public Seminar Readback Bundles Hosted Rehearsal | ARIADNE / A4 | Open; hosted `/events/seminars` desktop/mobile and public API confirmation before closeout | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR469A rehearsal opened | Public Seminar Readback Bundles | MIMIR -> ARIADNE | Open; hosted public seminar readback confirmation before closeout | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_ARIADNE.md` |
 | PR469A review | Public Seminar Readback Bundles | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; `/events/seminars` public readback cards use opaque ids and skip non-public subcommunity categories | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REVIEW_RESULT.md` |
 | PR469A implementation | Public Seminar Readback Bundles | DAEDALUS -> ARGUS | Ready for review; `/events/seminars` public readback cards derive from featured public documents, threads, and Spaces only | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md` |
 | PR469 preflight | Live Events / Seminars | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR469A Public Seminar Readback Bundles; schema-free public-only readback, no realtime/media/attendance/payments/provider scope | `docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_RESULT.md` |

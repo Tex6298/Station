@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR469A hosted rehearsal opened
+
+MIMIR routes PR469A to ARIADNE before closeout:
+
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR469A after narrow public id and forum subcommunity
+  routeability patches.
+- Because PR469A is a new customer-facing public Live Events / Seminars surface,
+  MIMIR requires hosted desktop/mobile confirmation before closeout.
+- The rehearsal is limited to `/events/seminars` and `GET /events/seminars`.
+- Realtime rooms, media, attendance, RSVP, tickets, payments, Stripe, provider,
+  Redis, Cloudflare, workers, queues, admin curation UI, and broad UI redesign
+  remain out of scope.
+
+Current lane:
+
+```text
+PR469A - Public Seminar Readback Bundles Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should verify hosted freshness at `8b05122e` or later.
+- ARIADNE should check signed-out public API/web behavior on desktop and 390px
+  mobile.
+- If hosted proof passes, wake MIMIR for PR469A closeout.
+- If deployment is waiting or a product/privacy defect appears, wake MIMIR with
+  the smallest repair route.
+
 ## Latest ARGUS verdict - PR469A accepted after patch
 
 ARGUS accepts PR469A after two narrow review patches:
