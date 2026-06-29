@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484B Connector Credential Storage Preflight
+
+ARGUS accepted PR484B for DAEDALUS on 2026-06-29:
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484B_ENCRYPTED_CONNECTOR_CREDENTIAL_STORE`.
+
+Reason:
+
+- PR484A already established the Reddit/Discord archive connector credential
+  contract, but no accepted encrypted archive connector credential store or
+  OAuth state store exists yet;
+- AI BYOK encryption is accepted as implementation precedent only, not as a
+  reusable archive connector credential store;
+- PR484B is bounded to migration/service/test/docs scope with a
+  connector-specific encryption key and separate OAuth state storage;
+- live provider calls, OAuth routes/callbacks, token exchange, source inventory
+  pulls, import writes, UI, jobs/queues/workers, Redis, Cloudflare, billing,
+  provider/model calls, and package dependencies remain out of scope.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:ai-settings` | Pass | 12 tests passed; current AI BYOK encrypted storage precedent remains green and separate. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 15 tests passed across the existing connector contract, no-write import preview, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check` | Pass | No whitespace errors before the docs patch. |
+| Scope scan | Pass | Matches were expected guardrail/config terms or existing AI BYOK/migration precedent; no live archive connector implementation exists today. |
+
 ## PR484A Connector Credential Contract ARGUS Review
 
 ARGUS accepted PR484A on 2026-06-29:

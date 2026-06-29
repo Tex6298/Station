@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484B accepted for DAEDALUS
+
+ARGUS completed the PR484B Connector Credential Storage preflight:
+
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484B_ENCRYPTED_CONNECTOR_CREDENTIAL_STORE
+```
+
+Current lane:
+
+```text
+PR484B - Connector Credential Storage
+Owner: DAEDALUS / A2
+State: OPEN - ENCRYPTED CONNECTOR CREDENTIAL AND OAUTH STATE STORE
+```
+
+Current baton:
+
+- DAEDALUS may implement migration/service/test/docs scope only for encrypted
+  archive connector credential storage and separate OAuth state storage.
+- Use a connector-specific env key,
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`; do not reuse AI BYOK storage
+  or `AI_PROVIDER_KEY_ENCRYPTION_KEY` directly.
+- Keep provider ids limited to `reddit` and `discord`, purpose fixed to
+  archive connector, owner scope enforced, and OAuth state separate from
+  credential rows.
+- Encrypt and fingerprint replacement credential material before revoking any
+  existing active row.
+- Return only safe metadata; do not return token material, token tails,
+  encrypted payloads, raw external account ids, callback codes, cookies,
+  provider payloads, private source bodies, SQL/table output, stack traces,
+  prompts, storage paths, signed URLs, hosted logs, or secret-shaped values.
+
+Boundaries:
+
+- No live Reddit/Discord API calls, OAuth redirects/callback routes, token
+  exchange, token refresh/revocation execution, provider SDKs, configured test
+  credentials, source inventory pulls, recurring pulls, import writes, route/UI
+  behavior, public connector pages, cross-owner connector access, jobs, queues,
+  workers, Redis, Cloudflare, billing/Stripe, provider/model calls, package
+  dependencies, or hosted runtime behavior.
+- ARIADNE hosted rehearsal is not required if PR484B remains migration,
+  service, tests, and docs only with no visible route, UI, or hosted API
+  behavior.
+
 ## Latest MIMIR closeout/opening - PR484A closed, PR484B opened
 
 MIMIR closes PR484A Connector Credential Contract as accepted:
