@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478A Community Trust Readback Hosted Rehearsal
+
+ARIADNE completed the hosted read-only proof on 2026-06-29:
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Reason:
+
+- hosted API health was ready at app commit `d27be936`, and hosted web returned
+  HTTP 200;
+- a routeable public forum thread detail rendered Helpful, Grounded, and
+  Careful witness readback as contribution-level aggregate marks;
+- signed-out desktop and 390px mobile did not expose current-viewer witness
+  state, witnesser identity, reporter identity, private recognition,
+  moderation notes, hidden bodies, provider payloads, stack traces, or raw
+  internal rows;
+- signed-in eligible non-owner private-tier viewer saw current-viewer witness
+  framing and controls without any witness mutation;
+- `/forums/witnesses` remained private/current-user scoped for the owner
+  account and signed-out access stayed gated;
+- defect: the hosted public thread detail still displays legacy positive public
+  score/vote language on the same forum surface, conflicting with the PR478A
+  rehearsal requirement that no score/ranking/badge/clout/reputation-profile
+  language appear in the public trust readback proof.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `d27be936`. |
+| Hosted web root | Pass | Returned HTTP 200. |
+| Public thread routeability | Pass | Public forum thread detail was routeable. |
+| Signed-out public thread desktop | Pass | Helpful/Grounded/Careful aggregate trust readback rendered without current-viewer state or identity leakage. |
+| Signed-out public thread 390px mobile | Fail | Trust readback remained readable, but positive public score/vote language was visible. |
+| Signed-in eligible viewer | Pass | Non-owner private-tier viewer saw current-viewer witness framing; no witness mutation was performed. |
+| Private `/forums/witnesses` owner page | Pass | Private aggregate author-recognition readback rendered without witnesser/reporter/moderation leakage. |
+| Signed-out `/forums/witnesses` | Pass | Sign-in gate rendered; recognition rows did not leak. |
+| Optional direct API samples | Pass | Public thread readback returned witness counts without signed-out viewer witness state; private recognition API remained auth-gated/current-user scoped. |
+| Temporary Chrome DevTools hosted harness | Fail | Completed read-only proof and found the positive score/vote copy defect. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR478A Community Trust Readback ARGUS Review
 
 ARGUS accepted PR478A on 2026-06-29:

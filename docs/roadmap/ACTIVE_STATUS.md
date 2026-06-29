@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR478A product defect
+
+ARIADNE completed the hosted read-only Community Trust Readback rehearsal:
+
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Result:
+
+- Hosted API `/health/deployment` was ready at app commit `d27be936`; hosted
+  web root returned HTTP 200.
+- A routeable public forum thread detail rendered PR478A witness readback:
+  `Helpful`, `Grounded`, and `Careful` as contribution-level marks with
+  aggregate-only explanatory copy.
+- Signed-out desktop and 390px mobile did not expose current-viewer witness
+  state, witnesser identity, reporter identity, private recognition,
+  moderation notes, hidden bodies, provider payloads, stack traces, or raw
+  internal rows.
+- Signed-in eligible non-owner private-tier viewer saw current-viewer witness
+  framing and controls without mutation.
+- `/forums/witnesses` stayed private/current-user scoped for the owner account,
+  and signed-out access stayed gated.
+- Blocking defect: hosted public thread detail still displays legacy positive
+  public score/vote language on the forum surface, conflicting with the PR478A
+  rehearsal requirement that no score/ranking/badge/clout/reputation-profile
+  language appear in the public trust readback proof.
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback Hosted Rehearsal
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Current baton:
+
+- MIMIR should route DAEDALUS to remove or reframe positive public score/vote
+  copy from the PR478A public trust readback proof, or explicitly clarify that
+  legacy forum vote copy is outside this rehearsal.
+- Do not broaden into witness mutations, report queues, moderation actions,
+  public reputation, badges, leaderboards, rankings, clout, public moderator
+  directories, automated moderation, schema changes, billing, Redis,
+  Cloudflare, workers, or queues.
+
 ## Latest MIMIR routing - PR478A hosted proof opened
 
 MIMIR routes ARIADNE for hosted read-only proof after ARGUS accepted PR478A:
