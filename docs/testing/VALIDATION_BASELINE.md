@@ -20,6 +20,50 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR469A Public Seminar Readback Bundles Hosted Rehearsal
+
+ARIADNE completed the hosted PR469A rehearsal on 2026-06-29:
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API health were fresh at PR469A accepted commit `8b05122e` and
+  reported ready;
+- signed-out `GET /events/seminars` returned HTTP 200 with an empty `cards`
+  list;
+- `/events/seminars` loaded on desktop and 390px mobile with bounded public
+  readback/empty-state copy;
+- copy stayed readback-only and did not imply realtime rooms, livestreams,
+  attendance, RSVP, tickets, payments, recordings, transcripts, provider calls,
+  private memory, or owner-only runtime behavior;
+- sampled UI/API text did not expose private Memory, Archive, Canon,
+  Continuity, Integrity, owner setup, provider settings, private document text,
+  private archive source text, credentials, stack traces, storage paths, raw
+  internal ids, raw SQL/table names, visitor identity, or secret-shaped
+  material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at PR469A accepted commit `8b05122e`. |
+| Hosted API `/health/deployment` | Pass | Ready at PR469A accepted commit `8b05122e`. |
+| Signed-out `GET /events/seminars` | Pass | HTTP 200 with empty `cards` list. |
+| API opaque card ids | Not applicable | No cards were returned in the hosted sample. |
+| API public-safe hrefs | Not applicable | No cards or hrefs were returned in the hosted sample. |
+| Desktop `/events/seminars` | Pass | Bounded public readback/empty state. |
+| 390px `/events/seminars` | Pass | Bounded public readback/empty state. |
+| Visible routeability | Not applicable | No visible card actions were present. |
+| Layout scan | Pass | No horizontal overflow or clipped interactive controls. |
+| Readback-only copy scan | Pass | No out-of-scope live/ticketing/provider claims in sampled copy. |
+| Public safety scan | Pass | No private/secret/internal material in sampled UI/API text. |
+| Temporary Playwright/Node hosted harness | Pass | Completed with no defects. |
+| `git diff --check` | Pass before commit | Result commit validation. |
+
+Residual risk: this pass proves the hosted empty/readback-safe state. Hosted
+card-level routeability was not exercised because no seminar cards were
+returned; accepted ARGUS tests remain the card-level proof.
+
 ## PR469A Public Seminar Readback Bundles
 
 DAEDALUS implemented PR469A on 2026-06-29 and ARGUS accepted it after a

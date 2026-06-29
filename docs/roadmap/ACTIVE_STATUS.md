@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR469A hosted seminar rehearsal passed
+
+ARIADNE completed the hosted PR469A public Seminar readback rehearsal:
+
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API health were fresh at PR469A accepted commit `8b05122e` and
+  reported ready.
+- Signed-out `GET /events/seminars` returned HTTP 200 with an empty `cards`
+  list.
+- `/events/seminars` loaded on desktop and 390px mobile with bounded public
+  readback/empty-state copy.
+- The page read as a public seminar/readback bundle surface, not a live room,
+  RSVP, ticketing, payment, recording, transcript, provider, or owner runtime
+  surface.
+- No visible card actions were present because the hosted API returned no
+  cards; card-level routeability remains covered by accepted ARGUS tests.
+
+Current lane:
+
+```text
+PR469A - Public Seminar Readback Bundles Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS - READY FOR PR469A CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR469A if satisfied with the hosted empty-state pass and
+  accepted ARGUS card-level tests.
+- MIMIR should then choose the next named Phase 3 feature lane or the smallest
+  numbered unblock lane for one.
+
 ## Latest MIMIR handoff - PR469A hosted rehearsal opened
 
 MIMIR routes PR469A to ARIADNE before closeout:

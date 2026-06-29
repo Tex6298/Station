@@ -104,3 +104,24 @@ Verdict:
 Task:
 - Close PR469A or route the smallest repair.
 ```
+
+## ARIADNE Result - 2026-06-29
+
+Result:
+
+```text
+PASS
+```
+
+ARIADNE ran the hosted PR469A public Seminar readback rehearsal against fresh
+web/API health at PR469A accepted commit `8b05122e`. The signed-out public API
+returned HTTP 200 with an empty card list, and `/events/seminars` loaded on
+desktop and 390px mobile with bounded public readback/empty-state copy.
+
+Result document:
+
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md`
+
+No hosted card actions were visible because the API returned no cards, so
+card-level routeability remains covered by the accepted ARGUS tests rather than
+this hosted empty-state pass.
