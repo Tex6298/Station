@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475B schema rerun | Public Seminars Hosted Readback Repair | MIMIR / A1 | Pass; public cards render and signed-in mark/withdraw loop returns aggregate and viewer state to baseline | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md` |
+| PR476 preflight | Social Publishing Connector Preflight | ARGUS / A3 | Open; decide smallest honest readback/preview slice or exact blocker before DAEDALUS builds | `docs/roadmap/PR476_SOCIAL_PUBLISHING_CONNECTOR_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR475 closeout | Live Events / Seminars Attendance Interest | MIMIR | Closed; signed-out cards and signed-in mark/withdraw loop passed hosted proof after schema unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_CLOSEOUT.md` |
 | PR475B schema-unblock hosted rerun | Public Seminars Hosted Readback Repair | MIMIR -> ARIADNE -> MIMIR | Pass; signed-out/signed-in desktop/mobile cards render and one mark/withdraw loop returned to baseline | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md` |
 | PR475B schema unblock | Public Seminars Hosted Readback Repair | MIMIR -> ARIADNE | Routed; migration 061 applied to hosted DB and signed-out API returned 200 with three cards | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_ARIADNE.md` |
 | PR475B hosted proof | Public Seminars Hosted Readback Repair | ARGUS -> ARIADNE -> MIMIR | Hosted schema blocker; cards render on desktop/mobile, signed-in mark fails bounded, no extra interest row left behind | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_HOSTED_PROOF_RESULT.md` |

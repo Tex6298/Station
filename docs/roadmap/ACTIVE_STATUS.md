@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR475 closed, PR476 opened
+
+MIMIR closes PR475 Live Events / Seminars Attendance Interest as accepted:
+
+`docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_CLOSEOUT.md`
+
+PR475 accepted shape:
+
+- public `/events/seminars` cards render signed-out with aggregate-only
+  interest readback and sign-in prompt;
+- signed-in users can mark interest and withdraw interest;
+- hosted proof moved one card aggregate `0 -> 1 -> 0` and cleared
+  viewer-local state;
+- public seminar card readback stays resilient if additive interest readback
+  storage lags;
+- hosted migration `061_public_seminar_interests.sql` was applied and verified
+  before ARIADNE passed the rerun.
+
+Per Marty's feature-expansion rule, MIMIR opens a different named Phase 3 /
+customer-facing capability preflight:
+
+`docs/roadmap/PR476_SOCIAL_PUBLISHING_CONNECTOR_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR476 - Social Publishing Connector Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST HONEST CUSTOMER-FACING CONNECTOR SLICE
+```
+
+Current baton:
+
+- ARGUS should hostile-review existing social publishing surfaces and decide
+  whether PR476A can be owner-only readiness/readback or outbound package
+  preview.
+- If accepted, ARGUS should wake DAEDALUS with the exact smallest slice.
+- If blocked, ARGUS should name the exact blocker and smallest numbered unblock
+  that directly enables Social Publishing / External Connectors.
+- No live posting, OAuth/token storage, provider API calls, syndication,
+  queues/workers, webhooks, billing changes, real accounts, secrets/logs, or
+  broad Settings redesign.
+
 ## Latest ARIADNE rerun - PR475B pass
 
 ARIADNE completed the PR475B schema-unblock hosted rerun:
