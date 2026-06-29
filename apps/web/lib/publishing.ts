@@ -29,6 +29,7 @@ export interface PublishingDocument {
   created_at?: string | null;
   space_id?: string | null;
   persona_id?: string | null;
+  comments_enabled?: boolean | null;
   provenance_type?: string | null;
   source_label?: string | null;
   discussion_thread_id?: string | null;
@@ -43,7 +44,14 @@ export interface PublishingDocumentVersion {
   documentType: string;
   status: string;
   visibility: string;
+  commentsEnabled?: boolean | null;
+  spaceId?: string | null;
+  personaId?: string | null;
+  publishedAt?: string | null;
+  provenanceType?: string | null;
+  sourceType?: string | null;
   sourceLabel?: string | null;
+  documentUpdatedAt?: string | null;
   capturedAt?: string | null;
 }
 
@@ -89,6 +97,36 @@ export interface PublishingDashboardRouteStoryRow {
   value: string;
   body: string;
   tone: "info" | "warning";
+}
+
+export type DocumentVersionCompareRowId =
+  | "title"
+  | "slug"
+  | "documentType"
+  | "status"
+  | "visibility"
+  | "comments"
+  | "space"
+  | "persona"
+  | "publication"
+  | "provenance"
+  | "capturedAt";
+
+export interface DocumentVersionCompareRow {
+  id: DocumentVersionCompareRowId;
+  label: string;
+  currentValue: string;
+  priorValue: string;
+  state: "changed" | "unchanged";
+}
+
+export interface DocumentVersionCompareReadback {
+  status: "ready" | "no-prior-version";
+  currentVersionLabel: string;
+  priorVersionLabel: string | null;
+  summary: string;
+  boundary: string;
+  rows: DocumentVersionCompareRow[];
 }
 
 export const PUBLISHING_TABS: Array<{ id: PublishingTab; label: string }> = [
@@ -496,6 +534,68 @@ export function documentVersionSummaryLabel(
   return `Current version v${current}; ${versions.length} prior version${versions.length === 1 ? "" : "s"} saved from v${oldest} to v${newestPrior}.`;
 }
 
+export function documentVersionCompareReadback(input: {
+  current: Pick<
+    PublishingDocument,
+    | "title"
+    | "slug"
+    | "document_type"
+    | "status"
+    | "visibility"
+    | "comments_enabled"
+    | "space_id"
+    | "persona_id"
+    | "published_at"
+    | "updated_at"
+    | "provenance_type"
+    | "source_label"
+    | "version"
+  >;
+  versions: PublishingDocumentVersion[];
+  selectedVersionNumber?: number | null;
+}): DocumentVersionCompareReadback {
+  const currentVersion = input.current.version && input.current.version > 0 ? input.current.version : 1;
+  const prior = selectPriorVersion(input.versions, input.selectedVersionNumber);
+  const boundary = "Metadata-only compare. Prior bodies, private source rows, raw IDs, approval internals, and public version history are not exposed.";
+
+  if (!prior) {
+    return {
+      status: "no-prior-version",
+      currentVersionLabel: `Current v${currentVersion}`,
+      priorVersionLabel: null,
+      summary: "No prior owner-only version is available to compare yet.",
+      boundary,
+      rows: [],
+    };
+  }
+
+  const rows = [
+    compareRow("title", "Title", safeVersionCompareText(input.current.title), safeVersionCompareText(prior.title)),
+    compareRow("slug", "Slug", safeVersionCompareText(input.current.slug), safeVersionCompareText(prior.slug)),
+    compareRow("documentType", "Type", documentTypeLabel(input.current.document_type), documentTypeLabel(prior.documentType)),
+    compareRow("status", "Status", publishingStatusLabel(input.current.status), publishingStatusLabel(prior.status)),
+    compareRow("visibility", "Visibility", capitalize(visibilityLabel(input.current.visibility)), capitalize(visibilityLabel(prior.visibility))),
+    compareRow("comments", "Discussion setting", commentsCompareLabel(input.current.comments_enabled), commentsCompareLabel(prior.commentsEnabled)),
+    compareRow("space", "Space link", linkedMetadataLabel(input.current.space_id, "Space selected"), linkedMetadataLabel(prior.spaceId, "Space selected")),
+    compareRow("persona", "Persona link", linkedMetadataLabel(input.current.persona_id, "Persona linked"), linkedMetadataLabel(prior.personaId, "Persona linked")),
+    compareRow("publication", "Publication state", publicationCompareLabel(input.current.status, input.current.published_at), publicationCompareLabel(prior.status, prior.publishedAt)),
+    compareRow("provenance", "Provenance", provenanceCompareLabel(input.current.provenance_type, input.current.source_label), provenanceCompareLabel(prior.provenanceType, prior.sourceLabel)),
+    compareRow("capturedAt", "Snapshot time", currentSnapshotLabel(input.current.updated_at), priorSnapshotLabel(prior.capturedAt)),
+  ];
+  const changedCount = rows.filter((row) => row.state === "changed").length;
+
+  return {
+    status: "ready",
+    currentVersionLabel: `Current v${currentVersion}`,
+    priorVersionLabel: `Prior v${prior.versionNumber}`,
+    summary: changedCount === 0
+      ? `Current v${currentVersion} matches prior v${prior.versionNumber} across compared metadata.`
+      : `${changedCount} metadata field${changedCount === 1 ? "" : "s"} changed since prior v${prior.versionNumber}.`,
+    boundary,
+    rows,
+  };
+}
+
 function privateSourceBoundaryCopy(provenanceType?: string | null) {
   if (provenanceType && provenanceType !== "user_authored") {
     return "This public document is a separate curated copy; raw private source rows, archive chunks, prompts, and owner IDs stay private.";
@@ -560,6 +660,68 @@ function sanitizePublishingReadbackText(value: string) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 180);
+}
+
+function selectPriorVersion(versions: PublishingDocumentVersion[], selectedVersionNumber?: number | null) {
+  if (versions.length === 0) return null;
+  if (selectedVersionNumber) {
+    const selected = versions.find((version) => version.versionNumber === selectedVersionNumber);
+    if (selected) return selected;
+  }
+
+  return [...versions].sort((a, b) => b.versionNumber - a.versionNumber)[0] ?? null;
+}
+
+function compareRow(
+  id: DocumentVersionCompareRowId,
+  label: string,
+  currentValue: string,
+  priorValue: string,
+): DocumentVersionCompareRow {
+  return {
+    id,
+    label,
+    currentValue,
+    priorValue,
+    state: currentValue === priorValue ? "unchanged" : "changed",
+  };
+}
+
+function safeVersionCompareText(value?: string | null) {
+  return sanitizePublishingReadbackText(value ?? "") || "Not set";
+}
+
+function commentsCompareLabel(value?: boolean | null) {
+  return value === false ? "Off" : "On";
+}
+
+function linkedMetadataLabel(value: string | null | undefined, presentLabel: string) {
+  return value ? presentLabel : "Not linked";
+}
+
+function publicationCompareLabel(status?: string | null, publishedAt?: string | null) {
+  if (status === "published" || publishedAt) return "Published";
+  return "Not published";
+}
+
+function provenanceCompareLabel(provenanceType?: string | null, sourceLabel?: string | null) {
+  const provenance = documentProvenanceLabel(provenanceType);
+  const source = publishingSourceLabelForReadback(sourceLabel);
+  return source ? `${provenance} / ${source}` : provenance;
+}
+
+function currentSnapshotLabel(updatedAt?: string | null) {
+  return updatedAt ? `Current editable metadata as of ${formatVersionCompareDate(updatedAt)}` : "Current editable metadata";
+}
+
+function priorSnapshotLabel(capturedAt?: string | null) {
+  return capturedAt ? `Captured ${formatVersionCompareDate(capturedAt)}` : "Captured date unavailable";
+}
+
+function formatVersionCompareDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "date unavailable";
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function labelize(value: string) {

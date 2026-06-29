@@ -4,46 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR479A accepted for DAEDALUS
+## Latest DAEDALUS implementation - PR479A ready for ARGUS
 
-ARGUS accepts the smallest honest Native Authoring / Versioning slice:
+DAEDALUS implemented the accepted PR479A Owner Version Compare Readback slice:
 
-`docs/roadmap/PR479_NATIVE_AUTHORING_VERSIONING_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_RESULT.md`
 
-Verdict:
+Result:
 
 ```text
-ACCEPT_PR479A_VERSION_COMPARE_READBACK
+READY_FOR_ARGUS_REVIEW
 ```
 
 Current lane:
 
 ```text
 PR479A - Owner Version Compare Readback
-Owner: DAEDALUS / A2
-State: OPEN - IMPLEMENT OWNER-ONLY METADATA COMPARE READBACK
+Owner: ARGUS / A3
+State: READY FOR REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement a narrow owner-only, metadata-only version
-  compare/readback improvement on the existing document version history surface.
-- Primary reuse target is `/studio/publish?documentId=...` and the existing
-  owner-only version fetch; optional Space document page reuse must stay inside
-  the existing `ownerAccess` branch.
-- DAEDALUS should wake ARGUS with `WAKEUP A3:` when ready for review.
+- ARGUS should review that the Studio publish Version History compare is
+  owner-only, metadata-only, and readback-only.
+- ARGUS should confirm it uses the existing owner-only version fetch and does
+  not add a public compare route, mutation behavior, or prior-body exposure.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and next
+  lane selection.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact helper, UI row, copy, or test expectation that failed.
 
 Boundaries:
 
-- Do not expose prior-version bodies, private source material, raw document IDs,
-  raw discussion/thread IDs, owner IDs, source IDs, approval internals,
+- The implementation compares owner-visible metadata only: title, slug, type,
+  status, visibility, comments, Space link, persona link, publication state,
+  provenance, and snapshot time.
+- It does not expose prior-version bodies, private source material, raw document
+  IDs, raw discussion/thread IDs, owner IDs, source IDs, approval internals,
   SQL/table details, stack traces, provider payloads, secrets, or public
   prior-version history.
 - No restore/revert action, publish/retract/delete mutation change, public
   compare route, API/schema/auth widening, rich editor, template system,
   field-log series model, scheduling, social dispatch, Station Press,
   SEO/OpenGraph, PDF/print export, provider/model call, AI drafting, Redis,
-  Cloudflare, workers, queues, billing, Stripe, or deployment behavior.
+  Cloudflare, workers, queues, billing, Stripe, or deployment behavior changed.
 
 ## Latest MIMIR closeout/opening - PR478 closed, PR479 opened
 

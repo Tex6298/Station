@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR479A Owner Version Compare Readback
+
+DAEDALUS implemented PR479A on 2026-06-29:
+`docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- owner Studio publish Version History now shows metadata-only compare/readback
+  against the newest or selected prior version already available from the
+  owner-only version fetch;
+- compared fields are title, slug, type, status, visibility, comments, Space
+  link, persona link, publication state, provenance, and snapshot time;
+- helper tests prove no prior-version body, private row ID, owner ID, thread ID,
+  persona ID, Space ID, secret-shaped source label, public prior-version link,
+  restore/revert action, or version mutation route leaks into the readback;
+- no API route, schema, auth/session, persistence, approval mutation,
+  publish/retract/delete, provider, queue, billing, Cloudflare, Redis, worker,
+  or deployment behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 15 tests passed, including metadata-only compare, no-prior state, unchanged-state handling, redaction, and mutation-scope source assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed, including the new publishing helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed; owner-only version update and public-read no-versions assertions remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed; linked discussion visibility remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 20 tests passed, including approval redaction plus publishing helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from turbo cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Matches were limited to expected guardrail/test/doc strings or sanitized metadata helpers; no prior body, raw private identifier, secret, public prior-version, restore/revert, mutation, API/schema/auth, provider, billing, worker, queue, Redis, Cloudflare, or deployment behavior was added. |
+
 ## PR479 Native Authoring / Versioning Preflight ARGUS Decision
 
 ARGUS accepted the PR479A owner version compare/readback slice on 2026-06-29:

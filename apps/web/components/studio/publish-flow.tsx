@@ -8,6 +8,7 @@ import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   DOCUMENT_TYPE_OPTIONS,
+  documentVersionCompareReadback,
   documentVersionSummaryLabel,
   documentTypeLabel,
   normalizeDocumentSlug,
@@ -17,6 +18,7 @@ import {
   type PublishingDocument,
   type PublishingDocumentVersion,
   type PublishingSpace,
+  type DocumentVersionCompareReadback,
 } from "@/lib/publishing";
 
 type PersonaOption = { id: string; name: string };
@@ -67,6 +69,11 @@ export function PublishFlow() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [versions, setVersions] = useState<PublishingDocumentVersion[]>([]);
   const [currentVersion, setCurrentVersion] = useState(1);
+  const [currentDocumentStatus, setCurrentDocumentStatus] = useState("draft");
+  const [currentDocumentPublishedAt, setCurrentDocumentPublishedAt] = useState<string | null>(null);
+  const [currentDocumentUpdatedAt, setCurrentDocumentUpdatedAt] = useState<string | null>(null);
+  const [currentDocumentProvenanceType, setCurrentDocumentProvenanceType] = useState<string | null>("user_authored");
+  const [currentDocumentSourceLabel, setCurrentDocumentSourceLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -107,6 +114,11 @@ export function PublishFlow() {
         if (loadedDocument) {
           setDocumentId(loadedDocument.id);
           setCurrentVersion(loadedDocument.version ?? 1);
+          setCurrentDocumentStatus(loadedDocument.status ?? "draft");
+          setCurrentDocumentPublishedAt(loadedDocument.published_at ?? null);
+          setCurrentDocumentUpdatedAt(loadedDocument.updated_at ?? null);
+          setCurrentDocumentProvenanceType(loadedDocument.provenance_type ?? "user_authored");
+          setCurrentDocumentSourceLabel(loadedDocument.source_label ?? null);
           setForm({
             title: loadedDocument.title,
             slug: loadedDocument.slug || slugifyDocumentTitle(loadedDocument.title),
@@ -181,6 +193,46 @@ export function PublishFlow() {
     ],
   );
 
+  const versionCompare = useMemo(
+    () => documentId
+      ? documentVersionCompareReadback({
+          current: {
+            title: form.title,
+            slug: form.slug,
+            document_type: form.documentType,
+            status: currentDocumentStatus,
+            visibility: form.visibility,
+            comments_enabled: form.commentsEnabled,
+            space_id: form.spaceId || null,
+            persona_id: form.personaId || null,
+            published_at: currentDocumentPublishedAt,
+            updated_at: currentDocumentUpdatedAt,
+            provenance_type: currentDocumentProvenanceType,
+            source_label: currentDocumentSourceLabel,
+            version: currentVersion,
+          },
+          versions,
+        })
+      : null,
+    [
+      currentDocumentProvenanceType,
+      currentDocumentPublishedAt,
+      currentDocumentSourceLabel,
+      currentDocumentStatus,
+      currentDocumentUpdatedAt,
+      currentVersion,
+      documentId,
+      form.commentsEnabled,
+      form.documentType,
+      form.personaId,
+      form.slug,
+      form.spaceId,
+      form.title,
+      form.visibility,
+      versions,
+    ],
+  );
+
   const wordCount = useMemo(() => form.body.trim().split(/\s+/).filter(Boolean).length, [form.body]);
   const readTime = Math.max(1, Math.ceil(wordCount / 220));
   const publishVisibilityReady = form.visibility !== "private";
@@ -241,6 +293,11 @@ export function PublishFlow() {
 
       setDocumentId(response.document.id);
       setCurrentVersion(response.document.version ?? currentVersion);
+      setCurrentDocumentStatus(response.document.status ?? currentDocumentStatus);
+      setCurrentDocumentPublishedAt(response.document.published_at ?? currentDocumentPublishedAt);
+      setCurrentDocumentUpdatedAt(response.document.updated_at ?? currentDocumentUpdatedAt);
+      setCurrentDocumentProvenanceType(response.document.provenance_type ?? currentDocumentProvenanceType);
+      setCurrentDocumentSourceLabel(response.document.source_label ?? currentDocumentSourceLabel);
       setForm((current) => ({
         ...current,
         title: response.document.title,
@@ -435,6 +492,7 @@ export function PublishFlow() {
               <section style={panel}>
                 <SectionTitle title="Version History" />
                 <div style={helperText}>{documentVersionSummaryLabel(currentVersion, versions)}</div>
+                {versionCompare ? <VersionCompareReadback compare={versionCompare} /> : null}
                 {versions.length > 0 ? (
                   <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
                     {versions.slice(0, 4).map((version) => (
@@ -533,6 +591,35 @@ function normalizeVisibilityForForm(value: string): DocumentForm["visibility"] {
 
 function SectionTitle({ title }: { title: string }) {
   return <h2 style={{ margin: "0 0 12px", color: "#1f2529", fontSize: 16 }}>{title}</h2>;
+}
+
+function VersionCompareReadback({ compare }: { compare: DocumentVersionCompareReadback }) {
+  return (
+    <div style={versionComparePanel}>
+      <div style={versionCompareHeader}>
+        <strong>{compare.priorVersionLabel ? `${compare.currentVersionLabel} vs ${compare.priorVersionLabel}` : compare.currentVersionLabel}</strong>
+        <span>{compare.status === "ready" ? "Metadata compare" : "No prior version"}</span>
+      </div>
+      <p style={versionCompareSummary}>{compare.summary}</p>
+      {compare.rows.length > 0 && (
+        <div style={versionCompareRows}>
+          {compare.rows.map((row) => (
+            <div key={row.id} style={versionCompareRow(row.state)}>
+              <div style={versionCompareRowHeader}>
+                <span>{row.label}</span>
+                <strong>{row.state === "changed" ? "Changed" : "Unchanged"}</strong>
+              </div>
+              <div style={versionCompareValues}>
+                <span>Current: {row.currentValue}</span>
+                <span>Prior: {row.priorValue}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={versionCompareBoundary}>{compare.boundary}</div>
+    </div>
+  );
 }
 
 const pageShell = {
@@ -809,6 +896,68 @@ const versionRow = {
   padding: 9,
   color: "#1f2529",
   fontSize: 13,
+};
+
+const versionComparePanel = {
+  border: "1px solid #d8d3c8",
+  borderRadius: 8,
+  background: "#f8f7f4",
+  padding: 10,
+  marginTop: 12,
+};
+
+const versionCompareHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap" as const,
+  color: "#1f2529",
+  fontSize: 12,
+};
+
+const versionCompareSummary = {
+  margin: "7px 0 0",
+  color: "#565f67",
+  fontSize: 12,
+  lineHeight: 1.45,
+};
+
+const versionCompareRows = {
+  display: "grid",
+  gap: 7,
+  marginTop: 10,
+};
+
+function versionCompareRow(state: "changed" | "unchanged") {
+  return {
+    border: `1px solid ${state === "changed" ? "rgba(83, 74, 183, 0.24)" : "#e4dfd4"}`,
+    borderRadius: 7,
+    background: state === "changed" ? "#eeedfe" : "#ffffff",
+    padding: 8,
+  };
+}
+
+const versionCompareRowHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  color: "#1f2529",
+  fontSize: 12,
+};
+
+const versionCompareValues = {
+  display: "grid",
+  gap: 3,
+  marginTop: 5,
+  color: "#565f67",
+  fontSize: 12,
+};
+
+const versionCompareBoundary = {
+  marginTop: 10,
+  color: "#687078",
+  fontSize: 11,
+  lineHeight: 1.45,
 };
 
 const disabledMiniButton = {

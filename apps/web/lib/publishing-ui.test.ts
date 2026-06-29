@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   approvalForDocument,
   canRetractPublishedDocument,
   documentEditHref,
   documentPublicVersionLabel,
+  documentVersionCompareReadback,
   documentTrustReadback,
   documentTypeAuthoringIntent,
   documentVersionSummaryLabel,
@@ -140,6 +142,132 @@ test("publishing helpers summarize document version history", () => {
     documentVersionSummaryLabel(null, [{ versionNumber: 1 }]),
     "Current version v1; 1 prior version saved from v1 to v1.",
   );
+});
+
+test("publishing helpers compare current and prior version metadata only", () => {
+  const compare = documentVersionCompareReadback({
+    current: {
+      title: "Current Field Log",
+      slug: "current-field-log",
+      document_type: "field_log",
+      status: "published",
+      visibility: "public",
+      comments_enabled: true,
+      space_id: "space-private-id",
+      persona_id: null,
+      published_at: "2026-06-27T12:00:00.000Z",
+      updated_at: "2026-06-28T12:00:00.000Z",
+      provenance_type: "archive_import",
+      source_label: "source_id=123e4567-e89b-12d3-a456-426614174000 ghp_secret123456",
+      version: 4,
+    },
+    versions: [{
+      id: "version-row-secret-id",
+      versionNumber: 3,
+      title: "Prior Field Log token=abc123",
+      slug: "prior-field-log",
+      documentType: "essay",
+      status: "draft",
+      visibility: "private",
+      commentsEnabled: false,
+      spaceId: null,
+      personaId: "persona-private-id",
+      publishedAt: null,
+      provenanceType: "archive_import",
+      sourceLabel: "source_id=123e4567-e89b-12d3-a456-426614174000 ghp_secret123456",
+      capturedAt: "2026-06-27T12:00:00.000Z",
+      body: "prior private body should not be in compare",
+      ownerUserId: "owner-private-id",
+      discussionThreadId: "thread-private-id",
+    } as any],
+  });
+
+  assert.equal(compare.status, "ready");
+  assert.equal(compare.currentVersionLabel, "Current v4");
+  assert.equal(compare.priorVersionLabel, "Prior v3");
+  assert.match(compare.summary, /metadata fields changed since prior v3/);
+  assert.equal(compare.rows.find((row) => row.id === "title")?.state, "changed");
+  assert.equal(compare.rows.find((row) => row.id === "comments")?.currentValue, "On");
+  assert.equal(compare.rows.find((row) => row.id === "comments")?.priorValue, "Off");
+  assert.equal(compare.rows.find((row) => row.id === "space")?.currentValue, "Space selected");
+  assert.equal(compare.rows.find((row) => row.id === "persona")?.priorValue, "Persona linked");
+  assert.match(compare.rows.find((row) => row.id === "provenance")?.currentValue ?? "", /source_id=\[redacted\]/);
+  assert.match(compare.boundary, /Prior bodies, private source rows, raw IDs/);
+
+  const serialized = JSON.stringify(compare);
+  assert.doesNotMatch(serialized, /prior private body|version-row-secret-id|owner-private-id|thread-private-id|persona-private-id|space-private-id/);
+  assert.doesNotMatch(serialized, /123e4567|ghp_secret|token=abc123/);
+});
+
+test("publishing helpers handle no-prior and unchanged version metadata honestly", () => {
+  const noPrior = documentVersionCompareReadback({
+    current: {
+      title: "Only Draft",
+      slug: "only-draft",
+      document_type: "essay",
+      status: "draft",
+      visibility: "private",
+      comments_enabled: false,
+      space_id: null,
+      persona_id: null,
+      published_at: null,
+      updated_at: null,
+      provenance_type: "user_authored",
+      source_label: null,
+      version: 1,
+    },
+    versions: [],
+  });
+  assert.equal(noPrior.status, "no-prior-version");
+  assert.equal(noPrior.rows.length, 0);
+  assert.match(noPrior.summary, /No prior owner-only version/);
+
+  const unchanged = documentVersionCompareReadback({
+    current: {
+      title: "Stable Draft",
+      slug: "stable-draft",
+      document_type: "essay",
+      status: "draft",
+      visibility: "private",
+      comments_enabled: false,
+      space_id: null,
+      persona_id: null,
+      published_at: null,
+      updated_at: null,
+      provenance_type: "user_authored",
+      source_label: null,
+      version: 2,
+    },
+    versions: [{
+      id: "version-1",
+      versionNumber: 1,
+      title: "Stable Draft",
+      slug: "stable-draft",
+      documentType: "essay",
+      status: "draft",
+      visibility: "private",
+      commentsEnabled: false,
+      spaceId: null,
+      personaId: null,
+      publishedAt: null,
+      provenanceType: "user_authored",
+      sourceLabel: null,
+      capturedAt: null,
+    }],
+  });
+  assert.equal(unchanged.rows.find((row) => row.id === "title")?.state, "unchanged");
+  assert.equal(unchanged.rows.find((row) => row.id === "slug")?.state, "unchanged");
+  assert.equal(unchanged.rows.find((row) => row.id === "visibility")?.state, "unchanged");
+  assert.equal(unchanged.rows.find((row) => row.id === "capturedAt")?.state, "changed");
+});
+
+test("publishing version compare is wired into Studio publish without mutation scope", () => {
+  const source = readFileSync("apps/web/components/studio/publish-flow.tsx", "utf8");
+
+  assert.match(source, /documentVersionCompareReadback/);
+  assert.match(source, /VersionCompareReadback/);
+  assert.match(source, /Metadata compare/);
+  assert.doesNotMatch(source, /versions\/compare|restoreVersion|revertVersion|apiPost<.*versions|apiPatch<.*versions/i);
 });
 
 test("publishing helpers describe Station-native authoring intent and readiness", () => {
