@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR467 Global Archive Source Intake
+
+DAEDALUS implemented PR467 on 2026-06-29:
+`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/studio/archive` can create pasted private archive sources for a selected
+  owned persona through existing authenticated API contracts;
+- the owner-wide archive overview refreshes after success without a page reload;
+- the empty/thin Global Archive state now has a real on-page next action;
+- source rows still link back to persona Archive review routes;
+- failure copy does not echo pasted source text;
+- file upload remains on persona Archive routes;
+- no API route, schema, auth/session, billing, provider/model, Redis,
+  Cloudflare, worker, connector, embedding/reindex, public memory, or broad UI
+  reskin work changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 144 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+
+Residual risk: no hosted browser import rehearsal was run in this DAEDALUS pass.
+ARGUS should decide whether local code/test review is enough or whether a hosted
+owner-flow confirmation should follow.
+
 ## PR466 Hosted Post-UI Import Regression Rehearsal
 
 ARIADNE completed PR466 on 2026-06-29:

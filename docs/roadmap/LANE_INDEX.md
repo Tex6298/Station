@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR467 | Global Archive Source Intake | DAEDALUS / A2 | Open; implementation | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_DAEDALUS.md` |
+| PR467 | Global Archive Source Intake | ARGUS / A3 | Ready for review | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR467 implementation | Global Archive Source Intake | DAEDALUS -> ARGUS | Ready for review; `/studio/archive` can create pasted private archive sources via existing owner-scoped import contracts | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md` |
 | PR467 opening | Global Archive Source Intake | MIMIR -> DAEDALUS | Open; implement owner-wide source intake from Global Archive, then wake ARGUS | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_DAEDALUS.md` |
 | PR466 closeout | Hosted post-UI import regression closeout | MIMIR -> ARIADNE -> MIMIR | Closed pass; no new lane opened without fresh evidence | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_CLOSEOUT.md` |
 | PR466 rehearsal | Hosted post-UI import regression rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; hosted public and owner route regression is clean | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md` |

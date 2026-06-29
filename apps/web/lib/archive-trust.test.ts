@@ -7,6 +7,10 @@ import {
   archiveSearchReadbackCopy,
   archiveSearchTypeParam,
   archiveSearchUsesBackend,
+  globalArchiveIntakeCanSubmit,
+  globalArchiveIntakeErrorMessage,
+  globalArchiveIntakePayload,
+  globalArchiveIntakeSuccessMessage,
   globalArchiveTrustBoundaryRows,
 } from "./archive-search";
 import {
@@ -208,7 +212,7 @@ test("archive search readback groups owner-only results honestly", () => {
   );
   assert.match(
     archiveSearchReadbackCopy({ filter: "All", query: "", sort: "date" }, 3).body,
-    /persona Archive tabs/,
+    /Global Archive intake/,
   );
 });
 
@@ -222,13 +226,46 @@ test("global archive boundary rows separate archive, export, and storage surface
     "export-workspace",
     "storage-quota",
   ]);
-  assert.equal(rows.find((row) => row.id === "global-archive")?.href, "#archive-search-input");
+  assert.equal(rows.find((row) => row.id === "global-archive")?.href, "#global-archive-source-intake");
   assert.match(rendered, /owner-only material/);
   assert.match(rendered, /source intake/);
+  assert.match(rendered, /without publishing the source/);
   assert.match(rendered, /portable bundle readback/);
   assert.match(rendered, /server-reported storage usage/);
   assert.match(rendered, /does not create public download URLs/);
   assert.doesNotMatch(rendered, /full original-file backup|global managed backup|creates public download/i);
+});
+
+test("global archive intake helpers keep payloads narrow and failure copy private", () => {
+  const payload = globalArchiveIntakePayload({
+    personaId: "11111111-1111-4111-8111-111111111111",
+    sourceName: "  Field notes  ",
+    content: "private pasted source body with token=abc123",
+    relevanceWeight: 1.75,
+  });
+
+  assert.deepEqual(payload, {
+    personaId: "11111111-1111-4111-8111-111111111111",
+    sourceName: "Field notes",
+    content: "private pasted source body with token=abc123",
+    relevanceWeight: 1.75,
+  });
+  assert.equal(globalArchiveIntakePayload({ ...payload, sourceName: " " }).sourceName, "pasted-archive");
+  assert.equal(globalArchiveIntakeCanSubmit(payload), true);
+  assert.equal(globalArchiveIntakeCanSubmit({ ...payload, content: "   " }), false);
+  assert.equal(globalArchiveIntakeCanSubmit(payload, true), false);
+
+  const privateTextError = new Error("private pasted source body with token=abc123");
+  const quotaError = new Error("Storage quota exceeded for token=abc123 private pasted source body");
+  const personaError = new Error("Persona not found.");
+  assert.doesNotMatch(globalArchiveIntakeErrorMessage(privateTextError), /private pasted source|token=abc123/i);
+  assert.match(globalArchiveIntakeErrorMessage(quotaError), /storage or import quota/i);
+  assert.doesNotMatch(globalArchiveIntakeErrorMessage(quotaError), /token=abc123|private pasted source/i);
+  assert.match(globalArchiveIntakeErrorMessage(personaError), /owned personas/);
+  assert.match(
+    globalArchiveIntakeSuccessMessage("Field notes", "Harbor"),
+    /private archive material for Harbor/,
+  );
 });
 
 test("archive source narrative explains import safety and visibility", () => {

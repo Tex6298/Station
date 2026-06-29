@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
 import {
   ARCHIVE_SEARCH_FILTERS,
   archiveSearchGroupCounts,
@@ -10,6 +10,10 @@ import {
   archiveSearchPath,
   archiveSearchReadbackCopy,
   archiveSearchUsesBackend,
+  globalArchiveIntakeCanSubmit,
+  globalArchiveIntakeErrorMessage,
+  globalArchiveIntakePayload,
+  globalArchiveIntakeSuccessMessage,
   globalArchiveTrustBoundaryRows,
   type ArchiveSearchGroupRow,
   type GlobalArchiveTrustBoundaryRow,
@@ -45,6 +49,37 @@ type ArchiveResponse = {
   warnings?: string[];
 };
 
+type PersonaOption = {
+  id: string;
+  name: string;
+  shortDescription?: string | null;
+  visibility?: string | null;
+};
+
+type ImportJob = {
+  id: string;
+  kind: string;
+  status: string;
+  source_name: string;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type GlobalArchiveIntakeForm = {
+  personaId: string;
+  sourceName: string;
+  content: string;
+  relevanceWeight: number;
+};
+
+const defaultIntakeForm: GlobalArchiveIntakeForm = {
+  personaId: "",
+  sourceName: "",
+  content: "",
+  relevanceWeight: 1.5,
+};
+
 export function ArchiveLibrary() {
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
@@ -56,6 +91,29 @@ export function ArchiveLibrary() {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [signedIn, setSignedIn] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [personas, setPersonas] = useState<PersonaOption[]>([]);
+  const [intakeForm, setIntakeForm] = useState<GlobalArchiveIntakeForm>(defaultIntakeForm);
+  const [intakeSubmitting, setIntakeSubmitting] = useState(false);
+  const [intakeError, setIntakeError] = useState<string | null>(null);
+  const [intakeNotice, setIntakeNotice] = useState<string | null>(null);
+  const searchInput = useMemo(() => ({ filter, query, sort }), [filter, query, sort]);
+
+  const applyArchiveResponse = useCallback((data: ArchiveResponse, input: { filter: string; query: string; sort: string }) => {
+    if (!archiveSearchUsesBackend(input)) {
+      setSummaryItems(data.items ?? []);
+    }
+    setItems(data.items ?? []);
+    setWarnings(data.warnings ?? []);
+  }, []);
+
+  const refreshArchive = useCallback(async (
+    sessionToken: string,
+    input: { filter: string; query: string; sort: string },
+  ) => {
+    const path = archiveSearchPath(input);
+    const data = await apiGet<ArchiveResponse>(path, sessionToken);
+    applyArchiveResponse(data, input);
+  }, [applyArchiveResponse]);
 
   useEffect(() => {
     getSession().then((session) => {
@@ -72,18 +130,43 @@ export function ArchiveLibrary() {
 
   useEffect(() => {
     if (!accessToken) return;
+    const sessionToken = accessToken;
+
+    let cancelled = false;
+    async function loadPersonas() {
+      try {
+        const data = await apiGet<{ personas: PersonaOption[] }>("/personas", sessionToken);
+        if (cancelled) return;
+        const nextPersonas = data.personas ?? [];
+        setPersonas(nextPersonas);
+        setIntakeForm((current) => {
+          if (current.personaId && nextPersonas.some((persona) => persona.id === current.personaId)) {
+            return current;
+          }
+          return { ...current, personaId: nextPersonas[0]?.id ?? "" };
+        });
+      } catch {
+        if (!cancelled) {
+          setIntakeError("Could not load persona choices. Existing archive material remains owner-only and safe.");
+        }
+      }
+    }
+
+    loadPersonas();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    const sessionToken = accessToken;
 
     const handle = window.setTimeout(async () => {
       try {
         setLoading(true);
         setError(null);
-        const path = archiveSearchPath({ filter, query, sort });
-        const data = await apiGet<ArchiveResponse>(path, accessToken);
-        if (!archiveSearchUsesBackend({ filter, query, sort })) {
-          setSummaryItems(data.items ?? []);
-        }
-        setItems(data.items ?? []);
-        setWarnings(data.warnings ?? []);
+        await refreshArchive(sessionToken, searchInput);
       } catch {
         setError("Could not load Global Archive. Existing archive material remains owner-only and safe; try again or check your session.");
       } finally {
@@ -92,7 +175,44 @@ export function ArchiveLibrary() {
     }, 250);
 
     return () => window.clearTimeout(handle);
-  }, [accessToken, filter, query, sort]);
+  }, [accessToken, refreshArchive, searchInput]);
+
+  async function importGlobalSource(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!accessToken || !globalArchiveIntakeCanSubmit(intakeForm, intakeSubmitting)) return;
+
+    const selectedPersona = personas.find((persona) => persona.id === intakeForm.personaId);
+    setIntakeSubmitting(true);
+    setIntakeError(null);
+    setIntakeNotice(null);
+    try {
+      const payload = globalArchiveIntakePayload(intakeForm);
+      const response = await apiPost<{ job: ImportJob; chunksCreated: number }>(
+        "/imports/chat",
+        payload,
+        accessToken,
+      );
+      const overviewInput = { filter: "All", query: "", sort: "date" };
+      setFilter(overviewInput.filter);
+      setQuery(overviewInput.query);
+      setSort(overviewInput.sort);
+      await refreshArchive(accessToken, overviewInput);
+      setIntakeForm((current) => ({
+        ...defaultIntakeForm,
+        personaId: current.personaId,
+      }));
+      setIntakeNotice(globalArchiveIntakeSuccessMessage(response.job.source_name ?? payload.sourceName, selectedPersona?.name));
+    } catch (importError) {
+      setIntakeError(globalArchiveIntakeErrorMessage(importError));
+      try {
+        await refreshArchive(accessToken, { filter: "All", query: "", sort: "date" });
+      } catch {
+        // Keep the import failure visible if the follow-up overview refresh also fails.
+      }
+    } finally {
+      setIntakeSubmitting(false);
+    }
+  }
 
   const visibleItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -101,12 +221,13 @@ export function ArchiveLibrary() {
       return Date.parse(b.date ?? "") - Date.parse(a.date ?? "");
     });
   }, [items, sort]);
-  const searchInput = useMemo(() => ({ filter, query, sort }), [filter, query, sort]);
   const searchMode = archiveSearchModeLabel(searchInput);
   const searchReadback = archiveSearchReadbackCopy(searchInput, visibleItems.length, warnings.length);
   const sourceGroups = useMemo(() => archiveSearchGroupCounts(visibleItems, "type"), [visibleItems]);
   const statusGroups = useMemo(() => archiveSearchGroupCounts(visibleItems, "status"), [visibleItems]);
   const personaGroups = useMemo(() => archiveSearchGroupCounts(visibleItems, "persona"), [visibleItems]);
+  const selectedPersona = personas.find((persona) => persona.id === intakeForm.personaId);
+  const canSubmitIntake = globalArchiveIntakeCanSubmit(intakeForm, intakeSubmitting);
 
   const summarySource = summaryItems.length > 0 ? summaryItems : items;
   const failedCount = summarySource.filter((item) => item.status === "failed").length;
@@ -149,6 +270,20 @@ export function ArchiveLibrary() {
             <p style={{ margin: 0 }}>{sourceNarrative.visibility}</p>
           </div>
         </section>
+
+        {signedIn ? (
+          <GlobalArchiveSourceIntake
+            form={intakeForm}
+            personas={personas}
+            selectedPersona={selectedPersona}
+            submitting={intakeSubmitting}
+            canSubmit={canSubmitIntake}
+            notice={intakeNotice}
+            error={intakeError}
+            onSubmit={importGlobalSource}
+            onChange={setIntakeForm}
+          />
+        ) : null}
 
         <GlobalArchiveBoundaryPanel rows={boundaryRows} />
 
@@ -250,7 +385,7 @@ export function ArchiveLibrary() {
 
               {visibleItems.length === 0 ? (
                 <div style={{ ...panel, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
-                  No Global Archive items match this view. Existing material remains private and safe; broaden the search, add source material from a persona Archive tab, or use Export Workspace for package readback.
+                  No Global Archive items match this view. Existing material remains private and safe; broaden the search, add pasted source material from the Global Archive intake panel, or use Export Workspace for package readback.
                 </div>
               ) : null}
             </section>
@@ -261,13 +396,126 @@ export function ArchiveLibrary() {
   );
 }
 
+function GlobalArchiveSourceIntake({
+  form,
+  personas,
+  selectedPersona,
+  submitting,
+  canSubmit,
+  notice,
+  error,
+  onSubmit,
+  onChange,
+}: {
+  form: GlobalArchiveIntakeForm;
+  personas: PersonaOption[];
+  selectedPersona?: PersonaOption;
+  submitting: boolean;
+  canSubmit: boolean;
+  notice: string | null;
+  error: string | null;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onChange: React.Dispatch<React.SetStateAction<GlobalArchiveIntakeForm>>;
+}) {
+  return (
+    <section id="global-archive-source-intake" style={{ ...panel, marginBottom: 18 }} aria-label="Global Archive source intake">
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 10 }}>
+        <div>
+          <div style={{ color: "var(--station-page-accent)", fontSize: 11, textTransform: "uppercase", letterSpacing: 0, fontWeight: 800 }}>
+            Private source intake
+          </div>
+          <h2 style={{ ...sectionTitle, margin: "4px 0 0" }}>Add pasted source to Global Archive</h2>
+        </div>
+        <span style={ownerOnlyPill}>Owner-only</span>
+      </div>
+      <p style={{ margin: "0 0 12px", color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
+        Choose one of your personas and paste notes, chat logs, letters, or research material. Station creates a private import job through the existing archive pipeline; nothing is published from this form.
+      </p>
+      {notice ? <div style={successNotice}>{notice}</div> : null}
+      {error ? <div style={errorNotice}>{error}</div> : null}
+      {personas.length === 0 ? (
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center", color: "var(--station-page-muted)", fontSize: 13 }}>
+          <span>Create a persona before adding owner-wide source material.</span>
+          <Link href="/studio/new" style={miniLink}>New persona</Link>
+        </div>
+      ) : (
+        <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 10 }}>
+            <label style={fieldShell}>
+              <span style={fieldLabel}>Persona</span>
+              <select
+                value={form.personaId}
+                onChange={(event) => onChange((current) => ({ ...current, personaId: event.target.value }))}
+                style={input}
+              >
+                {personas.map((persona) => (
+                  <option key={persona.id} value={persona.id}>{persona.name}</option>
+                ))}
+              </select>
+            </label>
+            <label style={fieldShell}>
+              <span style={fieldLabel}>Source name</span>
+              <input
+                value={form.sourceName}
+                onChange={(event) => onChange((current) => ({ ...current, sourceName: event.target.value }))}
+                placeholder="Field notes, letters, chat export..."
+                maxLength={200}
+                style={input}
+              />
+            </label>
+          </div>
+          <label style={fieldShell}>
+            <span style={fieldLabel}>Pasted source material</span>
+            <textarea
+              value={form.content}
+              onChange={(event) => onChange((current) => ({ ...current, content: event.target.value }))}
+              placeholder="Paste private source material for this persona."
+              required
+              style={{ ...input, minHeight: 170, resize: "vertical" as const, lineHeight: 1.5 }}
+            />
+          </label>
+          <label style={fieldShell}>
+            <span style={fieldLabel}>Default memory weight {form.relevanceWeight.toFixed(2)}</span>
+            <input
+              type="range"
+              min={0.1}
+              max={5}
+              step={0.05}
+              value={form.relevanceWeight}
+              onChange={(event) => onChange((current) => ({ ...current, relevanceWeight: Number(event.target.value) }))}
+            />
+          </label>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              style={{
+                ...primaryButton,
+                opacity: canSubmit ? 1 : 0.58,
+                cursor: canSubmit ? "pointer" : "not-allowed",
+              }}
+            >
+              {submitting ? "Importing..." : "Import pasted source"}
+            </button>
+            {selectedPersona ? (
+              <Link href={`/studio/personas/${selectedPersona.id}/files`} style={miniLink}>
+                Open persona Archive
+              </Link>
+            ) : null}
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}
+
 function GlobalArchiveBoundaryPanel({ rows }: { rows: GlobalArchiveTrustBoundaryRow[] }) {
   return (
     <section style={{ marginBottom: 18 }} aria-label="Global Archive boundaries">
       <div style={{ maxWidth: 760, marginBottom: 10 }}>
         <h2 style={{ ...sectionTitle, marginBottom: 6 }}>Archive route map</h2>
         <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.6 }}>
-          Global Archive is the live owner-wide search surface. Persona Archive tabs handle source intake, Export Workspace handles portable package readback, and Settings reports storage usage.
+          Global Archive handles owner-wide pasted source intake and search. Persona Archive tabs still handle file upload and deeper source review, Export Workspace handles portable package readback, and Settings reports storage usage.
         </p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 10 }}>
@@ -438,6 +686,39 @@ const input = {
   color: "var(--station-page-text)",
   padding: "10px 11px",
   fontSize: 13,
+};
+
+const fieldShell = {
+  display: "grid",
+  gap: 6,
+};
+
+const fieldLabel = {
+  color: "var(--station-page-text)",
+  fontSize: 12,
+  fontWeight: 800,
+};
+
+const successNotice = {
+  border: "1px solid rgba(59, 143, 99, 0.35)",
+  borderRadius: 8,
+  background: "#e9f5ee",
+  color: "#25633f",
+  padding: "10px 12px",
+  fontSize: 13,
+  lineHeight: 1.5,
+  marginBottom: 12,
+};
+
+const errorNotice = {
+  border: "1px solid rgba(157, 60, 53, 0.35)",
+  borderRadius: 8,
+  background: "#f8e6e3",
+  color: "var(--station-page-red)",
+  padding: "10px 12px",
+  fontSize: 13,
+  lineHeight: 1.5,
+  marginBottom: 12,
 };
 
 const iconBox = {

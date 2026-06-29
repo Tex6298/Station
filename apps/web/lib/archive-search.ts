@@ -37,19 +37,26 @@ export interface GlobalArchiveTrustBoundaryRow {
   actionLabel: string;
 }
 
+export interface GlobalArchiveIntakeInput {
+  personaId: string;
+  sourceName: string;
+  content: string;
+  relevanceWeight: number;
+}
+
 export function globalArchiveTrustBoundaryRows(): GlobalArchiveTrustBoundaryRow[] {
   return [
     {
       id: "global-archive",
       label: "Global Archive",
-      body: "Search preserved owner-only material across personas, shared sources, archived chats, Memory, Canon-adjacent notes, documents, and Integrity output.",
-      href: "#archive-search-input",
-      actionLabel: "Search owner-only material",
+      body: "Search preserved owner-only material and start pasted source intake for an owned persona without publishing the source.",
+      href: "#global-archive-source-intake",
+      actionLabel: "Add pasted source",
     },
     {
       id: "persona-archive",
       label: "Per-persona Archive",
-      body: "Use persona Archive tabs for source intake, paste/upload import review, failed import readback, and persona-local continuity handoff.",
+      body: "Use persona Archive tabs for file upload, paste/upload import review, failed import readback, and persona-local continuity handoff.",
       href: "/studio",
       actionLabel: "Open persona workbench",
     },
@@ -131,8 +138,8 @@ export function archiveSearchReadbackCopy(input: {
     return {
       title: mode === "search" ? "No private matches" : "No archive items yet",
       body: mode === "search"
-        ? "No owner-only archive items match this view. Existing material remains private and preserved; broaden the search, change filters, or add source material from a persona Archive tab."
-        : "No owner-only archive items are ready for this overview yet. Add source material from a persona Archive tab when there is something worth preserving.",
+        ? "No owner-only archive items match this view. Existing material remains private and preserved; broaden the search, change filters, or add pasted source material from Global Archive intake."
+        : "No owner-only archive items are ready for this overview yet. Add pasted source material from Global Archive intake when there is something worth preserving.",
     };
   }
 
@@ -140,8 +147,44 @@ export function archiveSearchReadbackCopy(input: {
     title: mode === "search" ? "Private search results" : "Private archive overview",
     body: mode === "search"
       ? "These matches come from owner-scoped archive sources only. Result snippets are sanitized readback, not raw private source dumps."
-      : "This overview groups the newest owner-only archive material across stored sources. Use persona Archive tabs for source intake and Export Workspace for portable packages.",
+      : "This overview groups the newest owner-only archive material across stored sources. Use Global Archive intake for pasted sources, persona Archive tabs for file upload and review, and Export Workspace for portable packages.",
   };
+}
+
+export function globalArchiveIntakePayload(input: GlobalArchiveIntakeInput) {
+  return {
+    personaId: input.personaId,
+    sourceName: input.sourceName.trim() || "pasted-archive",
+    content: input.content,
+    relevanceWeight: input.relevanceWeight,
+  };
+}
+
+export function globalArchiveIntakeCanSubmit(input: GlobalArchiveIntakeInput, submitting = false) {
+  return !submitting && Boolean(input.personaId.trim()) && input.content.trim().length > 0;
+}
+
+export function globalArchiveIntakeErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (/persona not found|not authorised|not authorized/.test(message)) {
+    return "Could not create import for that persona. Choose one of your owned personas and try again.";
+  }
+
+  if (/quota|storage|limit/.test(message)) {
+    return "Pasted source import was blocked by storage or import quota. Existing archive material remains owner-only and safe.";
+  }
+
+  if (/too large|maximum|max|500000/.test(message)) {
+    return "Pasted source import was too large. Existing archive material remains owner-only and safe.";
+  }
+
+  return "Pasted source import failed. Existing archive material remains owner-only and safe.";
+}
+
+export function globalArchiveIntakeSuccessMessage(sourceName: string | null | undefined, personaName: string | null | undefined) {
+  const label = sourceName?.trim() || "Pasted source";
+  const persona = personaName?.trim() ? ` for ${personaName.trim()}` : "";
+  return `${label} was saved as private archive material${persona}. Global Archive refreshed; open the source row for persona Archive review.`;
 }
 
 export function archiveSearchGroupCounts(
