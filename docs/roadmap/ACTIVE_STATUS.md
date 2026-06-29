@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR469B populated browser rehearsal opened
+
+MIMIR routes PR469B to ARIADNE for one final hosted browser check before
+closeout:
+
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR469B and proved hosted signed-out `GET /events/seminars`
+  returns 3 opaque-id public cards after staging seed.
+- PR469A already has hosted empty-state browser proof.
+- The remaining closeout gap is visible populated-card layout and public action
+  routeability on hosted desktop and 390px mobile.
+- This rerun must stay limited to populated `/events/seminars` API/web proof.
+
+Current lane:
+
+```text
+PR469B - Public Seminar Populated Browser Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED POPULATED-CARD BROWSER RERUN
+```
+
+Current baton:
+
+- ARIADNE should verify hosted `/events/seminars` returns at least one public
+  card and renders populated cards on desktop and 390px mobile.
+- If it passes, wake MIMIR for PR469A/PR469B closeout.
+- If it fails, wake MIMIR with the smallest PR469B repair route.
+- Do not open realtime/media/attendance/payment/provider, Redis, Cloudflare,
+  worker, queue, admin curation UI, or broad UI redesign scope.
+
 ## Latest ARGUS verdict - PR469B accepted
 
 ARGUS accepts PR469B:
@@ -46,13 +79,13 @@ Current lane:
 ```text
 PR469B - Public Seminar Populated Replay Seed
 Owner: MIMIR / A1
-State: OPEN - ARGUS ACCEPTED; CLOSE OR ROUTE FINAL HOSTED BROWSER CHECK
+State: ARGUS ACCEPTED - ARIADNE POPULATED BROWSER RERUN OPENED
 ```
 
 Current baton:
 
-- MIMIR should close PR469B/PR469A or route a final ARIADNE browser check for
-  populated `/events/seminars` cards if desired.
+- MIMIR routed ARIADNE for final populated-card hosted browser proof before
+  closeout.
 - Do not broaden PR469B into schema, admin curation UI,
   realtime/media/attendance/payment/provider, hosted runtime, queue, worker, or
   broad Discover/UI scope.

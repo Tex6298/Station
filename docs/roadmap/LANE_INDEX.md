@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR469B | Public Seminar Populated Replay Seed | MIMIR / A1 | Open; ARGUS accepted seed and populated hosted API proof; close or route final browser check | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_REVIEW_RESULT.md` |
+| PR469B | Public Seminar Populated Browser Rehearsal | ARIADNE / A4 | Open; hosted populated `/events/seminars` desktop/mobile browser proof before closeout | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR469B browser rehearsal opened | Public Seminar Populated Replay Seed | MIMIR -> ARIADNE | Open; final hosted populated-card desktop/mobile check before closeout | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_ARIADNE.md` |
 | PR469B review | Public Seminar Populated Replay Seed | DAEDALUS -> ARGUS -> MIMIR | Accepted; replay seed creates featured public seminar rows and hosted signed-out `/events/seminars` returns 3 opaque-id public cards | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_REVIEW_RESULT.md` |
 | PR469B implementation | Public Seminar Populated Replay Seed | DAEDALUS -> ARGUS | Ready for review; replay seed creates featured public seminar rows and hosted `/events/seminars` returns 3 opaque-id cards | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_RESULT.md` |
 | PR469B opened | Public Seminar Populated Replay Seed | MIMIR -> DAEDALUS | Open; smallest repair after PR469A hosted rehearsal passed only the empty state | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_DAEDALUS.md` |
