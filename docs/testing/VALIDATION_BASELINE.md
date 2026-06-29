@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR477A Owner Document Migrator Import Preview ARGUS Review
+
+ARGUS accepted PR477A on 2026-06-29:
+`docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- `POST /imports/preview` is authenticated and verifies persona ownership;
+- preview returns format/count/status/no-write fields only and does not return
+  raw parser text, source bodies, snippets, parser metadata dumps, permalinks,
+  URLs, storage paths, signed URLs, SQL/table detail, stack traces, tokens,
+  account ids, or provider payloads;
+- preview performs no import job, persona file, archive source, Memory, Canon,
+  Continuity, document, storage, signed upload URL, queue/worker, or provider
+  write/call;
+- pasted and local file import confirmations require a matching current preview
+  before existing write paths can run;
+- Document Migrator copy remains scoped to pasted/uploaded exports, not live
+  OAuth/API pulls or recurring sync.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/import-preview.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/imports/parsers/import-parsers.test.ts` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/import-review.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check e3dcd4a1c81642a3d10a9a820f3fedbdc70b5eb6 c635fea9b26e7d6bb19281b2e5f7ff402dc24ad1` | Pass | No whitespace errors in the implementation diff. |
+| `git diff --cached --check` | Pass | No staged whitespace errors before ARGUS review docs edits. |
+| Diff-only sensitive/scope scan | Pass | Expected fixture and guardrail terms only; no raw source body, parser text/snippet, URL/permalink, storage path, signed URL, OAuth/API token, app password, admin key, account id, SQL/table output, stack trace, worker, queue, Redis, Cloudflare, provider call, billing, schema change, automatic import, or live connector claim introduced. |
+
 ## PR477A Owner Document Migrator Import Preview
 
 DAEDALUS implemented PR477A on 2026-06-29:

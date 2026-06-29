@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR477A | Owner Document Migrator Import Preview | ARGUS / A3 | Ready for review; DAEDALUS implemented owner-only no-write preview before existing import/upload confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_RESULT.md` |
+| PR477A | Owner Document Migrator Import Preview | MIMIR / A1 | ARGUS accepted; ready for closeout or hosted owner-only proof routing | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR477A review | Owner Document Migrator Import Preview | DAEDALUS -> ARGUS -> MIMIR | Accepted; authenticated owner-only preview is no-write, redacted, and precedes import/upload confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REVIEW_RESULT.md` |
 | PR477A implementation | Owner Document Migrator Import Preview | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only parser readback returns redacted counts/status only and performs no storage/import writes before confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_RESULT.md` |
 | PR477 preflight | Document Migrator Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR477A Owner Document Migrator Import Preview; preview must be owner-only, no-write, redacted, and before explicit import confirmation | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR477 opened | Document Migrator Product Depth Preflight | MIMIR -> ARGUS | Open; decide smallest owner-only Document Migrator depth slice without live external pulls or private-source leakage | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
