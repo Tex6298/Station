@@ -1,5 +1,14 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
+import {
+  importPreviewCanConfirm,
+  importPreviewFailureCopy,
+  importPreviewInputKey,
+  importPreviewNoWriteCopy,
+  importPreviewStatusCopy,
+  type ImportPreviewReadback,
+} from "./import-preview";
 import {
   importReviewCandidateLabel,
   importReviewDestinationLabel,
@@ -77,4 +86,76 @@ test("import review source labels redact private identifiers and secret-shaped v
   assert.doesNotMatch(label, /https:\/\//);
   assert.doesNotMatch(label, /ghp_secret/);
   assert.doesNotMatch(label, /bearer abc123/);
+});
+
+test("import preview helpers require exact preview confirmation and no-write readback", () => {
+  const preview: ImportPreviewReadback = {
+    status: "preview_ready",
+    sourceKind: "file",
+    sourceLabel: "discord.json",
+    format: "discord",
+    formatLabel: "Discord JSON archive",
+    sourceFamily: "community_export",
+    estimatedCharacters: 1234,
+    estimatedLineCount: 2,
+    messageCount: 2,
+    noWritePerformed: true,
+    nextOwnerAction: "Review this summary, then confirm import to write private archive material for this persona.",
+    safety: {
+      rawSourceReturned: false,
+      storageReserved: false,
+      importJobCreated: false,
+      archiveWritten: false,
+      importReviewCreated: false,
+      providerCalls: false,
+    },
+  };
+  const key = importPreviewInputKey({
+    sourceKind: "file",
+    sourceName: "discord.json",
+    fileType: "application/json",
+    size: 400,
+    lastModified: 1000,
+    content: "{\"messages\":[]}",
+  });
+
+  assert.equal(importPreviewCanConfirm(preview, key, key), true);
+  assert.equal(importPreviewCanConfirm(preview, key, `${key}-changed`), false);
+  assert.equal(importPreviewCanConfirm(null, key, key), false);
+  assert.match(importPreviewStatusCopy(preview), /Discord JSON archive previewed/);
+  assert.match(importPreviewStatusCopy(preview), /2 messages/);
+  assert.match(importPreviewNoWriteCopy(null), /Preview first/);
+  assert.match(importPreviewNoWriteCopy(preview), /confirm import/);
+});
+
+test("import preview UI source keeps preview before write endpoints", () => {
+  const page = readFileSync("apps/web/app/studio/personas/[personaId]/files/page.tsx", "utf8");
+
+  assert.match(page, /previewText/);
+  assert.match(page, /previewFile/);
+  assert.match(page, /\/imports\/preview/);
+  assert.match(page, /Confirm import pasted source/);
+  assert.match(page, /Confirm upload file import/);
+  assert.match(page, /importPreviewCanConfirm/);
+  assert.match(page, /file\.text\(\)/);
+  assert.match(page, /upload-url/);
+
+  const previewIndex = page.indexOf("/imports/preview");
+  const uploadIndex = page.indexOf("upload-url");
+  const registerIndex = page.indexOf("/register");
+  assert.equal(previewIndex >= 0 && uploadIndex >= 0 && registerIndex >= 0, true);
+  assert.equal(previewIndex < uploadIndex, true);
+  assert.equal(previewIndex < registerIndex, true);
+  assert.doesNotMatch(page, /connect your|OAuth token|bot token|recurring sync|automatic import/i);
+});
+
+test("import preview failure copy does not echo private source or infrastructure details", () => {
+  assert.equal(
+    importPreviewFailureCopy(new Error("private-source-marker token=abc123 https://example.invalid SQL stack trace")),
+    "Could not preview this source. Existing archive material remains safe.",
+  );
+  assert.match(
+    importPreviewFailureCopy(new Error("Unsupported JSON import format")),
+    /Unsupported JSON import format/,
+  );
 });

@@ -45,6 +45,7 @@ test("document migrator is explicit when a persona is required", () => {
   assert.equal(withoutPersona?.assistantActionLabel, "Ask Assistant to plan archive prep");
   assert.match(withoutPersona?.firstStep ?? "", /Create the private persona first/);
   assert.match(withoutPersona?.truth ?? "", /does not claim live Reddit, Discord, OAuth/);
+  assert.match(withoutPersona?.truth ?? "", /preview, then explicit import/);
 
   const withPersona = onboardingPathCards([
     {
@@ -83,7 +84,7 @@ test("document migrator distinguishes empty archive and import review states", (
   assert.equal(emptyArchive?.route, "/studio/personas/persona-1/files");
   assert.equal(emptyArchive?.actionLabel, "Add first archive source");
   assert.match(emptyArchive?.summary ?? "", /no private archive sources/i);
-  assert.match(emptyArchive?.firstStep ?? "", /add the first owner-only source/i);
+  assert.match(emptyArchive?.firstStep ?? "", /preview the first owner-only source/i);
   assert.match(emptyArchive?.truth ?? "", /does not claim live Reddit, Discord, OAuth/);
 
   const reviewReady = onboardingPathCards(personas, {

@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR477A ready for ARGUS
+
+DAEDALUS implemented the PR477A owner-only Document Migrator preview:
+
+`docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_RESULT.md`
+
+Result:
+
+- Authenticated `POST /imports/preview` verifies persona ownership and returns
+  parser-backed format/count/readback fields only.
+- Preview responses report explicit no-write safety booleans and do not return
+  raw parser text, snippets, metadata dumps, URLs, storage paths, signed URLs,
+  tokens, SQL/table output, stack traces, or provider payloads.
+- Pasted source import now requires a preview of the exact current source before
+  the existing `POST /imports/chat` confirmation button is enabled.
+- Local text/Markdown/JSON file import now reads file text in the browser for
+  preview before any signed upload URL or file registration call is made.
+- Document Migrator and supported-format copy now say preview first, then
+  explicit owner confirmation.
+
+Current lane:
+
+```text
+PR477A - Owner Document Migrator Import Preview
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review owner-only scope, no-write behavior, redacted preview
+  response shape, UI ordering before import/upload confirmation, and live
+  connector/non-scope boundaries.
+- If accepted, ARGUS should wake MIMIR for closeout and ARIADNE hosted proof.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact failing route,
+  output field, UI source, or test expectation.
+
 ## Latest ARGUS preflight - PR477A accepted
 
 ARGUS accepted the first Document Migrator product-depth slice:

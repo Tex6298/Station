@@ -146,7 +146,7 @@ export function onboardingPathCards(personas: PersonaSummary[], state: Onboardin
       statusLabel: persona ? "Alpha live" : "Create a persona first",
       summary: documentMigratorState.summary,
       firstStep: documentMigratorState.firstStep,
-      privacy: "Imported source material is owner-scoped archive material; external OAuth/recurring pulls are not live here.",
+      privacy: "Preview and imported source material stay owner-scoped archive material; external OAuth/recurring pulls are not live here.",
       route: persona ? `/studio/personas/${persona.id}/files` : "/studio/new?path=document-migrator",
       actionLabel: documentMigratorState.actionLabel,
       assistantActionLabel: persona ? "Ask Assistant about archive import" : "Ask Assistant to plan archive prep",
@@ -154,7 +154,7 @@ export function onboardingPathCards(personas: PersonaSummary[], state: Onboardin
         ? documentMigratorState.assistantPrompt
         : "Help me prepare for Document Migrator after I create the private persona.",
       supportingRoutes: ["/studio/archive", "/studio/personas/<persona-id>/files", "Import Review section"],
-      truth: "Supports owner-scoped pasted/uploaded material. It does not claim live Reddit, Discord, OAuth, recurring sync, or external API pulls.",
+      truth: "Supports owner-scoped preview, then explicit import for pasted/uploaded material. It does not claim live Reddit, Discord, OAuth, recurring sync, or external API pulls.",
     },
     {
       id: "api-bridge",
@@ -197,7 +197,7 @@ function documentMigratorReadiness(
   if (archiveSourceCount === 0) {
     return {
       summary: `${persona.name} has no private archive sources detected yet. Start with a pasted source or uploaded file on the Archive tab.`,
-      firstStep: "Open the persona Archive tab and add the first owner-only source; import review appears after Station extracts candidates.",
+      firstStep: "Open the persona Archive tab, preview the first owner-only source, then confirm import; import review appears after Station extracts candidates.",
       actionLabel: "Add first archive source",
       assistantPrompt: `Help me choose a first private archive source for ${persona.name} without using live connectors.`,
     };
@@ -223,7 +223,7 @@ function documentMigratorReadiness(
 
   return {
     summary: `Add pasted or uploaded source material into ${persona.name}'s private archive and review import outcomes.`,
-    firstStep: "Open the persona Archive tab, paste or upload source material, then review import status before using it.",
+    firstStep: "Open the persona Archive tab, preview pasted or uploaded source material, then confirm import and review status before using it.",
     actionLabel: "Open private archive",
     assistantPrompt: `Help me import source material into ${persona.name}'s private archive and review the results.`,
   };

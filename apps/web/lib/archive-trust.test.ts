@@ -303,6 +303,7 @@ test("supported import format rows name file parsers without implying live pulls
     "Legacy role/content JSON",
   ]);
   assert.match(rendered, /pending for owner review/);
+  assert.match(rendered, /Previews?/);
   assert.match(rendered, /Unknown JSON fails safely/);
   assert.match(rendered, /not Reddit OAuth or live subreddit pulling/);
   assert.match(rendered, /not a Discord bot/);

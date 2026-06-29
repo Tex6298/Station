@@ -21,6 +21,10 @@ import {
   assertActiveImportJobQuota,
   quotaErrorResponse,
 } from "../services/operational-quota.service";
+import {
+  buildImportPreview,
+  importPreviewParseErrorBody,
+} from "../services/imports/import-preview";
 
 const chatImportSchema = z.object({
   personaId: z.string().uuid(),
@@ -32,6 +36,14 @@ const chatImportSchema = z.object({
 const chatImportRetrySchema = z.object({
   content: z.string().min(1).max(500000).optional(),
   relevanceWeight: z.number().min(0.1).max(5).optional(),
+});
+
+const importPreviewSchema = z.object({
+  personaId: z.string().uuid(),
+  sourceKind: z.enum(["paste", "file"]).default("paste"),
+  sourceName: z.string().max(200).optional().default("pasted-archive"),
+  fileType: z.string().max(120).nullable().optional(),
+  content: z.string().min(1).max(500000),
 });
 
 const GENERIC_CHAT_IMPORT_SOURCE_NAMES = new Set(["pasted-chat", "pasted-archive"]);
@@ -74,6 +86,38 @@ const archiveSearchQuerySchema = z.object({
 
 export const importsRouter = Router();
 importsRouter.use(requireAuth);
+
+// -- Preview local pasted/file source without writing import state -------------
+importsRouter.post("/preview", async (req, res) => {
+  const parsed = importPreviewSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+
+  const { data: persona } = await sb
+    .from("personas")
+    .select("id, owner_user_id")
+    .eq("id", parsed.data.personaId)
+    .single();
+
+  if (!persona || persona.owner_user_id !== userId) {
+    return res.status(404).json({ error: "Persona not found." });
+  }
+
+  try {
+    const preview = buildImportPreview({
+      sourceKind: parsed.data.sourceKind,
+      sourceName: parsed.data.sourceName,
+      fileType: parsed.data.fileType ?? null,
+      rawText: parsed.data.content,
+    });
+
+    return res.json({ preview });
+  } catch (error) {
+    return res.status(400).json(importPreviewParseErrorBody(error));
+  }
+});
 
 // -- Import raw text / pasted chat ---------------------------------------------
 importsRouter.post("/chat", async (req, res) => {

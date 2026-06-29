@@ -37,6 +37,14 @@ import {
   PersonaWorkspaceHeader,
   type PersonaWithContinuity,
 } from "@/components/studio/persona-workspace";
+import {
+  importPreviewCanConfirm,
+  importPreviewFailureCopy,
+  importPreviewInputKey,
+  importPreviewNoWriteCopy,
+  importPreviewStatusCopy,
+  type ImportPreviewReadback,
+} from "@/lib/import-preview";
 
 interface PersonaFile {
   id: string;
@@ -73,6 +81,10 @@ interface UploadUrlResponse {
   token: string;
 }
 
+interface ImportPreviewResponse {
+  preview: ImportPreviewReadback;
+}
+
 export default function PersonaFilesPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [token, setToken] = useState<string | null>(null);
@@ -86,7 +98,15 @@ export default function PersonaFilesPage() {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [previewingText, setPreviewingText] = useState(false);
+  const [textPreview, setTextPreview] = useState<ImportPreviewReadback | null>(null);
+  const [textPreviewKey, setTextPreviewKey] = useState<string | null>(null);
+  const [textPreviewError, setTextPreviewError] = useState<string | null>(null);
   const [fileImporting, setFileImporting] = useState(false);
+  const [previewingFile, setPreviewingFile] = useState(false);
+  const [filePreview, setFilePreview] = useState<ImportPreviewReadback | null>(null);
+  const [filePreviewKey, setFilePreviewKey] = useState<string | null>(null);
+  const [filePreviewError, setFilePreviewError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileImportNotice, setFileImportNotice] = useState<string | null>(null);
 
@@ -151,9 +171,44 @@ export default function PersonaFilesPage() {
     };
   }, [applyArchiveState, fetchArchiveState, personaId]);
 
+  async function previewText() {
+    if (!token || !persona || !form.content.trim()) return;
+    setPreviewingText(true);
+    setTextPreviewError(null);
+    setError(null);
+    setFileImportNotice(null);
+    const previewKey = textImportPreviewKey(form);
+
+    try {
+      const response = await apiPost<ImportPreviewResponse>(
+        "/imports/preview",
+        {
+          personaId: persona.id,
+          sourceKind: "paste",
+          sourceName: form.sourceName.trim() || "pasted-archive",
+          fileType: "text/plain",
+          content: form.content,
+        },
+        token
+      );
+      setTextPreview(response.preview);
+      setTextPreviewKey(previewKey);
+    } catch (e) {
+      setTextPreview(null);
+      setTextPreviewKey(null);
+      setTextPreviewError(importPreviewFailureCopy(e));
+    } finally {
+      setPreviewingText(false);
+    }
+  }
+
   async function importText(e: React.FormEvent) {
     e.preventDefault();
     if (!token || !persona || !form.content.trim()) return;
+    if (!importPreviewCanConfirm(textPreview, textPreviewKey, textImportPreviewKey(form))) {
+      setError("Preview this exact pasted source before confirming import.");
+      return;
+    }
     setImporting(true);
     setError(null);
     setFileImportNotice(null);
@@ -170,6 +225,9 @@ export default function PersonaFilesPage() {
       );
       setJobs((current) => [{ ...response.job, status: "completed" }, ...current]);
       setForm({ sourceName: "", content: "", relevanceWeight: 1.5 });
+      setTextPreview(null);
+      setTextPreviewKey(null);
+      setTextPreviewError(null);
       await refreshArchiveState(token, { includeExports: false });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not import archive text.");
@@ -184,6 +242,47 @@ export default function PersonaFilesPage() {
     }
   }
 
+  async function previewFile() {
+    if (!token || !persona) return;
+
+    const selection = archiveFileImportSelection(selectedFile);
+    if (!selection.ok) {
+      setFilePreviewError(selection.message);
+      setFilePreview(null);
+      setFilePreviewKey(null);
+      return;
+    }
+
+    const file = selectedFile!;
+    setPreviewingFile(true);
+    setFilePreviewError(null);
+    setError(null);
+    setFileImportNotice(null);
+
+    try {
+      const content = await file.text();
+      const response = await apiPost<ImportPreviewResponse>(
+        "/imports/preview",
+        {
+          personaId: persona.id,
+          sourceKind: "file",
+          sourceName: file.name,
+          fileType: file.type || "application/octet-stream",
+          content,
+        },
+        token
+      );
+      setFilePreview(response.preview);
+      setFilePreviewKey(fileImportPreviewKey(file));
+    } catch (e) {
+      setFilePreview(null);
+      setFilePreviewKey(null);
+      setFilePreviewError(importPreviewFailureCopy(e));
+    } finally {
+      setPreviewingFile(false);
+    }
+  }
+
   async function importFile(e: React.FormEvent) {
     e.preventDefault();
     if (!token || !persona) return;
@@ -195,6 +294,11 @@ export default function PersonaFilesPage() {
     }
 
     const file = selectedFile!;
+    if (!importPreviewCanConfirm(filePreview, filePreviewKey, fileImportPreviewKey(file))) {
+      setError("Preview this exact file before confirming upload.");
+      return;
+    }
+
     setFileImporting(true);
     setError(null);
     setFileImportNotice(null);
@@ -230,6 +334,9 @@ export default function PersonaFilesPage() {
       );
 
       setSelectedFile(null);
+      setFilePreview(null);
+      setFilePreviewKey(null);
+      setFilePreviewError(null);
       setFileInputKey((current) => current + 1);
       setFileImportNotice("File import queued for private archive processing.");
       await refreshArchiveState(token, { includeExports: false });
@@ -263,6 +370,10 @@ export default function PersonaFilesPage() {
   const scopeRows = archiveTrustScopeRows(files, jobs, persona.continuity);
   const stateRows = archiveTrustStateRows(files, jobs);
   const supportedImportRows = supportedImportFormatRows();
+  const currentTextPreviewKey = textImportPreviewKey(form);
+  const canConfirmTextImport = importPreviewCanConfirm(textPreview, textPreviewKey, currentTextPreviewKey);
+  const currentFilePreviewKey = fileImportPreviewKey(selectedFile);
+  const canConfirmFileImport = importPreviewCanConfirm(filePreview, filePreviewKey, currentFilePreviewKey);
 
   return (
     <main className="container studio-workspace">
@@ -315,17 +426,24 @@ export default function PersonaFilesPage() {
               <h2>Paste source material</h2>
             </div>
             <p className="archive-trust-copy">
-              This creates a private import job for this persona. If import fails, Station keeps the error visible and leaves existing archive material untouched.
+              Preview the pasted source first. Confirming import remains a separate owner action that creates the private import job.
             </p>
             <input className="input" value={form.sourceName} onChange={(e) => setForm((f) => ({ ...f, sourceName: e.target.value }))} placeholder="Source name" maxLength={200} />
             <textarea className="textarea" value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} placeholder="Paste chat logs, notes, letters, or research material." style={{ minHeight: 260 }} required />
+            <ImportPreviewCard preview={textPreview} error={textPreviewError} currentSourceReady={canConfirmTextImport} />
             <label className="studio-range-field">
               <span>Default memory weight {form.relevanceWeight.toFixed(2)}</span>
               <input type="range" min={0.1} max={5} step={0.05} value={form.relevanceWeight} onChange={(e) => setForm((f) => ({ ...f, relevanceWeight: Number(e.target.value) }))} />
             </label>
-            <button className="button primary" type="submit" disabled={importing}>
-              {importing ? "Importing..." : "Import pasted source"}
-            </button>
+            <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+              <button className="button" type="button" disabled={previewingText || !form.content.trim()} onClick={previewText}>
+                {previewingText ? "Previewing..." : "Preview pasted source"}
+              </button>
+              <button className="button primary" type="submit" disabled={importing || !canConfirmTextImport}>
+                {importing ? "Importing..." : "Confirm import pasted source"}
+              </button>
+            </div>
+            <div className="archive-trust-next-action">{importPreviewNoWriteCopy(canConfirmTextImport ? textPreview : null)}</div>
           </form>
 
           <form className="studio-editor-panel" onSubmit={importFile}>
@@ -334,23 +452,35 @@ export default function PersonaFilesPage() {
               <h2>Upload a private source file</h2>
             </div>
             <p className="archive-trust-copy">
-              Upload one .txt, .md, .markdown, .text, or .json file. ChatGPT, Claude, Reddit, and Discord exports are owner-only file imports here; this is not a live provider, OAuth, bot, or API pull.
+              Preview one .txt, .md, .markdown, .text, or .json file before upload. ChatGPT, Claude, Reddit, and Discord exports are owner-only file imports here; this is not a live provider, OAuth, bot, or API pull.
             </p>
             <input
               key={fileInputKey}
               className="input"
               type="file"
               accept={ARCHIVE_FILE_IMPORT_ACCEPT}
-              onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
+              onChange={(event) => {
+                setSelectedFile(event.currentTarget.files?.[0] ?? null);
+                setFilePreview(null);
+                setFilePreviewKey(null);
+                setFilePreviewError(null);
+              }}
               disabled={fileImporting}
             />
             <div className="archive-trust-next-action">
               The signed upload URL is used only for this browser upload and is never shown in the page.
-              {selectedFile ? ` Selected: ${selectedFile.name} / ${formatBytes(selectedFile.size)}` : ""}
+              {selectedFile ? ` Selected local file / ${formatBytes(selectedFile.size)}` : ""}
             </div>
-            <button className="button primary" type="submit" disabled={fileImporting || !selectedFile}>
-              {fileImporting ? "Uploading..." : "Upload file import"}
-            </button>
+            <ImportPreviewCard preview={filePreview} error={filePreviewError} currentSourceReady={canConfirmFileImport} />
+            <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+              <button className="button" type="button" disabled={previewingFile || !selectedFile} onClick={previewFile}>
+                {previewingFile ? "Previewing..." : "Preview selected file"}
+              </button>
+              <button className="button primary" type="submit" disabled={fileImporting || !canConfirmFileImport}>
+                {fileImporting ? "Uploading..." : "Confirm upload file import"}
+              </button>
+            </div>
+            <div className="archive-trust-next-action">{importPreviewNoWriteCopy(canConfirmFileImport ? filePreview : null)}</div>
           </form>
         </div>
 
@@ -381,6 +511,46 @@ export default function PersonaFilesPage() {
         onRefreshed={setExportPackages}
       />
     </main>
+  );
+}
+
+function ImportPreviewCard({
+  preview,
+  error,
+  currentSourceReady,
+}: {
+  preview: ImportPreviewReadback | null;
+  error: string | null;
+  currentSourceReady: boolean;
+}) {
+  if (error) {
+    return <div className="archive-trust-error">{error}</div>;
+  }
+
+  if (!preview) {
+    return (
+      <div className="archive-trust-next-action">
+        Preview returns format and count readback only. It does not create archive sources, import jobs, storage uploads, Memory, or Canon.
+      </div>
+    );
+  }
+
+  return (
+    <article className="studio-item-card archive-trust-source-card">
+      <div>
+        <span>{preview.sourceLabel}</span>
+        <div className="archive-trust-card-meta">
+          <StudioStatusBadge tone={currentSourceReady ? "good" : "warning"}>
+            {currentSourceReady ? "Preview current" : "Preview stale"}
+          </StudioStatusBadge>
+          <StudioStatusBadge tone="info">{preview.formatLabel}</StudioStatusBadge>
+        </div>
+      </div>
+      <p>{importPreviewStatusCopy(preview)}</p>
+      <div className="archive-trust-next-action">
+        No write performed: storage, import jobs, archive chunks, import review candidates, provider calls, Memory, and Canon are unchanged.
+      </div>
+    </article>
   );
 }
 
@@ -530,6 +700,28 @@ function createBrowserStorageClient() {
       persistSession: false,
       autoRefreshToken: false,
     },
+  });
+}
+
+function textImportPreviewKey(input: { sourceName: string; content: string }) {
+  return importPreviewInputKey({
+    sourceKind: "paste",
+    sourceName: input.sourceName.trim() || "pasted-archive",
+    fileType: "text/plain",
+    content: input.content,
+  });
+}
+
+function fileImportPreviewKey(file: File | null) {
+  if (!file) return "";
+
+  return importPreviewInputKey({
+    sourceKind: "file",
+    sourceName: file.name,
+    fileType: file.type || "application/octet-stream",
+    size: file.size,
+    lastModified: file.lastModified,
+    content: "",
   });
 }
 
