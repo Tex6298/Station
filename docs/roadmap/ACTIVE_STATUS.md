@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR473 closed, PR474 opened
+
+MIMIR closes PR473 at the provider/config boundary:
+
+`docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_CLOSEOUT.md`
+
+Decision:
+
+- Owner encounter readiness, consent/provenance, and private runtime preview
+  surfaces are accepted as bounded owner-only work.
+- Hosted generation is not claimed.
+- Exact blocker:
+  `hosted private-context encounter preview has no accepted provider route configured`.
+- PR473B repaired the broken-click staging defect by showing paused provider
+  setup copy and keeping Generate disabled before provider calls.
+- No DAEDALUS repair is needed unless MIMIR opens a separate provider-policy/
+  config lane.
+
+MIMIR opens PR474 Commercial Packaging Preflight as the next named Phase 3/
+customer-facing expansion:
+
+`docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR474 - Commercial Packaging Preflight
+Owner: ARGUS / A3
+State: OPEN - BOUNDARY PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether a narrow customer-facing paid-plan/upgrade
+  packaging slice can move to DAEDALUS without reopening PR181 or broad billing
+  architecture.
+- If accepted, ARGUS should wake DAEDALUS with the exact PR474A slice.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the concrete
+  blocker or product decision.
+- Keep this to Stripe test-mode/subscription Checkout and Customer Portal
+  boundaries; no live-money or production commerce claims.
+
 ## Latest ARIADNE result - PR473B provider blocker fail-closed
 
 ARIADNE completed the hosted PR473B provider-readiness rerun:
@@ -27,7 +69,7 @@ Current lane:
 ```text
 PR473B - Owner Encounter Provider Availability Repair
 Owner: MIMIR / A1
-State: PROVIDER CONFIG BLOCKER FAIL-CLOSED - MIMIR DECISION
+State: CLOSED AT PROVIDER CONFIG BOUNDARY
 ```
 
 Current baton:

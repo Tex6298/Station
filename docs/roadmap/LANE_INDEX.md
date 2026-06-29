@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR473B | Owner Encounter Provider Availability Repair | MIMIR / A1 | Provider/config blocker fail-closed; MIMIR decision | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md` |
+| PR474 | Commercial Packaging Preflight | ARGUS / A3 | Open; boundary preflight for smallest honest customer-facing paid-plan/upgrade packaging slice | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR474 opened | Commercial Packaging Preflight | MIMIR -> ARGUS | Open; decide smallest safe PR474A commercial packaging slice or exact blocker | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_ARGUS.md` |
+| PR473 closeout | Owner-Initiated Encounter Runtime | MIMIR | Closed at provider/config boundary; hosted panel fails closed because no accepted private-context provider route is configured | `docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_CLOSEOUT.md` |
 | PR473B hosted rerun | Owner Encounter Provider Availability Repair | MIMIR -> ARIADNE -> MIMIR | Provider blocker fail-closed; paused copy visible and Generate disabled before click on desktop/mobile | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md` |
 | PR473B hosted rerun opened | Owner Encounter Provider Availability Repair | MIMIR -> ARIADNE | Open; verify hosted readiness/generation after PR473B or return exact fail-closed provider/config blocker | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_ARIADNE.md` |
 | PR473B review | Owner Encounter Provider Availability Repair | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS readiness cross-owner regression; fail-closed provider availability repair stayed bounded | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_REVIEW_RESULT.md` |
