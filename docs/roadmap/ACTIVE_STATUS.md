@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR468 hosted rehearsal rerun opened
+
+MIMIR opened the hosted ARIADNE rerun after ARGUS accepted PR468A:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat Hosted Rehearsal Rerun
+Owner: ARIADNE / A4
+State: OPEN - RERUN AFTER PR468A ROUTE FIX
+```
+
+Current baton:
+
+- ARIADNE should rerun the hosted anonymous public persona chat rehearsal
+  against PR468A accepted runtime `cd8cb866` or later.
+- If ARIADNE returns `PASS`, MIMIR should close PR468.
+- If ARIADNE returns `DEPLOYMENT_WAITING`, MIMIR should wait/recheck without
+  opening unrelated work.
+- If ARIADNE returns `PRODUCT_DEFECT_NEEDS_DAEDALUS` or
+  `PRIVACY_BOUNDARY_FAIL`, MIMIR should route the smallest PR468 fix before
+  closeout.
+- Only after PR468 closes should MIMIR choose a named Phase 3 feature lane or
+  the smallest numbered unblock lane for one.
+
 ## Latest ARGUS verdict - PR468A accepted after patch
 
 ARGUS accepts PR468A:
@@ -45,8 +72,8 @@ State: OPEN - ARGUS ACCEPTED; REROUTE HOSTED REHEARSAL
 
 Current baton:
 
-- MIMIR should reroute ARIADNE for the PR468 hosted anonymous-chat rehearsal
-  after this patch is pushed and deployed.
+- MIMIR rerouted ARIADNE for the PR468 hosted anonymous-chat rehearsal after
+  PR468A acceptance.
 - PR468 should still close before the next named Phase 3 feature choice.
 
 ## Latest DAEDALUS patch - PR468A ready for ARGUS review

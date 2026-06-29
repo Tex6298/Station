@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468A | Public Persona Hosted Route Reachability Patch | MIMIR / A1 | Open; ARGUS accepted after optional-read sanitizer patch, reroute hosted PR468 rehearsal | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_REVIEW_RESULT.md` |
+| PR468 | Anonymous Public Persona Chat Hosted Rehearsal Rerun | ARIADNE / A4 | Open; rerun hosted anonymous-chat proof after accepted PR468A route fix | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR468 rerun opened | Anonymous Public Persona Chat | MIMIR -> ARIADNE | Open; rerun hosted anonymous-chat proof after PR468A route reachability acceptance | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_ARIADNE.md` |
 | PR468A review | Public Persona Hosted Route Reachability Patch | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS optional-read sanitizer patch; public persona read routes fail bounded and optional page reads cannot leak raw rejected errors | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_REVIEW_RESULT.md` |
 | PR468A implementation | Public Persona Hosted Route Reachability Patch | DAEDALUS -> ARGUS | Ready for review; public persona read routes now fail bounded and optional page reads no longer block primary readback/chat availability | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md` |
 | PR468A opened | Public Persona Hosted Route Reachability Patch | MIMIR -> DAEDALUS | Open; restore bounded hosted public persona route/page behavior before ARIADNE reruns PR468 | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_DAEDALUS.md` |
