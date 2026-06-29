@@ -13,6 +13,7 @@ import {
   ContinuityCards,
   PersonaWorkspaceHeader,
   PublicInteractionReadback,
+  VoiceAvatarReadinessGate,
   type PersonaWithContinuity,
 } from "@/components/studio/persona-workspace";
 
@@ -80,6 +81,7 @@ export default function PersonaPage() {
       <PersonaWorkspaceHeader persona={persona} />
       <ContinuityCards persona={persona} />
       <PublicInteractionReadback persona={persona} />
+      <VoiceAvatarReadinessGate />
 
       <section className="studio-home-grid">
         <div className="studio-home-main">

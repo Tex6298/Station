@@ -2395,6 +2395,27 @@ html, body {
   line-height: 1.45;
 }
 
+.studio-readiness-panel {
+  margin: 1rem 0;
+}
+
+.studio-readiness-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.studio-readiness-panel .studio-section-heading p,
+.studio-readiness-privacy {
+  margin: 0;
+  color: #93a4ba;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.studio-readiness-card strong {
+  font-size: 1.15rem;
+  line-height: 1.15;
+}
+
 .studio-home-grid,
 .studio-two-column {
   display: grid;
@@ -4456,6 +4477,8 @@ body {
 
 .studio-frame-header p,
 .studio-persona-header p,
+.studio-readiness-panel .studio-section-heading p,
+.studio-readiness-privacy,
 .studio-item-card p,
 .studio-prompt-box p,
 .studio-timeline-record p,

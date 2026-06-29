@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR470A Owner Voice / Avatar Readiness Gate
+
+DAEDALUS implemented PR470A on 2026-06-29:
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the first Voice / Avatar implementation is owner-only readback in the private
+  persona Studio home;
+- the readback says Voice and avatar features are not enabled yet;
+- speech-to-text, text-to-speech, voice cloning, avatar likeness generation,
+  audio/video upload, generated media, and provider media calls remain disabled
+  or absent;
+- provider/media adapter, consent/copyright, storage privacy, cost,
+  rate-limit, and plan enforcement decisions are listed as prerequisites before
+  any future media behavior;
+- the helper test is part of `test:studio-ui`.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/voice-avatar-readiness.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 147 tests passed, including the new readiness helper. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck ran. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted owner-route visual rehearsal has not run in this
+DAEDALUS pass. If ARGUS accepts the implementation, MIMIR should decide whether
+to route ARIADNE for the narrow hosted owner-route check from the PR470
+preflight result.
+
 ## PR470 Voice / Avatar Preflight
 
 ARGUS accepted PR470 preflight on 2026-06-29:

@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR470A ready for ARGUS review
+
+DAEDALUS implemented the accepted owner-only Voice / Avatar readiness gate:
+
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_RESULT.md`
+
+Implementation:
+
+- Added a web-only readiness helper and tests for disabled Voice / Avatar
+  behavior and prerequisite policy/provider/cost gates.
+- Rendered an owner-only readiness gate on the private persona Studio home.
+- Added the helper test to `test:studio-ui`.
+- Kept the slice readback-only: no media behavior, provider media calls,
+  storage, public controls, billing, worker/queue, schema, migration, or broad
+  Studio scope.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/voice-avatar-readiness.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts`: pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 147 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR470A - Owner Voice / Avatar Readiness Gate
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the private Studio readiness gate against the PR470
+  preflight boundaries.
+- If accepted, ARGUS should wake MIMIR for closeout or hosted rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest patch.
+
 ## Latest ARGUS preflight - PR470 accepted for DAEDALUS
 
 ARGUS accepts the first Voice / Avatar slice as an owner-only readiness gate:

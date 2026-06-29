@@ -8,6 +8,7 @@ import {
   studioPersonaWorkspacePrimaryActions,
   studioPersonaWorkspaceTabs,
 } from "@/lib/studio-navigation";
+import { voiceAvatarReadinessGate } from "@/lib/voice-avatar-readiness";
 import {
   publicInteractionActivityBoundaryCopy,
   publicInteractionActivitySummary,
@@ -168,6 +169,30 @@ export function PublicInteractionReadback({ persona }: { persona: PersonaWithCon
         value={publicInteractionActivityValue(readback)}
         body={`${publicInteractionActivitySummary(readback)}. ${publicInteractionActivityBoundaryCopy(readback)}`}
       />
+    </section>
+  );
+}
+
+export function VoiceAvatarReadinessGate() {
+  const gate = voiceAvatarReadinessGate();
+
+  return (
+    <section className="studio-readiness-panel" aria-label="Voice and avatar readiness">
+      <div className="studio-section-heading">
+        <div className="section-label">{gate.eyebrow}</div>
+        <h2>{gate.title}</h2>
+        <p>{gate.summary}</p>
+      </div>
+      <div className="studio-continuity-grid studio-readiness-grid">
+        {gate.items.map((item) => (
+          <div key={item.key} className="studio-continuity-card studio-readiness-card">
+            <span>{item.label}</span>
+            <strong>{item.status}</strong>
+            <p>{item.body}</p>
+          </div>
+        ))}
+      </div>
+      <p className="studio-readiness-privacy">{gate.privacy}</p>
     </section>
   );
 }
