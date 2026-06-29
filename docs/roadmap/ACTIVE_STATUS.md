@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR470A accepted
+
+ARGUS accepts the owner-only Voice / Avatar readiness gate:
+
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REVIEW_RESULT.md`
+
+Decision:
+
+- PR470A matches the accepted PR470 preflight lane.
+- The implementation is web-only, private Studio-only, and readback-only.
+- The UI says Voice and avatar features are not enabled yet and lists the
+  prerequisite provider/media, consent/copyright, storage/privacy, cost,
+  rate-limit, and plan decisions.
+- No realtime voice calls, WebRTC, speech-to-text, text-to-speech, voice
+  cloning, avatar likeness generation, media upload/storage, provider media
+  calls, public controls, billing, Redis, Cloudflare, queues, workers, schema,
+  migrations, API route, or public route scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/voice-avatar-readiness.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts`: pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 147 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+- Diff-only scope and secret-shaped-pattern scans: pass.
+
+Current lane:
+
+```text
+PR470A - Owner Voice / Avatar Readiness Gate
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSEOUT OR ROUTE HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should close PR470A or route ARIADNE for the narrow hosted owner-route
+  visual rehearsal named in the preflight result.
+- Do not broaden into media behavior, provider calls, storage, public controls,
+  billing, workers/queues, schema, Cloudflare, Redis, or broad UI.
+
 ## Latest DAEDALUS handoff - PR470A ready for ARGUS review
 
 DAEDALUS implemented the accepted owner-only Voice / Avatar readiness gate:

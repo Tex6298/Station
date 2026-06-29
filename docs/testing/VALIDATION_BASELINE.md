@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR470A Owner Voice / Avatar Readiness Gate ARGUS Review
+
+ARGUS accepted PR470A on 2026-06-29:
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- the readiness gate is web-only, private Studio-only, owner-only, and
+  readback-only;
+- visible copy says Voice and avatar features are not enabled yet;
+- speech-to-text, text-to-speech, voice cloning, avatar likeness generation,
+  audio/video upload, generated media, provider media calls, public controls,
+  billing, workers/queues, schema, storage, API routes, and public routes remain
+  absent;
+- provider/media adapter, consent/copyright, storage/privacy, cost,
+  rate-limit, and plan enforcement decisions are named as prerequisites;
+- diff-only scope and secret-shaped-pattern scans found no executable
+  media/provider/storage surface or secret-shaped additions.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/voice-avatar-readiness.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 147 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only scope scan | Pass | Matches were negative/readiness copy and test script inclusion only. |
+| Diff-only secret-shaped-pattern scan | Pass | No matches. |
+
+Residual risk: hosted owner-route visual rehearsal has not run in this ARGUS
+pass. MIMIR should decide whether to route ARIADNE for the narrow hosted
+desktop/mobile owner-route check before closeout.
+
 ## PR470A Owner Voice / Avatar Readiness Gate
 
 DAEDALUS implemented PR470A on 2026-06-29:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR470A | Owner Voice / Avatar Readiness Gate | ARGUS / A3 | Ready for review; owner-only private Studio readiness gate, no media/provider/storage behavior | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_RESULT.md` |
+| PR470A | Owner Voice / Avatar Readiness Gate | MIMIR / A1 | ARGUS accepted; close out or route narrow hosted owner-route rehearsal | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR470A review | Owner Voice / Avatar Readiness Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted; private persona Studio home shows owner-only Voice / Avatar readiness readback, no media/provider/storage/public controls | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REVIEW_RESULT.md` |
 | PR470A implementation | Owner Voice / Avatar Readiness Gate | DAEDALUS -> ARGUS | Ready for review; private persona Studio home shows owner-only Voice / Avatar readiness readback, no media/provider/storage behavior | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_RESULT.md` |
 | PR470 preflight | Voice / Avatar | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR470A Owner Voice / Avatar Readiness Gate; owner-only web readback, no media/provider/storage behavior | `docs/roadmap/PR470_VOICE_AVATAR_PREFLIGHT_RESULT.md` |
 | PR469 closeout | Live Events / Seminars | MIMIR | Closed as accepted after PR469A/PR469B review and hosted empty/populated browser rehearsal | `docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_CLOSEOUT.md` |
