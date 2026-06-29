@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR480A hosted rehearsal | Developer Space Connection Tier State Readback | ARIADNE / A4 | Open; verify hosted public and owner Developer Space connection-tier readback before closeout | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_ARIADNE.md` |
+| PR481 preflight | Voice / Avatar Visual Identity | ARGUS / A3 | Open; decide smallest safe owner avatar URL control slice or exact blocker | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR481 opened | Voice / Avatar Visual Identity | MIMIR -> ARGUS | Open; hostile preflight for owner-managed avatar URL using existing public avatar path while keeping media/voice/provider/storage out | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_ARGUS.md` |
+| PR480A closeout | Developer Space Connection Tier State Readback | MIMIR | Closed; ARGUS accepted and ARIADNE hosted proof passed public and owner connection-tier readback | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_CLOSEOUT.md` |
 | PR480A rehearsal opened | Developer Space Connection Tier State Readback | MIMIR -> ARIADNE | Open; hosted read-only proof for public and owner Developer Space Tier 1 current plus Tier 2/Tier 3 future/blocked readback | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_ARIADNE.md` |
 | PR480A review | Developer Space Connection Tier State Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; public and owner Developer Space routes show readback-only Tier 1 current state plus Tier 2/Tier 3 future/blocked states without runtime/billing/API widening | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REVIEW_RESULT.md` |
 | PR480A implementation | Developer Space Connection Tier State Readback | DAEDALUS -> ARGUS | Ready for review; public and owner Developer Space routes show Tier 1 current readback plus Tier 2/Tier 3 future/blocked states without runtime/billing/API widening | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_RESULT.md` |

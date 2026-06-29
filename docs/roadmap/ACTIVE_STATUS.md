@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR480A closed, PR481 opened
+
+MIMIR closes PR480A Developer Space Connection Tier State Readback as accepted:
+
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_CLOSEOUT.md`
+
+Per the feature-expansion rule, MIMIR opens a different named Phase 3 feature
+preflight:
+
+`docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR481 - Voice / Avatar Visual Identity Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST SAFE AVATAR CONTROL SLICE
+```
+
+Current baton:
+
+- ARGUS should decide whether PR481A may implement an owner persona avatar URL
+  control using the existing `avatar_url` field and public avatar rendering
+  path.
+- If accepted, ARGUS should wake DAEDALUS with exact URL safety rules, touched
+  files, owner UI placement, public/private serialization rules, validation,
+  and ARIADNE rehearsal requirements.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  unblock lane.
+
+Boundaries:
+
+- Full Voice / Avatar media behavior remains blocked on provider/media adapter,
+  consent/copyright, storage/privacy, cost/rate-limit/plan, and hosted media
+  rehearsal decisions.
+- Do not add voice calls, STT/TTS, voice cloning, avatar generation, media
+  upload/storage, provider media calls, billing, Stripe, Redis, Cloudflare,
+  queues, workers, migrations, schema expansion, broad Studio redesign, or
+  broad public persona redesign.
+
 ## Latest ARIADNE rehearsal - PR480A pass
 
 ARIADNE completed the hosted read-only Developer Space connection-tier proof:
