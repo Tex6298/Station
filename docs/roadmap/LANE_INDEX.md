@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR483A | Workspace Export Scope Readback | DAEDALUS / A2 | Open; owner-only `/studio/export` scope/readback for live scoped packages and future workspace/PDF/binary/original-file/backup states | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
+| PR483A | Workspace Export Scope Readback | ARGUS / A3 | Ready for review; owner-only `/studio/export` scope/readback names live scoped packages and future workspace/PDF/binary/original-file/backup states | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR483A implementation | Workspace Export Scope Readback | DAEDALUS -> ARGUS | Ready for review; `/studio/export` shows live scoped package classes and future workspace/PDF/binary/original-file/backup/share URL boundaries without package/API/storage behavior | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md` |
 | PR483 preflight | Workspace Export Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR483A Workspace Export Scope Readback; no package creation, PDF, binary, original-file, background, backup, public export, API/schema, or storage-architecture scope | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR482A closeout | API Bridge Setup Packet Readback | MIMIR | Closed; hosted route/content/mobile/no-mutation proof plus local setup-label redaction tests accepted, no hosted synthetic seed claim | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_CLOSEOUT.md` |
 | PR482B seed decision | API Bridge Redaction Seed Decision | MIMIR -> ARGUS -> MIMIR | Close PR482A with redaction test coverage; hosted synthetic seed/rerun rejected for this lane as higher privacy/product risk than value | `docs/roadmap/PR482B_API_BRIDGE_REDACTION_SEED_DECISION_RESULT.md` |

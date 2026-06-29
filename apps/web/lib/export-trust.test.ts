@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   exportBackupSurfaceStateLabel,
@@ -11,6 +12,7 @@ import {
   exportPackageTone,
   exportPackageTrustCopy,
   exportPackageTrustSummary,
+  workspaceExportScopeReadback,
 } from "./export-trust";
 
 test("export backup trust map names live scoped packages and deferred backups", () => {
@@ -42,6 +44,63 @@ test("export backup trust map names live scoped packages and deferred backups", 
     surfaces.some((surface) => /not a managed backup/i.test(surface.readback) && surface.state === "future"),
     true,
   );
+});
+
+test("workspace export scope readback names only accepted live package classes", () => {
+  const readback = workspaceExportScopeReadback();
+
+  assert.deepEqual(
+    readback.livePackageClasses.map((row) => row.packageKind).sort(),
+    ["developer_space_archive", "persona_archive", "project_manifest"],
+  );
+  assert.equal(readback.currentBundleFormat, "Owner-only JSON/Markdown manifests and portable bundle readback.");
+  assert.equal(
+    readback.livePackageClasses.every((row) => row.state === "live" && row.format === "JSON / Markdown"),
+    true,
+  );
+  assert.equal(
+    readback.livePackageClasses.every((row) => row.includedSections.length > 0),
+    true,
+  );
+});
+
+test("workspace export scope readback keeps future workspace export classes unavailable", () => {
+  const readback = workspaceExportScopeReadback();
+  const futureLabels = readback.futureUnavailable.map((row) => row.label).join(" / ");
+  const renderedFuture = JSON.stringify(readback.futureUnavailable);
+
+  assert.match(futureLabels, /Full workspace bundle/);
+  assert.match(futureLabels, /Original file packaging/);
+  assert.match(futureLabels, /PDF, binary archive, and Station Press/);
+  assert.match(futureLabels, /Managed backup, redundancy, and restore drills/);
+  assert.match(futureLabels, /Shareable\/private package URLs/);
+  assert.equal(readback.futureUnavailable.every((row) => row.state === "future"), true);
+  assert.match(renderedFuture, /No current route creates a single cross-Studio package/);
+  assert.match(renderedFuture, /not a production backup system/);
+  assert.doesNotMatch(renderedFuture, /ready now|available now|generated PDF output|print-ready package|redundant backup is active/i);
+});
+
+test("workspace export scope readback excludes private and infrastructure material", () => {
+  const readback = workspaceExportScopeReadback();
+  const rendered = JSON.stringify(readback);
+
+  assert.deepEqual(
+    readback.excludedMaterial.map((row) => row.id),
+    ["raw-private-source-bodies", "storage-and-download-internals", "credential-provider-material"],
+  );
+  assert.match(rendered, /Private source bodies/);
+  assert.match(rendered, /Storage paths/);
+  assert.match(rendered, /Credentials/);
+  assert.match(readback.boundary, /Readback only/);
+  assert.doesNotMatch(rendered, /raw private source body:|archive snippet:|signed URL: https:\/\/|provider payload:|secret_[A-Za-z0-9]/i);
+});
+
+test("workspace export scope readback is wired into Studio export without API or mutation controls", () => {
+  const source = readFileSync("apps/web/components/studio/export-workspace.tsx", "utf8");
+
+  assert.match(source, /workspaceExportScopeReadback/);
+  assert.match(source, /Workspace scope readback/);
+  assert.doesNotMatch(source, /apiPost|apiPatch|apiGet|apiDelete|fetch\(|createExportPackage|loadBundle|loadManifest|<button|type="button"|onClick=/i);
 });
 
 test("export trust helpers keep completed manifest readback explicit", () => {

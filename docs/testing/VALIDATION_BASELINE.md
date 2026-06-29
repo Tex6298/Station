@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR483A Workspace Export Scope Readback
+
+DAEDALUS implemented PR483A on 2026-06-29:
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/studio/export` now shows owner-only workspace scope/readback using existing
+  export truth;
+- the readback names only live package classes `persona_archive`,
+  `developer_space_archive`, and `project_manifest`;
+- full workspace bundles, original files, PDFs, binary archives, Station Press,
+  background jobs, managed backup/redundancy, restore drills, expiry/download
+  policy, and shareable/private URLs remain future or unavailable;
+- no package kind, API route, bundle format, storage/download behavior,
+  schema/migration, billing, provider/model, worker/queue, Redis, or Cloudflare
+  scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed, preserving owner-only persona, Developer Space, Project manifest, bundle, malformed-readback, and route-error boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/export-trust.test.ts` | Pass | 9 tests passed, including workspace scope readback live/future/excluded/source coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 175 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+
 ## PR483 Workspace Export Product Depth Preflight
 
 ARGUS accepted PR483A on 2026-06-29:

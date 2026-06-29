@@ -1,6 +1,7 @@
 export type ExportPackageTone = "info" | "good" | "warning" | "danger";
 export type ExportBackupSurfaceState = "live" | "preview" | "future";
 export type ExportPackageTrustScope = "persona" | "developer_space";
+export type WorkspaceExportScopeState = "live" | "future" | "excluded" | "decision_needed";
 
 export interface ArchiveExportPackageLike {
   status: string;
@@ -23,6 +24,33 @@ export interface ExportBackupSurface {
   readback: string;
   boundary: string;
   limitation: string;
+}
+
+export interface WorkspaceExportScopeRow {
+  id: string;
+  label: string;
+  state: WorkspaceExportScopeState;
+  detail: string;
+}
+
+export interface WorkspaceExportLiveClass extends WorkspaceExportScopeRow {
+  state: "live";
+  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest";
+  format: "JSON / Markdown";
+  includedSections: string[];
+  href?: string;
+}
+
+export interface WorkspaceExportScopeReadback {
+  heading: string;
+  summary: string;
+  livePackageClasses: WorkspaceExportLiveClass[];
+  currentBundleFormat: string;
+  futureUnavailable: WorkspaceExportScopeRow[];
+  excludedMaterial: WorkspaceExportScopeRow[];
+  decisionsNeeded: WorkspaceExportScopeRow[];
+  nextActions: string[];
+  boundary: string;
 }
 
 const SUMMARY_LABELS: Record<ExportPackageTrustScope, Array<[string, string]>> = {
@@ -120,10 +148,125 @@ export function exportBackupTrustSummary(surfaces: ExportBackupSurface[] = expor
   };
 }
 
+export function workspaceExportScopeReadback(
+  surfaces: ExportBackupSurface[] = exportBackupTrustSurfaces(),
+): WorkspaceExportScopeReadback {
+  const livePackageClasses = surfaces.flatMap((surface): WorkspaceExportLiveClass[] => {
+    if (surface.state !== "live" || !isWorkspaceLivePackageKind(surface.packageKind)) return [];
+
+    return [{
+      id: surface.id,
+      label: surface.title,
+      state: "live",
+      packageKind: surface.packageKind,
+      format: "JSON / Markdown",
+      includedSections: workspaceIncludedSections(surface.packageKind),
+      detail: surface.readback,
+      href: surface.href,
+    }];
+  });
+
+  return {
+    heading: "Workspace export scope readback",
+    summary: "This owner-only Studio surface maps the scoped export classes Station can read back today. It is not a full workspace package job, file bundle, PDF generator, backup service, or public download surface.",
+    livePackageClasses,
+    currentBundleFormat: "Owner-only JSON/Markdown manifests and portable bundle readback.",
+    futureUnavailable: [
+      {
+        id: "full-workspace-bundle",
+        label: "Full workspace bundle",
+        state: "future",
+        detail: "No current route creates a single cross-Studio package across personas, Developer Spaces, Projects, archive files, and documents.",
+      },
+      {
+        id: "original-files",
+        label: "Original file packaging",
+        state: "future",
+        detail: "Original uploads need a file-manifest, redaction, storage, and owner review contract before inclusion.",
+      },
+      {
+        id: "pdf-binary-station-press",
+        label: "PDF, binary archive, and Station Press",
+        state: "future",
+        detail: "PDF/print output, binary archives, print readiness, and Station Press packaging need separate privacy, cost, storage, and provider decisions.",
+      },
+      {
+        id: "backup-redundancy-restore",
+        label: "Managed backup, redundancy, and restore drills",
+        state: "future",
+        detail: "Export readback is not a production backup system, redundant storage plan, restore drill, retention policy, or expiry policy.",
+      },
+      {
+        id: "shareable-private-urls",
+        label: "Shareable/private package URLs",
+        state: "future",
+        detail: "No anonymous download link, signed URL, shareable private package URL, or package URL creation is part of this scope.",
+      },
+    ],
+    excludedMaterial: [
+      {
+        id: "raw-private-source-bodies",
+        label: "Raw private source bodies",
+        state: "excluded",
+        detail: "Private source bodies, archive snippets, document bodies, and private evidence remain outside this readback.",
+      },
+      {
+        id: "storage-and-download-internals",
+        label: "Storage and download internals",
+        state: "excluded",
+        detail: "Storage paths, signed URLs, package IDs, table names, SQL details, hosted logs, and stack traces are not shown.",
+      },
+      {
+        id: "credential-provider-material",
+        label: "Credential and provider material",
+        state: "excluded",
+        detail: "Credentials, tokens, cookies, prompts, provider payloads, and secret-shaped values are excluded from visible copy.",
+      },
+    ],
+    decisionsNeeded: [
+      {
+        id: "workspace-product-shape",
+        label: "Workspace package product shape",
+        state: "decision_needed",
+        detail: "MIMIR still needs to choose whether a future workspace package is a manifest, archive, print/PDF output, backup workflow, or something else.",
+      },
+      {
+        id: "file-policy",
+        label: "Original-file and expiry policy",
+        state: "decision_needed",
+        detail: "Original-file inclusion, file redaction, retention, expiry, restore rehearsal, and private sharing policy remain undecided.",
+      },
+    ],
+    nextActions: [
+      "Open personas for current persona archive package readback.",
+      "Open Developer Spaces for current Developer Space package readback.",
+      "Open Projects for current Project manifest readback.",
+      "Use this page as the owner-only scope map before choosing a future workspace package contract.",
+    ],
+    boundary: "Readback only: no new API route, package kind, bundle format, original-file packaging, generated PDF, binary archive, background job, worker, queue, Redis, Cloudflare, schema change, migration, billing, Stripe, provider/model call, public export access, signed URL, shareable private package URL, storage architecture, backup/redundancy claim, restore drill, or download behavior is added.",
+  };
+}
+
 export function exportBackupSurfaceStateLabel(state: ExportBackupSurfaceState) {
   if (state === "live") return "Live scoped package";
   if (state === "preview") return "Preview only";
   return "Future lane";
+}
+
+function isWorkspaceLivePackageKind(value: string | undefined): value is WorkspaceExportLiveClass["packageKind"] {
+  return value === "persona_archive" || value === "developer_space_archive" || value === "project_manifest";
+}
+
+function workspaceIncludedSections(packageKind: WorkspaceExportLiveClass["packageKind"]) {
+  if (packageKind === "persona_archive") {
+    return ["persona metadata", "memory/canon", "continuity", "integrity notes", "published refs", "discussion refs"];
+  }
+
+  if (packageKind === "developer_space_archive") {
+    return ["space summary", "nodes", "events", "snapshots", "linked public documents", "usage"];
+  }
+
+  return ["project summary", "attached Developer Space", "owner evidence reference", "public evidence reference", "trust metadata"];
 }
 
 export function exportPackageTone(status: string): ExportPackageTone {

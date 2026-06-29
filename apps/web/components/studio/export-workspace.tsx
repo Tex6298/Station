@@ -5,13 +5,17 @@ import {
   exportBackupSurfaceStateLabel,
   exportBackupTrustSummary,
   exportBackupTrustSurfaces,
+  workspaceExportScopeReadback,
   type ExportBackupSurface,
+  type WorkspaceExportScopeReadback,
+  type WorkspaceExportScopeRow,
 } from "@/lib/export-trust";
 
 const surfaces = exportBackupTrustSurfaces();
 const liveSurfaces = surfaces.filter((surface) => surface.state === "live");
 const futureSurfaces = surfaces.filter((surface) => surface.state !== "live");
 const summary = exportBackupTrustSummary(surfaces);
+const workspaceScope = workspaceExportScopeReadback(surfaces);
 
 export function ExportWorkspace() {
   return (
@@ -31,6 +35,8 @@ export function ExportWorkspace() {
           </div>
           <Link href="/studio" style={primaryButton}>Open personas</Link>
         </header>
+
+        <WorkspaceScopeReadback readback={workspaceScope} />
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 330px", gap: 18, alignItems: "start" }}>
           <section style={panel}>
@@ -81,6 +87,69 @@ export function ExportWorkspace() {
   );
 }
 
+function WorkspaceScopeReadback({ readback }: { readback: WorkspaceExportScopeReadback }) {
+  return (
+    <section style={{ ...panel, marginBottom: 18 }} aria-labelledby="workspace-scope-readback-title">
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div>
+          <SectionTitle title="Workspace scope readback" id="workspace-scope-readback-title" />
+          <p style={{ margin: "-4px 0 0", color: "#a9b0bd", fontSize: 13, lineHeight: 1.55, maxWidth: 760 }}>
+            {readback.summary}
+          </p>
+        </div>
+        <span style={statusPill}>Owner-only scope map</span>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 14, marginTop: 14 }}>
+        <div style={{ display: "grid", gap: 10 }}>
+          <h3 style={subhead}>Live scoped packages</h3>
+          {readback.livePackageClasses.map((row) => (
+            <article key={row.id} style={scopeRow}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                <strong style={{ color: "#f8fafc", fontSize: 13 }}>{row.label}</strong>
+                <span style={livePill}>{formatPackageKind(row.packageKind)}</span>
+              </div>
+              <p style={scopeCopy}>{row.detail}</p>
+              <p style={scopeFinePrint}>
+                {row.format} / {row.includedSections.join(" / ")}
+              </p>
+            </article>
+          ))}
+        </div>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          <h3 style={subhead}>Future or excluded scope</h3>
+          <div style={{ display: "grid", gap: 8 }}>
+            {readback.futureUnavailable.slice(0, 3).map((row) => (
+              <ScopePillRow key={row.id} row={row} />
+            ))}
+            {readback.excludedMaterial.map((row) => (
+              <ScopePillRow key={row.id} row={row} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10, marginTop: 14 }}>
+        <div style={scopeRow}>
+          <h3 style={subhead}>Current bundle format</h3>
+          <p style={scopeCopy}>{readback.currentBundleFormat}</p>
+        </div>
+        <div style={scopeRow}>
+          <h3 style={subhead}>Decisions still needed</h3>
+          <p style={scopeCopy}>{readback.decisionsNeeded.map((row) => row.label).join(" / ")}</p>
+        </div>
+        <div style={scopeRow}>
+          <h3 style={subhead}>Next owner actions</h3>
+          <p style={scopeCopy}>{readback.nextActions.join(" ")}</p>
+        </div>
+      </div>
+
+      <p style={{ margin: "14px 0 0", color: "#94a3b8", fontSize: 12, lineHeight: 1.55 }}>{readback.boundary}</p>
+    </section>
+  );
+}
+
 function ExportSurfaceRow({
   surface,
   compact = false,
@@ -121,8 +190,20 @@ function ExportSurfaceRow({
   );
 }
 
-function SectionTitle({ title }: { title: string }) {
-  return <h2 style={{ margin: "0 0 12px", color: "#f8fafc", fontSize: 16 }}>{title}</h2>;
+function ScopePillRow({ row }: { row: WorkspaceExportScopeRow }) {
+  return (
+    <div style={scopePillRow}>
+      <span style={row.state === "future" ? statusPill : disabledButton}>{row.state === "future" ? "Future" : "Excluded"}</span>
+      <div>
+        <strong style={{ color: "#f8fafc", fontSize: 12 }}>{row.label}</strong>
+        <p style={{ margin: "0.25rem 0 0", color: "#94a3b8", fontSize: 12, lineHeight: 1.45 }}>{row.detail}</p>
+      </div>
+    </div>
+  );
+}
+
+function SectionTitle({ title, id }: { title: string; id?: string }) {
+  return <h2 id={id} style={{ margin: "0 0 12px", color: "#f8fafc", fontSize: 16 }}>{title}</h2>;
 }
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
@@ -171,6 +252,41 @@ const surfaceRow = {
 const compactSurfaceRow = {
   ...surfaceRow,
   minHeight: 220,
+};
+
+const scopeRow = {
+  border: "1px solid #202938",
+  borderRadius: 8,
+  background: "#0d1420",
+  padding: 12,
+};
+
+const scopePillRow = {
+  ...scopeRow,
+  display: "grid",
+  gridTemplateColumns: "86px minmax(0, 1fr)",
+  gap: 10,
+  alignItems: "start",
+};
+
+const subhead = {
+  margin: 0,
+  color: "#f8fafc",
+  fontSize: 13,
+};
+
+const scopeCopy = {
+  margin: "0.5rem 0 0",
+  color: "#cbd5e1",
+  fontSize: 12,
+  lineHeight: 1.5,
+};
+
+const scopeFinePrint = {
+  margin: "0.45rem 0 0",
+  color: "#8ea0b8",
+  fontSize: 11,
+  lineHeight: 1.45,
 };
 
 const miniButton = {

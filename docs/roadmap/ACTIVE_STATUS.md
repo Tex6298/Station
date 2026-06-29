@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR483A ready for ARGUS
+
+DAEDALUS implemented the accepted PR483A Workspace Export Scope Readback:
+
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR483A - Workspace Export Scope Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the owner-only workspace scope/readback helper, the
+  `/studio/export` panel, and source-level no-mutation tests.
+- Confirm the readback names only current live classes
+  `persona_archive`, `developer_space_archive`, and `project_manifest`, and
+  keeps full workspace/PDF/binary/original-file/backup/share URL classes
+  future or unavailable.
+- Confirm PR483A did not create package kinds, API routes, PDFs, binary
+  archives, original-file bundles, background jobs, storage/download behavior,
+  public/private share URLs, schema, infra, billing, or provider/model scope.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and
+  ARIADNE hosted read-only desktop/mobile proof routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact helper, panel, copy, scope, or test expectation that failed.
+
+Boundaries:
+
+- No production backup/redundancy, generated PDFs, print-on-demand, background
+  jobs, workers/queues, Redis, Cloudflare, schema/migrations, billing/Stripe,
+  provider/model calls, public export access, shareable private package URLs,
+  signed URLs, original-file packaging, or broad storage architecture was
+  added.
+- Raw private source bodies, archive snippets, document bodies, storage paths,
+  credentials, prompts, provider payloads, SQL/table details, stack traces,
+  hosted logs, cookies, tokens, signed URLs, and secret-shaped values remain out
+  of the owner UI.
+
 ## Latest ARGUS preflight - PR483A accepted for DAEDALUS
 
 ARGUS completed the PR483 Workspace Export Product Depth preflight:
