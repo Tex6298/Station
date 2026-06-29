@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484F-C closed, PR484F-D opened
+
+MIMIR closes PR484F-C after ARGUS accepted the Archive Connector OAuth Web
+Callback Bridge:
+
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_CLOSEOUT.md`
+
+Accepted boundary:
+
+- public web callback route
+  `/archive-connectors/oauth/callback/[provider]`;
+- Bearer-auth API verify route
+  `POST /archive-connectors/oauth/:provider/callback/verify`;
+- callback query values scrubbed from browser history before auth recovery or
+  API verify work;
+- one-time PR484E state consume with owner/provider/nonce/csrf/session binding;
+- callback code discarded, with bounded success/error readback only;
+- no authorization URL generation, server redirect, token exchange, credential
+  write/revoke, provider call/fetch, source inventory, import write, queue,
+  hosted runtime, Cloudflare, Redis, billing, package, broad connector UI, or
+  social posting behavior.
+
+MIMIR opens the next smallest lane:
+
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484F-D - Archive Connector OAuth Authorization URL Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE BOUNDED AUTHORIZATION URL GENERATION
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether DAEDALUS may implement an authenticated
+  authorization URL or redirect boundary using the accepted PR484E state handle
+  and PR484F-C web callback route.
+- ARGUS should decide response shape, redirect URI policy, provider URL/scope
+  policy, tests, source guards, and whether ARIADNE hosted proof is required
+  before closeout.
+- If blocked, ARGUS should name the concrete blocker and the smallest numbered
+  unblock lane that directly enables live archive connector product depth.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484F-C accepted for MIMIR
 
 ARGUS reviewed and accepted the PR484F-C Archive Connector OAuth Web Callback
