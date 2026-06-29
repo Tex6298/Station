@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484E Archive Connector OAuth State Start Preflight
+
+ARGUS accepted PR484E for DAEDALUS on 2026-06-29:
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484E_OAUTH_STATE_START_ROUTE`.
+
+Reason:
+
+- PR484B already provides an OAuth state storage helper that stores only
+  session/nonce/csrf hashes plus bounded metadata;
+- PR484D already provides accepted archive-specific provider app config names;
+- a narrow `POST /archive-connectors/oauth/:provider/start` route can create a
+  state row without redirects, callbacks, token exchange, credential writes,
+  provider calls, source inventory, import writes, UI, queues, hosted runtime,
+  billing, provider/model calls, package dependencies, or social posting;
+- the accepted response is limited to safe metadata plus one one-time opaque
+  `stateHandle`, with raw auth/session/state material excluded from storage,
+  logs, docs, errors, and readback.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 47 tests passed across readiness route, storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check 62e5eed16686531f941b624d96540bb44c74939a..54135436e8eba3f4b1667354aab3ad9a103bb494` | Pass | MIMIR preflight/opening diff is whitespace-clean. |
+| Path/scope scan | Pass | MIMIR wakeup diff is docs-only; current archive connector route/readiness source has no state-start route, provider call, credential write, queue, hosted, billing, package, or social posting behavior. |
+
 ## PR484D Archive Connector Provider App Config ARGUS Review
 
 ARGUS accepted PR484D on 2026-06-29:

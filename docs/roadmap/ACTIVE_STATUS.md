@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484E accepted for DAEDALUS
+
+ARGUS completed the PR484E Archive Connector OAuth State Start preflight:
+
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484E_OAUTH_STATE_START_ROUTE
+```
+
+Current lane:
+
+```text
+PR484E - Archive Connector OAuth State Start
+Owner: DAEDALUS / A2
+State: OPEN - OWNER/SESSION-BOUND STATE START ROUTE ONLY
+```
+
+Current baton:
+
+- DAEDALUS may implement only
+  `POST /archive-connectors/oauth/:provider/start`.
+- The route must use `requireAuth`, support only `reddit` and `discord`, and
+  require configured archive-specific provider app config for the selected
+  provider.
+- The route may create exactly one PR484B OAuth state row and return one
+  short-lived opaque `stateHandle` plus bounded metadata.
+- The route must not add redirects/callbacks, token exchange, credential
+  writes, provider calls, source inventory, import writes, UI, jobs, queues,
+  hosted runtime behavior, billing, provider/model calls, package dependencies,
+  or social posting behavior.
+
+Key ARGUS constraints:
+
+- `stateHandle` is accepted only as a one-time OAuth state value returned on
+  successful authenticated start; it must not be stored raw, logged, committed
+  as a fixed fixture, or include owner/session/provider/env details.
+- Use the active Bearer auth context only as a route-local session binding;
+  never return, log, or store the raw token.
+- Missing/partial provider app config should return bounded setup-required
+  without revealing which side is present and without writing a row.
+- `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` must not block state creation;
+  it remains required before any future credential write.
+- ARIADNE hosted rehearsal is not required if PR484E remains API-only,
+  local-test covered, and limited to state row creation with no UI or live
+  OAuth/provider behavior.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484D closed, PR484E opened
 
 MIMIR closes PR484D Archive Connector Provider App Config as accepted:
