@@ -20,6 +20,55 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR471A Owner Encounter Readiness Gate Hosted Rehearsal
+
+ARIADNE completed the hosted PR471A rehearsal on 2026-06-29:
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were ready at app commit `7d08bcaf`, the PR471A app
+  implementation commit;
+- accepted commit `cfd22df7` changed docs and agent state only, so the hosted
+  app commit is deploy-equivalent for this visual proof;
+- the seeded owner persona Studio home rendered the owner-only Persona
+  Encounter readiness gate on desktop and 390px mobile;
+- the gate says persona-to-persona encounters are not enabled yet;
+- consent, provenance, moderation, reporting, stop controls, revocation, cost,
+  rate-limit, and plan enforcement gates were visible;
+- sampled signed-out public persona and public Space/document routes exposed no
+  public encounter controls, persona-to-persona chat claims, generated
+  encounter output, shareable encounter pages, anonymous encounter controls, or
+  public availability claims;
+- sampled UI did not expose private Memory, Archive, Canon, Continuity,
+  Integrity, owner setup, provider settings, credentials, storage paths, raw
+  internal ids, stack traces, table names, visitor identity, or secret-shaped
+  material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at deploy-equivalent app commit `7d08bcaf`; accepted commit `cfd22df7` changed docs/state only. |
+| Hosted API `/health/deployment` | Pass | Ready at deploy-equivalent app commit `7d08bcaf`; accepted commit `cfd22df7` changed docs/state only. |
+| Owner Studio desktop | Pass | Persona Encounter readiness gate visible and readable. |
+| Owner Studio 390px mobile | Pass | Persona Encounter readiness gate visible and readable. |
+| Disabled behavior copy | Pass | Gate says persona-to-persona encounters are not enabled yet. |
+| Prerequisite gates | Pass | Consent, provenance, moderation, reporting, stop controls, revocation, cost, rate-limit, and plan enforcement are visible. |
+| Signed-out public route sample | Pass | No encounter controls, generated output, shareable pages, or availability claims appeared. |
+| Visual fit | Pass | No horizontal overflow or clipped interactive controls. |
+| Public/private safety scan | Pass | No private/secret/internal material in sampled UI. |
+| Temporary Playwright/Node hosted harness | Pass | Completed with no defects. |
+| `git diff --check` | Pass before commit | Result commit validation. |
+
+Residual risk: this was a read-only hosted visual rehearsal. It did not open
+autonomous persona-to-persona chat, background conversations, scheduled
+encounters, agent loops, provider-call loops, generated encounter text, durable
+transcripts, generated posts/documents/comments/threads, storage, cross-owner
+behavior, public encounter pages, public feeds, anonymous participation,
+billing, token-credit behavior, Redis, Cloudflare, queues, workers, migrations,
+schema, API routes, or broad Studio/public redesign.
+
 ## PR471A Owner Encounter Readiness Gate ARGUS Review
 
 ARGUS accepted PR471A on 2026-06-29:

@@ -103,3 +103,25 @@ Verdict:
 Task:
 - Close PR471A or route the smallest repair.
 ```
+
+## ARIADNE Result - 2026-06-29
+
+Result:
+
+```text
+PASS
+```
+
+ARIADNE completed the hosted owner-route visual rehearsal. The seeded owner
+persona Studio home rendered the owner-only Persona Encounter readiness gate on
+desktop and 390px mobile, and sampled signed-out public persona/Space/document
+routes did not expose encounter controls, persona-to-persona chat claims, or
+availability claims.
+
+Result document:
+
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_RESULT.md`
+
+Hosted web/API reported ready at app commit `7d08bcaf`, which is
+deploy-equivalent for this rehearsal because accepted commit `cfd22df7` changed
+docs and agent state only.

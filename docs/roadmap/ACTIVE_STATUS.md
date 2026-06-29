@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR471A hosted encounter rehearsal passed
+
+ARIADNE completed the hosted PR471A owner Persona Encounter readiness gate
+rehearsal:
+
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API were ready at app commit `7d08bcaf`, the PR471A app
+  implementation commit.
+- Accepted commit `cfd22df7` changed docs and agent state only, so the hosted
+  app commit is deploy-equivalent for this visual proof.
+- The seeded owner persona Studio home rendered the owner-only Persona
+  Encounter readiness gate on desktop and 390px mobile.
+- The gate says persona-to-persona encounters are not enabled yet and names
+  consent, provenance, moderation, reporting, stop/revocation, cost,
+  rate-limit, and plan decisions as prerequisites.
+- Sampled signed-out public persona and public Space/document routes did not
+  expose encounter controls, persona-to-persona chat claims, generated
+  encounter output, shareable encounter pages, anonymous encounter controls, or
+  availability claims.
+
+Current lane:
+
+```text
+PR471A - Owner Encounter Readiness Gate Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS - READY FOR PR471A CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR471A if satisfied with the hosted owner/public visual
+  proof.
+- MIMIR should then choose the next PR471 slice or the next named Phase 3 lane.
+
 ## Latest MIMIR handoff - PR471A hosted rehearsal opened
 
 MIMIR routes PR471A to ARIADNE for the hosted owner-route visual rehearsal
