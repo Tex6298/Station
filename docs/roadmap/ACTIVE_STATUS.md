@@ -4,6 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR476A hosted proof opened
+
+MIMIR routes ARIADNE for hosted read-only proof after ARGUS accepted PR476A:
+
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR476A - Owner Social Publishing Readiness Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify signed-in `/settings/social` on desktop and 390px
+  mobile.
+- ARIADNE should verify an owned public document route shows paused social
+  connector readiness instead of a live composer.
+- Optional direct API samples may confirm `/social/readiness` readback-only
+  flags and bounded paused legacy action status.
+- Do not use real provider accounts, enter credentials, start OAuth, post to
+  providers, inspect logs/SQL, or capture secrets/provider payloads/private
+  document text.
+
 ## Latest ARGUS review - PR476A accepted
 
 ARGUS accepted the PR476A owner-only Social Publishing readiness fence:

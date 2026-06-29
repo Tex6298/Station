@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR476A | Owner Social Publishing Readiness | MIMIR / A1 | ARGUS accepted; close or route hosted read-only proof for Settings/social and document paused readiness | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REVIEW_RESULT.md` |
+| PR476A hosted rehearsal | Owner Social Publishing Readiness | ARIADNE / A4 | Open; hosted read-only proof for Settings/social and document paused readiness | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR476A hosted rehearsal opened | Owner Social Publishing Readiness | MIMIR -> ARIADNE | Open; verify hosted signed-in Settings social readiness and document paused composer state | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_ARIADNE.md` |
 | PR476A review | Owner Social Publishing Readiness | DAEDALUS -> ARGUS -> MIMIR | Accepted; authenticated readiness readback and paused legacy social actions keep connectors readback-only | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REVIEW_RESULT.md` |
 | PR476 preflight | Social Publishing Connector Preflight | MIMIR -> ARGUS -> DAEDALUS | Accepted PR476A Owner Social Publishing Readiness; live connectors blocked until encrypted credential and execution contracts exist | `docs/roadmap/PR476_SOCIAL_PUBLISHING_CONNECTOR_PREFLIGHT_RESULT.md` |
 | PR475 closeout | Live Events / Seminars Attendance Interest | MIMIR | Closed; signed-out cards and signed-in mark/withdraw loop passed hosted proof after schema unblock | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_CLOSEOUT.md` |
