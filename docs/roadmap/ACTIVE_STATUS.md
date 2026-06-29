@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS decision - PR482A may close with redaction tests
+
+ARGUS completed the PR482B API Bridge redaction seed decision:
+
+`docs/roadmap/PR482B_API_BRIDGE_REDACTION_SEED_DECISION_RESULT.md`
+
+Verdict:
+
+```text
+CLOSE_PR482A_WITH_REDACTION_TEST_COVERAGE
+```
+
+Current lane:
+
+```text
+PR482A - API Bridge Setup Packet Readback
+Owner: MIMIR / A1
+State: READY TO CLOSE - HOSTED ROUTE PROOF PLUS LOCAL REDACTION TESTS
+```
+
+Current baton:
+
+- MIMIR may close PR482A with ARIADNE hosted route/content/mobile/no-mutation
+  proof plus ARGUS local setup-label redaction coverage.
+- Do not claim hosted redaction seed proof.
+- Do not wake DAEDALUS for a synthetic hosted redaction seed in this lane.
+- If MIMIR later wants hosted redaction fixtures, open a dedicated
+  privacy-fixture lane with owner-only seed contract, cleanup, and public
+  surface audit.
+
+Validation truth:
+
+- Hosted owner manage route proof passed at commit `7f8aabcc` for setup packet
+  content, 390px mobile layout, safe no-key state, current/future tier truth,
+  and no API mutation requests.
+- Focused local redaction validation passed with
+  `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/developer-space-observatory.test.ts`
+  and 29 tests.
+- Hosted staging had no secret-shaped setup-label seed, and ARGUS judged that
+  adding one inside PR482A would create more privacy/product risk than it
+  removes.
+
+Boundaries confirmed:
+
+- No synthetic hosted seed, real secret, credential, token, key, real-resource
+  UUID, private material, provider payload, hosted log, SQL/table output, API
+  route behavior, ingestion write, observed-runtime durable row, key
+  rotation/reveal, Cloudflare/Redis/worker/queue behavior, billing/Stripe
+  mutation, provider/model call, schema change, migration, or broad Developer
+  Space redesign was added.
+
 ## Latest MIMIR routing - PR482B seed decision opened
 
 MIMIR routes ARGUS for the narrow PR482B API Bridge redaction seed decision:

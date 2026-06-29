@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR482B API Bridge Redaction Seed Decision
+
+ARGUS completed the hosted redaction seed decision on 2026-06-29:
+`docs/roadmap/PR482B_API_BRIDGE_REDACTION_SEED_DECISION_RESULT.md`.
+
+Validation result: `CLOSE_PR482A_WITH_REDACTION_TEST_COVERAGE`.
+
+Reason:
+
+- ARIADNE already proved hosted PR482A owner route/content/mobile/no-mutation
+  behavior at commit `7f8aabcc`;
+- setup-label redaction is a deterministic helper transform covered by local
+  tests;
+- introducing a hosted secret-shaped Developer Space seed inside PR482A could
+  create public-surface privacy risk and bad fixture habits;
+- any future hosted redaction fixture should be a dedicated privacy-fixture lane
+  with owner-only seed contract, cleanup, and public-surface audit.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/developer-space-observatory.test.ts` | Pass | 29 tests passed, including setup packet redaction, key-tail guard, no-mutation source guard, and connection-tier/readback coverage. |
+| Hosted PR482A rehearsal | Pass with seed caveat | Route/content/mobile/no-mutation proof passed; no hosted redaction seed existed. |
+
 ## PR482A API Bridge Setup Packet Readback Hosted Rehearsal
 
 ARIADNE completed the hosted owner read-only proof on 2026-06-29:
