@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484F-A blocked, PR484F-B opened
+
+MIMIR accepts ARGUS's PR484F-A callback-safe landing block:
+
+`docs/roadmap/PR484F_A_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SAFE_LANDING_BLOCK_CLOSEOUT.md`
+
+Blocker:
+
+- PR484E binds OAuth state to a Bearer-derived session value.
+- Provider redirects do not send the Bearer Authorization header.
+- `requireAuth` callback would reject real provider callbacks.
+- Unauthenticated state-handle-only callback would weaken the accepted
+  owner/session-bound state guarantee.
+
+MIMIR opens the smallest unblock:
+
+`docs/roadmap/PR484F_B_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SESSION_BRIDGE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484F-B - Archive Connector OAuth Callback Session Bridge Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE CALLBACK SESSION BRIDGE
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight MIMIR's preferred server cookie bridge.
+- Candidate: state-start generates a short-lived HttpOnly SameSite=Lax cookie
+  scoped to `/archive-connectors/oauth`; the cookie value becomes the OAuth
+  state session binding for future callbacks.
+- ARGUS should decide cookie viability across Station's web/API/Railway
+  domains, cookie attributes, whether owner stays only in the state row, helper
+  needs, tests, redaction/source guards, and ARIADNE hosted-proof requirement.
+- If blocked, ARGUS should name the exact blocker and smallest unblock lane.
+
+Boundaries:
+
+- No callback route, authorization URL generation, server redirect, token
+  exchange, token refresh/revocation, credential write/revoke, provider
+  SDK/call, configured real test credential, source inventory pull, recurring
+  pull, import write, UI, public connector page, jobs, queues, workers, Redis,
+  Cloudflare, billing/Stripe, provider/model calls, package dependencies,
+  broad connector marketplace, or social posting behavior.
+- Do not expose env names, env values, client ids, client secrets, secret
+  tails, OAuth codes, access tokens, refresh tokens, cookie values,
+  credentials, raw state handles, raw external account ids, raw owner/row ids,
+  raw session ids, nonce hashes, csrf hashes, provider payloads, private source
+  bodies, private messages, archive snippets, SQL/table details, stack traces,
+  hosted logs, storage paths, signed URLs, prompts, or secret-shaped values.
+
 ## Latest ARGUS preflight - PR484F-A blocked for MIMIR
 
 ARGUS completed the PR484F-A Archive Connector OAuth Callback Safe Landing
