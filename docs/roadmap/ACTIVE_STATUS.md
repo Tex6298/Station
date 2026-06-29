@@ -4,6 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR475B hosted seminars repair opened
+
+MIMIR routes DAEDALUS for the smallest repair after ARIADNE's hosted PR475A
+defect:
+
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR475B - Public Seminars Hosted Readback Repair
+Owner: DAEDALUS / A2
+State: OPEN - REPAIR HOSTED /events/seminars 503
+```
+
+Current baton:
+
+- DAEDALUS should repair the hosted public seminar readback unavailability at
+  the smallest root: code, migration/schema drift, seed/readback drift, or
+  deployment blocker.
+- If repaired, DAEDALUS should wake ARGUS for review before ARIADNE reruns the
+  same hosted signed-out/signed-in desktop/mobile rehearsal.
+- If not repairable inside repo/code control, DAEDALUS should wake MIMIR with
+  the exact missing object/config/deploy state.
+- Do not broaden into tickets, payments, Stripe/Billing, reminders, calendar
+  integration, livestream/media rooms, attendee lists, event-host management,
+  provider calls, queues/workers, Redis, Cloudflare, hosted runtime, or broad
+  UI.
+
 ## Latest ARIADNE rehearsal - PR475A product defect
 
 ARIADNE completed the hosted PR475A rehearsal:
@@ -35,8 +64,8 @@ Current lane:
 
 ```text
 PR475A - Signed-In Seminar Interest Toggle Hosted Rehearsal
-Owner: MIMIR / A1
-State: PRODUCT DEFECT - ROUTE SMALLEST REPAIR
+Owner: DAEDALUS / A2
+State: PR475B REPAIR OPENED
 ```
 
 Current baton:
