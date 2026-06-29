@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484 Live Archive Connectors Preflight
+
+ARGUS accepted PR484A on 2026-06-29:
+`docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484A_CONNECTOR_CREDENTIAL_CONTRACT`.
+
+Reason:
+
+- current manual Reddit/Discord archive parsers and import preview are useful
+  no-write intake evidence, but they are not live connectors;
+- social publishing readiness is paused/fail-closed and must not be used as a
+  live archive connector path;
+- AI BYOK encryption is AI-provider-specific precedent, not an accepted
+  external archive connector credential store;
+- PR484A should define the owner-only provider-neutral credential/callback/
+  redaction/import-confirmation contract before any Reddit/Discord API call,
+  OAuth token exchange, recurring pull, or import job creation.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 28 tests passed across no-write import preview, Reddit/Discord parsers, social route fail-closed behavior, and social readiness source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Scope scan | Pass | Current matches are expected paused social config, parser/preview fixtures, and guardrail docs; no live connector implementation is present. |
+
 ## PR483A Workspace Export Scope Readback Hosted Rehearsal
 
 ARIADNE completed hosted owner read-only proof on 2026-06-29:

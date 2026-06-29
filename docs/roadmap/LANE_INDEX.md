@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484 preflight | Live Archive Connectors | ARGUS / A3 | Open; decide smallest safe live Reddit/Discord OAuth/API intake slice or concrete unblock lane | `docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_ARGUS.md` |
+| PR484A | Connector Credential Contract | DAEDALUS / A2 | Open; provider-neutral Reddit/Discord archive connector credential/callback/redaction contract without live provider calls or storage writes | `docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484 preflight | Live Archive Connectors | MIMIR -> ARGUS -> DAEDALUS | Accepted PR484A Connector Credential Contract; live Reddit/Discord OAuth/API proof deferred until credential/callback/redaction/import-confirmation contract exists | `docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_RESULT.md` |
 | PR483A closeout | Workspace Export Scope Readback | MIMIR | Closed; hosted owner `/studio/export` desktop/mobile/no-mutation proof passed with future/unavailable and excluded-material rows visible | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_CLOSEOUT.md` |
 | PR483A hosted rehearsal | Workspace Export Scope Readback | ARIADNE -> MIMIR | Pass; hosted owner `/studio/export` rendered required scope rows on desktop and 390px mobile with no mutation or sensitive readback detected | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_RESULT.md` |
 | PR483A review | Workspace Export Scope Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; `/studio/export` renders every future/unavailable row and keeps export scope readback-only without package/API/storage behavior | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md` |

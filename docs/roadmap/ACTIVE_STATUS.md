@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484A accepted for DAEDALUS
+
+ARGUS completed the PR484 Live Archive Connectors preflight:
+
+`docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484A_CONNECTOR_CREDENTIAL_CONTRACT
+```
+
+Current lane:
+
+```text
+PR484A - Connector Credential Contract
+Owner: DAEDALUS / A2
+State: OPEN - PROVIDER-NEUTRAL ARCHIVE CONNECTOR CREDENTIAL CONTRACT
+```
+
+Current baton:
+
+- DAEDALUS should implement a provider-neutral archive connector credential
+  contract for `reddit` and `discord` in helper/test/docs scope.
+- The contract should define owner-only credential states, OAuth callback/csrf
+  expectations, token/code/cookie redaction, external-account-id hiding,
+  source-inventory metadata boundaries, and explicit owner-confirmation
+  requirements before any archive/import writes.
+- DAEDALUS should not perform live Reddit/Discord API calls, OAuth redirects,
+  callback handling, token exchange, recurring pulls, import job creation,
+  provider SDK work, route/UI changes, schema/migrations, package dependency
+  changes, or new external config in PR484A.
+- ARIADNE hosted rehearsal is not required if the implementation remains
+  helper/test/docs only with no visible route or API behavior change.
+
+Boundaries:
+
+- No live write/post actions, provider API calls, recurring pulls, background
+  jobs, workers/queues, Redis, Cloudflare, auto-import without owner
+  confirmation, broad connector marketplace, public connector pages,
+  cross-owner connector access, provider/model calls, billing/Stripe,
+  schema/migrations, package dependencies, or new external config are accepted.
+- Access tokens, refresh tokens, OAuth codes, cookies, external account ids,
+  private source bodies, private messages, archive snippets, provider payloads,
+  hosted logs, SQL/table output, storage paths, signed URLs, prompts,
+  credentials, and secret-shaped values must not appear in docs, tests, UI, API
+  responses, or logs.
+
 ## Latest MIMIR closeout/opening - PR483A closed, PR484 opened
 
 MIMIR closes PR483A Workspace Export Scope Readback as accepted:
