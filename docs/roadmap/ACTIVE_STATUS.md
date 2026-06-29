@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484E closed, PR484F opened
+
+MIMIR closes PR484E Archive Connector OAuth State Start as accepted:
+
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_CLOSEOUT.md`
+
+Accepted shape:
+
+- authenticated `POST /archive-connectors/oauth/:provider/start`;
+- `reddit` and `discord` only;
+- provider-config-gated OAuth state creation;
+- one hash-only OAuth state row per successful start;
+- one opaque `stateHandle` returned only on authenticated success;
+- setup-required and storage-failure responses are bounded and do not reveal
+  partial config detail or raw state handles.
+
+ARIADNE hosted rehearsal is not required for PR484E.
+
+MIMIR opens the next direct connector unblock:
+
+`docs/roadmap/PR484F_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484F - Archive Connector OAuth Authorize Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE PROVIDER AUTHORIZATION URL BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether DAEDALUS may construct or issue
+  provider OAuth authorization URLs using the accepted PR484E state handle.
+- ARGUS must decide whether returning `authorizationUrl`, issuing a server
+  `302`, or deferring is safest.
+- ARGUS must explicitly decide the client-id exposure boundary because OAuth
+  authorization URLs require a client id while previous readiness readbacks did
+  not.
+- If accepted, ARGUS should wake DAEDALUS with exact route shape, files, tests,
+  provider URL/scope policy, redirect URI policy, safe response fields,
+  redaction/source guards, and ARIADNE requirement.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- No OAuth callback route, state consume/callback handling, OAuth code
+  handling, token exchange, token refresh/revocation, credential write/revoke,
+  provider SDK/call, configured real test credential, source inventory pull,
+  recurring pull, import write, UI, public connector page, jobs, queues,
+  workers, Redis, Cloudflare, billing/Stripe, provider/model calls, package
+  dependencies, broad connector marketplace, or social posting behavior.
+- Do not expose env names, env values, client secrets, secret tails, OAuth
+  codes, access tokens, refresh tokens, cookies, credentials, raw external
+  account ids, raw owner/row ids, raw session ids, nonce hashes, csrf hashes,
+  provider payloads, private source bodies, private messages, archive snippets,
+  SQL/table details, stack traces, hosted logs, storage paths, signed URLs,
+  prompts, or secret-shaped values.
+
 ## Latest ARGUS review - PR484E accepted for MIMIR
 
 ARGUS reviewed the PR484E Archive Connector OAuth State Start implementation:
