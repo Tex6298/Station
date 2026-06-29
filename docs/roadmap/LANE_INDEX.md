@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR470A | Owner Voice / Avatar Readiness Gate Hosted Rehearsal | ARIADNE / A4 | Open; hosted desktop/mobile owner-route visual check before PR470A closeout | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_ARIADNE.md` |
+| PR470A | Owner Voice / Avatar Readiness Gate Hosted Rehearsal | MIMIR / A1 | Pass; hosted owner/public visual proof complete, ready for closeout | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR470A rehearsal | Owner Voice / Avatar Readiness Gate | MIMIR -> ARIADNE -> MIMIR | Pass; owner Studio gate renders on desktop/mobile and sampled public routes expose no voice/avatar controls | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_RESULT.md` |
 | PR470A rehearsal opened | Owner Voice / Avatar Readiness Gate | MIMIR -> ARIADNE | Open; hosted owner Studio desktop/mobile readiness-gate check plus signed-out public route sample | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_ARIADNE.md` |
 | PR470A review | Owner Voice / Avatar Readiness Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted; private persona Studio home shows owner-only Voice / Avatar readiness readback, no media/provider/storage/public controls | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REVIEW_RESULT.md` |
 | PR470A implementation | Owner Voice / Avatar Readiness Gate | DAEDALUS -> ARGUS | Ready for review; private persona Studio home shows owner-only Voice / Avatar readiness readback, no media/provider/storage behavior | `docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_RESULT.md` |

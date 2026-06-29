@@ -97,3 +97,24 @@ Verdict:
 Task:
 - Close PR470A or route the smallest repair.
 ```
+
+## ARIADNE Result - 2026-06-29
+
+Result:
+
+```text
+PASS
+```
+
+ARIADNE completed the hosted owner-route visual rehearsal. The seeded owner
+persona Studio home rendered the owner-only Voice / Avatar readiness gate on
+desktop and 390px mobile, and sampled signed-out public persona/Space/document
+routes did not expose voice/avatar controls or availability claims.
+
+Result document:
+
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_RESULT.md`
+
+Hosted web/API reported ready at app commit `45b14930`, which is
+deploy-equivalent for this rehearsal because accepted commit `72488e6b` changed
+docs and agent state only.

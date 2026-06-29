@@ -20,6 +20,53 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR470A Owner Voice / Avatar Readiness Gate Hosted Rehearsal
+
+ARIADNE completed the hosted PR470A rehearsal on 2026-06-29:
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were ready at app commit `45b14930`, the PR470A app
+  implementation commit;
+- accepted commit `72488e6b` changed docs and agent state only, so the hosted
+  app commit is deploy-equivalent for this visual proof;
+- the seeded owner persona Studio home rendered the owner-only Voice / Avatar
+  readiness gate on desktop and 390px mobile;
+- the gate says voice/avatar behavior is not enabled yet;
+- provider/media adapter, consent/copyright, storage/privacy, cost, rate-limit,
+  and plan enforcement gates were visible;
+- sampled signed-out public persona and public Space/document routes exposed no
+  public voice/avatar controls, recording affordances, media upload controls,
+  anonymous audio input, or availability claims;
+- sampled UI did not expose private Memory, Archive, Canon, Continuity,
+  Integrity, owner setup, provider settings, credentials, storage paths, raw
+  internal ids, stack traces, table names, visitor identity, or secret-shaped
+  material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at deploy-equivalent app commit `45b14930`; accepted commit `72488e6b` changed docs/state only. |
+| Hosted API `/health/deployment` | Pass | Ready at deploy-equivalent app commit `45b14930`; accepted commit `72488e6b` changed docs/state only. |
+| Owner Studio desktop | Pass | Voice / Avatar readiness gate visible and readable. |
+| Owner Studio 390px mobile | Pass | Voice / Avatar readiness gate visible and readable. |
+| Disabled behavior copy | Pass | Gate says voice and avatar features are not enabled yet. |
+| Prerequisite gates | Pass | Provider/media, consent/copyright, storage/privacy, cost, rate-limit, and plan enforcement are visible. |
+| Signed-out public route sample | Pass | No voice/avatar controls or availability claims appeared. |
+| Visual fit | Pass | No horizontal overflow or clipped interactive controls. |
+| Public/private safety scan | Pass | No private/secret/internal material in sampled UI. |
+| Temporary Playwright/Node hosted harness | Pass | Completed with no defects. |
+| `git diff --check` | Pass before commit | Result commit validation. |
+
+Residual risk: this was a read-only hosted visual rehearsal. It did not open
+realtime voice calls, WebRTC, livestreaming, speech-to-text, text-to-speech,
+voice cloning, avatar likeness generation, audio/video upload, generated media
+storage, provider media calls, public controls, anonymous audio, billing,
+Stripe, Redis, Cloudflare, queues, workers, migrations, schema, API routes, or
+broad Studio/public redesign.
+
 ## PR470A Owner Voice / Avatar Readiness Gate ARGUS Review
 
 ARGUS accepted PR470A on 2026-06-29:

@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR470A hosted readiness rehearsal passed
+
+ARIADNE completed the hosted PR470A owner Voice / Avatar readiness gate
+rehearsal:
+
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Decision:
+
+- Hosted web/API were ready at app commit `45b14930`, the PR470A app
+  implementation commit.
+- Accepted commit `72488e6b` changed docs and agent state only, so the hosted
+  app commit is deploy-equivalent for this visual proof.
+- The seeded owner persona Studio home rendered the owner-only Voice / Avatar
+  readiness gate on desktop and 390px mobile.
+- The gate says voice/avatar behavior is not enabled yet and names
+  provider/media, consent/copyright, storage/privacy, cost, rate-limit, and plan
+  decisions as prerequisites.
+- Sampled signed-out public persona and public Space/document routes did not
+  expose voice/avatar controls, recording affordances, media upload controls,
+  anonymous audio input, or availability claims.
+
+Current lane:
+
+```text
+PR470A - Owner Voice / Avatar Readiness Gate Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS - READY FOR PR470A CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR470A if satisfied with the hosted owner/public visual
+  proof.
+- MIMIR should then choose the next PR470 slice or the next named Phase 3 lane.
+
 ## Latest MIMIR handoff - PR470A hosted rehearsal opened
 
 MIMIR routes PR470A to ARIADNE for the hosted owner-route visual rehearsal
