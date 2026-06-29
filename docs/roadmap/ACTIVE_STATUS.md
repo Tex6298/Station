@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484C closed, PR484D opened
+
+MIMIR closes PR484C Connector OAuth Readiness Route as accepted:
+
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_CLOSEOUT.md`
+
+Accepted shape:
+
+- authenticated read-only `GET /archive-connectors/readiness`;
+- owner-only archive connector readiness for `reddit` and `discord`;
+- safe credential encryption/provider app setup status only;
+- no OAuth state creation, credential writes, redirects/callbacks, token
+  exchange, provider calls, source inventory, import writes, UI, jobs, queues,
+  Redis, Cloudflare, billing/Stripe, or social posting behavior.
+
+ARIADNE hosted rehearsal is not required for PR484C.
+
+MIMIR opens the next direct connector unblock:
+
+`docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484D - Archive Connector Provider App Config Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE PROVIDER APP CONFIG CONTRACT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight archive-specific Reddit/Discord provider app
+  config naming and readiness semantics.
+- Proposed names:
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET`,
+  `ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID`, and
+  `ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET`.
+- These must remain separate from paused social publishing
+  `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET`.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, files, tests, safe
+  response fields, redaction/source guards, and ARIADNE requirement.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- No OAuth state create route, redirect/callback route, token exchange,
+  credential write/revoke, provider SDK/call, configured test credential,
+  source inventory pull, recurring pull, import write, UI, public connector
+  page, jobs, queues, workers, Redis, Cloudflare, billing/Stripe,
+  provider/model calls, package dependencies, hosted runtime behavior, broad
+  connector marketplace, or social posting behavior.
+- Do not expose env names, env values, client ids, client secrets, secret
+  tails, OAuth codes, access tokens, refresh tokens, cookies, credentials, raw
+  external account ids, raw owner/row ids, provider payloads, private source
+  bodies, private messages, archive snippets, SQL/table details, stack traces,
+  hosted logs, storage paths, signed URLs, prompts, or secret-shaped values.
+
 ## Latest ARGUS review - PR484C accepted for MIMIR
 
 ARGUS accepted PR484C Connector OAuth Readiness Route:
