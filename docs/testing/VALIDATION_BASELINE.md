@@ -20,6 +20,51 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR469B Public Seminar Populated Browser Rehearsal
+
+ARIADNE completed the hosted PR469B populated browser rehearsal on 2026-06-29:
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API health were ready at the accepted PR469 runtime `8b05122e`;
+- signed-out `GET /events/seminars` returned HTTP 200 with three populated
+  public seminar cards;
+- API card ids were opaque `seminar_<digest>` values;
+- API card hrefs and discussion/Space hrefs were public `/space/` or
+  `/forums/` paths;
+- `/events/seminars` rendered three populated cards on desktop and 390px mobile;
+- sampled card actions returned HTTP 200 on desktop and 390px mobile;
+- copy stayed readback-only and did not imply realtime rooms, livestreams,
+  attendance, RSVP, tickets, payments, recordings, transcripts, provider calls,
+  private memory, or owner-runtime behavior;
+- sampled UI/API text did not expose credentials, stack traces, storage paths,
+  raw prompts, provider payloads, owner setup, raw SQL/table names, visitor
+  identity, or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at accepted PR469 runtime `8b05122e`. |
+| Hosted API `/health/deployment` | Pass | Ready at accepted PR469 runtime `8b05122e`. |
+| Signed-out `GET /events/seminars` | Pass | HTTP 200 with 3 populated cards. |
+| API opaque card ids | Pass | All cards used `seminar_<digest>` ids. |
+| API public-safe hrefs | Pass | Card hrefs and discussion/Space hrefs were public `/space/` or `/forums/` paths. |
+| Desktop `/events/seminars` | Pass | Three populated cards rendered. |
+| 390px `/events/seminars` | Pass | Three populated cards rendered. |
+| Visible routeability | Pass | Sampled public card actions returned HTTP 200 on desktop and 390px mobile. |
+| Layout scan | Pass | No horizontal overflow or clipped interactive controls. |
+| Claim-boundary scan | Pass | No out-of-scope live/ticketing/provider claims in sampled copy. |
+| Public safety scan | Pass | No credentials, stack traces, storage paths, raw prompts, provider payloads, owner setup, raw SQL/table names, visitor identity, or secret-shaped material. |
+| Temporary Playwright/Node hosted harness | Pass | Completed with no defects. |
+| `git diff --check` | Pass before commit | Result commit validation. |
+
+Residual risk: this was a read-only hosted browser pass. It did not open or
+mutate realtime rooms, media, attendance, RSVP, tickets, payments, Stripe,
+provider settings, Redis, Cloudflare, workers, queues, admin curation UI, or
+broad UI scope.
+
 ## PR469B Public Seminar Populated Replay Seed
 
 DAEDALUS implemented PR469B on 2026-06-29, and ARGUS accepted it:

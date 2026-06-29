@@ -88,3 +88,23 @@ Verdict:
 Task:
 - Close PR469A/PR469B or route the smallest repair.
 ```
+
+## ARIADNE Result - 2026-06-29
+
+Result:
+
+```text
+PASS
+```
+
+ARIADNE completed the hosted populated-card browser rehearsal. Signed-out
+`GET /events/seminars` returned three public seminar cards, and
+`/events/seminars` rendered three populated cards on desktop and 390px mobile.
+Visible actions stayed public-safe and the sampled actions returned HTTP 200.
+
+Result document:
+
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_RESULT.md`
+
+No realtime/media/attendance/payment/provider/Redis/Cloudflare/worker/queue,
+admin curation, or broad UI scope was opened.
