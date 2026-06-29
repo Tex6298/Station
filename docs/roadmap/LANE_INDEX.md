@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR473A | Owner-Initiated Encounter Runtime Preview | DAEDALUS / A2 | Open; implement one-response same-owner non-durable private Studio preview | `docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md` |
+| PR473A | Owner-Initiated Encounter Runtime Preview | ARGUS / A3 | Ready for review; same-owner non-durable private Studio preview implemented by DAEDALUS | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_RESULT.md` |
 
 ## Recently Closed
 

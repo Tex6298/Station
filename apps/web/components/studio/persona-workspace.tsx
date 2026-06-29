@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import type { Persona } from "@station/types/persona";
+import type { Persona, PersonaSummary } from "@station/types/persona";
+import { ApiRequestError, apiPost } from "@/lib/api-client";
 import {
   activeStudioHref,
   studioPersonaWorkspacePrimaryActions,
@@ -10,6 +12,14 @@ import {
 } from "@/lib/studio-navigation";
 import { personaEncounterContractGate } from "@/lib/persona-encounter-contract";
 import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
+import {
+  PERSONA_ENCOUNTER_PREVIEW_PATH,
+  personaEncounterPreviewErrorCopy,
+  personaEncounterPreviewPayload,
+  personaEncounterPreviewReadback,
+  personaEncounterPreviewReady,
+  type PersonaEncounterPreviewResponse,
+} from "@/lib/persona-encounter-runtime";
 import { voiceAvatarReadinessGate } from "@/lib/voice-avatar-readiness";
 import {
   publicInteractionActivityBoundaryCopy,
@@ -191,6 +201,138 @@ export function PersonaEncounterContractPanel() {
   const gate = personaEncounterContractGate();
 
   return <ReadinessGatePanel gate={gate} ariaLabel="Persona encounter consent and provenance contract" />;
+}
+
+export function PersonaEncounterRuntimePreview({
+  persona,
+  personas,
+  token,
+}: {
+  persona: PersonaWithContinuity;
+  personas: PersonaSummary[];
+  token: string | null;
+}) {
+  const responderOptions = useMemo(
+    () => personas.filter((candidate) => candidate.id !== persona.id),
+    [persona.id, personas],
+  );
+  const [responderId, setResponderId] = useState("");
+  const [setup, setSetup] = useState("");
+  const [preview, setPreview] = useState<PersonaEncounterPreviewResponse | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const selectedResponderId = responderId || responderOptions[0]?.id || "";
+  const selectedResponder = responderOptions.find((candidate) => candidate.id === selectedResponderId) ?? null;
+  const ready = personaEncounterPreviewReady({
+    initiatorPersonaId: persona.id,
+    responderPersonaId: selectedResponderId,
+    setup,
+  });
+  const readback = personaEncounterPreviewReadback(preview);
+
+  async function runPreview() {
+    if (!token || !ready || busy) return;
+    setBusy(true);
+    setError(null);
+    setPreview(null);
+
+    try {
+      const response = await apiPost<PersonaEncounterPreviewResponse>(
+        PERSONA_ENCOUNTER_PREVIEW_PATH,
+        personaEncounterPreviewPayload({
+          initiatorPersonaId: persona.id,
+          responderPersonaId: selectedResponderId,
+          setup,
+        }),
+        token,
+      );
+      setPreview(response);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setError("Encounter preview could not run.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="studio-runtime-preview" aria-label="Persona encounter runtime preview">
+      <div className="studio-section-heading">
+        <div className="section-label">Encounter Preview</div>
+        <h2>One disposable responder reply</h2>
+        <p>Owner-initiated, same-owner, not saved, not a transcript, not shareable.</p>
+      </div>
+
+      <div className="studio-runtime-query">
+        <label>
+          <span className="section-label">Responder</span>
+          <select
+            className="select"
+            value={selectedResponderId}
+            onChange={(event) => setResponderId(event.target.value)}
+            disabled={busy || responderOptions.length === 0}
+            style={{ margin: "0.35rem 0 0" }}
+          >
+            {responderOptions.length === 0 ? (
+              <option value="">Create another persona first</option>
+            ) : responderOptions.map((candidate) => (
+              <option key={candidate.id} value={candidate.id}>
+                {candidate.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="button primary"
+          type="button"
+          onClick={runPreview}
+          disabled={!ready || !token || busy}
+        >
+          {busy ? "Generating..." : "Generate preview"}
+        </button>
+      </div>
+
+      <label>
+        <span className="section-label">Owner-authored setup</span>
+        <textarea
+          className="textarea"
+          value={setup}
+          onChange={(event) => setSetup(event.target.value)}
+          maxLength={1600}
+          disabled={busy}
+          placeholder={selectedResponder ? `Set up one moment for ${persona.name} and ${selectedResponder.name}.` : "Create another persona before running an encounter preview."}
+          style={{ margin: "0.35rem 0 0", minHeight: 110 }}
+        />
+      </label>
+
+      <div className="studio-runtime-counts">
+        {readback.slice(0, 4).map((item) => (
+          <span key={item}>
+            <strong>{item}</strong>
+          </span>
+        ))}
+      </div>
+
+      {error && <div className="space-form-error">{error}</div>}
+
+      {preview && (
+        <article className="studio-context-panel">
+          <div className="section-label">{preview.provenance.reply.label}</div>
+          <p>{preview.preview.reply.content}</p>
+          <div className="studio-runtime-counts">
+            {readback.slice(4).map((item) => (
+              <span key={item}>
+                <strong>{item}</strong>
+              </span>
+            ))}
+          </div>
+        </article>
+      )}
+    </section>
+  );
 }
 
 function ReadinessGatePanel({

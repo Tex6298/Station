@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR473A Owner-Initiated Encounter Runtime Preview
+
+DAEDALUS implemented PR473A on 2026-06-29:
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the preview is authenticated, private Studio-only, same-owner-only, and
+  owner-initiated;
+- the route verifies both selected personas belong to `req.user!.id` before any
+  provider call;
+- the owner-authored setup is bounded and the responder emits one
+  model-generated reply;
+- provider config, token budget, and encounter-specific per-minute/per-day
+  rate limits fail closed before provider calls;
+- the route calls `provider.sendMessage` directly and does not use
+  `enqueueLlmCall` or automatic retry behavior;
+- successful calls record token usage with `chatId: null`;
+- no conversation, message, transcript, draft, archive, memory, canon,
+  continuity, public/shareable object, storage, schema, migration, queue,
+  worker, Redis, Cloudflare, billing, public route, cross-owner route, or broad
+  UI scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts` | Pass | 6 tests passed: same-owner preview, cross-owner block, provider-config fail-closed, quota fail-closed, rate-limit fail-closed, provider failure no retry. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts` | Pass | 4 tests passed: payload, readiness, provenance readback, bounded error copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 10 tests passed after package builds; covers API route and web helper together. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 158 tests passed, including the new encounter runtime helper. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted owner-route visual rehearsal has not run. ARGUS should
+decide whether PR473A needs ARIADNE after technical review.
+
 ## PR473 Owner-Initiated Encounter Runtime Preflight
 
 ARGUS accepted PR473 preflight on 2026-06-29:

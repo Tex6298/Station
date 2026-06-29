@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR473A ready for ARGUS review
+
+DAEDALUS implemented the accepted owner-initiated encounter runtime preview:
+
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_RESULT.md`
+
+Implementation:
+
+- Added authenticated `POST /persona-encounters/preview`.
+- The route verifies both selected personas belong to `req.user!.id` before
+  any provider call.
+- The preview uses owner-authored setup, one selected same-owner responder
+  persona, and one model-generated responder reply.
+- Provider configuration, token budget, and encounter-specific per-minute and
+  per-day operational-cache rate limits fail closed before provider calls.
+- The route calls `provider.sendMessage` directly and does not use
+  `enqueueLlmCall`.
+- Successful calls record token usage with `chatId: null`.
+- The private Studio owner persona page can run the disposable preview under
+  the existing owner-only encounter guard.
+- Visible provenance says the preview is owner-authored setup, selected
+  same-owner personas, model-generated responder reply, not saved, not a
+  transcript, not shareable, and uses no Memory, Archive, Canon, Continuity,
+  Integrity, or transcript source retrieval.
+
+Non-scope confirmation:
+
+- No conversation, message, transcript, draft, archive, memory, canon,
+  continuity candidate, generated document/comment/thread/post, public or
+  shareable output, schema, migration, storage, queue, worker, Redis,
+  Cloudflare, billing, Stripe, public route, cross-owner route, autonomous loop,
+  retry helper, or broad UI scope was added.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`: pass, 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters`: pass, 10 tests after package builds.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 158 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, CRLF normalization warnings only.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR473A - Owner-Initiated Encounter Runtime Preview
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR473A against the accepted PR473 preflight boundaries.
+- If accepted, ARGUS should wake MIMIR for closeout or hosted rehearsal
+  routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR473 accepted for DAEDALUS
 
 ARGUS accepts a smallest owner-initiated encounter runtime preview:

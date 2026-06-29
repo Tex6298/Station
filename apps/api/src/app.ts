@@ -33,6 +33,7 @@ import { assistantRouter } from "./routes/assistant";
 import { publishingApprovalsRouter } from "./routes/publishing-approvals";
 import { settingsRouter } from "./routes/settings";
 import { eventsRouter } from "./routes/events";
+import { personaEncountersRouter } from "./routes/persona-encounters";
 
 export function createApp() {
   const app = express();
@@ -86,6 +87,7 @@ export function createApp() {
   app.use("/publishing/approvals", publishingApprovalsRouter);
   app.use("/settings", settingsRouter);
   app.use("/events", eventsRouter);
+  app.use("/persona-encounters", personaEncountersRouter);
 
   app.use(errorHandler);
   return app;

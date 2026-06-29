@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { ArchiveExportPackage } from "@station/types/export";
+import type { PersonaSummary } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
 import { personaEncounterContractCanRenderForOwner } from "@/lib/persona-encounter-contract";
@@ -14,6 +15,7 @@ import {
   ContinuityCards,
   PersonaEncounterContractPanel,
   PersonaEncounterReadinessGate,
+  PersonaEncounterRuntimePreview,
   PersonaWorkspaceHeader,
   PublicInteractionReadback,
   VoiceAvatarReadinessGate,
@@ -23,6 +25,7 @@ import {
 export default function PersonaPage() {
   const { personaId } = useParams<{ personaId: string }>();
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
+  const [ownedPersonas, setOwnedPersonas] = useState<PersonaSummary[]>([]);
   const [documents, setDocuments] = useState<PublishedContinuityDocument[]>([]);
   const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
   const [token, setToken] = useState<string | null>(null);
@@ -44,13 +47,15 @@ export default function PersonaPage() {
         setToken(session.access_token);
         setViewerUserId(session.user.id);
 
-        const [personaData, documentData, exportData] = await Promise.all([
+        const [personaData, personaListData, documentData, exportData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
+          apiGet<{ personas: PersonaSummary[] }>("/personas", session.access_token).catch(() => ({ personas: [] })),
           apiGet<{ documents: PublishedContinuityDocument[] }>(`/documents?personaId=${personaId}`, session.access_token).catch(() => ({ documents: [] })),
           apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, session.access_token).catch(() => ({ exports: [] })),
         ]);
         if (!cancelled) {
           setPersona(personaData.persona);
+          setOwnedPersonas(personaListData.personas ?? []);
           setDocuments(documentData.documents ?? []);
           setExportPackages(exportData.exports ?? []);
         }
@@ -89,6 +94,9 @@ export default function PersonaPage() {
       <VoiceAvatarReadinessGate />
       <PersonaEncounterReadinessGate />
       {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
+      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
+        <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
+      )}
 
       <section className="studio-home-grid">
         <div className="studio-home-main">
