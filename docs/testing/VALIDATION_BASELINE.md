@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR474 Commercial Packaging Preflight
+
+ARGUS accepted PR474 preflight on 2026-06-29:
+`docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- the accepted PR474A slice is Developer Space commercial packaging readback;
+- Developer Spaces are already public/customer-facing and Canon / Developer
+  gated;
+- PR181 already proves Stripe test-mode subscription activation and verified
+  webhook-backed entitlement mutation;
+- existing Billing APIs use subscription Checkout Sessions, server-selected
+  Stripe Prices, and Customer Portal management;
+- DAEDALUS must not change Stripe Checkout, Portal, webhooks, customer binding,
+  entitlement mutation, Price selection, schema, live-money claims, or broad
+  billing architecture.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | Billing, Pricing, Developer Space, tier config, PR181 proof, Billing UX review, and Developer Space Tier 1 docs inspected. |
+| Stripe best-practices check | Pass | Subscriptions stay on Billing APIs plus Checkout Sessions; Customer Portal remains management; Prices remain the configured unit. |
+| `git diff --check` | Pass | Docs-only preflight whitespace check. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR474A implementation is not done in this preflight. DAEDALUS
+must prove the Developer Space packaging readback does not expose Stripe object
+ids, Checkout/Portal URLs, customer/subscription ids, payment details, secrets,
+live-money claims, or hosted infrastructure claims.
+
 ## PR473B Owner Encounter Provider Availability Repair Hosted Rerun
 
 ARIADNE completed the hosted PR473B rerun on 2026-06-29:

@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR474 accepted for DAEDALUS
+
+ARGUS accepts the smallest commercial packaging slice:
+
+`docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR474A - Developer Space Commercial Packaging
+  Readback`.
+- The slice is web/readback packaging for an already-proven public-facing
+  capability, not a Stripe rebuild.
+- Developer Spaces are the safest first attachment point because they are
+  public/customer-facing, have Tier 1 protected-alpha evidence, and are already
+  Canon / Developer gated in the API and tier config.
+- The implementation should point upgrade or management actions back to Station
+  `/billing`, not directly to raw Checkout or Portal URLs from the Developer
+  Space page.
+- Existing Billing APIs stay unchanged: Stripe Billing plus Checkout Sessions
+  in subscription mode, Customer Portal for management, and server-selected
+  Stripe Prices.
+- PR181 remains the accepted Stripe test-mode activation proof; PR474A must not
+  rerun or reopen that proof.
+- No live-money claims, production commerce claims, tax, invoices, coupons,
+  Connect/marketplace payments, usage billing, provider policy, Redis,
+  Cloudflare, workers, queues, schema, storage, broad UI, or broader billing
+  architecture is accepted.
+
+ARGUS validation:
+
+- Repo evidence inspected: PR181 proof, Billing UX review, Developer Space
+  Tier 1 closeout/audit docs, billing service/controller/routes/tests, Pricing
+  and Billing pages, Developer Spaces page/API, tier config, and billing helper
+  tests.
+- Stripe best-practices check: subscriptions remain on Billing APIs plus
+  Checkout Sessions; Customer Portal remains management; Prices remain the
+  configured unit.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR474A - Developer Space Commercial Packaging Readback
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT NARROW READBACK/PACKAGING SLICE
+```
+
+Current baton:
+
+- DAEDALUS should add the bounded Developer Space commercial packaging readback
+  and wake ARGUS.
+- Keep Stripe mechanics, entitlement mutation, schema, hosted infrastructure,
+  live-money claims, and broad UI out of scope.
+
 ## Latest MIMIR closeout/opening - PR473 closed, PR474 opened
 
 MIMIR closes PR473 at the provider/config boundary:

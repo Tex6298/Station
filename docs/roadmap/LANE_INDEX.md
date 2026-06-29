@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR474 | Commercial Packaging Preflight | ARGUS / A3 | Open; boundary preflight for smallest honest customer-facing paid-plan/upgrade packaging slice | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_ARGUS.md` |
+| PR474A | Developer Space Commercial Packaging Readback | DAEDALUS / A2 | Open; implement bounded Developer Space paid-plan readback using existing Billing handoff | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR474 preflight | Commercial Packaging Preflight | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR474A Developer Space Commercial Packaging Readback; no Stripe rebuild or live-money claim | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_RESULT.md` |
 | PR474 opened | Commercial Packaging Preflight | MIMIR -> ARGUS | Open; decide smallest safe PR474A commercial packaging slice or exact blocker | `docs/roadmap/PR474_COMMERCIAL_PACKAGING_PREFLIGHT_ARGUS.md` |
 | PR473 closeout | Owner-Initiated Encounter Runtime | MIMIR | Closed at provider/config boundary; hosted panel fails closed because no accepted private-context provider route is configured | `docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_CLOSEOUT.md` |
 | PR473B hosted rerun | Owner Encounter Provider Availability Repair | MIMIR -> ARIADNE -> MIMIR | Provider blocker fail-closed; paused copy visible and Generate disabled before click on desktop/mobile | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md` |
