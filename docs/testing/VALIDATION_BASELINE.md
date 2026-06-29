@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR482 API Bridge Product Depth Preflight
+
+ARGUS accepted PR482A on 2026-06-29:
+`docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR482A_API_BRIDGE_SETUP_PACKET_READBACK`.
+
+Reason:
+
+- existing Developer Space owner/manage, onboarding, client docs, Tier 1
+  integration docs, and connection-tier readback provide enough product truth
+  for owner-only setup/readback;
+- the accepted slice is helper/UI/test work showing placeholder routes, header
+  names, payload families, key status as no-key/key-present/last-four only,
+  connection-tier state, and safe next actions;
+- product-visible signed dry-run is deferred because it needs a separate
+  no-write, owner-scoped, no-durable-row, no-raw-payload contract;
+- no live external pulls, OAuth, connector credentials, API/schema expansion,
+  migrations, hosted runtime, workers/queues, Cloudflare, Redis, billing/Stripe
+  mutation, provider/model calls, key reveal/rotation, live-send dry-run, or
+  public launch claim is accepted.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 58 tests passed, including Developer Space owner/private, credential, observed-runtime, field visibility, connection-tier, and Developer Agent boundary coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including no-secret webhook/client behavior and offline dry-run no-send privacy guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts apps/web/lib/developer-space-observatory.test.ts` | Pass | 33 tests passed, including API Bridge onboarding state, route-safety, observatory, and connection-tier readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from turbo cache. |
+
 ## PR481A Owner Persona Avatar URL Control Hosted Rehearsal
 
 ARIADNE completed the hosted owner/public proof on 2026-06-29:

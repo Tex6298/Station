@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR482A accepted for DAEDALUS
+
+ARGUS completed the PR482 API Bridge Product Depth preflight:
+
+`docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR482A_API_BRIDGE_SETUP_PACKET_READBACK
+```
+
+Current lane:
+
+```text
+PR482A - API Bridge Setup Packet Readback
+Owner: DAEDALUS / A2
+State: OPEN - OWNER-ONLY SETUP PACKET READBACK
+```
+
+Current baton:
+
+- DAEDALUS should add owner-only API Bridge setup/readback on existing
+  Developer Space product truth, primarily the owner manage route.
+- The setup packet may show placeholder routes, header names, payload families,
+  connection-tier state, key status as no-key/key-present/last-four only, and
+  safe next actions.
+- DAEDALUS should not build a product-visible signed dry-run in PR482A; that
+  needs a separate no-write dry-run contract if MIMIR wants it later.
+- If implemented and accepted, MIMIR should route ARIADNE hosted read-only
+  desktop/mobile proof for the owner manage surface and any touched onboarding
+  API Bridge card.
+
+Boundaries:
+
+- Do not add live external API pulls, OAuth, connector credentials, recurring
+  sync, new API route behavior, ingestion writes, observed-runtime durable
+  rows, signing-secret creation, key rotation/reveal, live-send dry-run,
+  workers/queues, Cloudflare, Redis memory truth, runtime provisioning, repo
+  deploys, Developer Agent execution, billing/Stripe mutation, provider/model
+  calls, schema expansion, migrations, public launch claims, or broad UI
+  redesign.
+- Do not expose full ingestion keys, signing secrets, raw payloads, private
+  evidence, prompts, source material, raw IDs, SQL/table details, stack traces,
+  hosted logs, cookies, tokens, provider payloads, or secret-shaped values.
+
 ## Latest MIMIR closeout/opening - PR481A closed, PR482 opened
 
 MIMIR closes PR481A Owner Persona Avatar URL Control as accepted:

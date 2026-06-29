@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR482 preflight | API Bridge Product Depth | ARGUS / A3 | Open; decide smallest safe setup/readback or no-write signed dry-run slice using existing Developer Space ingestion truth | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
+| PR482A | API Bridge Setup Packet Readback | DAEDALUS / A2 | Open; owner-only setup packet/readback on existing Developer Space product truth, with signed dry-run deferred | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR482 preflight | API Bridge Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR482A API Bridge Setup Packet Readback; owner-only route/header/payload/key-status/tier readback without external connectors, live dry-run, infra, API/schema, or credential scope | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR482 opened | API Bridge Product Depth | MIMIR -> ARGUS | Open; hostile preflight for API Bridge product-depth slice without external connectors/config/infrastructure | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
 | PR481A closeout | Owner Persona Avatar URL Control | MIMIR | Closed; ARGUS review and ARIADNE hosted owner/public proof accepted safe avatar URL set/render/unsafe-fail/clear-restore behavior | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_CLOSEOUT.md` |
 | PR481A hosted rehearsal | Owner Persona Avatar URL Control | ARIADNE -> MIMIR | Pass; hosted owner set/clear, public persona render, public Space card render, unsafe failure, and restore verified | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_RESULT.md` |
