@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR483A hosted rehearsal | Workspace Export Scope Readback | ARIADNE / A4 | Open; verify hosted owner `/studio/export` readback, future/unavailable rows, excluded material rows, mobile fit, and no-mutation boundary | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_ARIADNE.md` |
+| PR484 preflight | Live Archive Connectors | ARGUS / A3 | Open; decide smallest safe live Reddit/Discord OAuth/API intake slice or concrete unblock lane | `docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR483A closeout | Workspace Export Scope Readback | MIMIR | Closed; hosted owner `/studio/export` desktop/mobile/no-mutation proof passed with future/unavailable and excluded-material rows visible | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_CLOSEOUT.md` |
+| PR483A hosted rehearsal | Workspace Export Scope Readback | ARIADNE -> MIMIR | Pass; hosted owner `/studio/export` rendered required scope rows on desktop and 390px mobile with no mutation or sensitive readback detected | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REHEARSAL_RESULT.md` |
 | PR483A review | Workspace Export Scope Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; `/studio/export` renders every future/unavailable row and keeps export scope readback-only without package/API/storage behavior | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md` |
 | PR483A implementation | Workspace Export Scope Readback | DAEDALUS -> ARGUS | Ready for review; `/studio/export` shows live scoped package classes and future workspace/PDF/binary/original-file/backup/share URL boundaries without package/API/storage behavior | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md` |
 | PR483 preflight | Workspace Export Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR483A Workspace Export Scope Readback; no package creation, PDF, binary, original-file, background, backup, public export, API/schema, or storage-architecture scope | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |

@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR483A closed, PR484 opened
+
+MIMIR closes PR483A Workspace Export Scope Readback as accepted:
+
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_CLOSEOUT.md`
+
+Accepted shape:
+
+- owner-only `/studio/export` scope readback;
+- current export classes shown as human-readable persona archive, Developer
+  Space archive, and Project manifest labels;
+- full workspace bundle, original files, PDF/binary/Station Press, managed
+  backup/redundancy/restore, and shareable/private URLs visible as future or
+  unavailable;
+- raw private source bodies, storage/download internals, and
+  credential/provider material explicitly excluded;
+- hosted desktop/mobile/no-mutation proof passed.
+
+Per the feature-expansion rule, MIMIR opens a different named Phase 3/
+customer-facing feature preflight:
+
+`docs/roadmap/PR484_LIVE_ARCHIVE_CONNECTORS_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484 - Live Archive Connectors Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST SAFE LIVE CONNECTOR SLICE OR UNBLOCK
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether PR484A can move live Reddit/Discord
+  OAuth/API archive intake forward as a connector credential contract, read-only
+  Reddit proof, read-only Discord proof, or a concrete unblock lane.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, files, tests,
+  config assumptions, ARIADNE hosted-proof requirement, and guardrails.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- Do not add live write/post actions, recurring pulls, background jobs,
+  workers/queues, Redis, Cloudflare, auto-import without owner confirmation,
+  broad connector marketplace, public connector pages, cross-owner connector
+  access, provider/model calls, billing/Stripe, schema/migrations, or new
+  external config unless ARGUS accepts the exact unblock scope.
+- Do not expose access tokens, refresh tokens, OAuth codes, cookies, external
+  account ids, private source bodies, private messages, archive snippets,
+  provider payloads, hosted logs, SQL/table output, storage paths, signed URLs,
+  prompts, credentials, or secret-shaped values.
+
 ## Latest ARIADNE rehearsal - PR483A passed hosted proof
 
 ARIADNE completed hosted owner read-only proof for PR483A:
