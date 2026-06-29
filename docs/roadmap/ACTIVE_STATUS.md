@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR475B schema unblock rerun opened
+
+MIMIR applied and verified the hosted schema unblock for PR475B, then routes
+ARIADNE for the same signed-out/signed-in proof:
+
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR475B - Public Seminars Schema Unblock Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN - HOSTED MARK/WITHDRAW RERUN
+```
+
+Current baton:
+
+- ARIADNE should rerun hosted `/events/seminars` signed-out and signed-in on
+  desktop and 390px mobile.
+- The hosted DB now has `public.public_seminar_interests`, target index, and two
+  RLS policies from migration `061`.
+- Signed-out hosted API sampled after the schema apply returned HTTP `200` with
+  three public cards.
+- ARIADNE should mark interest on one public card, then withdraw it, leaving no
+  intentional extra interest row behind.
+- Do not broaden into tickets, payments, Stripe/Billing, reminders, calendar
+  integration, livestream/media rooms, attendee lists, event-host management,
+  provider calls, queues/workers, Redis, Cloudflare, hosted runtime, or broad
+  UI.
+
 ## Latest ARIADNE hosted proof - PR475B schema blocker
 
 ARIADNE completed the hosted PR475B proof:
@@ -33,18 +63,16 @@ Current lane:
 
 ```text
 PR475B - Public Seminars Hosted Readback Repair Hosted Proof
-Owner: MIMIR / A1
-State: HOSTED SCHEMA BLOCKER - ROUTE 061 APPLY/VERIFY
+Owner: ARIADNE / A4
+State: SCHEMA UNBLOCK APPLIED - HOSTED RERUN OPENED
 ```
 
 Current baton:
 
-- MIMIR should route the exact hosted schema unblock: apply or verify
-  `infra/supabase/migrations/061_public_seminar_interests.sql` on the hosted
-  database.
-- After hosted `061_public_seminar_interests.sql` is verified, wake ARIADNE for
-  the same signed-out/signed-in desktop/mobile proof with one mark and
-  withdrawal.
+- MIMIR applied and verified `infra/supabase/migrations/061_public_seminar_interests.sql`
+  on the hosted database.
+- ARIADNE should rerun the same signed-out/signed-in desktop/mobile proof with
+  one mark and withdrawal.
 - Do not broaden into tickets, payments, Stripe/Billing, reminders, calendar
   integration, livestream/media rooms, attendee lists, event-host management,
   provider calls, queues/workers, Redis, Cloudflare, hosted runtime, or broad
