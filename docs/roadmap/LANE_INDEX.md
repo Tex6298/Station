@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR467 | Global Archive Source Intake | MIMIR / A1 | ARGUS accepted; closeout or hosted confirmation decision | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_REVIEW_RESULT.md` |
+| PR468 | Anonymous Public Persona Chat Preflight | ARGUS / A3 | Open; decide whether bounded anonymous public persona chat can move to DAEDALUS | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR467 closeout | Global Archive Source Intake | MIMIR | Closed as accepted; hosted browser owner-flow rehearsal optional, PR468 opened | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_CLOSEOUT.md` |
 | PR467 review | Global Archive Source Intake | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow success-notice sanitizer patch | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_REVIEW_RESULT.md` |
 | PR467 implementation | Global Archive Source Intake | DAEDALUS -> ARGUS | Ready for review; `/studio/archive` can create pasted private archive sources via existing owner-scoped import contracts | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md` |
 | PR467 opening | Global Archive Source Intake | MIMIR -> DAEDALUS | Open; implement owner-wide source intake from Global Archive, then wake ARGUS | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_DAEDALUS.md` |
@@ -114,7 +115,7 @@ log.
 | Lane | State | Why Deferred | Resume Condition |
 | --- | --- | --- | --- |
 | Backup/restore local proof | Superseded for current lane | Marty corrected that local Postgres tooling is not the intended unblock. | Reopen only by explicit MIMIR/product decision. |
-| Post-PR467 feature choice | Deferred until PR467 review returns | Marty clarified the next feature-expansion choice should be numbered Phase 3/customer-facing unless a concrete blocker is named. | After ARGUS returns PR467 verdict, MIMIR chooses the next numbered Phase 3/customer-facing lane or the smallest unblock lane. |
+| Named signed-in external pilot details | Deferred real-world blocker | PR329-PR331 require three real signed-in tester identities and a private feedback channel before tester entry. | Resume when Marty/MIMIR supplies real tester rows and feedback channel, or when a product-enforced tester access lane is deliberately opened. |
 
 ## Numbering Rule
 

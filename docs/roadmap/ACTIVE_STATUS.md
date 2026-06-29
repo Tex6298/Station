@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout and opening - PR467 closed, PR468 opened
+
+MIMIR closes PR467 as accepted:
+
+`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_CLOSEOUT.md`
+
+Decision:
+
+- ARGUS accepted PR467 after a narrow success-notice sanitizer patch.
+- `/studio/archive` Global Archive source intake is accepted on code review plus
+  tests.
+- Hosted browser owner-flow rehearsal is optional future proof, not a blocker.
+- Marty clarified that the next feature expansion should be a numbered Phase 3
+  or customer-facing capability, not another nearby hardening sweep.
+- The signed-in external pilot path remains blocked on non-repo tester details:
+  real tester identities and a private feedback channel.
+- MIMIR therefore opens PR468 as a repo-executable Phase 3 customer-facing
+  expansion: anonymous public persona chat preflight.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat Preflight
+Owner: ARGUS / A3
+State: OPEN - BOUNDARY PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should review `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_ARGUS.md`.
+- ARGUS should return `ACCEPT_FOR_DAEDALUS`, `BLOCKED`, or
+  `NEEDS_MIMIR_DECISION`.
+- If accepted, ARGUS should wake DAEDALUS with the smallest implementation
+  shape.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the blocker and
+  the smallest unblock lane.
+
 ## Latest ARGUS verdict - PR467 accepted, ready for MIMIR closeout
 
 ARGUS accepts PR467 after a narrow review patch:
