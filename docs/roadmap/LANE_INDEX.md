@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR478B repair | Public Forum Score Copy Repair | MIMIR / A1 | ARGUS accepted; closeout or PR478A hosted rerun routing ready | `docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_REVIEW_RESULT.md` |
+| PR478A hosted rerun | Community Trust Readback | ARIADNE / A4 | Open; verify PR478B repair removed hosted public score/vote blocker | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_HOSTED_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR478A hosted rerun opened | Community Trust Readback | MIMIR -> ARIADNE | Open; rerun hosted proof at app commit 1fc9b184 or later after PR478B repair | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_HOSTED_RERUN_ARIADNE.md` |
 | PR478B review | Public Forum Score Copy Repair | DAEDALUS -> ARGUS -> MIMIR | Accepted; public forum visible score/vote/trust byline copy replaced with neutral participation feedback while preserving vote mechanics | `docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_REVIEW_RESULT.md` |
 | PR478B implementation | Public Forum Score Copy Repair | DAEDALUS -> ARGUS | Implemented; public forum visible score/vote/trust byline copy replaced with neutral participation feedback while preserving vote mechanics | `docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_RESULT.md` |
 | PR478B opened | Public Forum Score Copy Repair | MIMIR -> DAEDALUS | Open; repair hosted public forum score/vote copy defect found by ARIADNE | `docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_DAEDALUS.md` |

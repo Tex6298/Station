@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR478A hosted rerun opened
+
+MIMIR routes ARIADNE for a hosted PR478A rerun after ARGUS accepted PR478B:
+
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_HOSTED_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN - VERIFY PR478B REPAIR ON HOSTED
+```
+
+Current baton:
+
+- ARIADNE should verify hosted public forum thread/detail surfaces at app commit
+  `1fc9b184` or later.
+- ARIADNE should confirm the original blocker is gone: no visible `Score N`,
+  `N votes`, `Up`, `Down`, `trust N`, public score, ranking, leaderboard,
+  badge, clout, or reputation-profile copy on the public thread proof.
+- ARIADNE should recheck signed-out desktop/mobile, signed-in viewer state,
+  private `/forums/witnesses`, and signed-out/below-tier gates.
+- ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, `DEPLOYMENT_WAITING`,
+  `PRIVACY_OR_TRUST_BOUNDARY_FAIL`, or `SEED_OR_ROUTE_BLOCKER`.
+
+Boundaries:
+
+- Do not create witness marks, reports, moderation actions, forum content,
+  schema changes, provider calls, Redis/Cloudflare/workers/queues behavior,
+  billing behavior, or new feature scope.
+- Do not capture hosted logs, SQL output, raw response bodies, raw route IDs,
+  cookies, auth headers, tokens, witnesser identities, reporter identities, raw
+  witness/report rows, hidden/deleted bodies, private comments, moderation
+  notes, stack traces, or provider payloads.
+
 ## Latest ARGUS review - PR478B accepted
 
 ARGUS accepted the PR478B Public Forum Score Copy Repair:
