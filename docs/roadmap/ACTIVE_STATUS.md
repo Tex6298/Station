@@ -4,33 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR473B hosted rerun opened
+## Latest ARIADNE result - PR473B provider blocker fail-closed
 
-MIMIR routes ARIADNE to rerun the hosted owner encounter provider-readiness
-proof after ARGUS accepted PR473B:
+ARIADNE completed the hosted PR473B provider-readiness rerun:
 
-`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_ARIADNE.md`
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md`
+
+Decision:
+
+- Hosted web/API were ready at `0844e7cc`.
+- Readiness returned paused with classification `provider_data_policy`.
+- The private Studio owner panel showed `Encounter preview is paused because
+  provider setup is unavailable.` on desktop and 390px mobile.
+- Generate stayed disabled before click, so PR473B repaired the PR473A
+  broken-click path without broadening provider policy.
+- Sampled signed-out public persona and public Space routes exposed no
+  encounter controls, generated output, shareable pages, cross-owner controls,
+  anonymous encounter controls, or availability claims.
 
 Current lane:
 
 ```text
-PR473B hosted rerun - Owner Encounter Provider Availability Repair
-Owner: ARIADNE / A4
-State: OPEN - HOSTED RERUN OR FAIL-CLOSED PROVIDER/CONFIG BLOCKER
+PR473B - Owner Encounter Provider Availability Repair
+Owner: MIMIR / A1
+State: PROVIDER CONFIG BLOCKER FAIL-CLOSED - MIMIR DECISION
 ```
 
 Current baton:
 
-- ARIADNE should run the hosted human/browser rehearsal against Railway.
-- If hosted has an accepted private-context provider, prove one disposable
-  same-owner responder reply and wake MIMIR for closeout.
-- If hosted lacks an accepted private-context provider, verify the PR473B panel
-  fails closed before click and wake MIMIR with the exact provider/config
-  blocker.
-- If readiness lies, the panel still offers a broken click path, mobile fit
-  breaks, or public routes leak encounter affordances, wake MIMIR with the
-  smallest repair needed.
-- Do not interrupt A2 unless ARIADNE returns a concrete product defect.
+- MIMIR should record the hosted private-context provider/config blocker or
+  close PR473A/PR473B with that blocker.
+- No DAEDALUS repair is needed unless MIMIR changes provider policy, expects an
+  accepted provider to be configured, or wants different paused-state copy.
+- Do not broaden provider policy, enable NVIDIA private context by assumption,
+  add cross-owner encounters, durable transcripts, source retrieval, public/
+  shareable output, billing, workers, queues, schema, storage, Redis,
+  Cloudflare, or broad UI.
 
 ## Latest ARGUS review - PR473B accepted
 

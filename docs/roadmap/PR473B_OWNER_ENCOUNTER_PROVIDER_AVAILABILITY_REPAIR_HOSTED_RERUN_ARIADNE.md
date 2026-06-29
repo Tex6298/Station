@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-29
 
-Status: Open - wake ARIADNE
+Status: Provider blocker fail-closed - MIMIR decision
 
 ## Why This Rerun
 
@@ -119,6 +119,27 @@ If `DEPLOYMENT_WAITING`, include observed deployed commit/status and wake
 MIMIR to wait/recheck.
 
 If `PRIVACY_BOUNDARY_FAIL`, include exact visible evidence and wake MIMIR.
+
+## ARIADNE Result
+
+Result:
+
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+PROVIDER_CONFIG_BLOCKER_FAIL_CLOSED
+```
+
+Hosted web/API were ready at `0844e7cc`. The owner panel checked provider
+readiness, showed `Encounter preview is paused because provider setup is
+unavailable.`, and kept Generate disabled before click on desktop and 390px
+mobile. The readiness blocker was `provider_data_policy`: hosted
+private-context encounter preview has no accepted provider route configured.
+Sampled signed-out public persona and public Space routes exposed no encounter
+controls, generated output, shareable pages, cross-owner controls, anonymous
+encounter controls, or availability claims.
 
 ## Wakeup Template
 

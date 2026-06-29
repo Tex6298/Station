@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR473B Owner Encounter Provider Availability Repair Hosted Rerun
+
+ARIADNE completed the hosted PR473B rerun on 2026-06-29:
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md`.
+
+Validation result: `PROVIDER_CONFIG_BLOCKER_FAIL_CLOSED`.
+
+Reason:
+
+- hosted web/API were ready at `0844e7cc`;
+- the hosted owner seed had three personas, so the rehearsal could select a
+  same-owner initiator/responder pair;
+- readiness returned paused with classification `provider_data_policy`;
+- the owner panel showed `Encounter preview is paused because provider setup is
+  unavailable.` on desktop and 390px mobile;
+- Generate stayed disabled before click, so the PR473A broken-click path is
+  repaired for hosted;
+- sampled signed-out public persona and public Space routes exposed no public
+  encounter controls, generated output, shareable pages, cross-owner controls,
+  anonymous encounter controls, or availability claims.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at `0844e7cc`. |
+| Hosted API `/health/deployment` | Pass | Ready at `0844e7cc`. |
+| Hosted owner seed | Pass | Three owner personas available; same-owner pair selected without recording raw ids. |
+| Readiness endpoint | Pass | Paused with `provider_data_policy`. |
+| Owner Studio desktop panel | Pass | Paused provider setup copy visible; Generate disabled. |
+| Owner Studio 390px mobile | Pass | Paused provider setup copy visible; Generate disabled. |
+| Runtime generation | Not run | Hosted lacks an accepted private-context provider, so fail-closed blocker is the expected hosted result. |
+| Signed-out public persona sample | Pass | No encounter controls, generated output, shareable pages, cross-owner controls, anonymous encounter controls, or availability claims. |
+| Signed-out public Space sample | Pass | No encounter controls, generated output, shareable pages, cross-owner controls, anonymous encounter controls, or availability claims. |
+| Visual fit | Pass | No horizontal overflow or clipped controls in sampled owner/public routes. |
+| Safety scan | Pass | Public samples did not expose private Memory, Archive, Canon, Continuity, Integrity, owner setup, private source text, provider settings, credentials, storage paths, raw internal ids, stack traces, table names, visitor identity, or secret-shaped material. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed with no defects and no runtime click. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this result changes docs and agent state
+only.
+
 ## PR473B Owner Encounter Provider Availability Repair ARGUS Review
 
 ARGUS accepted PR473B on 2026-06-29 after a narrow readiness owner-scope test

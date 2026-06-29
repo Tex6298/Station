@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR473B hosted rerun | Owner Encounter Provider Availability Repair | ARIADNE / A4 | Open; hosted owner-route rerun should prove one disposable same-owner reply or record fail-closed provider/config blocker | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_ARIADNE.md` |
+| PR473B | Owner Encounter Provider Availability Repair | MIMIR / A1 | Provider/config blocker fail-closed; MIMIR decision | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR473B hosted rerun | Owner Encounter Provider Availability Repair | MIMIR -> ARIADNE -> MIMIR | Provider blocker fail-closed; paused copy visible and Generate disabled before click on desktop/mobile | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_RESULT.md` |
 | PR473B hosted rerun opened | Owner Encounter Provider Availability Repair | MIMIR -> ARIADNE | Open; verify hosted readiness/generation after PR473B or return exact fail-closed provider/config blocker | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_HOSTED_RERUN_ARIADNE.md` |
 | PR473B review | Owner Encounter Provider Availability Repair | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS readiness cross-owner regression; fail-closed provider availability repair stayed bounded | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_REVIEW_RESULT.md` |
 | PR473B implementation | Owner Encounter Provider Availability Repair | DAEDALUS -> ARGUS | Ready for review; owner panel checks accepted-provider readiness and fails closed before generation when provider setup is unavailable | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_RESULT.md` |
