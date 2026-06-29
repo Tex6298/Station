@@ -88,10 +88,10 @@ test("public seminar interest helpers stay aggregate and viewer-local", () => {
   assert.equal(publicSeminarInterestActionLabel({ ...card, viewerInterested: true }), "Withdraw interest");
   assert.equal(publicSeminarViewerInterestCopy(false), "Save interest for your account.");
   assert.equal(publicSeminarViewerInterestCopy(true), "You are interested.");
-  assert.equal(publicSeminarSignInPromptCopy(), "Sign in to save private interest for your account.");
+  assert.equal(publicSeminarSignInPromptCopy(), "Sign in to save interest for your account.");
 
   const safeCopy = publicSeminarInterestSafetyCopy();
-  for (const phrase of ["not a ticket", "booking", "waitlist", "reminder", "payment", "attendance guarantee"]) {
+  for (const phrase of ["aggregate count only", "not a ticket", "booking", "waitlist", "reminder", "payment", "attendance guarantee"]) {
     assert.match(safeCopy, new RegExp(phrase, "i"));
   }
   assert.doesNotMatch(safeCopy, /attendee list|email|avatar|owner control|admin panel|Stripe/i);

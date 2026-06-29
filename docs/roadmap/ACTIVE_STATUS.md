@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR475A accepted
+
+ARGUS accepts the signed-in seminar interest toggle after a narrow UI copy
+patch:
+
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REVIEW_RESULT.md`
+
+Decision:
+
+- PR475A matches the accepted preflight boundary.
+- `GET /events/seminars` remains public; optional auth only adds current viewer
+  `viewerInterested`.
+- Signed-out responses omit `viewerInterested`.
+- Public readback exposes aggregate `interestCount` only, not attendee
+  identities.
+- Mark and withdraw endpoints require auth.
+- The public `seminar_<digest>` id remains only a client handle.
+- Durable rows use signed-in `user_id` plus server-resolved
+  `(source_type, source_id)` for public `document`, `thread`, or `space`
+  targets.
+- Withdrawal hard-deletes the viewer's row and removes them from the aggregate.
+- Stale, malformed, private, missing, or unrouteable targets fail closed with
+  bounded copy.
+
+ARGUS patch:
+
+- Replaced over-private UI copy with aggregate-honest copy.
+- The UI now says names are not shown and saved interest contributes only to
+  the aggregate count.
+- No API behavior, migration, persistence contract, auth boundary, or aggregate
+  behavior changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass; line-ending normalization warnings only.
+- `git diff --cached --check`: pass.
+- Diff-only sensitive-pattern scan: pass; dummy token fixtures only.
+- Diff-only scope scan: pass; expected schema/test/docs/negative-copy
+  references only.
+
+Residual risk:
+
+- Hosted desktop/mobile signed-out and signed-in proof has not run after PR475A.
+- Exact aggregate count is intentionally public; low counts remain visible by
+  accepted design.
+
+Current lane:
+
+```text
+PR475A - Signed-In Seminar Interest Toggle
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSE OR ROUTE HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should close PR475A or route ARIADNE for hosted signed-out/signed-in
+  `/events/seminars` proof, including one mark and one withdrawal.
+- Do not broaden into tickets, payments, Stripe, reminders, calendar
+  integration, livestream/media rooms, attendee lists, event-host management,
+  provider calls, queues/workers, Redis, Cloudflare, hosted runtime, or broad
+  UI.
+
 ## Latest DAEDALUS handoff - PR475A ready for ARGUS review
 
 DAEDALUS implemented the signed-in seminar interest toggle:

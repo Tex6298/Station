@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475A Signed-In Seminar Interest Toggle ARGUS Review
+
+ARGUS accepted PR475A on 2026-06-29 after a narrow UI copy patch:
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- public seminar cards expose aggregate `interestCount` only;
+- signed-in viewers can mark and withdraw interest;
+- viewer state is returned only for the current signed-in viewer;
+- durable persistence uses server-resolved public source references rather
+  than the public digest handle;
+- stale, private, hidden, community-only, unsafe, missing, or unrouteable
+  targets fail closed through the existing public resolver;
+- ARGUS corrected UI copy so it no longer overclaims private visibility while
+  still showing aggregate count;
+- no RSVP, ticketing, payment, reminder, livestream, attendee-list, anonymous
+  visitor identity, provider, worker, queue, Redis, Cloudflare, hosted runtime,
+  or broad UI scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 5 tests passed for public routeability, auth-required mark/withdraw, idempotency, viewer-local state, stale/private fail-closed behavior, and bounded errors. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 3 tests passed after aggregate-honest copy patch. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors; line-ending normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive-pattern scan | Pass | No real secrets, payment ids, cookies, raw auth values, visitor identifiers, SQL output, logs, or attendee identity output; dummy token fixtures only. |
+| Diff-only scope scan | Pass | Expected schema, test, docs, and negative-copy references only. |
+
+Residual risk: hosted desktop/mobile signed-out and signed-in proof has not run
+after PR475A. Exact aggregate count is intentionally public; low counts remain
+visible by accepted design.
+
 ## PR475A Signed-In Seminar Interest Toggle
 
 DAEDALUS implemented PR475A on 2026-06-29:

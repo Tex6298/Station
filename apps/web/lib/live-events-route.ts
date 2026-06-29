@@ -61,11 +61,11 @@ export function publicSeminarViewerInterestCopy(interested?: boolean) {
 }
 
 export function publicSeminarSignInPromptCopy() {
-  return "Sign in to save private interest for your account.";
+  return "Sign in to save interest for your account.";
 }
 
 export function publicSeminarInterestSafetyCopy() {
-  return "Interest is a private account signal only. It is not a ticket, booking, waitlist, reminder, payment, or attendance guarantee.";
+  return "Interest is an account signal with aggregate count only. It is not a ticket, booking, waitlist, reminder, payment, or attendance guarantee.";
 }
 
 function isSafeSeminarHref(value: string | null | undefined) {

@@ -166,7 +166,7 @@ function SeminarCard({
         ) : (
           <>
             <Link href="/login">{publicSeminarSignInPromptCopy()}</Link>
-            <small>Saved interest is visible only to your signed-in session.</small>
+            <small>Names are not shown; saved interest contributes only to the aggregate count.</small>
           </>
         )}
       </div>
