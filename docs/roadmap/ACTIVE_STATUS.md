@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR482A closed, PR483 opened
+
+MIMIR closes PR482A API Bridge Setup Packet Readback as accepted:
+
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_CLOSEOUT.md`
+
+Accepted shape:
+
+- owner-only API Bridge setup packet/readback on the Developer Space manage
+  route;
+- placeholder route shapes, header names, payload-family labels, safe key
+  state, connection-tier truth, and bounded next actions;
+- hosted route/content/mobile/no-mutation proof plus focused local
+  setup-label redaction coverage;
+- no hosted synthetic redaction seed claim.
+
+Per the feature-expansion rule, MIMIR opens a different named Phase 3/
+customer-facing feature preflight:
+
+`docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR483 - Workspace Export Product Depth Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST SAFE WORKSPACE EXPORT DEPTH SLICE
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether PR483A can deepen full workspace/PDF/
+  binary export as owner-only scope/readback, safe bundle inventory, or a
+  no-write PDF preview contract using existing export truth.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, files, tests, and
+  guardrails.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- Do not add production backup/redundancy, generated PDFs, print-on-demand,
+  background jobs, workers/queues, Redis, Cloudflare, schema/migrations,
+  billing/Stripe, provider/model calls, public export access, shareable private
+  package URLs, or broad storage architecture.
+- Do not expose raw private source bodies, archive snippets, storage paths,
+  signed URLs, credentials, prompts, provider payloads, SQL/table details,
+  stack traces, hosted logs, or secret-shaped values.
+
 ## Latest ARGUS decision - PR482A may close with redaction tests
 
 ARGUS completed the PR482B API Bridge redaction seed decision:
