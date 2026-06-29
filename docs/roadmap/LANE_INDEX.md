@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468 | Anonymous Public Persona Chat | ARGUS / A3 | Open; review DAEDALUS implementation for one replay persona anonymous chat | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md` |
+| PR468 | Anonymous Public Persona Chat | ARGUS / A3 | Open; review DAEDALUS implementation, then continue through rehearsal/closeout before choosing the next named Phase 3 feature | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_RESULT.md` |
 
 ## Recently Closed
 
@@ -118,6 +118,7 @@ log.
 | --- | --- | --- | --- |
 | Backup/restore local proof | Superseded for current lane | Marty corrected that local Postgres tooling is not the intended unblock. | Reopen only by explicit MIMIR/product decision. |
 | Named signed-in external pilot details | Deferred real-world blocker | PR329-PR331 require three real signed-in tester identities and a private feedback channel before tester entry. | Resume when Marty/MIMIR supplies real tester rows and feedback channel, or when a product-enforced tester access lane is deliberately opened. |
+| Post-PR468 named Phase 3 feature choice | Deferred until PR468 closes | Marty clarified that PR468 should run through review/rehearsal/closeout first. | After PR468 closes, choose live events/seminars, voice, Institutional Spaces, Research/commercialisation, or another documented Phase 3 feature; if blocked, open the smallest numbered unblock lane for that feature. |
 
 ## Numbering Rule
 

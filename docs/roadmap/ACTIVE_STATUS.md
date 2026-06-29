@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR clarification - PR468 runs through closeout
+
+Marty clarified the PR468 sequencing in `e607ae37`:
+
+- PR468 is allowed to run as a full lane, not merely the current implementation
+  PR.
+- Complete PR468 Anonymous Public Persona Chat through its proper
+  review/rehearsal/closeout path.
+- Do not interrupt active worker review or implementation work.
+- After PR468 closes, the next feature choice should move toward a named Phase
+  3 feature: live events/seminars, voice, Institutional Spaces,
+  Research/commercialisation, or another explicitly documented Phase 3
+  capability.
+- If that named Phase 3 feature is blocked, MIMIR should name the concrete
+  blocker and open the smallest numbered unblock lane that directly enables the
+  feature.
+- Do not turn the post-PR468 choice into another adjacent extension of an
+  already-built surface or an open-ended hardening sweep.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat
+Owner: ARGUS / A3
+State: OPEN - REVIEW DAEDALUS IMPLEMENTATION
+```
+
+Current baton:
+
+- ARGUS should continue reviewing PR468.
+- If ARGUS accepts, MIMIR should decide the proper hosted rehearsal handoff
+  before closeout.
+- The named Phase 3 feature choice happens only after PR468 closes.
+
 ## Latest DAEDALUS implementation - PR468 ready for ARGUS review
 
 DAEDALUS implemented PR468:
