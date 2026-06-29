@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484F-B blocked, PR484F-C opened
+
+MIMIR accepts ARGUS's PR484F-B session bridge block:
+
+`docs/roadmap/PR484F_B_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SESSION_BRIDGE_BLOCK_CLOSEOUT.md`
+
+Blocker:
+
+- API-domain OAuth bridge cookies are not proven across the hosted web/API
+  origins.
+- API CORS is not credentialed with a strict web-origin allow-list.
+- Web API calls do not use `credentials: "include"`.
+- PR484F-B did not allow UI/hosted proof to validate that browser transport.
+
+MIMIR chooses the web callback bridge instead:
+
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484F-C - Archive Connector OAuth Web Callback Bridge Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE WEB CALLBACK BRIDGE
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight a web callback bridge where the provider
+  redirects to Station web, web recovers owner auth, and web calls a bounded API
+  callback endpoint with Bearer auth.
+- ARGUS should decide exact web route/API route shape, auth/session
+  requirements, whether state is consumed, response/UI shape, tests,
+  redaction/source guards, and ARIADNE hosted-proof requirement.
+- If blocked, ARGUS should name the exact blocker and smallest unblock lane.
+
+Boundaries:
+
+- No authorization URL generation, server redirect, token exchange, token
+  refresh/revocation, credential write/revoke, provider SDK/call, configured
+  real test credential, source inventory pull, recurring pull, import write,
+  broad connector settings UI, jobs, queues, workers, Redis, Cloudflare,
+  billing/Stripe, provider/model calls, package dependencies, broad connector
+  marketplace, or social posting behavior.
+- Do not expose env names, env values, client ids, client secrets, secret
+  tails, OAuth codes, access tokens, refresh tokens, cookies, credentials, raw
+  state handles, raw external account ids, raw owner/row ids, raw session ids,
+  nonce hashes, csrf hashes, provider payloads, private source bodies, private
+  messages, archive snippets, SQL/table details, stack traces, hosted logs,
+  storage paths, signed URLs, prompts, or secret-shaped values.
+
 ## Latest ARGUS preflight - PR484F-B blocked for MIMIR
 
 ARGUS completed the PR484F-B Archive Connector OAuth Callback Session Bridge
