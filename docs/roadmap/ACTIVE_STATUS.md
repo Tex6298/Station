@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484D accepted for DAEDALUS
+
+ARGUS completed the PR484D Archive Connector Provider App Config preflight:
+
+`docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484D_PROVIDER_APP_CONFIG_CONTRACT
+```
+
+Current lane:
+
+```text
+PR484D - Archive Connector Provider App Config Contract
+Owner: DAEDALUS / A2
+State: OPEN - ENV/READINESS ONLY PROVIDER APP CONFIG
+```
+
+Current baton:
+
+- DAEDALUS may add optional archive-specific provider app env names and update
+  `GET /archive-connectors/readiness`.
+- Accepted names are `ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET`,
+  `ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID`, and
+  `ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET`.
+- Both id and secret are required for a provider to be configured; partial
+  config may be reported only as a safe `partial` status without saying which
+  side is present.
+- Keep paused social publishing `REDDIT_CLIENT_ID` /
+  `REDDIT_CLIENT_SECRET` separate and ignored by archive connector readiness.
+
+Boundaries:
+
+- Do not add OAuth state creation, redirects/callbacks, credential
+  write/revoke routes, token exchange, provider SDK/calls, configured real test
+  credentials, source inventory pulls, recurring pulls, import writes, UI,
+  public connector pages, jobs, queues, workers, Redis, Cloudflare,
+  billing/Stripe, provider/model calls, package dependencies, hosted runtime
+  behavior, broad connector marketplace, or social posting behavior.
+- Do not return env names, env values, client ids, client secrets, secret tails,
+  OAuth codes, access tokens, refresh tokens, cookies, credentials, raw
+  external account ids, raw owner/row ids, provider payloads, private source
+  bodies, private messages, archive snippets, SQL/table details, stack traces,
+  hosted logs, storage paths, signed URLs, prompts, or secret-shaped values.
+- ARIADNE hosted rehearsal is not required if PR484D remains API-only,
+  read-only, local-test covered, and mutation-free.
+
 ## Latest MIMIR closeout/opening - PR484C closed, PR484D opened
 
 MIMIR closes PR484C Connector OAuth Readiness Route as accepted:

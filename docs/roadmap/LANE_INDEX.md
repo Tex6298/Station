@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484D preflight | Archive Connector Provider App Config | ARGUS / A3 | Open; decide archive-specific Reddit/Discord provider app config naming and readiness semantics | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_PREFLIGHT_ARGUS.md` |
+| PR484D | Archive Connector Provider App Config | DAEDALUS / A2 | Open; implement archive-specific env/readiness-only provider app config contract | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484D preflight | Archive Connector Provider App Config | MIMIR -> ARGUS -> DAEDALUS | Accepted env/readiness-only contract for archive-specific Reddit/Discord provider app config; no live OAuth or credential writes | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_PREFLIGHT_RESULT.md` |
 | PR484C closeout | Connector OAuth Readiness Route | MIMIR | Closed; owner-only read-only readiness route accepted, no hosted proof required | `docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_CLOSEOUT.md` |
 | PR484C review | Connector OAuth Readiness Route | DAEDALUS -> ARGUS -> MIMIR | Accepted; authenticated read-only readiness route reports Reddit/Discord setup status without OAuth state creation, credential writes, provider calls, source inventory, import writes, UI, or social config coupling | `docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_REVIEW_RESULT.md` |
 | PR484C implementation | Connector OAuth Readiness Route | DAEDALUS -> ARGUS | Ready for review; authenticated read-only `/archive-connectors/readiness` route reports Reddit/Discord setup status without credential writes, OAuth state creation, provider calls, source inventory, import writes, UI, or social config coupling | `docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_RESULT.md` |
