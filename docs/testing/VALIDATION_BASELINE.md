@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484C Connector OAuth Readiness Route
+
+DAEDALUS implemented PR484C on 2026-06-29:
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- PR484C adds an authenticated owner-only read-only
+  `GET /archive-connectors/readiness` route;
+- the route reports `reddit` and `discord` archive connector readiness only;
+- connector credential encryption readiness is exposed only as a safe boolean
+  and bounded provider status;
+- provider OAuth app config remains not accepted/configured for both providers;
+- paused social publishing env/config does not make archive connector readiness
+  appear configured;
+- no OAuth state creation, credential write, OAuth redirect/callback, token
+  exchange, provider call, source inventory, import write, route UI, job,
+  queue, worker, Redis, Cloudflare, billing, provider/model, package
+  dependency, hosted runtime, public connector page, or social posting behavior
+  was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 4 tests passed for auth, bounded readiness, encryption boolean flip, social config isolation, no mutation, sensitive readback, and source guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 44 tests passed across the new readiness route plus existing connector storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+
 ## PR484C Connector OAuth Readiness Route Preflight
 
 ARGUS accepted PR484C for DAEDALUS on 2026-06-29:

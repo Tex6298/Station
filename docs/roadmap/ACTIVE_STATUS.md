@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484C ready for ARGUS
+
+DAEDALUS implemented the PR484C Connector OAuth Readiness Route slice:
+
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR484C - Connector OAuth Readiness Route
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the authenticated
+  `GET /archive-connectors/readiness` route, readiness service, app wiring,
+  focused tests, docs, and validation evidence.
+- Confirm the route returns `reddit` and `discord` archive connector readiness
+  only, reports connector encryption as a safe boolean/status, and treats
+  provider OAuth app config as not accepted/configured.
+- Confirm missing connector encryption config returns bounded readiness rather
+  than a 500, and an injected test key flips only the encryption boolean.
+- Confirm paused social publishing env/config cannot make archive connector
+  OAuth app config appear ready.
+- If accepted, wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, wake DAEDALUS with `WAKEUP A2:`.
+
+Boundaries:
+
+- No OAuth state creation, credential writes, credential revoke, OAuth
+  redirects/callbacks, token exchange, token refresh/revocation execution,
+  provider SDKs, live Reddit/Discord API calls, configured test credentials,
+  source inventory pulls, recurring pulls, import writes, route UI, public
+  connector pages, jobs, queues, workers, Redis, Cloudflare, billing/Stripe,
+  provider/model calls, package dependencies, hosted runtime behavior, or
+  social posting behavior.
+- Do not return env var names, env values, access tokens, refresh tokens, OAuth
+  codes, cookies, credentials, raw external account ids, raw owner or row ids,
+  private source bodies, private messages, archive snippets, provider
+  payloads, storage paths, signed URLs, hosted logs, SQL/table output, table
+  names, stack traces, prompts, or secret-shaped values.
+- ARIADNE hosted rehearsal is not required if PR484C remains API-only,
+  read-only, locally tested, and mutation-free.
+
 ## Latest ARGUS preflight - PR484C accepted for DAEDALUS
 
 ARGUS completed the PR484C Connector OAuth Readiness Route preflight:

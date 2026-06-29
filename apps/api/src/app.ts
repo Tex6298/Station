@@ -34,6 +34,7 @@ import { publishingApprovalsRouter } from "./routes/publishing-approvals";
 import { settingsRouter } from "./routes/settings";
 import { eventsRouter } from "./routes/events";
 import { personaEncountersRouter } from "./routes/persona-encounters";
+import { archiveConnectorsRouter } from "./routes/archive-connectors";
 
 export function createApp() {
   const app = express();
@@ -88,6 +89,7 @@ export function createApp() {
   app.use("/settings", settingsRouter);
   app.use("/events", eventsRouter);
   app.use("/persona-encounters", personaEncountersRouter);
+  app.use("/archive-connectors", archiveConnectorsRouter);
 
   app.use(errorHandler);
   return app;
