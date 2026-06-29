@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475B Public Seminars Hosted Readback Repair ARGUS Review
+
+ARGUS accepted PR475B on 2026-06-29:
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- public `GET /events/seminars` now treats interest readback as additive;
+- public cards can render if `public_seminar_interests` readback storage is
+  unavailable;
+- public source resolution still fails closed for private/unsafe source rows;
+- signed-in mark/withdraw still require durable interest storage;
+- mutation storage failures still return bounded `seminar_interest_unavailable`
+  instead of fake persistence;
+- hosted `061` schema state remains a proof requirement for ARIADNE or a
+  MIMIR-routed migration/apply blocker;
+- no tickets, payments, reminders, attendee lists, queues/workers, Redis,
+  Cloudflare, hosted runtime expansion, or broad UI work was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 6 tests passed, including signed-out and signed-in GET resilience when interest readback storage is unavailable. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from turbo cache. |
+| `git diff --check 557adc54..f77b1d43` | Pass | No whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Expected test fixture/schema terms only; no real secrets, raw config, SQL output, logs, attendee identities, or out-of-scope product behavior. |
+
+Residual risk: hosted mark/withdraw still proves whether
+`public.public_seminar_interests` exists on the hosted database. If the hosted
+proof returns bounded mutation failure after public cards render, route the
+exact `apps/db/migrations/061_public_seminar_interests.sql` apply/verify
+requirement to MIMIR.
+
 ## PR475B Public Seminars Hosted Readback Repair
 
 DAEDALUS implemented PR475B on 2026-06-29:
