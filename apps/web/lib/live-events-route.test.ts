@@ -32,7 +32,7 @@ test("public seminars copy stays readback-only", () => {
 
 test("public seminar card helpers keep route scope public", () => {
   const card: PublicSeminarCard = {
-    id: "document:doc-public",
+    id: "seminar_0123456789abcdef",
     sourceType: "document",
     label: "Published readback",
     title: "Public Readback Notes",

@@ -22,10 +22,11 @@ they are not Station validation failures.
 
 ## PR469A Public Seminar Readback Bundles
 
-DAEDALUS implemented PR469A on 2026-06-29:
-`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md`.
+DAEDALUS implemented PR469A on 2026-06-29 and ARGUS accepted it after a
+narrow review patch:
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REVIEW_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+Validation result: `ARGUS_ACCEPTED_AFTER_PATCH`.
 
 Reason:
 
@@ -34,6 +35,10 @@ Reason:
 - every card resolves through current public routeability checks before return;
 - private, community-only, hidden, removed, unsafe-slug, missing, and unresolved
   featured items are skipped;
+- public card ids are opaque `seminar_<digest>` ids, not raw document, thread,
+  or Space ids;
+- public forum thread cards skip categories attached to subcommunities that an
+  anonymous public reader cannot read;
 - the route does not trust stored discover-feed hrefs or descriptions;
 - bounded `live_events_unavailable` errors do not expose raw database/service
   details;
@@ -42,15 +47,15 @@ Reason:
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 2 tests passed, including opaque ids and non-public subcommunity skip. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
 
-Residual risk: hosted desktop/mobile proof has not run yet. If ARGUS accepts
-the implementation, MIMIR should route ARIADNE for hosted `/events/seminars`
-confirmation.
+Residual risk: hosted desktop/mobile proof has not run yet. MIMIR should decide
+whether to close on local ARGUS review plus tests or route ARIADNE for hosted
+`/events/seminars` confirmation.
 
 ## PR469 Live Events / Seminars Preflight
 

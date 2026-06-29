@@ -1,6 +1,8 @@
 import { Router } from "express";
+import { createHash } from "node:crypto";
 import type { PublicSeminarCard, PublicSeminarSourceType } from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
 export const eventsRouter = Router();
 
@@ -85,7 +87,6 @@ async function publicDocumentSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>
     : null;
 
   return seminarCard({
-    id: `document:${document.id}`,
     sourceType: "document",
     label: "Published readback",
     title: document.title,
@@ -115,7 +116,6 @@ async function publicThreadSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, 
   if (!category) return null;
 
   return seminarCard({
-    id: `thread:${thread.id}`,
     sourceType: "thread",
     label: thread.linked_document_id ? "Public discussion" : "Forum seminar",
     title: thread.title,
@@ -133,7 +133,6 @@ async function publicSpaceSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, i
   if (!space) return null;
 
   return seminarCard({
-    id: `space:${space.id}`,
     sourceType: "space",
     label: "Public Space bundle",
     title: space.title,
@@ -172,6 +171,8 @@ async function loadPublicForumCategory(
 
   if (error) throw new Error("Could not resolve public seminar category.");
   if (!safeRouteSlug(data?.slug)) return null;
+  const subcommunity = await loadSubcommunityForCategory(data.id);
+  if (subcommunity && !canReadSubcommunity(subcommunity, null)) return null;
   return data;
 }
 
@@ -218,7 +219,6 @@ function isPublicRouteableThread(thread: any) {
 }
 
 function seminarCard(input: {
-  id: string;
   sourceType: PublicSeminarSourceType;
   label: string;
   title: string;
@@ -230,7 +230,7 @@ function seminarCard(input: {
   space: any | null;
 }): PublicSeminarCard {
   return {
-    id: input.id,
+    id: publicSeminarCardId(input.sourceType, input.href, input.featuredAt),
     sourceType: input.sourceType,
     label: input.label,
     title: input.title,
@@ -246,6 +246,14 @@ function seminarCard(input: {
         }
       : null,
   };
+}
+
+function publicSeminarCardId(sourceType: PublicSeminarSourceType, href: string, featuredAt: string) {
+  const digest = createHash("sha256")
+    .update(`station.public-seminar:${sourceType}:${href}:${featuredAt}`)
+    .digest("hex")
+    .slice(0, 16);
+  return `seminar_${digest}`;
 }
 
 function publicExcerpt(value?: string | null, max = 180) {

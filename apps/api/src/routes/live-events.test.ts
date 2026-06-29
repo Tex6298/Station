@@ -18,6 +18,7 @@ class InMemorySupabase {
     spaces: [],
     threads: [],
     forum_categories: [],
+    community_subcommunities: [],
   };
   private failures: Array<{ table: string; operation: string; message: string }> = [];
   private clock = Date.parse("2026-06-29T08:00:00.000Z");
@@ -97,6 +98,18 @@ class InMemorySupabase {
       row.title ??= row.slug ?? row.id;
       row.slug ??= row.id;
       row.created_at ??= now;
+    }
+    if (table === "community_subcommunities") {
+      row.category_id ??= null;
+      row.slug ??= row.id;
+      row.title ??= row.slug;
+      row.description ??= null;
+      row.subcommunity_type ??= "salon";
+      row.visibility ??= "public";
+      row.status ??= "active";
+      row.owner_user_id ??= "owner-test";
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -252,6 +265,19 @@ test("public seminar readback returns only public routeable featured bundles", a
       slug: "550e8400-e29b-41d4-a716-446655440000",
       title: "Unsafe Category",
     });
+    db.insertRow("forum_categories", {
+      id: "category-private",
+      slug: "private-seminar",
+      title: "Private Seminar",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "subcommunity-private",
+      category_id: "category-private",
+      slug: "private-seminar",
+      title: "Private Seminar",
+      visibility: "community",
+      status: "active",
+    });
     db.insertRow("documents", {
       id: "doc-public",
       title: "Public Readback Notes",
@@ -326,6 +352,12 @@ test("public seminar readback returns only public routeable featured bundles", a
       body: "Unsafe category body.",
       category_id: "category-unsafe",
     });
+    db.insertRow("threads", {
+      id: "thread-private-subcommunity",
+      title: "Private Subcommunity Thread",
+      body: "Private subcommunity source body.",
+      category_id: "category-private",
+    });
 
     for (const [type, id] of [
       ["document", "doc-public"],
@@ -338,6 +370,7 @@ test("public seminar readback returns only public routeable featured bundles", a
       ["thread", "thread-hidden"],
       ["thread", "thread-community"],
       ["thread", "thread-unsafe-category"],
+      ["thread", "thread-private-subcommunity"],
       ["space", "space-private"],
       ["space", "space-unsafe"],
       ["persona", "persona-public"],
@@ -350,13 +383,15 @@ test("public seminar readback returns only public routeable featured bundles", a
     assert.equal(response.status, 200);
 
     const cards = response.body.cards;
-    assert.deepEqual(cards.map((card) => card.id).sort(), [
-      "document:doc-public",
-      "space:space-public",
-      "thread:thread-public",
-    ]);
+    assert.deepEqual(cards.map((card) => card.sourceType).sort(), ["document", "space", "thread"]);
+    for (const card of cards) {
+      assert.match(card.id, /^seminar_[a-f0-9]{16}$/);
+      assert.equal(card.id.includes("doc-public"), false);
+      assert.equal(card.id.includes("thread-public"), false);
+      assert.equal(card.id.includes("space-public"), false);
+    }
 
-    const document = cards.find((card) => card.id === "document:doc-public")!;
+    const document = cards.find((card) => card.sourceType === "document")!;
     assert.equal(document.sourceType, "document");
     assert.equal(document.href, "/space/station-house/documents/doc-public");
     assert.equal(document.discussionHref, "/forums/seminar-room/thread-discussion");
@@ -366,12 +401,12 @@ test("public seminar readback returns only public routeable featured bundles", a
       href: "/space/station-house",
     });
 
-    const thread = cards.find((card) => card.id === "thread:thread-public")!;
+    const thread = cards.find((card) => card.sourceType === "thread")!;
     assert.equal(thread.sourceType, "thread");
     assert.equal(thread.href, "/forums/seminar-room/thread-public");
     assert.equal(thread.discussionHref, null);
 
-    const space = cards.find((card) => card.id === "space:space-public")!;
+    const space = cards.find((card) => card.sourceType === "space")!;
     assert.equal(space.sourceType, "space");
     assert.equal(space.href, "/space/station-house");
 
@@ -386,6 +421,9 @@ test("public seminar readback returns only public routeable featured bundles", a
       "Hidden source body",
       "Unsafe Category Thread",
       "Unsafe category body",
+      "Private Subcommunity Thread",
+      "Private subcommunity source body",
+      "private-seminar",
       "private-house",
       "550e8400-e29b-41d4-a716-446655440000",
       "Curated private-note-shaped",

@@ -4,52 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR469A ready for ARGUS review
+## Latest ARGUS verdict - PR469A accepted after patch
 
-DAEDALUS implemented PR469A:
+ARGUS accepts PR469A after two narrow review patches:
 
-`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md`
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REVIEW_RESULT.md`
 
 Decision:
 
-- `GET /events/seminars` now returns schema-free public seminar readback cards
-  derived from admin-curated `discover_feed` featured items.
+- `GET /events/seminars` returns public seminar readback cards derived from
+  admin-curated `discover_feed` featured items.
 - `/events/seminars` renders a public readback page with loading, empty, and
   unavailable states.
 - Every featured candidate is resolved through public routeability checks before
   return.
 - Eligible sources are limited to public published documents in public Spaces,
-  public active unhidden forum threads or linked document discussions, and
-  public routeable Spaces.
+  public active unhidden forum threads in anonymous-public routeable forum
+  categories, linked public document discussions, and public routeable Spaces.
 - Private, community-only, hidden, removed, unsafe-slug, missing, and
   unresolved featured items are skipped.
+- ARGUS patched public seminar card ids so the API returns opaque
+  `seminar_<digest>` ids instead of raw document/thread/Space ids.
+- ARGUS patched forum thread card resolution so categories attached to
+  non-public subcommunities are skipped for anonymous public readback.
 - The API does not trust stored discover-feed hrefs or descriptions and returns
   bounded `live_events_unavailable` errors without service internals.
 - No realtime room, media, attendance, RSVP, ticketing, payment, Stripe,
   reminder, calendar, provider, private runtime, writeback, migration, queue,
   worker, or admin curation UI scope was added.
 
-DAEDALUS validation:
+ARGUS validation:
 
-- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 2 tests, including opaque ids and non-public subcommunity skip.
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts`: pass, 2 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, CRLF normalization warnings only.
+- `git diff --cached --check`: pass.
 
 Current lane:
 
 ```text
 PR469A - Public Seminar Readback Bundles
-Owner: ARGUS / A3
-State: OPEN - REVIEW DAEDALUS IMPLEMENTATION
+Owner: MIMIR / A1
+State: OPEN - ARGUS ACCEPTED; DECIDE HOSTED CONFIRMATION/CLOSEOUT
 ```
 
 Current baton:
 
-- ARGUS should review
-  `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md` and the code
-  patch.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR should decide whether to close PR469A on local ARGUS review plus tests
+  or route ARIADNE for hosted `/events/seminars` desktop/mobile confirmation.
+- Do not broaden PR469A into realtime/media/attendance/payment/provider,
+  hosted runtime, queue, worker, or admin curation UI scope.
 
 ## Latest ARGUS preflight - PR469 accepted for DAEDALUS
 
