@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR476 Social Publishing Connector Preflight
+
+ARGUS accepted the PR476 preflight on 2026-06-29:
+`docs/roadmap/PR476_SOCIAL_PUBLISHING_CONNECTOR_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR476A_OWNER_SOCIAL_PUBLISHING_READINESS`.
+
+Reason:
+
+- existing Social Publishing surfaces are live-looking and include Settings
+  credential inputs, OAuth/connect controls, document-level composer entrypoint,
+  API compose routes, provider posting calls, and plain token fields;
+- no accepted encrypted external-token storage, OAuth/callback, outbound
+  payload sanitizer, or connector execution/retry contract exists;
+- an owner-only readiness/readback fence is still safe as the first slice;
+- PR476A must disable or fail closed live social connect/OAuth/compose/teaser
+  actions before DB writes or provider calls;
+- no live posting, token storage, provider calls, queues/workers, webhooks,
+  billing, real accounts, or secret exposure is accepted.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | PR476 handoff, future lanes, operations delta, dependency crosswalk, Settings social page, social API route/service, social schema/types, document social entrypoint, and publishing tests inspected. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/publishing-approvals.test.ts` | Pass | 5 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/auth-routes.test.ts` | Pass | 6 tests passed; `/settings/social` remains protected. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from turbo cache. |
+| `git diff --check` | Pass | No whitespace errors before ARGUS docs edits. |
+
 ## PR475B Public Seminars Schema Unblock Hosted Rerun
 
 ARIADNE completed the hosted schema-unblock rerun on 2026-06-29:
