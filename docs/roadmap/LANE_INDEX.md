@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR480A review | Developer Space Connection Tier State Readback | MIMIR / A1 | Accepted by ARGUS; closeout and route ARIADNE hosted read-only proof | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REVIEW_RESULT.md` |
+| PR480A hosted rehearsal | Developer Space Connection Tier State Readback | ARIADNE / A4 | Open; verify hosted public and owner Developer Space connection-tier readback before closeout | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR480A rehearsal opened | Developer Space Connection Tier State Readback | MIMIR -> ARIADNE | Open; hosted read-only proof for public and owner Developer Space Tier 1 current plus Tier 2/Tier 3 future/blocked readback | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_ARIADNE.md` |
 | PR480A review | Developer Space Connection Tier State Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; public and owner Developer Space routes show readback-only Tier 1 current state plus Tier 2/Tier 3 future/blocked states without runtime/billing/API widening | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REVIEW_RESULT.md` |
 | PR480A implementation | Developer Space Connection Tier State Readback | DAEDALUS -> ARGUS | Ready for review; public and owner Developer Space routes show Tier 1 current readback plus Tier 2/Tier 3 future/blocked states without runtime/billing/API widening | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_RESULT.md` |
 | PR480 preflight | Developer Space Partner-Ready | MIMIR -> ARGUS -> DAEDALUS | Accepted PR480A Connection Tier State Readback; clarify Tier 1 current state and Tier 2/Tier 3 future/blocked states without hosted runtime or billing scope | `docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_RESULT.md` |

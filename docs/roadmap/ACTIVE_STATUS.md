@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR480A hosted proof opened
+
+MIMIR routes ARIADNE for hosted read-only proof after ARGUS accepted PR480A:
+
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR480A - Developer Space Connection Tier State Readback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify signed-out public `/developer-spaces/:slug` desktop and
+  390px mobile show Tier 1 current plus Tier 2/Tier 3 future/blocked readback.
+- ARIADNE should verify signed-in owner `/developer-spaces/:slug/manage`
+  desktop/mobile shows the same boundary without exposing keys, secrets, raw
+  IDs, raw payloads, private evidence, hosted logs, SQL/table details, provider
+  payloads, cookies, tokens, or stack traces.
+- ARIADNE should not trigger key generation/rotation, Checkout/Portal, export
+  creation, provider calls, repo/deploy actions, worker/queue actions, agent
+  execution, billing mutation, entitlement mutation, schema/API/auth behavior,
+  Redis, Cloudflare, or production realtime behavior.
+- ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, `DEPLOYMENT_WAITING`,
+  `PRIVACY_OR_PARTNER_BOUNDARY_FAIL`, or `SEED_OR_ROUTE_BLOCKER`.
+
+Boundaries:
+
+- PR480A is a visible readback-only product truth check for existing Developer
+  Space public and owner routes.
+- It is not hosted runtime provisioning, repo push/deploy, developer-agent job
+  execution, key/signing-secret generation, billing/Stripe mutation, public raw
+  export/download, provider/model calls, Redis durable truth, Cloudflare
+  runtime/index behavior, workers/queues, schema/API/auth expansion, entitlement
+  mutation, or deployment configuration.
+
 ## Latest ARGUS review - PR480A accepted for MIMIR
 
 ARGUS accepted PR480A Connection Tier State Readback with no review patch:
