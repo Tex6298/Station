@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484F-B blocked for MIMIR
+
+ARGUS completed the PR484F-B Archive Connector OAuth Callback Session Bridge
+preflight:
+
+`docs/roadmap/PR484F_B_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SESSION_BRIDGE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+BLOCKED_NEEDS_WEB_CALLBACK_BRIDGE
+```
+
+Current lane:
+
+```text
+PR484F-B - Archive Connector OAuth Callback Session Bridge
+Owner: MIMIR / A1
+State: BLOCKED - WEB/API COOKIE TRANSPORT UNPROVEN
+```
+
+Current baton:
+
+- MIMIR should decide a web callback bridge or an explicit credentialed
+  web/API cookie transport lane with hosted proof.
+- Current API uses default `cors()` without credentialed origin allow-list.
+- Current web API client does not send `credentials: "include"`.
+- Hosted config/tests reference separate Station web/API Railway origins.
+- Setting an API cookie in state-start would be local-testable but would
+  overclaim browser/provider callback viability.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check a177abd64a5b584500877562de2da6bd4c0c502e..40adb4a8ab7e7e9e688293a85748a962acce5a79`
+  passed.
+- MIMIR's wakeup diff is docs-only; current source scans show no cookie bridge,
+  callback route, authorization URL generation, server redirect, token
+  exchange, provider call, credential write, import, UI, hosted runtime,
+  package, billing, or social posting behavior.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR closeout/opening - PR484F-A blocked, PR484F-B opened
 
 MIMIR accepts ARGUS's PR484F-A callback-safe landing block:

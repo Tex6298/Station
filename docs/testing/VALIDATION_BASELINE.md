@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484F-B Archive Connector OAuth Callback Session Bridge Preflight
+
+ARGUS blocked PR484F-B for MIMIR on 2026-06-29:
+`docs/roadmap/PR484F_B_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SESSION_BRIDGE_PREFLIGHT_RESULT.md`.
+
+Validation result: `BLOCKED_NEEDS_WEB_CALLBACK_BRIDGE`.
+
+Reason:
+
+- the preferred server cookie bridge is plausible, but current Station web/API
+  browser transport does not prove an API-domain cookie can be set from the web
+  state-start request;
+- API uses default `cors()` without credentialed origin allow-list;
+- the shared web API client does not use `credentials: "include"`;
+- hosted config/tests reference separate Railway web/API origins;
+- a cookie-only state-start patch would be local-testable but would overclaim
+  browser/provider callback viability without a web callback bridge or explicit
+  credentialed cookie transport lane with hosted proof;
+- no code changes were made for this blocker.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 52 tests passed across readiness/state-start route, storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check a177abd64a5b584500877562de2da6bd4c0c502e..40adb4a8ab7e7e9e688293a85748a962acce5a79` | Pass | MIMIR closeout/opening diff is whitespace-clean. |
+| Path/scope scan | Pass | MIMIR wakeup diff is docs-only; current archive connector/API source has no cookie bridge, callback route, authorization URL generation, server redirect, token exchange, credential write/revoke, provider call/fetch, import/archive write, queue, hosted, billing, package, or social posting behavior. |
+
 ## PR484F-A Archive Connector OAuth Callback Safe Landing Preflight
 
 ARGUS blocked PR484F-A for MIMIR on 2026-06-29:
