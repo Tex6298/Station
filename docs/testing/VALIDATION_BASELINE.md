@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR469B Public Seminar Populated Replay Seed
+
+DAEDALUS implemented PR469B on 2026-06-29:
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the staging replay seed now idempotently features the existing public replay
+  document, linked public discussion thread, and public Space in
+  `discover_feed`;
+- seed output reports only counts, slugs, labels, booleans, and feature type
+  labels;
+- staging seed completed locally and reported `seminarFeatures: 3`;
+- hosted signed-out `GET /events/seminars` returned HTTP 200 with 3 cards;
+- hosted card ids were opaque `seminar_` ids and hrefs were public `/space/` or
+  `/forums/` paths only.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `node --check scripts/staging-replay-seed.mjs` | Pass | Seed helper syntax checked. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate` | Pass | Example corpus validates with planned `seminarFeatures: 3`. |
+| `node scripts/staging-replay-seed.mjs --dry-run` | Pass | Dry-run reports sanitized `seminarFeatureTypes`. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Seed completed with sanitized output and `seminarFeatures: 3`. |
+| Hosted web/API `/health/deployment` | Pass | Both ready at commit `8b05122e`. |
+| Hosted signed-out `GET /events/seminars` | Pass | HTTP 200 with 3 cards, opaque ids, public hrefs, and no raw source ids in card ids. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: ARGUS has not reviewed the seed/script change or hosted proof
+yet. No broad product event behavior is claimed by this seed repair.
+
 ## PR469A Public Seminar Readback Bundles Hosted Rehearsal
 
 ARIADNE completed the hosted PR469A rehearsal on 2026-06-29:

@@ -93,6 +93,7 @@ async function main({ dryRun }) {
   const memories = await ensureMemoryCorpus(api, geminiKey, owner.id, persona.id, archivedChat.transcript.id, corpus);
   const continuity = await ensureContinuityRecord(api, owner.id, persona.id, memories.active.id, corpus);
   const publicSurface = await ensurePublicSurface(api, owner.id, persona.id, continuity.id, corpus);
+  const seminarFeatures = await ensurePublicSeminarFeatures(api, publicSurface, corpus);
   const developerSpaces = [];
   for (const developerSpaceInput of developerSpaceInputs) {
     developerSpaces.push(await ensureDeveloperSpaceCorpus(api, owner.id, publicSurface.document.id, developerSpaceInput));
@@ -115,6 +116,7 @@ async function main({ dryRun }) {
       documents: 1,
       threads: 1,
       comments: 1,
+      seminarFeatures: seminarFeatures.length,
       developerSpaces: developerSpaces.length,
       developerSpaceNodes: developerSpaces.length,
       developerSpaceEvents: developerSpaces.length,
@@ -130,6 +132,7 @@ async function main({ dryRun }) {
       publicPersonaChatEnabled: Boolean(publicPersona.public_chat_enabled),
       spaceSlug: publicSurface.space.slug,
       documentSlug: publicSurface.document.slug,
+      seminarFeatureTypes: seminarFeatures.map((feature) => feature.label),
       developerSpaceSlug: primaryDeveloperSpace.slug,
       developerSpaceSlugs: developerSpaces.map((space) => space.slug),
       developerSpaceEvidenceRoles: Object.fromEntries(
@@ -813,6 +816,79 @@ async function ensurePublicSurface(api, ownerUserId, personaId, continuityId, co
   return { space, document: documentWithDiscussion, thread, comment };
 }
 
+async function ensurePublicSeminarFeatures(api, publicSurface, corpus) {
+  const category = await first(await api.select("forum_categories", [
+    eq("id", publicSurface.thread.category_id),
+    limit(1),
+  ], "id, slug, title"));
+  if (!category || !safeRouteSlug(category.slug)) {
+    throw new Error("Replay discussion category is not routeable for seminar feature seeding.");
+  }
+  if (!safeRouteSlug(publicSurface.space.slug)) {
+    throw new Error("Replay Space slug is not routeable for seminar feature seeding.");
+  }
+
+  const features = [
+    {
+      label: "document",
+      itemType: "document",
+      itemId: publicSurface.document.id,
+      title: publicSurface.document.title,
+      description: publicSurface.space.short_description ?? "Public replay seminar readback.",
+      href: `/space/${publicSurface.space.slug}/documents/${publicSurface.document.id}`,
+    },
+    {
+      label: "thread",
+      itemType: "thread",
+      itemId: publicSurface.thread.id,
+      title: publicSurface.thread.title,
+      description: "Public replay seminar discussion.",
+      href: `/forums/${category.slug}/${publicSurface.thread.id}`,
+    },
+    {
+      label: "space",
+      itemType: "space",
+      itemId: publicSurface.space.id,
+      title: publicSurface.space.title,
+      description: publicSurface.space.short_description ?? "Public replay seminar Space.",
+      href: `/space/${publicSurface.space.slug}`,
+    },
+  ];
+
+  const rows = [];
+  for (const feature of features) {
+    rows.push(await upsertDiscoverFeaturedSeminar(api, feature));
+  }
+  return rows.map((row, index) => ({
+    label: features[index].label,
+    event_type: row.event_type,
+  }));
+}
+
+async function upsertDiscoverFeaturedSeminar(api, feature) {
+  const filters = [
+    eq("item_type", feature.itemType),
+    eq("item_id", feature.itemId),
+    eq("event_type", "featured"),
+  ];
+  const existing = await first(await api.select("discover_feed", [
+    ...filters,
+    limit(1),
+  ]));
+  const payload = {
+    item_type: feature.itemType,
+    event_type: "featured",
+    item_id: feature.itemId,
+    title: feature.title,
+    description: feature.description,
+    href: feature.href,
+  };
+
+  return existing
+    ? api.patch("discover_feed", [eq("id", existing.id)], payload)
+    : api.insert("discover_feed", payload);
+}
+
 async function replaceSingleComment(api, ownerUserId, threadId, body) {
   const existing = await first(await api.select("comments", [
     eq("author_user_id", ownerUserId),
@@ -1066,6 +1142,12 @@ function safePublicPersonaSlug(value) {
   return UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN.test(slug) ? `persona-${slug}` : slug;
 }
 
+function safeRouteSlug(value) {
+  return typeof value === "string" &&
+    PUBLIC_PERSONA_SLUG_PATTERN.test(value) &&
+    !UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN.test(value);
+}
+
 function first(rows) {
   return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 }
@@ -1098,6 +1180,7 @@ function printSummary({ mode, corpus, counts, labels }) {
       spaces: 1,
       documents: 1,
       discussionComments: 1,
+      seminarFeatures: 3,
       developerSpaces: developerSpaces.length,
       developerSpaceNodes: developerSpaces.length,
       developerSpaceEvents: developerSpaces.length,
@@ -1114,6 +1197,7 @@ function printSummary({ mode, corpus, counts, labels }) {
       publicPersonaChatEnabled: publicPersonaInput(corpus).publicChatEnabled,
       spaceSlug: corpus.space.slug,
       documentSlug: corpus.space.document.slug,
+      seminarFeatureTypes: ["document", "thread", "space"],
       developerSpaceSlug: corpus.developerSpace.slug,
       developerSpaceSlugs: developerSpaces.map((developerSpace) => developerSpace.slug),
       developerSpaceEvidenceRoles: Object.fromEntries(
