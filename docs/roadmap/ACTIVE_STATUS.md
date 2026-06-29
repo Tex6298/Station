@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR470A closed
+
+MIMIR closes PR470A as accepted:
+
+`docs/roadmap/PR470A_OWNER_VOICE_AVATAR_READINESS_GATE_CLOSEOUT.md`
+
+Decision:
+
+- PR470A is owner-only, private Studio-only, web-only, and readback-only.
+- The private persona Studio home can show a Voice / Avatar readiness gate.
+- The gate says voice/avatar behavior is not enabled yet and names
+  provider/media, consent/copyright, storage/privacy, cost, rate-limit, and plan
+  decisions as prerequisites.
+- ARGUS accepted code/tests/typecheck/diff/scope/secret-scan validation.
+- ARIADNE passed hosted owner Studio desktop and 390px mobile visual proof, plus
+  sampled signed-out public route checks with no public voice/avatar controls or
+  availability claims.
+
+## Latest MIMIR handoff - PR471 Persona-to-Persona preflight
+
+Per Marty's feature-expansion rule, MIMIR opens another named Phase 3 feature
+rather than extending the Voice / Avatar readiness surface:
+
+`docs/roadmap/PR471_PERSONA_TO_PERSONA_ENCOUNTERS_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR471 - Persona-to-Persona Encounters Preflight
+Owner: ARGUS / A3
+State: OPEN - BOUNDARY PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether a smallest honest Persona-to-Persona Encounters
+  slice exists now, or name the concrete blocker.
+- If accepted, ARGUS should wake DAEDALUS with the smallest implementation
+  shape.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the smallest
+  numbered unblock lane.
+- Do not implement or claim autonomous persona chat, background conversations,
+  provider-call loops, durable encounter transcripts, cross-owner encounters,
+  public encounter pages, billing, Redis, Cloudflare, workers, queues, schema,
+  migrations, or broad UI scope unless ARGUS explicitly gates it.
+
 ## Latest ARIADNE result - PR470A hosted readiness rehearsal passed
 
 ARIADNE completed the hosted PR470A owner Voice / Avatar readiness gate
