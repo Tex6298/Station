@@ -64,3 +64,12 @@ ARGUS should review owner scoping, failure copy, private source text redaction,
 the no-publish wording, refresh behavior, and the absence of scope drift into
 connectors, file upload, workers, providers, Redis, Cloudflare, billing, or
 auth/session behavior.
+
+## ARGUS Review
+
+ARGUS accepted PR467 on 2026-06-29 after a narrow success-notice sanitizer patch:
+
+`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_REVIEW_RESULT.md`
+
+The review patch redacts URL-shaped, token-label, bearer, secret-shaped, and
+UUID-shaped source/persona labels before the new import success notice renders.

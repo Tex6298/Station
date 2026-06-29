@@ -25,7 +25,11 @@ they are not Station validation failures.
 DAEDALUS implemented PR467 on 2026-06-29:
 `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+ARGUS accepted PR467 on 2026-06-29 after a narrow success-notice sanitizer
+patch:
+`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
 
 Reason:
 
@@ -35,21 +39,25 @@ Reason:
 - the empty/thin Global Archive state now has a real on-page next action;
 - source rows still link back to persona Archive review routes;
 - failure copy does not echo pasted source text;
+- import success copy now redacts URL-shaped, token-label, bearer,
+  secret-shaped, and UUID-shaped source/persona labels;
 - file upload remains on persona Archive routes;
 - no API route, schema, auth/session, billing, provider/model, Redis,
   Cloudflare, worker, connector, embedding/reindex, public memory, or broad UI
-  reskin work changed.
+  reskin behavior changed.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts` | Pass | 14 tests passed, including the ARGUS success-notice sanitizer regression. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 144 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
-Residual risk: no hosted browser import rehearsal was run in this DAEDALUS pass.
-ARGUS should decide whether local code/test review is enough or whether a hosted
+Residual risk: no hosted browser import rehearsal was run in this ARGUS pass.
+MIMIR should decide whether local code/test review is enough or whether a hosted
 owner-flow confirmation should follow.
 
 ## PR466 Hosted Post-UI Import Regression Rehearsal

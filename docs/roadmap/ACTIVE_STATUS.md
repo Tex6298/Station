@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS handoff - PR467 ready for ARGUS review
+## Latest ARGUS verdict - PR467 accepted, ready for MIMIR closeout
 
-DAEDALUS implemented PR467:
+ARGUS accepts PR467 after a narrow review patch:
 
-`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md`
+`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_REVIEW_RESULT.md`
 
 Decision:
 
@@ -20,28 +20,28 @@ Decision:
   `/studio/personas/:personaId/files`.
 - File upload remains on the persona Archive route.
 - Failure copy stays generic and does not echo pasted private source text.
+- ARGUS patched the import success notice so source/persona labels redact
+  URL-shaped, token-label, bearer, secret-shaped, and UUID-shaped material.
 - No API route, schema, auth/session, billing, provider/model, Redis,
-  Cloudflare, worker, connector, embedding/reindex, public memory, or broad UI
-  reskin work changed.
+  Cloudflare, worker, connector, embedding/reindex, public memory, file upload,
+  or broad UI reskin behavior changed.
 - Local validation is green for the archive helper test, `test:studio-ui`,
-  `test:storage`, `test:conversation-archive`, and typecheck.
+  `test:storage`, `test:conversation-archive`, typecheck, and whitespace.
 
 Current lane:
 
 ```text
 PR467 - Global Archive Source Intake
-Owner: ARGUS / A3
-State: READY FOR REVIEW
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - HOSTED/BROWSER CONFIRMATION OPTIONAL
 ```
 
 Current baton:
 
-- ARGUS should review:
-  `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md`.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and
-  post-PR467 lane selection.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
-  exact patch target.
+- MIMIR should decide whether to close PR467 on code review plus tests or open a
+  hosted/browser owner-flow confirmation lane.
+- MIMIR should choose the next numbered Phase 3 or customer-facing expansion
+  lane unless there is a concrete blocker.
 
 ## Latest MIMIR lane opening - PR467 Global Archive Source Intake
 

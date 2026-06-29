@@ -266,6 +266,15 @@ test("global archive intake helpers keep payloads narrow and failure copy privat
     globalArchiveIntakeSuccessMessage("Field notes", "Harbor"),
     /private archive material for Harbor/,
   );
+  const successNotice = globalArchiveIntakeSuccessMessage(
+    "https://example.invalid/export token=abc123 sk-test-secret-token 11111111-1111-4111-8111-111111111111",
+    "Harbor Bearer abc.def",
+  );
+  assert.match(successNotice, /\[redacted-url\]/);
+  assert.match(successNotice, /token=\[redacted\]/);
+  assert.match(successNotice, /\[redacted-secret\]/);
+  assert.match(successNotice, /bearer \[redacted\]/i);
+  assert.doesNotMatch(successNotice, /example\.invalid|abc123|sk-test-secret-token|11111111|abc\.def/);
 });
 
 test("archive source narrative explains import safety and visibility", () => {

@@ -182,8 +182,9 @@ export function globalArchiveIntakeErrorMessage(error: unknown) {
 }
 
 export function globalArchiveIntakeSuccessMessage(sourceName: string | null | undefined, personaName: string | null | undefined) {
-  const label = sourceName?.trim() || "Pasted source";
-  const persona = personaName?.trim() ? ` for ${personaName.trim()}` : "";
+  const label = globalArchiveIntakeNoticeLabel(sourceName, "Pasted source");
+  const safePersona = globalArchiveIntakeNoticeLabel(personaName, "");
+  const persona = safePersona ? ` for ${safePersona}` : "";
   return `${label} was saved as private archive material${persona}. Global Archive refreshed; open the source row for persona Archive review.`;
 }
 
@@ -210,4 +211,20 @@ function labelForArchiveSearchGroup(value: string | null | undefined, field: str
   if (field === "persona") return "Shared/global";
   if (field === "status") return "unknown";
   return "archive";
+}
+
+function globalArchiveIntakeNoticeLabel(value: string | null | undefined, fallback: string) {
+  const trimmed = value?.trim();
+  if (!trimmed) return fallback;
+
+  const sanitized = trimmed
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi, "[redacted-secret]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return sanitized.length > 120 ? `${sanitized.slice(0, 117).trim()}...` : sanitized;
 }
