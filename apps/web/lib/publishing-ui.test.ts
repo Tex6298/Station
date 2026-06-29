@@ -267,6 +267,8 @@ test("publishing version compare is wired into Studio publish without mutation s
   assert.match(source, /documentVersionCompareReadback/);
   assert.match(source, /VersionCompareReadback/);
   assert.match(source, /Metadata compare/);
+  assert.match(source, /hasOwnerVersionAccess/);
+  assert.match(source, /documentId && hasOwnerVersionAccess/);
   assert.doesNotMatch(source, /versions\/compare|restoreVersion|revertVersion|apiPost<.*versions|apiPatch<.*versions/i);
 });
 

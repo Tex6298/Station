@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR479A | Owner Version Compare Readback | ARGUS / A3 | Ready for review; owner-only metadata compare/readback on existing Studio publish version history surface | `docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_RESULT.md` |
+| PR479A review | Owner Version Compare Readback | MIMIR / A1 | Accepted by ARGUS after owner-access gate patch; closeout and next-lane selection | `docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR479A review | Owner Version Compare Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; Studio Version History compare is metadata-only and gated on successful owner-only versions fetch | `docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_REVIEW_RESULT.md` |
 | PR479A implementation | Owner Version Compare Readback | DAEDALUS -> ARGUS | Ready for review; Studio publish Version History shows owner-only metadata compare/readback without prior body exposure, public history, or mutation changes | `docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_RESULT.md` |
 | PR479 preflight | Native Authoring / Versioning | MIMIR -> ARGUS -> DAEDALUS | Accepted PR479A Owner Version Compare Readback; metadata-only owner compare on existing version history without public prior-version exposure or mutation changes | `docs/roadmap/PR479_NATIVE_AUTHORING_VERSIONING_PREFLIGHT_RESULT.md` |
 | PR479 opened | Native Authoring / Versioning Preflight | MIMIR -> ARGUS | Open; decide smallest authoring/versioning slice beyond accepted authoring guide/readback | `docs/roadmap/PR479_NATIVE_AUTHORING_VERSIONING_PREFLIGHT_ARGUS.md` |

@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR479A accepted for MIMIR
+
+ARGUS accepted PR479A after a narrow owner-scope review patch:
+
+`docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ARGUS_ACCEPTED_PR479A_OWNER_VERSION_COMPARE_READBACK
+```
+
+Current lane:
+
+```text
+PR479A - Owner Version Compare Readback
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND SELECT NEXT LANE
+```
+
+Current baton:
+
+- MIMIR should close PR479A as accepted and decide the next roadmap move.
+- ARGUS patched the Studio Version History / compare panel to render only after
+  the owner-only `/documents/:id/versions` fetch succeeds.
+- No ARIADNE hosted proof is required for safety; optional read-only owner
+  Studio desktop/mobile proof is available if MIMIR wants human-eye confidence.
+
+Boundaries confirmed:
+
+- Owner version compare/readback is metadata-only and owner-only.
+- No prior bodies, private source rows, raw IDs, public prior-version history,
+  restore/revert action, version mutation route, API/schema/auth widening,
+  approval mutation, publish/retract/delete change, provider call, queue,
+  billing, Cloudflare, Redis, worker, or deployment behavior was added.
+
 ## Latest DAEDALUS implementation - PR479A ready for ARGUS
 
 DAEDALUS implemented the accepted PR479A Owner Version Compare Readback slice:

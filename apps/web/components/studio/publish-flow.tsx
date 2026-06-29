@@ -69,6 +69,7 @@ export function PublishFlow() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [versions, setVersions] = useState<PublishingDocumentVersion[]>([]);
   const [currentVersion, setCurrentVersion] = useState(1);
+  const [hasOwnerVersionAccess, setHasOwnerVersionAccess] = useState(false);
   const [currentDocumentStatus, setCurrentDocumentStatus] = useState("draft");
   const [currentDocumentPublishedAt, setCurrentDocumentPublishedAt] = useState<string | null>(null);
   const [currentDocumentUpdatedAt, setCurrentDocumentUpdatedAt] = useState<string | null>(null);
@@ -135,10 +136,17 @@ export function PublishFlow() {
           const versionData = await apiGet<{ currentVersion: number; versions: PublishingDocumentVersion[] }>(
             `/documents/${loadedDocument.id}/versions`,
             session.access_token,
-          ).catch(() => ({ currentVersion: loadedDocument.version ?? 1, versions: [] }));
+          )
+            .then((data) => ({ ...data, hasOwnerVersionAccess: true }))
+            .catch(() => ({
+              currentVersion: loadedDocument.version ?? 1,
+              versions: [],
+              hasOwnerVersionAccess: false,
+            }));
           if (!cancelled) {
             setCurrentVersion(versionData.currentVersion ?? loadedDocument.version ?? 1);
             setVersions(versionData.versions ?? []);
+            setHasOwnerVersionAccess(versionData.hasOwnerVersionAccess);
           }
         }
       } catch (e) {
@@ -194,7 +202,7 @@ export function PublishFlow() {
   );
 
   const versionCompare = useMemo(
-    () => documentId
+    () => documentId && hasOwnerVersionAccess
       ? documentVersionCompareReadback({
           current: {
             title: form.title,
@@ -229,6 +237,7 @@ export function PublishFlow() {
       form.spaceId,
       form.title,
       form.visibility,
+      hasOwnerVersionAccess,
       versions,
     ],
   );
@@ -311,9 +320,16 @@ export function PublishFlow() {
       const versionData = await apiGet<{ currentVersion: number; versions: PublishingDocumentVersion[] }>(
         `/documents/${response.document.id}/versions`,
         token,
-      ).catch(() => ({ currentVersion: response.document.version ?? currentVersion, versions }));
+      )
+        .then((data) => ({ ...data, hasOwnerVersionAccess: true }))
+        .catch(() => ({
+          currentVersion: response.document.version ?? currentVersion,
+          versions,
+          hasOwnerVersionAccess: false,
+        }));
       setCurrentVersion(versionData.currentVersion ?? response.document.version ?? currentVersion);
       setVersions(versionData.versions ?? []);
+      setHasOwnerVersionAccess(versionData.hasOwnerVersionAccess);
       setNotice("Draft saved.");
       return response.document;
     } catch (e) {
@@ -488,7 +504,7 @@ export function PublishFlow() {
               </div>
             </section>
 
-            {documentId ? (
+            {documentId && hasOwnerVersionAccess ? (
               <section style={panel}>
                 <SectionTitle title="Version History" />
                 <div style={helperText}>{documentVersionSummaryLabel(currentVersion, versions)}</div>
