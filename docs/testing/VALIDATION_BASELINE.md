@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR474A Developer Space Commercial Packaging Readback Hosted Rehearsal
+
+ARIADNE completed the hosted PR474A rehearsal on 2026-06-29:
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API were ready at `fe02fb81`;
+- signed-out `/developer-spaces` desktop and 390px mobile showed the Canon /
+  Developer commercial packaging readback and Station `/billing` handoff;
+- signed-in owner `/developer-spaces` showed the commercial packaging and
+  self-hosted runtime boundary copy without creating a Developer Space;
+- signed-in `/billing` desktop and 390px mobile showed current plan, limits,
+  Developer Spaces entitlement, plan cards, and Stripe test-mode handoff copy;
+- sampled UI did not expose raw Checkout or Portal URLs, Stripe object ids,
+  customer ids, subscription ids, payment cards, webhook payloads, hosted logs,
+  raw ids, credentials, private owner data, or live-money/production commerce
+  claims;
+- no Checkout, Portal, top-up, subscription mutation, Developer Space creation,
+  Stripe dashboard, logs, SQL, or config action was opened.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at `fe02fb81`. |
+| Hosted API `/health/deployment` | Pass | Ready at `fe02fb81`. |
+| Signed-out `/developer-spaces` desktop | Pass | Canon / Developer packaging readback visible. |
+| Signed-out `/developer-spaces` 390px mobile | Pass | Readback visible with no horizontal overflow. |
+| Signed-in owner `/developer-spaces` desktop | Pass | Packaging and runtime-boundary copy visible; no creation action used. |
+| Signed-in `/billing` desktop | Pass | Plan, limits, Developer Spaces entitlement, plan cards, and handoff copy readable. |
+| Signed-in `/billing` 390px mobile | Pass | Billing readback/actions readable with no horizontal overflow. |
+| Station-routed handoff | Pass | Developer Spaces routes to Station `/billing`; no raw Checkout or Portal URL exposed. |
+| Commerce/privacy scan | Pass | No forbidden Stripe/private/live-money material appeared in sampled UI. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed with no defects and no mutations. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this result changes docs and agent state
+only.
+
 ## PR474A Developer Space Commercial Packaging Readback ARGUS Review
 
 ARGUS accepted PR474A on 2026-06-29 after a narrow frontend style patch:

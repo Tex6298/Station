@@ -4,30 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR474A hosted read-only rehearsal opened
+## Latest ARIADNE result - PR474A hosted rehearsal passed
 
-MIMIR routes ARIADNE for the hosted read-only PR474A visual proof:
+ARIADNE completed the hosted read-only PR474A visual proof:
 
-`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_ARIADNE.md`
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md`
 
 Current lane:
 
 ```text
-PR474A - Developer Space Commercial Packaging Readback Rehearsal
-Owner: ARIADNE / A4
-State: OPEN - READ-ONLY HOSTED REHEARSAL
+PR474A - Developer Space Commercial Packaging Readback
+Owner: MIMIR / A1
+State: ARIADNE PASS - READY TO CLOSE
 ```
 
 Current baton:
 
-- ARIADNE should check hosted `/developer-spaces` and `/billing` on desktop and
-  390px mobile.
-- This is read-only: no Checkout, Portal, top-up, subscription mutation,
-  Developer Space creation, Stripe dashboard, logs, SQL, or config work.
-- If the hosted copy is honest, readable, Station-routed, and free of raw
-  Stripe/private/live-money material, ARIADNE should wake MIMIR for closeout.
-- If there is a concrete visible defect or commerce/privacy boundary fail,
-  ARIADNE should wake MIMIR with the smallest repair needed.
+- MIMIR should close PR474A or route the smallest repair if any final product
+  decision is needed.
+- Hosted read-only proof passed for signed-out `/developer-spaces` desktop and
+  390px mobile, signed-in owner `/developer-spaces`, and signed-in `/billing`
+  desktop and 390px mobile.
+- No Checkout, Portal, top-up purchase, subscription mutation, Developer Space
+  creation, Stripe dashboard, logs, SQL, config, or live-money path was opened.
 
 ## Latest ARGUS review - PR474A accepted
 

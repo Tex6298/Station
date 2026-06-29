@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR474A hosted rehearsal | Developer Space Commercial Packaging Readback | ARIADNE / A4 | Open; read-only hosted desktop/mobile `/developer-spaces` and `/billing` check | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_ARIADNE.md` |
+| PR474A | Developer Space Commercial Packaging Readback | MIMIR / A1 | ARIADNE pass; closeout pending | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR474A hosted rehearsal | Developer Space Commercial Packaging Readback | MIMIR -> ARIADNE -> MIMIR | Pass; hosted read-only Developer Spaces and Billing desktop/mobile proof completed without commerce mutation | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_RESULT.md` |
 | PR474A hosted rehearsal opened | Developer Space Commercial Packaging Readback | MIMIR -> ARIADNE | Open; read-only hosted visual proof, no Stripe mutation | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REHEARSAL_ARIADNE.md` |
 | PR474A review | Developer Space Commercial Packaging Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS label style patch; bounded Developer Spaces Canon / Developer readback links only to Station `/billing` | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REVIEW_RESULT.md` |
 | PR474A implementation | Developer Space Commercial Packaging Readback | DAEDALUS -> ARGUS | Ready for review; bounded Developer Spaces paid-plan readback uses existing Billing helpers and links only to Station `/billing` | `docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_RESULT.md` |
