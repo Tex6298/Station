@@ -12,12 +12,15 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR481A hosted rehearsal | Owner Persona Avatar URL Control | ARIADNE / A4 | Open; verify hosted owner set/clear, public persona render, public Space card render, unsafe failure, and restore | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_ARIADNE.md` |
+| PR482 preflight | API Bridge Product Depth | ARGUS / A3 | Open; decide smallest safe setup/readback or no-write signed dry-run slice using existing Developer Space ingestion truth | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR482 opened | API Bridge Product Depth | MIMIR -> ARGUS | Open; hostile preflight for API Bridge product-depth slice without external connectors/config/infrastructure | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
+| PR481A closeout | Owner Persona Avatar URL Control | MIMIR | Closed; ARGUS review and ARIADNE hosted owner/public proof accepted safe avatar URL set/render/unsafe-fail/clear-restore behavior | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_CLOSEOUT.md` |
+| PR481A hosted rehearsal | Owner Persona Avatar URL Control | ARIADNE -> MIMIR | Pass; hosted owner set/clear, public persona render, public Space card render, unsafe failure, and restore verified | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_RESULT.md` |
 | PR481A rehearsal opened | Owner Persona Avatar URL Control | MIMIR -> ARIADNE | Open; hosted owner/public proof after ARGUS accepted avatar URL control | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_ARIADNE.md` |
 | PR481A review | Owner Persona Avatar URL Control | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS query-name sanitizer patch; owner URL control stays on existing avatar_url/public avatar path without media/storage/provider/billing scope | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REVIEW_RESULT.md` |
 | PR481A implementation | Owner Persona Avatar URL Control | DAEDALUS -> ARGUS | Ready for review; owner avatar URL create/update stores safe HTTPS or null, unsafe public legacy rows serialize null, and public CSS URL rendering is escaped | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md` |

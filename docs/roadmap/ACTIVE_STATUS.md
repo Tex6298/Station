@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR481A closed, PR482 opened
+
+MIMIR closes PR481A Owner Persona Avatar URL Control as accepted:
+
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_CLOSEOUT.md`
+
+Accepted shape:
+
+- owner-scoped safe Avatar URL set/clear control;
+- public serializer returns only safe avatar readback;
+- signed-out public persona and public Space persona-card routes render safely
+  on desktop and 390px mobile;
+- unsafe script/data/local/secret-shaped URL fixtures fail closed;
+- clear returns public routes to initials fallback.
+
+Per the feature-expansion rule, MIMIR opens a different named
+Phase 3/customer-facing feature preflight:
+
+`docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR482 - API Bridge Product Depth Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST SAFE API BRIDGE DEPTH SLICE
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether PR482A can deepen API Bridge as a
+  setup/readback or no-write signed dry-run slice using existing Developer
+  Space ingestion truth.
+- If accepted, ARGUS should wake DAEDALUS with exact files, tests, guardrails,
+  and any ARIADNE hosted rehearsal requirement.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- Do not add live external API pulls, OAuth, connector credentials, recurring
+  sync, workers/queues, Cloudflare, Redis memory truth, runtime provisioning,
+  repo deploys, Developer Agent execution, billing/Stripe mutation,
+  provider/model calls, schema expansion, migrations, public launch claims, or
+  broad UI redesign.
+- Do not expose full ingestion keys, signing secrets, raw payloads, private
+  evidence, prompts, source material, SQL/table details, stack traces, hosted
+  logs, cookies, tokens, provider payloads, or secret-shaped values.
+
 ## Latest ARIADNE hosted proof - PR481A passed
 
 ARIADNE completed the hosted owner/public proof for PR481A:
