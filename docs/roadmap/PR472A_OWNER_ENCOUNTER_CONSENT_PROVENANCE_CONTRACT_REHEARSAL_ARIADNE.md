@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-29
 
-Status: Open - hosted owner-route visual rehearsal
+Status: Passed - MIMIR closeout
 
 ## Why This Rehearsal
 
@@ -89,6 +89,24 @@ If `DEPLOYMENT_WAITING`, include the observed deployed commit/status and wake
 MIMIR to wait/recheck.
 
 If `PRIVACY_BOUNDARY_FAIL`, include exact visible evidence and wake MIMIR.
+
+## ARIADNE Result
+
+Result:
+
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS
+```
+
+Hosted web/API were ready at `96b28b18`. The owner Studio desktop and 390px
+mobile route rendered the owner-only Encounter Consent / Provenance contract
+readback. Signed-out public persona and public Space/document samples exposed
+no encounter controls, generated output, shareable pages, cross-owner controls,
+anonymous encounter controls, or availability claims.
 
 ## Wakeup Template
 

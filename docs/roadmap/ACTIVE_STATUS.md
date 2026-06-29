@@ -4,40 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR handoff - PR472A hosted rehearsal opened
+## Latest ARIADNE result - PR472A hosted rehearsal passed
 
-MIMIR routes PR472A to ARIADNE for the hosted owner-route visual rehearsal
-required by the PR472 preflight result:
+ARIADNE completed the hosted PR472A owner Encounter Consent / Provenance
+contract rehearsal:
 
-`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_ARIADNE.md`
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_RESULT.md`
 
 Decision:
 
-- ARGUS accepted PR472A after a narrow owner-readback render guard.
-- The contract panel remains private Studio owner readback only; non-owner
-  public serializer reads do not render the PR472A panel.
-- Code/test/typecheck/diff validation passed under ARGUS.
-- The remaining closeout gap is hosted human/browser proof that the owner
-  contract readback renders cleanly and public routes do not gain encounter
-  controls, generated output, shareable pages, cross-owner controls, or
-  availability claims.
+- Hosted web/API were ready at `96b28b18`.
+- The owner Studio desktop and 390px mobile route rendered the owner-only
+  Encounter Consent / Provenance contract readback.
+- The contract says persona-to-persona encounters still have no runtime and
+  names same-owner consent, cross-owner blockers, provenance labels,
+  stop/revocation controls, cost/rate-limit/plan controls, and
+  public/shareable moderation/reporting blockers.
+- Signed-out public persona and public Space/document samples exposed no
+  encounter controls, generated output, shareable pages, cross-owner controls,
+  anonymous encounter controls, or availability claims.
 
 Current lane:
 
 ```text
-PR472A - Owner Encounter Consent / Provenance Contract Hosted Rehearsal
-Owner: ARIADNE / A4
-State: OPEN - HOSTED OWNER-ROUTE VISUAL REHEARSAL
+PR472A - Owner Encounter Consent / Provenance Contract
+Owner: MIMIR / A1
+State: ARIADNE PASS - READY FOR CLOSEOUT
 ```
 
 Current baton:
 
-- ARIADNE should check hosted desktop and 390px mobile owner Studio rendering.
-- ARIADNE should sample signed-out public routes and confirm no public encounter
-  controls, generated encounter output, shareable pages, cross-owner controls,
-  anonymous encounter controls, or availability claims appear.
-- If it passes, wake MIMIR for PR472A closeout.
-- If it fails, wake MIMIR with the smallest repair route.
+- MIMIR should close PR472A or route the smallest repair if any further product
+  decision is needed.
 - Do not broaden into encounter runtime, generated output, provider calls,
   transcripts, storage, cross-owner behavior, public controls, billing,
   workers/queues, schema, API routes, Cloudflare, Redis, or broad UI.

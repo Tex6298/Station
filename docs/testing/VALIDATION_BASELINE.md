@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR472A Owner Encounter Consent / Provenance Contract Hosted Rehearsal
+
+ARIADNE completed the hosted PR472A rehearsal on 2026-06-29:
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS`.
+
+Reason:
+
+- hosted web/API were ready at `96b28b18`;
+- the seeded owner persona Studio home rendered the owner-only Encounter
+  Consent / Provenance contract readback on desktop and 390px mobile;
+- the contract says persona-to-persona encounters still have no runtime;
+- same-owner consent, cross-owner blockers, provenance labels,
+  stop/revocation controls, cost/rate-limit/plan controls, and
+  public/shareable moderation/reporting blockers were visible;
+- sampled signed-out public persona and public Space/document routes exposed no
+  public encounter controls, generated output, shareable pages, cross-owner
+  controls, anonymous encounter controls, or availability claims;
+- sampled UI did not expose private Memory, Archive, Canon, Continuity,
+  Integrity, owner setup, private source text, provider settings, credentials,
+  storage paths, raw internal ids, stack traces, table names, visitor identity,
+  or secret-shaped material.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at `96b28b18`. |
+| Hosted API `/health/deployment` | Pass | Ready at `96b28b18`. |
+| Owner Studio desktop | Pass | Encounter Consent / Provenance contract visible and readable. |
+| Owner Studio 390px mobile | Pass | Encounter Consent / Provenance contract visible and readable. |
+| Signed-out public persona sample | Pass | No public encounter controls, generated output, shareable pages, cross-owner controls, anonymous encounter controls, or availability claims. |
+| Signed-out public Space/document sample | Pass | No public encounter controls, generated output, shareable pages, cross-owner controls, anonymous encounter controls, or availability claims. |
+| Visual fit | Pass | No horizontal overflow, clipped controls, unreadable labels, overlapping text, or broken tap targets in sampled owner/public routes. |
+| Safety scan | Pass | No private Memory, Archive, Canon, Continuity, Integrity, owner setup, private source text, provider settings, credentials, storage paths, raw internal ids, stack traces, table names, visitor identity, or secret-shaped material. |
+| Temporary Playwright/Node hosted harness | Pass | Completed with no defects. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this result changes docs and agent state
+only.
+
 ## PR472A Owner Encounter Consent / Provenance Contract ARGUS Review
 
 ARGUS accepted PR472A on 2026-06-29:
