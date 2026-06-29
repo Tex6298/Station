@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR476A pass
+
+ARIADNE completed the hosted read-only proof:
+
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- Hosted web/API `/health/deployment` were ready at app commit `a2e0ca1e`
+  after one transient API readiness retry.
+- Signed-in `/settings/social` desktop and 390px mobile rendered seven paused
+  provider cards for Bluesky, Mastodon, Tumblr, LinkedIn, Reddit, WordPress,
+  and Ghost.
+- Credential inputs, Connect/OAuth/disconnect/save/post controls, provider
+  account details, and external post URLs were absent; connector buttons were
+  disabled.
+- An owned public document route rendered `Social connector readiness paused`
+  instead of a live social composer.
+- Authenticated `GET /social/readiness` returned readback-only paused flags.
+- Authenticated `POST /social/compose` returned bounded HTTP `423` paused
+  status.
+
+Current lane:
+
+```text
+PR476A - Owner Social Publishing Readiness Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR may close PR476A or choose the next lane.
+- Do not broaden Social Publishing into live posting, OAuth/token storage,
+  provider API calls, queues/workers, webhooks, billing, real provider accounts,
+  or secret exposure without a new accepted lane.
+
 ## Latest MIMIR routing - PR476A hosted proof opened
 
 MIMIR routes ARIADNE for hosted read-only proof after ARGUS accepted PR476A:

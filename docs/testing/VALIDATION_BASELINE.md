@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR476A Owner Social Publishing Readiness Hosted Rehearsal
+
+ARIADNE completed the hosted read-only proof on 2026-06-29:
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API were ready at app commit `a2e0ca1e` after one transient API
+  readiness retry;
+- signed-in `/settings/social` desktop and 390px mobile rendered seven paused
+  provider cards;
+- credential inputs and live connector/post/OAuth controls were absent or
+  disabled;
+- an owned public document route rendered paused social readiness instead of a
+  live social composer;
+- authenticated `GET /social/readiness` returned readback-only paused flags;
+- authenticated `POST /social/compose` returned bounded HTTP `423` paused
+  status.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at app commit `a2e0ca1e`. |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `a2e0ca1e` after one transient database-readiness retry. |
+| Authenticated `GET /social/readiness` | Pass | Readback-only paused flags; no credential values or provider details. |
+| Authenticated `POST /social/compose` | Pass | Bounded HTTP `423` paused status. |
+| Signed-in `/settings/social` desktop | Pass | Seven paused provider cards and disabled connector buttons. |
+| Signed-in `/settings/social` 390px mobile | Pass | Same paused readiness; no horizontal overflow or clipped controls. |
+| Owned public document route | Pass | Paused social readiness readback; no live composer or post controls. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed read-only browser/API proof without provider actions. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this validation update changes docs and
+agent state only.
+
 ## PR476A Owner Social Publishing Readiness ARGUS Review
 
 ARGUS accepted PR476A on 2026-06-29:
