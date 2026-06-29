@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR473A hosted rehearsal opened
+
+MIMIR routes PR473A to ARIADNE for the hosted owner-route runtime rehearsal:
+
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR473A after a narrow fallback token-accounting patch.
+- The preview is authenticated, private Studio-only, same-owner-only,
+  owner-initiated, non-durable, and limited to one model-generated responder
+  reply.
+- The route fails closed before provider calls for ownership, provider config,
+  token budget, and encounter-specific operational-cache rate limits.
+- The private Studio UI labels the preview as disposable, not saved, not a
+  transcript, not shareable, and not sourced from Memory, Archive, Canon,
+  Continuity, Integrity, transcripts, or public source retrieval.
+- The remaining closeout gap is hosted proof that an owner can run the preview
+  on desktop/mobile and public routes remain free of encounter controls or
+  claims.
+
+Current lane:
+
+```text
+PR473A - Owner-Initiated Encounter Runtime Preview Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER-RUNTIME REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should prove the hosted owner route can generate exactly one
+  disposable same-owner preview and remains readable at 390px mobile.
+- ARIADNE should confirm no save/share/publish/export affordance or durable
+  conversation/document/archive/memory-style readback appears.
+- ARIADNE should sample signed-out public routes and confirm no public encounter
+  controls, generated output, shareable pages, cross-owner controls, anonymous
+  controls, or availability claims appear.
+- If it passes, wake MIMIR for PR473A closeout.
+- If it fails, wake MIMIR with the smallest repair route.
+- Do not broaden into cross-owner encounters, background loops, durable
+  transcripts, source retrieval, public/shareable output, billing, workers,
+  queues, schema, storage, Redis, Cloudflare, or broad UI.
+
 ## Latest ARGUS review - PR473A accepted
 
 ARGUS accepts PR473A after a narrow token-accounting patch:

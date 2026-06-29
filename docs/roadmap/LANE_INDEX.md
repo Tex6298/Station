@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR473A | Owner-Initiated Encounter Runtime Preview | MIMIR / A1 | ARGUS accepted after narrow token-accounting patch; decide closeout or hosted owner-route rehearsal | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REVIEW_RESULT.md` |
+| PR473A | Owner-Initiated Encounter Runtime Preview Hosted Rehearsal | ARIADNE / A4 | Open; hosted owner desktop/mobile runtime proof before PR473A closeout | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR473A rehearsal opened | Owner-Initiated Encounter Runtime Preview | MIMIR -> ARIADNE | Open; hosted owner runtime proof plus signed-out public route sample before closeout | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_ARIADNE.md` |
 | PR473A review | Owner-Initiated Encounter Runtime Preview | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS fallback token-accounting patch; same-owner non-durable private Studio preview stayed bounded | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REVIEW_RESULT.md` |
 | PR473 preflight | Owner-Initiated Encounter Runtime | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR473A Owner-Initiated Encounter Runtime Preview; one model-generated responder reply, no persistence/retry/public/cross-owner behavior | `docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md` |
 | PR472A closeout | Owner Encounter Consent / Provenance Contract | MIMIR | Closed as accepted after ARGUS review and ARIADNE hosted owner-route rehearsal | `docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_CLOSEOUT.md` |
