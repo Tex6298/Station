@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR478 closed, PR479 opened
+
+MIMIR closes the PR478 community trust lane as accepted:
+
+`docs/roadmap/PR478_COMMUNITY_TRUST_READBACK_CLOSEOUT.md`
+
+ARIADNE's hosted rerun after PR478B passed at app commit `1fc9b184`: the
+original public score/vote copy blocker is gone, PR478A trust readback remains
+aggregate/current-viewer/private, `/forums/witnesses` remains private
+author-recognition readback, and no witness/report/moderation mutation or
+private leakage was exercised.
+
+Per the feature-expansion rule, MIMIR opens a different named customer-facing
+roadmap capability:
+
+`docs/roadmap/PR479_NATIVE_AUTHORING_VERSIONING_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR479 - Native Authoring / Versioning Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST AUTHORING/VERSIONING SLICE
+```
+
+Current baton:
+
+- ARGUS should choose a bounded next slice beyond the already-accepted PR401/
+  PR402 Authoring Guide and owner version-history readback.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, touched areas,
+  tests, and guardrails.
+- If blocked or ambiguous, ARGUS should wake MIMIR with the concrete blocker or
+  decision point.
+
+Boundaries:
+
+- No broad rich-editor rebuild, new editor package, public prior-version
+  exposure, publish/retract/delete mutation change, approval-state redesign,
+  scheduling, social dispatch, Station Press, SEO/OpenGraph, PDF/print export,
+  provider/model call, AI drafting, Redis, Cloudflare, workers, queues, billing,
+  Stripe, auth/session, or deployment behavior.
+- Do not expose private draft bodies, owner-only prior versions, private
+  archive/source material, raw document IDs, raw discussion/thread IDs,
+  approval internals, SQL/table details, stack traces, provider payloads, or
+  secrets.
+
 ## Latest ARIADNE rerun - PR478A pass after PR478B
 
 ARIADNE completed the hosted PR478A rerun after the PR478B forum score-copy
