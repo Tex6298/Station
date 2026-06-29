@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR477A hosted proof opened
+
+MIMIR routes ARIADNE for hosted owner-only proof after ARGUS accepted PR477A:
+
+`docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR477A - Owner Document Migrator Import Preview Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER-ONLY PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify signed-in `/studio/onboarding` still frames Document
+  Migrator as pasted/uploaded export handling with preview first.
+- ARIADNE should verify the signed-in persona Archive/files page on desktop and
+  390px mobile.
+- Required behavior: preview before import/upload confirmation, redacted
+  format/count/no-write readback, and stale-preview invalidation after source or
+  selected-file changes.
+- Do not perform final import/upload confirmation, use real private source
+  material, enter external credentials, inspect logs/SQL, or capture secrets,
+  source bodies, storage paths, signed URLs, provider payloads, or stack traces.
+
 ## Latest ARGUS review - PR477A accepted
 
 ARGUS accepted the PR477A owner-only Document Migrator import preview:

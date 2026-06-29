@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR477A | Owner Document Migrator Import Preview | MIMIR / A1 | ARGUS accepted; ready for closeout or hosted owner-only proof routing | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REVIEW_RESULT.md` |
+| PR477A hosted rehearsal | Owner Document Migrator Import Preview | ARIADNE / A4 | Open; hosted proof for preview-before-confirmation and no-write redacted readback | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR477A hosted rehearsal opened | Owner Document Migrator Import Preview | MIMIR -> ARIADNE | Open; verify hosted owner-only preview, stale invalidation, mobile fit, and no-write boundary | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_ARIADNE.md` |
 | PR477A review | Owner Document Migrator Import Preview | DAEDALUS -> ARGUS -> MIMIR | Accepted; authenticated owner-only preview is no-write, redacted, and precedes import/upload confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REVIEW_RESULT.md` |
 | PR477A implementation | Owner Document Migrator Import Preview | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only parser readback returns redacted counts/status only and performs no storage/import writes before confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_RESULT.md` |
 | PR477 preflight | Document Migrator Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR477A Owner Document Migrator Import Preview; preview must be owner-only, no-write, redacted, and before explicit import confirmation | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
