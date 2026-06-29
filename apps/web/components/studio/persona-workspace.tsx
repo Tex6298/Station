@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Persona, PersonaSummary } from "@station/types/persona";
-import { ApiRequestError, apiPost } from "@/lib/api-client";
+import { ApiRequestError, apiGet, apiPost } from "@/lib/api-client";
 import {
   activeStudioHref,
   studioPersonaWorkspacePrimaryActions,
@@ -14,10 +14,13 @@ import { personaEncounterContractGate } from "@/lib/persona-encounter-contract";
 import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
 import {
   PERSONA_ENCOUNTER_PREVIEW_PATH,
+  personaEncounterPreviewAvailabilityCopy,
   personaEncounterPreviewErrorCopy,
   personaEncounterPreviewPayload,
   personaEncounterPreviewReadback,
+  personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterPreviewReadinessResponse,
   type PersonaEncounterPreviewResponse,
 } from "@/lib/persona-encounter-runtime";
 import { voiceAvatarReadinessGate } from "@/lib/voice-avatar-readiness";
@@ -219,6 +222,8 @@ export function PersonaEncounterRuntimePreview({
   const [responderId, setResponderId] = useState("");
   const [setup, setSetup] = useState("");
   const [preview, setPreview] = useState<PersonaEncounterPreviewResponse | null>(null);
+  const [readiness, setReadiness] = useState<PersonaEncounterPreviewReadinessResponse | null>(null);
+  const [readinessLoading, setReadinessLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const selectedResponderId = responderId || responderOptions[0]?.id || "";
@@ -229,9 +234,61 @@ export function PersonaEncounterRuntimePreview({
     setup,
   });
   const readback = personaEncounterPreviewReadback(preview);
+  const providerReady = readiness?.ready === true;
+  const availabilityCopy = responderOptions.length === 0
+    ? "Create another persona first."
+    : readinessLoading
+    ? "Checking encounter preview provider setup."
+    : personaEncounterPreviewAvailabilityCopy(readiness);
+  const generationReady = Boolean(ready && token && providerReady && !readinessLoading);
+
+  useEffect(() => {
+    setPreview(null);
+    setError(null);
+
+    if (!token || !selectedResponderId || selectedResponderId === persona.id) {
+      setReadiness(null);
+      setReadinessLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setReadiness(null);
+    setReadinessLoading(true);
+    apiGet<PersonaEncounterPreviewReadinessResponse>(
+      personaEncounterPreviewReadinessPath({
+        initiatorPersonaId: persona.id,
+        responderPersonaId: selectedResponderId,
+      }),
+      token,
+    ).then((response) => {
+      if (!cancelled) setReadiness(response);
+    }).catch((caught) => {
+      if (cancelled) return;
+      if (caught instanceof ApiRequestError) {
+        setReadiness({
+          ready: false,
+          message: caught.message,
+          code: encounterReadinessErrorCode(caught.code),
+          classification: caught.classification,
+        });
+      } else {
+        setReadiness({
+          ready: false,
+          message: "Encounter preview readiness could not be checked.",
+        });
+      }
+    }).finally(() => {
+      if (!cancelled) setReadinessLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persona.id, selectedResponderId, token]);
 
   async function runPreview() {
-    if (!token || !ready || busy) return;
+    if (!token || !ready || !providerReady || readinessLoading || busy) return;
     setBusy(true);
     setError(null);
     setPreview(null);
@@ -289,7 +346,7 @@ export function PersonaEncounterRuntimePreview({
           className="button primary"
           type="button"
           onClick={runPreview}
-          disabled={!ready || !token || busy}
+          disabled={!generationReady || busy}
         >
           {busy ? "Generating..." : "Generate preview"}
         </button>
@@ -309,6 +366,9 @@ export function PersonaEncounterRuntimePreview({
       </label>
 
       <div className="studio-runtime-counts">
+        <span>
+          <strong>{availabilityCopy}</strong>
+        </span>
         {readback.slice(0, 4).map((item) => (
           <span key={item}>
             <strong>{item}</strong>
@@ -333,6 +393,12 @@ export function PersonaEncounterRuntimePreview({
       )}
     </section>
   );
+}
+
+function encounterReadinessErrorCode(code?: string) {
+  if (code === "persona_encounter_persona_not_owned") return code;
+  if (code === "persona_encounter_provider_unavailable") return code;
+  return undefined;
 }
 
 function ReadinessGatePanel({

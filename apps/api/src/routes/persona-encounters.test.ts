@@ -412,6 +412,17 @@ function previewBody(overrides: Partial<{
   };
 }
 
+function readinessPath(overrides: Partial<{
+  initiatorPersonaId: string;
+  responderPersonaId: string;
+}> = {}) {
+  const params = new URLSearchParams({
+    initiatorPersonaId: overrides.initiatorPersonaId ?? INITIATOR_ID,
+    responderPersonaId: overrides.responderPersonaId ?? RESPONDER_ID,
+  });
+  return `/persona-encounters/preview/readiness?${params.toString()}`;
+}
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
@@ -517,6 +528,57 @@ test("owner preview generates one disposable same-owner responder reply without 
     assert.equal(responseJson.includes(RESPONDER_ID), false);
     assert.equal(responseJson.includes("owner_user_id"), false);
     assert.equal(responseJson.includes("private persona notes"), false);
+  });
+});
+
+test("provider readiness reports ready when an accepted private-context route is configured", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const response = await requestJson(app, "GET", readinessPath(), {
+      token: "owner-token",
+    });
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      ready: true,
+      message: "Encounter preview provider is ready.",
+    });
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  });
+});
+
+test("nvidia-only private context stays paused before generation", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    clearProviderEnv();
+    process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+
+    const readiness = await requestJson(app, "GET", readinessPath(), {
+      token: "owner-token",
+    });
+
+    assert.equal(readiness.status, 200);
+    assert.equal(readiness.body.ready, false);
+    assert.equal(readiness.body.code, "persona_encounter_provider_unavailable");
+    assert.equal(readiness.body.classification, "provider_data_policy");
+    assert.equal(
+      readiness.body.message,
+      "Encounter preview is paused because provider setup is unavailable.",
+    );
+
+    const generation = await requestJson(app, "POST", "/persona-encounters/preview", {
+      token: "owner-token",
+      body: previewBody(),
+    });
+
+    assert.equal(generation.status, 503);
+    assert.equal(generation.body.code, "persona_encounter_provider_unavailable");
+    assert.equal(generation.body.classification, "provider_data_policy");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
   });
 });
 

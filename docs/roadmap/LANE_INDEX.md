@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR473B | Owner Encounter Provider Availability Repair | DAEDALUS / A2 | Open; smallest hosted repair for provider setup unavailable defect | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_DAEDALUS.md` |
+| PR473B | Owner Encounter Provider Availability Repair | ARGUS / A3 | Ready for review; provider-readiness fail-closed repair implemented by DAEDALUS | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR473B implementation | Owner Encounter Provider Availability Repair | DAEDALUS -> ARGUS | Ready for review; owner panel checks accepted-provider readiness and fails closed before generation when provider setup is unavailable | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_RESULT.md` |
 | PR473B opened | Owner Encounter Provider Availability Repair | MIMIR -> DAEDALUS | Open; make hosted same-owner preview callable through accepted provider or fail-close UI with exact blocker | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_DAEDALUS.md` |
 | PR473A hosted rehearsal | Owner-Initiated Encounter Runtime Preview | MIMIR -> ARIADNE -> MIMIR | Product defect; owner panel renders but hosted preview returns provider setup unavailable before generation | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_RESULT.md` |
 | PR473A rehearsal opened | Owner-Initiated Encounter Runtime Preview | MIMIR -> ARIADNE | Open; hosted owner runtime proof plus signed-out public route sample before closeout | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_ARIADNE.md` |

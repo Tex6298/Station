@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   PERSONA_ENCOUNTER_PREVIEW_PATH,
+  PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
+  personaEncounterPreviewAvailabilityCopy,
   personaEncounterPreviewErrorCopy,
   personaEncounterPreviewPayload,
   personaEncounterPreviewReadback,
+  personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
   type PersonaEncounterPreviewResponse,
 } from "./persona-encounter-runtime";
@@ -47,6 +50,7 @@ const response: PersonaEncounterPreviewResponse = {
 
 test("persona encounter runtime helper builds the bounded preview request", () => {
   assert.equal(PERSONA_ENCOUNTER_PREVIEW_PATH, "/persona-encounters/preview");
+  assert.equal(PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH, "/persona-encounters/preview/readiness");
   assert.deepEqual(personaEncounterPreviewPayload({
     initiatorPersonaId: "persona-a",
     responderPersonaId: "persona-b",
@@ -58,6 +62,16 @@ test("persona encounter runtime helper builds the bounded preview request", () =
     setup: "Say hello once.",
     maxOutputTokens: 240,
   });
+});
+
+test("persona encounter runtime helper builds provider readiness path", () => {
+  assert.equal(
+    personaEncounterPreviewReadinessPath({
+      initiatorPersonaId: "persona a",
+      responderPersonaId: "persona/b",
+    }),
+    "/persona-encounters/preview/readiness?initiatorPersonaId=persona+a&responderPersonaId=persona%2Fb",
+  );
 });
 
 test("persona encounter runtime readiness requires two personas and owner setup", () => {
@@ -105,4 +119,31 @@ test("persona encounter runtime error copy stays bounded", () => {
   assert.equal(personaEncounterPreviewErrorCopy({
     message: "Generic failure",
   }), "Generic failure");
+});
+
+test("persona encounter runtime availability copy fails closed before generation", () => {
+  assert.equal(
+    personaEncounterPreviewAvailabilityCopy(null),
+    "Checking encounter preview provider setup.",
+  );
+  assert.equal(
+    personaEncounterPreviewAvailabilityCopy({ ready: true, message: "ok" }),
+    "Encounter preview provider is ready.",
+  );
+  assert.equal(
+    personaEncounterPreviewAvailabilityCopy({
+      ready: false,
+      code: "persona_encounter_provider_unavailable",
+      message: "raw provider details",
+    }),
+    "Encounter preview is paused because provider setup is unavailable.",
+  );
+  assert.equal(
+    personaEncounterPreviewAvailabilityCopy({
+      ready: false,
+      code: "persona_encounter_persona_not_owned",
+      message: "raw owner_user_id=secret",
+    }),
+    "Both personas must belong to this owner before a preview can run.",
+  );
 });

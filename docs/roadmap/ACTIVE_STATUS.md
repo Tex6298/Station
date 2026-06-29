@@ -4,6 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR473B ready for ARGUS review
+
+DAEDALUS completed the owner encounter provider availability repair:
+
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_RESULT.md`
+
+Implementation:
+
+- Added authenticated `GET /persona-encounters/preview/readiness`.
+- The readiness route verifies both selected personas belong to `req.user!.id`.
+- Readiness uses the same provider resolver as generation with
+  `allowPlatformNvidia: false`.
+- Accepted private-context providers, such as Station Anthropic, Station
+  DeepSeek, or owner BYOK under the existing resolver policy, can report
+  `ready: true`.
+- NVIDIA-only private context returns `ready: false`,
+  `persona_encounter_provider_unavailable`, and `provider_data_policy`.
+- The private Studio panel checks readiness for the selected same-owner pair,
+  disables generation while readiness is loading or unavailable, and shows
+  bounded paused copy before click.
+- The existing generation POST still fails closed before provider calls when
+  provider setup is unavailable.
+
+Non-scope confirmation:
+
+- No broad NVIDIA/private-context enablement, provider-policy expansion,
+  provider config, cross-owner encounter, public encounter, anonymous
+  encounter, background loop, durable transcript, source retrieval, schema,
+  migration, storage, queue, worker, Redis, Cloudflare, billing, Stripe, prompt
+  persistence, output persistence, or broad UI scope was added.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`: pass, 8 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters`: pass, 14 tests after package builds.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 160 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, CRLF normalization warnings only.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR473B - Owner Encounter Provider Availability Repair
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the provider-readiness fail-closed repair against PR473A
+  and PR473B boundaries.
+- If accepted, ARGUS should wake MIMIR for hosted rehearsal rerun or exact
+  provider/config blocker decision.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest MIMIR handoff - PR473B provider availability repair
 
 MIMIR routes the PR473A hosted runtime defect to DAEDALUS:

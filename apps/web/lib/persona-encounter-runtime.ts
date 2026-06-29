@@ -41,7 +41,15 @@ export interface PersonaEncounterPreviewResponse {
   };
 }
 
+export interface PersonaEncounterPreviewReadinessResponse {
+  ready: boolean;
+  message: string;
+  code?: "persona_encounter_persona_not_owned" | "persona_encounter_provider_unavailable";
+  classification?: string;
+}
+
 export const PERSONA_ENCOUNTER_PREVIEW_PATH = "/persona-encounters/preview";
+export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/preview/readiness";
 
 export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewRequest) {
   return {
@@ -50,6 +58,17 @@ export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewReq
     setup: input.setup.trim(),
     ...(input.maxOutputTokens ? { maxOutputTokens: input.maxOutputTokens } : {}),
   };
+}
+
+export function personaEncounterPreviewReadinessPath(input: {
+  initiatorPersonaId: string;
+  responderPersonaId: string;
+}) {
+  const params = new URLSearchParams({
+    initiatorPersonaId: input.initiatorPersonaId,
+    responderPersonaId: input.responderPersonaId,
+  });
+  return `${PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH}?${params.toString()}`;
 }
 
 export function personaEncounterPreviewReady(input: {
@@ -91,6 +110,20 @@ export function personaEncounterPreviewReadback(response?: PersonaEncounterPrevi
       ? "Private source retrieval used"
       : "No Memory, Archive, Canon, Continuity, Integrity, or transcript sources retrieved",
   ];
+}
+
+export function personaEncounterPreviewAvailabilityCopy(
+  readiness?: PersonaEncounterPreviewReadinessResponse | null,
+) {
+  if (!readiness) return "Checking encounter preview provider setup.";
+  if (readiness.ready) return "Encounter preview provider is ready.";
+  if (readiness.code === "persona_encounter_persona_not_owned") {
+    return "Both personas must belong to this owner before a preview can run.";
+  }
+  if (readiness.code === "persona_encounter_provider_unavailable") {
+    return "Encounter preview is paused because provider setup is unavailable.";
+  }
+  return readiness.message || "Encounter preview is paused.";
 }
 
 export function personaEncounterPreviewErrorCopy(input: { status?: number; code?: string; message: string }) {

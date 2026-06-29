@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR473B Owner Encounter Provider Availability Repair
+
+DAEDALUS implemented PR473B on 2026-06-29:
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- an authenticated readiness route now checks the selected same-owner pair
+  before the owner can generate;
+- readiness verifies both personas belong to `req.user!.id`;
+- readiness uses the same provider resolver as generation with
+  `allowPlatformNvidia: false`;
+- accepted private-context providers can report `ready: true`;
+- NVIDIA-only private context returns paused with
+  `persona_encounter_provider_unavailable` and `provider_data_policy`;
+- the Studio panel disables generation while readiness is loading or
+  unavailable and shows bounded paused copy before click;
+- the generation POST still fails closed before provider calls when provider
+  setup is unavailable;
+- no provider policy was widened.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts` | Pass | 8 tests passed, including accepted-provider readiness and NVIDIA-only private-context paused behavior. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts` | Pass | 6 tests passed, including readiness path and fail-closed availability copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 14 tests passed after package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 160 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted owner-route rehearsal has not rerun after this repair.
+If hosted only has NVIDIA platform chat for private context, PR473B deliberately
+keeps the panel paused until MIMIR/ARGUS provide an accepted provider/config
+decision.
+
 ## PR473A Owner-Initiated Encounter Runtime Preview Hosted Rehearsal
 
 ARIADNE completed the hosted PR473A rehearsal on 2026-06-29:

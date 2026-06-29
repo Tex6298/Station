@@ -33,6 +33,14 @@ const previewSchema = z.object({
   path: ["responderPersonaId"],
 });
 
+const readinessSchema = z.object({
+  initiatorPersonaId: z.string().uuid(),
+  responderPersonaId: z.string().uuid(),
+}).refine((value) => value.initiatorPersonaId !== value.responderPersonaId, {
+  message: "Select two different personas.",
+  path: ["responderPersonaId"],
+});
+
 type EncounterPersonaRow = {
   id: string;
   owner_user_id: string;
@@ -44,6 +52,43 @@ type EncounterPersonaRow = {
   awakening_prompt?: string | null;
   style_notes?: string | null;
 };
+
+personaEncountersRouter.get("/preview/readiness", requireAuth, async (req, res) => {
+  const parsed = readinessSchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const input = parsed.data;
+
+  const [initiator, responder] = await Promise.all([
+    loadOwnedEncounterPersona(sb, input.initiatorPersonaId, ownerUserId),
+    loadOwnedEncounterPersona(sb, input.responderPersonaId, ownerUserId),
+  ]);
+
+  if (!initiator || !responder) {
+    return res.status(403).json({
+      ready: false,
+      message: "Both personas must belong to this owner before a preview can run.",
+      code: "persona_encounter_persona_not_owned",
+    });
+  }
+
+  const providerResolution = await resolveEncounterPreviewProviderRoute(sb, ownerUserId, req.user!.tier, responder);
+  if (!providerResolution.configured) {
+    return res.json({
+      ready: false,
+      message: "Encounter preview is paused because provider setup is unavailable.",
+      code: providerResolution.body.code,
+      classification: providerResolution.body.classification,
+    });
+  }
+
+  return res.json({
+    ready: true,
+    message: "Encounter preview provider is ready.",
+  });
+});
 
 personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
   const parsed = previewSchema.safeParse(req.body);
@@ -65,56 +110,10 @@ personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
     });
   }
 
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("tier, ai_mode, byok_openai_key, byok_anthropic_key, byok_deepseek_key")
-    .eq("id", ownerUserId)
-    .maybeSingle();
+  const providerResolution = await resolveEncounterPreviewProviderRoute(sb, ownerUserId, req.user!.tier, responder);
+  if (!providerResolution.configured) return res.status(providerResolution.status).json(providerResolution.body);
 
-  const aiMode = (profile?.ai_mode ?? "platform") as "platform" | "byok";
-  let runtimeByokKeys: RuntimeAiProviderKeys = {
-    openai: profile?.byok_openai_key?.trim() || null,
-    anthropic: profile?.byok_anthropic_key?.trim() || null,
-    deepseek: profile?.byok_deepseek_key?.trim() || null,
-  };
-
-  if (aiMode === "byok") {
-    try {
-      runtimeByokKeys = await loadRuntimeAiProviderKeys(ownerUserId, profile);
-    } catch {
-      return res.status(503).json({
-        error: "Encounter preview provider keys are unavailable.",
-        code: "persona_encounter_provider_unavailable",
-      });
-    }
-  }
-
-  const stationModel = selectStationModel(profile?.tier ?? req.user!.tier);
-  const chatRoute = resolveChatProviderRuntimeRoute({
-    provider: responder.provider,
-    aiMode,
-    byokOpenaiKey: runtimeByokKeys.openai,
-    byokAnthropicKey: runtimeByokKeys.anthropic,
-    byokDeepseekKey: runtimeByokKeys.deepseek,
-    platformDeepseekKey: process.env.DEEPSEEK_API_KEY,
-    platformDeepseekBaseUrl: process.env.DEEPSEEK_BASE_URL,
-    platformDeepseekModel: process.env.DEEPSEEK_MODEL,
-    platformNvidiaKey: process.env.NVIDIA_AI_API_KEY?.trim() || undefined,
-    platformNvidiaBaseUrl: process.env.NVIDIA_MODEL_BASE_URL,
-    platformNvidiaModel: process.env.NVIDIA_MODEL,
-    allowPlatformNvidia: false,
-    stationAnthropicKey: process.env.ANTHROPIC_API_KEY,
-    stationAnthropicModel: stationModel.model,
-  });
-
-  if (!chatRoute.configured || !chatRoute.provider) {
-    return res.status(503).json({
-      error: "Encounter preview provider is temporarily unavailable.",
-      code: "persona_encounter_provider_unavailable",
-      classification: chatRoute.missingConfig?.classification ?? "provider_config",
-    });
-  }
-
+  const { chatRoute } = providerResolution;
   const maxOutputTokens = input.maxOutputTokens ?? ENCOUNTER_PREVIEW_MAX_OUTPUT_TOKENS;
   const systemPrompt = buildEncounterPreviewSystemPrompt({ initiator, responder });
   const userMessage = buildEncounterPreviewUserMessage({
@@ -218,6 +217,77 @@ async function loadOwnedEncounterPersona(
     .maybeSingle();
 
   return (data ?? null) as EncounterPersonaRow | null;
+}
+
+async function resolveEncounterPreviewProviderRoute(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+  fallbackTier: string,
+  responder: EncounterPersonaRow,
+) {
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("tier, ai_mode, byok_openai_key, byok_anthropic_key, byok_deepseek_key")
+    .eq("id", ownerUserId)
+    .maybeSingle();
+
+  const aiMode = (profile?.ai_mode ?? "platform") as "platform" | "byok";
+  let runtimeByokKeys: RuntimeAiProviderKeys = {
+    openai: profile?.byok_openai_key?.trim() || null,
+    anthropic: profile?.byok_anthropic_key?.trim() || null,
+    deepseek: profile?.byok_deepseek_key?.trim() || null,
+  };
+
+  if (aiMode === "byok") {
+    try {
+      runtimeByokKeys = await loadRuntimeAiProviderKeys(ownerUserId, profile);
+    } catch {
+      return {
+        configured: false as const,
+        status: 503,
+        body: {
+          error: "Encounter preview provider keys are unavailable.",
+          code: "persona_encounter_provider_unavailable",
+          classification: "provider_config",
+        },
+      };
+    }
+  }
+
+  const stationModel = selectStationModel(profile?.tier ?? fallbackTier);
+  const chatRoute = resolveChatProviderRuntimeRoute({
+    provider: responder.provider,
+    aiMode,
+    byokOpenaiKey: runtimeByokKeys.openai,
+    byokAnthropicKey: runtimeByokKeys.anthropic,
+    byokDeepseekKey: runtimeByokKeys.deepseek,
+    platformDeepseekKey: process.env.DEEPSEEK_API_KEY,
+    platformDeepseekBaseUrl: process.env.DEEPSEEK_BASE_URL,
+    platformDeepseekModel: process.env.DEEPSEEK_MODEL,
+    platformNvidiaKey: process.env.NVIDIA_AI_API_KEY?.trim() || undefined,
+    platformNvidiaBaseUrl: process.env.NVIDIA_MODEL_BASE_URL,
+    platformNvidiaModel: process.env.NVIDIA_MODEL,
+    allowPlatformNvidia: false,
+    stationAnthropicKey: process.env.ANTHROPIC_API_KEY,
+    stationAnthropicModel: stationModel.model,
+  });
+
+  if (!chatRoute.configured || !chatRoute.provider) {
+    return {
+      configured: false as const,
+      status: 503,
+      body: {
+        error: "Encounter preview provider setup is unavailable.",
+        code: "persona_encounter_provider_unavailable",
+        classification: chatRoute.missingConfig?.classification ?? "provider_config",
+      },
+    };
+  }
+
+  return {
+    configured: true as const,
+    chatRoute,
+  };
 }
 
 async function checkEncounterPreviewRateLimit(input: {
