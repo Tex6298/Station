@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR480 Developer Space Partner-Ready Preflight ARGUS Decision
+
+ARGUS accepted the PR480A connection-tier state readback slice on 2026-06-29:
+`docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR480A_CONNECTION_TIER_STATE_READBACK`.
+
+Reason:
+
+- PR255-PR260 closed Tier 1 protected-alpha, while connection-tier product
+  state remained an explicit partial/caveat;
+- usage/quota, export/readback, rate-limit errors, and commercial packaging
+  already have accepted surfaces and tests;
+- PR480A can be helper/UI/test-only readback for Tier 1 current state plus
+  Tier 2/Tier 3 future/blocked states;
+- no app-code change was made in the preflight verdict.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 56 tests passed, including usage/quota, rate-limit, commercial packaging, owner/private, observed-runtime, field visibility, and Developer Agent boundary coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed, including structured quota/rate-limit errors and no-secret webhook/client behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed, preserving owner-only export boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 16 tests passed, preserving Billing-owned Checkout/Portal/webhook/entitlement behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from turbo cache. |
+| `git diff --check` | Pass | No whitespace errors before the roadmap edit. |
+| `git diff --cached --check` | Pass | No staged whitespace errors before the roadmap edit. |
+
 ## PR479A Owner Version Compare Readback ARGUS Review
 
 ARGUS accepted PR479A on 2026-06-29 after a narrow owner-scope review patch:

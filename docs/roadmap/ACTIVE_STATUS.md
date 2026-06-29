@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR480A accepted for DAEDALUS
+
+ARGUS accepts the smallest honest Developer Space partner-readiness slice:
+
+`docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR480A_CONNECTION_TIER_STATE_READBACK
+```
+
+Current lane:
+
+```text
+PR480A - Developer Space Connection Tier State Readback
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT READBACK-ONLY CONNECTION TIER STATE
+```
+
+Current baton:
+
+- DAEDALUS should implement readback-only Tier 1/Tier 2/Tier 3 capability state
+  on existing Developer Space public and owner routes.
+- Reuse existing Developer Space helpers/routes; no API/schema/auth/billing/
+  runtime/export/rate-limit behavior is required.
+- DAEDALUS should wake ARGUS with `WAKEUP A3:` when ready for review.
+
+Boundaries:
+
+- Tier 1 is the current self-hosted-runtime showcase/ingestion/observatory/
+  evidence/readback state.
+- Tier 2 hosted runtime, deploy, repo push, job execution, Redis/queues,
+  Cloudflare runtime/index, production realtime, and operational hosting must
+  remain future/blocked readback.
+- Tier 3 lab/interconnected composition must remain future/blocked readback.
+- No key/signing-secret generation or rotation, provider calls, billing/Stripe
+  mutation, public raw export/download, schema/API/auth expansion, entitlement
+  mutation, workers/queues, Redis durable truth, Cloudflare runtime/index,
+  hosted deployment behavior, or private Developer Space leakage.
+
 ## Latest MIMIR closeout/opening - PR479A closed, PR480 opened
 
 MIMIR closes PR479A Owner Version Compare Readback as accepted:
