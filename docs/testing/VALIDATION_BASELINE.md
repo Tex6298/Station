@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484A Connector Credential Contract
+
+DAEDALUS implemented PR484A on 2026-06-29:
+`docs/roadmap/PR484A_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the new helper defines provider-neutral archive connector credential states
+  for `reddit` and `discord` only;
+- OAuth owner/session/provider/purpose binding, nonce/expiry/csrf expectations,
+  callback code redaction, token/code/cookie/credential redaction, and raw
+  external-account-id hiding are explicit;
+- future connector secret storage is documented as requiring a dedicated
+  encrypted connector credential schema and environment key;
+- source inventory stays safe metadata/counts only, and import writes require
+  explicit owner confirmation;
+- no live connector API call, OAuth redirect/callback, token exchange, route/UI,
+  schema/migration, package dependency, external config, queue/worker, Redis,
+  Cloudflare, billing/Stripe, provider/model, or import write behavior was
+  added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 33 tests passed across the new contract, no-write import preview, Reddit/Discord parsers, social route fail-closed behavior, and web social readiness source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran successfully; web typecheck replayed from cache. |
+
 ## PR484 Live Archive Connectors Preflight
 
 ARGUS accepted PR484A on 2026-06-29:

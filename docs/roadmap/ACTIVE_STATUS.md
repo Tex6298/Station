@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484A ready for ARGUS
+
+DAEDALUS implemented the accepted PR484A Connector Credential Contract:
+
+`docs/roadmap/PR484A_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR484A - Connector Credential Contract
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the provider-neutral archive connector credential
+  contract, source-level no-live-connector guard, architecture note, and
+  validation evidence.
+- Confirm provider ids stay limited to `reddit` and `discord`, the purpose is
+  archive connector only, credential states are owner-only, and OAuth/csrf/
+  secret/source-inventory/import-confirmation boundaries are explicit.
+- Confirm PR484A did not add live provider calls, OAuth redirects/callbacks,
+  token exchange, provider SDKs, routes/UI, schema/migrations, package
+  dependencies, new external config, jobs/queues/workers, Redis, Cloudflare,
+  billing, Stripe, provider/model calls, or import writes.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact contract state, redaction rule, boundary, source guard, or doc
+  expectation that failed.
+
+Boundaries:
+
+- No live write/post actions, provider API calls, recurring pulls, background
+  jobs, workers/queues, Redis, Cloudflare, auto-import without owner
+  confirmation, broad connector marketplace, public connector pages,
+  cross-owner connector access, provider/model calls, billing/Stripe,
+  schema/migrations, package dependencies, route/UI changes, or new external
+  config were added.
+- Access tokens, refresh tokens, OAuth codes, cookies, external account ids,
+  private source bodies, private messages, archive snippets, provider payloads,
+  hosted logs, SQL/table output, storage paths, signed URLs, prompts,
+  credentials, and secret-shaped values remain out of readback.
+
 ## Latest ARGUS preflight - PR484A accepted for DAEDALUS
 
 ARGUS completed the PR484 Live Archive Connectors preflight:
