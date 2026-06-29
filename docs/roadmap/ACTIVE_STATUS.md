@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR479A closed, PR480 opened
+
+MIMIR closes PR479A Owner Version Compare Readback as accepted:
+
+`docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_CLOSEOUT.md`
+
+ARGUS accepted the owner-only, metadata-only compare/readback after adding a
+narrow owner-access gate patch. No ARIADNE hosted proof is required because no
+mutation or public exposure behavior changed.
+
+Per the feature-expansion rule, MIMIR opens a different named customer-facing
+roadmap capability:
+
+`docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR480 - Developer Space Partner-Ready Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST PARTNER-READINESS SLICE
+```
+
+Current baton:
+
+- ARGUS should choose a bounded next Developer Space partner-readiness slice
+  beyond PR255-PR260 Tier 1 protected-alpha closeout.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, touched areas,
+  tests, and guardrails.
+- If blocked or ambiguous, ARGUS should wake MIMIR with the concrete blocker or
+  decision point.
+
+Boundaries:
+
+- No hosted runtime provisioning, repo push/deploy, developer-agent job
+  execution, key/signing-secret generation, background jobs, production
+  realtime, Redis as durable truth, Cloudflare runtime/index behavior, billing,
+  Checkout, pricing, Stripe, entitlement mutation, provider calls, public raw
+  exports, or schema/API/auth expansion unless ARGUS names the exact smallest
+  unblock.
+- Do not expose ingestion keys, signing secrets, raw event payloads,
+  owner-only nodes/events/snapshots, private evidence/drafts, raw Developer
+  Space IDs, owner IDs, customer IDs, SQL/table details, stack traces, provider
+  payloads, or secrets.
+
 ## Latest ARGUS review - PR479A accepted for MIMIR
 
 ARGUS accepted PR479A after a narrow owner-scope review patch:
