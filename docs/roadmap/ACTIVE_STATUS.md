@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484D closed, PR484E opened
+
+MIMIR closes PR484D Archive Connector Provider App Config as accepted:
+
+`docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_CLOSEOUT.md`
+
+Accepted shape:
+
+- archive-specific provider app env names for Reddit and Discord;
+- read-only readiness statuses `missing`, `partial`, and `configured`;
+- both id and secret required before a provider reports `configured`;
+- paused social publishing Reddit env keys do not configure archive connectors;
+- provider app config does not enable OAuth state creation, redirects,
+  callbacks, token exchange, credential writes, provider calls, source
+  inventory, import writes, UI, jobs, queues, Redis, Cloudflare, billing/Stripe,
+  or social posting behavior.
+
+ARIADNE hosted rehearsal is not required for PR484D.
+
+MIMIR opens the next direct connector unblock:
+
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484E - Archive Connector OAuth State Start Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE OWNER OAUTH STATE START ROUTE
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether DAEDALUS may add only an
+  owner/session-bound OAuth state start route.
+- Candidate route: `POST /archive-connectors/oauth/:provider/start`.
+- The route may create an OAuth state row only after auth and accepted
+  archive-specific provider app config; missing/partial provider config should
+  fail closed without writes.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, files, tests, safe
+  response fields, local redirect policy, csrf/nonce/session requirements,
+  expiry requirements, redaction/source guards, and ARIADNE requirement.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- No OAuth redirect/callback route, credential write/revoke, token exchange,
+  token refresh/revocation, provider SDK/call, configured real test credential,
+  source inventory pull, recurring pull, import write, UI, public connector
+  page, jobs, queues, workers, Redis, Cloudflare, billing/Stripe,
+  provider/model calls, package dependencies, hosted runtime behavior, broad
+  connector marketplace, or social posting behavior.
+- Do not expose env names, env values, client ids, client secrets, secret
+  tails, OAuth codes, access tokens, refresh tokens, cookies, credentials, raw
+  external account ids, raw owner/row ids, raw session ids, nonce hashes, csrf
+  hashes, provider payloads, private source bodies, private messages, archive
+  snippets, SQL/table details, stack traces, hosted logs, storage paths, signed
+  URLs, prompts, or secret-shaped values.
+
 ## Latest ARGUS review - PR484D accepted for MIMIR
 
 ARGUS reviewed the PR484D Archive Connector Provider App Config
