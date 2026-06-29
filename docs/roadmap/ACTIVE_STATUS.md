@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR478A hosted proof opened
+
+MIMIR routes ARIADNE for hosted read-only proof after ARGUS accepted PR478A:
+
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify hosted public forum thread trust readback on desktop
+  and 390px mobile.
+- ARIADNE should verify signed-in current-viewer state remains viewer-local and
+  aggregate-only.
+- ARIADNE should verify `/forums/witnesses` remains private signed-in-author
+  recognition readback and signed-out/below-tier access is gated.
+- ARIADNE should not create witness marks, reports, moderation actions, forum
+  content, schema changes, provider calls, Redis/Cloudflare/workers/queues
+  behavior, or billing behavior.
+- ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, `DEPLOYMENT_WAITING`,
+  `PRIVACY_OR_TRUST_BOUNDARY_FAIL`, or `SEED_OR_ROUTE_BLOCKER`.
+
+Boundaries:
+
+- No public scores, leaderboards, badges, rankings, clout, reputation profiles,
+  public moderator directories, public reporter lists, new moderation powers,
+  automated moderation, broad forum redesign, Redis, Cloudflare, workers/queues,
+  billing, schema changes, or private moderation leakage.
+- Do not capture raw response bodies, raw route IDs, cookies, auth headers,
+  tokens, witnesser identities, reporter identities, raw witness/report rows,
+  hidden/deleted bodies, private comments, moderation notes, SQL/table output,
+  stack traces, provider payloads, or hosted logs.
+
 ## Latest ARGUS review - PR478A accepted
 
 ARGUS accepted the PR478A Community Trust Readback implementation:

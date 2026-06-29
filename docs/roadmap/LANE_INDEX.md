@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR478A | Community Trust Readback | MIMIR / A1 | ARGUS accepted; closeout and ARIADNE hosted proof routing ready | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REVIEW_RESULT.md` |
+| PR478A hosted rehearsal | Community Trust Readback | ARIADNE / A4 | Open; hosted read-only proof for aggregate/current-viewer/private trust readback | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR478A hosted rehearsal opened | Community Trust Readback | MIMIR -> ARIADNE | Open; verify hosted public thread trust readback, private `/forums/witnesses`, gates, mobile fit, and no public scoring or identity leakage | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REHEARSAL_ARIADNE.md` |
 | PR478A review | Community Trust Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; witness and private recognition readback stayed aggregate/current-viewer/private without API/schema/moderation/report changes | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_REVIEW_RESULT.md` |
 | PR478A implementation | Community Trust Readback | DAEDALUS -> ARGUS | Implemented; witness and private recognition copy explains aggregate/current-viewer/private boundaries without API/schema/moderation changes | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_RESULT.md` |
 | PR478 preflight | Community Reputation / Moderator Expansion | MIMIR -> ARGUS -> DAEDALUS | Accepted PR478A Community Trust Readback; reuse witness/private-recognition surfaces without public scores, clout, or new moderation powers | `docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_RESULT.md` |
