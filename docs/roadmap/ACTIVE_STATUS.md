@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484F-D accepted for DAEDALUS
+
+ARGUS completed the PR484F-D Archive Connector OAuth Authorization URL
+preflight:
+
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484F_D_AUTHORIZATION_URL_READBACK
+```
+
+Current lane:
+
+```text
+PR484F-D - Archive Connector OAuth Authorization URL
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT BOUNDED AUTHORIZATION URL READBACK
+```
+
+Accepted shape:
+
+- route: `POST /archive-connectors/oauth/:provider/authorize`;
+- existing archive connector Bearer auth boundary;
+- request body contains only `stateHandle`;
+- validate an existing unexpired/unconsumed PR484E state for the authenticated
+  owner/session/provider without consuming it;
+- build provider URL with `NEXT_PUBLIC_APP_URL` web callback origin and the
+  accepted PR484F-C callback route;
+- Reddit URL uses `response_type=code`, `duration=temporary`, and
+  `scope=identity`;
+- Discord URL uses `response_type=code` and `scope=identify`;
+- return only bounded `authorizationUrl` readback.
+
+Non-scope remains:
+
+- no server redirect, token exchange, token refresh/revocation, credential
+  write/revoke, provider SDK/fetch/call, source inventory, import write, queue,
+  hosted runtime config, Cloudflare, Redis, billing, package, broad connector
+  UI, marketplace, or social posting behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 59 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check a66aa85f03ba4683e1b4a79eaa3be586cd868b35..0cacb08ec307`
+  passed.
+- MIMIR wakeup diff is docs-only.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484F-C closed, PR484F-D opened
 
 MIMIR closes PR484F-C after ARGUS accepted the Archive Connector OAuth Web

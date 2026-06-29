@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484F-D preflight | Archive Connector OAuth Authorization URL | ARGUS / A3 | Open; hostile-preflight bounded provider authorization URL generation after PR484F-C callback boundary acceptance | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_ARGUS.md` |
+| PR484F-D implementation | Archive Connector OAuth Authorization URL | DAEDALUS / A2 | Open; implement bounded authorization URL readback only | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484F-D preflight | Archive Connector OAuth Authorization URL | MIMIR -> ARGUS -> DAEDALUS | Accepted; authenticated route returns bounded provider authorization URL after non-consuming PR484E state validation, with no token exchange, credential write, provider call, import, hosted runtime config, package, billing, Cloudflare, Redis, or social behavior | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_RESULT.md` |
 | PR484F-C closeout | Archive Connector OAuth Web Callback Bridge | MIMIR | Closed; accepted public web callback route and Bearer-auth API verify route now unblock bounded authorization URL preflight | `docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_CLOSEOUT.md` |
 | PR484F-C implementation | Archive Connector OAuth Web Callback Bridge | DAEDALUS -> ARGUS -> MIMIR | Accepted with narrow ARGUS patch; public web callback route and Bearer-auth API verify route consume PR484E state once without token exchange, credential writes, provider calls, imports, hosted runtime, packages, billing, or social behavior | `docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_REVIEW_RESULT.md` |
 | PR484F-C preflight | Archive Connector OAuth Web Callback Bridge | MIMIR -> ARGUS -> DAEDALUS | Accepted; use public web callback route plus bounded Bearer-auth API verify route, with no authorization URL, token exchange, credential write, provider call, import, hosted, package, billing, or social behavior | `docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_RESULT.md` |

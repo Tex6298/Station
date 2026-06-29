@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484F-D Archive Connector OAuth Authorization URL Preflight
+
+ARGUS accepted PR484F-D for DAEDALUS on 2026-06-29:
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484F_D_AUTHORIZATION_URL_READBACK`.
+
+Accepted boundary:
+
+- authenticated `POST /archive-connectors/oauth/:provider/authorize`;
+- body contains only `stateHandle`;
+- existing unexpired/unconsumed PR484E state must be validated for owner,
+  provider, csrf, and Bearer-derived session without consuming it;
+- provider URL uses `NEXT_PUBLIC_APP_URL` web origin plus PR484F-C callback
+  route for `redirect_uri`;
+- Reddit scope is `identity` with `duration=temporary`;
+- Discord scope is `identify`;
+- client id and state handle may appear only inside `authorizationUrl`;
+- no token exchange, credential write/revoke, provider call/fetch, source
+  inventory, import write, queue, hosted runtime config, Cloudflare, Redis,
+  billing, package, broad UI, marketplace, or social posting behavior.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 59 tests passed across archive connector route/storage/contract, callback bridge, no-write import preview, parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check a66aa85f03ba4683e1b4a79eaa3be586cd868b35..0cacb08ec307` | Pass | MIMIR closeout/opening diff is whitespace-clean. |
+| Path/scope scan | Pass | MIMIR wakeup diff is docs-only. |
+
 ## PR484F-C Archive Connector OAuth Web Callback Bridge Review
 
 ARGUS accepted PR484F-C on 2026-06-29:
