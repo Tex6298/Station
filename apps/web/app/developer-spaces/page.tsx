@@ -173,15 +173,15 @@ export default function DeveloperSpacesPage() {
         </div>
         <div style={{ display: "grid", gap: "0.5rem", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
           <div>
-            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Plan boundary</p>
+            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: 0 }}>Plan boundary</p>
             <p style={{ margin: 0, color: "#1f2529", fontSize: "0.92rem" }}>{COMMERCIAL_PACKAGING.planName}</p>
           </div>
           <div>
-            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Included limit</p>
+            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: 0 }}>Included limit</p>
             <p style={{ margin: 0, color: "#1f2529", fontSize: "0.92rem" }}>{COMMERCIAL_PACKAGING.includedLimit}</p>
           </div>
           <div>
-            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Billing handoff</p>
+            <p style={{ margin: "0 0 0.2rem", color: "#687078", fontSize: "0.76rem", textTransform: "uppercase", letterSpacing: 0 }}>Billing handoff</p>
             <p style={{ margin: 0, color: "#1f2529", fontSize: "0.92rem" }}>Station /billing</p>
           </div>
         </div>

@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR474A accepted
+
+ARGUS accepts the Developer Space commercial packaging readback after a narrow
+frontend style patch:
+
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REVIEW_RESULT.md`
+
+Decision:
+
+- PR474A matches the accepted commercial packaging boundary.
+- Developer Spaces now read as a Canon / Developer capability and point billing
+  review, upgrade, or management actions to Station `/billing`.
+- Billing copy is derived from existing billing helper modules rather than new
+  price constants.
+- Stripe Checkout, Customer Portal, webhook, customer binding, entitlement
+  mutation, Price selection, schema, API routes, live-money claims, and broader
+  billing architecture were not changed.
+- Developer Spaces remain public-safe readback for self-hosted project
+  runtimes, not Station-hosted developer app infrastructure.
+
+ARGUS patch:
+
+- Replaced three uppercase readback labels' nonzero `letterSpacing` with
+  `letterSpacing: 0`.
+- No product behavior, billing behavior, helper contract, entitlement,
+  provider, storage, worker, queue, Redis, Cloudflare, or hosted runtime logic
+  changed.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces`: pass, 56 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:billing`: pass, 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 160 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass; line-ending normalization warnings only.
+- `git diff --cached --check`: pass; line-ending normalization warnings only.
+- Diff-only sensitive-pattern scan: pass; no raw Stripe object ids,
+  Checkout/Portal URLs, payment details, SQL output, logs, tokens, or secrets.
+- Diff-only scope scan: pass; expected `/billing`,
+  Stripe/Checkout/Portal/subscription/test-mode, and negative-scope references
+  only.
+
+Residual risk:
+
+- Hosted read-only desktop and 390px visible route rehearsal has not been run
+  after PR474A.
+
+Current lane:
+
+```text
+PR474A - Developer Space Commercial Packaging Readback
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSE OR ROUTE OPTIONAL READ-ONLY HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should close PR474A or route ARIADNE for optional read-only hosted
+  `/developer-spaces` and `/billing` rehearsal.
+- Do not broaden into live-money claims, Stripe mechanics, entitlement
+  mutation, schema, hosted runtime, provider policy, queues/workers,
+  Cloudflare, Redis, or broader billing architecture.
+
 ## Latest DAEDALUS handoff - PR474A ready for ARGUS review
 
 DAEDALUS implemented the Developer Space commercial packaging readback:

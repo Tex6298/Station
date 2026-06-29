@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR474A Developer Space Commercial Packaging Readback ARGUS Review
+
+ARGUS accepted PR474A on 2026-06-29 after a narrow frontend style patch:
+`docs/roadmap/PR474A_DEVELOPER_SPACE_COMMERCIAL_PACKAGING_READBACK_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- the Developer Spaces page reads Developer Spaces as a Canon / Developer
+  capability;
+- upgrade and management review points to Station `/billing`;
+- the helper derives plan name, Developer Space limit, and billing action copy
+  from existing billing helpers instead of duplicating price constants;
+- Stripe Checkout and Customer Portal mechanics remain owned by `/billing`;
+- copy stays honest about test-mode Stripe handoff and verified server
+  subscription state;
+- Developer Spaces remain framed as public-safe readback for self-hosted
+  runtimes, not Station-hosted developer app infrastructure;
+- ARGUS changed only three uppercase label styles from nonzero letter spacing
+  to `letterSpacing: 0`.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 56 tests passed, including commercial packaging helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 16 tests passed; billing route, webhook, tier-display, and plan-action coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 160 tests passed after visible Developer Spaces page copy changed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors; line-ending normalization warnings only for touched text files. |
+| `git diff --cached --check` | Pass | No staged whitespace errors; line-ending normalization warnings only for touched text files. |
+| Diff-only sensitive-pattern scan | Pass | No raw Stripe object ids, Checkout/Portal URLs, payment details, SQL output, logs, tokens, or secrets. |
+| Diff-only scope scan | Pass | Expected `/billing`, Stripe/Checkout/Portal/subscription/test-mode, and negative-scope references only. |
+
+Residual risk: hosted read-only desktop and 390px visible route rehearsal has
+not been run after PR474A. MIMIR can close directly or route ARIADNE for a
+read-only hosted `/developer-spaces` and `/billing` rehearsal with no Stripe
+state mutation.
+
 ## PR474A Developer Space Commercial Packaging Readback
 
 DAEDALUS implemented PR474A on 2026-06-29:
