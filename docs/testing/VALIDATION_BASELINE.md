@@ -22,10 +22,10 @@ they are not Station validation failures.
 
 ## PR469B Public Seminar Populated Replay Seed
 
-DAEDALUS implemented PR469B on 2026-06-29:
-`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_RESULT.md`.
+DAEDALUS implemented PR469B on 2026-06-29, and ARGUS accepted it:
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_REVIEW_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+Validation result: `ARGUS_ACCEPTED`.
 
 Reason:
 
@@ -37,7 +37,9 @@ Reason:
 - staging seed completed locally and reported `seminarFeatures: 3`;
 - hosted signed-out `GET /events/seminars` returned HTTP 200 with 3 cards;
 - hosted card ids were opaque `seminar_` ids and hrefs were public `/space/` or
-  `/forums/` paths only.
+  `/forums/` paths only;
+- no schema, admin curation UI, realtime/media/attendance/payment/provider,
+  hosted runtime, queue, worker, or broad Discover/UI scope was added.
 
 | Command / check | Required result | Notes |
 | --- | --- | --- |
@@ -47,14 +49,16 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 2 tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
-| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | Seed completed with sanitized output and `seminarFeatures: 3`. |
-| Hosted web/API `/health/deployment` | Pass | Both ready at commit `8b05122e`. |
-| Hosted signed-out `GET /events/seminars` | Pass | HTTP 200 with 3 cards, opaque ids, public hrefs, and no raw source ids in card ids. |
-| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging` | Pass | ARGUS rerun completed with sanitized output and `seminarFeatures: 3`. |
+| Hosted web/API `/health/deployment` | Pass | Both ready at commit `8b05122e5d4e6aee167e810dab332ec8e37fb665`. |
+| Hosted signed-out `GET /events/seminars` | Pass | ARGUS rerun returned HTTP 200 with 3 cards, source types `space`, `thread`, and `document`, opaque ids, public hrefs, and public discussion hrefs. |
+| `git diff --check` | Pass | No whitespace errors. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
 
-Residual risk: ARGUS has not reviewed the seed/script change or hosted proof
-yet. No broad product event behavior is claimed by this seed repair.
+Residual risk: hosted web/browser card layout after populated seed has not been
+rerun in this ARGUS pass. PR469A already had hosted empty-state browser proof;
+MIMIR can close on the populated API proof or route a final ARIADNE browser
+check if desired.
 
 ## PR469A Public Seminar Readback Bundles Hosted Rehearsal
 

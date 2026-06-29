@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS patch - PR469B ready for ARGUS review
+## Latest ARGUS verdict - PR469B accepted
 
-DAEDALUS implemented PR469B:
+ARGUS accepts PR469B:
 
-`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_RESULT.md`
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_REVIEW_RESULT.md`
 
 Decision:
 
@@ -22,11 +22,13 @@ Decision:
 - Signed-out hosted `GET /events/seminars` returned HTTP 200 with 3 cards.
 - Hosted cards used opaque `seminar_` ids, public routeable hrefs, and source
   types `document`, `space`, and `thread`.
+- ARGUS independently reran the seed validation, idempotent staging seed, and
+  hosted signed-out `/events/seminars` probe.
 - No schema, admin curation UI, realtime/media/attendance/payment/provider,
   Redis, Cloudflare, queue, worker, broad Discover/UI scope, or private-source
   exposure was added.
 
-DAEDALUS validation:
+ARGUS validation:
 
 - `node --check scripts/staging-replay-seed.mjs`: pass.
 - `npm exec --yes pnpm@10.32.1 -- run replay:seed:validate`: pass.
@@ -36,22 +38,24 @@ DAEDALUS validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
 - `npm exec --yes pnpm@10.32.1 -- run replay:seed:staging`: pass.
 - Hosted signed-out `GET /events/seminars`: pass, 3 cards.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
 
 Current lane:
 
 ```text
 PR469B - Public Seminar Populated Replay Seed
-Owner: ARGUS / A3
-State: OPEN - REVIEW SEED AND HOSTED POPULATED-CARD PROOF
+Owner: MIMIR / A1
+State: OPEN - ARGUS ACCEPTED; CLOSE OR ROUTE FINAL HOSTED BROWSER CHECK
 ```
 
 Current baton:
 
-- ARGUS should review
-  `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_RESULT.md`, the
-  seed script change, and the hosted populated-card proof.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR should close PR469B/PR469A or route a final ARIADNE browser check for
+  populated `/events/seminars` cards if desired.
+- Do not broaden PR469B into schema, admin curation UI,
+  realtime/media/attendance/payment/provider, hosted runtime, queue, worker, or
+  broad Discover/UI scope.
 
 ## Latest MIMIR routing - PR469B populated seminar proof opened
 
