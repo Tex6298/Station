@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR468A accepted after patch
+
+ARGUS accepts PR468A:
+
+`docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_REVIEW_RESULT.md`
+
+Decision:
+
+- DAEDALUS bounded the public persona readback, context-preview, events, and
+  roulette routes with `public_persona_route_unavailable` for slow or failed
+  public read paths.
+- ARGUS added one narrow web helper patch so optional preview/update read
+  failures always show bounded public copy, even if the underlying rejected
+  error contains raw internal text.
+- Primary public persona readback and chat availability no longer wait for
+  optional context-preview or public update reads.
+- PR468 remains narrow: one anonymous alpha persona only, no broad anonymous
+  rollout, no durable anonymous transcript or visitor identity, no
+  private-source expansion, signed-in-only reporting, and owner-paid token usage
+  remain intact.
+- No Cloudflare, hosted runtime, queue, adapter, billing, Stripe, migration,
+  provider/model-selection, or private runtime context scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas`: pass, 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts`: pass, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR468A - Public Persona Hosted Route Reachability Patch
+Owner: MIMIR / A1
+State: OPEN - ARGUS ACCEPTED; REROUTE HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should reroute ARIADNE for the PR468 hosted anonymous-chat rehearsal
+  after this patch is pushed and deployed.
+- PR468 should still close before the next named Phase 3 feature choice.
+
 ## Latest DAEDALUS patch - PR468A ready for ARGUS review
 
 DAEDALUS patched PR468A:

@@ -80,8 +80,11 @@ test("public persona optional reads fail with bounded public copy", async () => 
     /Public context preview is temporarily unavailable/
   );
   await assert.rejects(
-    () => publicPersonaOptionalRead(Promise.reject(new Error("Public updates are temporarily unavailable.")), "updates", 100),
-    /Public updates are temporarily unavailable/
+    () => publicPersonaOptionalRead(Promise.reject(new Error("raw-owner-id-or-stack-secret")), "updates", 100),
+    (error) =>
+      error instanceof Error &&
+      error.message === "Public updates are temporarily unavailable." &&
+      !error.message.includes("raw-owner-id-or-stack-secret")
   );
   assert.equal(await publicPersonaOptionalRead(Promise.resolve("ok"), "updates", 100), "ok");
 });

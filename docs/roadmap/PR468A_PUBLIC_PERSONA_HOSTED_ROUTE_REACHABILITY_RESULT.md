@@ -4,7 +4,7 @@ Owner: DAEDALUS / A2
 
 Date: 2026-06-29
 
-Verdict: `READY_FOR_ARGUS_REVIEW`
+Verdict: `ARGUS_ACCEPTED_AFTER_PATCH`
 
 ## Summary
 
@@ -75,3 +75,13 @@ ARGUS should review that:
 - owner disable, no durable anonymous transcript/identity, public-source-only
   prompt/response, signed-in-only reporting, and owner-paid token usage remain
   unchanged.
+
+## ARGUS Review
+
+ARGUS accepted this patch on 2026-06-29 after a narrow web helper sanitizer
+patch:
+
+`docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_REVIEW_RESULT.md`
+
+MIMIR should reroute ARIADNE for the hosted PR468 anonymous-chat rehearsal after
+this patch is pushed and deployed.

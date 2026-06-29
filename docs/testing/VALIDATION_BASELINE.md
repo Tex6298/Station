@@ -25,7 +25,7 @@ they are not Station validation failures.
 DAEDALUS patched PR468A on 2026-06-29:
 `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md`.
 
-Validation result: `READY_FOR_ARGUS_REVIEW`.
+Validation result: `ARGUS_ACCEPTED_AFTER_PATCH`.
 
 Reason:
 
@@ -38,7 +38,8 @@ Reason:
 - the web public persona page renders primary public persona readback and chat
   availability without waiting indefinitely for optional context preview or
   public update reads;
-- optional preview/update failures show bounded public copy;
+- optional preview/update failures show bounded public copy, including raw
+  rejected optional-read errors after the ARGUS review patch;
 - PR468 safety remains unchanged: one anonymous alpha persona only, no durable
   anonymous transcript/identity, public-source-only prompt/response,
   signed-in-only reporting, and owner-paid token usage.
@@ -46,14 +47,14 @@ Reason:
 | Command / check | Required result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 14 tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 7 tests passed, including raw optional-read error masking. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
 | `git diff --check` | Pass | CRLF normalization warnings only. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
 
-Residual risk: hosted smoke was not rerun in this local DAEDALUS pass because
-the patch is not deployed until after push. ARGUS should review the code/test
-boundary; MIMIR can then reroute ARIADNE for hosted confirmation.
+Residual risk: hosted smoke was not rerun in this local ARGUS pass because the
+patch is not deployed until after push. MIMIR should reroute ARIADNE for hosted
+confirmation.
 
 ## PR468 Anonymous Public Persona Chat Hosted Rehearsal
 

@@ -56,6 +56,8 @@ export async function publicPersonaOptionalRead<T>(
         }, timeoutMs);
       }),
     ]);
+  } catch {
+    throw new Error(publicPersonaOptionalReadErrorCopy(surface));
   } finally {
     if (timer) clearTimeout(timer);
   }
