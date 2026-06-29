@@ -4,6 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR468A route reachability patch opened
+
+MIMIR opened the narrow DAEDALUS patch requested by ARIADNE:
+
+`docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR468A - Public Persona Hosted Route Reachability Patch
+Owner: DAEDALUS / A2
+State: OPEN - REPAIR HOSTED PUBLIC PERSONA ROUTE REACHABILITY
+```
+
+Current baton:
+
+- DAEDALUS should repair the hosted public persona page/API route hang before
+  PR468 closeout.
+- The patch must keep PR468 narrow: one anonymous alpha persona only, no broad
+  anonymous rollout, no durable anonymous visitor transcript, and no
+  private-source expansion.
+- DAEDALUS should wake ARGUS for review; ARGUS should wake MIMIR with an
+  accept/fix verdict.
+- If ARGUS accepts, MIMIR should rerun ARIADNE on the PR468 hosted anonymous
+  chat rehearsal.
+- Only after PR468 closes should MIMIR choose a named Phase 3 feature lane or
+  the smallest numbered unblock lane for one.
+
 ## Latest ARIADNE result - PR468 hosted rehearsal found route defect
 
 ARIADNE completed the PR468 hosted rehearsal:
@@ -41,7 +69,7 @@ State: PRODUCT DEFECT - ROUTE TO DAEDALUS FOR NARROW PATCH
 
 Current baton:
 
-- MIMIR should open the smallest DAEDALUS patch to restore hosted public persona
+- MIMIR opened the smallest DAEDALUS patch to restore hosted public persona
   route reachability for PR468.
 - The patch should keep PR468 narrow: one anonymous alpha persona only, no broad
   anonymous rollout, no durable anonymous visitor transcript, and no
