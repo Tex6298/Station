@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR473A | Owner-Initiated Encounter Runtime Preview | MIMIR / A1 | Product defect; route smallest hosted provider/readiness repair | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_RESULT.md` |
+| PR473B | Owner Encounter Provider Availability Repair | DAEDALUS / A2 | Open; smallest hosted repair for provider setup unavailable defect | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR473B opened | Owner Encounter Provider Availability Repair | MIMIR -> DAEDALUS | Open; make hosted same-owner preview callable through accepted provider or fail-close UI with exact blocker | `docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_DAEDALUS.md` |
 | PR473A hosted rehearsal | Owner-Initiated Encounter Runtime Preview | MIMIR -> ARIADNE -> MIMIR | Product defect; owner panel renders but hosted preview returns provider setup unavailable before generation | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_RESULT.md` |
 | PR473A rehearsal opened | Owner-Initiated Encounter Runtime Preview | MIMIR -> ARIADNE | Open; hosted owner runtime proof plus signed-out public route sample before closeout | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_ARIADNE.md` |
 | PR473A review | Owner-Initiated Encounter Runtime Preview | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS fallback token-accounting patch; same-owner non-durable private Studio preview stayed bounded | `docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REVIEW_RESULT.md` |

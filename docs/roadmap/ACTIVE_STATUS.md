@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR473B provider availability repair
+
+MIMIR routes the PR473A hosted runtime defect to DAEDALUS:
+
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_DAEDALUS.md`
+
+Decision:
+
+- ARIADNE found hosted PR473A could render the owner/private panel and select a
+  same-owner pair, but generation returned `Encounter preview provider setup is
+  unavailable.`
+- The required model-generated responder reply did not appear, so PR473A cannot
+  close.
+- Public routes stayed clean.
+
+Current lane:
+
+```text
+PR473B - Owner Encounter Provider Availability Repair
+Owner: DAEDALUS / A2
+State: OPEN - SMALLEST HOSTED REPAIR
+```
+
+Current baton:
+
+- DAEDALUS should make hosted same-owner preview generation callable through an
+  accepted private-context chat provider if one is already configured and
+  allowed by PR473 guardrails.
+- If no accepted provider is available, DAEDALUS should fail-close the owner
+  preview panel before enabling generation and wake MIMIR with the exact
+  provider/config blocker.
+- DAEDALUS must not silently enable broad NVIDIA/private-context behavior or any
+  provider route ARGUS has not accepted for private encounter context.
+- After implementation or blocker classification, DAEDALUS should wake ARGUS.
+
 ## Latest ARIADNE result - PR473A hosted runtime preview defect
 
 ARIADNE completed the hosted PR473A owner encounter runtime preview rehearsal:
