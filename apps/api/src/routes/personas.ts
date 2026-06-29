@@ -112,6 +112,7 @@ const PUBLIC_PERSONA_CHAT_DAY_SECONDS = 24 * 60 * 60;
 const PUBLIC_PERSONA_ROULETTE_DEFAULT_LIMIT = 3;
 const PUBLIC_PERSONA_ROULETTE_MAX_LIMIT = 8;
 const PUBLIC_PERSONA_ROULETTE_POOL_LIMIT = 80;
+const PUBLIC_PERSONA_ROUTE_TIMEOUT_MS = 5000;
 const PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT =
   "id, title, slug, body, status, visibility, published_at, created_at, space_id, persona_id, source_persona_id, discussion_thread_id";
 const PUBLIC_PERSONA_CONTEXT_THREAD_SELECT =
@@ -162,6 +163,36 @@ function publicPersonaEventsLimit(value: unknown) {
   const parsed = Number.parseInt(String(firstQueryValue(value) ?? ""), 10);
   if (!Number.isInteger(parsed)) return PUBLIC_PERSONA_EVENTS_DEFAULT_LIMIT;
   return Math.min(PUBLIC_PERSONA_EVENTS_MAX_LIMIT, Math.max(1, parsed));
+}
+
+function publicPersonaRouteTimeoutMs() {
+  return positiveEnvInt("PUBLIC_PERSONA_ROUTE_TIMEOUT_MS", PUBLIC_PERSONA_ROUTE_TIMEOUT_MS);
+}
+
+async function withPublicPersonaRouteRead<T>(read: () => Promise<T>): Promise<T> {
+  const timeoutMs = publicPersonaRouteTimeoutMs();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      read(),
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error("public_persona_route_unavailable"));
+        }, timeoutMs);
+        if (typeof timer === "object" && "unref" in timer) timer.unref();
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function publicPersonaRouteUnavailable(res: Response) {
+  return res.status(503).json({
+    error: "Public persona data is temporarily unavailable.",
+    code: "public_persona_route_unavailable",
+  });
 }
 
 function stablePublicPersonaRouletteHash(value: string) {
@@ -891,15 +922,18 @@ personasRouter.get("/public/roulette", async (req, res) => {
   const seed = publicPersonaRouletteSeed(req.query.seed);
 
   try {
-    const rows = await loadPublicPersonaRouletteRows(limit, seed);
-    return res.json({
-      seed,
-      personas: rows
-        .map(serializePublicPersonaRouletteCard)
-        .filter((card): card is PublicPersonaRouletteCard => Boolean(card)),
+    const response = await withPublicPersonaRouteRead(async () => {
+      const rows = await loadPublicPersonaRouletteRows(limit, seed);
+      return {
+        seed,
+        personas: rows
+          .map(serializePublicPersonaRouletteCard)
+          .filter((card): card is PublicPersonaRouletteCard => Boolean(card)),
+      };
     });
+    return res.json(response);
   } catch {
-    return res.status(500).json({ error: "Failed to load public persona roulette." });
+    return publicPersonaRouteUnavailable(res);
   }
 });
 
@@ -1059,24 +1093,31 @@ personasRouter.post("/public/:publicSlug/report", requireAuth, async (req, res) 
 
 personasRouter.get("/public/:publicSlug/events", async (req, res) => {
   const limit = publicPersonaEventsLimit(req.query.limit);
-  const data = await loadEligiblePublicPersonaBySlug(
-    req.params.publicSlug,
-    "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
-  );
-  if (!data) return res.status(404).json({ error: "Public persona not found." });
+  try {
+    const response = await withPublicPersonaRouteRead(async () => {
+      const data = await loadEligiblePublicPersonaBySlug(
+        req.params.publicSlug,
+        "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+      );
+      if (!data) return null;
 
-  const publicSlug = isSafePublicPersonaSlug(data.public_slug) ? data.public_slug : null;
-  if (!publicSlug) return res.status(404).json({ error: "Public persona not found." });
+      const publicSlug = isSafePublicPersonaSlug(data.public_slug) ? data.public_slug : null;
+      if (!publicSlug) return null;
 
-  const response: PublicPersonaEventsResponse = {
-    persona: {
-      name: data.name,
-      publicSlug,
-    },
-    events: await buildPublicPersonaEvents(getSupabaseAdmin(), data, limit),
-    limit,
-  };
-  return res.json(response);
+      return {
+        persona: {
+          name: data.name,
+          publicSlug,
+        },
+        events: await buildPublicPersonaEvents(getSupabaseAdmin(), data, limit),
+        limit,
+      } satisfies PublicPersonaEventsResponse;
+    });
+    if (!response) return res.status(404).json({ error: "Public persona not found." });
+    return res.json(response);
+  } catch {
+    return publicPersonaRouteUnavailable(res);
+  }
 });
 
 personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {
@@ -1085,26 +1126,38 @@ personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {
     return res.status(400).json({ error: "Public persona context preview query is too long." });
   }
 
-  const data = await loadEligiblePublicPersonaBySlug(
-    req.params.publicSlug,
-    "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
-  );
-  if (!data) return res.status(404).json({ error: "Public persona not found." });
+  try {
+    const response = await withPublicPersonaRouteRead(async () => {
+      const data = await loadEligiblePublicPersonaBySlug(
+        req.params.publicSlug,
+        "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+      );
+      if (!data) return null;
 
-  const query = normalizePublicPersonaContextQuery(parsed.data.query);
-  const catalog = await buildPublicPersonaContextSources(getSupabaseAdmin(), data, query);
-  return res.json(serializePublicPersonaContextPreview(data, query, catalog));
+      const query = normalizePublicPersonaContextQuery(parsed.data.query);
+      const catalog = await buildPublicPersonaContextSources(getSupabaseAdmin(), data, query);
+      return serializePublicPersonaContextPreview(data, query, catalog);
+    });
+    if (!response) return res.status(404).json({ error: "Public persona not found." });
+    return res.json(response);
+  } catch {
+    return publicPersonaRouteUnavailable(res);
+  }
 });
 
 // Public readback route. This must stay before the authenticated router guard.
 personasRouter.get("/public/:publicSlug", async (req, res) => {
-  const data = await loadEligiblePublicPersonaBySlug(
-    req.params.publicSlug,
-    "name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled"
-  );
-  if (!data) return res.status(404).json({ error: "Public persona not found." });
+  try {
+    const data = await withPublicPersonaRouteRead(() => loadEligiblePublicPersonaBySlug(
+      req.params.publicSlug,
+      "name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled"
+    ));
+    if (!data) return res.status(404).json({ error: "Public persona not found." });
 
-  return res.json({ persona: serializePublicPersona(data) });
+    return res.json({ persona: serializePublicPersona(data) });
+  } catch {
+    return publicPersonaRouteUnavailable(res);
+  }
 });
 
 personasRouter.use(requireAuth);

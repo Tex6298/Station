@@ -3,6 +3,7 @@ export type PublicPersonaChatMode = "signed_in_alpha" | "anonymous_alpha";
 const PUBLIC_PERSONA_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PUBLIC_PERSONA_OPTIONAL_READ_TIMEOUT_MS = 6000;
 
 function isSafePublicPersonaSlug(publicSlug: string | null | undefined) {
   return Boolean(
@@ -31,6 +32,33 @@ export function publicPersonaUpdatesCopy() {
 
 export function publicPersonaUpdatesEmptyCopy() {
   return "No published documents or public discussions are available for this persona yet.";
+}
+
+export function publicPersonaOptionalReadErrorCopy(surface: "context-preview" | "updates") {
+  return surface === "context-preview"
+    ? "Public context preview is temporarily unavailable."
+    : "Public updates are temporarily unavailable.";
+}
+
+export async function publicPersonaOptionalRead<T>(
+  read: Promise<T>,
+  surface: "context-preview" | "updates",
+  timeoutMs = PUBLIC_PERSONA_OPTIONAL_READ_TIMEOUT_MS
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      read,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error(publicPersonaOptionalReadErrorCopy(surface)));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 export function publicPersonaChatCopy(mode: PublicPersonaChatMode = "signed_in_alpha") {

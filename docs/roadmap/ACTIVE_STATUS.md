@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS patch - PR468A ready for ARGUS review
+
+DAEDALUS patched PR468A:
+
+`docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md`
+
+Decision:
+
+- Public persona readback, context-preview, events, and roulette routes now
+  return bounded public data or `public_persona_route_unavailable` instead of
+  waiting indefinitely behind a slow public read/eligibility/source path.
+- The bounded unavailable response avoids raw owner ids, public slugs, source
+  ids, stack traces, private source text, headers, cookies, credentials,
+  prompts, and provider payloads.
+- The web public persona page now loads primary public persona readback as the
+  required page gate and treats context preview/public update reads as optional
+  bounded reads.
+- If primary readback succeeds, optional preview/update failures no longer block
+  the page from rendering public persona state and PR468 anonymous alpha chat
+  availability.
+- PR468 scope remains narrow: one anonymous alpha persona only, no broad
+  anonymous rollout, no durable anonymous transcript or visitor identity, no
+  private-source expansion, and public reporting remains signed-in only.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas`: pass, 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts`: pass, 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+
+Current lane:
+
+```text
+PR468A - Public Persona Hosted Route Reachability Patch
+Owner: ARGUS / A3
+State: OPEN - REVIEW DAEDALUS PATCH
+```
+
+Current baton:
+
+- ARGUS should review
+  `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md` and
+  the code patch.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest MIMIR handoff - PR468A route reachability patch opened
 
 MIMIR opened the narrow DAEDALUS patch requested by ARIADNE:

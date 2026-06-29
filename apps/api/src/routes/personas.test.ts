@@ -17,6 +17,12 @@ import { personasRouter } from "./personas";
 process.env.NODE_ENV = "test";
 
 type Row = Record<string, any>;
+type HangingQuery = {
+  table: string;
+  head?: boolean;
+  countRequested?: boolean;
+  operation?: "select" | "insert" | "update" | "delete";
+};
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -55,6 +61,7 @@ class InMemorySupabase {
   };
 
   private idCounters: Record<string, number> = {};
+  private hangingQueries: HangingQuery[] = [];
   private clock = Date.parse("2026-06-23T10:00:00.000Z");
   private usersByToken = new Map([
     ["private-token", { id: "private-owner", email: "private@example.test" }],
@@ -82,6 +89,19 @@ class InMemorySupabase {
   rows(table: string) {
     if (!this.tables[table]) this.tables[table] = [];
     return this.tables[table];
+  }
+
+  hangQuery(query: HangingQuery) {
+    this.hangingQueries.push(query);
+  }
+
+  shouldHangQuery(table: string, query: Omit<HangingQuery, "table">) {
+    return this.hangingQueries.some((candidate) =>
+      candidate.table === table &&
+      (candidate.head === undefined || candidate.head === query.head) &&
+      (candidate.countRequested === undefined || candidate.countRequested === query.countRequested) &&
+      (candidate.operation === undefined || candidate.operation === query.operation)
+    );
   }
 
   insertRow(table: string, payload: Row) {
@@ -412,6 +432,14 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
+    if (this.db.shouldHangQuery(this.table, {
+      head: this.head,
+      countRequested: this.countRequested,
+      operation: this.operation,
+    })) {
+      return new Promise(() => undefined);
+    }
+
     let rows: Row[];
 
     if (this.operation === "insert") {
@@ -2366,6 +2394,51 @@ test("public persona context preview is anonymous and limited to public routeabl
     );
     assert.equal(rawUuidEvents.status, 404);
   } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public persona read routes return bounded unavailable when eligibility query hangs", async () => {
+  const db = new InMemorySupabase();
+  const previousTimeoutMs = process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS;
+  process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS = "5";
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Station Replay Alpha Persona",
+      short_description: "Public replay-safe guide.",
+      visibility: "public",
+      public_slug: "station-replay-alpha-persona",
+      public_chat_enabled: true,
+    });
+    db.hangQuery({
+      table: "personas",
+      operation: "select",
+      head: true,
+      countRequested: true,
+    });
+
+    for (const path of [
+      "/personas/public/station-replay-alpha-persona",
+      "/personas/public/station-replay-alpha-persona/context-preview",
+      "/personas/public/station-replay-alpha-persona/events",
+      "/personas/public/roulette",
+    ]) {
+      const response = await requestJson(app, "GET", path);
+      assert.equal(response.status, 503, path);
+      assert.equal(response.body.code, "public_persona_route_unavailable", path);
+      assert.equal(JSON.stringify(response.body).includes("creator-owner"), false, path);
+      assert.equal(JSON.stringify(response.body).includes("station-replay-alpha-persona"), false, path);
+    }
+  } finally {
+    if (previousTimeoutMs == null) {
+      delete process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS;
+    } else {
+      process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS = previousTimeoutMs;
+    }
     setSupabaseAdminForTests(null);
   }
 });

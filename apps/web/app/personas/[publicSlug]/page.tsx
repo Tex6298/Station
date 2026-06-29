@@ -17,6 +17,7 @@ import {
   publicPersonaChatCopy,
   publicPersonaChatDisabledCopy,
   publicPersonaContextPreviewCopy,
+  publicPersonaOptionalRead,
   publicPersonaReadbackCopy,
   publicPersonaUpdatesCopy,
   publicPersonaUpdatesEmptyCopy,
@@ -63,23 +64,40 @@ export default function PublicPersonaPage() {
       setError(null);
       setPreviewError(null);
       setEventsError(null);
+      setPreview(null);
       setEvents(null);
       try {
-        const [data, previewData, eventData] = await Promise.all([
-          apiGet<{ persona: PublicPersona }>(`/personas/public/${publicSlug}`),
-          apiGet<PublicPersonaContextPreview>(`/personas/public/${publicSlug}/context-preview`),
-          apiGet<PublicPersonaEventsResponse>(`/personas/public/${publicSlug}/events`).catch((err) => {
-            if (!cancelled) {
-              setEventsError(err instanceof Error ? err.message : "Could not load public updates.");
-            }
-            return null;
-          }),
-        ]);
+        const data = await apiGet<{ persona: PublicPersona }>(`/personas/public/${publicSlug}`);
         if (!cancelled) {
           setPersona(data.persona);
-          setPreview(previewData);
-          setEvents(eventData);
+          setLoading(false);
         }
+
+        void publicPersonaOptionalRead(
+          apiGet<PublicPersonaContextPreview>(`/personas/public/${publicSlug}/context-preview`),
+          "context-preview"
+        )
+          .then((previewData) => {
+            if (!cancelled) setPreview(previewData);
+          })
+          .catch((err) => {
+            if (!cancelled) {
+              setPreviewError(err instanceof Error ? err.message : "Public context preview is temporarily unavailable.");
+            }
+          });
+
+        void publicPersonaOptionalRead(
+          apiGet<PublicPersonaEventsResponse>(`/personas/public/${publicSlug}/events`),
+          "updates"
+        )
+          .then((eventData) => {
+            if (!cancelled) setEvents(eventData);
+          })
+          .catch((err) => {
+            if (!cancelled) {
+              setEventsError(err instanceof Error ? err.message : "Public updates are temporarily unavailable.");
+            }
+          });
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Public persona not found.");
       } finally {
@@ -106,12 +124,13 @@ export default function PublicPersonaPage() {
     setPreviewError(null);
     try {
       const suffix = query.trim() ? `?query=${encodeURIComponent(query.trim())}` : "";
-      const data = await apiGet<PublicPersonaContextPreview>(
-        `/personas/public/${publicSlug}/context-preview${suffix}`
+      const data = await publicPersonaOptionalRead(
+        apiGet<PublicPersonaContextPreview>(`/personas/public/${publicSlug}/context-preview${suffix}`),
+        "context-preview"
       );
       setPreview(data);
     } catch (err) {
-      setPreviewError(err instanceof Error ? err.message : "Could not load public context preview.");
+      setPreviewError(err instanceof Error ? err.message : "Public context preview is temporarily unavailable.");
     } finally {
       setPreviewLoading(false);
     }

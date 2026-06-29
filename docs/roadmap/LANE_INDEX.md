@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468A | Public Persona Hosted Route Reachability Patch | DAEDALUS / A2 | Open; repair hosted public persona page/API route reachability before PR468 rerun/closeout | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_DAEDALUS.md` |
+| PR468A | Public Persona Hosted Route Reachability Patch | ARGUS / A3 | Open; review DAEDALUS bounded public persona route/page patch | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR468A implementation | Public Persona Hosted Route Reachability Patch | DAEDALUS -> ARGUS | Ready for review; public persona read routes now fail bounded and optional page reads no longer block primary readback/chat availability | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md` |
 | PR468A opened | Public Persona Hosted Route Reachability Patch | MIMIR -> DAEDALUS | Open; restore bounded hosted public persona route/page behavior before ARIADNE reruns PR468 | `docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_DAEDALUS.md` |
 | PR468 hosted rehearsal | Anonymous Public Persona Chat | MIMIR -> ARIADNE -> MIMIR | Product defect; hosted public persona page/API routes hang before anonymous chat can be accepted | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RESULT.md` |
 | PR468 rehearsal opened | Anonymous Public Persona Chat | MIMIR -> ARIADNE | Open; prove hosted signed-out alpha chat, deny/default boundaries, privacy boundary, and mobile/desktop fit before PR468 closeout | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_ARIADNE.md` |

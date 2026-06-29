@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR468A Public Persona Hosted Route Reachability Patch
+
+DAEDALUS patched PR468A on 2026-06-29:
+`docs/roadmap/PR468A_PUBLIC_PERSONA_HOSTED_ROUTE_REACHABILITY_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- public persona readback, context-preview, events, and roulette routes now
+  return bounded public data or `public_persona_route_unavailable` instead of
+  hanging behind a slow read/eligibility/source path;
+- bounded unavailable responses avoid raw owner ids, public slugs, source ids,
+  stack traces, private source text, headers, cookies, credentials, prompts, and
+  provider payloads;
+- the web public persona page renders primary public persona readback and chat
+  availability without waiting indefinitely for optional context preview or
+  public update reads;
+- optional preview/update failures show bounded public copy;
+- PR468 safety remains unchanged: one anonymous alpha persona only, no durable
+  anonymous transcript/identity, public-source-only prompt/response,
+  signed-in-only reporting, and owner-paid token usage.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 14 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted smoke was not rerun in this local DAEDALUS pass because
+the patch is not deployed until after push. ARGUS should review the code/test
+boundary; MIMIR can then reroute ARIADNE for hosted confirmation.
+
 ## PR468 Anonymous Public Persona Chat Hosted Rehearsal
 
 ARIADNE completed the hosted PR468 rehearsal on 2026-06-29:

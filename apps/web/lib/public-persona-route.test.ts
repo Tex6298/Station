@@ -6,6 +6,8 @@ import {
   publicPersonaChatCopy,
   publicPersonaChatDisabledCopy,
   publicPersonaHref,
+  publicPersonaOptionalRead,
+  publicPersonaOptionalReadErrorCopy,
   publicPersonaReadbackCopy,
   publicPersonaUpdatesCopy,
   publicPersonaUpdatesEmptyCopy,
@@ -61,6 +63,27 @@ test("public persona chat access exposes anonymous form only for anonymous alpha
   assert.equal(publicPersonaChatAccess({ enabled: true, mode: "anonymous_alpha", hasSession: true }), "anonymous_alpha");
   assert.equal(publicPersonaChatAccess({ enabled: true, mode: "signed_in_alpha", hasSession: false }), "sign_in_required");
   assert.equal(publicPersonaChatAccess({ enabled: true, mode: "signed_in_alpha", hasSession: true }), "signed_in_alpha");
+});
+
+test("public persona optional reads fail with bounded public copy", async () => {
+  assert.equal(
+    publicPersonaOptionalReadErrorCopy("context-preview"),
+    "Public context preview is temporarily unavailable."
+  );
+  assert.equal(
+    publicPersonaOptionalReadErrorCopy("updates"),
+    "Public updates are temporarily unavailable."
+  );
+
+  await assert.rejects(
+    () => publicPersonaOptionalRead(new Promise(() => undefined), "context-preview", 1),
+    /Public context preview is temporarily unavailable/
+  );
+  await assert.rejects(
+    () => publicPersonaOptionalRead(Promise.reject(new Error("Public updates are temporarily unavailable.")), "updates", 100),
+    /Public updates are temporarily unavailable/
+  );
+  assert.equal(await publicPersonaOptionalRead(Promise.resolve("ok"), "updates", 100), "ok");
 });
 
 test("public persona updates copy stays derived and public-source-only", () => {
