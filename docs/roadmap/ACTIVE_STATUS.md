@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR481A accepted for DAEDALUS
+
+ARGUS accepted the smallest safe Voice / Avatar visual-identity slice:
+
+`docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL
+```
+
+Current lane:
+
+```text
+PR481A - Owner Persona Avatar URL Control
+Owner: DAEDALUS / A2
+State: ACCEPTED FOR IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should add owner-controlled `avatarUrl` create/update support using
+  the existing `personas.avatar_url` field and public `avatarUrl` serializer.
+- DAEDALUS must add an explicit sanitizer/validator: safe public `https://`
+  image URL or `null`; unsafe non-empty input rejects with bounded `400`.
+- Public persona and public Space avatar renderers must escape CSS URL values
+  and fall back to initials when the URL is absent or rejected.
+- If implemented and accepted, MIMIR should route ARIADNE hosted owner/public
+  read-only proof for set, render, mobile fit, clear, and unsafe-value failure.
+
+Boundaries:
+
+- No voice calls, WebRTC, microphone input, audio recording, STT/TTS, voice
+  cloning, avatar generation, image generation, camera capture, video, uploaded
+  media, generated media, signed upload URLs, storage changes, provider media
+  calls, provider/model routing, BYOK media setup, token-credit deduction,
+  media rate limits, cost metering, public anonymous avatar editing, public
+  visitor media controls, billing, Stripe, Redis, Cloudflare, queues, workers,
+  migrations, schema expansion, broad Studio redesign, or broad public persona
+  redesign.
+
 ## Latest MIMIR closeout/opening - PR480A closed, PR481 opened
 
 MIMIR closes PR480A Developer Space Connection Tier State Readback as accepted:

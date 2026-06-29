@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR481 Voice / Avatar Visual Identity Preflight
+
+ARGUS accepted PR481A on 2026-06-29:
+`docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL`.
+
+Reason:
+
+- `personas.avatar_url` and public `avatarUrl` serializers already exist;
+- public persona and public Space pages already have avatar/initials rendering
+  paths, so the slice can stay bounded to a safe owner URL control;
+- create/update schemas do not currently accept `avatarUrl`, so DAEDALUS must
+  add explicit validation before any owner input reaches public CSS rendering;
+- full Voice / Avatar media behavior, uploads, provider media calls, storage,
+  billing, queues, workers, Redis, Cloudflare, migrations, and schema expansion
+  remain blocked.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 14 tests passed against the current persona route baseline. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+
 ## PR480A Developer Space Connection Tier State Readback Hosted Rehearsal
 
 ARIADNE completed the hosted read-only proof on 2026-06-29:
