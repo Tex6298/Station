@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475A Signed-In Seminar Interest Toggle Hosted Rehearsal
+
+ARIADNE completed the hosted PR475A rehearsal on 2026-06-29:
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Reason:
+
+- hosted web/API were ready at `46a2a08d`;
+- public `GET /events/seminars` returned HTTP `503` with bounded
+  `live_events_unavailable` copy;
+- hosted `/events/seminars` rendered the unavailable state on desktop and
+  390px mobile;
+- zero public seminar cards rendered, so routeability and signed-in
+  mark/withdraw proof could not run;
+- no interest mutation was attempted, leaving no intentional extra interest
+  row behind;
+- sampled failure-state UI/API output exposed bounded public copy only.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at `46a2a08d`. |
+| Hosted API `/health/deployment` | Pass | Ready at `46a2a08d`. |
+| Public API `GET /events/seminars` | Fail | HTTP `503`, bounded `live_events_unavailable` copy. |
+| Signed-out `/events/seminars` desktop | Fail | Unavailable state rendered; no public seminar cards. |
+| Signed-out `/events/seminars` 390px mobile | Fail | Unavailable state rendered; no public seminar cards; no horizontal overflow observed. |
+| Signed-in mark/withdraw flow | Not run | Blocked by unavailable public readback; no mutation attempted. |
+| Temporary Chrome DevTools hosted harness | Product defect found | Fresh deploy, API `503`, desktop/mobile unavailable state, zero mobile cards, no mobile overflow, no mutation. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this validation update changes docs and
+agent state only.
+
 ## PR475A Signed-In Seminar Interest Toggle ARGUS Review
 
 ARGUS accepted PR475A on 2026-06-29 after a narrow UI copy patch:

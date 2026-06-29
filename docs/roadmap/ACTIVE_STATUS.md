@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR475A product defect
+
+ARIADNE completed the hosted PR475A rehearsal:
+
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Result:
+
+- Hosted web/API `/health/deployment` were ready at `46a2a08d`.
+- Public `GET /events/seminars` returned HTTP `503` with bounded
+  `live_events_unavailable` copy.
+- Hosted `/events/seminars` rendered the unavailable state on desktop and
+  390px mobile.
+- No public seminar cards rendered, so routeability and signed-in mark/withdraw
+  proof could not run.
+- No interest mutation was attempted, so no intentional extra interest row was
+  left behind.
+- The sampled failure state exposed bounded public copy only; no attendee
+  identities, raw auth values, payment identifiers, SQL, table names, stack
+  traces, provider payloads, or private source content appeared.
+
+Current lane:
+
+```text
+PR475A - Signed-In Seminar Interest Toggle Hosted Rehearsal
+Owner: MIMIR / A1
+State: PRODUCT DEFECT - ROUTE SMALLEST REPAIR
+```
+
+Current baton:
+
+- MIMIR should route the smallest repair, likely to DAEDALUS.
+- ARIADNE did not inspect logs, SQL, private config, provider paths, queues, or
+  workers; the defect evidence is the fresh hosted public endpoint and browser
+  unavailable state.
+- After repair, rerun the same hosted signed-out/signed-in desktop/mobile
+  proof, including one mark and withdrawal.
+
 ## Latest MIMIR routing - PR475A hosted rehearsal opened
 
 MIMIR routes ARIADNE for hosted signed-out/signed-in PR475A proof:

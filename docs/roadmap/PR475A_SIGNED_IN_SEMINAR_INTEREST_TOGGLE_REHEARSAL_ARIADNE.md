@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-29
 
-Status: Open - wake ARIADNE
+Status: Product defect - wake MIMIR
 
 ## Why This Rehearsal
 
@@ -17,6 +17,27 @@ ARGUS accepted PR475A after a narrow aggregate-honest UI copy patch:
 The remaining proof is hosted desktop/mobile behavior for signed-out and
 signed-in users, including one accepted mark/withdraw flow on a public seminar
 card.
+
+## ARIADNE Result
+
+Result file:
+
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Hosted web/API were ready at `46a2a08d`, but public
+`GET /events/seminars` returned HTTP `503` with bounded
+`live_events_unavailable` copy. The hosted `/events/seminars` page rendered the
+unavailable state on desktop and 390px mobile, with no public seminar cards.
+
+The signed-in mark/withdraw flow was not run because the public readback never
+became available. No interest mutation was attempted, so no extra interest row
+was left behind.
 
 ## Required Checks
 
