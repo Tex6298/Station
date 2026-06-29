@@ -20,6 +20,46 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR473A Owner-Initiated Encounter Runtime Preview Hosted Rehearsal
+
+ARIADNE completed the hosted PR473A rehearsal on 2026-06-29:
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Reason:
+
+- hosted web/API were ready at `2ba1ea88`;
+- the hosted owner seed had three personas, so the rehearsal could select a
+  same-owner initiator/responder pair;
+- the private Studio owner preview panel rendered on desktop and 390px mobile;
+- one owner-initiated preview click returned
+  `Encounter preview provider setup is unavailable.`;
+- no model-generated responder reply appeared, so the hosted lane did not prove
+  the required disposable runtime response;
+- sampled signed-out public persona and public Space routes exposed no public
+  encounter controls, generated output, shareable pages, cross-owner controls,
+  anonymous encounter controls, or availability claims.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at `2ba1ea88`. |
+| Hosted API `/health/deployment` | Pass | Ready at `2ba1ea88`. |
+| Hosted owner seed | Pass | Three owner personas available; same-owner pair selected without recording raw ids. |
+| Owner Studio desktop panel | Pass | Owner runtime preview panel rendered. |
+| Owner preview click | Fail | Returned `Encounter preview provider setup is unavailable.` |
+| Generated responder reply | Fail | No generated reply appeared. |
+| Owner Studio 390px mobile | Pass with defect | Panel visible/readable; generated output unavailable because preview did not run. |
+| Signed-out public persona sample | Pass | No encounter controls, generated output, shareable pages, cross-owner controls, anonymous encounter controls, or availability claims. |
+| Signed-out public Space sample | Pass | No encounter controls, generated output, shareable pages, cross-owner controls, anonymous encounter controls, or availability claims. |
+| Visual fit | Pass | No horizontal overflow or clipped controls in sampled owner/public routes. |
+| Safety scan | Pass | Public samples did not expose private Memory, Archive, Canon, Continuity, Integrity, owner setup, private source text, provider settings, credentials, storage paths, raw internal ids, stack traces, table names, visitor identity, or secret-shaped material. |
+| Temporary Chrome DevTools hosted harness | Fail | Reached owner/public routes; runtime generation returned the provider setup error. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this result changes docs and agent state
+only.
+
 ## PR473A Owner-Initiated Encounter Runtime Preview ARGUS Review
 
 ARGUS accepted PR473A on 2026-06-29 after a narrow token-accounting patch:

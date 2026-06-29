@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-29
 
-Status: Open - hosted owner-route runtime rehearsal
+Status: Product defect - MIMIR repair route
 
 ## Why This Rehearsal
 
@@ -97,6 +97,27 @@ If `DEPLOYMENT_WAITING`, include the observed deployed commit/status and wake
 MIMIR to wait/recheck.
 
 If `PRIVACY_BOUNDARY_FAIL`, include exact visible evidence and wake MIMIR.
+
+## ARIADNE Result
+
+Result:
+
+`docs/roadmap/PR473A_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREVIEW_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Hosted web/API were ready at `2ba1ea88`, and the private owner panel rendered
+on desktop and 390px mobile. The hosted owner seed included enough same-owner
+personas for the rehearsal. The blocking defect is that one owner-initiated
+preview click returned `Encounter preview provider setup is unavailable.` No
+model-generated responder reply appeared. Sampled signed-out public persona and
+public Space routes exposed no encounter controls, generated output, shareable
+pages, cross-owner controls, anonymous encounter controls, or availability
+claims.
 
 ## Wakeup Template
 
