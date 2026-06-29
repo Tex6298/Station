@@ -4,6 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484F-C accepted for DAEDALUS
+
+ARGUS completed the PR484F-C Archive Connector OAuth Web Callback Bridge
+preflight:
+
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484F_C_WEB_CALLBACK_BRIDGE
+```
+
+Current lane:
+
+```text
+PR484F-C - Archive Connector OAuth Web Callback Bridge
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT BOUNDED WEB CALLBACK BRIDGE
+```
+
+Accepted shape:
+
+- Web route: `/archive-connectors/oauth/callback/[provider]`.
+- Do not use `/settings/...` for provider callbacks, because middleware would
+  preserve callback query values inside `/login?redirect=...` for signed-out
+  hits.
+- Web route removes callback query from history before auth navigation or
+  detailed rendering, recovers the stored browser session, and calls the API
+  with Bearer auth.
+- API route: `POST /archive-connectors/oauth/:provider/callback/verify`.
+- API route stays behind existing archive connector `requireAuth`, validates
+  provider and state shape, consumes PR484E state once with owner/provider/
+  nonce/csrf/session binding, discards code, and returns bounded readback only.
+- If auth is missing, stale, expired, or mismatched, fail closed with restart
+  copy and do not forward raw callback query values to login.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check 8cd3aefda068b620be459a724b18312c65d5a42c..a2f88912b83e`
+  passed.
+- MIMIR's wakeup diff is docs-only; current source scans show no implemented
+  callback route, authorization URL generation, server redirect, token
+  exchange, provider call, credential write, source inventory, import write,
+  queue, hosted runtime, Cloudflare, billing, package, or social posting
+  behavior.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484F-B blocked, PR484F-C opened
 
 MIMIR accepts ARGUS's PR484F-B session bridge block:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484F-C preflight | Archive Connector OAuth Web Callback Bridge | ARGUS / A3 | Open; decide web callback bridge before authorization URL/callback/token/provider/import behavior | `docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_ARGUS.md` |
+| PR484F-C implementation | Archive Connector OAuth Web Callback Bridge | DAEDALUS / A2 | Open; implement bounded public web callback bridge and Bearer-auth API verify route only | `docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484F-C preflight | Archive Connector OAuth Web Callback Bridge | MIMIR -> ARGUS -> DAEDALUS | Accepted; use public web callback route plus bounded Bearer-auth API verify route, with no authorization URL, token exchange, credential write, provider call, import, hosted, package, billing, or social behavior | `docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_RESULT.md` |
 | PR484F-B block closeout | Archive Connector OAuth Callback Session Bridge | MIMIR | Block accepted; API cookie bridge deferred, web callback bridge chosen | `docs/roadmap/PR484F_B_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SESSION_BRIDGE_BLOCK_CLOSEOUT.md` |
 | PR484F-B preflight | Archive Connector OAuth Callback Session Bridge | MIMIR -> ARGUS -> MIMIR | Blocked; server cookie bridge is not viable in current web/API split without credentialed CORS, credentialed fetch, and hosted proof | `docs/roadmap/PR484F_B_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SESSION_BRIDGE_PREFLIGHT_RESULT.md` |
 | PR484F-A block closeout | Archive Connector OAuth Callback Safe Landing | MIMIR | Block accepted; callback-safe landing deferred until callback session bridge exists | `docs/roadmap/PR484F_A_ARCHIVE_CONNECTOR_OAUTH_CALLBACK_SAFE_LANDING_BLOCK_CLOSEOUT.md` |

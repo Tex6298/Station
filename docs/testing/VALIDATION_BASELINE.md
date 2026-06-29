@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484F-C Archive Connector OAuth Web Callback Bridge Preflight
+
+ARGUS accepted PR484F-C for DAEDALUS on 2026-06-29:
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484F_C_WEB_CALLBACK_BRIDGE`.
+
+Accepted boundary:
+
+- public web callback route `/archive-connectors/oauth/callback/[provider]`;
+- no `/settings/...` callback route that can forward callback query values
+  through login redirects;
+- Bearer-auth API verify route
+  `POST /archive-connectors/oauth/:provider/callback/verify`;
+- one-time PR484E state consumption using owner/provider/nonce/csrf/session
+  binding;
+- callback code discarded after verification in this lane;
+- no authorization URL generation, server redirect, token exchange, provider
+  call, credential write/revoke, source inventory, import write, queue, hosted
+  runtime, Cloudflare, billing, package, broad UI, or social posting behavior.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 52 tests passed across readiness/state-start route, storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check 8cd3aefda068b620be459a724b18312c65d5a42c..a2f88912b83e` | Pass | MIMIR closeout/opening diff is whitespace-clean. |
+| Path/scope scan | Pass | MIMIR wakeup diff is docs-only; current source has no implemented callback route, authorization URL generation, server redirect, token exchange, provider call, credential write, source inventory, import write, queue, hosted runtime, Cloudflare, billing, package, or social posting behavior. |
+
 ## PR484F-B Archive Connector OAuth Callback Session Bridge Preflight
 
 ARGUS blocked PR484F-B for MIMIR on 2026-06-29:
