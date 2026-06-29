@@ -292,8 +292,21 @@ function safeApiKeyLastFour(value?: string | null) {
   return value && /^[A-Za-z0-9_-]{4}$/.test(value) ? value : null;
 }
 
+const SETUP_LABEL_URL_PATTERN = /https?:\/\/\S+/gi;
+const SETUP_LABEL_UUID_PATTERN = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+const SETUP_LABEL_SECRET_VALUE_PATTERN = /\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._=-]{6,}\b/gi;
+const SETUP_LABEL_SECRET_ASSIGNMENT_PATTERN =
+  /\b(token|cookie|authorization|api[_\s-]?key|x-api-key|secret|password|webhook[_\s-]?secret)\b\s*[:=]\s*\S+/gi;
+
 function safeSetupLabel(value: string) {
-  return truncateText(value.replace(/[<>]/g, ""), 80) || "This Developer Space";
+  const redacted = value
+    .replace(/[<>]/g, "")
+    .replace(SETUP_LABEL_URL_PATTERN, "[redacted-url]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(SETUP_LABEL_SECRET_ASSIGNMENT_PATTERN, "$1=[redacted]")
+    .replace(SETUP_LABEL_SECRET_VALUE_PATTERN, "[redacted-secret]")
+    .replace(SETUP_LABEL_UUID_PATTERN, "[redacted-id]");
+  return truncateText(redacted, 80) || "This Developer Space";
 }
 
 export function developerSpaceStorySummary(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {

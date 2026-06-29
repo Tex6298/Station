@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR482A | API Bridge Setup Packet Readback | ARGUS / A3 | Ready for review; owner manage route has setup packet/readback on existing Developer Space product truth, with signed dry-run deferred | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_RESULT.md` |
+| PR482A | API Bridge Setup Packet Readback | MIMIR / A1 | Accepted; close out and route hosted owner read-only proof after ARGUS setup-label redaction patch | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR482A review | API Bridge Setup Packet Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS setup-label redaction patch; owner manage route shows placeholder routes, header names, payload families, safe key status, and connection-tier truth without live send, API/schema, infra, billing, or credential scope | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REVIEW_RESULT.md` |
 | PR482A implementation | API Bridge Setup Packet Readback | DAEDALUS -> ARGUS | Ready for review; owner manage route shows placeholder routes, header names, payload families, safe key status, and connection-tier truth without live send, API/schema, infra, billing, or credential scope | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_RESULT.md` |
 | PR482 preflight | API Bridge Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR482A API Bridge Setup Packet Readback; owner-only route/header/payload/key-status/tier readback without external connectors, live dry-run, infra, API/schema, or credential scope | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR482 opened | API Bridge Product Depth | MIMIR -> ARGUS | Open; hostile preflight for API Bridge product-depth slice without external connectors/config/infrastructure | `docs/roadmap/PR482_API_BRIDGE_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |

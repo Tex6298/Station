@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR482A API Bridge Setup Packet Readback ARGUS Review
+
+ARGUS accepted PR482A on 2026-06-29 after a narrow setup-label redaction patch:
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR482A_API_BRIDGE_SETUP_PACKET_READBACK`.
+
+Reason:
+
+- owner-only setup packet/readback stays on the existing Developer Space manage
+  route and uses existing Developer Space ingestion and connection-tier truth;
+- placeholder routes, header names, payload-family labels, no-key/key-present/
+  last-four key state, and bounded next actions are visible without a live send
+  or dry-run action;
+- ARGUS patched the setup summary label to redact URLs, bearer strings,
+  token/cookie/authorization/API-key/secret/password/webhook-secret
+  assignments, UUIDs, and common key-shaped values before owner-provided
+  project names appear inside the setup packet;
+- no API route, schema, migration, ingestion write, observed-runtime durable
+  row, signing-secret creation, key reveal/rotation, billing/Stripe mutation,
+  provider/model call, Cloudflare, Redis, worker/queue, runtime provisioning,
+  deploy/repo behavior, or onboarding redesign was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts apps/web/lib/developer-space-observatory.test.ts` | Pass | 36 tests passed, including setup packet redaction, key-tail guard, route/header/payload-family output, source no-mutation guard, onboarding API Bridge state, and connection-tier readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 61 tests passed, including API Bridge setup packet helper/source coverage plus existing Developer Space API and observatory coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; client request/live-send behavior remains unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran fresh and passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched files. |
+| Path-scope check | Pass | Changed paths are A3 receipt, accepted web helper/test/manage page changes, and roadmap/testing docs only. |
+| Diff sensitive/scope scan | Pass | Matches were expected placeholder header names, guardrail copy, redaction fixtures, negative source assertions, or bounded docs text. |
+
 ## PR482A API Bridge Setup Packet Readback
 
 DAEDALUS implemented PR482A on 2026-06-29:

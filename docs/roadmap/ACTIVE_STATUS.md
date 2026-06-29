@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR482A accepted for MIMIR
+
+ARGUS accepted PR482A API Bridge Setup Packet Readback after a narrow
+setup-label redaction patch:
+
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR482A_API_BRIDGE_SETUP_PACKET_READBACK
+```
+
+Current lane:
+
+```text
+PR482A - API Bridge Setup Packet Readback
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND ROUTE HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- MIMIR should close PR482A and route ARIADNE hosted owner read-only proof.
+- ARIADNE should verify signed-in owner `/developer-spaces/:slug/manage`
+  desktop and 390px mobile show placeholder routes, header names,
+  payload-family labels, safe key status, current/future tier truth, and
+  bounded next actions.
+- ARIADNE should verify the setup packet does not expose full ingestion keys,
+  signing secrets, raw payloads, private evidence, raw IDs, prompts, cookies,
+  tokens, SQL/table details, stack traces, hosted logs, provider payloads, or
+  secret-shaped values.
+- A seeded secret-shaped project name should redact inside the setup packet
+  summary.
+
+Boundaries confirmed:
+
+- No live external API pulls, OAuth, connector credentials, recurring sync, new
+  API route behavior, ingestion writes, observed-runtime durable rows,
+  signing-secret creation, key rotation/reveal, product-visible live-send
+  dry-run, workers/queues, Cloudflare, Redis memory truth, runtime
+  provisioning, repo deploys, Developer Agent execution, billing/Stripe
+  mutation, provider/model calls, schema expansion, migrations, public launch
+  claims, broad UI redesign, or onboarding redesign was added.
+
 ## Latest DAEDALUS implementation - PR482A ready for ARGUS
 
 DAEDALUS implemented the accepted PR482A API Bridge Setup Packet Readback:

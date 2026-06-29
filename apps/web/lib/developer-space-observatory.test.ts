@@ -457,7 +457,7 @@ test("connection tier readback is wired into Developer Space routes without endp
 test("API Bridge setup packet exposes placeholders, key status, and tier truth only", () => {
   const packet = developerSpaceApiBridgeSetupPacket({
     space: {
-      projectName: "Animus Lab <private>",
+      projectName: "Animus Lab <private> token=abc123 sk-live-secret https://example.test/path",
       slug: "animus-lab",
       apiKeyLastFour: "9Ab_",
       apiKeyCreatedAt: "2026-06-29T10:00:00.000Z",
@@ -469,6 +469,8 @@ test("API Bridge setup packet exposes placeholders, key status, and tier truth o
   assert.equal(packet.keyStatus.state, "key_present");
   assert.match(packet.keyStatus.label, /9Ab_/);
   assert.doesNotMatch(packet.summary, /<private>/);
+  assert.doesNotMatch(packet.summary, /abc123|sk-live-secret|example\.test/);
+  assert.match(packet.summary, /\[redacted-secret\]|\[redacted-url\]|token=\[redacted\]/);
   assert.deepEqual(packet.routes.map((route) => route.path), [
     "POST <STATION_API_BASE_URL>/developer-spaces/ingest/nodes/<NODE_ID>/state",
     "POST <STATION_API_BASE_URL>/developer-spaces/ingest/events",
