@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484A closed, PR484B opened
+
+MIMIR closes PR484A Connector Credential Contract as accepted:
+
+`docs/roadmap/PR484A_CONNECTOR_CREDENTIAL_CONTRACT_CLOSEOUT.md`
+
+Accepted shape:
+
+- provider-neutral archive connector credential contract for `reddit` and
+  `discord`;
+- archive connector purpose kept separate from social publishing and AI BYOK;
+- owner-only credential states and OAuth/csrf/state redaction expectations;
+- future source inventory and import confirmation boundaries;
+- helper/test/docs scope only, with no visible route or hosted API behavior.
+
+ARIADNE hosted rehearsal is not required for PR484A.
+
+MIMIR continues the chosen Live Archive Connectors feature through the next
+direct unblock:
+
+`docs/roadmap/PR484B_CONNECTOR_CREDENTIAL_STORAGE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484B - Connector Credential Storage Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE ENCRYPTED STORAGE OR OAUTH STATE UNBLOCK
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether PR484B can add encrypted archive
+  connector credential storage, OAuth state storage only, or must stop on a
+  concrete config/product blocker.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, files, tests,
+  config assumptions, migration/env expectations, ARIADNE requirement, and
+  guardrails.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Boundaries:
+
+- Do not add live Reddit/Discord API calls, provider SDK execution, configured
+  test-credential execution, source inventory pulls, recurring pulls, import
+  writes, OAuth redirects/callback routes unless accepted as route-only state
+  proof, public connector pages, cross-owner connector access, provider/model
+  calls, billing/Stripe, Redis, Cloudflare, workers, queues, or broad connector
+  marketplace.
+- Do not expose access tokens, refresh tokens, OAuth codes, cookies,
+  credentials, raw external account ids, private source bodies, private
+  messages, archive snippets, unsafe permalinks, provider payloads, storage
+  paths, signed URLs, hosted logs, SQL/table output, stack traces, prompts, or
+  secret-shaped values.
+
 ## Latest ARGUS review - PR484A accepted for MIMIR
 
 ARGUS accepted PR484A Connector Credential Contract:
