@@ -100,6 +100,8 @@ test("workspace export scope readback is wired into Studio export without API or
 
   assert.match(source, /workspaceExportScopeReadback/);
   assert.match(source, /Workspace scope readback/);
+  assert.match(source, /futureUnavailable\.map/);
+  assert.doesNotMatch(source, /futureUnavailable\.slice/);
   assert.doesNotMatch(source, /apiPost|apiPatch|apiGet|apiDelete|fetch\(|createExportPackage|loadBundle|loadManifest|<button|type="button"|onClick=/i);
 });
 

@@ -120,7 +120,7 @@ function WorkspaceScopeReadback({ readback }: { readback: WorkspaceExportScopeRe
         <div style={{ display: "grid", gap: 10 }}>
           <h3 style={subhead}>Future or excluded scope</h3>
           <div style={{ display: "grid", gap: 8 }}>
-            {readback.futureUnavailable.slice(0, 3).map((row) => (
+            {readback.futureUnavailable.map((row) => (
               <ScopePillRow key={row.id} row={row} />
             ))}
             {readback.excludedMaterial.map((row) => (

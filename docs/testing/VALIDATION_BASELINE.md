@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR483A Workspace Export Scope Readback ARGUS Review
+
+ARGUS accepted PR483A on 2026-06-29 after a narrow UI visibility patch:
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR483A_WORKSPACE_EXPORT_SCOPE_READBACK`.
+
+Reason:
+
+- `/studio/export` remains owner-only scope/readback over existing export truth;
+- the owner UI now renders every future/unavailable row instead of slicing the
+  list to three rows;
+- live package classes remain limited to `persona_archive`,
+  `developer_space_archive`, and `project_manifest`;
+- full workspace bundles, original files, PDFs, binary archives, Station Press,
+  managed backup/redundancy/restore, and shareable/private URLs remain future
+  or unavailable;
+- no package kind, API route, bundle format, storage/download behavior,
+  schema/migration, billing, provider/model, worker/queue, Redis, or Cloudflare
+  scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/export-trust.test.ts` | Pass | 9 tests passed, including workspace scope readback and the `futureUnavailable.map` / no-slice source guard. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed, preserving owner-only persona, Developer Space, Project manifest, bundle, malformed-readback, and route-error boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 175 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched web files. |
+| Path-scope check | Pass | Changed paths are the A3 receipt, bounded web helper/test/UI files, and roadmap/testing docs. |
+| Diff sensitive/scope scan | Pass | Matches were expected negative assertions, boundary copy, or future/unavailable labels; no secret value or widened runtime/API/provider scope was found. |
+
 ## PR483A Workspace Export Scope Readback
 
 DAEDALUS implemented PR483A on 2026-06-29:

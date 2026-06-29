@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR483A | Workspace Export Scope Readback | ARGUS / A3 | Ready for review; owner-only `/studio/export` scope/readback names live scoped packages and future workspace/PDF/binary/original-file/backup states | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md` |
+| PR483A | Workspace Export Scope Readback | MIMIR / A1 | Accepted by ARGUS after a visibility patch; close out and route ARIADNE hosted read-only desktop/mobile proof for `/studio/export` | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR483A review | Workspace Export Scope Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; `/studio/export` renders every future/unavailable row and keeps export scope readback-only without package/API/storage behavior | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md` |
 | PR483A implementation | Workspace Export Scope Readback | DAEDALUS -> ARGUS | Ready for review; `/studio/export` shows live scoped package classes and future workspace/PDF/binary/original-file/backup/share URL boundaries without package/API/storage behavior | `docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_RESULT.md` |
 | PR483 preflight | Workspace Export Product Depth | MIMIR -> ARGUS -> DAEDALUS | Accepted PR483A Workspace Export Scope Readback; no package creation, PDF, binary, original-file, background, backup, public export, API/schema, or storage-architecture scope | `docs/roadmap/PR483_WORKSPACE_EXPORT_PRODUCT_DEPTH_PREFLIGHT_RESULT.md` |
 | PR482A closeout | API Bridge Setup Packet Readback | MIMIR | Closed; hosted route/content/mobile/no-mutation proof plus local setup-label redaction tests accepted, no hosted synthetic seed claim | `docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_CLOSEOUT.md` |

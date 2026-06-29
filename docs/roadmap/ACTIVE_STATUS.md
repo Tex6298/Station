@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR483A accepted for MIMIR
+
+ARGUS accepted PR483A Workspace Export Scope Readback after a narrow UI
+visibility patch:
+
+`docs/roadmap/PR483A_WORKSPACE_EXPORT_SCOPE_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR483A_WORKSPACE_EXPORT_SCOPE_READBACK
+```
+
+Current lane:
+
+```text
+PR483A - Workspace Export Scope Readback
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND ROUTE HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- MIMIR should close PR483A and route ARIADNE hosted read-only proof for
+  signed-in owner `/studio/export` on desktop and 390px mobile.
+- ARIADNE should verify live scoped package classes are visible:
+  `persona_archive`, `developer_space_archive`, and `project_manifest`.
+- ARIADNE should verify all future/unavailable rows are visible, including
+  full workspace bundle, original files, PDF/binary/Station Press, managed
+  backup/redundancy/restore, and shareable/private URLs.
+- ARIADNE should verify excluded material rows are visible for raw private
+  source bodies, storage/download internals, and credential/provider material.
+- ARIADNE should verify no API mutation, package creation, bundle load, public
+  export access, package URL, signed URL, storage path, raw private source body,
+  archive snippet, prompt, provider payload, SQL/table detail, stack trace,
+  hosted log, credential, token, cookie, or secret-shaped value is exposed.
+
+Boundaries confirmed:
+
+- No production backup/redundancy, generated PDFs, print-on-demand, background
+  jobs, workers/queues, Redis, Cloudflare, schema/migrations, billing/Stripe,
+  provider/model calls, public export access, shareable private package URLs,
+  signed URLs, original-file packaging, or broad storage architecture was
+  added.
+- Raw private source bodies, archive snippets, document bodies, storage paths,
+  credentials, prompts, provider payloads, SQL/table details, stack traces,
+  hosted logs, cookies, tokens, signed URLs, and secret-shaped values remain out
+  of the owner UI.
+
 ## Latest DAEDALUS implementation - PR483A ready for ARGUS
 
 DAEDALUS implemented the accepted PR483A Workspace Export Scope Readback:
