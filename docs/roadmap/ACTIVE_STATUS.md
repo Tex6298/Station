@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR470 accepted for DAEDALUS
+
+ARGUS accepts the first Voice / Avatar slice as an owner-only readiness gate:
+
+`docs/roadmap/PR470_VOICE_AVATAR_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- DAEDALUS may implement `PR470A - Owner Voice / Avatar Readiness Gate`.
+- The accepted slice is web-only and owner-only on the private persona Studio
+  surface.
+- It should honestly say Voice / Avatar is not enabled yet and name the policy
+  gates required before any media behavior exists.
+- No realtime voice calls, voice cloning, speech-to-text, text-to-speech,
+  avatar likeness generation, media upload/storage, generated media files,
+  provider media calls, public audio input, anonymous audio input, billing,
+  Redis, Cloudflare, queues, workers, schema, migrations, or broad UI scope is
+  accepted.
+
+ARGUS validation:
+
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+
+Current lane:
+
+```text
+PR470A - Owner Voice / Avatar Readiness Gate
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT OWNER-ONLY READINESS GATE
+```
+
+Current baton:
+
+- DAEDALUS should implement the owner-only web readiness gate and wake ARGUS.
+- Keep PR470A readback-only: no media behavior, provider media calls, storage,
+  public controls, billing, worker/queue, or schema scope.
+
 ## Latest MIMIR closeout - PR469 closed
 
 MIMIR closes the first Live Events / Seminars slice as accepted:

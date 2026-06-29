@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR470 Voice / Avatar Preflight
+
+ARGUS accepted PR470 preflight on 2026-06-29:
+`docs/roadmap/PR470_VOICE_AVATAR_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- the first safe Voice / Avatar slice is owner-only readiness readback in the
+  private persona Studio workspace;
+- PR470A does not allow realtime voice calls, voice cloning, speech-to-text,
+  text-to-speech, avatar likeness generation, media upload/storage, generated
+  media files, provider media calls, public audio input, anonymous audio input,
+  billing changes, Redis, Cloudflare, queues, workers, schema, migrations, or
+  broad UI scope;
+- existing provider/BYOK settings are not enough for media behavior; a future
+  provider/media adapter decision is required before any speech or avatar call;
+- consent/copyright, storage/privacy, cost, rate-limit, and plan enforcement
+  decisions remain prerequisites for future media lanes.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: PR470A implementation is not done in this preflight. DAEDALUS
+must keep the first slice owner-only, web-only, and readback-only before waking
+ARGUS.
+
 ## PR469B Public Seminar Populated Browser Rehearsal
 
 ARIADNE completed the hosted PR469B populated browser rehearsal on 2026-06-29:
