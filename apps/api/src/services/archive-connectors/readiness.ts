@@ -5,7 +5,7 @@ import {
 } from "./credential-contract";
 import { archiveConnectorCredentialEncryptionConfigured } from "./credential-storage";
 
-type ProviderOAuthAppStatus = "missing" | "partial" | "configured";
+export type ProviderOAuthAppStatus = "missing" | "partial" | "configured";
 type ProviderReadinessStatus =
   | "credential_encryption_required"
   | "provider_app_missing"
@@ -93,7 +93,7 @@ function archiveConnectorProviderReadiness(
   providerId: ArchiveConnectorProviderId,
   credentialEncryptionConfigured: boolean,
 ): ArchiveConnectorReadinessProvider {
-  const oauthAppStatus = providerOAuthAppStatus(providerId);
+  const oauthAppStatus = archiveConnectorProviderOAuthAppStatus(providerId);
   const status = providerReadinessStatus(credentialEncryptionConfigured, oauthAppStatus);
 
   return {
@@ -120,7 +120,7 @@ function archiveConnectorProviderReadiness(
   };
 }
 
-function providerOAuthAppStatus(providerId: ArchiveConnectorProviderId): ProviderOAuthAppStatus {
+export function archiveConnectorProviderOAuthAppStatus(providerId: ArchiveConnectorProviderId): ProviderOAuthAppStatus {
   const config = ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG[providerId];
   const hasClientId = hasEnvValue(config.clientId);
   const hasClientSecret = hasEnvValue(config.clientSecret);

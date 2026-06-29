@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484E ready for ARGUS
+
+DAEDALUS implemented the PR484E Archive Connector OAuth State Start slice:
+
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR484E - Archive Connector OAuth State Start
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the authenticated
+  `POST /archive-connectors/oauth/:provider/start` route, provider/config
+  gate, local redirect validation, session binding, state handle constraints,
+  tests, docs, and validation evidence.
+- Confirm the route supports only `reddit` and `discord`, requires configured
+  archive-specific provider app config for the selected provider, and writes
+  exactly one PR484B OAuth state row on success.
+- Confirm missing/partial provider app config returns bounded setup-required
+  without revealing which side is present and without writing a row.
+- Confirm the returned `stateHandle` is the only raw nonce/csrf carrier and is
+  not stored raw; stored state rows contain hashes and bounded metadata only.
+- If accepted, wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, wake DAEDALUS with `WAKEUP A2:`.
+
+Boundaries:
+
+- No OAuth redirects/callbacks, OAuth consume/callback handling, OAuth code
+  handling, token exchange, token refresh/revocation execution, credential
+  write/revoke routes, provider SDKs, live Reddit/Discord API calls,
+  configured real test credentials, source inventory pulls, recurring pulls,
+  import writes, route UI, public connector pages, jobs, queues, workers,
+  Redis, Cloudflare, billing/Stripe, provider/model calls, package
+  dependencies, hosted runtime behavior, broad connector marketplace, or
+  social posting behavior.
+- Do not return env names, env values, client ids, client secrets, secret
+  tails, OAuth codes, access tokens, refresh tokens, cookies, credentials, raw
+  external account ids, raw owner/row/session ids, nonce hashes, csrf hashes,
+  private source bodies, private messages, archive snippets, provider
+  payloads, storage paths, signed URLs, hosted logs, SQL/table output, stack
+  traces, prompts, or static secret-shaped fixtures.
+- ARIADNE hosted rehearsal is not required if PR484E remains API-only,
+  local-test covered, and limited to state row creation with no UI or live
+  OAuth/provider behavior.
+
 ## Latest ARGUS preflight - PR484E accepted for DAEDALUS
 
 ARGUS completed the PR484E Archive Connector OAuth State Start preflight:
