@@ -10,7 +10,7 @@ import type {
   PersonaLayerProfile,
   PersonaLifecycleEvent,
 } from "@station/types/persona";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   handoffFreshnessCopy,
@@ -57,6 +57,9 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
   const [handoffSummary, setHandoffSummary] = useState("");
   const [creatingHandoff, setCreatingHandoff] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [avatarUrlInput, setAvatarUrlInput] = useState(persona.avatarUrl ?? "");
+  const [savedAvatarUrl, setSavedAvatarUrl] = useState(persona.avatarUrl ?? null);
+  const [savingAvatarUrl, setSavingAvatarUrl] = useState(false);
 
   const continuity = (persona as Persona & { continuity?: PersonaContinuitySummary }).continuity;
 
@@ -120,6 +123,28 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
     }
   }
 
+  async function saveAvatarUrl(nextValue: string | null = avatarUrlInput) {
+    if (!token || savingAvatarUrl) return;
+    setSavingAvatarUrl(true);
+    setNotice(null);
+
+    try {
+      const response = await apiPatch<{ persona: Persona }>(
+        `/personas/${personaId}`,
+        { avatarUrl: nextValue },
+        token,
+      );
+      const nextAvatarUrl = response.persona.avatarUrl ?? null;
+      setSavedAvatarUrl(nextAvatarUrl);
+      setAvatarUrlInput(nextAvatarUrl ?? "");
+      setNotice(nextAvatarUrl ? "Avatar URL saved." : "Avatar URL cleared.");
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : "Could not save avatar URL.");
+    } finally {
+      setSavingAvatarUrl(false);
+    }
+  }
+
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
@@ -166,6 +191,38 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
                     Provider
                     <input value={persona.provider} readOnly style={input} />
                   </label>
+                </div>
+                <div style={{ display: "grid", gap: 8 }}>
+                  <label style={fieldLabel}>
+                    Avatar URL
+                    <input
+                      value={avatarUrlInput}
+                      onChange={(event) => setAvatarUrlInput(event.target.value)}
+                      placeholder="https://example.com/avatar.png"
+                      style={input}
+                    />
+                  </label>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      onClick={() => saveAvatarUrl()}
+                      disabled={!token || savingAvatarUrl}
+                      style={{ ...primaryButton, minHeight: 36 }}
+                    >
+                      {savingAvatarUrl ? "Saving..." : "Save avatar URL"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => saveAvatarUrl(null)}
+                      disabled={!token || savingAvatarUrl || (!savedAvatarUrl && !avatarUrlInput.trim())}
+                      style={{ ...secondaryButton, minHeight: 36 }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <p style={{ ...muted, margin: 0 }}>
+                    Use a public HTTPS image URL. Unsafe values are rejected before they reach public persona pages.
+                  </p>
                 </div>
               </div>
             </section>

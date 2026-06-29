@@ -418,7 +418,7 @@ function IdentityMark({ title, imageUrl }: { title: string; imageUrl?: string | 
       <div
         aria-hidden="true"
         className="public-persona-avatar"
-        style={{ backgroundImage: `url(${imageUrl})` }}
+        style={{ backgroundImage: `url(${JSON.stringify(imageUrl)})` }}
       />
     );
   }

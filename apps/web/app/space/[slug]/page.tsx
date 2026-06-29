@@ -413,7 +413,7 @@ function IdentityMark({ owner, title, imageUrl }: { owner?: Owner | null; title:
       <div
         className="space-identity-mark"
         aria-hidden="true"
-        style={{ backgroundImage: `url(${src})`, backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: `url(${JSON.stringify(src)})`, backgroundSize: "cover", backgroundPosition: "center" }}
       />
     );
   }

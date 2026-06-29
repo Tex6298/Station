@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   publicPersonaChatAccess,
@@ -103,4 +104,18 @@ test("public persona updates copy stays derived and public-source-only", () => {
   assert.match(empty, /No published documents/);
   assert.match(empty, /public discussions/);
   assert.doesNotMatch(empty, /live|provider|private|persona-to-persona|ownerUserId|personaId|token|cookie/i);
+});
+
+test("public avatar renderers escape CSS URL values and keep owner control bounded", () => {
+  const publicPersonaSource = readFileSync("apps/web/app/personas/[publicSlug]/page.tsx", "utf8");
+  const publicSpaceSource = readFileSync("apps/web/app/space/[slug]/page.tsx", "utf8");
+  const managementSource = readFileSync("apps/web/components/studio/persona-management.tsx", "utf8");
+  const rendered = `${publicPersonaSource}\n${publicSpaceSource}\n${managementSource}`;
+
+  assert.match(publicPersonaSource, /backgroundImage:\s*`url\(\$\{JSON\.stringify\(imageUrl\)\}\)`/);
+  assert.match(publicSpaceSource, /backgroundImage:\s*`url\(\$\{JSON\.stringify\(src\)\}\)`/);
+  assert.match(managementSource, /avatarUrl/);
+  assert.match(managementSource, /apiPatch<\{ persona: Persona \}>/);
+  assert.doesNotMatch(rendered, /backgroundImage:\s*`url\(\$\{imageUrl\}\)`|backgroundImage:\s*`url\(\$\{src\}\)`/);
+  assert.doesNotMatch(managementSource, /upload|signed upload|storage bucket|image generation|voice cloning|webrtc|microphone|camera capture|video/i);
 });

@@ -4,36 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR481A accepted for DAEDALUS
+## Latest DAEDALUS implementation - PR481A ready for ARGUS
 
-ARGUS accepted the smallest safe Voice / Avatar visual-identity slice:
+DAEDALUS implemented the accepted PR481A Voice / Avatar visual-identity slice:
 
-`docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL
+READY_FOR_ARGUS_REVIEW
 ```
 
 Current lane:
 
 ```text
 PR481A - Owner Persona Avatar URL Control
-Owner: DAEDALUS / A2
-State: ACCEPTED FOR IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY FOR REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should add owner-controlled `avatarUrl` create/update support using
-  the existing `personas.avatar_url` field and public `avatarUrl` serializer.
-- DAEDALUS must add an explicit sanitizer/validator: safe public `https://`
-  image URL or `null`; unsafe non-empty input rejects with bounded `400`.
-- Public persona and public Space avatar renderers must escape CSS URL values
-  and fall back to initials when the URL is absent or rejected.
-- If implemented and accepted, MIMIR should route ARIADNE hosted owner/public
-  read-only proof for set, render, mobile fit, clear, and unsafe-value failure.
+- ARGUS should review the avatar URL sanitizer, owner create/update route
+  handling, owner management control, public serializer nulling, public avatar
+  CSS escaping, and tests.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and
+  ARIADNE hosted owner/public read-only proof routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact sanitizer rule, route case, UI control, renderer, or test expectation
+  that failed.
 
 Boundaries:
 
@@ -44,7 +44,7 @@ Boundaries:
   media rate limits, cost metering, public anonymous avatar editing, public
   visitor media controls, billing, Stripe, Redis, Cloudflare, queues, workers,
   migrations, schema expansion, broad Studio redesign, or broad public persona
-  redesign.
+  redesign changed.
 
 ## Latest MIMIR closeout/opening - PR480A closed, PR481 opened
 

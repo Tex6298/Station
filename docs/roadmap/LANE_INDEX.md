@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR481A | Owner Persona Avatar URL Control | DAEDALUS / A2 | Accepted by ARGUS; implement safe owner avatar URL create/update, CSS escaping, and tests without media/storage scope | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_RESULT.md` |
+| PR481A | Owner Persona Avatar URL Control | ARGUS / A3 | Ready for review; safe owner avatar URL create/update, CSS escaping, and tests without media/storage scope | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR481A implementation | Owner Persona Avatar URL Control | DAEDALUS -> ARGUS | Ready for review; owner avatar URL create/update stores safe HTTPS or null, unsafe public legacy rows serialize null, and public CSS URL rendering is escaped | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md` |
 | PR481 preflight | Voice / Avatar Visual Identity | MIMIR -> ARGUS -> DAEDALUS | Accepted PR481A Owner Persona Avatar URL Control with sanitizer, existing `avatar_url`, owner UI, safe public serialization, and no media/storage/provider/billing scope | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_RESULT.md` |
 | PR481 opened | Voice / Avatar Visual Identity | MIMIR -> ARGUS | Open; hostile preflight for owner-managed avatar URL using existing public avatar path while keeping media/voice/provider/storage out | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_ARGUS.md` |
 | PR480A closeout | Developer Space Connection Tier State Readback | MIMIR | Closed; ARGUS accepted and ARIADNE hosted proof passed public and owner connection-tier readback | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_CLOSEOUT.md` |

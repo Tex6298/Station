@@ -13,6 +13,7 @@ import {
   publicContextSourceMatchesQuery,
   publicPersonaChatMode,
   publicPersonaRouteHref,
+  sanitizePublicPersonaAvatarUrl,
   serializePersonaPublicFields,
   serializePublicPersonaContextPreview,
   serializePublicPersona,
@@ -59,6 +60,7 @@ const createSchema = z.object({
   name: z.string().min(1).max(80),
   shortDescription: z.string().max(300).optional(),
   longDescription: z.string().max(5000).optional(),
+  avatarUrl: z.union([z.string().max(2048), z.null()]).optional(),
   visibility: z.enum(["private", "public"]).default("private"),
   provider: z.enum(["platform", "openai", "anthropic", "deepseek", "gemini"]).default("platform"),
   awakeningPrompt: z.string().max(4000).optional(),
@@ -1178,7 +1180,7 @@ function serializePersona(
     longDescription: row.long_description,
     visibility: row.visibility,
     provider: row.provider,
-    avatarUrl: row.avatar_url,
+    avatarUrl: sanitizePublicPersonaAvatarUrl(row.avatar_url),
     awakeningPrompt: row.awakening_prompt,
     styleNotes: row.style_notes,
     publicChatEnabled: Boolean(row.public_chat_enabled),
@@ -1566,6 +1568,8 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
   const publicSlug = parsed.data.visibility === "public"
     ? await generateUniquePublicSlug(sb, parsed.data.name)
     : null;
+  const avatarUrl = sanitizeAvatarInput(res, parsed.data.avatarUrl);
+  if (avatarUrl === undefined) return;
 
   const { data, error } = await sb
     .from("personas")
@@ -1576,6 +1580,7 @@ personasRouter.post("/", requireTier("private"), async (req, res) => {
       long_description: parsed.data.longDescription ?? null,
       visibility: parsed.data.visibility,
       public_slug: publicSlug,
+      avatar_url: avatarUrl,
       provider: parsed.data.provider,
       awakening_prompt: parsed.data.awakeningPrompt ?? null,
       style_notes: parsed.data.styleNotes ?? null,
@@ -1658,6 +1663,11 @@ personasRouter.patch("/:id", async (req, res) => {
   if (parsed.data.provider !== undefined)         updatePayload.provider = parsed.data.provider;
   if (parsed.data.awakeningPrompt !== undefined)  updatePayload.awakening_prompt = parsed.data.awakeningPrompt;
   if (parsed.data.styleNotes !== undefined)       updatePayload.style_notes = parsed.data.styleNotes;
+  if (Object.prototype.hasOwnProperty.call(parsed.data, "avatarUrl")) {
+    const avatarUrl = sanitizeAvatarInput(res, parsed.data.avatarUrl);
+    if (avatarUrl === undefined) return;
+    updatePayload.avatar_url = avatarUrl;
+  }
   const willBePublic = parsed.data.visibility === "public" ||
     (parsed.data.visibility === undefined && existing.visibility === "public");
   if (willBePublic && !existing.public_slug) {
@@ -1703,6 +1713,18 @@ personasRouter.patch("/:id", async (req, res) => {
   const publicEligibility = await loadPublicPersonaEligibility(req.user!.id, authUser);
   return res.json({ persona: serializePersona(data, undefined, publicEligibility) });
 });
+
+function sanitizeAvatarInput(res: Response, value: unknown): string | null | undefined {
+  try {
+    return sanitizePublicPersonaAvatarUrl(value, { rejectUnsafe: true });
+  } catch {
+    res.status(400).json({
+      error: "Avatar URL must be a public HTTPS image URL.",
+      code: "invalid_avatar_url",
+    });
+    return undefined;
+  }
+}
 
 // -- Delete a persona ----------------------------------------------------------
 personasRouter.delete("/:id", async (req, res) => {

@@ -668,6 +668,99 @@ test("owner readback reports public eligibility and exact public fields without 
   }
 });
 
+test("owner avatar URL control sanitizes writes, clears safely, and nulls unsafe legacy public rows", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/personas", {
+      token: "creator-token",
+      body: {
+        name: "Avatar Persona",
+        shortDescription: "Avatar setup.",
+        avatarUrl: " https://cdn.example.test/avatar.png?size=128 ",
+      },
+    });
+
+    assert.equal(created.status, 201);
+    assert.equal(created.body.persona.avatarUrl, "https://cdn.example.test/avatar.png?size=128");
+    const personaId = created.body.persona.id;
+    assert.equal(db.rows("personas").find((row) => row.id === personaId)?.avatar_url, "https://cdn.example.test/avatar.png?size=128");
+
+    const safePatch = await requestJson(app, "PATCH", `/personas/${personaId}`, {
+      token: "creator-token",
+      body: { avatarUrl: "https://images.example.test/portraits/avatar.webp" },
+    });
+    assert.equal(safePatch.status, 200);
+    assert.equal(safePatch.body.persona.avatarUrl, "https://images.example.test/portraits/avatar.webp");
+
+    const nonOwnerPatch = await requestJson(app, "PATCH", `/personas/${personaId}`, {
+      token: "other-token",
+      body: { avatarUrl: "https://other.example.test/avatar.png" },
+    });
+    assert.equal(nonOwnerPatch.status, 404);
+    assert.equal(db.rows("personas").find((row) => row.id === personaId)?.avatar_url, "https://images.example.test/portraits/avatar.webp");
+
+    for (const unsafe of [
+      "javascript:alert(1)",
+      "data:image/svg+xml;base64,AAAA",
+      "http://example.test/avatar.png",
+      "https://localhost/avatar.png",
+      "https://127.0.0.1/avatar.png",
+      "https://192.168.1.10/avatar.png",
+      "https://cdn.example.test/avatar.png?token=secret",
+      "https://cdn.example.test/avatar.png?x-amz-signature=abc",
+      "https://station.example.test/storage/avatar.png",
+      "https://example.test/avatar.png#fragment",
+    ]) {
+      const response = await requestJson(app, "PATCH", `/personas/${personaId}`, {
+        token: "creator-token",
+        body: { avatarUrl: unsafe },
+      });
+      if (unsafe.endsWith("#fragment")) {
+        assert.equal(response.status, 200);
+        assert.equal(response.body.persona.avatarUrl, "https://example.test/avatar.png");
+      } else {
+        assert.equal(response.status, 400, unsafe);
+        assert.equal(response.body.code, "invalid_avatar_url");
+        assert.equal(JSON.stringify(response.body).includes(unsafe), false);
+      }
+    }
+
+    const cleared = await requestJson(app, "PATCH", `/personas/${personaId}`, {
+      token: "creator-token",
+      body: { avatarUrl: "   " },
+    });
+    assert.equal(cleared.status, 200);
+    assert.equal(cleared.body.persona.avatarUrl, null);
+    assert.equal(db.rows("personas").find((row) => row.id === personaId)?.avatar_url, null);
+
+    const unsafeLegacy = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Unsafe Legacy Avatar",
+      short_description: "Legacy row.",
+      visibility: "public",
+      public_slug: "unsafe-legacy-avatar",
+      public_chat_enabled: false,
+      avatar_url: "javascript:alert(1)",
+    });
+
+    const ownerLegacy = await requestJson(app, "GET", `/personas/${unsafeLegacy.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(ownerLegacy.status, 200);
+    assert.equal(ownerLegacy.body.persona.avatarUrl, null);
+
+    const publicLegacy = await requestJson(app, "GET", "/personas/public/unsafe-legacy-avatar");
+    assert.equal(publicLegacy.status, 200);
+    assert.equal(publicLegacy.body.persona.avatarUrl, null);
+    assert.equal(JSON.stringify(publicLegacy.body).includes("javascript:"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("creator, canon, institutional, and admin-private users can create public personas when eligible", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

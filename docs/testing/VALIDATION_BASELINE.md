@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR481A Owner Persona Avatar URL Control
+
+DAEDALUS implemented PR481A on 2026-06-29:
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- owner persona create/update now accepts `avatarUrl` and stores only a
+  normalized safe public `https://` URL or `null`;
+- unsafe non-empty owner input fails closed with bounded `400` and
+  `invalid_avatar_url` without echoing the raw URL;
+- public and owner persona serializers null unsafe legacy avatar rows;
+- existing public persona and public Space avatar renderers now escape CSS URL
+  values with `JSON.stringify(...)`;
+- the owner management surface has Save/Clear URL controls only, with no upload,
+  storage, generated media, provider media, voice/audio/video, billing, Stripe,
+  Redis, Cloudflare, worker, queue, migration, schema expansion, or broad
+  redesign scope.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 tests passed, including avatar safe set, clear, unsafe reject, owner scope, and unsafe legacy public nulling. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 8 tests passed, including CSS URL escaping and owner control source assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 26 tests passed, including public persona route coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck both ran successfully without cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Matches were limited to expected URL-safety fixtures, guardrails, or negative assertions; no media upload/storage, provider media call, voice/audio/video, billing, Stripe, Redis, Cloudflare, worker, queue, migration, schema expansion, or broad redesign scope was added. |
+
 ## PR481 Voice / Avatar Visual Identity Preflight
 
 ARGUS accepted PR481A on 2026-06-29:
