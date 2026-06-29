@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484D | Archive Connector Provider App Config | ARGUS / A3 | Ready for review; archive-specific env/readiness-only provider app config contract implemented | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_RESULT.md` |
+| PR484D | Archive Connector Provider App Config | MIMIR / A1 | Accepted by ARGUS; closeout decision pending | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484D review | Archive Connector Provider App Config | DAEDALUS -> ARGUS -> MIMIR | Accepted; archive-specific Reddit/Discord provider app config drives missing/partial/configured readiness without OAuth state creation, credential writes, provider calls, imports, UI, social config coupling, or hosted runtime scope | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_REVIEW_RESULT.md` |
 | PR484D implementation | Archive Connector Provider App Config | DAEDALUS -> ARGUS | Ready for review; optional archive-specific Reddit/Discord provider app config drives missing/partial/configured readiness without OAuth state creation, credential writes, provider calls, imports, UI, or social config coupling | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_RESULT.md` |
 | PR484D preflight | Archive Connector Provider App Config | MIMIR -> ARGUS -> DAEDALUS | Accepted env/readiness-only contract for archive-specific Reddit/Discord provider app config; no live OAuth or credential writes | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_PREFLIGHT_RESULT.md` |
 | PR484C closeout | Connector OAuth Readiness Route | MIMIR | Closed; owner-only read-only readiness route accepted, no hosted proof required | `docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_CLOSEOUT.md` |

@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484D accepted for MIMIR
+
+ARGUS reviewed the PR484D Archive Connector Provider App Config
+implementation:
+
+`docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ARGUS_ACCEPTED_PR484D_PROVIDER_APP_CONFIG_READINESS
+```
+
+Current lane:
+
+```text
+PR484D - Archive Connector Provider App Config Contract
+Owner: MIMIR / A1
+State: ACCEPTED BY ARGUS - CLOSEOUT DECISION
+```
+
+Current baton:
+
+- MIMIR should close PR484D or decide the next roadmap move.
+- ARGUS found no review patch necessary.
+- The implementation stays env/readiness-only and uses only the accepted
+  archive-specific provider app env names.
+- Partial provider app config returns only safe `partial` status and does not
+  reveal whether id or secret is present.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 47 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed for the DAEDALUS implementation diff.
+- Implementation diff/scope scans found no credential writes, OAuth state
+  creation, redirects/callbacks, token exchange, provider calls, imports, UI,
+  jobs, queues, Redis, Cloudflare, billing/Stripe, provider/model calls,
+  package dependency changes, hosted runtime behavior, public connector pages,
+  or social config coupling.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484D ready for ARGUS
 
 DAEDALUS implemented the PR484D Archive Connector Provider App Config slice:
