@@ -15,6 +15,7 @@ import {
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
   developerSpaceConnectionBadge,
+  developerSpaceConnectionTierReadback,
   developerSpaceOwnerCurrentState,
   developerSpaceUsageReadback,
   developerSpaceSignalStatus,
@@ -416,6 +417,40 @@ test("tier one framing copy separates self-hosted runtime from Station readback"
   assert.match(copy.agentBoundary, /run_job dry-run\/readiness only/);
   assert.doesNotMatch(rendered, /Station hosts the developer app/);
   assert.doesNotMatch(rendered, /repo push|deploy pipeline|background jobs/);
+});
+
+test("connection tier readback labels current and future states without hidden capability claims", () => {
+  const publicReadback = developerSpaceConnectionTierReadback("public");
+  const ownerReadback = developerSpaceConnectionTierReadback("owner");
+  const tierOne = publicReadback.tiers.find((tier) => tier.tier === "Tier 1");
+  const tierTwo = publicReadback.tiers.find((tier) => tier.tier === "Tier 2");
+  const tierThree = publicReadback.tiers.find((tier) => tier.tier === "Tier 3");
+  const rendered = JSON.stringify([publicReadback, ownerReadback]);
+
+  assert.equal(publicReadback.heading, "Connection tier state");
+  assert.equal(tierOne?.state, "current");
+  assert.equal(tierOne?.statusLabel, "Current");
+  assert.match(tierOne?.body ?? "", /external runtime/);
+  assert.equal(tierTwo?.state, "future_blocked");
+  assert.equal(tierThree?.state, "future_blocked");
+  assert.match(tierTwo?.body ?? "", /Not available/);
+  assert.match(tierThree?.body ?? "", /Not available/);
+  assert.match(ownerReadback.tiers[0].points.join(" "), /Owner controls cover ingestion keys/);
+  assert.match(publicReadback.boundary, /readback only/);
+  assert.doesNotMatch(rendered, /deploy now|repo push enabled|job execution is active|hidden hosted runtime|Stripe checkout|provider call executed|public raw export ready|Redis durable truth|Cloudflare runtime is live|entitlement upgraded/i);
+});
+
+test("connection tier readback is wired into Developer Space routes without endpoint or mutation scope", () => {
+  const publicSource = readFileSync("apps/web/app/developer-spaces/[slug]/page.tsx", "utf8");
+  const ownerSource = readFileSync("apps/web/app/developer-spaces/[slug]/manage/page.tsx", "utf8");
+  const renderedSource = `${publicSource}\n${ownerSource}`;
+
+  assert.match(publicSource, /developerSpaceConnectionTierReadback/);
+  assert.match(publicSource, /ConnectionTierState/);
+  assert.match(ownerSource, /developerSpaceConnectionTierReadback/);
+  assert.match(ownerSource, /ConnectionTierStatePanel/);
+  assert.doesNotMatch(renderedSource, /connection-tier|connection_tier|hosted-runtime|runtime\/deploy|repo-push|createConnectionTier|requestHostedRuntime|enableTierTwo|enableTierThree/i);
+  assert.doesNotMatch(renderedSource, /api(?:Get|Post|Patch|Delete)<[^>]*connection|api(?:Post|Patch|Delete)<[^>]*(?:deploy|repo|stripe|billing|provider|cloudflare|redis|worker|queue)/i);
 });
 
 test("observatory methodology copy stays honest about public evidence", () => {

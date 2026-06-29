@@ -4,33 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR480A accepted for DAEDALUS
+## Latest DAEDALUS implementation - PR480A ready for ARGUS
 
-ARGUS accepts the smallest honest Developer Space partner-readiness slice:
+DAEDALUS implemented the accepted PR480A Developer Space partner-readiness slice:
 
-`docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_RESULT.md`
 
-Verdict:
+Result:
 
 ```text
-ACCEPT_PR480A_CONNECTION_TIER_STATE_READBACK
+READY_FOR_ARGUS_REVIEW
 ```
 
 Current lane:
 
 ```text
 PR480A - Developer Space Connection Tier State Readback
-Owner: DAEDALUS / A2
-State: OPEN - IMPLEMENT READBACK-ONLY CONNECTION TIER STATE
+Owner: ARGUS / A3
+State: READY FOR REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement readback-only Tier 1/Tier 2/Tier 3 capability state
+- ARGUS should review the readback-only Tier 1/Tier 2/Tier 3 capability state
   on existing Developer Space public and owner routes.
-- Reuse existing Developer Space helpers/routes; no API/schema/auth/billing/
-  runtime/export/rate-limit behavior is required.
-- DAEDALUS should wake ARGUS with `WAKEUP A3:` when ready for review.
+- Confirm Tier 1 is current external-runtime readback, and Tier 2/Tier 3 are
+  future/blocked states without hidden availability claims.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and
+  ARIADNE hosted read-only proof routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact helper row, route surface, copy, or source expectation that failed.
 
 Boundaries:
 
@@ -43,7 +46,7 @@ Boundaries:
 - No key/signing-secret generation or rotation, provider calls, billing/Stripe
   mutation, public raw export/download, schema/API/auth expansion, entitlement
   mutation, workers/queues, Redis durable truth, Cloudflare runtime/index,
-  hosted deployment behavior, or private Developer Space leakage.
+  hosted deployment behavior, or private Developer Space leakage changed.
 
 ## Latest MIMIR closeout/opening - PR479A closed, PR480 opened
 

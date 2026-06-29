@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR480A Developer Space Connection Tier State Readback
+
+DAEDALUS implemented PR480A on 2026-06-29:
+`docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- public and owner Developer Space routes now show readback-only connection
+  tier state using `developerSpaceConnectionTierReadback(...)`;
+- Tier 1 is labeled current for Station-hosted showcase, observatory, evidence,
+  ingestion, and owner readback around a developer-operated external runtime;
+- Tier 2 hosted runtime operations and Tier 3 lab/interconnected composition
+  are labeled future/blocked, not hidden available capabilities;
+- no API route, schema, auth/session, billing, Stripe, export package,
+  developer-space-client request, provider/model, Redis, Cloudflare, worker,
+  queue, production realtime, entitlement, runtime/deploy, repo-push, key/
+  signing-secret, or deployment behavior changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 58 tests passed, including PR480A helper/source assertions plus existing Developer Space API and observatory coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; client/webhook behavior remains unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 tests passed; owner-only export boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:billing` | Pass | 16 tests passed; Billing-owned Checkout/Portal/webhook/entitlement behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Matches were limited to expected guardrail/readback strings; no ingestion key exposure, signing secret, raw payload, private evidence, raw ID, provider payload, hosted runtime/deploy/repo action, developer-agent execution, key/signing-secret mutation, billing/Stripe mutation, public raw export, schema/API/auth change, Redis, Cloudflare, worker, queue, production realtime, provider/model call, or deployment behavior was added. |
+
 ## PR480 Developer Space Partner-Ready Preflight ARGUS Decision
 
 ARGUS accepted the PR480A connection-tier state readback slice on 2026-06-29:

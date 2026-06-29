@@ -119,6 +119,74 @@ export function developerSpaceTierOneFramingCopy() {
   };
 }
 
+export type DeveloperSpaceConnectionTierState = "current" | "future_blocked";
+
+export interface DeveloperSpaceConnectionTierRow {
+  tier: "Tier 1" | "Tier 2" | "Tier 3";
+  title: string;
+  state: DeveloperSpaceConnectionTierState;
+  statusLabel: string;
+  body: string;
+  points: string[];
+}
+
+export interface DeveloperSpaceConnectionTierReadback {
+  heading: string;
+  summary: string;
+  tiers: DeveloperSpaceConnectionTierRow[];
+  boundary: string;
+}
+
+export function developerSpaceConnectionTierReadback(view: "public" | "owner" = "public"): DeveloperSpaceConnectionTierReadback {
+  const ownerCurrentPoint = view === "owner"
+    ? "Owner controls cover ingestion keys, evidence, exports, usage, and bounded Developer Agent readbacks for the external runtime."
+    : "Visitors see the public showcase, observatory, evidence path, project updates, and public-safe signal summaries.";
+
+  return {
+    heading: "Connection tier state",
+    summary: "Station is currently proving Tier 1 Developer Spaces: public readback for external self-hosted runtimes. Tier 2 and Tier 3 remain future states until separate runtime, infrastructure, and policy lanes are accepted.",
+    tiers: [
+      {
+        tier: "Tier 1",
+        title: "External runtime readback",
+        state: "current",
+        statusLabel: "Current",
+        body: "Available today as Station-hosted showcase, observatory, evidence, ingestion, and owner readback around a developer-operated external runtime.",
+        points: [
+          ownerCurrentPoint,
+          "Live signals are shaped as public-safe node, event, or snapshot summaries.",
+          "Station does not host, deploy, operate, or secretly control the developer runtime.",
+        ],
+      },
+      {
+        tier: "Tier 2",
+        title: "Hosted runtime operations",
+        state: "future_blocked",
+        statusLabel: "Future / blocked",
+        body: "Not available in this lane. Station-hosted runtime, deploy, repo push, job execution, queues, Redis, Cloudflare runtime/index, and production realtime need future implementation decisions.",
+        points: [
+          "No deploy button, repo push, hosted database, job runner, or operational hosting is active here.",
+          "No key generation, signing-secret rotation, provider call, billing mutation, or entitlement change is performed by this readback.",
+          "Rate-limit and usage panels remain metering/readback surfaces, not hidden hosted-runtime authority.",
+        ],
+      },
+      {
+        tier: "Tier 3",
+        title: "Interconnected lab composition",
+        state: "future_blocked",
+        statusLabel: "Future / blocked",
+        body: "Not available in this lane. Multi-Space lab composition, interconnected runtime orchestration, and experimental partner meshes require separate product and safety work.",
+        points: [
+          "No background worker, queue, provider/model call, or cross-Space automation is started.",
+          "No public raw export, private evidence, owner-only payload, or operational secret is exposed.",
+          "Any Tier 3 composition must come through a later named roadmap lane.",
+        ],
+      },
+    ],
+    boundary: "This is readback only. It does not add API routes, schemas, auth/session behavior, billing, Stripe, runtime hosting, deploy behavior, Redis, Cloudflare, workers, queues, provider calls, public raw exports, or entitlement mutation.",
+  };
+}
+
 export function developerSpaceStorySummary(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {
   const pieces = [
     countLabel(detail.nodes.length, "tracked node"),

@@ -18,6 +18,7 @@ import {
   developerSpaceAgentReceiptEmptyCopy,
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
+  developerSpaceConnectionTierReadback,
   developerSpaceEvidenceCanRequestPublish,
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceReviewHref,
@@ -142,6 +143,33 @@ function CodeBlock({ code }: { code: string }) {
     }}>
       {code}
     </pre>
+  );
+}
+
+function ConnectionTierStatePanel() {
+  const readback = developerSpaceConnectionTierReadback("owner");
+
+  return (
+    <section className="card" style={{ display: "grid", gap: "0.85rem" }} aria-labelledby="owner-partner-readiness-title">
+      <div>
+        <p className="pill" style={{ margin: "0 0 0.5rem", color: "#534ab7", width: "fit-content" }}>Partner readiness</p>
+        <h2 id="owner-partner-readiness-title" style={{ margin: 0, fontSize: "1.1rem" }}>{readback.heading}</h2>
+        <p style={{ margin: "0.45rem 0 0", color: "#687078", lineHeight: 1.55 }}>{readback.summary}</p>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))", gap: "0.65rem" }}>
+        {readback.tiers.map((tier) => (
+          <article key={tier.tier} style={{ border: "1px solid #d8d3c8", borderRadius: 8, background: tier.state === "current" ? "#f5f3ff" : "#fbfaf7", padding: "0.7rem" }}>
+            <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
+              <span className="pill" style={{ color: tier.state === "current" ? "#534ab7" : "#854f0b", fontSize: "0.68rem" }}>{tier.statusLabel}</span>
+              <span className="pill" style={{ fontSize: "0.68rem" }}>{tier.tier}</span>
+            </div>
+            <strong style={{ display: "block", marginTop: "0.55rem" }}>{tier.title}</strong>
+            <p style={{ margin: "0.3rem 0 0", color: "#687078", lineHeight: 1.5, fontSize: "0.84rem" }}>{tier.body}</p>
+          </article>
+        ))}
+      </div>
+      <p style={{ margin: 0, color: "#854f0b", lineHeight: 1.45, fontSize: "0.82rem" }}>{readback.boundary}</p>
+    </section>
   );
 }
 
@@ -800,6 +828,8 @@ export default function DeveloperSpaceManagePage() {
           {error}
         </div>
       )}
+
+      <ConnectionTierStatePanel />
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "1rem", alignItems: "start" }}>
         <aside className="card" style={{ display: "grid", gap: "1rem" }}>

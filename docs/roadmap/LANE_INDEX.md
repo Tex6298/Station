@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR480A | Developer Space Connection Tier State Readback | DAEDALUS / A2 | Open; implement readback-only Tier 1/Tier 2/Tier 3 capability state without runtime/billing/API widening | `docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_RESULT.md` |
+| PR480A | Developer Space Connection Tier State Readback | ARGUS / A3 | Ready for review; readback-only Tier 1 current state and Tier 2/Tier 3 future state on existing Developer Space routes | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR480A implementation | Developer Space Connection Tier State Readback | DAEDALUS -> ARGUS | Ready for review; public and owner Developer Space routes show Tier 1 current readback plus Tier 2/Tier 3 future/blocked states without runtime/billing/API widening | `docs/roadmap/PR480A_CONNECTION_TIER_STATE_READBACK_RESULT.md` |
 | PR480 preflight | Developer Space Partner-Ready | MIMIR -> ARGUS -> DAEDALUS | Accepted PR480A Connection Tier State Readback; clarify Tier 1 current state and Tier 2/Tier 3 future/blocked states without hosted runtime or billing scope | `docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_RESULT.md` |
 | PR480 opened | Developer Space Partner-Ready Preflight | MIMIR -> ARGUS | Open; decide smallest partner-readiness slice beyond PR255-PR260 Tier 1 closeout | `docs/roadmap/PR480_DEVELOPER_SPACE_PARTNER_READY_PREFLIGHT_ARGUS.md` |
 | PR479A closeout | Owner Version Compare Readback | MIMIR | Closed; ARGUS accepted metadata-only owner compare after owner-access gate patch | `docs/roadmap/PR479A_OWNER_VERSION_COMPARE_READBACK_CLOSEOUT.md` |

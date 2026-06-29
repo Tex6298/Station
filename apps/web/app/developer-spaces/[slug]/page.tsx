@@ -7,6 +7,7 @@ import { apiGet, apiUrl } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   developerSpaceConnectionBadge,
+  developerSpaceConnectionTierReadback,
   developerSpaceEvidenceEmptyCopy,
   developerSpaceEvidenceRoleCopy,
   developerSpaceEvidenceRoleDescription,
@@ -107,6 +108,36 @@ function ObservatoryOrientation({ detail }: { detail: DeveloperSpaceDetail }) {
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function ConnectionTierState({ ownerView }: { ownerView: boolean }) {
+  const readback = developerSpaceConnectionTierReadback(ownerView ? "owner" : "public");
+
+  return (
+    <section className="card" style={{ display: "grid", gap: "0.9rem", background: "rgba(15, 23, 42, 0.72)" }} aria-labelledby="partner-readiness-title">
+      <div>
+        <div className="section-label">Partner readiness</div>
+        <h2 id="partner-readiness-title" style={{ margin: "0.2rem 0 0", color: "#f8fafc", fontSize: "1.2rem" }}>{readback.heading}</h2>
+        <p style={{ margin: "0.45rem 0 0", color: "#94a3b8", lineHeight: 1.6 }}>{readback.summary}</p>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: "0.75rem" }}>
+        {readback.tiers.map((tier) => (
+          <article key={tier.tier} style={{ border: "1px solid #1e293b", borderRadius: 10, background: tier.state === "current" ? "rgba(30, 64, 175, 0.18)" : "rgba(15, 23, 42, 0.72)", padding: "0.8rem" }}>
+            <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap" }}>
+              <span className="pill" style={{ color: tier.state === "current" ? "#93c5fd" : "#fbbf24", fontSize: "0.68rem" }}>{tier.statusLabel}</span>
+              <span className="pill" style={{ color: "#c4b5fd", fontSize: "0.68rem" }}>{tier.tier}</span>
+            </div>
+            <h3 style={{ margin: "0.6rem 0 0", color: "#f8fafc", fontSize: "0.96rem" }}>{tier.title}</h3>
+            <p style={{ margin: "0.35rem 0 0", color: "#cbd5e1", lineHeight: 1.55, fontSize: "0.84rem" }}>{tier.body}</p>
+            <ul style={{ margin: "0.55rem 0 0", paddingLeft: "1rem", color: "#94a3b8", lineHeight: 1.5, fontSize: "0.78rem" }}>
+              {tier.points.slice(0, 2).map((point) => <li key={point}>{point}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+      <p style={{ margin: 0, color: "#94a3b8", lineHeight: 1.55, fontSize: "0.8rem" }}>{readback.boundary}</p>
     </section>
   );
 }
@@ -533,6 +564,7 @@ export default function DeveloperSpacePublicPage() {
       </section>
 
       <ObservatoryOrientation detail={detail} />
+      <ConnectionTierState ownerView={detail.access === "owner"} />
 
       <section className="metric-grid">
         {[
