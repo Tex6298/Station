@@ -5,7 +5,12 @@ import {
   publicSeminarCardHref,
   publicSeminarDateLabel,
   publicSeminarDiscussionHref,
+  publicSeminarInterestActionLabel,
+  publicSeminarInterestCountLabel,
+  publicSeminarInterestSafetyCopy,
+  publicSeminarSignInPromptCopy,
   publicSeminarSourceLabel,
+  publicSeminarViewerInterestCopy,
   publicSeminarsEmptyCopy,
   publicSeminarsIntroCopy,
   publicSeminarsStatusCopy,
@@ -41,6 +46,7 @@ test("public seminar card helpers keep route scope public", () => {
     discussionHref: "/forums/seminar-room/thread-public",
     featuredAt: "2026-06-29T08:00:00.000Z",
     publishedAt: "2026-06-29T07:00:00.000Z",
+    interestCount: 0,
     space: {
       title: "Station House",
       href: "/space/station-house",
@@ -57,4 +63,36 @@ test("public seminar card helpers keep route scope public", () => {
   assert.equal(publicSeminarCardHref({ ...card, href: "/studio/personas/private" }), null);
   assert.equal(publicSeminarDiscussionHref({ ...card, discussionHref: "/settings/billing" }), null);
   assert.equal(publicSeminarDateLabel("not-a-date"), "Featured");
+});
+
+test("public seminar interest helpers stay aggregate and viewer-local", () => {
+  const card: PublicSeminarCard = {
+    id: "seminar_0123456789abcdef",
+    sourceType: "space",
+    label: "Public Space bundle",
+    title: "Station House",
+    description: null,
+    href: "/space/station-house",
+    discussionHref: null,
+    featuredAt: "2026-06-29T08:00:00.000Z",
+    publishedAt: null,
+    interestCount: 2,
+    viewerInterested: false,
+    space: null,
+  };
+
+  assert.equal(publicSeminarInterestCountLabel(0), "No saved interest yet.");
+  assert.equal(publicSeminarInterestCountLabel(1), "1 interested member.");
+  assert.equal(publicSeminarInterestCountLabel(2), "2 interested members.");
+  assert.equal(publicSeminarInterestActionLabel(card), "I'm interested");
+  assert.equal(publicSeminarInterestActionLabel({ ...card, viewerInterested: true }), "Withdraw interest");
+  assert.equal(publicSeminarViewerInterestCopy(false), "Save interest for your account.");
+  assert.equal(publicSeminarViewerInterestCopy(true), "You are interested.");
+  assert.equal(publicSeminarSignInPromptCopy(), "Sign in to save private interest for your account.");
+
+  const safeCopy = publicSeminarInterestSafetyCopy();
+  for (const phrase of ["not a ticket", "booking", "waitlist", "reminder", "payment", "attendance guarantee"]) {
+    assert.match(safeCopy, new RegExp(phrase, "i"));
+  }
+  assert.doesNotMatch(safeCopy, /attendee list|email|avatar|owner control|admin panel|Stripe/i);
 });

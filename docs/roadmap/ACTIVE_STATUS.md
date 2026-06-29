@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR475A ready for ARGUS review
+
+DAEDALUS implemented the signed-in seminar interest toggle:
+
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_RESULT.md`
+
+Implementation:
+
+- Added `public.public_seminar_interests` with actor-owned rows, unique
+  `(user_id, source_type, source_id)`, and aggregate target indexing.
+- Kept the public `seminar_<digest>` id as a client handle and persisted
+  interest only after resolving the current public routeable source server-side.
+- Kept `GET /events/seminars` public, with optional auth only for current
+  viewer `viewerInterested`.
+- Added signed-in mark and withdraw endpoints under `/events/seminars`.
+- Returned only aggregate `interestCount` and current viewer state; no raw
+  source target or viewer identities are serialized.
+- Updated the Seminars page with aggregate count, signed-in toggle, signed-out
+  prompt, and negative safety copy.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 5 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass; line-ending normalization warnings only.
+- `git diff --cached --check`: pass; line-ending normalization warnings only.
+- Diff-only sensitive-pattern scan: pass.
+- Diff-only scope scan: pass.
+
+Current lane:
+
+```text
+PR475A - Signed-In Seminar Interest Toggle
+Owner: ARGUS / A3
+State: REVIEW REQUESTED
+```
+
+Current baton:
+
+- ARGUS should review PR475A for source-target resolution, viewer privacy,
+  aggregate count behavior, stale/private fail-closed behavior, and UI copy
+  boundaries.
+- If accepted, ARGUS should wake MIMIR for closeout or hosted rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact defect.
+
 ## Latest ARGUS preflight - PR475 accepted for DAEDALUS
 
 ARGUS accepts a narrow Live Events / Seminars Attendance Interest slice:

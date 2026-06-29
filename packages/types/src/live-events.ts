@@ -10,6 +10,8 @@ export interface PublicSeminarCard {
   discussionHref: string | null;
   featuredAt: string;
   publishedAt: string | null;
+  interestCount: number;
+  viewerInterested?: boolean;
   space: {
     title: string;
     href: string;
@@ -24,5 +26,9 @@ export interface PublicSeminarsResponse {
 
 export interface PublicSeminarsErrorResponse {
   error: string;
-  code: "live_events_unavailable";
+  code: "live_events_unavailable" | "seminar_not_found" | "seminar_interest_unavailable";
+}
+
+export interface PublicSeminarInterestResponse {
+  card: PublicSeminarCard;
 }

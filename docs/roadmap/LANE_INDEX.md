@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475A | Signed-In Seminar Interest Toggle | DAEDALUS / A2 | Open; implement ARGUS-scoped signed-in interest toggle with stable server-side source reference, aggregate count, and withdrawal | `docs/roadmap/PR475_LIVE_EVENTS_SEMINARS_ATTENDANCE_INTEREST_PREFLIGHT_RESULT.md` |
+| PR475A | Signed-In Seminar Interest Toggle | ARGUS / A3 | Review requested; DAEDALUS implemented server-resolved signed-in interest with aggregate count, viewer state, and withdrawal | `docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_RESULT.md` |
 
 ## Recently Closed
 

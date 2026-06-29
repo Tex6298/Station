@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475A Signed-In Seminar Interest Toggle
+
+DAEDALUS implemented PR475A on 2026-06-29:
+`docs/roadmap/PR475A_SIGNED_IN_SEMINAR_INTEREST_TOGGLE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- public seminar cards now expose aggregate `interestCount`;
+- signed-in viewers can mark and withdraw private interest;
+- viewer state is returned only for the current signed-in viewer;
+- durable persistence uses server-resolved public source references rather
+  than the public digest handle;
+- stale, private, hidden, community-only, unsafe, missing, or unrouteable
+  targets fail closed through the existing public resolver;
+- no RSVP, ticketing, payment, reminder, livestream, attendee-list, anonymous
+  visitor identity, provider, worker, queue, Redis, Cloudflare, or broad UI
+  scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 5 tests passed for public routeability, auth-required mark/withdraw, idempotency, viewer-local state, stale/private fail-closed behavior, and bounded errors. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 3 tests passed for public copy, route helpers, aggregate count copy, viewer-local state copy, and safety copy. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors; line-ending normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors; line-ending normalization warnings only. |
+| Diff-only sensitive-pattern scan | Pass | Expected schema/docs/copy matches only; no secrets, auth tokens, cookies, visitor identifiers, payment ids, raw SQL output, logs, or attendee identity output. |
+| Diff-only scope scan | Pass | Expected negative safety copy and guardrail docs only; no implementation of tickets, Stripe, billing, reminders, livestreams, rooms, provider calls, queues, workers, Redis, or Cloudflare. |
+
+Residual risk: ARGUS still needs to review source-target resolution, aggregate
+privacy, and page copy. Hosted desktop/mobile signed-out and signed-in proof is
+still pending ARGUS/MIMIR routing.
+
 ## PR475 Live Events / Seminars Attendance Interest Preflight
 
 ARGUS accepted PR475 preflight on 2026-06-29:

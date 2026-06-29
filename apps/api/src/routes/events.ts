@@ -2,25 +2,42 @@ import { Router } from "express";
 import { createHash } from "node:crypto";
 import type { PublicSeminarCard, PublicSeminarSourceType } from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
+import { optionalAuth, requireAuth } from "../middleware/require-auth";
 import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
 export const eventsRouter = Router();
 
 const SEMINAR_DEFAULT_LIMIT = 12;
 const SEMINAR_MAX_LIMIT = 24;
+const SEMINAR_INTEREST_LOOKUP_LIMIT = 100;
 const SEMINAR_ERROR = {
   error: "Could not load public seminars.",
   code: "live_events_unavailable",
 } as const;
+const SEMINAR_NOT_FOUND_ERROR = {
+  error: "Seminar not found.",
+  code: "seminar_not_found",
+} as const;
+const SEMINAR_INTEREST_ERROR = {
+  error: "Could not update seminar interest.",
+  code: "seminar_interest_unavailable",
+} as const;
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PUBLIC_SEMINAR_ID_PATTERN = /^seminar_[a-f0-9]{16}$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-eventsRouter.get("/seminars", async (req, res) => {
+type ResolvedPublicSeminarCard = {
+  sourceType: PublicSeminarSourceType;
+  sourceId: string;
+  card: PublicSeminarCard;
+};
+
+eventsRouter.get("/seminars", optionalAuth, async (req, res) => {
   const limit = seminarLimit(req.query.limit);
 
   try {
-    const cards = await loadPublicSeminarCards(limit);
+    const cards = await loadPublicSeminarCards(limit, req.user?.id ?? null);
     return res.json({
       source: "discover_feed_featured",
       cards,
@@ -28,6 +45,55 @@ eventsRouter.get("/seminars", async (req, res) => {
     });
   } catch {
     return res.status(503).json(SEMINAR_ERROR);
+  }
+});
+
+eventsRouter.post("/seminars/:seminarId/interest", requireAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+
+  try {
+    const target = await resolvePublicSeminarTargetByCardId(sb, req.params.seminarId);
+    if (!target) return res.status(404).json(SEMINAR_NOT_FOUND_ERROR);
+
+    const { error } = await (sb as any)
+      .from("public_seminar_interests")
+      .upsert({
+        user_id: req.user!.id,
+        source_type: target.sourceType,
+        source_id: target.sourceId,
+      }, { onConflict: "user_id,source_type,source_id" })
+      .select("id")
+      .single();
+
+    if (error) throw new Error("Could not mark seminar interest.");
+
+    const [card] = await applySeminarInterestReadback(sb, [target], req.user!.id);
+    return res.json({ card });
+  } catch {
+    return res.status(503).json(SEMINAR_INTEREST_ERROR);
+  }
+});
+
+eventsRouter.delete("/seminars/:seminarId/interest", requireAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+
+  try {
+    const target = await resolvePublicSeminarTargetByCardId(sb, req.params.seminarId);
+    if (!target) return res.status(404).json(SEMINAR_NOT_FOUND_ERROR);
+
+    const { error } = await (sb as any)
+      .from("public_seminar_interests")
+      .delete()
+      .eq("user_id", req.user!.id)
+      .eq("source_type", target.sourceType)
+      .eq("source_id", target.sourceId);
+
+    if (error) throw new Error("Could not withdraw seminar interest.");
+
+    const [card] = await applySeminarInterestReadback(sb, [target], req.user!.id);
+    return res.json({ card });
+  } catch {
+    return res.status(503).json(SEMINAR_INTEREST_ERROR);
   }
 });
 
@@ -41,7 +107,7 @@ function firstQueryValue(value: unknown) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-async function loadPublicSeminarCards(limit: number) {
+async function loadPublicSeminarCards(limit: number, viewerUserId?: string | null) {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("discover_feed")
@@ -53,23 +119,53 @@ async function loadPublicSeminarCards(limit: number) {
 
   if (error) throw new Error("Could not load public seminar curation.");
 
-  const cards: PublicSeminarCard[] = [];
+  const cards: ResolvedPublicSeminarCard[] = [];
   for (const item of data ?? []) {
     const card = await resolvePublicSeminarCard(sb, item);
     if (card) cards.push(card);
     if (cards.length >= limit) break;
   }
-  return cards;
+  return applySeminarInterestReadback(sb, cards, viewerUserId);
 }
 
-async function resolvePublicSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, item: any) {
+async function resolvePublicSeminarTargetByCardId(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  seminarId: string
+) {
+  if (!PUBLIC_SEMINAR_ID_PATTERN.test(seminarId)) return null;
+
+  const { data, error } = await sb
+    .from("discover_feed")
+    .select("id, item_type, item_id, event_type, created_at")
+    .eq("event_type", "featured")
+    .in("item_type", ["document", "thread", "space"])
+    .order("created_at", { ascending: false })
+    .limit(SEMINAR_INTEREST_LOOKUP_LIMIT);
+
+  if (error) throw new Error("Could not load public seminar curation.");
+
+  for (const item of data ?? []) {
+    const resolved = await resolvePublicSeminarCard(sb, item);
+    if (resolved?.card.id === seminarId) return resolved;
+  }
+
+  return null;
+}
+
+async function resolvePublicSeminarCard(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  item: any
+): Promise<ResolvedPublicSeminarCard | null> {
   if (item.item_type === "document") return publicDocumentSeminarCard(sb, item);
   if (item.item_type === "thread") return publicThreadSeminarCard(sb, item);
   if (item.item_type === "space") return publicSpaceSeminarCard(sb, item);
   return null;
 }
 
-async function publicDocumentSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, item: any) {
+async function publicDocumentSeminarCard(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  item: any
+): Promise<ResolvedPublicSeminarCard | null> {
   const { data: document, error } = await sb
     .from("documents")
     .select("id, title, body, status, visibility, published_at, created_at, space_id, discussion_thread_id")
@@ -86,20 +182,27 @@ async function publicDocumentSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>
     ? await publicDiscussionHrefForDocument(sb, document.discussion_thread_id, document.id)
     : null;
 
-  return seminarCard({
+  return {
     sourceType: "document",
-    label: "Published readback",
-    title: document.title,
-    description: publicExcerpt(document.body),
-    href: `/space/${space.slug}/documents/${document.id}`,
-    discussionHref,
-    featuredAt: item.created_at,
-    publishedAt: document.published_at ?? document.created_at ?? null,
-    space,
-  });
+    sourceId: document.id,
+    card: seminarCard({
+      sourceType: "document",
+      label: "Published readback",
+      title: document.title,
+      description: publicExcerpt(document.body),
+      href: `/space/${space.slug}/documents/${document.id}`,
+      discussionHref,
+      featuredAt: item.created_at,
+      publishedAt: document.published_at ?? document.created_at ?? null,
+      space,
+    }),
+  };
 }
 
-async function publicThreadSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, item: any) {
+async function publicThreadSeminarCard(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  item: any
+): Promise<ResolvedPublicSeminarCard | null> {
   const { data: thread, error } = await sb
     .from("threads")
     .select("id, title, body, status, visibility, is_hidden, category_id, linked_document_id, created_at")
@@ -115,34 +218,85 @@ async function publicThreadSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, 
   const category = await loadPublicForumCategory(sb, thread.category_id);
   if (!category) return null;
 
-  return seminarCard({
+  return {
     sourceType: "thread",
-    label: thread.linked_document_id ? "Public discussion" : "Forum seminar",
-    title: thread.title,
-    description: publicExcerpt(thread.body),
-    href: `/forums/${category.slug}/${thread.id}`,
-    discussionHref: null,
-    featuredAt: item.created_at,
-    publishedAt: thread.created_at ?? null,
-    space: null,
-  });
+    sourceId: thread.id,
+    card: seminarCard({
+      sourceType: "thread",
+      label: thread.linked_document_id ? "Public discussion" : "Forum seminar",
+      title: thread.title,
+      description: publicExcerpt(thread.body),
+      href: `/forums/${category.slug}/${thread.id}`,
+      discussionHref: null,
+      featuredAt: item.created_at,
+      publishedAt: thread.created_at ?? null,
+      space: null,
+    }),
+  };
 }
 
-async function publicSpaceSeminarCard(sb: ReturnType<typeof getSupabaseAdmin>, item: any) {
+async function publicSpaceSeminarCard(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  item: any
+): Promise<ResolvedPublicSeminarCard | null> {
   const space = await loadPublicSpace(sb, item.item_id);
   if (!space) return null;
 
-  return seminarCard({
+  return {
     sourceType: "space",
-    label: "Public Space bundle",
-    title: space.title,
-    description: publicExcerpt(space.short_description),
-    href: `/space/${space.slug}`,
-    discussionHref: null,
-    featuredAt: item.created_at,
-    publishedAt: space.updated_at ?? space.created_at ?? null,
-    space,
+    sourceId: space.id,
+    card: seminarCard({
+      sourceType: "space",
+      label: "Public Space bundle",
+      title: space.title,
+      description: publicExcerpt(space.short_description),
+      href: `/space/${space.slug}`,
+      discussionHref: null,
+      featuredAt: item.created_at,
+      publishedAt: space.updated_at ?? space.created_at ?? null,
+      space,
+    }),
+  };
+}
+
+async function applySeminarInterestReadback(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  resolvedCards: ResolvedPublicSeminarCard[],
+  viewerUserId?: string | null
+) {
+  if (resolvedCards.length === 0) return [];
+
+  const sourceIds = [...new Set(resolvedCards.map((resolved) => resolved.sourceId))];
+  const { data, error } = await (sb as any)
+    .from("public_seminar_interests")
+    .select("source_type, source_id, user_id")
+    .in("source_id", sourceIds);
+
+  if (error) throw new Error("Could not load seminar interest readback.");
+
+  const currentKeys = new Set(resolvedCards.map(seminarInterestKey));
+  const interestCounts = new Map<string, number>();
+  const viewerInterest = new Set<string>();
+
+  for (const row of data ?? []) {
+    const key = `${row.source_type}:${row.source_id}`;
+    if (!currentKeys.has(key)) continue;
+    interestCounts.set(key, (interestCounts.get(key) ?? 0) + 1);
+    if (viewerUserId && row.user_id === viewerUserId) viewerInterest.add(key);
+  }
+
+  return resolvedCards.map((resolved) => {
+    const key = seminarInterestKey(resolved);
+    return {
+      ...resolved.card,
+      interestCount: interestCounts.get(key) ?? 0,
+      ...(viewerUserId ? { viewerInterested: viewerInterest.has(key) } : {}),
+    };
   });
+}
+
+function seminarInterestKey(resolved: Pick<ResolvedPublicSeminarCard, "sourceType" | "sourceId">) {
+  return `${resolved.sourceType}:${resolved.sourceId}`;
 }
 
 async function loadPublicSpace(sb: ReturnType<typeof getSupabaseAdmin>, spaceId: string | null | undefined) {
@@ -239,6 +393,7 @@ function seminarCard(input: {
     discussionHref: input.discussionHref,
     featuredAt: input.featuredAt,
     publishedAt: input.publishedAt,
+    interestCount: 0,
     space: input.space
       ? {
           title: input.space.title,

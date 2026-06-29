@@ -60,6 +60,7 @@ export type PublishingApprovalState = "draft" | "grounding_check" | "human_revie
 export type PublishingApprovalVisibility = "public" | "community" | "unlisted";
 export type DiscoverItemType = "document" | "thread" | "space" | "persona";
 export type DiscoverEventType = "published" | "created" | "featured" | "updated";
+export type PublicSeminarInterestSourceType = "document" | "thread" | "space";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
@@ -1391,6 +1392,22 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["publishing_approval_events"]["Insert"]>;
+      };
+      public_seminar_interests: {
+        Row: {
+          id: string;
+          user_id: string;
+          source_type: PublicSeminarInterestSourceType;
+          source_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["public_seminar_interests"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["public_seminar_interests"]["Insert"]>;
       };
       discover_feed: {
         Row: {

@@ -1473,12 +1473,57 @@ html, body {
   gap: 0.6rem;
 }
 
+.public-seminar-card {
+  min-width: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.public-seminar-card-body {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.72);
+  padding: 0.75rem;
+}
+
+.public-seminar-interest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.public-seminar-interest .button {
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
+}
+
+.public-seminar-interest a {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #93c5fd;
+}
+
+.public-seminar-interest small {
+  color: #94a3b8;
+}
+
 .public-persona-preview-sources a,
 .public-persona-update-list a,
 .public-persona-chat-sources a {
   display: grid;
   gap: 0.25rem;
   text-decoration: none;
+}
+
+.public-seminar-interest a {
+  display: inline-flex;
 }
 
 .public-persona-preview-sources em,

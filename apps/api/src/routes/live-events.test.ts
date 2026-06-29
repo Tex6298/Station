@@ -3,7 +3,7 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
-import type { PublicSeminarsResponse } from "@station/types";
+import type { PublicSeminarInterestResponse, PublicSeminarsResponse } from "@station/types";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import { eventsRouter } from "./events";
 
@@ -19,13 +19,49 @@ class InMemorySupabase {
     threads: [],
     forum_categories: [],
     community_subcommunities: [],
+    profiles: [],
+    public_seminar_interests: [],
   };
   private failures: Array<{ table: string; operation: string; message: string }> = [];
   private clock = Date.parse("2026-06-29T08:00:00.000Z");
+  private authUsers: Record<string, { id: string; email: string }> = {
+    "owner-token": { id: "owner-user", email: "owner@example.test" },
+    "member-token": { id: "member-user", email: "member@example.test" },
+    "visitor-token": { id: "visitor-user", email: "visitor@example.test" },
+  };
 
   client = {
+    auth: {
+      getUser: async (token: string) => {
+        const user = this.authUsers[token];
+        return user
+          ? { data: { user }, error: null }
+          : { data: { user: null }, error: { message: "Invalid token." } };
+      },
+    },
     from: (table: string) => new QueryBuilder(this, table),
   };
+
+  constructor() {
+    this.insertRow("profiles", {
+      id: "owner-user",
+      email: "owner@example.test",
+      tier: "creator",
+      is_admin: false,
+    });
+    this.insertRow("profiles", {
+      id: "member-user",
+      email: "member@example.test",
+      tier: "private",
+      is_admin: false,
+    });
+    this.insertRow("profiles", {
+      id: "visitor-user",
+      email: "visitor@example.test",
+      tier: "visitor",
+      is_admin: false,
+    });
+  }
 
   rows(table: string) {
     if (!this.tables[table]) this.tables[table] = [];
@@ -111,20 +147,49 @@ class InMemorySupabase {
       row.created_at ??= now;
       row.updated_at ??= now;
     }
+    if (table === "profiles") {
+      row.username ??= row.id;
+      row.display_name ??= null;
+      row.bio ??= null;
+      row.avatar_url ??= null;
+      row.tier ??= "visitor";
+      row.is_admin ??= false;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+    if (table === "public_seminar_interests") {
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
 
     return row;
   }
 }
 
 class QueryBuilder {
+  private operation: "select" | "upsert" | "delete" = "select";
   private filters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
+  private mutationPayload: Row | null = null;
+  private onConflict: string[] = [];
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
   select() {
+    return this;
+  }
+
+  upsert(payload: Row, options: { onConflict?: string } = {}) {
+    this.operation = "upsert";
+    this.mutationPayload = payload;
+    this.onConflict = options.onConflict?.split(",").map((field) => field.trim()).filter(Boolean) ?? [];
+    return this;
+  }
+
+  delete() {
+    this.operation = "delete";
     return this;
   }
 
@@ -152,14 +217,47 @@ class QueryBuilder {
     return this.execute("maybeSingle");
   }
 
+  single() {
+    return this.execute("single");
+  }
+
   then(onfulfilled: any, onrejected: any) {
     return this.execute().then(onfulfilled, onrejected);
   }
 
-  private async execute(mode?: "maybeSingle") {
-    const failure = this.db.consumeFailure(this.table, "select");
+  private async execute(mode?: "maybeSingle" | "single") {
+    const failure = this.db.consumeFailure(this.table, this.operation);
     if (failure) return { data: null, error: failure };
 
+    if (this.operation === "upsert") {
+      const row = this.upsertRow();
+      const data = JSON.parse(JSON.stringify(row));
+      return { data: mode ? data : [data], error: null };
+    }
+
+    if (this.operation === "delete") {
+      const sourceRows = this.db.rows(this.table);
+      const deleted = sourceRows.filter((row) => this.matches(row));
+      this.db.tables[this.table] = sourceRows.filter((row) => !this.matches(row));
+      return { data: JSON.parse(JSON.stringify(deleted)), error: null };
+    }
+
+    const rows = this.selectedRows();
+    const data = JSON.parse(JSON.stringify(rows));
+    if (mode === "maybeSingle") {
+      return data.length > 0
+        ? { data: data[0], error: null }
+        : { data: null, error: null };
+    }
+    if (mode === "single") {
+      return data.length > 0
+        ? { data: data[0], error: null }
+        : { data: null, error: { message: "No rows returned." } };
+    }
+    return { data, error: null };
+  }
+
+  private selectedRows() {
     let rows = [...this.db.rows(this.table)];
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
@@ -177,14 +275,33 @@ class QueryBuilder {
       });
     }
     if (this.limitCount !== null) rows = rows.slice(0, this.limitCount);
+    return rows;
+  }
 
-    const data = JSON.parse(JSON.stringify(rows));
-    if (mode === "maybeSingle") {
-      return data.length > 0
-        ? { data: data[0], error: null }
-        : { data: null, error: null };
+  private matches(row: Row) {
+    for (const [field, value] of this.filters) {
+      if (row[field] !== value) return false;
     }
-    return { data, error: null };
+    for (const [field, values] of this.inFilters) {
+      if (!values.includes(row[field])) return false;
+    }
+    return true;
+  }
+
+  private upsertRow() {
+    if (!this.mutationPayload) throw new Error("Missing upsert payload.");
+    const rows = this.db.rows(this.table);
+    const conflictFields = this.onConflict.length > 0 ? this.onConflict : ["id"];
+    const existing = rows.find((row) =>
+      conflictFields.every((field) => row[field] === this.mutationPayload![field])
+    );
+
+    if (existing) {
+      Object.assign(existing, this.mutationPayload, { updated_at: this.db.timestamp() });
+      return existing;
+    }
+
+    return this.db.insertRow(this.table, this.mutationPayload);
   }
 }
 
@@ -201,11 +318,23 @@ async function listen(app: Express): Promise<Server> {
   });
 }
 
-async function requestJson<TBody = any>(app: Express, method: string, path: string) {
+async function requestJson<TBody = any>(
+  app: Express,
+  method: string,
+  path: string,
+  options: { token?: string; body?: unknown } = {}
+) {
   const server = await listen(app);
   try {
     const address = server.address() as AddressInfo;
-    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, { method });
+    const headers: Record<string, string> = {};
+    if (options.token) headers.Authorization = `Bearer ${options.token}`;
+    if (options.body !== undefined) headers["Content-Type"] = "application/json";
+    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, {
+      method,
+      headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    });
     return {
       status: response.status,
       body: await response.json() as TBody,
@@ -227,6 +356,25 @@ function seedFeatured(db: InMemorySupabase, item_type: string, item_id: string, 
     description: "Curated private-note-shaped text should not leak.",
     href: "/private/internal/path",
   });
+}
+
+function seedPublicSeminarFixture(db: InMemorySupabase) {
+  db.insertRow("spaces", {
+    id: "space-public",
+    slug: "station-house",
+    title: "Station House",
+    short_description: "A public Space for seminar readbacks.",
+    is_public: true,
+  });
+  db.insertRow("documents", {
+    id: "doc-public",
+    title: "Public Readback Notes",
+    body: "Public excerpt about careful seminar preparation.",
+    status: "published",
+    visibility: "public",
+    space_id: "space-public",
+  });
+  seedFeatured(db, "document", "doc-public");
 }
 
 test("public seminar readback returns only public routeable featured bundles", async () => {
@@ -389,6 +537,8 @@ test("public seminar readback returns only public routeable featured bundles", a
       assert.equal(card.id.includes("doc-public"), false);
       assert.equal(card.id.includes("thread-public"), false);
       assert.equal(card.id.includes("space-public"), false);
+      assert.equal(card.interestCount, 0);
+      assert.equal("viewerInterested" in card, false);
     }
 
     const document = cards.find((card) => card.sourceType === "document")!;
@@ -440,6 +590,143 @@ test("public seminar readback returns only public routeable featured bundles", a
   }
 });
 
+test("signed-in seminar interest is idempotent, private to the viewer, and withdrawable", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedPublicSeminarFixture(db);
+
+    const signedOut = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars");
+    assert.equal(signedOut.status, 200);
+    assert.equal(signedOut.body.cards.length, 1);
+    const seminarId = signedOut.body.cards[0].id;
+    assert.equal(signedOut.body.cards[0].interestCount, 0);
+    assert.equal("viewerInterested" in signedOut.body.cards[0], false);
+
+    const unauthenticated = await requestJson(app, "POST", `/events/seminars/${seminarId}/interest`);
+    assert.equal(unauthenticated.status, 401);
+
+    const marked = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "POST",
+      `/events/seminars/${seminarId}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(marked.status, 200);
+    assert.equal(marked.body.card.id, seminarId);
+    assert.equal(marked.body.card.interestCount, 1);
+    assert.equal(marked.body.card.viewerInterested, true);
+    assert.equal(db.rows("public_seminar_interests").length, 1);
+
+    const duplicate = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "POST",
+      `/events/seminars/${seminarId}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.card.interestCount, 1);
+    assert.equal(db.rows("public_seminar_interests").length, 1);
+
+    const otherViewer = await requestJson<PublicSeminarsResponse>(
+      app,
+      "GET",
+      "/events/seminars",
+      { token: "member-token" }
+    );
+    assert.equal(otherViewer.status, 200);
+    assert.equal(otherViewer.body.cards[0].interestCount, 1);
+    assert.equal(otherViewer.body.cards[0].viewerInterested, false);
+
+    const otherMarked = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "POST",
+      `/events/seminars/${seminarId}/interest`,
+      { token: "member-token" }
+    );
+    assert.equal(otherMarked.status, 200);
+    assert.equal(otherMarked.body.card.interestCount, 2);
+    assert.equal(otherMarked.body.card.viewerInterested, true);
+
+    const withdrawn = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "DELETE",
+      `/events/seminars/${seminarId}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(withdrawn.status, 200);
+    assert.equal(withdrawn.body.card.interestCount, 1);
+    assert.equal(withdrawn.body.card.viewerInterested, false);
+    assert.equal(
+      db.rows("public_seminar_interests").some((row) => row.user_id === "owner-user"),
+      false
+    );
+
+    const repeatedWithdraw = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "DELETE",
+      `/events/seminars/${seminarId}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(repeatedWithdraw.status, 200);
+    assert.equal(repeatedWithdraw.body.card.interestCount, 1);
+    assert.equal(repeatedWithdraw.body.card.viewerInterested, false);
+
+    const json = JSON.stringify(repeatedWithdraw.body);
+    for (const forbidden of [
+      "sourceId",
+      "source_id",
+      "user_id",
+      "owner-user",
+      "member-user",
+      "owner@example.test",
+      "member@example.test",
+      "public_seminar_interests",
+      "attendee",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("seminar interest fails closed for stale or private targets", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedPublicSeminarFixture(db);
+    const response = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars");
+    const seminarId = response.body.cards[0].id;
+
+    const invalid = await requestJson(app, "POST", "/events/seminars/not-a-seminar/interest", {
+      token: "owner-token",
+    });
+    assert.equal(invalid.status, 404);
+    assert.deepEqual(invalid.body, {
+      error: "Seminar not found.",
+      code: "seminar_not_found",
+    });
+
+    db.rows("documents").find((row) => row.id === "doc-public")!.visibility = "private";
+    const privateTarget = await requestJson(app, "POST", `/events/seminars/${seminarId}/interest`, {
+      token: "owner-token",
+    });
+    assert.equal(privateTarget.status, 404);
+    assert.deepEqual(privateTarget.body, {
+      error: "Seminar not found.",
+      code: "seminar_not_found",
+    });
+    assert.equal(db.rows("public_seminar_interests").length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("public seminar readback failures return bounded public errors", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -461,6 +748,40 @@ test("public seminar readback failures return bounded public errors", async () =
     assert.equal(json.includes("discover_feed"), false);
     assert.equal(json.includes("storage_path"), false);
     assert.equal(json.includes("private-source-body"), false);
+    assert.equal(json.includes("stack trace"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("seminar interest mutation failures return bounded errors", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedPublicSeminarFixture(db);
+    const response = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars");
+    const seminarId = response.body.cards[0].id;
+
+    db.failNext(
+      "public_seminar_interests",
+      "upsert",
+      "table=public_seminar_interests user_id=owner-user source_id=doc-public stack trace"
+    );
+    const failed = await requestJson(app, "POST", `/events/seminars/${seminarId}/interest`, {
+      token: "owner-token",
+    });
+
+    assert.equal(failed.status, 503);
+    assert.deepEqual(failed.body, {
+      error: "Could not update seminar interest.",
+      code: "seminar_interest_unavailable",
+    });
+    const json = JSON.stringify(failed.body);
+    assert.equal(json.includes("public_seminar_interests"), false);
+    assert.equal(json.includes("owner-user"), false);
+    assert.equal(json.includes("doc-public"), false);
     assert.equal(json.includes("stack trace"), false);
   } finally {
     setSupabaseAdminForTests(null);
