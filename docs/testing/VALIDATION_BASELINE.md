@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR482A API Bridge Setup Packet Readback
+
+DAEDALUS implemented PR482A on 2026-06-29:
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the owner Developer Space manage route now includes an owner-only setup packet
+  backed by existing Developer Space product truth;
+- the packet shows placeholder route shapes, header names only, payload-family
+  labels, key status as no-key/key-present/last-four only, connection-tier
+  state, and safe next actions;
+- product-visible signed dry-run, live send, ingestion writes, key reveal,
+  key rotation, new API route behavior, schema/migration, infra, billing, and
+  provider/model scope remain out of PR482A;
+- the source-level web test guards the panel against mutation/client-call scope.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 61 tests passed, including API Bridge setup packet helper/source coverage plus existing Developer Space route and observatory coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-space-client` | Pass | 15 tests passed; package request behavior remains unchanged. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/onboarding-paths.test.ts apps/web/lib/developer-space-observatory.test.ts` | Pass | 36 tests passed, including API Bridge onboarding and observatory readback coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+
 ## PR482 API Bridge Product Depth Preflight
 
 ARGUS accepted PR482A on 2026-06-29:

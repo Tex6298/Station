@@ -137,6 +137,37 @@ export interface DeveloperSpaceConnectionTierReadback {
   boundary: string;
 }
 
+export interface DeveloperSpaceApiBridgeSetupPacket {
+  heading: string;
+  summary: string;
+  keyStatus: {
+    label: string;
+    detail: string;
+    state: "no_key" | "key_present";
+  };
+  routes: Array<{
+    method: "POST";
+    path: string;
+    purpose: string;
+  }>;
+  headers: Array<{
+    name: string;
+    purpose: string;
+    required: boolean;
+  }>;
+  payloadFamilies: Array<{
+    label: string;
+    detail: string;
+  }>;
+  connectionTiers: Array<{
+    tier: string;
+    statusLabel: string;
+    title: string;
+  }>;
+  nextActions: string[];
+  boundary: string;
+}
+
 export function developerSpaceConnectionTierReadback(view: "public" | "owner" = "public"): DeveloperSpaceConnectionTierReadback {
   const ownerCurrentPoint = view === "owner"
     ? "Owner controls cover ingestion keys, evidence, exports, usage, and bounded Developer Agent readbacks for the external runtime."
@@ -185,6 +216,84 @@ export function developerSpaceConnectionTierReadback(view: "public" | "owner" = 
     ],
     boundary: "This is readback only. It does not add API routes, schemas, auth/session behavior, billing, Stripe, runtime hosting, deploy behavior, Redis, Cloudflare, workers, queues, provider calls, public raw exports, or entitlement mutation.",
   };
+}
+
+export function developerSpaceApiBridgeSetupPacket(
+  detail: Pick<DeveloperSpaceDetail, "space">,
+): DeveloperSpaceApiBridgeSetupPacket {
+  const space = detail.space;
+  const keyLastFour = safeApiKeyLastFour(space.apiKeyLastFour);
+  const hasKey = Boolean(keyLastFour);
+  const tierReadback = developerSpaceConnectionTierReadback("owner");
+
+  return {
+    heading: "API Bridge setup packet",
+    summary: `${safeSetupLabel(space.projectName)} is a Tier 1 API Bridge surface for a self-hosted external runtime. Use these placeholders as setup readback; they do not send a live packet or validate a payload.`,
+    keyStatus: {
+      state: hasKey ? "key_present" : "no_key",
+      label: hasKey ? `Key present ending ${keyLastFour}` : "No ingestion key yet",
+      detail: hasKey
+        ? `Key was created ${formatDate(space.apiKeyCreatedAt)}. Station shows only the last four here; the full key is available only when the existing key control creates or rotates it.`
+        : "Use the existing Ingestion key control when you are ready to create a key, then copy it once into the self-hosted runtime environment.",
+    },
+    routes: [
+      {
+        method: "POST",
+        path: "POST <STATION_API_BASE_URL>/developer-spaces/ingest/nodes/<NODE_ID>/state",
+        purpose: "Upsert one node state summary for the public-safe observatory.",
+      },
+      {
+        method: "POST",
+        path: "POST <STATION_API_BASE_URL>/developer-spaces/ingest/events",
+        purpose: "Append a public-safe event signal from the external runtime.",
+      },
+      {
+        method: "POST",
+        path: "POST <STATION_API_BASE_URL>/developer-spaces/ingest/snapshots",
+        purpose: "Save a compact snapshot summary for visitor readback.",
+      },
+      {
+        method: "POST",
+        path: "POST <STATION_API_BASE_URL>/developer-spaces/ingest/import",
+        purpose: "Import a classified observed-runtime fixture or batch packet.",
+      },
+    ],
+    headers: [
+      { name: "X-Station-Developer-Key", purpose: "Required ingestion key header name.", required: true },
+      { name: "Content-Type", purpose: "Use application/json for setup packets.", required: true },
+      { name: "X-Station-Webhook-Id", purpose: "Optional observed-runtime signing header name.", required: false },
+      { name: "X-Station-Signature", purpose: "Optional observed-runtime signature header name.", required: false },
+    ],
+    payloadFamilies: [
+      { label: "Node state", detail: "Node name, topology, fragment counts, metrics, provenance, and public/owner field classifications." },
+      { label: "Event signal", detail: "Event type, label, public-safe event data, source refs, provenance, visibility, and optional node reference." },
+      { label: "Snapshot", detail: "Compact state summary fields, source refs, provenance, visibility, and occurrence time." },
+      { label: "Batch import", detail: "Observed-runtime fixture data with explicit field classifications and no secret-class public exposure." },
+      { label: "Observed-runtime webhook", detail: "Signed packet envelope using header names only; no signing secret is shown in this setup readback." },
+    ],
+    connectionTiers: tierReadback.tiers.map((tier) => ({
+      tier: tier.tier,
+      statusLabel: tier.statusLabel,
+      title: tier.title,
+    })),
+    nextActions: [
+      hasKey
+        ? "Keep the key in the self-hosted runtime environment; do not place it in browser code or public pages."
+        : "Create an ingestion key with the existing one-time key control when the external runtime is ready.",
+      "Copy only these placeholder route shapes and header names into partner setup notes.",
+      "Use the observatory, usage, evidence, and export panels below for owner readback after real ingestion begins.",
+      "Treat signed dry-runs and live packet validation as future lanes, not this setup packet.",
+    ],
+    boundary: "Owner-only setup readback. No live send, dry-run, ingestion write, observed-runtime durable row, key rotation, key reveal, signing-secret creation, external connector, provider/model call, billing mutation, worker, queue, Cloudflare, Redis, runtime provisioning, repo deploy, schema change, migration, or public launch claim is added here.",
+  };
+}
+
+function safeApiKeyLastFour(value?: string | null) {
+  return value && /^[A-Za-z0-9_-]{4}$/.test(value) ? value : null;
+}
+
+function safeSetupLabel(value: string) {
+  return truncateText(value.replace(/[<>]/g, ""), 80) || "This Developer Space";
 }
 
 export function developerSpaceStorySummary(detail: Pick<DeveloperSpaceDetail, "nodes" | "events" | "latestSnapshot" | "linkedDocuments">) {

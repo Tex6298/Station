@@ -14,6 +14,7 @@ import {
   developerSpaceAgentReceiptEmptyCopy,
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
+  developerSpaceApiBridgeSetupPacket,
   developerSpaceConnectionBadge,
   developerSpaceConnectionTierReadback,
   developerSpaceOwnerCurrentState,
@@ -451,6 +452,75 @@ test("connection tier readback is wired into Developer Space routes without endp
   assert.match(ownerSource, /ConnectionTierStatePanel/);
   assert.doesNotMatch(renderedSource, /connection-tier|connection_tier|hosted-runtime|runtime\/deploy|repo-push|createConnectionTier|requestHostedRuntime|enableTierTwo|enableTierThree/i);
   assert.doesNotMatch(renderedSource, /api(?:Get|Post|Patch|Delete)<[^>]*connection|api(?:Post|Patch|Delete)<[^>]*(?:deploy|repo|stripe|billing|provider|cloudflare|redis|worker|queue)/i);
+});
+
+test("API Bridge setup packet exposes placeholders, key status, and tier truth only", () => {
+  const packet = developerSpaceApiBridgeSetupPacket({
+    space: {
+      projectName: "Animus Lab <private>",
+      slug: "animus-lab",
+      apiKeyLastFour: "9Ab_",
+      apiKeyCreatedAt: "2026-06-29T10:00:00.000Z",
+    },
+  } as any);
+  const rendered = JSON.stringify(packet);
+
+  assert.equal(packet.heading, "API Bridge setup packet");
+  assert.equal(packet.keyStatus.state, "key_present");
+  assert.match(packet.keyStatus.label, /9Ab_/);
+  assert.doesNotMatch(packet.summary, /<private>/);
+  assert.deepEqual(packet.routes.map((route) => route.path), [
+    "POST <STATION_API_BASE_URL>/developer-spaces/ingest/nodes/<NODE_ID>/state",
+    "POST <STATION_API_BASE_URL>/developer-spaces/ingest/events",
+    "POST <STATION_API_BASE_URL>/developer-spaces/ingest/snapshots",
+    "POST <STATION_API_BASE_URL>/developer-spaces/ingest/import",
+  ]);
+  assert.deepEqual(packet.headers.map((header) => header.name), [
+    "X-Station-Developer-Key",
+    "Content-Type",
+    "X-Station-Webhook-Id",
+    "X-Station-Signature",
+  ]);
+  assert.deepEqual(packet.payloadFamilies.map((family) => family.label), [
+    "Node state",
+    "Event signal",
+    "Snapshot",
+    "Batch import",
+    "Observed-runtime webhook",
+  ]);
+  assert.deepEqual(packet.connectionTiers.map((tier) => `${tier.tier}:${tier.statusLabel}`), [
+    "Tier 1:Current",
+    "Tier 2:Future / blocked",
+    "Tier 3:Future / blocked",
+  ]);
+  assert.match(packet.boundary, /No live send/);
+  assert.doesNotMatch(rendered, /full-key|signing-secret-value|bearer|cookie|raw payload body|provider payload|sql table|stack trace/i);
+});
+
+test("API Bridge setup packet handles missing key without revealing invalid tails", () => {
+  const packet = developerSpaceApiBridgeSetupPacket({
+    space: {
+      projectName: "No Key Bridge",
+      slug: "no-key-bridge",
+      apiKeyLastFour: "tail-value-too-long",
+      apiKeyCreatedAt: null,
+    },
+  } as any);
+
+  assert.equal(packet.keyStatus.state, "no_key");
+  assert.match(packet.keyStatus.label, /No ingestion key/);
+  assert.doesNotMatch(JSON.stringify(packet), /tail-value-too-long/);
+});
+
+test("API Bridge setup packet source stays readback-only on the owner manage route", () => {
+  const source = readFileSync("apps/web/app/developer-spaces/[slug]/manage/page.tsx", "utf8");
+  const panelStart = source.indexOf("function ApiBridgeSetupPacketPanel");
+  const panelEnd = source.indexOf("function ConnectionTierStatePanel");
+  const panelSource = source.slice(panelStart, panelEnd);
+
+  assert.match(source, /developerSpaceApiBridgeSetupPacket/);
+  assert.match(panelSource, /API Bridge setup packet/);
+  assert.doesNotMatch(panelSource, /apiPost|apiPatch|apiGet|rotateKey|createExportPackage|loadExport|live-send|dry-run|provider|billing|Cloudflare|Redis|worker|queue|deploy|repo|signing secret/i);
 });
 
 test("observatory methodology copy stays honest about public evidence", () => {

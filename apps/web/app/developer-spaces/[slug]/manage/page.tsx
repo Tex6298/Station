@@ -18,6 +18,8 @@ import {
   developerSpaceAgentReceiptEmptyCopy,
   developerSpaceAgentReceiptExecutionCopy,
   developerSpaceAgentReceiptStatusCopy,
+  developerSpaceApiBridgeSetupPacket,
+  type DeveloperSpaceApiBridgeSetupPacket,
   developerSpaceConnectionTierReadback,
   developerSpaceEvidenceCanRequestPublish,
   developerSpaceEvidenceEmptyCopy,
@@ -143,6 +145,73 @@ function CodeBlock({ code }: { code: string }) {
     }}>
       {code}
     </pre>
+  );
+}
+
+function ApiBridgeSetupPacketPanel({ packet }: { packet: DeveloperSpaceApiBridgeSetupPacket }) {
+  const title = packet.heading || "API Bridge setup packet";
+
+  return (
+    <section className="card" style={{ display: "grid", gap: "0.9rem" }} aria-labelledby="api-bridge-setup-title">
+      <div>
+        <p className="pill" style={{ margin: "0 0 0.5rem", color: "#534ab7", width: "fit-content" }}>Owner-only setup packet</p>
+        <h2 id="api-bridge-setup-title" style={{ margin: 0, fontSize: "1.1rem" }}>{title}</h2>
+        <p style={{ margin: "0.45rem 0 0", color: "#687078", lineHeight: 1.55 }}>{packet.summary}</p>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: "0.65rem" }}>
+        <div style={apiBridgeSetupBox}>
+          <span style={apiBridgeSetupLabel}>Key status</span>
+          <strong>{packet.keyStatus.label}</strong>
+          <p>{packet.keyStatus.detail}</p>
+        </div>
+        <div style={apiBridgeSetupBox}>
+          <span style={apiBridgeSetupLabel}>Connection tier</span>
+          <strong>{packet.connectionTiers.map((tier) => `${tier.tier}: ${tier.statusLabel}`).join(" / ")}</strong>
+          <p>Tier 1 is current; Tier 2 and Tier 3 stay future/blocked.</p>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gap: "0.6rem" }}>
+        <h3 style={{ margin: 0, fontSize: "0.95rem" }}>Placeholder routes</h3>
+        {packet.routes.map((route) => (
+          <div key={route.path} style={apiBridgeRouteRow}>
+            <code>{route.path}</code>
+            <span>{route.purpose}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "0.75rem" }}>
+        <div style={{ display: "grid", gap: "0.45rem" }}>
+          <h3 style={{ margin: 0, fontSize: "0.95rem" }}>Header names</h3>
+          {packet.headers.map((header) => (
+            <div key={header.name} style={apiBridgeSetupBox}>
+              <strong>{header.name}</strong>
+              <p>{header.purpose} {header.required ? "Required." : "Optional."}</p>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "grid", gap: "0.45rem" }}>
+          <h3 style={{ margin: 0, fontSize: "0.95rem" }}>Payload families</h3>
+          {packet.payloadFamilies.map((family) => (
+            <div key={family.label} style={apiBridgeSetupBox}>
+              <strong>{family.label}</strong>
+              <p>{family.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gap: "0.4rem" }}>
+        <h3 style={{ margin: 0, fontSize: "0.95rem" }}>Next actions</h3>
+        <ul style={{ margin: 0, paddingLeft: "1.1rem", color: "#687078", lineHeight: 1.55, fontSize: "0.85rem" }}>
+          {packet.nextActions.map((action) => <li key={action}>{action}</li>)}
+        </ul>
+      </div>
+
+      <p style={{ margin: 0, color: "#854f0b", lineHeight: 1.45, fontSize: "0.82rem" }}>{packet.boundary}</p>
+    </section>
   );
 }
 
@@ -793,6 +862,7 @@ export default function DeveloperSpaceManagePage() {
   const confirmationActionLabels = new Map(agentActions.map((action) => [action.action, action.label]));
   const capabilityReceipts = agentReceipts.filter((receipt) => receipt.action === "request_capability");
   const tierOneCopy = developerSpaceTierOneFramingCopy();
+  const apiBridgeSetup = developerSpaceApiBridgeSetupPacket(detail);
   const boundaryRows = [
     { label: "Owner only", value: agentBoundary?.ownerOnly === true ? "Yes" : "Unknown" },
     { label: "Autonomous execution", value: agentBoundary?.autonomousExecution === false ? "No" : "Unknown" },
@@ -829,6 +899,7 @@ export default function DeveloperSpaceManagePage() {
         </div>
       )}
 
+      <ApiBridgeSetupPacketPanel packet={apiBridgeSetup} />
       <ConnectionTierStatePanel />
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: "1rem", alignItems: "start" }}>
@@ -1827,6 +1898,28 @@ const exportReadbackPre = {
   overflow: "auto",
   padding: "0.9rem",
   whiteSpace: "pre-wrap" as const,
+};
+
+const apiBridgeSetupBox = {
+  background: "#fbfaf7",
+  border: "1px solid #d8d3c8",
+  borderRadius: 8,
+  display: "grid",
+  gap: "0.3rem",
+  minWidth: 0,
+  padding: "0.7rem",
+};
+
+const apiBridgeSetupLabel = {
+  color: "#8b8f92",
+  fontSize: "0.72rem",
+  fontWeight: 800,
+  textTransform: "uppercase" as const,
+};
+
+const apiBridgeRouteRow = {
+  ...apiBridgeSetupBox,
+  overflowWrap: "anywhere" as const,
 };
 
 const widgetRow = {

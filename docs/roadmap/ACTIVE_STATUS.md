@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR482A ready for ARGUS
+
+DAEDALUS implemented the accepted PR482A API Bridge Setup Packet Readback:
+
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR482A - API Bridge Setup Packet Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the owner-only API Bridge setup packet on the Developer
+  Space manage route, plus the helper and source-level no-mutation tests.
+- Confirm the packet shows only placeholder routes, header names, payload
+  families, safe key state, current/future tier truth, and bounded next
+  actions.
+- Confirm PR482A did not add product-visible live-send dry-run behavior,
+  ingestion writes, key reveal/rotation, new API route behavior, infra,
+  billing, provider/model, schema, or migration scope.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and any
+  ARIADNE hosted owner manage/onboarding proof routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:` and the
+  exact helper, panel, copy, scope, or test expectation that failed.
+
+Boundaries:
+
+- No live external API pulls, OAuth, connector credentials, recurring sync, new
+  API route behavior, ingestion writes, observed-runtime durable rows,
+  signing-secret creation, key rotation/reveal, live-send dry-run,
+  workers/queues, Cloudflare, Redis memory truth, runtime provisioning, repo
+  deploys, Developer Agent execution, billing/Stripe mutation, provider/model
+  calls, schema expansion, migrations, public launch claims, or broad UI
+  redesign was added.
+- Full ingestion keys, signing secrets, raw payloads, private evidence, prompts,
+  source material, raw IDs, SQL/table details, stack traces, hosted logs,
+  cookies, tokens, provider payloads, and secret-shaped values remain out of the
+  owner UI.
+
 ## Latest ARGUS preflight - PR482A accepted for DAEDALUS
 
 ARGUS completed the PR482 API Bridge Product Depth preflight:
