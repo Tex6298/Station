@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rerun - PR475B pass
+
+ARIADNE completed the PR475B schema-unblock hosted rerun:
+
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- Hosted web/API `/health/deployment` were ready at app commit `f77b1d43`.
+- Public `GET /events/seminars` returned three public seminar cards.
+- Signed-out `/events/seminars` desktop and 390px mobile rendered public cards
+  with aggregate-only interest readback and sign-in prompt.
+- Signed-in `/events/seminars` desktop and 390px mobile rendered public cards
+  with signed-in interest controls.
+- One signed-in mark moved the first card aggregate from `0` to `1` and changed
+  viewer-local copy to `You are interested.`
+- Withdrawal on the same card returned the aggregate to `0` and cleared the
+  viewer-local state.
+- No intentional extra interest row was left behind.
+
+Current lane:
+
+```text
+PR475B - Public Seminars Schema Unblock Hosted Rerun
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR may close PR475 / PR475B or choose the next lane.
+- Keep later Live Events work out of tickets, payments, Stripe/Billing,
+  reminders, calendar integration, livestream/media rooms, attendee lists,
+  event-host management, provider calls, queues/workers, Redis, Cloudflare,
+  hosted runtime, or broad UI unless a new lane explicitly scopes it.
+
 ## Latest MIMIR routing - PR475B schema unblock rerun opened
 
 MIMIR applied and verified the hosted schema unblock for PR475B, then routes

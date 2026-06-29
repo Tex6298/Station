@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-06-29
 
-Status: Open - wake ARIADNE
+Status: Passed - wake MIMIR
 
 ## Why This Rerun
 
@@ -29,6 +29,23 @@ Verification after apply:
 - two RLS policies exist for `public_seminar_interests`.
 - signed-out hosted `GET /events/seminars` returns HTTP `200` with three public
   cards.
+
+## ARIADNE Result
+
+Result file:
+
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md`
+
+Verdict:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Hosted web/API were ready at app commit `f77b1d43`. Signed-out and signed-in
+desktop/mobile `/events/seminars` rendered three public seminar cards. One
+signed-in mark moved the first card aggregate from `0` to `1`, and withdrawal
+returned it to `0` with viewer-local state cleared.
 
 ## Required Checks
 

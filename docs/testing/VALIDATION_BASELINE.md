@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475B Public Seminars Schema Unblock Hosted Rerun
+
+ARIADNE completed the hosted schema-unblock rerun on 2026-06-29:
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API were ready at app commit `f77b1d43`;
+- public `GET /events/seminars` returned three public seminar cards;
+- signed-out desktop and 390px mobile rendered public cards with aggregate-only
+  interest readback and sign-in prompt;
+- signed-in desktop and 390px mobile rendered public cards with signed-in
+  interest controls;
+- one signed-in mark moved the first card aggregate from `0` to `1`;
+- withdrawal on the same card returned the aggregate to `0` and cleared viewer
+  state;
+- no intentional extra interest row was left behind.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web `/health/deployment` | Pass | Ready at app commit `f77b1d43`. |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `f77b1d43`. |
+| Public API `GET /events/seminars` | Pass | Three public seminar cards returned. |
+| Signed-out `/events/seminars` desktop | Pass | Public cards rendered with aggregate-only readback and sign-in prompt. |
+| Signed-out `/events/seminars` 390px mobile | Pass | Public cards rendered; no horizontal overflow or clipped card controls. |
+| Signed-in `/events/seminars` desktop | Pass | Public cards and signed-in controls rendered. |
+| Signed-in mark interest | Pass | First card aggregate moved from `0` to `1`; viewer copy changed to `You are interested.` |
+| Signed-in withdraw interest | Pass | First card aggregate returned to `0`; viewer copy returned to `Save interest for your account.` |
+| Signed-in `/events/seminars` 390px mobile | Pass | Public cards rendered after withdrawal; first card was back to `I'm interested`; no horizontal overflow or clipped card controls. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed signed-out/signed-in desktop/mobile proof and mark/withdraw loop. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+No `pnpm typecheck` was run because this validation update changes docs and
+agent state only.
+
 ## PR475B Public Seminars Hosted Readback Repair Hosted Proof
 
 ARIADNE completed the hosted PR475B proof on 2026-06-29:

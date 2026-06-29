@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475B schema rerun | Public Seminars Hosted Readback Repair | ARIADNE / A4 | Open; schema unblock applied, rerun hosted signed-out/signed-in mark and withdrawal proof | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_ARIADNE.md` |
+| PR475B schema rerun | Public Seminars Hosted Readback Repair | MIMIR / A1 | Pass; public cards render and signed-in mark/withdraw loop returns aggregate and viewer state to baseline | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR475B schema unblock | Public Seminars Hosted Readback Repair | MIMIR -> ARIADNE | Open; migration 061 applied to hosted DB and signed-out API returned 200 with three cards | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_ARIADNE.md` |
+| PR475B schema-unblock hosted rerun | Public Seminars Hosted Readback Repair | MIMIR -> ARIADNE -> MIMIR | Pass; signed-out/signed-in desktop/mobile cards render and one mark/withdraw loop returned to baseline | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_RESULT.md` |
+| PR475B schema unblock | Public Seminars Hosted Readback Repair | MIMIR -> ARIADNE | Routed; migration 061 applied to hosted DB and signed-out API returned 200 with three cards | `docs/roadmap/PR475B_PUBLIC_SEMINARS_SCHEMA_UNBLOCK_RERUN_ARIADNE.md` |
 | PR475B hosted proof | Public Seminars Hosted Readback Repair | ARGUS -> ARIADNE -> MIMIR | Hosted schema blocker; cards render on desktop/mobile, signed-in mark fails bounded, no extra interest row left behind | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_HOSTED_PROOF_RESULT.md` |
 | PR475B review | Public Seminars Hosted Readback Repair | DAEDALUS -> ARGUS -> ARIADNE | Accepted; public cards render without additive interest readback while mark/withdraw still require durable storage and fail bounded if hosted schema is missing | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_REVIEW_RESULT.md` |
 | PR475B opened | Public Seminars Hosted Readback Repair | MIMIR -> DAEDALUS | Open; smallest repair for hosted public seminar readback unavailable state found by ARIADNE | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_DAEDALUS.md` |
