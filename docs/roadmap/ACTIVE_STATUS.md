@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484C accepted for MIMIR
+
+ARGUS accepted PR484C Connector OAuth Readiness Route:
+
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR484C_CONNECTOR_READINESS_ROUTE
+```
+
+Current lane:
+
+```text
+PR484C - Connector OAuth Readiness Route
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND DECIDE NEXT MOVE
+```
+
+Current baton:
+
+- MIMIR should close PR484C and decide the next Live Archive Connectors move.
+- ARIADNE hosted rehearsal is not required because PR484C is API-only,
+  read-only, locally tested, and mutation-free.
+- If MIMIR continues live connector depth, the next lane should remain
+  separately named and should not treat readiness as live OAuth, token
+  exchange, source inventory, or import capability.
+
+Boundaries confirmed:
+
+- `GET /archive-connectors/readiness` is authenticated and read-only.
+- No OAuth state creation, credential write/revoke, redirects/callbacks, token
+  exchange, provider calls, source inventory pulls, import writes, route UI,
+  jobs, queues, workers, Redis, Cloudflare, billing/Stripe, provider/model
+  calls, package dependencies, hosted runtime behavior, public connector pages,
+  or social posting behavior were added.
+- Safe readback excludes env names, env values, token/code/cookie/credential
+  material, raw external account ids, raw owner or row ids, provider payloads,
+  private source bodies, private messages, archive snippets, SQL/table details,
+  table names, stack traces, hosted logs, storage paths, signed URLs, prompts,
+  and secret-shaped values.
+
 ## Latest DAEDALUS implementation - PR484C ready for ARGUS
 
 DAEDALUS implemented the PR484C Connector OAuth Readiness Route slice:

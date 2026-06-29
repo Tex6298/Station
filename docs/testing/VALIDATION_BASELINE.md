@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484C Connector OAuth Readiness Route ARGUS Review
+
+ARGUS accepted PR484C on 2026-06-29:
+`docs/roadmap/PR484C_CONNECTOR_OAUTH_READINESS_ROUTE_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR484C_CONNECTOR_READINESS_ROUTE`.
+
+Reason:
+
+- the route is authenticated with `requireAuth` and mounted separately from
+  paused social publishing;
+- readiness is limited to `reddit` and `discord` archive connectors;
+- missing connector encryption config returns bounded readiness rather than a
+  500;
+- injected test-only connector encryption config flips only the safe boolean;
+- paused social publishing env/config does not make archive connector OAuth app
+  readiness appear configured;
+- no OAuth state creation, credential write/revoke, redirect/callback, token
+  exchange, provider call, source inventory pull, import write, route UI, job,
+  queue, worker, Redis, Cloudflare, billing, provider/model call, package
+  dependency, hosted runtime behavior, public connector page, or social posting
+  behavior was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 4 tests passed for auth, bounded readiness, encryption boolean flip, social config isolation, no mutation, sensitive readback, and source guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 44 tests passed across readiness route, storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran successfully; web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Path/scope and sensitive scan | Pass | Changed paths are accepted PR484C files plus A3 receipt; targeted source scan found no forbidden route/action matches. |
+
 ## PR484C Connector OAuth Readiness Route
 
 DAEDALUS implemented PR484C on 2026-06-29:
