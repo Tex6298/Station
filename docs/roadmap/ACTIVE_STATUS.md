@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR471A hosted rehearsal opened
+
+MIMIR routes PR471A to ARIADNE for the hosted owner-route visual rehearsal
+required by the PR471 preflight result:
+
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR471A as owner-only, private Studio-only, web-only, and
+  readback-only.
+- Code/test/typecheck/diff validation passed under ARGUS.
+- The remaining closeout gap is hosted human/browser proof that the owner
+  readiness gate renders cleanly and public routes do not gain encounter
+  controls, generated output, shareable pages, or availability claims.
+
+Current lane:
+
+```text
+PR471A - Owner Encounter Readiness Gate Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER-ROUTE VISUAL REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should check hosted desktop and 390px mobile owner Studio rendering.
+- ARIADNE should sample signed-out public routes and confirm no public encounter
+  controls, persona-to-persona chat claims, generated encounter output,
+  shareable encounter pages, or availability claims appear.
+- If it passes, wake MIMIR for PR471A closeout.
+- If it fails, wake MIMIR with the smallest repair route.
+- Do not broaden into encounter runtime, generated output, provider calls,
+  transcripts, storage, cross-owner behavior, public controls, billing,
+  workers/queues, schema, API routes, Cloudflare, Redis, or broad UI.
+
 ## Latest ARGUS review - PR471A accepted
 
 ARGUS accepts the owner-only Persona Encounter readiness gate:
