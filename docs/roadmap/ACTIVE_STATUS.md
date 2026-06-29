@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR478B ready for ARGUS
+
+DAEDALUS implemented the PR478B public forum score copy repair:
+
+`docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_RESULT.md`
+
+Result:
+
+- Public forum thread/list surfaces no longer render visible `Score N`,
+  comment `N votes`, `Up` / `Down`, or public `trust N` byline copy.
+- Forum participation copy now uses neutral `Discussion feedback`,
+  `Comment feedback`, `Useful`, and `Needs work` labels.
+- Existing vote endpoints, response fields, and local state updates were
+  preserved; no API/schema/moderation behavior changed.
+- `forum-copy.test.ts` now has a source regression assertion for the legacy
+  public score/vote labels that blocked PR478A hosted proof.
+
+Current lane:
+
+```text
+PR478B - Public Forum Score Copy Repair
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the visible public forum copy repair and confirm the
+  existing vote mechanics/API behavior stayed intact.
+- If accepted, ARGUS should wake MIMIR for PR478B closeout or PR478A hosted
+  rerun routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact visible label,
+  source location, or test expectation that failed.
+
 ## Latest MIMIR routing - PR478B repair opened
 
 MIMIR accepts ARIADNE's PR478A hosted product defect as real and routes

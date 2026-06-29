@@ -18,13 +18,13 @@ import {
 import {
   forumCategoryDescriptionCopy,
   forumCountLabel,
-  forumScoreLabel,
+  forumParticipationActionLabel,
+  forumParticipationReadbackLabel,
   forumThreadActivityLabel,
   forumThreadKindLabels,
 } from "@/lib/forum-copy";
 
 interface Author { username: string; display_name: string | null; }
-interface CommunityProfile { trustLevel: number; reputationScore: number; }
 interface Thread {
   id: string;
   title: string;
@@ -38,7 +38,6 @@ interface Thread {
   vote_count?: number;
   hot_score?: number;
   last_activity_at?: string;
-  author_community_profile?: CommunityProfile | null;
   comment_count: number;
   created_at: string;
   author_user_id: string;
@@ -109,7 +108,7 @@ export default function ForumCategoryPage() {
         ? { ...thread, score: response.thread.score, vote_count: response.thread.vote_count, hot_score: response.thread.hot_score, viewer_vote: value }
         : thread));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not vote on thread.");
+      setError("Could not update discussion feedback.");
     }
   }
 
@@ -189,7 +188,7 @@ export default function ForumCategoryPage() {
         />
         <select className="input" value={sort} onChange={(event) => setSort(event.target.value)} style={{ width: 150 }}>
           <option value="active">Active</option>
-          <option value="hot">Hot</option>
+          <option value="hot">Most active</option>
           <option value="new">Newest</option>
         </select>
       </div>
@@ -225,7 +224,7 @@ export default function ForumCategoryPage() {
                     </div>
                   </div>
                   <div className="forum-thread-stats">
-                    <span>{forumScoreLabel(t.score)}</span>
+                    <span>{forumParticipationReadbackLabel()}</span>
                     <span>{forumCountLabel(t.comment_count, "reply", "replies")}</span>
                     <span>{forumThreadActivityLabel(t.last_activity_at ?? t.created_at)}</span>
                   </div>
@@ -233,11 +232,10 @@ export default function ForumCategoryPage() {
                 {t.author && (
                   <div className="forum-thread-byline">
                     <span>by {t.author.display_name ?? t.author.username}</span>
-                    <span>trust {t.author_community_profile?.trustLevel ?? 0}</span>
                     {token && viewerUserId !== t.author_user_id && (
                       <span style={{ display: "inline-flex", gap: 4 }}>
-                        <button type="button" onClick={(event) => { event.preventDefault(); vote(t.id, 1); }} style={voteButton(t.viewer_vote === 1)}>Up</button>
-                        <button type="button" onClick={(event) => { event.preventDefault(); vote(t.id, -1); }} style={voteButton(t.viewer_vote === -1)}>Down</button>
+                        <button type="button" onClick={(event) => { event.preventDefault(); vote(t.id, 1); }} style={voteButton(t.viewer_vote === 1)}>{forumParticipationActionLabel(1)}</button>
+                        <button type="button" onClick={(event) => { event.preventDefault(); vote(t.id, -1); }} style={voteButton(t.viewer_vote === -1)}>{forumParticipationActionLabel(-1)}</button>
                       </span>
                     )}
                     {token && viewerUserId === t.author_user_id && (

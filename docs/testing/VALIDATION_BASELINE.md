@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478B Public Forum Score Copy Repair
+
+DAEDALUS implemented PR478B on 2026-06-29:
+`docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- public forum thread/list surfaces no longer render visible `Score N`, comment
+  `N votes`, `Up` / `Down`, or public `trust N` byline copy;
+- replacement labels are neutral contribution feedback copy:
+  `Discussion feedback`, `Comment feedback`, `Useful`, and `Needs work`;
+- existing vote endpoints, API response fields, and local state updates were
+  preserved;
+- no API route, database schema, serializer, report queue, moderation action,
+  witness behavior, billing, Redis, Cloudflare, worker, or queue behavior
+  changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 168 tests passed, including forum copy source regression and PR478A trust-readback assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff/source scan | Pass | `Score `, public/user score, rank, leaderboard, badge, clout, and reputation-profile matches are limited to negative-boundary docs/tests or unrelated existing class/property names; the touched public forum UI no longer renders the hosted blocker copy. |
+
 ## PR478A Community Trust Readback Hosted Rehearsal
 
 ARIADNE completed the hosted read-only proof on 2026-06-29:

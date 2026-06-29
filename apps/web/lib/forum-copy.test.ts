@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   forumCategoryDescriptionCopy,
   forumCategoryEntryLabel,
   forumCountLabel,
-  forumScoreLabel,
+  forumParticipationActionLabel,
+  forumParticipationReadbackLabel,
   forumThreadActivityLabel,
   forumThreadCategoryLabel,
   forumThreadKindLabels,
@@ -28,9 +30,32 @@ test("forum count labels stay compact and pluralized", () => {
   assert.equal(forumCountLabel(0, "reply", "replies"), "0 replies");
   assert.equal(forumCountLabel(1, "reply", "replies"), "1 reply");
   assert.equal(forumCountLabel(3, "reply", "replies"), "3 replies");
-  assert.equal(forumCountLabel(undefined, "vote"), "0 votes");
-  assert.equal(forumScoreLabel(-2), "Score -2");
-  assert.equal(forumScoreLabel(undefined), "Score 0");
+});
+
+test("forum participation labels avoid public score and vote framing", () => {
+  assert.equal(forumParticipationReadbackLabel(), "Discussion feedback");
+  assert.equal(forumParticipationReadbackLabel("comment"), "Comment feedback");
+  assert.equal(forumParticipationActionLabel(1), "Useful");
+  assert.equal(forumParticipationActionLabel(-1), "Needs work");
+  assert.doesNotMatch(
+    [
+      forumParticipationReadbackLabel(),
+      forumParticipationReadbackLabel("comment"),
+      forumParticipationActionLabel(1),
+      forumParticipationActionLabel(-1),
+    ].join(" "),
+    /score|vote|rank|leaderboard|badge|clout|reputation profile/i
+  );
+});
+
+test("forum page sources avoid legacy public score and vote labels", () => {
+  const categoryPage = readFileSync("apps/web/app/forums/[categorySlug]/page.tsx", "utf8");
+  const threadPage = readFileSync("apps/web/app/forums/[categorySlug]/[threadId]/page.tsx", "utf8");
+  const source = `${categoryPage}\n${threadPage}`;
+
+  assert.doesNotMatch(source, /forumScoreLabel|Score \{|Score [0-9-]+|\{c\.score\} votes|>Up<|>Down<|trust \{/);
+  assert.match(source, /forumParticipationReadbackLabel/);
+  assert.match(source, /forumParticipationActionLabel/);
 });
 
 test("forum thread status labels avoid raw visibility jargon", () => {

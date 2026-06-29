@@ -33,7 +33,8 @@ import {
 } from "@/lib/community-trust-readback";
 import {
   forumCountLabel,
-  forumScoreLabel,
+  forumParticipationActionLabel,
+  forumParticipationReadbackLabel,
   forumThreadActivityLabel,
   forumThreadCategoryLabel,
   forumThreadKindLabels,
@@ -169,7 +170,7 @@ export default function ThreadPage() {
       );
       setThread({ ...thread, score: response.thread.score, vote_count: response.thread.vote_count, viewer_vote: value });
     } catch (e) {
-      setCommentFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not vote." });
+      setCommentFeedback({ tone: "error", message: "Could not update discussion feedback." });
     }
   }
 
@@ -186,7 +187,7 @@ export default function ThreadPage() {
         ? { ...comment, score: response.comment.score, vote_count: response.comment.vote_count, viewer_vote: value }
         : comment));
     } catch (e) {
-      setCommentFeedback({ tone: "error", message: e instanceof Error ? e.message : "Could not vote." });
+      setCommentFeedback({ tone: "error", message: "Could not update discussion feedback." });
     }
   }
 
@@ -360,14 +361,14 @@ export default function ThreadPage() {
           {thread.body}
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center", marginTop: "1rem", color: "#687078", fontSize: "0.78rem" }}>
-          <strong style={{ color: "#1f2529" }}>{forumScoreLabel(thread.score)}</strong>
+          <strong style={{ color: "#1f2529" }}>{forumParticipationReadbackLabel()}</strong>
           <span>{forumCountLabel(thread.comment_count, "reply", "replies")}</span>
           {session && (
             <>
               {session.user.id !== thread.author_user_id ? (
                 <>
-                  <button type="button" onClick={() => voteThread(1)} style={voteButton(thread.viewer_vote === 1)}>Up</button>
-                  <button type="button" onClick={() => voteThread(-1)} style={voteButton(thread.viewer_vote === -1)}>Down</button>
+                  <button type="button" onClick={() => voteThread(1)} style={voteButton(thread.viewer_vote === 1)}>{forumParticipationActionLabel(1)}</button>
+                  <button type="button" onClick={() => voteThread(-1)} style={voteButton(thread.viewer_vote === -1)}>{forumParticipationActionLabel(-1)}</button>
                   <button type="button" onClick={() => report("thread", thread.id)} style={utilityButton}>Report</button>
                 </>
               ) : (
@@ -496,11 +497,11 @@ export default function ThreadPage() {
                 {c.body}
               </div>
               <div style={{ display: "flex", gap: "0.4rem", alignItems: "center", marginTop: "0.65rem", color: "#687078", fontSize: "0.75rem" }}>
-                <span>{c.score} votes</span>
+                <span>{forumParticipationReadbackLabel("comment")}</span>
                 {session && session.user.id !== c.author_user_id && (
                   <>
-                    <button type="button" onClick={() => voteComment(c.id, 1)} style={voteButton(c.viewer_vote === 1)}>Up</button>
-                    <button type="button" onClick={() => voteComment(c.id, -1)} style={voteButton(c.viewer_vote === -1)}>Down</button>
+                    <button type="button" onClick={() => voteComment(c.id, 1)} style={voteButton(c.viewer_vote === 1)}>{forumParticipationActionLabel(1)}</button>
+                    <button type="button" onClick={() => voteComment(c.id, -1)} style={voteButton(c.viewer_vote === -1)}>{forumParticipationActionLabel(-1)}</button>
                   </>
                 )}
                 {session && session.user.id === c.author_user_id && (
