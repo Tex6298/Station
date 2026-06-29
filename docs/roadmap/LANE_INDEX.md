@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR475B | Public Seminars Hosted Readback Repair | DAEDALUS / A2 | Open; repair fresh hosted `/events/seminars` bounded `503` before public cards render | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_DAEDALUS.md` |
+| PR475B | Public Seminars Hosted Readback Repair | ARGUS / A3 | Review requested; DAEDALUS made interest readback additive so public seminar cards can render when interest storage lags | `docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_RESULT.md` |
 
 ## Recently Closed
 

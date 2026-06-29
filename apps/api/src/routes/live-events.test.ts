@@ -693,6 +693,48 @@ test("signed-in seminar interest is idempotent, private to the viewer, and withd
   }
 });
 
+test("public seminar cards still render when interest readback storage is unavailable", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedPublicSeminarFixture(db);
+    db.failNext(
+      "public_seminar_interests",
+      "select",
+      "table=public_seminar_interests source_id=doc-public stack trace"
+    );
+
+    const response = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars");
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.cards.length, 1);
+    assert.equal(response.body.cards[0].sourceType, "document");
+    assert.equal(response.body.cards[0].interestCount, 0);
+    assert.equal("viewerInterested" in response.body.cards[0], false);
+
+    const json = JSON.stringify(response.body);
+    assert.equal(json.includes("public_seminar_interests"), false);
+    assert.equal(json.includes("doc-public stack trace"), false);
+
+    db.failNext(
+      "public_seminar_interests",
+      "select",
+      "table=public_seminar_interests user_id=owner-user stack trace"
+    );
+    const signedIn = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars", {
+      token: "owner-token",
+    });
+    assert.equal(signedIn.status, 200);
+    assert.equal(signedIn.body.cards.length, 1);
+    assert.equal(signedIn.body.cards[0].interestCount, 0);
+    assert.equal("viewerInterested" in signedIn.body.cards[0], false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("seminar interest fails closed for stale or private targets", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

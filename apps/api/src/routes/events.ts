@@ -125,7 +125,12 @@ async function loadPublicSeminarCards(limit: number, viewerUserId?: string | nul
     if (card) cards.push(card);
     if (cards.length >= limit) break;
   }
-  return applySeminarInterestReadback(sb, cards, viewerUserId);
+
+  try {
+    return await applySeminarInterestReadback(sb, cards, viewerUserId);
+  } catch {
+    return cards.map((resolved) => resolved.card);
+  }
 }
 
 async function resolvePublicSeminarTargetByCardId(

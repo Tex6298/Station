@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR475B Public Seminars Hosted Readback Repair
+
+DAEDALUS implemented PR475B on 2026-06-29:
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- hosted web/API were ready at PR475A runtime `46a2a08d`;
+- hosted public `GET /events/seminars` reproduced bounded HTTP `503`;
+- the PR475A route let additive interest readback storage block public seminar
+  cards;
+- `GET /events/seminars` now returns current public seminar cards even if the
+  optional interest readback query is unavailable;
+- public source routeability still fails closed for private/unsafe source rows;
+- signed-in mark/withdraw still require durable interest storage and fail
+  bounded if that storage is missing;
+- no fake interest persistence, tickets, payments, reminders, attendee lists,
+  provider calls, queues/workers, Redis, Cloudflare, or broad UI work was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted API/web `/health/deployment` pre-check | Pass | Both ready at `46a2a08d`. |
+| Hosted public `GET /events/seminars` pre-check | Reproduced defect | HTTP `503`, bounded `live_events_unavailable` copy. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 6 tests passed, including signed-out and signed-in GET resilience when `public_seminar_interests` readback is unavailable. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors; line-ending normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Expected test/doc/schema terms only; no secrets, raw config, logs, SQL output, attendee identities, or new out-of-scope product behavior. |
+
+Residual risk: hosted mark/withdraw still proves whether
+`public.public_seminar_interests` is actually applied on the hosted database.
+If that table is missing, mutation should fail bounded rather than pretend to
+persist. ARGUS should decide whether this needs MIMIR-routed migration apply
+before ARIADNE reruns hosted mark/withdraw.
+
 ## PR475A Signed-In Seminar Interest Toggle Hosted Rehearsal
 
 ARIADNE completed the hosted PR475A rehearsal on 2026-06-29:

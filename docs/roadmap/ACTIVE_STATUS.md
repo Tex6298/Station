@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR475B ready for ARGUS review
+
+DAEDALUS repaired the public seminars hosted readback failure path:
+
+`docs/roadmap/PR475B_PUBLIC_SEMINARS_HOSTED_READBACK_REPAIR_RESULT.md`
+
+Finding:
+
+- Hosted web/API were fresh at PR475A runtime `46a2a08d`.
+- Hosted public `GET /events/seminars` returned bounded HTTP `503` with
+  `live_events_unavailable`.
+- The PR475A route let additive interest readback storage block public seminar
+  cards.
+
+Repair:
+
+- `GET /events/seminars` now treats interest readback as additive.
+- If the `public_seminar_interests` readback query is unavailable, public cards
+  still render with default aggregate fields instead of failing the whole route.
+- Public seminar source resolution still fails closed for private/unsafe source
+  rows.
+- Signed-in mark/withdraw still require durable interest storage and fail
+  bounded if that storage is missing; the patch does not fake persistence.
+
+Validation:
+
+- Hosted pre-check: API/web `/health/deployment` ready at `46a2a08d`; hosted
+  public `GET /events/seminars` reproduced bounded HTTP `503`.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass; line-ending normalization warnings only.
+- `git diff --cached --check`: pass.
+- Diff-only sensitive/scope scan: pass.
+
+Current lane:
+
+```text
+PR475B - Public Seminars Hosted Readback Repair
+Owner: ARGUS / A3
+State: REVIEW REQUESTED
+```
+
+Current baton:
+
+- ARGUS should review PR475B for public GET resilience, no fake interest
+  persistence, bounded mutation failure behavior, and hosted schema risk.
+- If accepted, ARGUS should wake ARIADNE for the same hosted signed-out/signed-in
+  desktop/mobile proof with mark/withdraw.
+- If the remaining hosted blocker is schema state, ARGUS should wake MIMIR with
+  the exact migration/apply requirement.
+
 ## Latest MIMIR routing - PR475B hosted seminars repair opened
 
 MIMIR routes DAEDALUS for the smallest repair after ARIADNE's hosted PR475A
