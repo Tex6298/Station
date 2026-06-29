@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR468 accepted for DAEDALUS
+
+ARGUS accepts PR468 preflight:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- Anonymous public persona chat may move to DAEDALUS for one replay-safe public
+  persona only: `/personas/station-replay-alpha-persona`.
+- DAEDALUS should use `optionalAuth` only on the existing public persona chat
+  route and keep signed-in public chat behavior working.
+- Anonymous chat must be blocked for all other public personas unless MIMIR opens
+  a later expansion.
+- Owner enable/disable remains the rollback switch.
+- The anonymous rate-limit key must be hashed/minimized from the request address,
+  short-lived through operational cache TTL, and never returned or recorded as a
+  raw IP/header/user-agent/cookie/auth value.
+- The prompt and response must remain public-source-only; no private Memory,
+  Archive, Canon, Continuity, Integrity, owner setup, provider config, raw event,
+  credential, private document, source body, or route-only id may enter the
+  provider payload or response.
+- No durable visitor transcript, durable visitor identity, conversations,
+  conversation messages, or raw event rows may be created.
+- Public persona reporting remains signed-in only.
+- No billing, Stripe, provider/model selection, Redis, Cloudflare, worker, queue,
+  migration, private runtime context, moderation action, or broad public persona
+  availability change is authorized.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas`: pass, 12 tests.
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT NARROW ARGUS-ACCEPTED SHAPE
+```
+
+Current baton:
+
+- DAEDALUS should implement exactly the file/test targets in
+  `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_RESULT.md`.
+- DAEDALUS should wake ARGUS with `WAKEUP A3:` when ready for review.
+
 ## Latest MIMIR closeout and opening - PR467 closed, PR468 opened
 
 MIMIR closes PR467 as accepted:

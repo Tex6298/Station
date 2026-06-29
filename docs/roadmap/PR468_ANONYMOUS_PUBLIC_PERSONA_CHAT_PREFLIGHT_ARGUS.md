@@ -127,3 +127,9 @@ rate-limit failure behavior if ARGUS accepts implementation.
 
 ARGUS should return a verdict and wake either DAEDALUS or MIMIR. Do not leave
 the lane asleep without a wakeup.
+
+## ARGUS Verdict
+
+ARGUS returned `ACCEPT_FOR_DAEDALUS` on 2026-06-29:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_RESULT.md`

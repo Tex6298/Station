@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR468 Anonymous Public Persona Chat Preflight
+
+ARGUS accepted PR468 preflight on 2026-06-29:
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_FOR_DAEDALUS`.
+
+Reason:
+
+- existing signed-in public persona chat already proves owner opt-in,
+  public-source-only prompt construction, owner-paid token accounting, no
+  transcript persistence, aggregate-only owner counters, and fail-closed rate
+  limiting;
+- anonymous public context preview already proves private buckets stay out of
+  public persona source readback;
+- DAEDALUS may implement anonymous chat only for
+  `/personas/station-replay-alpha-persona`;
+- anonymous rate limiting must use a hashed/minimized request-address key and
+  must not expose raw IP, forwarded headers, cookies, auth headers, user agent,
+  prompts, provider payloads, or visitor identity;
+- public reporting remains signed-in only;
+- no billing, Stripe, provider/model selection, Redis, Cloudflare, worker, queue,
+  migration, private runtime context, moderation action, or broad public persona
+  availability change is authorized.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 12 tests passed; current signed-in public chat and anonymous public context-preview boundaries remain green. |
+
+Residual risk: implementation is not done in this preflight. DAEDALUS must add
+focused anonymous allow/deny, rate-limit key, no transcript/identity, public
+source-only, owner-paid usage, and UI-mode tests before waking ARGUS.
+
 ## PR467 Global Archive Source Intake
 
 DAEDALUS implemented PR467 on 2026-06-29:

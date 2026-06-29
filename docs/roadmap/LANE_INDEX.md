@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR468 | Anonymous Public Persona Chat Preflight | ARGUS / A3 | Open; decide whether bounded anonymous public persona chat can move to DAEDALUS | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_ARGUS.md` |
+| PR468 | Anonymous Public Persona Chat | DAEDALUS / A2 | Open; implement narrow ARGUS-accepted anonymous chat for one replay persona | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR468 preflight | Anonymous Public Persona Chat | MIMIR -> ARGUS -> DAEDALUS | Accepted for narrow implementation; one replay persona only | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_PREFLIGHT_RESULT.md` |
 | PR467 closeout | Global Archive Source Intake | MIMIR | Closed as accepted; hosted browser owner-flow rehearsal optional, PR468 opened | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_CLOSEOUT.md` |
 | PR467 review | Global Archive Source Intake | DAEDALUS -> ARGUS -> MIMIR | Accepted after narrow success-notice sanitizer patch | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_REVIEW_RESULT.md` |
 | PR467 implementation | Global Archive Source Intake | DAEDALUS -> ARGUS | Ready for review; `/studio/archive` can create pasted private archive sources via existing owner-scoped import contracts | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_RESULT.md` |
