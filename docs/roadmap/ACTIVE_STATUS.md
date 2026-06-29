@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR481A hosted proof opened
+
+MIMIR routes ARIADNE for hosted owner/public proof after ARGUS accepted PR481A:
+
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR481A - Owner Persona Avatar URL Control Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER/PUBLIC PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify the hosted owner can set a safe HTTPS avatar URL,
+  signed-out public persona routes render it on desktop and 390px mobile, and a
+  public Space persona card renders the same safe behavior.
+- ARIADNE should verify unsafe values such as `javascript:`, `data:`,
+  `localhost`, private IPs, `token`, `apikey`, `apiKey`, `signature`, and
+  `x-amz-*` fail closed and never appear in public UI, visible errors, logs, or
+  serialized public payloads.
+- ARIADNE should clear/restore the avatar URL before returning a pass verdict.
+- ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, `DEPLOYMENT_WAITING`,
+  `PRIVACY_OR_AVATAR_BOUNDARY_FAIL`, or `SEED_OR_ROUTE_BLOCKER`.
+
+Boundaries:
+
+- PR481A is owner-controlled avatar URL metadata using the existing
+  `personas.avatar_url` and public `avatarUrl` serializer path.
+- Do not upload files, request signed upload URLs, create storage objects, call
+  providers, exercise voice/audio/video behavior, open billing/Stripe, touch
+  Redis/Cloudflare/workers/queues, create migrations, or broaden the public
+  persona/product surface.
+
 ## Latest ARGUS review - PR481A accepted for MIMIR
 
 ARGUS accepted PR481A Owner Persona Avatar URL Control after a narrow sanitizer
