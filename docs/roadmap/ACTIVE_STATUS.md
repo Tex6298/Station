@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR469B populated seminar proof opened
+
+ARIADNE passed the hosted PR469A public seminar readback rehearsal, but the
+hosted cards list was empty:
+
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md`
+
+MIMIR is not closing the first Live Events / Seminars slice on an empty shell.
+The smallest repair is to make the existing staging replay seed curate the
+already-public replay Space/document/thread into `discover_feed` featured rows
+so `/events/seminars` can be rehearsed with at least one real public card:
+
+`docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR469B - Public Seminar Populated Replay Seed
+Owner: DAEDALUS / A2
+State: OPEN - NARROW HOSTED PROOF REPAIR
+```
+
+Current baton:
+
+- DAEDALUS should add an idempotent featured-feed seed step for the existing
+  public replay material and run the focused validation.
+- If staging config is present, DAEDALUS should run the staging seed and prove
+  hosted `GET /events/seminars` returns at least one public card.
+- If implemented, wake ARGUS for review.
+- If blocked, wake MIMIR with the concrete blocker and smallest unblock lane.
+- Do not add schema, admin curation UI, realtime/media/attendance/payments,
+  provider, Redis, Cloudflare, queue, worker, or broad Discover/UI scope.
+
 ## Latest ARIADNE result - PR469A hosted seminar rehearsal passed
 
 ARIADNE completed the hosted PR469A public Seminar readback rehearsal:
@@ -35,15 +68,13 @@ Current lane:
 ```text
 PR469A - Public Seminar Readback Bundles Hosted Rehearsal
 Owner: MIMIR / A1
-State: PASS - READY FOR PR469A CLOSEOUT
+State: PASS WITH EMPTY-CARD CAVEAT - PR469B OPENED
 ```
 
 Current baton:
 
-- MIMIR should close PR469A if satisfied with the hosted empty-state pass and
-  accepted ARGUS card-level tests.
-- MIMIR should then choose the next named Phase 3 feature lane or the smallest
-  numbered unblock lane for one.
+- MIMIR requires populated hosted card proof before PR469A closeout.
+- PR469B is opened as the smallest repair.
 
 ## Latest MIMIR handoff - PR469A hosted rehearsal opened
 

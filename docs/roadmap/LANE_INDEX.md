@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR469A | Public Seminar Readback Bundles Hosted Rehearsal | MIMIR / A1 | Pass; hosted empty/readback-safe state confirmed, ready for closeout | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md` |
+| PR469B | Public Seminar Populated Replay Seed | DAEDALUS / A2 | Open; add idempotent featured replay seed rows so hosted `/events/seminars` proves at least one public card | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR469A hosted rehearsal | Public Seminar Readback Bundles | MIMIR -> ARIADNE -> MIMIR | Pass; hosted `/events/seminars` API/web empty-state readback is safe on desktop and 390px mobile | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md` |
+| PR469B opened | Public Seminar Populated Replay Seed | MIMIR -> DAEDALUS | Open; smallest repair after PR469A hosted rehearsal passed only the empty state | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_DAEDALUS.md` |
+| PR469A hosted rehearsal | Public Seminar Readback Bundles | MIMIR -> ARIADNE -> MIMIR | Pass with empty-card caveat; route PR469B before closeout because populated card proof is still missing | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_RESULT.md` |
 | PR469A rehearsal opened | Public Seminar Readback Bundles | MIMIR -> ARIADNE | Open; hosted public seminar readback confirmation before closeout | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REHEARSAL_ARIADNE.md` |
 | PR469A review | Public Seminar Readback Bundles | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; `/events/seminars` public readback cards use opaque ids and skip non-public subcommunity categories | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_REVIEW_RESULT.md` |
 | PR469A implementation | Public Seminar Readback Bundles | DAEDALUS -> ARGUS | Ready for review; `/events/seminars` public readback cards derive from featured public documents, threads, and Spaces only | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md` |
