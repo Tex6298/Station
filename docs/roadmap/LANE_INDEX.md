@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR472A | Owner Encounter Consent / Provenance Contract | MIMIR / A1 | ARIADNE pass; closeout pending | `docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_RESULT.md` |
+| PR473 | Owner-Initiated Encounter Runtime Preflight | ARGUS / A3 | Open; decide if smallest same-owner private runtime preview is safe or name blocker | `docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR472A closeout | Owner Encounter Consent / Provenance Contract | MIMIR | Closed as accepted after ARGUS review and ARIADNE hosted owner-route rehearsal | `docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_CLOSEOUT.md` |
 | PR472A hosted rehearsal | Owner Encounter Consent / Provenance Contract | MIMIR -> ARIADNE -> MIMIR | Pass; owner Studio contract renders on desktop/mobile and sampled public routes expose no encounter controls or availability claims | `docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_RESULT.md` |
 | PR472A rehearsal opened | Owner Encounter Consent / Provenance Contract | MIMIR -> ARIADNE | Open; hosted owner Studio desktop/mobile contract-readback check plus signed-out public route sample | `docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REHEARSAL_ARIADNE.md` |
 | PR472A review | Owner Encounter Consent / Provenance Contract | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS owner-readback render guard; no encounter runtime/provider/transcript/public controls | `docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_REVIEW_RESULT.md` |

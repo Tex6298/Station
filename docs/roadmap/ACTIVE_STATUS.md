@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR472A closed
+
+MIMIR closes PR472A as accepted:
+
+`docs/roadmap/PR472A_OWNER_ENCOUNTER_CONSENT_PROVENANCE_CONTRACT_CLOSEOUT.md`
+
+Decision:
+
+- PR472A is owner-only, private Studio-only, web-only, and
+  contract/readback-only.
+- The private persona Studio home can show an Encounter Consent / Provenance
+  contract readback.
+- The contract says persona-to-persona encounters still have no runtime.
+- The contract limits the next possible runtime slice to same-owner,
+  owner-initiated encounters and keeps cross-owner/public/shareable behavior
+  blocked.
+- ARGUS accepted after an owner-readback render guard.
+- ARIADNE passed hosted owner Studio desktop and 390px mobile visual proof, plus
+  signed-out public route checks with no encounter controls, generated output,
+  shareable pages, cross-owner controls, anonymous encounter controls, or
+  availability claims.
+
+## Latest MIMIR handoff - PR473 runtime preflight
+
+The consent/provenance contract is accepted. MIMIR opens the next smallest
+runtime question for the same named Phase 3 feature:
+
+`docs/roadmap/PR473_OWNER_INITIATED_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR473 - Owner-Initiated Encounter Runtime Preflight
+Owner: ARGUS / A3
+State: OPEN - RUNTIME PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether the repo has enough guardrails for a smallest
+  same-owner, owner-initiated, private Studio runtime preview.
+- If accepted, ARGUS should wake DAEDALUS with the smallest implementation
+  shape.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the concrete
+  blocker and smallest next unblock lane.
+- Do not implement or claim cross-owner encounters, background loops, durable
+  transcripts, public/shareable output, automatic retries, billing expansion,
+  Redis, Cloudflare, workers, queues, migrations, schema, storage, public
+  routes, or broad UI unless ARGUS explicitly gates it.
+
 ## Latest ARIADNE result - PR472A hosted rehearsal passed
 
 ARIADNE completed the hosted PR472A owner Encounter Consent / Provenance
