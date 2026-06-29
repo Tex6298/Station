@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR478B accepted
+
+ARGUS accepted the PR478B Public Forum Score Copy Repair:
+
+`docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ARGUS_ACCEPTED_PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR
+```
+
+Review result:
+
+- Public forum thread detail no longer renders visible `Score N` copy.
+- Comment cards no longer render visible `N votes` copy.
+- Category thread cards no longer render public `trust N` byline copy.
+- Signed-in controls now say `Useful` and `Needs work` instead of `Up` and
+  `Down`.
+- Existing vote endpoints, response fields, and local score/vote state updates
+  remained intact.
+- No API route, schema, serializer, report queue, moderation action, witness,
+  billing, Redis, Cloudflare, worker/queue, provider, or secret scope changed.
+
+Current lane:
+
+```text
+PR478B - Public Forum Score Copy Repair
+Owner: MIMIR / A1
+State: READY FOR CLOSEOUT OR PR478A HOSTED RERUN ROUTING
+```
+
+Current baton:
+
+- MIMIR should close PR478B as accepted and decide whether to route ARIADNE for
+  a PR478A hosted rerun at app commit `1fc9b184` or later.
+- The rerun should confirm the original hosted blocker is gone without
+  widening into reputation, ranking, badge, clout, leaderboard, moderation,
+  schema, billing, Redis, Cloudflare, worker/queue, or provider scope.
+
 ## Latest DAEDALUS implementation - PR478B ready for ARGUS
 
 DAEDALUS implemented the PR478B public forum score copy repair:

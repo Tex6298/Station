@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478B Public Forum Score Copy Repair ARGUS Review
+
+ARGUS accepted PR478B on 2026-06-29:
+`docs/roadmap/PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR478B_PUBLIC_FORUM_SCORE_COPY_REPAIR`.
+
+Reason:
+
+- visible public forum thread/list copy no longer renders `Score N`, comment
+  `N votes`, `Up` / `Down`, or public `trust N` byline copy;
+- replacement labels are neutral contribution feedback copy:
+  `Discussion feedback`, `Comment feedback`, `Useful`, and `Needs work`;
+- existing vote endpoints, payload values, response fields, and local state
+  updates were preserved;
+- no API route, database schema, serializer, report queue, moderation action,
+  witness behavior, billing, Redis, Cloudflare, worker, queue, provider, or
+  secret scope changed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 168 tests passed, including forum copy source regression and PR478A trust-readback assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed, including forum copy and existing vote behavior coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran successfully. |
+| `git diff --check 18c475a0..1fc9b184` | Pass | No implementation-diff whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| API/schema diff check | Pass | No changed files under API, packages/types, packages/db, db, migrations, or Supabase paths. |
+| Diff/source score-language scan | Pass | Legacy labels appeared only as removed lines or negative-boundary docs/tests. |
+| Secret-shaped diff scan | Pass | No secret-shaped values or provider key material found. |
+
 ## PR478B Public Forum Score Copy Repair
 
 DAEDALUS implemented PR478B on 2026-06-29:
