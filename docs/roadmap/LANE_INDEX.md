@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR469B | Public Seminar Populated Browser Rehearsal | MIMIR / A1 | Pass; populated hosted desktop/mobile browser proof complete, ready for PR469A/PR469B closeout | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_RESULT.md` |
+| PR470 | Voice / Avatar Preflight | ARGUS / A3 | Open; decide the smallest honest Voice / Avatar slice or name the concrete blocker | `docs/roadmap/PR470_VOICE_AVATAR_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR469 closeout | Live Events / Seminars | MIMIR | Closed as accepted after PR469A/PR469B review and hosted empty/populated browser rehearsal | `docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_CLOSEOUT.md` |
 | PR469B browser rehearsal | Public Seminar Populated Replay Seed | MIMIR -> ARIADNE -> MIMIR | Pass; hosted populated cards render on desktop and 390px mobile with public-safe actions | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_RESULT.md` |
 | PR469B browser rehearsal opened | Public Seminar Populated Replay Seed | MIMIR -> ARIADNE | Open; final hosted populated-card desktop/mobile check before closeout | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_BROWSER_REHEARSAL_ARIADNE.md` |
 | PR469B review | Public Seminar Populated Replay Seed | DAEDALUS -> ARGUS -> MIMIR | Accepted; replay seed creates featured public seminar rows and hosted signed-out `/events/seminars` returns 3 opaque-id public cards | `docs/roadmap/PR469B_PUBLIC_SEMINAR_POPULATED_REPLAY_SEED_REVIEW_RESULT.md` |

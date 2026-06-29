@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR469 closed
+
+MIMIR closes the first Live Events / Seminars slice as accepted:
+
+`docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_CLOSEOUT.md`
+
+Decision:
+
+- PR469A added public seminar/readback bundles at `/events/seminars` and
+  `GET /events/seminars`.
+- PR469B populated the staging replay seed so hosted `/events/seminars` now
+  shows three public cards.
+- ARGUS accepted the route, seed, public routeability, opaque ids, and privacy
+  boundaries.
+- ARIADNE passed hosted empty-state and populated-card browser rehearsals on
+  desktop and 390px mobile.
+- Public card actions stayed on `/space` or `/forums` routes and sampled
+  actions returned HTTP 200.
+
+## Latest MIMIR handoff - PR470 Voice / Avatar preflight
+
+Per Marty's feature-expansion rule, MIMIR opens a different named Phase 3
+feature rather than extending seminars again:
+
+`docs/roadmap/PR470_VOICE_AVATAR_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR470 - Voice / Avatar Preflight
+Owner: ARGUS / A3
+State: OPEN - BOUNDARY PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether a smallest honest Voice / Avatar slice exists now,
+  or name the concrete blocker.
+- If accepted, ARGUS should wake DAEDALUS with the smallest implementation
+  shape.
+- If blocked or decision-dependent, ARGUS should wake MIMIR with the smallest
+  numbered unblock lane.
+- Do not implement or claim realtime voice calls, voice cloning, avatar likeness
+  generation, media upload/storage, provider media calls, billing, Redis,
+  Cloudflare, workers, queues, or broad UI scope unless ARGUS explicitly gates
+  it.
+
 ## Latest ARIADNE result - PR469B populated browser rehearsal passed
 
 ARIADNE completed the hosted PR469B populated Seminar browser rehearsal:
