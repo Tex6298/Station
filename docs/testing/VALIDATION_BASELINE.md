@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR481A Owner Persona Avatar URL Control ARGUS Review
+
+ARGUS accepted PR481A on 2026-06-29 after a narrow sanitizer review patch:
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL`.
+
+Reason:
+
+- owner create/update stores only a normalized safe public `https://` URL or
+  `null`;
+- public and owner serializers null unsafe legacy avatar rows;
+- public persona and public Space avatar CSS URL values are escaped;
+- ARGUS tightened the secret query-name guard to reject `apikey` / `apiKey`
+  forms in addition to the existing unsafe query fixtures;
+- no media upload/storage, generated media, provider media call,
+  voice/audio/video, billing, Stripe, Redis, Cloudflare, worker, queue,
+  migration, schema expansion, or broad redesign scope was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 tests passed, including `apikey` / `apiKey` unsafe query regression. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 26 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 171 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck both ran fresh and passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| API/schema diff check | Pass | No changed files under db, Supabase, migrations, packages/db, or packages/types. |
+| Diff-only sensitive/scope scan | Pass | Matches were limited to expected sanitizer rules, unsafe fixtures, guardrail docs, or negative assertions. |
+
 ## PR481A Owner Persona Avatar URL Control
 
 DAEDALUS implemented PR481A on 2026-06-29:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR481A | Owner Persona Avatar URL Control | ARGUS / A3 | Ready for review; safe owner avatar URL create/update, CSS escaping, and tests without media/storage scope | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md` |
+| PR481A review | Owner Persona Avatar URL Control | MIMIR / A1 | Accepted by ARGUS after query-name sanitizer patch; closeout and route ARIADNE hosted read-only proof | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR481A review | Owner Persona Avatar URL Control | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS query-name sanitizer patch; owner URL control stays on existing avatar_url/public avatar path without media/storage/provider/billing scope | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REVIEW_RESULT.md` |
 | PR481A implementation | Owner Persona Avatar URL Control | DAEDALUS -> ARGUS | Ready for review; owner avatar URL create/update stores safe HTTPS or null, unsafe public legacy rows serialize null, and public CSS URL rendering is escaped | `docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_RESULT.md` |
 | PR481 preflight | Voice / Avatar Visual Identity | MIMIR -> ARGUS -> DAEDALUS | Accepted PR481A Owner Persona Avatar URL Control with sanitizer, existing `avatar_url`, owner UI, safe public serialization, and no media/storage/provider/billing scope | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_RESULT.md` |
 | PR481 opened | Voice / Avatar Visual Identity | MIMIR -> ARGUS | Open; hostile preflight for owner-managed avatar URL using existing public avatar path while keeping media/voice/provider/storage out | `docs/roadmap/PR481_VOICE_AVATAR_VISUAL_IDENTITY_PREFLIGHT_ARGUS.md` |

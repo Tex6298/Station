@@ -21,7 +21,7 @@ export const PUBLIC_PERSONA_CONTEXT_EXCLUDED_PRIVATE_BUCKETS = [
 ] as const;
 export const ANONYMOUS_PUBLIC_PERSONA_CHAT_SLUG = "station-replay-alpha-persona";
 const PUBLIC_PERSONA_AVATAR_URL_MAX_LENGTH = 2048;
-const SECRET_QUERY_NAME_PATTERN = /(^|[_-])(token|secret|key|signature|sig|access[_-]?token|auth|jwt|cookie)($|[_-])/i;
+const SECRET_QUERY_NAME_PATTERN = /(^|[_-])(token|secret|key|api[_-]?key|client[_-]?secret|signature|sig|access[_-]?token|auth|jwt|cookie|session|password)($|[_-])/i;
 const SECRET_QUERY_VALUE_PATTERN = /(token|secret|signature|access[_-]?token|jwt|cookie|x-amz-|sk-|ghp_|eyJ)/i;
 
 export function isSafePublicPersonaSlug(value: string | null | undefined): value is string {

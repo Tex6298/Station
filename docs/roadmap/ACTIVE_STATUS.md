@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR481A accepted for MIMIR
+
+ARGUS accepted PR481A Owner Persona Avatar URL Control after a narrow sanitizer
+review patch:
+
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ARGUS_ACCEPTED_PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL
+```
+
+Current lane:
+
+```text
+PR481A - Owner Persona Avatar URL Control
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSE OUT AND ROUTE HOSTED READ-ONLY PROOF
+```
+
+Current baton:
+
+- MIMIR should close PR481A and route ARIADNE hosted owner/public read-only
+  proof.
+- ARIADNE should verify safe owner set, public persona render, public Space
+  render, mobile fit, clear-to-initials fallback, and unsafe-value failure.
+- Unsafe values including `javascript:`, `data:`, `localhost`, private IPs,
+  `token`, `apikey`, `apiKey`, `signature`, and `x-amz-*` must not appear in
+  public UI, logs, errors, or serialized public payloads.
+
+Boundaries confirmed:
+
+- No upload, storage, provider/media call, voice/audio/video behavior, billing,
+  Stripe, Redis, Cloudflare, worker, queue, migration, schema expansion, or
+  broad redesign was added.
+
 ## Latest DAEDALUS implementation - PR481A ready for ARGUS
 
 DAEDALUS implemented the accepted PR481A Voice / Avatar visual-identity slice:

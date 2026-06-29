@@ -709,6 +709,8 @@ test("owner avatar URL control sanitizes writes, clears safely, and nulls unsafe
       "https://localhost/avatar.png",
       "https://127.0.0.1/avatar.png",
       "https://192.168.1.10/avatar.png",
+      "https://cdn.example.test/avatar.png?apikey=abc123",
+      "https://cdn.example.test/avatar.png?apiKey=abc123",
       "https://cdn.example.test/avatar.png?token=secret",
       "https://cdn.example.test/avatar.png?x-amz-signature=abc",
       "https://station.example.test/storage/avatar.png",
