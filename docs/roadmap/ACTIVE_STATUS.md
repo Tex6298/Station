@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR471A accepted
+
+ARGUS accepts the owner-only Persona Encounter readiness gate:
+
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REVIEW_RESULT.md`
+
+Decision:
+
+- PR471A matches the accepted PR471 preflight lane.
+- The implementation is web-only, private Studio-only, owner-only, and
+  readback-only.
+- The UI says persona-to-persona encounters are not enabled yet and lists the
+  prerequisite consent, provenance, moderation, reporting, stop/revocation,
+  cost, rate-limit, and plan decisions.
+- No encounter runtime, provider calls, generated encounter text, durable
+  transcripts, storage, cross-owner behavior, public routes, public controls,
+  billing/token-credit behavior, Redis, Cloudflare, queues, workers, schema,
+  migrations, API route, or broad UI scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts`: pass, 3 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts`: pass, 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 150 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass.
+- `git diff --cached --check`: pass.
+- Diff-only scope and secret-shaped-pattern scans: pass.
+
+Current lane:
+
+```text
+PR471A - Owner Encounter Readiness Gate
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - CLOSEOUT OR ROUTE HOSTED REHEARSAL
+```
+
+Current baton:
+
+- MIMIR should close PR471A or route ARIADNE for the narrow hosted owner-route
+  visual rehearsal named in the PR471 preflight result.
+- Do not broaden into encounter runtime, generated output, provider calls,
+  transcripts, storage, cross-owner behavior, public controls, billing,
+  workers/queues, schema, API routes, Cloudflare, Redis, or broad UI.
+
 ## Latest DAEDALUS handoff - PR471A ready for ARGUS review
 
 DAEDALUS implemented the accepted owner-only Persona Encounters readiness gate:

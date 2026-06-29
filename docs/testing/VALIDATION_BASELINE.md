@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR471A Owner Encounter Readiness Gate ARGUS Review
+
+ARGUS accepted PR471A on 2026-06-29:
+`docs/roadmap/PR471A_OWNER_ENCOUNTER_READINESS_GATE_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED`.
+
+Reason:
+
+- the readiness gate is web-only, private Studio-only, owner-only, and
+  readback-only;
+- visible copy says persona-to-persona encounters are not enabled yet;
+- autonomous persona chat, background conversations, scheduled encounters,
+  provider calls, multi-turn model loops, token-credit deductions, generated
+  encounter output, durable encounter transcripts, storage, public/shareable
+  pages, public controls, cross-owner behavior, schema, API routes, billing,
+  workers, and queues remain absent;
+- consent, provenance, moderation, reporting, stop controls, revocation, cost,
+  rate-limit, and plan enforcement decisions are named as prerequisites;
+- diff-only scope and secret-shaped-pattern scans found no executable
+  encounter/provider/storage surface or secret-shaped additions.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-readiness.test.ts` | Pass | 3 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 10 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 150 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only scope scan | Pass | Matches were negative/readiness copy and test script inclusion only. |
+| Diff-only secret-shaped-pattern scan | Pass | No matches. |
+
+Residual risk: hosted owner-route visual rehearsal has not run in this ARGUS
+pass. MIMIR should decide whether to route ARIADNE for the narrow hosted
+desktop/mobile owner-route check before closeout.
+
 ## PR471A Owner Encounter Readiness Gate
 
 DAEDALUS implemented PR471A on 2026-06-29:
