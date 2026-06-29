@@ -12,6 +12,10 @@ import {
   sanitizeAuthorRecognitions,
   totalRecognitionCount,
 } from "./community-author-recognition";
+import {
+  authorRecognitionPrivateBoundaryCopy,
+  authorRecognitionTrustRows,
+} from "./community-trust-readback";
 
 test("author recognition paths stay scoped to PR106 readback", () => {
   assert.equal(authorRecognitionPagePath(), "/forums/witnesses");
@@ -103,4 +107,23 @@ test("author recognition labels and links stay safe and non-ranking", () => {
   assert.equal(authorRecognitionHref(rows[1]), null);
   assert.deepEqual(recognitionCountItems(rows[0].witnessCounts), [{ key: "helpful", label: "Helpful", value: 1 }]);
   assert.equal(totalRecognitionCount(rows[1].witnessCounts), 2);
+});
+
+test("author recognition trust copy stays private and aggregate-only", () => {
+  assert.equal(
+    authorRecognitionPrivateBoundaryCopy(),
+    "Private author recognition is visible only to the signed-in author and uses aggregate witness counts only."
+  );
+
+  const rows = authorRecognitionTrustRows({ contributionCount: 2, witnessMarkCount: 4 });
+  assert.deepEqual(rows.map((row) => [row.label, row.value]), [
+    ["Contributions shown", "2"],
+    ["Marks received", "4"],
+    ["Privacy boundary", "Private"],
+  ]);
+
+  const copy = rows.map((row) => row.body).join(" ");
+  assert.match(copy, /signed-in author|aggregate readback|not shown/i);
+  assert.doesNotMatch(copy, /witness_user_id|reporter_user_id|moderation_report_id|admin_note|sql|stack trace|provider payload/i);
+  assert.doesNotMatch(copy, /leaderboard|badge|clout|reputation profile|user score|public score|rank/i);
 });

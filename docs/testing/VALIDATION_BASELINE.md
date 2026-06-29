@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478A Community Trust Readback
+
+DAEDALUS implemented PR478A on 2026-06-29:
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- witness controls now explain aggregate witness marks and current-viewer state
+  without exposing witnesser identity;
+- private `/forums/witnesses` recognition readback now states the signed-in
+  author and aggregate-only boundary;
+- no API route, database schema, report queue, moderation action, serializer,
+  or witness write behavior changed;
+- the new helper/tests assert no public score, ranking, leaderboard, badge,
+  clout, reputation-profile, reporter, witnesser, private moderation, worker,
+  billing, or schema behavior was introduced.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 39 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 168 tests passed, including community trust readback helper/source assertions. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Diff-only sensitive/scope scan | Pass | Expected negative-boundary docs/tests/UI copy only; no public score/ranking/leaderboard/badge/clout/reputation-profile product claim, reporter or witnesser identity exposure, raw report or witness row, hidden/deleted body, private comment, moderation note, SQL/table output, stack trace, provider payload, automated moderation, new moderation power, Redis, Cloudflare, worker/queue, billing, or schema change introduced. |
+
 ## PR478 Community Reputation / Moderator Expansion Preflight
 
 ARGUS accepted the PR478 preflight on 2026-06-29:

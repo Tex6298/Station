@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR478A | Community Trust Readback | DAEDALUS / A2 | Open; implement readback-only context around existing witness/private-recognition surfaces | `docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_RESULT.md` |
+| PR478A | Community Trust Readback | ARGUS / A3 | Ready for review; DAEDALUS added readback-only trust context around existing witness/private-recognition surfaces | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR478A implementation | Community Trust Readback | DAEDALUS -> ARGUS | Ready for review; witness and private recognition copy now explains aggregate/current-viewer/private boundaries without API/schema/moderation changes | `docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_RESULT.md` |
 | PR478 preflight | Community Reputation / Moderator Expansion | MIMIR -> ARGUS -> DAEDALUS | Accepted PR478A Community Trust Readback; reuse witness/private-recognition surfaces without public scores, clout, or new moderation powers | `docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_RESULT.md` |
 | PR478 opened | Community Reputation / Moderator Expansion Preflight | MIMIR -> ARGUS | Open; move to a different named customer-facing expansion without public scoring/clout or new moderation powers | `docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_ARGUS.md` |
 | PR477A closeout | Owner Document Migrator Import Preview | MIMIR | Closed; ARGUS review and ARIADNE hosted proof accepted owner-only no-write redacted preview before confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_CLOSEOUT.md` |

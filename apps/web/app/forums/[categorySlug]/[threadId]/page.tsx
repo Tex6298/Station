@@ -25,6 +25,13 @@ import {
   witnessAvailabilityLabel,
 } from "@/lib/community-witness";
 import {
+  communityTrustBoundaryCopy,
+  communityViewerWitnessSummary,
+  communityWitnessKindLabel,
+  communityWitnessReadbackRows,
+  communityWitnessTrustSummary,
+} from "@/lib/community-trust-readback";
+import {
   forumCountLabel,
   forumScoreLabel,
   forumThreadActivityLabel,
@@ -597,15 +604,19 @@ function WitnessControls({
   const availability = communityWitnessAvailability(session?.user ?? null, target);
   const counts = getWitnessCounts(target);
   const viewerWitnesses = getViewerWitnesses(target);
+  const readbackRows = communityWitnessReadbackRows(counts);
   const canToggle = availability === "eligible";
 
   return (
     <div style={witnessPanel}>
-      <span style={{ color: "#1f2529", fontWeight: 600 }}>Witness</span>
+      <div style={witnessHeader}>
+        <span style={{ color: "#1f2529", fontWeight: 700 }}>Witness</span>
+        <span>{communityWitnessTrustSummary(counts)}</span>
+      </div>
       {COMMUNITY_WITNESS_KINDS.map((kind) => {
         const selected = viewerWitnesses.includes(kind);
         const key = `${targetType}:${target.id}:${kind}`;
-        const label = witnessKindLabel(kind);
+        const label = communityWitnessKindLabel(kind);
         if (!canToggle) {
           return (
             <span key={kind} style={witnessPill(false)}>
@@ -627,6 +638,16 @@ function WitnessControls({
         );
       })}
       <span style={{ color: "#8b8f92" }}>{witnessAvailabilityLabel(availability)}</span>
+      <div style={witnessMeaningList} aria-label={`${targetType} community trust readback`}>
+        {readbackRows.map((row) => (
+          <span key={row.kind}>
+            {row.label}: {row.description}
+          </span>
+        ))}
+      </div>
+      <div style={witnessBoundaryCopy}>
+        {communityViewerWitnessSummary(viewerWitnesses)} {communityTrustBoundaryCopy()}
+      </div>
     </div>
   );
 }
@@ -673,12 +694,6 @@ function ModerationControls({
   );
 }
 
-function witnessKindLabel(kind: CommunityWitnessKind) {
-  if (kind === "helpful") return "Helpful";
-  if (kind === "grounded") return "Grounded";
-  return "Careful";
-}
-
 function voteButton(active: boolean) {
   return {
     border: "1px solid #d8d3c8",
@@ -723,6 +738,29 @@ const witnessPanel = {
   alignItems: "center",
   color: "#687078",
   fontSize: "0.75rem",
+};
+
+const witnessHeader = {
+  flexBasis: "100%",
+  display: "flex",
+  gap: "0.5rem",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+};
+
+const witnessMeaningList = {
+  flexBasis: "100%",
+  display: "flex",
+  gap: "0.45rem",
+  flexWrap: "wrap" as const,
+  color: "#687078",
+  fontSize: "0.72rem",
+};
+
+const witnessBoundaryCopy = {
+  flexBasis: "100%",
+  color: "#687078",
+  fontSize: "0.72rem",
 };
 
 const moderationPanel = {

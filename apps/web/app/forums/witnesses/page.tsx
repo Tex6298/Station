@@ -16,6 +16,10 @@ import {
   totalRecognitionCount,
   type AuthorRecognitionState,
 } from "@/lib/community-author-recognition";
+import {
+  authorRecognitionPrivateBoundaryCopy,
+  authorRecognitionTrustRows,
+} from "@/lib/community-trust-readback";
 
 function formatDate(value?: string | null) {
   if (!value) return null;
@@ -74,6 +78,13 @@ export default function ForumWitnessesPage() {
     () => recognitions.reduce((sum, recognition) => sum + totalRecognitionCount(recognition.witnessCounts), 0),
     [recognitions]
   );
+  const trustRows = useMemo(
+    () => authorRecognitionTrustRows({
+      contributionCount: recognitions.length,
+      witnessMarkCount: totalReceived,
+    }),
+    [recognitions.length, totalReceived]
+  );
 
   if (authState === "checking") {
     return (
@@ -113,7 +124,7 @@ export default function ForumWitnessesPage() {
         <div>
           <h1 style={{ margin: "0 0 0.25rem", fontSize: "1.55rem" }}>My recognition</h1>
           <p style={{ margin: 0, color: "#687078", fontSize: "0.86rem" }}>
-            Private readback for aggregate witness marks received on your forum contributions.
+            {authorRecognitionPrivateBoundaryCopy()}
           </p>
         </div>
         <button
@@ -125,15 +136,14 @@ export default function ForumWitnessesPage() {
         </button>
       </div>
 
-      <section style={{ border: "1px solid #d8d3c8", borderRadius: 8, background: "#fff", padding: "0.9rem 1rem", marginBottom: "1rem", display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-        <div>
-          <div style={{ color: "#687078", fontSize: "0.78rem", marginBottom: "0.2rem" }}>Recognized contributions</div>
-          <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#1f2529" }}>{recognitions.length}</div>
-        </div>
-        <div>
-          <div style={{ color: "#687078", fontSize: "0.78rem", marginBottom: "0.2rem" }}>Witness marks received</div>
-          <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#1f2529" }}>{totalReceived}</div>
-        </div>
+      <section style={{ border: "1px solid #d8d3c8", borderRadius: 8, background: "#fff", padding: "0.9rem 1rem", marginBottom: "1rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.85rem" }}>
+        {trustRows.map((row) => (
+          <div key={row.label}>
+            <div style={{ color: "#687078", fontSize: "0.78rem", marginBottom: "0.2rem" }}>{row.label}</div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#1f2529" }}>{row.value}</div>
+            <div style={{ color: "#687078", fontSize: "0.74rem", marginTop: "0.25rem" }}>{row.body}</div>
+          </div>
+        ))}
       </section>
 
       {error && (

@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR478A ready for ARGUS
+
+DAEDALUS implemented the PR478A Community Trust Readback slice:
+
+`docs/roadmap/PR478A_COMMUNITY_TRUST_READBACK_RESULT.md`
+
+Result:
+
+- Added bounded community trust readback helpers for witness and private
+  author-recognition copy.
+- Forum thread/comment witness controls now explain aggregate witness marks,
+  current-viewer state, and the non-score boundary.
+- `/forums/witnesses` now states that private recognition is signed-in-author
+  scoped and aggregate-only.
+- No API route, schema, serializer, report queue, moderation action, or witness
+  write behavior changed.
+- `test:studio-ui` now includes the new community trust readback helper/source
+  tests.
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review aggregate/current-viewer scope, private
+  author-recognition boundaries, and absence of public score/ranking/badge/
+  clout behavior.
+- If accepted, ARGUS should wake MIMIR for closeout and ARIADNE hosted proof.
+- If fixes are needed, ARGUS should wake DAEDALUS with the exact helper, UI
+  surface, copy, or test expectation that failed.
+
 ## Latest ARGUS preflight - PR478A accepted
 
 ARGUS accepted the first Community Reputation / Moderator Expansion slice:

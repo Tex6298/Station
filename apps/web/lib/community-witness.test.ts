@@ -10,6 +10,14 @@ import {
   threadWitnessPath,
   witnessAvailabilityLabel,
 } from "./community-witness";
+import {
+  communityTrustBoundaryCopy,
+  communityViewerWitnessSummary,
+  communityWitnessKindDescription,
+  communityWitnessKindLabel,
+  communityWitnessReadbackRows,
+  communityWitnessTrustSummary,
+} from "./community-trust-readback";
 
 test("community witness helpers stay bounded to PR95 routes", () => {
   assert.equal(threadWitnessPath("thread-1", "helpful"), "/threads/thread-1/witness/helpful");
@@ -50,4 +58,26 @@ test("community witness readback keeps aggregate counts and current viewer state
   );
   assert.deepEqual(getViewerWitnesses({ viewer_witnesses: ["careful"] }), ["careful"]);
   assert.deepEqual(getViewerWitnesses({}), []);
+});
+
+test("community witness trust copy explains marks without public scoring", () => {
+  assert.equal(communityWitnessKindLabel("helpful"), "Helpful");
+  assert.equal(communityWitnessKindDescription("grounded"), "Supported by context or source material.");
+  assert.equal(communityWitnessTrustSummary({ helpful: 1, grounded: 1, careful: 0 }), "2 aggregate witness marks.");
+  assert.equal(communityViewerWitnessSummary(["careful"]), "Your current marks: Careful.");
+  assert.equal(
+    communityTrustBoundaryCopy(),
+    "Witness marks are contribution-level acknowledgments, not public author scores, rankings, badges, or clout."
+  );
+
+  const rows = communityWitnessReadbackRows({ helpful: 1, grounded: 0, careful: 2 });
+  assert.deepEqual(rows.map((row) => [row.kind, row.label, row.value]), [
+    ["helpful", "Helpful", 1],
+    ["grounded", "Grounded", 0],
+    ["careful", "Careful", 2],
+  ]);
+  assert.doesNotMatch(
+    rows.map((row) => `${row.label} ${row.description}`).join(" "),
+    /leaderboard|badge|clout|reputation profile|user score|public score|rank/i
+  );
 });
