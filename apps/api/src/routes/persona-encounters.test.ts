@@ -549,6 +549,22 @@ test("provider readiness reports ready when an accepted private-context route is
   });
 });
 
+test("provider readiness blocks cross-owner responder before provider resolution", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const response = await requestJson(app, "GET", readinessPath({ responderPersonaId: OTHER_PERSONA_ID }), {
+      token: "owner-token",
+    });
+
+    assert.equal(response.status, 403);
+    assert.equal(response.body.ready, false);
+    assert.equal(response.body.code, "persona_encounter_persona_not_owned");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  });
+});
+
 test("nvidia-only private context stays paused before generation", async () => {
   await withHarness(async ({ db, app, providerCalls }) => {
     clearProviderEnv();

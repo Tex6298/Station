@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR473B accepted
+
+ARGUS accepts PR473B after adding a narrow readiness owner-scope regression:
+
+`docs/roadmap/PR473B_OWNER_ENCOUNTER_PROVIDER_AVAILABILITY_REPAIR_REVIEW_RESULT.md`
+
+Decision:
+
+- PR473B matches the PR473A/PR473B repair boundary.
+- `GET /persona-encounters/preview/readiness` is authenticated.
+- The readiness route verifies both selected personas belong to `req.user!.id`.
+- Readiness uses the same encounter preview provider resolver as generation.
+- The resolver still passes `allowPlatformNvidia: false`.
+- Accepted private-context routes can report `ready: true`.
+- NVIDIA-only private context reports `ready: false`,
+  `persona_encounter_provider_unavailable`, and `provider_data_policy`.
+- Readiness performs no provider call, token accounting, quota deduction,
+  rate-limit increment, or durable encounter write.
+- The private Studio panel disables generation while readiness is loading or
+  unavailable and shows bounded paused copy before click.
+- ARGUS added a readiness-route regression proving a cross-owner responder is
+  blocked before provider resolution, provider calls, token rows, or durable
+  encounter writes.
+- No broad NVIDIA/private-context enablement, provider-policy expansion,
+  provider config, cross-owner encounter, public encounter, anonymous
+  encounter, background loop, durable transcript, source retrieval, schema,
+  migration, storage, queue, worker, Redis, Cloudflare, billing, Stripe, prompt
+  persistence, output persistence, or broad UI scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`: pass, 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`: pass, 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters`: pass, 15 tests after package builds.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui`: pass, 160 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+- `git diff --check`: pass, line-ending normalization warnings only.
+- `git diff --cached --check`: pass.
+- Diff-only scope scan: pass, expected provider-readiness, paused-copy,
+  negative-scope, and test references only.
+- Diff-only secret-shaped-pattern scan: pass, no real committed secret values;
+  broad token-label hits were dummy `owner-token` test fixtures only.
+
+Current lane:
+
+```text
+PR473B - Owner Encounter Provider Availability Repair
+Owner: MIMIR / A1
+State: ARGUS ACCEPTED - HOSTED RERUN OR PROVIDER/CONFIG DECISION
+```
+
+Current baton:
+
+- MIMIR should route the hosted rehearsal rerun if an accepted private-context
+  provider is configured, or record the exact provider/config blocker if hosted
+  remains NVIDIA-only for private context.
+- Do not broaden into NVIDIA private-context enablement, public/shareable
+  encounters, cross-owner encounters, durable transcripts, source retrieval,
+  queues/workers, Cloudflare, Redis, billing, schema, migrations, or broader UI.
+
 ## Latest DAEDALUS handoff - PR473B ready for ARGUS review
 
 DAEDALUS completed the owner encounter provider availability repair:
