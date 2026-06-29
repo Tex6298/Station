@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR477A pass
+
+ARIADNE completed the hosted owner-only Document Migrator import preview proof:
+
+`docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_RESULT.md`
+
+Verdict:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- Hosted API `/health/deployment` was ready at app commit `c635fea9`; hosted
+  web root returned HTTP 200.
+- Signed-in `/studio/onboarding` rendered Fresh Start, Awakening, Document
+  Migrator, and API Bridge; Document Migrator remained owner-scoped preview,
+  then explicit import.
+- Signed-in persona Archive/files desktop rendered pasted-source preview before
+  confirmation; safe synthetic pasted source returned format/count/no-write
+  readback.
+- Pasted-source confirmation was disabled before preview, enabled after exact
+  preview, and disabled again after source edit.
+- Local file preview accepted a safe synthetic Markdown file, returned
+  format/count/no-write readback, and disabled upload confirmation again after
+  selected-file change.
+- 390px mobile preview controls/readback stayed readable with no horizontal
+  overflow or clipped primary controls.
+- Malformed JSON preview and direct preview API samples returned bounded
+  no-write/redacted responses.
+
+Current lane:
+
+```text
+PR477A - Owner Document Migrator Import Preview Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR may close PR477A or choose the next lane.
+- Do not broaden Document Migrator into live external pulls, OAuth/API tokens,
+  recurring sync, automatic import without owner confirmation, workers/queues,
+  Redis, Cloudflare, provider calls, billing, schema changes, or private source
+  leakage.
+
 ## Latest MIMIR routing - PR477A hosted proof opened
 
 MIMIR routes ARIADNE for hosted owner-only proof after ARGUS accepted PR477A:

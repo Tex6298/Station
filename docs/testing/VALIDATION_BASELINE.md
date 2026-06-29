@@ -20,6 +20,48 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR477A Owner Document Migrator Import Preview Hosted Rehearsal
+
+ARIADNE completed the hosted owner-only proof on 2026-06-29:
+`docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted API health was ready at app commit `c635fea9`, and hosted web returned
+  HTTP 200;
+- signed-in `/studio/onboarding` rendered Document Migrator as owner-scoped
+  preview, then explicit import, without live connector or recurring-sync
+  claims;
+- signed-in persona Archive/files desktop showed pasted-source preview before
+  confirmation, with format/count/no-write readback for a safe synthetic source;
+- pasted-source confirmation was disabled before preview, enabled after exact
+  preview, and disabled again after source edit;
+- local file preview accepted a safe synthetic Markdown file, returned
+  format/count/no-write readback, and disabled upload confirmation after
+  selected-file change;
+- 390px mobile kept preview controls and readback readable with no horizontal
+  overflow or clipped primary controls;
+- direct preview API samples returned no-write/redacted preview fields, and
+  malformed JSON returned bounded no-write copy without private-source or
+  internal-detail leakage.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted API `/health/deployment` | Pass | Ready at app commit `c635fea9`. |
+| Hosted web root | Pass | Returned HTTP 200. |
+| Signed-in `/studio/onboarding` | Pass | Document Migrator stayed preview-then-import, owner-scoped, and live-connector-free. |
+| Persona Archive/files desktop pasted preview | Pass | Safe synthetic pasted source returned format/count/no-write readback before confirmation. |
+| Pasted-source confirmation gate | Pass | Disabled before preview, enabled after exact preview, disabled again after source edit. |
+| Persona Archive/files desktop local file preview | Pass | Safe synthetic Markdown file returned format/count/no-write readback before upload confirmation. |
+| Local-file confirmation gate | Pass | Disabled before preview and disabled again after selected-file change. |
+| Persona Archive/files 390px mobile | Pass | No horizontal overflow or clipped primary controls in the preview surface. |
+| Malformed JSON preview | Pass | Bounded no-write response without raw source echo, parser dump, stack trace, SQL/table detail, URL, storage path, signed URL, token, account id, or provider payload. |
+| Authenticated direct preview API | Pass | Returned no-write safety booleans and redacted preview fields only. |
+| Temporary Chrome DevTools hosted harness | Pass | Completed signed-in desktop/mobile UI proof and direct API samples. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR477A Owner Document Migrator Import Preview ARGUS Review
 
 ARGUS accepted PR477A on 2026-06-29:
