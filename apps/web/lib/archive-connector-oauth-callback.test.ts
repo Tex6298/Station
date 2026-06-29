@@ -9,7 +9,7 @@ import {
 } from "./archive-connector-oauth-callback";
 
 const validStateHandle = `${"a".repeat(43)}.${"b".repeat(43)}`;
-const validCode = "callback-code-fixture";
+const validCode = "callback-code.fixture_~+/=";
 
 function source(path: string) {
   return readFileSync(path, "utf8");
@@ -38,11 +38,11 @@ test("archive connector OAuth callback parser bounds provider state code and pro
   assert.deepEqual(
     parseArchiveConnectorOAuthCallback({
       provider: "discord",
-      searchParams: new URLSearchParams("error=access_denied&error_description=Bearer%20abc.def%20sk_live_secret"),
+      searchParams: new URLSearchParams("error=access_denied&error_description=hidden-marker"),
     }),
     { status: "provider_error", provider: "discord" },
   );
-  assert.equal(JSON.stringify(archiveConnectorCallbackRestartCopy("provider_error")).includes("sk_live_secret"), false);
+  assert.equal(JSON.stringify(archiveConnectorCallbackRestartCopy("provider_error")).includes("hidden-marker"), false);
 
   assert.equal(
     parseArchiveConnectorOAuthCallback({

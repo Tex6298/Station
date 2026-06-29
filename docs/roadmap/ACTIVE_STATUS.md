@@ -4,6 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484F-C accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484F-C Archive Connector OAuth Web Callback
+Bridge implementation:
+
+`docs/roadmap/PR484F_C_ARCHIVE_CONNECTOR_OAUTH_WEB_CALLBACK_BRIDGE_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484F_C_WEB_CALLBACK_BRIDGE
+```
+
+Current lane:
+
+```text
+PR484F-C - Archive Connector OAuth Web Callback Bridge
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+ARGUS patch:
+
+- changed the visible success copy from setup/credential-ish language to
+  bounded callback language;
+- broadened the bounded callback code pattern to include common base64 and
+  base64url characters while still rejecting whitespace, empty strings, and
+  overlong values;
+- removed a realistic-looking secret-shaped provider-error fixture from the new
+  web callback test.
+
+Accepted boundary:
+
+- public web callback route
+  `/archive-connectors/oauth/callback/[provider]`;
+- Bearer-auth API verify route
+  `POST /archive-connectors/oauth/:provider/callback/verify`;
+- one-time PR484E state consumption with owner/provider/nonce/csrf/
+  Bearer-derived session binding;
+- no authorization URL generation, server redirect, token exchange, credential
+  write/revoke, provider call/fetch, source inventory, import write, queue,
+  hosted runtime, Cloudflare, Redis, billing, package, broad connector UI, or
+  social posting behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-oauth-callback.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 59 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Source/scope scans passed for forbidden live connector, provider, import,
+  queue, hosted, billing, package, and social behavior.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484F-C ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484F-C Archive Connector OAuth Web

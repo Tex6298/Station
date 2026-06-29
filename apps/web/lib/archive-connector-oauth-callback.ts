@@ -3,7 +3,7 @@ import { AUTH_STORAGE_KEY, parseStoredSession } from "./auth-session";
 
 export const ARCHIVE_CONNECTOR_CALLBACK_ROUTE_PREFIX = "/archive-connectors/oauth/callback";
 export const ARCHIVE_CONNECTOR_STATE_HANDLE_PATTERN = /^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/;
-export const ARCHIVE_CONNECTOR_CALLBACK_CODE_PATTERN = /^[A-Za-z0-9._~-]{1,512}$/;
+export const ARCHIVE_CONNECTOR_CALLBACK_CODE_PATTERN = /^[A-Za-z0-9._~+/=-]{1,1024}$/;
 
 export const ARCHIVE_CONNECTOR_CALLBACK_PROVIDERS = ["reddit", "discord"] as const;
 export type ArchiveConnectorCallbackProvider = typeof ARCHIVE_CONNECTOR_CALLBACK_PROVIDERS[number];

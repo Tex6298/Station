@@ -106,9 +106,9 @@ export default function ArchiveConnectorOAuthCallbackPage({
 
         {view.state === "verified" ? (
           <>
-            <h1 style={titleStyle}>{view.providerLabel} setup verified</h1>
+            <h1 style={titleStyle}>{view.providerLabel} callback received</h1>
             <p style={bodyStyle}>
-              Station verified this callback. Token exchange and credential writes remain disabled in this lane.
+              Station checked this callback. Return to Station to continue connector setup.
             </p>
             {view.localRedirectPath ? (
               <a style={linkStyle} href={view.localRedirectPath}>

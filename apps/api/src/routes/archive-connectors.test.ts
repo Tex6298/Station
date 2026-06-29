@@ -829,7 +829,7 @@ test("archive connector OAuth state start rejects invalid local redirects withou
 
 test("archive connector OAuth callback verify requires auth and rejects unsupported or malformed input without writes", async () => {
   const validStateHandle = `${"a".repeat(43)}.${"b".repeat(43)}`;
-  const validCode = "callback-code-fixture";
+  const validCode = "callback-code.fixture_~+/=";
 
   const signedOutDb = new ArchiveConnectorReadinessSupabase();
   setSupabaseAdminForTests(signedOutDb.client as any);
@@ -869,7 +869,7 @@ test("archive connector OAuth callback verify requires auth and rejects unsuppor
     { stateHandle: "not-a-state", code: validCode },
     { stateHandle: validStateHandle, code: "" },
     { stateHandle: validStateHandle, code: "code with spaces" },
-    { stateHandle: validStateHandle, code: `${"a".repeat(513)}` },
+    { stateHandle: validStateHandle, code: `${"a".repeat(1025)}` },
     { stateHandle: validStateHandle, code: validCode, ownerUserId: "owner-user" },
     { stateHandle: validStateHandle },
     { code: validCode },
@@ -903,7 +903,7 @@ test("archive connector OAuth callback verify consumes a PR484E state exactly on
   const db = new ArchiveConnectorReadinessSupabase();
   setSupabaseAdminForTests(db.client as any);
   const app = await createArchiveConnectorApp();
-  const callbackCode = "callback-code-fixture";
+  const callbackCode = "callback-code.fixture_~+/=";
 
   try {
     await withEnv(archiveConnectorConfiguredEnv(), async () => {
@@ -957,7 +957,7 @@ test("archive connector OAuth callback verify consumes a PR484E state exactly on
 });
 
 test("archive connector OAuth callback verify fails closed on owner provider session csrf and expiry mismatches", async () => {
-  const callbackCode = "callback-code-fixture";
+  const callbackCode = "callback-code.fixture_~+/=";
 
   const cases: Array<{
     name: string;

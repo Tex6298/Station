@@ -193,7 +193,7 @@ function callbackVerificationFromBody(body: unknown) {
     typeof stateHandle !== "string" ||
     !/^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/.test(stateHandle) ||
     typeof code !== "string" ||
-    !/^[A-Za-z0-9._~-]{1,512}$/.test(code)
+    !/^[A-Za-z0-9._~+/=-]{1,1024}$/.test(code)
   ) {
     throw new Error("invalid callback body");
   }
