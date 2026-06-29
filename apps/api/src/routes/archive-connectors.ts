@@ -37,7 +37,6 @@ archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res:
       status: "setup_required",
       provider,
       purpose: "archive_connector",
-      oauthAppStatus,
       ...disabledOAuthStateStartSafety(),
     });
   }
@@ -63,15 +62,27 @@ archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res:
   const stateHandle = `${nonce}.${csrf}`;
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-  const state = await createArchiveConnectorOAuthState({
-    ownerUserId: req.user!.id,
-    sessionId: sessionBinding(req.user!.id, bearerToken),
-    provider,
-    nonce,
-    csrf,
-    expiresAt,
-    localRedirectPath,
-  });
+  let state: { expiresAt: string; localRedirectPath: string | null };
+  try {
+    state = await createArchiveConnectorOAuthState({
+      ownerUserId: req.user!.id,
+      sessionId: sessionBinding(req.user!.id, bearerToken),
+      provider,
+      nonce,
+      csrf,
+      expiresAt,
+      localRedirectPath,
+    });
+  } catch {
+    return res.status(500).json({
+      error: "Could not start archive connector OAuth state.",
+      code: "archive_connector_oauth_state_start_failed",
+      status: "start_failed",
+      provider,
+      purpose: "archive_connector",
+      ...disabledOAuthStateStartSafety(),
+    });
+  }
 
   return res.status(201).json({
     status: "oauth_state_created",

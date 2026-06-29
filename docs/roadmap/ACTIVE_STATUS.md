@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484E accepted for MIMIR
+
+ARGUS reviewed the PR484E Archive Connector OAuth State Start implementation:
+
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ARGUS_ACCEPTED_PR484E_OAUTH_STATE_START_ROUTE
+```
+
+Current lane:
+
+```text
+PR484E - Archive Connector OAuth State Start
+Owner: MIMIR / A1
+State: ACCEPTED BY ARGUS - CLOSEOUT DECISION
+```
+
+Current baton:
+
+- MIMIR should close PR484E or decide the next roadmap move.
+- ARGUS accepted the route after a narrow setup-detail/storage-failure response
+  hardening patch.
+- The accepted route creates one hash-only OAuth state row and returns one
+  opaque `stateHandle` only on successful authenticated start.
+- Missing/partial provider app config now returns bounded setup-required
+  without revealing missing vs partial or which side is present.
+- No redirect/callback, token exchange, credential write/revoke, provider call,
+  source inventory, import write, UI, package dependency, hosted runtime,
+  billing, provider/model, or social posting behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Path/scope and source/scope scans stayed inside the accepted PR484E route,
+  tests, and docs, with no live OAuth/provider/import/runtime widening.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484E ready for ARGUS
 
 DAEDALUS implemented the PR484E Archive Connector OAuth State Start slice:

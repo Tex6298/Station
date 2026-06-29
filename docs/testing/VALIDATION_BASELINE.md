@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484E Archive Connector OAuth State Start ARGUS Review
+
+ARGUS accepted PR484E on 2026-06-29:
+`docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_REVIEW_RESULT.md`.
+
+Validation result: `ARGUS_ACCEPTED_PR484E_OAUTH_STATE_START_ROUTE`.
+
+Reason:
+
+- the authenticated state-start route is limited to `reddit` and `discord`;
+- successful start requires configured archive-specific provider app config and
+  writes one hash-only OAuth state row;
+- ARGUS removed setup-detail readback from setup-required errors, so
+  missing/partial provider app config does not reveal missing vs partial or
+  which side is present;
+- ARGUS added bounded storage-failure handling without returning a raw
+  `stateHandle`;
+- stored state rows do not contain raw Bearer tokens, raw session bindings, raw
+  state handles, raw nonce, raw csrf, env values, provider payloads, OAuth
+  codes, access tokens, refresh tokens, cookies, SQL/table details, stack
+  traces, prompts, or static secret-shaped fixtures;
+- no redirect/callback route, OAuth consume/callback handling, token exchange,
+  credential write/revoke, provider call, source inventory, import write, UI,
+  job, queue, worker, Redis, Cloudflare, billing, provider/model call, package
+  dependency, hosted runtime behavior, public connector page, or social posting
+  behavior was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 12 tests passed after the ARGUS setup-detail/storage-failure patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 52 tests passed across readiness/state-start route, storage, contract, no-write import preview, Reddit/Discord parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran successfully; web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| Path/scope scan | Pass | Changed paths stay within accepted PR484E route/helper-test/docs/status files plus the A3 receipt. |
+| Source/scope scan | Pass | No redirect/callback, token exchange execution, credential write/revoke, OAuth consume, provider call/fetch, import/archive write, queue, Redis, Cloudflare, billing, provider/model, package, hosted runtime, or social config coupling. |
+
 ## PR484E Archive Connector OAuth State Start
 
 DAEDALUS implemented PR484E on 2026-06-29:

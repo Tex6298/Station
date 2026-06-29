@@ -17,6 +17,7 @@ const OWNER_AUTH_MARKER = "owner-session-marker";
 class ArchiveConnectorReadinessSupabase {
   tableCalls: string[] = [];
   writeCalls: string[] = [];
+  insertErrorTables = new Set<string>();
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -83,6 +84,14 @@ class Query {
 
   single() {
     if (this.operation === "insert") {
+      this.db.writeCalls.push(`${this.table}.insert`);
+      if (this.db.insertErrorTables.has(this.table)) {
+        return Promise.resolve({
+          data: null,
+          error: { message: `SQL insert failed in ${this.table} owner_user_id=owner-user stack prompt` },
+        });
+      }
+
       const row = {
         id: `${this.table}-${this.db.rows(this.table).length + 1}`,
         created_at: "2026-06-29T22:50:00.000Z",
@@ -90,7 +99,6 @@ class Query {
         ...(this.payload ?? {}),
       };
       this.db.rows(this.table).push(row);
-      this.db.writeCalls.push(`${this.table}.insert`);
       return Promise.resolve({ data: row, error: null });
     }
 
@@ -539,7 +547,6 @@ test("archive connector OAuth state start requires configured archive provider a
         ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: null,
         ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
       },
-      status: "missing",
     },
     {
       name: "partial",
@@ -547,7 +554,6 @@ test("archive connector OAuth state start requires configured archive provider a
         ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "archive-reddit-id-marker",
         ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: null,
       },
-      status: "partial",
     },
   ];
 
@@ -573,7 +579,7 @@ test("archive connector OAuth state start requires configured archive provider a
         assert.equal(response.body.code, "archive_connector_provider_app_setup_required");
         assert.equal(response.body.status, "setup_required");
         assert.equal(response.body.provider, "reddit");
-        assert.equal(response.body.oauthAppStatus, setup.status);
+        assert.equal("oauthAppStatus" in response.body, false);
         assertDisabledStartSafety(response.body);
         assertNoSensitiveArchiveConnectorReadback(response.body);
         assert.equal(db.rows("archive_connector_oauth_states").length, 0);
@@ -643,6 +649,39 @@ test("archive connector OAuth state start creates bounded state rows for configu
         assert.equal(row.local_redirect_path, response.localRedirectPath);
         assertNoSensitiveOAuthStateRow(row, response.stateHandle, OWNER_AUTH_MARKER);
       }
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector OAuth state start returns bounded storage failure", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.insertErrorTables.add("archive_connector_oauth_states");
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: null,
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID: "archive-reddit-id-marker",
+      ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET: "archive-reddit-config-b",
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_ID: null,
+      ARCHIVE_CONNECTOR_DISCORD_CLIENT_SECRET: null,
+    }, async () => {
+      const response = await requestJson(app, "POST", "/archive-connectors/oauth/reddit/start", {
+        token: OWNER_AUTH_MARKER,
+      });
+
+      assert.equal(response.status, 500);
+      assert.equal(response.body.code, "archive_connector_oauth_state_start_failed");
+      assert.equal(response.body.status, "start_failed");
+      assert.equal(response.body.provider, "reddit");
+      assert.equal("stateHandle" in response.body, false);
+      assertDisabledStartSafety(response.body);
+      assertNoSensitiveArchiveConnectorReadback(response.body);
+      assert.equal(db.rows("archive_connector_oauth_states").length, 0);
+      assert.deepEqual(db.writeCalls, ["archive_connector_oauth_states.insert"]);
     });
   } finally {
     setSupabaseAdminForTests(null);

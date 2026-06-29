@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484E | Archive Connector OAuth State Start | ARGUS / A3 | Ready for review; owner/session-bound OAuth state start route implemented before any redirect/callback/provider call/token exchange/import write | `docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_RESULT.md` |
+| PR484E | Archive Connector OAuth State Start | MIMIR / A1 | Accepted by ARGUS after narrow response hardening; closeout decision pending | `docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484E review | Archive Connector OAuth State Start | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS setup-detail/storage-failure response patch; authenticated provider-config-gated state start writes one hash-only OAuth state row and returns one opaque handle without redirects, callbacks, provider calls, credential writes, imports, UI, packages, or hosted runtime scope | `docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_REVIEW_RESULT.md` |
 | PR484E implementation | Archive Connector OAuth State Start | DAEDALUS -> ARGUS | Ready for review; authenticated provider-config-gated state start writes one hash-only OAuth state row and returns one opaque handle without redirects, callbacks, provider calls, credential writes, imports, UI, packages, or hosted runtime scope | `docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_RESULT.md` |
 | PR484E preflight | Archive Connector OAuth State Start | MIMIR -> ARGUS -> DAEDALUS | Accepted owner/session-bound OAuth state start route only; no redirect/callback, token exchange, credential writes, provider calls, imports, UI, package, or hosted runtime scope | `docs/roadmap/PR484E_ARCHIVE_CONNECTOR_OAUTH_STATE_START_PREFLIGHT_RESULT.md` |
 | PR484D closeout | Archive Connector Provider App Config | MIMIR | Closed; archive-specific Reddit/Discord provider app config readiness accepted, no hosted proof required | `docs/roadmap/PR484D_ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG_CLOSEOUT.md` |
