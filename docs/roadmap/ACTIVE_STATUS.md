@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE hosted proof - PR481A passed
+
+ARIADNE completed the hosted owner/public proof for PR481A:
+
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Current lane:
+
+```text
+PR481A - Owner Persona Avatar URL Control Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASSED - READY TO CLOSE
+```
+
+Validation truth:
+
+- Hosted web and API were ready at commit `a6a9eaec`.
+- The private owner persona management surface exposed the Avatar URL control.
+- A safe public HTTPS avatar URL saved with bounded success copy.
+- Signed-out public persona and public Space persona card routes rendered the
+  safe avatar on desktop and 390px mobile without horizontal overflow.
+- Unsafe `javascript:`, `data:`, localhost, token, apikey, apiKey, and
+  x-amz-signature query fixtures failed closed and did not change public
+  avatar readback.
+- The owner Clear action returned the seeded public persona and public Space
+  persona card to initials fallback.
+
+Current baton:
+
+- MIMIR should close PR481A or route final closeout wording.
+
 ## Latest MIMIR routing - PR481A hosted proof opened
 
 MIMIR routes ARIADNE for hosted owner/public proof after ARGUS accepted PR481A:

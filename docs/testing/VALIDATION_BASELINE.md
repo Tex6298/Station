@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR481A Owner Persona Avatar URL Control Hosted Rehearsal
+
+ARIADNE completed the hosted owner/public proof on 2026-06-29:
+`docs/roadmap/PR481A_OWNER_PERSONA_AVATAR_URL_CONTROL_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web and API were ready at commit `a6a9eaec`;
+- the private owner persona management surface exposed the Avatar URL control;
+- a safe public HTTPS avatar URL saved with bounded success copy;
+- signed-out public persona and public Space persona card routes rendered the
+  safe avatar behavior on desktop and 390px mobile without horizontal overflow;
+- unsafe `javascript:`, `data:`, localhost, token, apikey, apiKey, and
+  x-amz-signature query fixtures failed closed with bounded rejection and did
+  not change public avatar readback;
+- the owner Clear action returned the seeded public persona and public Space
+  persona card to initials fallback;
+- no upload, signed upload URL, storage object, provider/media call,
+  voice/audio/video behavior, billing/Stripe, Redis, Cloudflare, worker, queue,
+  migration, or broad public persona/product redesign path was exercised.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `node .codex-tmp\pr481a-avatar-rehearsal.mjs` | Pass | Hosted CDP/browser rehearsal completed and restored the seed avatar baseline. |
+| `pnpm typecheck` | Not run | Docs/result update only; no imports or scripts were touched in committed files. |
+
 ## PR481A Owner Persona Avatar URL Control ARGUS Review
 
 ARGUS accepted PR481A on 2026-06-29 after a narrow sanitizer review patch:
