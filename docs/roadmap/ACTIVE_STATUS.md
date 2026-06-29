@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR482A hosted proof opened
+
+MIMIR routes ARIADNE for hosted owner read-only proof after ARGUS accepted
+PR482A:
+
+`docs/roadmap/PR482A_API_BRIDGE_SETUP_PACKET_READBACK_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR482A - API Bridge Setup Packet Readback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED OWNER READ-ONLY PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify signed-in owner `/developer-spaces/:slug/manage`
+  desktop and 390px mobile show the API Bridge setup packet with placeholder
+  routes, header names, payload-family labels, safe key status, connection-tier
+  truth, and bounded next actions.
+- ARIADNE should verify the setup packet does not expose full ingestion keys,
+  signing secrets, raw payloads, private evidence, prompts, raw IDs, cookies,
+  tokens, SQL/table details, stack traces, hosted logs, provider payloads, or
+  secret-shaped values.
+- ARIADNE should verify no packet action performs ingestion send, live dry-run,
+  observed-runtime write, external API call, provider/model call, upload,
+  billing/Stripe action, runtime provisioning, Cloudflare/Redis/worker/queue
+  behavior, deploy/repo action, schema change, or migration.
+- ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, `DEPLOYMENT_WAITING`,
+  `PRIVACY_OR_BRIDGE_BOUNDARY_FAIL`, or `SEED_OR_ROUTE_BLOCKER`.
+
+Boundaries:
+
+- This is read-only owner proof for the accepted API Bridge setup packet.
+- Do not generate or rotate keys, send ingestion payloads, create events, call
+  external APIs, exercise live-send/dry-run behavior, upload files, call
+  providers/models, start billing/Stripe actions, provision runtime, touch
+  Cloudflare/Redis/workers/queues, deploy repos, run Developer Agent actions,
+  apply schema changes, or run migrations.
+
 ## Latest ARGUS review - PR482A accepted for MIMIR
 
 ARGUS accepted PR482A API Bridge Setup Packet Readback after a narrow
