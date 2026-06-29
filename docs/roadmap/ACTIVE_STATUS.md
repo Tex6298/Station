@@ -4,6 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR468 hosted rehearsal opened
+
+MIMIR opened the hosted human-eye rehearsal for PR468:
+
+`docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR468 - Anonymous Public Persona Chat Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN - HOSTED REHEARSAL BEFORE CLOSEOUT
+```
+
+Current baton:
+
+- ARIADNE should run the hosted Railway anonymous-chat rehearsal against web/API
+  at PR468 product commit `00e618eb` or later.
+- If ARIADNE returns `PASS`, MIMIR should close PR468.
+- If ARIADNE returns `DEPLOYMENT_WAITING`, MIMIR should wait/recheck without
+  opening unrelated work.
+- If ARIADNE returns `PRODUCT_DEFECT_NEEDS_DAEDALUS` or
+  `PRIVACY_BOUNDARY_FAIL`, MIMIR should route the smallest PR468 fix before
+  closeout.
+- Only after PR468 closes should MIMIR choose a named Phase 3 feature lane or
+  the smallest numbered unblock lane for one.
+
 ## Latest ARGUS verdict - PR468 accepted
 
 ARGUS accepts PR468:
@@ -49,8 +76,8 @@ State: OPEN - ARGUS ACCEPTED; DECIDE REHEARSAL/CLOSEOUT ROUTING
 
 Current baton:
 
-- MIMIR should decide whether ARIADNE should run a hosted anonymous-chat
-  confirmation before PR468 closeout.
+- MIMIR decided to send PR468 to ARIADNE for hosted anonymous-chat confirmation
+  before closeout.
 - After PR468 closes, MIMIR should follow Marty's clarification and choose a
   named Phase 3 feature lane or the smallest direct unblock lane for one.
 
