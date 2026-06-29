@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR476A hosted rehearsal | Owner Social Publishing Readiness | MIMIR / A1 | Pass; hosted Settings/social and owned document paused readiness proof completed | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_RESULT.md` |
+| PR477 preflight | Document Migrator Product Depth | ARGUS / A3 | Open; decide smallest honest owner-only import preview/readback slice or exact blocker | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR477 opened | Document Migrator Product Depth Preflight | MIMIR -> ARGUS | Open; decide smallest owner-only Document Migrator depth slice without live external pulls or private-source leakage | `docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md` |
+| PR476A closeout | Owner Social Publishing Readiness | MIMIR | Closed; hosted Settings/social and owned document proof passed with paused readback-only connector state | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_CLOSEOUT.md` |
 | PR476A hosted rehearsal | Owner Social Publishing Readiness | MIMIR -> ARIADNE -> MIMIR | Pass; Settings/social desktop/mobile and owned document route show paused readiness, direct compose fails bounded | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_RESULT.md` |
 | PR476A hosted rehearsal opened | Owner Social Publishing Readiness | MIMIR -> ARIADNE | Routed; verify hosted signed-in Settings social readiness and document paused composer state | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REHEARSAL_ARIADNE.md` |
 | PR476A review | Owner Social Publishing Readiness | DAEDALUS -> ARGUS -> MIMIR | Accepted; authenticated readiness readback and paused legacy social actions keep connectors readback-only | `docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_REVIEW_RESULT.md` |

@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR476A closed, PR477 opened
+
+MIMIR closes PR476A Owner Social Publishing Readiness as accepted:
+
+`docs/roadmap/PR476A_OWNER_SOCIAL_PUBLISHING_READINESS_CLOSEOUT.md`
+
+PR476A accepted shape:
+
+- Social Publishing is owner-only readiness/readback.
+- `/settings/social` renders paused provider cards without credential inputs or
+  live connect/OAuth/post controls.
+- Legacy social mutation routes fail closed before writes, OAuth exchange,
+  post dispatch, teaser generation, or provider calls.
+- Owned public document routes show paused social connector readiness instead
+  of a live composer.
+- Live connectors remain blocked until separate credential, OAuth/callback,
+  payload, and execution contracts are accepted.
+
+Per Marty's feature-expansion rule, MIMIR opens a different named
+customer-facing capability preflight:
+
+`docs/roadmap/PR477_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR477 - Document Migrator Product Depth Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST HONEST DOCUMENT MIGRATOR DEPTH SLICE
+```
+
+Current baton:
+
+- ARGUS should decide whether PR477A can be an owner-only Document Migrator
+  preview/readback slice using existing archive/import contracts.
+- If preview is unsafe, ARGUS may accept a narrower onboarding import
+  guide/readback slice or name the exact unblock.
+- Do not broaden into live external pulls, OAuth/API tokens, recurring sync,
+  automatic import without owner confirmation, workers/queues, Redis,
+  Cloudflare, provider calls, billing, schema changes, or private source
+  leakage.
+
 ## Latest ARIADNE rehearsal - PR476A pass
 
 ARIADNE completed the hosted read-only proof:
