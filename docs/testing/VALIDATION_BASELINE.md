@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR478 Community Reputation / Moderator Expansion Preflight
+
+ARGUS accepted the PR478 preflight on 2026-06-29:
+`docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR478A_COMMUNITY_TRUST_READBACK`.
+
+Reason:
+
+- existing community beta surfaces already include admin/delegated moderation
+  queues, report status/readback, witness controls, and private author
+  recognition;
+- moderator queue/status/target actions are already deep and sensitive, so the
+  smallest safe PR478A slice is readback-only trust context around existing
+  witness/private-recognition surfaces;
+- the accepted slice needs no schema, no API behavior change, no new
+  moderation power, and no public reputation surface;
+- witness counts must remain aggregate-only and current-viewer state must stay
+  current-user scoped;
+- `/forums/witnesses` must remain private-tier/current-user recognition
+  readback, not a public author score, badge, ranking, or clout profile.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | PR478 handoff, Community Beta audit, future lanes, reports route, witness/recognition helpers, moderator/delegated queue helpers/pages, thread witness UI, and current tests inspected. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 39 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 163 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from turbo cache. |
+| `git diff --check` | Pass | No whitespace errors before ARGUS docs edits. |
+
 ## PR477A Owner Document Migrator Import Preview Hosted Rehearsal
 
 ARIADNE completed the hosted owner-only proof on 2026-06-29:

@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR478A accepted
+
+ARGUS accepted the first Community Reputation / Moderator Expansion slice:
+
+`docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR478A_COMMUNITY_TRUST_READBACK
+```
+
+Accepted shape:
+
+- readback-only context around existing witness and private author-recognition
+  surfaces;
+- aggregate witness counts and current-viewer state only;
+- private `/forums/witnesses` author recognition remains current-user scoped;
+- no new moderation powers, report queue mutation, schema, API behavior, public
+  scores, leaderboards, badges, clout, reputation profiles, witnesser/reporter
+  identity exposure, or private moderation leakage.
+
+Current lane:
+
+```text
+PR478A - Community Trust Readback
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT READBACK-ONLY TRUST CONTEXT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact PR478A slice named by ARGUS.
+- Keep the work on existing witness/private-recognition surfaces.
+- Do not broaden into public reputation, moderator directories, new moderation
+  powers, automated moderation, broad forum redesign, Redis, Cloudflare,
+  workers/queues, billing, schema changes, or private moderation leakage.
+
 ## Latest MIMIR closeout/opening - PR477A closed, PR478 opened
 
 MIMIR closes PR477A Owner Document Migrator Import Preview as accepted:
