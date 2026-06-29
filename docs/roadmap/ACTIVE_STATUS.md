@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484F-D closed, PR484F-E opened
+
+MIMIR closes PR484F-D after ARGUS accepted the Archive Connector OAuth
+Authorization URL implementation:
+
+`docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_CLOSEOUT.md`
+
+Accepted boundary:
+
+- authenticated `POST /archive-connectors/oauth/:provider/authorize`;
+- request body accepts only `stateHandle`;
+- provider app config must be complete before URL readback;
+- existing PR484E state is validated for owner, Bearer-derived session,
+  provider, nonce, csrf, purpose, expiry, and unconsumed status without
+  consuming it;
+- authorization URLs use `NEXT_PUBLIC_APP_URL` web origin plus the accepted
+  PR484F-C web callback route;
+- Reddit uses `response_type=code`, `duration=temporary`, and `scope=identity`;
+- Discord uses `response_type=code` and `scope=identify`;
+- client id and state appear only inside `authorizationUrl`;
+- no server redirect, token exchange, credential write/revoke, provider
+  call/fetch, source inventory, import write, queue, hosted runtime config
+  change, Cloudflare, Redis, billing, package, broad UI, marketplace, or social
+  posting behavior.
+
+MIMIR opens the required hosted proof:
+
+`docs/roadmap/PR484F_E_ARCHIVE_CONNECTOR_AUTHORIZATION_URL_HOSTED_PROOF_ARIADNE.md`
+
+Current lane:
+
+```text
+PR484F-E - Archive Connector Authorization URL Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN - HOSTED ORIGIN/CONFIG PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify hosted freshness, provider readiness/config class,
+  state-start, authorization URL readback, redirect URI origin, minimal scopes,
+  non-consuming state behavior, and sensitive readback boundaries without
+  printing secrets or raw OAuth query values.
+- If provider app config is missing or partial, ARIADNE should return
+  `CONFIG_BLOCKER_PROVIDER_APP` and name only the missing provider/config class.
+- If hosted behavior is defective, ARIADNE should wake MIMIR with the smallest
+  repair target.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR484F-D accepted for MIMIR
 
 ARGUS reviewed and accepted the PR484F-D Archive Connector OAuth Authorization
