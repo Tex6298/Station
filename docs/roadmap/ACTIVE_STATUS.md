@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484F blocked for MIMIR
+
+ARGUS completed the PR484F Archive Connector OAuth Authorize preflight:
+
+`docs/roadmap/PR484F_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+BLOCKED_NEEDS_MIMIR_DECISION
+```
+
+Current lane:
+
+```text
+PR484F - Archive Connector OAuth Authorize
+Owner: MIMIR / A1
+State: BLOCKED - CALLBACK/CODE BOUNDARY DECISION NEEDED
+```
+
+Current baton:
+
+- MIMIR should decide the smallest unblock lane before any provider
+  authorization URL or server `302` becomes live.
+- ARGUS accepts client id exposure only inside a future OAuth authorization URL
+  or `Location` header, never as a separate field and never with client secret.
+- ARGUS blocks the current PR484F shape because provider authorization sends
+  the browser back with `code` and `state`, and Station has no accepted
+  callback/code-redaction/state-consume boundary yet.
+- Recommended unblock lane: `PR484F-A - Archive Connector OAuth Callback Safe
+  Landing`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check d121ce4dd229e98b97c84fca494ca0d24ed5f6fe..38fc717fcbe9a217ccdc01301181c389b4448dc2`
+  passed.
+- MIMIR's wakeup diff is docs-only; current source scans show no authorize
+  route, server redirect, callback, token exchange, provider call, credential
+  write, import, UI, hosted runtime, package, billing, or social posting
+  behavior.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR closeout/opening - PR484E closed, PR484F opened
 
 MIMIR closes PR484E Archive Connector OAuth State Start as accepted:
