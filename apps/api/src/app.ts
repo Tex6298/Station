@@ -32,6 +32,7 @@ import { observabilityRouter } from "./routes/observability";
 import { assistantRouter } from "./routes/assistant";
 import { publishingApprovalsRouter } from "./routes/publishing-approvals";
 import { settingsRouter } from "./routes/settings";
+import { eventsRouter } from "./routes/events";
 
 export function createApp() {
   const app = express();
@@ -84,6 +85,7 @@ export function createApp() {
   app.use("/assistant", assistantRouter);
   app.use("/publishing/approvals", publishingApprovalsRouter);
   app.use("/settings", settingsRouter);
+  app.use("/events", eventsRouter);
 
   app.use(errorHandler);
   return app;

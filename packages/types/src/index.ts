@@ -8,5 +8,6 @@ export * from "./developer-space";
 export * from "./project";
 export * from "./export";
 export * from "./billing";
+export * from "./live-events";
 
 export * from "./forum";

@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR469A Public Seminar Readback Bundles
+
+DAEDALUS implemented PR469A on 2026-06-29:
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `GET /events/seminars` returns public seminar readback cards from
+  admin-curated featured public materials only;
+- every card resolves through current public routeability checks before return;
+- private, community-only, hidden, removed, unsafe-slug, missing, and unresolved
+  featured items are skipped;
+- the route does not trust stored discover-feed hrefs or descriptions;
+- bounded `live_events_unavailable` errors do not expose raw database/service
+  details;
+- web copy remains readback-only and avoids RSVP, ticketing, payment, realtime,
+  media, recording, transcript, provider, and private runtime claims.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for API and web. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Residual risk: hosted desktop/mobile proof has not run yet. If ARGUS accepts
+the implementation, MIMIR should route ARIADNE for hosted `/events/seminars`
+confirmation.
+
 ## PR469 Live Events / Seminars Preflight
 
 ARGUS accepted PR469 preflight on 2026-06-29:

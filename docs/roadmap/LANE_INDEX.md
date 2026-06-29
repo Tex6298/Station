@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR469A | Public Seminar Readback Bundles | DAEDALUS / A2 | Open; implement schema-free public seminar readback cards from curated public-safe materials | `docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_RESULT.md` |
+| PR469A | Public Seminar Readback Bundles | ARGUS / A3 | Open; review DAEDALUS public seminar readback implementation | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR469A implementation | Public Seminar Readback Bundles | DAEDALUS -> ARGUS | Ready for review; `/events/seminars` public readback cards derive from featured public documents, threads, and Spaces only | `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md` |
 | PR469 preflight | Live Events / Seminars | MIMIR -> ARGUS -> DAEDALUS | Accepted for PR469A Public Seminar Readback Bundles; schema-free public-only readback, no realtime/media/attendance/payments/provider scope | `docs/roadmap/PR469_LIVE_EVENTS_SEMINARS_PREFLIGHT_RESULT.md` |
 | PR468 closeout | Anonymous Public Persona Chat | MIMIR | Closed as accepted after ARGUS review, PR468A route reachability repair, and ARIADNE hosted desktop/mobile rerun pass | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_CLOSEOUT.md` |
 | PR468 hosted rerun | Anonymous Public Persona Chat | MIMIR -> ARIADNE -> MIMIR | Pass; hosted anonymous alpha chat, public-source boundary, no transcript persistence, route reachability, and desktop/mobile fit confirmed after PR468A | `docs/roadmap/PR468_ANONYMOUS_PUBLIC_PERSONA_CHAT_REHEARSAL_RERUN_RESULT.md` |

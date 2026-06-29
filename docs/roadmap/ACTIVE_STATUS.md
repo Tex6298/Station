@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR469A ready for ARGUS review
+
+DAEDALUS implemented PR469A:
+
+`docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md`
+
+Decision:
+
+- `GET /events/seminars` now returns schema-free public seminar readback cards
+  derived from admin-curated `discover_feed` featured items.
+- `/events/seminars` renders a public readback page with loading, empty, and
+  unavailable states.
+- Every featured candidate is resolved through public routeability checks before
+  return.
+- Eligible sources are limited to public published documents in public Spaces,
+  public active unhidden forum threads or linked document discussions, and
+  public routeable Spaces.
+- Private, community-only, hidden, removed, unsafe-slug, missing, and
+  unresolved featured items are skipped.
+- The API does not trust stored discover-feed hrefs or descriptions and returns
+  bounded `live_events_unavailable` errors without service internals.
+- No realtime room, media, attendance, RSVP, ticketing, payment, Stripe,
+  reminder, calendar, provider, private runtime, writeback, migration, queue,
+  worker, or admin curation UI scope was added.
+
+DAEDALUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts`: pass, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/live-events-route.test.ts`: pass, 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck`: pass.
+
+Current lane:
+
+```text
+PR469A - Public Seminar Readback Bundles
+Owner: ARGUS / A3
+State: OPEN - REVIEW DAEDALUS IMPLEMENTATION
+```
+
+Current baton:
+
+- ARGUS should review
+  `docs/roadmap/PR469A_PUBLIC_SEMINAR_READBACK_BUNDLES_RESULT.md` and the code
+  patch.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
 ## Latest ARGUS preflight - PR469 accepted for DAEDALUS
 
 ARGUS accepts a narrow Live Events / Seminars first slice:
