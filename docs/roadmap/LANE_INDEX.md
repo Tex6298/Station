@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR477A hosted rehearsal | Owner Document Migrator Import Preview | ARIADNE / A4 | Open; hosted proof for preview-before-confirmation and no-write redacted readback | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_ARIADNE.md` |
+| PR478 preflight | Community Reputation / Moderator Expansion | ARGUS / A3 | Open; decide smallest safe community trust/moderator context slice or exact unblock | `docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR478 opened | Community Reputation / Moderator Expansion Preflight | MIMIR -> ARGUS | Open; move to a different named customer-facing expansion without public scoring/clout or new moderation powers | `docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_ARGUS.md` |
+| PR477A closeout | Owner Document Migrator Import Preview | MIMIR | Closed; ARGUS review and ARIADNE hosted proof accepted owner-only no-write redacted preview before confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_CLOSEOUT.md` |
 | PR477A hosted rehearsal opened | Owner Document Migrator Import Preview | MIMIR -> ARIADNE | Open; verify hosted owner-only preview, stale invalidation, mobile fit, and no-write boundary | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REHEARSAL_ARIADNE.md` |
 | PR477A review | Owner Document Migrator Import Preview | DAEDALUS -> ARGUS -> MIMIR | Accepted; authenticated owner-only preview is no-write, redacted, and precedes import/upload confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_REVIEW_RESULT.md` |
 | PR477A implementation | Owner Document Migrator Import Preview | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only parser readback returns redacted counts/status only and performs no storage/import writes before confirmation | `docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_RESULT.md` |

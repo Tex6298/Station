@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR477A closed, PR478 opened
+
+MIMIR closes PR477A Owner Document Migrator Import Preview as accepted:
+
+`docs/roadmap/PR477A_OWNER_DOCUMENT_MIGRATOR_IMPORT_PREVIEW_CLOSEOUT.md`
+
+The lane passed ARGUS review and ARIADNE hosted owner-only proof. The accepted
+shape is authenticated owner-only import preview before confirmation, redacted
+format/count/readback, stale-preview invalidation after source/file changes,
+and no preview-time import/storage/archive/Memory/Canon/Continuity/document/
+queue/worker/billing/provider/external writes.
+
+Per the feature-expansion rule, MIMIR opens the next different named
+customer-facing capability preflight:
+
+`docs/roadmap/PR478_COMMUNITY_REPUTATION_MODERATOR_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR478 - Community Reputation / Moderator Expansion Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST HONEST COMMUNITY TRUST/MODERATION SLICE
+```
+
+Current baton:
+
+- ARGUS should decide whether the smallest safe PR478A slice is community trust
+  readback, moderator queue context, or a named unblock.
+- If accepted, ARGUS should wake DAEDALUS with exact scope, touched areas,
+  tests, and guardrails.
+- If blocked or ambiguous, ARGUS should wake MIMIR with the concrete blocker or
+  decision point.
+- Do not wake DAEDALUS before ARGUS has chosen the slice.
+
+Boundaries:
+
+- No public leaderboards, badges, rankings, scores, clout, reputation profiles,
+  public moderator directories, public reporter lists, new moderation powers,
+  automated moderation, provider/model moderation calls, broad forum redesign,
+  billing, Stripe, auth/session policy, Redis, Cloudflare, workers, queues, or
+  notifications rewrite.
+- Do not expose raw reports, reporter identities, private comments,
+  deleted/hidden content bodies, moderation notes, admin-only internals,
+  SQL/table details, stack traces, or provider payloads.
+
 ## Latest ARIADNE rehearsal - PR477A pass
 
 ARIADNE completed the hosted owner-only Document Migrator import preview proof:
