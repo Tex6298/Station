@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| None | Deliberate pause after hosted post-UI import regression | MIMIR / A1 | Watching for fresh evidence | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_CLOSEOUT.md` |
+| PR467 | Global Archive Source Intake | DAEDALUS / A2 | Open; implementation | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR467 opening | Global Archive Source Intake | MIMIR -> DAEDALUS | Open; implement owner-wide source intake from Global Archive, then wake ARGUS | `docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_DAEDALUS.md` |
 | PR466 closeout | Hosted post-UI import regression closeout | MIMIR -> ARIADNE -> MIMIR | Closed pass; no new lane opened without fresh evidence | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_CLOSEOUT.md` |
 | PR466 rehearsal | Hosted post-UI import regression rehearsal | MIMIR -> ARIADNE -> MIMIR | Pass; hosted public and owner route regression is clean | `docs/roadmap/PR466_HOSTED_POST_UI_IMPORT_REGRESSION_REHEARSAL_RESULT.md` |
 | PR465 closeout | Discern-to-Tex UI import closeout and next-lane selection | MIMIR | Closed; PR466 opened for hosted post-UI import regression rehearsal | `docs/roadmap/PR465_DISCERN_TO_TEX_UI_IMPORT_CLOSEOUT_NEXT_LANE.md` |
@@ -111,6 +112,7 @@ log.
 | Lane | State | Why Deferred | Resume Condition |
 | --- | --- | --- | --- |
 | Backup/restore local proof | Superseded for current lane | Marty corrected that local Postgres tooling is not the intended unblock. | Reopen only by explicit MIMIR/product decision. |
+| Post-PR467 feature choice | Deferred until PR467 review returns | Marty clarified the next feature-expansion choice should be numbered Phase 3/customer-facing unless a concrete blocker is named. | After ARGUS returns PR467 verdict, MIMIR chooses the next numbered Phase 3/customer-facing lane or the smallest unblock lane. |
 
 ## Numbering Rule
 

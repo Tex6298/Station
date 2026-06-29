@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR lane opening - PR467 Global Archive Source Intake
+
+Marty accepted PR467 as a legitimate feature lane and clarified future
+sequencing:
+
+- PR467 may finish.
+- After PR467 is finished and reviewed, the next feature-expansion choice should
+  be a numbered Phase 3 or customer-facing expansion lane unless there is a
+  concrete blocker.
+- If blocked, MIMIR should name the blocker and choose the smallest unblock lane
+  instead of opening another hardening sweep.
+
+MIMIR opened PR467 for DAEDALUS:
+
+`docs/roadmap/PR467_GLOBAL_ARCHIVE_SOURCE_INTAKE_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR467 - Global Archive Source Intake
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement PR467 narrowly, then wake ARGUS.
+- ARGUS should review owner scoping, failure copy, source redaction, and scope
+  drift, then wake MIMIR.
+- MIMIR should not choose the post-PR467 lane until ARGUS returns a PR467
+  verdict.
+
 ## Latest MIMIR closeout - PR466 closed after hosted regression pass
 
 MIMIR closes PR466:
@@ -19,19 +51,13 @@ Decision:
   explicit product decision before reopening backend, UI, provider, Stripe,
   Redis, Cloudflare, worker, or risky Developer Agent work.
 
-Current lane:
+Previous lane:
 
 ```text
 NONE - deliberate pause after PR466
 Owner: MIMIR / A1
-State: WATCHING FOR FRESH EVIDENCE
+State: SUPERSEDED BY PR467 FEATURE-LANE WAKEUP
 ```
-
-Current baton:
-
-- MIMIR should remain on foreground watch for fresh `WAKEUP A1`.
-- Do not wake DAEDALUS, ARGUS, or ARIADNE until fresh evidence or user direction
-  opens a concrete lane.
 
 ## Latest ARIADNE result - PR466 hosted post-UI import regression passed
 
