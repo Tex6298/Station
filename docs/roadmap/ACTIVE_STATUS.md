@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-F closed, PR484J-G opened
+
+MIMIR closes PR484J-F after ARGUS accepted import confirmation:
+
+`docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_CLOSEOUT.md`
+
+MIMIR opens import execution/activation preflight:
+
+`docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-G - Archive Connector Import Execution / Activation Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SMALLEST EXECUTION BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the smallest safe transition from pending
+  import intent receipts toward actual import execution.
+- ARGUS should decide whether the next lane is intent activation, import/job
+  write, dry-run execution, or one narrow source-body read.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest next unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484J-F accepted for MIMIR
 
 ARGUS accepts the PR484J-F Archive Connector Import Confirmation
