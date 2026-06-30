@@ -4,39 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR closeout/opening - PR484J-J closed, PR484J-K opened
+## Latest ARGUS preflight - PR484J-K import execution accepted
 
-MIMIR closes PR484J-J after ARGUS accepted read-only staged-batch import
-preview:
+ARGUS accepts PR484J-K as the smallest safe connector import execution lane:
 
-`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_CLOSEOUT.md`
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_RESULT.md`
 
-MIMIR opens connector import execution preflight:
+Validation result:
 
-`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_ARGUS.md`
+```text
+ACCEPT_PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION
+```
+
+Accepted boundary:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/source-staging-runs/:runId/import`;
+- strict UUID path and empty-body validation before storage/decrypt/import
+  work;
+- exactly one current owner Reddit saved-items staged run;
+- linked activated import-intent and persona/source rechecks before decrypt;
+- dedicated PR484J-I staging envelope decrypt and batch validation;
+- connector-specific normalized text assembly from staged `normalizedText`
+  values only;
+- existing `import_jobs` may be used only after adding
+  `kind = 'archive_connector'` and a unique staging-run pointer;
+- direct synchronous `ingestTextIntoArchive` with a safe generic source name;
+- private archive chunk writes through `archiveSource.type = 'import_job'`;
+- successful connector import job completion plus staged-run imported metadata.
+
+Still forbidden:
+
+- `/imports/chat`, generic import parsers, `persona_files`,
+  `createImportReviewCandidates`, connector job tables in addition to the
+  accepted `import_jobs` extension, public documents, Canon, Continuity,
+  provider calls, token work, source inventory calls, queues, workers, UI,
+  hosted/runtime, billing, Redis, Cloudflare, marketplace, partner adapters,
+  social behavior, broad Reddit reads, additional Reddit history categories, or
+  Discord content reads.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 76 route tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 144 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
 
 Current lane:
 
 ```text
-PR484J-K - Archive Connector Import Execution Preflight
-Owner: ARGUS / A3
-State: OPEN - DECIDE FIRST CONNECTOR IMPORT WRITE BOUNDARY
+PR484J-K - Archive Connector Import Execution
+Owner: DAEDALUS / A2
+State: ACCEPTED_FOR_IMPLEMENTATION
 ```
 
 Current baton:
 
-- ARGUS should hostile-preflight how one owner-confirmed current staged Reddit
-  saved-items run may enter Station's archive write path.
-- ARGUS should decide whether to use existing `import_jobs` and
-  `ingestTextIntoArchive`, a connector candidate/job row, or a smaller unblock.
-- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
-  with the concrete blocker and smallest numbered unblock.
+- DAEDALUS should implement the accepted owner-only synchronous connector import
+  route/helper, migrations, DB types, lifecycle/idempotency/failure handling,
+  redaction, and static guards.
+- DAEDALUS must not reuse `/imports/chat`, generic import parsers, provider
+  calls, queues/workers, UI, hosted/runtime, or any broader provider/source
+  expansion.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A2:
+Codename: DAEDALUS
 ```
 
 ## Latest ARGUS verdict - PR484J-J staged batch consumption accepted

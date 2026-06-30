@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-K Archive Connector Import Execution Preflight
+
+ARGUS accepted PR484J-K on 2026-06-30:
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION`.
+
+Reason:
+
+- accepted one authenticated owner-only import route:
+  `POST /archive-connectors/source-staging-runs/:runId/import`;
+- first execution is limited to one current owner Reddit saved-items staged run;
+- linked activated import intent, persona, and source fields must be rechecked
+  before decrypt;
+- only the dedicated PR484J-I staging envelope and validated staged batch may be
+  consumed;
+- `import_jobs` may be used only after adding `kind = 'archive_connector'` and
+  a unique staging-run pointer;
+- archive writes go through direct synchronous `ingestTextIntoArchive` with a
+  safe generic source name and connector-normalized text;
+- `/imports/chat`, generic import parsers, `persona_files`, review candidates,
+  public documents, Canon, Continuity, provider calls, token work, queues,
+  workers, UI, hosted/runtime, billing, Redis, Cloudflare, marketplace, partner
+  adapters, social behavior, broad Reddit reads, and Discord content reads
+  remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Current import route review | Pass | `/imports/chat` is owner-scoped but pasted-chat shaped; PR484J-K must not route staged connector imports through it. |
+| Current `import_jobs` review | Pass | Existing `import_jobs` owns archive-extraction readback and can be used only with a connector-specific kind plus staging-run pointer; plain `kind = chat` is rejected. |
+| Current archive ingest review | Pass | `ingestTextIntoArchive` can write private archive chunks without generic parser or review-candidate writes when called directly with connector-normalized text. |
+| Current source-staging review | Pass | PR484J-I/J already provide owner/current run gates, dedicated decrypt, and batch validation to reuse before import execution. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 76 archive connector route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 144 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR484J-J Archive Connector Staged Batch Consumption Review
 
 ARGUS accepted PR484J-J on 2026-06-30:
