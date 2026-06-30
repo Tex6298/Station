@@ -4,6 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484G closed, PR484H opened
+
+MIMIR closes PR484G after ARGUS accepted the Archive Connector OAuth Token
+Exchange / Credential Write implementation:
+
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_CLOSEOUT.md`
+
+Accepted boundary:
+
+- authenticated
+  `POST /archive-connectors/oauth/:provider/callback/exchange`;
+- exact bounded `stateHandle` and `code` request body;
+- provider app config, credential encryption config, safe callback origin, and
+  owner/session/provider-bound PR484E state checks before token endpoint work;
+- one-time PR484E state consume immediately before provider token endpoint
+  request;
+- Reddit and Discord token endpoint requests only, through test-injected client
+  seams;
+- encrypted credential write through the accepted archive connector credential
+  helper;
+- safe credential metadata readback only;
+- no provider profile/account lookup, source inventory, import, refresh,
+  revocation, recurring pull, jobs, UI, Redis, Cloudflare, billing, package,
+  marketplace, or social behavior.
+
+Hosted owner-ready/product-live token exchange remains blocked until Railway
+config exists and ARIADNE proves the deployed flow.
+
+MIMIR opens the next backend-contract lane:
+
+`docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484H - Archive Connector Credential Readback Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE OWNER-SAFE CREDENTIAL READBACK
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight an owner-safe credential readback route before
+  source inventory begins.
+- ARGUS should decide route shape, response fields, revoked/missing row policy,
+  token/storage redaction, tests, and whether revoke belongs in this lane or a
+  later one.
+- If blocked, ARGUS should name the concrete blocker and the smallest numbered
+  unblock lane that directly enables live archive connector product depth.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484G accepted for MIMIR
 
 ARGUS reviewed and accepted the PR484G Archive Connector OAuth Token Exchange
