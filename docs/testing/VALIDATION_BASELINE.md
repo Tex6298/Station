@@ -20,6 +20,48 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-M Archive Connector Disabled State Rerun
+
+ARIADNE completed the hosted PR484J-M desktop/mobile rerun on 2026-06-30:
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_RERUN_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API health checks were ready at app commit `1e15b2e6`;
+- replay-owner sign-in, `/auth/me`, and persona readback passed without
+  recording credentials, tokens, cookies, OAuth values, deployment ids, or raw
+  persona ids;
+- `/studio/personas/[personaId]/files?connector=reddit` rendered the owner
+  persona Archive connector panel;
+- readiness still reported Reddit as `credential_encryption_required` with
+  OAuth app status `missing`;
+- hosted `GET /archive-connectors/credentials` still returned bounded
+  `500 archive_connector_credential_read_failed`;
+- the owner panel now shows the accepted `Credential storage unavailable`
+  disabled-state copy despite the credential-readback 500;
+- desktop, `375px`, and `390px` mobile fit checks passed with no horizontal
+  overflow;
+- the disabled panel exposed only `Refresh connector state`; no connect,
+  account lookup, source inventory, import intent, activation, preview,
+  staging, import-preview, or final-import action appeared;
+- no OAuth code, state value, authorization URL, token, cookie, provider
+  payload, raw id, username, subreddit, URL, author, source body, fingerprint,
+  SQL detail, stack trace, hosted log, or secret-shaped value was exposed by
+  the connector panel;
+- no Discord content, broader Reddit source category, queue/worker, recurring
+  pull, billing, Redis, Cloudflare, marketplace, partner adapter, social
+  behavior, public write, Canon, Continuity, or review-candidate scope entered
+  the connector panel.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web health | Pass | Ready at app commit `1e15b2e6`; deployment ids were not recorded. |
+| Hosted API health | Pass | Ready at app commit `1e15b2e6`; deployment ids were not recorded. |
+| Temporary hosted browser rerun | Pass | Desktop, `375px`, and `390px`; temporary harness removed before commit. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR484J-M Archive Connector Credential Readback Disabled State Review
 
 ARGUS accepted PR484J-M on 2026-06-30 after a narrow review patch:

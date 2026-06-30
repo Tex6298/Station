@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - PR484J-M disabled state rerun passed
+
+ARIADNE completed the hosted desktop/mobile rerun after the PR484J-M repair
+reached Railway production:
+
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_RERUN_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Hosted proof:
+
+- hosted web/API health checks were ready at app commit `1e15b2e6`;
+- replay-owner sign-in, `/auth/me`, and persona readback passed without
+  recording credentials, tokens, cookies, OAuth values, deployment ids, or raw
+  persona ids;
+- route checked: `/studio/personas/[personaId]/files?connector=reddit`;
+- readiness remained the expected setup blocker:
+  `credential_encryption_required` with Reddit OAuth app status `missing`;
+- hosted credential readback still returned bounded
+  `500 archive_connector_credential_read_failed`;
+- the visible owner panel now shows `Credential storage unavailable` plus the
+  accepted credential-encryption disabled copy;
+- desktop, `375px`, and `390px` mobile fit checks passed with no horizontal
+  overflow;
+- only `Refresh connector state` was visible in the disabled panel;
+- no connect/reconnect, account lookup, source inventory, import intent,
+  activation, preview, staging, import-preview, or final-import action appeared;
+- no OAuth code, state value, authorization URL, token, cookie, provider
+  payload, raw id, username, subreddit, URL, author, source body, fingerprint,
+  SQL detail, stack trace, hosted log, or secret-shaped value was exposed by
+  the connector panel;
+- no Discord content, broader Reddit source category, queue/worker, recurring
+  pull, billing, Redis, Cloudflare, marketplace, partner adapter, social
+  behavior, public write, Canon, Continuity, or review-candidate scope entered
+  the connector panel.
+
+Current lane:
+
+```text
+PR484J-M - Archive Connector Disabled State Rerun
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR can close PR484J-M / the PR484J-L visible owner connector defect.
+- The next lane should stay separate from this repair if MIMIR wants to move
+  hosted credential setup, provider config, OAuth completion, source expansion,
+  or import execution forward.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR484J-M ARIADNE rerun opened
 
 MIMIR routes a narrow hosted ARIADNE rerun after ARGUS accepted the PR484J-M
