@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484H implementation | Archive Connector Credential Readback | DAEDALUS / A2 | Open; implement owner-only readback route with one safe connected/revoked/missing row per supported provider | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_PREFLIGHT_RESULT.md` |
+| PR484H review | Archive Connector Credential Readback | ARGUS / A3 | Ready for review; owner-only readback route returns one safe connected/revoked/missing row per supported provider | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484H implementation | Archive Connector Credential Readback | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only route returns safe credential metadata only without token decrypt, token exchange, credential writes/revokes, provider calls, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_RESULT.md` |
 | PR484H preflight | Archive Connector Credential Readback | MIMIR -> ARGUS -> DAEDALUS | Accepted readback-only route; no revoke, token exchange, provider calls, source inventory, imports, UI, jobs, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_PREFLIGHT_RESULT.md` |
 | PR484G closeout | Archive Connector OAuth Token Exchange / Credential Write | MIMIR | Closed as local/backend accepted; hosted owner-ready proof remains config-blocked | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_CLOSEOUT.md` |
 | PR484G implementation | Archive Connector OAuth Token Exchange / Credential Write | DAEDALUS -> ARGUS -> MIMIR | Accepted with narrow ARGUS readiness-claim patch; backend-only exchange route stores encrypted credential metadata after fail-closed config checks and one-time state consume, without source inventory, imports, jobs, UI, Redis, Cloudflare, billing, packages, marketplace, or social behavior | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_REVIEW_RESULT.md` |

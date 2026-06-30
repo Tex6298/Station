@@ -20,6 +20,7 @@ class ArchiveConnectorReadinessSupabase {
   tableCalls: string[] = [];
   writeCalls: string[] = [];
   insertErrorTables = new Set<string>();
+  selectErrorTables = new Set<string>();
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -153,6 +154,12 @@ class Query {
         row.updated_at = "2026-06-29T22:55:00.000Z";
       }
     } else {
+      if (this.db.selectErrorTables.has(this.table)) {
+        return Promise.resolve({
+          data: null,
+          error: { message: `SQL select failed in ${this.table} owner_user_id=owner-user stack prompt` },
+        });
+      }
       rows = this.matchingRows();
     }
 
@@ -336,6 +343,15 @@ async function exchangeArchiveConnectorOAuthCallback(
   });
 }
 
+async function readArchiveConnectorCredentials(
+  app: Express,
+  options: { token?: string | null } = {},
+) {
+  return requestJson<Row>(app, "GET", "/archive-connectors/credentials", {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+  });
+}
+
 type TokenFetchCall = {
   url: string;
   method: string | undefined;
@@ -408,6 +424,57 @@ function assertNoSensitiveArchiveConnectorReadback(body: unknown) {
 
   for (const value of forbidden) {
     assert.equal(text.includes(value), false, `${value} leaked into archive connector readiness`);
+  }
+}
+
+function assertNoSensitiveCredentialReadback(body: unknown) {
+  const text = JSON.stringify(body);
+  const forbidden = [
+    "encrypted_credential",
+    "ciphertext",
+    "authTag",
+    "access_token",
+    "refresh_token",
+    "oauth_code",
+    "client_secret",
+    "stateHandle",
+    "session_id_hash",
+    "nonce_hash",
+    "csrf_hash",
+    "credential_fingerprint",
+    "external_account_fingerprint",
+    "reddit-active-fingerprint",
+    "reddit-old-fingerprint",
+    "discord-new-fingerprint",
+    "discord-old-fingerprint",
+    "other-owner-fingerprint",
+    "wrong-purpose-fingerprint",
+    "unsupported-provider-fingerprint",
+    "external-account-fixture",
+    "raw-external-account",
+    "row-id-fixture",
+    "owner-user",
+    "other-user",
+    "archive_connector_oauth_states",
+    "archive_sources",
+    "import_jobs",
+    "memory_items",
+    "canon_items",
+    "continuity_candidates",
+    "documents",
+    "private-source-body-fixture",
+    "provider_payload",
+    "provider-profile-payload",
+    "SQL",
+    "stack",
+    "signed-url",
+    "storage-path",
+    "prompt",
+    "secret-shaped-value",
+  ];
+
+  for (const value of forbidden) {
+    assert.equal(text.includes(value), false, `${value} leaked into credential readback`);
   }
 }
 
@@ -2075,6 +2142,242 @@ test("archive connector OAuth exchange fails closed on owner provider session cs
   }
 });
 
+test("archive connector credential readback requires auth and synthesizes missing provider rows", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    const unauthenticated = await readArchiveConnectorCredentials(app, { token: null });
+    assert.equal(unauthenticated.status, 401);
+    assert.equal(unauthenticated.body.error, "Missing or invalid Authorization header.");
+    assert.equal(db.tableCalls.length, 0);
+
+    const response = await readArchiveConnectorCredentials(app);
+    assert.equal(response.status, 200);
+    assert.equal(response.body.status, "archive_connector_credentials_read");
+    assert.equal(response.body.purpose, "archive_connector");
+    assert.equal(response.body.ownerOnly, true);
+    assert.deepEqual(
+      response.body.providers.map((provider: Row) => provider.provider),
+      ["reddit", "discord"],
+    );
+    for (const provider of response.body.providers) {
+      assert.equal(provider.purpose, "archive_connector");
+      assert.equal(provider.connectionStatus, "missing");
+      assert.equal(provider.credential, null);
+      assertCredentialReadbackSafety(provider);
+    }
+    assert.deepEqual(db.writeCalls, []);
+    assert.equal(db.tableCalls.includes("archive_connector_credentials"), true);
+    assertNoSensitiveCredentialReadback(response.body);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector credential readback is owner scoped and returns active or newest revoked metadata only", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.rows("archive_connector_credentials").push(
+    {
+      id: "row-id-fixture-other-owner",
+      owner_user_id: "other-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "private-source-body-fixture" },
+      credential_fingerprint: "other-owner-fingerprint",
+      external_account_fingerprint: "external-account-fixture-other",
+      account_label: "Other owner label",
+      status: "active",
+      created_at: "2026-06-29T10:00:00.000Z",
+      updated_at: "2026-06-29T10:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-wrong-purpose",
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "social_connector",
+      encrypted_credential: { ciphertext: "private-source-body-fixture" },
+      credential_fingerprint: "wrong-purpose-fingerprint",
+      external_account_fingerprint: "external-account-fixture-wrong",
+      account_label: "Wrong purpose label",
+      status: "active",
+      created_at: "2026-06-29T11:00:00.000Z",
+      updated_at: "2026-06-29T11:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-unsupported-provider",
+      owner_user_id: "owner-user",
+      provider: "mastodon",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "private-source-body-fixture" },
+      credential_fingerprint: "unsupported-provider-fingerprint",
+      external_account_fingerprint: "external-account-fixture-unsupported",
+      account_label: "Unsupported provider label",
+      status: "active",
+      created_at: "2026-06-29T12:00:00.000Z",
+      updated_at: "2026-06-29T12:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-reddit-revoked",
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "reddit-refresh-token-fixture" },
+      credential_fingerprint: "reddit-old-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Reddit old safe label",
+      status: "revoked",
+      created_at: "2026-06-29T13:00:00.000Z",
+      updated_at: "2026-06-29T13:05:00.000Z",
+      rotated_at: null,
+      revoked_at: "2026-06-29T13:05:00.000Z",
+    },
+    {
+      id: "row-id-fixture-reddit-active",
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "reddit-access-token-fixture" },
+      credential_fingerprint: "reddit-active-fingerprint",
+      external_account_fingerprint: "external-account-fixture-reddit",
+      account_label: "Reddit connected label",
+      status: "active",
+      created_at: "2026-06-29T14:00:00.000Z",
+      updated_at: "2026-06-29T14:00:00.000Z",
+      rotated_at: "2026-06-29T14:00:00.000Z",
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-discord-revoked-old",
+      owner_user_id: "owner-user",
+      provider: "discord",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "discord-refresh-token-fixture" },
+      credential_fingerprint: "discord-old-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Discord old safe label",
+      status: "revoked",
+      created_at: "2026-06-29T15:00:00.000Z",
+      updated_at: "2026-06-29T15:05:00.000Z",
+      rotated_at: null,
+      revoked_at: "2026-06-29T15:05:00.000Z",
+    },
+    {
+      id: "row-id-fixture-discord-revoked-new",
+      owner_user_id: "owner-user",
+      provider: "discord",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "discord-access-token-fixture" },
+      credential_fingerprint: "discord-new-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Discord paused label",
+      status: "revoked",
+      created_at: "2026-06-29T16:00:00.000Z",
+      updated_at: "2026-06-29T16:05:00.000Z",
+      rotated_at: null,
+      revoked_at: "2026-06-29T16:05:00.000Z",
+    },
+  );
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    const response = await readArchiveConnectorCredentials(app);
+    assert.equal(response.status, 200);
+    assert.deepEqual(
+      response.body.providers.map((provider: Row) => provider.connectionStatus),
+      ["connected", "revoked"],
+    );
+
+    const [reddit, discord] = response.body.providers;
+    const allowedProviderKeys = [
+      "provider",
+      "purpose",
+      "connectionStatus",
+      "credential",
+      "tokenDecryptEnabled",
+      "tokenExchangeEnabled",
+      "providerTokenEndpointCallsEnabled",
+      "credentialWritesEnabled",
+      "credentialRevokeEnabled",
+      "providerCallsEnabled",
+      "sourceInventoryEnabled",
+      "importWritesEnabled",
+    ].sort();
+    const allowedCredentialKeys = [
+      "provider",
+      "purpose",
+      "status",
+      "configured",
+      "accountLabel",
+      "fingerprintPresent",
+      "externalAccountFingerprintPresent",
+      "createdAt",
+      "updatedAt",
+      "rotatedAt",
+      "revokedAt",
+    ].sort();
+
+    assert.deepEqual(Object.keys(reddit).sort(), allowedProviderKeys);
+    assert.deepEqual(Object.keys(discord).sort(), allowedProviderKeys);
+    assert.deepEqual(Object.keys(reddit.credential).sort(), allowedCredentialKeys);
+    assert.deepEqual(Object.keys(discord.credential).sort(), allowedCredentialKeys);
+
+    assert.equal(reddit.provider, "reddit");
+    assert.equal(reddit.credential.provider, "reddit");
+    assert.equal(reddit.credential.status, "active");
+    assert.equal(reddit.credential.configured, true);
+    assert.equal(reddit.credential.accountLabel, "Reddit connected label");
+    assert.equal(reddit.credential.fingerprintPresent, true);
+    assert.equal(reddit.credential.externalAccountFingerprintPresent, true);
+    assert.equal(reddit.credential.createdAt, "2026-06-29T14:00:00.000Z");
+    assert.equal(reddit.credential.revokedAt, null);
+
+    assert.equal(discord.provider, "discord");
+    assert.equal(discord.credential.provider, "discord");
+    assert.equal(discord.credential.status, "revoked");
+    assert.equal(discord.credential.configured, false);
+    assert.equal(discord.credential.accountLabel, "Discord paused label");
+    assert.equal(discord.credential.fingerprintPresent, true);
+    assert.equal(discord.credential.externalAccountFingerprintPresent, false);
+    assert.equal(discord.credential.revokedAt, "2026-06-29T16:05:00.000Z");
+
+    for (const provider of response.body.providers) assertCredentialReadbackSafety(provider);
+    assertNoSensitiveCredentialReadback(response.body);
+    assert.deepEqual(db.writeCalls, []);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector credential readback returns bounded storage failures", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.selectErrorTables.add("archive_connector_credentials");
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    const response = await readArchiveConnectorCredentials(app);
+    assert.equal(response.status, 500);
+    assert.equal(response.body.code, "archive_connector_credential_read_failed");
+    assert.equal(response.body.status, "credential_read_failed");
+    assert.equal(response.body.purpose, "archive_connector");
+    assert.equal(response.body.ownerOnly, true);
+    assertCredentialReadbackSafety(response.body);
+    assertNoSensitiveCredentialReadback(response.body);
+    assert.deepEqual(db.writeCalls, []);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("archive connector readiness source stays read-only and route-only", () => {
   const routeSource = readFileSync("apps/api/src/routes/archive-connectors.ts", "utf8");
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
@@ -2144,6 +2447,17 @@ function assertExchangeSafety(body: Row, enabled: boolean) {
   assert.equal(body.oauthCallbacksEnabled, true);
   assert.equal(body.tokenExchangeEnabled, enabled);
   assert.equal(body.providerTokenEndpointCallsEnabled, enabled);
+  assert.equal(body.providerCallsEnabled, false);
+  assert.equal(body.sourceInventoryEnabled, false);
+  assert.equal(body.importWritesEnabled, false);
+}
+
+function assertCredentialReadbackSafety(body: Row) {
+  assert.equal(body.tokenDecryptEnabled, false);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerTokenEndpointCallsEnabled, false);
+  assert.equal(body.credentialWritesEnabled, false);
+  assert.equal(body.credentialRevokeEnabled, false);
   assert.equal(body.providerCallsEnabled, false);
   assert.equal(body.sourceInventoryEnabled, false);
   assert.equal(body.importWritesEnabled, false);

@@ -4,6 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR484H ready for ARGUS review
+
+DAEDALUS implemented the accepted PR484H Archive Connector Credential Readback
+boundary:
+
+`docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_RESULT.md`
+
+Implemented route:
+
+```text
+GET /archive-connectors/credentials
+```
+
+Implementation:
+
+- uses the existing authenticated archive connector Bearer boundary;
+- returns `status: "archive_connector_credentials_read"` with
+  `purpose: "archive_connector"` and `ownerOnly: true`;
+- returns exactly one provider row per supported provider in
+  `ARCHIVE_CONNECTOR_PROVIDER_IDS` order;
+- synthesizes `missing` rows with `credential: null`;
+- returns active owner-scoped credentials as `connected`;
+- returns the newest revoked owner-scoped credential only when no active row
+  exists for that provider;
+- excludes other-owner, other-purpose, and unsupported-provider rows;
+- uses the accepted safe credential metadata serializer only.
+
+Non-scope confirmation:
+
+- no token decrypt, token exchange, credential write/revoke, OAuth callback
+  change, provider profile/account lookup, provider/source API call, source
+  inventory, import write, recurring pull, queue, worker, Redis, Cloudflare,
+  billing, package, marketplace, broad UI, or social behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 29 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 73 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR484H - Archive Connector Credential Readback
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484H against the accepted preflight boundary.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR484H accepted for DAEDALUS
 
 ARGUS completed the PR484H Archive Connector Credential Readback preflight:

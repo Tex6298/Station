@@ -14,8 +14,10 @@ import {
 import {
   archiveConnectorCredentialEncryptionConfigured,
   ArchiveConnectorCredentialStorageError,
+  type ArchiveConnectorCredentialReadback,
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
+  loadArchiveConnectorCredentialReadbacks,
   storeArchiveConnectorCredential,
   validateArchiveConnectorOAuthState,
 } from "../services/archive-connectors/credential-storage";
@@ -30,6 +32,27 @@ archiveConnectorsRouter.use(requireAuth);
 
 archiveConnectorsRouter.get("/readiness", (_req: Request, res: Response) => {
   res.json(archiveConnectorReadiness());
+});
+
+archiveConnectorsRouter.get("/credentials", async (req: Request, res: Response) => {
+  try {
+    const credentials = await loadArchiveConnectorCredentialReadbacks(req.user!.id);
+    return res.json({
+      status: "archive_connector_credentials_read",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      providers: archiveConnectorCredentialProviderRows(credentials),
+    });
+  } catch {
+    return res.status(500).json({
+      error: "Could not load archive connector credential metadata.",
+      code: "archive_connector_credential_read_failed",
+      status: "credential_read_failed",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      ...credentialReadbackSafety(),
+    });
+  }
 });
 
 archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res: Response) => {
@@ -454,6 +477,57 @@ function archiveConnectorProvider(value: string | undefined): ArchiveConnectorPr
     : null;
 }
 
+function archiveConnectorCredentialProviderRows(credentials: ArchiveConnectorCredentialReadback[]) {
+  return ARCHIVE_CONNECTOR_PROVIDER_IDS.map((provider) => {
+    const credential = newestCredentialReadbackForProvider(credentials, provider);
+    return {
+      provider,
+      purpose: "archive_connector" as const,
+      connectionStatus: credential
+        ? credential.status === "active" ? "connected" : "revoked"
+        : "missing",
+      credential,
+      ...credentialReadbackSafety(),
+    };
+  });
+}
+
+function newestCredentialReadbackForProvider(
+  credentials: ArchiveConnectorCredentialReadback[],
+  provider: ArchiveConnectorProviderId,
+) {
+  const providerCredentials = credentials.filter((credential) =>
+    credential.provider === provider &&
+    credential.purpose === "archive_connector" &&
+    (credential.status === "active" || credential.status === "revoked")
+  );
+  return newestCredentialReadback(providerCredentials.filter((credential) => credential.status === "active")) ??
+    newestCredentialReadback(providerCredentials.filter((credential) => credential.status === "revoked"));
+}
+
+function newestCredentialReadback(credentials: ArchiveConnectorCredentialReadback[]) {
+  return credentials.reduce<ArchiveConnectorCredentialReadback | null>((selected, credential) => {
+    if (!selected) return credential;
+    return credentialReadbackTimestamp(credential) > credentialReadbackTimestamp(selected)
+      ? credential
+      : selected;
+  }, null);
+}
+
+function credentialReadbackTimestamp(credential: ArchiveConnectorCredentialReadback) {
+  const candidates = credential.status === "revoked"
+    ? [credential.revokedAt, credential.updatedAt, credential.createdAt]
+    : [credential.createdAt, credential.updatedAt, credential.rotatedAt];
+
+  for (const value of candidates) {
+    if (!value) continue;
+    const timestamp = Date.parse(value);
+    if (Number.isFinite(timestamp)) return timestamp;
+  }
+
+  return 0;
+}
+
 function authorizeStateHandleFromBody(body: unknown) {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new Error("invalid authorize body");
@@ -645,6 +719,19 @@ function exchangeSafety(enabled: boolean) {
     oauthCallbacksEnabled: true,
     tokenExchangeEnabled: enabled,
     providerTokenEndpointCallsEnabled: enabled,
+    providerCallsEnabled: false,
+    sourceInventoryEnabled: false,
+    importWritesEnabled: false,
+  };
+}
+
+function credentialReadbackSafety() {
+  return {
+    tokenDecryptEnabled: false,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    credentialWritesEnabled: false,
+    credentialRevokeEnabled: false,
     providerCallsEnabled: false,
     sourceInventoryEnabled: false,
     importWritesEnabled: false,

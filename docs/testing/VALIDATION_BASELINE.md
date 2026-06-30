@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484H Archive Connector Credential Readback
+
+DAEDALUS implemented PR484H on 2026-06-30:
+`docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- authenticated `GET /archive-connectors/credentials` returns owner-only safe
+  credential metadata readback;
+- response includes exactly one provider row per supported provider in
+  `ARCHIVE_CONNECTOR_PROVIDER_IDS` order;
+- missing provider rows are synthesized with `credential: null`;
+- active owner-scoped rows return `connected`;
+- newest revoked owner-scoped rows return `revoked` only when no active row
+  exists for the same provider;
+- other-owner, other-purpose, unsupported-provider, raw credential, token,
+  state, row id, owner id, and storage-detail readback is excluded;
+- no token decrypt, token exchange, credential write/revoke, provider profile
+  lookup, source inventory, import write, job, Redis, Cloudflare, billing,
+  package, broad UI, marketplace, or social behavior was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 29 tests passed, including credential readback auth, missing synthesis, active/revoked row policy, exclusion/redaction, bounded storage failure, and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 73 tests passed across connector route/storage/contract, import preview/parsers, social fail-closed routes, callback bridge, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR484H Archive Connector Credential Readback Preflight
 
 ARGUS accepted PR484H for DAEDALUS on 2026-06-30:
