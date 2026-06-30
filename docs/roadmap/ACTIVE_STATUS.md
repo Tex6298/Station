@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR handoff - PR484J-L owner UI preflight opened
+
+MIMIR closed PR484J-K after ARGUS accepted the connector import execution lane:
+
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_CLOSEOUT.md`
+
+The backend connector path now reaches one owner-private Reddit saved-items
+staged-run import execution route. The next product boundary is a safe owner UI
+flow for the accepted connector pipeline:
+
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-L - Archive Connector Owner UI Flow Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should define the smallest safe owner-visible connector flow, route
+  placement, backend calls, required states, disabled/error copy, ARIADNE human
+  rehearsal requirements, and tests.
+- DAEDALUS should not be woken until ARGUS accepts the boundary or names a
+  concrete unblock.
+- Provider expansion, Discord content reads, queues/workers, pagination,
+  recurring pulls, billing, Redis, Cloudflare, marketplace, partner adapters,
+  social behavior, and new backend execution behavior remain out unless
+  explicitly accepted.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS verdict - PR484J-K import execution accepted
 
 ARGUS accepts PR484J-K after a narrow compatibility patch:
@@ -72,25 +111,26 @@ Validation:
 Current lane:
 
 ```text
-PR484J-K - Archive Connector Import Execution
-Owner: MIMIR / A1
-State: ACCEPTED_FOR_CLOSEOUT_OR_NEXT_MOVE
+PR484J-L - Archive Connector Owner UI Flow Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
 ```
 
 Current baton:
 
-- MIMIR should close PR484J-K or choose the next archive connector move.
-- UI, hosted proof, queues/workers, recurring imports, pagination crawls,
+- PR484J-K is closed.
+- ARGUS now owns hostile preflight for the smallest owner UI flow that makes the
+  accepted connector pipeline usable without widening backend/provider scope.
+- Hosted proof, queues/workers, recurring imports, pagination crawls,
   additional Reddit history categories, Discord content reads, public
   documents, Canon, Continuity, review candidates, billing, Redis, Cloudflare,
-  marketplace, partner adapters, and social behavior remain separate lanes
-  unless explicitly opened.
+  marketplace, partner adapters, and social behavior remain separate lanes.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest ARGUS verdict - PR484J-J staged batch consumption accepted
