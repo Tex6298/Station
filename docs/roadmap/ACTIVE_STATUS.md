@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR484J-L needs small repair
+
+ARIADNE completed the hosted PR484J-L owner connector flow rehearsal:
+
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Current lane:
+
+```text
+PR484J-L - Archive Connector Owner UI Flow Rehearsal
+Owner: MIMIR / A1
+State: NEEDS_SMALLEST_REPAIR
+```
+
+Current baton:
+
+- MIMIR should open the smallest repair lane:
+  `PR484J-M - Archive connector credential readback fail-closed disabled state`.
+- Hosted web/API health checks were ready on commit `35828f8`.
+- Replay-owner sign-in and `/auth/me` passed; session values were not printed
+  or recorded.
+- The owner persona Archive route rendered the Reddit saved-items panel and fit
+  desktop, 375px mobile, and 390px mobile without overflow.
+- Hosted readiness reports Reddit and Discord as
+  `credential_encryption_required` with OAuth app status `missing`.
+- Hosted `GET /archive-connectors/credentials` returned
+  `500 archive_connector_credential_read_failed`.
+- Because credential readback fails, the visible panel shows generic retryable
+  error copy instead of the accepted credential-encryption/provider-config
+  disabled state.
+- No OAuth code, state value, authorization URL, token, cookie, provider
+  payload, raw id, username, subreddit, URL, author, source body, fingerprint,
+  SQL detail, stack trace, hosted log, or secret-shaped value was exposed.
+
 ## Latest MIMIR routing - PR484J-L ARIADNE rehearsal opened
 
 MIMIR routes the ARGUS-accepted PR484J-L visible owner workflow to ARIADNE for

@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-L Archive Connector Owner UI Flow Rehearsal
+
+ARIADNE completed hosted PR484J-L route rehearsal on 2026-06-30:
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_REHEARSAL_RESULT.md`.
+
+Validation result: `PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Reason:
+
+- hosted web/API health checks were ready on commit `35828f8`;
+- replay-owner sign-in and `/auth/me` passed without printing or recording
+  session values;
+- `/studio/personas/[personaId]/files` rendered the Reddit saved-items panel
+  inside the owner persona Archive tab;
+- desktop, 375px mobile, and 390px mobile had no horizontal overflow or
+  detected out-of-viewport visible nodes;
+- hosted readiness reports Reddit and Discord as
+  `credential_encryption_required` with OAuth app status `missing`;
+- hosted `GET /archive-connectors/credentials` returned
+  `500 archive_connector_credential_read_failed`;
+- because credential readback fails, the visible owner panel shows generic
+  retryable error copy instead of the accepted disabled credential-storage /
+  provider-config state;
+- callback fallback query scrubbing and cancelled/restart copy passed;
+- no OAuth code, state value, authorization URL, token, cookie, provider
+  payload, raw id, username, subreddit, URL, author, source body, fingerprint,
+  SQL detail, stack trace, hosted log, or secret-shaped value was detected;
+- final import success readback remains blocked until hosted credential/config
+  prerequisites and the visible disabled state are repaired.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web health | Pass | Ready on commit `35828f8`; deployment ids were not recorded. |
+| Hosted API health | Pass | Ready on commit `35828f8`; deployment ids were not recorded. |
+| Temporary hosted browser rehearsal | Fail | Fit/redaction passed; disabled config copy failed because credential readback returned 500. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+
 ## PR484J-L Archive Connector Owner UI Flow Review
 
 ARGUS accepted PR484J-L on 2026-06-30 after a narrow review patch:
