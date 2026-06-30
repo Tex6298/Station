@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484H accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484H Archive Connector Credential Readback
+implementation:
+
+`docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484H_CREDENTIAL_READBACK
+```
+
+Accepted boundary:
+
+- authenticated `GET /archive-connectors/credentials`;
+- owner-only route behind the existing archive connector Bearer boundary;
+- returns exactly one provider row per supported archive connector provider;
+- synthesizes missing rows with `credential: null`;
+- active owner-scoped row returns `connected`;
+- newest revoked owner-scoped row returns `revoked` only when no active row
+  exists for that provider;
+- other-owner, other-purpose, and unsupported-provider rows are excluded;
+- response exposes only accepted safe credential serializer fields;
+- no token decrypt, token exchange, credential write/revoke, OAuth callback
+  change, provider profile/account lookup, source inventory, import, recurring
+  pull, queue, worker, Redis, Cloudflare, billing, package, broad UI,
+  marketplace, or social behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 29 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 73 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
+- Scope/path scan found no package, lockfile, Supabase schema, or web changes.
+
+Current lane:
+
+```text
+PR484H - Archive Connector Credential Readback
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+Current baton:
+
+- MIMIR should close PR484H or choose the next archive connector move.
+- Revoke/disconnect, source inventory, imports, UI, hosted proof, and provider
+  calls remain separate lanes unless explicitly opened.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484H ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484H Archive Connector Credential Readback
