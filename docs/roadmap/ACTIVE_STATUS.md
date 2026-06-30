@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484G accepted for DAEDALUS
+
+ARGUS completed the PR484G Archive Connector OAuth Token Exchange / Credential
+Write preflight:
+
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484G_TOKEN_EXCHANGE_CREDENTIAL_WRITE
+```
+
+Accepted boundary:
+
+- add sibling authenticated route
+  `POST /archive-connectors/oauth/:provider/callback/exchange`;
+- leave the existing callback verify route unchanged;
+- request body accepts only bounded `stateHandle` and `code`;
+- provider app config, credential encryption config, safe callback redirect URI,
+  and owner/session/provider-bound PR484E state must all pass before token
+  endpoint work;
+- missing provider app config, missing or malformed credential encryption, and
+  unsafe web origin fail before state consume, provider fetch, or credential
+  write;
+- state is consumed exactly once after local fail-closed checks and immediately
+  before the provider token endpoint request;
+- provider token endpoint clients are structured and test-injected:
+  Reddit `https://www.reddit.com/api/v1/access_token`, Discord
+  `https://discord.com/api/oauth2/token`;
+- token material is stored only through the accepted encrypted archive
+  connector credential helper, with no raw token/code/state/client-secret
+  readback;
+- no provider account/profile lookup, source inventory, import, refresh,
+  revocation, recurring pull, jobs, UI, Redis, Cloudflare, billing, package,
+  marketplace, or social behavior.
+
+Current lane:
+
+```text
+PR484G - Archive Connector OAuth Token Exchange / Credential Write
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT BACKEND EXCHANGE/CREDENTIAL WRITE BOUNDARY
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted backend exchange route and tests.
+- Hosted proof still waits for Railway credential encryption plus at least one
+  archive-specific provider app pair.
+- If implementation discovers the storage helper cannot keep state replay-safe
+  without a narrower transaction lane, wake MIMIR with that concrete blocker.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484F-E parked, PR484G opened
 
 MIMIR accepts ARIADNE's PR484F-E hosted proof result:

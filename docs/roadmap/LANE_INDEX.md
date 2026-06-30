@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484G preflight | Archive Connector OAuth Token Exchange / Credential Write | ARGUS / A3 | Open; decide fail-closed token exchange and encrypted credential write boundary while hosted provider config remains blocked | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_ARGUS.md` |
+| PR484G implementation | Archive Connector OAuth Token Exchange / Credential Write | DAEDALUS / A2 | Open; implement accepted backend-only exchange route with config fail-closed before state consume/provider fetch/credential write | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484G preflight | Archive Connector OAuth Token Exchange / Credential Write | MIMIR -> ARGUS -> DAEDALUS | Accepted; sibling authenticated callback exchange route may call only provider token endpoints and encrypted credential storage under strict fail-closed config/state/redaction guards | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_RESULT.md` |
 | PR484F-E config block | Archive Connector Authorization URL Hosted Proof | ARIADNE -> MIMIR | Parked; hosted web/API freshness and auth passed, but Reddit/Discord provider app config and credential encryption are missing in hosted Railway | `docs/roadmap/PR484F_E_ARCHIVE_CONNECTOR_AUTHORIZATION_URL_HOSTED_PROOF_CONFIG_BLOCK_CLOSEOUT.md` |
 | PR484F-D closeout | Archive Connector OAuth Authorization URL | MIMIR | Closed as accepted pending hosted proof; bounded URL readback is implemented but not owner-ready until ARIADNE verifies deployed origin/config behavior | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_CLOSEOUT.md` |
 | PR484F-D implementation | Archive Connector OAuth Authorization URL | DAEDALUS -> ARGUS -> MIMIR | Accepted with narrow ARGUS patch; authenticated authorization URL readback validates PR484E state without consuming and keeps client id/state inside authorizationUrl only | `docs/roadmap/PR484F_D_ARCHIVE_CONNECTOR_OAUTH_AUTHORIZATION_URL_REVIEW_RESULT.md` |

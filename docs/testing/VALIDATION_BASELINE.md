@@ -20,6 +20,42 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484G Archive Connector OAuth Token Exchange / Credential Write Preflight
+
+ARGUS accepted PR484G for DAEDALUS on 2026-06-30:
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484G_TOKEN_EXCHANGE_CREDENTIAL_WRITE`.
+
+Accepted boundary:
+
+- backend-only authenticated sibling route
+  `POST /archive-connectors/oauth/:provider/callback/exchange`;
+- exact body shape: `stateHandle` and `code`;
+- provider app config, credential encryption config, safe callback origin, and
+  owner/session/provider-bound PR484E state must pass before provider token
+  endpoint work;
+- missing config or unsafe origin fails before state consume, provider fetch,
+  or credential write;
+- state consume occurs exactly once after local fail-closed checks and
+  immediately before the token endpoint request;
+- Reddit token endpoint is limited to
+  `https://www.reddit.com/api/v1/access_token`;
+- Discord token endpoint is limited to
+  `https://discord.com/api/oauth2/token`;
+- token material is encrypted through existing archive connector credential
+  storage, with no raw token/code/state/client-secret readback;
+- no provider account/profile lookup, source inventory, import, refresh,
+  revocation, recurring pull, queues/workers, Redis, Cloudflare, billing,
+  package, broad UI, marketplace, or social behavior.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 64 tests passed across connector/callback/storage/import/social/web readiness. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed successfully from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+| Path/scope scan | Pass | Preflight handoff is docs-only; no app, package, lockfile, or Supabase schema paths changed. |
+
 ## PR484F-E Archive Connector Authorization URL Hosted Proof
 
 ARIADNE completed hosted PR484F-E proof on 2026-06-30:
