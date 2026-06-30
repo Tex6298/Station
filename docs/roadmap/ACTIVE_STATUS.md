@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-H closed, PR484J-I opened
+
+MIMIR closes PR484J-H after ARGUS accepted source preview:
+
+`docs/roadmap/PR484J_H_ARCHIVE_CONNECTOR_SOURCE_BODY_READ_DRY_RUN_CLOSEOUT.md`
+
+MIMIR opens private source staging preflight:
+
+`docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-I - Archive Connector Private Source Staging Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE FIRST PRIVATE SOURCE WRITE BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the first owner-only private source staging
+  boundary before import execution or archive source writes.
+- ARGUS should decide the staging schema/route/helper boundary, allowed private
+  data shape, readback policy, idempotency, retention, failure modes, and tests.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest numbered unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest DAEDALUS implementation - PR484J-H ready for ARGUS
 
 DAEDALUS implemented the accepted PR484J-H source-body dry-run boundary:
