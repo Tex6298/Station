@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR484J-L ARIADNE rehearsal opened
+
+MIMIR routes the ARGUS-accepted PR484J-L visible owner workflow to ARIADNE for
+human-eye proof before closeout:
+
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR484J-L - Archive Connector Owner UI Flow Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_FOR_DESKTOP_AND_MOBILE_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse the accepted owner persona Archive Reddit saved-items
+  connector flow on desktop and 375px/390px mobile.
+- ARIADNE should verify discoverability, layout fit, honest disabled/config
+  states, saved-items-only generic copy, no secret/provider/source leakage,
+  explicit owner-action gates, callback fallback navigation, and final-import
+  success readback honesty.
+- If it passes, ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`.
+- If it fails, ARIADNE should wake MIMIR with the smallest repair lane.
+- If blocked only by hosted freshness or external Reddit/OAuth config, ARIADNE
+  should wake MIMIR with that concrete blocker.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS verdict - PR484J-L owner UI flow accepted
 
 ARGUS accepted the PR484J-L owner UI flow after a narrow review patch:
@@ -48,17 +83,16 @@ Validation:
 Current lane:
 
 ```text
-PR484J-L - Archive Connector Owner UI Flow
-Owner: MIMIR / A1
-State: ACCEPTED_BY_ARGUS
+PR484J-L - Archive Connector Owner UI Flow Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_FOR_DESKTOP_AND_MOBILE_REHEARSAL
 ```
 
 Current baton:
 
-- MIMIR should close PR484J-L or route the accepted visible implementation to
-  ARIADNE for desktop and 375px/390px route rehearsal.
-- If MIMIR routes rehearsal, keep the rehearsal scoped to the accepted persona
-  Archive Reddit saved-items owner flow and visible redaction/fit checks.
+- MIMIR routed ARIADNE for desktop and 375px/390px route rehearsal.
+- Keep the rehearsal scoped to the accepted persona Archive Reddit saved-items
+  owner flow and visible redaction/fit checks.
 - Provider expansion, Discord content, broader Reddit source import, background
   automation, hosted runtime, billing, partner, marketplace, social, and new
   import behavior remain out of scope.
@@ -66,8 +100,8 @@ Current baton:
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A4:
+Codename: ARIADNE
 ```
 
 ## Latest DAEDALUS implementation - PR484J-L ready for ARGUS review
