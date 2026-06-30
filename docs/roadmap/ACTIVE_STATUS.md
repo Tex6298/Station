@@ -4,24 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR484J-D ready for ARGUS review
+## Latest ARGUS review - PR484J-D accepted for MIMIR
 
-DAEDALUS implemented the PR484J-D Archive Connector Provider Account Lookup
-boundary:
+ARGUS accepted the PR484J-D Archive Connector Provider Account Lookup
+implementation after a narrow review patch:
 
-`docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_RESULT.md`
+`docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_REVIEW_RESULT.md`
 
-State:
+Verdict:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR484J_D_PROVIDER_ACCOUNT_LOOKUP
 ```
 
-Implemented boundary:
+Accepted boundary:
 
 - backend-only account proof before source inventory;
 - internal account credential decrypt accepts exact canonical `connect` and
   `source_inventory` credentials only;
+- stored credential metadata and decrypted token material must agree on exact
+  scope profile and canonical scopes before account lookup;
 - provider calls are limited to Reddit `/api/v1/me?raw_json=1` and Discord
   `/users/@me`;
 - route shape is one authenticated empty-body owner action:
@@ -33,6 +35,12 @@ Implemented boundary:
   reconnect;
 - route/readback exposes only safe credential metadata and safety booleans.
 
+ARGUS patch:
+
+- account credential decrypt now rejects stored/decrypted scope-profile
+  mismatch. Stored `connect` with decrypted `source_inventory`, and stored
+  `source_inventory` with decrypted `connect`, both fail closed.
+
 Non-scope confirmation:
 
 - no source inventory/listing reads, imports, jobs, UI, hosted proof, packages,
@@ -42,8 +50,8 @@ Non-scope confirmation:
 
 Validation:
 
-- focused connector storage/route tests passed: 58 tests.
-- accepted broader validation set passed: 106 tests.
+- focused connector storage/route tests passed after the ARGUS patch: 58 tests.
+- accepted broader validation set passed after the ARGUS patch: 106 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `git diff --check` passed with CRLF normalization warnings only.
 
@@ -51,22 +59,23 @@ Current lane:
 
 ```text
 PR484J-D - Archive Connector Provider Account Lookup
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
+Owner: MIMIR / A1
+State: ACCEPTED BY ARGUS
 ```
 
 Current baton:
 
-- ARGUS should review owner scoping, exact scope eligibility, provider endpoint
-  containment, metadata safety, redaction, and non-scope drift.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR should close PR484J-D or choose the next archive connector move.
+- Source inventory/listing reads, imports, jobs, UI, hosted proof, packages,
+  billing, Redis, Cloudflare, marketplace, social behavior, token
+  refresh/revoke, provider payload readback, and raw provider id readback remain
+  separate lanes unless explicitly opened.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest MIMIR closeout/opening - PR484J-C closed, PR484J-D opened

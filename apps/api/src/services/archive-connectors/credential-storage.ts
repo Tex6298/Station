@@ -312,9 +312,9 @@ export async function loadArchiveConnectorAccountCredentialSecret(input: {
     throw accountCredentialUnavailable();
   }
 
-  assertStoredAccountCredentialReady(row);
+  const scopeProfile = assertStoredAccountCredentialReady(row);
   const decrypted = decryptArchiveConnectorCredential(row.encrypted_credential, accountDecryptionErrors);
-  return accountCredentialSecretFromTokenMaterial(input.provider, decrypted);
+  return accountCredentialSecretFromTokenMaterial(input.provider, decrypted, scopeProfile);
 }
 
 export async function updateArchiveConnectorCredentialAccountMetadata(input: {
@@ -452,6 +452,7 @@ function assertStoredAccountCredentialReady(row: ArchiveConnectorCredentialRow) 
   ) {
     throw accountCredentialNotAccountReady();
   }
+  return scopeProfile;
 }
 
 type DecryptionErrorFactories = {
@@ -572,6 +573,7 @@ function sourceCredentialSecretFromTokenMaterial(
 function accountCredentialSecretFromTokenMaterial(
   provider: ArchiveConnectorProviderId,
   value: unknown,
+  expectedScopeProfile: ArchiveConnectorScopeProfile,
 ): ArchiveConnectorAccountCredentialSecret {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw accountCredentialTokenInvalid();
   const material = value as Record<string, unknown>;
@@ -579,12 +581,12 @@ function accountCredentialSecretFromTokenMaterial(
   if (
     material.schema !== "station.archive_connector.oauth_token.v1" ||
     material.provider !== provider ||
-    (scopeProfile !== "connect" && scopeProfile !== "source_inventory")
+    scopeProfile !== expectedScopeProfile
   ) {
     throw accountCredentialTokenInvalid();
   }
 
-  const expectedScopes = archiveConnectorScopesForProfile(provider, scopeProfile);
+  const expectedScopes = archiveConnectorScopesForProfile(provider, expectedScopeProfile);
   const tokenGrantedScopes = accountArrayOfStrings(material.grantedScopes);
   if (tokenGrantedScopes.some((scope) => scope !== scope.trim())) {
     throw accountCredentialTokenInvalid();
@@ -606,7 +608,7 @@ function accountCredentialSecretFromTokenMaterial(
   return {
     provider,
     purpose: ARCHIVE_CONNECTOR_PURPOSE,
-    scopeProfile,
+    scopeProfile: expectedScopeProfile,
     grantedScopes,
     accessToken,
   };

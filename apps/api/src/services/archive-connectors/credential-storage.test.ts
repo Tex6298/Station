@@ -697,6 +697,24 @@ test("archive connector account credential decrypt fails closed on eligibility a
       },
       code: "archive_connector_account_credential_token_invalid",
     },
+    {
+      name: "stored-connect-token-source-profile-mismatch",
+      row: {
+        scopeProfile: "connect",
+        grantedScopes: ["identity"],
+        tokenMaterial: accountTokenMaterial("reddit", "source_inventory"),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
+    {
+      name: "stored-source-token-connect-profile-mismatch",
+      row: {
+        scopeProfile: "source_inventory",
+        grantedScopes: ["identity", "mysubreddits", "history"],
+        tokenMaterial: accountTokenMaterial("reddit", "connect"),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
   ];
 
   for (const setup of cases) {
