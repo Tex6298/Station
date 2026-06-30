@@ -5,6 +5,12 @@ import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
+import {
+  encryptArchiveConnectorCredential,
+  fingerprintArchiveConnectorCredential,
+  fingerprintArchiveConnectorExternalAccount,
+} from "../services/archive-connectors/credential-storage";
+import { setArchiveConnectorAccountLookupFetchForTests } from "../services/archive-connectors/account-lookup";
 import { setArchiveConnectorTokenEndpointFetchForTests } from "../services/archive-connectors/token-exchange";
 
 process.env.NODE_ENV = "test";
@@ -382,6 +388,20 @@ async function revokeArchiveConnectorCredentialRoute(
   });
 }
 
+async function lookupArchiveConnectorCredentialAccountRoute(
+  app: Express,
+  options: {
+    provider?: "reddit" | "discord" | string;
+    token?: string | null;
+    body?: unknown;
+  } = {},
+) {
+  return requestJson<Row>(app, "POST", `/archive-connectors/credentials/${options.provider ?? "reddit"}/account/lookup`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+    body: options.body,
+  });
+}
+
 type TokenFetchCall = {
   url: string;
   method: string | undefined;
@@ -389,7 +409,21 @@ type TokenFetchCall = {
   body: string;
 };
 
+type AccountLookupFetchCall = {
+  url: string;
+  method: string | undefined;
+  headers: Headers;
+  signalPresent: boolean;
+};
+
 function tokenJsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function accountLookupJsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json" },
@@ -416,6 +450,83 @@ async function withTokenEndpointFetch(
   } finally {
     setArchiveConnectorTokenEndpointFetchForTests(null);
   }
+}
+
+async function withAccountLookupFetch(
+  calls: AccountLookupFetchCall[],
+  fetcher: (input: string | URL, init?: RequestInit) => Promise<Response>,
+  fn: () => Promise<void>,
+) {
+  setArchiveConnectorAccountLookupFetchForTests(async (input, init) => {
+    calls.push({
+      url: String(input),
+      method: init?.method,
+      headers: new Headers(init?.headers),
+      signalPresent: Boolean(init?.signal),
+    });
+    return fetcher(input, init);
+  });
+
+  try {
+    await fn();
+  } finally {
+    setArchiveConnectorAccountLookupFetchForTests(null);
+  }
+}
+
+function accountTokenMaterial(
+  provider: "reddit" | "discord",
+  scopeProfile: "connect" | "source_inventory" = "connect",
+  overrides: Row = {},
+) {
+  const grantedScopes = provider === "reddit"
+    ? scopeProfile === "source_inventory" ? ["identity", "mysubreddits", "history"] : ["identity"]
+    : scopeProfile === "source_inventory" ? ["identify", "guilds"] : ["identify"];
+  return {
+    schema: "station.archive_connector.oauth_token.v1",
+    provider,
+    scopeProfile,
+    tokenType: "bearer",
+    accessToken: `${provider}-${scopeProfile}-account-proof-token`,
+    refreshToken: `${provider}-${scopeProfile}-refresh-token-fixture`,
+    expiresInSeconds: 3600,
+    scope: grantedScopes.join(" "),
+    grantedScopes,
+    ...overrides,
+  };
+}
+
+function encryptedArchiveConnectorCredentialRow(input: {
+  ownerUserId?: string;
+  provider?: "reddit" | "discord";
+  scopeProfile?: "connect" | "source_inventory";
+  grantedScopes?: string[];
+  tokenMaterial?: Row;
+  status?: string;
+  purpose?: string;
+  externalAccountFingerprint?: string | null;
+  accountLabel?: string | null;
+} = {}) {
+  const provider = input.provider ?? "reddit";
+  const scopeProfile = input.scopeProfile ?? "connect";
+  const tokenMaterial = input.tokenMaterial ?? accountTokenMaterial(provider, scopeProfile);
+  return {
+    id: `row-id-fixture-${provider}-${scopeProfile}`,
+    owner_user_id: input.ownerUserId ?? "owner-user",
+    provider,
+    purpose: input.purpose ?? "archive_connector",
+    encrypted_credential: encryptArchiveConnectorCredential(tokenMaterial),
+    credential_fingerprint: fingerprintArchiveConnectorCredential(provider, tokenMaterial),
+    external_account_fingerprint: input.externalAccountFingerprint ?? null,
+    account_label: input.accountLabel ?? null,
+    status: input.status ?? "active",
+    scope_profile: scopeProfile,
+    granted_scopes: input.grantedScopes ?? tokenMaterial.grantedScopes,
+    created_at: "2026-06-29T22:40:00.000Z",
+    updated_at: "2026-06-29T22:40:00.000Z",
+    rotated_at: null,
+    revoked_at: input.status === "revoked" ? "2026-06-29T22:45:00.000Z" : null,
+  };
 }
 
 function assertNoSensitiveArchiveConnectorReadback(body: unknown) {
@@ -505,6 +616,33 @@ function assertNoSensitiveCredentialReadback(body: unknown) {
 
   for (const value of forbidden) {
     assert.equal(text.includes(value), false, `${value} leaked into credential readback`);
+  }
+}
+
+function assertNoSensitiveAccountLookupReadback(body: unknown) {
+  assertNoSensitiveCredentialReadback(body);
+  const text = JSON.stringify(body);
+  const forbidden = [
+    "reddit-connect-account-proof-token",
+    "discord-connect-account-proof-token",
+    "reddit-source_inventory-account-proof-token",
+    "discord-source_inventory-account-proof-token",
+    "reddit-source_inventory-refresh-token-fixture",
+    "discord-source_inventory-refresh-token-fixture",
+    "reddit-raw-account-id-fixture",
+    "discord-raw-account-id-fixture",
+    "different-raw-account-id-fixture",
+    "provider-profile-payload",
+    "request-id-fixture",
+    "rate-limit-fixture",
+    "Authorization",
+    "Bearer",
+    "users/@me",
+    "api/v1/me",
+  ];
+
+  for (const value of forbidden) {
+    assert.equal(text.includes(value), false, `${value} leaked into account lookup readback`);
   }
 }
 
@@ -2743,6 +2881,301 @@ test("archive connector credential readback returns bounded storage failures", a
   }
 });
 
+test("archive connector account lookup updates safe metadata for Reddit and Discord connect credentials", async () => {
+  const calls: AccountLookupFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(
+        encryptedArchiveConnectorCredentialRow({ provider: "reddit" }),
+        encryptedArchiveConnectorCredentialRow({ provider: "discord" }),
+      );
+
+      await withAccountLookupFetch(calls, async (input, init) => {
+        if (String(input).includes("reddit")) {
+          return accountLookupJsonResponse({
+            id: "reddit-raw-account-id-fixture",
+            name: "Owner Reddit",
+            email: "must-not-be-read@example.test",
+            providerPayload: "provider-profile-payload",
+          });
+        }
+
+        return accountLookupJsonResponse({
+          id: "discord-raw-account-id-fixture",
+          global_name: "Owner Discord",
+          username: "Discord Username",
+          avatar: "avatar-fixture",
+          discriminator: "1234",
+          locale: "en-US",
+          providerPayload: "provider-profile-payload",
+        });
+      }, async () => {
+        const reddit = await lookupArchiveConnectorCredentialAccountRoute(app, { provider: "reddit", body: {} });
+        const discord = await lookupArchiveConnectorCredentialAccountRoute(app, { provider: "discord" });
+
+        assert.equal(reddit.status, 200);
+        assert.equal(discord.status, 200);
+        assert.equal(reddit.body.status, "archive_connector_account_lookup_complete");
+        assert.equal(discord.body.status, "archive_connector_account_lookup_complete");
+        assert.equal(reddit.body.accountProofComplete, true);
+        assert.equal(discord.body.accountProofComplete, true);
+        assert.equal(reddit.body.accountMetadataUpdated, true);
+        assert.equal(discord.body.accountMetadataUpdated, true);
+        assert.equal(reddit.body.credential.provider, "reddit");
+        assert.equal(discord.body.credential.provider, "discord");
+        assert.equal(reddit.body.credential.accountLabel, "Owner Reddit");
+        assert.equal(discord.body.credential.accountLabel, "Owner Discord");
+        assert.equal(reddit.body.credential.externalAccountFingerprintPresent, true);
+        assert.equal(discord.body.credential.externalAccountFingerprintPresent, true);
+        assert.equal(reddit.body.credential.connectionScopeState, "account_proof_only");
+        assert.equal(discord.body.credential.connectionScopeState, "account_proof_only");
+        assertAccountLookupSafety(reddit.body, true);
+        assertAccountLookupSafety(discord.body, true);
+        assertNoSensitiveAccountLookupReadback(reddit.body);
+        assertNoSensitiveAccountLookupReadback(discord.body);
+
+        assert.equal(calls.length, 2);
+        assert.equal(calls[0].url, "https://oauth.reddit.com/api/v1/me?raw_json=1");
+        assert.equal(calls[0].method, "GET");
+        assert.equal(calls[0].headers.get("Accept"), "application/json");
+        assert.equal(calls[0].headers.get("Authorization"), "Bearer reddit-connect-account-proof-token");
+        assert.match(calls[0].headers.get("User-Agent") ?? "", /StationArchiveConnector/);
+        assert.equal(calls[0].signalPresent, true);
+        assert.equal(calls[1].url, "https://discord.com/api/v10/users/@me");
+        assert.equal(calls[1].method, "GET");
+        assert.equal(calls[1].headers.get("Accept"), "application/json");
+        assert.equal(calls[1].headers.get("Authorization"), "Bearer discord-connect-account-proof-token");
+        assert.equal(calls[1].signalPresent, true);
+
+        const redditRow = db.rows("archive_connector_credentials").find((row) => row.provider === "reddit");
+        const discordRow = db.rows("archive_connector_credentials").find((row) => row.provider === "discord");
+        assert.equal(
+          redditRow?.external_account_fingerprint,
+          fingerprintArchiveConnectorExternalAccount("reddit", "reddit-raw-account-id-fixture"),
+        );
+        assert.equal(
+          discordRow?.external_account_fingerprint,
+          fingerprintArchiveConnectorExternalAccount("discord", "discord-raw-account-id-fixture"),
+        );
+        assert.equal(JSON.stringify(db.rows("archive_connector_credentials")).includes("reddit-raw-account-id-fixture"), false);
+        assert.equal(JSON.stringify(db.rows("archive_connector_credentials")).includes("discord-raw-account-id-fixture"), false);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector account lookup accepts source inventory credentials without enabling source reads", async () => {
+  const calls: AccountLookupFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(
+        encryptedArchiveConnectorCredentialRow({
+          provider: "reddit",
+          scopeProfile: "source_inventory",
+        }),
+      );
+
+      await withAccountLookupFetch(calls, async () => accountLookupJsonResponse({
+        id: "reddit-raw-account-id-fixture",
+        name: "token secret payload account id",
+      }), async () => {
+        const response = await lookupArchiveConnectorCredentialAccountRoute(app, { provider: "reddit" });
+
+        assert.equal(response.status, 200);
+        assert.equal(response.body.status, "archive_connector_account_lookup_complete");
+        assert.equal(response.body.credential.scopeProfile, "source_inventory");
+        assert.deepEqual(response.body.credential.grantedScopes, ["identity", "mysubreddits", "history"]);
+        assert.equal(response.body.credential.connectionScopeState, "source_scope_ready");
+        assert.equal(response.body.credential.reconnectRequiredForSourceInventory, false);
+        assert.equal(response.body.credential.accountLabel, null);
+        assert.equal(response.body.credential.externalAccountFingerprintPresent, true);
+        assertAccountLookupSafety(response.body, true);
+        assertNoSensitiveAccountLookupReadback(response.body);
+        assert.equal(calls.length, 1);
+        assert.equal(calls[0].url, "https://oauth.reddit.com/api/v1/me?raw_json=1");
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector account lookup requires auth supported provider and empty body before provider fetch", async () => {
+  const calls: AccountLookupFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      await withAccountLookupFetch(calls, async () => {
+        throw new Error("account lookup fetch should not run for invalid requests");
+      }, async () => {
+        const unauthenticated = await lookupArchiveConnectorCredentialAccountRoute(app, { token: null });
+        assert.equal(unauthenticated.status, 401);
+        assert.equal(unauthenticated.body.error, "Missing or invalid Authorization header.");
+        assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+
+        const unsupported = await lookupArchiveConnectorCredentialAccountRoute(app, { provider: "mastodon" });
+        assert.equal(unsupported.status, 400);
+        assert.equal(unsupported.body.code, "archive_connector_provider_not_supported");
+        assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+
+        const invalidBodies = [
+          { body: { rowId: "row-id-fixture", rawExternalAccountId: "raw-external-account", accountLabel: "secret-shaped-value" }, routeHandled: true },
+          { body: { scope: "identity", endpointUrl: "https://oauth.reddit.com/api/v1/me" }, routeHandled: true },
+          { body: ["secret-shaped-value"], routeHandled: true },
+          { body: "secret-shaped-value", routeHandled: false },
+          { body: 7, routeHandled: false },
+        ];
+
+        for (const setup of invalidBodies) {
+          const response = await lookupArchiveConnectorCredentialAccountRoute(app, setup);
+          assert.equal(response.status, 400);
+          assert.equal(
+            response.body.code,
+            setup.routeHandled ? "archive_connector_account_lookup_invalid" : "bad_request",
+          );
+          if (setup.routeHandled) assertAccountLookupSafety(response.body, false);
+          assertNoSensitiveAccountLookupReadback(response.body);
+        }
+
+        assert.equal(calls.length, 0);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector account lookup maps credential provider and metadata failures to bounded responses", async () => {
+  const cases: Array<{
+    name: string;
+    row?: () => Row;
+    fetcher?: () => Promise<Response>;
+    updateError?: boolean;
+    expectedStatus: number;
+    expectedCode: string;
+    expectedProviderCalls: number;
+  }> = [
+    {
+      name: "missing-credential",
+      expectedStatus: 409,
+      expectedCode: "archive_connector_account_credential_required",
+      expectedProviderCalls: 0,
+    },
+    {
+      name: "invalid-token-material",
+      row: () => encryptedArchiveConnectorCredentialRow({
+        tokenMaterial: accountTokenMaterial("reddit", "connect", { accessToken: "bad\u0001token" }),
+      }),
+      expectedStatus: 409,
+      expectedCode: "archive_connector_account_credential_invalid",
+      expectedProviderCalls: 0,
+    },
+    {
+      name: "provider-reconnect",
+      row: () => encryptedArchiveConnectorCredentialRow(),
+      fetcher: async () => accountLookupJsonResponse({}, 401),
+      expectedStatus: 409,
+      expectedCode: "archive_connector_account_lookup_reconnect_required",
+      expectedProviderCalls: 1,
+    },
+    {
+      name: "provider-rate-limited",
+      row: () => encryptedArchiveConnectorCredentialRow(),
+      fetcher: async () => accountLookupJsonResponse({ error: "rate-limit-fixture" }, 429),
+      expectedStatus: 429,
+      expectedCode: "archive_connector_account_lookup_rate_limited",
+      expectedProviderCalls: 1,
+    },
+    {
+      name: "provider-5xx",
+      row: () => encryptedArchiveConnectorCredentialRow(),
+      fetcher: async () => accountLookupJsonResponse({ request_id: "request-id-fixture" }, 503),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_account_lookup_failed",
+      expectedProviderCalls: 1,
+    },
+    {
+      name: "provider-invalid-json",
+      row: () => encryptedArchiveConnectorCredentialRow(),
+      fetcher: async () => new Response("{not-json", { status: 200 }),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_account_lookup_response_invalid",
+      expectedProviderCalls: 1,
+    },
+    {
+      name: "provider-missing-id",
+      row: () => encryptedArchiveConnectorCredentialRow(),
+      fetcher: async () => accountLookupJsonResponse({ name: "Owner Reddit" }),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_account_lookup_response_invalid",
+      expectedProviderCalls: 1,
+    },
+    {
+      name: "metadata-mismatch",
+      row: () => encryptedArchiveConnectorCredentialRow({
+        externalAccountFingerprint: fingerprintArchiveConnectorExternalAccount("reddit", "different-raw-account-id-fixture"),
+      }),
+      fetcher: async () => accountLookupJsonResponse({ id: "reddit-raw-account-id-fixture", name: "Owner Reddit" }),
+      expectedStatus: 409,
+      expectedCode: "archive_connector_account_mismatch",
+      expectedProviderCalls: 1,
+    },
+    {
+      name: "metadata-update-failure",
+      row: () => encryptedArchiveConnectorCredentialRow(),
+      fetcher: async () => accountLookupJsonResponse({ id: "reddit-raw-account-id-fixture", name: "Owner Reddit" }),
+      updateError: true,
+      expectedStatus: 500,
+      expectedCode: "archive_connector_account_metadata_update_failed",
+      expectedProviderCalls: 1,
+    },
+  ];
+
+  for (const setup of cases) {
+    const calls: AccountLookupFetchCall[] = [];
+    const db = new ArchiveConnectorReadinessSupabase();
+    if (setup.updateError) db.updateErrorTables.add("archive_connector_credentials");
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorExchangeEnv(), async () => {
+        if (setup.row) db.rows("archive_connector_credentials").push(setup.row());
+
+        await withAccountLookupFetch(calls, async () => {
+          if (!setup.fetcher) throw new Error(`${setup.name} should not fetch provider account.`);
+          return setup.fetcher();
+        }, async () => {
+          const response = await lookupArchiveConnectorCredentialAccountRoute(app, { provider: "reddit" });
+
+          assert.equal(response.status, setup.expectedStatus, setup.name);
+          assert.equal(response.body.code, setup.expectedCode, setup.name);
+          assert.equal(response.body.accountProofComplete, false, setup.name);
+          assert.equal(response.body.accountMetadataUpdated, false, setup.name);
+          assertAccountLookupSafety(response.body, false);
+          assertNoSensitiveAccountLookupReadback(response.body);
+          assert.equal(calls.length, setup.expectedProviderCalls, setup.name);
+        });
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
 test("archive connector credential revoke requires auth supported provider and empty body", async () => {
   const db = new ArchiveConnectorReadinessSupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -3005,6 +3438,7 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const routeSource = readFileSync("apps/api/src/routes/archive-connectors.ts", "utf8");
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
   const tokenExchangeSource = readFileSync("apps/api/src/services/archive-connectors/token-exchange.ts", "utf8");
+  const accountLookupSource = readFileSync("apps/api/src/services/archive-connectors/account-lookup.ts", "utf8");
   const source = `${routeSource}\n${readinessSource}`;
   const sourceWithoutAcceptedArchiveConfig = source.replace(
     /ARCHIVE_CONNECTOR_(REDDIT|DISCORD)_CLIENT_(ID|SECRET)/g,
@@ -3015,6 +3449,9 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const stateValidateMatches = routeSource.match(/validateArchiveConnectorOAuthState/g) ?? [];
   const credentialStoreMatches = routeSource.match(/storeArchiveConnectorCredential/g) ?? [];
   const credentialRevokeMatches = routeSource.match(/revokeArchiveConnectorCredential/g) ?? [];
+  const accountSecretMatches = routeSource.match(/loadArchiveConnectorAccountCredentialSecret/g) ?? [];
+  const accountLookupMatches = routeSource.match(/lookupArchiveConnectorProviderAccount/g) ?? [];
+  const accountMetadataUpdateMatches = routeSource.match(/updateArchiveConnectorCredentialAccountMetadata/g) ?? [];
   const tokenExchangeMatches = routeSource.match(/exchangeArchiveConnectorOAuthCode/g) ?? [];
 
   assert.equal(stateCreateMatches.length, 2);
@@ -3022,6 +3459,9 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.equal(stateValidateMatches.length, 2);
   assert.equal(credentialStoreMatches.length, 2);
   assert.equal(credentialRevokeMatches.length, 2);
+  assert.equal(accountSecretMatches.length, 2);
+  assert.equal(accountLookupMatches.length, 2);
+  assert.equal(accountMetadataUpdateMatches.length, 2);
   assert.equal(tokenExchangeMatches.length, 3);
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /consumeArchiveConnectorOAuthState/i);
@@ -3034,6 +3474,9 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.match(tokenExchangeSource, /www\.reddit\.com\/api\/v1\/access_token/);
   assert.match(tokenExchangeSource, /discord\.com\/api\/oauth2\/token/);
   assert.doesNotMatch(tokenExchangeSource, /api\/v1\/me|users\/@me|guilds|channels|messages|listing|saved|upvoted|history|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
+  assert.match(accountLookupSource, /oauth\.reddit\.com\/api\/v1\/me\?raw_json=1/);
+  assert.match(accountLookupSource, /discord\.com\/api\/v10\/users\/@me/);
+  assert.doesNotMatch(accountLookupSource, /access_token|refresh_token|guilds|channels|messages|listing|saved|upvoted|history|submitted|comments|subreddits|archive_sources|import_jobs|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
   assert.doesNotMatch(source, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates/i);
   assert.doesNotMatch(source, /new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
 });
@@ -3099,4 +3542,24 @@ function assertCredentialRevokeSafety(body: Row, enabled: boolean) {
   assert.equal(body.providerCallsEnabled, false);
   assert.equal(body.sourceInventoryEnabled, false);
   assert.equal(body.importWritesEnabled, false);
+}
+
+function assertAccountLookupSafety(body: Row, enabled: boolean) {
+  assert.equal(body.tokenDecryptEnabled, enabled);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerTokenEndpointCallsEnabled, false);
+  assert.equal(body.providerTokenRefreshEnabled, false);
+  assert.equal(body.providerTokenRevocationEnabled, false);
+  assert.equal(body.credentialMetadataUpdateEnabled, enabled);
+  assert.equal(body.credentialWritesEnabled, enabled);
+  assert.equal(body.providerAccountLookupEnabled, enabled);
+  assert.equal(body.providerCallsEnabled, enabled);
+  assert.equal(body.rawExternalAccountIdReadbackEnabled, false);
+  assert.equal(body.providerPayloadReadbackEnabled, false);
+  assert.equal(body.sourceInventoryEnabled, false);
+  assert.equal(body.archiveSourceWritesEnabled, false);
+  assert.equal(body.importWritesEnabled, false);
+  assert.equal(body.jobWritesEnabled, false);
+  assert.equal(body.queueEnabled, false);
+  assert.equal(body.uiChangesEnabled, false);
 }

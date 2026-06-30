@@ -9,10 +9,13 @@ import {
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
   encryptArchiveConnectorCredential,
+  fingerprintArchiveConnectorExternalAccount,
+  loadArchiveConnectorAccountCredentialSecret,
   loadArchiveConnectorCredentialReadbacks,
   loadArchiveConnectorSourceCredentialSecret,
   revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
+  updateArchiveConnectorCredentialAccountMetadata,
   validateArchiveConnectorOAuthState,
 } from "./credential-storage";
 
@@ -175,6 +178,28 @@ function sourceTokenMaterial(provider: "reddit" | "discord", overrides: Row = {}
   };
 }
 
+function accountTokenMaterial(
+  provider: "reddit" | "discord",
+  scopeProfile: "connect" | "source_inventory" = "connect",
+  overrides: Row = {},
+) {
+  const grantedScopes = provider === "reddit"
+    ? scopeProfile === "source_inventory" ? ["identity", "mysubreddits", "history"] : ["identity"]
+    : scopeProfile === "source_inventory" ? ["identify", "guilds"] : ["identify"];
+  return {
+    schema: "station.archive_connector.oauth_token.v1",
+    provider,
+    scopeProfile,
+    tokenType: "bearer",
+    accessToken: `${provider}-${scopeProfile}-access-token-fixture`,
+    refreshToken: `${provider}-${scopeProfile}-refresh-token-fixture`,
+    expiresInSeconds: provider === "reddit" ? 3600 : 7200,
+    scope: grantedScopes.join(" "),
+    grantedScopes,
+    ...overrides,
+  };
+}
+
 function sourceCredentialRow(input: {
   ownerUserId?: string;
   provider?: "reddit" | "discord" | "mastodon";
@@ -203,6 +228,48 @@ function sourceCredentialRow(input: {
     account_label: null,
     status: input.status ?? "active",
     scope_profile: input.scopeProfile ?? "source_inventory",
+    granted_scopes: grantedScopes,
+    created_at: "2026-06-29T21:00:00.000Z",
+    updated_at: "2026-06-29T21:00:00.000Z",
+    rotated_at: null,
+    revoked_at: input.status === "revoked" ? "2026-06-29T21:05:00.000Z" : null,
+  };
+}
+
+function accountCredentialRow(input: {
+  ownerUserId?: string;
+  provider?: "reddit" | "discord" | "mastodon";
+  purpose?: string;
+  status?: string;
+  scopeProfile?: "connect" | "source_inventory" | string;
+  grantedScopes?: string[];
+  encryptedCredential?: Record<string, unknown>;
+  tokenMaterial?: Row;
+  externalAccountFingerprint?: string | null;
+  accountLabel?: string | null;
+} = {}) {
+  const provider = input.provider ?? "reddit";
+  const supportedProvider = provider === "discord" ? "discord" : "reddit";
+  const scopeProfile = input.scopeProfile ?? "connect";
+  const supportedScopeProfile = scopeProfile === "source_inventory" ? "source_inventory" : "connect";
+  const grantedScopes = input.grantedScopes ?? (
+    provider === "discord"
+      ? supportedScopeProfile === "source_inventory" ? ["identify", "guilds"] : ["identify"]
+      : supportedScopeProfile === "source_inventory" ? ["identity", "mysubreddits", "history"] : ["identity"]
+  );
+  return {
+    id: "account-row-fixture",
+    owner_user_id: input.ownerUserId ?? "owner-user",
+    provider,
+    purpose: input.purpose ?? "archive_connector",
+    encrypted_credential: input.encryptedCredential ?? encryptArchiveConnectorCredential(
+      input.tokenMaterial ?? accountTokenMaterial(supportedProvider, supportedScopeProfile),
+    ),
+    credential_fingerprint: "account-credential-fingerprint",
+    external_account_fingerprint: input.externalAccountFingerprint ?? null,
+    account_label: input.accountLabel ?? null,
+    status: input.status ?? "active",
+    scope_profile: scopeProfile,
     granted_scopes: grantedScopes,
     created_at: "2026-06-29T21:00:00.000Z",
     updated_at: "2026-06-29T21:00:00.000Z",
@@ -479,6 +546,242 @@ test("archive connector source credential decrypt returns internal source-ready 
     } finally {
       resetFakes();
     }
+  }
+});
+
+test("archive connector account credential decrypt returns internal connect and source credential secrets", async () => {
+  for (const provider of ["reddit", "discord"] as const) {
+    for (const scopeProfile of ["connect", "source_inventory"] as const) {
+      const db = new ArchiveConnectorStorageSupabase();
+      useFakes(db);
+
+      try {
+        await withArchiveConnectorKey(validKey, async () => {
+          db.rows("archive_connector_credentials").push(accountCredentialRow({ provider, scopeProfile }));
+
+          const secret = await loadArchiveConnectorAccountCredentialSecret({
+            ownerUserId: "owner-user",
+            provider,
+          });
+
+          assert.deepEqual(Object.keys(secret).sort(), [
+            "accessToken",
+            "grantedScopes",
+            "provider",
+            "purpose",
+            "scopeProfile",
+          ].sort());
+          assert.equal(secret.provider, provider);
+          assert.equal(secret.purpose, "archive_connector");
+          assert.equal(secret.scopeProfile, scopeProfile);
+          assert.deepEqual(
+            secret.grantedScopes,
+            provider === "reddit"
+              ? scopeProfile === "source_inventory" ? ["identity", "mysubreddits", "history"] : ["identity"]
+              : scopeProfile === "source_inventory" ? ["identify", "guilds"] : ["identify"],
+          );
+          assert.equal(secret.accessToken, `${provider}-${scopeProfile}-access-token-fixture`);
+        });
+      } finally {
+        resetFakes();
+      }
+    }
+  }
+});
+
+test("archive connector account credential decrypt rejects unsupported providers before storage access", async () => {
+  const db = new ArchiveConnectorStorageSupabase();
+  useFakes(db);
+
+  try {
+    await assert.rejects(
+      () => loadArchiveConnectorAccountCredentialSecret({
+        ownerUserId: "owner-user",
+        provider: "mastodon" as any,
+      }),
+      (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+        && error.code === "archive_connector_account_credential_provider_unsupported"
+    );
+    assert.deepEqual(db.tableCalls, []);
+  } finally {
+    resetFakes();
+  }
+});
+
+test("archive connector account credential decrypt fails closed on eligibility and exact scope mismatches", async () => {
+  const cases: Array<{ name: string; row?: Row; code: string }> = [
+    {
+      name: "missing",
+      code: "archive_connector_account_credential_unavailable",
+    },
+    {
+      name: "revoked",
+      row: { status: "revoked" },
+      code: "archive_connector_account_credential_unavailable",
+    },
+    {
+      name: "wrong-owner",
+      row: { ownerUserId: "other-user" },
+      code: "archive_connector_account_credential_unavailable",
+    },
+    {
+      name: "wrong-purpose",
+      row: { purpose: "social_publishing" },
+      code: "archive_connector_account_credential_unavailable",
+    },
+    {
+      name: "stored-extra-scope",
+      row: { grantedScopes: ["identity", "history"] },
+      code: "archive_connector_account_credential_not_account_ready",
+    },
+    {
+      name: "stored-duplicate-scope",
+      row: { grantedScopes: ["identity", "identity"] },
+      code: "archive_connector_account_credential_not_account_ready",
+    },
+    {
+      name: "stored-reordered-source-scope",
+      row: {
+        scopeProfile: "source_inventory",
+        grantedScopes: ["history", "identity", "mysubreddits"],
+        tokenMaterial: accountTokenMaterial("reddit", "source_inventory"),
+      },
+      code: "archive_connector_account_credential_not_account_ready",
+    },
+    {
+      name: "token-missing-scope",
+      row: {
+        tokenMaterial: accountTokenMaterial("reddit", "connect", {
+          grantedScopes: [],
+          scope: "",
+        }),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
+    {
+      name: "token-extra-scope",
+      row: {
+        tokenMaterial: accountTokenMaterial("reddit", "connect", {
+          grantedScopes: ["identity", "history"],
+          scope: "identity history",
+        }),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
+    {
+      name: "token-duplicate-scope",
+      row: {
+        tokenMaterial: accountTokenMaterial("reddit", "connect", {
+          grantedScopes: ["identity", "identity"],
+          scope: "identity identity",
+        }),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
+    {
+      name: "token-reordered-source-scope",
+      row: {
+        scopeProfile: "source_inventory",
+        grantedScopes: ["identity", "mysubreddits", "history"],
+        tokenMaterial: accountTokenMaterial("reddit", "source_inventory", {
+          grantedScopes: ["history", "identity", "mysubreddits"],
+          scope: "history identity mysubreddits",
+        }),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
+    {
+      name: "token-provider-mismatch",
+      row: {
+        tokenMaterial: accountTokenMaterial("discord", "connect"),
+      },
+      code: "archive_connector_account_credential_token_invalid",
+    },
+  ];
+
+  for (const setup of cases) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        if (setup.row) db.rows("archive_connector_credentials").push(accountCredentialRow(setup.row));
+
+        await assert.rejects(
+          () => loadArchiveConnectorAccountCredentialSecret({
+            ownerUserId: "owner-user",
+            provider: "reddit",
+          }),
+          (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+            && error.code === setup.code,
+          setup.name,
+        );
+      });
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
+test("archive connector account metadata update stores only safe metadata and rejects account mismatches", async () => {
+  const db = new ArchiveConnectorStorageSupabase();
+  useFakes(db);
+
+  try {
+    await withArchiveConnectorKey(validKey, async () => {
+      db.rows("archive_connector_credentials").push(
+        accountCredentialRow({
+          accountLabel: "Old Reddit",
+          externalAccountFingerprint: null,
+        }),
+        accountCredentialRow({
+          ownerUserId: "other-user",
+          accountLabel: "Other Reddit",
+          externalAccountFingerprint: null,
+        }),
+      );
+
+      const credential = await updateArchiveConnectorCredentialAccountMetadata({
+        ownerUserId: "owner-user",
+        provider: "reddit",
+        rawExternalAccountId: "reddit-raw-account-id-fixture",
+        accountLabel: "Owner Reddit",
+      });
+
+      assert.equal(credential.accountLabel, "Owner Reddit");
+      assert.equal(credential.externalAccountFingerprintPresent, true);
+      assertNoSensitive(credential);
+
+      const stored = db.rows("archive_connector_credentials").find((row) => row.owner_user_id === "owner-user");
+      const other = db.rows("archive_connector_credentials").find((row) => row.owner_user_id === "other-user");
+      assert.equal(stored?.account_label, "Owner Reddit");
+      assert.equal(
+        stored?.external_account_fingerprint,
+        fingerprintArchiveConnectorExternalAccount("reddit", "reddit-raw-account-id-fixture"),
+      );
+      assert.equal(JSON.stringify(stored).includes("reddit-raw-account-id-fixture"), false);
+      assert.equal(other?.account_label, "Other Reddit");
+      assert.equal(other?.external_account_fingerprint, null);
+
+      await assert.rejects(
+        () => updateArchiveConnectorCredentialAccountMetadata({
+          ownerUserId: "owner-user",
+          provider: "reddit",
+          rawExternalAccountId: "different-reddit-account",
+          accountLabel: "Different Reddit",
+        }),
+        (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+          && error.code === "archive_connector_account_metadata_mismatch"
+      );
+
+      assert.equal(stored?.account_label, "Owner Reddit");
+      assert.equal(
+        stored?.external_account_fingerprint,
+        fingerprintArchiveConnectorExternalAccount("reddit", "reddit-raw-account-id-fixture"),
+      );
+    });
+  } finally {
+    resetFakes();
   }
 });
 

@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-D Archive Connector Provider Account Lookup
+
+DAEDALUS implemented PR484J-D on 2026-06-30:
+`docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added a backend-only provider account proof lane before source inventory;
+- account proof can decrypt only exact canonical `connect` and
+  `source_inventory` credentials;
+- provider calls are limited to Reddit `/api/v1/me?raw_json=1` and Discord
+  `/users/@me`;
+- one authenticated empty-body owner route triggers lookup:
+  `POST /archive-connectors/credentials/:provider/account/lookup`;
+- successful lookup updates only safe `account_label` and
+  `external_account_fingerprint` metadata on the active owner/provider
+  credential row;
+- existing external account fingerprint mismatch fails closed;
+- route/readback do not expose tokens, raw external ids, provider payloads,
+  provider headers, source data, or secret values;
+- source inventory/listing reads, imports, jobs, UI, packages, marketplace,
+  billing, Redis, Cloudflare, hosted proof, and social behavior remain out of
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts` | Pass | 58 focused connector storage/route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 106 tests passed across connector storage/contract/routes, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
 ## PR484J-D Archive Connector Provider Account Lookup Preflight
 
 ARGUS accepted PR484J-D on 2026-06-30:

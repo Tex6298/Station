@@ -18,15 +18,21 @@ import {
   type ArchiveConnectorOAuthStateReadback,
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
+  loadArchiveConnectorAccountCredentialSecret,
   loadArchiveConnectorCredentialReadbacks,
   revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
+  updateArchiveConnectorCredentialAccountMetadata,
   validateArchiveConnectorOAuthState,
 } from "../services/archive-connectors/credential-storage";
 import {
   ArchiveConnectorTokenExchangeError,
   exchangeArchiveConnectorOAuthCode,
 } from "../services/archive-connectors/token-exchange";
+import {
+  ArchiveConnectorAccountLookupError,
+  lookupArchiveConnectorProviderAccount,
+} from "../services/archive-connectors/account-lookup";
 import {
   archiveConnectorScopeProfileFromValue,
   archiveConnectorScopeProfileReadback,
@@ -60,6 +66,61 @@ archiveConnectorsRouter.get("/credentials", async (req: Request, res: Response) 
       ownerOnly: true,
       ...credentialReadbackSafety(),
     });
+  }
+});
+
+archiveConnectorsRouter.post("/credentials/:provider/account/lookup", async (req: Request, res: Response) => {
+  const provider = archiveConnectorProvider(req.params.provider);
+  if (!provider) {
+    return res.status(400).json({
+      error: "Archive connector provider is not supported.",
+      code: "archive_connector_provider_not_supported",
+      status: "unsupported_provider",
+    });
+  }
+
+  try {
+    assertEmptyAccountLookupBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector account lookup request is invalid.",
+      code: "archive_connector_account_lookup_invalid",
+      status: "invalid_request",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      ...accountLookupSafety(false),
+    });
+  }
+
+  try {
+    const secret = await loadArchiveConnectorAccountCredentialSecret({
+      ownerUserId: req.user!.id,
+      provider,
+    });
+    const account = await lookupArchiveConnectorProviderAccount({
+      provider,
+      accessToken: secret.accessToken,
+    });
+    const credential = await updateArchiveConnectorCredentialAccountMetadata({
+      ownerUserId: req.user!.id,
+      provider,
+      rawExternalAccountId: account.rawExternalAccountId,
+      accountLabel: account.accountLabel,
+    });
+
+    return res.status(200).json({
+      status: "archive_connector_account_lookup_complete",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      accountProofComplete: true,
+      accountMetadataUpdated: true,
+      credential,
+      ...accountLookupSafety(true),
+    });
+  } catch (error) {
+    return accountLookupFailureResponse(res, provider, error);
   }
 });
 
@@ -570,6 +631,146 @@ function assertEmptyRevokeBody(body: unknown) {
   }
 }
 
+function assertEmptyAccountLookupBody(body: unknown) {
+  if (body == null) return;
+  if (typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid account lookup body");
+  }
+
+  if (Object.keys(body as Record<string, unknown>).length > 0) {
+    throw new Error("invalid account lookup body");
+  }
+}
+
+function accountLookupFailureResponse(
+  res: Response,
+  provider: ArchiveConnectorProviderId,
+  error: unknown,
+) {
+  const base = {
+    provider,
+    purpose: "archive_connector" as const,
+    ownerOnly: true,
+    accountProofComplete: false,
+    accountMetadataUpdated: false,
+    ...accountLookupSafety(false),
+  };
+
+  if (error instanceof ArchiveConnectorCredentialStorageError) {
+    if (
+      error.code === "archive_connector_credential_encryption_unconfigured" ||
+      error.code === "archive_connector_credential_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector credential encryption setup is required.",
+        code: "archive_connector_credential_encryption_required",
+        status: "encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_account_credential_provider_unsupported") {
+      return res.status(400).json({
+        error: "Archive connector provider is not supported.",
+        code: "archive_connector_provider_not_supported",
+        status: "unsupported_provider",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_account_credential_unavailable" ||
+      error.code === "archive_connector_account_credential_not_account_ready"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector account credential is unavailable or requires reconnect.",
+        code: "archive_connector_account_credential_required",
+        status: "credential_required",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_account_credential_payload_invalid" ||
+      error.code === "archive_connector_account_credential_decrypt_failed" ||
+      error.code === "archive_connector_account_credential_token_invalid" ||
+      error.code === "archive_connector_source_credential_payload_invalid" ||
+      error.code === "archive_connector_source_credential_decrypt_failed" ||
+      error.code === "archive_connector_source_credential_token_invalid"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector account credential is invalid.",
+        code: "archive_connector_account_credential_invalid",
+        status: "credential_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_account_metadata_mismatch") {
+      return res.status(409).json({
+        error: "Archive connector account proof does not match the connected account.",
+        code: "archive_connector_account_mismatch",
+        status: "account_mismatch",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_account_metadata_update_failed") {
+      return res.status(500).json({
+        error: "Could not update archive connector account metadata.",
+        code: "archive_connector_account_metadata_update_failed",
+        status: "metadata_update_failed",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_credential_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector credential metadata.",
+        code: "archive_connector_account_credential_load_failed",
+        status: "credential_load_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorAccountLookupError) {
+    if (error.code === "archive_connector_account_lookup_reconnect_required") {
+      return res.status(409).json({
+        error: "Archive connector account proof requires reconnect.",
+        code: error.code,
+        status: "reconnect_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_account_lookup_rate_limited") {
+      return res.status(429).json({
+        error: "Archive connector provider account lookup was rate limited.",
+        code: error.code,
+        status: "rate_limited",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_account_lookup_response_invalid") {
+      return res.status(502).json({
+        error: "Archive connector provider account response was invalid.",
+        code: error.code,
+        status: "provider_response_invalid",
+        ...base,
+      });
+    }
+  }
+
+  return res.status(502).json({
+    error: "Archive connector provider account lookup failed.",
+    code: "archive_connector_account_lookup_failed",
+    status: "provider_lookup_failed",
+    ...base,
+  });
+}
+
 function archiveConnectorCredentialProviderRows(credentials: ArchiveConnectorCredentialReadback[]) {
   return ARCHIVE_CONNECTOR_PROVIDER_IDS.map((provider) => {
     const credential = newestCredentialReadbackForProvider(credentials, provider);
@@ -858,6 +1059,28 @@ function exchangeSafety(enabled: boolean) {
     providerCallsEnabled: false,
     sourceInventoryEnabled: false,
     importWritesEnabled: false,
+  };
+}
+
+function accountLookupSafety(enabled: boolean) {
+  return {
+    tokenDecryptEnabled: enabled,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    providerTokenRefreshEnabled: false,
+    providerTokenRevocationEnabled: false,
+    credentialMetadataUpdateEnabled: enabled,
+    credentialWritesEnabled: enabled,
+    providerAccountLookupEnabled: enabled,
+    providerCallsEnabled: enabled,
+    rawExternalAccountIdReadbackEnabled: false,
+    providerPayloadReadbackEnabled: false,
+    sourceInventoryEnabled: false,
+    archiveSourceWritesEnabled: false,
+    importWritesEnabled: false,
+    jobWritesEnabled: false,
+    queueEnabled: false,
+    uiChangesEnabled: false,
   };
 }
 
