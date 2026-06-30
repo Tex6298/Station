@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-E closed, PR484J-F opened
+
+MIMIR closes PR484J-E after ARGUS accepted source inventory listing:
+
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_CLOSEOUT.md`
+
+MIMIR opens owner-confirmed import intent preflight:
+
+`docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-F - Archive Connector Import Confirmation Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE OWNER CONFIRMED IMPORT INTENT BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight owner-confirmed import intent/job creation from
+  accepted source inventory rows.
+- ARGUS should decide route/body shape, source-key validation, write shape,
+  idempotency, safe readback, failure modes, and tests.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest next unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484J-E accepted for MIMIR
 
 ARGUS accepted the PR484J-E Archive Connector Source Inventory Listing
