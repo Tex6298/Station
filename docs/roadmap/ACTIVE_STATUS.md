@@ -4,6 +4,80 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-L owner UI flow accepted
+
+ARGUS accepts the smallest safe owner UI flow for the archive connector
+pipeline:
+
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW
+```
+
+Accepted boundary:
+
+- first visible flow lives in the existing persona Archive tab:
+  `/studio/personas/[personaId]/files`;
+- one owner-visible Reddit saved-items connector flow over accepted archive
+  connector APIs only;
+- direct frontend calls to accepted readiness, credential, OAuth, account
+  lookup, source inventory, import intent, activation, source preview, source
+  staging, import preview, and final connector import routes;
+- callback page live connection path must call callback exchange, not
+  verify-then-exchange, because verify consumes OAuth state;
+- only accepted backend DTO shaping is returning the already-safe
+  `localRedirectPath` from callback exchange if needed;
+- no new connector list/recovery endpoint, database table, background job,
+  staged-run listing route, or new import execution behavior;
+- source inventory UI must filter to `reddit_user_history` / `saved_items` and
+  render only generic `Reddit saved items` copy.
+
+Still forbidden:
+
+- Discord content reads, Discord source inventory UI calls, broader Reddit
+  history/subreddit imports, pagination crawls, recurring pulls, queues,
+  workers, generic `/imports/chat` connector use, staged connector parser reuse,
+  new backend import behavior, billing, Redis, Cloudflare, marketplace, partner
+  adapters, social behavior, public writes, Canon, Continuity, review
+  candidates, committed secrets, OAuth code/state/token readback, provider
+  payloads, raw provider ids, usernames, subreddit names, URLs, authors, source
+  bodies, encrypted batch contents, SQL details, stack traces, or
+  secret-shaped values.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts`
+  passed with 110 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `git diff --check` passed before doc updates.
+
+Current lane:
+
+```text
+PR484J-L - Archive Connector Owner UI Flow
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT_READY_FOR_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement the persona Archive owner UI flow, safe helper
+  types/copy, callback exchange wiring, state coverage, redaction tests, and
+  validation named in the ARGUS preflight.
+- After implementation, DAEDALUS should wake ARGUS for technical review.
+- If ARGUS accepts the visible implementation, ARGUS should wake ARIADNE for
+  desktop and 375px/390px route rehearsal.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR handoff - PR484J-L owner UI preflight opened
 
 MIMIR closed PR484J-K after ARGUS accepted the connector import execution lane:

@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-L Archive Connector Owner UI Flow Preflight
+
+ARGUS accepted PR484J-L on 2026-06-30:
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW`.
+
+Reason:
+
+- accepted one owner-visible Reddit saved-items connector flow in the existing
+  persona Archive tab `/studio/personas/[personaId]/files`;
+- route placement stays inside the owner persona workspace and does not create
+  a Settings, social, public, billing, or connector-dashboard surface;
+- the UI may call only existing accepted archive connector APIs for readiness,
+  credentials, OAuth start/authorize/exchange, account lookup, source
+  inventory, import intents, activation, source preview, source staging, import
+  preview, and final connector import;
+- the live callback path must call callback exchange, not verify-then-exchange,
+  because verify consumes OAuth state;
+- the only accepted backend DTO shaping is returning the already-safe
+  `localRedirectPath` from callback exchange if needed;
+- source inventory readback must be filtered to `reddit_user_history` /
+  `saved_items` and rendered as generic `Reddit saved items`;
+- no new connector list/recovery endpoint, database table, background job,
+  staged-run listing route, import execution behavior, `/imports/chat`
+  connector use, generic parser reuse, Discord content, broader Reddit source,
+  queue/worker, pagination, recurring pull, hosted/runtime, billing, Redis,
+  Cloudflare, marketplace, partner adapter, social behavior, public write,
+  Canon, Continuity, or review-candidate work enters scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Route placement review | Pass | Existing persona Archive tab is the safest first owner surface for a persona-bound connector import flow. |
+| Callback flow review | Pass with requirement | Current callback verify consumes state; PR484J-L must wire the live connection path through callback exchange. |
+| Backend recovery review | Pass | Existing accepted endpoints can drive the owner flow without adding a new list/recovery route; hard-refresh recovery can be honest restart plus backend idempotency. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts` | Pass | 110 tests passed across connector routes, OAuth callback bridge, Studio navigation, and Archive trust helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors before doc updates. |
+
 ## PR484J-K Archive Connector Import Execution Review
 
 ARGUS accepted PR484J-K on 2026-06-30:
