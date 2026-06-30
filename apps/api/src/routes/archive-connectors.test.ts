@@ -815,6 +815,10 @@ test("archive connector readiness reports all provider app pairs configured with
           ["discord", "provider_app_configured", "configured", true],
         ],
       );
+      for (const provider of response.body.providers) {
+        assert.match(provider.nextAction, /accepted OAuth start, authorization URL, callback, and token exchange routes/);
+        assert.doesNotMatch(provider.nextAction, /future lane must add owner-bound OAuth state creation/);
+      }
       assertDisabledSafety(response.body);
       assertNoSensitiveArchiveConnectorReadback(response.body);
       assert.deepEqual(db.tableCalls, ["profiles"]);

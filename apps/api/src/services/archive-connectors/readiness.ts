@@ -155,7 +155,7 @@ function providerNextAction(status: ProviderReadinessStatus) {
     return "Configure connector credential encryption before enabling provider OAuth setup.";
   }
   if (status === "provider_app_configured") {
-    return "Provider app config is present; a future lane must add owner-bound OAuth state creation before redirects.";
+    return "Provider app config and credential encryption are present; accepted OAuth start, authorization URL, callback, and token exchange routes remain owner-gated while source inventory and imports require future lanes.";
   }
   if (status === "provider_app_partial") {
     return "Complete the accepted archive-specific provider app pair; readiness does not expose which side is present.";

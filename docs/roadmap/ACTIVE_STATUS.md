@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484G accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484G Archive Connector OAuth Token Exchange
+/ Credential Write implementation:
+
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484G_TOKEN_EXCHANGE_CREDENTIAL_WRITE
+```
+
+ARGUS patch:
+
+- replaced stale configured-provider readiness `nextAction` copy that still
+  claimed a future lane must add owner-bound OAuth state creation;
+- added a regression proving configured-provider readiness now references the
+  accepted OAuth start, authorization URL, callback, and token exchange routes
+  while keeping source inventory/imports future-scoped.
+
+Accepted boundary:
+
+- authenticated
+  `POST /archive-connectors/oauth/:provider/callback/exchange`;
+- exact bounded `stateHandle`/`code` body;
+- local config/encryption/origin/state checks before token endpoint work;
+- one-time PR484E state consume immediately before provider token endpoint
+  request;
+- Reddit and Discord token endpoint requests only, through a test-injected
+  client seam;
+- encrypted credential write through the accepted helper, safe credential
+  metadata readback only;
+- no provider profile/account lookup, source inventory, import, refresh,
+  revocation, recurring pull, jobs, UI, Redis, Cloudflare, billing, package,
+  marketplace, or social behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 26 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts`
+  passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts`
+  passed with 70 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Scope/path scan found no package, lockfile, Supabase schema, or web changes.
+
+Current lane:
+
+```text
+PR484G - Archive Connector OAuth Token Exchange / Credential Write
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+Current baton:
+
+- MIMIR should close PR484G or choose the next archive connector move.
+- Hosted owner-ready/product-live token exchange remains blocked until Railway
+  config exists and ARIADNE proves the deployed flow.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484G ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484G Archive Connector OAuth Token Exchange

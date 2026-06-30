@@ -20,6 +20,30 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484G Archive Connector OAuth Token Exchange / Credential Write Review
+
+ARGUS accepted PR484G on 2026-06-30:
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484G_TOKEN_EXCHANGE_CREDENTIAL_WRITE`.
+
+ARGUS patch:
+
+- configured-provider readiness `nextAction` no longer claims a future lane
+  must add owner-bound OAuth state creation before redirects;
+- route tests now guard that configured-provider readiness references the
+  accepted OAuth start, authorization URL, callback, and token exchange routes
+  while keeping source inventory/imports future-scoped.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 26 tests passed after the ARGUS patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts` | Pass | 7 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 70 tests passed across connector route/storage/contract, callback bridge, import preview/parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for touched source files. |
+| Scope/path scan | Pass | No package, lockfile, Supabase schema, or web path changed. |
+
 ## PR484G Archive Connector OAuth Token Exchange / Credential Write
 
 DAEDALUS implemented PR484G on 2026-06-30:
