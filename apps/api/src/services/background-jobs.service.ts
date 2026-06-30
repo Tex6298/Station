@@ -3,7 +3,7 @@ import { env } from "../lib/env";
 import { OPERATIONAL_CACHE_TTLS, operationalCacheKey } from "./operational-cache.service";
 
 export const IMPORT_JOB_SELECT =
-  "id, persona_id, owner_user_id, kind, status, source_name, file_id, error_message, created_at, updated_at";
+  "id, persona_id, owner_user_id, kind, status, source_name, file_id, archive_connector_source_staging_run_id, error_message, created_at, updated_at";
 
 export const LEGACY_IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
@@ -130,10 +130,11 @@ export type ImportJobRow = {
   id: string;
   persona_id: string;
   owner_user_id: string;
-  kind: "file" | "chat";
+  kind: "file" | "chat" | "archive_connector";
   status: ImportJobStatus;
   source_name: string;
   file_id: string | null;
+  archive_connector_source_staging_run_id?: string | null;
   error_message: string | null;
   created_at: string;
   updated_at: string;
@@ -278,10 +279,16 @@ export function serializeImportJob(row: ImportJobRow) {
   };
 }
 
-export function normalizeImportJobRow(row: Omit<ImportJobRow, "file_id"> & { file_id?: string | null }): ImportJobRow {
+export function normalizeImportJobRow(
+  row: Omit<ImportJobRow, "file_id" | "archive_connector_source_staging_run_id"> & {
+    file_id?: string | null;
+    archive_connector_source_staging_run_id?: string | null;
+  }
+): ImportJobRow {
   return {
     ...row,
     file_id: row.file_id ?? null,
+    archive_connector_source_staging_run_id: row.archive_connector_source_staging_run_id ?? null,
   };
 }
 
@@ -512,7 +519,7 @@ async function updateImportJob(jobId: string, ownerUserId: string, patch: Partia
 
 function isMissingImportJobFileIdError(error: { message?: string } | null | undefined) {
   const message = error?.message ?? "";
-  return /import_jobs\.file_id|file_id/i.test(message) && /does not exist|schema cache|column/i.test(message);
+  return /import_jobs\.(?:file_id|archive_connector_source_staging_run_id)|\b(?:file_id|archive_connector_source_staging_run_id)\b/i.test(message) && /does not exist|schema cache|column/i.test(message);
 }
 
 function hasValue(value: string | undefined | null) {

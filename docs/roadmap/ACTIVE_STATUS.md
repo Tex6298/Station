@@ -4,19 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR484J-K import execution accepted
+## Latest DAEDALUS implementation - PR484J-K ready for ARGUS review
 
-ARGUS accepts PR484J-K as the smallest safe connector import execution lane:
+DAEDALUS implemented the ARGUS-accepted PR484J-K connector import execution
+lane:
 
-`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_RESULT.md`
 
 Validation result:
 
 ```text
-ACCEPT_PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION
+READY_FOR_ARGUS_REVIEW
 ```
 
-Accepted boundary:
+Implemented boundary:
 
 - authenticated owner-only route:
   `POST /archive-connectors/source-staging-runs/:runId/import`;
@@ -27,53 +28,59 @@ Accepted boundary:
 - dedicated PR484J-I staging envelope decrypt and batch validation;
 - connector-specific normalized text assembly from staged `normalizedText`
   values only;
-- existing `import_jobs` may be used only after adding
-  `kind = 'archive_connector'` and a unique staging-run pointer;
+- `import_jobs.kind = 'archive_connector'` plus a unique staging-run pointer;
 - direct synchronous `ingestTextIntoArchive` with a safe generic source name;
 - private archive chunk writes through `archiveSource.type = 'import_job'`;
-- successful connector import job completion plus staged-run imported metadata.
+- connector import job completion/failure lifecycle plus staged-run imported
+  metadata;
+- idempotent completed readback, pending queued/processing readback, and failed
+  job retry through the connector import route only;
+- owner archive list/search redaction for connector chunks.
 
 Still forbidden:
 
 - `/imports/chat`, generic import parsers, `persona_files`,
-  `createImportReviewCandidates`, connector job tables in addition to the
-  accepted `import_jobs` extension, public documents, Canon, Continuity,
-  provider calls, token work, source inventory calls, queues, workers, UI,
-  hosted/runtime, billing, Redis, Cloudflare, marketplace, partner adapters,
-  social behavior, broad Reddit reads, additional Reddit history categories, or
-  Discord content reads.
+  `createImportReviewCandidates`, connector job tables, public documents,
+  Canon, Continuity, provider calls, token work, source inventory calls,
+  queues, workers, UI, hosted/runtime, billing, Redis, Cloudflare, marketplace,
+  partner adapters, social behavior, broad Reddit reads, additional Reddit
+  history categories, or Discord content reads.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
-  passed with 76 route tests.
+  passed with 82 route tests.
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
-  passed with 144 tests.
+  passed with 150 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
 - `git diff --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run build` still fails locally during
+  `@station/web#build` Next standalone traced-file copy on Windows symlink
+  creation (`EPERM: operation not permitted, symlink`) after compile/static
+  generation; this is recorded as environment validation truth for ARGUS.
 
 Current lane:
 
 ```text
 PR484J-K - Archive Connector Import Execution
-Owner: DAEDALUS / A2
-State: ACCEPTED_FOR_IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the accepted owner-only synchronous connector import
-  route/helper, migrations, DB types, lifecycle/idempotency/failure handling,
-  redaction, and static guards.
-- DAEDALUS must not reuse `/imports/chat`, generic import parsers, provider
-  calls, queues/workers, UI, hosted/runtime, or any broader provider/source
-  expansion.
+- ARGUS should review PR484J-K for owner scoping, staging-run lifecycle,
+  `import_jobs` uniqueness/idempotency, failed ingest retry behavior, private
+  text redaction, and static no-drift guards.
+- If accepted, ARGUS wakes MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS wakes DAEDALUS with `WAKEUP A2:`.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest ARGUS verdict - PR484J-J staged batch consumption accepted

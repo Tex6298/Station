@@ -25,6 +25,7 @@ import {
   buildImportPreview,
   importPreviewParseErrorBody,
 } from "../services/imports/import-preview";
+import { ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME } from "../services/archive-connectors/source-staging-import";
 
 const chatImportSchema = z.object({
   personaId: z.string().uuid(),
@@ -393,7 +394,7 @@ importsRouter.get("/archive", async (req, res) => {
       persona: personaLabel(row.persona_id, personaNames),
       date: row.created_at,
       status: "indexed",
-      summary: row.summary ?? row.content ?? "Private memory item available for retrieval.",
+      summary: archiveMemorySummary(row),
       href: row.persona_id ? `/studio/personas/${row.persona_id}/memory` : "/studio/archive",
     })),
     ...personaFiles.map((row) => archiveItem({
@@ -576,7 +577,7 @@ importsRouter.get("/archive/search", async (req, res) => {
       personaName: personaLabel(row.persona_id, personaNames),
       occurredAt: row.updated_at ?? row.created_at,
       status: "indexed",
-      summary: row.summary ?? row.content ?? "Private memory item available for retrieval.",
+      summary: archiveMemorySummary(row),
       href: row.persona_id ? `/studio/personas/${row.persona_id}/memory` : "/studio/archive",
       fields: [
         field("title", row.title),
@@ -868,6 +869,18 @@ function archiveItem(input: {
     summary: archivePreviewText(input.summary, 220, "Private archive item."),
     date: input.date ?? null,
   };
+}
+
+function archiveMemorySummary(row: any) {
+  if (
+    row.source_type === "import" &&
+    row.archive_source_type === "import_job" &&
+    row.archive_source_name === ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME
+  ) {
+    return "Private connector import chunk is indexed for owner-only retrieval.";
+  }
+
+  return row.summary ?? row.content ?? "Private memory item available for retrieval.";
 }
 
 function classifyArchiveType(fileType?: string | null, fileName?: string | null) {

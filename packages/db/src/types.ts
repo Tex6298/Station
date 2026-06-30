@@ -25,7 +25,7 @@ export type ContinuityCandidateStatus = "pending" | "accepted" | "rejected";
 export type ContinuityRecordType = "memory" | "canon" | "integrity" | "archive_file" | "archive_import" | "archived_chat" | "candidate" | "publication" | "timeline";
 export type ContinuityRecordVisibility = "private" | "community" | "public";
 export type PersonaFileSourceType = "upload" | "import" | "calibration" | "generated";
-export type ImportJobKind = "file" | "chat";
+export type ImportJobKind = "file" | "chat" | "archive_connector";
 export type ImportJobStatus = "queued" | "processing" | "completed" | "failed";
 export type CalibrationSaveTarget = "persona" | "global" | "public_mode" | "other";
 export type IntegrityCluster = "identity" | "relationship" | "tone" | "continuity" | "boundaries" | "themes";
@@ -67,7 +67,7 @@ export type ArchiveConnectorProvider = "reddit" | "discord";
 export type ArchiveConnectorPurpose = "archive_connector";
 export type ArchiveConnectorCredentialStatus = "active" | "revoked";
 export type ArchiveConnectorImportIntentStatus = "pending" | "cancelled" | "activated";
-export type ArchiveConnectorSourceStagingRunStatus = "staged" | "superseded" | "revoked";
+export type ArchiveConnectorSourceStagingRunStatus = "staged" | "superseded" | "revoked" | "imported";
 export type ArchiveConnectorSourceFamily = "reddit_subreddit_memberships" | "reddit_user_history" | "discord_guilds";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
 export type DeveloperSpaceProviderPolicy = "public_synthetic_only" | "public_context_allowed" | "private_archive_allowed" | "owner_byok_only" | "platform_allowed";
@@ -275,15 +275,17 @@ export interface Database {
           expires_at: string;
           superseded_at: string | null;
           revoked_at: string | null;
+          imported_at: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["archive_connector_source_staging_runs"]["Row"], "id" | "purpose" | "status" | "superseded_at" | "revoked_at" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["archive_connector_source_staging_runs"]["Row"], "id" | "purpose" | "status" | "superseded_at" | "revoked_at" | "imported_at" | "created_at" | "updated_at"> & {
           id?: string;
           purpose?: ArchiveConnectorPurpose;
           status?: ArchiveConnectorSourceStagingRunStatus;
           superseded_at?: string | null;
           revoked_at?: string | null;
+          imported_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -680,13 +682,15 @@ export interface Database {
           status: ImportJobStatus;
           source_name: string;
           file_id: string | null;
+          archive_connector_source_staging_run_id: string | null;
           error_message: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["import_jobs"]["Row"], "id" | "created_at" | "updated_at" | "file_id"> & {
+        Insert: Omit<Database["public"]["Tables"]["import_jobs"]["Row"], "id" | "created_at" | "updated_at" | "file_id" | "archive_connector_source_staging_run_id"> & {
           id?: string;
           file_id?: string | null;
+          archive_connector_source_staging_run_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

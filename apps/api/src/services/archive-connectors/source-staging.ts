@@ -11,7 +11,7 @@ import {
   type ArchiveConnectorImportIntentRow,
 } from "./import-intents";
 
-export type ArchiveConnectorSourceStagingRunStatus = "staged" | "superseded" | "revoked";
+export type ArchiveConnectorSourceStagingRunStatus = "staged" | "superseded" | "revoked" | "imported";
 
 export type ArchiveConnectorSourceStagingRunRow = {
   id: string;
@@ -37,6 +37,7 @@ export type ArchiveConnectorSourceStagingRunRow = {
   expires_at: string;
   superseded_at: string | null;
   revoked_at: string | null;
+  imported_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -60,6 +61,7 @@ export type ArchiveConnectorSourceStagingRunReadback = {
   truncated: boolean;
   sourceReadAt: string;
   expiresAt: string;
+  importedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -91,6 +93,11 @@ export type ArchiveConnectorSourceStagingImportPreviewResult = {
   intent: ArchiveConnectorImportIntentReadback;
   run: ArchiveConnectorSourceStagingRunReadback;
   preview: ArchiveConnectorSourceStagingImportPreview;
+};
+
+export type ArchiveConnectorSourceStagingImportLoadResult = {
+  intent: ArchiveConnectorImportIntentRow;
+  run: ArchiveConnectorSourceStagingRunRow;
 };
 
 export type ArchiveConnectorSourceStagingErrorCode =
@@ -306,23 +313,66 @@ export async function previewArchiveConnectorSourceStagingRunImport(input: {
   ownerUserId: string;
   runId: string;
 }): Promise<ArchiveConnectorSourceStagingImportPreviewResult> {
-  const run = await loadCurrentSourceStagingRun(input);
-  const intent = await loadArchiveConnectorImportIntentForSourcePreview({
-    ownerUserId: input.ownerUserId,
-    intentId: run.import_intent_id,
-  });
-  assertStagingRunMatchesIntent(run, intent);
-
-  const key = requiredArchiveConnectorSourceStagingEncryptionKey();
-  const payload = decryptArchiveConnectorSourceStagingBatch(run.encrypted_source_batch, key);
-  const batch = sourceStagingBatchFromPayload(payload);
-  const preview = sourceStagingImportPreviewFromBatch(run, batch);
+  const { run, intent } = await loadArchiveConnectorSourceStagingRunForImport(input);
+  const { preview } = decryptArchiveConnectorSourceStagingRunBatchForImport(run);
 
   return {
     intent: serializeArchiveConnectorImportIntent(intent),
     run: serializeArchiveConnectorSourceStagingRun(run),
     preview,
   };
+}
+
+export async function loadArchiveConnectorSourceStagingRunForImport(input: {
+  ownerUserId: string;
+  runId: string;
+}): Promise<ArchiveConnectorSourceStagingImportLoadResult> {
+  const run = await loadCurrentSourceStagingRun(input);
+  const intent = await loadArchiveConnectorImportIntentForSourcePreview({
+    ownerUserId: input.ownerUserId,
+    intentId: run.import_intent_id,
+  });
+  assertStagingRunMatchesIntent(run, intent);
+  return { run, intent };
+}
+
+export function decryptArchiveConnectorSourceStagingRunBatchForImport(
+  run: ArchiveConnectorSourceStagingRunRow,
+) {
+  const key = requiredArchiveConnectorSourceStagingEncryptionKey();
+  const payload = decryptArchiveConnectorSourceStagingBatch(run.encrypted_source_batch, key);
+  const batch = sourceStagingBatchFromPayload(payload);
+  return {
+    batch,
+    preview: sourceStagingImportPreviewFromBatch(run, batch),
+  };
+}
+
+export async function markArchiveConnectorSourceStagingRunImported(input: {
+  ownerUserId: string;
+  runId: string;
+  importedAt?: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const { error } = await (sb as any)
+    .from("archive_connector_source_staging_runs")
+    .update({
+      status: "imported",
+      imported_at: input.importedAt ?? new Date().toISOString(),
+    })
+    .eq("id", input.runId)
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("purpose", "archive_connector")
+    .eq("provider", "reddit")
+    .eq("source_family", "reddit_user_history")
+    .eq("source_kind", "saved_items");
+
+  if (error) {
+    throw new ArchiveConnectorSourceStagingError(
+      "archive_connector_source_staging_write_failed",
+      "Could not mark archive connector source staging run imported."
+    );
+  }
 }
 
 export function decryptArchiveConnectorSourceStagingBatchForTests(value: Record<string, unknown>) {
@@ -686,7 +736,7 @@ function assertStagingRunMatchesIntent(
   }
 }
 
-type SourceStagingBatch = {
+export type SourceStagingBatch = {
   truncated: boolean;
   items: Array<{
     ordinal: number;
@@ -869,6 +919,7 @@ export function serializeArchiveConnectorSourceStagingRun(
     truncated: row.truncated,
     sourceReadAt: row.source_read_at,
     expiresAt: row.expires_at,
+    importedAt: row.imported_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

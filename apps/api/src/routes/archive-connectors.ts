@@ -58,11 +58,17 @@ import {
   revokeArchiveConnectorSourceStagingRunsForProvider,
 } from "../services/archive-connectors/source-staging";
 import {
+  ArchiveConnectorSourceStagingImportError,
+  importArchiveConnectorSourceStagingRun,
+} from "../services/archive-connectors/source-staging-import";
+import {
   archiveConnectorScopeProfileFromValue,
   archiveConnectorScopeProfileReadback,
   archiveConnectorScopesForProfile,
   type ArchiveConnectorScopeProfile,
 } from "../services/archive-connectors/source-scope-contract";
+import { quotaErrorResponse } from "../services/operational-quota.service";
+import { storageErrorResponse } from "../services/storage.service";
 
 export const archiveConnectorsRouter = Router();
 
@@ -379,6 +385,65 @@ archiveConnectorsRouter.post("/source-staging-runs/:runId/import-preview", async
     });
   } catch (error) {
     return sourceStagingImportPreviewFailureResponse(res, error);
+  }
+});
+
+archiveConnectorsRouter.post("/source-staging-runs/:runId/import", async (req: Request, res: Response) => {
+  let runId: string;
+  try {
+    runId = archiveConnectorSourceStagingRunIdFromParam(req.params.runId);
+    assertEmptySourceStagingImportBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector source staging import request is invalid.",
+      code: "archive_connector_source_staging_import_invalid",
+      status: "invalid_request",
+      provider: "reddit",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      imported: false,
+      duplicate: false,
+      idempotent: false,
+      runId: null,
+      job: null,
+      chunksCreated: 0,
+      importMetadata: null,
+      ...sourceStagingImportSafety(false),
+    });
+  }
+
+  try {
+    const result = await importArchiveConnectorSourceStagingRun({
+      ownerUserId: req.user!.id,
+      runId,
+    });
+
+    const statusCode = result.outcome === "completed"
+      ? 201
+      : result.outcome === "processing"
+        ? 202
+        : 200;
+    return res.status(statusCode).json({
+      status: result.outcome === "completed"
+        ? "archive_connector_source_staging_import_completed"
+        : result.outcome === "processing"
+          ? "archive_connector_source_staging_import_processing"
+          : "archive_connector_source_staging_import_already_completed",
+      provider: "reddit",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      imported: result.imported,
+      duplicate: result.duplicate,
+      idempotent: result.idempotent,
+      ...(result.outcome === "processing" ? { pending: result.pending } : {}),
+      runId: result.runId,
+      job: result.job,
+      chunksCreated: result.chunksCreated,
+      importMetadata: result.metadata,
+      ...sourceStagingImportSafety(true),
+    });
+  } catch (error) {
+    return sourceStagingImportFailureResponse(res, error);
   }
 });
 
@@ -1120,6 +1185,19 @@ function assertEmptySourceStagingImportPreviewBody(body: unknown) {
   if (keys.length > 0) {
     assertNoSecretShapedImportIntentBody(body as Record<string, unknown>);
     throw new Error("invalid source staging import preview body");
+  }
+}
+
+function assertEmptySourceStagingImportBody(body: unknown) {
+  if (body === undefined) return;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid source staging import body");
+  }
+
+  const keys = Object.keys(body as Record<string, unknown>);
+  if (keys.length > 0) {
+    assertNoSecretShapedImportIntentBody(body as Record<string, unknown>);
+    throw new Error("invalid source staging import body");
   }
 }
 
@@ -1910,6 +1988,169 @@ function sourceStagingImportPreviewFailureResponse(
   });
 }
 
+function sourceStagingImportFailureResponse(
+  res: Response,
+  error: unknown,
+) {
+  const base = {
+    provider: "reddit" as const,
+    purpose: "archive_connector" as const,
+    ownerOnly: true,
+    imported: false,
+    duplicate: false,
+    idempotent: false,
+    runId: null,
+    job: null,
+    chunksCreated: 0,
+    importMetadata: null,
+    ...sourceStagingImportSafety(false),
+  };
+
+  const quotaError = quotaErrorResponse(error);
+  if (quotaError) return res.status(quotaError.status).json({ ...quotaError.body, ...base });
+
+  const storageError = storageErrorResponse(error);
+  if (storageError) return res.status(storageError.status).json({ ...storageError.body, ...base });
+
+  if (error instanceof ArchiveConnectorImportIntentError) {
+    if (error.code === "archive_connector_import_intent_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector source staging import intent.",
+        code: "archive_connector_source_staging_import_intent_load_failed",
+        status: "intent_load_failed",
+        ...base,
+      });
+    }
+
+    return res.status(409).json({
+      error: "Archive connector source staging import intent is not current.",
+      code: "archive_connector_source_staging_import_intent_not_current",
+      status: "intent_not_current",
+      ...base,
+    });
+  }
+
+  if (error instanceof ArchiveConnectorSourceStagingError) {
+    if (error.code === "archive_connector_source_staging_run_not_found") {
+      return res.status(404).json({
+        error: "Archive connector source staging run was not found.",
+        code: error.code,
+        status: "run_not_found",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_run_not_current") {
+      return res.status(409).json({
+        error: "Archive connector source staging run is not current.",
+        code: error.code,
+        status: "run_not_current",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_import_intent_not_current") {
+      return res.status(409).json({
+        error: "Archive connector source staging import intent is not current.",
+        code: error.code,
+        status: "intent_not_current",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_staging_encryption_unconfigured" ||
+      error.code === "archive_connector_source_staging_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source staging encryption setup is required.",
+        code: "archive_connector_source_staging_encryption_required",
+        status: "staging_encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_batch_invalid") {
+      return res.status(409).json({
+        error: "Archive connector source staging batch is invalid.",
+        code: error.code,
+        status: "batch_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_batch_empty") {
+      return res.status(409).json({
+        error: "Archive connector source staging batch is empty.",
+        code: error.code,
+        status: "batch_empty",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector source staging run.",
+        code: error.code,
+        status: "staging_load_failed",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_write_failed") {
+      return res.status(500).json({
+        error: "Could not update archive connector source staging import state.",
+        code: error.code,
+        status: "staging_write_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorSourceStagingImportError) {
+    if (error.code === "archive_connector_source_staging_import_job_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector import job.",
+        code: error.code,
+        status: "job_load_failed",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_import_job_create_failed") {
+      return res.status(500).json({
+        error: "Could not create archive connector import job.",
+        code: error.code,
+        status: "job_create_failed",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_import_job_update_failed") {
+      return res.status(500).json({
+        error: "Could not update archive connector import job.",
+        code: error.code,
+        status: "job_update_failed",
+        ...base,
+      });
+    }
+
+    return res.status(500).json({
+      error: "Could not import archive connector source staging run.",
+      code: error.code,
+      status: "import_failed",
+      ...base,
+    });
+  }
+
+  return res.status(500).json({
+    error: "Could not import archive connector source staging run.",
+    code: "archive_connector_source_staging_import_failed",
+    status: "import_failed",
+    ...base,
+  });
+}
+
 function importIntentFailureResponse(
   res: Response,
   provider: ArchiveConnectorProviderId,
@@ -2696,6 +2937,49 @@ function sourceStagingImportPreviewSafety(enabled: boolean) {
     existingImportJobsWriteEnabled: false,
     connectorJobTableWritesEnabled: false,
     jobWritesEnabled: false,
+    queueEnabled: false,
+    workerExecutionEnabled: false,
+    recurringPullsEnabled: false,
+    publicWritesEnabled: false,
+    uiChangesEnabled: false,
+    rawProviderIdReadbackEnabled: false,
+    providerPayloadReadbackEnabled: false,
+    providerHeadersReadbackEnabled: false,
+    sourceTextReadbackEnabled: false,
+    encryptedSourceBatchReadbackEnabled: false,
+    sourceSnapshotFingerprintReadbackEnabled: false,
+    itemFingerprintReadbackEnabled: false,
+    sourceInventoryCredentialMetadataUpdateEnabled: false,
+  };
+}
+
+function sourceStagingImportSafety(enabled: boolean) {
+  return {
+    tokenDecryptEnabled: false,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    providerTokenRefreshEnabled: false,
+    providerTokenRevocationEnabled: false,
+    credentialWritesEnabled: false,
+    credentialMetadataUpdateEnabled: false,
+    providerAccountLookupEnabled: false,
+    providerCallsEnabled: false,
+    sourceInventoryEnabled: false,
+    sourcePreviewEnabled: false,
+    sourceBodyReadEnabled: false,
+    sourceBodyReadbackEnabled: false,
+    sourceStagingEncryptionEnabled: enabled,
+    sourceStagingImportExecutionEnabled: enabled,
+    privateStagingEnabled: enabled,
+    privateStagingWritesEnabled: enabled,
+    archiveSourceWritesEnabled: enabled,
+    durableCandidateWritesEnabled: false,
+    importIntentWritesEnabled: false,
+    importIntentActivationWritesEnabled: false,
+    importWritesEnabled: enabled,
+    existingImportJobsWriteEnabled: enabled,
+    connectorJobTableWritesEnabled: false,
+    jobWritesEnabled: enabled,
     queueEnabled: false,
     workerExecutionEnabled: false,
     recurringPullsEnabled: false,

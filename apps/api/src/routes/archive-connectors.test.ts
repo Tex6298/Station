@@ -17,6 +17,7 @@ import {
   encryptArchiveConnectorSourceStagingBatchForTests,
   setArchiveConnectorSourceStagingFetchForTests,
 } from "../services/archive-connectors/source-staging";
+import { ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME } from "../services/archive-connectors/source-staging-import";
 import { setArchiveConnectorSourceInventoryFetchForTests } from "../services/archive-connectors/source-inventory";
 import { setArchiveConnectorTokenEndpointFetchForTests } from "../services/archive-connectors/token-exchange";
 
@@ -34,10 +35,13 @@ const VALID_ARCHIVE_CONNECTOR_CREDENTIAL_KEY = "archive-connector-credential-tes
 class ArchiveConnectorReadinessSupabase {
   tableCalls: string[] = [];
   writeCalls: string[] = [];
+  rpcCalls: Array<{ name: string; args: Row }> = [];
   insertErrorTables = new Set<string>();
   selectErrorTables = new Set<string>();
   updateErrorTables = new Set<string>();
   updateRaceTables = new Set<string>();
+  rpcErrorNames = new Set<string>();
+  rpcStorageLimitNames = new Set<string>();
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -64,6 +68,9 @@ class ArchiveConnectorReadinessSupabase {
     archive_connector_credentials: [],
     archive_connector_import_intents: [],
     archive_connector_source_staging_runs: [],
+    import_jobs: [],
+    memory_items: [],
+    memory_item_lifecycle: [],
   };
 
   private usersByToken = new Map([
@@ -82,6 +89,16 @@ class ArchiveConnectorReadinessSupabase {
     from: (table: string) => {
       this.tableCalls.push(table);
       return new Query(this, table);
+    },
+    rpc: async (name: string, args: Row) => {
+      this.rpcCalls.push({ name, args });
+      if (this.rpcStorageLimitNames.has(name)) {
+        return { data: null, error: { message: "Storage Limit Reached" } };
+      }
+      if (this.rpcErrorNames.has(name)) {
+        return { data: null, error: { message: `SQL rpc failed in ${name} owner_user_id=owner-user stack prompt` } };
+      }
+      return { data: true, error: null };
     },
   };
 
@@ -106,12 +123,13 @@ class ArchiveConnectorReadinessSupabase {
 class Query {
   private filters: Array<{ field: string; op: "eq" | "gt" | "neq"; value: unknown }> = [];
   private operation: "select" | "insert" | "update" = "select";
-  private payload: Row | null = null;
+  private payload: Row | Row[] | null = null;
   private orderSpec: { field: string; ascending: boolean } | null = null;
+  private limitCount: number | null = null;
 
   constructor(private db: ArchiveConnectorReadinessSupabase, private table: string) {}
 
-  select() {
+  select(_columns?: string) {
     return this;
   }
 
@@ -130,12 +148,15 @@ class Query {
     return this;
   }
 
-  insert(payload: Row) {
+  insert(payload: Row | Row[]) {
     if (
       this.table !== "archive_connector_oauth_states" &&
       this.table !== "archive_connector_credentials" &&
       this.table !== "archive_connector_import_intents" &&
-      this.table !== "archive_connector_source_staging_runs"
+      this.table !== "archive_connector_source_staging_runs" &&
+      this.table !== "import_jobs" &&
+      this.table !== "memory_items" &&
+      this.table !== "memory_item_lifecycle"
     ) {
       this.db.writeCalls.push(`${this.table}.insert`);
       throw new Error(`${this.table} insert should not run in archive connector readiness tests.`);
@@ -150,7 +171,10 @@ class Query {
       this.table !== "archive_connector_oauth_states" &&
       this.table !== "archive_connector_credentials" &&
       this.table !== "archive_connector_import_intents" &&
-      this.table !== "archive_connector_source_staging_runs"
+      this.table !== "archive_connector_source_staging_runs" &&
+      this.table !== "import_jobs" &&
+      this.table !== "memory_items" &&
+      this.table !== "memory_item_lifecycle"
     ) {
       this.db.writeCalls.push(`${this.table}.update`);
       throw new Error(`${this.table} update should not run in archive connector readiness tests.`);
@@ -164,8 +188,17 @@ class Query {
     return this.execute("single");
   }
 
+  maybeSingle() {
+    return this.execute("maybeSingle");
+  }
+
   order(field: string, options: { ascending?: boolean } = {}) {
     this.orderSpec = { field, ascending: options.ascending ?? true };
+    return this;
+  }
+
+  limit(count: number) {
+    this.limitCount = count;
     return this;
   }
 
@@ -178,7 +211,7 @@ class Query {
     throw new Error(`${this.table} delete should not run in archive connector readiness tests.`);
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
     if (this.operation === "insert") {
       this.db.writeCalls.push(`${this.table}.insert`);
@@ -189,18 +222,27 @@ class Query {
         });
       }
 
-      const row = {
-        id: generatedRowId(this.table, this.db.rows(this.table).length + 1),
-        ...(this.table === "archive_connector_import_intents" ? { activated_at: null } : {}),
-        ...(this.table === "archive_connector_source_staging_runs"
-          ? { superseded_at: null, revoked_at: null }
-          : {}),
-        created_at: "2026-06-29T22:50:00.000Z",
-        updated_at: "2026-06-29T22:50:00.000Z",
-        ...(this.payload ?? {}),
-      };
-      this.db.rows(this.table).push(row);
-      rows = [row];
+      const payloads = Array.isArray(this.payload) ? this.payload : [this.payload ?? {}];
+      rows = payloads.map((payload, index) => {
+        const row = {
+          id: generatedRowId(this.table, this.db.rows(this.table).length + index + 1),
+          ...(this.table === "archive_connector_import_intents" ? { activated_at: null } : {}),
+          ...(this.table === "archive_connector_source_staging_runs"
+            ? { superseded_at: null, revoked_at: null, imported_at: null }
+            : {}),
+          ...(this.table === "import_jobs"
+            ? { file_id: null, archive_connector_source_staging_run_id: null, error_message: null }
+            : {}),
+          ...(this.table === "memory_items"
+            ? { embedding: null, created_at: "2026-06-29T22:50:00.000Z", updated_at: "2026-06-29T22:50:00.000Z" }
+            : {}),
+          created_at: "2026-06-29T22:50:00.000Z",
+          updated_at: "2026-06-29T22:50:00.000Z",
+          ...payload,
+        };
+        this.db.rows(this.table).push(row);
+        return row;
+      });
     } else if (this.operation === "update") {
       this.db.writeCalls.push(`${this.table}.update`);
       if (this.db.updateErrorTables.has(this.table)) {
@@ -244,6 +286,12 @@ class Query {
         : { data: null, error: { message: `Expected one ${this.table} row.` } };
     }
 
+    if (mode === "maybeSingle") {
+      return rows.length > 0
+        ? { data: rows[0], error: null }
+        : { data: null, error: null };
+    }
+
     return { data: rows, error: null };
   }
 
@@ -267,16 +315,20 @@ class Query {
       });
     }
 
+    if (this.limitCount != null) rows = rows.slice(0, this.limitCount);
+
     return rows;
   }
 }
 
 async function createArchiveConnectorApp() {
   const { archiveConnectorsRouter } = await import("./archive-connectors.js");
+  const { importsRouter } = await import("./imports.js");
   const { errorHandler } = await import("../middleware/error-handler.js");
   const app = express();
   app.use(express.json());
   app.use("/archive-connectors", archiveConnectorsRouter);
+  app.use("/imports", importsRouter);
   app.use(errorHandler);
   return app;
 }
@@ -566,6 +618,55 @@ async function previewArchiveConnectorSourceStagingImportRoute(
   });
 }
 
+async function executeArchiveConnectorSourceStagingImportRoute(
+  app: Express,
+  options: {
+    runId?: string;
+    token?: string | null;
+    body?: unknown;
+  } = {},
+) {
+  const body = Object.prototype.hasOwnProperty.call(options, "body")
+    ? options.body
+    : undefined;
+  return requestJson<Row>(app, "POST", `/archive-connectors/source-staging-runs/${options.runId ?? "44444444-4444-4444-8444-000000000001"}/import`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+    body,
+  });
+}
+
+async function retryImportJobRoute(
+  app: Express,
+  jobId = "import-job-fixture-1",
+  options: { token?: string | null; body?: unknown } = {},
+) {
+  const body = Object.prototype.hasOwnProperty.call(options, "body")
+    ? options.body
+    : {};
+  return requestJson<Row>(app, "POST", `/imports/${jobId}/retry`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+    body,
+  });
+}
+
+async function readOwnerArchiveRoute(
+  app: Express,
+  options: { token?: string | null } = {},
+) {
+  return requestJson<Row>(app, "GET", "/imports/archive", {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+  });
+}
+
+async function searchOwnerArchiveRoute(
+  app: Express,
+  options: { token?: string | null; query?: string } = {},
+) {
+  return requestJson<Row>(app, "GET", `/imports/archive/search${options.query ?? ""}`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+  });
+}
+
 function validArchiveConnectorImportIntentBody(overrides: Row = {}) {
   return {
     personaId: OWNER_PERSONA_ID,
@@ -641,8 +742,26 @@ function archiveConnectorSourceStagingRunRow(overrides: Row = {}) {
     expires_at: "2099-06-29T23:00:00.000Z",
     superseded_at: null,
     revoked_at: null,
+    imported_at: null,
     created_at: "2026-06-29T23:00:00.000Z",
     updated_at: "2026-06-29T23:00:00.000Z",
+    ...overrides,
+  };
+}
+
+function archiveConnectorImportJobRow(overrides: Row = {}) {
+  return {
+    id: "import-job-fixture-1",
+    owner_user_id: "owner-user",
+    persona_id: OWNER_PERSONA_ID,
+    kind: "archive_connector",
+    status: "completed",
+    source_name: ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME,
+    file_id: null,
+    archive_connector_source_staging_run_id: "44444444-4444-4444-8444-000000000001",
+    error_message: null,
+    created_at: "2026-06-29T23:10:00.000Z",
+    updated_at: "2026-06-29T23:10:00.000Z",
     ...overrides,
   };
 }
@@ -814,6 +933,12 @@ function generatedRowId(table: string, index: number) {
   }
   if (table === "archive_connector_source_staging_runs") {
     return `44444444-4444-4444-8444-${String(index).padStart(12, "0")}`;
+  }
+  if (table === "import_jobs") {
+    return `55555555-5555-4555-8555-${String(index).padStart(12, "0")}`;
+  }
+  if (table === "memory_items") {
+    return `66666666-6666-4666-8666-${String(index).padStart(12, "0")}`;
   }
   return `${table}-${index}`;
 }
@@ -1048,8 +1173,6 @@ function assertNoSensitiveCredentialReadback(body: unknown) {
     "archive_sources",
     "import_jobs",
     "memory_items",
-    "canon_items",
-    "continuity_candidates",
     "documents",
     "private-source-body-fixture",
     "provider_payload",
@@ -1219,6 +1342,76 @@ function assertNoSensitiveSourceStagingImportPreviewReadback(body: unknown) {
 
   for (const value of forbidden) {
     assert.equal(text.includes(value), false, `${value} leaked into source staging import preview readback`);
+  }
+}
+
+function assertNoSensitiveSourceStagingImportReadback(body: unknown) {
+  const text = JSON.stringify(body);
+  const forbidden = [
+    "encrypted_credential",
+    "ciphertext",
+    "authTag",
+    "access_token",
+    "refresh_token",
+    "oauth_code",
+    "client_secret",
+    "stateHandle",
+    "session_id_hash",
+    "nonce_hash",
+    "csrf_hash",
+    "credential_fingerprint",
+    "external_account_fingerprint",
+    "reddit-active-fingerprint",
+    "reddit-old-fingerprint",
+    "discord-new-fingerprint",
+    "discord-old-fingerprint",
+    "other-owner-fingerprint",
+    "wrong-purpose-fingerprint",
+    "unsupported-provider-fingerprint",
+    "external-account-fixture",
+    "raw-external-account",
+    "row-id-fixture",
+    "owner-user",
+    "other-user",
+    "archive_connector_oauth_states",
+    "archive_connector_credentials",
+    "archive_sources",
+    "private-source-body-fixture",
+    "provider_payload",
+    "provider-profile-payload",
+    "secret-shaped-value",
+    "normalizedText",
+    "\"itemFingerprint\":",
+    "a".repeat(64),
+    "b".repeat(64),
+    "iv-fixture",
+    "ciphertext-fixture",
+    "auth-tag-fixture",
+    "rawExternalAccountId",
+    "archive_connector_source_staging_runs",
+    "encrypted_source_batch",
+    "source_snapshot_fingerprint",
+    "station.archive_connector.source_staging_batch.v1",
+    "secret-shaped-source-content",
+    "saved-post-title-fixture",
+    "saved-post-selftext-fixture",
+    "saved-comment-body-fixture",
+    "skipped-secret-title-fixture",
+    "https://reddit.example/saved",
+    "author-fixture",
+    "subreddit-fixture",
+    "saved-post-id-fixture",
+    "saved-comment-id-fixture",
+    "after-staging-cursor-fixture",
+    "staging-key-fixture",
+    "SQL",
+    "stack",
+    "prompt",
+    "provider-staging-payload",
+  ];
+
+  for (const value of forbidden) {
+    assert.equal(text.includes(value), false, `${value} leaked into source staging import readback`);
   }
 }
 
@@ -6147,6 +6340,497 @@ test("archive connector source staging import preview returns safe aggregate met
   }
 });
 
+test("archive connector source staging import requires auth UUID path and strict empty body before work", async () => {
+  const signedOutDb = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(signedOutDb.client as any);
+  const signedOutApp = await createArchiveConnectorApp();
+
+  try {
+    const signedOut = await executeArchiveConnectorSourceStagingImportRoute(signedOutApp, { token: null });
+    assert.equal(signedOut.status, 401);
+    assert.equal(signedOut.body.error, "Missing or invalid Authorization header.");
+    assert.equal(signedOutDb.tableCalls.length, 0);
+    assert.deepEqual(signedOutDb.writeCalls, []);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const invalidCases: Array<{ name: string; runId?: string; body?: unknown; routeHandled: boolean }> = [
+    { name: "id", runId: "not-a-uuid", body: {}, routeHandled: true },
+    { name: "array", body: [], routeHandled: true },
+    { name: "unknown-key", body: { import: true }, routeHandled: true },
+    { name: "secret-shaped", body: { sourceBody: "secret-shaped-source-content" }, routeHandled: true },
+    { name: "primitive", body: "secret-shaped-value", routeHandled: false },
+  ];
+
+  for (const setup of invalidCases) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      const response = await executeArchiveConnectorSourceStagingImportRoute(app, {
+        runId: setup.runId,
+        body: setup.body,
+      });
+
+      assert.equal(response.status, 400, setup.name);
+      assert.equal(
+        response.body.code,
+        setup.routeHandled ? "archive_connector_source_staging_import_invalid" : "bad_request",
+        setup.name,
+      );
+      if (setup.routeHandled) assertSourceStagingImportSafety(response.body, false);
+      assertNoSensitiveSourceStagingImportReadback(response.body);
+      assert.equal(db.tableCalls.includes("archive_connector_source_staging_runs"), false, setup.name);
+      assert.equal(db.tableCalls.includes("archive_connector_import_intents"), false, setup.name);
+      assert.deepEqual(db.writeCalls, [], setup.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector source staging import gates current run, intent, quota, encryption, and batch before writes", async () => {
+  const lifecycleCases: Array<{
+    name: string;
+    rows?: Row[];
+    intents?: Row[];
+    expectedStatus: number;
+    expectedCode: string;
+  }> = [
+    {
+      name: "missing",
+      expectedStatus: 404,
+      expectedCode: "archive_connector_source_staging_run_not_found",
+    },
+    {
+      name: "wrong-owner",
+      rows: [archiveConnectorSourceStagingRunRow({ owner_user_id: "other-user" })],
+      expectedStatus: 404,
+      expectedCode: "archive_connector_source_staging_run_not_found",
+    },
+    {
+      name: "already-imported-without-job",
+      rows: [archiveConnectorSourceStagingRunRow({
+        status: "imported",
+        imported_at: "2026-06-30T08:00:00.000Z",
+      })],
+      intents: [activatedRedditSavedItemsImportIntentRow()],
+      expectedStatus: 409,
+      expectedCode: "archive_connector_source_staging_run_not_current",
+    },
+    {
+      name: "pending-intent",
+      rows: [archiveConnectorSourceStagingRunRow()],
+      intents: [activatedRedditSavedItemsImportIntentRow({ status: "pending", activated_at: null })],
+      expectedStatus: 409,
+      expectedCode: "archive_connector_source_staging_import_intent_not_current",
+    },
+  ];
+
+  for (const setup of lifecycleCases) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    db.rows("archive_connector_source_staging_runs").push(...(setup.rows ?? []));
+    db.rows("archive_connector_import_intents").push(...(setup.intents ?? []));
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      const response = await executeArchiveConnectorSourceStagingImportRoute(app, { body: {} });
+
+      assert.equal(response.status, setup.expectedStatus, setup.name);
+      assert.equal(response.body.code, setup.expectedCode, setup.name);
+      assertSourceStagingImportSafety(response.body, false);
+      assertNoSensitiveSourceStagingImportReadback(response.body);
+      assert.deepEqual(db.writeCalls, [], setup.name);
+      assert.equal(db.rpcCalls.length, 0, setup.name);
+      assert.equal(db.rows("import_jobs").length, 0, setup.name);
+      assert.equal(db.rows("memory_items").length, 0, setup.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await withEnv({
+    ...archiveConnectorExchangeEnv(),
+    ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: "source-staging-key-fixture-32-characters",
+  }, async () => {
+    const quotaDb = new ArchiveConnectorReadinessSupabase();
+    quotaDb.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow());
+    quotaDb.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+    for (let index = 0; index < 5; index += 1) {
+      quotaDb.rows("import_jobs").push(archiveConnectorImportJobRow({
+        id: `quota-job-${index}`,
+        kind: "chat",
+        status: index % 2 === 0 ? "queued" : "processing",
+        source_name: `quota-safe-${index}`,
+        archive_connector_source_staging_run_id: null,
+      }));
+    }
+    setSupabaseAdminForTests(quotaDb.client as any);
+    const quotaApp = await createArchiveConnectorApp();
+
+    try {
+      const quota = await executeArchiveConnectorSourceStagingImportRoute(quotaApp, { body: {} });
+      assert.equal(quota.status, 429);
+      assert.equal(quota.body.code, "quota_exceeded");
+      assert.equal(quota.body.resource, "import_jobs");
+      assertSourceStagingImportSafety(quota.body, false);
+      assertNoSensitiveSourceStagingImportReadback(quota.body);
+      assert.equal(quotaDb.rows("import_jobs").length, 5);
+      assert.equal(quotaDb.rows("memory_items").length, 0);
+      assert.equal(quotaDb.rpcCalls.length, 0);
+      assert.deepEqual(quotaDb.writeCalls, []);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  });
+
+  const configCases: Array<{ name: string; envValue: string | null; expectedCode: string }> = [
+    {
+      name: "missing-staging-key",
+      envValue: null,
+      expectedCode: "archive_connector_source_staging_encryption_required",
+    },
+    {
+      name: "malformed-staging-key",
+      envValue: "short",
+      expectedCode: "archive_connector_source_staging_encryption_required",
+    },
+  ];
+
+  for (const setup of configCases) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    db.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow());
+    db.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv({
+        ...archiveConnectorExchangeEnv(),
+        ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: setup.envValue,
+      }, async () => {
+        const response = await executeArchiveConnectorSourceStagingImportRoute(app, { body: {} });
+
+        assert.equal(response.status, 409, setup.name);
+        assert.equal(response.body.code, setup.expectedCode, setup.name);
+        assertSourceStagingImportSafety(response.body, false);
+        assertNoSensitiveSourceStagingImportReadback(response.body);
+        assert.equal(db.rows("import_jobs").length, 0, setup.name);
+        assert.equal(db.rows("memory_items").length, 0, setup.name);
+        assert.deepEqual(db.writeCalls, [], setup.name);
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await withEnv({
+    ...archiveConnectorExchangeEnv(),
+    ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: "source-staging-key-fixture-32-characters",
+  }, async () => {
+    const encrypted = encryptedArchiveConnectorSourceStagingBatch();
+    const invalidCases: Array<{ name: string; encryptedBatch: Row; expectedCode: string }> = [
+      {
+        name: "malformed-envelope",
+        encryptedBatch: { schema: "station.archive_connector.source_staging_batch.v1", algorithm: "aes-256-gcm" },
+        expectedCode: "archive_connector_source_staging_batch_invalid",
+      },
+      {
+        name: "undecryptable",
+        encryptedBatch: { ...encrypted, ciphertext: "AA" },
+        expectedCode: "archive_connector_source_staging_batch_invalid",
+      },
+      {
+        name: "empty-batch",
+        encryptedBatch: encryptedArchiveConnectorSourceStagingBatch({ items: [] }),
+        expectedCode: "archive_connector_source_staging_batch_empty",
+      },
+    ];
+
+    for (const setup of invalidCases) {
+      const db = new ArchiveConnectorReadinessSupabase();
+      db.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow({
+        encrypted_source_batch: setup.encryptedBatch,
+      }));
+      db.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+      setSupabaseAdminForTests(db.client as any);
+      const app = await createArchiveConnectorApp();
+
+      try {
+        const response = await executeArchiveConnectorSourceStagingImportRoute(app, { body: {} });
+
+        assert.equal(response.status, 409, setup.name);
+        assert.equal(response.body.code, setup.expectedCode, setup.name);
+        assertSourceStagingImportSafety(response.body, false);
+        assertNoSensitiveSourceStagingImportReadback(response.body);
+        assert.equal(db.rows("import_jobs").length, 0, setup.name);
+        assert.equal(db.rows("memory_items").length, 0, setup.name);
+        assert.deepEqual(db.writeCalls, [], setup.name);
+      } finally {
+        setSupabaseAdminForTests(null);
+      }
+    }
+  });
+});
+
+test("archive connector source staging import writes one connector job and private archive chunks", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ...archiveConnectorExchangeEnv(),
+      ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: "source-staging-key-fixture-32-characters",
+    }, async () => {
+      const batch = archiveConnectorSourceStagingBatch();
+      db.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow({
+        item_count: 2,
+        post_count: 1,
+        comment_count: 1,
+        skipped_count: 1,
+        truncated: true,
+        encrypted_source_batch: encryptArchiveConnectorSourceStagingBatchForTests(batch),
+      }));
+      db.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+
+      const response = await executeArchiveConnectorSourceStagingImportRoute(app, { body: {} });
+
+      assert.equal(response.status, 201);
+      assert.equal(response.body.status, "archive_connector_source_staging_import_completed");
+      assert.equal(response.body.provider, "reddit");
+      assert.equal(response.body.purpose, "archive_connector");
+      assert.equal(response.body.ownerOnly, true);
+      assert.equal(response.body.imported, true);
+      assert.equal(response.body.duplicate, false);
+      assert.equal(response.body.idempotent, false);
+      assert.equal(response.body.runId, "44444444-4444-4444-8444-000000000001");
+      assert.equal(response.body.job.kind, "archive_connector");
+      assert.equal(response.body.job.status, "completed");
+      assert.equal(response.body.job.sourceName, ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME);
+      assert.equal(response.body.chunksCreated, db.rows("memory_items").length);
+      assert.deepEqual(response.body.importMetadata, {
+        format: "reddit_saved_items",
+        sourceFamily: "reddit_user_history",
+        sourceKind: "saved_items",
+        pageLimit: 10,
+        itemCount: 2,
+        postCount: 1,
+        commentCount: 1,
+        skippedCount: 1,
+        truncated: true,
+      });
+      assertSourceStagingImportSafety(response.body, true);
+      assertNoSensitiveSourceStagingImportReadback(response.body);
+
+      const [job] = db.rows("import_jobs");
+      assert.equal(job.kind, "archive_connector");
+      assert.equal(job.status, "completed");
+      assert.equal(job.source_name, ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME);
+      assert.equal(job.archive_connector_source_staging_run_id, "44444444-4444-4444-8444-000000000001");
+      assert.equal(db.rows("import_jobs").length, 1);
+      assert.equal(db.rows("memory_items").length, 1);
+      assert.equal(db.rows("memory_items")[0].archive_source_type, "import_job");
+      assert.equal(db.rows("memory_items")[0].archive_source_id, job.id);
+      assert.equal(db.rows("memory_items")[0].archive_source_name, ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME);
+      assert.match(db.rows("memory_items")[0].content, /secret-shaped-source-content/);
+      assert.equal(db.rows("memory_item_lifecycle").length, 1);
+      assert.equal(db.rows("archive_connector_source_staging_runs")[0].status, "imported");
+      assert.equal(typeof db.rows("archive_connector_source_staging_runs")[0].imported_at, "string");
+      assert.deepEqual(db.rpcCalls.map((call) => call.name), ["reserve_storage_bytes"]);
+      assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector source staging import is idempotent, pending-aware, and retries failed connector jobs only through the connector route", async () => {
+  await withEnv({
+    ...archiveConnectorExchangeEnv(),
+    ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: "source-staging-key-fixture-32-characters",
+  }, async () => {
+    const completedDb = new ArchiveConnectorReadinessSupabase();
+    completedDb.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow({
+      status: "imported",
+      imported_at: "2026-06-30T08:00:00.000Z",
+    }));
+    completedDb.rows("import_jobs").push(archiveConnectorImportJobRow());
+    completedDb.rows("memory_items").push({
+      id: "66666666-6666-4666-8666-000000000001",
+      owner_user_id: "owner-user",
+      persona_id: OWNER_PERSONA_ID,
+      title: "Reddit saved items [chunk 1/1]",
+      content: "secret-shaped-source-content already archived",
+      summary: "secret-shaped-source-content already archived",
+      source_type: "import",
+      archive_source_type: "import_job",
+      archive_source_id: "import-job-fixture-1",
+      archive_source_name: ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME,
+      created_at: "2026-06-29T23:11:00.000Z",
+      updated_at: "2026-06-29T23:11:00.000Z",
+    });
+    setSupabaseAdminForTests(completedDb.client as any);
+    const completedApp = await createArchiveConnectorApp();
+
+    try {
+      const duplicate = await executeArchiveConnectorSourceStagingImportRoute(completedApp, { body: {} });
+      assert.equal(duplicate.status, 200);
+      assert.equal(duplicate.body.status, "archive_connector_source_staging_import_already_completed");
+      assert.equal(duplicate.body.imported, true);
+      assert.equal(duplicate.body.duplicate, true);
+      assert.equal(duplicate.body.idempotent, true);
+      assert.equal(duplicate.body.chunksCreated, 1);
+      assertSourceStagingImportSafety(duplicate.body, true);
+      assertNoSensitiveSourceStagingImportReadback(duplicate.body);
+      assert.equal(completedDb.rows("import_jobs").length, 1);
+      assert.equal(completedDb.rows("memory_items").length, 1);
+
+      const retry = await retryImportJobRoute(completedApp, "import-job-fixture-1", {
+        body: { content: "private retry content" },
+      });
+      assert.equal(retry.status, 400);
+      assert.equal(retry.body.error, "Only chat import jobs can be retried without a persisted file pointer.");
+      assertNoSensitiveSourceStagingImportReadback(retry.body);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+
+    const processingDb = new ArchiveConnectorReadinessSupabase();
+    processingDb.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow());
+    processingDb.rows("import_jobs").push(archiveConnectorImportJobRow({ status: "processing" }));
+    setSupabaseAdminForTests(processingDb.client as any);
+    const processingApp = await createArchiveConnectorApp();
+
+    try {
+      const pending = await executeArchiveConnectorSourceStagingImportRoute(processingApp, { body: {} });
+      assert.equal(pending.status, 202);
+      assert.equal(pending.body.status, "archive_connector_source_staging_import_processing");
+      assert.equal(pending.body.imported, false);
+      assert.equal(pending.body.duplicate, true);
+      assert.equal(pending.body.idempotent, true);
+      assert.equal(pending.body.pending, true);
+      assert.equal(pending.body.chunksCreated, 0);
+      assertSourceStagingImportSafety(pending.body, true);
+      assertNoSensitiveSourceStagingImportReadback(pending.body);
+      assert.deepEqual(processingDb.writeCalls, []);
+      assert.equal(processingDb.rows("memory_items").length, 0);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+
+    const retryDb = new ArchiveConnectorReadinessSupabase();
+    retryDb.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow({
+      item_count: 2,
+      post_count: 1,
+      comment_count: 1,
+      truncated: true,
+      encrypted_source_batch: encryptedArchiveConnectorSourceStagingBatch(),
+    }));
+    retryDb.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+    retryDb.rows("import_jobs").push(archiveConnectorImportJobRow({
+      status: "failed",
+      error_message: "Prior safe failure.",
+    }));
+    setSupabaseAdminForTests(retryDb.client as any);
+    const retryApp = await createArchiveConnectorApp();
+
+    try {
+      const retried = await executeArchiveConnectorSourceStagingImportRoute(retryApp, { body: {} });
+      assert.equal(retried.status, 201);
+      assert.equal(retried.body.status, "archive_connector_source_staging_import_completed");
+      assert.equal(retried.body.imported, true);
+      assert.equal(retried.body.duplicate, false);
+      assert.equal(retryDb.rows("import_jobs").length, 1);
+      assert.equal(retryDb.rows("import_jobs")[0].status, "completed");
+      assert.equal(retryDb.rows("import_jobs")[0].error_message, null);
+      assert.equal(retryDb.rows("memory_items").length, 1);
+      assert.equal(retryDb.rows("archive_connector_source_staging_runs")[0].status, "imported");
+      assertNoSensitiveSourceStagingImportReadback(retried.body);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  });
+});
+
+test("archive connector source staging import marks failed ingest safely and keeps staged run retryable", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+  db.insertErrorTables.add("memory_items");
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ...archiveConnectorExchangeEnv(),
+      ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: "source-staging-key-fixture-32-characters",
+    }, async () => {
+      db.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow({
+        item_count: 2,
+        post_count: 1,
+        comment_count: 1,
+        truncated: true,
+        encrypted_source_batch: encryptedArchiveConnectorSourceStagingBatch(),
+      }));
+      const response = await executeArchiveConnectorSourceStagingImportRoute(app, { body: {} });
+
+      assert.equal(response.status, 500);
+      assert.equal(response.body.code, "archive_connector_source_staging_import_failed");
+      assertSourceStagingImportSafety(response.body, false);
+      assertNoSensitiveSourceStagingImportReadback(response.body);
+      assert.equal(db.rows("import_jobs").length, 1);
+      assert.equal(db.rows("import_jobs")[0].status, "failed");
+      assert.equal(JSON.stringify(db.rows("import_jobs")[0]).includes("secret-shaped-source-content"), false);
+      assert.equal(JSON.stringify(db.rows("import_jobs")[0]).includes("SQL"), false);
+      assert.equal(JSON.stringify(db.rows("import_jobs")[0]).includes("stack"), false);
+      assert.equal(db.rows("memory_items").length, 0);
+      assert.equal(db.rows("archive_connector_source_staging_runs")[0].status, "staged");
+      assert.equal(db.rows("archive_connector_source_staging_runs")[0].imported_at, null);
+      assert.deepEqual(db.rpcCalls.map((call) => call.name), ["reserve_storage_bytes", "release_storage_bytes"]);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector import chunks stay redacted in owner archive summary and search readback", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.rows("import_jobs").push(archiveConnectorImportJobRow());
+  db.rows("memory_items").push({
+    id: "66666666-6666-4666-8666-000000000001",
+    owner_user_id: "owner-user",
+    persona_id: OWNER_PERSONA_ID,
+    title: "Reddit saved items [chunk 1/1]",
+    content: "secret-shaped-source-content saved-post-title-fixture saved-comment-body-fixture",
+    summary: "secret-shaped-source-content saved-post-title-fixture saved-comment-body-fixture",
+    source_type: "import",
+    archive_source_type: "import_job",
+    archive_source_id: "import-job-fixture-1",
+    archive_source_name: ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME,
+    created_at: "2026-06-29T23:11:00.000Z",
+    updated_at: "2026-06-29T23:11:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    const archive = await readOwnerArchiveRoute(app);
+    assert.equal(archive.status, 200);
+    assert.equal(JSON.stringify(archive.body).includes("Private connector import chunk is indexed for owner-only retrieval."), true);
+    assertNoSensitiveSourceStagingImportReadback(archive.body);
+
+    const search = await searchOwnerArchiveRoute(app);
+    assert.equal(search.status, 200);
+    assert.equal(JSON.stringify(search.body).includes("Private connector import chunk is indexed for owner-only retrieval."), true);
+    assertNoSensitiveSourceStagingImportReadback(search.body);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("archive connector source staging maps provider and empty-source failures without staging writes", async () => {
   const cases: Array<{
     name: string;
@@ -6556,6 +7240,7 @@ test("archive connector source stays bounded to credential source inventory and 
   const sourceInventorySource = readFileSync("apps/api/src/services/archive-connectors/source-inventory.ts", "utf8");
   const sourcePreviewSource = readFileSync("apps/api/src/services/archive-connectors/source-preview.ts", "utf8");
   const sourceStagingSource = readFileSync("apps/api/src/services/archive-connectors/source-staging.ts", "utf8");
+  const sourceStagingImportSource = readFileSync("apps/api/src/services/archive-connectors/source-staging-import.ts", "utf8");
   const importIntentSource = readFileSync("apps/api/src/services/archive-connectors/import-intents.ts", "utf8");
   const source = `${routeSource}\n${readinessSource}`;
   const sourceWithoutAcceptedArchiveConfig = source.replace(
@@ -6574,6 +7259,7 @@ test("archive connector source stays bounded to credential source inventory and 
   const accountMetadataUpdateMatches = routeSource.match(/updateArchiveConnectorCredentialAccountMetadata/g) ?? [];
   const tokenExchangeMatches = routeSource.match(/exchangeArchiveConnectorOAuthCode/g) ?? [];
   const sourceStagingImportPreviewMatches = routeSource.match(/previewArchiveConnectorSourceStagingRunImport/g) ?? [];
+  const sourceStagingImportExecutionMatches = routeSource.match(/importArchiveConnectorSourceStagingRun/g) ?? [];
   const importIntentCredentialSecretMatches = importIntentSource.match(/loadArchiveConnectorSourceInventoryCredentialSecret/g) ?? [];
   const importIntentSourceInventoryMatches = importIntentSource.match(/readArchiveConnectorProviderSourceInventory/g) ?? [];
 
@@ -6589,6 +7275,7 @@ test("archive connector source stays bounded to credential source inventory and 
   assert.equal(accountMetadataUpdateMatches.length, 2);
   assert.equal(tokenExchangeMatches.length, 3);
   assert.equal(sourceStagingImportPreviewMatches.length, 2);
+  assert.equal(sourceStagingImportExecutionMatches.length, 2);
   assert.equal(importIntentCredentialSecretMatches.length, 3);
   assert.equal(importIntentSourceInventoryMatches.length, 3);
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
@@ -6617,6 +7304,11 @@ test("archive connector source stays bounded to credential source inventory and 
   assert.match(sourceStagingSource, /oauth\.reddit\.com\/user\/\$\{encodeURIComponent\(account\.username\)\}\/saved\?limit=10&raw_json=1/);
   assert.doesNotMatch(sourceStagingSource, /parseImportFile|services\/imports|import-preview/i);
   assert.doesNotMatch(sourceStagingSource, /discord|guilds|channels|messages|\/members|guild-members|connections|webhooks|invites|subreddits\/mine|\/upvoted|\/downvoted|\/submitted|\/hidden|\/overview|\/gilded|archive_sources|import_jobs|persona_files|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel|providerSdk/i);
+  assert.match(sourceStagingImportSource, /import_jobs/);
+  assert.match(sourceStagingImportSource, /ingestTextIntoArchive/);
+  assert.match(sourceStagingImportSource, /ARCHIVE_CONNECTOR_IMPORT_SOURCE_NAME = "Reddit saved items"/);
+  assert.doesNotMatch(sourceStagingImportSource, /parseImportFile|services\/imports|createImportReviewCandidates|persona_files|canon_items|continuity_candidates|documents\.insert|review_candidates/i);
+  assert.doesNotMatch(sourceStagingImportSource, /fetch\s*\(|oauth\.reddit\.com|discord|guilds|channels|messages|\/members|guild-members|connections|webhooks|invites|subreddits\/mine|\/saved|\/upvoted|\/downvoted|\/submitted|\/hidden|\/overview|\/gilded|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel|providerSdk/i);
   assert.match(importIntentSource, /archive_connector_import_intents/);
   assert.doesNotMatch(importIntentSource, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel|providerSdk|fetch\s*\(/i);
   assert.doesNotMatch(source, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates/i);
@@ -6890,6 +7582,47 @@ function assertSourceStagingImportPreviewSafety(body: Row, enabled: boolean) {
   assert.equal(body.existingImportJobsWriteEnabled, false);
   assert.equal(body.connectorJobTableWritesEnabled, false);
   assert.equal(body.jobWritesEnabled, false);
+  assert.equal(body.queueEnabled, false);
+  assert.equal(body.workerExecutionEnabled, false);
+  assert.equal(body.recurringPullsEnabled, false);
+  assert.equal(body.publicWritesEnabled, false);
+  assert.equal(body.uiChangesEnabled, false);
+  assert.equal(body.rawProviderIdReadbackEnabled, false);
+  assert.equal(body.providerPayloadReadbackEnabled, false);
+  assert.equal(body.providerHeadersReadbackEnabled, false);
+  assert.equal(body.sourceTextReadbackEnabled, false);
+  assert.equal(body.encryptedSourceBatchReadbackEnabled, false);
+  assert.equal(body.sourceSnapshotFingerprintReadbackEnabled, false);
+  assert.equal(body.itemFingerprintReadbackEnabled, false);
+  assert.equal(body.sourceInventoryCredentialMetadataUpdateEnabled, false);
+}
+
+function assertSourceStagingImportSafety(body: Row, enabled: boolean) {
+  assert.equal(body.tokenDecryptEnabled, false);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerTokenEndpointCallsEnabled, false);
+  assert.equal(body.providerTokenRefreshEnabled, false);
+  assert.equal(body.providerTokenRevocationEnabled, false);
+  assert.equal(body.credentialWritesEnabled, false);
+  assert.equal(body.credentialMetadataUpdateEnabled, false);
+  assert.equal(body.providerAccountLookupEnabled, false);
+  assert.equal(body.providerCallsEnabled, false);
+  assert.equal(body.sourceInventoryEnabled, false);
+  assert.equal(body.sourcePreviewEnabled, false);
+  assert.equal(body.sourceBodyReadEnabled, false);
+  assert.equal(body.sourceBodyReadbackEnabled, false);
+  assert.equal(body.sourceStagingEncryptionEnabled, enabled);
+  assert.equal(body.sourceStagingImportExecutionEnabled, enabled);
+  assert.equal(body.privateStagingEnabled, enabled);
+  assert.equal(body.privateStagingWritesEnabled, enabled);
+  assert.equal(body.archiveSourceWritesEnabled, enabled);
+  assert.equal(body.durableCandidateWritesEnabled, false);
+  assert.equal(body.importIntentWritesEnabled, false);
+  assert.equal(body.importIntentActivationWritesEnabled, false);
+  assert.equal(body.importWritesEnabled, enabled);
+  assert.equal(body.existingImportJobsWriteEnabled, enabled);
+  assert.equal(body.connectorJobTableWritesEnabled, false);
+  assert.equal(body.jobWritesEnabled, enabled);
   assert.equal(body.queueEnabled, false);
   assert.equal(body.workerExecutionEnabled, false);
   assert.equal(body.recurringPullsEnabled, false);

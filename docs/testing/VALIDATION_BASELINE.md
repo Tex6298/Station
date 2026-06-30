@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-K Archive Connector Import Execution Implementation
+
+DAEDALUS implemented PR484J-K on 2026-06-30:
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added authenticated owner-only route
+  `POST /archive-connectors/source-staging-runs/:runId/import`;
+- route validates UUID path and strict empty body before storage, decrypt, or
+  import work;
+- route imports only one current owner Reddit saved-items staged run after
+  linked activated import intent/persona/source rechecks;
+- staged connector imports use `import_jobs.kind = 'archive_connector'` plus a
+  unique staging-run pointer, not `/imports/chat` or `kind = 'chat'`;
+- archive writes call `ingestTextIntoArchive` directly with connector-normalized
+  staged text and safe source label `Reddit saved items`;
+- completed imports are idempotent, queued/processing jobs report pending, and
+  failed connector jobs retry only through the connector import route;
+- owner archive list/search redacts connector chunk summaries;
+- generic import parsers, `persona_files`, review candidates, public documents,
+  Canon, Continuity, provider calls, token work, queues, workers, UI,
+  hosted/runtime, billing, Redis, Cloudflare, marketplace, partner adapters,
+  social behavior, broad Reddit reads, and Discord content reads remain out of
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 82 archive connector route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 150 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint completed with no lint warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Environment failure | Eight of nine tasks completed. `@station/web#build` compiled and generated static pages, then failed during Next standalone traced-file copy on local Windows symlink creation with `EPERM: operation not permitted, symlink` for traced `react`, `next`, and `@next/env` package paths under `.next/standalone`. The build also emitted the existing Autoprefixer mixed-support warning for `end` alignment. No PR484J-K compile/type errors surfaced before the standalone symlink failure. |
+
 ## PR484J-K Archive Connector Import Execution Preflight
 
 ARGUS accepted PR484J-K on 2026-06-30:
