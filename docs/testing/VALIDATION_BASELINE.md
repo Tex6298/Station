@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-C Archive Connector Credential Decrypt Boundary Preflight
+
+ARGUS accepted PR484J-C on 2026-06-30:
+`docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_C_CREDENTIAL_DECRYPT_BOUNDARY`.
+
+Reason:
+
+- accepted an internal-only decrypt helper/test lane for active owner/provider
+  source-ready archive connector credentials;
+- helper input must be owner id plus supported provider only;
+- stored metadata and decrypted token material must both prove
+  `source_inventory` with exact provider source scopes;
+- returned secret material is internal only and must never enter route,
+  readiness, credential readback, logs, docs examples, or committed files;
+- bounded fail-closed states are required for storage, encryption, payload,
+  decrypt/auth, token material, provider, and scope failures;
+- no provider source reads, source inventory route, provider client, token
+  refresh/revoke, account lookup, imports, jobs, UI, packages, marketplace,
+  billing, Redis, Cloudflare, or social behavior is allowed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Current code review | Pass | Current storage encrypts credentials but has no accepted decrypt helper or provider source read boundary. |
+| PR484J-B prerequisite review | Pass | Source-ready metadata is represented locally after PR484J-B and remains separate from provider source reads. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 92 tests passed across connector route/storage/contract, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed and web typecheck replayed from cache. |
+| Scope/path scan | Required | PR484J-C implementation may touch archive connector storage/decrypt helpers, focused tests, and docs only; no route, migration, package, lockfile, web UI, hosted runtime, billing, Redis, Cloudflare, marketplace, social, import, or provider-client paths should change. |
+
 ## PR484J-B Archive Connector Source Scope OAuth Consent / Reconnect Review
 
 ARGUS accepted PR484J-B on 2026-06-30:

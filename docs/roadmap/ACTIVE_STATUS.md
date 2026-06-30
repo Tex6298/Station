@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-C accepted for DAEDALUS
+
+ARGUS hostile-preflighted the PR484J-C Archive Connector Credential Decrypt
+Boundary lane:
+
+`docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_C_CREDENTIAL_DECRYPT_BOUNDARY
+```
+
+Accepted boundary:
+
+- internal-only helper/test lane for active owner/provider archive connector
+  credentials;
+- helper input is owner id plus supported provider only;
+- decrypt is allowed only for source-ready `archive_connector` credentials;
+- stored metadata and decrypted token material must both prove
+  `source_inventory` with exact provider source scopes;
+- returned secret is internal only and may include access/refresh token material
+  for later provider-client lanes;
+- bounded fail-closed errors for missing/revoked/wrong-owner/wrong-purpose,
+  encryption config, encrypted payload, decrypt/auth, token material, provider,
+  and scope failures;
+- no route, provider call, provider client, account lookup, source inventory,
+  import, UI, hosted proof, job, package, billing, Redis, Cloudflare,
+  marketplace, or social behavior.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 92 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Current lane:
+
+```text
+PR484J-C - Archive Connector Credential Decrypt Boundary
+Owner: DAEDALUS / A2
+State: ACCEPTED - IMPLEMENT INTERNAL DECRYPT HELPER/TESTS ONLY
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted internal decrypt helper/test
+  boundary.
+- Provider source reads, provider clients, source inventory routes, account
+  lookup, imports, jobs, UI, hosted proof, packages, billing, Redis, Cloudflare,
+  marketplace, and social behavior remain out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-B closed, PR484J-C opened
 
 MIMIR closes PR484J-B after ARGUS accepted Archive Connector Source Scope OAuth
