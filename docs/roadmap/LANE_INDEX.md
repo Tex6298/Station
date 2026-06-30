@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-B | Archive Connector Source Scope OAuth Consent / Reconnect Preflight | ARGUS / A3 | Open; decide source-ready OAuth scope sets, reconnect/readback behavior, token-exchange validation, consent copy, and tests before provider reads | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_ARGUS.md` |
+| PR484J-B | Archive Connector Source Scope OAuth Consent / Reconnect | DAEDALUS / A2 | Accepted by ARGUS; implement scopeProfile-bound OAuth reconnect, exact Reddit/Discord source scope validation, safe granted-scope metadata/readback, and focused tests without provider source reads | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J-B preflight | Archive Connector Source Scope OAuth Consent / Reconnect | MIMIR -> ARGUS -> DAEDALUS | Accepted bounded source-scope reconnect lane: `connect` default, `source_inventory` profile, Reddit `identity mysubreddits history`, Discord `identify guilds`, exact token scope validation, safe scope metadata/readback, no provider source reads, token decrypt, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_RESULT.md` |
 | PR484J-A closeout | Archive Connector Source Scope And Account Contract | DAEDALUS -> ARGUS -> MIMIR | Closed; contract accepted for source scope families, safe account metadata, safe source matrix, reconnect states, and no-import boundaries without provider reads or token decrypt | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_CLOSEOUT.md` |
 | PR484J-A review | Archive Connector Source Scope And Account Contract | DAEDALUS -> ARGUS -> MIMIR | Accepted with narrow claim-honesty patch; pure source scope/account/no-import contract only, no live provider calls, token decrypt, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_REVIEW_RESULT.md` |
 | PR484J-A implementation | Archive Connector Source Scope And Account Contract | DAEDALUS -> ARGUS | Ready for review; pure contract/helper/test/docs surface records source scopes, consent copy, account metadata policy, source matrix, reconnect/scope-missing states, and no-import boundaries without live provider calls, token decrypt, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_RESULT.md` |

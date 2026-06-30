@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-B Archive Connector Source Scope OAuth Consent / Reconnect Preflight
+
+ARGUS accepted PR484J-B on 2026-06-30:
+`docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_B_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT`.
+
+Reason:
+
+- explicit `scopeProfile` contract accepted with `connect` default and
+  `source_inventory` as the only expanded source-scope reconnect profile;
+- Reddit source inventory consent is exact `identity mysubreddits history`;
+- Discord source inventory consent is exact `identify guilds`;
+- Reddit `read` and Discord channel/message/DM/bot/webhook/install-style access
+  remain deferred or unsupported;
+- OAuth state must bind scope profile before authorization URL generation;
+- token exchange validation must require exact normalized source scope sets for
+  source-ready credentials;
+- safe readback may persist Station-normalized `scopeProfile` and
+  `grantedScopes` without token decrypt;
+- existing connect-proof credentials remain not source-ready and require
+  reconnect for source inventory;
+- no provider source reads, source inventory route, token decrypt, account
+  lookup, imports, jobs, UI, packages, marketplace, billing, Redis, Cloudflare,
+  or social behavior is allowed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Provider-doc verification | Pass | Checked current Reddit and Discord OAuth scope docs before accepting exact source-scope sets. |
+| Current code/scope/schema review | Pass | Current code requests only Reddit `identity` and Discord `identify`; existing schema lacks safe granted-scope metadata, so one bounded metadata migration is accepted. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 88 tests passed across connector route/storage/contract, callback bridge, import preview/parsers, social fail-closed routes, web readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from cache. |
+| Scope/path scan | Required | PR484J-B implementation may touch archive connector API helpers/routes/tests, one `infra/supabase/migrations` metadata migration, and docs only; no package, lockfile, web UI, hosted runtime, billing, Redis, Cloudflare, marketplace, or social paths should change. |
+
 ## PR484J-A Archive Connector Source Scope And Account Contract Review
 
 ARGUS accepted PR484J-A on 2026-06-30:

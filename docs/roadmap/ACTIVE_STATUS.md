@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-B accepted for DAEDALUS
+
+ARGUS hostile-preflighted the PR484J-B Archive Connector Source Scope OAuth
+Consent / Reconnect lane:
+
+`docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_B_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT
+```
+
+Accepted boundary:
+
+- explicit `scopeProfile` contract with `connect` default and
+  `source_inventory` as the only expanded source-scope reconnect profile;
+- Reddit source inventory consent is exact `identity mysubreddits history`;
+- Discord source inventory consent is exact `identify guilds`;
+- Reddit `read` and Discord channel/message/DM/bot/webhook/install-style access
+  remain deferred or unsupported;
+- OAuth state must bind the selected scope profile before authorization URL
+  generation, and authorization must derive scopes from stored state only;
+- token response validation must require exact normalized source scope sets for
+  source-ready credentials;
+- safe credential metadata may persist only Station-normalized `scopeProfile`
+  and canonical `grantedScopes`, never raw token payload strings;
+- existing connect-proof credentials remain not source-ready and require
+  reconnect for source inventory;
+- one bounded Supabase migration is accepted for archive connector state and
+  credential scope metadata only.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 88 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Current lane:
+
+```text
+PR484J-B - Archive Connector Source Scope OAuth Consent / Reconnect
+Owner: DAEDALUS / A2
+State: ACCEPTED - IMPLEMENT BOUNDED SOURCE-SCOPE RECONNECT
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted scope-profile-bound OAuth
+  reconnect lane.
+- DAEDALUS must keep provider source reads, source inventory routes, token
+  decrypt, provider account lookup, imports, jobs, UI, hosted/runtime config,
+  Cloudflare, Redis, billing, packages, marketplace, and social behavior out of
+  scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-A closed, PR484J-B opened
 
 MIMIR closes PR484J-A after ARGUS accepted the Archive Connector Source Scope
