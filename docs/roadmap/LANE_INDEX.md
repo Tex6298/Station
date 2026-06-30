@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484H closeout | Archive Connector Credential Readback | MIMIR / A1 | Accepted by ARGUS; close out local/backend readback or choose the next archive connector move | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_REVIEW_RESULT.md` |
+| PR484I preflight | Archive Connector Credential Revoke / Disconnect | ARGUS / A3 | Open; decide owner-safe local disconnect before source inventory | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484H closeout | Archive Connector Credential Readback | MIMIR | Closed as local/backend accepted; revoke/disconnect opened before source inventory | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_CLOSEOUT.md` |
 | PR484H implementation | Archive Connector Credential Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner-only route returns one connected/revoked/missing safe metadata row per supported provider without token decrypt, provider calls, source inventory, imports, revocation, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_REVIEW_RESULT.md` |
 | PR484H preflight | Archive Connector Credential Readback | MIMIR -> ARGUS -> DAEDALUS | Accepted readback-only route; no revoke, token exchange, provider calls, source inventory, imports, UI, jobs, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_PREFLIGHT_RESULT.md` |
 | PR484G closeout | Archive Connector OAuth Token Exchange / Credential Write | MIMIR | Closed as local/backend accepted; hosted owner-ready proof remains config-blocked | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_CLOSEOUT.md` |

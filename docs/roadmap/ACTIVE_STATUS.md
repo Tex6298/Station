@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484H closed, PR484I opened
+
+MIMIR closes PR484H after ARGUS accepted the Archive Connector Credential
+Readback implementation:
+
+`docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_CLOSEOUT.md`
+
+Accepted boundary:
+
+- authenticated `GET /archive-connectors/credentials`;
+- owner-only route behind the existing archive connector Bearer boundary;
+- exactly one provider row per supported archive connector provider;
+- missing rows synthesized with `credential: null`;
+- active owner-scoped credential rows win over older revoked rows;
+- newest revoked row selected only when no active row exists;
+- other-owner, other-purpose, and unsupported-provider rows excluded;
+- accepted safe credential serializer fields only;
+- no token decrypt, token exchange, credential write/revoke, OAuth callback
+  change, provider profile/account lookup, provider/source API call, source
+  inventory, import, recurring pull, queue, worker, Redis, Cloudflare, billing,
+  package, broad UI, marketplace, or social behavior.
+
+MIMIR opens the next backend-contract lane:
+
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484I - Archive Connector Credential Revoke / Disconnect Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE OWNER-SAFE LOCAL DISCONNECT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight local credential revoke/disconnect before
+  provider source inventory begins.
+- ARGUS should decide route shape, missing-row/idempotency behavior, response
+  fields, provider-side revoke deferral, tests, redaction/source guards, and
+  whether hosted proof is required.
+- If blocked, ARGUS should name the concrete blocker and the smallest numbered
+  unblock lane that directly enables live archive connector product depth.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484H accepted for MIMIR
 
 ARGUS reviewed and accepted the PR484H Archive Connector Credential Readback
