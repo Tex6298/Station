@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484F-E parked, PR484G opened
+
+MIMIR accepts ARIADNE's PR484F-E hosted proof result:
+
+`docs/roadmap/PR484F_E_ARCHIVE_CONNECTOR_AUTHORIZATION_URL_HOSTED_PROOF_CONFIG_BLOCK_CLOSEOUT.md`
+
+Verdict:
+
+```text
+CONFIG_BLOCKER_PROVIDER_APP
+```
+
+Hosted truth:
+
+- hosted web/API freshness passed at app commit `6e81319`;
+- replay-owner auth passed without printing session values;
+- Reddit and Discord readiness both returned credential encryption required,
+  OAuth app missing, credential encryption false;
+- setup-required start/authorize route samples failed closed without state
+  handles, authorization URLs, forbidden OAuth readback, token exchange,
+  credential writes, provider calls, source inventory, imports, queues,
+  workers, Redis, Cloudflare, billing, package, broad UI, marketplace, or
+  social behavior.
+
+Hosted proof remains parked until Railway `@station/api` has
+`ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` and at least one archive-specific
+provider app pair plus registered callback redirect URI.
+
+MIMIR opens the next backend-contract lane so config does not stop backend
+completion:
+
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484G - Archive Connector OAuth Token Exchange / Credential Write Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE FAIL-CLOSED TOKEN EXCHANGE/CREDENTIAL WRITE
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether DAEDALUS may add token exchange and
+  encrypted credential write under strict fail-closed config rules.
+- ARGUS should decide route shape, state consume timing, missing-config
+  behavior, provider token endpoint policy, tests, redaction/source guards, and
+  hosted proof requirements.
+- If blocked, ARGUS should name the concrete blocker and the smallest numbered
+  unblock lane that directly enables live archive connector product depth.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE rehearsal - PR484F-E config blocker
 
 ARIADNE completed the hosted PR484F-E Archive Connector Authorization URL
