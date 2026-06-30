@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-M Archive Connector Credential Readback Disabled State
+
+DAEDALUS implemented PR484J-M on 2026-06-30:
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the owner connector panel now uses settled readiness/credential reads so a
+  credential readback failure does not discard successful readiness truth;
+- when readiness reports credential encryption or provider app setup blockers,
+  the visible owner state fails closed to disabled setup/config copy;
+- disabled setup/config states expose no connect, account lookup, source
+  inventory, import intent, activation, preview, staging, import preview, or
+  final import action;
+- when readiness is healthy, credential readback failure still renders bounded
+  retryable copy and does not treat unknown credential state as safe;
+- no API route, credential setup, provider config, OAuth completion, source
+  expansion, source inventory behavior, staging/import behavior, queues/workers,
+  billing, Redis, Cloudflare, marketplace, social behavior, public writes,
+  Canon, Continuity, or review-candidate behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts` | Pass | 11 tests passed, including setup-blocker precedence and retryable-error preservation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API cached; web typecheck completed after nullable readiness narrowing fix. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Not rerun | Existing local Windows Next standalone symlink `EPERM` caveat remains build truth if rerun. |
+
 ## PR484J-L Archive Connector Owner UI Flow Rehearsal
 
 ARIADNE completed hosted PR484J-L route rehearsal on 2026-06-30:

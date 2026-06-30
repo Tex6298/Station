@@ -11,6 +11,7 @@ import {
   archiveConnectorOwnerErrorMessage,
   archiveConnectorOwnerStep,
   archiveConnectorRedditCredentialRow,
+  archiveConnectorReadinessHasSetupBlocker,
   archiveConnectorSavedItemsSource,
   archiveConnectorSavedItemsSourceReadback,
   authorizeArchiveConnectorRedditOAuth,
@@ -77,12 +78,36 @@ export function ArchiveConnectorOwnerPanel({
     setLoading(true);
     setLastError(null);
     try {
-      const [readinessResponse, credentialResponse] = await Promise.all([
+      const [readinessResult, credentialResult] = await Promise.allSettled([
         readArchiveConnectorReadiness(token),
         readArchiveConnectorCredentials(token),
       ]);
+
+      if (readinessResult.status === "rejected") {
+        setReadiness(null);
+        setCredentialRow(
+          credentialResult.status === "fulfilled"
+            ? archiveConnectorRedditCredentialRow(credentialResult.value)
+            : null,
+        );
+        setLastError(archiveConnectorOwnerErrorMessage(readinessResult.reason));
+        return;
+      }
+
+      const readinessResponse = readinessResult.value;
       setReadiness(readinessResponse);
-      setCredentialRow(archiveConnectorRedditCredentialRow(credentialResponse));
+
+      if (credentialResult.status === "fulfilled") {
+        setCredentialRow(archiveConnectorRedditCredentialRow(credentialResult.value));
+        return;
+      }
+
+      setCredentialRow(null);
+      if (readinessResponse && archiveConnectorReadinessHasSetupBlocker(readinessResponse)) {
+        return;
+      }
+
+      setLastError(archiveConnectorOwnerErrorMessage(credentialResult.reason));
     } catch (error) {
       setLastError(archiveConnectorOwnerErrorMessage(error));
     } finally {

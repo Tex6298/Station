@@ -8,6 +8,7 @@ import {
   archiveConnectorOwnerErrorMessage,
   archiveConnectorOwnerStep,
   archiveConnectorPersonaArchiveRedirectPath,
+  archiveConnectorReadinessHasSetupBlocker,
   archiveConnectorSavedItemsImportIntentBody,
   archiveConnectorSavedItemsSource,
   archiveConnectorSavedItemsSourceReadback,
@@ -42,6 +43,7 @@ function source(path: string) {
 test("archive connector owner flow states cover signed-out disabled credential source preview staging import and retry", () => {
   assert.equal(archiveConnectorOwnerStep({ accessTokenPresent: false }).id, "signed_out");
   assert.equal(archiveConnectorOwnerStep({ accessTokenPresent: true, loading: true }).id, "loading");
+  assert.equal(archiveConnectorOwnerStep({ accessTokenPresent: true }).id, "readiness_unavailable");
   assert.equal(
     archiveConnectorOwnerStep({ accessTokenPresent: true, readiness: readiness({ encryption: false }) }).id,
     "readiness_disabled",
@@ -215,6 +217,40 @@ test("archive connector owner flow states cover signed-out disabled credential s
   assert.match(retry.nextAction, /Retry/);
 });
 
+test("archive connector owner flow lets readiness setup blockers win over credential readback failures", () => {
+  assert.equal(archiveConnectorReadinessHasSetupBlocker(readiness({ encryption: false })), true);
+  assert.equal(archiveConnectorReadinessHasSetupBlocker(readiness({ app: "missing" })), true);
+  assert.equal(archiveConnectorReadinessHasSetupBlocker(readiness()), false);
+
+  const credentialError = "Connector step failed. Existing archive material remains safe.";
+  const storageBlocked = archiveConnectorOwnerStep({
+    accessTokenPresent: true,
+    readiness: readiness({ encryption: false }),
+    error: credentialError,
+  });
+  const providerBlocked = archiveConnectorOwnerStep({
+    accessTokenPresent: true,
+    readiness: readiness({ app: "missing" }),
+    error: credentialError,
+  });
+  const retryable = archiveConnectorOwnerStep({
+    accessTokenPresent: true,
+    readiness: readiness(),
+    error: credentialError,
+  });
+
+  assert.equal(storageBlocked.id, "readiness_disabled");
+  assert.equal(storageBlocked.label, "Credential storage unavailable");
+  assert.equal(providerBlocked.id, "readiness_disabled");
+  assert.equal(providerBlocked.label, "Reddit app unavailable");
+  assert.equal(retryable.id, "retryable_error");
+  assert.match(retryable.body, /Existing archive material remains safe/);
+  assert.doesNotMatch(
+    JSON.stringify([storageBlocked, providerBlocked, retryable]),
+    /access_token|refresh_token|client_secret|oauth_code|provider_payload|sourceBody|normalizedText|itemFingerprint|source_snapshot_fingerprint|encrypted_source_batch|sql|stack|token=/i,
+  );
+});
+
 test("archive connector owner flow filters to saved items and renders only generic source labels", () => {
   const sources: ArchiveConnectorSourceInventorySource[] = [
     {
@@ -371,10 +407,13 @@ test("archive connector owner UI source stays inside persona Archive and avoids 
 
   assert.match(pageSource, /ArchiveConnectorOwnerPanel/);
   assert.match(combined, /\/archive-connectors\/readiness/);
+  assert.match(panelSource, /Promise\.allSettled/);
+  assert.match(panelSource, /archiveConnectorReadinessHasSetupBlocker\(readinessResponse\)/);
   assert.match(combined, /\/archive-connectors\/oauth\/reddit\/start/);
   assert.match(combined, /scopeProfile: "source_inventory"/);
   assert.match(combined, /\/archive-connectors\/source-staging-runs\/\$\{encodeURIComponent\(runId\)\}\/import/);
   assert.match(panelSource, /window\.location\.assign\(authorized\.authorizationUrl\)/);
+  assert.doesNotMatch(panelSource, /step\.id === "readiness_disabled"[\s\S]{0,600}<button className="button primary"/);
   assert.doesNotMatch(combined, /\/imports\/chat|\/archive-connectors\/discord\/source-inventory|\/archive-connectors\/oauth\/discord|parseImportFile|createImportReviewCandidates|persona_files|canon|continuity|review_candidates/i);
   assert.doesNotMatch(combined, /cloudflare|redis|stripe|billing|marketplace|partner|social|new Queue|Worker\(|recurring|pagination|upvoted|downvoted|submitted|hidden|subreddits\/mine|guilds\/.+messages|channels|members/i);
   assert.doesNotMatch(combined, /access_token|refresh_token|client_secret|oauth_code|provider_payload|sourceBody|normalizedText|itemFingerprint|source_snapshot_fingerprint|encrypted_source_batch|sql|stack|secret-shaped/i);

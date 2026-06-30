@@ -4,55 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE rehearsal - PR484J-L needs small repair
+## Latest DAEDALUS implementation - PR484J-M ready for ARGUS review
 
-ARIADNE completed the hosted PR484J-L owner connector flow rehearsal:
+DAEDALUS implemented the small web-layer repair for the ARIADNE-hosted
+PR484J-L owner connector defect:
 
-`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_REHEARSAL_RESULT.md`
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_RESULT.md`
 
-Result:
+Validation result:
 
 ```text
-PRODUCT_DEFECT_NEEDS_DAEDALUS
+READY_FOR_ARGUS_REVIEW
 ```
+
+Implemented boundary:
+
+- the owner connector panel now preserves successful readiness readback when
+  credential readback fails;
+- known readiness setup/config blockers win the visible state and render the
+  accepted disabled credential-storage / provider-config copy;
+- disabled setup/config states expose no connect, account lookup, source
+  inventory, import-intent, activation, preview, staging, import-preview, or
+  final-import action;
+- readiness-healthy credential readback failures still render bounded retryable
+  copy and do not treat unknown credentials as missing, source-ready, or safe;
+- no API route, credential setup, provider config, OAuth completion, source
+  expansion, source inventory behavior, staging/import behavior, queues/workers,
+  billing, Redis, Cloudflare, marketplace, social behavior, public writes,
+  Canon, Continuity, or review-candidate behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts`
+  passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR484J-M;
+  the known local Windows Next standalone symlink `EPERM` caveat remains the
+  build truth if build is rerun.
 
 Current lane:
 
 ```text
 PR484J-M - Archive Connector Credential Readback Disabled State
-Owner: DAEDALUS / A2
-State: OPEN
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the smallest repair lane:
-  `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_DAEDALUS.md`.
-- Hosted web/API health checks were ready on commit `35828f8`.
-- Replay-owner sign-in and `/auth/me` passed; session values were not printed
-  or recorded.
-- The owner persona Archive route rendered the Reddit saved-items panel and fit
-  desktop, 375px mobile, and 390px mobile without overflow.
-- Hosted readiness reports Reddit and Discord as
-  `credential_encryption_required` with OAuth app status `missing`.
-- Hosted `GET /archive-connectors/credentials` returned
-  `500 archive_connector_credential_read_failed`.
-- Because credential readback fails, the visible panel shows generic retryable
-  error copy instead of the accepted credential-encryption/provider-config
-  disabled state.
-- The repair should make known readiness setup/config blockers win the visible
-  state and keep connect/import actions disabled, while preserving bounded
-  retryable error behavior when readiness does not identify a setup/config
-  blocker.
-- No OAuth code, state value, authorization URL, token, cookie, provider
-  payload, raw id, username, subreddit, URL, author, source body, fingerprint,
-  SQL detail, stack trace, hosted log, or secret-shaped value was exposed.
+- ARGUS should review readiness/credential readback precedence, disabled-state
+  action gating, retryable-error preservation, and regression/static no-drift
+  tests.
+- If accepted, ARGUS should decide whether to wake ARIADNE for the narrow
+  desktop/mobile rerun or wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR routing - PR484J-L ARIADNE rehearsal opened

@@ -388,6 +388,18 @@ export function archiveConnectorRedditReadiness(readiness?: ArchiveConnectorRead
   return readiness?.providers.find((provider) => provider.id === ARCHIVE_CONNECTOR_OWNER_PROVIDER) ?? null;
 }
 
+export function archiveConnectorReadinessHasSetupBlocker(readiness?: ArchiveConnectorReadinessResponse | null) {
+  const redditReadiness = archiveConnectorRedditReadiness(readiness);
+  return Boolean(
+    redditReadiness &&
+    (
+      !readiness?.credentialEncryptionConfigured ||
+      redditReadiness.status === "credential_encryption_required" ||
+      redditReadiness.oauthAppStatus !== "configured"
+    ),
+  );
+}
+
 export function archiveConnectorRedditCredentialRow(credentials?: ArchiveConnectorCredentialsResponse | null) {
   return credentials?.providers.find((provider) => provider.provider === ARCHIVE_CONNECTOR_OWNER_PROVIDER) ?? null;
 }
@@ -474,6 +486,16 @@ export function archiveConnectorOwnerStep(input: {
     return step("import_completed", "good", "Saved items imported", "Private connector chunks are indexed for owner-only retrieval.", "Review the refreshed import library.");
   }
 
+  const readiness = input.readiness;
+  const redditReadiness = archiveConnectorRedditReadiness(readiness);
+  if (readiness && redditReadiness && (!readiness.credentialEncryptionConfigured || redditReadiness.status === "credential_encryption_required")) {
+    return step("readiness_disabled", "warning", "Credential storage unavailable", "Connector credential encryption is not configured.", "Ask for archive connector credential storage before connecting Reddit.");
+  }
+
+  if (redditReadiness && redditReadiness.oauthAppStatus !== "configured") {
+    return step("readiness_disabled", "warning", "Reddit app unavailable", "The archive-specific Reddit OAuth app is not fully configured.", "Complete provider setup before connecting Reddit.");
+  }
+
   if (input.error) {
     return step(
       "retryable_error",
@@ -484,17 +506,8 @@ export function archiveConnectorOwnerStep(input: {
     );
   }
 
-  const redditReadiness = archiveConnectorRedditReadiness(input.readiness);
   if (!input.readiness || !redditReadiness) {
     return step("readiness_unavailable", "warning", "Connector status unavailable", "Station could not read connector readiness.", "Refresh this Archive tab before connecting Reddit.");
-  }
-
-  if (!input.readiness.credentialEncryptionConfigured || redditReadiness.status === "credential_encryption_required") {
-    return step("readiness_disabled", "warning", "Credential storage unavailable", "Connector credential encryption is not configured.", "Ask for archive connector credential storage before connecting Reddit.");
-  }
-
-  if (redditReadiness.oauthAppStatus !== "configured") {
-    return step("readiness_disabled", "warning", "Reddit app unavailable", "The archive-specific Reddit OAuth app is not fully configured.", "Complete provider setup before connecting Reddit.");
   }
 
   if (!input.credentialRow || input.credentialRow.connectionStatus === "missing" || input.credentialRow.connectionStatus === "revoked") {
