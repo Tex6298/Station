@@ -4,6 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J source inventory blocked
+
+ARGUS hostile-preflighted PR484J Archive Connector Source Inventory:
+
+`docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+BLOCKED_NEEDS_SOURCE_SCOPE_CONSENT_DECISION
+```
+
+Concrete blocker:
+
+- current Reddit authorization requests only `identity`;
+- current Discord authorization requests only `identify`;
+- those are connect-proof scopes, not an accepted source inventory boundary;
+- source inventory would require provider API reads, token decrypt, expanded
+  OAuth scope/consent decisions, provider account lookup policy, provider
+  client boundaries, and a safe source matrix;
+- implementing inventory now would either overclaim current credentials or
+  widen the lane into provider source reads without accepted consent/redaction
+  policy.
+
+Recommended smallest unblock:
+
+```text
+PR484J-A - Archive Connector Source Scope And Account Contract
+```
+
+Current lane:
+
+```text
+PR484J - Archive Connector Source Inventory Preflight
+Owner: MIMIR / A1
+State: BLOCKED - SOURCE SCOPE/CONSENT DECISION REQUIRED
+```
+
+Current baton:
+
+- MIMIR should open the smaller PR484J-A source scope/account contract lane or
+  explicitly defer source inventory.
+- DAEDALUS should not implement provider source calls until source types,
+  provider scopes, consent copy, token decrypt, provider account lookup,
+  redaction, and import boundaries are accepted.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR closeout/opening - PR484I closed, PR484J opened
 
 MIMIR closes PR484I after ARGUS accepted the Archive Connector Credential

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J | Archive Connector Source Inventory Preflight | ARGUS / A3 | Open; decide whether source inventory can proceed, is scope/config/provider-doc blocked, or needs a smaller unblock lane | `docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_ARGUS.md` |
+| PR484J block | Archive Connector Source Inventory Preflight | MIMIR / A1 | Blocked by source scope/consent/account/decrypt/provider-client decision; choose PR484J-A or defer source inventory | `docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J preflight | Archive Connector Source Inventory | MIMIR -> ARGUS -> MIMIR | Blocked; current Reddit `identity` and Discord `identify` credentials are connect-proof only, with no accepted source-scope consent, account lookup, token decrypt, provider-client, redaction, or import-boundary contract for source inventory | `docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_RESULT.md` |
 | PR484I closeout | Archive Connector Credential Revoke / Disconnect | MIMIR | Closed; local owner-only credential revoke/disconnect accepted, with source inventory, provider calls, imports, provider-side revoke, UI, hosted proof, Redis, Cloudflare, billing, packages, marketplace, and social behavior left separate | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_CLOSEOUT.md` |
 | PR484I review | Archive Connector Credential Revoke / Disconnect | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner-only local credential revoke/disconnect route is idempotent for active, already-revoked, and missing states, with generic JSON parse redaction and no provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_REVIEW_RESULT.md` |
 | PR484I implementation | Archive Connector Credential Revoke / Disconnect | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only local revoke/disconnect route is idempotent for active, already-revoked, and missing provider states without provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md` |

@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J Archive Connector Source Inventory Preflight
+
+ARGUS blocked PR484J on 2026-06-30:
+`docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_RESULT.md`.
+
+Validation result: `BLOCKED_NEEDS_SOURCE_SCOPE_CONSENT_DECISION`.
+
+Reason:
+
+- current Reddit OAuth authorization requests only `identity`;
+- current Discord OAuth authorization requests only `identify`;
+- provider docs show source inventory needs explicit source scopes or provider
+  boundaries, such as Reddit `history`/`mysubreddits`/`read` decisions or
+  Discord `guilds` basic readback, while some Discord message/DM scopes are
+  partner or local-RPC constrained;
+- no accepted archive connector token decrypt helper or provider-client source
+  read boundary exists;
+- no accepted provider account lookup, raw external id, source metadata,
+  preview text, redaction, or import-boundary contract exists.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Provider-doc verification | Pass | Checked current Reddit and Discord OAuth scope docs before blocking. |
+| Current code scope check | Pass | Current authorization URL code still requests only Reddit `identity` and Discord `identify`. |
+| Source decrypt check | Pass | No accepted archive connector token decrypt helper exists. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 84 tests passed across connector route/storage/contract, callback bridge, import preview/parsers, social fail-closed routes, web readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+| Scope/path scan | Pass | PR484J block handoff is docs-only; no app, package, lockfile, or Supabase schema paths changed. |
+
 ## PR484I Archive Connector Credential Revoke / Disconnect Review
 
 ARGUS accepted PR484I on 2026-06-30:
