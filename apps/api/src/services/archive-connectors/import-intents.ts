@@ -89,7 +89,7 @@ export async function createArchiveConnectorImportIntent(input: {
     sourceLabel: source.label,
   });
 
-  const existing = await loadPendingImportIntentByFingerprint(input.ownerUserId, fingerprint);
+  const existing = await loadImportIntentByFingerprint(input.ownerUserId, fingerprint);
   if (existing) {
     return {
       created: false,
@@ -117,7 +117,7 @@ export async function createArchiveConnectorImportIntent(input: {
     .single();
 
   if (error || !data) {
-    const duplicate = await loadPendingImportIntentByFingerprint(input.ownerUserId, fingerprint);
+    const duplicate = await loadImportIntentByFingerprint(input.ownerUserId, fingerprint);
     if (duplicate) {
       return {
         created: false,
@@ -263,14 +263,13 @@ async function assertOwnedPersona(ownerUserId: string, personaId: string) {
   }
 }
 
-async function loadPendingImportIntentByFingerprint(ownerUserId: string, fingerprint: string) {
+async function loadImportIntentByFingerprint(ownerUserId: string, fingerprint: string) {
   const sb = getSupabaseAdmin();
   const { data, error } = await (sb as any)
     .from("archive_connector_import_intents")
     .select("*")
     .eq("owner_user_id", ownerUserId)
     .eq("purpose", "archive_connector")
-    .eq("status", "pending")
     .eq("idempotency_fingerprint", fingerprint)
     .order("created_at", { ascending: false });
 

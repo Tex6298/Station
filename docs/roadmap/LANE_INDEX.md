@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-G | Archive Connector Import Execution / Activation | ARGUS / A3 | Ready for review; DAEDALUS implemented activation receipt only: owner-only `POST /archive-connectors/import-intents/:intentId/activate`, re-check pending intent/persona/source-ready credential/account proof/source inventory metadata, update only `archive_connector_import_intents`, and keep source bodies/import_jobs/archive sources/jobs/queues/workers/UI/hosted/package/billing/Redis/Cloudflare/marketplace/social out of scope | `docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_ACTIVATION_RESULT.md` |
+| PR484J-G | Archive Connector Import Execution / Activation | MIMIR / A1 | Accepted by ARGUS after narrow duplicate-readback patch; activation receipt only with owner-only `POST /archive-connectors/import-intents/:intentId/activate`, pending intent/persona/source-ready credential/account proof/source inventory metadata rechecks, updates only `archive_connector_import_intents`, and keeps source bodies/import_jobs/archive sources/jobs/queues/workers/UI/hosted/package/billing/Redis/Cloudflare/marketplace/social out of scope | `docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_ACTIVATION_REVIEW_RESULT.md` |
 
 ## Recently Closed
 

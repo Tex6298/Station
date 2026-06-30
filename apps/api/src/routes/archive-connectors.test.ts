@@ -4437,14 +4437,13 @@ test("archive connector import intent activation revalidates source metadata and
       await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse(redditSourceInventoryPayload()), async () => {
         const inventory = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
         const source = inventory.body.sources.find((row: Row) => row.sourceFamily === "reddit_subreddit_memberships");
-        const created = await createArchiveConnectorImportIntentRoute(app, {
-          body: validArchiveConnectorImportIntentBody({
-            sourceKey: source.sourceKey,
-            sourceFamily: source.sourceFamily,
-            sourceKind: source.sourceKind,
-            sourceLabel: source.label,
-          }),
+        const body = validArchiveConnectorImportIntentBody({
+          sourceKey: source.sourceKey,
+          sourceFamily: source.sourceFamily,
+          sourceKind: source.sourceKind,
+          sourceLabel: source.label,
         });
+        const created = await createArchiveConnectorImportIntentRoute(app, { body });
         assert.equal(created.status, 201);
 
         const activated = await activateArchiveConnectorImportIntentRoute(app, {
@@ -4455,6 +4454,7 @@ test("archive connector import intent activation revalidates source metadata and
           intentId: created.body.intent.id,
           body: {},
         });
+        const reconfirmed = await createArchiveConnectorImportIntentRoute(app, { body });
 
         assert.equal(activated.status, 201);
         assert.equal(activated.body.status, "archive_connector_import_intent_activated");
@@ -4476,7 +4476,16 @@ test("archive connector import intent activation revalidates source metadata and
         assertImportIntentActivationSafety(duplicate.body, false, false);
         assertNoSensitiveImportIntentReadback(duplicate.body);
 
-        assert.equal(calls.length, 3);
+        assert.equal(reconfirmed.status, 200);
+        assert.equal(reconfirmed.body.status, "archive_connector_import_intent_exists");
+        assert.equal(reconfirmed.body.importIntentCreated, false);
+        assert.equal(reconfirmed.body.duplicate, true);
+        assert.equal(reconfirmed.body.intent.status, "activated");
+        assert.deepEqual(reconfirmed.body.intent, activated.body.intent);
+        assertImportIntentSafety(reconfirmed.body, true, false);
+        assertNoSensitiveImportIntentReadback(reconfirmed.body);
+
+        assert.equal(calls.length, 4);
         assert.equal(calls.every((call) => call.url === "https://oauth.reddit.com/subreddits/mine/subscriber?limit=100&raw_json=1"), true);
         assert.deepEqual(db.writeCalls, [
           "archive_connector_import_intents.insert",

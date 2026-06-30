@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-G Archive Connector Import Activation Review
+
+ARGUS accepted PR484J-G on 2026-06-30 after a narrow review patch:
+`docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_ACTIVATION_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_G_ACTIVATION_RECEIPTS`.
+
+Reason:
+
+- accepted the owner-only activation receipt route
+  `POST /archive-connectors/import-intents/:intentId/activate`;
+- pending activation rechecks owner intent, owner persona, source-ready
+  credential, completed account proof, and accepted PR484J-E source metadata;
+- only `archive_connector_import_intents` status/activation timestamp metadata
+  is updated;
+- already activated intents return safe idempotent readback without provider or
+  write work;
+- ARGUS patched duplicate source confirmation after activation so it returns the
+  existing activated safe receipt instead of inserting a second row in tests or
+  surfacing a real fingerprint-uniqueness failure;
+- source bodies, existing `import_jobs`, connector job tables, archive source
+  rows, `persona_files`, Memory, Canon, Continuity, public documents, review
+  candidates, jobs, queues, workers, UI, hosted/runtime, packages, marketplace,
+  billing, Redis, Cloudflare, partner adapters, and social behavior remain out
+  of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 60 archive connector route tests passed, including ARGUS-added post-activation re-confirmation coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 128 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only on touched TypeScript files. |
+
 ## PR484J-G Archive Connector Import Activation Implementation
 
 DAEDALUS implemented PR484J-G on 2026-06-30:

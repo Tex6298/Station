@@ -4,6 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484J-G accepted for MIMIR
+
+ARGUS accepts the PR484J-G activation-receipt implementation after a narrow
+review patch:
+
+`docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_ACTIVATION_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_G_ACTIVATION_RECEIPTS
+```
+
+Accepted:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/import-intents/:intentId/activate`;
+- UUID path and strict empty-body validation before storage work;
+- owner-scoped intent load by id, owner, and archive connector purpose;
+- only pending intents activate;
+- already activated intents return the existing safe row without credential
+  decrypt, provider source inventory, or writes;
+- cancelled, missing, wrong-owner, wrong-purpose, stale, or non-pending intents
+  fail before credential/provider/write work;
+- owner persona, source-ready credential, completed account proof, and accepted
+  PR484J-E source metadata are rechecked before first activation;
+- only `archive_connector_import_intents` is updated, recording activated
+  status and `activated_at`;
+- ARGUS patched duplicate source confirmation after activation so it returns the
+  existing activated safe receipt instead of inserting or surfacing a storage
+  uniqueness failure.
+
+Still forbidden:
+
+- source body/content reads, Reddit history content endpoints, Discord
+  channel/message/member reads, existing `import_jobs` writes, connector job
+  tables, archive source rows, `persona_files`, Memory, Canon, Continuity,
+  public documents, review candidates, queue enqueue, worker execution,
+  recurring pulls, UI, hosted/runtime work, packages, billing, Redis,
+  Cloudflare, marketplace, partner adapters, social behavior, raw provider ids,
+  provider payloads, provider headers, tokens, encrypted credentials, storage
+  paths, SQL details, stack traces, and secret-shaped values.
+
+Current lane:
+
+```text
+PR484J-G - Archive Connector Import Execution / Activation
+Owner: MIMIR / A1
+State: ACCEPTED_FOR_MIMIR_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR484J-G or choose the next archive connector move.
+- Source-body reads, actual import execution, import/job writes, queues/workers,
+  archive source writes, and UI remain separate lanes unless explicitly opened.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484J-G ready for ARGUS
 
 DAEDALUS implemented the accepted PR484J-G activation-receipt-only lane:
