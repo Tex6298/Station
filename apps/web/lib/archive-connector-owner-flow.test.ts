@@ -189,6 +189,21 @@ test("archive connector owner flow states cover signed-out disabled credential s
     }).id,
     "import_completed",
   );
+  assert.equal(
+    archiveConnectorOwnerStep({
+      accessTokenPresent: true,
+      readiness: readiness(),
+      credentialRow: credentialRow(),
+      savedItemsSource: savedSource,
+      intent: activatedIntent,
+      sourcePreview: sourcePreview(),
+      stagingRun: stagedRun,
+      importPreview: importPreview(),
+      importResult: importResult({ imported: true }),
+      error: "Follow-up archive refresh failed.",
+    }).id,
+    "import_completed",
+  );
   const retry = archiveConnectorOwnerStep({
     accessTokenPresent: true,
     readiness: readiness(),

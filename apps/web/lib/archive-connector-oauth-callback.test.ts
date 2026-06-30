@@ -97,6 +97,7 @@ test("archive connector OAuth callback page scrubs query before auth or API work
   assert.ok(replaceIndex < readStoredSessionIndex, "history scrub must happen before auth recovery");
   assert.ok(replaceIndex < exchangeIndex, "history scrub must happen before API exchange");
   assert.doesNotMatch(pageSource, /verifyArchiveConnectorOAuthCallback\(\{/);
+  assert.match(pageSource, /view\.localRedirectPath \?\? "\/studio\/archive"/);
   assert.doesNotMatch(pageSource, /router\.push|\/login|LOGIN_REDIRECT_PARAM|redirect=/);
   assert.doesNotMatch(pageSource, /error_description|console\.|localStorage\.setItem|sessionStorage/);
 

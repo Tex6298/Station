@@ -110,11 +110,9 @@ export default function ArchiveConnectorOAuthCallbackPage({
             <p style={bodyStyle}>
               Station saved this connector session. Return to Station to continue from the persona Archive tab.
             </p>
-            {view.localRedirectPath ? (
-              <a style={linkStyle} href={view.localRedirectPath}>
-                Return to Station
-              </a>
-            ) : null}
+            <a style={linkStyle} href={view.localRedirectPath ?? "/studio/archive"}>
+              Return to Station
+            </a>
           </>
         ) : null}
       </section>

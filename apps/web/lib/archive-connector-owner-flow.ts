@@ -466,6 +466,14 @@ export function archiveConnectorOwnerStep(input: {
     return step("loading", "info", "Checking connector state", "Station is reading safe connector status for this persona.", "No source material is imported while this loads.");
   }
 
+  if (input.importResult?.pending) {
+    return step("import_processing", "warning", "Import processing", "The connector import is already queued or processing.", "Refresh the import library after it completes.");
+  }
+
+  if (input.importResult?.imported) {
+    return step("import_completed", "good", "Saved items imported", "Private connector chunks are indexed for owner-only retrieval.", "Review the refreshed import library.");
+  }
+
   if (input.error) {
     return step(
       "retryable_error",
@@ -539,14 +547,6 @@ export function archiveConnectorOwnerStep(input: {
 
   if (!input.importPreview) {
     return step("import_preview_required", "info", "Preview final import", "Preview the staged batch as aggregate metadata before final import.", "Preview the staged import.");
-  }
-
-  if (input.importResult?.pending) {
-    return step("import_processing", "warning", "Import processing", "The connector import is already queued or processing.", "Refresh the import library after it completes.");
-  }
-
-  if (input.importResult?.imported) {
-    return step("import_completed", "good", "Saved items imported", "Private connector chunks are indexed for owner-only retrieval.", "Review the refreshed import library.");
   }
 
   return step("import_ready", "good", "Ready to import", "The staged saved-items batch is ready for final owner confirmation.", "Confirm final import.");

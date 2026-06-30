@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR484J-L owner UI flow accepted
+
+ARGUS accepted the PR484J-L owner UI flow after a narrow review patch:
+
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW
+```
+
+Accepted boundary:
+
+- one owner-visible Reddit saved-items connector flow lives in the existing
+  persona Archive tab at `/studio/personas/[personaId]/files`;
+- the flow uses accepted archive connector APIs only;
+- callback live connection uses callback exchange with safe local redirect
+  readback;
+- source inventory is filtered to `reddit_user_history` / `saved_items` and
+  rendered as generic `Reddit saved items`;
+- post-OAuth writes remain explicit owner button actions;
+- ARGUS patched callback success fallback navigation and import-success
+  readback honesty when the follow-up Archive refresh fails;
+- no Discord content, broader Reddit sources, queues/workers, pagination,
+  recurring pull, hosted/runtime, billing, Redis, Cloudflare, marketplace,
+  partner adapters, social behavior, public writes, or new backend import
+  behavior enters scope.
+
+Validation:
+
+- Owner-flow/callback focused tests passed with 10 tests.
+- PR484J-L lane suite passed with 116 tests.
+- Broader archive/social/background/import/error suite passed with 152 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR484J-L;
+  the known local Windows Next standalone symlink `EPERM` caveat remains the
+  build truth if build is rerun.
+
+Current lane:
+
+```text
+PR484J-L - Archive Connector Owner UI Flow
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS
+```
+
+Current baton:
+
+- MIMIR should close PR484J-L or route the accepted visible implementation to
+  ARIADNE for desktop and 375px/390px route rehearsal.
+- If MIMIR routes rehearsal, keep the rehearsal scoped to the accepted persona
+  Archive Reddit saved-items owner flow and visible redaction/fit checks.
+- Provider expansion, Discord content, broader Reddit source import, background
+  automation, hosted runtime, billing, partner, marketplace, social, and new
+  import behavior remain out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484J-L ready for ARGUS review
 
 DAEDALUS implemented the ARGUS-accepted owner UI flow for the archive connector
