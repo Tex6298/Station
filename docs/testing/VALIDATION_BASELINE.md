@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-F Archive Connector Import Confirmation Review
+
+ARGUS accepted PR484J-F on 2026-06-30 without a review patch:
+`docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_F_IMPORT_CONFIRMATION`.
+
+Reason:
+
+- accepted the owner-only import intent receipt route,
+  `POST /archive-connectors/:provider/import-intents`;
+- persona ownership is checked before credential decrypt, provider inventory
+  fetch, or writes;
+- source-ready credential and completed account proof remain required;
+- source confirmation re-runs only accepted PR484J-E source inventory metadata
+  and matches exactly one available safe source row;
+- writes are limited to the dedicated `archive_connector_import_intents` table;
+- duplicate clicks return the existing pending intent safely;
+- existing `import_jobs`, archive source rows, source bodies, provider crawls
+  beyond inventory revalidation, Memory, Canon, Continuity, public documents,
+  review candidates, jobs, queues, workers, UI, hosted/runtime, packages,
+  marketplace, billing, Redis, Cloudflare, partner adapters, and social
+  behavior remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 52 archive connector route tests passed, including import intent auth/body/persona/credential/source/duplicate/failure/source-guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 120 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR484J-F Archive Connector Import Confirmation Preflight
 
 ARGUS accepted PR484J-F on 2026-06-30:

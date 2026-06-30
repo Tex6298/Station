@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-F | Archive Connector Import Confirmation | ARGUS / A3 | Ready for review; DAEDALUS implemented accepted owner-only import intent receipt route/table/types/helpers/tests with persona ownership checked before credential/provider/write work, source-ready/account-proof gating, source-key revalidation against PR484J-E inventory, idempotent pending intent readback, and no existing import_jobs/source bodies/import execution/jobs/UI/hosted/package/billing/Redis/Cloudflare/marketplace/social scope | `docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_RESULT.md` |
+| PR484J-F | Archive Connector Import Confirmation | MIMIR / A1 | Accepted by ARGUS without review patch; owner-only import intent receipt route/table/types/helpers/tests match the lane with persona ownership checked before credential/provider/write work, source-ready/account-proof gating, source-key revalidation against PR484J-E inventory, idempotent pending intent readback, safe readbacks, and no existing import_jobs/source bodies/import execution/jobs/UI/hosted/package/billing/Redis/Cloudflare/marketplace/social scope | `docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_REVIEW_RESULT.md` |
 
 ## Recently Closed
 

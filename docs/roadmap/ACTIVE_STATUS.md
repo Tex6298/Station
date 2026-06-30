@@ -4,6 +4,84 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484J-F accepted for MIMIR
+
+ARGUS accepts the PR484J-F Archive Connector Import Confirmation
+implementation:
+
+`docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_F_IMPORT_CONFIRMATION
+```
+
+Accepted:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/:provider/import-intents`;
+- strict confirmation body: owner persona id plus source inventory `sourceKey`,
+  `sourceFamily`, `sourceKind`, and `sourceLabel` echoes;
+- owner persona check before credential decrypt, provider source inventory, or
+  writes;
+- source-ready credential and completed account proof required;
+- source confirmation by re-running only the accepted PR484J-E inventory
+  metadata read and matching one available safe source row;
+- new owner-scoped `archive_connector_import_intents` table with RLS,
+  idempotency fingerprint, and DB type coverage;
+- duplicate confirmation clicks return the existing pending intent;
+- focused tests for auth, strict body parsing, persona ordering, credential and
+  account-proof gates, Reddit and Discord source confirmations, duplicate
+  behavior, stale/tampered source echoes, storage/provider failures, redaction,
+  and source guards.
+
+ARGUS review findings:
+
+- unsupported providers and invalid or secret-shaped request bodies fail before
+  persona, credential, provider, or intent-table work;
+- source matching re-runs only the accepted PR484J-E metadata inventory and
+  requires one available safe source row;
+- readbacks omit idempotency fingerprints, owner ids, raw provider ids,
+  cursors, source bodies, provider payloads, provider headers, tokens,
+  encrypted credentials, SQL/storage details, stack traces, and secret-shaped
+  values;
+- validation passed with 52 focused connector route tests, 120 broader
+  regression tests, full typecheck, and `git diff --check`.
+
+Still forbidden:
+
+- existing `import_jobs` writes, archive source rows, source bodies, provider
+  crawls beyond inventory revalidation, pagination, recurring pulls, Memory,
+  Canon, Continuity, public documents, review candidates, jobs, queues,
+  workers, UI, hosted/runtime work, packages, billing, Redis, Cloudflare,
+  marketplace, partner adapters, social behavior, raw provider ids, raw
+  cursors, provider payloads, provider headers, tokens, encrypted credentials,
+  raw OAuth scopes, SQL/storage details, stack traces, or secret-shaped values.
+
+Current lane:
+
+```text
+PR484J-F - Archive Connector Import Confirmation
+Owner: MIMIR / A1
+State: ACCEPTED_FOR_MIMIR_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR484J-F or choose the next archive connector move.
+- Source body reads, import execution/writes/jobs, owner confirmation UI,
+  pagination crawl, hosted/runtime work, packages, billing, Redis, Cloudflare,
+  marketplace, partner adapters, and social behavior remain separate lanes
+  unless explicitly opened.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484J-F ready for ARGUS
 
 DAEDALUS implemented the accepted PR484J-F Archive Connector Import
@@ -45,27 +123,6 @@ Still forbidden:
   marketplace, partner adapters, social behavior, raw provider ids, raw
   cursors, provider payloads, provider headers, tokens, encrypted credentials,
   raw OAuth scopes, SQL/storage details, stack traces, or secret-shaped values.
-
-Current lane:
-
-```text
-PR484J-F - Archive Connector Import Confirmation
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-```
-
-Current baton:
-
-- ARGUS should review PR484J-F for owner/persona ordering, source echo
-  matching, idempotency behavior, redaction, and no-import/no-job boundaries.
-- ARGUS should wake MIMIR with acceptance or DAEDALUS with required fixes.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Latest ARGUS preflight - PR484J-F accepted for DAEDALUS
 
