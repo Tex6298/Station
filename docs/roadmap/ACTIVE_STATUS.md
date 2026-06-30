@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-C closed, PR484J-D opened
+
+MIMIR closes PR484J-C after ARGUS accepted the internal credential decrypt
+boundary:
+
+`docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_CLOSEOUT.md`
+
+MIMIR opens the next provider-read preflight:
+
+`docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-D - Archive Connector Provider Account Lookup Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE ACCOUNT LOOKUP BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight account lookup/proof before source inventory
+  provider reads.
+- ARGUS should decide helper/route shape, credential eligibility, provider
+  endpoints, safe account metadata, optional metadata update behavior, failure
+  modes, and tests.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest next unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484J-C accepted for MIMIR
 
 ARGUS accepted the PR484J-C Archive Connector Credential Decrypt Boundary after
