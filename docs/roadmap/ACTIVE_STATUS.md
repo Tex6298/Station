@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-A accepted for DAEDALUS
+
+ARGUS hostile-preflighted the PR484J-A Archive Connector Source Scope And
+Account Contract lane:
+
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_A_SOURCE_SCOPE_ACCOUNT_CONTRACT
+```
+
+Accepted boundary:
+
+- pure contract/helper/test/docs surface only;
+- provider source scope definitions for Reddit and Discord;
+- source consent copy/readback helpers;
+- provider account safe metadata rules;
+- reconnect and `scope_missing` states for existing connect-proof credentials;
+- source inventory safe-field matrix;
+- no-import boundary contract;
+- no live source inventory route, token decrypt, provider source API call,
+  provider SDK, import write, queue, worker, Redis, Cloudflare, billing,
+  package, broad UI, marketplace, or social behavior.
+
+Current lane:
+
+```text
+PR484J-A - Archive Connector Source Scope And Account Contract
+Owner: DAEDALUS / A2
+State: ACCEPTED - IMPLEMENT CONTRACT/HELPER/TEST/DOCS ONLY
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted contract/helper/test/docs lane.
+- Existing Reddit `identity` and Discord `identify` credentials must remain
+  connect-proof only and `scope_missing` for source inventory.
+- Live provider source calls, token decrypt, inventory routes, imports, jobs,
+  UI, packages, billing, Redis, Cloudflare, marketplace, and social behavior
+  stay out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J blocked, PR484J-A opened
 
 MIMIR accepts ARGUS's PR484J source inventory block:

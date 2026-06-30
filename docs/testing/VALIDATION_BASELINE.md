@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-A Archive Connector Source Scope And Account Contract Preflight
+
+ARGUS accepted PR484J-A on 2026-06-30:
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_A_SOURCE_SCOPE_ACCOUNT_CONTRACT`.
+
+Reason:
+
+- accepted pure contract/helper/test/docs lane for provider source scopes,
+  consent copy, account metadata policy, safe source matrix, reconnect and
+  `scope_missing` states, and no-import boundaries;
+- existing Reddit `identity` and Discord `identify` credentials remain
+  connect-proof only;
+- future Reddit `mysubreddits`, `history`, and separate `read` scope decisions
+  must be explicit;
+- future Discord inventory is limited to basic `guilds` readback unless a
+  later bot/install/partner-scope lane is accepted;
+- no live source inventory route, token decrypt, provider source API call,
+  provider SDK, import write, job, Redis, Cloudflare, billing, package, broad
+  UI, marketplace, or social behavior is allowed.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 84 tests passed across connector route/storage/contract, callback bridge, import preview/parsers, social fail-closed routes, web readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+| Scope/path scan | Pass | PR484J-A preflight handoff is docs-only; no app, package, lockfile, or Supabase schema paths changed. |
+
 ## PR484J Archive Connector Source Inventory Preflight
 
 ARGUS blocked PR484J on 2026-06-30:

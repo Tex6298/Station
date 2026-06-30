@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-A | Archive Connector Source Scope And Account Contract Preflight | ARGUS / A3 | Open; decide the source/scope/consent/account/decrypt/redaction/no-import contract before provider reads | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_ARGUS.md` |
+| PR484J-A implementation | Archive Connector Source Scope And Account Contract | DAEDALUS / A2 | Accepted; implement pure contract/helper/test/docs only, no token decrypt, provider calls, routes, imports, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J-A preflight | Archive Connector Source Scope And Account Contract | MIMIR -> ARGUS -> DAEDALUS | Accepted pure source scope/consent/account/safe-source/no-import contract lane; no live provider calls, token decrypt, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_RESULT.md` |
 | PR484J block closeout | Archive Connector Source Inventory | MIMIR | Closed as blocked; current Reddit/Discord credentials are connect-proof only and need a source/scope/consent/account/decrypt/redaction/no-import contract before provider source calls | `docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_BLOCK_CLOSEOUT.md` |
 | PR484J preflight | Archive Connector Source Inventory | MIMIR -> ARGUS -> MIMIR | Blocked; current Reddit `identity` and Discord `identify` credentials are connect-proof only, with no accepted source-scope consent, account lookup, token decrypt, provider-client, redaction, or import-boundary contract for source inventory | `docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_RESULT.md` |
 | PR484I closeout | Archive Connector Credential Revoke / Disconnect | MIMIR | Closed; local owner-only credential revoke/disconnect accepted, with source inventory, provider calls, imports, provider-side revoke, UI, hosted proof, Redis, Cloudflare, billing, packages, marketplace, and social behavior left separate | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_CLOSEOUT.md` |
