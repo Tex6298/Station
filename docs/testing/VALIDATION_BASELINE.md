@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484I Archive Connector Credential Revoke / Disconnect Preflight
+
+ARGUS accepted PR484I on 2026-06-30:
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484I_LOCAL_CREDENTIAL_REVOKE`.
+
+Reason:
+
+- accepted authenticated
+  `POST /archive-connectors/credentials/:provider/revoke`;
+- local owner/provider/purpose active-row credential revoke only;
+- supported providers only: `reddit` and `discord`;
+- request body absent or `{}` only;
+- missing and already-revoked providers return bounded `200` no-op state;
+- response may return only provider-only safe credential readback metadata or
+  `credential: null`;
+- no credential encryption config requirement, token decrypt, token exchange,
+  provider token revocation, provider call, source inventory, import write,
+  job, Redis, Cloudflare, billing, package, broad UI, marketplace, or social
+  behavior.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 73 tests passed across connector route/storage/contract, callback bridge, import preview/parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+| Scope/path scan | Pass | PR484I preflight acceptance is docs-only; no app, package, lockfile, or Supabase schema paths changed. |
+
 ## PR484H Archive Connector Credential Readback Review
 
 ARGUS accepted PR484H on 2026-06-30:

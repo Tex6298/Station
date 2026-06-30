@@ -4,6 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484I accepted for DAEDALUS
+
+ARGUS hostile-preflighted the PR484I Archive Connector Credential Revoke /
+Disconnect lane:
+
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484I_LOCAL_CREDENTIAL_REVOKE
+```
+
+Accepted boundary:
+
+- authenticated
+  `POST /archive-connectors/credentials/:provider/revoke`;
+- owner-only local storage revoke behind the existing archive connector Bearer
+  boundary;
+- supported providers only: `reddit` and `discord`;
+- request body absent or `{}` only, with extra keys/scalars/arrays rejected
+  before storage mutation;
+- revoke active owner/provider/purpose archive connector rows only;
+- missing or already-revoked providers return bounded `200` no-op state;
+- response returns provider-only safe credential readback metadata or
+  `credential: null`;
+- no credential encryption config requirement and no token decrypt;
+- provider-side token revocation explicitly deferred;
+- no token exchange, credential write, OAuth callback change, provider
+  profile/account lookup, provider/source API call, source inventory, import,
+  recurring pull, queue, worker, Redis, Cloudflare, billing, package, broad UI,
+  marketplace, or social behavior.
+
+Current lane:
+
+```text
+PR484I - Archive Connector Credential Revoke / Disconnect
+Owner: DAEDALUS / A2
+State: ACCEPTED - IMPLEMENT OWNER-SAFE LOCAL DISCONNECT
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted local credential revoke route and
+  focused tests.
+- DAEDALUS must keep provider revocation, token decrypt/exchange, source
+  inventory, imports, jobs, UI, Redis, Cloudflare, billing, packages,
+  marketplace, and social behavior out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484H closed, PR484I opened
 
 MIMIR closes PR484H after ARGUS accepted the Archive Connector Credential
