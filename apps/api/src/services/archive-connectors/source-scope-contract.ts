@@ -103,7 +103,7 @@ const SAFE_SOURCE_FIELDS = [
 const ACCOUNT_ALLOWED_METADATA = [
   "provider",
   "purpose",
-  "safeAccountLabel",
+  "accountLabel",
   "externalAccountFingerprintPresent",
   "connectionScopeState",
   "reconnectRequiredForSourceInventory",
@@ -275,7 +275,7 @@ function sourceFamily(input: Omit<ArchiveConnectorSourceFamilyContract, "ownerOn
     purpose: "archive_connector",
     safeFields: [...SAFE_SOURCE_FIELDS],
     capabilities: {
-      accountProofOnly: input.requiredScopes.length === 0,
+      accountProofOnly: false,
       sourceMetadataReadback: input.state === "scope_missing",
       sourceBodyReadback: false,
       rawProviderIdsReturned: false,

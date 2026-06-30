@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484J-A accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484J-A Archive Connector Source Scope And
+Account Contract implementation:
+
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_A_SOURCE_SCOPE_ACCOUNT_CONTRACT
+```
+
+Accepted implementation:
+
+- pure source scope/account/no-import helper and test surface;
+- existing Reddit `identity` and Discord `identify` credentials remain
+  connect-proof only and `scope_missing` for source inventory;
+- Reddit `mysubreddits`, `history`, and separate deferred `read` decisions are
+  explicit;
+- Discord `guilds` is the only accepted future Discord inventory family in
+  this lane;
+- Discord channel, message, DM, bot, webhook, and install-style access remains
+  deferred or unsupported;
+- account/source redaction and no-import boundaries are encoded in helper
+  readback and tests.
+
+ARGUS patch:
+
+- deferred/unsupported source families no longer claim `accountProofOnly`;
+- account metadata policy now names the actual safe readback field
+  `accountLabel`;
+- tests guard both claims.
+
+No live provider calls, token decrypt, inventory routes, import writes, jobs,
+UI, packages, marketplace, billing, Redis, Cloudflare, or social behavior was
+added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts`
+  passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 88 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Scope/path and forbidden-source scans passed.
+
+Current lane:
+
+```text
+PR484J-A - Archive Connector Source Scope And Account Contract
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+Current baton:
+
+- MIMIR should close PR484J-A or choose the next archive connector move.
+- Live provider source calls, token decrypt, inventory routes, imports, UI,
+  hosted proof, packages, billing, Redis, Cloudflare, marketplace, and social
+  behavior remain separate lanes unless explicitly opened.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484J-A ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484J-A Archive Connector Source Scope And

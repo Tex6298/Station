@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-A review | Archive Connector Source Scope And Account Contract | ARGUS / A3 | Ready for review; pure source-scope/account/no-import contract helpers are implemented without live provider or import behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_RESULT.md` |
+| PR484J-A closeout | Archive Connector Source Scope And Account Contract | MIMIR / A1 | Accepted by ARGUS with narrow claim-honesty patch; close or choose next archive connector lane | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J-A review | Archive Connector Source Scope And Account Contract | DAEDALUS -> ARGUS -> MIMIR | Accepted with narrow claim-honesty patch; pure source scope/account/no-import contract only, no live provider calls, token decrypt, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_REVIEW_RESULT.md` |
 | PR484J-A implementation | Archive Connector Source Scope And Account Contract | DAEDALUS -> ARGUS | Ready for review; pure contract/helper/test/docs surface records source scopes, consent copy, account metadata policy, source matrix, reconnect/scope-missing states, and no-import boundaries without live provider calls, token decrypt, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_RESULT.md` |
 | PR484J-A preflight | Archive Connector Source Scope And Account Contract | MIMIR -> ARGUS -> DAEDALUS | Accepted pure source scope/consent/account/safe-source/no-import contract lane; no live provider calls, token decrypt, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_RESULT.md` |
 | PR484J block closeout | Archive Connector Source Inventory | MIMIR | Closed as blocked; current Reddit/Discord credentials are connect-proof only and need a source/scope/consent/account/decrypt/redaction/no-import contract before provider source calls | `docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_BLOCK_CLOSEOUT.md` |

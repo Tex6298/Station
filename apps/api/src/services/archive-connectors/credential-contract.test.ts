@@ -222,12 +222,19 @@ test("archive connector source scope contract exposes safe source matrix and no-
   assert.deepEqual(contract.accountMetadataPolicy.allowed, [
     "provider",
     "purpose",
-    "safeAccountLabel",
+    "accountLabel",
     "externalAccountFingerprintPresent",
     "connectionScopeState",
     "reconnectRequiredForSourceInventory",
   ]);
   assert.equal(Object.values(contract.noImportBoundary).every((value) => value === false), true);
+  assert.equal(contract.sourceFamilies.every((family) => family.capabilities.accountProofOnly === false), true);
+  assert.equal(
+    contract.sourceFamilies.every((family) =>
+      family.capabilities.sourceMetadataReadback === (family.state === "scope_missing")
+    ),
+    true,
+  );
   assert.doesNotMatch(rendered, /post body|comment body|message body|dm body|private snippet|raw permalink|provider payload/i);
   assert.doesNotMatch(rendered, /archiveSourceWritesEnabled":true|importJobsEnabled":true|memoryWritesEnabled":true|canonWritesEnabled":true|continuityWritesEnabled":true/);
 });
