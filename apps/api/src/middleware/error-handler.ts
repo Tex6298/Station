@@ -8,6 +8,7 @@ type ErrorLike = {
   name?: unknown;
   status?: unknown;
   statusCode?: unknown;
+  type?: unknown;
 };
 
 export function errorHandler(err: unknown, _req: Request, res: Response, next: NextFunction) {
@@ -18,7 +19,7 @@ export function errorHandler(err: unknown, _req: Request, res: Response, next: N
 
   const errorStatus = httpStatusFromError(err);
   const status = errorStatus ?? httpStatusFromResponse(res.statusCode) ?? 500;
-  const exposeMessage = errorStatus !== null && shouldExposeStatus(status);
+  const exposeMessage = errorStatus !== null && shouldExposeStatus(status) && !isJsonParseError(err);
   const fallback = fallbackMessageForStatus(status);
   const message = exposeMessage
     ? sanitizePublicErrorMessage(errorMessage(err), fallback)
@@ -57,6 +58,10 @@ function errorMessage(err: unknown) {
   if (err instanceof Error) return err.message;
   if (isRecord(err) && typeof err.message === "string") return err.message;
   return "";
+}
+
+function isJsonParseError(err: unknown) {
+  return isRecord(err) && err.type === "entity.parse.failed";
 }
 
 function sanitizePublicErrorMessage(raw: string, fallback: string) {

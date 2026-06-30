@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484I implementation | Archive Connector Credential Revoke / Disconnect | DAEDALUS / A2 | Accepted; implement owner-safe local credential revoke only | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_RESULT.md` |
+| PR484I review | Archive Connector Credential Revoke / Disconnect | ARGUS / A3 | Ready for review; owner-safe local credential revoke is implemented without provider revocation or source/import behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484I implementation | Archive Connector Credential Revoke / Disconnect | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only local revoke/disconnect route is idempotent for active, already-revoked, and missing provider states without provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md` |
 | PR484I preflight | Archive Connector Credential Revoke / Disconnect | MIMIR -> ARGUS -> DAEDALUS | Accepted local owner-only credential revoke route; no provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_RESULT.md` |
 | PR484H closeout | Archive Connector Credential Readback | MIMIR | Closed as local/backend accepted; revoke/disconnect opened before source inventory | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_CLOSEOUT.md` |
 | PR484H implementation | Archive Connector Credential Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner-only route returns one connected/revoked/missing safe metadata row per supported provider without token decrypt, provider calls, source inventory, imports, revocation, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_REVIEW_RESULT.md` |

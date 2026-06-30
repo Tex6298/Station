@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484I Archive Connector Credential Revoke / Disconnect
+
+DAEDALUS implemented PR484I on 2026-06-30:
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- authenticated `POST /archive-connectors/credentials/:provider/revoke`
+  performs owner-only local credential revocation;
+- supported providers remain `reddit` and `discord` only;
+- body handling accepts absent or `{}` and rejects extra keys, arrays, and
+  parser-level scalar JSON before storage mutation;
+- active owner/provider/purpose credential rows are revoked locally;
+- already-revoked and missing providers return bounded `200` no-op states;
+- safe credential metadata or `credential: null` is returned;
+- local revoke does not require credential encryption config;
+- JSON parse failures now return the generic global `400` envelope without
+  body-parser excerpts;
+- no provider-side token revocation, token decrypt/exchange, credential write,
+  provider call, source inventory, import write, job, Redis, Cloudflare,
+  billing, package, broad UI, marketplace, or social behavior was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 33 tests passed, including revoke auth, unsupported provider, body validation, active revoke, owner/purpose/provider scoping, idempotent revoked/missing states, bounded storage failures, no encryption requirement, and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts` | Pass | 7 tests passed, including generic JSON parse-failure readback without body excerpts. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 84 tests passed across connector route/storage/contract, import preview/parsers, social fail-closed routes, callback bridge, web readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR484I Archive Connector Credential Revoke / Disconnect Preflight
 
 ARGUS accepted PR484I on 2026-06-30:

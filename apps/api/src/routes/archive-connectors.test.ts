@@ -21,6 +21,7 @@ class ArchiveConnectorReadinessSupabase {
   writeCalls: string[] = [];
   insertErrorTables = new Set<string>();
   selectErrorTables = new Set<string>();
+  updateErrorTables = new Set<string>();
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -148,6 +149,12 @@ class Query {
       rows = [row];
     } else if (this.operation === "update") {
       this.db.writeCalls.push(`${this.table}.update`);
+      if (this.db.updateErrorTables.has(this.table)) {
+        return Promise.resolve({
+          data: null,
+          error: { message: `SQL update failed in ${this.table} owner_user_id=owner-user stack prompt` },
+        });
+      }
       rows = this.matchingRows();
       for (const row of rows) {
         Object.assign(row, this.payload ?? {});
@@ -193,9 +200,11 @@ class Query {
 
 async function createArchiveConnectorApp() {
   const { archiveConnectorsRouter } = await import("./archive-connectors.js");
+  const { errorHandler } = await import("../middleware/error-handler.js");
   const app = express();
   app.use(express.json());
   app.use("/archive-connectors", archiveConnectorsRouter);
+  app.use(errorHandler);
   return app;
 }
 
@@ -349,6 +358,20 @@ async function readArchiveConnectorCredentials(
 ) {
   return requestJson<Row>(app, "GET", "/archive-connectors/credentials", {
     token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+  });
+}
+
+async function revokeArchiveConnectorCredentialRoute(
+  app: Express,
+  options: {
+    provider?: "reddit" | "discord" | string;
+    token?: string | null;
+    body?: unknown;
+  } = {},
+) {
+  return requestJson<Row>(app, "POST", `/archive-connectors/credentials/${options.provider ?? "reddit"}/revoke`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+    body: options.body,
   });
 }
 
@@ -2378,6 +2401,264 @@ test("archive connector credential readback returns bounded storage failures", a
   }
 });
 
+test("archive connector credential revoke requires auth supported provider and empty body", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    const unauthenticated = await revokeArchiveConnectorCredentialRoute(app, { token: null });
+    assert.equal(unauthenticated.status, 401);
+    assert.equal(unauthenticated.body.error, "Missing or invalid Authorization header.");
+    assert.equal(db.tableCalls.length, 0);
+
+    const unsupported = await revokeArchiveConnectorCredentialRoute(app, { provider: "mastodon" });
+    assert.equal(unsupported.status, 400);
+    assert.equal(unsupported.body.code, "archive_connector_provider_not_supported");
+    assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+    assert.deepEqual(db.writeCalls, []);
+
+    const invalidBodies = [
+      { body: { reason: "secret-shaped-value", stateHandle: "state-handle-fixture" }, routeHandled: true },
+      { body: ["secret-shaped-value"], routeHandled: true },
+      { body: "secret-shaped-value", routeHandled: false },
+      { body: 7, routeHandled: false },
+    ];
+
+    for (const setup of invalidBodies) {
+      const response = await revokeArchiveConnectorCredentialRoute(app, setup);
+      assert.equal(response.status, 400);
+      assert.equal(
+        response.body.code,
+        setup.routeHandled ? "archive_connector_credential_revoke_invalid" : "bad_request",
+      );
+      if (setup.routeHandled) assertCredentialRevokeSafety(response.body, false);
+      assertNoSensitiveCredentialReadback(response.body);
+      assert.equal(JSON.stringify(response.body).includes("state-handle-fixture"), false);
+    }
+
+    const empty = await revokeArchiveConnectorCredentialRoute(app, { body: {} });
+    assert.equal(empty.status, 200);
+    assert.equal(empty.body.status, "archive_connector_credential_revoke_noop");
+    assert.equal(empty.body.connectionStatus, "missing");
+    assert.equal(empty.body.credential, null);
+    assertCredentialRevokeSafety(empty.body, true);
+    assertNoSensitiveCredentialReadback(empty.body);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector credential revoke is local owner scoped and returns newest revoked safe metadata", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.rows("archive_connector_credentials").push(
+    {
+      id: "row-id-fixture-other-owner-active",
+      owner_user_id: "other-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "other-owner-token-fixture" },
+      credential_fingerprint: "other-owner-fingerprint",
+      external_account_fingerprint: "external-account-fixture-other",
+      account_label: "Other owner label",
+      status: "active",
+      created_at: "2026-06-29T10:00:00.000Z",
+      updated_at: "2026-06-29T10:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-wrong-purpose-active",
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "social_connector",
+      encrypted_credential: { ciphertext: "wrong-purpose-token-fixture" },
+      credential_fingerprint: "wrong-purpose-fingerprint",
+      external_account_fingerprint: "external-account-fixture-wrong",
+      account_label: "Wrong purpose label",
+      status: "active",
+      created_at: "2026-06-29T11:00:00.000Z",
+      updated_at: "2026-06-29T11:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-unsupported-provider-active",
+      owner_user_id: "owner-user",
+      provider: "mastodon",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "unsupported-provider-token-fixture" },
+      credential_fingerprint: "unsupported-provider-fingerprint",
+      external_account_fingerprint: "external-account-fixture-unsupported",
+      account_label: "Unsupported provider label",
+      status: "active",
+      created_at: "2026-06-29T12:00:00.000Z",
+      updated_at: "2026-06-29T12:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+    {
+      id: "row-id-fixture-reddit-revoked-old",
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "reddit-refresh-token-fixture" },
+      credential_fingerprint: "reddit-old-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Reddit old safe label",
+      status: "revoked",
+      created_at: "2026-06-29T13:00:00.000Z",
+      updated_at: "2026-06-29T13:05:00.000Z",
+      rotated_at: null,
+      revoked_at: "2026-06-29T13:05:00.000Z",
+    },
+    {
+      id: "row-id-fixture-reddit-active-new",
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "reddit-access-token-fixture" },
+      credential_fingerprint: "reddit-active-fingerprint",
+      external_account_fingerprint: "external-account-fixture-reddit",
+      account_label: "Reddit connected label",
+      status: "active",
+      created_at: "2026-06-29T14:00:00.000Z",
+      updated_at: "2026-06-29T14:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    },
+  );
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({ ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: null }, async () => {
+      const response = await revokeArchiveConnectorCredentialRoute(app);
+      assert.equal(response.status, 200);
+      assert.equal(response.body.status, "archive_connector_credential_revoked");
+      assert.equal(response.body.provider, "reddit");
+      assert.equal(response.body.purpose, "archive_connector");
+      assert.equal(response.body.ownerOnly, true);
+      assert.equal(response.body.connectionStatus, "revoked");
+      assert.equal(response.body.credential.provider, "reddit");
+      assert.equal(response.body.credential.status, "revoked");
+      assert.equal(response.body.credential.configured, false);
+      assert.equal(response.body.credential.accountLabel, "Reddit connected label");
+      assert.equal(response.body.credential.fingerprintPresent, true);
+      assert.equal(response.body.credential.externalAccountFingerprintPresent, true);
+      assert.equal(typeof response.body.credential.revokedAt, "string");
+      assertCredentialRevokeSafety(response.body, true);
+      assertNoSensitiveCredentialReadback(response.body);
+
+      const rows = db.rows("archive_connector_credentials");
+      assert.equal(rows.find((row) => row.id === "row-id-fixture-reddit-active-new")?.status, "revoked");
+      assert.equal(rows.find((row) => row.id === "row-id-fixture-other-owner-active")?.status, "active");
+      assert.equal(rows.find((row) => row.id === "row-id-fixture-wrong-purpose-active")?.status, "active");
+      assert.equal(rows.find((row) => row.id === "row-id-fixture-unsupported-provider-active")?.status, "active");
+      assert.equal(rows.length, 5);
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector credential revoke is idempotent for already revoked and missing providers", async () => {
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.rows("archive_connector_credentials").push(
+    {
+      id: "row-id-fixture-discord-revoked-old",
+      owner_user_id: "owner-user",
+      provider: "discord",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "discord-refresh-token-fixture" },
+      credential_fingerprint: "discord-old-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Discord old safe label",
+      status: "revoked",
+      created_at: "2026-06-29T12:00:00.000Z",
+      updated_at: "2026-06-29T12:05:00.000Z",
+      rotated_at: null,
+      revoked_at: "2026-06-29T12:05:00.000Z",
+    },
+    {
+      id: "row-id-fixture-discord-revoked-new",
+      owner_user_id: "owner-user",
+      provider: "discord",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "discord-access-token-fixture" },
+      credential_fingerprint: "discord-new-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Discord paused label",
+      status: "revoked",
+      created_at: "2026-06-29T13:00:00.000Z",
+      updated_at: "2026-06-29T13:05:00.000Z",
+      rotated_at: null,
+      revoked_at: "2026-06-29T13:05:00.000Z",
+    },
+  );
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    const revoked = await revokeArchiveConnectorCredentialRoute(app, { provider: "discord", body: {} });
+    assert.equal(revoked.status, 200);
+    assert.equal(revoked.body.status, "archive_connector_credential_revoke_noop");
+    assert.equal(revoked.body.connectionStatus, "revoked");
+    assert.equal(revoked.body.credential.accountLabel, "Discord paused label");
+    assert.equal(revoked.body.credential.revokedAt, "2026-06-29T13:05:00.000Z");
+    assertCredentialRevokeSafety(revoked.body, true);
+    assertNoSensitiveCredentialReadback(revoked.body);
+
+    const missing = await revokeArchiveConnectorCredentialRoute(app, { provider: "reddit" });
+    assert.equal(missing.status, 200);
+    assert.equal(missing.body.status, "archive_connector_credential_revoke_noop");
+    assert.equal(missing.body.connectionStatus, "missing");
+    assert.equal(missing.body.credential, null);
+    assertCredentialRevokeSafety(missing.body, true);
+    assertNoSensitiveCredentialReadback(missing.body);
+    assert.equal(db.rows("archive_connector_credentials").length, 2);
+    assert.equal(db.rows("archive_connector_credentials").every((row) => row.status === "revoked"), true);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector credential revoke returns bounded storage failures", async () => {
+  for (const setup of ["update", "load"] as const) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    db.rows("archive_connector_credentials").push({
+      id: `row-id-fixture-${setup}-failure`,
+      owner_user_id: "owner-user",
+      provider: "reddit",
+      purpose: "archive_connector",
+      encrypted_credential: { ciphertext: "reddit-access-token-fixture" },
+      credential_fingerprint: "reddit-active-fingerprint",
+      external_account_fingerprint: null,
+      account_label: "Reddit connected label",
+      status: "active",
+      created_at: "2026-06-29T14:00:00.000Z",
+      updated_at: "2026-06-29T14:00:00.000Z",
+      rotated_at: null,
+      revoked_at: null,
+    });
+    if (setup === "update") db.updateErrorTables.add("archive_connector_credentials");
+    if (setup === "load") db.selectErrorTables.add("archive_connector_credentials");
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      const response = await revokeArchiveConnectorCredentialRoute(app);
+      assert.equal(response.status, 500, setup);
+      assert.equal(response.body.code, "archive_connector_credential_revoke_failed", setup);
+      assert.equal(response.body.status, "credential_revoke_failed", setup);
+      assertCredentialRevokeSafety(response.body, false);
+      assertNoSensitiveCredentialReadback(response.body);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
 test("archive connector readiness source stays read-only and route-only", () => {
   const routeSource = readFileSync("apps/api/src/routes/archive-connectors.ts", "utf8");
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
@@ -2391,17 +2672,19 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const stateConsumeMatches = routeSource.match(/consumeArchiveConnectorOAuthState/g) ?? [];
   const stateValidateMatches = routeSource.match(/validateArchiveConnectorOAuthState/g) ?? [];
   const credentialStoreMatches = routeSource.match(/storeArchiveConnectorCredential/g) ?? [];
+  const credentialRevokeMatches = routeSource.match(/revokeArchiveConnectorCredential/g) ?? [];
   const tokenExchangeMatches = routeSource.match(/exchangeArchiveConnectorOAuthCode/g) ?? [];
 
   assert.equal(stateCreateMatches.length, 2);
   assert.equal(stateConsumeMatches.length, 3);
   assert.equal(stateValidateMatches.length, 2);
   assert.equal(credentialStoreMatches.length, 2);
+  assert.equal(credentialRevokeMatches.length, 2);
   assert.equal(tokenExchangeMatches.length, 3);
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /consumeArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /validateArchiveConnectorOAuthState/i);
-  assert.doesNotMatch(routeSource, /revokeArchiveConnectorCredential/i);
+  assert.doesNotMatch(routeSource, /decryptArchiveConnectorCredential|providerTokenRevoke|revocation_endpoint|oauth\/revoke/i);
   assert.doesNotMatch(routeSource, /res\.redirect|redirect\s*\(/i);
   assert.doesNotMatch(sourceWithoutAcceptedArchiveConfig, /REDDIT_CLIENT_ID|REDDIT_CLIENT_SECRET|DISCORD_CLIENT_ID|DISCORD_CLIENT_SECRET/i);
   assert.doesNotMatch(routeSource, /fetch\s*\(|providerSdk|access_token|refresh_token/i);
@@ -2458,6 +2741,18 @@ function assertCredentialReadbackSafety(body: Row) {
   assert.equal(body.providerTokenEndpointCallsEnabled, false);
   assert.equal(body.credentialWritesEnabled, false);
   assert.equal(body.credentialRevokeEnabled, false);
+  assert.equal(body.providerCallsEnabled, false);
+  assert.equal(body.sourceInventoryEnabled, false);
+  assert.equal(body.importWritesEnabled, false);
+}
+
+function assertCredentialRevokeSafety(body: Row, enabled: boolean) {
+  assert.equal(body.localCredentialRevokeEnabled, enabled);
+  assert.equal(body.providerTokenRevocationEnabled, false);
+  assert.equal(body.tokenDecryptEnabled, false);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerTokenEndpointCallsEnabled, false);
+  assert.equal(body.credentialWritesEnabled, false);
   assert.equal(body.providerCallsEnabled, false);
   assert.equal(body.sourceInventoryEnabled, false);
   assert.equal(body.importWritesEnabled, false);

@@ -124,6 +124,35 @@ test("client error messages are sanitized when they reach the global handler", a
   assertNoLeak(JSON.stringify(response.body));
 });
 
+test("JSON parse failures return a generic bad request without body excerpts", async () => {
+  const response = await withConsoleCapture([], () =>
+    withTestApp((app) => {
+      app.use(express.json());
+      app.post("/json", (_req, res) => {
+        res.json({ ok: true });
+      });
+    }, async (baseUrl) => {
+      const result = await fetch(`${baseUrl}/json`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: `"${hiddenMarker}"`,
+      });
+
+      return {
+        status: result.status,
+        body: await result.json() as Record<string, unknown>,
+      };
+    })
+  );
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, {
+    error: "Bad request.",
+    code: "bad_request",
+  });
+  assertNoLeak(JSON.stringify(response.body));
+});
+
 test("response status fallback does not expose generic thrown messages", async () => {
   const logs: unknown[][] = [];
   const response = await withConsoleCapture(logs, () =>

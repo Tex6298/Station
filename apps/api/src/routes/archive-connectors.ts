@@ -18,6 +18,7 @@ import {
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
   loadArchiveConnectorCredentialReadbacks,
+  revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
   validateArchiveConnectorOAuthState,
 } from "../services/archive-connectors/credential-storage";
@@ -51,6 +52,67 @@ archiveConnectorsRouter.get("/credentials", async (req: Request, res: Response) 
       purpose: "archive_connector",
       ownerOnly: true,
       ...credentialReadbackSafety(),
+    });
+  }
+});
+
+archiveConnectorsRouter.post("/credentials/:provider/revoke", async (req: Request, res: Response) => {
+  const provider = archiveConnectorProvider(req.params.provider);
+  if (!provider) {
+    return res.status(400).json({
+      error: "Archive connector provider is not supported.",
+      code: "archive_connector_provider_not_supported",
+      status: "unsupported_provider",
+    });
+  }
+
+  try {
+    assertEmptyRevokeBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector credential revoke request is invalid.",
+      code: "archive_connector_credential_revoke_invalid",
+      status: "invalid_request",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      ...credentialRevokeSafety(false),
+    });
+  }
+
+  try {
+    const before = await loadArchiveConnectorCredentialReadbacks(req.user!.id);
+    const hadActiveCredential = before.some((credential) =>
+      credential.provider === provider &&
+      credential.purpose === "archive_connector" &&
+      credential.status === "active"
+    );
+    const credentials = await revokeArchiveConnectorCredential({
+      ownerUserId: req.user!.id,
+      provider,
+    });
+    const credential = newestCredentialReadbackForProvider(credentials, provider);
+
+    return res.status(200).json({
+      status: hadActiveCredential
+        ? "archive_connector_credential_revoked"
+        : "archive_connector_credential_revoke_noop",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      connectionStatus: credential ? "revoked" : "missing",
+      credential,
+      ...credentialRevokeSafety(true),
+    });
+  } catch {
+    return res.status(500).json({
+      error: "Could not revoke archive connector credential.",
+      code: "archive_connector_credential_revoke_failed",
+      status: "credential_revoke_failed",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      ...credentialRevokeSafety(false),
     });
   }
 });
@@ -477,6 +539,17 @@ function archiveConnectorProvider(value: string | undefined): ArchiveConnectorPr
     : null;
 }
 
+function assertEmptyRevokeBody(body: unknown) {
+  if (body == null) return;
+  if (typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid revoke body");
+  }
+
+  if (Object.keys(body as Record<string, unknown>).length > 0) {
+    throw new Error("invalid revoke body");
+  }
+}
+
 function archiveConnectorCredentialProviderRows(credentials: ArchiveConnectorCredentialReadback[]) {
   return ARCHIVE_CONNECTOR_PROVIDER_IDS.map((provider) => {
     const credential = newestCredentialReadbackForProvider(credentials, provider);
@@ -732,6 +805,20 @@ function credentialReadbackSafety() {
     providerTokenEndpointCallsEnabled: false,
     credentialWritesEnabled: false,
     credentialRevokeEnabled: false,
+    providerCallsEnabled: false,
+    sourceInventoryEnabled: false,
+    importWritesEnabled: false,
+  };
+}
+
+function credentialRevokeSafety(localCredentialRevokeEnabled: boolean) {
+  return {
+    localCredentialRevokeEnabled,
+    providerTokenRevocationEnabled: false,
+    tokenDecryptEnabled: false,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    credentialWritesEnabled: false,
     providerCallsEnabled: false,
     sourceInventoryEnabled: false,
     importWritesEnabled: false,

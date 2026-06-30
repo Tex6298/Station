@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR484I ready for ARGUS review
+
+DAEDALUS implemented the accepted PR484I Archive Connector Credential Revoke /
+Disconnect boundary:
+
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md`
+
+Implemented route:
+
+```text
+POST /archive-connectors/credentials/:provider/revoke
+```
+
+Implementation:
+
+- uses the existing authenticated archive connector Bearer boundary;
+- supports only `reddit` and `discord`;
+- accepts no request body or an empty JSON object only;
+- rejects body keys, arrays, and parser-level scalar JSON before storage
+  mutation without echoing secret-shaped values;
+- revokes only active owner/provider/purpose `archive_connector` credential
+  rows;
+- returns bounded `200` no-op state for already-revoked and missing provider
+  credentials;
+- returns provider-only safe credential metadata or `credential: null`;
+- does not require credential encryption config for local revoke.
+
+Small hardening patch:
+
+- JSON parse failures now use the generic global `400` envelope instead of
+  returning body-parser excerpts, so scalar JSON bodies cannot leak request-body
+  text before route handlers run.
+
+Non-scope confirmation:
+
+- no provider-side token revocation, token decrypt, token exchange, credential
+  write, OAuth callback/authorization URL change, provider profile/account
+  lookup, provider/source API call, source inventory, import write, recurring
+  pull, queue, worker, Redis, Cloudflare, billing, package, marketplace, broad
+  UI, or social behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 33 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/middleware/error-handler.test.ts`
+  passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 84 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR484I - Archive Connector Credential Revoke / Disconnect
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484I against the accepted preflight boundary.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR484I accepted for DAEDALUS
 
 ARGUS hostile-preflighted the PR484I Archive Connector Credential Revoke /
