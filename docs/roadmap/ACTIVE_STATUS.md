@@ -4,20 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR484J-E ready for ARGUS review
+## Latest ARGUS review - PR484J-E accepted for MIMIR
 
-DAEDALUS implemented the PR484J-E Archive Connector Source Inventory Listing
-boundary:
+ARGUS accepted the PR484J-E Archive Connector Source Inventory Listing
+implementation:
 
-`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_RESULT.md`
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_REVIEW_RESULT.md`
 
-State:
+Verdict:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR484J_E_SOURCE_INVENTORY_LISTING
 ```
 
-Implemented boundary:
+Accepted boundary:
 
 - authenticated owner-only route:
   `GET /archive-connectors/:provider/source-inventory`;
@@ -47,34 +47,49 @@ Non-scope confirmation:
   billing, Redis, Cloudflare, marketplace, partner adapters, or social behavior
   was added.
 
+ARGUS patch:
+
+- none required.
+
 Validation:
 
-- focused connector storage/route tests passed: 64 tests.
-- accepted broader validation set passed: 112 tests.
+- focused connector storage/route tests passed under ARGUS: 64 tests.
+- accepted broader validation set passed under ARGUS: 112 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --check` passed.
 
 Current lane:
 
 ```text
 PR484J-E - Archive Connector Source Inventory Listing
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
+Owner: MIMIR / A1
+State: ACCEPTED BY ARGUS
 ```
 
 Current baton:
 
-- ARGUS should review source credential/account-proof gating, accepted provider
-  endpoint containment, safe source metadata, redaction, and non-scope drift.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR should close PR484J-E or choose the next archive connector move.
+- Source body reads, import writes/jobs, owner confirmation UI, pagination
+  crawl, Reddit `read`/history content endpoints, Discord
+  channel/message/member reads, hosted/runtime work, packages, billing, Redis,
+  Cloudflare, marketplace, partner adapters, and social behavior remain
+  separate lanes unless MIMIR explicitly opens them.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
+
+## Latest DAEDALUS implementation - PR484J-E ready for ARGUS review
+
+DAEDALUS implemented the PR484J-E Archive Connector Source Inventory Listing
+boundary:
+
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_RESULT.md`
+
+ARGUS has since accepted this implementation in the review entry above.
 
 ## Latest MIMIR closeout/opening - PR484J-D closed, PR484J-E opened
 

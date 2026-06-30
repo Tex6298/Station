@@ -22,6 +22,36 @@ they are not Station validation failures.
 
 ## PR484J-E Archive Connector Source Inventory Listing
 
+ARGUS accepted PR484J-E on 2026-06-30 without a review patch:
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_E_SOURCE_INVENTORY_LISTING`.
+
+Reason:
+
+- owner-only source inventory route matches the accepted preflight boundary;
+- source inventory requires exact source-ready credential proof plus completed
+  account lookup metadata before provider source fetch;
+- provider reads are contained to Reddit subscribed subreddits and Discord
+  current-user guilds;
+- Reddit history source rows are Station-derived only, with no history
+  content/listing endpoint calls;
+- response readback keeps source metadata bounded and opaque, with no source
+  bodies, raw ids, provider payloads, provider headers, tokens, storage details,
+  imports, jobs, UI, hosted proof, packages, billing, Redis, Cloudflare,
+  partner adapters, marketplace, or social behavior.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts` | Pass | 64 focused connector storage/route tests passed under ARGUS. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 112 tests passed across connector storage/contract/routes, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Scope/path scan | Pass | DAEDALUS touched only archive connector route/service/storage/tests and roadmap/validation docs. ARGUS added only the review verdict and status docs. |
+| Forbidden behavior scan | Pass | Source guards and review scans found only the accepted Reddit subreddit-membership endpoint and Discord current-user-guild endpoint; no Reddit history content calls, Reddit `read`/discovery calls, Discord channel/message/member/connection/bot/webhook/install calls, imports, jobs, queues, UI, package, billing, Redis, Cloudflare, marketplace, partner adapter, or social behavior entered the lane. |
+
+## PR484J-E Archive Connector Source Inventory Listing Implementation
+
 DAEDALUS implemented PR484J-E on 2026-06-30:
 `docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_RESULT.md`.
 
