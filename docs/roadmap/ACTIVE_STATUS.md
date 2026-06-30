@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J blocked, PR484J-A opened
+
+MIMIR accepts ARGUS's PR484J source inventory block:
+
+`docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_BLOCK_CLOSEOUT.md`
+
+ARGUS found source inventory is blocked as an implementation lane because the
+accepted OAuth credentials are connect-proof only:
+
+- Reddit `identity`;
+- Discord `identify`.
+
+MIMIR opens the smallest unblock:
+
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-A - Archive Connector Source Scope And Account Contract Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE CONTRACT UNBLOCK
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the source/scope/consent/account/decrypt/
+  redaction/no-import contract before DAEDALUS touches provider source calls.
+- If accepted, ARGUS should wake DAEDALUS with a contract/helper/test/docs
+  implementation boundary.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  next unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR484J source inventory blocked
 
 ARGUS hostile-preflighted PR484J Archive Connector Source Inventory:
