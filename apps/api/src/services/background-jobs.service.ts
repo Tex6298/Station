@@ -5,6 +5,9 @@ import { OPERATIONAL_CACHE_TTLS, operationalCacheKey } from "./operational-cache
 export const IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, file_id, archive_connector_source_staging_run_id, error_message, created_at, updated_at";
 
+export const IMPORT_JOB_WITH_FILE_ID_SELECT =
+  "id, persona_id, owner_user_id, kind, status, source_name, file_id, error_message, created_at, updated_at";
+
 export const LEGACY_IMPORT_JOB_SELECT =
   "id, persona_id, owner_user_id, kind, status, source_name, error_message, created_at, updated_at";
 
@@ -296,6 +299,16 @@ export async function selectImportJobRowWithFileIdFallback(
   queryFactory: (select: string) => PromiseLike<{ data: any | null; error?: { message?: string } | null }>
 ) {
   const result = await queryFactory(IMPORT_JOB_SELECT);
+  if (isMissingArchiveConnectorSourceStagingRunIdError(result.error)) {
+    const fileIdResult = await queryFactory(IMPORT_JOB_WITH_FILE_ID_SELECT);
+    if (!isMissingImportJobFileIdError(fileIdResult.error)) {
+      return {
+        data: fileIdResult.data ? normalizeImportJobRow(fileIdResult.data) : null,
+        error: fileIdResult.error ?? null,
+      };
+    }
+  }
+
   if (isMissingImportJobFileIdError(result.error)) {
     const legacy = await queryFactory(LEGACY_IMPORT_JOB_SELECT);
     return {
@@ -314,6 +327,16 @@ export async function selectImportJobRowsWithFileIdFallback(
   queryFactory: (select: string) => PromiseLike<{ data: any[] | null; error?: { message?: string } | null }>
 ) {
   const result = await queryFactory(IMPORT_JOB_SELECT);
+  if (isMissingArchiveConnectorSourceStagingRunIdError(result.error)) {
+    const fileIdResult = await queryFactory(IMPORT_JOB_WITH_FILE_ID_SELECT);
+    if (!isMissingImportJobFileIdError(fileIdResult.error)) {
+      return {
+        data: (fileIdResult.data ?? []).map(normalizeImportJobRow),
+        error: fileIdResult.error ?? null,
+      };
+    }
+  }
+
   if (isMissingImportJobFileIdError(result.error)) {
     const legacy = await queryFactory(LEGACY_IMPORT_JOB_SELECT);
     return {
@@ -519,7 +542,12 @@ async function updateImportJob(jobId: string, ownerUserId: string, patch: Partia
 
 function isMissingImportJobFileIdError(error: { message?: string } | null | undefined) {
   const message = error?.message ?? "";
-  return /import_jobs\.(?:file_id|archive_connector_source_staging_run_id)|\b(?:file_id|archive_connector_source_staging_run_id)\b/i.test(message) && /does not exist|schema cache|column/i.test(message);
+  return /import_jobs\.file_id|\bfile_id\b/i.test(message) && /does not exist|schema cache|column/i.test(message);
+}
+
+function isMissingArchiveConnectorSourceStagingRunIdError(error: { message?: string } | null | undefined) {
+  const message = error?.message ?? "";
+  return /import_jobs\.archive_connector_source_staging_run_id|\barchive_connector_source_staging_run_id\b/i.test(message) && /does not exist|schema cache|column/i.test(message);
 }
 
 function hasValue(value: string | undefined | null) {

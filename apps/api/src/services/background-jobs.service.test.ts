@@ -9,6 +9,7 @@ import {
   canTransitionBackgroundJobStatus,
   normalizeBackgroundJobStatus,
   sanitizeJobErrorMessage,
+  selectImportJobRowsWithFileIdFallback,
   summarizeExportBackgroundJob,
   summarizeImportBackgroundJob,
 } from "./background-jobs.service";
@@ -137,4 +138,40 @@ test("background job summaries keep owner scope and safe error readback", () => 
   assert.equal(exportSummary.developerSpaceId, "space-1");
   assert.equal(exportSummary.resourceId, "space-1");
   assert.doesNotMatch(exportSummary.errorMessage ?? "", /sk-test-secret-token/);
+});
+
+test("import job select fallback preserves file pointers when connector pointer column is absent", async () => {
+  const calls: string[] = [];
+  const result = await selectImportJobRowsWithFileIdFallback(async (select) => {
+    calls.push(select);
+    if (select.includes("archive_connector_source_staging_run_id")) {
+      return {
+        data: null,
+        error: {
+          message: "column import_jobs.archive_connector_source_staging_run_id does not exist",
+        },
+      };
+    }
+
+    return {
+      data: [{
+        id: "job-1",
+        persona_id: "persona-1",
+        owner_user_id: "owner-1",
+        kind: "file",
+        status: "queued",
+        source_name: "owner archive source",
+        file_id: "file-1",
+        error_message: null,
+        created_at: "2026-06-20T00:00:00.000Z",
+        updated_at: "2026-06-20T00:01:00.000Z",
+      }],
+      error: null,
+    };
+  });
+
+  assert.equal(calls.length, 2);
+  assert.equal(result.error, null);
+  assert.equal(result.data[0].file_id, "file-1");
+  assert.equal(result.data[0].archive_connector_source_staging_run_id, null);
 });

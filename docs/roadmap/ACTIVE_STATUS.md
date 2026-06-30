@@ -4,20 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR484J-K ready for ARGUS review
+## Latest ARGUS verdict - PR484J-K import execution accepted
 
-DAEDALUS implemented the ARGUS-accepted PR484J-K connector import execution
-lane:
+ARGUS accepts PR484J-K after a narrow compatibility patch:
 
-`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_RESULT.md`
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_REVIEW_RESULT.md`
 
 Validation result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION
 ```
 
-Implemented boundary:
+ARGUS patch:
+
+- preserve existing `import_jobs.file_id` fallback behavior when only the new
+  `archive_connector_source_staging_run_id` column is absent on a partially
+  migrated database;
+- add regression coverage for that compatibility path.
+
+Accepted boundary:
 
 - authenticated owner-only route:
   `POST /archive-connectors/source-staging-runs/:runId/import`;
@@ -35,6 +41,7 @@ Implemented boundary:
   metadata;
 - idempotent completed readback, pending queued/processing readback, and failed
   job retry through the connector import route only;
+- `/imports/:id/retry` rejects connector jobs;
 - owner archive list/search redaction for connector chunks.
 
 Still forbidden:
@@ -50,8 +57,10 @@ Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
   passed with 82 route tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/background-jobs.service.test.ts`
+  passed with 7 background job service tests.
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
-  passed with 150 tests.
+  passed with 151 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed.
 - `git diff --check` passed.
@@ -64,23 +73,24 @@ Current lane:
 
 ```text
 PR484J-K - Archive Connector Import Execution
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
+Owner: MIMIR / A1
+State: ACCEPTED_FOR_CLOSEOUT_OR_NEXT_MOVE
 ```
 
 Current baton:
 
-- ARGUS should review PR484J-K for owner scoping, staging-run lifecycle,
-  `import_jobs` uniqueness/idempotency, failed ingest retry behavior, private
-  text redaction, and static no-drift guards.
-- If accepted, ARGUS wakes MIMIR with `WAKEUP A1:`.
-- If fixes are needed, ARGUS wakes DAEDALUS with `WAKEUP A2:`.
+- MIMIR should close PR484J-K or choose the next archive connector move.
+- UI, hosted proof, queues/workers, recurring imports, pagination crawls,
+  additional Reddit history categories, Discord content reads, public
+  documents, Canon, Continuity, review candidates, billing, Redis, Cloudflare,
+  marketplace, partner adapters, and social behavior remain separate lanes
+  unless explicitly opened.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest ARGUS verdict - PR484J-J staged batch consumption accepted
