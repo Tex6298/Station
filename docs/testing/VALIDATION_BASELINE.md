@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-B Archive Connector Source Scope OAuth Consent / Reconnect
+
+DAEDALUS implemented PR484J-B on 2026-06-30:
+`docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `scopeProfile` is persisted on OAuth state and credential metadata with
+  `connect` default and `source_inventory` as the only expanded reconnect
+  profile;
+- authorization scopes are derived only from stored state;
+- Reddit scopes are exact `identity` for `connect` and
+  `identity mysubreddits history` for `source_inventory`;
+- Discord scopes are exact `identify` for `connect` and `identify guilds` for
+  `source_inventory`;
+- token responses must match the consumed state's exact normalized scope set
+  before credentials can read as source-ready;
+- safe readback exposes Station-normalized `scopeProfile`, `grantedScopes`,
+  `connectionScopeState`, and reconnect state without token decrypt;
+- existing connect-proof credentials remain not source-ready and require
+  reconnect for source inventory;
+- no provider source reads, source inventory route, token decrypt, account
+  lookup, imports, jobs, UI, packages, marketplace, billing, Redis, Cloudflare,
+  or social behavior was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 92 tests passed across connector route/storage/contract, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| Scope/path scan | Pass | Implementation touched archive connector API helpers/routes/tests, one Supabase metadata migration, and docs; no package, lockfile, web UI, hosted runtime, billing, Redis, Cloudflare, marketplace, or social path changed. |
+
 ## PR484J-B Archive Connector Source Scope OAuth Consent / Reconnect Preflight
 
 ARGUS accepted PR484J-B on 2026-06-30:
@@ -14801,7 +14835,7 @@ DAEDALUS implementation validation on 2026-06-21:
 
 | Command | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 91 tests passed, including sanitized trace detail helper mapping, event timeline facts, and privacy redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 92 tests passed, including sanitized trace detail helper mapping, event timeline facts, and privacy redaction coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 tests passed; owner-scoped sanitized trace detail route coverage remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 35 tests passed; provider failure trace safety remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks passed. |

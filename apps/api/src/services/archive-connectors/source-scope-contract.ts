@@ -21,6 +21,8 @@ export type ArchiveConnectorSourceState =
   | "deferred"
   | "blocked";
 
+export type ArchiveConnectorScopeProfile = "connect" | "source_inventory";
+
 export type ArchiveConnectorSourceFamilyContract = {
   provider: ArchiveConnectorProviderId;
   sourceFamily: ArchiveConnectorSourceFamily;
@@ -193,6 +195,17 @@ const SOURCE_FAMILIES: ArchiveConnectorSourceFamilyContract[] = [
   }),
 ];
 
+const SCOPE_PROFILE_SCOPES: Record<ArchiveConnectorProviderId, Record<ArchiveConnectorScopeProfile, string[]>> = {
+  reddit: {
+    connect: ["identity"],
+    source_inventory: ["identity", "mysubreddits", "history"],
+  },
+  discord: {
+    connect: ["identify"],
+    source_inventory: ["identify", "guilds"],
+  },
+};
+
 export function archiveConnectorSourceScopeContract(): ArchiveConnectorSourceScopeContractReadback {
   return {
     purpose: "archive_connector",
@@ -221,6 +234,68 @@ export function archiveConnectorSourceScopeContract(): ArchiveConnectorSourceSco
   };
 }
 
+export function archiveConnectorScopesForProfile(
+  provider: ArchiveConnectorProviderId,
+  scopeProfile: ArchiveConnectorScopeProfile,
+) {
+  return [...SCOPE_PROFILE_SCOPES[provider][scopeProfile]];
+}
+
+export function archiveConnectorScopeProfileReadback(
+  provider: ArchiveConnectorProviderId,
+  scopeProfile: ArchiveConnectorScopeProfile,
+) {
+  const requestedScopes = archiveConnectorScopesForProfile(provider, scopeProfile);
+  return {
+    provider,
+    purpose: "archive_connector" as const,
+    ownerOnly: true as const,
+    scopeProfile,
+    requestedScopes,
+    consentCopy: consentCopyForProfile(provider, scopeProfile),
+    reconnectRequiredForSourceInventory: scopeProfile === "connect",
+    sourceInventoryReady: scopeProfile === "source_inventory",
+  };
+}
+
+export function archiveConnectorScopeProfileFromValue(value: unknown): ArchiveConnectorScopeProfile | null {
+  if (value == null) return "connect";
+  return value === "connect" || value === "source_inventory" ? value : null;
+}
+
+export function normalizeArchiveConnectorGrantedScopes(
+  provider: ArchiveConnectorProviderId,
+  grantedScopes: readonly string[] | null | undefined,
+) {
+  const values = (grantedScopes ?? []).filter((scope) => typeof scope === "string");
+  const canonicalOrder = [
+    ...SCOPE_PROFILE_SCOPES[provider].source_inventory,
+    ...SCOPE_PROFILE_SCOPES[provider].connect,
+  ];
+  const unique = [...new Set(values.map((scope) => scope.trim()).filter(Boolean))];
+  return canonicalOrder.filter((scope, index, all) =>
+    all.indexOf(scope) === index && unique.includes(scope)
+  );
+}
+
+export function archiveConnectorConnectionScopeState(input: {
+  provider: ArchiveConnectorProviderId;
+  grantedScopes: readonly string[];
+}) {
+  const normalized = normalizeArchiveConnectorGrantedScopes(input.provider, input.grantedScopes);
+  const sourceScopes = archiveConnectorScopesForProfile(input.provider, "source_inventory");
+  const connectScopes = archiveConnectorScopesForProfile(input.provider, "connect");
+  const sourceReady = sameScopeSet(normalized, sourceScopes);
+  const connectOnly = sameScopeSet(normalized, connectScopes);
+  return {
+    grantedScopes: normalized.length > 0 ? normalized : connectScopes,
+    connectionScopeState: sourceReady
+      ? "source_scope_ready" as const
+      : connectOnly ? "account_proof_only" as const : "scope_missing" as const,
+    reconnectRequiredForSourceInventory: !sourceReady,
+  };
+}
+
 export function archiveConnectorAccountScopeReadback(input: {
   provider: ArchiveConnectorProviderId;
   grantedScopes: string[];
@@ -231,15 +306,10 @@ export function archiveConnectorAccountScopeReadback(input: {
   providerPayload?: unknown;
   encryptedCredential?: unknown;
 }) : ArchiveConnectorAccountScopeReadback {
-  const sourceReady = sourceFamiliesForProvider(input.provider).some((family) =>
-    family.state === "scope_missing" &&
-    family.requiredScopes.every((scope) => input.grantedScopes.includes(scope))
-  );
-  const connectProofOnly = input.grantedScopes.length === 1 &&
-    input.grantedScopes[0] === connectProofScopeForProvider(input.provider);
-  const connectionScopeState = sourceReady
-    ? "source_scope_ready"
-    : connectProofOnly ? "account_proof_only" : "scope_missing";
+  const scopeState = archiveConnectorConnectionScopeState({
+    provider: input.provider,
+    grantedScopes: input.grantedScopes,
+  });
 
   return {
     provider: input.provider,
@@ -248,8 +318,8 @@ export function archiveConnectorAccountScopeReadback(input: {
     providerLabel: archiveConnectorProviderLabel(input.provider),
     accountLabel: safeAccountLabel(input.accountLabel),
     externalAccountFingerprintPresent: Boolean(input.externalAccountFingerprintPresent),
-    connectionScopeState,
-    reconnectRequiredForSourceInventory: connectionScopeState !== "source_scope_ready",
+    connectionScopeState: scopeState.connectionScopeState,
+    reconnectRequiredForSourceInventory: scopeState.reconnectRequiredForSourceInventory,
     allowedMetadata: [...ACCOUNT_ALLOWED_METADATA],
     forbiddenMetadata: [...ACCOUNT_FORBIDDEN_METADATA],
     safety: {
@@ -291,6 +361,20 @@ function sourceFamiliesForProvider(provider: ArchiveConnectorProviderId) {
 
 function connectProofScopeForProvider(provider: ArchiveConnectorProviderId) {
   return provider === "reddit" ? "identity" : "identify";
+}
+
+function consentCopyForProfile(provider: ArchiveConnectorProviderId, scopeProfile: ArchiveConnectorScopeProfile) {
+  if (provider === "reddit" && scopeProfile === "source_inventory") {
+    return "Reconnect Reddit so Station can list subreddit memberships and Reddit history categories for archive source selection.";
+  }
+  if (provider === "discord" && scopeProfile === "source_inventory") {
+    return "Reconnect Discord so Station can list your Discord servers for archive source selection.";
+  }
+  return `${archiveConnectorProviderLabel(provider)} connect proof confirms the account only; reconnect is required before source inventory.`;
+}
+
+function sameScopeSet(left: readonly string[], right: readonly string[]) {
+  return left.length === right.length && right.every((scope) => left.includes(scope));
 }
 
 function reconnectCopyForProvider(provider: ArchiveConnectorProviderId) {

@@ -1,6 +1,17 @@
 import { createCipheriv, createHash, randomBytes } from "crypto";
 import { getSupabaseAdmin } from "../../lib/supabase";
-import type { ArchiveConnectorProviderId } from "./credential-contract";
+import {
+  ARCHIVE_CONNECTOR_PROVIDER_IDS,
+  type ArchiveConnectorProviderId,
+} from "./credential-contract";
+import {
+  archiveConnectorAccountScopeReadback,
+  archiveConnectorConnectionScopeState,
+  archiveConnectorScopeProfileFromValue,
+  archiveConnectorScopesForProfile,
+  normalizeArchiveConnectorGrantedScopes,
+  type ArchiveConnectorScopeProfile,
+} from "./source-scope-contract";
 
 export type ArchiveConnectorCredentialStatus = "active" | "revoked";
 export type ArchiveConnectorCredentialStorageErrorCode =
@@ -22,6 +33,8 @@ export type ArchiveConnectorCredentialRow = {
   external_account_fingerprint: string | null;
   account_label: string | null;
   status: ArchiveConnectorCredentialStatus;
+  scope_profile?: ArchiveConnectorScopeProfile | null;
+  granted_scopes?: string[] | null;
   created_at?: string;
   updated_at?: string;
   rotated_at?: string | null;
@@ -39,6 +52,7 @@ export type ArchiveConnectorOAuthStateRow = {
   local_redirect_path: string | null;
   expires_at: string;
   consumed_at?: string | null;
+  scope_profile?: ArchiveConnectorScopeProfile | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -55,6 +69,10 @@ export type ArchiveConnectorCredentialReadback = {
   updatedAt: string | null;
   rotatedAt: string | null;
   revokedAt: string | null;
+  scopeProfile: ArchiveConnectorScopeProfile;
+  grantedScopes: string[];
+  connectionScopeState: "account_proof_only" | "source_scope_ready" | "scope_missing";
+  reconnectRequiredForSourceInventory: boolean;
 };
 
 export type ArchiveConnectorOAuthStateReadback = {
@@ -63,6 +81,7 @@ export type ArchiveConnectorOAuthStateReadback = {
   expiresAt: string;
   consumedAt: string | null;
   localRedirectPath: string | null;
+  scopeProfile: ArchiveConnectorScopeProfile;
 };
 
 export class ArchiveConnectorCredentialStorageError extends Error {
@@ -131,6 +150,8 @@ export async function storeArchiveConnectorCredential(input: {
   ownerUserId: string;
   provider: ArchiveConnectorProviderId;
   secretMaterial: unknown;
+  scopeProfile?: ArchiveConnectorScopeProfile;
+  grantedScopes?: string[] | null;
   accountLabel?: string | null;
   rawExternalAccountId?: string | null;
 }) {
@@ -143,6 +164,8 @@ export async function storeArchiveConnectorCredential(input: {
   const credentialFingerprint = fingerprintArchiveConnectorCredential(input.provider, input.secretMaterial);
   const externalAccountFingerprint = fingerprintArchiveConnectorExternalAccount(input.provider, input.rawExternalAccountId);
   const accountLabel = sanitizeArchiveConnectorAccountLabel(input.accountLabel);
+  const scopeProfile = scopeProfileFromCredentialInput(input.scopeProfile, input.secretMaterial);
+  const grantedScopes = grantedScopesFromCredentialInput(input.provider, input.grantedScopes, input.secretMaterial);
   const now = new Date().toISOString();
 
   await revokeActiveArchiveConnectorCredentialRows(input.ownerUserId, input.provider, now);
@@ -158,6 +181,8 @@ export async function storeArchiveConnectorCredential(input: {
       external_account_fingerprint: externalAccountFingerprint,
       account_label: accountLabel,
       status: "active",
+      scope_profile: scopeProfile,
+      granted_scopes: grantedScopes,
       rotated_at: activeRows.length > 0 ? now : null,
     })
     .select("*")
@@ -175,7 +200,9 @@ export async function storeArchiveConnectorCredential(input: {
 
 export async function loadArchiveConnectorCredentialReadbacks(ownerUserId: string) {
   const rows = await loadArchiveConnectorCredentialRows(ownerUserId, { includeRevoked: true });
-  return rows.map(serializeArchiveConnectorCredentialReadback);
+  return rows
+    .filter((row) => isArchiveConnectorProviderId(row.provider))
+    .map(serializeArchiveConnectorCredentialReadback);
 }
 
 export async function revokeArchiveConnectorCredential(input: {
@@ -188,10 +215,26 @@ export async function revokeArchiveConnectorCredential(input: {
     provider: input.provider,
     includeRevoked: true,
   });
-  return rows.map(serializeArchiveConnectorCredentialReadback);
+  return rows
+    .filter((row) => isArchiveConnectorProviderId(row.provider))
+    .map(serializeArchiveConnectorCredentialReadback);
 }
 
 export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnectorCredentialRow): ArchiveConnectorCredentialReadback {
+  const scopeProfile = archiveConnectorScopeProfileFromValue(row.scope_profile) ?? "connect";
+  const grantedScopes = normalizeArchiveConnectorGrantedScopes(
+    row.provider,
+    row.granted_scopes && row.granted_scopes.length > 0
+      ? row.granted_scopes
+      : archiveConnectorScopesForProfile(row.provider, "connect"),
+  );
+  const scopeState = archiveConnectorAccountScopeReadback({
+    provider: row.provider,
+    grantedScopes,
+    accountLabel: row.account_label,
+    externalAccountFingerprintPresent: Boolean(row.external_account_fingerprint),
+  });
+
   return {
     provider: row.provider,
     purpose: ARCHIVE_CONNECTOR_PURPOSE,
@@ -204,7 +247,44 @@ export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnecto
     updatedAt: row.updated_at ?? null,
     rotatedAt: row.rotated_at ?? null,
     revokedAt: row.revoked_at ?? null,
+    scopeProfile,
+    grantedScopes: scopeState.connectionScopeState === "source_scope_ready"
+      ? grantedScopes
+      : archiveConnectorScopesForProfile(row.provider, "connect"),
+    connectionScopeState: scopeState.connectionScopeState,
+    reconnectRequiredForSourceInventory: scopeState.reconnectRequiredForSourceInventory,
   };
+}
+
+function scopeProfileFromCredentialInput(
+  explicitScopeProfile: ArchiveConnectorScopeProfile | undefined,
+  secretMaterial: unknown,
+) {
+  const materialScopeProfile = secretMaterial && typeof secretMaterial === "object"
+    ? archiveConnectorScopeProfileFromValue((secretMaterial as { scopeProfile?: unknown }).scopeProfile)
+    : null;
+  if (explicitScopeProfile) return explicitScopeProfile;
+  if (materialScopeProfile) return materialScopeProfile;
+  return "connect" satisfies ArchiveConnectorScopeProfile;
+}
+
+function grantedScopesFromCredentialInput(
+  provider: ArchiveConnectorProviderId,
+  explicitGrantedScopes: string[] | null | undefined,
+  secretMaterial: unknown,
+) {
+  const materialGrantedScopes = secretMaterial && typeof secretMaterial === "object" &&
+    Array.isArray((secretMaterial as { grantedScopes?: unknown }).grantedScopes)
+    ? (secretMaterial as { grantedScopes: string[] }).grantedScopes
+    : null;
+  const normalized = normalizeArchiveConnectorGrantedScopes(
+    provider,
+    explicitGrantedScopes ?? materialGrantedScopes ?? archiveConnectorScopesForProfile(provider, "connect"),
+  );
+  const scopeState = archiveConnectorConnectionScopeState({ provider, grantedScopes: normalized });
+  return scopeState.connectionScopeState === "source_scope_ready"
+    ? archiveConnectorScopesForProfile(provider, "source_inventory")
+    : archiveConnectorScopesForProfile(provider, "connect");
 }
 
 export async function createArchiveConnectorOAuthState(input: {
@@ -215,6 +295,7 @@ export async function createArchiveConnectorOAuthState(input: {
   csrf: string;
   expiresAt: string;
   localRedirectPath?: string | null;
+  scopeProfile?: ArchiveConnectorScopeProfile;
 }) {
   const sb = getSupabaseAdmin();
   const localRedirectPath = sanitizeLocalRedirectPath(input.localRedirectPath);
@@ -230,6 +311,7 @@ export async function createArchiveConnectorOAuthState(input: {
       local_redirect_path: localRedirectPath,
       expires_at: input.expiresAt,
       consumed_at: null,
+      scope_profile: input.scopeProfile ?? "connect",
     })
     .select("*")
     .single();
@@ -286,6 +368,7 @@ export function serializeArchiveConnectorOAuthStateReadback(row: ArchiveConnecto
     expiresAt: row.expires_at,
     consumedAt: row.consumed_at ?? null,
     localRedirectPath: row.local_redirect_path ?? null,
+    scopeProfile: archiveConnectorScopeProfileFromValue(row.scope_profile) ?? "connect",
   };
 }
 
@@ -435,4 +518,8 @@ function invalidOAuthState() {
     "archive_connector_oauth_state_invalid",
     "Archive connector OAuth state is invalid or expired."
   );
+}
+
+function isArchiveConnectorProviderId(value: unknown): value is ArchiveConnectorProviderId {
+  return ARCHIVE_CONNECTOR_PROVIDER_IDS.includes(value as ArchiveConnectorProviderId);
 }

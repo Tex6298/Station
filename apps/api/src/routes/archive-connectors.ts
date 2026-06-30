@@ -15,6 +15,7 @@ import {
   archiveConnectorCredentialEncryptionConfigured,
   ArchiveConnectorCredentialStorageError,
   type ArchiveConnectorCredentialReadback,
+  type ArchiveConnectorOAuthStateReadback,
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
   loadArchiveConnectorCredentialReadbacks,
@@ -26,6 +27,12 @@ import {
   ArchiveConnectorTokenExchangeError,
   exchangeArchiveConnectorOAuthCode,
 } from "../services/archive-connectors/token-exchange";
+import {
+  archiveConnectorScopeProfileFromValue,
+  archiveConnectorScopeProfileReadback,
+  archiveConnectorScopesForProfile,
+  type ArchiveConnectorScopeProfile,
+} from "../services/archive-connectors/source-scope-contract";
 
 export const archiveConnectorsRouter = Router();
 
@@ -139,13 +146,13 @@ archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res:
     });
   }
 
-  let localRedirectPath: string | null;
+  let startInput: ArchiveConnectorOAuthStartInput;
   try {
-    localRedirectPath = localRedirectPathFromBody(req.body);
+    startInput = oauthStartInputFromBody(req.body);
   } catch {
     return res.status(400).json({
-      error: "Archive connector local redirect path is invalid.",
-      code: "archive_connector_local_redirect_invalid",
+      error: "Archive connector OAuth start request is invalid.",
+      code: "archive_connector_oauth_start_invalid",
       status: "invalid_request",
       provider,
       purpose: "archive_connector",
@@ -160,7 +167,7 @@ archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res:
   const stateHandle = `${nonce}.${csrf}`;
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-  let state: { expiresAt: string; localRedirectPath: string | null };
+  let state: { expiresAt: string; localRedirectPath: string | null; scopeProfile: ArchiveConnectorScopeProfile };
   try {
     state = await createArchiveConnectorOAuthState({
       ownerUserId: req.user!.id,
@@ -169,7 +176,8 @@ archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res:
       nonce,
       csrf,
       expiresAt,
-      localRedirectPath,
+      localRedirectPath: startInput.localRedirectPath,
+      scopeProfile: startInput.scopeProfile,
     });
   } catch {
     return res.status(500).json({
@@ -188,6 +196,7 @@ archiveConnectorsRouter.post("/oauth/:provider/start", async (req: Request, res:
     purpose: "archive_connector",
     expiresAt: state.expiresAt,
     localRedirectPath: state.localRedirectPath,
+    ...archiveConnectorScopeProfileReadback(provider, state.scopeProfile),
     stateHandle,
     ...disabledOAuthStateStartSafety(),
   });
@@ -221,8 +230,9 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/verify", async (req: Req
   const authHeader = req.headers.authorization ?? "";
   const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
+  let state: ArchiveConnectorOAuthStateReadback;
   try {
-    const state = await consumeArchiveConnectorOAuthState({
+    state = await consumeArchiveConnectorOAuthState({
       ownerUserId: req.user!.id,
       sessionId: sessionBinding(req.user!.id, bearerToken),
       provider,
@@ -236,6 +246,7 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/verify", async (req: Req
       purpose: state.purpose,
       consumed: state.consumedAt != null,
       localRedirectPath: state.localRedirectPath,
+      scopeProfile: state.scopeProfile,
       ...disabledOAuthCallbackVerificationSafety(),
     });
   } catch (error) {
@@ -334,8 +345,9 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/exchange", async (req: R
   const authHeader = req.headers.authorization ?? "";
   const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
+  let state: ArchiveConnectorOAuthStateReadback;
   try {
-    await consumeArchiveConnectorOAuthState({
+    state = await consumeArchiveConnectorOAuthState({
       ownerUserId: req.user!.id,
       sessionId: sessionBinding(req.user!.id, bearerToken),
       provider,
@@ -375,6 +387,7 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/exchange", async (req: R
       clientSecret,
       code: callback.code,
       redirectUri,
+      scopeProfile: state.scopeProfile,
     });
   } catch (error) {
     if (error instanceof ArchiveConnectorTokenExchangeError) {
@@ -403,6 +416,8 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/exchange", async (req: R
       ownerUserId: req.user!.id,
       provider,
       secretMaterial: tokenMaterial,
+      scopeProfile: state.scopeProfile,
+      grantedScopes: tokenMaterial.grantedScopes,
       accountLabel: null,
       rawExternalAccountId: null,
     });
@@ -411,6 +426,8 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/exchange", async (req: R
       status: "archive_connector_connected",
       provider,
       purpose: "archive_connector",
+      scopeProfile: state.scopeProfile,
+      grantedScopes: tokenMaterial.grantedScopes,
       tokenExchangeComplete: true,
       credentialWriteComplete: true,
       credential,
@@ -469,8 +486,9 @@ archiveConnectorsRouter.post("/oauth/:provider/authorize", async (req: Request, 
   const authHeader = req.headers.authorization ?? "";
   const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
+  let state: { scopeProfile: ArchiveConnectorScopeProfile };
   try {
-    await validateArchiveConnectorOAuthState({
+    state = await validateArchiveConnectorOAuthState({
       ownerUserId: req.user!.id,
       sessionId: sessionBinding(req.user!.id, bearerToken),
       provider,
@@ -523,11 +541,13 @@ archiveConnectorsRouter.post("/oauth/:provider/authorize", async (req: Request, 
     status: "oauth_authorization_url_created",
     provider,
     purpose: "archive_connector",
+    ...archiveConnectorScopeProfileReadback(provider, state.scopeProfile),
     authorizationUrl: providerAuthorizationUrl({
       provider,
       clientId,
       stateHandle,
       redirectUri,
+      scopeProfile: state.scopeProfile,
     }),
     ...authorizationUrlSafety(),
   });
@@ -645,9 +665,41 @@ function callbackVerificationFromBody(body: unknown) {
   return { stateHandle, code };
 }
 
-function localRedirectPathFromBody(body: unknown) {
-  if (!body || typeof body !== "object") return null;
-  const value = (body as { localRedirectPath?: unknown }).localRedirectPath;
+type ArchiveConnectorOAuthStartInput = {
+  localRedirectPath: string | null;
+  scopeProfile: ArchiveConnectorScopeProfile;
+};
+
+function oauthStartInputFromBody(body: unknown): ArchiveConnectorOAuthStartInput {
+  if (body === undefined) {
+    return { localRedirectPath: null, scopeProfile: "connect" };
+  }
+  if (body == null || typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid OAuth start body");
+  }
+
+  const record = body as Record<string, unknown>;
+  const keys = Object.keys(record);
+  if (keys.some((key) => key !== "localRedirectPath" && key !== "scopeProfile")) {
+    throw new Error("invalid OAuth start body");
+  }
+  assertNoSecretShapedStartBody(record);
+
+  if ("scopeProfile" in record && record.scopeProfile == null) {
+    throw new Error("invalid OAuth start body");
+  }
+  const scopeProfile = "scopeProfile" in record
+    ? archiveConnectorScopeProfileFromValue(record.scopeProfile)
+    : "connect";
+  if (!scopeProfile) throw new Error("invalid OAuth start body");
+
+  return {
+    localRedirectPath: localRedirectPathFromValue(record.localRedirectPath),
+    scopeProfile,
+  };
+}
+
+function localRedirectPathFromValue(value: unknown) {
   if (value == null) return null;
   if (typeof value !== "string") throw new Error("invalid local redirect path");
 
@@ -664,6 +716,15 @@ function localRedirectPathFromBody(body: unknown) {
   }
 
   return trimmed;
+}
+
+function assertNoSecretShapedStartBody(record: Record<string, unknown>) {
+  const text = JSON.stringify(record);
+  if (
+    /access[_-]?token|refresh[_-]?token|client[_-]?secret|client[_-]?id|oauth[_-]?code|provider[_-]?payload|cookie|bearer|sk-/i.test(text)
+  ) {
+    throw new Error("invalid OAuth start body");
+  }
 }
 
 function sessionBinding(ownerUserId: string, bearerToken: string) {
@@ -722,7 +783,9 @@ function providerAuthorizationUrl(input: {
   clientId: string;
   stateHandle: string;
   redirectUri: string;
+  scopeProfile: ArchiveConnectorScopeProfile;
 }) {
+  const scope = archiveConnectorScopesForProfile(input.provider, input.scopeProfile).join(" ");
   if (input.provider === "reddit") {
     const url = new URL("https://www.reddit.com/api/v1/authorize");
     url.searchParams.set("client_id", input.clientId);
@@ -730,7 +793,7 @@ function providerAuthorizationUrl(input: {
     url.searchParams.set("state", input.stateHandle);
     url.searchParams.set("redirect_uri", input.redirectUri);
     url.searchParams.set("duration", "temporary");
-    url.searchParams.set("scope", "identity");
+    url.searchParams.set("scope", scope);
     return url.toString();
   }
 
@@ -739,7 +802,7 @@ function providerAuthorizationUrl(input: {
   url.searchParams.set("response_type", "code");
   url.searchParams.set("state", input.stateHandle);
   url.searchParams.set("redirect_uri", input.redirectUri);
-  url.searchParams.set("scope", "identify");
+  url.searchParams.set("scope", scope);
   return url.toString();
 }
 

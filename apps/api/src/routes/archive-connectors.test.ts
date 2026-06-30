@@ -307,11 +307,18 @@ async function startArchiveConnectorOAuthState(
     provider?: "reddit" | "discord";
     token?: string;
     localRedirectPath?: string;
+    scopeProfile?: "connect" | "source_inventory" | string;
+    body?: unknown;
   } = {},
 ) {
-  const body = options.localRedirectPath == null
-    ? undefined
-    : { localRedirectPath: options.localRedirectPath };
+  const body = options.body ?? (
+    options.localRedirectPath == null && options.scopeProfile == null
+      ? undefined
+      : {
+          ...(options.localRedirectPath == null ? {} : { localRedirectPath: options.localRedirectPath }),
+          ...(options.scopeProfile == null ? {} : { scopeProfile: options.scopeProfile }),
+        }
+  );
   return requestJson<Row>(app, "POST", `/archive-connectors/oauth/${options.provider ?? "reddit"}/start`, {
     token: options.token ?? OWNER_AUTH_MARKER,
     body,
@@ -517,8 +524,6 @@ function assertNoSensitiveAuthorizeReadback(body: Row, input: {
     "stateHandle",
     "clientId",
     "redirectUri",
-    "scope",
-    "scopes",
   ].filter(Boolean);
   const everywhereForbidden = [
     input.clientSecret ?? "",
@@ -749,6 +754,19 @@ test("archive connector readiness reports reddit and discord with missing encryp
         assert.equal(provider.credentialEncryptionConfigured, false);
         assert.equal(provider.providerOAuthAppConfigAccepted, true);
         assert.equal(provider.oauthAppConfigured, false);
+        assert.deepEqual(
+          provider.scopeProfiles.map((profile: Row) => [profile.scopeProfile, profile.requestedScopes, profile.sourceInventoryReady]),
+          provider.id === "reddit"
+            ? [
+                ["connect", ["identity"], false],
+                ["source_inventory", ["identity", "mysubreddits", "history"], true],
+              ]
+            : [
+                ["connect", ["identify"], false],
+                ["source_inventory", ["identify", "guilds"], true],
+              ],
+        );
+        assert.equal(provider.scopeProfiles.every((profile: Row) => profile.ownerOnly === true), true);
       }
       assertDisabledSafety(response.body);
       assertNoSensitiveArchiveConnectorReadback(response.body);
@@ -1010,7 +1028,10 @@ test("archive connector OAuth state start creates bounded state rows for configu
     }, async () => {
       const reddit = await requestJson(app, "POST", "/archive-connectors/oauth/reddit/start", {
         token: OWNER_AUTH_MARKER,
-        body: { localRedirectPath: "/studio/archive?provider=reddit#ready" },
+        body: {
+          localRedirectPath: "/studio/archive?provider=reddit#ready",
+          scopeProfile: "source_inventory",
+        },
       });
       const discord = await requestJson(app, "POST", "/archive-connectors/oauth/discord/start", {
         token: OWNER_AUTH_MARKER,
@@ -1026,6 +1047,12 @@ test("archive connector OAuth state start creates bounded state rows for configu
       assert.equal(discord.body.purpose, "archive_connector");
       assert.equal(reddit.body.localRedirectPath, "/studio/archive?provider=reddit#ready");
       assert.equal(discord.body.localRedirectPath, null);
+      assert.equal(reddit.body.scopeProfile, "source_inventory");
+      assert.equal(discord.body.scopeProfile, "connect");
+      assert.deepEqual(reddit.body.requestedScopes, ["identity", "mysubreddits", "history"]);
+      assert.deepEqual(discord.body.requestedScopes, ["identify"]);
+      assert.equal(reddit.body.reconnectRequiredForSourceInventory, false);
+      assert.equal(discord.body.reconnectRequiredForSourceInventory, true);
       assert.match(reddit.body.stateHandle, /^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/);
       assert.match(discord.body.stateHandle, /^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/);
       assert.notEqual(reddit.body.stateHandle, discord.body.stateHandle);
@@ -1050,6 +1077,7 @@ test("archive connector OAuth state start creates bounded state rows for configu
         assert.equal(row.csrf_hash.length, 64);
         assert.equal(row.expires_at, response.expiresAt);
         assert.equal(row.local_redirect_path, response.localRedirectPath);
+        assert.equal(row.scope_profile, response.scopeProfile);
         assertNoSensitiveOAuthStateRow(row, response.stateHandle, OWNER_AUTH_MARKER);
       }
     });
@@ -1121,7 +1149,7 @@ test("archive connector OAuth state start rejects invalid local redirects withou
         });
 
         assert.equal(response.status, 400);
-        assert.equal(response.body.code, "archive_connector_local_redirect_invalid");
+        assert.equal(response.body.code, "archive_connector_oauth_start_invalid");
         assertDisabledStartSafety(response.body);
         assertNoSensitiveArchiveConnectorReadback(response.body);
         assert.equal(db.rows("archive_connector_oauth_states").length, 0);
@@ -1378,6 +1406,9 @@ test("archive connector OAuth authorize requires auth and rejects unsupported or
     { stateHandle: "not-a-state" },
     { stateHandle: validStateHandle, code: "callback-code-fixture" },
     { stateHandle: validStateHandle, ownerUserId: "owner-user" },
+    { stateHandle: validStateHandle, scopeProfile: "source_inventory" },
+    { stateHandle: validStateHandle, scope: "identity history" },
+    { stateHandle: validStateHandle, requestedScopes: ["identity", "history"] },
     {},
     [],
   ];
@@ -1514,8 +1545,18 @@ test("archive connector OAuth authorize returns bounded Reddit and Discord autho
     await withEnv(archiveConnectorAuthorizeEnv({ NEXT_PUBLIC_APP_URL: "https://station.example/app" }), async () => {
       const redditStart = await startArchiveConnectorOAuthState(app, { provider: "reddit" });
       const discordStart = await startArchiveConnectorOAuthState(app, { provider: "discord" });
+      const redditSourceStart = await startArchiveConnectorOAuthState(app, {
+        provider: "reddit",
+        scopeProfile: "source_inventory",
+      });
+      const discordSourceStart = await startArchiveConnectorOAuthState(app, {
+        provider: "discord",
+        scopeProfile: "source_inventory",
+      });
       assert.equal(redditStart.status, 201);
       assert.equal(discordStart.status, 201);
+      assert.equal(redditSourceStart.status, 201);
+      assert.equal(discordSourceStart.status, 201);
 
       const reddit = await authorizeArchiveConnectorOAuthState(app, {
         provider: "reddit",
@@ -1529,13 +1570,33 @@ test("archive connector OAuth authorize returns bounded Reddit and Discord autho
         provider: "discord",
         stateHandle: discordStart.body.stateHandle,
       });
+      const redditSource = await authorizeArchiveConnectorOAuthState(app, {
+        provider: "reddit",
+        stateHandle: redditSourceStart.body.stateHandle,
+      });
+      const discordSource = await authorizeArchiveConnectorOAuthState(app, {
+        provider: "discord",
+        stateHandle: discordSourceStart.body.stateHandle,
+      });
 
       assert.equal(reddit.status, 200);
       assert.equal(redditAgain.status, 200);
       assert.equal(discord.status, 200);
+      assert.equal(redditSource.status, 200);
+      assert.equal(discordSource.status, 200);
       assert.equal(reddit.body.authorizationUrl, redditAgain.body.authorizationUrl);
+      assert.equal(reddit.body.scopeProfile, "connect");
+      assert.equal(discord.body.scopeProfile, "connect");
+      assert.equal(redditSource.body.scopeProfile, "source_inventory");
+      assert.equal(discordSource.body.scopeProfile, "source_inventory");
+      assert.deepEqual(reddit.body.requestedScopes, ["identity"]);
+      assert.deepEqual(discord.body.requestedScopes, ["identify"]);
+      assert.deepEqual(redditSource.body.requestedScopes, ["identity", "mysubreddits", "history"]);
+      assert.deepEqual(discordSource.body.requestedScopes, ["identify", "guilds"]);
       assertAuthorizationUrlSafety(reddit.body);
       assertAuthorizationUrlSafety(discord.body);
+      assertAuthorizationUrlSafety(redditSource.body);
+      assertAuthorizationUrlSafety(discordSource.body);
       assertNoSensitiveAuthorizeReadback(reddit.body, {
         stateHandle: redditStart.body.stateHandle,
         clientId: "reddit-public-client-id-fixture",
@@ -1570,10 +1631,20 @@ test("archive connector OAuth authorize returns bounded Reddit and Discord autho
       assert.equal(discordUrl.searchParams.get("scope"), "identify");
       assert.equal(discordUrl.searchParams.has("client_secret"), false);
 
+      const redditSourceUrl = new URL(redditSource.body.authorizationUrl);
+      assert.equal(redditSourceUrl.searchParams.get("scope"), "identity mysubreddits history");
+      assert.equal(redditSourceUrl.searchParams.has("client_secret"), false);
+
+      const discordSourceUrl = new URL(discordSource.body.authorizationUrl);
+      assert.equal(discordSourceUrl.searchParams.get("scope"), "identify guilds");
+      assert.equal(discordSourceUrl.searchParams.has("client_secret"), false);
+
       for (const row of db.rows("archive_connector_oauth_states")) {
         assert.equal(row.consumed_at, null);
       }
       assert.deepEqual(db.writeCalls, [
+        "archive_connector_oauth_states.insert",
+        "archive_connector_oauth_states.insert",
         "archive_connector_oauth_states.insert",
         "archive_connector_oauth_states.insert",
       ]);
@@ -1879,6 +1950,18 @@ test("archive connector OAuth exchange calls Reddit and Discord token endpoints 
         assertExchangeSafety(discord.body, true);
         assert.equal(reddit.body.credential.provider, "reddit");
         assert.equal(discord.body.credential.provider, "discord");
+        assert.equal(reddit.body.scopeProfile, "connect");
+        assert.equal(discord.body.scopeProfile, "connect");
+        assert.deepEqual(reddit.body.grantedScopes, ["identity"]);
+        assert.deepEqual(discord.body.grantedScopes, ["identify"]);
+        assert.equal(reddit.body.credential.scopeProfile, "connect");
+        assert.equal(discord.body.credential.scopeProfile, "connect");
+        assert.deepEqual(reddit.body.credential.grantedScopes, ["identity"]);
+        assert.deepEqual(discord.body.credential.grantedScopes, ["identify"]);
+        assert.equal(reddit.body.credential.connectionScopeState, "account_proof_only");
+        assert.equal(discord.body.credential.connectionScopeState, "account_proof_only");
+        assert.equal(reddit.body.credential.reconnectRequiredForSourceInventory, true);
+        assert.equal(discord.body.credential.reconnectRequiredForSourceInventory, true);
         assert.equal(reddit.body.credential.configured, true);
         assert.equal(discord.body.credential.configured, true);
         assert.equal(reddit.body.credential.accountLabel, null);
@@ -1930,6 +2013,11 @@ test("archive connector OAuth exchange calls Reddit and Discord token endpoints 
         assert.equal(discordForm.get("redirect_uri"), "https://station.example/archive-connectors/oauth/callback/discord");
 
         assert.equal(db.rows("archive_connector_credentials").length, 2);
+        const [redditCredentialRow, discordCredentialRow] = db.rows("archive_connector_credentials");
+        assert.equal(redditCredentialRow.scope_profile, "connect");
+        assert.equal(discordCredentialRow.scope_profile, "connect");
+        assert.deepEqual(redditCredentialRow.granted_scopes, ["identity"]);
+        assert.deepEqual(discordCredentialRow.granted_scopes, ["identify"]);
         const credentialText = JSON.stringify(db.rows("archive_connector_credentials"));
         for (const forbidden of [
           "reddit-access-token-fixture",
@@ -1945,6 +2033,99 @@ test("archive connector OAuth exchange calls Reddit and Discord token endpoints 
         ]) {
           assert.equal(credentialText.includes(forbidden), false, `${forbidden} leaked into encrypted credential rows`);
         }
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector OAuth exchange binds source inventory token scopes to consumed state profile", async () => {
+  const calls: TokenFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv({ NEXT_PUBLIC_APP_URL: "https://station.example/app" }), async () => {
+      await withTokenEndpointFetch(calls, async (input) => {
+        if (String(input).includes("reddit")) {
+          return tokenJsonResponse({
+            access_token: "reddit-access-token-fixture",
+            refresh_token: "reddit-refresh-token-fixture",
+            token_type: "bearer",
+            expires_in: 3600,
+            scope: "history identity mysubreddits identity",
+          });
+        }
+
+        return tokenJsonResponse({
+          access_token: "discord-access-token-fixture",
+          refresh_token: "discord-refresh-token-fixture",
+          token_type: "Bearer",
+          expires_in: 7200,
+          scope: "guilds identify guilds",
+        });
+      }, async () => {
+        const redditStart = await startArchiveConnectorOAuthState(app, {
+          provider: "reddit",
+          scopeProfile: "source_inventory",
+        });
+        const discordStart = await startArchiveConnectorOAuthState(app, {
+          provider: "discord",
+          scopeProfile: "source_inventory",
+        });
+
+        const reddit = await exchangeArchiveConnectorOAuthCallback(app, {
+          provider: "reddit",
+          stateHandle: redditStart.body.stateHandle,
+          code: "reddit-code.fixture_~+/=",
+        });
+        const discord = await exchangeArchiveConnectorOAuthCallback(app, {
+          provider: "discord",
+          stateHandle: discordStart.body.stateHandle,
+          code: "discord-code.fixture_~+/=",
+        });
+
+        assert.equal(reddit.status, 200);
+        assert.equal(discord.status, 200);
+        assert.equal(reddit.body.scopeProfile, "source_inventory");
+        assert.equal(discord.body.scopeProfile, "source_inventory");
+        assert.deepEqual(reddit.body.grantedScopes, ["identity", "mysubreddits", "history"]);
+        assert.deepEqual(discord.body.grantedScopes, ["identify", "guilds"]);
+        assert.equal(reddit.body.credential.scopeProfile, "source_inventory");
+        assert.equal(discord.body.credential.scopeProfile, "source_inventory");
+        assert.deepEqual(reddit.body.credential.grantedScopes, ["identity", "mysubreddits", "history"]);
+        assert.deepEqual(discord.body.credential.grantedScopes, ["identify", "guilds"]);
+        assert.equal(reddit.body.credential.connectionScopeState, "source_scope_ready");
+        assert.equal(discord.body.credential.connectionScopeState, "source_scope_ready");
+        assert.equal(reddit.body.credential.reconnectRequiredForSourceInventory, false);
+        assert.equal(discord.body.credential.reconnectRequiredForSourceInventory, false);
+        assert.equal(calls.length, 2);
+
+        const [redditCredentialRow, discordCredentialRow] = db.rows("archive_connector_credentials");
+        assert.equal(redditCredentialRow.scope_profile, "source_inventory");
+        assert.equal(discordCredentialRow.scope_profile, "source_inventory");
+        assert.deepEqual(redditCredentialRow.granted_scopes, ["identity", "mysubreddits", "history"]);
+        assert.deepEqual(discordCredentialRow.granted_scopes, ["identify", "guilds"]);
+        assertNoSensitiveExchangeReadback(reddit.body, {
+          stateHandle: redditStart.body.stateHandle,
+          code: "reddit-code.fixture_~+/=",
+          clientId: "reddit-public-client-id-fixture",
+          clientSecret: "reddit-private-app-marker",
+          accessToken: "reddit-access-token-fixture",
+          refreshToken: "reddit-refresh-token-fixture",
+          rowId: db.rows("archive_connector_oauth_states")[0].id,
+        });
+        assertNoSensitiveExchangeReadback(discord.body, {
+          stateHandle: discordStart.body.stateHandle,
+          code: "discord-code.fixture_~+/=",
+          clientId: "discord-public-client-id-fixture",
+          clientSecret: "discord-private-app-marker",
+          accessToken: "discord-access-token-fixture",
+          refreshToken: "discord-refresh-token-fixture",
+          rowId: db.rows("archive_connector_oauth_states")[1].id,
+        });
       });
     });
   } finally {
@@ -2018,6 +2199,106 @@ test("archive connector OAuth exchange consumes state before bounded provider to
             clientSecret: "reddit-private-app-marker",
             accessToken: "reddit-access-token-fixture",
             providerPayload: setup.leaked,
+            rowId: db.rows("archive_connector_oauth_states")[0].id,
+          });
+          assert.equal(typeof db.rows("archive_connector_oauth_states")[0].consumed_at, "string");
+          assert.equal(db.rows("archive_connector_credentials").length, 0);
+          assert.equal(calls.length, 1);
+        });
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector OAuth exchange rejects source inventory token responses with missing or extra scopes", async () => {
+  const failureCases: Array<{
+    name: string;
+    provider: "reddit" | "discord";
+    scope?: string;
+    accessToken: string;
+  }> = [
+    {
+      name: "reddit-missing-mysubreddits",
+      provider: "reddit",
+      scope: "identity history",
+      accessToken: "reddit-missing-scope-token-fixture",
+    },
+    {
+      name: "reddit-read-extra",
+      provider: "reddit",
+      scope: "identity mysubreddits history read",
+      accessToken: "reddit-read-extra-token-fixture",
+    },
+    {
+      name: "reddit-omitted-source-scope",
+      provider: "reddit",
+      accessToken: "reddit-no-scope-token-fixture",
+    },
+    {
+      name: "discord-missing-guilds",
+      provider: "discord",
+      scope: "identify",
+      accessToken: "discord-missing-scope-token-fixture",
+    },
+    {
+      name: "discord-message-extra",
+      provider: "discord",
+      scope: "identify guilds messages.read",
+      accessToken: "discord-message-extra-token-fixture",
+    },
+    {
+      name: "discord-dm-extra",
+      provider: "discord",
+      scope: "identify guilds dm_channels.read",
+      accessToken: "discord-dm-extra-token-fixture",
+    },
+    {
+      name: "discord-bot-extra",
+      provider: "discord",
+      scope: "identify guilds bot webhook.incoming",
+      accessToken: "discord-bot-extra-token-fixture",
+    },
+  ];
+
+  for (const setup of failureCases) {
+    const calls: TokenFetchCall[] = [];
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorExchangeEnv(), async () => {
+        await withTokenEndpointFetch(calls, async () => tokenJsonResponse({
+          access_token: setup.accessToken,
+          refresh_token: "source-refresh-token-fixture",
+          token_type: "bearer",
+          expires_in: 3600,
+          ...(setup.scope == null ? {} : { scope: setup.scope }),
+        }), async () => {
+          const started = await startArchiveConnectorOAuthState(app, {
+            provider: setup.provider,
+            scopeProfile: "source_inventory",
+          });
+          assert.equal(started.status, 201, setup.name);
+
+          const response = await exchangeArchiveConnectorOAuthCallback(app, {
+            provider: setup.provider,
+            stateHandle: started.body.stateHandle,
+            code: "callback-code.fixture_~+/=",
+          });
+
+          assert.equal(response.status, 502, setup.name);
+          assert.equal(response.body.code, "archive_connector_token_exchange_failed", setup.name);
+          assertExchangeSafety(response.body, false);
+          assertNoSensitiveExchangeReadback(response.body, {
+            stateHandle: started.body.stateHandle,
+            code: "callback-code.fixture_~+/=",
+            clientId: setup.provider === "reddit" ? "reddit-public-client-id-fixture" : "discord-public-client-id-fixture",
+            clientSecret: setup.provider === "reddit" ? "reddit-private-app-marker" : "discord-private-app-marker",
+            accessToken: setup.accessToken,
+            refreshToken: "source-refresh-token-fixture",
             rowId: db.rows("archive_connector_oauth_states")[0].id,
           });
           assert.equal(typeof db.rows("archive_connector_oauth_states")[0].consumed_at, "string");
@@ -2158,6 +2439,53 @@ test("archive connector OAuth exchange fails closed on owner provider session cs
           assert.equal(db.rows("archive_connector_credentials").length, 0);
           assert.deepEqual(db.writeCalls, ["archive_connector_oauth_states.insert"]);
         });
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector OAuth state start rejects scope overrides unknown keys and secret-shaped bodies before state writes", async () => {
+  const invalidBodies = [
+    { scopeProfile: "source_inventory", scope: "identity history" },
+    { scopeProfile: "connect", clientId: "client-id-fixture" },
+    { scopeProfile: "connect", clientSecret: "client-secret-fixture" },
+    { scopeProfile: "source_inventory", code: "oauth-code-fixture" },
+    { scopeProfile: "source_inventory", token: "access-token-fixture" },
+    { scopeProfile: "source_inventory", providerPayload: { id: "raw-provider-payload" } },
+    { scopeProfile: "read_everything" },
+    { scopeProfile: null },
+    ["source_inventory"],
+    "source_inventory",
+    7,
+    null,
+  ];
+
+  for (const body of invalidBodies) {
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorAuthorizeEnv(), async () => {
+        const response = await requestJson(app, "POST", "/archive-connectors/oauth/reddit/start", {
+          token: OWNER_AUTH_MARKER,
+          body,
+        });
+
+        assert.equal(response.status, 400);
+        assert.equal(
+          ["archive_connector_oauth_start_invalid", "bad_request"].includes(response.body.code),
+          true,
+        );
+        if (response.body.code === "archive_connector_oauth_start_invalid") {
+          assertDisabledStartSafety(response.body);
+        }
+        assertNoSensitiveArchiveConnectorReadback(response.body);
+        assert.equal(JSON.stringify(response.body).includes("client-secret-fixture"), false);
+        assert.equal(JSON.stringify(response.body).includes("access-token-fixture"), false);
+        assert.equal(db.rows("archive_connector_oauth_states").length, 0);
       });
     } finally {
       setSupabaseAdminForTests(null);
@@ -2346,6 +2674,10 @@ test("archive connector credential readback is owner scoped and returns active o
       "updatedAt",
       "rotatedAt",
       "revokedAt",
+      "scopeProfile",
+      "grantedScopes",
+      "connectionScopeState",
+      "reconnectRequiredForSourceInventory",
     ].sort();
 
     assert.deepEqual(Object.keys(reddit).sort(), allowedProviderKeys);
@@ -2362,6 +2694,10 @@ test("archive connector credential readback is owner scoped and returns active o
     assert.equal(reddit.credential.externalAccountFingerprintPresent, true);
     assert.equal(reddit.credential.createdAt, "2026-06-29T14:00:00.000Z");
     assert.equal(reddit.credential.revokedAt, null);
+    assert.equal(reddit.credential.scopeProfile, "connect");
+    assert.deepEqual(reddit.credential.grantedScopes, ["identity"]);
+    assert.equal(reddit.credential.connectionScopeState, "account_proof_only");
+    assert.equal(reddit.credential.reconnectRequiredForSourceInventory, true);
 
     assert.equal(discord.provider, "discord");
     assert.equal(discord.credential.provider, "discord");
@@ -2371,6 +2707,10 @@ test("archive connector credential readback is owner scoped and returns active o
     assert.equal(discord.credential.fingerprintPresent, true);
     assert.equal(discord.credential.externalAccountFingerprintPresent, false);
     assert.equal(discord.credential.revokedAt, "2026-06-29T16:05:00.000Z");
+    assert.equal(discord.credential.scopeProfile, "connect");
+    assert.deepEqual(discord.credential.grantedScopes, ["identify"]);
+    assert.equal(discord.credential.connectionScopeState, "account_proof_only");
+    assert.equal(discord.credential.reconnectRequiredForSourceInventory, true);
 
     for (const provider of response.body.providers) assertCredentialReadbackSafety(provider);
     assertNoSensitiveCredentialReadback(response.body);

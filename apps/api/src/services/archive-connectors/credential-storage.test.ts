@@ -319,6 +319,32 @@ test("archive connector credential readback is owner and purpose scoped with saf
   }
 });
 
+test("archive connector credential storage does not infer source readiness from scope profile alone", async () => {
+  const db = new ArchiveConnectorStorageSupabase();
+  useFakes(db);
+
+  try {
+    await withArchiveConnectorKey(validKey, async () => {
+      const created = await storeArchiveConnectorCredential({
+        ownerUserId: "owner-user",
+        provider: "reddit",
+        secretMaterial,
+        scopeProfile: "source_inventory",
+        accountLabel: "Owner Reddit",
+      });
+
+      assert.equal(created.scopeProfile, "source_inventory");
+      assert.deepEqual(created.grantedScopes, ["identity"]);
+      assert.equal(created.connectionScopeState, "account_proof_only");
+      assert.equal(created.reconnectRequiredForSourceInventory, true);
+      assert.deepEqual(db.rows("archive_connector_credentials")[0].granted_scopes, ["identity"]);
+      assertNoSensitive(created);
+    });
+  } finally {
+    resetFakes();
+  }
+});
+
 test("archive connector credential revoke returns safe metadata only", async () => {
   const db = new ArchiveConnectorStorageSupabase();
   useFakes(db);

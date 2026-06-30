@@ -4,6 +4,7 @@ import {
   type ArchiveConnectorProviderId,
 } from "./credential-contract";
 import { archiveConnectorCredentialEncryptionConfigured } from "./credential-storage";
+import { archiveConnectorScopeProfileReadback } from "./source-scope-contract";
 
 export type ProviderOAuthAppStatus = "missing" | "partial" | "configured";
 type ProviderReadinessStatus =
@@ -33,6 +34,7 @@ export type ArchiveConnectorReadinessProvider = {
   providerCallsEnabled: false;
   sourceInventoryEnabled: false;
   importWritesEnabled: false;
+  scopeProfiles: ReturnType<typeof archiveConnectorScopeProfileReadback>[];
 };
 
 export type ArchiveConnectorReadiness = {
@@ -117,6 +119,10 @@ function archiveConnectorProviderReadiness(
     providerCallsEnabled: false,
     sourceInventoryEnabled: false,
     importWritesEnabled: false,
+    scopeProfiles: [
+      archiveConnectorScopeProfileReadback(providerId, "connect"),
+      archiveConnectorScopeProfileReadback(providerId, "source_inventory"),
+    ],
   };
 }
 

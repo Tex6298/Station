@@ -1,4 +1,9 @@
 import type { ArchiveConnectorProviderId } from "./credential-contract";
+import {
+  archiveConnectorScopesForProfile,
+  normalizeArchiveConnectorGrantedScopes,
+  type ArchiveConnectorScopeProfile,
+} from "./source-scope-contract";
 
 export type ArchiveConnectorTokenExchangeErrorCode =
   | "archive_connector_token_exchange_failed"
@@ -7,11 +12,13 @@ export type ArchiveConnectorTokenExchangeErrorCode =
 export type ArchiveConnectorTokenMaterial = {
   schema: "station.archive_connector.oauth_token.v1";
   provider: ArchiveConnectorProviderId;
+  scopeProfile: ArchiveConnectorScopeProfile;
   tokenType: string | null;
   accessToken: string;
   refreshToken?: string;
   expiresInSeconds: number | null;
   scope: string | null;
+  grantedScopes: string[];
 };
 
 export class ArchiveConnectorTokenExchangeError extends Error {
@@ -38,12 +45,13 @@ export async function exchangeArchiveConnectorOAuthCode(input: {
   clientSecret: string;
   code: string;
   redirectUri: string;
+  scopeProfile?: ArchiveConnectorScopeProfile;
 }): Promise<ArchiveConnectorTokenMaterial> {
   const response = input.provider === "reddit"
     ? await exchangeRedditCode(input)
     : await exchangeDiscordCode(input);
 
-  return tokenMaterialFromResponse(input.provider, response);
+  return tokenMaterialFromResponse(input.provider, input.scopeProfile ?? "connect", response);
 }
 
 async function exchangeRedditCode(input: {
@@ -109,24 +117,27 @@ async function tokenEndpointRequest(url: string, init: RequestInit) {
 
 function tokenMaterialFromResponse(
   provider: ArchiveConnectorProviderId,
+  scopeProfile: ArchiveConnectorScopeProfile,
   payload: Record<string, unknown>,
 ): ArchiveConnectorTokenMaterial {
   const accessToken = boundedToken(payload.access_token);
   const refreshToken = boundedOptionalToken(payload.refresh_token);
   const tokenType = boundedOptionalLabel(payload.token_type, 40);
   const expiresInSeconds = boundedExpiresIn(payload.expires_in);
-  const scope = boundedScope(provider, payload.scope);
+  const grantedScopes = boundedGrantedScopes(provider, scopeProfile, payload.scope);
 
   if (!accessToken) throw invalidTokenResponse();
 
   return {
     schema: "station.archive_connector.oauth_token.v1",
     provider,
+    scopeProfile,
     tokenType,
     accessToken,
     ...(refreshToken ? { refreshToken } : {}),
     expiresInSeconds,
-    scope,
+    scope: grantedScopes.length > 0 ? grantedScopes.join(" ") : null,
+    grantedScopes,
   };
 }
 
@@ -159,18 +170,32 @@ function boundedExpiresIn(value: unknown) {
   return Math.floor(value);
 }
 
-function boundedScope(provider: ArchiveConnectorProviderId, value: unknown) {
-  if (value == null) return null;
-  if (typeof value !== "string") throw invalidTokenResponse();
-  const trimmed = value.trim();
-  if (!trimmed || trimmed.length > 120 || /[\u0000-\u001f\u007f]/.test(trimmed)) {
+function boundedGrantedScopes(
+  provider: ArchiveConnectorProviderId,
+  scopeProfile: ArchiveConnectorScopeProfile,
+  value: unknown,
+) {
+  const expectedScopes = archiveConnectorScopesForProfile(provider, scopeProfile);
+  if (value == null) {
+    if (scopeProfile === "connect") return expectedScopes;
     throw invalidTokenResponse();
   }
 
-  const allowed = provider === "reddit" ? "identity" : "identify";
-  const scopes = trimmed.split(/\s+/);
-  if (scopes.some((scope) => scope !== allowed)) throw invalidTokenResponse();
-  return scopes.join(" ");
+  if (typeof value !== "string") throw invalidTokenResponse();
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 200 || /[\u0000-\u001f\u007f]/.test(trimmed)) {
+    throw invalidTokenResponse();
+  }
+
+  const grantedScopes = trimmed.split(/\s+/);
+  const normalized = normalizeArchiveConnectorGrantedScopes(provider, grantedScopes);
+  if (!sameScopeSet(normalized, expectedScopes)) throw invalidTokenResponse();
+  if (grantedScopes.some((scope) => !normalized.includes(scope))) throw invalidTokenResponse();
+  return normalized;
+}
+
+function sameScopeSet(left: readonly string[], right: readonly string[]) {
+  return left.length === right.length && right.every((scope) => left.includes(scope));
 }
 
 function exchangeFailed() {

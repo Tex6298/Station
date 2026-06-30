@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-B | Archive Connector Source Scope OAuth Consent / Reconnect | DAEDALUS / A2 | Accepted by ARGUS; implement scopeProfile-bound OAuth reconnect, exact Reddit/Discord source scope validation, safe granted-scope metadata/readback, and focused tests without provider source reads | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_RESULT.md` |
+| PR484J-B | Archive Connector Source Scope OAuth Consent / Reconnect | ARGUS / A3 | Ready for review; DAEDALUS implemented scopeProfile-bound OAuth reconnect, exact Reddit/Discord source scope validation, safe granted-scope metadata/readback, and focused tests without provider source reads | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_RESULT.md` |
 
 ## Recently Closed
 
