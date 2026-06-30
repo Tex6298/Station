@@ -54,6 +54,7 @@ import {
 import {
   ArchiveConnectorSourceStagingError,
   createArchiveConnectorSourceStagingRun,
+  previewArchiveConnectorSourceStagingRunImport,
   revokeArchiveConnectorSourceStagingRunsForProvider,
 } from "../services/archive-connectors/source-staging";
 import {
@@ -336,6 +337,48 @@ archiveConnectorsRouter.post("/import-intents/:intentId/source-staging-runs", as
     });
   } catch (error) {
     return sourceStagingFailureResponse(res, error);
+  }
+});
+
+archiveConnectorsRouter.post("/source-staging-runs/:runId/import-preview", async (req: Request, res: Response) => {
+  let runId: string;
+  try {
+    runId = archiveConnectorSourceStagingRunIdFromParam(req.params.runId);
+    assertEmptySourceStagingImportPreviewBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector source staging import preview request is invalid.",
+      code: "archive_connector_source_staging_import_preview_invalid",
+      status: "invalid_request",
+      provider: "reddit",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      intent: null,
+      run: null,
+      preview: null,
+      ...sourceStagingImportPreviewSafety(false),
+    });
+  }
+
+  try {
+    const result = await previewArchiveConnectorSourceStagingRunImport({
+      ownerUserId: req.user!.id,
+      runId,
+    });
+
+    return res.status(200).json({
+      status: "archive_connector_source_staging_import_preview_ready",
+      provider: "reddit",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      runId: result.run.id,
+      intent: result.intent,
+      run: result.run,
+      preview: result.preview,
+      ...sourceStagingImportPreviewSafety(true),
+    });
+  } catch (error) {
+    return sourceStagingImportPreviewFailureResponse(res, error);
   }
 });
 
@@ -1021,6 +1064,13 @@ function archiveConnectorImportIntentIdFromParam(value: string | undefined) {
   return value.toLowerCase();
 }
 
+function archiveConnectorSourceStagingRunIdFromParam(value: string | undefined) {
+  if (typeof value !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+    throw new Error("invalid source staging run id");
+  }
+  return value.toLowerCase();
+}
+
 function assertEmptyImportIntentActivationBody(body: unknown) {
   if (body === undefined) return;
   if (!body || typeof body !== "object" || Array.isArray(body)) {
@@ -1057,6 +1107,19 @@ function assertEmptyImportIntentSourceStagingBody(body: unknown) {
   if (keys.length > 0) {
     assertNoSecretShapedImportIntentBody(body as Record<string, unknown>);
     throw new Error("invalid import intent source staging body");
+  }
+}
+
+function assertEmptySourceStagingImportPreviewBody(body: unknown) {
+  if (body === undefined) return;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid source staging import preview body");
+  }
+
+  const keys = Object.keys(body as Record<string, unknown>);
+  if (keys.length > 0) {
+    assertNoSecretShapedImportIntentBody(body as Record<string, unknown>);
+    throw new Error("invalid source staging import preview body");
   }
 }
 
@@ -1735,6 +1798,114 @@ function sourceStagingFailureResponse(
     error: "Archive connector source staging provider request failed.",
     code: "archive_connector_source_staging_provider_failed",
     status: "provider_failed",
+    ...base,
+  });
+}
+
+function sourceStagingImportPreviewFailureResponse(
+  res: Response,
+  error: unknown,
+) {
+  const base = {
+    provider: "reddit" as const,
+    purpose: "archive_connector" as const,
+    ownerOnly: true,
+    intent: null,
+    run: null,
+    preview: null,
+    ...sourceStagingImportPreviewSafety(false),
+  };
+
+  if (error instanceof ArchiveConnectorImportIntentError) {
+    if (error.code === "archive_connector_import_intent_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector source staging import preview intent.",
+        code: "archive_connector_source_staging_import_intent_load_failed",
+        status: "intent_load_failed",
+        ...base,
+      });
+    }
+
+    return res.status(409).json({
+      error: "Archive connector source staging import preview intent is not current.",
+      code: "archive_connector_source_staging_import_intent_not_current",
+      status: "intent_not_current",
+      ...base,
+    });
+  }
+
+  if (error instanceof ArchiveConnectorSourceStagingError) {
+    if (error.code === "archive_connector_source_staging_run_not_found") {
+      return res.status(404).json({
+        error: "Archive connector source staging run was not found.",
+        code: error.code,
+        status: "run_not_found",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_run_not_current") {
+      return res.status(409).json({
+        error: "Archive connector source staging run is not current.",
+        code: error.code,
+        status: "run_not_current",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_import_intent_not_current") {
+      return res.status(409).json({
+        error: "Archive connector source staging import preview intent is not current.",
+        code: error.code,
+        status: "intent_not_current",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_staging_encryption_unconfigured" ||
+      error.code === "archive_connector_source_staging_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source staging encryption setup is required.",
+        code: "archive_connector_source_staging_encryption_required",
+        status: "staging_encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_batch_invalid") {
+      return res.status(409).json({
+        error: "Archive connector source staging batch is invalid.",
+        code: error.code,
+        status: "batch_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_batch_empty") {
+      return res.status(409).json({
+        error: "Archive connector source staging batch is empty.",
+        code: error.code,
+        status: "batch_empty",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector source staging run.",
+        code: error.code,
+        status: "staging_load_failed",
+        ...base,
+      });
+    }
+  }
+
+  return res.status(500).json({
+    error: "Could not create archive connector source staging import preview.",
+    code: "archive_connector_source_staging_import_preview_failed",
+    status: "preview_failed",
     ...base,
   });
 }
@@ -2493,6 +2664,50 @@ function sourceStagingSafety(enabled: boolean) {
     providerHeadersReadbackEnabled: false,
     encryptedSourceBatchReadbackEnabled: false,
     sourceSnapshotFingerprintReadbackEnabled: false,
+    sourceInventoryCredentialMetadataUpdateEnabled: false,
+  };
+}
+
+function sourceStagingImportPreviewSafety(enabled: boolean) {
+  return {
+    noWritePerformed: true,
+    tokenDecryptEnabled: false,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    providerTokenRefreshEnabled: false,
+    providerTokenRevocationEnabled: false,
+    credentialWritesEnabled: false,
+    credentialMetadataUpdateEnabled: false,
+    providerAccountLookupEnabled: false,
+    providerCallsEnabled: false,
+    sourceInventoryEnabled: false,
+    sourcePreviewEnabled: false,
+    sourceBodyReadEnabled: false,
+    sourceBodyReadbackEnabled: false,
+    sourceStagingEncryptionEnabled: enabled,
+    sourceStagingImportPreviewEnabled: enabled,
+    privateStagingEnabled: false,
+    privateStagingWritesEnabled: false,
+    archiveSourceWritesEnabled: false,
+    durableCandidateWritesEnabled: false,
+    importIntentWritesEnabled: false,
+    importIntentActivationWritesEnabled: false,
+    importWritesEnabled: false,
+    existingImportJobsWriteEnabled: false,
+    connectorJobTableWritesEnabled: false,
+    jobWritesEnabled: false,
+    queueEnabled: false,
+    workerExecutionEnabled: false,
+    recurringPullsEnabled: false,
+    publicWritesEnabled: false,
+    uiChangesEnabled: false,
+    rawProviderIdReadbackEnabled: false,
+    providerPayloadReadbackEnabled: false,
+    providerHeadersReadbackEnabled: false,
+    sourceTextReadbackEnabled: false,
+    encryptedSourceBatchReadbackEnabled: false,
+    sourceSnapshotFingerprintReadbackEnabled: false,
+    itemFingerprintReadbackEnabled: false,
     sourceInventoryCredentialMetadataUpdateEnabled: false,
   };
 }

@@ -4,6 +4,81 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484J-J ready for ARGUS
+
+DAEDALUS implemented the accepted PR484J-J staged-batch consumption boundary:
+
+`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/source-staging-runs/:runId/import-preview`;
+- UUID path and strict empty-body validation before storage/decrypt/preview
+  work;
+- exact owner/current staged-run load from
+  `public.archive_connector_source_staging_runs`;
+- lifecycle gates before decrypt:
+  `status = staged`, not expired, not revoked, and not superseded;
+- linked import-intent recheck before decrypt:
+  owner-scoped, activated, persona-valid, and matching Reddit saved-items
+  source fields;
+- dedicated PR484J-I staging envelope decrypt with
+  `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY`;
+- decrypted payload validation for
+  `station.archive_connector.source_staging_batch.v1`;
+- safe aggregate preview metadata only;
+- unchanged staged-run lifecycle after preview.
+
+Still forbidden:
+
+- private snippets, normalized source text/body/title readback, item
+  fingerprints, snapshot fingerprints, encrypted batch values, raw provider
+  ids, usernames, URLs, authors, subreddit names, cursors, provider
+  payloads/headers, tokens, import execution, durable candidate records,
+  archive source rows, existing `import_jobs`, connector job tables, jobs,
+  queues, workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare,
+  marketplace, partner adapters, social behavior, broad Reddit reads, generic
+  import parser use for staged connector batches, or Discord content reads.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 76 route tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 144 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR484J-J - Archive Connector Staged Batch Consumption
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review current-run lifecycle gates, linked-intent recheck before
+  decrypt, dedicated batch decrypt/validation, safe aggregate readback,
+  no-write/no-provider guarantees, and static no-drift guards.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS verdict - PR484J-J staged batch consumption preflight accepted
 
 ARGUS accepts PR484J-J as a read-only owner-only staged-batch import preview

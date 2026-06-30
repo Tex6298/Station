@@ -72,6 +72,27 @@ export type ArchiveConnectorSourceStagingResult = {
   run: ArchiveConnectorSourceStagingRunReadback;
 };
 
+export type ArchiveConnectorSourceStagingImportPreview = {
+  format: "reddit_saved_items";
+  sourceFamily: "reddit_user_history";
+  sourceKind: "saved_items";
+  pageLimit: 10;
+  itemCount: number;
+  postCount: number;
+  commentCount: number;
+  skippedCount: number;
+  truncated: boolean;
+  estimatedCharacterCount: number;
+  estimatedNonEmptyItemCount: number;
+  noWritePerformed: true;
+};
+
+export type ArchiveConnectorSourceStagingImportPreviewResult = {
+  intent: ArchiveConnectorImportIntentReadback;
+  run: ArchiveConnectorSourceStagingRunReadback;
+  preview: ArchiveConnectorSourceStagingImportPreview;
+};
+
 export type ArchiveConnectorSourceStagingErrorCode =
   | "archive_connector_source_staging_encryption_unconfigured"
   | "archive_connector_source_staging_encryption_malformed"
@@ -81,6 +102,11 @@ export type ArchiveConnectorSourceStagingErrorCode =
   | "archive_connector_source_staging_provider_failed"
   | "archive_connector_source_staging_provider_response_invalid"
   | "archive_connector_source_staging_no_stageable_items"
+  | "archive_connector_source_staging_run_not_found"
+  | "archive_connector_source_staging_run_not_current"
+  | "archive_connector_source_staging_import_intent_not_current"
+  | "archive_connector_source_staging_batch_invalid"
+  | "archive_connector_source_staging_batch_empty"
   | "archive_connector_source_staging_load_failed"
   | "archive_connector_source_staging_write_failed";
 
@@ -111,6 +137,13 @@ export function setArchiveConnectorSourceStagingFetchForTests(fetcher: FetchLike
     throw new Error("setArchiveConnectorSourceStagingFetchForTests can only be used while NODE_ENV is test.");
   }
   sourceStagingFetch = fetcher ?? ((input, init) => fetch(input, init));
+}
+
+export function encryptArchiveConnectorSourceStagingBatchForTests(value: unknown) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("encryptArchiveConnectorSourceStagingBatchForTests can only be used while NODE_ENV is test.");
+  }
+  return encryptArchiveConnectorSourceStagingBatch(value, requiredArchiveConnectorSourceStagingEncryptionKey());
 }
 
 export async function createArchiveConnectorSourceStagingRun(input: {
@@ -269,19 +302,50 @@ export async function revokeArchiveConnectorSourceStagingRunsForProvider(input: 
   }
 }
 
+export async function previewArchiveConnectorSourceStagingRunImport(input: {
+  ownerUserId: string;
+  runId: string;
+}): Promise<ArchiveConnectorSourceStagingImportPreviewResult> {
+  const run = await loadCurrentSourceStagingRun(input);
+  const intent = await loadArchiveConnectorImportIntentForSourcePreview({
+    ownerUserId: input.ownerUserId,
+    intentId: run.import_intent_id,
+  });
+  assertStagingRunMatchesIntent(run, intent);
+
+  const key = requiredArchiveConnectorSourceStagingEncryptionKey();
+  const payload = decryptArchiveConnectorSourceStagingBatch(run.encrypted_source_batch, key);
+  const batch = sourceStagingBatchFromPayload(payload);
+  const preview = sourceStagingImportPreviewFromBatch(run, batch);
+
+  return {
+    intent: serializeArchiveConnectorImportIntent(intent),
+    run: serializeArchiveConnectorSourceStagingRun(run),
+    preview,
+  };
+}
+
 export function decryptArchiveConnectorSourceStagingBatchForTests(value: Record<string, unknown>) {
   if (process.env.NODE_ENV !== "test") {
     throw new Error("decryptArchiveConnectorSourceStagingBatchForTests can only be used while NODE_ENV is test.");
   }
   const key = requiredArchiveConnectorSourceStagingEncryptionKey();
+  return decryptArchiveConnectorSourceStagingBatch(value, key);
+}
+
+function decryptArchiveConnectorSourceStagingBatch(value: Record<string, unknown>, key: Buffer) {
   const encrypted = encryptedSourceStagingPayload(value);
-  const decipher = createDecipheriv(SOURCE_STAGING_ALGORITHM, key, encrypted.iv);
-  decipher.setAuthTag(encrypted.authTag);
-  const plaintext = Buffer.concat([
-    decipher.update(encrypted.ciphertext),
-    decipher.final(),
-  ]).toString("utf8");
-  return JSON.parse(plaintext) as unknown;
+  try {
+    const decipher = createDecipheriv(SOURCE_STAGING_ALGORITHM, key, encrypted.iv);
+    decipher.setAuthTag(encrypted.authTag);
+    const plaintext = Buffer.concat([
+      decipher.update(encrypted.ciphertext),
+      decipher.final(),
+    ]).toString("utf8");
+    return JSON.parse(plaintext) as unknown;
+  } catch {
+    throw batchInvalid();
+  }
 }
 
 function encryptArchiveConnectorSourceStagingBatch(value: unknown, key: Buffer) {
@@ -550,6 +614,186 @@ async function loadExistingStagingRun(input: {
     .find((row) => Date.parse(row.expires_at) > Date.parse(input.nowIso)) ?? null;
 }
 
+async function loadCurrentSourceStagingRun(input: {
+  ownerUserId: string;
+  runId: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("archive_connector_source_staging_runs")
+    .select("*")
+    .eq("id", input.runId)
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("purpose", "archive_connector")
+    .eq("provider", "reddit")
+    .eq("source_family", "reddit_user_history")
+    .eq("source_kind", "saved_items");
+
+  if (error) {
+    throw new ArchiveConnectorSourceStagingError(
+      "archive_connector_source_staging_load_failed",
+      "Could not load archive connector source staging run."
+    );
+  }
+
+  const row = ((data ?? []) as ArchiveConnectorSourceStagingRunRow[])[0] ?? null;
+  if (!row) {
+    throw new ArchiveConnectorSourceStagingError(
+      "archive_connector_source_staging_run_not_found",
+      "Archive connector source staging run was not found."
+    );
+  }
+  assertCurrentSourceStagingRun(row);
+  return row;
+}
+
+function assertCurrentSourceStagingRun(row: ArchiveConnectorSourceStagingRunRow) {
+  const expiresAt = Date.parse(row.expires_at);
+  if (
+    row.status !== "staged" ||
+    row.revoked_at ||
+    row.superseded_at ||
+    !Number.isFinite(expiresAt) ||
+    expiresAt <= Date.now()
+  ) {
+    throw new ArchiveConnectorSourceStagingError(
+      "archive_connector_source_staging_run_not_current",
+      "Archive connector source staging run is not current."
+    );
+  }
+}
+
+function assertStagingRunMatchesIntent(
+  run: ArchiveConnectorSourceStagingRunRow,
+  intent: ArchiveConnectorImportIntentRow,
+) {
+  if (
+    intent.id !== run.import_intent_id ||
+    intent.owner_user_id !== run.owner_user_id ||
+    intent.persona_id !== run.persona_id ||
+    intent.provider !== run.provider ||
+    intent.purpose !== run.purpose ||
+    intent.source_family !== run.source_family ||
+    intent.source_kind !== run.source_kind ||
+    intent.source_key !== run.source_key ||
+    intent.source_label !== run.source_label ||
+    intent.status !== "activated"
+  ) {
+    throw new ArchiveConnectorSourceStagingError(
+      "archive_connector_source_staging_import_intent_not_current",
+      "Archive connector source staging linked intent is not current."
+    );
+  }
+}
+
+type SourceStagingBatch = {
+  truncated: boolean;
+  items: Array<{
+    ordinal: number;
+    kind: "post" | "comment";
+    normalizedText: string;
+    itemFingerprint: string | null;
+  }>;
+};
+
+function sourceStagingBatchFromPayload(payload: unknown): SourceStagingBatch {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw batchInvalid();
+  const record = payload as Record<string, unknown>;
+  if (
+    record.schema !== SOURCE_STAGING_BATCH_SCHEMA ||
+    record.provider !== "reddit" ||
+    record.sourceFamily !== "reddit_user_history" ||
+    record.sourceKind !== "saved_items" ||
+    record.pageLimit !== SOURCE_STAGING_PAGE_LIMIT ||
+    typeof record.truncated !== "boolean" ||
+    !Array.isArray(record.items) ||
+    record.items.length > SOURCE_STAGING_PAGE_LIMIT
+  ) {
+    throw batchInvalid();
+  }
+  if (record.items.length === 0) throw batchEmpty();
+
+  const items = record.items.map((value) => sourceStagingBatchItemFromValue(value));
+  if (items.length === 0) throw batchEmpty();
+  return {
+    truncated: record.truncated,
+    items,
+  };
+}
+
+function sourceStagingBatchItemFromValue(value: unknown): SourceStagingBatch["items"][number] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw batchInvalid();
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.ordinal !== "number" ||
+    !Number.isInteger(record.ordinal) ||
+    record.ordinal < 1 ||
+    record.ordinal > SOURCE_STAGING_PAGE_LIMIT
+  ) {
+    throw batchInvalid();
+  }
+  if (record.kind !== "post" && record.kind !== "comment") throw batchInvalid();
+  if (typeof record.normalizedText !== "string") throw batchInvalid();
+  if (record.normalizedText.length > SOURCE_STAGING_MAX_ITEM_TEXT_LENGTH) throw batchInvalid();
+
+  const normalizedText = boundedNormalizedSourceText(record.normalizedText);
+  if (!normalizedText) throw batchInvalid();
+
+  let itemFingerprint: string | null = null;
+  if (record.itemFingerprint != null) {
+    if (
+      typeof record.itemFingerprint !== "string" ||
+      !/^[a-f0-9]{64}$/.test(record.itemFingerprint)
+    ) {
+      throw batchInvalid();
+    }
+    itemFingerprint = record.itemFingerprint;
+  }
+
+  if (itemFingerprint != null && !/^[a-f0-9]{64}$/.test(itemFingerprint)) {
+    throw batchInvalid();
+  }
+
+  return {
+    ordinal: record.ordinal,
+    kind: record.kind,
+    normalizedText,
+    itemFingerprint: itemFingerprint ?? null,
+  };
+}
+
+function sourceStagingImportPreviewFromBatch(
+  run: ArchiveConnectorSourceStagingRunRow,
+  batch: SourceStagingBatch,
+): ArchiveConnectorSourceStagingImportPreview {
+  const postCount = batch.items.filter((item) => item.kind === "post").length;
+  const commentCount = batch.items.filter((item) => item.kind === "comment").length;
+  if (
+    run.page_limit !== SOURCE_STAGING_PAGE_LIMIT ||
+    run.item_count !== batch.items.length ||
+    run.post_count !== postCount ||
+    run.comment_count !== commentCount ||
+    run.truncated !== batch.truncated
+  ) {
+    throw batchInvalid();
+  }
+
+  return {
+    format: "reddit_saved_items",
+    sourceFamily: "reddit_user_history",
+    sourceKind: "saved_items",
+    pageLimit: SOURCE_STAGING_PAGE_LIMIT,
+    itemCount: batch.items.length,
+    postCount,
+    commentCount,
+    skippedCount: run.skipped_count,
+    truncated: batch.truncated,
+    estimatedCharacterCount: batch.items.reduce((total, item) => total + item.normalizedText.length, 0),
+    estimatedNonEmptyItemCount: batch.items.length,
+    noWritePerformed: true,
+  };
+}
+
 async function supersedeStaleMatchingStagingRuns(input: {
   ownerUserId: string;
   importIntentId: string;
@@ -636,10 +880,7 @@ function encryptedSourceStagingPayload(value: Record<string, unknown>) {
     value.schema !== SOURCE_STAGING_BATCH_SCHEMA ||
     value.algorithm !== SOURCE_STAGING_ALGORITHM
   ) {
-    throw new ArchiveConnectorSourceStagingError(
-      "archive_connector_source_staging_encryption_malformed",
-      "Archive connector source staging encrypted batch is malformed."
-    );
+    throw batchInvalid();
   }
 
   return {
@@ -651,25 +892,16 @@ function encryptedSourceStagingPayload(value: Record<string, unknown>) {
 
 function boundedBase64UrlBuffer(value: unknown, minBytes: number, maxBytes: number) {
   if (typeof value !== "string" || !/^[A-Za-z0-9_-]+$/.test(value)) {
-    throw new ArchiveConnectorSourceStagingError(
-      "archive_connector_source_staging_encryption_malformed",
-      "Archive connector source staging encrypted batch is malformed."
-    );
+    throw batchInvalid();
   }
   let decoded: Buffer;
   try {
     decoded = Buffer.from(value, "base64url");
   } catch {
-    throw new ArchiveConnectorSourceStagingError(
-      "archive_connector_source_staging_encryption_malformed",
-      "Archive connector source staging encrypted batch is malformed."
-    );
+    throw batchInvalid();
   }
   if (decoded.length < minBytes || decoded.length > maxBytes) {
-    throw new ArchiveConnectorSourceStagingError(
-      "archive_connector_source_staging_encryption_malformed",
-      "Archive connector source staging encrypted batch is malformed."
-    );
+    throw batchInvalid();
   }
   return decoded;
 }
@@ -736,5 +968,19 @@ function noStageableItems() {
   return new ArchiveConnectorSourceStagingError(
     "archive_connector_source_staging_no_stageable_items",
     "Archive connector source staging found no stageable items."
+  );
+}
+
+function batchInvalid() {
+  return new ArchiveConnectorSourceStagingError(
+    "archive_connector_source_staging_batch_invalid",
+    "Archive connector source staging batch is invalid."
+  );
+}
+
+function batchEmpty() {
+  return new ArchiveConnectorSourceStagingError(
+    "archive_connector_source_staging_batch_empty",
+    "Archive connector source staging batch is empty."
   );
 }
