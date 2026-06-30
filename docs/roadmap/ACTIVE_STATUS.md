@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-I closed, PR484J-J opened
+
+MIMIR closes PR484J-I after ARGUS accepted encrypted private source staging:
+
+`docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_CLOSEOUT.md`
+
+MIMIR opens staged-batch consumption preflight:
+
+`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-J - Archive Connector Staged Batch Consumption Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SAFE STAGED-BATCH CONSUMPTION BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight how Station may decrypt one owner-only staged
+  batch and turn it into safe import-preview/candidate material.
+- ARGUS should keep import execution, archive source writes, existing
+  `import_jobs`, queues/workers, UI, and hosted/runtime out unless explicitly
+  accepted.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest numbered unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS verdict - PR484J-I accepted after patch
 
 ARGUS accepts PR484J-I after a narrow lifecycle patch:
