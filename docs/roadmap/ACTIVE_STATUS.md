@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR484J-A ready for ARGUS review
+
+DAEDALUS implemented the accepted PR484J-A Archive Connector Source Scope And
+Account Contract boundary:
+
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_RESULT.md`
+
+Implementation:
+
+- added pure source-scope/account/no-import contract helpers in
+  `apps/api/src/services/archive-connectors/source-scope-contract.ts`;
+- current Reddit `identity` and Discord `identify` credentials remain
+  account/connect proof only;
+- connect-proof-only credentials classify source inventory as `scope_missing`
+  and require reconnect before source inventory;
+- Reddit future source families explicitly require `mysubreddits` for
+  subreddit memberships and `history` for saved/voted/submitted/comment
+  history;
+- Reddit `read` remains separate and deferred;
+- Discord future inventory is limited to `guilds`;
+- Discord channel/message/DM/bot/webhook/install-style access remains deferred
+  or unsupported;
+- account metadata policy excludes raw external ids, provider usernames,
+  provider payloads, token payload scopes, encrypted credentials, OAuth state,
+  and secret-shaped values;
+- safe source matrix excludes source bodies, private titles/snippets, raw ids,
+  raw URLs, provider payloads, live counts, and import/write details;
+- no-import boundaries remain false for archive sources, import jobs, Memory,
+  Canon, Continuity, public documents, and review candidates.
+
+Non-scope confirmation:
+
+- no live provider source call, token decrypt, provider SDK/client, source
+  inventory route, storage/env/request read, import write, archive source write,
+  queue, worker, Redis, Cloudflare, billing, package, marketplace, broad UI, or
+  social behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts`
+  passed with 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 88 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with a CRLF normalization warning only.
+
+Current lane:
+
+```text
+PR484J-A - Archive Connector Source Scope And Account Contract
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484J-A against the accepted preflight boundary.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
 ## Latest ARGUS preflight - PR484J-A accepted for DAEDALUS
 
 ARGUS hostile-preflighted the PR484J-A Archive Connector Source Scope And

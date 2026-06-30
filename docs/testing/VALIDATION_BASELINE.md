@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-A Archive Connector Source Scope And Account Contract
+
+DAEDALUS implemented PR484J-A on 2026-06-30:
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added pure source-scope/account/no-import contract helpers;
+- existing Reddit `identity` and Discord `identify` credentials remain
+  account/connect proof only and `scope_missing` for source inventory;
+- future Reddit source families require explicit `mysubreddits`, `history`, and
+  separate deferred `read` decisions;
+- future Discord inventory is limited to basic `guilds` readback;
+- Discord channel/message/DM/bot/webhook access remains deferred or
+  unsupported;
+- account metadata policy and source matrix exclude raw ids, provider payloads,
+  token payload scopes, source bodies, private snippets, raw URLs, live counts,
+  import/write details, and secret-shaped values;
+- no route, live provider source call, token decrypt, provider SDK, import
+  write, job, Redis, Cloudflare, billing, package, UI, marketplace, or social
+  behavior was added.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts` | Pass | 9 tests passed, including connect-proof scope-missing state, explicit Reddit/Discord future scopes, safe account/source metadata, no-import boundaries, and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 88 tests passed across connector contract/route/storage, import preview/parsers, social fail-closed routes, callback bridge, web readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | CRLF normalization warning only. |
+
 ## PR484J-A Archive Connector Source Scope And Account Contract Preflight
 
 ARGUS accepted PR484J-A on 2026-06-30:
