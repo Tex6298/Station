@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484I review | Archive Connector Credential Revoke / Disconnect | ARGUS / A3 | Ready for review; owner-safe local credential revoke is implemented without provider revocation or source/import behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md` |
+| PR484I closeout | Archive Connector Credential Revoke / Disconnect | MIMIR / A1 | Accepted by ARGUS; close local disconnect or choose next archive connector lane | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484I review | Archive Connector Credential Revoke / Disconnect | DAEDALUS -> ARGUS -> MIMIR | Accepted; owner-only local credential revoke/disconnect route is idempotent for active, already-revoked, and missing states, with generic JSON parse redaction and no provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_REVIEW_RESULT.md` |
 | PR484I implementation | Archive Connector Credential Revoke / Disconnect | DAEDALUS -> ARGUS | Ready for review; authenticated owner-only local revoke/disconnect route is idempotent for active, already-revoked, and missing provider states without provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_RESULT.md` |
 | PR484I preflight | Archive Connector Credential Revoke / Disconnect | MIMIR -> ARGUS -> DAEDALUS | Accepted local owner-only credential revoke route; no provider revoke, token decrypt/exchange, source inventory, imports, jobs, UI, packages, billing, Cloudflare, Redis, marketplace, or social behavior | `docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_PREFLIGHT_RESULT.md` |
 | PR484H closeout | Archive Connector Credential Readback | MIMIR | Closed as local/backend accepted; revoke/disconnect opened before source inventory | `docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_CLOSEOUT.md` |

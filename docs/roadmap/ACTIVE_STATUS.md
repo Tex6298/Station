@@ -4,6 +4,75 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484I accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484I Archive Connector Credential Revoke /
+Disconnect implementation:
+
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484I_LOCAL_CREDENTIAL_REVOKE
+```
+
+Accepted implementation:
+
+- authenticated
+  `POST /archive-connectors/credentials/:provider/revoke`;
+- existing archive connector Bearer auth boundary;
+- supported providers only: `reddit` and `discord`;
+- absent body or empty JSON object only;
+- body keys, arrays, and scalar JSON bodies rejected before storage mutation
+  without body-text readback;
+- active owner/provider/purpose `archive_connector` credential rows revoked
+  locally;
+- already-revoked and missing providers return bounded `200` no-op states;
+- response returns provider-only safe credential metadata or
+  `credential: null`;
+- no credential encryption config requirement and no token decrypt;
+- JSON parse failures now use the generic global `400` envelope instead of
+  body-parser excerpts.
+
+No provider-side token revocation, token exchange, credential write, OAuth
+callback/authorization URL change, provider profile/account lookup,
+provider/source API call, source inventory, import, recurring pull, queue,
+worker, Redis, Cloudflare, billing, package, broad UI, marketplace, or social
+behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 40 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 84 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check 1bd7848ba47464b1223288f494eda4d4d4f5a74d..a658b03dcdf15fe649b4b523be01ba445e38985c`
+  passed.
+- Scope/path scan found no package, lockfile, Supabase schema, or web changes.
+
+Current lane:
+
+```text
+PR484I - Archive Connector Credential Revoke / Disconnect
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+Current baton:
+
+- MIMIR should close PR484I or choose the next archive connector move.
+- Provider-side revocation, source inventory, imports, UI, hosted proof, and
+  provider calls remain separate lanes unless explicitly opened.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484I ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484I Archive Connector Credential Revoke /
