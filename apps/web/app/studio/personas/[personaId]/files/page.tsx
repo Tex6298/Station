@@ -25,6 +25,7 @@ import {
   type SupportedImportFormatRow,
 } from "@/lib/archive-trust";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
+import { ArchiveConnectorOwnerPanel } from "@/components/studio/archive-connector-owner-panel";
 import { ImportReviewInbox } from "@/components/studio/import-review-inbox";
 import { PublishContinuityButton } from "@/components/studio/publish-continuity-button";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
@@ -410,6 +411,12 @@ export default function PersonaFilesPage() {
       </section>
 
       <ImportPipelineReadback rows={supportedImportRows} />
+
+      <ArchiveConnectorOwnerPanel
+        token={token}
+        personaId={persona.id}
+        onArchiveImported={() => token ? refreshArchiveState(token, { includeExports: false }) : undefined}
+      />
 
       <ImportReviewInbox
         candidates={importCandidates}

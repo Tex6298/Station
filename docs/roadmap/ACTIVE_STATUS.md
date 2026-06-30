@@ -4,20 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR484J-L owner UI flow accepted
+## Latest DAEDALUS implementation - PR484J-L ready for ARGUS review
 
-ARGUS accepts the smallest safe owner UI flow for the archive connector
+DAEDALUS implemented the ARGUS-accepted owner UI flow for the archive connector
 pipeline:
 
-`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_RESULT.md`
 
 Validation result:
 
 ```text
-ACCEPT_PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW
+READY_FOR_ARGUS_REVIEW
 ```
 
-Accepted boundary:
+Implemented boundary:
 
 - first visible flow lives in the existing persona Archive tab:
   `/studio/personas/[personaId]/files`;
@@ -28,12 +28,13 @@ Accepted boundary:
   staging, import preview, and final connector import routes;
 - callback page live connection path must call callback exchange, not
   verify-then-exchange, because verify consumes OAuth state;
-- only accepted backend DTO shaping is returning the already-safe
-  `localRedirectPath` from callback exchange if needed;
+- callback exchange now returns the consumed state's already-safe
+  `localRedirectPath`;
 - no new connector list/recovery endpoint, database table, background job,
   staged-run listing route, or new import execution behavior;
 - source inventory UI must filter to `reddit_user_history` / `saved_items` and
-  render only generic `Reddit saved items` copy.
+  render only generic `Reddit saved items` copy;
+- all post-OAuth writes remain explicit owner button actions.
 
 Still forbidden:
 
@@ -49,33 +50,42 @@ Still forbidden:
 
 Validation:
 
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts`
+  passed with 10 tests.
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts`
-  passed with 110 tests.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
-- `git diff --check` passed before doc updates.
+  passed with 116 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 152 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR484J-L;
+  the known local Windows Next standalone symlink `EPERM` caveat remains the
+  build truth if build is rerun.
 
 Current lane:
 
 ```text
 PR484J-L - Archive Connector Owner UI Flow
-Owner: DAEDALUS / A2
-State: ACCEPTED_PREFLIGHT_READY_FOR_IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the persona Archive owner UI flow, safe helper
-  types/copy, callback exchange wiring, state coverage, redaction tests, and
-  validation named in the ARGUS preflight.
-- After implementation, DAEDALUS should wake ARGUS for technical review.
-- If ARGUS accepts the visible implementation, ARGUS should wake ARIADNE for
-  desktop and 375px/390px route rehearsal.
+- ARGUS should review callback exchange flow, safe local redirect handling,
+  saved-items-only filtering, UI redaction, owner-action gates, and static
+  no-drift tests.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- If MIMIR closes the technical lane, MIMIR can decide whether to wake ARIADNE
+  for desktop and 375px/390px route rehearsal.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR handoff - PR484J-L owner UI preflight opened

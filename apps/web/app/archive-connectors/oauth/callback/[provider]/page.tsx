@@ -5,15 +5,15 @@ import { ApiRequestError } from "@/lib/api-client";
 import {
   archiveConnectorCallbackProviderLabel,
   archiveConnectorCallbackRestartCopy,
+  exchangeArchiveConnectorOAuthCallback,
   parseArchiveConnectorOAuthCallback,
   readStoredArchiveConnectorCallbackAccessToken,
-  verifyArchiveConnectorOAuthCallback,
 } from "@/lib/archive-connector-oauth-callback";
 
 type CallbackView =
   | { state: "checking" }
   | { state: "restart"; title: string; body: string }
-  | { state: "verified"; providerLabel: string; localRedirectPath: string | null }
+  | { state: "connected"; providerLabel: string; localRedirectPath: string | null }
   | { state: "failed"; title: string; body: string };
 
 export default function ArchiveConnectorOAuthCallbackPage({
@@ -52,7 +52,7 @@ export default function ArchiveConnectorOAuthCallbackPage({
       };
     }
 
-    verifyArchiveConnectorOAuthCallback({
+    exchangeArchiveConnectorOAuthCallback({
       provider: parsed.provider,
       stateHandle: parsed.stateHandle,
       code: parsed.code,
@@ -61,7 +61,7 @@ export default function ArchiveConnectorOAuthCallbackPage({
       .then((response) => {
         if (!active) return;
         setView({
-          state: "verified",
+          state: "connected",
           providerLabel: archiveConnectorCallbackProviderLabel(response.provider),
           localRedirectPath: response.localRedirectPath,
         });
@@ -77,7 +77,7 @@ export default function ArchiveConnectorOAuthCallbackPage({
         setView({
           state: "failed",
           title: "Connector setup could not finish",
-          body: "Station could not verify this connector callback right now. Restart connector setup from Station.",
+          body: "Station could not finish this connector callback right now. Restart connector setup from Station.",
         });
       });
 
@@ -104,11 +104,11 @@ export default function ArchiveConnectorOAuthCallbackPage({
           </>
         ) : null}
 
-        {view.state === "verified" ? (
+        {view.state === "connected" ? (
           <>
-            <h1 style={titleStyle}>{view.providerLabel} callback received</h1>
+            <h1 style={titleStyle}>{view.providerLabel} connected</h1>
             <p style={bodyStyle}>
-              Station checked this callback. Return to Station to continue connector setup.
+              Station saved this connector session. Return to Station to continue from the persona Archive tab.
             </p>
             {view.localRedirectPath ? (
               <a style={linkStyle} href={view.localRedirectPath}>

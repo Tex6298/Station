@@ -2833,7 +2833,10 @@ test("archive connector OAuth exchange calls Reddit and Discord token endpoints 
           scope: "identify",
         });
       }, async () => {
-        const redditStart = await startArchiveConnectorOAuthState(app, { provider: "reddit" });
+        const redditStart = await startArchiveConnectorOAuthState(app, {
+          provider: "reddit",
+          localRedirectPath: "/studio/personas/11111111-1111-4111-8111-111111111111/files?connector=reddit",
+        });
         const discordStart = await startArchiveConnectorOAuthState(app, { provider: "discord" });
         assert.equal(redditStart.status, 201);
         assert.equal(discordStart.status, 201);
@@ -2855,6 +2858,11 @@ test("archive connector OAuth exchange calls Reddit and Discord token endpoints 
         assert.equal(discord.body.status, "archive_connector_connected");
         assert.equal(reddit.body.tokenExchangeComplete, true);
         assert.equal(reddit.body.credentialWriteComplete, true);
+        assert.equal(
+          reddit.body.localRedirectPath,
+          "/studio/personas/11111111-1111-4111-8111-111111111111/files?connector=reddit",
+        );
+        assert.equal(discord.body.localRedirectPath, null);
         assertExchangeSafety(reddit.body, true);
         assertExchangeSafety(discord.body, true);
         assert.equal(reddit.body.credential.provider, "reddit");

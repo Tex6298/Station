@@ -872,6 +872,7 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/exchange", async (req: R
       provider,
       purpose: "archive_connector",
       scopeProfile: state.scopeProfile,
+      localRedirectPath: state.localRedirectPath,
       grantedScopes: tokenMaterial.grantedScopes,
       tokenExchangeComplete: true,
       credentialWriteComplete: true,

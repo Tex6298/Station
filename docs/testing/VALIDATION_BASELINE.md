@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-L Archive Connector Owner UI Flow Implementation
+
+DAEDALUS implemented PR484J-L on 2026-06-30:
+`docs/roadmap/PR484J_L_ARCHIVE_CONNECTOR_OWNER_UI_FLOW_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added one owner-visible Reddit saved-items connector flow inside
+  `/studio/personas/[personaId]/files`;
+- added web helper/types/state copy for the accepted connector endpoint path
+  set and strict empty POST bodies;
+- switched the live callback page to callback exchange rather than
+  verify-then-exchange;
+- added safe callback exchange `localRedirectPath` readback from the consumed
+  OAuth state;
+- source inventory is filtered to `reddit_user_history` / `saved_items` and
+  rendered as generic `Reddit saved items`;
+- all post-OAuth writes remain explicit owner button actions;
+- no new connector list/recovery endpoint, database table, background job,
+  staged-run listing route, import execution behavior, `/imports/chat`
+  connector use, generic parser reuse, Discord content, broader Reddit source,
+  queue/worker, pagination, recurring pull, hosted/runtime, billing, Redis,
+  Cloudflare, marketplace, partner adapter, social behavior, public write,
+  Canon, Continuity, or review-candidate work enters scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts` | Pass | 10 owner-flow/callback tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/api/src/routes/archive-connectors.test.ts` | Pass | 116 tests passed across owner-flow helpers, callback bridge, Studio navigation, Archive trust, and archive connector API routes. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 152 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint completed with no lint warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Not rerun | PR484J-L used the ARGUS-named validation set. The known local Windows Next standalone symlink `EPERM` caveat from prior validation remains the build truth if build is rerun here. |
+
 ## PR484J-L Archive Connector Owner UI Flow Preflight
 
 ARGUS accepted PR484J-L on 2026-06-30:

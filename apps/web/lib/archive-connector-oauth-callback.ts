@@ -40,6 +40,24 @@ export interface ArchiveConnectorOAuthCallbackVerifyResponse {
   importWritesEnabled: false;
 }
 
+export interface ArchiveConnectorOAuthCallbackExchangeResponse {
+  status: "archive_connector_connected";
+  provider: ArchiveConnectorCallbackProvider;
+  purpose: "archive_connector";
+  scopeProfile: "connect" | "source_inventory";
+  localRedirectPath: string | null;
+  tokenExchangeComplete: true;
+  credentialWriteComplete: true;
+  credential: {
+    provider: ArchiveConnectorCallbackProvider;
+    purpose: "archive_connector";
+    status: "active";
+    configured: true;
+    connectionScopeState: "account_proof_only" | "source_scope_ready" | "scope_missing";
+    reconnectRequiredForSourceInventory: boolean;
+  };
+}
+
 export function archiveConnectorCallbackProvider(value: unknown): ArchiveConnectorCallbackProvider | null {
   return ARCHIVE_CONNECTOR_CALLBACK_PROVIDERS.includes(value as ArchiveConnectorCallbackProvider)
     ? value as ArchiveConnectorCallbackProvider
@@ -52,6 +70,10 @@ export function archiveConnectorCallbackProviderLabel(provider: ArchiveConnector
 
 export function archiveConnectorCallbackVerifyPath(provider: ArchiveConnectorCallbackProvider) {
   return `/archive-connectors/oauth/${provider}/callback/verify`;
+}
+
+export function archiveConnectorCallbackExchangePath(provider: ArchiveConnectorCallbackProvider) {
+  return `/archive-connectors/oauth/${provider}/callback/exchange`;
 }
 
 export function parseArchiveConnectorOAuthCallback(input: {
@@ -121,6 +143,22 @@ export function verifyArchiveConnectorOAuthCallback(input: {
 }) {
   return apiPost<ArchiveConnectorOAuthCallbackVerifyResponse>(
     archiveConnectorCallbackVerifyPath(input.provider),
+    {
+      stateHandle: input.stateHandle,
+      code: input.code,
+    },
+    input.accessToken,
+  );
+}
+
+export function exchangeArchiveConnectorOAuthCallback(input: {
+  provider: ArchiveConnectorCallbackProvider;
+  stateHandle: string;
+  code: string;
+  accessToken: string;
+}) {
+  return apiPost<ArchiveConnectorOAuthCallbackExchangeResponse>(
+    archiveConnectorCallbackExchangePath(input.provider),
     {
       stateHandle: input.stateHandle,
       code: input.code,
