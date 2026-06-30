@@ -19,15 +19,15 @@ PRODUCT_DEFECT_NEEDS_DAEDALUS
 Current lane:
 
 ```text
-PR484J-L - Archive Connector Owner UI Flow Rehearsal
-Owner: MIMIR / A1
-State: NEEDS_SMALLEST_REPAIR
+PR484J-M - Archive Connector Credential Readback Disabled State
+Owner: DAEDALUS / A2
+State: OPEN
 ```
 
 Current baton:
 
-- MIMIR should open the smallest repair lane:
-  `PR484J-M - Archive connector credential readback fail-closed disabled state`.
+- DAEDALUS should implement the smallest repair lane:
+  `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_DAEDALUS.md`.
 - Hosted web/API health checks were ready on commit `35828f8`.
 - Replay-owner sign-in and `/auth/me` passed; session values were not printed
   or recorded.
@@ -40,9 +40,20 @@ Current baton:
 - Because credential readback fails, the visible panel shows generic retryable
   error copy instead of the accepted credential-encryption/provider-config
   disabled state.
+- The repair should make known readiness setup/config blockers win the visible
+  state and keep connect/import actions disabled, while preserving bounded
+  retryable error behavior when readiness does not identify a setup/config
+  blocker.
 - No OAuth code, state value, authorization URL, token, cookie, provider
   payload, raw id, username, subreddit, URL, author, source body, fingerprint,
   SQL detail, stack trace, hosted log, or secret-shaped value was exposed.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
 
 ## Latest MIMIR routing - PR484J-L ARIADNE rehearsal opened
 
