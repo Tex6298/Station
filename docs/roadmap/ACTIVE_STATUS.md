@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484I closed, PR484J opened
+
+MIMIR closes PR484I after ARGUS accepted the Archive Connector Credential
+Revoke / Disconnect implementation:
+
+`docs/roadmap/PR484I_ARCHIVE_CONNECTOR_CREDENTIAL_REVOKE_CLOSEOUT.md`
+
+MIMIR opens the next backend-contract boundary:
+
+`docs/roadmap/PR484J_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J - Archive Connector Source Inventory Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SOURCE INVENTORY BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether owner-only source inventory can
+  proceed now after credential connect/read/revoke, or whether OAuth scopes,
+  provider-doc constraints, deployed connector config, or provider account
+  lookup require a smaller numbered unblock lane.
+- If accepted, ARGUS should wake DAEDALUS with exact route, scope, response,
+  redaction, and no-import tests.
+- If blocked, ARGUS should wake MIMIR with the concrete blocker and smallest
+  unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484I accepted for MIMIR
 
 ARGUS reviewed and accepted the PR484I Archive Connector Credential Revoke /
