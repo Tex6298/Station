@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-E Archive Connector Source Inventory Listing Preflight
+
+ARGUS accepted PR484J-E on 2026-06-30:
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_E_SOURCE_INVENTORY_LISTING_PREFLIGHT`.
+
+Reason:
+
+- accepted one authenticated owner-only empty-body route,
+  `GET /archive-connectors/:provider/source-inventory`;
+- exact source-ready credential and completed account lookup metadata are
+  required before any provider source read;
+- Reddit source reads are limited to
+  `/subreddits/mine/subscriber?limit=100&raw_json=1`;
+- Reddit history category rows are Station-derived only, with no Reddit history
+  content/listing endpoint calls;
+- Discord source reads are limited to
+  `/users/@me/guilds?limit=200&with_counts=false`;
+- response readback is limited to safe source metadata, opaque Station source
+  keys, account-proof presence, and safety booleans;
+- imports, source body reads, jobs, UI, hosted proof, packages, marketplace,
+  billing, Redis, Cloudflare, partner adapters, and social behavior remain out
+  of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Current code review | Pass | Current archive connector code has source-ready decrypt and completed account lookup metadata, but no source inventory route/provider client yet. |
+| Provider docs check | Pass | Reddit subscribed-subreddit listing is the accepted `mysubreddits` source read; Reddit history endpoints are content/listing calls and remain forbidden; Discord current-user guild listing is the accepted `guilds` source read. |
+| Prior boundary check | Pass | PR484J-A/B/C/D provide source-scope contract, source-ready credential storage/decrypt, safe account metadata, and account proof prerequisite needed for this read-only lane. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 106 tests passed across connector storage/contract/routes, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
 ## PR484J-D Archive Connector Provider Account Lookup Review
 
 ARGUS accepted PR484J-D on 2026-06-30 after a narrow

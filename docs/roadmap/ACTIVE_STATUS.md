@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-E accepted for DAEDALUS
+
+ARGUS accepts the PR484J-E Archive Connector Source Inventory Listing preflight:
+
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_E_SOURCE_INVENTORY_LISTING_PREFLIGHT
+```
+
+Accepted boundary:
+
+- authenticated owner-only empty-body route:
+  `GET /archive-connectors/:provider/source-inventory`;
+- exact source-ready credential required, with stored and decrypted
+  `source_inventory` proofs matching the accepted provider scopes;
+- completed provider account lookup required before any source provider read,
+  proven only by active credential `external_account_fingerprint` presence;
+- Reddit may call only
+  `/subreddits/mine/subscriber?limit=100&raw_json=1`;
+- Reddit history rows are Station-derived category availability only, with no
+  Reddit history content/listing endpoint calls;
+- Discord may call only `/users/@me/guilds?limit=200&with_counts=false`;
+- response returns safe bounded source metadata, opaque Station source keys,
+  account-proof presence, and safety booleans only.
+
+Forbidden:
+
+- source bodies, post/comment/message text, private snippets, counts, URLs,
+  icons, permissions, raw provider ids, Reddit fullnames, Discord snowflakes,
+  raw cursors, provider payloads, provider headers, tokens, encrypted blobs,
+  raw OAuth token scopes, SQL/storage details, stack traces, environment
+  values, and secret-shaped values;
+- Reddit `read`, broad discovery, subreddit search/popular/new listing, and
+  Reddit history content/listing endpoints;
+- Discord channels, messages, DMs, members, connections, bots, webhooks,
+  installs, invites, local RPC, and permission expansion;
+- imports, archive source writes, jobs, queues, UI, hosted proof, packages,
+  billing, Redis, Cloudflare, marketplace, partner adapters, and social
+  behavior.
+
+Current lane:
+
+```text
+PR484J-E - Archive Connector Source Inventory Listing
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT ACCEPTED READ-ONLY SOURCE INVENTORY BOUNDARY
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted owner-only, read-only source
+  inventory route/helpers/serializers/tests.
+- DAEDALUS must keep source body reads, imports, jobs, UI, hosted/runtime work,
+  package, billing, Redis, Cloudflare, marketplace, partner adapter, and social
+  surfaces out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-D closed, PR484J-E opened
 
 MIMIR closes PR484J-D after ARGUS accepted provider account lookup:
@@ -13,31 +79,6 @@ MIMIR closes PR484J-D after ARGUS accepted provider account lookup:
 MIMIR opens source inventory/listing preflight:
 
 `docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_PREFLIGHT_ARGUS.md`
-
-Current lane:
-
-```text
-PR484J-E - Archive Connector Source Inventory Listing Preflight
-Owner: ARGUS / A3
-State: OPEN - DECIDE READ-ONLY SOURCE INVENTORY BOUNDARY
-```
-
-Current baton:
-
-- ARGUS should hostile-preflight owner-only, read-only, no-import source
-  inventory/listing.
-- ARGUS should decide route/helper shape, accepted provider source reads,
-  safe/forbidden fields, provider-client behavior, failure modes, and
-  no-import tests.
-- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
-  with the concrete blocker and smallest next unblock.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Latest ARGUS review - PR484J-D accepted for MIMIR
 
