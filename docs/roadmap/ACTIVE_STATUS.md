@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR484J-M ARIADNE rerun opened
+
+MIMIR routes a narrow hosted ARIADNE rerun after ARGUS accepted the PR484J-M
+repair:
+
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR484J-M - Archive Connector Disabled State Rerun
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_DESKTOP_MOBILE_RERUN
+```
+
+Current baton:
+
+- ARIADNE should rerun the hosted persona Archive connector panel after app
+  commit `1e15b2e6` or later is deployed.
+- The rerun is scoped to the fixed visible defect: readiness setup/config
+  blockers must win over credential-readback failure, show honest disabled
+  copy, and expose no connect/account/source/import actions.
+- ARIADNE should also recheck desktop/375px/390px fit, saved-items-only generic
+  copy, no secret/provider/source leakage, and no scope drift.
+- If it passes, ARIADNE should wake MIMIR with `PASS_READY_TO_CLOSE`.
+- If hosted freshness is not deployed, ARIADNE should wake MIMIR with that
+  concrete blocker.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS verdict - PR484J-M disabled state repair accepted
 
 ARGUS accepted the PR484J-M web-layer repair after a narrow review patch:
@@ -47,16 +82,15 @@ Validation:
 Current lane:
 
 ```text
-PR484J-M - Archive Connector Credential Readback Disabled State
-Owner: MIMIR / A1
-State: ACCEPTED_BY_ARGUS
+PR484J-M - Archive Connector Disabled State Rerun
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_DESKTOP_MOBILE_RERUN
 ```
 
 Current baton:
 
-- MIMIR should route a narrow ARIADNE hosted desktop/mobile rerun for the
-  persona Archive connector panel or close with the local-only limitation
-  explicitly called out.
+- MIMIR routed a narrow ARIADNE hosted desktop/mobile rerun for the persona
+  Archive connector panel.
 - Any rerun should stay scoped to the PR484J-L/M visible owner connector panel:
   disabled config copy, no connect/import actions under setup blockers,
   desktop/375px/390px fit, saved-items-only generic copy, and no secret/provider
@@ -68,8 +102,8 @@ Current baton:
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A4:
+Codename: ARIADNE
 ```
 
 ## Latest DAEDALUS implementation - PR484J-M ready for ARGUS review
