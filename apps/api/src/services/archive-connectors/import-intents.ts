@@ -7,7 +7,7 @@ import {
   type ArchiveConnectorSourceInventoryRow,
 } from "./source-inventory";
 
-export type ArchiveConnectorImportIntentStatus = "pending" | "cancelled";
+export type ArchiveConnectorImportIntentStatus = "pending" | "cancelled" | "activated";
 export type ArchiveConnectorImportIntentSourceFamily = ArchiveConnectorSourceInventoryRow["sourceFamily"];
 
 export type ArchiveConnectorImportIntentRow = {
@@ -22,6 +22,7 @@ export type ArchiveConnectorImportIntentRow = {
   source_label: string;
   status: ArchiveConnectorImportIntentStatus;
   idempotency_fingerprint: string;
+  activated_at?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -36,11 +37,14 @@ export type ArchiveConnectorImportIntentReadback = {
   sourceKey: string;
   sourceLabel: string;
   status: ArchiveConnectorImportIntentStatus;
+  activatedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
 
 export type ArchiveConnectorImportIntentErrorCode =
+  | "archive_connector_import_intent_not_found"
+  | "archive_connector_import_intent_not_activatable"
   | "archive_connector_import_intent_persona_not_found"
   | "archive_connector_import_intent_source_unavailable"
   | "archive_connector_import_intent_load_failed"
@@ -134,6 +138,83 @@ export async function createArchiveConnectorImportIntent(input: {
   };
 }
 
+export async function activateArchiveConnectorImportIntent(input: {
+  ownerUserId: string;
+  intentId: string;
+}) {
+  const row = await loadImportIntentById(input.ownerUserId, input.intentId);
+  if (row.status === "activated") {
+    return {
+      activated: false,
+      duplicate: true,
+      sourceInventoryChecked: false,
+      activationWriteAttempted: false,
+      intent: serializeArchiveConnectorImportIntent(row),
+    };
+  }
+  if (row.status !== "pending") throw intentNotActivatable();
+
+  await assertOwnedPersona(input.ownerUserId, row.persona_id);
+
+  const credential = await loadArchiveConnectorSourceInventoryCredentialSecret({
+    ownerUserId: input.ownerUserId,
+    provider: row.provider,
+  });
+  const inventory = await readArchiveConnectorProviderSourceInventory({
+    provider: row.provider,
+    accessToken: credential.accessToken,
+  });
+  const source = matchingAvailableSource(inventory.sources, {
+    provider: row.provider,
+    sourceFamily: row.source_family,
+    sourceKind: row.source_kind,
+    sourceKey: row.source_key,
+    sourceLabel: row.source_label,
+  });
+  if (!source) throw sourceUnavailable();
+
+  const activatedAt = new Date().toISOString();
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("archive_connector_import_intents")
+    .update({
+      status: "activated",
+      activated_at: activatedAt,
+    })
+    .eq("id", row.id)
+    .eq("owner_user_id", input.ownerUserId)
+    .eq("purpose", "archive_connector")
+    .eq("status", "pending")
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    const duplicate = await loadImportIntentById(input.ownerUserId, input.intentId);
+    if (duplicate.status === "activated") {
+      return {
+        activated: false,
+        duplicate: true,
+        sourceInventoryChecked: true,
+        activationWriteAttempted: true,
+        intent: serializeArchiveConnectorImportIntent(duplicate),
+      };
+    }
+
+    throw new ArchiveConnectorImportIntentError(
+      "archive_connector_import_intent_write_failed",
+      "Could not activate archive connector import intent."
+    );
+  }
+
+  return {
+    activated: true,
+    duplicate: false,
+    sourceInventoryChecked: true,
+    activationWriteAttempted: true,
+    intent: serializeArchiveConnectorImportIntent(data as ArchiveConnectorImportIntentRow),
+  };
+}
+
 function matchingAvailableSource(
   sources: ArchiveConnectorSourceInventoryRow[],
   input: {
@@ -203,6 +284,32 @@ async function loadPendingImportIntentByFingerprint(ownerUserId: string, fingerp
   return ((data ?? []) as ArchiveConnectorImportIntentRow[])[0] ?? null;
 }
 
+async function loadImportIntentById(ownerUserId: string, intentId: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("archive_connector_import_intents")
+    .select("*")
+    .eq("id", intentId)
+    .eq("owner_user_id", ownerUserId)
+    .eq("purpose", "archive_connector");
+
+  if (error) {
+    throw new ArchiveConnectorImportIntentError(
+      "archive_connector_import_intent_load_failed",
+      "Could not load archive connector import intent."
+    );
+  }
+
+  const row = ((data ?? []) as ArchiveConnectorImportIntentRow[])[0] ?? null;
+  if (!row) {
+    throw new ArchiveConnectorImportIntentError(
+      "archive_connector_import_intent_not_found",
+      "Archive connector import intent was not found."
+    );
+  }
+  return row;
+}
+
 export function serializeArchiveConnectorImportIntent(
   row: ArchiveConnectorImportIntentRow,
 ): ArchiveConnectorImportIntentReadback {
@@ -216,6 +323,7 @@ export function serializeArchiveConnectorImportIntent(
     sourceKey: row.source_key,
     sourceLabel: row.source_label,
     status: row.status,
+    activatedAt: row.activated_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -248,5 +356,12 @@ function sourceUnavailable() {
   return new ArchiveConnectorImportIntentError(
     "archive_connector_import_intent_source_unavailable",
     "Archive connector import intent source was not available."
+  );
+}
+
+function intentNotActivatable() {
+  return new ArchiveConnectorImportIntentError(
+    "archive_connector_import_intent_not_activatable",
+    "Archive connector import intent cannot be activated."
   );
 }

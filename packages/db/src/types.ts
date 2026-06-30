@@ -66,7 +66,7 @@ export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type ArchiveConnectorProvider = "reddit" | "discord";
 export type ArchiveConnectorPurpose = "archive_connector";
 export type ArchiveConnectorCredentialStatus = "active" | "revoked";
-export type ArchiveConnectorImportIntentStatus = "pending" | "cancelled";
+export type ArchiveConnectorImportIntentStatus = "pending" | "cancelled" | "activated";
 export type ArchiveConnectorSourceFamily = "reddit_subreddit_memberships" | "reddit_user_history" | "discord_guilds";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
 export type DeveloperSpaceProviderPolicy = "public_synthetic_only" | "public_context_allowed" | "private_archive_allowed" | "owner_byok_only" | "platform_allowed";
@@ -235,13 +235,15 @@ export interface Database {
           source_label: string;
           status: ArchiveConnectorImportIntentStatus;
           idempotency_fingerprint: string;
+          activated_at: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["archive_connector_import_intents"]["Row"], "id" | "purpose" | "status" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["archive_connector_import_intents"]["Row"], "id" | "purpose" | "status" | "activated_at" | "created_at" | "updated_at"> & {
           id?: string;
           purpose?: ArchiveConnectorPurpose;
           status?: ArchiveConnectorImportIntentStatus;
+          activated_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
