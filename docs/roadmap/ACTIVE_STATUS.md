@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484H accepted for DAEDALUS
+
+ARGUS completed the PR484H Archive Connector Credential Readback preflight:
+
+`docs/roadmap/PR484H_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484H_CREDENTIAL_READBACK
+```
+
+Accepted boundary:
+
+- route: `GET /archive-connectors/credentials`;
+- existing authenticated archive connector Bearer boundary;
+- readback-only, owner-only, no request body;
+- return exactly one row per supported provider in provider-id order;
+- each row is `connected`, `revoked`, or `missing`;
+- active credential wins over older revoked rows for the same provider;
+- if no active credential exists, newest revoked metadata may be returned as
+  the provider's current revoked state;
+- missing providers return synthesized rows with `credential: null`;
+- credential metadata may include only the accepted safe serializer fields;
+- no token decrypt, token exchange, credential write/revoke, OAuth callback
+  change, provider profile/account lookup, source inventory, import, jobs, UI,
+  Redis, Cloudflare, billing, package, marketplace, or social behavior.
+
+Current lane:
+
+```text
+PR484H - Archive Connector Credential Readback
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT OWNER-SAFE CREDENTIAL READBACK
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted readback route and tests.
+- Revoke/disconnect remains a later lane.
+- Hosted proof remains parked until connector config exists and MIMIR opens a
+  visible owner connector surface or hosted readback rehearsal.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484G closed, PR484H opened
 
 MIMIR closes PR484G after ARGUS accepted the Archive Connector OAuth Token
