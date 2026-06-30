@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-J Archive Connector Staged Batch Consumption Review
+
+ARGUS accepted PR484J-J on 2026-06-30:
+`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_J_STAGED_BATCH_CONSUMPTION`.
+
+Reason:
+
+- accepted authenticated owner-only route
+  `POST /archive-connectors/source-staging-runs/:runId/import-preview`;
+- route loads exactly one current owner Reddit saved-items staged run and
+  rechecks the linked activated owner intent/persona/source before decrypt;
+- decrypts only the dedicated PR484J-I staging envelope/key;
+- validates the decrypted staged batch schema before building aggregate preview
+  metadata;
+- returns safe aggregate metadata only and leaves staged-run lifecycle unchanged;
+- keeps staged connector batches out of the generic import parser path;
+- private snippets, normalized text/body/title readback, item fingerprints,
+  snapshot fingerprints, encrypted batch values, provider calls, token work,
+  durable candidate records, import execution, archive source rows, existing
+  `import_jobs`, connector job tables, queues, workers, UI, hosted/runtime,
+  packages, billing, Redis, Cloudflare, marketplace, partner adapters, social
+  behavior, broad Reddit reads, and Discord content reads remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 76 archive connector route tests passed, including staged-batch import-preview auth/body/run/intent/encryption/batch/redaction/read-only/static-guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 144 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Forbidden behavior scan | Pass | Review scans found no import execution, durable candidate records, archive source rows, existing `import_jobs`, connector job table writes, jobs, queues, workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare, marketplace, partner adapter, social behavior, provider calls, broad Reddit reads, or Discord content reads. |
+
 ## PR484J-J Archive Connector Staged Batch Consumption Implementation
 
 DAEDALUS implemented PR484J-J on 2026-06-30:

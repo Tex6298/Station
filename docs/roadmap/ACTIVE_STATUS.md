@@ -4,19 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR484J-J ready for ARGUS
+## Latest ARGUS verdict - PR484J-J staged batch consumption accepted
 
-DAEDALUS implemented the accepted PR484J-J staged-batch consumption boundary:
+ARGUS accepts the PR484J-J staged-batch consumption implementation:
 
-`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_RESULT.md`
+`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_REVIEW_RESULT.md`
 
 Validation result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR484J_J_STAGED_BATCH_CONSUMPTION
 ```
 
-Implemented:
+Accepted:
 
 - authenticated owner-only route:
   `POST /archive-connectors/source-staging-runs/:runId/import-preview`;
@@ -34,16 +34,17 @@ Implemented:
 - decrypted payload validation for
   `station.archive_connector.source_staging_batch.v1`;
 - safe aggregate preview metadata only;
-- unchanged staged-run lifecycle after preview.
+- unchanged staged-run lifecycle after preview;
+- no generic import parser use for staged connector batches.
 
 Still forbidden:
 
-- private snippets, normalized source text/body/title readback, item
-  fingerprints, snapshot fingerprints, encrypted batch values, raw provider
-  ids, usernames, URLs, authors, subreddit names, cursors, provider
-  payloads/headers, tokens, import execution, durable candidate records,
-  archive source rows, existing `import_jobs`, connector job tables, jobs,
-  queues, workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare,
+- durable candidate records, private snippets, normalized source
+  text/body/title readback, item fingerprints, snapshot fingerprints,
+  encrypted batch values, raw provider ids, usernames, URLs, authors, subreddit
+  names, cursors, provider payloads/headers, tokens, import execution, archive
+  source rows, existing `import_jobs`, connector job tables, jobs, queues,
+  workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare,
   marketplace, partner adapters, social behavior, broad Reddit reads, generic
   import parser use for staged connector batches, or Discord content reads.
 
@@ -60,23 +61,24 @@ Current lane:
 
 ```text
 PR484J-J - Archive Connector Staged Batch Consumption
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
+Owner: MIMIR / A1
+State: ACCEPTED_FOR_CLOSEOUT_OR_NEXT_MOVE
 ```
 
 Current baton:
 
-- ARGUS should review current-run lifecycle gates, linked-intent recheck before
-  decrypt, dedicated batch decrypt/validation, safe aggregate readback,
-  no-write/no-provider guarantees, and static no-drift guards.
-- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
-  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- MIMIR should close PR484J-J or choose the next archive connector move.
+- Import execution, archive source writes, durable candidates,
+  jobs/queues/workers, pagination crawls, UI, hosted/runtime, packages,
+  billing, Redis, Cloudflare, marketplace, partner adapters, social behavior,
+  additional Reddit history categories, and Discord channel/message/member
+  reads remain separate lanes unless explicitly opened.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest ARGUS verdict - PR484J-J staged batch consumption preflight accepted
