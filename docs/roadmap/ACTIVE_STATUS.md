@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR blocker - PR484J-N hosted setup config blocked
+
+MIMIR documented the PR484J-N hosted setup blocker:
+
+`docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_CONFIG_BLOCKER_MIMIR.md`
+
+Validation result:
+
+```text
+CONFIG_BLOCKER_ARCHIVE_CONNECTOR_HOSTED_SETUP
+```
+
+Current truth:
+
+- local `.env` has `NEXT_PUBLIC_APP_URL`, `DATABASE_URL`,
+  `SUPABASE_POOLER_URL`, and `RAILWAY_TOKEN` present by name;
+- local `.env` does not have
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET`, or
+  `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY` present by name;
+- local migration files `062` through `067` exist under
+  `infra/supabase/migrations`;
+- hosted API health is reachable and ready, but the selected migration
+  readback does not prove hosted migrations `062` through `067`;
+- Railway CLI is callable through `npm exec`, but the current local
+  `RAILWAY_TOKEN` returns `Invalid RAILWAY_TOKEN`, and raw variable-list
+  commands were not dumped;
+- no Supabase MCP tool is callable in this session, and direct hosted schema
+  proof was not completed from current local tooling.
+
+Current lane:
+
+```text
+PR484J-N - Archive Connector Hosted Setup
+Owner: MIMIR / A1
+State: CONFIG_BLOCKED_EXTERNAL
+```
+
+Current baton:
+
+- Configure hosted Railway `@station/api` with
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET`, and HTTPS
+  `NEXT_PUBLIC_APP_URL=https://stationweb-production.up.railway.app`.
+- Register the Reddit callback
+  `https://stationweb-production.up.railway.app/archive-connectors/oauth/callback/reddit`.
+- Confirm hosted Supabase migrations `062` through `067`.
+- After config and schema are confirmed, wake MIMIR to route ARIADNE for the
+  narrow saved-items source-inventory hosted proof.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest ARGUS preflight - PR484J-N hosted setup accepted
 
 ARGUS accepted PR484J-N as a config-plus-hosted-proof lane:
