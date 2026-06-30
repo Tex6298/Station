@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR484J-J staged batch consumption preflight accepted
+
+ARGUS accepts PR484J-J as a read-only owner-only staged-batch import preview
+lane:
+
+`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_J_STAGED_BATCH_CONSUMPTION_PREFLIGHT
+```
+
+Accepted boundary:
+
+- one authenticated owner-only route/helper, for example
+  `POST /archive-connectors/source-staging-runs/:runId/import-preview`;
+- strict UUID path and empty body validation before storage/decrypt/preview
+  work;
+- load exactly one current owner `archive_connector_source_staging_runs` row;
+- require `status = staged`, not expired, not revoked, and not superseded;
+- recheck the linked import intent is still owner-scoped, activated, persona
+  valid, and the accepted Reddit saved-items source before decrypting;
+- decrypt only the dedicated PR484J-I staging envelope with
+  `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY`;
+- return safe aggregate preview metadata only;
+- keep staged run lifecycle unchanged by preview.
+
+Still forbidden:
+
+- durable candidate records, private snippets, normalized title/text/body
+  readback, item fingerprints, snapshot fingerprints, encrypted batch values,
+  raw provider ids, usernames, URLs, authors, subreddit names, cursors,
+  provider payloads/headers, tokens, import execution, archive source rows,
+  existing `import_jobs`, connector job tables, jobs, queues, workers, UI,
+  hosted/runtime, packages, billing, Redis, Cloudflare, marketplace, partner
+  adapters, social behavior, broad Reddit reads, or Discord content reads.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 72 route tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 140 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR484J-J - Archive Connector Staged Batch Consumption
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT_READY_FOR_IMPLEMENTATION
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-I closed, PR484J-J opened
 
 MIMIR closes PR484J-I after ARGUS accepted encrypted private source staging:
