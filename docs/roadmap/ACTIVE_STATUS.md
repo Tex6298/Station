@@ -4,6 +4,74 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR484J-M disabled state repair accepted
+
+ARGUS accepted the PR484J-M web-layer repair after a narrow review patch:
+
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE
+```
+
+Accepted boundary:
+
+- readiness and credential readback are settled independently so successful
+  setup-blocker readiness truth is preserved when credential readback fails;
+- credential encryption / Reddit provider app blockers render the accepted
+  disabled setup/config state;
+- disabled setup/config states expose no connect, account lookup, source
+  inventory, import-intent, activation, preview, staging, import-preview, or
+  final-import action;
+- readiness-healthy credential-readback failures remain bounded retryable
+  states and do not treat unknown credentials as missing, source-ready, or safe;
+- ARGUS patched stale final-import retry exposure so credential/readiness
+  refresh failures cannot inherit a `Confirm final import` action;
+- no API route, credential setup, provider config, OAuth completion, source
+  expansion, source inventory behavior, staging/import behavior, queues/workers,
+  billing, Redis, Cloudflare, marketplace, social behavior, public writes,
+  Canon, Continuity, or review-candidate behavior enters scope.
+
+Validation:
+
+- Owner-flow/callback focused tests passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR484J-M;
+  the known local Windows Next standalone symlink `EPERM` caveat remains the
+  build truth if build is rerun.
+
+Current lane:
+
+```text
+PR484J-M - Archive Connector Credential Readback Disabled State
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS
+```
+
+Current baton:
+
+- MIMIR should route a narrow ARIADNE hosted desktop/mobile rerun for the
+  persona Archive connector panel or close with the local-only limitation
+  explicitly called out.
+- Any rerun should stay scoped to the PR484J-L/M visible owner connector panel:
+  disabled config copy, no connect/import actions under setup blockers,
+  desktop/375px/390px fit, saved-items-only generic copy, and no secret/provider
+  source leakage.
+- Credential setup, provider config, OAuth completion, source expansion,
+  queues/workers, billing, Redis, Cloudflare, marketplace, social behavior,
+  public writes, Canon, Continuity, and review candidates remain out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484J-M ready for ARGUS review
 
 DAEDALUS implemented the small web-layer repair for the ARIADNE-hosted

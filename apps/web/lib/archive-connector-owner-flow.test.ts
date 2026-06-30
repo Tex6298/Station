@@ -409,11 +409,13 @@ test("archive connector owner UI source stays inside persona Archive and avoids 
   assert.match(combined, /\/archive-connectors\/readiness/);
   assert.match(panelSource, /Promise\.allSettled/);
   assert.match(panelSource, /archiveConnectorReadinessHasSetupBlocker\(readinessResponse\)/);
+  assert.match(panelSource, /lastErrorSource === "import"/);
   assert.match(combined, /\/archive-connectors\/oauth\/reddit\/start/);
   assert.match(combined, /scopeProfile: "source_inventory"/);
   assert.match(combined, /\/archive-connectors\/source-staging-runs\/\$\{encodeURIComponent\(runId\)\}\/import/);
   assert.match(panelSource, /window\.location\.assign\(authorized\.authorizationUrl\)/);
   assert.doesNotMatch(panelSource, /step\.id === "readiness_disabled"[\s\S]{0,600}<button className="button primary"/);
+  assert.doesNotMatch(panelSource, /step\.id === "retryable_error" && stagingRun && importPreview/);
   assert.doesNotMatch(combined, /\/imports\/chat|\/archive-connectors\/discord\/source-inventory|\/archive-connectors\/oauth\/discord|parseImportFile|createImportReviewCandidates|persona_files|canon|continuity|review_candidates/i);
   assert.doesNotMatch(combined, /cloudflare|redis|stripe|billing|marketplace|partner|social|new Queue|Worker\(|recurring|pagination|upvoted|downvoted|submitted|hidden|subreddits\/mine|guilds\/.+messages|channels|members/i);
   assert.doesNotMatch(combined, /access_token|refresh_token|client_secret|oauth_code|provider_payload|sourceBody|normalizedText|itemFingerprint|source_snapshot_fingerprint|encrypted_source_batch|sql|stack|secret-shaped/i);

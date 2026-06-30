@@ -68,6 +68,7 @@ export function ArchiveConnectorOwnerPanel({
   const [loading, setLoading] = useState(Boolean(token));
   const [busy, setBusy] = useState<BusyStep | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [lastErrorSource, setLastErrorSource] = useState<BusyStep | null>(null);
 
   const refreshReadbacks = useCallback(async () => {
     if (!token) {
@@ -77,6 +78,7 @@ export function ArchiveConnectorOwnerPanel({
 
     setLoading(true);
     setLastError(null);
+    setLastErrorSource(null);
     try {
       const [readinessResult, credentialResult] = await Promise.allSettled([
         readArchiveConnectorReadiness(token),
@@ -91,6 +93,7 @@ export function ArchiveConnectorOwnerPanel({
             : null,
         );
         setLastError(archiveConnectorOwnerErrorMessage(readinessResult.reason));
+        setLastErrorSource("refresh");
         return;
       }
 
@@ -108,8 +111,10 @@ export function ArchiveConnectorOwnerPanel({
       }
 
       setLastError(archiveConnectorOwnerErrorMessage(credentialResult.reason));
+      setLastErrorSource("refresh");
     } catch (error) {
       setLastError(archiveConnectorOwnerErrorMessage(error));
+      setLastErrorSource("refresh");
     } finally {
       setLoading(false);
     }
@@ -150,10 +155,12 @@ export function ArchiveConnectorOwnerPanel({
   async function runAction(label: BusyStep, action: () => Promise<void>) {
     setBusy(label);
     setLastError(null);
+    setLastErrorSource(null);
     try {
       await action();
     } catch (error) {
       setLastError(archiveConnectorOwnerErrorMessage(error));
+      setLastErrorSource(label);
     } finally {
       setBusy(null);
     }
@@ -273,6 +280,12 @@ export function ArchiveConnectorOwnerPanel({
   const canStage = Boolean(sourcePreview && intent?.status === "activated");
   const canPreviewImport = Boolean(stagingRun?.status === "staged");
   const canImport = Boolean(stagingRun?.status === "staged" && importPreview);
+  const canRetryFinalImport = Boolean(
+    step.id === "retryable_error" &&
+    lastErrorSource === "import" &&
+    stagingRun &&
+    importPreview,
+  );
 
   return (
     <StudioPanel className="archive-connector-owner-panel">
@@ -389,7 +402,7 @@ export function ArchiveConnectorOwnerPanel({
             {busy === "import-preview" ? "Previewing..." : "Preview final import"}
           </button>
         ) : null}
-        {step.id === "import_ready" || (step.id === "retryable_error" && stagingRun && importPreview) ? (
+        {step.id === "import_ready" || canRetryFinalImport ? (
           <button className="button primary" type="button" disabled={!token || !canImport || busy === "import"} onClick={importStagedRun}>
             {busy === "import" ? "Importing..." : "Confirm final import"}
           </button>

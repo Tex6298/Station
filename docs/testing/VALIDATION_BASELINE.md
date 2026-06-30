@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-M Archive Connector Credential Readback Disabled State Review
+
+ARGUS accepted PR484J-M on 2026-06-30 after a narrow review patch:
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE`.
+
+Reason:
+
+- the owner connector panel preserves successful readiness setup-blocker truth
+  when credential readback fails;
+- credential encryption / Reddit provider setup blockers render the accepted
+  disabled setup/config copy and expose no connect/import actions;
+- readiness-healthy credential-readback failures remain bounded retryable
+  states and do not treat unknown credentials as missing, source-ready, or safe;
+- ARGUS patched stale final-import retry exposure so credential/readiness
+  refresh failures cannot inherit a `Confirm final import` action;
+- no API route, credential setup, provider config, OAuth completion, source
+  expansion, source inventory behavior, staging/import behavior, queues/workers,
+  billing, Redis, Cloudflare, marketplace, social behavior, public writes,
+  Canon, Continuity, or review-candidate behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts` | Pass | 11 owner-flow/callback tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Not rerun | Existing local Windows Next standalone symlink `EPERM` caveat remains build truth if rerun. |
+
 ## PR484J-M Archive Connector Credential Readback Disabled State
 
 DAEDALUS implemented PR484J-M on 2026-06-30:
