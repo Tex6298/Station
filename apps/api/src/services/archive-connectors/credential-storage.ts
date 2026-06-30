@@ -26,6 +26,7 @@ export type ArchiveConnectorCredentialStorageErrorCode =
   | "archive_connector_source_credential_payload_invalid"
   | "archive_connector_source_credential_decrypt_failed"
   | "archive_connector_source_credential_token_invalid"
+  | "archive_connector_source_inventory_account_lookup_required"
   | "archive_connector_account_credential_provider_unsupported"
   | "archive_connector_account_credential_unavailable"
   | "archive_connector_account_credential_not_account_ready"
@@ -115,6 +116,16 @@ export type ArchiveConnectorAccountCredentialSecret = {
   scopeProfile: ArchiveConnectorScopeProfile;
   grantedScopes: string[];
   accessToken: string;
+};
+
+export type ArchiveConnectorSourceInventoryCredentialSecret = {
+  provider: ArchiveConnectorProviderId;
+  purpose: "archive_connector";
+  scopeProfile: "source_inventory";
+  grantedScopes: string[];
+  accessToken: string;
+  accountLabel: string | null;
+  externalAccountFingerprintPresent: true;
 };
 
 export class ArchiveConnectorCredentialStorageError extends Error {
@@ -283,6 +294,51 @@ export async function loadArchiveConnectorSourceCredentialSecret(input: {
   assertStoredSourceCredentialReady(row);
   const decrypted = decryptArchiveConnectorCredential(row.encrypted_credential);
   return sourceCredentialSecretFromTokenMaterial(input.provider, decrypted);
+}
+
+export async function loadArchiveConnectorSourceInventoryCredentialSecret(input: {
+  ownerUserId: string;
+  provider: ArchiveConnectorProviderId;
+}): Promise<ArchiveConnectorSourceInventoryCredentialSecret> {
+  if (!isArchiveConnectorProviderId(input.provider)) {
+    throw new ArchiveConnectorCredentialStorageError(
+      "archive_connector_source_credential_provider_unsupported",
+      "Archive connector provider is not supported."
+    );
+  }
+
+  const rows = await loadArchiveConnectorCredentialRows(input.ownerUserId, {
+    provider: input.provider,
+    includeRevoked: false,
+  });
+  if (rows.length !== 1) throw sourceCredentialUnavailable();
+
+  const row = rows[0];
+  if (
+    row.owner_user_id !== input.ownerUserId ||
+    row.provider !== input.provider ||
+    row.purpose !== ARCHIVE_CONNECTOR_PURPOSE ||
+    row.status !== "active"
+  ) {
+    throw sourceCredentialUnavailable();
+  }
+
+  assertStoredSourceCredentialReady(row);
+  if (!row.external_account_fingerprint) {
+    throw sourceInventoryAccountLookupRequired();
+  }
+
+  const decrypted = decryptArchiveConnectorCredential(row.encrypted_credential);
+  const secret = sourceCredentialSecretFromTokenMaterial(input.provider, decrypted);
+  return {
+    provider: secret.provider,
+    purpose: secret.purpose,
+    scopeProfile: secret.scopeProfile,
+    grantedScopes: secret.grantedScopes,
+    accessToken: secret.accessToken,
+    accountLabel: row.account_label ?? null,
+    externalAccountFingerprintPresent: true,
+  };
 }
 
 export async function loadArchiveConnectorAccountCredentialSecret(input: {
@@ -1000,6 +1056,13 @@ function sourceCredentialTokenInvalid() {
   return new ArchiveConnectorCredentialStorageError(
     "archive_connector_source_credential_token_invalid",
     "Archive connector source credential token material is invalid."
+  );
+}
+
+function sourceInventoryAccountLookupRequired() {
+  return new ArchiveConnectorCredentialStorageError(
+    "archive_connector_source_inventory_account_lookup_required",
+    "Archive connector source inventory requires completed account lookup."
   );
 }
 

@@ -12,6 +12,7 @@ import {
   fingerprintArchiveConnectorExternalAccount,
   loadArchiveConnectorAccountCredentialSecret,
   loadArchiveConnectorCredentialReadbacks,
+  loadArchiveConnectorSourceInventoryCredentialSecret,
   loadArchiveConnectorSourceCredentialSecret,
   revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
@@ -209,6 +210,8 @@ function sourceCredentialRow(input: {
   grantedScopes?: string[];
   encryptedCredential?: Record<string, unknown>;
   tokenMaterial?: Row;
+  externalAccountFingerprint?: string | null;
+  accountLabel?: string | null;
 } = {}) {
   const provider = input.provider ?? "reddit";
   const supportedProvider = provider === "discord" ? "discord" : "reddit";
@@ -224,8 +227,8 @@ function sourceCredentialRow(input: {
       input.tokenMaterial ?? sourceTokenMaterial(supportedProvider),
     ),
     credential_fingerprint: "source-credential-fingerprint",
-    external_account_fingerprint: null,
-    account_label: null,
+    external_account_fingerprint: input.externalAccountFingerprint ?? null,
+    account_label: input.accountLabel ?? null,
     status: input.status ?? "active",
     scope_profile: input.scopeProfile ?? "source_inventory",
     granted_scopes: grantedScopes,
@@ -542,6 +545,102 @@ test("archive connector source credential decrypt returns internal source-ready 
         assert.equal(secret.refreshToken, `${provider}-source-refresh-token-fixture`);
         assert.equal(secret.tokenType, "bearer");
         assert.equal(secret.expiresInSeconds, provider === "reddit" ? 3600 : 7200);
+      });
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
+test("archive connector source inventory credential helper requires source readiness and account proof", async () => {
+  for (const provider of ["reddit", "discord"] as const) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        db.rows("archive_connector_credentials").push(sourceCredentialRow({
+          provider,
+          externalAccountFingerprint: `${provider}-account-fingerprint`,
+          accountLabel: provider === "reddit" ? "Owner Reddit" : "Owner Discord",
+        }));
+
+        const secret = await loadArchiveConnectorSourceInventoryCredentialSecret({
+          ownerUserId: "owner-user",
+          provider,
+        });
+
+        assert.deepEqual(Object.keys(secret).sort(), [
+          "accessToken",
+          "accountLabel",
+          "externalAccountFingerprintPresent",
+          "grantedScopes",
+          "provider",
+          "purpose",
+          "scopeProfile",
+        ].sort());
+        assert.equal(secret.provider, provider);
+        assert.equal(secret.purpose, "archive_connector");
+        assert.equal(secret.scopeProfile, "source_inventory");
+        assert.equal(secret.externalAccountFingerprintPresent, true);
+        assert.equal(secret.accountLabel, provider === "reddit" ? "Owner Reddit" : "Owner Discord");
+        assert.deepEqual(
+          secret.grantedScopes,
+          provider === "reddit" ? ["identity", "mysubreddits", "history"] : ["identify", "guilds"],
+        );
+        assert.equal(secret.accessToken, `${provider}-source-access-token-fixture`);
+      });
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
+test("archive connector source inventory credential helper fails closed before provider fetch prerequisites", async () => {
+  const cases: Array<{ name: string; row?: () => Row; code: string }> = [
+    {
+      name: "missing",
+      code: "archive_connector_source_credential_unavailable",
+    },
+    {
+      name: "connect-proof-only",
+      row: () => accountCredentialRow({
+        externalAccountFingerprint: "reddit-account-fingerprint",
+      }),
+      code: "archive_connector_source_credential_not_source_ready",
+    },
+    {
+      name: "source-ready-without-account-proof",
+      row: () => sourceCredentialRow(),
+      code: "archive_connector_source_inventory_account_lookup_required",
+    },
+    {
+      name: "source-ready-with-invalid-token",
+      row: () => sourceCredentialRow({
+        externalAccountFingerprint: "reddit-account-fingerprint",
+        tokenMaterial: sourceTokenMaterial("reddit", { accessToken: "bad\u0001token" }),
+      }),
+      code: "archive_connector_source_credential_token_invalid",
+    },
+  ];
+
+  for (const setup of cases) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        if (setup.row) db.rows("archive_connector_credentials").push(setup.row());
+
+        await assert.rejects(
+          () => loadArchiveConnectorSourceInventoryCredentialSecret({
+            ownerUserId: "owner-user",
+            provider: "reddit",
+          }),
+          (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+            && error.code === setup.code,
+          setup.name,
+        );
       });
     } finally {
       resetFakes();

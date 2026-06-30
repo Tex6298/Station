@@ -4,70 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR484J-E accepted for DAEDALUS
+## Latest DAEDALUS implementation - PR484J-E ready for ARGUS review
 
-ARGUS accepts the PR484J-E Archive Connector Source Inventory Listing preflight:
+DAEDALUS implemented the PR484J-E Archive Connector Source Inventory Listing
+boundary:
 
-`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR484J_E_ARCHIVE_CONNECTOR_SOURCE_INVENTORY_LISTING_RESULT.md`
 
-Verdict:
+State:
 
 ```text
-ACCEPT_PR484J_E_SOURCE_INVENTORY_LISTING_PREFLIGHT
+READY_FOR_ARGUS_REVIEW
 ```
 
-Accepted boundary:
+Implemented boundary:
 
-- authenticated owner-only empty-body route:
+- authenticated owner-only route:
   `GET /archive-connectors/:provider/source-inventory`;
 - exact source-ready credential required, with stored and decrypted
   `source_inventory` proofs matching the accepted provider scopes;
 - completed provider account lookup required before any source provider read,
   proven only by active credential `external_account_fingerprint` presence;
-- Reddit may call only
+- Reddit calls only
   `/subreddits/mine/subscriber?limit=100&raw_json=1`;
 - Reddit history rows are Station-derived category availability only, with no
   Reddit history content/listing endpoint calls;
-- Discord may call only `/users/@me/guilds?limit=200&with_counts=false`;
+- Discord calls only `/users/@me/guilds?limit=200&with_counts=false`;
 - response returns safe bounded source metadata, opaque Station source keys,
-  account-proof presence, and safety booleans only.
+  account-proof presence, truncation booleans, and safety booleans only.
 
-Forbidden:
+Non-scope confirmation:
 
-- source bodies, post/comment/message text, private snippets, counts, URLs,
-  icons, permissions, raw provider ids, Reddit fullnames, Discord snowflakes,
-  raw cursors, provider payloads, provider headers, tokens, encrypted blobs,
-  raw OAuth token scopes, SQL/storage details, stack traces, environment
-  values, and secret-shaped values;
-- Reddit `read`, broad discovery, subreddit search/popular/new listing, and
-  Reddit history content/listing endpoints;
-- Discord channels, messages, DMs, members, connections, bots, webhooks,
-  installs, invites, local RPC, and permission expansion;
-- imports, archive source writes, jobs, queues, UI, hosted proof, packages,
-  billing, Redis, Cloudflare, marketplace, partner adapters, and social
-  behavior.
+- no source bodies, post/comment/message text, counts, URLs, icons,
+  permissions, raw provider ids, raw cursors, provider payloads, provider
+  headers, tokens, encrypted blobs, raw OAuth token scopes, SQL/storage details,
+  stack traces, environment values, or secret-shaped values are returned;
+- no Reddit `read`, broad discovery, subreddit search/popular/new listing, or
+  Reddit history content/listing endpoints were added;
+- no Discord channels, messages, DMs, members, connections, bots, webhooks,
+  installs, invites, local RPC, or permission expansion was added;
+- no imports, archive source writes, jobs, queues, UI, hosted proof, packages,
+  billing, Redis, Cloudflare, marketplace, partner adapters, or social behavior
+  was added.
+
+Validation:
+
+- focused connector storage/route tests passed: 64 tests.
+- accepted broader validation set passed: 112 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 Current lane:
 
 ```text
 PR484J-E - Archive Connector Source Inventory Listing
-Owner: DAEDALUS / A2
-State: OPEN - IMPLEMENT ACCEPTED READ-ONLY SOURCE INVENTORY BOUNDARY
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement only the accepted owner-only, read-only source
-  inventory route/helpers/serializers/tests.
-- DAEDALUS must keep source body reads, imports, jobs, UI, hosted/runtime work,
-  package, billing, Redis, Cloudflare, marketplace, partner adapter, and social
-  surfaces out of scope.
+- ARGUS should review source credential/account-proof gating, accepted provider
+  endpoint containment, safe source metadata, redaction, and non-scope drift.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout/opening - PR484J-D closed, PR484J-E opened

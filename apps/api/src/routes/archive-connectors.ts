@@ -20,6 +20,7 @@ import {
   createArchiveConnectorOAuthState,
   loadArchiveConnectorAccountCredentialSecret,
   loadArchiveConnectorCredentialReadbacks,
+  loadArchiveConnectorSourceInventoryCredentialSecret,
   revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
   updateArchiveConnectorCredentialAccountMetadata,
@@ -33,6 +34,10 @@ import {
   ArchiveConnectorAccountLookupError,
   lookupArchiveConnectorProviderAccount,
 } from "../services/archive-connectors/account-lookup";
+import {
+  ArchiveConnectorSourceInventoryError,
+  readArchiveConnectorProviderSourceInventory,
+} from "../services/archive-connectors/source-inventory";
 import {
   archiveConnectorScopeProfileFromValue,
   archiveConnectorScopeProfileReadback,
@@ -66,6 +71,57 @@ archiveConnectorsRouter.get("/credentials", async (req: Request, res: Response) 
       ownerOnly: true,
       ...credentialReadbackSafety(),
     });
+  }
+});
+
+archiveConnectorsRouter.get("/:provider/source-inventory", async (req: Request, res: Response) => {
+  const provider = archiveConnectorProvider(req.params.provider);
+  if (!provider) {
+    return res.status(400).json({
+      error: "Archive connector provider is not supported.",
+      code: "archive_connector_provider_not_supported",
+      status: "unsupported_provider",
+    });
+  }
+
+  try {
+    assertEmptySourceInventoryBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector source inventory request is invalid.",
+      code: "archive_connector_source_inventory_invalid",
+      status: "invalid_request",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      ...sourceInventorySafety(false),
+    });
+  }
+
+  try {
+    const credential = await loadArchiveConnectorSourceInventoryCredentialSecret({
+      ownerUserId: req.user!.id,
+      provider,
+    });
+    const inventory = await readArchiveConnectorProviderSourceInventory({
+      provider,
+      accessToken: credential.accessToken,
+    });
+
+    return res.status(200).json({
+      status: "archive_connector_source_inventory_read",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      sourceInventoryEnabled: true,
+      accountLabel: credential.accountLabel,
+      externalAccountFingerprintPresent: credential.externalAccountFingerprintPresent,
+      sources: inventory.sources,
+      truncated: inventory.truncated,
+      ...sourceInventorySafety(true),
+    });
+  } catch (error) {
+    return sourceInventoryFailureResponse(res, provider, error);
   }
 });
 
@@ -642,6 +698,137 @@ function assertEmptyAccountLookupBody(body: unknown) {
   }
 }
 
+function assertEmptySourceInventoryBody(body: unknown) {
+  if (body == null) return;
+  if (typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid source inventory body");
+  }
+
+  if (Object.keys(body as Record<string, unknown>).length > 0) {
+    throw new Error("invalid source inventory body");
+  }
+}
+
+function sourceInventoryFailureResponse(
+  res: Response,
+  provider: ArchiveConnectorProviderId,
+  error: unknown,
+) {
+  const base = {
+    provider,
+    purpose: "archive_connector" as const,
+    ownerOnly: true,
+    sourceInventoryEnabled: false,
+    accountLabel: null,
+    externalAccountFingerprintPresent: false,
+    sources: [],
+    truncated: false,
+    ...sourceInventorySafety(false),
+  };
+
+  if (error instanceof ArchiveConnectorCredentialStorageError) {
+    if (
+      error.code === "archive_connector_credential_encryption_unconfigured" ||
+      error.code === "archive_connector_credential_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector credential encryption setup is required.",
+        code: "archive_connector_credential_encryption_required",
+        status: "encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_credential_provider_unsupported") {
+      return res.status(400).json({
+        error: "Archive connector provider is not supported.",
+        code: "archive_connector_provider_not_supported",
+        status: "unsupported_provider",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_credential_unavailable" ||
+      error.code === "archive_connector_source_credential_not_source_ready"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source inventory requires reconnect.",
+        code: "archive_connector_source_inventory_credential_required",
+        status: "credential_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_account_lookup_required") {
+      return res.status(409).json({
+        error: "Archive connector source inventory requires account lookup.",
+        code: "archive_connector_source_inventory_account_lookup_required",
+        status: "account_lookup_required",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_credential_payload_invalid" ||
+      error.code === "archive_connector_source_credential_decrypt_failed" ||
+      error.code === "archive_connector_source_credential_token_invalid"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source inventory credential is invalid.",
+        code: "archive_connector_source_inventory_credential_invalid",
+        status: "credential_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_credential_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector source inventory credential metadata.",
+        code: "archive_connector_source_inventory_credential_load_failed",
+        status: "credential_load_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorSourceInventoryError) {
+    if (error.code === "archive_connector_source_inventory_reconnect_required") {
+      return res.status(409).json({
+        error: "Archive connector source inventory requires reconnect.",
+        code: error.code,
+        status: "reconnect_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_rate_limited") {
+      return res.status(429).json({
+        error: "Archive connector source inventory was rate limited.",
+        code: error.code,
+        status: "rate_limited",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_provider_response_invalid") {
+      return res.status(502).json({
+        error: "Archive connector source inventory provider response was invalid.",
+        code: error.code,
+        status: "provider_response_invalid",
+        ...base,
+      });
+    }
+  }
+
+  return res.status(502).json({
+    error: "Archive connector source inventory provider request failed.",
+    code: "archive_connector_source_inventory_provider_failed",
+    status: "provider_failed",
+    ...base,
+  });
+}
+
 function accountLookupFailureResponse(
   res: Response,
   provider: ArchiveConnectorProviderId,
@@ -1081,6 +1268,31 @@ function accountLookupSafety(enabled: boolean) {
     jobWritesEnabled: false,
     queueEnabled: false,
     uiChangesEnabled: false,
+  };
+}
+
+function sourceInventorySafety(enabled: boolean) {
+  return {
+    tokenDecryptEnabled: enabled,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    providerTokenRefreshEnabled: false,
+    providerTokenRevocationEnabled: false,
+    credentialWritesEnabled: false,
+    credentialMetadataUpdateEnabled: false,
+    providerAccountLookupEnabled: false,
+    providerCallsEnabled: enabled,
+    sourceInventoryEnabled: enabled,
+    sourceBodyReadEnabled: false,
+    archiveSourceWritesEnabled: false,
+    importWritesEnabled: false,
+    jobWritesEnabled: false,
+    queueEnabled: false,
+    publicWritesEnabled: false,
+    uiChangesEnabled: false,
+    rawProviderIdReadbackEnabled: false,
+    providerPayloadReadbackEnabled: false,
+    providerHeadersReadbackEnabled: false,
   };
 }
 

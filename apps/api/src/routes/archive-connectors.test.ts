@@ -11,6 +11,7 @@ import {
   fingerprintArchiveConnectorExternalAccount,
 } from "../services/archive-connectors/credential-storage";
 import { setArchiveConnectorAccountLookupFetchForTests } from "../services/archive-connectors/account-lookup";
+import { setArchiveConnectorSourceInventoryFetchForTests } from "../services/archive-connectors/source-inventory";
 import { setArchiveConnectorTokenEndpointFetchForTests } from "../services/archive-connectors/token-exchange";
 
 process.env.NODE_ENV = "test";
@@ -402,6 +403,18 @@ async function lookupArchiveConnectorCredentialAccountRoute(
   });
 }
 
+async function readArchiveConnectorSourceInventoryRoute(
+  app: Express,
+  options: {
+    provider?: "reddit" | "discord" | string;
+    token?: string | null;
+  } = {},
+) {
+  return requestJson<Row>(app, "GET", `/archive-connectors/${options.provider ?? "reddit"}/source-inventory`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+  });
+}
+
 type TokenFetchCall = {
   url: string;
   method: string | undefined;
@@ -416,6 +429,13 @@ type AccountLookupFetchCall = {
   signalPresent: boolean;
 };
 
+type SourceInventoryFetchCall = {
+  url: string;
+  method: string | undefined;
+  headers: Headers;
+  signalPresent: boolean;
+};
+
 function tokenJsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -424,6 +444,13 @@ function tokenJsonResponse(body: unknown, status = 200) {
 }
 
 function accountLookupJsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+function sourceInventoryJsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json" },
@@ -449,6 +476,28 @@ async function withTokenEndpointFetch(
     await fn();
   } finally {
     setArchiveConnectorTokenEndpointFetchForTests(null);
+  }
+}
+
+async function withSourceInventoryFetch(
+  calls: SourceInventoryFetchCall[],
+  fetcher: (input: string | URL, init?: RequestInit) => Promise<Response>,
+  fn: () => Promise<void>,
+) {
+  setArchiveConnectorSourceInventoryFetchForTests(async (input, init) => {
+    calls.push({
+      url: String(input),
+      method: init?.method,
+      headers: new Headers(init?.headers),
+      signalPresent: Boolean(init?.signal),
+    });
+    return fetcher(input, init);
+  });
+
+  try {
+    await fn();
+  } finally {
+    setArchiveConnectorSourceInventoryFetchForTests(null);
   }
 }
 
@@ -527,6 +576,22 @@ function encryptedArchiveConnectorCredentialRow(input: {
     rotated_at: null,
     revoked_at: input.status === "revoked" ? "2026-06-29T22:45:00.000Z" : null,
   };
+}
+
+function sourceReadyArchiveConnectorCredentialRow(input: {
+  provider?: "reddit" | "discord";
+  accountLabel?: string | null;
+  externalAccountFingerprint?: string | null;
+} = {}) {
+  const provider = input.provider ?? "reddit";
+  return encryptedArchiveConnectorCredentialRow({
+    provider,
+    scopeProfile: "source_inventory",
+    accountLabel: input.accountLabel ?? (provider === "reddit" ? "Owner Reddit" : "Owner Discord"),
+    externalAccountFingerprint: input.externalAccountFingerprint === undefined
+      ? fingerprintArchiveConnectorExternalAccount(provider, `${provider}-raw-account-id-fixture`)
+      : input.externalAccountFingerprint,
+  });
 }
 
 function assertNoSensitiveArchiveConnectorReadback(body: unknown) {
@@ -643,6 +708,37 @@ function assertNoSensitiveAccountLookupReadback(body: unknown) {
 
   for (const value of forbidden) {
     assert.equal(text.includes(value), false, `${value} leaked into account lookup readback`);
+  }
+}
+
+function assertNoSensitiveSourceInventoryReadback(body: unknown) {
+  assertNoSensitiveCredentialReadback(body);
+  const text = JSON.stringify(body);
+  const forbidden = [
+    "reddit-source_inventory-account-proof-token",
+    "discord-source_inventory-account-proof-token",
+    "reddit-source_inventory-refresh-token-fixture",
+    "discord-source_inventory-refresh-token-fixture",
+    "subreddit-raw-id-fixture",
+    "guild-raw-id-fixture",
+    "t5_raw_fullname_fixture",
+    "after-cursor-fixture",
+    "provider-source-payload",
+    "request-id-fixture",
+    "rate-limit-fixture",
+    "subscriber_count",
+    "member_count",
+    "presence_count",
+    "permissions",
+    "icon-fixture",
+    "avatar-fixture",
+    "https://reddit.example",
+    "https://discord.example",
+    "private-source-body-fixture",
+  ];
+
+  for (const value of forbidden) {
+    assert.equal(text.includes(value), false, `${value} leaked into source inventory readback`);
   }
 }
 
@@ -3176,6 +3272,288 @@ test("archive connector account lookup maps credential provider and metadata fai
   }
 });
 
+test("archive connector source inventory requires auth source-ready credential and account proof before provider fetch", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      await withSourceInventoryFetch(calls, async () => {
+        throw new Error("source inventory fetch should not run before prerequisites");
+      }, async () => {
+        const unauthenticated = await readArchiveConnectorSourceInventoryRoute(app, { token: null });
+        assert.equal(unauthenticated.status, 401);
+        assert.equal(unauthenticated.body.error, "Missing or invalid Authorization header.");
+        assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+
+        const unsupported = await readArchiveConnectorSourceInventoryRoute(app, { provider: "mastodon" });
+        assert.equal(unsupported.status, 400);
+        assert.equal(unsupported.body.code, "archive_connector_provider_not_supported");
+        assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+
+        db.rows("archive_connector_credentials").push(encryptedArchiveConnectorCredentialRow({
+          provider: "reddit",
+          externalAccountFingerprint: fingerprintArchiveConnectorExternalAccount("reddit", "reddit-raw-account-id-fixture"),
+        }));
+        const connectOnly = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+        assert.equal(connectOnly.status, 409);
+        assert.equal(connectOnly.body.code, "archive_connector_source_inventory_credential_required");
+        assertSourceInventorySafety(connectOnly.body, false);
+        assertNoSensitiveSourceInventoryReadback(connectOnly.body);
+
+        db.rows("archive_connector_credentials").length = 0;
+        db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+          provider: "reddit",
+          externalAccountFingerprint: null,
+        }));
+        const missingAccountProof = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+        assert.equal(missingAccountProof.status, 409);
+        assert.equal(missingAccountProof.body.code, "archive_connector_source_inventory_account_lookup_required");
+        assertSourceInventorySafety(missingAccountProof.body, false);
+        assertNoSensitiveSourceInventoryReadback(missingAccountProof.body);
+
+        assert.equal(calls.length, 0);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector Reddit source inventory returns safe subreddit rows and Station history categories", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+        provider: "reddit",
+        accountLabel: "Owner Reddit",
+      }));
+
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse({
+        data: {
+          after: "after-cursor-fixture",
+          children: [
+            {
+              kind: "t5",
+              data: {
+                id: "subreddit-raw-id-fixture",
+                name: "t5_raw_fullname_fixture",
+                display_name_prefixed: "r/StationLab",
+                display_name: "StationLab",
+                subscriber_count: 123456,
+                url: "https://reddit.example/r/StationLab",
+                public_description: "private-source-body-fixture",
+                providerPayload: "provider-source-payload",
+              },
+            },
+          ],
+        },
+      }), async () => {
+        const response = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+
+        assert.equal(response.status, 200);
+        assert.equal(response.body.status, "archive_connector_source_inventory_read");
+        assert.equal(response.body.provider, "reddit");
+        assert.equal(response.body.purpose, "archive_connector");
+        assert.equal(response.body.ownerOnly, true);
+        assert.equal(response.body.accountLabel, "Owner Reddit");
+        assert.equal(response.body.externalAccountFingerprintPresent, true);
+        assert.equal(response.body.truncated, true);
+        assertSourceInventorySafety(response.body, true);
+        assertNoSensitiveSourceInventoryReadback(response.body);
+
+        assert.equal(response.body.sources.length, 7);
+        const subreddit = response.body.sources.find((source: Row) => source.sourceFamily === "reddit_subreddit_memberships");
+        assert.equal(subreddit.label, "r/StationLab");
+        assert.equal(subreddit.sourceKind, "subreddit");
+        assert.equal(subreddit.availability, "available");
+        assert.equal(subreddit.truncated, true);
+        const historyLabels = response.body.sources
+          .filter((source: Row) => source.sourceFamily === "reddit_user_history")
+          .map((source: Row) => source.label)
+          .sort();
+        assert.deepEqual(historyLabels, [
+          "Comments",
+          "Downvoted items",
+          "Hidden items",
+          "Saved items",
+          "Submitted posts",
+          "Upvoted items",
+        ].sort());
+        for (const row of response.body.sources) assertSourceInventoryRowSafety(row);
+
+        assert.equal(calls.length, 1);
+        assert.equal(calls[0].url, "https://oauth.reddit.com/subreddits/mine/subscriber?limit=100&raw_json=1");
+        assert.equal(calls[0].method, "GET");
+        assert.equal(calls[0].headers.get("Accept"), "application/json");
+        assert.equal(calls[0].headers.get("Authorization"), "Bearer reddit-source_inventory-account-proof-token");
+        assert.match(calls[0].headers.get("User-Agent") ?? "", /StationArchiveConnector/);
+        assert.equal(calls[0].signalPresent, true);
+        assert.equal(JSON.stringify(calls).includes("saved"), false);
+        assert.equal(JSON.stringify(calls).includes("upvoted"), false);
+        assert.equal(JSON.stringify(calls).includes("comments"), false);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector Discord source inventory returns safe guild rows only", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+        provider: "discord",
+        accountLabel: "Owner Discord",
+      }));
+
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse([
+        {
+          id: "guild-raw-id-fixture",
+          name: "Station Guild",
+          icon: "icon-fixture",
+          owner: true,
+          permissions: "8",
+          approximate_member_count: 42,
+          approximate_presence_count: 7,
+          url: "https://discord.example/guild",
+          providerPayload: "provider-source-payload",
+        },
+      ]), async () => {
+        const response = await readArchiveConnectorSourceInventoryRoute(app, { provider: "discord" });
+
+        assert.equal(response.status, 200);
+        assert.equal(response.body.status, "archive_connector_source_inventory_read");
+        assert.equal(response.body.provider, "discord");
+        assert.equal(response.body.accountLabel, "Owner Discord");
+        assert.equal(response.body.truncated, false);
+        assertSourceInventorySafety(response.body, true);
+        assertNoSensitiveSourceInventoryReadback(response.body);
+
+        assert.equal(response.body.sources.length, 1);
+        assert.equal(response.body.sources[0].sourceFamily, "discord_guilds");
+        assert.equal(response.body.sources[0].sourceKind, "guild");
+        assert.equal(response.body.sources[0].label, "Station Guild");
+        assert.equal(response.body.sources[0].availability, "available");
+        assert.equal(response.body.sources[0].truncated, false);
+        assertSourceInventoryRowSafety(response.body.sources[0]);
+
+        assert.equal(calls.length, 1);
+        assert.equal(calls[0].url, "https://discord.com/api/v10/users/@me/guilds?limit=200&with_counts=false");
+        assert.equal(calls[0].method, "GET");
+        assert.equal(calls[0].headers.get("Accept"), "application/json");
+        assert.equal(calls[0].headers.get("Authorization"), "Bearer discord-source_inventory-account-proof-token");
+        assert.equal(calls[0].signalPresent, true);
+        assert.equal(JSON.stringify(calls).includes("channels"), false);
+        assert.equal(JSON.stringify(calls).includes("messages"), false);
+        assert.equal(JSON.stringify(calls).includes("members"), false);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector source inventory maps provider failures to bounded responses", async () => {
+  const cases: Array<{
+    name: string;
+    fetcher: () => Promise<Response>;
+    expectedStatus: number;
+    expectedCode: string;
+  }> = [
+    {
+      name: "provider-reconnect",
+      fetcher: async () => sourceInventoryJsonResponse({}, 401),
+      expectedStatus: 409,
+      expectedCode: "archive_connector_source_inventory_reconnect_required",
+    },
+    {
+      name: "provider-rate-limited",
+      fetcher: async () => sourceInventoryJsonResponse({ error: "rate-limit-fixture" }, 429),
+      expectedStatus: 429,
+      expectedCode: "archive_connector_source_inventory_rate_limited",
+    },
+    {
+      name: "provider-5xx",
+      fetcher: async () => sourceInventoryJsonResponse({ request_id: "request-id-fixture" }, 503),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_source_inventory_provider_failed",
+    },
+    {
+      name: "network-error",
+      fetcher: async () => {
+        throw new Error("network should be bounded");
+      },
+      expectedStatus: 502,
+      expectedCode: "archive_connector_source_inventory_provider_failed",
+    },
+    {
+      name: "invalid-json",
+      fetcher: async () => new Response("{not-json", { status: 200 }),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_source_inventory_provider_response_invalid",
+    },
+    {
+      name: "missing-children",
+      fetcher: async () => sourceInventoryJsonResponse({ data: {} }),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_source_inventory_provider_response_invalid",
+    },
+    {
+      name: "unsafe-label",
+      fetcher: async () => sourceInventoryJsonResponse({
+        data: {
+          children: [
+            { data: { id: "subreddit-raw-id-fixture", display_name: "token secret payload" } },
+          ],
+        },
+      }),
+      expectedStatus: 502,
+      expectedCode: "archive_connector_source_inventory_provider_response_invalid",
+    },
+  ];
+
+  for (const setup of cases) {
+    const calls: SourceInventoryFetchCall[] = [];
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorExchangeEnv(), async () => {
+        db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+          provider: "reddit",
+        }));
+
+        await withSourceInventoryFetch(calls, setup.fetcher, async () => {
+          const response = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+
+          assert.equal(response.status, setup.expectedStatus, setup.name);
+          assert.equal(response.body.code, setup.expectedCode, setup.name);
+          assert.equal(response.body.sources.length, 0, setup.name);
+          assert.equal(response.body.truncated, false, setup.name);
+          assertSourceInventorySafety(response.body, false);
+          assertNoSensitiveSourceInventoryReadback(response.body);
+          assert.equal(calls.length, 1, setup.name);
+        });
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
 test("archive connector credential revoke requires auth supported provider and empty body", async () => {
   const db = new ArchiveConnectorReadinessSupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -3439,6 +3817,7 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
   const tokenExchangeSource = readFileSync("apps/api/src/services/archive-connectors/token-exchange.ts", "utf8");
   const accountLookupSource = readFileSync("apps/api/src/services/archive-connectors/account-lookup.ts", "utf8");
+  const sourceInventorySource = readFileSync("apps/api/src/services/archive-connectors/source-inventory.ts", "utf8");
   const source = `${routeSource}\n${readinessSource}`;
   const sourceWithoutAcceptedArchiveConfig = source.replace(
     /ARCHIVE_CONNECTOR_(REDDIT|DISCORD)_CLIENT_(ID|SECRET)/g,
@@ -3450,7 +3829,9 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const credentialStoreMatches = routeSource.match(/storeArchiveConnectorCredential/g) ?? [];
   const credentialRevokeMatches = routeSource.match(/revokeArchiveConnectorCredential/g) ?? [];
   const accountSecretMatches = routeSource.match(/loadArchiveConnectorAccountCredentialSecret/g) ?? [];
+  const sourceInventorySecretMatches = routeSource.match(/loadArchiveConnectorSourceInventoryCredentialSecret/g) ?? [];
   const accountLookupMatches = routeSource.match(/lookupArchiveConnectorProviderAccount/g) ?? [];
+  const sourceInventoryMatches = routeSource.match(/readArchiveConnectorProviderSourceInventory/g) ?? [];
   const accountMetadataUpdateMatches = routeSource.match(/updateArchiveConnectorCredentialAccountMetadata/g) ?? [];
   const tokenExchangeMatches = routeSource.match(/exchangeArchiveConnectorOAuthCode/g) ?? [];
 
@@ -3460,7 +3841,9 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.equal(credentialStoreMatches.length, 2);
   assert.equal(credentialRevokeMatches.length, 2);
   assert.equal(accountSecretMatches.length, 2);
+  assert.equal(sourceInventorySecretMatches.length, 2);
   assert.equal(accountLookupMatches.length, 2);
+  assert.equal(sourceInventoryMatches.length, 2);
   assert.equal(accountMetadataUpdateMatches.length, 2);
   assert.equal(tokenExchangeMatches.length, 3);
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
@@ -3477,6 +3860,9 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.match(accountLookupSource, /oauth\.reddit\.com\/api\/v1\/me\?raw_json=1/);
   assert.match(accountLookupSource, /discord\.com\/api\/v10\/users\/@me/);
   assert.doesNotMatch(accountLookupSource, /access_token|refresh_token|guilds|channels|messages|listing|saved|upvoted|history|submitted|comments|subreddits|archive_sources|import_jobs|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
+  assert.match(sourceInventorySource, /oauth\.reddit\.com\/subreddits\/mine\/subscriber\?limit=100&raw_json=1/);
+  assert.match(sourceInventorySource, /discord\.com\/api\/v10\/users\/@me\/guilds\?limit=200&with_counts=false/);
+  assert.doesNotMatch(sourceInventorySource, /\/user\/|\/saved|\/upvoted|\/downvoted|\/submitted|\/comments|\/hidden|\/overview|\/gilded|\/api\/v1\/me|channels|messages|\/members|guild-members|connections|webhooks|invites|archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
   assert.doesNotMatch(source, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates/i);
   assert.doesNotMatch(source, /new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
 });
@@ -3562,4 +3948,41 @@ function assertAccountLookupSafety(body: Row, enabled: boolean) {
   assert.equal(body.jobWritesEnabled, false);
   assert.equal(body.queueEnabled, false);
   assert.equal(body.uiChangesEnabled, false);
+}
+
+function assertSourceInventorySafety(body: Row, enabled: boolean) {
+  assert.equal(body.tokenDecryptEnabled, enabled);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerTokenEndpointCallsEnabled, false);
+  assert.equal(body.providerTokenRefreshEnabled, false);
+  assert.equal(body.providerTokenRevocationEnabled, false);
+  assert.equal(body.credentialWritesEnabled, false);
+  assert.equal(body.credentialMetadataUpdateEnabled, false);
+  assert.equal(body.providerAccountLookupEnabled, false);
+  assert.equal(body.providerCallsEnabled, enabled);
+  assert.equal(body.sourceInventoryEnabled, enabled);
+  assert.equal(body.sourceBodyReadEnabled, false);
+  assert.equal(body.archiveSourceWritesEnabled, false);
+  assert.equal(body.importWritesEnabled, false);
+  assert.equal(body.jobWritesEnabled, false);
+  assert.equal(body.queueEnabled, false);
+  assert.equal(body.publicWritesEnabled, false);
+  assert.equal(body.uiChangesEnabled, false);
+  assert.equal(body.rawProviderIdReadbackEnabled, false);
+  assert.equal(body.providerPayloadReadbackEnabled, false);
+  assert.equal(body.providerHeadersReadbackEnabled, false);
+}
+
+function assertSourceInventoryRowSafety(row: Row) {
+  assert.equal(row.purpose, "archive_connector");
+  assert.equal(row.ownerOnly, true);
+  assert.equal(typeof row.sourceKey, "string");
+  assert.equal(row.sourceKey.length, 24);
+  assert.equal(row.sourceBodyReadEnabled, false);
+  assert.equal(row.importWritesEnabled, false);
+  assert.equal(row.jobWritesEnabled, false);
+  assert.equal(row.queueEnabled, false);
+  assert.equal(row.publicWritesEnabled, false);
+  assert.equal(row.rawProviderIdReadbackEnabled, false);
+  assert.equal(row.providerPayloadReadbackEnabled, false);
 }
