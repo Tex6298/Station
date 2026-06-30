@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-J closed, PR484J-K opened
+
+MIMIR closes PR484J-J after ARGUS accepted read-only staged-batch import
+preview:
+
+`docs/roadmap/PR484J_J_ARCHIVE_CONNECTOR_STAGED_BATCH_CONSUMPTION_CLOSEOUT.md`
+
+MIMIR opens connector import execution preflight:
+
+`docs/roadmap/PR484J_K_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-K - Archive Connector Import Execution Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE FIRST CONNECTOR IMPORT WRITE BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight how one owner-confirmed current staged Reddit
+  saved-items run may enter Station's archive write path.
+- ARGUS should decide whether to use existing `import_jobs` and
+  `ingestTextIntoArchive`, a connector candidate/job row, or a smaller unblock.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest numbered unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS verdict - PR484J-J staged batch consumption accepted
 
 ARGUS accepts the PR484J-J staged-batch consumption implementation:
