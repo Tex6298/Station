@@ -319,7 +319,7 @@ test("archive connector credential readback is owner and purpose scoped with saf
   }
 });
 
-test("archive connector credential storage does not infer source readiness from scope profile alone", async () => {
+test("archive connector credential storage does not infer source readiness from profile or secret material alone", async () => {
   const db = new ArchiveConnectorStorageSupabase();
   useFakes(db);
 
@@ -339,6 +339,25 @@ test("archive connector credential storage does not infer source readiness from 
       assert.equal(created.reconnectRequiredForSourceInventory, true);
       assert.deepEqual(db.rows("archive_connector_credentials")[0].granted_scopes, ["identity"]);
       assertNoSensitive(created);
+
+      const secretScopeOnly = await storeArchiveConnectorCredential({
+        ownerUserId: "owner-user",
+        provider: "reddit",
+        secretMaterial: {
+          ...secretMaterial,
+          scopeProfile: "source_inventory",
+          grantedScopes: ["identity", "mysubreddits", "history"],
+        },
+        accountLabel: "Owner Reddit",
+      });
+
+      assert.equal(secretScopeOnly.scopeProfile, "connect");
+      assert.deepEqual(secretScopeOnly.grantedScopes, ["identity"]);
+      assert.equal(secretScopeOnly.connectionScopeState, "account_proof_only");
+      assert.equal(secretScopeOnly.reconnectRequiredForSourceInventory, true);
+      assert.equal(db.rows("archive_connector_credentials")[1].scope_profile, "connect");
+      assert.deepEqual(db.rows("archive_connector_credentials")[1].granted_scopes, ["identity"]);
+      assertNoSensitive(secretScopeOnly);
     });
   } finally {
     resetFakes();

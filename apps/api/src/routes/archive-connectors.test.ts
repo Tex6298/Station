@@ -755,7 +755,7 @@ test("archive connector readiness reports reddit and discord with missing encryp
         assert.equal(provider.providerOAuthAppConfigAccepted, true);
         assert.equal(provider.oauthAppConfigured, false);
         assert.deepEqual(
-          provider.scopeProfiles.map((profile: Row) => [profile.scopeProfile, profile.requestedScopes, profile.sourceInventoryReady]),
+          provider.scopeProfiles.map((profile: Row) => [profile.scopeProfile, profile.requestedScopes, profile.sourceInventoryRequested]),
           provider.id === "reddit"
             ? [
                 ["connect", ["identity"], false],
@@ -1051,8 +1051,10 @@ test("archive connector OAuth state start creates bounded state rows for configu
       assert.equal(discord.body.scopeProfile, "connect");
       assert.deepEqual(reddit.body.requestedScopes, ["identity", "mysubreddits", "history"]);
       assert.deepEqual(discord.body.requestedScopes, ["identify"]);
-      assert.equal(reddit.body.reconnectRequiredForSourceInventory, false);
-      assert.equal(discord.body.reconnectRequiredForSourceInventory, true);
+      assert.equal(reddit.body.sourceInventoryRequested, true);
+      assert.equal(discord.body.sourceInventoryRequested, false);
+      assert.equal("reconnectRequiredForSourceInventory" in reddit.body, false);
+      assert.equal("reconnectRequiredForSourceInventory" in discord.body, false);
       assert.match(reddit.body.stateHandle, /^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/);
       assert.match(discord.body.stateHandle, /^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/);
       assert.notEqual(reddit.body.stateHandle, discord.body.stateHandle);

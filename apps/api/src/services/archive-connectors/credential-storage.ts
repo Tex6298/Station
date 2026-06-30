@@ -164,8 +164,8 @@ export async function storeArchiveConnectorCredential(input: {
   const credentialFingerprint = fingerprintArchiveConnectorCredential(input.provider, input.secretMaterial);
   const externalAccountFingerprint = fingerprintArchiveConnectorExternalAccount(input.provider, input.rawExternalAccountId);
   const accountLabel = sanitizeArchiveConnectorAccountLabel(input.accountLabel);
-  const scopeProfile = scopeProfileFromCredentialInput(input.scopeProfile, input.secretMaterial);
-  const grantedScopes = grantedScopesFromCredentialInput(input.provider, input.grantedScopes, input.secretMaterial);
+  const scopeProfile = scopeProfileFromCredentialInput(input.scopeProfile);
+  const grantedScopes = grantedScopesFromCredentialInput(input.provider, input.grantedScopes);
   const now = new Date().toISOString();
 
   await revokeActiveArchiveConnectorCredentialRows(input.ownerUserId, input.provider, now);
@@ -258,28 +258,18 @@ export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnecto
 
 function scopeProfileFromCredentialInput(
   explicitScopeProfile: ArchiveConnectorScopeProfile | undefined,
-  secretMaterial: unknown,
 ) {
-  const materialScopeProfile = secretMaterial && typeof secretMaterial === "object"
-    ? archiveConnectorScopeProfileFromValue((secretMaterial as { scopeProfile?: unknown }).scopeProfile)
-    : null;
   if (explicitScopeProfile) return explicitScopeProfile;
-  if (materialScopeProfile) return materialScopeProfile;
   return "connect" satisfies ArchiveConnectorScopeProfile;
 }
 
 function grantedScopesFromCredentialInput(
   provider: ArchiveConnectorProviderId,
   explicitGrantedScopes: string[] | null | undefined,
-  secretMaterial: unknown,
 ) {
-  const materialGrantedScopes = secretMaterial && typeof secretMaterial === "object" &&
-    Array.isArray((secretMaterial as { grantedScopes?: unknown }).grantedScopes)
-    ? (secretMaterial as { grantedScopes: string[] }).grantedScopes
-    : null;
   const normalized = normalizeArchiveConnectorGrantedScopes(
     provider,
-    explicitGrantedScopes ?? materialGrantedScopes ?? archiveConnectorScopesForProfile(provider, "connect"),
+    explicitGrantedScopes ?? archiveConnectorScopesForProfile(provider, "connect"),
   );
   const scopeState = archiveConnectorConnectionScopeState({ provider, grantedScopes: normalized });
   return scopeState.connectionScopeState === "source_scope_ready"

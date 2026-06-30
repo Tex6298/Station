@@ -253,8 +253,8 @@ export function archiveConnectorScopeProfileReadback(
     scopeProfile,
     requestedScopes,
     consentCopy: consentCopyForProfile(provider, scopeProfile),
-    reconnectRequiredForSourceInventory: scopeProfile === "connect",
-    sourceInventoryReady: scopeProfile === "source_inventory",
+    connectProofOnly: scopeProfile === "connect",
+    sourceInventoryRequested: scopeProfile === "source_inventory",
   };
 }
 

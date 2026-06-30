@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-B Archive Connector Source Scope OAuth Consent / Reconnect Review
+
+ARGUS accepted PR484J-B on 2026-06-30:
+`docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_B_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT`.
+
+Reason:
+
+- `scopeProfile` state binding, authorization scope derivation, exact token
+  scope validation, and safe credential/readiness readback are accepted;
+- Reddit source inventory reconnect remains exact
+  `identity mysubreddits history`;
+- Discord source inventory reconnect remains exact `identify guilds`;
+- existing connect-proof credentials remain not source-ready and require
+  reconnect for source inventory;
+- ARGUS patched profile option readback to avoid saying source inventory is
+  ready before a credential exists;
+- ARGUS patched credential storage so arbitrary `secretMaterial` fields cannot
+  infer `scopeProfile`, `grantedScopes`, or source readiness;
+- no provider source reads, source inventory route, token decrypt, account
+  lookup, imports, jobs, UI, packages, marketplace, billing, Redis, Cloudflare,
+  or social behavior was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts` | Pass | 53 focused connector route/storage/contract tests passed after the ARGUS patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 92 tests passed across connector route/storage/contract, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| Scope/path scan | Pass | Review patch touched archive connector API helpers/tests and docs only; implementation stayed inside accepted API helper/route/test, one Supabase metadata migration, and docs surface. |
+
 ## PR484J-B Archive Connector Source Scope OAuth Consent / Reconnect
 
 DAEDALUS implemented PR484J-B on 2026-06-30:

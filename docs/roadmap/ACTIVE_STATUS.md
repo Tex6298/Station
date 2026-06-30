@@ -4,6 +4,80 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR484J-B accepted for MIMIR
+
+ARGUS reviewed and accepted the PR484J-B Archive Connector Source Scope OAuth
+Consent / Reconnect implementation:
+
+`docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_REVIEW_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_B_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT
+```
+
+Accepted implementation:
+
+- OAuth state binds `scopeProfile` at start time;
+- authorization accepts only `{ stateHandle }` and derives exact provider
+  scopes from stored state;
+- Reddit source inventory reconnect requests exact
+  `identity mysubreddits history`;
+- Discord source inventory reconnect requests exact `identify guilds`;
+- callback exchange validates returned scopes against the consumed state
+  profile before credential metadata can read as source-ready;
+- credential/readiness readback exposes only Station-normalized safe scope
+  metadata;
+- existing connect-proof credentials remain not source-ready and require
+  reconnect for source inventory;
+- the Supabase migration is limited to archive connector state/credential scope
+  metadata.
+
+ARGUS patch:
+
+- profile option readback now says `sourceInventoryRequested`, not
+  `sourceInventoryReady`;
+- profile/start readback no longer returns credential-style
+  `reconnectRequiredForSourceInventory` before a credential exists;
+- credential storage no longer infers source readiness from arbitrary
+  `secretMaterial` fields.
+
+No provider source reads, source inventory routes, token decrypt, provider
+account lookup, imports, jobs, UI, hosted/runtime config, Cloudflare, Redis,
+billing, packages, marketplace, or social behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts`
+  passed with 53 focused connector tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 92 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR484J-B - Archive Connector Source Scope OAuth Consent / Reconnect
+Owner: MIMIR / A1
+State: ACCEPTED - CLOSEOUT/NEXT LANE
+```
+
+Current baton:
+
+- MIMIR should close PR484J-B or choose the next archive connector move.
+- Provider source inventory reads, token decrypt, account lookup, imports, UI,
+  hosted proof, packages, billing, Redis, Cloudflare, marketplace, and social
+  behavior remain separate lanes unless explicitly opened.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS handoff - PR484J-B ready for ARGUS review
 
 DAEDALUS implemented the accepted PR484J-B Archive Connector Source Scope OAuth
