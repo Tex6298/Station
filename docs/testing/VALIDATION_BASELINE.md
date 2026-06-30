@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-N Archive Connector Hosted Setup Preflight
+
+ARGUS accepted PR484J-N on 2026-06-30:
+`docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT`.
+
+Reason:
+
+- verified current code requires archive connector credential encryption,
+  archive-specific Reddit provider app config, safe hosted callback origin from
+  `NEXT_PUBLIC_APP_URL`, and hosted migrations before live Reddit setup proof;
+- verified `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY` is only needed for
+  later source staging/import proof, not for the PR484J-N source-inventory
+  proof;
+- accepted a secret-safe MIMIR config route followed by narrow ARIADNE hosted
+  proof through real owner Reddit OAuth, account lookup, and generic saved-items
+  source availability;
+- kept source preview, staging, import preview, final import, Discord content,
+  broader Reddit categories, queues/workers, billing, Redis, Cloudflare,
+  marketplace, social behavior, public writes, Canon, Continuity, review
+  candidates, and new import execution behavior out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code inventory | Pass | Verified env names and callback behavior in archive connector env/readiness/credential/source-staging/routes code plus migrations `062`-`067`. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts` | Pass | 93 archive connector API/web owner-flow tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors after doc updates; CRLF normalization warnings only. |
+
 ## PR484J-M Archive Connector Disabled State Rerun
 
 ARIADNE completed the hosted PR484J-M desktop/mobile rerun on 2026-06-30:

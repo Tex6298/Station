@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-N | Archive Connector Hosted Setup Preflight | ARGUS / A3 | Open for hostile preflight; decide exact config/schema/callback requirements for moving from safe disabled setup state to live Reddit OAuth/source-inventory proof, and choose whether next step is config-only for MIMIR, a smallest DAEDALUS lane, or an ARIADNE hosted proof after config | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_ARGUS.md` |
+| PR484J-N | Archive Connector Hosted Setup | MIMIR / A1 | Accepted config-plus-hosted-proof lane; configure archive connector credential key, archive-specific Reddit client id/secret, HTTPS `NEXT_PUBLIC_APP_URL`, and hosted migrations 062-067, then route ARIADNE to prove real owner Reddit OAuth/account lookup/generic saved-items source availability without source preview, staging, import preview, final import, Discord, broader Reddit, queues/workers, billing, Redis, Cloudflare, marketplace, social behavior, or new import execution | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J-N preflight | Archive Connector Hosted Setup | MIMIR -> ARGUS -> MIMIR | Accepted config-plus-hosted-proof lane; no DAEDALUS code required before config, add HTTPS `NEXT_PUBLIC_APP_URL` and migration confirmation to the candidate setup list, treat source staging key as later staging/import-only, and stop hosted proof after real owner Reddit OAuth/account lookup/generic saved-items source availability | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_RESULT.md` |
 | PR484J-N opened | Archive Connector Hosted Setup Preflight | MIMIR -> ARGUS | Open; separate preflight for exact live Reddit connector setup/config/callback requirements after PR484J-L/M closed the visible disabled-state defect | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_ARGUS.md` |
 | PR484J-M closeout | Archive Connector Disabled State | ARIADNE -> MIMIR | Closed; hosted rerun passed after repair, with disabled credential/provider setup copy visible, no connect/import actions, desktop/mobile fit, saved-items-only copy, redaction, and no scope drift | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_CLOSEOUT.md` |
 | PR484J-M rerun opened | Archive Connector Disabled State Rerun | MIMIR -> ARIADNE | Open; hosted desktop/mobile rerun routed after ARGUS accepted the disabled-state repair for the owner connector panel defect found by ARIADNE | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_RERUN_ARIADNE.md` |

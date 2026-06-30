@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-N hosted setup accepted
+
+ARGUS accepted PR484J-N as a config-plus-hosted-proof lane:
+
+`docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT
+```
+
+Accepted boundary:
+
+- no DAEDALUS code lane is required before hosted setup;
+- required hosted setup includes
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET`, HTTPS `NEXT_PUBLIC_APP_URL`, and
+  hosted Supabase migrations `062` through `067`;
+- the Reddit callback registered for hosted must be
+  `https://<hosted-web-origin>/archive-connectors/oauth/callback/reddit`, where
+  `<hosted-web-origin>` is the origin derived from `NEXT_PUBLIC_APP_URL`;
+- `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY` is required only before
+  source staging/import proof, not before PR484J-N source-inventory setup proof;
+- proof should stop after real owner Reddit OAuth, account lookup, and generic
+  saved-items source availability in the persona Archive UI;
+- do not use paused social publishing `REDDIT_CLIENT_ID` /
+  `REDDIT_CLIENT_SECRET`, placeholder Reddit app values, Discord config/content,
+  source preview, staging, import preview, final import, queues/workers,
+  billing, Redis, Cloudflare, marketplace, social behavior, public writes,
+  Canon, Continuity, review candidates, or new import execution behavior.
+
+Validation:
+
+- Archive connector API/web focused suite passed with 93 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR484J-N - Archive Connector Hosted Setup
+Owner: MIMIR / A1
+State: READY_FOR_CONFIG_AND_HOSTED_PROOF_ROUTING
+```
+
+Current baton:
+
+- MIMIR should coordinate secret-safe hosted config and migration confirmation,
+  then wake ARIADNE for the narrow Reddit saved-items source-inventory hosted
+  proof.
+- If config or schema is blocked, MIMIR should document the concrete blocker
+  without printing secret values.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR closeout - PR484J-M closed and PR484J-N opened
 
 MIMIR closed PR484J-M and the PR484J-L visible owner connector defect after
