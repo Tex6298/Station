@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS handoff - PR484J-C ready for ARGUS review
+
+DAEDALUS implemented the accepted PR484J-C Archive Connector Credential Decrypt
+Boundary lane:
+
+`docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_RESULT.md`
+
+Implementation:
+
+- added internal-only `loadArchiveConnectorSourceCredentialSecret` for active
+  owner/provider/purpose `archive_connector` credentials;
+- unsupported providers fail before storage access;
+- missing, revoked, wrong-owner, wrong-purpose, unsupported-row, and duplicate
+  active rows fail through a common unavailable-style error;
+- stored metadata must prove `source_inventory` with exact canonical provider
+  source scopes before decrypt;
+- decrypted token material must independently prove schema, provider,
+  `source_inventory`, exact canonical granted scopes, bounded access token, and
+  bounded optional refresh token, token type, and expiry;
+- stored metadata alone and decrypted token material alone are both
+  insufficient;
+- returned secret material remains internal-only and is not wired into routes,
+  readiness, or credential readback.
+
+Non-scope confirmation:
+
+- no provider API calls, provider clients, source inventory routes, account
+  lookup, imports, jobs, UI, hosted proof, packages, billing, Redis,
+  Cloudflare, marketplace, or social behavior was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 98 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR484J-C - Archive Connector Credential Decrypt Boundary
+Owner: ARGUS / A3
+State: READY FOR REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484J-C against the accepted internal decrypt boundary.
+- If accepted, ARGUS should wake MIMIR.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest patch.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR484J-C accepted for DAEDALUS
 
 ARGUS hostile-preflighted the PR484J-C Archive Connector Credential Decrypt

@@ -1,4 +1,4 @@
-import { createCipheriv, createHash, randomBytes } from "crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto";
 import { getSupabaseAdmin } from "../../lib/supabase";
 import {
   ARCHIVE_CONNECTOR_PROVIDER_IDS,
@@ -20,6 +20,12 @@ export type ArchiveConnectorCredentialStorageErrorCode =
   | "archive_connector_credential_write_failed"
   | "archive_connector_credential_load_failed"
   | "archive_connector_credential_revoke_failed"
+  | "archive_connector_source_credential_provider_unsupported"
+  | "archive_connector_source_credential_unavailable"
+  | "archive_connector_source_credential_not_source_ready"
+  | "archive_connector_source_credential_payload_invalid"
+  | "archive_connector_source_credential_decrypt_failed"
+  | "archive_connector_source_credential_token_invalid"
   | "archive_connector_oauth_state_write_failed"
   | "archive_connector_oauth_state_invalid";
 
@@ -82,6 +88,17 @@ export type ArchiveConnectorOAuthStateReadback = {
   consumedAt: string | null;
   localRedirectPath: string | null;
   scopeProfile: ArchiveConnectorScopeProfile;
+};
+
+export type ArchiveConnectorSourceCredentialSecret = {
+  provider: ArchiveConnectorProviderId;
+  purpose: "archive_connector";
+  scopeProfile: "source_inventory";
+  grantedScopes: string[];
+  tokenType: string | null;
+  accessToken: string;
+  refreshToken: string | null;
+  expiresInSeconds: number | null;
 };
 
 export class ArchiveConnectorCredentialStorageError extends Error {
@@ -220,6 +237,38 @@ export async function revokeArchiveConnectorCredential(input: {
     .map(serializeArchiveConnectorCredentialReadback);
 }
 
+export async function loadArchiveConnectorSourceCredentialSecret(input: {
+  ownerUserId: string;
+  provider: ArchiveConnectorProviderId;
+}): Promise<ArchiveConnectorSourceCredentialSecret> {
+  if (!isArchiveConnectorProviderId(input.provider)) {
+    throw new ArchiveConnectorCredentialStorageError(
+      "archive_connector_source_credential_provider_unsupported",
+      "Archive connector provider is not supported."
+    );
+  }
+
+  const rows = await loadArchiveConnectorCredentialRows(input.ownerUserId, {
+    provider: input.provider,
+    includeRevoked: false,
+  });
+  if (rows.length !== 1) throw sourceCredentialUnavailable();
+
+  const row = rows[0];
+  if (
+    row.owner_user_id !== input.ownerUserId ||
+    row.provider !== input.provider ||
+    row.purpose !== ARCHIVE_CONNECTOR_PURPOSE ||
+    row.status !== "active"
+  ) {
+    throw sourceCredentialUnavailable();
+  }
+
+  assertStoredSourceCredentialReady(row);
+  const decrypted = decryptArchiveConnectorCredential(row.encrypted_credential);
+  return sourceCredentialSecretFromTokenMaterial(input.provider, decrypted);
+}
+
 export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnectorCredentialRow): ArchiveConnectorCredentialReadback {
   const scopeProfile = archiveConnectorScopeProfileFromValue(row.scope_profile) ?? "connect";
   const grantedScopes = normalizeArchiveConnectorGrantedScopes(
@@ -253,6 +302,123 @@ export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnecto
       : archiveConnectorScopesForProfile(row.provider, "connect"),
     connectionScopeState: scopeState.connectionScopeState,
     reconnectRequiredForSourceInventory: scopeState.reconnectRequiredForSourceInventory,
+  };
+}
+
+function assertStoredSourceCredentialReady(row: ArchiveConnectorCredentialRow) {
+  const scopeProfile = archiveConnectorScopeProfileFromValue(row.scope_profile);
+  const grantedScopes = normalizeArchiveConnectorGrantedScopes(row.provider, row.granted_scopes);
+  const scopeState = archiveConnectorConnectionScopeState({
+    provider: row.provider,
+    grantedScopes,
+  });
+
+  if (
+    scopeProfile !== "source_inventory" ||
+    scopeState.connectionScopeState !== "source_scope_ready" ||
+    !sameScopeSet(grantedScopes, archiveConnectorScopesForProfile(row.provider, "source_inventory"))
+  ) {
+    throw new ArchiveConnectorCredentialStorageError(
+      "archive_connector_source_credential_not_source_ready",
+      "Archive connector source credential is not source-ready."
+    );
+  }
+}
+
+function decryptArchiveConnectorCredential(encryptedCredential: Record<string, unknown>) {
+  const encrypted = encryptedCredentialPayload(encryptedCredential);
+  const key = requiredArchiveConnectorCredentialEncryptionKey();
+
+  let plaintext: string;
+  try {
+    const decipher = createDecipheriv(ARCHIVE_CONNECTOR_CREDENTIAL_ALGORITHM, key, encrypted.iv);
+    decipher.setAuthTag(encrypted.authTag);
+    plaintext = Buffer.concat([
+      decipher.update(encrypted.ciphertext),
+      decipher.final(),
+    ]).toString("utf8");
+  } catch {
+    throw new ArchiveConnectorCredentialStorageError(
+      "archive_connector_source_credential_decrypt_failed",
+      "Archive connector source credential could not be decrypted."
+    );
+  }
+
+  try {
+    return JSON.parse(plaintext) as unknown;
+  } catch {
+    throw new ArchiveConnectorCredentialStorageError(
+      "archive_connector_source_credential_payload_invalid",
+      "Archive connector source credential payload is invalid."
+    );
+  }
+}
+
+function encryptedCredentialPayload(value: Record<string, unknown>) {
+  if (
+    !value ||
+    value.schema !== ARCHIVE_CONNECTOR_CREDENTIAL_SCHEMA ||
+    value.algorithm !== ARCHIVE_CONNECTOR_CREDENTIAL_ALGORITHM
+  ) {
+    throw sourceCredentialPayloadInvalid();
+  }
+
+  return {
+    iv: boundedBase64UrlBuffer(value.iv, 12, 12),
+    ciphertext: boundedBase64UrlBuffer(value.ciphertext, 1, 64 * 1024),
+    authTag: boundedBase64UrlBuffer(value.authTag, 16, 16),
+  };
+}
+
+function boundedBase64UrlBuffer(value: unknown, minBytes: number, maxBytes: number) {
+  if (typeof value !== "string" || !/^[A-Za-z0-9_-]+$/.test(value)) {
+    throw sourceCredentialPayloadInvalid();
+  }
+  let decoded: Buffer;
+  try {
+    decoded = Buffer.from(value, "base64url");
+  } catch {
+    throw sourceCredentialPayloadInvalid();
+  }
+  if (decoded.length < minBytes || decoded.length > maxBytes) throw sourceCredentialPayloadInvalid();
+  return decoded;
+}
+
+function sourceCredentialSecretFromTokenMaterial(
+  provider: ArchiveConnectorProviderId,
+  value: unknown,
+): ArchiveConnectorSourceCredentialSecret {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw sourceCredentialTokenInvalid();
+  const material = value as Record<string, unknown>;
+  if (
+    material.schema !== "station.archive_connector.oauth_token.v1" ||
+    material.provider !== provider ||
+    material.scopeProfile !== "source_inventory"
+  ) {
+    throw sourceCredentialTokenInvalid();
+  }
+
+  const tokenGrantedScopes = arrayOfStrings(material.grantedScopes);
+  const grantedScopes = normalizeArchiveConnectorGrantedScopes(provider, tokenGrantedScopes);
+  if (
+    !sameScopeSet(grantedScopes, archiveConnectorScopesForProfile(provider, "source_inventory")) ||
+    tokenGrantedScopes.some((scope) => !grantedScopes.includes(scope.trim()))
+  ) {
+    throw sourceCredentialTokenInvalid();
+  }
+
+  const accessToken = boundedSecretToken(material.accessToken);
+  if (!accessToken) throw sourceCredentialTokenInvalid();
+
+  return {
+    provider,
+    purpose: ARCHIVE_CONNECTOR_PURPOSE,
+    scopeProfile: "source_inventory",
+    grantedScopes,
+    tokenType: boundedNullableLabel(material.tokenType, 40),
+    accessToken,
+    refreshToken: boundedNullableSecretToken(material.refreshToken),
+    expiresInSeconds: boundedNullableExpiresIn(material.expiresInSeconds),
   };
 }
 
@@ -487,6 +653,44 @@ function sanitizeLocalRedirectPath(value: string | null | undefined) {
   return trimmed.slice(0, 200);
 }
 
+function arrayOfStrings(value: unknown) {
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    throw sourceCredentialTokenInvalid();
+  }
+  return value as string[];
+}
+
+function boundedSecretToken(value: unknown) {
+  if (typeof value !== "string") return null;
+  if (value.length < 1 || value.length > 4096 || /[\u0000-\u001f\u007f]/.test(value)) return null;
+  return value;
+}
+
+function boundedNullableSecretToken(value: unknown) {
+  if (value == null) return null;
+  const token = boundedSecretToken(value);
+  if (!token) throw sourceCredentialTokenInvalid();
+  return token;
+}
+
+function boundedNullableLabel(value: unknown, maxLength: number) {
+  if (value == null) return null;
+  if (typeof value !== "string") throw sourceCredentialTokenInvalid();
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > maxLength || /[\u0000-\u001f\u007f]/.test(trimmed)) {
+    throw sourceCredentialTokenInvalid();
+  }
+  return trimmed;
+}
+
+function boundedNullableExpiresIn(value: unknown) {
+  if (value == null) return null;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 315_360_000) {
+    throw sourceCredentialTokenInvalid();
+  }
+  return Math.floor(value);
+}
+
 function stableSecretMaterial(value: unknown): string {
   return JSON.stringify(sortJsonValue(value));
 }
@@ -512,4 +716,29 @@ function invalidOAuthState() {
 
 function isArchiveConnectorProviderId(value: unknown): value is ArchiveConnectorProviderId {
   return ARCHIVE_CONNECTOR_PROVIDER_IDS.includes(value as ArchiveConnectorProviderId);
+}
+
+function sameScopeSet(left: readonly string[], right: readonly string[]) {
+  return left.length === right.length && right.every((scope) => left.includes(scope));
+}
+
+function sourceCredentialUnavailable() {
+  return new ArchiveConnectorCredentialStorageError(
+    "archive_connector_source_credential_unavailable",
+    "Archive connector source credential is unavailable."
+  );
+}
+
+function sourceCredentialPayloadInvalid() {
+  return new ArchiveConnectorCredentialStorageError(
+    "archive_connector_source_credential_payload_invalid",
+    "Archive connector source credential payload is invalid."
+  );
+}
+
+function sourceCredentialTokenInvalid() {
+  return new ArchiveConnectorCredentialStorageError(
+    "archive_connector_source_credential_token_invalid",
+    "Archive connector source credential token material is invalid."
+  );
 }

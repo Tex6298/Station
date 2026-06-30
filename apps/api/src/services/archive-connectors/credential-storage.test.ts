@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createCipheriv, createHash, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { setSupabaseAdminForTests } from "../../lib/supabase";
@@ -7,7 +8,9 @@ import {
   archiveConnectorCredentialEncryptionConfigured,
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
+  encryptArchiveConnectorCredential,
   loadArchiveConnectorCredentialReadbacks,
+  loadArchiveConnectorSourceCredentialSecret,
   revokeArchiveConnectorCredential,
   storeArchiveConnectorCredential,
   validateArchiveConnectorOAuthState,
@@ -21,13 +24,17 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
 type Row = Record<string, any>;
 
 class ArchiveConnectorStorageSupabase {
+  tableCalls: string[] = [];
   tables: Record<string, Row[]> = {
     archive_connector_credentials: [],
     archive_connector_oauth_states: [],
   };
 
   client = {
-    from: (table: string) => new Query(this, table),
+    from: (table: string) => {
+      this.tableCalls.push(table);
+      return new Query(this, table);
+    },
   };
 
   rows(table: string) {
@@ -149,6 +156,75 @@ const forbidden = [
   "storage-path-fixture",
   "prompt-fixture",
 ];
+
+function sourceTokenMaterial(provider: "reddit" | "discord", overrides: Row = {}) {
+  const grantedScopes = provider === "reddit"
+    ? ["identity", "mysubreddits", "history"]
+    : ["identify", "guilds"];
+  return {
+    schema: "station.archive_connector.oauth_token.v1",
+    provider,
+    scopeProfile: "source_inventory",
+    tokenType: "bearer",
+    accessToken: `${provider}-source-access-token-fixture`,
+    refreshToken: `${provider}-source-refresh-token-fixture`,
+    expiresInSeconds: provider === "reddit" ? 3600 : 7200,
+    scope: grantedScopes.join(" "),
+    grantedScopes,
+    ...overrides,
+  };
+}
+
+function sourceCredentialRow(input: {
+  ownerUserId?: string;
+  provider?: "reddit" | "discord" | "mastodon";
+  purpose?: string;
+  status?: string;
+  scopeProfile?: string;
+  grantedScopes?: string[];
+  encryptedCredential?: Record<string, unknown>;
+  tokenMaterial?: Row;
+} = {}) {
+  const provider = input.provider ?? "reddit";
+  const supportedProvider = provider === "discord" ? "discord" : "reddit";
+  const grantedScopes = input.grantedScopes ?? (
+    provider === "discord" ? ["identify", "guilds"] : ["identity", "mysubreddits", "history"]
+  );
+  return {
+    id: "source-row-fixture",
+    owner_user_id: input.ownerUserId ?? "owner-user",
+    provider,
+    purpose: input.purpose ?? "archive_connector",
+    encrypted_credential: input.encryptedCredential ?? encryptArchiveConnectorCredential(
+      input.tokenMaterial ?? sourceTokenMaterial(supportedProvider),
+    ),
+    credential_fingerprint: "source-credential-fingerprint",
+    external_account_fingerprint: null,
+    account_label: null,
+    status: input.status ?? "active",
+    scope_profile: input.scopeProfile ?? "source_inventory",
+    granted_scopes: grantedScopes,
+    created_at: "2026-06-29T21:00:00.000Z",
+    updated_at: "2026-06-29T21:00:00.000Z",
+    rotated_at: null,
+    revoked_at: input.status === "revoked" ? "2026-06-29T21:05:00.000Z" : null,
+  };
+}
+
+function encryptInvalidJsonPlaintext(plaintext: string) {
+  const key = createHash("sha256").update(validKey).digest();
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const ciphertext = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return {
+    schema: "station.archive_connector.credential.v1",
+    algorithm: "aes-256-gcm",
+    iv: iv.toString("base64url"),
+    ciphertext: ciphertext.toString("base64url"),
+    authTag: authTag.toString("base64url"),
+  };
+}
 
 function useFakes(db: ArchiveConnectorStorageSupabase) {
   setSupabaseAdminForTests(db.client as any);
@@ -361,6 +437,343 @@ test("archive connector credential storage does not infer source readiness from 
     });
   } finally {
     resetFakes();
+  }
+});
+
+test("archive connector source credential decrypt returns internal source-ready Reddit and Discord secrets", async () => {
+  for (const provider of ["reddit", "discord"] as const) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        db.rows("archive_connector_credentials").push(sourceCredentialRow({ provider }));
+
+        const secret = await loadArchiveConnectorSourceCredentialSecret({
+          ownerUserId: "owner-user",
+          provider,
+        });
+
+        assert.deepEqual(Object.keys(secret).sort(), [
+          "accessToken",
+          "expiresInSeconds",
+          "grantedScopes",
+          "provider",
+          "purpose",
+          "refreshToken",
+          "scopeProfile",
+          "tokenType",
+        ].sort());
+        assert.equal(secret.provider, provider);
+        assert.equal(secret.purpose, "archive_connector");
+        assert.equal(secret.scopeProfile, "source_inventory");
+        assert.deepEqual(
+          secret.grantedScopes,
+          provider === "reddit" ? ["identity", "mysubreddits", "history"] : ["identify", "guilds"],
+        );
+        assert.equal(secret.accessToken, `${provider}-source-access-token-fixture`);
+        assert.equal(secret.refreshToken, `${provider}-source-refresh-token-fixture`);
+        assert.equal(secret.tokenType, "bearer");
+        assert.equal(secret.expiresInSeconds, provider === "reddit" ? 3600 : 7200);
+      });
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
+test("archive connector source credential decrypt rejects unsupported providers before storage access", async () => {
+  const db = new ArchiveConnectorStorageSupabase();
+  useFakes(db);
+
+  try {
+    await assert.rejects(
+      () => loadArchiveConnectorSourceCredentialSecret({
+        ownerUserId: "owner-user",
+        provider: "mastodon" as any,
+      }),
+      (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+        && error.code === "archive_connector_source_credential_provider_unsupported"
+    );
+    assert.deepEqual(db.tableCalls, []);
+  } finally {
+    resetFakes();
+  }
+});
+
+test("archive connector source credential decrypt hides missing revoked wrong-owner wrong-purpose and unsupported rows", async () => {
+  const cases: Array<{ name: string; row?: Row }> = [
+    { name: "missing" },
+    { name: "revoked", row: { status: "revoked" } },
+    { name: "wrong-owner", row: { ownerUserId: "other-user" } },
+    { name: "wrong-purpose", row: { purpose: "social_publishing" } },
+    { name: "unsupported-row", row: { provider: "mastodon" } },
+  ];
+
+  for (const setup of cases) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        if (setup.row) db.rows("archive_connector_credentials").push(sourceCredentialRow(setup.row));
+
+        await assert.rejects(
+          () => loadArchiveConnectorSourceCredentialSecret({
+            ownerUserId: "owner-user",
+            provider: "reddit",
+          }),
+          (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+            && error.code === "archive_connector_source_credential_unavailable",
+          setup.name,
+        );
+      });
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
+test("archive connector source credential decrypt requires stored metadata and decrypted material to agree", async () => {
+  const cases: Array<{ name: string; row: Row; code: string }> = [
+    {
+      name: "stored-connect-only-with-source-token",
+      row: {
+        scopeProfile: "connect",
+        grantedScopes: ["identity"],
+        tokenMaterial: sourceTokenMaterial("reddit"),
+      },
+      code: "archive_connector_source_credential_not_source_ready",
+    },
+    {
+      name: "stored-source-with-connect-token",
+      row: {
+        tokenMaterial: sourceTokenMaterial("reddit", {
+          scopeProfile: "connect",
+          grantedScopes: ["identity"],
+          scope: "identity",
+        }),
+      },
+      code: "archive_connector_source_credential_token_invalid",
+    },
+    {
+      name: "wrong-token-provider",
+      row: {
+        tokenMaterial: sourceTokenMaterial("discord"),
+      },
+      code: "archive_connector_source_credential_token_invalid",
+    },
+    {
+      name: "missing-source-scope",
+      row: {
+        tokenMaterial: sourceTokenMaterial("reddit", {
+          grantedScopes: ["identity", "history"],
+          scope: "identity history",
+        }),
+      },
+      code: "archive_connector_source_credential_token_invalid",
+    },
+    {
+      name: "extra-source-scope",
+      row: {
+        tokenMaterial: sourceTokenMaterial("reddit", {
+          grantedScopes: ["identity", "mysubreddits", "history", "read"],
+          scope: "identity mysubreddits history read",
+        }),
+      },
+      code: "archive_connector_source_credential_token_invalid",
+    },
+  ];
+
+  for (const setup of cases) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        db.rows("archive_connector_credentials").push(sourceCredentialRow(setup.row));
+
+        await assert.rejects(
+          () => loadArchiveConnectorSourceCredentialSecret({
+            ownerUserId: "owner-user",
+            provider: "reddit",
+          }),
+          (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+            && error.code === setup.code,
+          setup.name,
+        );
+      });
+    } finally {
+      resetFakes();
+    }
+  }
+});
+
+test("archive connector source credential decrypt fails closed on encryption config and payload failures", async () => {
+  let sourceReadyRow: Row;
+  await withArchiveConnectorKey(validKey, async () => {
+    sourceReadyRow = sourceCredentialRow();
+  });
+
+  const missingConfigDb = new ArchiveConnectorStorageSupabase();
+  missingConfigDb.rows("archive_connector_credentials").push(sourceReadyRow!);
+  useFakes(missingConfigDb);
+  try {
+    await withArchiveConnectorKey(null, async () => {
+      await assert.rejects(
+        () => loadArchiveConnectorSourceCredentialSecret({
+          ownerUserId: "owner-user",
+          provider: "reddit",
+        }),
+        (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+          && error.code === "archive_connector_credential_encryption_unconfigured"
+      );
+    });
+  } finally {
+    resetFakes();
+  }
+
+  const malformedConfigDb = new ArchiveConnectorStorageSupabase();
+  malformedConfigDb.rows("archive_connector_credentials").push(sourceReadyRow!);
+  useFakes(malformedConfigDb);
+  try {
+    await withArchiveConnectorKey("short", async () => {
+      await assert.rejects(
+        () => loadArchiveConnectorSourceCredentialSecret({
+          ownerUserId: "owner-user",
+          provider: "reddit",
+        }),
+        (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+          && error.code === "archive_connector_credential_encryption_malformed"
+      );
+    });
+  } finally {
+    resetFakes();
+  }
+
+  await withArchiveConnectorKey(validKey, async () => {
+    const validEncrypted = sourceCredentialRow().encrypted_credential;
+    const payloadCases: Array<{ name: string; encryptedCredential: Record<string, unknown>; code: string }> = [
+      {
+        name: "wrong-schema",
+        encryptedCredential: { ...validEncrypted, schema: "wrong" },
+        code: "archive_connector_source_credential_payload_invalid",
+      },
+      {
+        name: "wrong-algorithm",
+        encryptedCredential: { ...validEncrypted, algorithm: "aes-128-gcm" },
+        code: "archive_connector_source_credential_payload_invalid",
+      },
+      {
+        name: "bad-iv",
+        encryptedCredential: { ...validEncrypted, iv: "bad!" },
+        code: "archive_connector_source_credential_payload_invalid",
+      },
+      {
+        name: "bad-ciphertext",
+        encryptedCredential: { ...validEncrypted, ciphertext: "" },
+        code: "archive_connector_source_credential_payload_invalid",
+      },
+      {
+        name: "bad-auth-tag",
+        encryptedCredential: { ...validEncrypted, authTag: "bad!" },
+        code: "archive_connector_source_credential_payload_invalid",
+      },
+      {
+        name: "decrypt-auth-failure",
+        encryptedCredential: { ...validEncrypted, authTag: "A".repeat(22) },
+        code: "archive_connector_source_credential_decrypt_failed",
+      },
+      {
+        name: "invalid-json",
+        encryptedCredential: encryptInvalidJsonPlaintext("{not-json"),
+        code: "archive_connector_source_credential_payload_invalid",
+      },
+    ];
+
+    for (const setup of payloadCases) {
+      const db = new ArchiveConnectorStorageSupabase();
+      useFakes(db);
+      try {
+        db.rows("archive_connector_credentials").push(sourceCredentialRow({
+          encryptedCredential: setup.encryptedCredential,
+        }));
+
+        await assert.rejects(
+          () => loadArchiveConnectorSourceCredentialSecret({
+            ownerUserId: "owner-user",
+            provider: "reddit",
+          }),
+          (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+            && error.code === setup.code,
+          setup.name,
+        );
+      } finally {
+        resetFakes();
+      }
+    }
+  });
+});
+
+test("archive connector source credential decrypt fails closed on invalid token material fields", async () => {
+  const tokenCases: Array<{ name: string; tokenMaterial: Row }> = [
+    {
+      name: "wrong-schema",
+      tokenMaterial: sourceTokenMaterial("reddit", { schema: "wrong" }),
+    },
+    {
+      name: "missing-access-token",
+      tokenMaterial: sourceTokenMaterial("reddit", { accessToken: undefined }),
+    },
+    {
+      name: "malformed-access-token",
+      tokenMaterial: sourceTokenMaterial("reddit", { accessToken: "bad\u0001token" }),
+    },
+    {
+      name: "malformed-refresh-token",
+      tokenMaterial: sourceTokenMaterial("reddit", { refreshToken: "bad\u0001refresh" }),
+    },
+    {
+      name: "malformed-token-type",
+      tokenMaterial: sourceTokenMaterial("reddit", { tokenType: "x".repeat(41) }),
+    },
+    {
+      name: "malformed-expiry",
+      tokenMaterial: sourceTokenMaterial("reddit", { expiresInSeconds: -1 }),
+    },
+    {
+      name: "missing-granted-scopes",
+      tokenMaterial: sourceTokenMaterial("reddit", { grantedScopes: undefined }),
+    },
+    {
+      name: "non-string-granted-scope",
+      tokenMaterial: sourceTokenMaterial("reddit", { grantedScopes: ["identity", 7] }),
+    },
+  ];
+
+  for (const setup of tokenCases) {
+    const db = new ArchiveConnectorStorageSupabase();
+    useFakes(db);
+
+    try {
+      await withArchiveConnectorKey(validKey, async () => {
+        db.rows("archive_connector_credentials").push(sourceCredentialRow({
+          tokenMaterial: setup.tokenMaterial,
+        }));
+
+        await assert.rejects(
+          () => loadArchiveConnectorSourceCredentialSecret({
+            ownerUserId: "owner-user",
+            provider: "reddit",
+          }),
+          (error: any) => error instanceof ArchiveConnectorCredentialStorageError
+            && error.code === "archive_connector_source_credential_token_invalid",
+          setup.name,
+        );
+      });
+    } finally {
+      resetFakes();
+    }
   }
 });
 

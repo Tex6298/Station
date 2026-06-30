@@ -3026,6 +3026,7 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /consumeArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /validateArchiveConnectorOAuthState/i);
+  assert.doesNotMatch(routeSource, /loadArchiveConnectorSourceCredentialSecret|ArchiveConnectorSourceCredentialSecret/i);
   assert.doesNotMatch(routeSource, /decryptArchiveConnectorCredential|providerTokenRevoke|revocation_endpoint|oauth\/revoke/i);
   assert.doesNotMatch(routeSource, /res\.redirect|redirect\s*\(/i);
   assert.doesNotMatch(sourceWithoutAcceptedArchiveConfig, /REDDIT_CLIENT_ID|REDDIT_CLIENT_SECRET|DISCORD_CLIENT_ID|DISCORD_CLIENT_SECRET/i);

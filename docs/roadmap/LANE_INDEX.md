@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-C | Archive Connector Credential Decrypt Boundary | DAEDALUS / A2 | Accepted by ARGUS; implement internal-only source-ready credential decrypt helper and tests before provider reads | `docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_PREFLIGHT_RESULT.md` |
+| PR484J-C | Archive Connector Credential Decrypt Boundary | ARGUS / A3 | Ready for review; DAEDALUS implemented the internal-only source-ready credential decrypt helper and tests before provider reads | `docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_RESULT.md` |
 
 ## Recently Closed
 
