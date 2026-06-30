@@ -21,6 +21,8 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
 
 type Row = Record<string, any>;
 const OWNER_AUTH_MARKER = "owner-session-marker";
+const OWNER_PERSONA_ID = "11111111-1111-4111-8111-111111111111";
+const OTHER_PERSONA_ID = "22222222-2222-4222-8222-222222222222";
 const VALID_ARCHIVE_CONNECTOR_CREDENTIAL_KEY = "archive-connector-credential-test-key-32-plus";
 
 class ArchiveConnectorReadinessSupabase {
@@ -39,8 +41,21 @@ class ArchiveConnectorReadinessSupabase {
         is_admin: false,
       },
     ],
+    personas: [
+      {
+        id: OWNER_PERSONA_ID,
+        owner_user_id: "owner-user",
+        name: "Owner Persona",
+      },
+      {
+        id: OTHER_PERSONA_ID,
+        owner_user_id: "other-user",
+        name: "Other Persona",
+      },
+    ],
     archive_connector_oauth_states: [],
     archive_connector_credentials: [],
+    archive_connector_import_intents: [],
   };
 
   private usersByToken = new Map([
@@ -98,7 +113,11 @@ class Query {
   }
 
   insert(payload: Row) {
-    if (this.table !== "archive_connector_oauth_states" && this.table !== "archive_connector_credentials") {
+    if (
+      this.table !== "archive_connector_oauth_states" &&
+      this.table !== "archive_connector_credentials" &&
+      this.table !== "archive_connector_import_intents"
+    ) {
       this.db.writeCalls.push(`${this.table}.insert`);
       throw new Error(`${this.table} insert should not run in archive connector readiness tests.`);
     }
@@ -147,7 +166,7 @@ class Query {
       }
 
       const row = {
-        id: `${this.table}-${this.db.rows(this.table).length + 1}`,
+        id: generatedRowId(this.table, this.db.rows(this.table).length + 1),
         created_at: "2026-06-29T22:50:00.000Z",
         updated_at: "2026-06-29T22:50:00.000Z",
         ...(this.payload ?? {}),
@@ -415,6 +434,34 @@ async function readArchiveConnectorSourceInventoryRoute(
   });
 }
 
+async function createArchiveConnectorImportIntentRoute(
+  app: Express,
+  options: {
+    provider?: "reddit" | "discord" | string;
+    token?: string | null;
+    body?: unknown;
+  } = {},
+) {
+  const body = Object.prototype.hasOwnProperty.call(options, "body")
+    ? options.body
+    : validArchiveConnectorImportIntentBody();
+  return requestJson<Row>(app, "POST", `/archive-connectors/${options.provider ?? "reddit"}/import-intents`, {
+    token: options.token === undefined ? OWNER_AUTH_MARKER : options.token ?? undefined,
+    body,
+  });
+}
+
+function validArchiveConnectorImportIntentBody(overrides: Row = {}) {
+  return {
+    personaId: OWNER_PERSONA_ID,
+    sourceKey: "a".repeat(24),
+    sourceFamily: "reddit_subreddit_memberships",
+    sourceKind: "subreddit",
+    sourceLabel: "r/StationLab",
+    ...overrides,
+  };
+}
+
 type TokenFetchCall = {
   url: string;
   method: string | undefined;
@@ -457,6 +504,45 @@ function sourceInventoryJsonResponse(body: unknown, status = 200) {
   });
 }
 
+function redditSourceInventoryPayload() {
+  return {
+    data: {
+      after: "after-cursor-fixture",
+      children: [
+        {
+          kind: "t5",
+          data: {
+            id: "subreddit-raw-id-fixture",
+            name: "t5_raw_fullname_fixture",
+            display_name_prefixed: "r/StationLab",
+            display_name: "StationLab",
+            subscriber_count: 123456,
+            url: "https://reddit.example/r/StationLab",
+            public_description: "private-source-body-fixture",
+            providerPayload: "provider-source-payload",
+          },
+        },
+      ],
+    },
+  };
+}
+
+function discordSourceInventoryPayload() {
+  return [
+    {
+      id: "guild-raw-id-fixture",
+      name: "Station Guild",
+      icon: "icon-fixture",
+      owner: true,
+      permissions: "8",
+      approximate_member_count: 42,
+      approximate_presence_count: 7,
+      url: "https://discord.example/guild",
+      providerPayload: "provider-source-payload",
+    },
+  ];
+}
+
 async function withTokenEndpointFetch(
   calls: TokenFetchCall[],
   fetcher: (input: string | URL, init?: RequestInit) => Promise<Response>,
@@ -477,6 +563,13 @@ async function withTokenEndpointFetch(
   } finally {
     setArchiveConnectorTokenEndpointFetchForTests(null);
   }
+}
+
+function generatedRowId(table: string, index: number) {
+  if (table === "archive_connector_import_intents") {
+    return `33333333-3333-4333-8333-${String(index).padStart(12, "0")}`;
+  }
+  return `${table}-${index}`;
 }
 
 async function withSourceInventoryFetch(
@@ -739,6 +832,27 @@ function assertNoSensitiveSourceInventoryReadback(body: unknown) {
 
   for (const value of forbidden) {
     assert.equal(text.includes(value), false, `${value} leaked into source inventory readback`);
+  }
+}
+
+function assertNoSensitiveImportIntentReadback(body: unknown) {
+  assertNoSensitiveSourceInventoryReadback(body);
+  const text = JSON.stringify(body);
+  const forbidden = [
+    "archive_connector_import_intents",
+    "idempotency_fingerprint",
+    "reddit-source_inventory-account-proof-token",
+    "discord-source_inventory-account-proof-token",
+    "reddit-source_inventory-refresh-token-fixture",
+    "discord-source_inventory-refresh-token-fixture",
+    "subreddit-raw-id-fixture",
+    "guild-raw-id-fixture",
+    "Authorization",
+    "Bearer",
+  ];
+
+  for (const value of forbidden) {
+    assert.equal(text.includes(value), false, `${value} leaked into import intent readback`);
   }
 }
 
@@ -3554,6 +3668,471 @@ test("archive connector source inventory maps provider failures to bounded respo
   }
 });
 
+test("archive connector import intent requires auth supported provider and strict safe body before work", async () => {
+  const signedOutDb = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(signedOutDb.client as any);
+  const signedOutApp = await createArchiveConnectorApp();
+
+  try {
+    const signedOut = await createArchiveConnectorImportIntentRoute(signedOutApp, { token: null });
+    assert.equal(signedOut.status, 401);
+    assert.equal(signedOut.body.error, "Missing or invalid Authorization header.");
+    assert.equal(signedOutDb.tableCalls.length, 0);
+    assert.deepEqual(signedOutDb.writeCalls, []);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const unsupportedDb = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(unsupportedDb.client as any);
+  const unsupportedApp = await createArchiveConnectorApp();
+
+  try {
+    const unsupported = await createArchiveConnectorImportIntentRoute(unsupportedApp, {
+      provider: "mastodon",
+    });
+    assert.equal(unsupported.status, 400);
+    assert.equal(unsupported.body.code, "archive_connector_provider_not_supported");
+    assert.deepEqual(unsupportedDb.writeCalls, []);
+    assert.equal(unsupportedDb.tableCalls.includes("archive_connector_credentials"), false);
+    assert.equal(unsupportedDb.tableCalls.includes("archive_connector_import_intents"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const invalidBodies: Array<{ body: unknown; routeHandled: boolean }> = [
+    { body: undefined, routeHandled: true },
+    { body: {}, routeHandled: true },
+    { body: [], routeHandled: true },
+    { body: "secret-shaped-value", routeHandled: false },
+    { body: validArchiveConnectorImportIntentBody({ sourceKey: "A".repeat(24) }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ personaId: "not-a-uuid" }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ sourceFamily: "reddit_saved_items" }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ sourceKind: "subreddit/read" }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ sourceLabel: "token secret payload" }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ rawProviderId: "subreddit-raw-id-fixture" }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ sourceBody: "private-source-body-fixture" }), routeHandled: true },
+    { body: validArchiveConnectorImportIntentBody({ accessToken: "reddit-source_inventory-account-proof-token" }), routeHandled: true },
+  ];
+
+  for (const setup of invalidBodies) {
+    const calls: SourceInventoryFetchCall[] = [];
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withSourceInventoryFetch(calls, async () => {
+        throw new Error("source inventory fetch should not run for invalid import intent bodies");
+      }, async () => {
+        const response = await createArchiveConnectorImportIntentRoute(app, {
+          body: setup.body,
+        });
+
+        assert.equal(response.status, 400);
+        assert.equal(
+          response.body.code,
+          setup.routeHandled ? "archive_connector_import_intent_invalid" : "bad_request",
+        );
+        if (setup.routeHandled) {
+          assert.equal(response.body.importIntentCreated, false);
+          assert.equal(response.body.intent, null);
+          assertImportIntentSafety(response.body, false);
+        }
+        assertNoSensitiveImportIntentReadback(response.body);
+        assert.equal(db.tableCalls.includes("personas"), false);
+        assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+        assert.equal(db.tableCalls.includes("archive_connector_import_intents"), false);
+        assert.deepEqual(db.writeCalls, []);
+        assert.equal(calls.length, 0);
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector import intent checks owner persona before credential decrypt provider fetch or writes", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({ provider: "reddit" }));
+      await withSourceInventoryFetch(calls, async () => {
+        throw new Error("source inventory fetch should not run before persona ownership");
+      }, async () => {
+        const response = await createArchiveConnectorImportIntentRoute(app, {
+          body: validArchiveConnectorImportIntentBody({ personaId: OTHER_PERSONA_ID }),
+        });
+
+        assert.equal(response.status, 404);
+        assert.equal(response.body.code, "archive_connector_import_intent_persona_not_found");
+        assert.equal(response.body.importIntentCreated, false);
+        assert.equal(response.body.intent, null);
+        assertImportIntentSafety(response.body, false);
+        assertNoSensitiveImportIntentReadback(response.body);
+        assert.equal(db.tableCalls.includes("personas"), true);
+        assert.equal(db.tableCalls.includes("archive_connector_credentials"), false);
+        assert.equal(db.tableCalls.includes("archive_connector_import_intents"), false);
+        assert.deepEqual(db.writeCalls, []);
+        assert.equal(calls.length, 0);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector import intent requires source-ready credential and account proof before source inventory", async () => {
+  const cases: Array<{
+    name: string;
+    row: () => Row;
+    expectedCode: string;
+  }> = [
+    {
+      name: "connect-proof-only",
+      row: () => encryptedArchiveConnectorCredentialRow({
+        provider: "reddit",
+        externalAccountFingerprint: fingerprintArchiveConnectorExternalAccount("reddit", "reddit-raw-account-id-fixture"),
+      }),
+      expectedCode: "archive_connector_import_intent_credential_required",
+    },
+    {
+      name: "missing-account-proof",
+      row: () => sourceReadyArchiveConnectorCredentialRow({
+        provider: "reddit",
+        externalAccountFingerprint: null,
+      }),
+      expectedCode: "archive_connector_import_intent_account_lookup_required",
+    },
+  ];
+
+  for (const setup of cases) {
+    const calls: SourceInventoryFetchCall[] = [];
+    const db = new ArchiveConnectorReadinessSupabase();
+    db.rows("archive_connector_credentials").push(setup.row);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorExchangeEnv(), async () => {
+        db.rows("archive_connector_credentials").push(setup.row());
+        await withSourceInventoryFetch(calls, async () => {
+          throw new Error("source inventory fetch should not run before credential prerequisites");
+        }, async () => {
+          const response = await createArchiveConnectorImportIntentRoute(app);
+
+          assert.equal(response.status, 409, setup.name);
+          assert.equal(response.body.code, setup.expectedCode, setup.name);
+          assert.equal(response.body.importIntentCreated, false, setup.name);
+          assert.equal(response.body.intent, null, setup.name);
+          assertImportIntentSafety(response.body, false);
+          assertNoSensitiveImportIntentReadback(response.body);
+          assert.equal(db.rows("archive_connector_import_intents").length, 0);
+          assert.equal(calls.length, 0, setup.name);
+          assert.deepEqual(db.writeCalls, [], setup.name);
+        });
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector Reddit import intent revalidates safe source metadata and writes only pending intent receipt", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+        provider: "reddit",
+        accountLabel: "Owner Reddit",
+      }));
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse(redditSourceInventoryPayload()), async () => {
+        const inventory = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+        assert.equal(inventory.status, 200);
+        const source = inventory.body.sources.find((row: Row) => row.sourceFamily === "reddit_subreddit_memberships");
+        assert.equal(source.label, "r/StationLab");
+
+        const response = await createArchiveConnectorImportIntentRoute(app, {
+          provider: "reddit",
+          body: validArchiveConnectorImportIntentBody({
+            personaId: OWNER_PERSONA_ID,
+            sourceKey: source.sourceKey,
+            sourceFamily: source.sourceFamily,
+            sourceKind: source.sourceKind,
+            sourceLabel: source.label,
+          }),
+        });
+
+        assert.equal(response.status, 201);
+        assert.equal(response.body.status, "archive_connector_import_intent_created");
+        assert.equal(response.body.provider, "reddit");
+        assert.equal(response.body.purpose, "archive_connector");
+        assert.equal(response.body.ownerOnly, true);
+        assert.equal(response.body.importIntentCreated, true);
+        assert.equal(response.body.idempotent, true);
+        assert.equal(response.body.duplicate, false);
+        assertImportIntentSafety(response.body, true, true);
+        assertNoSensitiveImportIntentReadback(response.body);
+        assert.deepEqual(response.body.intent, {
+          id: "33333333-3333-4333-8333-000000000001",
+          provider: "reddit",
+          purpose: "archive_connector",
+          personaId: OWNER_PERSONA_ID,
+          sourceFamily: "reddit_subreddit_memberships",
+          sourceKind: "subreddit",
+          sourceKey: source.sourceKey,
+          sourceLabel: "r/StationLab",
+          status: "pending",
+          createdAt: "2026-06-29T22:50:00.000Z",
+          updatedAt: "2026-06-29T22:50:00.000Z",
+        });
+
+        assert.equal(calls.length, 2);
+        assert.equal(calls[0].url, "https://oauth.reddit.com/subreddits/mine/subscriber?limit=100&raw_json=1");
+        assert.equal(calls[1].url, "https://oauth.reddit.com/subreddits/mine/subscriber?limit=100&raw_json=1");
+        assert.equal(JSON.stringify(calls).includes("saved"), false);
+        assert.equal(JSON.stringify(calls).includes("comments"), false);
+        assert.deepEqual(db.writeCalls, ["archive_connector_import_intents.insert"]);
+        assert.equal(db.rows("archive_connector_import_intents").length, 1);
+
+        const row = db.rows("archive_connector_import_intents")[0];
+        assert.equal(row.owner_user_id, "owner-user");
+        assert.equal(row.persona_id, OWNER_PERSONA_ID);
+        assert.equal(row.provider, "reddit");
+        assert.equal(row.purpose, "archive_connector");
+        assert.equal(row.source_family, "reddit_subreddit_memberships");
+        assert.equal(row.source_kind, "subreddit");
+        assert.equal(row.source_key, source.sourceKey);
+        assert.equal(row.source_label, "r/StationLab");
+        assert.equal(row.status, "pending");
+        assert.equal(typeof row.idempotency_fingerprint, "string");
+        assert.equal(row.idempotency_fingerprint.length, 64);
+        const stored = JSON.stringify(row);
+        for (const forbidden of [
+          "subreddit-raw-id-fixture",
+          "t5_raw_fullname_fixture",
+          "after-cursor-fixture",
+          "private-source-body-fixture",
+          "provider-source-payload",
+          "reddit-source_inventory-account-proof-token",
+          "reddit-source_inventory-refresh-token-fixture",
+        ]) {
+          assert.equal(stored.includes(forbidden), false, `${forbidden} leaked into import intent row`);
+        }
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector import intent returns existing pending receipt on duplicate confirmation", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({ provider: "reddit" }));
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse(redditSourceInventoryPayload()), async () => {
+        const inventory = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+        const history = inventory.body.sources.find((row: Row) =>
+          row.sourceFamily === "reddit_user_history" && row.sourceKind === "saved_items"
+        );
+        const body = validArchiveConnectorImportIntentBody({
+          sourceKey: history.sourceKey,
+          sourceFamily: history.sourceFamily,
+          sourceKind: history.sourceKind,
+          sourceLabel: history.label,
+        });
+
+        const created = await createArchiveConnectorImportIntentRoute(app, { body });
+        const duplicate = await createArchiveConnectorImportIntentRoute(app, { body });
+
+        assert.equal(created.status, 201);
+        assert.equal(duplicate.status, 200);
+        assert.equal(duplicate.body.status, "archive_connector_import_intent_exists");
+        assert.equal(duplicate.body.importIntentCreated, false);
+        assert.equal(duplicate.body.idempotent, true);
+        assert.equal(duplicate.body.duplicate, true);
+        assert.deepEqual(duplicate.body.intent, created.body.intent);
+        assertImportIntentSafety(duplicate.body, true, false);
+        assertNoSensitiveImportIntentReadback(duplicate.body);
+        assert.equal(db.rows("archive_connector_import_intents").length, 1);
+        assert.deepEqual(db.writeCalls, ["archive_connector_import_intents.insert"]);
+        assert.equal(calls.length, 3);
+        assert.equal(JSON.stringify(calls).includes("saved"), false);
+        assert.equal(JSON.stringify(calls).includes("upvoted"), false);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector Discord import intent confirms only safe guild source metadata", async () => {
+  const calls: SourceInventoryFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+        provider: "discord",
+        accountLabel: "Owner Discord",
+      }));
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse(discordSourceInventoryPayload()), async () => {
+        const inventory = await readArchiveConnectorSourceInventoryRoute(app, { provider: "discord" });
+        assert.equal(inventory.status, 200);
+        const source = inventory.body.sources[0];
+
+        const response = await createArchiveConnectorImportIntentRoute(app, {
+          provider: "discord",
+          body: validArchiveConnectorImportIntentBody({
+            personaId: OWNER_PERSONA_ID,
+            sourceKey: source.sourceKey,
+            sourceFamily: source.sourceFamily,
+            sourceKind: source.sourceKind,
+            sourceLabel: source.label,
+          }),
+        });
+
+        assert.equal(response.status, 201);
+        assert.equal(response.body.status, "archive_connector_import_intent_created");
+        assert.equal(response.body.provider, "discord");
+        assert.equal(response.body.intent.provider, "discord");
+        assert.equal(response.body.intent.sourceFamily, "discord_guilds");
+        assert.equal(response.body.intent.sourceKind, "guild");
+        assert.equal(response.body.intent.sourceLabel, "Station Guild");
+        assertImportIntentSafety(response.body, true, true);
+        assertNoSensitiveImportIntentReadback(response.body);
+        assert.equal(calls.length, 2);
+        assert.equal(calls[0].url, "https://discord.com/api/v10/users/@me/guilds?limit=200&with_counts=false");
+        assert.equal(calls[1].url, "https://discord.com/api/v10/users/@me/guilds?limit=200&with_counts=false");
+        assert.equal(JSON.stringify(calls).includes("channels"), false);
+        assert.equal(JSON.stringify(calls).includes("messages"), false);
+        assert.deepEqual(db.writeCalls, ["archive_connector_import_intents.insert"]);
+        assert.equal(db.rows("archive_connector_import_intents")[0].source_key, source.sourceKey);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector import intent rejects stale or tampered source echoes without writes", async () => {
+  for (const setup of ["source-key", "source-family", "source-kind", "source-label"]) {
+    const calls: SourceInventoryFetchCall[] = [];
+    const db = new ArchiveConnectorReadinessSupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createArchiveConnectorApp();
+
+    try {
+      await withEnv(archiveConnectorExchangeEnv(), async () => {
+        db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({ provider: "reddit" }));
+        await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse(redditSourceInventoryPayload()), async () => {
+          const inventory = await readArchiveConnectorSourceInventoryRoute(app, { provider: "reddit" });
+          const source = inventory.body.sources.find((row: Row) => row.sourceFamily === "reddit_subreddit_memberships");
+          const body = validArchiveConnectorImportIntentBody({
+            sourceKey: setup === "source-key" ? "b".repeat(24) : source.sourceKey,
+            sourceFamily: setup === "source-family" ? "reddit_user_history" : source.sourceFamily,
+            sourceKind: setup === "source-kind" ? "comments" : source.sourceKind,
+            sourceLabel: setup === "source-label" ? "r/OtherLab" : source.label,
+          });
+
+          const response = await createArchiveConnectorImportIntentRoute(app, { body });
+
+          assert.equal(response.status, 409, setup);
+          assert.equal(response.body.code, "archive_connector_import_intent_source_unavailable", setup);
+          assert.equal(response.body.importIntentCreated, false, setup);
+          assert.equal(response.body.intent, null, setup);
+          assertImportIntentSafety(response.body, false);
+          assertNoSensitiveImportIntentReadback(response.body);
+          assert.equal(db.rows("archive_connector_import_intents").length, 0, setup);
+          assert.deepEqual(db.writeCalls, [], setup);
+          assert.equal(calls.length, 2, setup);
+        });
+      });
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("archive connector import intent maps provider and storage failures to bounded no-write responses", async () => {
+  const providerFailureDb = new ArchiveConnectorReadinessSupabase();
+  setSupabaseAdminForTests(providerFailureDb.client as any);
+  const providerFailureApp = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      providerFailureDb.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({ provider: "reddit" }));
+      const calls: SourceInventoryFetchCall[] = [];
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse({ request_id: "request-id-fixture" }, 429), async () => {
+        const response = await createArchiveConnectorImportIntentRoute(providerFailureApp);
+
+        assert.equal(response.status, 429);
+        assert.equal(response.body.code, "archive_connector_source_inventory_rate_limited");
+        assert.equal(response.body.importIntentCreated, false);
+        assert.equal(response.body.intent, null);
+        assertImportIntentSafety(response.body, false);
+        assertNoSensitiveImportIntentReadback(response.body);
+        assert.deepEqual(providerFailureDb.writeCalls, []);
+        assert.equal(providerFailureDb.rows("archive_connector_import_intents").length, 0);
+        assert.equal(calls.length, 1);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const writeFailureDb = new ArchiveConnectorReadinessSupabase();
+  writeFailureDb.insertErrorTables.add("archive_connector_import_intents");
+  setSupabaseAdminForTests(writeFailureDb.client as any);
+  const writeFailureApp = await createArchiveConnectorApp();
+
+  try {
+    await withEnv(archiveConnectorExchangeEnv(), async () => {
+      writeFailureDb.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({ provider: "reddit" }));
+      const calls: SourceInventoryFetchCall[] = [];
+      await withSourceInventoryFetch(calls, async () => sourceInventoryJsonResponse(redditSourceInventoryPayload()), async () => {
+        const inventory = await readArchiveConnectorSourceInventoryRoute(writeFailureApp, { provider: "reddit" });
+        const source = inventory.body.sources.find((row: Row) => row.sourceFamily === "reddit_subreddit_memberships");
+        const response = await createArchiveConnectorImportIntentRoute(writeFailureApp, {
+          body: validArchiveConnectorImportIntentBody({
+            sourceKey: source.sourceKey,
+            sourceFamily: source.sourceFamily,
+            sourceKind: source.sourceKind,
+            sourceLabel: source.label,
+          }),
+        });
+
+        assert.equal(response.status, 500);
+        assert.equal(response.body.code, "archive_connector_import_intent_write_failed");
+        assert.equal(response.body.importIntentCreated, false);
+        assert.equal(response.body.intent, null);
+        assertImportIntentSafety(response.body, false);
+        assertNoSensitiveImportIntentReadback(response.body);
+        assert.deepEqual(writeFailureDb.writeCalls, ["archive_connector_import_intents.insert"]);
+        assert.equal(writeFailureDb.rows("archive_connector_import_intents").length, 0);
+        assert.equal(calls.length, 2);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("archive connector credential revoke requires auth supported provider and empty body", async () => {
   const db = new ArchiveConnectorReadinessSupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -3812,12 +4391,13 @@ test("archive connector credential revoke returns bounded storage failures", asy
   }
 });
 
-test("archive connector readiness source stays read-only and route-only", () => {
+test("archive connector source stays bounded to credential source inventory and import intent lanes", () => {
   const routeSource = readFileSync("apps/api/src/routes/archive-connectors.ts", "utf8");
   const readinessSource = readFileSync("apps/api/src/services/archive-connectors/readiness.ts", "utf8");
   const tokenExchangeSource = readFileSync("apps/api/src/services/archive-connectors/token-exchange.ts", "utf8");
   const accountLookupSource = readFileSync("apps/api/src/services/archive-connectors/account-lookup.ts", "utf8");
   const sourceInventorySource = readFileSync("apps/api/src/services/archive-connectors/source-inventory.ts", "utf8");
+  const importIntentSource = readFileSync("apps/api/src/services/archive-connectors/import-intents.ts", "utf8");
   const source = `${routeSource}\n${readinessSource}`;
   const sourceWithoutAcceptedArchiveConfig = source.replace(
     /ARCHIVE_CONNECTOR_(REDDIT|DISCORD)_CLIENT_(ID|SECRET)/g,
@@ -3834,6 +4414,8 @@ test("archive connector readiness source stays read-only and route-only", () => 
   const sourceInventoryMatches = routeSource.match(/readArchiveConnectorProviderSourceInventory/g) ?? [];
   const accountMetadataUpdateMatches = routeSource.match(/updateArchiveConnectorCredentialAccountMetadata/g) ?? [];
   const tokenExchangeMatches = routeSource.match(/exchangeArchiveConnectorOAuthCode/g) ?? [];
+  const importIntentCredentialSecretMatches = importIntentSource.match(/loadArchiveConnectorSourceInventoryCredentialSecret/g) ?? [];
+  const importIntentSourceInventoryMatches = importIntentSource.match(/readArchiveConnectorProviderSourceInventory/g) ?? [];
 
   assert.equal(stateCreateMatches.length, 2);
   assert.equal(stateConsumeMatches.length, 3);
@@ -3846,6 +4428,8 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.equal(sourceInventoryMatches.length, 2);
   assert.equal(accountMetadataUpdateMatches.length, 2);
   assert.equal(tokenExchangeMatches.length, 3);
+  assert.equal(importIntentCredentialSecretMatches.length, 2);
+  assert.equal(importIntentSourceInventoryMatches.length, 2);
   assert.doesNotMatch(readinessSource, /createArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /consumeArchiveConnectorOAuthState/i);
   assert.doesNotMatch(readinessSource, /validateArchiveConnectorOAuthState/i);
@@ -3863,6 +4447,8 @@ test("archive connector readiness source stays read-only and route-only", () => 
   assert.match(sourceInventorySource, /oauth\.reddit\.com\/subreddits\/mine\/subscriber\?limit=100&raw_json=1/);
   assert.match(sourceInventorySource, /discord\.com\/api\/v10\/users\/@me\/guilds\?limit=200&with_counts=false/);
   assert.doesNotMatch(sourceInventorySource, /\/user\/|\/saved|\/upvoted|\/downvoted|\/submitted|\/comments|\/hidden|\/overview|\/gilded|\/api\/v1\/me|channels|messages|\/members|guild-members|connections|webhooks|invites|archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
+  assert.match(importIntentSource, /archive_connector_import_intents/);
+  assert.doesNotMatch(importIntentSource, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates|new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel|providerSdk|fetch\s*\(/i);
   assert.doesNotMatch(source, /archive_sources|import_jobs|memory_items|canon_items|continuity_candidates|documents\.insert|review_candidates/i);
   assert.doesNotMatch(source, /new Queue|Worker\(|queue\.|redis\.|cloudflare|stripe\.|billingClient|providerModel/i);
 });
@@ -3971,6 +4557,36 @@ function assertSourceInventorySafety(body: Row, enabled: boolean) {
   assert.equal(body.rawProviderIdReadbackEnabled, false);
   assert.equal(body.providerPayloadReadbackEnabled, false);
   assert.equal(body.providerHeadersReadbackEnabled, false);
+}
+
+function assertImportIntentSafety(
+  body: Row,
+  sourceInventoryEnabled: boolean,
+  importIntentWritesEnabled = sourceInventoryEnabled,
+) {
+  assert.equal(body.tokenDecryptEnabled, sourceInventoryEnabled);
+  assert.equal(body.tokenExchangeEnabled, false);
+  assert.equal(body.providerTokenEndpointCallsEnabled, false);
+  assert.equal(body.providerTokenRefreshEnabled, false);
+  assert.equal(body.providerTokenRevocationEnabled, false);
+  assert.equal(body.credentialWritesEnabled, false);
+  assert.equal(body.credentialMetadataUpdateEnabled, false);
+  assert.equal(body.providerAccountLookupEnabled, false);
+  assert.equal(body.providerCallsEnabled, sourceInventoryEnabled);
+  assert.equal(body.sourceInventoryEnabled, sourceInventoryEnabled);
+  assert.equal(body.sourceBodyReadEnabled, false);
+  assert.equal(body.archiveSourceWritesEnabled, false);
+  assert.equal(body.importIntentWritesEnabled, importIntentWritesEnabled);
+  assert.equal(body.importWritesEnabled, false);
+  assert.equal(body.existingImportJobsWriteEnabled, false);
+  assert.equal(body.jobWritesEnabled, false);
+  assert.equal(body.queueEnabled, false);
+  assert.equal(body.publicWritesEnabled, false);
+  assert.equal(body.uiChangesEnabled, false);
+  assert.equal(body.rawProviderIdReadbackEnabled, false);
+  assert.equal(body.providerPayloadReadbackEnabled, false);
+  assert.equal(body.providerHeadersReadbackEnabled, false);
+  assert.equal(body.sourceInventoryCredentialMetadataUpdateEnabled, false);
 }
 
 function assertSourceInventoryRowSafety(row: Row) {

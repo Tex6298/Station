@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484J-F ready for ARGUS
+
+DAEDALUS implemented the accepted PR484J-F Archive Connector Import
+Confirmation boundary:
+
+`docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/:provider/import-intents`;
+- strict confirmation body: owner persona id plus source inventory `sourceKey`,
+  `sourceFamily`, `sourceKind`, and `sourceLabel` echoes;
+- owner persona check before credential decrypt, provider source inventory, or
+  writes;
+- source-ready credential and completed account proof required;
+- source confirmation by re-running only the accepted PR484J-E inventory
+  metadata read and matching one available safe source row;
+- new owner-scoped `archive_connector_import_intents` table with RLS,
+  idempotency fingerprint, and DB type coverage;
+- duplicate confirmation clicks return the existing pending intent;
+- focused tests for auth, strict body parsing, persona ordering, credential and
+  account-proof gates, Reddit and Discord source confirmations, duplicate
+  behavior, stale/tampered source echoes, storage/provider failures, redaction,
+  and source guards.
+
+Still forbidden:
+
+- existing `import_jobs` writes, archive source rows, source bodies, provider
+  crawls beyond inventory revalidation, pagination, recurring pulls, Memory,
+  Canon, Continuity, public documents, review candidates, jobs, queues,
+  workers, UI, hosted/runtime work, packages, billing, Redis, Cloudflare,
+  marketplace, partner adapters, social behavior, raw provider ids, raw
+  cursors, provider payloads, provider headers, tokens, encrypted credentials,
+  raw OAuth scopes, SQL/storage details, stack traces, or secret-shaped values.
+
+Current lane:
+
+```text
+PR484J-F - Archive Connector Import Confirmation
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484J-F for owner/persona ordering, source echo
+  matching, idempotency behavior, redaction, and no-import/no-job boundaries.
+- ARGUS should wake MIMIR with acceptance or DAEDALUS with required fixes.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR484J-F accepted for DAEDALUS
 
 ARGUS accepts the PR484J-F Archive Connector Import Confirmation preflight:
@@ -47,16 +110,13 @@ Current lane:
 ```text
 PR484J-F - Archive Connector Import Confirmation
 Owner: DAEDALUS / A2
-State: OPEN - IMPLEMENT ACCEPTED INTENT-RECEIPT-ONLY BOUNDARY
+State: IMPLEMENTED - READY FOR ARGUS REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement only the accepted owner-only import intent receipt
-  route/table/types/helpers/tests.
-- DAEDALUS must not write existing `import_jobs`, create archive sources,
-  execute imports, read source bodies, enqueue work, or add UI/hosted/runtime
-  scope.
+- Implementation status is now tracked in the DAEDALUS result section above.
+- ARGUS should review before MIMIR closes or redirects the lane.
 
 Wakeup:
 

@@ -39,6 +39,11 @@ import {
   readArchiveConnectorProviderSourceInventory,
 } from "../services/archive-connectors/source-inventory";
 import {
+  ArchiveConnectorImportIntentError,
+  createArchiveConnectorImportIntent,
+  type ArchiveConnectorImportIntentSourceFamily,
+} from "../services/archive-connectors/import-intents";
+import {
   archiveConnectorScopeProfileFromValue,
   archiveConnectorScopeProfileReadback,
   archiveConnectorScopesForProfile,
@@ -122,6 +127,64 @@ archiveConnectorsRouter.get("/:provider/source-inventory", async (req: Request, 
     });
   } catch (error) {
     return sourceInventoryFailureResponse(res, provider, error);
+  }
+});
+
+archiveConnectorsRouter.post("/:provider/import-intents", async (req: Request, res: Response) => {
+  const provider = archiveConnectorProvider(req.params.provider);
+  if (!provider) {
+    return res.status(400).json({
+      error: "Archive connector provider is not supported.",
+      code: "archive_connector_provider_not_supported",
+      status: "unsupported_provider",
+    });
+  }
+
+  let input: ArchiveConnectorImportIntentInput;
+  try {
+    input = archiveConnectorImportIntentInputFromBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector import intent request is invalid.",
+      code: "archive_connector_import_intent_invalid",
+      status: "invalid_request",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      importIntentCreated: false,
+      idempotent: false,
+      duplicate: false,
+      intent: null,
+      ...importIntentSafety(false),
+    });
+  }
+
+  try {
+    const result = await createArchiveConnectorImportIntent({
+      ownerUserId: req.user!.id,
+      provider,
+      personaId: input.personaId,
+      sourceFamily: input.sourceFamily,
+      sourceKind: input.sourceKind,
+      sourceKey: input.sourceKey,
+      sourceLabel: input.sourceLabel,
+    });
+
+    return res.status(result.created ? 201 : 200).json({
+      status: result.created
+        ? "archive_connector_import_intent_created"
+        : "archive_connector_import_intent_exists",
+      provider,
+      purpose: "archive_connector",
+      ownerOnly: true,
+      importIntentCreated: result.created,
+      idempotent: true,
+      duplicate: result.duplicate,
+      intent: result.intent,
+      ...importIntentSafety(true, result.created),
+    });
+  } catch (error) {
+    return importIntentFailureResponse(res, provider, error);
   }
 });
 
@@ -709,6 +772,91 @@ function assertEmptySourceInventoryBody(body: unknown) {
   }
 }
 
+type ArchiveConnectorImportIntentInput = {
+  personaId: string;
+  sourceFamily: ArchiveConnectorImportIntentSourceFamily;
+  sourceKind: string;
+  sourceKey: string;
+  sourceLabel: string;
+};
+
+function archiveConnectorImportIntentInputFromBody(body: unknown): ArchiveConnectorImportIntentInput {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid import intent body");
+  }
+
+  const record = body as Record<string, unknown>;
+  const keys = Object.keys(record);
+  const expected = ["personaId", "sourceKey", "sourceFamily", "sourceKind", "sourceLabel"];
+  if (keys.length !== expected.length || keys.some((key) => !expected.includes(key))) {
+    throw new Error("invalid import intent body");
+  }
+  assertNoSecretShapedImportIntentBody(record);
+
+  return {
+    personaId: importIntentPersonaId(record.personaId),
+    sourceKey: importIntentSourceKey(record.sourceKey),
+    sourceFamily: importIntentSourceFamily(record.sourceFamily),
+    sourceKind: importIntentSourceKind(record.sourceKind),
+    sourceLabel: importIntentSourceLabel(record.sourceLabel),
+  };
+}
+
+function importIntentPersonaId(value: unknown) {
+  if (typeof value !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+    throw new Error("invalid import intent persona");
+  }
+  return value.toLowerCase();
+}
+
+function importIntentSourceKey(value: unknown) {
+  if (typeof value !== "string" || !/^[a-f0-9]{24}$/.test(value)) {
+    throw new Error("invalid import intent source key");
+  }
+  return value;
+}
+
+function importIntentSourceFamily(value: unknown): ArchiveConnectorImportIntentSourceFamily {
+  if (
+    value === "reddit_subreddit_memberships" ||
+    value === "reddit_user_history" ||
+    value === "discord_guilds"
+  ) {
+    return value;
+  }
+  throw new Error("invalid import intent source family");
+}
+
+function importIntentSourceKind(value: unknown) {
+  if (typeof value !== "string" || !/^[a-z0-9_-]{1,80}$/.test(value)) {
+    throw new Error("invalid import intent source kind");
+  }
+  return value;
+}
+
+function importIntentSourceLabel(value: unknown) {
+  if (typeof value !== "string") throw new Error("invalid import intent source label");
+  const label = value.replace(/\s+/g, " ").trim();
+  if (
+    !label ||
+    label.length > 100 ||
+    /[\u0000-\u001f\u007f]/.test(label) ||
+    /token|secret|cookie|credential|oauth|code|private|body|snippet|payload|external|account[_ -]?id|bearer|sk-/i.test(label)
+  ) {
+    throw new Error("invalid import intent source label");
+  }
+  return label;
+}
+
+function assertNoSecretShapedImportIntentBody(record: Record<string, unknown>) {
+  const text = JSON.stringify(record);
+  if (
+    /access[_-]?token|refresh[_-]?token|client[_-]?secret|client[_-]?id|oauth[_-]?code|credential|cookie|bearer|sk-|raw[_-]?(provider|external|account|id)|provider[_-]?payload|payload|cursor|header|source[_-]?body|snippet|content|sql|stack|storage[_-]?path|signed[_-]?url/i.test(text)
+  ) {
+    throw new Error("invalid import intent body");
+  }
+}
+
 function sourceInventoryFailureResponse(
   res: Response,
   provider: ArchiveConnectorProviderId,
@@ -823,6 +971,163 @@ function sourceInventoryFailureResponse(
 
   return res.status(502).json({
     error: "Archive connector source inventory provider request failed.",
+    code: "archive_connector_source_inventory_provider_failed",
+    status: "provider_failed",
+    ...base,
+  });
+}
+
+function importIntentFailureResponse(
+  res: Response,
+  provider: ArchiveConnectorProviderId,
+  error: unknown,
+) {
+  const base = {
+    provider,
+    purpose: "archive_connector" as const,
+    ownerOnly: true,
+    importIntentCreated: false,
+    idempotent: false,
+    duplicate: false,
+    intent: null,
+    ...importIntentSafety(false),
+  };
+
+  if (error instanceof ArchiveConnectorImportIntentError) {
+    if (error.code === "archive_connector_import_intent_persona_not_found") {
+      return res.status(404).json({
+        error: "Archive connector import intent persona was not found.",
+        code: error.code,
+        status: "persona_not_found",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_source_unavailable") {
+      return res.status(409).json({
+        error: "Archive connector import intent source was not available.",
+        code: error.code,
+        status: "source_unavailable",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector import intents.",
+        code: error.code,
+        status: "intent_load_failed",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_write_failed") {
+      return res.status(500).json({
+        error: "Could not create archive connector import intent.",
+        code: error.code,
+        status: "intent_write_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorCredentialStorageError) {
+    if (
+      error.code === "archive_connector_credential_encryption_unconfigured" ||
+      error.code === "archive_connector_credential_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector credential encryption setup is required.",
+        code: "archive_connector_credential_encryption_required",
+        status: "encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_credential_provider_unsupported") {
+      return res.status(400).json({
+        error: "Archive connector provider is not supported.",
+        code: "archive_connector_provider_not_supported",
+        status: "unsupported_provider",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_credential_unavailable" ||
+      error.code === "archive_connector_source_credential_not_source_ready"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector import intent requires a source-ready credential.",
+        code: "archive_connector_import_intent_credential_required",
+        status: "credential_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_account_lookup_required") {
+      return res.status(409).json({
+        error: "Archive connector import intent requires account lookup.",
+        code: "archive_connector_import_intent_account_lookup_required",
+        status: "account_lookup_required",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_credential_payload_invalid" ||
+      error.code === "archive_connector_source_credential_decrypt_failed" ||
+      error.code === "archive_connector_source_credential_token_invalid"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector import intent credential is invalid.",
+        code: "archive_connector_import_intent_credential_invalid",
+        status: "credential_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_credential_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector credential metadata.",
+        code: "archive_connector_import_intent_credential_load_failed",
+        status: "credential_load_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorSourceInventoryError) {
+    if (error.code === "archive_connector_source_inventory_reconnect_required") {
+      return res.status(409).json({
+        error: "Archive connector import intent requires reconnect.",
+        code: error.code,
+        status: "reconnect_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_rate_limited") {
+      return res.status(429).json({
+        error: "Archive connector import intent source inventory was rate limited.",
+        code: error.code,
+        status: "rate_limited",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_provider_response_invalid") {
+      return res.status(502).json({
+        error: "Archive connector import intent provider source response was invalid.",
+        code: error.code,
+        status: "provider_response_invalid",
+        ...base,
+      });
+    }
+  }
+
+  return res.status(502).json({
+    error: "Archive connector import intent provider source inventory failed.",
     code: "archive_connector_source_inventory_provider_failed",
     status: "provider_failed",
     ...base,
@@ -1293,6 +1598,34 @@ function sourceInventorySafety(enabled: boolean) {
     rawProviderIdReadbackEnabled: false,
     providerPayloadReadbackEnabled: false,
     providerHeadersReadbackEnabled: false,
+  };
+}
+
+function importIntentSafety(sourceInventoryEnabled: boolean, importIntentWritesEnabled = sourceInventoryEnabled) {
+  return {
+    tokenDecryptEnabled: sourceInventoryEnabled,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    providerTokenRefreshEnabled: false,
+    providerTokenRevocationEnabled: false,
+    credentialWritesEnabled: false,
+    credentialMetadataUpdateEnabled: false,
+    providerAccountLookupEnabled: false,
+    providerCallsEnabled: sourceInventoryEnabled,
+    sourceInventoryEnabled,
+    sourceBodyReadEnabled: false,
+    archiveSourceWritesEnabled: false,
+    importIntentWritesEnabled,
+    importWritesEnabled: false,
+    existingImportJobsWriteEnabled: false,
+    jobWritesEnabled: false,
+    queueEnabled: false,
+    publicWritesEnabled: false,
+    uiChangesEnabled: false,
+    rawProviderIdReadbackEnabled: false,
+    providerPayloadReadbackEnabled: false,
+    providerHeadersReadbackEnabled: false,
+    sourceInventoryCredentialMetadataUpdateEnabled: false,
   };
 }
 
