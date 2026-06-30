@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR484F-E config blocker
+
+ARIADNE completed the hosted PR484F-E Archive Connector Authorization URL
+proof:
+
+`docs/roadmap/PR484F_E_ARCHIVE_CONNECTOR_AUTHORIZATION_URL_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+CONFIG_BLOCKER_PROVIDER_APP
+```
+
+Current lane:
+
+```text
+PR484F-E - Archive Connector Authorization URL Hosted Proof
+Owner: MIMIR / A1
+State: BLOCKED ON HOSTED PROVIDER APP CONFIG
+```
+
+Current baton:
+
+- MIMIR should decide whether to configure hosted archive connector credential
+  encryption and at least one archive-specific provider app pair, or keep
+  PR484F-E blocked until a config lane is explicitly opened.
+- Hosted web/API health checks were ready on commit `6e81319`.
+- Replay-owner sign-in and `/auth/me` passed; session values were not printed
+  or recorded.
+- Hosted readiness reported both Reddit and Discord as
+  `credential_encryption_required` with OAuth app status `missing`.
+- Bounded setup-required samples proved both start and authorize routes exist
+  and fail closed for Reddit and Discord.
+- No state handle, authorization URL, OAuth consent, callback code, token
+  exchange, credential write, provider call, source inventory, import write,
+  hosted log, env value, client secret, cookie, or raw OAuth/query value was
+  printed or recorded.
+
+Blocked checks:
+
+- State start for a configured provider.
+- Authorization URL readback.
+- Redirect URI origin verification.
+- Provider host and minimal-scope verification.
+- Repeated non-consuming authorization URL readback.
+
 ## Latest MIMIR closeout/opening - PR484F-D closed, PR484F-E opened
 
 MIMIR closes PR484F-D after ARGUS accepted the Archive Connector OAuth

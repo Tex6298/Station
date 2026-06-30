@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484F-E Archive Connector Authorization URL Hosted Proof
+
+ARIADNE completed hosted PR484F-E proof on 2026-06-30:
+`docs/roadmap/PR484F_E_ARCHIVE_CONNECTOR_AUTHORIZATION_URL_HOSTED_PROOF_RESULT.md`.
+
+Validation result: `CONFIG_BLOCKER_PROVIDER_APP`.
+
+Reason:
+
+- hosted web/API health checks were ready on commit `6e81319`;
+- replay-owner sign-in and `/auth/me` passed without printing or recording
+  session values;
+- owner-only archive connector readiness reported both Reddit and Discord as
+  `credential_encryption_required` with OAuth app status `missing`;
+- bounded setup-required samples proved
+  `POST /archive-connectors/oauth/:provider/start` and
+  `POST /archive-connectors/oauth/:provider/authorize` exist and fail closed
+  for both providers;
+- no state handle or authorization URL was returned while provider app config
+  was missing;
+- no OAuth code, access token, refresh token, client secret, env value,
+  credential material, provider payload, source data, import data, SQL/table
+  output, stack trace, hosted log, prompt, signed URL, storage path, cookie, raw
+  OAuth/query value, or secret-shaped value was printed or recorded;
+- state creation, authorization URL readback, redirect-origin verification,
+  minimal-scope verification, and non-consuming state proof remain blocked until
+  at least one hosted archive connector provider app is configured.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| Hosted web health | Pass | Ready on commit `6e81319`; deployment ids were not recorded. |
+| Hosted API health | Pass | Ready on commit `6e81319`; deployment ids were not recorded. |
+| Temporary hosted API proof harness | Config blocker | Auth/readiness/setup-required samples passed; both providers had missing OAuth app status. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only for existing markdown files. |
+
 ## PR484F-D Archive Connector OAuth Authorization URL Review
 
 ARGUS accepted PR484F-D on 2026-06-29:
