@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-F accepted for DAEDALUS
+
+ARGUS accepts the PR484J-F Archive Connector Import Confirmation preflight:
+
+`docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_F_IMPORT_CONFIRMATION_PREFLIGHT
+```
+
+Accepted boundary:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/:provider/import-intents`;
+- strict body: owner persona id plus source inventory `sourceKey`,
+  `sourceFamily`, `sourceKind`, and `sourceLabel` confirmation echoes;
+- target persona ownership is checked before credential decrypt, provider
+  fetch, or writes;
+- source-ready credential and completed account proof are required;
+- source key is validated by re-running only the accepted PR484J-E inventory
+  metadata read and matching the safe source row;
+- writes go only to a new owner-scoped `archive_connector_import_intents` table;
+- duplicate clicks return the existing pending intent instead of inserting a
+  second row;
+- response readback is limited to safe intent metadata and safety booleans.
+
+Forbidden:
+
+- existing `import_jobs` writes, archive source rows, source bodies, provider
+  crawls beyond inventory revalidation, pagination, recurring pulls, Memory,
+  Canon, Continuity, public documents, review candidates, queues, workers, UI,
+  hosted/runtime work, packages, billing, Redis, Cloudflare, marketplace,
+  partner adapters, social behavior, raw provider ids, raw cursors, provider
+  payloads, provider headers, tokens, encrypted credentials, raw OAuth scopes,
+  SQL/storage details, stack traces, or secret-shaped values.
+
+Current lane:
+
+```text
+PR484J-F - Archive Connector Import Confirmation
+Owner: DAEDALUS / A2
+State: OPEN - IMPLEMENT ACCEPTED INTENT-RECEIPT-ONLY BOUNDARY
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted owner-only import intent receipt
+  route/table/types/helpers/tests.
+- DAEDALUS must not write existing `import_jobs`, create archive sources,
+  execute imports, read source bodies, enqueue work, or add UI/hosted/runtime
+  scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-E closed, PR484J-F opened
 
 MIMIR closes PR484J-E after ARGUS accepted source inventory listing:
@@ -13,30 +74,6 @@ MIMIR closes PR484J-E after ARGUS accepted source inventory listing:
 MIMIR opens owner-confirmed import intent preflight:
 
 `docs/roadmap/PR484J_F_ARCHIVE_CONNECTOR_IMPORT_CONFIRMATION_PREFLIGHT_ARGUS.md`
-
-Current lane:
-
-```text
-PR484J-F - Archive Connector Import Confirmation Preflight
-Owner: ARGUS / A3
-State: OPEN - DECIDE OWNER CONFIRMED IMPORT INTENT BOUNDARY
-```
-
-Current baton:
-
-- ARGUS should hostile-preflight owner-confirmed import intent/job creation from
-  accepted source inventory rows.
-- ARGUS should decide route/body shape, source-key validation, write shape,
-  idempotency, safe readback, failure modes, and tests.
-- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
-  with the concrete blocker and smallest next unblock.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Latest ARGUS review - PR484J-E accepted for MIMIR
 
