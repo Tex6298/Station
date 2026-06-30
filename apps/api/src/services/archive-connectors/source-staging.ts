@@ -162,11 +162,6 @@ export async function createArchiveConnectorSourceStagingRun(input: {
     sourceSnapshotFingerprint,
     nowIso: sourceReadAtIso,
   });
-  await supersedeCurrentStagingRuns({
-    ownerUserId: input.ownerUserId,
-    importIntentId: intent.id,
-    nowIso: sourceReadAtIso,
-  });
 
   const encryptedSourceBatch = encryptArchiveConnectorSourceStagingBatch({
     schema: SOURCE_STAGING_BATCH_SCHEMA,
@@ -229,12 +224,20 @@ export async function createArchiveConnectorSourceStagingRun(input: {
     );
   }
 
+  const stagedRun = data as ArchiveConnectorSourceStagingRunRow;
+  await supersedeCurrentStagingRuns({
+    ownerUserId: input.ownerUserId,
+    importIntentId: intent.id,
+    nowIso: sourceReadAtIso,
+    exceptRunId: stagedRun.id,
+  });
+
   return {
     created: true,
     duplicate: false,
     staged: true,
     intent: serializeArchiveConnectorImportIntent(intent),
-    run: serializeArchiveConnectorSourceStagingRun(data as ArchiveConnectorSourceStagingRunRow),
+    run: serializeArchiveConnectorSourceStagingRun(stagedRun),
   };
 }
 
@@ -577,6 +580,7 @@ async function supersedeCurrentStagingRuns(input: {
   ownerUserId: string;
   importIntentId: string;
   nowIso: string;
+  exceptRunId: string;
 }) {
   const sb = getSupabaseAdmin();
   const { error } = await (sb as any)
@@ -588,6 +592,7 @@ async function supersedeCurrentStagingRuns(input: {
     .eq("owner_user_id", input.ownerUserId)
     .eq("import_intent_id", input.importIntentId)
     .eq("status", "staged")
+    .neq("id", input.exceptRunId)
     .gt("expires_at", input.nowIso);
 
   if (error) {

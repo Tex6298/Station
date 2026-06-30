@@ -103,7 +103,7 @@ class ArchiveConnectorReadinessSupabase {
 }
 
 class Query {
-  private filters: Array<{ field: string; op: "eq" | "gt"; value: unknown }> = [];
+  private filters: Array<{ field: string; op: "eq" | "gt" | "neq"; value: unknown }> = [];
   private operation: "select" | "insert" | "update" = "select";
   private payload: Row | null = null;
   private orderSpec: { field: string; ascending: boolean } | null = null;
@@ -121,6 +121,11 @@ class Query {
 
   gt(field: string, value: unknown) {
     this.filters.push({ field, op: "gt", value });
+    return this;
+  }
+
+  neq(field: string, value: unknown) {
+    this.filters.push({ field, op: "neq", value });
     return this;
   }
 
@@ -246,6 +251,7 @@ class Query {
       this.filters.every(({ field, op, value }) => {
         if (op === "eq") return candidate[field] === value;
         if (op === "gt") return candidate[field] > value;
+        if (op === "neq") return candidate[field] !== value;
         return false;
       })
     );
@@ -5653,7 +5659,6 @@ test("archive connector source staging writes encrypted batch and supports dupli
 
         assert.deepEqual(db.writeCalls, [
           "archive_connector_source_staging_runs.update",
-          "archive_connector_source_staging_runs.update",
           "archive_connector_source_staging_runs.insert",
           "archive_connector_source_staging_runs.update",
           "archive_connector_source_staging_runs.update",
@@ -5661,6 +5666,7 @@ test("archive connector source staging writes encrypted batch and supports dupli
           "archive_connector_source_staging_runs.update",
           "archive_connector_source_staging_runs.update",
           "archive_connector_source_staging_runs.insert",
+          "archive_connector_source_staging_runs.update",
         ]);
         const rows = db.rows("archive_connector_source_staging_runs");
         assert.equal(rows.length, 3);
@@ -5702,6 +5708,76 @@ test("archive connector source staging writes encrypted batch and supports dupli
         assert.equal(JSON.stringify(decrypted).includes("author-fixture"), false);
         assert.equal(JSON.stringify(decrypted).includes("subreddit-fixture"), false);
         assert.equal(JSON.stringify(decrypted).includes("saved-post-id-fixture"), false);
+      });
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("archive connector source staging preserves current run when replacement insert fails", async () => {
+  const calls: SourceStagingFetchCall[] = [];
+  const db = new ArchiveConnectorReadinessSupabase();
+  db.rows("archive_connector_import_intents").push(activatedRedditSavedItemsImportIntentRow());
+  db.rows("archive_connector_source_staging_runs").push(archiveConnectorSourceStagingRunRow());
+  db.insertErrorTables.add("archive_connector_source_staging_runs");
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createArchiveConnectorApp();
+
+  try {
+    await withEnv({
+      ...archiveConnectorExchangeEnv(),
+      ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY: "source-staging-key-fixture-32-characters",
+    }, async () => {
+      db.rows("archive_connector_credentials").push(sourceReadyArchiveConnectorCredentialRow({
+        provider: "reddit",
+        externalAccountFingerprint: fingerprintArchiveConnectorExternalAccount("reddit", "reddit-raw-account-id-fixture"),
+      }));
+
+      await withSourceStagingFetch(calls, async (input) => {
+        const url = String(input);
+        if (url === "https://oauth.reddit.com/api/v1/me?raw_json=1") {
+          return sourceStagingJsonResponse({
+            id: "reddit-raw-account-id-fixture",
+            name: "OwnerPreviewUser",
+          });
+        }
+        if (url === "https://oauth.reddit.com/user/OwnerPreviewUser/saved?limit=10&raw_json=1") {
+          return sourceStagingJsonResponse({
+            data: {
+              after: null,
+              children: [
+                {
+                  kind: "t3",
+                  data: {
+                    id: "saved-post-id-fixture",
+                    title: "saved-post-title-fixture changed source content",
+                    selftext: "secret-shaped-source-content",
+                  },
+                },
+              ],
+            },
+          });
+        }
+        throw new Error(`unexpected source staging URL ${url}`);
+      }, async () => {
+        const response = await createArchiveConnectorSourceStagingRunRoute(app, { body: {} });
+
+        assert.equal(response.status, 500);
+        assert.equal(response.body.code, "archive_connector_source_staging_write_failed");
+        assert.equal(response.body.run, null);
+        assertSourceStagingSafety(response.body, false);
+        assertNoSensitiveSourceStagingReadback(response.body);
+        assert.equal(calls.length, 2);
+        assert.deepEqual(db.writeCalls, [
+          "archive_connector_source_staging_runs.update",
+          "archive_connector_source_staging_runs.insert",
+        ]);
+
+        const rows = db.rows("archive_connector_source_staging_runs");
+        assert.equal(rows.length, 1);
+        assert.equal(rows[0].status, "staged");
+        assert.equal(rows[0].superseded_at, null);
       });
     });
   } finally {

@@ -4,6 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR484J-I accepted after patch
+
+ARGUS accepts PR484J-I after a narrow lifecycle patch:
+
+`docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR484J_I_PRIVATE_SOURCE_STAGING
+```
+
+ARGUS patch:
+
+- moved current-run supersede after successful replacement staging insert;
+- excludes the newly inserted row from that supersede update;
+- added regression coverage proving a failed changed-snapshot replacement
+  insert preserves the previous non-expired staged run.
+
+Accepted boundary:
+
+- encrypted, ephemeral, owner-only Reddit saved-items source staging only;
+- dedicated staging table and dedicated staging encryption envelope;
+- activated owner-scoped import intent, owner persona recheck, source-ready
+  credential, completed account proof, dedicated source staging encryption, and
+  fresh Reddit identity fingerprint match before one bounded saved-items read;
+- safe run metadata readback only;
+- duplicate/supersede/expiry/revoke lifecycle accepted with the ARGUS patch.
+
+Still forbidden:
+
+- import execution, staged-batch consumption, archive source rows, existing
+  `import_jobs`, connector job tables, jobs, queues, workers, UI,
+  hosted/runtime, packages, billing, Redis, Cloudflare, marketplace, partner
+  adapters, social behavior, broad Reddit reads, additional Reddit history
+  content lanes, Discord channel/message/member reads, source text/readback,
+  URLs, authors, raw ids, usernames, cursors, provider payloads/headers, token
+  material, encrypted batch readback, snapshot fingerprint readback, SQL
+  details, stack traces, or secret-shaped values.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts`
+  passed with 72 route tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts`
+  passed with 140 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR484J-I - Archive Connector Private Source Staging
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS_AFTER_PATCH
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR484J-I ready for ARGUS
 
 DAEDALUS implemented the accepted PR484J-I private source staging boundary:

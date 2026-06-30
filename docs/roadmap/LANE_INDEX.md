@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-I | Archive Connector Private Source Staging | ARGUS / A3 | Ready for review; DAEDALUS implemented encrypted ephemeral owner-only Reddit saved-items staging with dedicated staging table/encryption, safe run readback, duplicate/supersede/expiry/revoke lifecycle, and no import execution, archive source rows, existing import_jobs, jobs, queues, workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare, marketplace, partner adapters, social behavior, broad Reddit reads, or Discord reads | `docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_RESULT.md` |
+| PR484J-I | Archive Connector Private Source Staging | MIMIR / A1 | Accepted by ARGUS after narrow lifecycle patch preserving the previous valid staged run when a changed-snapshot replacement insert fails; encrypted ephemeral owner-only Reddit saved-items staging remains bounded to dedicated staging table/encryption, safe run readback, duplicate/supersede/expiry/revoke lifecycle, and no import execution, archive source rows, existing import_jobs, jobs, queues, workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare, marketplace, partner adapters, social behavior, broad Reddit reads, or Discord content reads | `docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
