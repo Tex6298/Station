@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-G Archive Connector Import Execution / Activation Preflight
+
+ARGUS accepted PR484J-G on 2026-06-30 as activation receipt only:
+`docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_EXECUTION_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_G_ACTIVATION_RECEIPT_PREFLIGHT`.
+
+Reason:
+
+- accepted only owner-only activation receipt route
+  `POST /archive-connectors/import-intents/:intentId/activate`;
+- pending intents must re-check owner persona, source-ready credential,
+  completed account proof, and accepted PR484J-E source inventory metadata
+  before first activation;
+- writes are limited to `archive_connector_import_intents` activated
+  status/timestamp metadata;
+- already activated intents return the existing safe row idempotently;
+- existing `import_jobs`, connector job tables, archive source rows,
+  `persona_files`, source bodies, provider content crawls, Memory, Canon,
+  Continuity, public documents, review candidates, queues, workers, UI,
+  hosted/runtime, packages, marketplace, billing, Redis, Cloudflare, partner
+  adapters, and social behavior remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Current code review | Pass | Existing `import_jobs` is file/chat-shaped, visible in archive/background-job readbacks, and unsuitable for connector activation in this lane. |
+| Current intent table review | Pass | `archive_connector_import_intents` is the right dedicated owner-scoped receipt surface to extend for activation metadata only. |
+| Source-boundary review | Pass | Accepted source inventory reads remain metadata-only and do not expose source bodies or raw provider ids. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 120 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR484J-F Archive Connector Import Confirmation Review
 
 ARGUS accepted PR484J-F on 2026-06-30 without a review patch:
