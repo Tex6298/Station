@@ -4,6 +4,77 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484J-I ready for ARGUS
+
+DAEDALUS implemented the accepted PR484J-I private source staging boundary:
+
+`docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/import-intents/:intentId/source-staging-runs`;
+- migration/type support for
+  `public.archive_connector_source_staging_runs`;
+- dedicated source staging encryption key/envelope:
+  `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY` and
+  `station.archive_connector.source_staging_batch.v1`;
+- UUID path and strict empty-body validation before storage, credential,
+  provider, or write work;
+- activated owner-scoped archive connector intent and owner persona recheck;
+- Reddit saved-items only:
+  `reddit_user_history` / `saved_items`;
+- source-ready Reddit credential plus completed account proof before provider
+  fetch;
+- fresh identity-first Reddit read, live account fingerprint match, then one
+  bounded saved-items page;
+- encrypted-only private normalized source text, safe run metadata readback,
+  duplicate/supersede lifecycle, expired same-snapshot restaging, and
+  owner-scoped revoke marking for staged Reddit runs.
+
+Still forbidden:
+
+- source text/readback, snippets, URLs, authors, subreddit names, raw ids,
+  usernames, cursors, provider payloads/headers, token material,
+  `encrypted_source_batch`, `source_snapshot_fingerprint`, storage details,
+  SQL details, stack traces, secret-shaped values, archive source rows, existing
+  `import_jobs`, connector job tables, `persona_files`, Memory, Canon,
+  Continuity, public documents, review candidates, queues, workers, recurring
+  pulls, UI, hosted/runtime work, packages, billing, Redis, Cloudflare,
+  marketplace, partner adapters, social behavior, broad Reddit reads, Reddit
+  history endpoints other than saved items, or Discord channel/message/member
+  reads.
+
+Current lane:
+
+```text
+PR484J-I - Archive Connector Private Source Staging
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484J-I for owner scoping, activated-intent gating,
+  persona/credential/account gates, dedicated encryption boundary, Reddit
+  identity fingerprint matching, encrypted batch shape, duplicate/supersede/
+  expiry/revoke lifecycle, redaction, and static no-drift guards.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`. If fixes are needed,
+  ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-H closed, PR484J-I opened
 
 MIMIR closes PR484J-H after ARGUS accepted source preview:

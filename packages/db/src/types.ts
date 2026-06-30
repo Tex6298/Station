@@ -67,6 +67,7 @@ export type ArchiveConnectorProvider = "reddit" | "discord";
 export type ArchiveConnectorPurpose = "archive_connector";
 export type ArchiveConnectorCredentialStatus = "active" | "revoked";
 export type ArchiveConnectorImportIntentStatus = "pending" | "cancelled" | "activated";
+export type ArchiveConnectorSourceStagingRunStatus = "staged" | "superseded" | "revoked";
 export type ArchiveConnectorSourceFamily = "reddit_subreddit_memberships" | "reddit_user_history" | "discord_guilds";
 export type DeveloperSpaceVisibility = "private" | "unlisted" | "community" | "public";
 export type DeveloperSpaceProviderPolicy = "public_synthetic_only" | "public_context_allowed" | "private_archive_allowed" | "owner_byok_only" | "platform_allowed";
@@ -248,6 +249,45 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["archive_connector_import_intents"]["Insert"]>;
+      };
+      archive_connector_source_staging_runs: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          persona_id: string;
+          import_intent_id: string;
+          provider: "reddit";
+          purpose: ArchiveConnectorPurpose;
+          source_family: "reddit_user_history";
+          source_kind: "saved_items";
+          source_key: string;
+          source_label: string;
+          status: ArchiveConnectorSourceStagingRunStatus;
+          page_limit: 10;
+          item_count: number;
+          post_count: number;
+          comment_count: number;
+          skipped_count: number;
+          truncated: boolean;
+          source_snapshot_fingerprint: string;
+          encrypted_source_batch: Record<string, unknown>;
+          source_read_at: string;
+          expires_at: string;
+          superseded_at: string | null;
+          revoked_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["archive_connector_source_staging_runs"]["Row"], "id" | "purpose" | "status" | "superseded_at" | "revoked_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          purpose?: ArchiveConnectorPurpose;
+          status?: ArchiveConnectorSourceStagingRunStatus;
+          superseded_at?: string | null;
+          revoked_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["archive_connector_source_staging_runs"]["Insert"]>;
       };
       projects: {
         Row: {

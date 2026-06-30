@@ -52,6 +52,11 @@ import {
   readRedditSavedItemsSourcePreview,
 } from "../services/archive-connectors/source-preview";
 import {
+  ArchiveConnectorSourceStagingError,
+  createArchiveConnectorSourceStagingRun,
+  revokeArchiveConnectorSourceStagingRunsForProvider,
+} from "../services/archive-connectors/source-staging";
+import {
   archiveConnectorScopeProfileFromValue,
   archiveConnectorScopeProfileReadback,
   archiveConnectorScopesForProfile,
@@ -287,6 +292,53 @@ archiveConnectorsRouter.post("/import-intents/:intentId/source-preview", async (
   }
 });
 
+archiveConnectorsRouter.post("/import-intents/:intentId/source-staging-runs", async (req: Request, res: Response) => {
+  let intentId: string;
+  try {
+    intentId = archiveConnectorImportIntentIdFromParam(req.params.intentId);
+    assertEmptyImportIntentSourceStagingBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector source staging request is invalid.",
+      code: "archive_connector_source_staging_invalid",
+      status: "invalid_request",
+      provider: "reddit",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      staged: false,
+      idempotent: false,
+      duplicate: false,
+      intent: null,
+      run: null,
+      ...sourceStagingSafety(false),
+    });
+  }
+
+  try {
+    const result = await createArchiveConnectorSourceStagingRun({
+      ownerUserId: req.user!.id,
+      intentId,
+    });
+
+    return res.status(result.created ? 201 : 200).json({
+      status: result.created
+        ? "archive_connector_source_staging_run_created"
+        : "archive_connector_source_staging_run_exists",
+      provider: "reddit",
+      purpose: "archive_connector",
+      ownerOnly: true,
+      staged: result.staged,
+      idempotent: true,
+      duplicate: result.duplicate,
+      intent: result.intent,
+      run: result.run,
+      ...sourceStagingSafety(true),
+    });
+  } catch (error) {
+    return sourceStagingFailureResponse(res, error);
+  }
+});
+
 archiveConnectorsRouter.post("/credentials/:provider/account/lookup", async (req: Request, res: Response) => {
   const provider = archiveConnectorProvider(req.params.provider);
   if (!provider) {
@@ -377,6 +429,12 @@ archiveConnectorsRouter.post("/credentials/:provider/revoke", async (req: Reques
       ownerUserId: req.user!.id,
       provider,
     });
+    if (hadActiveCredential) {
+      await revokeArchiveConnectorSourceStagingRunsForProvider({
+        ownerUserId: req.user!.id,
+        provider,
+      });
+    }
     const credential = newestCredentialReadbackForProvider(credentials, provider);
 
     return res.status(200).json({
@@ -989,6 +1047,19 @@ function assertEmptyImportIntentSourcePreviewBody(body: unknown) {
   }
 }
 
+function assertEmptyImportIntentSourceStagingBody(body: unknown) {
+  if (body === undefined) return;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("invalid import intent source staging body");
+  }
+
+  const keys = Object.keys(body as Record<string, unknown>);
+  if (keys.length > 0) {
+    assertNoSecretShapedImportIntentBody(body as Record<string, unknown>);
+    throw new Error("invalid import intent source staging body");
+  }
+}
+
 function sourceInventoryFailureResponse(
   res: Response,
   provider: ArchiveConnectorProviderId,
@@ -1449,6 +1520,220 @@ function sourcePreviewFailureResponse(
   return res.status(502).json({
     error: "Archive connector source preview provider request failed.",
     code: "archive_connector_source_preview_provider_failed",
+    status: "provider_failed",
+    ...base,
+  });
+}
+
+function sourceStagingFailureResponse(
+  res: Response,
+  error: unknown,
+) {
+  const base = {
+    provider: "reddit" as const,
+    purpose: "archive_connector" as const,
+    ownerOnly: true,
+    staged: false,
+    idempotent: false,
+    duplicate: false,
+    intent: null,
+    run: null,
+    ...sourceStagingSafety(false),
+  };
+
+  if (error instanceof ArchiveConnectorImportIntentError) {
+    if (error.code === "archive_connector_import_intent_not_found") {
+      return res.status(404).json({
+        error: "Archive connector import intent was not found.",
+        code: error.code,
+        status: "intent_not_found",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_not_activatable") {
+      return res.status(409).json({
+        error: "Archive connector import intent is not activated for source staging.",
+        code: error.code,
+        status: "intent_not_activated",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_source_unsupported") {
+      return res.status(409).json({
+        error: "Archive connector import intent source staging is not supported.",
+        code: error.code,
+        status: "source_unsupported",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_persona_not_found") {
+      return res.status(404).json({
+        error: "Archive connector import intent persona was not found.",
+        code: error.code,
+        status: "persona_not_found",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_import_intent_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector import intent.",
+        code: error.code,
+        status: "intent_load_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorCredentialStorageError) {
+    if (
+      error.code === "archive_connector_credential_encryption_unconfigured" ||
+      error.code === "archive_connector_credential_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector credential encryption setup is required.",
+        code: "archive_connector_credential_encryption_required",
+        status: "encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_credential_provider_unsupported") {
+      return res.status(400).json({
+        error: "Archive connector provider is not supported.",
+        code: "archive_connector_provider_not_supported",
+        status: "unsupported_provider",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_credential_unavailable" ||
+      error.code === "archive_connector_source_credential_not_source_ready"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source staging requires a source-ready credential.",
+        code: "archive_connector_source_staging_credential_required",
+        status: "credential_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_inventory_account_lookup_required") {
+      return res.status(409).json({
+        error: "Archive connector source staging requires account lookup.",
+        code: "archive_connector_source_staging_account_lookup_required",
+        status: "account_lookup_required",
+        ...base,
+      });
+    }
+
+    if (
+      error.code === "archive_connector_source_credential_payload_invalid" ||
+      error.code === "archive_connector_source_credential_decrypt_failed" ||
+      error.code === "archive_connector_source_credential_token_invalid"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source staging credential is invalid.",
+        code: "archive_connector_source_staging_credential_invalid",
+        status: "credential_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_credential_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector credential metadata.",
+        code: "archive_connector_source_staging_credential_load_failed",
+        status: "credential_load_failed",
+        ...base,
+      });
+    }
+  }
+
+  if (error instanceof ArchiveConnectorSourceStagingError) {
+    if (
+      error.code === "archive_connector_source_staging_encryption_unconfigured" ||
+      error.code === "archive_connector_source_staging_encryption_malformed"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector source staging encryption setup is required.",
+        code: "archive_connector_source_staging_encryption_required",
+        status: "staging_encryption_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_account_mismatch") {
+      return res.status(409).json({
+        error: "Archive connector source staging account proof does not match the connected account.",
+        code: error.code,
+        status: "account_mismatch",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_reconnect_required") {
+      return res.status(409).json({
+        error: "Archive connector source staging requires reconnect.",
+        code: error.code,
+        status: "reconnect_required",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_rate_limited") {
+      return res.status(429).json({
+        error: "Archive connector source staging was rate limited.",
+        code: error.code,
+        status: "rate_limited",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_provider_response_invalid") {
+      return res.status(502).json({
+        error: "Archive connector source staging provider response was invalid.",
+        code: error.code,
+        status: "provider_response_invalid",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_no_stageable_items") {
+      return res.status(409).json({
+        error: "Archive connector source staging found no stageable items.",
+        code: error.code,
+        status: "no_stageable_items",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_load_failed") {
+      return res.status(500).json({
+        error: "Could not load archive connector source staging runs.",
+        code: error.code,
+        status: "staging_load_failed",
+        ...base,
+      });
+    }
+
+    if (error.code === "archive_connector_source_staging_write_failed") {
+      return res.status(500).json({
+        error: "Could not write archive connector source staging run.",
+        code: error.code,
+        status: "staging_write_failed",
+        ...base,
+      });
+    }
+  }
+
+  return res.status(502).json({
+    error: "Archive connector source staging provider request failed.",
+    code: "archive_connector_source_staging_provider_failed",
     status: "provider_failed",
     ...base,
   });
@@ -2169,6 +2454,45 @@ function sourcePreviewSafety(enabled: boolean) {
     rawProviderIdReadbackEnabled: false,
     providerPayloadReadbackEnabled: false,
     providerHeadersReadbackEnabled: false,
+    sourceInventoryCredentialMetadataUpdateEnabled: false,
+  };
+}
+
+function sourceStagingSafety(enabled: boolean) {
+  return {
+    tokenDecryptEnabled: enabled,
+    tokenExchangeEnabled: false,
+    providerTokenEndpointCallsEnabled: false,
+    providerTokenRefreshEnabled: false,
+    providerTokenRevocationEnabled: false,
+    credentialWritesEnabled: false,
+    credentialMetadataUpdateEnabled: false,
+    providerAccountLookupEnabled: false,
+    providerCallsEnabled: enabled,
+    sourceInventoryEnabled: false,
+    sourcePreviewEnabled: enabled,
+    sourceBodyReadEnabled: enabled,
+    sourceBodyReadbackEnabled: false,
+    sourceStagingEncryptionEnabled: enabled,
+    privateStagingEnabled: enabled,
+    privateStagingWritesEnabled: enabled,
+    archiveSourceWritesEnabled: false,
+    importIntentWritesEnabled: false,
+    importIntentActivationWritesEnabled: false,
+    importWritesEnabled: false,
+    existingImportJobsWriteEnabled: false,
+    connectorJobTableWritesEnabled: false,
+    jobWritesEnabled: false,
+    queueEnabled: false,
+    workerExecutionEnabled: false,
+    recurringPullsEnabled: false,
+    publicWritesEnabled: false,
+    uiChangesEnabled: false,
+    rawProviderIdReadbackEnabled: false,
+    providerPayloadReadbackEnabled: false,
+    providerHeadersReadbackEnabled: false,
+    encryptedSourceBatchReadbackEnabled: false,
+    sourceSnapshotFingerprintReadbackEnabled: false,
     sourceInventoryCredentialMetadataUpdateEnabled: false,
   };
 }

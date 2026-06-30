@@ -20,6 +20,48 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-I Archive Connector Private Source Staging Implementation
+
+DAEDALUS implemented PR484J-I on 2026-06-30:
+`docs/roadmap/PR484J_I_ARCHIVE_CONNECTOR_PRIVATE_SOURCE_STAGING_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added authenticated owner-only route
+  `POST /archive-connectors/import-intents/:intentId/source-staging-runs`;
+- added migration/type support for
+  `public.archive_connector_source_staging_runs`;
+- requires UUID path, strict empty body, owner-scoped activated archive
+  connector intent, owner persona recheck, source-ready Reddit credential,
+  completed account proof, and dedicated source staging encryption config before
+  provider reads or writes;
+- accepts only Reddit `reddit_user_history` / `saved_items`;
+- calls Reddit identity first, fingerprint-matches live raw account id against
+  stored account proof, derives the username internally, and then calls one
+  bounded saved-items page;
+- stores private normalized source text only inside encrypted
+  `station.archive_connector.source_staging_batch.v1` batches;
+- returns only safe intent/run metadata, counts, timestamps, and safety
+  booleans;
+- duplicate non-expired snapshots return existing safe readback, changed
+  snapshots supersede current active staging, expired same-snapshot rows are not
+  reused, and active owner Reddit credential revoke marks staged runs revoked;
+- source content/readback, URLs, authors, raw ids, usernames, cursors, provider
+  payloads/headers, encrypted batch readback, snapshot fingerprint readback,
+  archive source rows, existing `import_jobs`, connector job tables, jobs,
+  queues, workers, UI, hosted/runtime, packages, billing, Redis, Cloudflare,
+  marketplace, partner adapters, social behavior, broad Reddit reads, and
+  Discord channel/message/member reads remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 71 archive connector route tests passed, including source-staging auth/body/intent/persona/credential/account/encryption/provider/redaction/lifecycle/revoke/static-guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 139 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
 ## PR484J-H Archive Connector Source Body Read Dry-Run Implementation
 
 DAEDALUS implemented PR484J-H on 2026-06-30:
