@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-D Archive Connector Provider Account Lookup Preflight
+
+ARGUS accepted PR484J-D on 2026-06-30:
+`docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_D_PROVIDER_ACCOUNT_LOOKUP`.
+
+Reason:
+
+- accepted a backend-only provider account proof lane before source inventory;
+- exact canonical `connect` and `source_inventory` credentials are eligible for
+  account lookup;
+- provider calls are limited to Reddit `/api/v1/me` and Discord `/users/@me`;
+- one authenticated empty-body owner route may trigger lookup:
+  `POST /archive-connectors/credentials/:provider/account/lookup`;
+- successful lookup may update only safe `account_label` and
+  `external_account_fingerprint` metadata on the active owner/provider
+  credential row;
+- existing external account fingerprint mismatch must fail closed;
+- route/readback must not expose tokens, raw external ids, provider payloads,
+  provider headers, source data, or secret values;
+- source inventory/listing reads, imports, jobs, UI, packages, marketplace,
+  billing, Redis, Cloudflare, hosted proof, and social behavior remain out of
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Current code review | Pass | Current archive connector code has token exchange and source-ready decrypt boundaries, but no provider account lookup route or provider account client yet. |
+| Provider docs check | Pass | Reddit `/api/v1/me` maps to `identity`; Discord `/users/@me` maps to `identify`; both are account proof endpoints, not source inventory listings. |
+| Prior boundary check | Pass | PR484J-A, PR484J-B, and PR484J-C supply the account metadata policy, exact scope metadata, and decrypt guards needed for this smaller provider-read lane. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 98 tests passed across connector storage/contract/routes, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
 ## PR484J-C Archive Connector Credential Decrypt Boundary Review
 
 ARGUS accepted PR484J-C on 2026-06-30 after a narrow exact-scope proof patch:

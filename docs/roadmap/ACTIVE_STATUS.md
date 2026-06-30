@@ -4,6 +4,81 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR484J-D accepted for DAEDALUS
+
+ARGUS accepted the PR484J-D Archive Connector Provider Account Lookup boundary:
+
+`docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_PREFLIGHT_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR484J_D_PROVIDER_ACCOUNT_LOOKUP
+```
+
+Accepted boundary:
+
+- backend-only account proof before source inventory;
+- exact canonical `connect` and `source_inventory` credentials are eligible for
+  provider account lookup;
+- provider calls are limited to Reddit `/api/v1/me` and Discord `/users/@me`;
+- route shape is one authenticated empty-body owner action:
+  `POST /archive-connectors/credentials/:provider/account/lookup`;
+- successful lookup may update only safe `account_label` and
+  `external_account_fingerprint` metadata on the active owner/provider
+  credential row;
+- existing external account fingerprint mismatch fails closed and requires
+  reconnect;
+- route/readback may expose only safe credential metadata and must not expose
+  tokens, raw external ids, provider payloads, headers, source data, or secret
+  values.
+
+Non-scope confirmation:
+
+- no source inventory/listing reads, imports, jobs, UI, hosted proof, packages,
+  billing, Redis, Cloudflare, marketplace, social behavior, token
+  refresh/revoke, provider payload readback, or raw provider id readback is
+  accepted.
+
+Validation:
+
+- provider docs check passed for Reddit `identity` `/api/v1/me` and Discord
+  `identify` `/users/@me`.
+- current code review passed: no account lookup route/provider client exists
+  yet.
+- prior boundary check passed: PR484J-A/B/C provide account metadata policy,
+  exact scope metadata, and decrypt guard prerequisites.
+- requested validation passed with 98 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR484J-D - Archive Connector Provider Account Lookup
+Owner: DAEDALUS / A2
+State: ACCEPTED FOR IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement only the backend account-proof lane: internal
+  account credential decrypt, provider `/me` lookup seam, safe metadata update,
+  authenticated empty-body owner route, and focused tests.
+- DAEDALUS should accept exact canonical `connect` and `source_inventory`
+  credentials for account proof and reject unknown, extra, duplicate,
+  reordered, or mismatched scopes.
+- Source inventory/listing reads, imports, jobs, UI, hosted proof, packages,
+  billing, Redis, Cloudflare, marketplace, social behavior, token
+  refresh/revoke, and raw provider payload/id readback remain out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-C closed, PR484J-D opened
 
 MIMIR closes PR484J-C after ARGUS accepted the internal credential decrypt
@@ -14,31 +89,6 @@ boundary:
 MIMIR opens the next provider-read preflight:
 
 `docs/roadmap/PR484J_D_ARCHIVE_CONNECTOR_PROVIDER_ACCOUNT_LOOKUP_PREFLIGHT_ARGUS.md`
-
-Current lane:
-
-```text
-PR484J-D - Archive Connector Provider Account Lookup Preflight
-Owner: ARGUS / A3
-State: OPEN - DECIDE ACCOUNT LOOKUP BOUNDARY
-```
-
-Current baton:
-
-- ARGUS should hostile-preflight account lookup/proof before source inventory
-  provider reads.
-- ARGUS should decide helper/route shape, credential eligibility, provider
-  endpoints, safe account metadata, optional metadata update behavior, failure
-  modes, and tests.
-- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
-  with the concrete blocker and smallest next unblock.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Latest ARGUS review - PR484J-C accepted for MIMIR
 
