@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/require-auth";
 import {
   archiveConnectorReadiness,
   archiveConnectorProviderOAuthClientId,
+  archiveConnectorProviderOAuthClientSecret,
   archiveConnectorProviderOAuthAppStatus,
 } from "../services/archive-connectors/readiness";
 import {
@@ -11,11 +12,17 @@ import {
   type ArchiveConnectorProviderId,
 } from "../services/archive-connectors/credential-contract";
 import {
+  archiveConnectorCredentialEncryptionConfigured,
   ArchiveConnectorCredentialStorageError,
   consumeArchiveConnectorOAuthState,
   createArchiveConnectorOAuthState,
+  storeArchiveConnectorCredential,
   validateArchiveConnectorOAuthState,
 } from "../services/archive-connectors/credential-storage";
+import {
+  ArchiveConnectorTokenExchangeError,
+  exchangeArchiveConnectorOAuthCode,
+} from "../services/archive-connectors/token-exchange";
 
 export const archiveConnectorsRouter = Router();
 
@@ -168,6 +175,170 @@ archiveConnectorsRouter.post("/oauth/:provider/callback/verify", async (req: Req
       provider,
       purpose: "archive_connector",
       ...disabledOAuthCallbackVerificationSafety(),
+    });
+  }
+});
+
+archiveConnectorsRouter.post("/oauth/:provider/callback/exchange", async (req: Request, res: Response) => {
+  const provider = archiveConnectorProvider(req.params.provider);
+  if (!provider) {
+    return res.status(400).json({
+      error: "Archive connector provider is not supported.",
+      code: "archive_connector_provider_not_supported",
+      status: "unsupported_provider",
+    });
+  }
+
+  let callback: { stateHandle: string; code: string };
+  try {
+    callback = callbackVerificationFromBody(req.body);
+  } catch {
+    return res.status(400).json({
+      error: "Archive connector callback exchange input is invalid.",
+      code: "archive_connector_exchange_invalid",
+      status: "invalid_request",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
+    });
+  }
+
+  const oauthAppStatus = archiveConnectorProviderOAuthAppStatus(provider);
+  const clientId = archiveConnectorProviderOAuthClientId(provider);
+  const clientSecret = archiveConnectorProviderOAuthClientSecret(provider);
+  if (oauthAppStatus !== "configured" || !clientId || !clientSecret) {
+    return res.status(409).json({
+      error: "Archive connector provider app setup is required.",
+      code: "archive_connector_provider_app_setup_required",
+      status: "setup_required",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
+    });
+  }
+
+  if (!archiveConnectorCredentialEncryptionConfigured()) {
+    return res.status(409).json({
+      error: "Archive connector credential encryption setup is required.",
+      code: "archive_connector_credential_encryption_required",
+      status: "encryption_required",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
+    });
+  }
+
+  let redirectUri: string;
+  try {
+    redirectUri = archiveConnectorCallbackRedirectUri(provider);
+  } catch (error) {
+    const unsafe = error instanceof ArchiveConnectorAuthorizeConfigError && error.kind === "unsafe_hosted_origin";
+    return res.status(unsafe ? 409 : 400).json({
+      error: "Archive connector web callback origin is not configured safely.",
+      code: unsafe
+        ? "archive_connector_callback_origin_unsafe"
+        : "archive_connector_callback_origin_invalid",
+      status: unsafe ? "origin_unsafe" : "origin_invalid",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
+    });
+  }
+
+  const [nonce, csrf] = callback.stateHandle.split(".");
+  const authHeader = req.headers.authorization ?? "";
+  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+
+  try {
+    await consumeArchiveConnectorOAuthState({
+      ownerUserId: req.user!.id,
+      sessionId: sessionBinding(req.user!.id, bearerToken),
+      provider,
+      nonce,
+      csrf,
+    });
+  } catch (error) {
+    if (
+      error instanceof ArchiveConnectorCredentialStorageError &&
+      error.code === "archive_connector_oauth_state_invalid"
+    ) {
+      return res.status(409).json({
+        error: "Archive connector OAuth state is invalid, expired, or already consumed.",
+        code: "archive_connector_oauth_state_invalid",
+        status: "state_invalid",
+        provider,
+        purpose: "archive_connector",
+        ...exchangeSafety(false),
+      });
+    }
+
+    return res.status(500).json({
+      error: "Could not consume archive connector OAuth state.",
+      code: "archive_connector_exchange_state_consume_failed",
+      status: "state_consume_failed",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
+    });
+  }
+
+  let tokenMaterial: Awaited<ReturnType<typeof exchangeArchiveConnectorOAuthCode>>;
+  try {
+    tokenMaterial = await exchangeArchiveConnectorOAuthCode({
+      provider,
+      clientId,
+      clientSecret,
+      code: callback.code,
+      redirectUri,
+    });
+  } catch (error) {
+    if (error instanceof ArchiveConnectorTokenExchangeError) {
+      return res.status(502).json({
+        error: "Archive connector token exchange failed.",
+        code: "archive_connector_token_exchange_failed",
+        status: "token_exchange_failed",
+        provider,
+        purpose: "archive_connector",
+        ...exchangeSafety(false),
+      });
+    }
+
+    return res.status(502).json({
+      error: "Archive connector token exchange failed.",
+      code: "archive_connector_token_exchange_failed",
+      status: "token_exchange_failed",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
+    });
+  }
+
+  try {
+    const credential = await storeArchiveConnectorCredential({
+      ownerUserId: req.user!.id,
+      provider,
+      secretMaterial: tokenMaterial,
+      accountLabel: null,
+      rawExternalAccountId: null,
+    });
+
+    return res.status(200).json({
+      status: "archive_connector_connected",
+      provider,
+      purpose: "archive_connector",
+      tokenExchangeComplete: true,
+      credentialWriteComplete: true,
+      credential,
+      ...exchangeSafety(true),
+    });
+  } catch {
+    return res.status(500).json({
+      error: "Could not save archive connector credential.",
+      code: "archive_connector_credential_write_failed",
+      status: "credential_write_failed",
+      provider,
+      purpose: "archive_connector",
+      ...exchangeSafety(false),
     });
   }
 });
@@ -461,6 +632,19 @@ function authorizationUrlSafety() {
     oauthRedirectsEnabled: false,
     oauthCallbacksEnabled: true,
     tokenExchangeEnabled: false,
+    providerCallsEnabled: false,
+    sourceInventoryEnabled: false,
+    importWritesEnabled: false,
+  };
+}
+
+function exchangeSafety(enabled: boolean) {
+  return {
+    credentialWritesEnabled: enabled,
+    oauthRedirectsEnabled: false,
+    oauthCallbacksEnabled: true,
+    tokenExchangeEnabled: enabled,
+    providerTokenEndpointCallsEnabled: enabled,
     providerCallsEnabled: false,
     sourceInventoryEnabled: false,
     importWritesEnabled: false,

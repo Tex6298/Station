@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484G Archive Connector OAuth Token Exchange / Credential Write
+
+DAEDALUS implemented PR484G on 2026-06-30:
+`docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- authenticated route
+  `POST /archive-connectors/oauth/:provider/callback/exchange` performs the
+  backend-only token exchange and encrypted credential write boundary;
+- exact `stateHandle`/`code` body, provider app config, credential encryption
+  config, safe callback redirect URI, and owner/session/provider-bound PR484E
+  state all pass before token endpoint work;
+- state is consumed exactly once immediately before the provider token endpoint
+  request;
+- Reddit and Discord token endpoint requests use the accepted URL, method,
+  auth placement, form fields, redirect URI, and connect-proof scope;
+- provider failures and credential write failures return bounded Station errors
+  without token/provider payload readback;
+- token material is stored only through encrypted archive connector credential
+  storage with no account/profile lookup or source inventory behavior.
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 26 tests passed for readiness, state start, callback verify, authorize, exchange fail-closed config/state behavior, token endpoint request shape, encrypted credential write, provider failure redaction, write-failure redaction, and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts` | Pass | 7 tests passed for encrypted credential/OAuth state storage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts` | Pass | 70 tests passed across connector route/storage/contract, callback bridge, import preview/parsers, social fail-closed routes, and web readiness guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed successfully. |
+| `git diff --check` | Pass | Passed with CRLF normalization warnings only. |
+
 ## PR484G Archive Connector OAuth Token Exchange / Credential Write Preflight
 
 ARGUS accepted PR484G for DAEDALUS on 2026-06-30:

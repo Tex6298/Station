@@ -135,6 +135,11 @@ export function archiveConnectorProviderOAuthClientId(providerId: ArchiveConnect
   return process.env[config.clientId]?.trim() || null;
 }
 
+export function archiveConnectorProviderOAuthClientSecret(providerId: ArchiveConnectorProviderId) {
+  const config = ARCHIVE_CONNECTOR_PROVIDER_APP_CONFIG[providerId];
+  return process.env[config.clientSecret]?.trim() || null;
+}
+
 function providerReadinessStatus(
   credentialEncryptionConfigured: boolean,
   oauthAppStatus: ProviderOAuthAppStatus,

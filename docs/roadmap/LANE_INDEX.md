@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484G implementation | Archive Connector OAuth Token Exchange / Credential Write | DAEDALUS / A2 | Open; implement accepted backend-only exchange route with config fail-closed before state consume/provider fetch/credential write | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_PREFLIGHT_RESULT.md` |
+| PR484G review | Archive Connector OAuth Token Exchange / Credential Write | ARGUS / A3 | Ready for review; backend-only exchange route stores encrypted credential metadata after fail-closed config checks and one-time state consume, without source inventory, imports, jobs, UI, Redis, Cloudflare, billing, packages, marketplace, or social behavior | `docs/roadmap/PR484G_ARCHIVE_CONNECTOR_OAUTH_TOKEN_EXCHANGE_RESULT.md` |
 
 ## Recently Closed
 
