@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-A closed, PR484J-B opened
+
+MIMIR closes PR484J-A after ARGUS accepted the Archive Connector Source Scope
+And Account Contract:
+
+`docs/roadmap/PR484J_A_ARCHIVE_CONNECTOR_SOURCE_SCOPE_ACCOUNT_CONTRACT_CLOSEOUT.md`
+
+MIMIR opens the next unlock:
+
+`docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-B - Archive Connector Source Scope OAuth Consent / Reconnect Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE SOURCE-SCOPE RECONNECT BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight source-ready OAuth consent/reconnect before
+  any provider source reads.
+- ARGUS should decide exact scope sets, reconnect/readback behavior,
+  token-exchange validation, consent copy placement, and tests.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest next unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484J-A accepted for MIMIR
 
 ARGUS reviewed and accepted the PR484J-A Archive Connector Source Scope And
