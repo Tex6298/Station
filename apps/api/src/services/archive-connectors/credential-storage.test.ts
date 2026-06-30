@@ -557,6 +557,30 @@ test("archive connector source credential decrypt requires stored metadata and d
       code: "archive_connector_source_credential_token_invalid",
     },
     {
+      name: "stored-source-with-extra-stored-scope",
+      row: {
+        grantedScopes: ["identity", "mysubreddits", "history", "read"],
+        tokenMaterial: sourceTokenMaterial("reddit"),
+      },
+      code: "archive_connector_source_credential_not_source_ready",
+    },
+    {
+      name: "stored-source-with-duplicate-stored-scope",
+      row: {
+        grantedScopes: ["identity", "mysubreddits", "history", "identity"],
+        tokenMaterial: sourceTokenMaterial("reddit"),
+      },
+      code: "archive_connector_source_credential_not_source_ready",
+    },
+    {
+      name: "stored-source-with-unordered-stored-scope",
+      row: {
+        grantedScopes: ["history", "identity", "mysubreddits"],
+        tokenMaterial: sourceTokenMaterial("reddit"),
+      },
+      code: "archive_connector_source_credential_not_source_ready",
+    },
+    {
       name: "wrong-token-provider",
       row: {
         tokenMaterial: sourceTokenMaterial("discord"),
@@ -748,6 +772,25 @@ test("archive connector source credential decrypt fails closed on invalid token 
     {
       name: "non-string-granted-scope",
       tokenMaterial: sourceTokenMaterial("reddit", { grantedScopes: ["identity", 7] }),
+    },
+    {
+      name: "unordered-granted-scopes",
+      tokenMaterial: sourceTokenMaterial("reddit", {
+        grantedScopes: ["history", "identity", "mysubreddits"],
+        scope: "history identity mysubreddits",
+      }),
+    },
+    {
+      name: "duplicate-granted-scopes",
+      tokenMaterial: sourceTokenMaterial("reddit", {
+        grantedScopes: ["identity", "mysubreddits", "history", "identity"],
+      }),
+    },
+    {
+      name: "raw-scope-mismatch",
+      tokenMaterial: sourceTokenMaterial("reddit", {
+        scope: "identity mysubreddits history read",
+      }),
     },
   ];
 

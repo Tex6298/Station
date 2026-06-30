@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-C Archive Connector Credential Decrypt Boundary Review
+
+ARGUS accepted PR484J-C on 2026-06-30 after a narrow exact-scope proof patch:
+`docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR484J_C_CREDENTIAL_DECRYPT_BOUNDARY`.
+
+Reason:
+
+- internal-only source credential decrypt helper loads only active
+  owner/provider/purpose `archive_connector` credentials;
+- unsupported provider input fails before storage access;
+- missing, revoked, wrong-owner, wrong-purpose, unsupported-row, and duplicate
+  active rows fail closed through bounded unavailable errors;
+- stored metadata must prove `source_inventory` with the exact canonical
+  provider source-scope array, in canonical order, without extras or
+  duplicates before decrypt;
+- decrypted token material must independently prove schema, provider,
+  `source_inventory`, exact canonical granted scopes, optional canonical raw
+  `scope`, bounded access token, and bounded optional refresh token/token
+  type/expiry;
+- returned secret material remains internal-only and is not exposed by route,
+  readiness, credential readback, docs examples, logs, or UI;
+- no provider source reads, source inventory route, provider client, account
+  lookup, imports, jobs, UI, packages, marketplace, billing, Redis, Cloudflare,
+  or social behavior was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts` | Pass | 59 focused connector storage/route/contract tests passed after the ARGUS patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/services/archive-connectors/credential-contract.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 98 tests passed across connector storage/route/contract, import preview/parsers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck executed and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| Scope/path scan | Pass | Review patch touched archive connector storage/tests and docs only; implementation stayed within accepted internal helper/test/docs surface. |
+
 ## PR484J-C Archive Connector Credential Decrypt Boundary
 
 DAEDALUS implemented PR484J-C on 2026-06-30:

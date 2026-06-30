@@ -307,7 +307,9 @@ export function serializeArchiveConnectorCredentialReadback(row: ArchiveConnecto
 
 function assertStoredSourceCredentialReady(row: ArchiveConnectorCredentialRow) {
   const scopeProfile = archiveConnectorScopeProfileFromValue(row.scope_profile);
-  const grantedScopes = normalizeArchiveConnectorGrantedScopes(row.provider, row.granted_scopes);
+  const expectedScopes = archiveConnectorScopesForProfile(row.provider, "source_inventory");
+  const storedGrantedScopes = storedScopeStrings(row.granted_scopes);
+  const grantedScopes = normalizeArchiveConnectorGrantedScopes(row.provider, storedGrantedScopes);
   const scopeState = archiveConnectorConnectionScopeState({
     provider: row.provider,
     grantedScopes,
@@ -316,12 +318,10 @@ function assertStoredSourceCredentialReady(row: ArchiveConnectorCredentialRow) {
   if (
     scopeProfile !== "source_inventory" ||
     scopeState.connectionScopeState !== "source_scope_ready" ||
-    !sameScopeSet(grantedScopes, archiveConnectorScopesForProfile(row.provider, "source_inventory"))
+    !sameOrderedScopes(storedGrantedScopes, expectedScopes) ||
+    !sameScopeSet(grantedScopes, expectedScopes)
   ) {
-    throw new ArchiveConnectorCredentialStorageError(
-      "archive_connector_source_credential_not_source_ready",
-      "Archive connector source credential is not source-ready."
-    );
+    throw sourceCredentialNotSourceReady();
   }
 }
 
@@ -398,12 +398,13 @@ function sourceCredentialSecretFromTokenMaterial(
     throw sourceCredentialTokenInvalid();
   }
 
-  const tokenGrantedScopes = arrayOfStrings(material.grantedScopes);
+  const expectedScopes = archiveConnectorScopesForProfile(provider, "source_inventory");
+  const tokenGrantedScopes = arrayOfStrings(material.grantedScopes).map((scope) => scope.trim());
   const grantedScopes = normalizeArchiveConnectorGrantedScopes(provider, tokenGrantedScopes);
-  if (
-    !sameScopeSet(grantedScopes, archiveConnectorScopesForProfile(provider, "source_inventory")) ||
-    tokenGrantedScopes.some((scope) => !grantedScopes.includes(scope.trim()))
-  ) {
+  if (!sameOrderedScopes(tokenGrantedScopes, expectedScopes) || !sameScopeSet(grantedScopes, expectedScopes)) {
+    throw sourceCredentialTokenInvalid();
+  }
+  if (material.scope != null && material.scope !== expectedScopes.join(" ")) {
     throw sourceCredentialTokenInvalid();
   }
 
@@ -660,6 +661,13 @@ function arrayOfStrings(value: unknown) {
   return value as string[];
 }
 
+function storedScopeStrings(value: unknown) {
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    throw sourceCredentialNotSourceReady();
+  }
+  return (value as string[]).map((scope) => scope.trim());
+}
+
 function boundedSecretToken(value: unknown) {
   if (typeof value !== "string") return null;
   if (value.length < 1 || value.length > 4096 || /[\u0000-\u001f\u007f]/.test(value)) return null;
@@ -722,10 +730,21 @@ function sameScopeSet(left: readonly string[], right: readonly string[]) {
   return left.length === right.length && right.every((scope) => left.includes(scope));
 }
 
+function sameOrderedScopes(left: readonly string[], right: readonly string[]) {
+  return left.length === right.length && right.every((scope, index) => left[index] === scope);
+}
+
 function sourceCredentialUnavailable() {
   return new ArchiveConnectorCredentialStorageError(
     "archive_connector_source_credential_unavailable",
     "Archive connector source credential is unavailable."
+  );
+}
+
+function sourceCredentialNotSourceReady() {
+  return new ArchiveConnectorCredentialStorageError(
+    "archive_connector_source_credential_not_source_ready",
+    "Archive connector source credential is not source-ready."
   );
 }
 

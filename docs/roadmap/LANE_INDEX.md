@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-C | Archive Connector Credential Decrypt Boundary | ARGUS / A3 | Ready for review; DAEDALUS implemented the internal-only source-ready credential decrypt helper and tests before provider reads | `docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_RESULT.md` |
+| PR484J-C | Archive Connector Credential Decrypt Boundary | MIMIR / A1 | Accepted by ARGUS after exact-scope proof patch; MIMIR should close the lane or choose the next archive connector move | `docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J-C review | Archive Connector Credential Decrypt Boundary | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch: internal-only source credential decrypt helper requires active owner/provider credentials, exact canonical stored source scopes, exact canonical decrypted token material, bounded secret fields, and no route/readback/UI/log exposure; provider reads, provider clients, account lookup, imports, jobs, UI, hosted proof, packages, billing, Redis, Cloudflare, marketplace, and social behavior remain out of scope | `docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_REVIEW_RESULT.md` |
 | PR484J-C preflight | Archive Connector Credential Decrypt Boundary | MIMIR -> ARGUS -> DAEDALUS | Accepted internal-only decrypt helper/test lane for active owner/provider source-ready credentials, requiring stored metadata and decrypted token material to agree before returning internal secret material; no provider calls, provider clients, routes, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, or social behavior | `docs/roadmap/PR484J_C_ARCHIVE_CONNECTOR_CREDENTIAL_DECRYPT_BOUNDARY_PREFLIGHT_RESULT.md` |
 | PR484J-B closeout | Archive Connector Source Scope OAuth Consent / Reconnect | DAEDALUS -> ARGUS -> MIMIR | Closed; source-ready OAuth consent/reconnect accepted, with provider source reads, token decrypt, account lookup, imports, UI, hosted proof, packages, billing, Redis, Cloudflare, marketplace, and social behavior left separate | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_CLOSEOUT.md` |
 | PR484J-B review | Archive Connector Source Scope OAuth Consent / Reconnect | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch: source-scope reconnect binds scopeProfile to state, validates exact Reddit/Discord token scopes, persists safe granted-scope metadata, avoids credential-readiness overclaim, and keeps provider source reads, token decrypt, imports, jobs, UI, packages, billing, Redis, Cloudflare, marketplace, and social behavior out of scope | `docs/roadmap/PR484J_B_ARCHIVE_CONNECTOR_SOURCE_SCOPE_OAUTH_CONSENT_RECONNECT_REVIEW_RESULT.md` |
