@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-H | Archive Connector Source Body Read Dry-Run Preflight | ARGUS / A3 | Open; choose first provider/source family, endpoint evidence, route/helper shape, readback/staging policy, failure modes, and tests before import writes | `docs/roadmap/PR484J_H_ARCHIVE_CONNECTOR_SOURCE_BODY_READ_DRY_RUN_PREFLIGHT_ARGUS.md` |
+| PR484J-H | Archive Connector Source Body Read Dry-Run | ARGUS / A3 | Ready for review; DAEDALUS implemented the accepted Reddit saved-items source-preview route with identity fingerprint matching, count-only readback, no writes, and no UI/package/hosted/runtime drift | `docs/roadmap/PR484J_H_ARCHIVE_CONNECTOR_SOURCE_BODY_READ_DRY_RUN_RESULT.md` |
 
 ## Recently Closed
 

@@ -128,6 +128,10 @@ export type ArchiveConnectorSourceInventoryCredentialSecret = {
   externalAccountFingerprintPresent: true;
 };
 
+export type ArchiveConnectorSourcePreviewCredentialSecret = ArchiveConnectorSourceInventoryCredentialSecret & {
+  externalAccountFingerprint: string;
+};
+
 export class ArchiveConnectorCredentialStorageError extends Error {
   constructor(public readonly code: ArchiveConnectorCredentialStorageErrorCode, message: string) {
     super(message);
@@ -338,6 +342,52 @@ export async function loadArchiveConnectorSourceInventoryCredentialSecret(input:
     accessToken: secret.accessToken,
     accountLabel: row.account_label ?? null,
     externalAccountFingerprintPresent: true,
+  };
+}
+
+export async function loadArchiveConnectorSourcePreviewCredentialSecret(input: {
+  ownerUserId: string;
+  provider: ArchiveConnectorProviderId;
+}): Promise<ArchiveConnectorSourcePreviewCredentialSecret> {
+  if (!isArchiveConnectorProviderId(input.provider)) {
+    throw new ArchiveConnectorCredentialStorageError(
+      "archive_connector_source_credential_provider_unsupported",
+      "Archive connector provider is not supported."
+    );
+  }
+
+  const rows = await loadArchiveConnectorCredentialRows(input.ownerUserId, {
+    provider: input.provider,
+    includeRevoked: false,
+  });
+  if (rows.length !== 1) throw sourceCredentialUnavailable();
+
+  const row = rows[0];
+  if (
+    row.owner_user_id !== input.ownerUserId ||
+    row.provider !== input.provider ||
+    row.purpose !== ARCHIVE_CONNECTOR_PURPOSE ||
+    row.status !== "active"
+  ) {
+    throw sourceCredentialUnavailable();
+  }
+
+  assertStoredSourceCredentialReady(row);
+  if (!row.external_account_fingerprint) {
+    throw sourceInventoryAccountLookupRequired();
+  }
+
+  const decrypted = decryptArchiveConnectorCredential(row.encrypted_credential);
+  const secret = sourceCredentialSecretFromTokenMaterial(input.provider, decrypted);
+  return {
+    provider: secret.provider,
+    purpose: secret.purpose,
+    scopeProfile: secret.scopeProfile,
+    grantedScopes: secret.grantedScopes,
+    accessToken: secret.accessToken,
+    accountLabel: row.account_label ?? null,
+    externalAccountFingerprintPresent: true,
+    externalAccountFingerprint: row.external_account_fingerprint,
   };
 }
 

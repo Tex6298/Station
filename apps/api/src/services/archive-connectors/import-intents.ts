@@ -45,6 +45,7 @@ export type ArchiveConnectorImportIntentReadback = {
 export type ArchiveConnectorImportIntentErrorCode =
   | "archive_connector_import_intent_not_found"
   | "archive_connector_import_intent_not_activatable"
+  | "archive_connector_import_intent_source_unsupported"
   | "archive_connector_import_intent_persona_not_found"
   | "archive_connector_import_intent_source_unavailable"
   | "archive_connector_import_intent_load_failed"
@@ -215,6 +216,18 @@ export async function activateArchiveConnectorImportIntent(input: {
   };
 }
 
+export async function loadArchiveConnectorImportIntentForSourcePreview(input: {
+  ownerUserId: string;
+  intentId: string;
+}) {
+  const row = await loadImportIntentById(input.ownerUserId, input.intentId);
+  if (row.status !== "activated") throw intentNotActivatable();
+  if (!isAcceptedRedditSavedItemsIntent(row)) throw sourcePreviewUnsupported();
+
+  await assertOwnedPersona(input.ownerUserId, row.persona_id);
+  return row;
+}
+
 function matchingAvailableSource(
   sources: ArchiveConnectorSourceInventoryRow[],
   input: {
@@ -244,6 +257,22 @@ function matchingAvailableSource(
   );
 
   return matches.length === 1 ? matches[0] : null;
+}
+
+function isAcceptedRedditSavedItemsIntent(row: ArchiveConnectorImportIntentRow) {
+  return row.provider === "reddit" &&
+    row.purpose === "archive_connector" &&
+    row.source_family === "reddit_user_history" &&
+    row.source_kind === "saved_items" &&
+    row.source_label === "Saved items" &&
+    row.source_key === expectedRedditSavedItemsSourceKey();
+}
+
+function expectedRedditSavedItemsSourceKey() {
+  return createHash("sha256")
+    .update("station.archive_connector.source_inventory:reddit:reddit_user_history:saved_items")
+    .digest("hex")
+    .slice(0, 24);
 }
 
 async function assertOwnedPersona(ownerUserId: string, personaId: string) {
@@ -362,5 +391,12 @@ function intentNotActivatable() {
   return new ArchiveConnectorImportIntentError(
     "archive_connector_import_intent_not_activatable",
     "Archive connector import intent cannot be activated."
+  );
+}
+
+function sourcePreviewUnsupported() {
+  return new ArchiveConnectorImportIntentError(
+    "archive_connector_import_intent_source_unsupported",
+    "Archive connector import intent source preview is not supported."
   );
 }

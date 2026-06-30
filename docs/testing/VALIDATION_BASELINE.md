@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR484J-H Archive Connector Source Body Read Dry-Run Implementation
+
+DAEDALUS implemented PR484J-H on 2026-06-30:
+`docs/roadmap/PR484J_H_ARCHIVE_CONNECTOR_SOURCE_BODY_READ_DRY_RUN_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added authenticated owner-only route
+  `POST /archive-connectors/import-intents/:intentId/source-preview`;
+- requires UUID path, strict empty body, owner-scoped archive connector intent,
+  activated status, owner persona recheck, source-ready Reddit credential, and
+  completed account proof before provider reads;
+- accepts only Reddit `reddit_user_history` / `saved_items` with the accepted
+  deterministic saved-items source key;
+- calls Reddit identity first, fingerprint-matches live raw account id against
+  stored account proof, derives the username internally, and then calls one
+  bounded saved-items page;
+- returns only safe intent metadata, counts, truncation boolean, and safety
+  booleans;
+- source content/readback, URLs, authors, ids, usernames, cursors, provider
+  payloads/headers, private staging, archive source rows, existing `import_jobs`,
+  connector job tables, jobs, queues, workers, UI, hosted/runtime, packages,
+  billing, Redis, Cloudflare, marketplace, partner adapters, social behavior,
+  broad Reddit reads, and Discord channel/message/member reads remain out of
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts` | Pass | 66 archive connector route tests passed, including source-preview auth/body/intent/persona/credential/account/provider/redaction/no-write/static-guard coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/archive-connectors/credential-storage.test.ts apps/api/src/routes/archive-connectors.test.ts apps/api/src/routes/import-preview.test.ts apps/api/src/services/imports/parsers/import-parsers.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/api/src/routes/social.test.ts apps/web/lib/archive-connector-oauth-callback.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/api/src/middleware/error-handler.test.ts` | Pass | 134 tests passed across connector storage/routes, import preview/parsers, background job readback/helpers, social fail-closed routes, web callback/readiness guards, and error handling. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
 ## PR484J-G Archive Connector Import Activation Review
 
 ARGUS accepted PR484J-G on 2026-06-30 after a narrow review patch:

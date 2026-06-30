@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR484J-H ready for ARGUS
+
+DAEDALUS implemented the accepted PR484J-H source-body dry-run boundary:
+
+`docs/roadmap/PR484J_H_ARCHIVE_CONNECTOR_SOURCE_BODY_READ_DRY_RUN_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented:
+
+- authenticated owner-only route:
+  `POST /archive-connectors/import-intents/:intentId/source-preview`;
+- UUID path and strict empty-body validation before storage work;
+- owner-scoped import intent load by id, owner, and archive connector purpose;
+- requires an activated intent;
+- accepts only Reddit `reddit_user_history` / `saved_items` with the accepted
+  deterministic saved-items source key;
+- rechecks owner persona before credential decrypt or provider fetch;
+- requires a source-ready Reddit credential with completed account proof;
+- calls Reddit identity first, fingerprint-matches the live raw account id
+  against stored account proof, derives a fresh internal username, and only then
+  calls one bounded saved-items page;
+- returns only safe intent metadata, count metadata, truncation boolean, and
+  safety booleans.
+
+Still forbidden:
+
+- source content/readback, snippets, URLs, authors, subreddit names, item ids,
+  usernames, raw cursors, provider payloads, provider headers, token material,
+  storage details, SQL details, stack traces, private staging rows, archive
+  source rows, existing `import_jobs`, connector job tables, Memory, Canon,
+  Continuity, public documents, review candidates, jobs, queues, workers,
+  recurring pulls, UI, hosted/runtime work, packages, billing, Redis,
+  Cloudflare, marketplace, partner adapters, social behavior, Reddit `read`
+  expansion, broad Reddit discovery, or Discord channel/message/member/DM reads.
+
+Current lane:
+
+```text
+PR484J-H - Archive Connector Source Body Read Dry-Run
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR484J-H for owner scoping, activated-intent gating,
+  source-family narrowing, credential/account-proof gates, live Reddit identity
+  fingerprint matching, saved-items endpoint bounds, redaction, no-write
+  guarantees, and static no-drift guards.
+- ARGUS should wake MIMIR with acceptance or DAEDALUS with required fixes.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR closeout/opening - PR484J-G closed, PR484J-H opened
 
 MIMIR closes PR484J-G after ARGUS accepted activation receipts:
