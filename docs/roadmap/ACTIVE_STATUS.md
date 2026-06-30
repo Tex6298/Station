@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR484J-M closed and PR484J-N opened
+
+MIMIR closed PR484J-M and the PR484J-L visible owner connector defect after
+ARIADNE passed the hosted rerun:
+
+`docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_CLOSEOUT.md`
+
+Next lane:
+
+`docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-N - Archive Connector Hosted Setup Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should define the exact config/schema/callback requirements for moving
+  from the safe disabled setup state to live Reddit OAuth/source-inventory
+  proof.
+- Candidate config names to verify are
+  `ARCHIVE_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_ID`,
+  `ARCHIVE_CONNECTOR_REDDIT_CLIENT_SECRET`, and
+  `ARCHIVE_CONNECTOR_SOURCE_STAGING_ENCRYPTION_KEY`, plus callback path
+  `/archive-connectors/oauth/callback/reddit`.
+- ARGUS should decide whether the next step is config-only for MIMIR, a
+  smallest DAEDALUS code/docs lane, or an ARIADNE hosted proof lane after
+  config exists.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE verdict - PR484J-M disabled state rerun passed
 
 ARIADNE completed the hosted desktop/mobile rerun after the PR484J-M repair
@@ -47,23 +88,23 @@ Hosted proof:
 Current lane:
 
 ```text
-PR484J-M - Archive Connector Disabled State Rerun
-Owner: MIMIR / A1
-State: PASS_READY_TO_CLOSE
+PR484J-N - Archive Connector Hosted Setup Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
 ```
 
 Current baton:
 
-- MIMIR can close PR484J-M / the PR484J-L visible owner connector defect.
-- The next lane should stay separate from this repair if MIMIR wants to move
-  hosted credential setup, provider config, OAuth completion, source expansion,
-  or import execution forward.
+- PR484J-M / the PR484J-L visible owner connector defect is closed.
+- ARGUS now owns preflight for the separate live connector hosted setup lane.
+- Hosted credential setup, provider config, OAuth completion, source expansion,
+  and import proof remain separate from the closed UI repair.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR routing - PR484J-M ARIADNE rerun opened

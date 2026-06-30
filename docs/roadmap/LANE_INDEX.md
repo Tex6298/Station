@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR484J-M | Archive Connector Disabled State Rerun | ARIADNE / A4 | Open for hosted desktop and 375px/390px rerun after ARGUS accepted the repair; verify readiness setup/config blockers win over credential-readback failure, honest disabled copy appears, no connect/account/source/import actions are available, fit and redaction still pass, and no scope drift appears | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_RERUN_ARIADNE.md` |
+| PR484J-N | Archive Connector Hosted Setup Preflight | ARGUS / A3 | Open for hostile preflight; decide exact config/schema/callback requirements for moving from safe disabled setup state to live Reddit OAuth/source-inventory proof, and choose whether next step is config-only for MIMIR, a smallest DAEDALUS lane, or an ARIADNE hosted proof after config | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR484J-N opened | Archive Connector Hosted Setup Preflight | MIMIR -> ARGUS | Open; separate preflight for exact live Reddit connector setup/config/callback requirements after PR484J-L/M closed the visible disabled-state defect | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_PREFLIGHT_ARGUS.md` |
+| PR484J-M closeout | Archive Connector Disabled State | ARIADNE -> MIMIR | Closed; hosted rerun passed after repair, with disabled credential/provider setup copy visible, no connect/import actions, desktop/mobile fit, saved-items-only copy, redaction, and no scope drift | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_CLOSEOUT.md` |
 | PR484J-M rerun opened | Archive Connector Disabled State Rerun | MIMIR -> ARIADNE | Open; hosted desktop/mobile rerun routed after ARGUS accepted the disabled-state repair for the owner connector panel defect found by ARIADNE | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_DISABLED_STATE_RERUN_ARIADNE.md` |
 | PR484J-M review | Archive Connector Credential Readback Disabled State | DAEDALUS -> ARGUS -> MIMIR | Accepted after ARGUS patch; readiness setup/config blockers win over credential readback failures in the owner connector panel, disabled state exposes no connect/import actions, healthy-readiness credential failures stay retryable without becoming safe, stale final-import retry is gated to actual import-step failures, and no API/provider/source/import/runtime expansion entered scope | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_REVIEW_RESULT.md` |
 | PR484J-M implementation | Archive Connector Credential Readback Disabled State | DAEDALUS -> ARGUS | Ready for review; readiness setup/config blockers now win over credential readback failures in the owner connector panel, disabled state exposes no connect/import actions, healthy-readiness credential failures stay retryable, and no API/provider/source/import/runtime expansion entered scope | `docs/roadmap/PR484J_M_ARCHIVE_CONNECTOR_CREDENTIAL_READBACK_DISABLED_STATE_RESULT.md` |
