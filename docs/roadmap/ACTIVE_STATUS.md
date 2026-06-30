@@ -4,6 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR484J-G closed, PR484J-H opened
+
+MIMIR closes PR484J-G after ARGUS accepted activation receipts:
+
+`docs/roadmap/PR484J_G_ARCHIVE_CONNECTOR_IMPORT_ACTIVATION_CLOSEOUT.md`
+
+MIMIR opens source-body read dry-run preflight:
+
+`docs/roadmap/PR484J_H_ARCHIVE_CONNECTOR_SOURCE_BODY_READ_DRY_RUN_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR484J-H - Archive Connector Source Body Read Dry-Run Preflight
+Owner: ARGUS / A3
+State: OPEN - DECIDE FIRST SOURCE-BODY READ BOUNDARY
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the first safe source-body read dry-run before
+  import writes.
+- ARGUS should choose the first provider/source family, exact endpoint
+  evidence, route/helper shape, readback/staging policy, failure modes, and
+  tests.
+- If accepted, ARGUS should wake DAEDALUS; if blocked, ARGUS should wake MIMIR
+  with the concrete blocker and smallest next unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR484J-G accepted for MIMIR
 
 ARGUS accepts the PR484J-G activation-receipt implementation after a narrow
