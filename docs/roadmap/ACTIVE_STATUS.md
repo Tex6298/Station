@@ -4,6 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485B ARIADNE hosted rehearsal opened
+
+MIMIR routes PR485B to ARIADNE after ARGUS accepted the implementation:
+
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR485B - Memory And Continuity Candidate Inbox Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_HUMAN_EYE_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse hosted `/studio/personas/[personaId]` and
+  `/studio/personas/[personaId]/memory-inbox` on desktop, `375px`, and
+  `390px` mobile after product commit `a5fade6a` or later is deployed.
+- Verify the five-shortcut strip fits and routes correctly: `Memory` remains
+  `/memory`, `Inbox` goes to `/memory-inbox`, and Timeline/Profile/Integrity
+  remain unchanged.
+- Confirm the Memory inbox has honest empty/error/populated readback, existing
+  private chat and owner surfaces still render, and no private/secret-shaped
+  material or forbidden scope drift appears.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS verdict - PR485B memory inbox accepted
 
 ARGUS accepted the PR485B implementation without a review patch:
