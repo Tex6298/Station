@@ -20,6 +20,25 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495 Public Seminar Host Readiness Preflight Opening
+
+MIMIR opened PR495 on 2026-07-05:
+`docs/roadmap/PR495_PUBLIC_SEMINAR_HOST_READINESS_PREFLIGHT_ARGUS.md`.
+
+Reason:
+
+- PR494 is closed as `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`;
+- PR469 already proved public `/events/seminars` readback cards;
+- PR475 already proved signed-in seminar interest and aggregate-only readback;
+- PR495 asks whether the next safe Live Events / Seminars slice is owner
+  host-readiness, public methodology copy, or a durable seminar record contract
+  blocker.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| MIMIR roadmap review | Pass | Opened a distinct customer-facing Phase 3 lane instead of another companion, roulette, or seminar-interest repeat. |
+| `git diff --check` | Pass | CRLF normalization warnings only for roadmap docs; no whitespace errors. |
+
 ## PR494B Discern Companion Home Completion ARGUS Preflight
 
 ARGUS closed PR494B on 2026-07-05:

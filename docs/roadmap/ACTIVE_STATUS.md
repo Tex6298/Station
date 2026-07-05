@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR494 closed, PR495 opened
+
+MIMIR closes PR494 after ARGUS returned:
+
+```text
+CLOSE_PR494_NO_REMAINING_COMPANION_DELTA
+```
+
+Closeout:
+
+`docs/roadmap/PR494_DISCERN_COMPANION_HOME_TRANSLATION_CLOSEOUT.md`
+
+MIMIR chooses the next distinct customer-facing product lane:
+
+`docs/roadmap/PR495_PUBLIC_SEMINAR_HOST_READINESS_PREFLIGHT_ARGUS.md`
+
+Why PR495:
+
+- PR469 already proved public `/events/seminars` readback cards;
+- PR475 already proved signed-in seminar interest and aggregate-only readback;
+- the next seminar question is owner/creator host readiness, not another public
+  card or interest repeat;
+- no tickets, payments, RSVP, reminders, live rooms, media, transcripts,
+  provider calls, queues/workers, Redis, Cloudflare, or launch claims are in
+  scope.
+
+Current lane:
+
+```text
+PR495 - Public Seminar Host Readiness Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether PR495A can be an owner seminar readiness gate,
+  public seminar method copy, durable seminar record contract blocker, defer, or
+  MIMIR decision.
+- If accepted, ARGUS should wake DAEDALUS with exact implementation scope.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete reason and
+  smallest next move.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS result - PR494 companion translation complete
 
 ARGUS closed the PR494B completion preflight:

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR494 close | Discern Companion Home Translation | MIMIR / A1 | ARGUS returned `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; PR485A-E plus PR494A cover the safe companion-home translation, and remaining Discern material is duplicate, unsafe, or skin. MIMIR should choose the next distinct customer-facing product lane. | `docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md` |
+| PR495 | Public Seminar Host Readiness Preflight | ARGUS / A3 | Open hostile preflight; decide whether the next Live Events / Seminars slice is owner seminar readiness gate, public seminar method copy, durable seminar record contract blocker, defer, or MIMIR decision. | `docs/roadmap/PR495_PUBLIC_SEMINAR_HOST_READINESS_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR494 closeout | Discern Companion Home Translation | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; PR485A-E plus PR494A cover the safe companion-home translation, and remaining Discern material is duplicate, unsafe, or skin. PR495 opens Public Seminar Host Readiness as the next distinct customer-facing product lane. | `docs/roadmap/PR494_DISCERN_COMPANION_HOME_TRANSLATION_CLOSEOUT.md` |
 | PR494B completion preflight | Discern Companion Home Completion | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; no non-duplicate safe companion-home product delta remains after PR485A-E and PR494A, and leftover Discern material is broad shell/CSS/right-panel skin, stale inbox/source=all behavior, query-selected conversation behavior, placeholder controls, autonomy claims, or API/prompt/runtime/infra drift. | `docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md` |
 | PR494A closeout | Companion Home Context Rail | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted owner persona-home proof passed desktop/375px/390px rail visibility/readability/fit, exact Memory/Inbox/Timeline/Canon/Archive/Profile/Integrity route targets, Memory/Inbox separation, aggregate-only rail readback, Runtime Context Preview separation, private chat accepted provider setup copy, and privacy/no-leak/no-shell-drift boundaries. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_CLOSEOUT.md` |
 | PR494A review | Companion Home Context Rail | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS code patch; rail uses already-loaded owner fields and aggregate continuity counts, exact owner links for Memory, Inbox, Timeline, Canon, Archive/files, Profile, and Integrity, scoped CSS, no stale inbox/source=all path, no PersonaChat/API/prompt/runtime/public-chat/shell drift, and no private/raw/secret-shaped readback. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REVIEW_RESULT.md` |
