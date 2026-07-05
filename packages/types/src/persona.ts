@@ -30,6 +30,39 @@ export interface PublicPersonaChatCapability {
   mode: "signed_in_alpha" | "anonymous_alpha";
 }
 
+export type PublicPersonaAnonymousEligibilityBlockerCode =
+  | "available"
+  | "disabled_chat"
+  | "signed_in_only_policy"
+  | "private_visibility"
+  | "owner_tier_ineligible"
+  | "unsafe_public_slug"
+  | "rate_limit_unavailable"
+  | "provider_unavailable";
+
+export interface PublicPersonaAnonymousEligibilityReadback {
+  available: boolean;
+  policy: "replay_alpha_slug_only";
+  mode: PublicPersonaChatCapability["mode"];
+  blockerCode: PublicPersonaAnonymousEligibilityBlockerCode;
+  blocker: string | null;
+  ownerControlledRollback: true;
+  publicSourceOnly: true;
+  publicSourceOnlyScope: [
+    "public_profile",
+    "published_public_documents",
+    "linked_public_discussions",
+    "public_salon_threads",
+  ];
+  transcriptStored: false;
+  visitorIdentityStored: false;
+  rawEventsStored: false;
+  aggregateCountersOnly: true;
+  rateLimitFailClosed: true;
+  rateLimitAvailable: boolean;
+  providerAvailable: boolean;
+}
+
 export type PublicPersonaContextSourceType =
   | "public_profile"
   | "published_document"
@@ -151,6 +184,7 @@ export interface PublicPersonaInteractionReadback {
     ownerPaid: true;
     transcriptStored: false;
     tokenAttribution: "not_available_without_event_retention";
+    anonymousEligibility: PublicPersonaAnonymousEligibilityReadback;
   };
   publicRoute: {
     publicSlug?: string | null;

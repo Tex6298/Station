@@ -5,6 +5,8 @@ import {
   publicInteractionActivityBoundaryCopy,
   publicInteractionActivitySummary,
   publicInteractionActivityValue,
+  publicInteractionAnonymousEligibilityCopy,
+  publicInteractionAnonymousEligibilityLabel,
   publicInteractionChatLabel,
   publicInteractionReportSummary,
   publicInteractionRouteLabel,
@@ -18,6 +20,28 @@ const readback: PublicPersonaInteractionReadback = {
     ownerPaid: true,
     transcriptStored: false,
     tokenAttribution: "not_available_without_event_retention",
+    anonymousEligibility: {
+      available: false,
+      policy: "replay_alpha_slug_only",
+      mode: "signed_in_alpha",
+      blockerCode: "signed_in_only_policy",
+      blocker: "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.",
+      ownerControlledRollback: true,
+      publicSourceOnly: true,
+      publicSourceOnlyScope: [
+        "public_profile",
+        "published_public_documents",
+        "linked_public_discussions",
+        "public_salon_threads",
+      ],
+      transcriptStored: false,
+      visitorIdentityStored: false,
+      rawEventsStored: false,
+      aggregateCountersOnly: true,
+      rateLimitFailClosed: true,
+      rateLimitAvailable: true,
+      providerAvailable: true,
+    },
   },
   publicRoute: {
     publicSlug: "public-guide",
@@ -66,12 +90,39 @@ const readback: PublicPersonaInteractionReadback = {
 
 test("public interaction helper labels stay bounded to owner-safe state", () => {
   assert.equal(publicInteractionChatLabel(readback), "Signed-in alpha enabled");
+  assert.equal(publicInteractionAnonymousEligibilityLabel(readback), "Signed-in alpha only");
+  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /replay alpha persona/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Public-source-only/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /No visitor transcript/);
   assert.equal(publicInteractionRouteLabel(readback), "Public route live");
   assert.equal(publicInteractionReportSummary(readback), "2 active / 3 total persona reports");
   assert.equal(publicInteractionTokenBoundaryCopy(readback), "Owner-paid; visitor transcript not stored.");
   assert.equal(publicInteractionActivityValue(readback), "5");
   assert.equal(publicInteractionActivitySummary(readback), "5 chat attempts / 1 report in 7 days; 12 chat attempts in 30 days");
   assert.equal(publicInteractionActivityBoundaryCopy(readback), "Daily aggregate only; no visitor identity or transcript.");
+});
+
+test("public interaction helper labels anonymous replay eligibility explicitly", () => {
+  const anonymousReadback: PublicPersonaInteractionReadback = {
+    ...readback,
+    publicChat: {
+      ...readback.publicChat,
+      mode: "anonymous_alpha",
+      anonymousEligibility: {
+        ...readback.publicChat.anonymousEligibility,
+        available: true,
+        mode: "anonymous_alpha",
+        blockerCode: "available",
+        blocker: null,
+      },
+    },
+  };
+
+  assert.equal(publicInteractionChatLabel(anonymousReadback), "Anonymous alpha enabled");
+  assert.equal(publicInteractionAnonymousEligibilityLabel(anonymousReadback), "Anonymous alpha available");
+  assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /replay alpha persona only/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Owner rollback/);
+  assert.doesNotMatch(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /visitor id|raw event rows|private memory|provider payload|token|cookie/i);
 });
 
 test("public interaction helper handles unavailable state without inventing details", () => {

@@ -4,6 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR490A ready for ARGUS review
+
+DAEDALUS implemented the accepted PR490A owner/admin readback slice:
+
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR490A - Public Persona Anonymous Chat Eligibility Readback
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- owner/admin `publicInteraction.publicChat.mode` now uses the existing
+  `publicPersonaChatMode` resolver, so `station-replay-alpha-persona` reads as
+  `anonymous_alpha` and ordinary public personas read as `signed_in_alpha`;
+- owner/admin `publicInteraction.publicChat.anonymousEligibility` now reports
+  replay-only policy, availability, blocker code/copy, owner rollback,
+  public-source-only scope, fail-closed rate-limit posture, provider readiness,
+  no visitor transcript/identity/raw event storage, and aggregate counters-only
+  guarantees;
+- provider readiness is derived from local public-chat route configuration only,
+  with no provider call and no key/model/config readback;
+- rate-limit readiness is derived from operational-cache status only, without
+  changing runtime keys or fail-closed behavior;
+- the existing Studio persona public-interaction card surfaces the readback
+  without new controls or public runtime claims.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review PR490A against the accepted readback-only preflight,
+  especially runtime no-drift, replay-slug-only anonymous mode, non-replay
+  signed-in-only behavior, blocker copy, provider/rate-limit posture, no raw or
+  secret display, and signed-in-only public reporting.
+- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/375px/390px
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR490A accepted for DAEDALUS
 
 ARGUS accepted the smallest safe PR490A slice:

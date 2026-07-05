@@ -54,6 +54,7 @@ import {
 import {
   incrementOperationalRateLimit,
   invalidateOperationalCacheForChange,
+  operationalCacheStatus,
 } from "../services/operational-cache.service";
 
 const createSchema = z.object({
@@ -848,7 +849,7 @@ async function loadPublicPersonaInteractionReadback(
 ): Promise<PublicPersonaInteractionReadback> {
   const byStatus = emptyPublicPersonaReportCounts();
   const counterBuckets = publicPersonaInteractionDateBuckets(PUBLIC_PERSONA_INTERACTION_MAX_WINDOW_DAYS);
-  const [reportResult, counterResult] = await Promise.all([
+  const [reportResult, counterResult, ownerProfileResult] = await Promise.all([
     sb
       .from("moderation_reports")
       .select("status")
@@ -860,9 +861,17 @@ async function loadPublicPersonaInteractionReadback(
       .eq("owner_user_id", persona.owner_user_id)
       .eq("persona_id", persona.id)
       .in("bucket_date", counterBuckets),
+    sb
+      .from("profiles")
+      .select("tier")
+      .eq("id", persona.owner_user_id)
+      .maybeSingle(),
   ]);
   const reports = reportResult.data ?? [];
   const counterRows = counterResult.data ?? [];
+  const chatRoute = platformChatRouteForPublicPersona(ownerProfileResult.data?.tier).chatRoute;
+  const providerAvailable = Boolean(chatRoute.configured && chatRoute.provider);
+  const rateLimitAvailable = operationalCacheStatus().enabled;
 
   for (const report of reports) {
     if (PUBLIC_PERSONA_REPORT_STATUSES.includes(report.status as PublicPersonaReportStatus)) {
@@ -871,6 +880,7 @@ async function loadPublicPersonaInteractionReadback(
   }
 
   const publicSlug = isSafePublicPersonaSlug(persona.public_slug) ? persona.public_slug : null;
+  const publicChatMode = publicPersonaChatMode(publicSlug);
   const href = persona.visibility === "public" && publicEligibility.eligible
     ? publicPersonaRouteHref(publicSlug)
     : null;
@@ -879,10 +889,18 @@ async function loadPublicPersonaInteractionReadback(
   return {
     publicChat: {
       enabled: Boolean(persona.public_chat_enabled),
-      mode: "signed_in_alpha",
+      mode: publicChatMode,
       ownerPaid: true,
       transcriptStored: false,
       tokenAttribution: "not_available_without_event_retention",
+      anonymousEligibility: publicPersonaAnonymousEligibilityReadback({
+        persona,
+        publicEligibility,
+        publicSlug,
+        publicChatMode,
+        providerAvailable,
+        rateLimitAvailable,
+      }),
     },
     publicRoute: {
       publicSlug,
@@ -916,6 +934,83 @@ async function loadPublicPersonaInteractionReadback(
       ownerCanSeeReportBodies: false,
       adminQueueHref: viewerIsAdmin ? PUBLIC_PERSONA_REPORT_ADMIN_QUEUE_HREF : null,
     },
+  };
+}
+
+function publicPersonaAnonymousEligibilityReadback(input: {
+  persona: any;
+  publicEligibility: PublicPersonaEligibility;
+  publicSlug: string | null;
+  publicChatMode: "signed_in_alpha" | "anonymous_alpha";
+  providerAvailable: boolean;
+  rateLimitAvailable: boolean;
+}): PublicPersonaInteractionReadback["publicChat"]["anonymousEligibility"] {
+  const blocked = (
+    blockerCode: PublicPersonaInteractionReadback["publicChat"]["anonymousEligibility"]["blockerCode"],
+    blocker: string
+  ) => ({
+    ...baseAnonymousEligibility(input),
+    available: false,
+    blockerCode,
+    blocker,
+  });
+
+  if (input.persona.visibility !== "public") {
+    return blocked("private_visibility", "Persona is private; public chat must stay closed.");
+  }
+  if (!input.publicEligibility.eligible) {
+    return blocked("owner_tier_ineligible", "Owner tier is not eligible for public persona exposure.");
+  }
+  if (!input.publicSlug) {
+    return blocked("unsafe_public_slug", "Persona has no safe public route slug.");
+  }
+  if (!input.persona.public_chat_enabled) {
+    return blocked("disabled_chat", "Owner has public chat disabled; this is the rollback control.");
+  }
+  if (input.publicChatMode !== "anonymous_alpha") {
+    return blocked("signed_in_only_policy", "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.");
+  }
+  if (!input.rateLimitAvailable) {
+    return blocked("rate_limit_unavailable", "Fail-closed anonymous rate limiting is unavailable.");
+  }
+  if (!input.providerAvailable) {
+    return blocked("provider_unavailable", "Public persona chat provider configuration is unavailable.");
+  }
+
+  return {
+    ...baseAnonymousEligibility(input),
+    available: true,
+    blockerCode: "available",
+    blocker: null,
+  };
+}
+
+function baseAnonymousEligibility(input: {
+  publicChatMode: "signed_in_alpha" | "anonymous_alpha";
+  providerAvailable: boolean;
+  rateLimitAvailable: boolean;
+}): PublicPersonaInteractionReadback["publicChat"]["anonymousEligibility"] {
+  return {
+    available: false,
+    policy: "replay_alpha_slug_only",
+    mode: input.publicChatMode,
+    blockerCode: "available",
+    blocker: null,
+    ownerControlledRollback: true,
+    publicSourceOnly: true,
+    publicSourceOnlyScope: [
+      "public_profile",
+      "published_public_documents",
+      "linked_public_discussions",
+      "public_salon_threads",
+    ],
+    transcriptStored: false,
+    visitorIdentityStored: false,
+    rawEventsStored: false,
+    aggregateCountersOnly: true,
+    rateLimitFailClosed: true,
+    rateLimitAvailable: input.rateLimitAvailable,
+    providerAvailable: input.providerAvailable,
   };
 }
 

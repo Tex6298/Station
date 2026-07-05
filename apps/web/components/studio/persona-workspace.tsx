@@ -28,6 +28,8 @@ import {
   publicInteractionActivityBoundaryCopy,
   publicInteractionActivitySummary,
   publicInteractionActivityValue,
+  publicInteractionAnonymousEligibilityCopy,
+  publicInteractionAnonymousEligibilityLabel,
   publicInteractionChatLabel,
   publicInteractionReportSummary,
   publicInteractionRouteLabel,
@@ -170,8 +172,8 @@ export function PublicInteractionReadback({ persona }: { persona: PersonaWithCon
       />
       <InteractionCard
         label="Public chat"
-        value={readback?.publicChat.enabled ? "On" : "Off"}
-        body={`${publicInteractionChatLabel(readback)}. ${publicInteractionTokenBoundaryCopy(readback)}`}
+        value={publicInteractionAnonymousEligibilityLabel(readback)}
+        body={`${publicInteractionChatLabel(readback)}. ${publicInteractionAnonymousEligibilityCopy(readback)} ${publicInteractionTokenBoundaryCopy(readback)}`}
       />
       <InteractionCard
         label="Persona reports"

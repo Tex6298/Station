@@ -3,7 +3,11 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
-import type { PublicPersonaChatResponse, PublicPersonaReportConfirmation } from "@station/types/persona";
+import type {
+  PublicPersonaAnonymousEligibilityReadback,
+  PublicPersonaChatResponse,
+  PublicPersonaReportConfirmation,
+} from "@station/types/persona";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 import {
@@ -23,6 +27,34 @@ type HangingQuery = {
   countRequested?: boolean;
   operation?: "select" | "insert" | "update" | "delete";
 };
+
+function anonymousEligibility(
+  overrides: Partial<PublicPersonaAnonymousEligibilityReadback> = {}
+): PublicPersonaAnonymousEligibilityReadback {
+  return {
+    available: false,
+    policy: "replay_alpha_slug_only",
+    mode: "signed_in_alpha",
+    blockerCode: "signed_in_only_policy",
+    blocker: "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.",
+    ownerControlledRollback: true,
+    publicSourceOnly: true,
+    publicSourceOnlyScope: [
+      "public_profile",
+      "published_public_documents",
+      "linked_public_discussions",
+      "public_salon_threads",
+    ],
+    transcriptStored: false,
+    visitorIdentityStored: false,
+    rawEventsStored: false,
+    aggregateCountersOnly: true,
+    rateLimitFailClosed: true,
+    rateLimitAvailable: true,
+    providerAvailable: true,
+    ...overrides,
+  };
+}
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -1440,6 +1472,25 @@ test("anonymous public persona chat alpha is replay-slug only, hashed-rate-limit
     assert.equal(enabled.status, 200);
     assert.equal(enabled.body.persona.publicReadback.publicFields.publicChat.mode, "anonymous_alpha");
 
+    const ownerReplayReadback = await requestJson(app, "GET", `/personas/${replayPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(ownerReplayReadback.status, 200);
+    assert.equal(ownerReplayReadback.body.persona.publicInteraction.publicChat.mode, "anonymous_alpha");
+    assert.deepEqual(
+      ownerReplayReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        available: true,
+        mode: "anonymous_alpha",
+        blockerCode: "available",
+        blocker: null,
+        providerAvailable: true,
+        rateLimitAvailable: true,
+      })
+    );
+    assert.equal(JSON.stringify(ownerReplayReadback.body.persona.publicInteraction).includes(replayPersona.id), false);
+    assert.equal(JSON.stringify(ownerReplayReadback.body.persona.publicInteraction).includes("test-nvidia-key"), false);
+
     const publicReadback = await requestJson(app, "GET", "/personas/public/station-replay-alpha-persona");
     assert.equal(publicReadback.status, 200);
     assert.deepEqual(publicReadback.body.persona.publicChat, {
@@ -1454,6 +1505,22 @@ test("anonymous public persona chat alpha is replay-slug only, hashed-rate-limit
     assert.equal(otherAnonymous.body.code, "public_persona_auth_required");
     assert.equal(providerRequests.length, 0);
 
+    const otherOwnerReadback = await requestJson(app, "GET", `/personas/${otherPublicPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(otherOwnerReadback.status, 200);
+    assert.equal(otherOwnerReadback.body.persona.publicInteraction.publicChat.mode, "signed_in_alpha");
+    assert.deepEqual(
+      otherOwnerReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        mode: "signed_in_alpha",
+        blockerCode: "signed_in_only_policy",
+        blocker: "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.",
+        providerAvailable: true,
+        rateLimitAvailable: true,
+      })
+    );
+
     setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
     const failClosed = await requestJson(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
       body: { message: "rate limit store down" },
@@ -1462,6 +1529,21 @@ test("anonymous public persona chat alpha is replay-slug only, hashed-rate-limit
     assert.equal(failClosed.body.code, "public_persona_rate_limit_unavailable");
     assert.equal(providerRequests.length, 0);
     assert.equal(db.rows("token_transactions").length, 0);
+
+    const rateLimitBlockedReadback = await requestJson(app, "GET", `/personas/${replayPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(rateLimitBlockedReadback.status, 200);
+    assert.deepEqual(
+      rateLimitBlockedReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        mode: "anonymous_alpha",
+        blockerCode: "rate_limit_unavailable",
+        blocker: "Fail-closed anonymous rate limiting is unavailable.",
+        providerAvailable: true,
+        rateLimitAvailable: false,
+      })
+    );
 
     setOperationalCacheProviderForTests(rateLimitProvider);
     const chat = await requestJson<PublicPersonaChatResponse>(app, "POST", "/personas/public/station-replay-alpha-persona/chat", {
@@ -1649,7 +1731,14 @@ test("public persona report resolver writes server-side target and returns publi
 test("owner persona readback includes safe public interaction summary only", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new TestRateLimitProvider());
   const app = createPersonasApp();
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
+  const previousDeepseekKey = process.env.DEEPSEEK_API_KEY;
+  delete process.env.NVIDIA_AI_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.DEEPSEEK_API_KEY;
 
   try {
     const persona = db.insertRow("personas", {
@@ -1735,6 +1824,9 @@ test("owner persona readback includes safe public interaction summary only", asy
         ownerPaid: true,
         transcriptStored: false,
         tokenAttribution: "not_available_without_event_retention",
+        anonymousEligibility: anonymousEligibility({
+          providerAvailable: false,
+        }),
       },
       publicRoute: {
         publicSlug: "public-interaction-guide",
@@ -1828,12 +1920,116 @@ test("owner persona readback includes safe public interaction summary only", asy
       canOpen: false,
       unavailableReason: "Persona has no safe public route.",
     });
+    assert.deepEqual(
+      unsafeSlugReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        blockerCode: "unsafe_public_slug",
+        blocker: "Persona has no safe public route slug.",
+        providerAvailable: false,
+      })
+    );
     assert.equal(
       JSON.stringify(unsafeSlugReadback.body.persona.publicInteraction).includes("550e8400-e29b-41d4-a716-446655440000"),
       false
     );
+
+    const disabledReplayPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Disabled Replay Alpha",
+      visibility: "public",
+      public_slug: "station-replay-alpha-persona",
+      public_chat_enabled: false,
+    });
+    const disabledReplayReadback = await requestJson(app, "GET", `/personas/${disabledReplayPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.deepEqual(
+      disabledReplayReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        mode: "anonymous_alpha",
+        blockerCode: "disabled_chat",
+        blocker: "Owner has public chat disabled; this is the rollback control.",
+        providerAvailable: false,
+      })
+    );
+
+    const privateReplayPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Private Replay Alpha",
+      visibility: "private",
+      public_slug: "station-replay-alpha-persona",
+      public_chat_enabled: true,
+    });
+    const privateReplayReadback = await requestJson(app, "GET", `/personas/${privateReplayPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.deepEqual(
+      privateReplayReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        mode: "anonymous_alpha",
+        blockerCode: "private_visibility",
+        blocker: "Persona is private; public chat must stay closed.",
+        providerAvailable: false,
+      })
+    );
+
+    const ineligibleReplayPersona = db.insertRow("personas", {
+      owner_user_id: "private-owner",
+      name: "Ineligible Replay Alpha",
+      visibility: "public",
+      public_slug: "station-replay-alpha-persona",
+      public_chat_enabled: true,
+    });
+    const ineligibleReplayReadback = await requestJson(app, "GET", `/personas/${ineligibleReplayPersona.id}`, {
+      token: "private-token",
+    });
+    assert.deepEqual(
+      ineligibleReplayReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        mode: "anonymous_alpha",
+        blockerCode: "owner_tier_ineligible",
+        blocker: "Owner tier is not eligible for public persona exposure.",
+        providerAvailable: false,
+      })
+    );
+
+    const providerBlockedReplayPersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Provider Blocked Replay Alpha",
+      visibility: "public",
+      public_slug: "station-replay-alpha-persona",
+      public_chat_enabled: true,
+    });
+    const providerBlockedReadback = await requestJson(app, "GET", `/personas/${providerBlockedReplayPersona.id}`, {
+      token: "creator-token",
+    });
+    assert.deepEqual(
+      providerBlockedReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        mode: "anonymous_alpha",
+        blockerCode: "provider_unavailable",
+        blocker: "Public persona chat provider configuration is unavailable.",
+        providerAvailable: false,
+      })
+    );
   } finally {
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousAnthropicKey == null) {
+      delete process.env.ANTHROPIC_API_KEY;
+    } else {
+      process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
+    }
+    if (previousDeepseekKey == null) {
+      delete process.env.DEEPSEEK_API_KEY;
+    } else {
+      process.env.DEEPSEEK_API_KEY = previousDeepseekKey;
+    }
     setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
   }
 });
 

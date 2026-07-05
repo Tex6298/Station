@@ -6,7 +6,33 @@ function countLabel(count: number, noun: string) {
 
 export function publicInteractionChatLabel(readback?: PublicPersonaInteractionReadback | null) {
   if (!readback) return "Not available";
-  return readback.publicChat.enabled ? "Signed-in alpha enabled" : "Disabled";
+  if (!readback.publicChat.enabled) return "Disabled";
+  return readback.publicChat.mode === "anonymous_alpha"
+    ? "Anonymous alpha enabled"
+    : "Signed-in alpha enabled";
+}
+
+export function publicInteractionAnonymousEligibilityLabel(readback?: PublicPersonaInteractionReadback | null) {
+  const eligibility = readback?.publicChat.anonymousEligibility;
+  if (!eligibility) return "Anonymous eligibility unavailable";
+  if (eligibility.available) return "Anonymous alpha available";
+  if (eligibility.blockerCode === "signed_in_only_policy") return "Signed-in alpha only";
+  return "Anonymous alpha blocked";
+}
+
+export function publicInteractionAnonymousEligibilityCopy(readback?: PublicPersonaInteractionReadback | null) {
+  const eligibility = readback?.publicChat.anonymousEligibility;
+  if (!eligibility) return "Anonymous eligibility readback is unavailable.";
+
+  const scope = "Public-source-only: public profile, published public documents, linked public discussions, and public Salon threads.";
+  const storage = "No visitor transcript, identity, or raw events are stored; only aggregate counters remain.";
+  const rollback = "Owner rollback is the public chat enable/disable control.";
+
+  if (eligibility.available) {
+    return `Anonymous alpha is available for the replay alpha persona only. ${scope} ${storage} ${rollback}`;
+  }
+
+  return `${eligibility.blocker ?? "Anonymous alpha is unavailable."} ${scope} ${storage} ${rollback}`;
 }
 
 export function publicInteractionRouteLabel(readback?: PublicPersonaInteractionReadback | null) {

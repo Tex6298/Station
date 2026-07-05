@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR490A | Public Persona Anonymous Chat Eligibility Readback | DAEDALUS / A2 | Open implementation. ARGUS accepted owner/admin eligibility readback only: surface anonymous eligibility truth, owner rollback, public-source-only scope, fail-closed rate limits, no visitor transcript/identity/raw events, provider/config blockers if safely derived, and ineligibility reasons. Do not expand anonymous runtime beyond `station-replay-alpha-persona`, add a second anonymous persona, reinterpret `public_chat_enabled`, or change public chat allow/deny behavior. | `docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_PREFLIGHT_RESULT.md` |
+| PR490A | Public Persona Anonymous Chat Eligibility Readback | ARGUS / A3 | Ready for review. DAEDALUS added owner/admin readback for replay-only anonymous eligibility, blocker copy, owner rollback, public-source-only scope, fail-closed rate-limit posture, provider readiness, no transcript/identity/raw event storage, and aggregate counters only. Runtime remains one anonymous alpha slug only; non-replay public personas remain signed-in alpha and anonymous denied. | `docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_RESULT.md` |
 
 ## Recently Closed
 

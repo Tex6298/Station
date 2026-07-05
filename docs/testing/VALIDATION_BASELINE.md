@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR490A Public Persona Anonymous Chat Eligibility Readback Implementation
+
+DAEDALUS implemented PR490A on 2026-07-05:
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- owner/admin public-interaction readback now uses the existing
+  `publicPersonaChatMode` resolver instead of flattening the accepted replay
+  alpha slug to signed-in mode;
+- readback now reports replay-only anonymous policy, availability, blocker
+  code/copy, owner rollback, public-source-only scope, fail-closed rate-limit
+  posture, provider readiness, no visitor transcript/identity/raw event storage,
+  and aggregate counters-only guarantees;
+- ordinary public personas remain signed-in alpha and anonymous visitors to
+  those personas are still denied with `public_persona_auth_required`;
+- `station-replay-alpha-persona` remains the only anonymous alpha slug;
+- no public runtime allow/deny behavior, reporting behavior, transcript
+  persistence, rate-limit key, token attribution, provider call, prompt/retrieval
+  behavior, schema, migration, seed, config gate, billing, queue/worker, Redis,
+  Cloudflare, connector/OAuth, social dispatch, or broad public persona UI
+  behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 personas tests passed, including new owner/admin eligibility readback, replay anonymous readback, signed-in-only non-replay default, fail-closed rate-limit blocker, provider blocker, owner rollback, public-source-only provider payloads, no transcript/identity persistence, and no runtime expansion. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 report tests passed; public reporting remains signed-in/server-owned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 11 public persona route/interaction helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
 ## PR490A Public Persona Anonymous Chat Eligibility Readback Preflight
 
 ARGUS accepted PR490A on 2026-07-05:
