@@ -61,6 +61,9 @@ export type PublishingApprovalVisibility = "public" | "community" | "unlisted";
 export type DiscoverItemType = "document" | "thread" | "space" | "persona";
 export type DiscoverEventType = "published" | "created" | "featured" | "updated";
 export type PublicSeminarInterestSourceType = "document" | "thread" | "space";
+export type PublicSeminarRecordSourceType = "document";
+export type PublicSeminarRecordStatus = "draft" | "ready" | "published" | "cancelled";
+export type PublicSeminarRecordVisibility = "private" | "public";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type ArchiveConnectorProvider = "reddit" | "discord";
@@ -1537,6 +1540,31 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["public_seminar_interests"]["Insert"]>;
+      };
+      public_seminar_records: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          source_type: PublicSeminarRecordSourceType;
+          source_id: string;
+          title: string;
+          summary: string | null;
+          status: PublicSeminarRecordStatus;
+          visibility: PublicSeminarRecordVisibility;
+          discussion_thread_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["public_seminar_records"]["Row"], "id" | "summary" | "status" | "visibility" | "discussion_thread_id" | "created_at" | "updated_at"> & {
+          id?: string;
+          summary?: string | null;
+          status?: PublicSeminarRecordStatus;
+          visibility?: PublicSeminarRecordVisibility;
+          discussion_thread_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["public_seminar_records"]["Insert"]>;
       };
       discover_feed: {
         Row: {

@@ -1,4 +1,7 @@
 export type PublicSeminarSourceType = "document" | "thread" | "space";
+export type OwnerPublicSeminarRecordSourceType = "document";
+export type OwnerPublicSeminarRecordStatus = "draft" | "ready" | "published" | "cancelled";
+export type OwnerPublicSeminarRecordVisibility = "private" | "public";
 
 export interface PublicSeminarCard {
   id: string;
@@ -31,4 +34,34 @@ export interface PublicSeminarsErrorResponse {
 
 export interface PublicSeminarInterestResponse {
   card: PublicSeminarCard;
+}
+
+export interface OwnerPublicSeminarRecord {
+  id: string;
+  sourceType: OwnerPublicSeminarRecordSourceType;
+  title: string;
+  summary: string | null;
+  status: OwnerPublicSeminarRecordStatus;
+  visibility: OwnerPublicSeminarRecordVisibility;
+  publicDocumentHref: string | null;
+  publicSpace: {
+    title: string;
+    href: string;
+  } | null;
+  discussionLinked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OwnerPublicSeminarRecordsResponse {
+  records: OwnerPublicSeminarRecord[];
+}
+
+export interface OwnerPublicSeminarRecordResponse {
+  record: OwnerPublicSeminarRecord;
+}
+
+export interface CreateOwnerPublicSeminarRecordRequest {
+  sourceType: OwnerPublicSeminarRecordSourceType;
+  sourceId: string;
 }

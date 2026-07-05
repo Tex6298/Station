@@ -4,36 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight result - PR495B accepted
+## Latest DAEDALUS implementation - PR495B ready for ARGUS review
 
-ARGUS accepted PR495B as a durable owner seminar record contract:
+DAEDALUS implemented PR495B:
 
-`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR495B_DURABLE_SEMINAR_RECORD_CONTRACT
+READY_FOR_ARGUS_REVIEW
 ```
 
-Decision:
+Implemented:
 
-- a source-reference-only lane is insufficient because
-  `public_seminar_interests` already persists `source_type` and `source_id`;
-- the next honest blocker before host/propose/schedule language is a stable
-  owner-scoped seminar record id, status model, RLS boundary, and owner API
-  contract;
-- PR495B must stay contract-only: migration, db/types, live-event types, owner
-  API/tests, and focused docs only;
-- public UI, public `/events/seminars` behavior, interest migration, status
-  transitions, proposals, scheduling, hosting claims, RSVP, tickets, payments,
-  reminders, live rooms, media, transcripts, providers, runtime, queues,
-  Redis, Cloudflare, and launch claims remain out of scope.
+- migration `infra/supabase/migrations/069_public_seminar_records.sql` for
+  owner-scoped durable seminar records;
+- owner/source unique contract, owner/status/updated and source indexes,
+  updated-at trigger, and owner-only RLS policies;
+- DB and shared live-event owner record types;
+- owner-only `GET /events/seminars/records`;
+- creator-gated owner-only `POST /events/seminars/records`;
+- document-source-only validation requiring the signed-in author, public
+  published document state, and a routeable public Space;
+- focused tests for auth/tier gates, idempotent create, owner-only listing,
+  invalid source fail-closed behavior, bounded storage errors, and public
+  seminar/interest no-drift.
 
 Validation:
 
-- focused `live-events`, `live-events-route`, and `auth-routes` tests passed
-  with 15 tests;
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 19 tests;
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed;
 - `git diff --check` passed.
@@ -42,20 +43,24 @@ Current lane:
 
 ```text
 PR495B - Durable Seminar Record Contract
-Owner: DAEDALUS / A2
-State: ACCEPTED_PREFLIGHT
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the accepted contract-only durable seminar record
-  table, owner API, types, focused tests, and result docs.
+- ARGUS should review migration/RLS shape, document author ownership,
+  safe serialization/redaction, idempotent owner API behavior, and public
+  `/events/seminars`/interest no-drift.
+- If accepted, ARGUS should wake MIMIR for hosted migration/API proof before
+  closeout.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout/opening - PR495A closed, PR495B opened

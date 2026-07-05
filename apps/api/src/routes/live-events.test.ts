@@ -3,7 +3,12 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
 import express, { type Express } from "express";
-import type { PublicSeminarInterestResponse, PublicSeminarsResponse } from "@station/types";
+import type {
+  OwnerPublicSeminarRecordResponse,
+  OwnerPublicSeminarRecordsResponse,
+  PublicSeminarInterestResponse,
+  PublicSeminarsResponse,
+} from "@station/types";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import { eventsRouter } from "./events";
 
@@ -21,6 +26,7 @@ class InMemorySupabase {
     community_subcommunities: [],
     profiles: [],
     public_seminar_interests: [],
+    public_seminar_records: [],
   };
   private failures: Array<{ table: string; operation: string; message: string }> = [];
   private clock = Date.parse("2026-06-29T08:00:00.000Z");
@@ -161,6 +167,16 @@ class InMemorySupabase {
       row.created_at ??= now;
       row.updated_at ??= now;
     }
+    if (table === "public_seminar_records") {
+      row.source_type ??= "document";
+      row.title ??= "Untitled seminar";
+      row.summary ??= null;
+      row.status ??= "draft";
+      row.visibility ??= "private";
+      row.discussion_thread_id ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
 
     return row;
   }
@@ -177,7 +193,7 @@ class QueryBuilder {
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
-  select() {
+  select(_columns?: string) {
     return this;
   }
 
@@ -376,6 +392,285 @@ function seedPublicSeminarFixture(db: InMemorySupabase) {
   });
   seedFeatured(db, "document", "doc-public");
 }
+
+function seedOwnerSeminarRecordSource(db: InMemorySupabase, overrides: Row = {}) {
+  const spaceId = overrides.space_id ?? "space-public";
+  if (!db.rows("spaces").some((row) => row.id === spaceId)) {
+    db.insertRow("spaces", {
+      id: spaceId,
+      slug: "station-house",
+      title: "Station House",
+      short_description: "A public Space for seminar records.",
+      is_public: true,
+    });
+  }
+  return db.insertRow("documents", {
+    id: overrides.id ?? "doc-public",
+    title: "Public Readback Notes",
+    body: "Public excerpt about careful seminar preparation.",
+    status: "published",
+    visibility: "public",
+    author_user_id: "owner-user",
+    space_id: spaceId,
+    discussion_thread_id: "thread-discussion",
+    ...overrides,
+  });
+}
+
+test("owner seminar record routes require auth and creator tier", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecordSource(db);
+
+    const signedOutList = await requestJson(app, "GET", "/events/seminars/records");
+    assert.equal(signedOutList.status, 401);
+
+    const signedOutCreate = await requestJson(app, "POST", "/events/seminars/records", {
+      body: { sourceType: "document", sourceId: "doc-public" },
+    });
+    assert.equal(signedOutCreate.status, 401);
+
+    const insufficientTier = await requestJson(app, "POST", "/events/seminars/records", {
+      token: "member-token",
+      body: { sourceType: "document", sourceId: "doc-public" },
+    });
+    assert.equal(insufficientTier.status, 403);
+    assert.equal(db.rows("public_seminar_records").length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner can create, list, and idempotently restore a durable seminar record", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecordSource(db, {
+      id: "doc-public",
+      title: "Owner Seminar source_id=doc-public",
+      body: "Public preparation with Bearer super-secret-token source_id=doc-public author_user_id=owner-user stack trace 10.0.0.1",
+      discussion_thread_id: "thread-discussion",
+    });
+    db.insertRow("public_seminar_records", {
+      owner_user_id: "member-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Other owner seminar",
+      summary: "Should not appear in owner list.",
+    });
+
+    const created = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records",
+      {
+        token: "owner-token",
+        body: { sourceType: "document", sourceId: "doc-public" },
+      }
+    );
+
+    assert.equal(created.status, 200);
+    assert.equal(created.body.record.sourceType, "document");
+    assert.equal(created.body.record.title, "Owner Seminar [redacted]");
+    assert.equal(created.body.record.status, "draft");
+    assert.equal(created.body.record.visibility, "private");
+    assert.equal(created.body.record.publicDocumentHref, "/space/station-house/documents/doc-public");
+    assert.deepEqual(created.body.record.publicSpace, {
+      title: "Station House",
+      href: "/space/station-house",
+    });
+    assert.equal(created.body.record.discussionLinked, true);
+    assert.equal(db.rows("public_seminar_records").length, 2);
+
+    const duplicate = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records",
+      {
+        token: "owner-token",
+        body: { sourceType: "document", sourceId: "doc-public" },
+      }
+    );
+    assert.equal(duplicate.status, 200);
+    assert.equal(duplicate.body.record.id, created.body.record.id);
+    assert.equal(db.rows("public_seminar_records").length, 2);
+
+    const listed = await requestJson<OwnerPublicSeminarRecordsResponse>(
+      app,
+      "GET",
+      "/events/seminars/records",
+      { token: "owner-token" }
+    );
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.records.length, 1);
+    assert.equal(listed.body.records[0].id, created.body.record.id);
+
+    const json = JSON.stringify({ created: created.body, listed: listed.body });
+    for (const forbidden of [
+      "Bearer",
+      "super-secret-token",
+      "source_id",
+      "sourceId",
+      "owner_user_id",
+      "author_user_id",
+      "discussion_thread_id",
+      "thread-discussion",
+      "stack trace",
+      "10.0.0.1",
+      "Other owner seminar",
+      "Should not appear",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record creation fails closed for invalid source targets", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    db.insertRow("spaces", {
+      id: "space-private",
+      slug: "private-house",
+      title: "Private House",
+      is_public: false,
+    });
+    db.insertRow("spaces", {
+      id: "space-uuid",
+      slug: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Unsafe UUID Space",
+      is_public: true,
+    });
+    db.insertRow("spaces", {
+      id: "space-bad-slug",
+      slug: "Bad Slug!",
+      title: "Unsafe Slug Space",
+      is_public: true,
+    });
+
+    const invalidDocuments = [
+      { id: "doc-private", visibility: "private" },
+      { id: "doc-community", visibility: "community" },
+      { id: "doc-unlisted", visibility: "unlisted" },
+      { id: "doc-draft", status: "draft" },
+      { id: "doc-archived", status: "archived" },
+      { id: "doc-missing-space", space_id: null },
+      { id: "doc-private-space", space_id: "space-private" },
+      { id: "doc-uuid-space", space_id: "space-uuid" },
+      { id: "doc-bad-slug", space_id: "space-bad-slug" },
+      { id: "doc-not-owned", author_user_id: "member-user" },
+    ];
+    for (const overrides of invalidDocuments) {
+      seedOwnerSeminarRecordSource(db, overrides);
+    }
+
+    const unsupported = await requestJson(app, "POST", "/events/seminars/records", {
+      token: "owner-token",
+      body: { sourceType: "thread", sourceId: "thread-public" },
+    });
+    assert.equal(unsupported.status, 400);
+    assert.deepEqual(unsupported.body, {
+      error: "Unsupported seminar record source.",
+      code: "seminar_record_invalid_source",
+    });
+
+    for (const { id } of invalidDocuments) {
+      const response = await requestJson(app, "POST", "/events/seminars/records", {
+        token: "owner-token",
+        body: { sourceType: "document", sourceId: id },
+      });
+      assert.equal(response.status, 404, `${id} should not be accepted`);
+      assert.deepEqual(response.body, {
+        error: "Seminar source not available.",
+        code: "seminar_source_not_available",
+      });
+    }
+
+    assert.equal(db.rows("public_seminar_records").length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record storage failures return bounded errors", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecordSource(db);
+
+    db.failNext(
+      "public_seminar_records",
+      "select",
+      "table=public_seminar_records owner_user_id=owner-user stack trace"
+    );
+    const failedList = await requestJson(app, "GET", "/events/seminars/records", {
+      token: "owner-token",
+    });
+    assert.equal(failedList.status, 503);
+    assert.deepEqual(failedList.body, {
+      error: "Could not load seminar records.",
+      code: "seminar_records_unavailable",
+    });
+
+    db.failNext(
+      "documents",
+      "select",
+      "table=documents source_id=doc-public owner_user_id=owner-user provider stack trace"
+    );
+    const failedSource = await requestJson(app, "POST", "/events/seminars/records", {
+      token: "owner-token",
+      body: { sourceType: "document", sourceId: "doc-public" },
+    });
+    assert.equal(failedSource.status, 503);
+    assert.deepEqual(failedSource.body, {
+      error: "Could not create seminar record.",
+      code: "seminar_record_create_unavailable",
+    });
+
+    db.failNext(
+      "public_seminar_records",
+      "upsert",
+      "table=public_seminar_records source_id=doc-public owner_user_id=owner-user stack trace"
+    );
+    const failedCreate = await requestJson(app, "POST", "/events/seminars/records", {
+      token: "owner-token",
+      body: { sourceType: "document", sourceId: "doc-public" },
+    });
+    assert.equal(failedCreate.status, 503);
+    assert.deepEqual(failedCreate.body, {
+      error: "Could not create seminar record.",
+      code: "seminar_record_create_unavailable",
+    });
+
+    const json = JSON.stringify({ failedList: failedList.body, failedSource: failedSource.body, failedCreate: failedCreate.body });
+    for (const forbidden of [
+      "public_seminar_records",
+      "documents",
+      "owner-user",
+      "doc-public",
+      "source_id",
+      "owner_user_id",
+      "author_user_id",
+      "provider",
+      "stack trace",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
 
 test("public seminar readback returns only public routeable featured bundles", async () => {
   const db = new InMemorySupabase();

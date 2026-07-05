@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495B Durable Seminar Record Contract Implementation
+
+DAEDALUS implemented PR495B on 2026-07-05:
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_RESULT.md`.
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- migration `069_public_seminar_records.sql` adds the owner-scoped durable
+  seminar record table with owner/source uniqueness, indexes, updated-at
+  trigger, and owner-only RLS;
+- DB and shared live-event types expose the owner seminar record contract for
+  future wiring;
+- `GET /events/seminars/records` lists only the signed-in owner's records;
+- `POST /events/seminars/records` is auth-bound, creator-tier gated, and
+  document-source-only;
+- source validation requires the signed-in document author, public published
+  document state, and a routeable public Space;
+- public `/events/seminars` cards and signed-in interest mark/withdraw behavior
+  did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 19 focused tests passed, including 4 new durable seminar record route tests plus existing public seminar, interest, route, and auth no-drift coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495B Durable Seminar Record Contract ARGUS Preflight
 
 ARGUS accepted PR495B on 2026-07-05:

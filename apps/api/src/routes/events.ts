@@ -1,8 +1,16 @@
 import { Router } from "express";
 import { createHash } from "node:crypto";
-import type { PublicSeminarCard, PublicSeminarSourceType } from "@station/types";
+import type {
+  CreateOwnerPublicSeminarRecordRequest,
+  OwnerPublicSeminarRecord,
+  OwnerPublicSeminarRecordResponse,
+  OwnerPublicSeminarRecordsResponse,
+  PublicSeminarCard,
+  PublicSeminarSourceType,
+} from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth } from "../middleware/require-auth";
+import { requireTier } from "../middleware/require-tier";
 import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
 
 export const eventsRouter = Router();
@@ -22,6 +30,24 @@ const SEMINAR_INTEREST_ERROR = {
   error: "Could not update seminar interest.",
   code: "seminar_interest_unavailable",
 } as const;
+const SEMINAR_RECORDS_ERROR = {
+  error: "Could not load seminar records.",
+  code: "seminar_records_unavailable",
+} as const;
+const SEMINAR_RECORD_CREATE_ERROR = {
+  error: "Could not create seminar record.",
+  code: "seminar_record_create_unavailable",
+} as const;
+const SEMINAR_RECORD_INVALID_SOURCE_ERROR = {
+  error: "Unsupported seminar record source.",
+  code: "seminar_record_invalid_source",
+} as const;
+const SEMINAR_RECORD_SOURCE_ERROR = {
+  error: "Seminar source not available.",
+  code: "seminar_source_not_available",
+} as const;
+const SEMINAR_RECORD_SELECT =
+  "id, source_type, source_id, title, summary, status, visibility, discussion_thread_id, created_at, updated_at";
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PUBLIC_SEMINAR_ID_PATTERN = /^seminar_[a-f0-9]{16}$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
@@ -31,6 +57,11 @@ type ResolvedPublicSeminarCard = {
   sourceType: PublicSeminarSourceType;
   sourceId: string;
   card: PublicSeminarCard;
+};
+
+type ResolvedSeminarRecordSource = {
+  document: any;
+  space: any;
 };
 
 eventsRouter.get("/seminars", optionalAuth, async (req, res) => {
@@ -45,6 +76,69 @@ eventsRouter.get("/seminars", optionalAuth, async (req, res) => {
     });
   } catch {
     return res.status(503).json(SEMINAR_ERROR);
+  }
+});
+
+eventsRouter.get("/seminars/records", requireAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+
+  try {
+    const { data, error } = await (sb as any)
+      .from("public_seminar_records")
+      .select(SEMINAR_RECORD_SELECT)
+      .eq("owner_user_id", req.user!.id)
+      .order("updated_at", { ascending: false });
+
+    if (error) throw new Error("Could not load owner seminar records.");
+
+    const records = await Promise.all(
+      (data ?? []).map((row: any) => serializeOwnerSeminarRecord(sb, row))
+    );
+    const response: OwnerPublicSeminarRecordsResponse = { records };
+    return res.json(response);
+  } catch {
+    return res.status(503).json(SEMINAR_RECORDS_ERROR);
+  }
+});
+
+eventsRouter.post("/seminars/records", requireAuth, requireTier("creator"), async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const body = req.body as Partial<CreateOwnerPublicSeminarRecordRequest>;
+
+  if (
+    body?.sourceType !== "document" ||
+    typeof body.sourceId !== "string" ||
+    body.sourceId.trim().length === 0
+  ) {
+    return res.status(400).json(SEMINAR_RECORD_INVALID_SOURCE_ERROR);
+  }
+
+  try {
+    const source = await resolveOwnerSeminarDocumentSource(sb, body.sourceId.trim(), req.user!.id);
+    if (!source) return res.status(404).json(SEMINAR_RECORD_SOURCE_ERROR);
+
+    const { document } = source;
+    const { data, error } = await (sb as any)
+      .from("public_seminar_records")
+      .upsert({
+        owner_user_id: req.user!.id,
+        source_type: "document",
+        source_id: document.id,
+        title: ownerSeminarText(document.title, 160) ?? "Untitled public seminar",
+        summary: ownerSeminarText(document.body, 240),
+        discussion_thread_id: document.discussion_thread_id ?? null,
+      }, { onConflict: "owner_user_id,source_type,source_id" })
+      .select(SEMINAR_RECORD_SELECT)
+      .single();
+
+    if (error || !data) throw new Error("Could not upsert owner seminar record.");
+
+    const response: OwnerPublicSeminarRecordResponse = {
+      record: await serializeOwnerSeminarRecord(sb, data, source),
+    };
+    return res.json(response);
+  } catch {
+    return res.status(503).json(SEMINAR_RECORD_CREATE_ERROR);
   }
 });
 
@@ -96,6 +190,80 @@ eventsRouter.delete("/seminars/:seminarId/interest", requireAuth, async (req, re
     return res.status(503).json(SEMINAR_INTEREST_ERROR);
   }
 });
+
+async function resolveOwnerSeminarDocumentSource(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  sourceId: string,
+  ownerUserId: string
+): Promise<ResolvedSeminarRecordSource | null> {
+  const { data: document, error } = await sb
+    .from("documents")
+    .select("id, title, body, status, visibility, space_id, discussion_thread_id, author_user_id")
+    .eq("id", sourceId)
+    .maybeSingle();
+
+  if (error) throw new Error("Could not load seminar record source.");
+  if (
+    !document ||
+    document.author_user_id !== ownerUserId ||
+    document.status !== "published" ||
+    document.visibility !== "public"
+  ) {
+    return null;
+  }
+
+  const space = await loadPublicSpace(sb, document.space_id);
+  if (!space) return null;
+
+  return { document, space };
+}
+
+async function serializeOwnerSeminarRecord(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  row: any,
+  knownSource?: ResolvedSeminarRecordSource
+): Promise<OwnerPublicSeminarRecord> {
+  const source = knownSource ?? await resolveSeminarRecordPublicRoute(sb, row);
+  const title = ownerSeminarText(row.title, 160) ?? "Untitled public seminar";
+
+  return {
+    id: String(row.id),
+    sourceType: "document",
+    title,
+    summary: ownerSeminarText(row.summary, 240),
+    status: row.status,
+    visibility: row.visibility,
+    publicDocumentHref: source ? `/space/${source.space.slug}/documents/${source.document.id}` : null,
+    publicSpace: source
+      ? {
+          title: ownerSeminarText(source.space.title, 120) ?? "Public Space",
+          href: `/space/${source.space.slug}`,
+        }
+      : null,
+    discussionLinked: Boolean(row.discussion_thread_id),
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  };
+}
+
+async function resolveSeminarRecordPublicRoute(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  row: any
+): Promise<ResolvedSeminarRecordSource | null> {
+  if (row.source_type !== "document" || !row.source_id) return null;
+
+  const { data: document, error } = await sb
+    .from("documents")
+    .select("id, title, status, visibility, space_id")
+    .eq("id", row.source_id)
+    .maybeSingle();
+
+  if (error) throw new Error("Could not resolve seminar record route.");
+  if (!document || document.status !== "published" || document.visibility !== "public") return null;
+
+  const space = await loadPublicSpace(sb, document.space_id);
+  return space ? { document, space } : null;
+}
 
 function seminarLimit(value: unknown) {
   const parsed = Number.parseInt(String(firstQueryValue(value) ?? ""), 10);
@@ -419,6 +587,21 @@ function publicSeminarCardId(sourceType: PublicSeminarSourceType, href: string, 
 function publicExcerpt(value?: string | null, max = 180) {
   if (!value) return null;
   const normalized = value.replace(/\s+/g, " ").trim();
+  if (!normalized) return null;
+  return normalized.length > max ? `${normalized.slice(0, max - 3).trimEnd()}...` : normalized;
+}
+
+function ownerSeminarText(value?: string | null, max = 180) {
+  if (!value) return null;
+  const normalized = value
+    .replace(/\s+/g, " ")
+    .replace(/bearer\s+[a-z0-9._~+/=-]+/gi, "[redacted]")
+    .replace(/(?:authorization|cookie|set-cookie|x-api-key|api[_-]?key|token|secret|password)\s*[:=]\s*[^,\s]+/gi, "[redacted]")
+    .replace(/(?:source_id|owner_user_id|author_user_id|user_id|discussion_thread_id)\s*[:=]\s*[^,\s]+/gi, "[redacted]")
+    .replace(/\b\d{1,3}(?:\.\d{1,3}){3}\b/g, "[redacted-ip]")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
+    .replace(/stack trace/gi, "[redacted]")
+    .trim();
   if (!normalized) return null;
   return normalized.length > max ? `${normalized.slice(0, max - 3).trimEnd()}...` : normalized;
 }
