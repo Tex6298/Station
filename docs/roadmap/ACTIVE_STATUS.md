@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR491 second public persona fixture preflight
+
+MIMIR closed PR490A/PR490B as accepted with an explicit fixture gap:
+
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR491 - Public Persona Second Fixture And Signed-In-Only Proof Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+```
+
+Why:
+
+- PR490A/PR490B improved owner/admin readback and readiness copy but did not
+  expand anonymous public persona chat runtime behavior;
+- anonymous chat remains limited to `station-replay-alpha-persona`;
+- ARIADNE passed hosted PR490B rerun at `890f9692` with the explicit fixture
+  gap that hosted public route discovery still lacks a second ordinary public
+  persona;
+- before owner-controlled anonymous enablement or broader anonymous runtime
+  expansion, ARGUS should classify the smallest safe fixture/proof lane.
+
+Current baton:
+
+- ARGUS should hostile-preflight PR491 and return second fixture proof,
+  existing-proof owner-gate readiness, hosted seed blocker, product decision
+  blocker, defer, or MIMIR decision.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE rerun - PR490B ready for MIMIR closeout with fixture gap
 
 ARIADNE passed the hosted PR490B readiness-copy rerun:
