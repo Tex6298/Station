@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR490A accepted for DAEDALUS
+
+ARGUS accepted the smallest safe PR490A slice:
+
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR490A_ELIGIBILITY_READBACK
+```
+
+Current lane:
+
+```text
+PR490A - Public Persona Anonymous Chat Eligibility Readback
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should refine owner/admin public persona interaction readback and
+  existing Studio readback UI/helpers so owners can see anonymous eligibility
+  truth and blockers.
+- This is readback-only. Do not expand anonymous public chat runtime behavior:
+  `station-replay-alpha-persona` remains the only anonymous alpha slug, ordinary
+  public personas remain signed-in alpha, and anonymous visitors to other public
+  personas must stay denied.
+- Preserve public-source-only prompting, `transcriptStored:false`, no visitor
+  identity/raw event storage, owner rollback through public chat enable/disable,
+  fail-closed rate limits, owner token attribution with `chat_id:null`, and
+  signed-in-only public reporting.
+- Do not add migrations, schema, seed/config gates, provider/model routing,
+  prompt/retrieval architecture, private runtime context, billing, workers,
+  queues, Redis Memory truth, Cloudflare, connectors, OAuth, social dispatch,
+  public launch/commercial claims, or broad public persona UI redesign.
+- ARIADNE hosted desktop/375px/390px rehearsal is required after ARGUS accepts
+  implementation because this may change visible owner/admin readback.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR489A closed, PR490 opened
 
 MIMIR closed PR489A after ARIADNE passed hosted rehearsal:
