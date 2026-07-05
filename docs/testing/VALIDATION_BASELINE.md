@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485E Companion Chat Surface Polish Preflight
+
+ARGUS accepted PR485E on 2026-07-05:
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR485E_WEB_ONLY_CHAT_POLISH`.
+
+Reason:
+
+- accepted one web-only owner `PersonaChat` polish lane;
+- allowed scoped `.studio-persona-chat-*` CSS in `apps/web/app/globals.css`;
+- limited implementation to the existing private chat surface, focused static
+  no-drift tests, and docs;
+- required DAEDALUS to preserve send path, local return-card actions, archived
+  read-only behavior, route behavior, existing live assistant actions, and
+  public/no-drift boundaries;
+- required ARIADNE hosted desktop, `375px`, and `390px` rehearsal after ARGUS
+  accepts implementation because PR485E is visible UI;
+- kept APIs, migrations, `packages/ai`, prompt/retrieval/provider/runtime,
+  token accounting, route-query behavior, automatic LLM calls, durable
+  summary/presence storage, Memory inbox behavior, Archive connector behavior,
+  public chat behavior, infrastructure, hosted runtime, broad Studio shell,
+  Discern global CSS, and placeholder controls out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed PR485E handoff, current `PersonaChat`, focused tests, scoped studio CSS patterns, active status, and lane index. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 27 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR485D Companion Presence And Capability Context Review
 
 ARGUS accepted PR485D on 2026-07-05:

@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR485E chat surface polish accepted
+
+ARGUS accepted PR485E as a strict web-only `PersonaChat` polish lane:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485E_WEB_ONLY_CHAT_POLISH
+```
+
+Accepted boundary:
+
+- one owner-chat UI polish slice on `/studio/personas/[personaId]`;
+- allowed files are `apps/web/components/studio/persona-chat.tsx`,
+  `apps/web/components/studio/persona-chat.test.ts`,
+  `apps/web/app/globals.css` under scoped `.studio-persona-chat-*` selectors,
+  focused existing no-drift tests if needed, and docs;
+- allowed UI work is the existing `PersonaChat` header, return card, message
+  rows, existing live assistant actions, sending/error/provider setup/empty and
+  archived states, existing continuity-candidate archive panel, and composer
+  fit;
+- no API, migration, `packages/ai`, prompt/retrieval/provider/runtime,
+  token-accounting, route-query, automatic LLM call, durable summary/presence,
+  Memory inbox, Archive connector, public chat, infra, hosted runtime, broad
+  shell, Discern global CSS, sidebar/topbar, or unrelated page styling drift;
+- no placeholder or unwired Attach, mic, tools, copy, regenerate, notes, menu,
+  or similar controls.
+
+Validation:
+
+- Code review passed for current scope locality and CSS/test pattern fit.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts`
+  passed with 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR485E - Companion Chat Surface Polish
+Owner: DAEDALUS / A2
+State: ACCEPTED_FOR_IMPLEMENTATION_BY_ARGUS
+```
+
+Current baton:
+
+- DAEDALUS should implement only the accepted web-only `PersonaChat` polish
+  boundary and add focused no-drift tests.
+- ARGUS should review the implementation against the accepted scope before
+  routing ARIADNE.
+- ARIADNE hosted desktop, `375px`, and `390px` rehearsal is required after
+  ARGUS accepts the implementation because PR485E is visible UI.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR485E chat surface polish preflight opened
 
 MIMIR closed PR485D as accepted by ARGUS:
