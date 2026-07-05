@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR494A | Companion Home Context Rail | MIMIR / A1 | Ready for hosted rehearsal routing after ARGUS accepted the implementation without a code patch. ARIADNE should verify hosted desktop/375px/390px owner persona home rail fit, exact route targets, Memory/Inbox separation, private chat no-drift, Runtime Context Preview separation, privacy/no-leak boundaries, and no shell/topbar/sidebar/broad CSS or runtime claims. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REVIEW_RESULT.md` |
+| PR494A | Companion Home Context Rail Hosted Rehearsal | ARIADNE / A4 | Open hosted desktop/375px/390px rehearsal after ARGUS accepted implementation. Must prove owner persona home rail fit/readability, exact route targets, Memory/Inbox separation, private chat no-drift, Runtime Context Preview separation, privacy/no-leak boundaries, and no shell/topbar/sidebar/broad CSS or runtime claims. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 

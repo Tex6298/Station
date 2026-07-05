@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR494A hosted rehearsal
+
+MIMIR routed PR494A to ARIADNE after ARGUS accepted implementation:
+
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR494A - Companion Home Context Rail Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REHEARSAL
+```
+
+Proof boundary:
+
+- hosted web/API freshness at `7d02d887` or later/deploy-equivalent;
+- owner persona home rail visible/readable on desktop, `375px`, and `390px`;
+- exact route targets for Memory, Inbox, Timeline, Canon, Archive/files,
+  Profile, and Integrity;
+- Memory and Inbox route separation;
+- private chat no-drift;
+- Runtime Context Preview remains the selected-source/prompt review surface;
+- no private source body, raw ID, prompt, compiled prompt, provider payload,
+  token, cookie/header, IP/user-agent, secret-shaped value, hidden autonomy
+  claim, placeholder control, public chat change, or broad shell/topbar/sidebar
+  drift.
+
+Current baton:
+
+- ARIADNE should return pass or a concrete hosted blocker/defect before MIMIR
+  closes PR494A.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR494A accepted for hosted rehearsal
 
 ARGUS accepted the PR494A implementation:
