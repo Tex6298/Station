@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR492 owner-controlled anonymous gate preflight
+
+MIMIR closed PR491A and opened the owner-controlled anonymous public chat gate
+preflight:
+
+- `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_CLOSEOUT.md`
+- `docs/roadmap/PR492_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR492 - Owner-Controlled Anonymous Public Chat Gate Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+```
+
+Why:
+
+- hosted proof now covers both current anonymous boundary sides:
+  `station-replay-alpha-persona` remains anonymous alpha, while
+  `station-replay-signed-in-alpha-persona` is signed-in alpha and
+  anonymous-denied;
+- the next Phase 3 capability is owner-controlled anonymous public chat beyond
+  the replay slug;
+- because this is runtime expansion, ARGUS must preflight the exact data/control
+  boundary before DAEDALUS implementation.
+
+Current baton:
+
+- ARGUS should return owner gate, gate-readback-only, product decision blocker,
+  provider/rate-limit blocker, entitlement blocker, defer, or MIMIR decision.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR491A fixture gap ready to close
 
 ARIADNE reran the PR491A hosted fixture proof with MIMIR's corrected freshness
