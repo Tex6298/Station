@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR491A Public Persona Second Fixture Proof ARGUS Review
+
+ARGUS accepted PR491A on 2026-07-05:
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR491A_SECOND_FIXTURE_PROOF_IMPLEMENTATION`.
+
+Reason:
+
+- the new guarded fixture/proof script plans exactly one ordinary public persona
+  fixture, `station-replay-signed-in-alpha-persona`;
+- the fixture remains `signed_in_alpha`, while
+  `station-replay-alpha-persona` remains the only `anonymous_alpha` slug;
+- signed-out anonymous chat for the ordinary fixture is expected to return
+  `public_persona_auth_required`;
+- hosted writes require an explicit write flag and staging Supabase access;
+- script output is limited to safe public labels, slugs, booleans, counts, and
+  pass/fail states;
+- no runtime/API/schema/UI behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed the script, tests, ops doc, result doc, active status, lane index, validation baseline, and wakeup commit. |
+| `node scripts/staging-public-persona-fixture.mjs --dry-run` | Pass | Printed safe dry-run proof for the ordinary fixture, signed-in mode, and anonymous-deny code. |
+| `node --test scripts/staging-public-persona-fixture.test.mjs` | Pass | 5 tests passed for dry-run proof, CLI output safety, slug validation, write flag, idempotent write behavior, and cross-owner slug conflict. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 personas tests passed; replay anonymous alpha and ordinary signed-in alpha boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 12 public persona route/interaction helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state receipt. |
+
 ## PR491A Public Persona Second Fixture Proof
 
 DAEDALUS implemented PR491A on 2026-07-05:

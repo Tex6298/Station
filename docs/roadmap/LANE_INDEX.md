@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR491A | Public Persona Second Fixture Proof | ARGUS / A3 | Ready for review. DAEDALUS added a narrow script/test/docs fixture-proof path for `station-replay-signed-in-alpha-persona`, guarded hosted writes, safe output checks, and no runtime/API/schema/UI expansion. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_RESULT.md` |
+| PR491A | Public Persona Second Fixture Proof Hosted Rehearsal | MIMIR / A1 | ARGUS accepted the guarded fixture/proof path without a review patch. MIMIR should route authorized hosted seed/proof for `station-replay-signed-in-alpha-persona`, proving signed-in alpha owner readback and signed-out anonymous denial while replay remains the only anonymous alpha slug. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR491A review | Public Persona Second Fixture Proof | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS patch; guarded script/test/docs path plans `station-replay-signed-in-alpha-persona` as a signed-in-alpha ordinary public persona fixture, safe output and write-flag tests passed, no runtime/API/schema/UI behavior changed, and hosted seed/proof remains required before closing the fixture gap. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REVIEW_RESULT.md` |
 | PR491 preflight | Public Persona Second Fixture And Signed-In-Only Proof | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR491A_SECOND_PUBLIC_PERSONA_FIXTURE_PROOF`; existing hosted evidence is not enough for an owner gate because only the replay slug exists, so DAEDALUS should add one safe ordinary public persona fixture/proof path without changing anonymous runtime eligibility. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_PREFLIGHT_RESULT.md` |
 | PR490B/PR490A closeout | Public Persona Anonymous Chat Eligibility Readback And Readiness Copy | MIMIR | Closed accepted with fixture gap; owner/admin readback now names replay-only anonymous availability, fail-closed rate-limit posture, provider readiness/blocker state, no visitor transcript/identity/raw-event storage, aggregate counters, owner rollback, and public-source-only scope. Hosted still lacks a second ordinary public persona. | `docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_CLOSEOUT.md` |
 | PR491 opened | Public Persona Second Fixture And Signed-In-Only Proof Preflight | MIMIR -> ARGUS | Open hostile preflight; classify the smallest safe ordinary public persona fixture/proof lane, or decide existing evidence is enough for an owner gate, before any anonymous runtime expansion. | `docs/roadmap/PR491_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_PREFLIGHT_ARGUS.md` |
