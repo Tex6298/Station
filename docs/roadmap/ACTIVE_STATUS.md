@@ -4,51 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight result - PR495A accepted
+## Latest DAEDALUS implementation - PR495A ready for ARGUS review
 
-ARGUS accepts the PR495 preflight as:
+DAEDALUS implemented PR495A:
+
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_RESULT.md`
+
+Validation result:
 
 ```text
-ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE
+READY_FOR_ARGUS_REVIEW
 ```
 
-Result:
+Implemented:
 
-`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md`
+- readback-only owner seminar readiness gate on `/studio/publishing`;
+- deterministic helper and tests over already-loaded owner documents and Spaces;
+- candidates require public published documents in explicitly public Spaces;
+- linked discussion readiness is metadata-only from existing
+  `discussion_thread_id`;
+- panel links stay on existing owner/public routes only;
+- no API, schema, public `/events/seminars`, interest, seminar persistence,
+  runtime, provider, queue/worker, Redis, Cloudflare, billing, or launch-claim
+  drift.
 
-Decision:
+Validation:
 
-- a durable seminar/event record is not required for a readback-only owner
-  readiness gate;
-- PR495A must live on the existing owner-only Studio Publishing Dashboard,
-  `/studio/publishing`;
-- it must use only already-loaded owner documents and Spaces from existing
-  owner endpoints;
-- eligible candidate readback is limited to owner-owned public published
-  documents in public Spaces, with linked-discussion metadata only;
-- no API, schema, migration, public `/events/seminars` behavior, ticket,
-  payment, RSVP, attendee, reminder, live room, media, transcript, provider,
-  queue/worker, Redis, Cloudflare, or launch claim enters scope.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 Current lane:
 
 ```text
 PR495A - Public Seminar Owner Readiness Gate
-Owner: DAEDALUS / A2
-State: ACCEPTED_PREFLIGHT
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the web-only helper/tests/publishing-dashboard panel
-  scoped in the ARGUS result.
-- DAEDALUS should wake ARGUS with the implementation result and validation.
+- ARGUS should review candidate gating, linked-discussion metadata, no-leak
+  boundaries, public seminar no-drift, and forbidden-scope drift.
+- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/`375px`/`390px`
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout/opening - PR494 closed, PR495 opened

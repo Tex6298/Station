@@ -59,6 +59,8 @@ export interface PublishingSpace {
   id: string;
   title: string;
   slug: string;
+  is_public?: boolean | null;
+  isPublic?: boolean | null;
 }
 
 export interface PublishingApproval {

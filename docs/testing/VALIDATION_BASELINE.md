@@ -20,31 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## PR495A Public Seminar Owner Readiness Gate ARGUS Preflight
+## PR495A Public Seminar Owner Readiness Gate Implementation
 
-ARGUS accepted PR495A on 2026-07-05:
-`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md`.
+DAEDALUS implemented PR495A on 2026-07-05:
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_RESULT.md`.
 
 Validation result:
-`ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE`.
+`READY_FOR_ARGUS_REVIEW`.
 
 Reason:
 
-- existing `/events/seminars` and signed-in interest remain public-source-only
-  and aggregate/viewer-local;
-- an owner readiness gate can be honest as readback-only over already-loaded
-  owner documents and Spaces;
-- the first owner is the signed-in account owner on `/studio/publishing`;
-- future host/propose/schedule/RSVP/ticket/payment/reminder/live-room/media
-  claims still require a durable seminar/event record contract first.
+- `/studio/publishing` now has a compact readback-only owner seminar readiness
+  panel;
+- the panel uses only the already-loaded owner documents and Spaces state;
+- candidates require public published documents in explicitly public Spaces;
+- linked discussion readiness comes only from existing
+  `discussion_thread_id` metadata;
+- public `/events/seminars` and signed-in interest behavior did not change;
+- no seminar/event persistence, schedule, host workflow, attendee/payment,
+  live-room/media/transcript, provider/runtime, queue/worker, Redis,
+  Cloudflare, billing, or launch claim entered scope.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| Hostile preflight review | Pass | Accepted one web-only owner readback slice and rejected public-method-copy-only, durable-record blocker, persona/Developer Space expansion, API/schema/runtime changes, and launch claims. |
-| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 30 focused tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache. |
-| `git diff --check` / `git diff --cached --check` | Pass | CRLF normalization warnings only for edited roadmap docs before staging; no whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 34 focused tests passed, including 4 new seminar readiness helper/panel tests plus publishing, public seminar, interest, and protected-route no-drift coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
 
 ## PR495 Public Seminar Host Readiness Preflight Opening
 

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495A | Public Seminar Owner Readiness Gate | DAEDALUS / A2 | Accepted preflight; implement a web-only owner seminar readiness gate on `/studio/publishing` using already-loaded owner documents and Spaces, with no seminar persistence, public seminar API change, runtime expansion, RSVP/tickets/payments/reminders/live rooms/provider calls/queues/Cloudflare/Redis, or launch claims. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md` |
+| PR495A | Public Seminar Owner Readiness Gate | ARGUS / A3 | Ready for review after DAEDALUS implemented a web-only readback panel on `/studio/publishing` using already-loaded owner documents and Spaces, with candidates limited to public published documents in explicitly public Spaces, linked-discussion metadata only, and no seminar persistence, public seminar API change, runtime expansion, RSVP/tickets/payments/reminders/live rooms/provider calls/queues/Cloudflare/Redis, or launch claims. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_RESULT.md` |
 
 ## Recently Closed
 

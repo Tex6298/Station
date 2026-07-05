@@ -25,6 +25,10 @@ import {
   type PublishingSpace,
   type PublishingTab,
 } from "@/lib/publishing";
+import {
+  seminarHostReadiness,
+  type SeminarHostReadinessReadback,
+} from "@/lib/seminar-host-readiness";
 
 const routeStoryRows = publishingDashboardRouteStoryRows();
 
@@ -83,6 +87,7 @@ export function PublishingDashboard() {
   }, []);
 
   const visible = useMemo(() => filterDocumentsForPublishingTab(documents, tab), [documents, tab]);
+  const seminarReadiness = useMemo(() => seminarHostReadiness(documents, spaces), [documents, spaces]);
 
   async function enqueueApproval(document: PublishingDocument) {
     if (!token) return;
@@ -190,6 +195,8 @@ export function PublishingDashboard() {
           </div>
         </section>
 
+        <SeminarReadinessPanel readback={seminarReadiness} loading={loading} />
+
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
         {notice ? <div className="station-notice" data-tone="success">{notice}</div> : null}
         {!loading && !publishingAllowed ? (
@@ -286,6 +293,74 @@ export function PublishingDashboard() {
         </section>
       </div>
     </main>
+  );
+}
+
+function SeminarReadinessPanel({
+  readback,
+  loading,
+}: {
+  readback: SeminarHostReadinessReadback;
+  loading: boolean;
+}) {
+  return (
+    <section className="station-panel" aria-label="Seminar readiness" style={seminarPanel}>
+      <div style={storyHeader}>
+        <div className="station-eyebrow">{readback.label}</div>
+        <h2 style={storyTitle}>Public source readiness</h2>
+        <p style={storyBody}>{readback.boundaryCopy}</p>
+        <p style={storyBody}>{readback.interactionCopy}</p>
+      </div>
+
+      {loading ? (
+        <div style={emptyState}>Checking owner documents and Spaces...</div>
+      ) : (
+        <>
+          <div style={seminarGapGrid}>
+            {readback.gaps.map((gap) => (
+              <div key={gap.id} style={seminarGapItem(gap.tone)}>
+                <div style={storyRowHeader}>
+                  <span style={storyLabel}>{gap.label}</span>
+                  <span style={storyPill(gap.tone === "ready" ? "info" : "warning")}>{gap.value}</span>
+                </div>
+                <p style={storyBody}>{gap.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={seminarCandidateWrap}>
+            <div style={storyRowHeader}>
+              <h3 style={seminarSubhead}>{readback.summary}</h3>
+              <Link href="/studio/publish" style={miniLink}>Create document</Link>
+              <Link href="/space" style={miniLink}>Review Spaces</Link>
+            </div>
+
+            {readback.candidates.length === 0 ? (
+              <div style={emptyState}>No public source candidate is ready yet.</div>
+            ) : (
+              <div style={{ display: "grid", gap: 10 }}>
+                {readback.candidates.map((candidate) => (
+                  <article key={candidate.documentHref} style={seminarCandidateRow}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={rowHeader}>
+                        <h4 style={rowTitle}>{candidate.title}</h4>
+                        <span style={pill}>{candidate.discussionLabel}</span>
+                      </div>
+                      <div style={rowMeta}>{candidate.spaceTitle}</div>
+                      <div style={sourceLine}>{candidate.detail}</div>
+                    </div>
+                    <div style={buttonRow}>
+                      <Link href={candidate.documentHref} style={miniLink}>View document</Link>
+                      <Link href={candidate.spaceHref} style={miniLink}>View Space</Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -486,6 +561,12 @@ const routeStoryPanel = {
   marginBottom: 14,
 };
 
+const seminarPanel = {
+  display: "grid",
+  gap: 14,
+  marginBottom: 14,
+};
+
 const storyHeader = {
   display: "grid",
   gap: 4,
@@ -539,6 +620,40 @@ const storyBody = {
   color: "#687078",
   fontSize: 12,
   lineHeight: 1.45,
+};
+
+const seminarGapGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
+  gap: 10,
+};
+
+function seminarGapItem(tone: "ready" | "gap") {
+  return {
+    display: "grid",
+    gap: 7,
+    minWidth: 0,
+    border: "1px solid " + (tone === "ready" ? "rgba(59, 143, 99, 0.35)" : "#fde68a"),
+    borderRadius: 8,
+    background: tone === "ready" ? "#e9f5ee" : "#fef3c7",
+    padding: 11,
+  };
+}
+
+const seminarCandidateWrap = {
+  display: "grid",
+  gap: 10,
+};
+
+const seminarSubhead = {
+  margin: 0,
+  color: "#1f2529",
+  fontSize: 15,
+};
+
+const seminarCandidateRow = {
+  ...row,
+  background: "#fdfdfb",
 };
 
 const pill = {
