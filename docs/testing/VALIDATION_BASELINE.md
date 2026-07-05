@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485E Companion Chat Surface Polish Review
+
+ARGUS accepted PR485E on 2026-07-05:
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR485E_PERSONA_CHAT_SURFACE_POLISH_IMPLEMENTATION`.
+
+Reason:
+
+- accepted DAEDALUS' implementation without a review patch;
+- verified scoped `.studio-persona-chat-*` CSS replaced inline private chat
+  surface styles without broad shell, public chat, or base control reskins;
+- verified streaming send, bearer token use, status/error handling,
+  conversation loading, archive, save-memory/save-canon, candidate review, local
+  return-card actions, and archived read-only behavior were preserved;
+- verified focused tests cover scoped CSS and absence of placeholder controls;
+- kept APIs, migrations, `packages/ai`, prompt/retrieval/provider/runtime,
+  token accounting, route-query behavior, automatic LLM calls, durable
+  summary/presence storage, Memory inbox behavior, Archive connector behavior,
+  public chat behavior, infrastructure, hosted runtime, broad Studio shell,
+  Discern global CSS, and placeholder controls out of scope;
+- required ARIADNE hosted desktop, `375px`, and `390px` rehearsal before
+  closeout because PR485E is visible UI.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed component behavior, scoped CSS selectors, focused tests, docs, and wakeup commit. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 29 focused web tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck executed and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint executed and passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state receipt. |
+
 ## PR485E Companion Chat Surface Polish Implementation
 
 DAEDALUS implemented PR485E on 2026-07-05:

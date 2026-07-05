@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR485E chat surface polish accepted
+
+ARGUS accepted DAEDALUS' PR485E implementation without a review patch:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485E_PERSONA_CHAT_SURFACE_POLISH_IMPLEMENTATION
+```
+
+Accepted implementation:
+
+- scoped `.studio-persona-chat-*` CSS replaced inline private chat surface
+  layout styles;
+- existing header, conversation state/count readback, return card, message
+  rows, live assistant actions, sending/error/provider setup/empty states,
+  existing archive/candidate panel, and composer fit were polished;
+- streaming send path, bearer token use, status/error handling, conversation
+  loading, archive route, save-memory/save-canon actions, candidate review
+  route, local return-card actions, and archived read-only behavior were
+  preserved;
+- no placeholder/unwired Attach, mic, tools, copy, regenerate, notes, menu, or
+  similar controls were added;
+- no API, migration, `packages/ai`, prompt/retrieval/provider/runtime,
+  token-accounting, route-query, automatic LLM call, durable summary/presence,
+  Memory inbox, Archive connector, public chat, infra, hosted runtime, broad
+  shell, Discern global CSS, sidebar/topbar, unrelated page styling, or
+  placeholder control drift entered scope.
+
+Validation:
+
+- Code review passed for component behavior, scoped CSS, tests, docs, and
+  wakeup commit.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts`
+  passed with 29 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed; web typecheck executed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed; web lint executed with no
+  warnings or errors.
+- `git diff --check` passed with a CRLF normalization warning only for ARGUS
+  state receipt.
+
+Current lane:
+
+```text
+PR485E - Companion Chat Surface Polish
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS_READY_FOR_ARIADNE_ROUTING
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted desktop, `375px`, and `390px` rehearsal
+  before closeout because PR485E is visible UI.
+- ARIADNE should verify active thread with return card, empty/new chat,
+  archived read-only with `New chat` recovery, safe sending/provider setup/error
+  states if triggerable, existing archive/candidate panel if present, shortcut
+  route continuity, Memory/Memory inbox separation, public chat no-drift,
+  visual fit, honesty, and no secret-shaped visible readback.
+- DAEDALUS should not receive new feature work unless ARIADNE finds a concrete
+  product defect.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR485E ready for ARGUS review
 
 DAEDALUS implemented the accepted web-only `PersonaChat` polish lane:
