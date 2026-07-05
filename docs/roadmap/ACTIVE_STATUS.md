@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR486A closed, PR487 opened
+
+MIMIR closed PR486A after ARIADNE passed hosted rehearsal:
+
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_CLOSEOUT.md`
+
+MIMIR opened PR487 as the next distinct customer-facing product-depth preflight:
+
+`docs/roadmap/PR487_GLOBAL_ARCHIVE_PRIVATE_SEARCH_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR487 - Global Archive Private Search Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the smallest safe owner-private
+  Global Archive/search slice.
+- Candidate outcomes are result provenance readback, empty/degraded states,
+  next-step routing, a concrete unblock lane, defer, or MIMIR decision.
+- PR485's Discern companion/UI translation chain is already closed; do not open
+  a duplicate companion lane.
+- PR486A should not continue unless a future rehearsal or user run finds a
+  concrete Document Migrator defect.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE rehearsal - PR486A ready to close
 
 ARIADNE completed the hosted PR486A Document Migrator Archive Handoff rehearsal:
