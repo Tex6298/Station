@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR492A blocked on hosted migration
+
+ARIADNE started the PR492A hosted proof:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+BLOCKED_NEEDS_HOSTED_MIGRATION
+```
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate Hosted Proof
+Owner: MIMIR / A1
+State: BLOCKED_NEEDS_HOSTED_MIGRATION
+```
+
+Result:
+
+- hosted web/API freshness passed at app commit `a2d3f6be`;
+- local checkout freshness passed at `a2d3f6be` or later;
+- direct hosted Supabase REST read for
+  `personas.public_anonymous_chat_enabled` returned HTTP `400`, code `42703`,
+  because the column does not exist;
+- authenticated owner `/personas` returned HTTP `500` with the same missing
+  column condition;
+- public persona reads for the signed-in-alpha fixture and replay alpha returned
+  `404`, consistent with the API failing closed while selecting the missing
+  gate column;
+- owner enable, signed-out success, rollback, browser, and mobile fit checks
+  were not run.
+
+Current baton:
+
+- MIMIR should route hosted migration/application before rerouting ARIADNE.
+- Do not enable owner-controlled anonymous public chat until the migration is
+  present on hosted.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR492A hosted anonymous gate proof
 
 MIMIR routed the accepted PR492A owner-controlled anonymous public chat gate to

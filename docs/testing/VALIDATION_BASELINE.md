@@ -20,6 +20,31 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR492A Owner-Controlled Anonymous Public Chat Gate Hosted Proof
+
+ARIADNE started PR492A hosted proof on 2026-07-05:
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RESULT.md`.
+
+Validation result:
+`BLOCKED_NEEDS_HOSTED_MIGRATION`.
+
+Reason:
+
+- hosted web/API health and freshness passed at app commit `a2d3f6be`;
+- local checkout includes `a2d3f6be` or later;
+- hosted database does not yet expose
+  `personas.public_anonymous_chat_enabled`;
+- owner enable, signed-out success, rollback, public page/card, and mobile fit
+  checks were intentionally not run.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services returned `ready:true` at app commit `a2d3f6be`. |
+| `git merge-base --is-ancestor a2d3f6be HEAD` | Pass | Local checkout includes the PR492A implementation. |
+| Hosted Supabase column read | Blocked | REST read for `personas.public_anonymous_chat_enabled` returned HTTP `400`, code `42703`, missing column. |
+| Authenticated owner `/personas` probe | Blocked | Returned HTTP `500` with the same missing hosted column condition. |
+| Public fixture/replay reads | Blocked | Both returned `404`, consistent with fail-closed reads while the API selects the missing gate column. |
+
 ## PR492A Owner-Controlled Anonymous Public Chat Gate ARGUS Review
 
 ARGUS accepted PR492A implementation on 2026-07-05:
