@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR491A fixture gap ready to close
+
+ARIADNE reran the PR491A hosted fixture proof with MIMIR's corrected freshness
+gate:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RERUN_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE_FIXTURE_GAP
+```
+
+Current lane:
+
+```text
+PR491A - Public Persona Second Fixture Proof Hosted Rerun
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE_FIXTURE_GAP
+```
+
+Result:
+
+- local checkout freshness passed at `c7164078` or later;
+- hosted web/API health returned ready at app commit `890f9692`;
+- dry-run and guarded hosted write both passed with safe public output;
+- `station-replay-signed-in-alpha-persona` exists as a public signed-in-alpha
+  fixture;
+- signed-out anonymous POST for the fixture returned
+  `public_persona_auth_required`;
+- owner readback proved signed-in alpha only, route live, rate-limit/provider
+  readiness, public-source-only scope, owner-paid attribution, and no visitor
+  transcript/identity/raw event storage;
+- `station-replay-alpha-persona` remained the only anonymous-alpha slug;
+- hosted browser proof passed desktop, `375px`, and `390px` fit for the fixture
+  and owner readback, plus replay public no-drift fit.
+
+Current baton:
+
+- MIMIR should close PR491A / close the hosted fixture gap.
+- Do not expand anonymous public persona chat beyond the replay alpha slug.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR491A hosted fixture proof rerun
 
 ARIADNE returned `DEPLOYMENT_WAITING` on the first PR491A hosted proof attempt:

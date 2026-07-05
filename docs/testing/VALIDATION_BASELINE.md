@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR491A Public Persona Second Fixture Proof Hosted Rerun
+
+ARIADNE passed the PR491A hosted rerun on 2026-07-05:
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RERUN_RESULT.md`.
+
+Validation result:
+`PASS_READY_TO_CLOSE_FIXTURE_GAP`.
+
+Reason:
+
+- local checkout freshness passed at `c7164078` or later;
+- hosted web/API health returned ready at app commit `890f9692`;
+- guarded hosted fixture write completed with safe output;
+- the ordinary fixture
+  `station-replay-signed-in-alpha-persona` is public and
+  `signed_in_alpha`;
+- signed-out anonymous POST for the fixture returned
+  `public_persona_auth_required`;
+- owner readback, signed-out page, replay no-drift, privacy/scope, and
+  desktop/`375px`/`390px` fit checks passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git merge-base --is-ancestor c7164078 HEAD` | Pass | Local checkout contained the guarded fixture script/docs path. |
+| Hosted web/API health | Pass | Both services returned `ready:true` at app commit `890f9692`, which satisfies the corrected runtime gate. |
+| `node scripts/staging-public-persona-fixture.mjs --dry-run` | Pass | Printed safe dry-run proof for the ordinary fixture, signed-in mode, and anonymous-deny code. |
+| Guarded hosted write | Pass | Ran with `STATION_PUBLIC_PERSONA_FIXTURE_WRITE=1`; safe output reported `hostedWriteUsed:true`, `fixtureUpserted:true`, and `ownerEligible:true`. |
+| Temporary hosted Chrome DevTools fixture proof | Pass | Public route, owner signed-in-only readback, signed-out anonymous denial, replay anonymous no-drift, privacy/scope, and desktop/`375px`/`390px` fit checks passed; temporary harness removed before commit. |
+
 ## PR491A Public Persona Second Fixture Proof Hosted Rehearsal
 
 ARIADNE started PR491A hosted proof on 2026-07-05:
