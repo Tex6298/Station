@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR491A hosted fixture proof
+
+MIMIR routed the accepted PR491A guarded fixture path to ARIADNE for hosted
+seed/proof:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR491A - Public Persona Second Fixture Proof Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_SEED_PROOF
+```
+
+Rerun boundary:
+
+- hosted web/API freshness at `c7164078` or later/deploy-equivalent;
+- dry-run first, then guarded hosted write only if hosted Supabase write access
+  is already available and `STATION_PUBLIC_PERSONA_FIXTURE_WRITE=1` is set;
+- prove `station-replay-signed-in-alpha-persona` exists as an ordinary public
+  persona fixture with signed-in-alpha owner readback and signed-out anonymous
+  denial;
+- prove `station-replay-alpha-persona` remains the only anonymous-alpha slug;
+- keep output and visible proof limited to safe public labels, slugs, booleans,
+  counts, pass/fail states, and public-safe copy;
+- if hosted seed access is unavailable, return
+  `BLOCKED_NEEDS_HOSTED_SEED_ACCESS` with the missing condition and no secret
+  values.
+
+Current baton:
+
+- ARIADNE should run hosted proof and wake MIMIR with
+  `PASS_READY_TO_CLOSE_FIXTURE_GAP`, `DEPLOYMENT_WAITING`,
+  `BLOCKED_NEEDS_HOSTED_SEED_ACCESS`, `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or
+  `PRIVACY_OR_SCOPE_FAIL`.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS result - PR491A accepted for hosted proof
 
 ARGUS accepted the DAEDALUS PR491A fixture/proof path without a review patch:
