@@ -227,9 +227,9 @@ test("archive result provenance maps source classes and owner evidence labels", 
     [{ type: "file", source: "persona_file", href: "/studio/personas/persona-1/files" }, "Persona file", "Open persona Archive files"],
     [{ type: "import", source: "archive_import", href: "/studio/personas/persona-1/files" }, "Import job", "Open persona Archive files"],
     [{ kind: "archived_chat", type: "conversation", source: "Archived chat", href: "/studio/personas/persona-1" }, "Archived chat", "Open persona workspace"],
-    [{ type: "continuity", source: "Continuity", href: "/studio/personas/persona-1/continuity" }, "Continuity", "Open continuity timeline"],
+    [{ type: "continuity", source: "Continuity", href: "/studio/personas/persona-1/timeline" }, "Continuity", "Open continuity timeline"],
     [{ type: "integrity", source: "Integrity Session", href: "/studio/personas/persona-1/calibration" }, "Integrity", "Open Integrity"],
-    [{ type: "document", source: "Document", href: "/studio/publish" }, "Document", "Open publishing"],
+    [{ type: "document", source: "Document", href: "/studio/publishing" }, "Document", "Open publishing"],
     [{ type: "archive", source: "Archive", href: "/studio/archive" }, "Archive", "Open Global Archive"],
     [{ type: "mystery", source: "", href: "/studio" }, "Unknown archive source", "Open owner Studio"],
   ] as const;
@@ -284,6 +284,10 @@ test("archive result provenance redacts raw private and secret-shaped fields", (
 
   assert.equal(readback.evidenceLabel, "Owner evidence route unavailable");
   assert.equal(archiveResultEvidenceHref({ href: "/discover/private-result" }), null);
+  assert.equal(archiveResultEvidenceHref({ href: "/studio/../discover/private-result" }), null);
+  assert.equal(archiveResultEvidenceHref({ href: "//example.invalid/studio" }), null);
+  assert.equal(archiveResultEvidenceHref({ href: "/space/private-result" }), null);
+  assert.equal(archiveResultEvidenceHref({ href: "/studio/personas/persona-1/timeline" }), "/studio/personas/persona-1/continuity");
   assert.equal(archiveResultEvidenceHref({ href: "/studio/personas/persona-1/files" }), "/studio/personas/persona-1/files");
   assert.doesNotMatch(rendered, /example\.invalid|abc123|11111111|22222222|33333333|storage_path|signed_url|Bearer abc\.def|source body/i);
   assert.doesNotMatch(rendered, /Discover|public search|published/i);

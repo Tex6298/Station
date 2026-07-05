@@ -236,8 +236,25 @@ export function archiveResultProvenanceReadback(item: ArchiveSearchItemLike): Ar
 export function archiveResultEvidenceHref(item: ArchiveSearchItemLike) {
   const href = item.href?.trim() ?? "";
   if (!href.startsWith("/")) return null;
-  if (/^\/(?:discover|public|forums?|space)(?:\/|$)/i.test(href)) return null;
-  if (/^\/(?:studio|settings)(?:\/|$)/i.test(href)) return href;
+  if (href.startsWith("//") || /%2e/i.test(href)) return null;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(href, "https://station.local");
+  } catch {
+    return null;
+  }
+
+  const pathname = parsed.pathname.replace(
+    /^\/studio\/personas\/([^/]+)\/timeline(?=\/|$)/i,
+    "/studio/personas/$1/continuity",
+  );
+
+  if (/^\/(?:discover|public|forums?|space)(?:\/|$)/i.test(pathname)) return null;
+  if (/^\/(?:studio|settings)(?:\/|$)/i.test(pathname)) {
+    return `${pathname}${parsed.search}${parsed.hash}`;
+  }
+
   return null;
 }
 
@@ -292,8 +309,8 @@ function archiveResultMatchLabel(item: ArchiveSearchItemLike) {
 }
 
 function archiveResultEvidenceLabel(href?: string | null) {
-  const normalized = href?.trim().toLowerCase() ?? "";
-  if (!archiveResultEvidenceHref({ href })) return "Owner evidence route unavailable";
+  const normalized = archiveResultEvidenceHref({ href })?.toLowerCase() ?? "";
+  if (!normalized) return "Owner evidence route unavailable";
   if (/^\/studio\/personas\/[^/]+\/memory(?:\/|$)/.test(normalized)) return "Open persona Memory";
   if (/^\/studio\/personas\/[^/]+\/canon(?:\/|$)/.test(normalized)) return "Open persona Canon";
   if (/^\/studio\/personas\/[^/]+\/files(?:\/|$)/.test(normalized)) return "Open persona Archive files";
@@ -301,7 +318,7 @@ function archiveResultEvidenceLabel(href?: string | null) {
   if (/^\/studio\/personas\/[^/]+\/calibration(?:\/|$)/.test(normalized)) return "Open Integrity";
   if (/^\/studio\/personas\/[^/]+(?:\/|$)/.test(normalized)) return "Open persona workspace";
   if (/^\/studio\/archive(?:\/|$)/.test(normalized)) return "Open Global Archive";
-  if (/^\/studio\/publish(?:\/|$)/.test(normalized)) return "Open publishing";
+  if (/^\/studio\/publishing(?:\/|$)/.test(normalized)) return "Open publishing";
   if (/^\/studio\/export(?:\/|$)/.test(normalized)) return "Open Export Workspace";
   if (/^\/settings(?:\/|$)/.test(normalized)) return "Open settings";
   return "Open owner Studio";

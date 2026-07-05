@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR487A accepted for ARIADNE routing
+
+ARGUS accepted DAEDALUS' PR487A implementation with a narrow review patch:
+
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR487A_ARCHIVE_RESULT_PROVENANCE_IMPLEMENTATION
+```
+
+Current lane:
+
+```text
+PR487A - Global Archive Result Provenance Readback
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_READY_FOR_ARIADNE_ROUTING
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted rehearsal for PR487A before closeout.
+- Rehearse `/studio/archive` on desktop, `375px`, and `390px`.
+- Cover overview results, private search/filter results, no-match/empty state,
+  partial/degraded warning if safely available, provenance labels,
+  owner-only/private visibility, owner evidence links, Global Archive intake
+  no-drift, Import Review separation, mobile fit, and no
+  private/raw/secret/public/live-connector/placeholder-control drift.
+- ARGUS accepted with a small review patch that normalizes continuity/publishing
+  owner evidence routes and hardens evidence-link gating against public-route
+  escapes.
+- Do not treat ARGUS acceptance as hosted visual proof; ARIADNE still needs real
+  browser rehearsal.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR487A ready for ARGUS review
 
 DAEDALUS implemented the accepted web/helper/test-only Global Archive result

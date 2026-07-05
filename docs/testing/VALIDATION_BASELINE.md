@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR487A Global Archive Result Provenance Review
+
+ARGUS accepted PR487A on 2026-07-05:
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR487A_ARCHIVE_RESULT_PROVENANCE_IMPLEMENTATION`.
+
+Reason:
+
+- accepted DAEDALUS' web/helper/test-only result provenance implementation with
+  a narrow ARGUS patch;
+- verified provenance readback derives from already-returned archive item fields
+  and shows source class, owner/private visibility, status, persona association,
+  match reason, and owner evidence labels;
+- patched owner evidence href handling to normalize legacy timeline hrefs to the
+  existing continuity route, label the actual publishing route, reject
+  scheme-relative hrefs, reject encoded-dot hrefs, and reject normalized
+  public/Discover route escapes;
+- verified evidence links remain limited to owner-safe `/studio` and `/settings`
+  routes after normalization;
+- verified empty/no-match copy, partial/degraded warning copy, Global Archive
+  intake, Import Review separation, private search boundaries, and existing
+  Archive fetches remain unchanged;
+- kept backend archive/search routes, imports, connectors, parsers, embeddings,
+  provider calls, prompts, retrieval, public search, Discover, public chat,
+  infra, broad Studio redesign, CSS, and placeholder controls out of scope;
+- required ARIADNE hosted desktop, `375px`, and `390px` rehearsal before
+  closeout because PR487A is visible owner UI.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed helper redaction, evidence-link gating, component wiring, docs, tests, and wakeup commit. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 41 focused Archive/search/navigation/import-review tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran fresh and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint ran fresh with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR487A Global Archive Result Provenance Implementation
 
 DAEDALUS implemented PR487A on 2026-07-05:
