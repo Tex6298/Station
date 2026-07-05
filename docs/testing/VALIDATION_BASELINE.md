@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495A Public Seminar Owner Readiness Gate Hosted Rehearsal Result
+
+ARIADNE completed the hosted proof on 2026-07-05:
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PASS_READY_FOR_PR495A_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API freshness was at code commit `1afa30b3` or later;
+- replay owner auth and `/studio` to `/studio/publishing` clickthrough worked;
+- the owner Seminar readiness panel passed desktop, `375px`, and `390px`
+  readability, no-overflow, no-clipped-control, readback-only, candidate,
+  route-safety, and metadata-only checks;
+- hosted readiness showed one public Space, four public-document candidates,
+  and four linked-discussion metadata states;
+- public `/events/seminars` preserved the accepted signed-out and signed-in
+  public readback behavior;
+- signed-out `/studio/publishing` remained protected;
+- no privacy leak, mobile fit defect, or product drift was found.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Chrome/CDP rehearsal | Pass | Proved owner `/studio/publishing` readiness on desktop/375px/390px, public `/events/seminars` no-drift, signed-out protection, candidate/link safety, discussion metadata-only behavior, and no privacy/product drift. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No whitespace errors. |
+
 ## PR495A Public Seminar Owner Readiness Gate Hosted Rehearsal Routing
 
 MIMIR routed the required ARIADNE hosted proof on 2026-07-05:

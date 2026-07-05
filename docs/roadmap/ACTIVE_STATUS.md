@@ -4,7 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR495A hosted rehearsal opened
+## Latest ARIADNE result - PR495A hosted rehearsal passed
+
+ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
+
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REHEARSAL_RESULT.md`
+
+State:
+
+```text
+PASS_READY_FOR_PR495A_CLOSEOUT
+```
+
+Proof:
+
+- hosted web/API freshness at code commit `1afa30b3` or later;
+- replay owner authenticated through the hosted API;
+- owner `/studio` to `/studio/publishing` clickthrough worked;
+- owner Seminar readiness panel passed desktop, `375px`, and `390px` checks;
+- hosted readback showed one public Space, four public-document candidates, and
+  four linked-discussion metadata states;
+- panel stayed readback-only with no seminar creation, schedule, RSVP, ticket,
+  payment, reminder, live-room, media, recording, transcript, provider, queue,
+  Redis, Cloudflare, billing, runtime, or launch-readiness claims;
+- candidate document links stayed on existing public document routes and Space
+  links stayed on safe public Space routes;
+- public `/events/seminars` kept the accepted public readback surface on
+  desktop, `375px`, and `390px`;
+- signed-out users could not reach `/studio/publishing` and no owner readiness
+  data leaked;
+- no privacy, mobile fit, product-scope, or broad UI drift was found.
+
+Current lane:
+
+```text
+PR495A - Public Seminar Owner Readiness Gate Closeout
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR495A_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR495A or route any final wording-only closeout work.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous MIMIR routing - PR495A hosted rehearsal opened
 
 MIMIR routed ARIADNE to run the hosted proof requested by ARGUS:
 
