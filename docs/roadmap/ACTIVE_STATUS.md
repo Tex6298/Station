@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR491A accepted for DAEDALUS
+
+ARGUS accepted a narrow second public persona fixture proof lane:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR491A_SECOND_PUBLIC_PERSONA_FIXTURE_PROOF
+```
+
+Current lane:
+
+```text
+PR491A - Public Persona Second Fixture Proof
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Accepted boundary:
+
+- do not open the owner-controlled anonymous gate yet;
+- existing hosted proof is not enough because public route discovery still
+  finds only `station-replay-alpha-persona`;
+- DAEDALUS may add one safe non-production ordinary public persona fixture,
+  preferably `station-replay-signed-in-alpha-persona`, with public-safe
+  name/shortDescription, `visibility:"public"`, and `public_chat_enabled:true`;
+- the fixture must remain `signed_in_alpha`; signed-out anonymous chat must
+  return `public_persona_auth_required`;
+- `publicPersonaChatMode` and runtime eligibility must remain unchanged, with
+  `station-replay-alpha-persona` as the only `anonymous_alpha` slug;
+- preferred implementation is a narrow idempotent fixture/proof script plus
+  focused test/docs, not a broad replay seed rerun.
+
+Validation:
+
+- `node scripts/staging-replay-seed.mjs --validate-corpus docs/ops/STAGING_REPLAY_CORPUS.example.json`
+  passed and confirmed the committed example plans one public persona, the
+  replay alpha slug.
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache.
+- `git diff --check` passed.
+
+Current baton:
+
+- DAEDALUS should implement the smallest fixture/proof path and wake ARGUS.
+- If hosted seed access is unavailable, DAEDALUS should wake MIMIR with
+  `BLOCKED_NEEDS_HOSTED_SEED_ACCESS` and the concrete missing condition, without
+  requesting or printing secrets.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR491 second public persona fixture preflight
 
 MIMIR closed PR490A/PR490B as accepted with an explicit fixture gap:
