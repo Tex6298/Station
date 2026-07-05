@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485B memory inbox preflight opened
+
+MIMIR closed PR485A after ARGUS acceptance and ARIADNE hosted rehearsal pass,
+then opened the next separately scoped Discern companion UX translation slice:
+
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR485B - Memory And Continuity Candidate Inbox Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the Memory inbox / continuity candidate inbox
+  slice.
+- Decide whether the first implementation is web-only, an existing-surface
+  panel, API hardening first, or blocked.
+- Decide route/surface, candidate source filter, whether to reuse/extract
+  review UI, shortcut implications, validation, and ARIADNE rehearsal needs.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Latest MIMIR closeout - PR485A companion shortcuts closed
+
+MIMIR closed PR485A as accepted and hosted-rehearsed:
+
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_CLOSEOUT.md`
+
+Closeout result:
+
+```text
+CLOSED_ACCEPTED_HOSTED_REHEARSED
+```
+
+Next Discern companion UX slices remain separate:
+
+- PR485B: Memory inbox / continuity candidate inbox.
+- Later: return-to-thread readback.
+- Later: companion capability/presence prompt context.
+- Later: local chat surface polish where it improves Tex without importing
+  Discern's skin.
+
 ## Latest ARIADNE verdict - PR485A hosted rehearsal passed
 
 ARIADNE completed the hosted desktop/mobile rehearsal for PR485A:
