@@ -10,6 +10,7 @@ import {
   type ImportPreviewReadback,
 } from "./import-preview";
 import {
+  importBackedCandidateInboxPath,
   importReviewCandidateLabel,
   importReviewDestinationLabel,
   importReviewEmptyCopy,
@@ -20,6 +21,14 @@ import {
   importReviewStatusLabel,
   importReviewSummary,
 } from "./import-review";
+
+test("import-backed candidate inbox path stays scoped to import candidates", () => {
+  assert.equal(
+    importBackedCandidateInboxPath("persona-1"),
+    "/conversations/persona/persona-1/candidates?source=import&status=all",
+  );
+  assert.doesNotMatch(importBackedCandidateInboxPath("persona-1"), /source=all|candidates\/inbox/);
+});
 
 test("import review helpers summarize pending, reviewed, memory, and canon candidates", () => {
   const summary = importReviewSummary([
@@ -86,6 +95,21 @@ test("import review source labels redact private identifiers and secret-shaped v
   assert.doesNotMatch(label, /https:\/\//);
   assert.doesNotMatch(label, /ghp_secret/);
   assert.doesNotMatch(label, /bearer abc123/);
+});
+
+test("memory inbox route uses existing import-backed candidate APIs only", () => {
+  const page = readFileSync("apps/web/app/studio/personas/[personaId]/memory-inbox/page.tsx", "utf8");
+  const component = readFileSync("apps/web/components/studio/import-review-inbox.tsx", "utf8");
+
+  assert.match(page, /importBackedCandidateInboxPath\(personaId\)/);
+  assert.match(page, /Memory Inbox/);
+  assert.match(page, /\/memory`\}/);
+  assert.match(page, /\/continuity`\}/);
+  assert.match(page, /\/calibration`\}/);
+  assert.match(component, /\/conversations\/candidates\/\$\{candidate\.id\}/);
+  assert.doesNotMatch(page, /source=all|\/conversations\/candidates\/inbox|sendPersonaChatWithStream|returnToThread|return-to-thread/i);
+  assert.doesNotMatch(page, /archive-connectors|source_inventory|cloudflare|redis|stripe|billing|new Queue|Worker\(|social connector|provider payload|prompt context/i);
+  assert.doesNotMatch(page, /sourceId|sourceMessageIds|storagePath|ownerUserId|persona_files|archived_chat_transcripts/i);
 });
 
 test("import preview helpers require exact preview confirmation and no-write readback", () => {

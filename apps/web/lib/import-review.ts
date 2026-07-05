@@ -19,6 +19,10 @@ export function importReviewSummary(candidates: ImportReviewCandidateLike[]) {
   };
 }
 
+export function importBackedCandidateInboxPath(personaId: string) {
+  return `/conversations/persona/${encodeURIComponent(personaId)}/candidates?source=import&status=all`;
+}
+
 export function importReviewSourceLabel(candidate: Pick<ImportReviewCandidateLike, "sourceLabel">) {
   return sanitizeImportReviewLabel(candidate.sourceLabel?.trim() || "Imported source");
 }

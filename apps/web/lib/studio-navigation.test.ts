@@ -56,11 +56,14 @@ test("Studio persona companion shortcuts expose the accepted owner routes", () =
     shortcuts.map((shortcut) => [shortcut.label, shortcut.href]),
     [
       ["Memory", "/studio/personas/persona-1/memory"],
+      ["Inbox", "/studio/personas/persona-1/memory-inbox"],
       ["Timeline", "/studio/personas/persona-1/continuity"],
       ["Profile", "/studio/personas/persona-1/edit"],
       ["Integrity", "/studio/personas/persona-1/calibration"],
     ],
   );
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.href, "/studio/personas/persona-1/memory");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.href, "/studio/personas/persona-1/memory-inbox");
   assert.equal(shortcuts.some((shortcut) => shortcut.href.includes("/conversations/candidates/inbox")), false);
   assert.equal(shortcuts.some((shortcut) => shortcut.href.startsWith("/space")), false);
 });

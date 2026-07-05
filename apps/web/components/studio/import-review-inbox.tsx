@@ -26,14 +26,17 @@ export function ImportReviewInbox({
   token,
   sourceCount,
   onCandidateUpdated,
+  copy,
 }: {
   candidates: ContinuityCandidate[];
   token: string | null;
   sourceCount: number;
   onCandidateUpdated: (candidate: ContinuityCandidate) => void | Promise<void>;
+  copy?: Partial<ImportReviewInboxCopy>;
 }) {
   const [reviewing, setReviewing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const resolvedCopy = { ...DEFAULT_IMPORT_REVIEW_INBOX_COPY, ...copy };
   const summary = importReviewSummary(candidates);
   const sorted = useMemo(
     () => [...candidates].sort((a, b) => {
@@ -68,11 +71,11 @@ export function ImportReviewInbox({
   return (
     <StudioPanel className="import-review-inbox">
       <div className="studio-section-heading">
-        <div className="section-label">Import Review</div>
-        <h2>Memory and Canon candidates</h2>
+        <div className="section-label">{resolvedCopy.eyebrow}</div>
+        <h2>{resolvedCopy.title}</h2>
       </div>
       <p className="archive-trust-copy">
-        Imported source material stays private in the archive. Accepting promotes edited candidate text; rejecting keeps the source preserved.
+        {resolvedCopy.description}
       </p>
 
       <div className="archive-trust-stats">
@@ -85,7 +88,7 @@ export function ImportReviewInbox({
       {error ? <StudioErrorState>{error}</StudioErrorState> : null}
 
       {sorted.length === 0 ? (
-        <StudioEmptyState>{importReviewEmptyCopy(sourceCount)}</StudioEmptyState>
+        <StudioEmptyState>{resolvedCopy.emptyState ?? importReviewEmptyCopy(sourceCount)}</StudioEmptyState>
       ) : (
         <div className="studio-item-list">
           {sorted.map((candidate) => (
@@ -101,6 +104,19 @@ export function ImportReviewInbox({
     </StudioPanel>
   );
 }
+
+interface ImportReviewInboxCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  emptyState?: string;
+}
+
+const DEFAULT_IMPORT_REVIEW_INBOX_COPY: ImportReviewInboxCopy = {
+  eyebrow: "Import Review",
+  title: "Memory and Canon candidates",
+  description: "Imported source material stays private in the archive. Accepting promotes edited candidate text; rejecting keeps the source preserved.",
+};
 
 function ImportCandidateCard({
   candidate,

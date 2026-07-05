@@ -26,7 +26,7 @@ export type StudioDashboardMemoryStop = {
 };
 
 export type StudioPersonaCompanionShortcut = {
-  label: "Memory" | "Timeline" | "Profile" | "Integrity";
+  label: "Memory" | "Inbox" | "Timeline" | "Profile" | "Integrity";
   href: string;
   detail: string;
 };
@@ -214,6 +214,7 @@ export function studioPersonaCompanionShortcuts(personaId: string): StudioPerson
 
   return [
     { label: "Memory", href: `${base}/memory`, detail: "Recallable context" },
+    { label: "Inbox", href: `${base}/memory-inbox`, detail: "Review candidates" },
     { label: "Timeline", href: `${base}/continuity`, detail: "Continuity records" },
     { label: "Profile", href: `${base}/edit`, detail: "Persona settings" },
     { label: "Integrity", href: `${base}/calibration`, detail: "Guided checks" },

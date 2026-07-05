@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485B Memory And Continuity Candidate Inbox Implementation
+
+DAEDALUS implemented PR485B on 2026-07-05:
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added `/studio/personas/[personaId]/memory-inbox` as a dedicated owner
+  Memory / continuity candidate inbox route;
+- loads candidates only through the existing persona-scoped import-backed API
+  query `source=import&status=all`;
+- reviews candidates through existing
+  `PATCH /conversations/candidates/:candidateId` via `ImportReviewInbox`;
+- keeps PR485A's `Memory` shortcut pointed at `/memory` and adds a separate
+  `Inbox` shortcut to `/memory-inbox`;
+- makes `ImportReviewInbox` copy configurable for the new Memory Inbox route
+  while preserving Archive/files defaults;
+- keeps PR485B web-only, with no API route, migration, AI package, prompt,
+  retrieval, provider, hosted runtime, archive connector, billing,
+  queue/worker, Redis, Cloudflare, social connector, public-write, broad shell,
+  Discern CSS, return-to-thread, `source=all`, stale
+  `/conversations/candidates/inbox`, archived-chat inbox generalization, or
+  companion presence prompt-context change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/conversation-archive.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts` | Pass | 38 API/web owner-scope, review, redaction, route, and navigation tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API cached; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Not rerun | Existing local Windows Next standalone symlink `EPERM` caveat remains build truth if rerun. |
+
 ## PR485B Memory And Continuity Candidate Inbox Preflight
 
 ARGUS accepted PR485B on 2026-07-05:
