@@ -52,6 +52,34 @@ export interface ArchiveImportJobReadback {
   boundary: string;
 }
 
+export interface ArchiveImportCandidateLike {
+  status: string;
+  candidateType?: string | null;
+}
+
+export type DocumentMigratorHandoffTarget =
+  | "document-migrator-paste-source"
+  | "document-migrator-file-import"
+  | "document-migrator-import-review"
+  | "document-migrator-archive-library";
+
+export interface DocumentMigratorHandoffRow {
+  id: "source-paths" | "import-state" | "review-candidates" | "deferred-connectors";
+  label: string;
+  value: string;
+  tone: ArchiveJobTone;
+  body: string;
+  nextAction: string;
+  target?: DocumentMigratorHandoffTarget;
+}
+
+export interface DocumentMigratorHandoffReadback {
+  title: string;
+  body: string;
+  rows: DocumentMigratorHandoffRow[];
+  boundary: string;
+}
+
 export const ARCHIVE_FILE_IMPORT_ACCEPT = ".txt,.text,.md,.markdown,.json";
 
 const ARCHIVE_FILE_IMPORT_EXTENSIONS = new Set(["txt", "text", "md", "markdown", "json"]);
@@ -257,6 +285,89 @@ export function archiveTrustSummary(files: ArchiveFileLike[], jobs: ArchiveImpor
     failedImports: jobs.filter((job) => job.status === "failed").length,
     processingImports: jobs.filter((job) => job.status === "queued" || job.status === "processing").length,
     processedFiles: files.filter((file) => file.processed).length,
+  };
+}
+
+export function documentMigratorHandoffReadback(
+  files: ArchiveFileLike[],
+  jobs: ArchiveImportJobLike[],
+  importCandidates: ArchiveImportCandidateLike[],
+): DocumentMigratorHandoffReadback {
+  const summary = archiveTrustSummary(files, jobs);
+  const readySources = summary.completedImports + summary.processedFiles;
+  const pendingCandidates = importCandidates.filter((candidate) => candidate.status === "pending").length;
+  const reviewedCandidates = importCandidates.length - pendingCandidates;
+  const hasSources = summary.totalSources > 0;
+  const hasWorkInFlight = summary.processingImports > 0;
+  const hasFailures = summary.failedImports > 0;
+
+  return {
+    title: "Document Migrator handoff",
+    body: hasSources
+      ? "This persona already has owner-only Archive state. Document Migrator can continue through source status, no-write preview, and explicit Import Review without guessing at private content."
+      : "Document Migrator lands here for owner-only source intake. Start with a no-write preview, then confirm only the source you want preserved for this persona.",
+    boundary: "Supported paths today are pasted source material, text/Markdown/JSON export files, archived chats counted separately, import jobs, and Import Review candidates. Live Reddit, Discord, OAuth, API pulls, recurring sync, automatic import, and automatic Memory/Canon promotion remain deferred.",
+    rows: [
+      {
+        id: "source-paths",
+        label: "Safe source paths",
+        value: hasSources ? `${summary.totalSources} present` : "Preview first",
+        tone: hasSources ? "good" : "info",
+        body: hasSources
+          ? "Pasted imports and uploaded files are present as private Archive material for this persona; archived chats remain a separate source family."
+          : "Use pasted source material or a text, Markdown, or JSON export file. Preview happens before any storage upload, import job, archive chunk, Memory, or Canon write.",
+        nextAction: hasSources
+          ? "Use the import library for status, or add another owner-supplied source only when needed."
+          : "Preview pasted source material or a selected file before confirming an import.",
+        target: hasSources ? "document-migrator-archive-library" : "document-migrator-paste-source",
+      },
+      {
+        id: "import-state",
+        label: "Import state",
+        value: hasFailures
+          ? `${summary.failedImports} failed`
+          : hasWorkInFlight
+            ? `${summary.processingImports} processing`
+            : `${readySources} ready`,
+        tone: hasFailures ? "danger" : hasWorkInFlight ? "warning" : readySources > 0 ? "good" : "info",
+        body: hasFailures
+          ? "At least one import failed before Station could preserve archive memory from that source; existing archive material remains safe."
+          : hasWorkInFlight
+            ? "One or more pasted or file imports are queued or processing as private Archive material."
+            : readySources > 0
+              ? "Completed pasted imports and processed files can be linked into Continuity when useful."
+              : "No completed pasted imports or processed files are ready yet.",
+        nextAction: hasFailures
+          ? "Review the failed import row and retry only with owner-supplied source material."
+          : hasWorkInFlight
+            ? "Wait for processing to finish before relying on the source in Continuity."
+            : readySources > 0
+              ? "Use the source cards for explicit Continuity linking; no automatic linking runs here."
+              : "Add a pasted source or upload an accepted export file when ready.",
+        target: hasSources ? "document-migrator-archive-library" : "document-migrator-file-import",
+      },
+      {
+        id: "review-candidates",
+        label: "Import Review",
+        value: `${pendingCandidates} pending`,
+        tone: pendingCandidates > 0 ? "warning" : importCandidates.length > 0 ? "good" : "info",
+        body: importCandidates.length > 0
+          ? `${pendingCandidates} pending and ${reviewedCandidates} reviewed import candidates are tracked for explicit owner decisions.`
+          : "No import-backed Memory or Canon candidates are waiting yet.",
+        nextAction: pendingCandidates > 0
+          ? "Review candidates before anything becomes Memory or Canon."
+          : "Use Memory Inbox only for import-backed candidate review; Archive source intake stays separate.",
+        target: "document-migrator-import-review",
+      },
+      {
+        id: "deferred-connectors",
+        label: "Deferred live connectors",
+        value: "Not active",
+        tone: "info",
+        body: "Live Reddit, Discord, OAuth, external API pulls, partner adapters, and recurring sync are not activated by this handoff.",
+        nextAction: "Use uploaded exports or pasted source material today; Archive connector readiness remains separate from Document Migrator.",
+      },
+    ],
   };
 }
 

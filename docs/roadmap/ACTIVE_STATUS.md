@@ -4,6 +4,77 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR486A ready for ARGUS review
+
+DAEDALUS implemented the accepted web/helper/test-only persona Archive handoff
+polish for Document Migrator:
+
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- added aggregate-only `documentMigratorHandoffReadback` helper copy for source
+  paths, import state, import-review state, and deferred live connectors;
+- added a compact owner-visible Document Migrator handoff panel to the existing
+  `/studio/personas/[personaId]/files` page;
+- linked only to existing rendered anchors or existing owner routes: pasted
+  source preview/import, file preview/upload, Import Review, Memory inbox,
+  Global Archive, and settings/storage;
+- preserved preview-before-confirm behavior, Import Review/Memory inbox
+  separation, Archive connector behavior, existing Archive/files fetches, and
+  onboarding route truth;
+- added focused no-drift tests for aggregate-only helper copy, safe anchors,
+  route preservation, no raw/private/secret readback, deferred live connector
+  honesty, and no placeholder-control drift;
+- no API, migration, schema, parser, import preview/import handler, storage
+  upload/register, Archive connector, provider/model, prompt/retrieval,
+  auth/session, deployment/config, package, queue/worker, Redis, Cloudflare,
+  billing, public route, broad onboarding/archive redesign, global shell style,
+  CSS, disabled/unwired button, live connector/OAuth/API pull claim, recurring
+  sync claim, automatic import claim, automatic Memory/Canon promotion, or
+  automatic continuity linking entered scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/onboarding-paths.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts`
+  passed with 45 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR486A - Document Migrator Archive Handoff Polish
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review aggregate-only helper output, existing-state-only page
+  wiring, safe links/anchors, preview-before-confirm preservation, Import
+  Review/Memory inbox separation, Archive connector no-drift, and absence of
+  private/raw/secret readback or placeholder controls.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for ARIADNE hosted
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- ARIADNE hosted desktop, `375px`, and `390px` rehearsal remains required
+  after ARGUS accepts the implementation because PR486A is visible UI.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR486A Document Migrator Archive handoff accepted
 
 ARGUS accepted PR486A as a persona Archive handoff polish lane for Document

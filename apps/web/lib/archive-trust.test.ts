@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   archiveSearchGroupCounts,
@@ -28,6 +29,7 @@ import {
   archiveTrustScopeRows,
   archiveTrustStateRows,
   archiveTrustSummary,
+  documentMigratorHandoffReadback,
   supportedImportFormatRows,
 } from "./archive-trust";
 
@@ -378,4 +380,80 @@ test("archive import source labels and readback keep generic names owner-safe", 
   assert.equal(completedDiscord.formatLabel, "Discord JSON");
   assert.match(completedDiscord.boundary, /owner-only archive material/);
   assert.match(completedDiscord.boundary, /explicit review/);
+});
+
+test("document migrator handoff summarizes archive state without private readback", () => {
+  const readback = documentMigratorHandoffReadback(
+    [{ processed: true }, { processed: false }],
+    [
+      {
+        kind: "chat",
+        status: "completed",
+        source_name: "private-source-body token=abc123 11111111-1111-4111-8111-111111111111",
+      },
+      {
+        kind: "file",
+        status: "failed",
+        source_name: "signed-upload-url=https://example.invalid/private.json",
+        error_message: "storage_path=/private/source token=abc123",
+      },
+      {
+        kind: "chat",
+        status: "processing",
+        source_name: "discord-secret-export.json",
+      },
+    ],
+    [
+      { status: "pending", candidateType: "memory" },
+      { status: "accepted", candidateType: "canon" },
+    ],
+  );
+  const rendered = JSON.stringify(readback);
+
+  assert.equal(readback.title, "Document Migrator handoff");
+  assert.deepEqual(readback.rows.map((row) => [row.id, row.value, row.tone]), [
+    ["source-paths", "4 present", "good"],
+    ["import-state", "1 failed", "danger"],
+    ["review-candidates", "1 pending", "warning"],
+    ["deferred-connectors", "Not active", "info"],
+  ]);
+  assert.match(rendered, /explicit owner decisions/);
+  assert.match(rendered, /Memory\/Canon/);
+  assert.match(rendered, /Live Reddit, Discord, OAuth/);
+  assert.match(rendered, /remain deferred/);
+  assert.doesNotMatch(rendered, /private-source-body|abc123|11111111|signed-upload-url|example\.invalid|storage_path|discord-secret-export/i);
+});
+
+test("document migrator handoff keeps empty source and deferred connector copy honest", () => {
+  const readback = documentMigratorHandoffReadback([], [], []);
+  const rendered = JSON.stringify(readback);
+  const sourceRow = readback.rows.find((row) => row.id === "source-paths");
+  const importRow = readback.rows.find((row) => row.id === "import-state");
+  const connectorRow = readback.rows.find((row) => row.id === "deferred-connectors");
+
+  assert.equal(sourceRow?.value, "Preview first");
+  assert.equal(sourceRow?.target, "document-migrator-paste-source");
+  assert.match(sourceRow?.body ?? "", /Preview happens before/);
+  assert.match(sourceRow?.body ?? "", /storage upload, import job, archive chunk, Memory, or Canon write/);
+  assert.equal(importRow?.target, "document-migrator-file-import");
+  assert.match(connectorRow?.body ?? "", /not activated/);
+  assert.doesNotMatch(rendered, /connect your|bot token|recurring sync is active|automatic import is active|automatic Memory promotion|automatic Canon promotion/i);
+});
+
+test("document migrator handoff page uses real anchors and preserves route boundaries", () => {
+  const page = readFileSync("apps/web/app/studio/personas/[personaId]/files/page.tsx", "utf8");
+
+  assert.match(page, /documentMigratorHandoffReadback\(files, jobs, importCandidates\)/);
+  assert.match(page, /<DocumentMigratorHandoffPanel readback=\{migratorHandoff\} personaId=\{persona\.id\} \/>/);
+  assert.match(page, /id="document-migrator-paste-source"/);
+  assert.match(page, /id="document-migrator-file-import"/);
+  assert.match(page, /id="document-migrator-import-review"/);
+  assert.match(page, /id="document-migrator-archive-library"/);
+  assert.match(page, /href: "#document-migrator-paste-source"/);
+  assert.match(page, /href: "#document-migrator-file-import"/);
+  assert.match(page, /href: "#document-migrator-import-review"/);
+  assert.match(page, /href: `\/studio\/personas\/\$\{personaId\}\/memory-inbox`/);
+  assert.match(page, /href: "\/studio\/archive"/);
+  assert.match(page, /href: "\/settings"/);
+  assert.doesNotMatch(page, /source=all|\/conversations\/candidates\/inbox|connect your|bot token|recurring sync is active|automatic import is active|new Queue|Worker\(|cloudflare|redis|stripe|billing|provider payload|prompt context/i);
 });

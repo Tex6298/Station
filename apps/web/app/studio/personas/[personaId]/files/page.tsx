@@ -16,10 +16,13 @@ import {
   archiveImportJobReadback,
   archiveJobStatusLabel,
   archiveJobTone,
+  documentMigratorHandoffReadback,
   archiveTrustScopeRows,
   archiveTrustStateRows,
   archiveTrustSummary,
   supportedImportFormatRows,
+  type DocumentMigratorHandoffReadback,
+  type DocumentMigratorHandoffRow,
   type ArchiveTrustScopeRow,
   type ArchiveTrustStateRow,
   type SupportedImportFormatRow,
@@ -368,6 +371,7 @@ export default function PersonaFilesPage() {
   if (!persona) return <StudioMessage tone="error">Persona not found.</StudioMessage>;
 
   const summary = archiveTrustSummary(files, jobs);
+  const migratorHandoff = documentMigratorHandoffReadback(files, jobs, importCandidates);
   const scopeRows = archiveTrustScopeRows(files, jobs, persona.continuity);
   const stateRows = archiveTrustStateRows(files, jobs);
   const supportedImportRows = supportedImportFormatRows();
@@ -381,6 +385,8 @@ export default function PersonaFilesPage() {
       <PersonaWorkspaceHeader persona={persona} />
       {error && <div className="space-form-error">{error}</div>}
       {fileImportNotice && <div className="station-notice" data-tone="success">{fileImportNotice}</div>}
+
+      <DocumentMigratorHandoffPanel readback={migratorHandoff} personaId={persona.id} />
 
       <section className="archive-trust-grid" aria-label="Archive trust status">
         <StudioPanel>
@@ -418,16 +424,18 @@ export default function PersonaFilesPage() {
         onArchiveImported={() => token ? refreshArchiveState(token, { includeExports: false }) : undefined}
       />
 
-      <ImportReviewInbox
-        candidates={importCandidates}
-        token={token}
-        sourceCount={files.length + jobs.length}
-        onCandidateUpdated={handleCandidateUpdated}
-      />
+      <section id="document-migrator-import-review" aria-label="Document Migrator Import Review handoff">
+        <ImportReviewInbox
+          candidates={importCandidates}
+          token={token}
+          sourceCount={files.length + jobs.length}
+          onCandidateUpdated={handleCandidateUpdated}
+        />
+      </section>
 
       <section className="studio-two-column">
         <div style={{ display: "grid", gap: "1rem" }}>
-          <form className="studio-editor-panel" onSubmit={importText}>
+          <form id="document-migrator-paste-source" className="studio-editor-panel" onSubmit={importText}>
             <div className="studio-section-heading">
               <div className="section-label">Archive Import</div>
               <h2>Paste source material</h2>
@@ -453,7 +461,7 @@ export default function PersonaFilesPage() {
             <div className="archive-trust-next-action">{importPreviewNoWriteCopy(canConfirmTextImport ? textPreview : null)}</div>
           </form>
 
-          <form className="studio-editor-panel" onSubmit={importFile}>
+          <form id="document-migrator-file-import" className="studio-editor-panel" onSubmit={importFile}>
             <div className="studio-section-heading">
               <div className="section-label">Archive File Import</div>
               <h2>Upload a private source file</h2>
@@ -491,7 +499,7 @@ export default function PersonaFilesPage() {
           </form>
         </div>
 
-        <section className="studio-list-panel">
+        <section id="document-migrator-archive-library" className="studio-list-panel">
           <div className="studio-section-heading">
             <div className="section-label">Archive Import Library</div>
             <h2>{formatImportSourceCount(files.length + jobs.length)}</h2>
@@ -518,6 +526,95 @@ export default function PersonaFilesPage() {
         onRefreshed={setExportPackages}
       />
     </main>
+  );
+}
+
+function DocumentMigratorHandoffPanel({
+  readback,
+  personaId,
+}: {
+  readback: DocumentMigratorHandoffReadback;
+  personaId: string;
+}) {
+  const links = [
+    {
+      label: "Preview pasted source",
+      href: "#document-migrator-paste-source",
+      detail: "No-write preview before a separate owner confirmation.",
+    },
+    {
+      label: "Preview export file",
+      href: "#document-migrator-file-import",
+      detail: "Text, Markdown, and known JSON exports only.",
+    },
+    {
+      label: "Review import candidates",
+      href: "#document-migrator-import-review",
+      detail: "Explicit owner review before Memory or Canon.",
+    },
+    {
+      label: "Open Memory inbox",
+      href: `/studio/personas/${personaId}/memory-inbox`,
+      detail: "Import-backed candidate review stays separate from Archive intake.",
+    },
+    {
+      label: "Open Global Archive",
+      href: "/studio/archive",
+      detail: "Owner-wide Archive search; persona Archive remains source intake.",
+    },
+    {
+      label: "Review storage usage",
+      href: "/settings",
+      detail: "Server-reported usage, not invented source counts.",
+    },
+  ];
+
+  return (
+    <section aria-label="Document Migrator handoff">
+      <StudioPanel>
+        <div className="studio-section-heading">
+          <div className="section-label">Document Migrator</div>
+          <h2>{readback.title}</h2>
+        </div>
+        <p className="archive-trust-copy">{readback.body}</p>
+        <div className="archive-format-grid">
+          {readback.rows.map((row) => (
+            <DocumentMigratorHandoffCard key={row.id} row={row} />
+          ))}
+        </div>
+        <div className="archive-trust-next-action">{readback.boundary}</div>
+        <div className="studio-action-row" aria-label="Document Migrator handoff links">
+          {links.map((link) => (
+            <a key={link.href} className="button" href={link.href} title={link.detail}>
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </StudioPanel>
+    </section>
+  );
+}
+
+function DocumentMigratorHandoffCard({ row }: { row: DocumentMigratorHandoffRow }) {
+  const content = (
+    <>
+      <div className="archive-format-row-header">
+        <span>{row.label}</span>
+        <StudioStatusBadge tone={row.tone}>{row.value}</StudioStatusBadge>
+      </div>
+      <p>{row.body}</p>
+      <div className="archive-format-detail">{row.nextAction}</div>
+    </>
+  );
+
+  if (!row.target) {
+    return <article className="archive-format-row">{content}</article>;
+  }
+
+  return (
+    <a className="archive-format-row" href={`#${row.target}`}>
+      {content}
+    </a>
   );
 }
 

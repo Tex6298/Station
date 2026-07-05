@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR486A Document Migrator Archive Handoff Implementation
+
+DAEDALUS implemented PR486A on 2026-07-05:
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added aggregate-only Document Migrator handoff/readiness helper copy using
+  already-loaded files, jobs, and import candidates;
+- added the compact handoff panel to the existing persona Archive/files page;
+- linked only to existing rendered anchors or existing owner routes;
+- preserved preview-before-confirm behavior, Import Review/Memory inbox
+  separation, Archive connector behavior, onboarding route truth, and existing
+  Archive/files fetches;
+- added focused no-drift tests for helper safety, real anchors, route
+  preservation, no raw/private/secret readback, deferred connector honesty, and
+  no placeholder-control drift;
+- kept APIs, migrations, schema, parsers, import preview/import handlers,
+  storage upload/register behavior, Archive connector behavior, provider/model
+  packages, prompts, retrieval, auth/session, deployment/config, package files,
+  queues/workers, Redis, Cloudflare, billing, public routes, broad
+  onboarding/archive redesign, global shell styling, CSS, private source
+  readback, live connector/OAuth/API pull claims, recurring sync claims,
+  automatic import claims, automatic Memory/Canon promotion, and automatic
+  continuity linking out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/onboarding-paths.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts` | Pass | 45 focused Archive/onboarding/import-review/navigation tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR486A Document Migrator Archive Handoff Preflight
 
 ARGUS accepted PR486A on 2026-07-05:
