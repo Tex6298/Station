@@ -4,6 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR489A accepted for ARIADNE routing
+
+ARGUS accepted DAEDALUS' PR489A implementation without a review patch:
+
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR489A_ASSISTANT_NEXT_STEP_LAUNCHER_IMPLEMENTATION
+```
+
+Current lane:
+
+```text
+PR489A - Station Assistant Next-Step Launcher
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_READY_FOR_ARIADNE_ROUTING
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted desktop/375px/390px rehearsal for
+  `/studio/assistant` before closeout because PR489A changes visible owner UI.
+- Rehearsal should cover signed-in loaded state, empty/no-urgent state if
+  available, pending import or Memory-inbox state if available,
+  failed/processing import state if safely available, export/publishing action
+  evidence if available, archive/publish/export/job-status question flows,
+  owner-safe routes, mobile fit, and no private/raw/secret/public/
+  live-connector/worker/queue/autonomy/placeholder-control drift.
+- ARGUS accepted that the implementation stayed inside the existing Assistant
+  service/UI/helper/test boundary, added no backend route contracts or infra,
+  preserved PR488's queue-capable blocker, and kept Assistant operational
+  rather than autonomous.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR489A ready for ARGUS review
 
 DAEDALUS implemented the accepted PR489A Station Assistant launcher slice:

@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR489A Station Assistant Next-Step Launcher ARGUS Review
+
+ARGUS accepted PR489A on 2026-07-05:
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR489A_ASSISTANT_NEXT_STEP_LAUNCHER_IMPLEMENTATION`.
+
+Reason:
+
+- pending imported Memory/Canon candidates route to the existing persona Memory
+  inbox when a known persona is available;
+- Assistant actions stay on existing owner-safe setup, Archive/files, Global
+  Archive, export, publishing, and settings/quota routes;
+- API reply actions and web-visible launcher actions filter unsafe route drift,
+  including background-job web pages, Discover/public search, OAuth/connectors,
+  billing, queues/workers, Redis, Cloudflare, provider/model, and social
+  routes;
+- job wording is honest about protected-alpha inline fallback and owner
+  status/readback while queue-capable workers remain blocked;
+- labels/details/statuses get stronger redaction for URLs, storage URLs,
+  JWT-shaped tokens, common secret prefixes, UUID-shaped ids, database/storage
+  labels, stack traces, SQL details, provider payloads, and parser internals;
+- no backend route contract, migration, schema, auth/session, deployment/config,
+  package, provider/model, AI prompt/retrieval system, import/export behavior,
+  publishing mutation, billing, worker, queue, Redis, Cloudflare, connector,
+  OAuth, social, public Assistant, public search, Discover, or broad Studio
+  shell work entered scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed DAEDALUS diff, result doc, changed Assistant service/UI/helpers/tests, route filters, Memory inbox routing, job copy, redaction, publishing boundaries, active status, lane index, and validation baseline. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/web/lib/station-assistant-ui.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/import-review.test.ts` | Pass | 87 focused Assistant/job/navigation/Archive/export/publishing/import-review tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from fresh cache misses. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from a fresh cache miss with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state receipt. |
+
 ## PR489A Station Assistant Next-Step Launcher Implementation
 
 DAEDALUS implemented PR489A on 2026-07-05:
