@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   SIGNED_MOBILE_TOP_NAV_MENU_ROUTES,
@@ -7,6 +8,7 @@ import {
   studioRouteContext,
   studioPersonaHref,
   studioPersonaMeta,
+  studioPersonaCompanionShortcuts,
   studioDashboardMemoryStop,
   studioPersonaWorkspacePrimaryActions,
   studioPersonaWorkspaceTabs,
@@ -45,6 +47,33 @@ test("Studio persona workspace exposes Memory as a primary owner action", () => 
   assert.equal(actions[0]?.href, "/studio/personas/persona-1/memory");
   assert.match(actions[0]?.detail ?? "", /lifecycle/);
   assert.equal(actions.some((action) => action.href.startsWith("/space")), false);
+});
+
+test("Studio persona companion shortcuts expose the accepted owner routes", () => {
+  const shortcuts = studioPersonaCompanionShortcuts("persona-1");
+
+  assert.deepEqual(
+    shortcuts.map((shortcut) => [shortcut.label, shortcut.href]),
+    [
+      ["Memory", "/studio/personas/persona-1/memory"],
+      ["Timeline", "/studio/personas/persona-1/continuity"],
+      ["Profile", "/studio/personas/persona-1/edit"],
+      ["Integrity", "/studio/personas/persona-1/calibration"],
+    ],
+  );
+  assert.equal(shortcuts.some((shortcut) => shortcut.href.includes("/conversations/candidates/inbox")), false);
+  assert.equal(shortcuts.some((shortcut) => shortcut.href.startsWith("/space")), false);
+});
+
+test("Studio persona page renders companion shortcuts without broad companion drift", () => {
+  const pageSource = readFileSync("apps/web/app/studio/personas/[personaId]/page.tsx", "utf8");
+  const cssSource = readFileSync("apps/web/app/globals.css", "utf8");
+
+  assert.match(pageSource, /CompanionShortcutStrip/);
+  assert.match(pageSource, /studioPersonaCompanionShortcuts\(personaId\)/);
+  assert.match(pageSource, /aria-label="Companion workspace shortcuts"/);
+  assert.match(cssSource, /\.studio-companion-shortcuts/);
+  assert.doesNotMatch(pageSource, /sendPersonaChatWithStream|returnToThread|return-to-thread|candidates\/inbox|archive-connectors|source_inventory/i);
 });
 
 test("Studio dashboard Memory stop routes owners into persona Memory", () => {

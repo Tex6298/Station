@@ -4,65 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR485A companion home shortcuts accepted
+## Latest DAEDALUS implementation - PR485A ready for ARGUS review
 
-ARGUS accepted the first Discern companion UX translation slice:
+DAEDALUS implemented the first Discern companion UX translation slice:
 
-`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_RESULT.md`
 
 Validation result:
 
 ```text
-ACCEPT_PR485A_COMPANION_HOME_SHORTCUTS
+READY_FOR_ARGUS_REVIEW
 ```
 
-Accepted boundary:
+Implemented boundary:
 
-- add a compact owner-visible shortcut strip on the existing persona home/chat
-  surface;
-- link Memory to `/studio/personas/[personaId]/memory`;
-- link Timeline to `/studio/personas/[personaId]/continuity`;
-- link Profile to `/studio/personas/[personaId]/edit`;
-- link Integrity to `/studio/personas/[personaId]/calibration`;
-- keep the first slice web-only with no API, migration, prompt, retrieval,
+- added a compact owner-visible shortcut strip above private chat on
+  `/studio/personas/[personaId]`;
+- the strip links Memory to `/studio/personas/[personaId]/memory`;
+- the strip links Timeline to `/studio/personas/[personaId]/continuity`;
+- the strip links Profile to `/studio/personas/[personaId]/edit`;
+- the strip links Integrity to `/studio/personas/[personaId]/calibration`;
+- shortcut descriptors live in `studioPersonaCompanionShortcuts(personaId)` and
+  render with ordinary `next/link` links;
+- no new fetch was added;
+- the first slice stayed web-only with no API, migration, prompt, retrieval,
   provider, hosted runtime, archive connector, billing, queue, worker,
-  Cloudflare, Redis, social connector, public-write, or broad shell changes;
-- preserve Tex streaming chat, provider setup/error behavior, token accounting,
-  runtime/retrieval privacy, existing persona panels, and scoped Tex visual
-  language;
+  Cloudflare, Redis, social connector, public-write, global-shell, Discern CSS,
+  or broad reskin changes;
 - defer Memory inbox, return-to-thread changes, and companion presence prompt
   context to later numbered lanes.
 
 Validation:
 
-- Route/readback focused tests passed with 24 tests.
+- Route/readback focused tests passed with 26 tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed.
-- `git diff --check` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR485A; the
+  known local Windows Next standalone symlink `EPERM` caveat remains the build
+  truth if build is rerun.
 
 Current lane:
 
 ```text
 PR485A - Companion Home Shortcuts
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the exact web-only shortcut strip on the existing
-  owner persona home/chat surface.
-- If DAEDALUS creates a shortcut helper, focused tests should assert the four
-  labels and route targets.
+- ARGUS should review the four route targets, owner-visible placement, scoped
+  CSS, and no-drift tests.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout/routing.
 - After ARGUS accepts the implementation, MIMIR should route ARIADNE for hosted
   desktop and `375px`/`390px` mobile rehearsal because the persona home surface
   changes visibly.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR routing - PR485 Discern companion UX translation opened

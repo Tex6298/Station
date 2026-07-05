@@ -8,6 +8,7 @@ import type { PersonaSummary } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
 import { personaEncounterContractCanRenderForOwner } from "@/lib/persona-encounter-contract";
+import { studioPersonaCompanionShortcuts } from "@/lib/studio-navigation";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
 import { PersonaChat } from "@/components/studio/persona-chat";
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
@@ -104,6 +105,7 @@ export default function PersonaPage() {
             <div className="section-label">Private Chat</div>
             <h2>Work with {persona.name}</h2>
           </div>
+          <CompanionShortcutStrip personaId={persona.id} />
           <PersonaChat personaId={persona.id} personaName={persona.name} />
         </div>
 
@@ -132,6 +134,21 @@ export default function PersonaPage() {
       />
       <PublishedContinuityHistory documents={documents} />
     </main>
+  );
+}
+
+function CompanionShortcutStrip({ personaId }: { personaId: string }) {
+  const shortcuts = studioPersonaCompanionShortcuts(personaId);
+
+  return (
+    <nav className="studio-companion-shortcuts" aria-label="Companion workspace shortcuts">
+      {shortcuts.map((shortcut) => (
+        <Link key={shortcut.href} href={shortcut.href} className="studio-companion-shortcut">
+          <span>{shortcut.label}</span>
+          <small>{shortcut.detail}</small>
+        </Link>
+      ))}
+    </nav>
   );
 }
 

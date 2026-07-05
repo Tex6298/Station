@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485A Companion Home Shortcuts Implementation
+
+DAEDALUS implemented PR485A on 2026-07-05:
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added a compact owner-visible `Companion workspace shortcuts` strip above
+  private chat on `/studio/personas/[personaId]`;
+- mapped Memory, Timeline, Profile, and Integrity to existing Tex owner routes:
+  `/memory`, `/continuity`, `/edit`, and `/calibration`;
+- used `studioPersonaCompanionShortcuts(personaId)` for route descriptors and
+  ordinary `next/link` links for rendering;
+- added no new fetch and left `PersonaChat`, provider setup/error behavior,
+  token accounting, runtime context preview, and existing persona panels
+  untouched;
+- kept PR485A web-only, with no API, migration, prompt, retrieval, provider,
+  hosted runtime, archive connector, billing, queue/worker, Cloudflare/Redis,
+  social connector, public-write, broad shell, Discern CSS, Memory inbox,
+  return-to-thread, or companion presence prompt-context change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts` | Pass | 26 route/readback tests passed, including the four accepted shortcut labels/targets and static no-drift guard. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API cached; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Not rerun | Existing local Windows Next standalone symlink `EPERM` caveat remains build truth if rerun. |
+
 ## PR485A Companion Home Shortcuts Preflight
 
 ARGUS accepted PR485A on 2026-07-05:

@@ -25,6 +25,12 @@ export type StudioDashboardMemoryStop = {
   privacy: string;
 };
 
+export type StudioPersonaCompanionShortcut = {
+  label: "Memory" | "Timeline" | "Profile" | "Integrity";
+  href: string;
+  detail: string;
+};
+
 export const studioPublicLinks = [
   { label: "Blog Posts", href: "/studio/publishing", mark: "B" },
   { label: "Public Space", href: "/space", mark: "P" },
@@ -200,6 +206,17 @@ export function studioPersonaWorkspacePrimaryActions(personaId: string) {
       ? [{ label: "Open Memory", href: memoryTab.href, detail: memoryTab.detail }]
       : []),
     { label: "Ask Assistant", href: "/studio/assistant", detail: "Operational helper for Studio work" },
+  ];
+}
+
+export function studioPersonaCompanionShortcuts(personaId: string): StudioPersonaCompanionShortcut[] {
+  const base = `/studio/personas/${personaId}`;
+
+  return [
+    { label: "Memory", href: `${base}/memory`, detail: "Recallable context" },
+    { label: "Timeline", href: `${base}/continuity`, detail: "Continuity records" },
+    { label: "Profile", href: `${base}/edit`, detail: "Persona settings" },
+    { label: "Integrity", href: `${base}/calibration`, detail: "Guided checks" },
   ];
 }
 

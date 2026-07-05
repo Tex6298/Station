@@ -2474,6 +2474,44 @@ html, body {
   font-size: 1.3rem;
 }
 
+.studio-companion-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0 0 0.9rem;
+}
+
+.studio-companion-shortcut {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  min-height: 70px;
+  padding: 0.75rem;
+  border: 1px solid #253044;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  text-decoration: none;
+}
+
+.studio-companion-shortcut span,
+.studio-companion-shortcut small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.studio-companion-shortcut span {
+  color: #7dd3fc;
+  font-size: 0.82rem;
+  font-weight: 760;
+}
+
+.studio-companion-shortcut small {
+  color: #93a4ba;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .studio-context-panel,
 .studio-editor-panel,
 .studio-list-panel {
@@ -3155,6 +3193,7 @@ html, body {
   .archive-trust-grid,
   .archive-trust-stats,
   .import-review-readback,
+  .studio-companion-shortcuts,
   .studio-home-grid,
   .studio-two-column,
   .studio-timeline-layout,
