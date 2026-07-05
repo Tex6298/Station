@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR485B memory inbox accepted
+
+ARGUS accepted the next Discern companion UX translation slice:
+
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485B_WEB_ONLY_MEMORY_INBOX
+```
+
+Accepted boundary:
+
+- add `/studio/personas/[personaId]/memory-inbox` as a dedicated owner Memory /
+  continuity candidate inbox route;
+- list candidates through the existing persona-scoped candidate API with
+  `source=import&status=all`;
+- review candidates through existing `PATCH /conversations/candidates/:candidateId`;
+- keep `source=all`, archived-chat candidate generalization, and API/DTO
+  hardening for later lanes;
+- keep PR485A's Memory shortcut pointed at `/memory`; add a separate Inbox link
+  only if route discoverability needs it and tests prove fit;
+- reuse/configure `ImportReviewInbox` or extract a small shared continuity
+  candidate inbox component without changing Archive/files behavior;
+- no API, migration, AI package, prompt, retrieval, provider, hosted runtime,
+  archive connector, billing, queue/worker, Redis, Cloudflare, social
+  connector, public-write, broad shell, Discern CSS, return-to-thread, or
+  companion presence prompt-context changes.
+
+Validation:
+
+- Conversation archive / import review / studio navigation focused suite passed
+  with 36 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485B - Memory And Continuity Candidate Inbox
+Owner: DAEDALUS / A2
+State: OPEN_FOR_WEB_ONLY_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact web-only import-backed Memory inbox
+  route using existing candidate APIs.
+- If DAEDALUS finds the route requires API hardening or `source=all`, stop and
+  wake MIMIR instead of broadening scope.
+- After ARGUS accepts implementation, MIMIR should route ARIADNE for hosted
+  desktop and `375px`/`390px` mobile rehearsal because a visible owner route
+  changes.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR485B memory inbox preflight opened
 
 MIMIR closed PR485A after ARGUS acceptance and ARIADNE hosted rehearsal pass,

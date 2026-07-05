@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR485B | Memory And Continuity Candidate Inbox Preflight | ARGUS / A3 | Open; hostile-preflight the next Discern companion UX slice. Decide route/surface, web-only vs API hardening, candidate source filter, review UI reuse/extraction, shortcut implications, validation, and ARIADNE rehearsal needs before DAEDALUS builds. | `docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_PREFLIGHT_ARGUS.md` |
+| PR485B | Memory And Continuity Candidate Inbox | DAEDALUS / A2 | Open for web-only implementation; add `/studio/personas/[personaId]/memory-inbox` as an import-backed owner Memory/Canon candidate inbox using existing candidate list/review APIs with `source=import&status=all`. No API changes, `source=all`, Discern inbox endpoint, prompt/retrieval/provider/runtime work, archive connector behavior, infra, public writes, broad shell, or Discern CSS. | `docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR485B preflight | Memory And Continuity Candidate Inbox | MIMIR -> ARGUS -> DAEDALUS | Accepted web-only first slice; implement `/memory-inbox` over existing persona-scoped import-backed candidate list/review APIs, keep Memory shortcut on `/memory`, forbid `source=all` and Discern's stale inbox endpoint, and require ARIADNE hosted desktop/mobile rehearsal after ARGUS accepts implementation | `docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_PREFLIGHT_RESULT.md` |
 | PR485A closeout | Companion Home Shortcuts | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted and hosted-rehearsed; compact owner shortcut strip passed desktop, 375px, and 390px proof, routes Memory/Timeline/Profile/Integrity to accepted existing owner routes, preserves private chat and existing persona panels, and contains no Memory inbox, return-to-thread, prompt/presence, archive connector, infra, public-write, broad shell, or Discern CSS drift | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_CLOSEOUT.md` |
 | PR485A rehearsal | Companion Home Shortcuts Hosted Rehearsal | ARIADNE -> MIMIR | Passed; hosted web/API commit `93716a5b` rendered the accepted shortcut strip on desktop, 375px, and 390px with no overflow, clipped labels, broken touch targets, private/secret-shaped leakage, or unrelated scope drift | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REHEARSAL_RESULT.md` |
 | PR485A review | Companion Home Shortcuts | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS patch; owner persona home/chat shortcut strip uses exact existing Memory, Continuity-as-Timeline, Edit-as-Profile, and Integrity routes, scoped CSS, no new fetch, focused static tests, and no API/provider/prompt/retrieval/runtime/global-shell drift; ARIADNE hosted desktop/mobile rehearsal opened before final closeout | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REVIEW_RESULT.md` |

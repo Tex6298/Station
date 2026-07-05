@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485B Memory And Continuity Candidate Inbox Preflight
+
+ARGUS accepted PR485B on 2026-07-05:
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR485B_WEB_ONLY_MEMORY_INBOX`.
+
+Reason:
+
+- accepted a dedicated owner `/studio/personas/[personaId]/memory-inbox` route
+  over existing persona-scoped candidate APIs;
+- kept the first inbox import-backed with `source=import&status=all`, while
+  deferring `source=all`, archived-chat candidate generalization, and API/DTO
+  hardening;
+- required existing `PATCH /conversations/candidates/:candidateId` for
+  explicit owner accept/reject with editable title/content;
+- kept PR485A's Memory shortcut pointed at `/memory`; a separate Inbox link is
+  allowed only for discoverability with focused fit/static tests;
+- forbade API changes, Discern's stale `/conversations/candidates/inbox`
+  endpoint, migrations, AI package, prompt/retrieval/provider/runtime changes,
+  archive connector behavior, billing, queue/worker, Redis, Cloudflare, social
+  connector, public writes, broad shell work, Discern CSS, return-to-thread,
+  and companion presence prompt context.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code and handoff inspection | Pass | Reviewed PR485B handoff, candidate list/review APIs, ImportReviewInbox, import-review helpers/tests, PR485A shortcut state, and conversation-archive candidate coverage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/conversation-archive.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts` | Pass | 36 API/web owner-scope, review, redaction, and navigation tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors after doc updates; CRLF normalization warnings only. |
+
 ## PR485A Companion Home Shortcuts Hosted Rehearsal
 
 ARIADNE completed the hosted PR485A rehearsal on 2026-07-05:
