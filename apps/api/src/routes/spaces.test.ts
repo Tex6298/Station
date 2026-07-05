@@ -120,6 +120,7 @@ class InMemorySupabase {
       row.short_description ??= null;
       row.public_slug ??= null;
       row.public_chat_enabled ??= false;
+      row.public_anonymous_chat_enabled ??= false;
       row.visibility ??= "private";
       row.provider ??= null;
       row.avatar_url ??= null;
@@ -589,6 +590,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       visibility: "public",
       public_slug: "public-persona",
       public_chat_enabled: true,
+      public_anonymous_chat_enabled: true,
       provider: "openai",
       long_description: "Owner-only setup material.",
       awakening_prompt: "Owner-only awakening prompt.",
@@ -615,12 +617,14 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       publicSlug: "public-persona",
       publicChat: {
         enabled: true,
-        mode: "signed_in_alpha",
+        mode: "anonymous_alpha",
       },
     }]);
     const publicPersonasJson = JSON.stringify(publicDetail.body.personas);
     assert.equal(publicPersonasJson.includes("owner-user"), false);
     assert.equal(publicPersonasJson.includes("provider"), false);
+    assert.equal(publicPersonasJson.includes("public_anonymous_chat_enabled"), false);
+    assert.equal(publicPersonasJson.includes("publicAnonymousChatEnabled"), false);
     assert.equal(publicPersonasJson.includes("long_description"), false);
     assert.equal(publicPersonasJson.includes("awakening_prompt"), false);
     assert.equal(publicPersonasJson.includes("style_notes"), false);

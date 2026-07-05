@@ -417,6 +417,7 @@ export interface Database {
           avatar_url: string | null;
           public_slug: string | null;
           public_chat_enabled: boolean;
+          public_anonymous_chat_enabled: boolean;
           visibility: Visibility;
           provider: Provider;
           awakening_prompt: string | null;
@@ -425,10 +426,11 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["personas"]["Row"], "id" | "public_slug" | "public_chat_enabled" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["personas"]["Row"], "id" | "public_slug" | "public_chat_enabled" | "public_anonymous_chat_enabled" | "created_at" | "updated_at"> & {
           id?: string;
           public_slug?: string | null;
           public_chat_enabled?: boolean;
+          public_anonymous_chat_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };

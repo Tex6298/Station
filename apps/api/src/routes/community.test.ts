@@ -768,6 +768,7 @@ function persona(id: string, ownerUserId: string, name: string, visibility: stri
     visibility,
     public_slug: visibility === "public" ? name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : null,
     public_chat_enabled: false,
+    public_anonymous_chat_enabled: false,
     provider: "platform",
     created_at: "2026-05-25T09:00:00.000Z",
     updated_at: "2026-05-25T09:00:00.000Z",
@@ -4421,6 +4422,12 @@ test("Discover search returns routeable eligible public persona cards only", asy
       public_slug: "member-persona",
     });
     db.insertRow("personas", {
+      ...persona("77777777-7777-4777-8777-777777777776", OWNER_ID, "Anonymous Public Persona", "public"),
+      public_slug: "anonymous-public-persona",
+      public_chat_enabled: true,
+      public_anonymous_chat_enabled: true,
+    });
+    db.insertRow("personas", {
       ...persona("77777777-7777-4777-8777-777777777775", OWNER_ID, "Unsafe UUID Persona", "public"),
       public_slug: "550e8400-e29b-41d4-a716-446655440000",
     });
@@ -4429,7 +4436,7 @@ test("Discover search returns routeable eligible public persona cards only", asy
     assert.equal(visitorSearch.status, 200);
     assert.deepEqual(
       visitorSearch.body.personas.map((row: Row) => row.name).sort(),
-      ["Other Persona", "Public Persona"]
+      ["Anonymous Public Persona", "Other Persona", "Public Persona"]
     );
 
     const publicPersona = visitorSearch.body.personas.find((row: Row) => row.name === "Public Persona");
@@ -4444,6 +4451,11 @@ test("Discover search returns routeable eligible public persona cards only", asy
         mode: "signed_in_alpha",
       },
     });
+    const anonymousPersona = visitorSearch.body.personas.find((row: Row) => row.name === "Anonymous Public Persona");
+    assert.deepEqual(anonymousPersona.publicChat, {
+      enabled: true,
+      mode: "anonymous_alpha",
+    });
 
     const responseJson = JSON.stringify(visitorSearch.body.personas);
     for (const forbidden of [
@@ -4455,6 +4467,8 @@ test("Discover search returns routeable eligible public persona cards only", asy
       "owner_user_id",
       "visibility",
       "provider",
+      "public_anonymous_chat_enabled",
+      "publicAnonymousChatEnabled",
       "Member Persona",
       "Unsafe UUID Persona",
       "550e8400-e29b-41d4-a716-446655440000",

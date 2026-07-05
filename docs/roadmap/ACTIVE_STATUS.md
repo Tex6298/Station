@@ -4,6 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR492A ready for ARGUS review
+
+DAEDALUS implemented the owner-controlled anonymous public chat gate:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- added `personas.public_anonymous_chat_enabled boolean not null default false`;
+- added API patch field `publicAnonymousChatEnabled`;
+- kept `public_chat_enabled` as the base public chat enable/disable and
+  rollback switch;
+- non-replay anonymous alpha now requires the separate default-off owner gate;
+- `station-replay-alpha-persona` remains the legacy replay anonymous alpha
+  slug;
+- owner/admin readback exposes bounded owner gate state and safe blocker copy;
+- public persona, Space, Discover, and roulette card serialization use the new
+  mode source without exposing the raw owner gate;
+- Studio persona management has a scoped owner checkbox for the new gate;
+- no provider/model routing, prompt architecture, token attribution, public
+  reporting/moderation, billing, worker, queue, Redis, Cloudflare, connector,
+  OAuth, social dispatch, or broad UI changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/spaces.test.ts`
+  passed with 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/community.test.ts`
+  passed with 27 tests for Discover serialization coverage.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed with fresh cache misses.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with no warnings or errors.
+- `git diff --check` passed.
+
+Current baton:
+
+- ARGUS should review PR492A against owner scope, default-off gate, rollback,
+  public card/readback no-leak, fail-closed runtime, source/persistence
+  boundaries, and forbidden-scope drift.
+- If accepted, ARGUS should wake MIMIR to route ARIADNE hosted
+  desktop/`375px`/`390px` proof.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS result - PR492A owner-controlled anonymous gate accepted
 
 ARGUS accepted the PR492A hostile preflight:

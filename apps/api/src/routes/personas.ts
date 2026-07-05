@@ -70,6 +70,7 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.extend({
   publicChatEnabled: z.boolean().optional(),
+  publicAnonymousChatEnabled: z.boolean().optional(),
   skipIntegrityPreflight: z.boolean().optional(),
 }).partial();
 
@@ -230,7 +231,7 @@ async function loadPublicPersonaRouletteRows(limit: number, seed: string) {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("personas")
-    .select("id, name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, created_at")
+    .select("id, name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, public_anonymous_chat_enabled, created_at")
     .eq("visibility", "public")
     .order("created_at", { ascending: false })
     .limit(PUBLIC_PERSONA_ROULETTE_POOL_LIMIT);
@@ -880,7 +881,7 @@ async function loadPublicPersonaInteractionReadback(
   }
 
   const publicSlug = isSafePublicPersonaSlug(persona.public_slug) ? persona.public_slug : null;
-  const publicChatMode = publicPersonaChatMode(publicSlug);
+  const publicChatMode = publicPersonaChatMode(persona);
   const href = persona.visibility === "public" && publicEligibility.eligible
     ? publicPersonaRouteHref(publicSlug)
     : null;
@@ -890,6 +891,7 @@ async function loadPublicPersonaInteractionReadback(
     publicChat: {
       enabled: Boolean(persona.public_chat_enabled),
       mode: publicChatMode,
+      anonymousOwnerGateEnabled: Boolean(persona.public_anonymous_chat_enabled),
       ownerPaid: true,
       transcriptStored: false,
       tokenAttribution: "not_available_without_event_retention",
@@ -968,7 +970,7 @@ function publicPersonaAnonymousEligibilityReadback(input: {
     return blocked("disabled_chat", "Owner has public chat disabled; this is the rollback control.");
   }
   if (input.publicChatMode !== "anonymous_alpha") {
-    return blocked("signed_in_only_policy", "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.");
+    return blocked("owner_gate_disabled", "Owner has not enabled anonymous public chat for this persona; it remains signed-in alpha.");
   }
   if (!input.rateLimitAvailable) {
     return blocked("rate_limit_unavailable", "Fail-closed anonymous rate limiting is unavailable.");
@@ -986,13 +988,16 @@ function publicPersonaAnonymousEligibilityReadback(input: {
 }
 
 function baseAnonymousEligibility(input: {
+  publicSlug: string | null;
   publicChatMode: "signed_in_alpha" | "anonymous_alpha";
   providerAvailable: boolean;
   rateLimitAvailable: boolean;
 }): PublicPersonaInteractionReadback["publicChat"]["anonymousEligibility"] {
   return {
     available: false,
-    policy: "replay_alpha_slug_only",
+    policy: input.publicSlug === "station-replay-alpha-persona"
+      ? "replay_alpha_compatibility"
+      : "owner_controlled_alpha",
     mode: input.publicChatMode,
     blockerCode: "available",
     blocker: null,
@@ -1040,7 +1045,7 @@ personasRouter.post("/public/:publicSlug/chat", optionalAuth, async (req, res) =
   const sb = getSupabaseAdmin();
   const persona = await loadEligiblePublicPersonaBySlug(
     req.params.publicSlug,
-    "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled"
+    "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, public_anonymous_chat_enabled"
   );
   if (!persona) return res.status(404).json({ error: "Public persona not found." });
 
@@ -1051,7 +1056,7 @@ personasRouter.post("/public/:publicSlug/chat", optionalAuth, async (req, res) =
     });
   }
 
-  const chatMode = publicPersonaChatMode(persona.public_slug);
+  const chatMode = publicPersonaChatMode(persona);
   if (!req.user && chatMode !== "anonymous_alpha") {
     return res.status(401).json({
       error: "Sign in to use public persona chat.",
@@ -1246,7 +1251,7 @@ personasRouter.get("/public/:publicSlug", async (req, res) => {
   try {
     const data = await withPublicPersonaRouteRead(() => loadEligiblePublicPersonaBySlug(
       req.params.publicSlug,
-      "name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled"
+      "name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, public_anonymous_chat_enabled"
     ));
     if (!data) return res.status(404).json({ error: "Public persona not found." });
 
@@ -1278,6 +1283,7 @@ function serializePersona(
     awakeningPrompt: row.awakening_prompt,
     styleNotes: row.style_notes,
     publicChatEnabled: Boolean(row.public_chat_enabled),
+    publicAnonymousChatEnabled: Boolean(row.public_anonymous_chat_enabled),
     sortOrder: row.sort_order,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -1504,7 +1510,7 @@ personasRouter.get("/", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("personas")
-    .select("id, name, short_description, visibility, provider, avatar_url, public_chat_enabled, sort_order, created_at")
+    .select("id, name, short_description, visibility, provider, avatar_url, public_chat_enabled, public_anonymous_chat_enabled, sort_order, created_at")
     .eq("owner_user_id", req.user!.id)
     .order("sort_order", { ascending: true });
 
@@ -1710,7 +1716,7 @@ personasRouter.patch("/:id", async (req, res) => {
 
   const { data: existing } = await sb
     .from("personas")
-    .select("id, name, owner_user_id, visibility, public_slug, public_chat_enabled")
+    .select("id, name, owner_user_id, visibility, public_slug, public_chat_enabled, public_anonymous_chat_enabled")
     .eq("id", req.params.id)
     .single();
 
@@ -1786,6 +1792,29 @@ personasRouter.patch("/:id", async (req, res) => {
     updatePayload.public_chat_enabled = true;
   } else if (parsed.data.publicChatEnabled === false || !willBePublic) {
     updatePayload.public_chat_enabled = false;
+    updatePayload.public_anonymous_chat_enabled = false;
+  }
+
+  const nextPublicChatEnabled = updatePayload.public_chat_enabled !== undefined
+    ? Boolean(updatePayload.public_chat_enabled)
+    : Boolean(existing.public_chat_enabled);
+  if (parsed.data.publicAnonymousChatEnabled === true) {
+    if (!willBePublic) {
+      return res.status(409).json({ error: "Anonymous public chat can only be enabled for public personas." });
+    }
+    if (!nextPublicChatEnabled) {
+      return res.status(409).json({ error: "Anonymous public chat requires public chat to be enabled." });
+    }
+    if (!isSafePublicPersonaSlug(nextPublicSlug)) {
+      return res.status(409).json({ error: "Anonymous public chat requires a safe public persona slug." });
+    }
+    const eligible = await ownerCanExposeExistingPublicPersonas(sb, req.user!.id);
+    if (!eligible) {
+      return res.status(403).json({ error: "Your tier does not allow anonymous public persona chat." });
+    }
+    updatePayload.public_anonymous_chat_enabled = true;
+  } else if (parsed.data.publicAnonymousChatEnabled === false) {
+    updatePayload.public_anonymous_chat_enabled = false;
   }
 
   const { data, error } = await sb

@@ -131,12 +131,27 @@ function hasSecretAvatarQuery(url: URL) {
 export function publicPersonaChatCapability(row: any): PublicPersonaChatCapability {
   return {
     enabled: Boolean(row.public_chat_enabled),
-    mode: publicPersonaChatMode(row.public_slug),
+    mode: publicPersonaChatMode(row),
   };
 }
 
-export function publicPersonaChatMode(publicSlug: string | null | undefined): PublicPersonaChatCapability["mode"] {
+export function publicPersonaChatMode(
+  input: string | null | undefined | {
+    public_slug?: string | null;
+    publicSlug?: string | null;
+    public_anonymous_chat_enabled?: boolean | null;
+    publicAnonymousChatEnabled?: boolean | null;
+  }
+): PublicPersonaChatCapability["mode"] {
+  const publicSlug = typeof input === "object" && input !== null
+    ? input.public_slug ?? input.publicSlug
+    : input;
+  const anonymousGate = typeof input === "object" && input !== null
+    ? Boolean(input.public_anonymous_chat_enabled ?? input.publicAnonymousChatEnabled)
+    : false;
+
   return publicSlug === ANONYMOUS_PUBLIC_PERSONA_CHAT_SLUG
+    || anonymousGate
     ? "anonymous_alpha"
     : "signed_in_alpha";
 }

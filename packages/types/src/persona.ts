@@ -33,6 +33,7 @@ export interface PublicPersonaChatCapability {
 export type PublicPersonaAnonymousEligibilityBlockerCode =
   | "available"
   | "disabled_chat"
+  | "owner_gate_disabled"
   | "signed_in_only_policy"
   | "private_visibility"
   | "owner_tier_ineligible"
@@ -42,7 +43,7 @@ export type PublicPersonaAnonymousEligibilityBlockerCode =
 
 export interface PublicPersonaAnonymousEligibilityReadback {
   available: boolean;
-  policy: "replay_alpha_slug_only";
+  policy: "replay_alpha_compatibility" | "owner_controlled_alpha";
   mode: PublicPersonaChatCapability["mode"];
   blockerCode: PublicPersonaAnonymousEligibilityBlockerCode;
   blocker: string | null;
@@ -180,6 +181,7 @@ export interface PublicPersonaInteractionAggregateWindow {
 
 export interface PublicPersonaInteractionReadback {
   publicChat: PublicPersonaChatCapability & {
+    anonymousOwnerGateEnabled: boolean;
     ownerPaid: true;
     transcriptStored: false;
     tokenAttribution: "not_available_without_event_retention";
@@ -232,6 +234,7 @@ export interface Persona extends PersonaSummary {
   awakeningPrompt?: string | null;
   styleNotes?: string | null;
   publicChatEnabled?: boolean;
+  publicAnonymousChatEnabled?: boolean;
   publicInteraction?: PublicPersonaInteractionReadback;
   updatedAt?: string;
   publicReadback?: PersonaPublicReadback;

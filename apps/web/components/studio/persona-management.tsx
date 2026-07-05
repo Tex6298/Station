@@ -60,8 +60,11 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
   const [avatarUrlInput, setAvatarUrlInput] = useState(persona.avatarUrl ?? "");
   const [savedAvatarUrl, setSavedAvatarUrl] = useState(persona.avatarUrl ?? null);
   const [savingAvatarUrl, setSavingAvatarUrl] = useState(false);
+  const [anonymousChatEnabled, setAnonymousChatEnabled] = useState(Boolean(persona.publicAnonymousChatEnabled));
+  const [savingAnonymousChat, setSavingAnonymousChat] = useState(false);
 
   const continuity = (persona as Persona & { continuity?: PersonaContinuitySummary }).continuity;
+  const publicChatEnabled = Boolean(persona.publicChatEnabled);
 
   useEffect(() => {
     let mounted = true;
@@ -142,6 +145,28 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
       setNotice(err instanceof Error ? err.message : "Could not save avatar URL.");
     } finally {
       setSavingAvatarUrl(false);
+    }
+  }
+
+  async function saveAnonymousChatEnabled(nextEnabled: boolean) {
+    if (!token || savingAnonymousChat) return;
+    setSavingAnonymousChat(true);
+    setNotice(null);
+
+    try {
+      const response = await apiPatch<{ persona: Persona }>(
+        `/personas/${personaId}`,
+        { publicAnonymousChatEnabled: nextEnabled },
+        token,
+      );
+      setAnonymousChatEnabled(Boolean(response.persona.publicAnonymousChatEnabled));
+      setNotice(Boolean(response.persona.publicAnonymousChatEnabled)
+        ? "Anonymous public chat alpha enabled."
+        : "Anonymous public chat alpha disabled.");
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : "Could not update anonymous public chat.");
+    } finally {
+      setSavingAnonymousChat(false);
     }
   }
 
@@ -405,6 +430,22 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
                 <input type="checkbox" checked={persona.visibility === "public"} readOnly />
                 Enable public interaction
               </label>
+              <label style={toggleRow}>
+                <input type="checkbox" checked={publicChatEnabled} readOnly />
+                Public chat enabled
+              </label>
+              <label style={toggleRow}>
+                <input
+                  type="checkbox"
+                  checked={anonymousChatEnabled}
+                  disabled={!token || !publicChatEnabled || persona.visibility !== "public" || savingAnonymousChat}
+                  onChange={(event) => saveAnonymousChatEnabled(event.currentTarget.checked)}
+                />
+                Anonymous public chat alpha
+              </label>
+              <p style={{ ...muted, margin: "-4px 0 4px" }}>
+                Public chat remains the rollback switch; disabling it closes signed-in and anonymous public chat.
+              </p>
               <label style={fieldLabel}>
                 Public description
                 <textarea value={persona.shortDescription ?? ""} readOnly style={{ ...input, minHeight: 92 }} />

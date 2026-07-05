@@ -784,7 +784,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
         .limit(8)
     )),
     sb.from("spaces").select("id, slug, title, short_description, theme").eq("is_public", true).ilike("title", `%${q}%`).limit(6),
-    sb.from("personas").select("name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled").eq("visibility", "public").ilike("name", `%${q}%`).limit(12),
+    sb.from("personas").select("name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, public_anonymous_chat_enabled").eq("visibility", "public").ilike("name", `%${q}%`).limit(12),
     Promise.all([
       sb
         .from("projects")

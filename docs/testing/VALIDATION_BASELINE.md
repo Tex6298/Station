@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR492A Owner-Controlled Anonymous Public Chat Gate
+
+DAEDALUS implemented PR492A on 2026-07-05:
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_RESULT.md`.
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added a separate default-off owner gate,
+  `personas.public_anonymous_chat_enabled` / `publicAnonymousChatEnabled`;
+- preserved `public_chat_enabled` as base public chat enable/disable and
+  rollback;
+- non-replay anonymous alpha now requires the owner gate, while replay alpha
+  remains legacy-compatible;
+- public cards/pages serialize mode without exposing the raw owner gate;
+- signed-out non-gated personas still return `public_persona_auth_required`;
+- rollback, provider fail-closed, no transcript/identity/raw-event storage, and
+  public-source-only prompt boundaries remain covered.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 16 personas tests passed, including default-off owner gate, owner-only mutation, signed-in fixture no-drift, rollback, provider fail-closed, aggregate-only storage, and replay compatibility. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 reports tests passed; public reports remain signed-in/server-owned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/spaces.test.ts` | Pass | 2 spaces tests passed; public Space persona cards use the new mode source without raw gate leakage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 13 public persona route/interaction helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/community.test.ts` | Pass | 27 community/discover tests passed; run because `discover.ts` changed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed with fresh cache misses. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR492A Owner-Controlled Anonymous Public Chat Gate ARGUS Preflight
 
 ARGUS accepted PR492A on 2026-07-05:

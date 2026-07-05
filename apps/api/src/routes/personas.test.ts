@@ -31,12 +31,13 @@ type HangingQuery = {
 function anonymousEligibility(
   overrides: Partial<PublicPersonaAnonymousEligibilityReadback> = {}
 ): PublicPersonaAnonymousEligibilityReadback {
+  const mode = overrides.mode ?? "signed_in_alpha";
   return {
     available: false,
-    policy: "replay_alpha_slug_only",
-    mode: "signed_in_alpha",
-    blockerCode: "signed_in_only_policy",
-    blocker: "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.",
+    policy: overrides.policy ?? (mode === "anonymous_alpha" ? "replay_alpha_compatibility" : "owner_controlled_alpha"),
+    mode,
+    blockerCode: "owner_gate_disabled",
+    blocker: "Owner has not enabled anonymous public chat for this persona; it remains signed-in alpha.",
     ownerControlledRollback: true,
     publicSourceOnly: true,
     publicSourceOnlyScope: [
@@ -162,6 +163,7 @@ class InMemorySupabase {
       row.long_description ??= null;
       row.public_slug ??= null;
       row.public_chat_enabled ??= false;
+      row.public_anonymous_chat_enabled ??= false;
       row.visibility ??= "private";
       row.provider ??= "platform";
       row.avatar_url ??= null;
@@ -1469,6 +1471,7 @@ test("anonymous public persona chat alpha is replay-slug only, hashed-rate-limit
       body: { publicChatEnabled: true },
     });
     assert.equal(enabled.status, 200);
+    assert.equal(enabled.body.persona.publicAnonymousChatEnabled, false);
     assert.equal(enabled.body.persona.publicReadback.publicFields.publicChat.mode, "anonymous_alpha");
 
     const ownerReplayReadback = await requestJson(app, "GET", `/personas/${replayPersona.id}`, {
@@ -1513,8 +1516,6 @@ test("anonymous public persona chat alpha is replay-slug only, hashed-rate-limit
       otherOwnerReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
       anonymousEligibility({
         mode: "signed_in_alpha",
-        blockerCode: "signed_in_only_policy",
-        blocker: "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.",
         providerAvailable: true,
         rateLimitAvailable: true,
       })
@@ -1727,6 +1728,193 @@ test("public persona report resolver writes server-side target and returns publi
   }
 });
 
+test("owner-controlled anonymous public chat gate is default-off and rollback-scoped", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(new TestRateLimitProvider());
+  const app = createPersonasApp();
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
+  const previousDeepseekKey = process.env.DEEPSEEK_API_KEY;
+  delete process.env.NVIDIA_AI_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.DEEPSEEK_API_KEY;
+
+  try {
+    const ordinary = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Owner Gated Public Persona",
+      short_description: "Public-safe owner gate fixture.",
+      visibility: "public",
+      public_slug: "owner-gated-public-persona",
+      public_chat_enabled: true,
+    });
+    const signedInFixture = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Station Replay Signed-In Alpha Persona",
+      short_description: "Public-safe signed-in fixture.",
+      visibility: "public",
+      public_slug: "station-replay-signed-in-alpha-persona",
+      public_chat_enabled: true,
+    });
+
+    const defaultAnonymous = await requestJson(app, "POST", "/personas/public/owner-gated-public-persona/chat", {
+      body: { message: "default off" },
+    });
+    assert.equal(defaultAnonymous.status, 401);
+    assert.equal(defaultAnonymous.body.code, "public_persona_auth_required");
+    assert.equal(db.rows("public_persona_interaction_counters").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+
+    const fixtureAnonymous = await requestJson(app, "POST", "/personas/public/station-replay-signed-in-alpha-persona/chat", {
+      body: { message: "fixture stays signed-in only" },
+    });
+    assert.equal(fixtureAnonymous.status, 401);
+    assert.equal(fixtureAnonymous.body.code, "public_persona_auth_required");
+
+    const nonOwnerEnable = await requestJson(app, "PATCH", `/personas/${ordinary.id}`, {
+      token: "other-token",
+      body: { publicAnonymousChatEnabled: true },
+    });
+    assert.equal(nonOwnerEnable.status, 404);
+    assert.equal(db.rows("personas").find((row) => row.id === ordinary.id)?.public_anonymous_chat_enabled, false);
+
+    const disabledChatEnable = await requestJson(app, "PATCH", `/personas/${signedInFixture.id}`, {
+      token: "creator-token",
+      body: { publicChatEnabled: false, publicAnonymousChatEnabled: true },
+    });
+    assert.equal(disabledChatEnable.status, 409);
+    assert.match(disabledChatEnable.body.error, /requires public chat/);
+    assert.equal(db.rows("personas").find((row) => row.id === signedInFixture.id)?.public_anonymous_chat_enabled, false);
+
+    const privatePersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Private Gate Persona",
+      visibility: "private",
+      public_chat_enabled: true,
+    });
+    const privateEnable = await requestJson(app, "PATCH", `/personas/${privatePersona.id}`, {
+      token: "creator-token",
+      body: { publicAnonymousChatEnabled: true },
+    });
+    assert.equal(privateEnable.status, 409);
+    assert.match(privateEnable.body.error, /public personas/);
+
+    const unsafePersona = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Unsafe Gate Persona",
+      visibility: "public",
+      public_slug: "550e8400-e29b-41d4-a716-446655440000",
+      public_chat_enabled: true,
+    });
+    const unsafeEnable = await requestJson(app, "PATCH", `/personas/${unsafePersona.id}`, {
+      token: "creator-token",
+      body: { publicAnonymousChatEnabled: true },
+    });
+    assert.equal(unsafeEnable.status, 409);
+    assert.match(unsafeEnable.body.error, /safe public persona slug/);
+
+    const ineligiblePersona = db.insertRow("personas", {
+      owner_user_id: "private-owner",
+      name: "Ineligible Gate Persona",
+      visibility: "public",
+      public_slug: "ineligible-gate-persona",
+      public_chat_enabled: true,
+    });
+    const ineligibleEnable = await requestJson(app, "PATCH", `/personas/${ineligiblePersona.id}`, {
+      token: "private-token",
+      body: { publicAnonymousChatEnabled: true },
+    });
+    assert.equal(ineligibleEnable.status, 403);
+    assert.match(ineligibleEnable.body.error, /does not allow anonymous public persona chat/);
+
+    const enabled = await requestJson(app, "PATCH", `/personas/${ordinary.id}`, {
+      token: "creator-token",
+      body: { publicAnonymousChatEnabled: true },
+    });
+    assert.equal(enabled.status, 200);
+    assert.equal(enabled.body.persona.publicChatEnabled, true);
+    assert.equal(enabled.body.persona.publicAnonymousChatEnabled, true);
+    assert.equal(enabled.body.persona.publicReadback.publicFields.publicChat.mode, "anonymous_alpha");
+    assert.equal(
+      JSON.stringify(enabled.body.persona.publicReadback.publicFields).includes("publicAnonymousChatEnabled"),
+      false
+    );
+
+    const ownerReadback = await requestJson(app, "GET", `/personas/${ordinary.id}`, {
+      token: "creator-token",
+    });
+    assert.equal(ownerReadback.status, 200);
+    assert.equal(ownerReadback.body.persona.publicInteraction.publicChat.mode, "anonymous_alpha");
+    assert.equal(ownerReadback.body.persona.publicInteraction.publicChat.anonymousOwnerGateEnabled, true);
+    assert.deepEqual(
+      ownerReadback.body.persona.publicInteraction.publicChat.anonymousEligibility,
+      anonymousEligibility({
+        available: false,
+        policy: "owner_controlled_alpha",
+        mode: "anonymous_alpha",
+        blockerCode: "provider_unavailable",
+        blocker: "Public persona chat provider configuration is unavailable.",
+        providerAvailable: false,
+        rateLimitAvailable: true,
+      })
+    );
+
+    const gatedAnonymous = await requestJson(app, "POST", "/personas/public/owner-gated-public-persona/chat", {
+      body: { message: "anonymous gate is on" },
+      headers: {
+        "X-Forwarded-For": "203.0.113.55",
+        "User-Agent": "raw-gated-agent",
+        Cookie: "station_session=raw-gated-cookie",
+      },
+    });
+    assert.equal(gatedAnonymous.status, 503);
+    assert.equal(gatedAnonymous.body.code, "public_persona_provider_unavailable");
+    assert.equal(db.rows("token_transactions").length, 0);
+    const counter = db.rows("public_persona_interaction_counters").find((row) => row.persona_id === ordinary.id);
+    assert.equal(counter?.chat_attempt_count, 1);
+    assert.equal(counter?.chat_failure_count, 1);
+    const counterJson = JSON.stringify(counter);
+    assert.equal(counterJson.includes("raw-gated-agent"), false);
+    assert.equal(counterJson.includes("raw-gated-cookie"), false);
+    assert.equal(counterJson.includes("203.0.113.55"), false);
+
+    const disabled = await requestJson(app, "PATCH", `/personas/${ordinary.id}`, {
+      token: "creator-token",
+      body: { publicChatEnabled: false },
+    });
+    assert.equal(disabled.status, 200);
+    assert.equal(disabled.body.persona.publicChatEnabled, false);
+    assert.equal(disabled.body.persona.publicAnonymousChatEnabled, false);
+    assert.equal(db.rows("personas").find((row) => row.id === ordinary.id)?.public_anonymous_chat_enabled, false);
+
+    const afterRollback = await requestJson(app, "POST", "/personas/public/owner-gated-public-persona/chat", {
+      body: { message: "after rollback" },
+    });
+    assert.equal(afterRollback.status, 409);
+    assert.equal(afterRollback.body.code, "public_persona_chat_disabled");
+    assert.equal(db.rows("public_persona_interaction_counters").find((row) => row.persona_id === ordinary.id)?.chat_attempt_count, 1);
+  } finally {
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousAnthropicKey == null) {
+      delete process.env.ANTHROPIC_API_KEY;
+    } else {
+      process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
+    }
+    if (previousDeepseekKey == null) {
+      delete process.env.DEEPSEEK_API_KEY;
+    } else {
+      process.env.DEEPSEEK_API_KEY = previousDeepseekKey;
+    }
+    setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
+  }
+});
+
 test("owner persona readback includes safe public interaction summary only", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -1820,6 +2008,7 @@ test("owner persona readback includes safe public interaction summary only", asy
       publicChat: {
         enabled: true,
         mode: "signed_in_alpha",
+        anonymousOwnerGateEnabled: false,
         ownerPaid: true,
         transcriptStored: false,
         tokenAttribution: "not_available_without_event_retention",

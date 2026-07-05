@@ -16,7 +16,7 @@ export function publicInteractionAnonymousEligibilityLabel(readback?: PublicPers
   const eligibility = readback?.publicChat.anonymousEligibility;
   if (!eligibility) return "Anonymous eligibility unavailable";
   if (eligibility.available) return "Anonymous alpha available";
-  if (eligibility.blockerCode === "signed_in_only_policy") return "Signed-in alpha only";
+  if (eligibility.blockerCode === "owner_gate_disabled" || eligibility.blockerCode === "signed_in_only_policy") return "Signed-in alpha only";
   return "Anonymous alpha blocked";
 }
 
@@ -30,7 +30,10 @@ export function publicInteractionAnonymousEligibilityCopy(readback?: PublicPerso
   const readiness = publicInteractionAnonymousReadinessCopy(readback);
 
   if (eligibility.available) {
-    return `Anonymous alpha is available for the replay alpha persona only. ${readiness} ${scope} ${storage} ${rollback}`;
+    const availability = eligibility.policy === "replay_alpha_compatibility"
+      ? "Anonymous alpha is available for the replay alpha persona."
+      : "Anonymous alpha is available for this owner-enabled public persona.";
+    return `${availability} ${readiness} ${scope} ${storage} ${rollback}`;
   }
 
   return `${eligibility.blocker ?? "Anonymous alpha is unavailable."} ${readiness} ${scope} ${storage} ${rollback}`;

@@ -18,15 +18,16 @@ const readback: PublicPersonaInteractionReadback = {
   publicChat: {
     enabled: true,
     mode: "signed_in_alpha",
+    anonymousOwnerGateEnabled: false,
     ownerPaid: true,
     transcriptStored: false,
     tokenAttribution: "not_available_without_event_retention",
     anonymousEligibility: {
       available: false,
-      policy: "replay_alpha_slug_only",
+      policy: "owner_controlled_alpha",
       mode: "signed_in_alpha",
-      blockerCode: "signed_in_only_policy",
-      blocker: "Anonymous alpha is limited to the replay alpha persona; this persona remains signed-in alpha.",
+      blockerCode: "owner_gate_disabled",
+      blocker: "Owner has not enabled anonymous public chat for this persona; it remains signed-in alpha.",
       ownerControlledRollback: true,
       publicSourceOnly: true,
       publicSourceOnlyScope: [
@@ -91,7 +92,7 @@ const readback: PublicPersonaInteractionReadback = {
 test("public interaction helper labels stay bounded to owner-safe state", () => {
   assert.equal(publicInteractionChatLabel(readback), "Signed-in alpha enabled");
   assert.equal(publicInteractionAnonymousEligibilityLabel(readback), "Signed-in alpha only");
-  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /replay alpha persona/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Owner has not enabled anonymous public chat/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Public-source-only/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /No visitor transcript/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Rate limits fail closed; rate-limit backing is ready/);
@@ -115,6 +116,7 @@ test("public interaction helper labels anonymous replay eligibility explicitly",
       anonymousEligibility: {
         ...readback.publicChat.anonymousEligibility,
         available: true,
+        policy: "replay_alpha_compatibility",
         mode: "anonymous_alpha",
         blockerCode: "available",
         blocker: null,
@@ -124,11 +126,35 @@ test("public interaction helper labels anonymous replay eligibility explicitly",
 
   assert.equal(publicInteractionChatLabel(anonymousReadback), "Anonymous alpha enabled");
   assert.equal(publicInteractionAnonymousEligibilityLabel(anonymousReadback), "Anonymous alpha available");
-  assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /replay alpha persona only/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /replay alpha persona/);
   assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Owner rollback/);
   assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Rate limits fail closed; rate-limit backing is ready/);
   assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Provider route is ready/);
   assert.doesNotMatch(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /visitor id|raw event rows|private memory|provider payload|token|cookie/i);
+});
+
+test("public interaction helper names owner-enabled anonymous availability", () => {
+  const ownerEnabled: PublicPersonaInteractionReadback = {
+    ...readback,
+    publicChat: {
+      ...readback.publicChat,
+      mode: "anonymous_alpha",
+      anonymousOwnerGateEnabled: true,
+      anonymousEligibility: {
+        ...readback.publicChat.anonymousEligibility,
+        available: true,
+        policy: "owner_controlled_alpha",
+        mode: "anonymous_alpha",
+        blockerCode: "available",
+        blocker: null,
+      },
+    },
+  };
+
+  assert.equal(publicInteractionChatLabel(ownerEnabled), "Anonymous alpha enabled");
+  assert.equal(publicInteractionAnonymousEligibilityLabel(ownerEnabled), "Anonymous alpha available");
+  assert.match(publicInteractionAnonymousEligibilityCopy(ownerEnabled), /owner-enabled public persona/);
+  assert.doesNotMatch(publicInteractionAnonymousEligibilityCopy(ownerEnabled), /replay alpha persona only|ownerUserId|personaId|provider payload|token|cookie/i);
 });
 
 test("public interaction helper names readiness blockers without debug details", () => {

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR492A | Owner-Controlled Anonymous Public Chat Gate | DAEDALUS / A2 | Ready for implementation. ARGUS accepted a separate default-off owner anonymous gate, `public_anonymous_chat_enabled`, with `public_chat_enabled` preserved as the base chat enable/disable and rollback switch; no broad anonymous default or runtime scope drift. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_RESULT.md` |
+| PR492A | Owner-Controlled Anonymous Public Chat Gate | ARGUS / A3 | Ready for review. DAEDALUS implemented a separate default-off owner anonymous gate, preserving `public_chat_enabled` as rollback, adding bounded owner readback/Studio control, and keeping public card mode serialization no-leak. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_RESULT.md` |
 
 ## Recently Closed
 
