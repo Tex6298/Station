@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR492A hosted migration applied
+
+MIMIR applied and proved the hosted Supabase migration that blocked ARIADNE:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_HOSTED_MIGRATION_RESULT.md`
+
+Validation result:
+
+```text
+HOSTED_MIGRATION_APPLIED_READY_FOR_ARIADNE_RERUN
+```
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate Hosted Proof Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN_AFTER_MIGRATION
+```
+
+Proof:
+
+- `public.personas.public_anonymous_chat_enabled` exists on hosted Supabase;
+- the column is `boolean not null`;
+- `personas_public_anonymous_chat_gate_check` exists;
+- Supabase Data API can select `id,public_anonymous_chat_enabled` with HTTP
+  `200`;
+- previous `42703` blocker is cleared.
+
+Routing:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_ARIADNE.md`
+
+Current baton:
+
+- ARIADNE should rerun the hosted product proof before PR492A closeout.
+- The Discern companion UX wakeup maps to already closed PR485A-PR485E work, so
+  MIMIR did not reopen a duplicate companion lane while PR492A remained blocked.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARIADNE result - PR492A blocked on hosted migration
 
 ARIADNE started the PR492A hosted proof:
