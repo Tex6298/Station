@@ -4,6 +4,83 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR492A owner-controlled anonymous gate accepted
+
+ARGUS accepted the PR492A hostile preflight:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR492A_OWNER_CONTROLLED_ANONYMOUS_GATE
+```
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate
+Owner: DAEDALUS / A2
+State: READY_FOR_IMPLEMENTATION
+```
+
+Accepted boundary:
+
+- add a separate default-off owner gate,
+  `personas.public_anonymous_chat_enabled` /
+  `publicAnonymousChatEnabled`;
+- do not reinterpret `public_chat_enabled` as anonymous consent;
+- keep `public_chat_enabled` as the base public chat enable/disable and
+  rollback switch;
+- anonymous alpha for non-replay personas requires public visibility, safe slug,
+  owner public-persona eligibility, public chat enabled, owner anonymous gate
+  enabled, fail-closed rate limits, provider readiness, and token-budget pass;
+- `station-replay-alpha-persona` may remain the legacy replay anonymous alpha
+  slug;
+- `station-replay-signed-in-alpha-persona` must remain signed-in alpha and
+  anonymous-denied;
+- public chat prompt scope remains public profile, published public documents,
+  and linked public discussions only;
+- no anonymous transcript, identity, raw event, cookie, auth header, user agent,
+  IP address, prompt, completion, provider payload, or public chat raw event
+  storage.
+
+Forbidden:
+
+- no broad anonymous default;
+- no env/remote config bypass;
+- no provider/model routing, prompt architecture, billing, worker, queue, Redis,
+  Cloudflare, connector, OAuth, social dispatch, public reporting/moderation, or
+  broad UI drift;
+- no private/source/secret readback or committed fixture leakage.
+
+Validation run by ARGUS during preflight:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- DAEDALUS should implement only the allowed schema/API/type/Studio/helper/test
+  surfaces named in the preflight result.
+- After ARGUS accepts implementation, MIMIR should route ARIADNE hosted
+  desktop/`375px`/`390px` proof for default-off gate, one approved
+  owner-enabled non-replay anonymous persona, replay no-drift, signed-in fixture
+  denial, rollback, mobile fit, privacy/scope, and no broad runtime-expansion
+  claims.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR492 owner-controlled anonymous gate preflight
 
 MIMIR closed PR491A and opened the owner-controlled anonymous public chat gate

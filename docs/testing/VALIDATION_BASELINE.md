@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR492A Owner-Controlled Anonymous Public Chat Gate ARGUS Preflight
+
+ARGUS accepted PR492A on 2026-07-05:
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR492A_OWNER_CONTROLLED_ANONYMOUS_GATE`.
+
+Reason:
+
+- PR491A closed the ordinary public persona negative-control fixture gap;
+- the current runtime still makes only `station-replay-alpha-persona`
+  anonymous alpha;
+- the next safe runtime slice is a separate default-off owner gate,
+  `public_anonymous_chat_enabled`, not reinterpreting `public_chat_enabled`;
+- `public_chat_enabled` remains base public chat enable/disable and rollback;
+- `station-replay-signed-in-alpha-persona` must remain signed-in alpha and
+  anonymous-denied;
+- public-source-only prompting, fail-closed rate limits, owner-paid token
+  attribution, aggregate-only counters, signed-in public reporting, and no
+  anonymous transcript/identity/raw-event storage remain required.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed PR492 handoff, PR491A/PR490B/PR490A/PR468 evidence, current resolver, public chat route, rate-limit, provider payload, owner/admin readback, web helpers, Studio readback, migrations/types, and focused tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 tests passed for replay-only anonymous alpha, ordinary signed-in denial, hashed rate limits, public-source-only provider payloads, owner rollback, no transcript/identity persistence, and owner interaction readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 report tests passed; public reporting remains signed-in/server-owned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 12 public persona route/interaction helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched docs files. |
+
 ## PR491A Public Persona Second Fixture Proof Hosted Rerun
 
 ARIADNE passed the PR491A hosted rerun on 2026-07-05:

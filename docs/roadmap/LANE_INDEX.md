@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR492 | Owner-Controlled Anonymous Public Chat Gate Preflight | ARGUS / A3 | Open hostile preflight. PR491A closed the hosted fixture gap, so ARGUS should classify the smallest safe owner-controlled anonymous public chat gate boundary before any DAEDALUS runtime implementation. | `docs/roadmap/PR492_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_ARGUS.md` |
+| PR492A | Owner-Controlled Anonymous Public Chat Gate | DAEDALUS / A2 | Ready for implementation. ARGUS accepted a separate default-off owner anonymous gate, `public_anonymous_chat_enabled`, with `public_chat_enabled` preserved as the base chat enable/disable and rollback switch; no broad anonymous default or runtime scope drift. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR492 preflight | Owner-Controlled Anonymous Public Chat Gate | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR492A_OWNER_CONTROLLED_ANONYMOUS_GATE`; implementation must add a separate default-off owner gate for non-replay anonymous alpha, keep replay compatibility and the signed-in fixture negative control, preserve public-source-only/no-transcript/fail-closed boundaries, and avoid broad runtime expansion claims. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_RESULT.md` |
 | PR491A closeout | Public Persona Second Fixture Proof | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted proof now covers `station-replay-signed-in-alpha-persona` as signed-in alpha and anonymous-denied while replay remains the only anonymous alpha slug. Fixture gap is closed. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_CLOSEOUT.md` |
 | PR492 opened | Owner-Controlled Anonymous Public Chat Gate Preflight | MIMIR -> ARGUS | Open hostile preflight for the next Phase 3 capability; decide the exact data/control boundary before DAEDALUS expands anonymous runtime behavior beyond replay alpha. | `docs/roadmap/PR492_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_ARGUS.md` |
 | PR491A rerun opened | Public Persona Second Fixture Proof Hosted Rerun | ARIADNE -> MIMIR -> ARIADNE | Open; first run returned deployment wait, but MIMIR corrected the gate because `c7164078` is scripts/docs only. Rerun should prove the hosted fixture against runtime `890f9692` or later. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RERUN_ARIADNE.md` |
