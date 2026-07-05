@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR493A Persona Roulette Visitor Encounter Hosted Rehearsal
+
+ARIADNE completed PR493A hosted rehearsal on 2026-07-05:
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PASS_READY_FOR_PR493A_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API health were ready at commit `d554f493`;
+- `/discover/roulette` loaded signed out on desktop, `375px`, and `390px`;
+- anonymous roulette selected `station-replay-alpha-persona` and excluded
+  `station-replay-signed-in-alpha-persona`;
+- replay alpha stayed `anonymous_alpha`;
+- signed-in-alpha and owner-gated fixtures stayed `signed_in_alpha`;
+- public persona pages and Discover right-rail roulette CTA remained
+  compatible;
+- desktop safe-count exhaustion proof sent one signed-out UI message and
+  reached the five-message exhausted state;
+- browser storage remained limited to safe public slug, submitted count, and
+  exhausted state;
+- public/storage readback did not expose transcripts, visitor identity, raw
+  ids, private prompts, source bodies, provider payloads, cookies, headers,
+  IP/user-agent values, owner ids, persona ids, or secret-shaped values.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `$env:PR493A_SEND_DESKTOP='0'; node .tmp\pr493a-roulette-rehearsal.mjs` | Pass | Hosted API proof plus desktop/375px/390px browser route, public page, Discover right-rail, no-overflow, no-drift, and no-leak checks passed without extra hosted sends. |
+| `$env:PR493A_EXHAUSTION_ONLY='1'; $env:PR493A_PRESEED_ONLY='1'; node .tmp\pr493a-roulette-rehearsal.mjs` | Pass | Desktop safe-count exhaustion proof sent one signed-out UI message and locked the encounter at five. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR493A Persona Roulette Visitor Encounter ARGUS Review
 
 ARGUS accepted PR493A implementation on 2026-07-05:

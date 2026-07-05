@@ -4,7 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR493A hosted rehearsal
+## Latest ARIADNE result - PR493A hosted rehearsal passed
+
+ARIADNE completed the PR493A hosted rehearsal:
+
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_FOR_PR493A_CLOSEOUT
+```
+
+Accepted hosted proof:
+
+- hosted web/API freshness at `d554f493`;
+- anonymous roulette candidate selection on `/discover/roulette`;
+- signed-out desktop, `375px`, and `390px` browser coverage;
+- selected candidate `station-replay-alpha-persona`;
+- signed-in-alpha fixture excluded from anonymous roulette;
+- replay alpha remained `anonymous_alpha`;
+- owner-gated fixture and signed-in-alpha fixture remained `signed_in_alpha`;
+- Discover right-rail and public persona pages remained compatible;
+- desktop safe-count exhaustion proof sent one signed-out UI message and locked
+  the encounter at five;
+- session storage stayed limited to public slug, submitted count, and exhausted
+  state;
+- no transcript text, visitor identity, raw ids, private prompts, source
+  bodies, provider payloads, cookies, headers, user agents, IP addresses,
+  owner ids, persona ids, or secret-shaped values appeared in public/storage
+  readback;
+- no launch, voice, avatar, Salon/live chat, matching, billing, queue, worker,
+  Redis, Cloudflare, or provider-architecture readiness claim entered scope.
+
+Validation:
+
+- `$env:PR493A_SEND_DESKTOP='0'; node .tmp\pr493a-roulette-rehearsal.mjs`
+  passed.
+- `$env:PR493A_EXHAUSTION_ONLY='1'; $env:PR493A_PRESEED_ONLY='1'; node .tmp\pr493a-roulette-rehearsal.mjs`
+  passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR493A - Persona Roulette Visitor Encounter Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR493A_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR493A.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous MIMIR routing - PR493A hosted rehearsal
 
 MIMIR routed PR493A to ARIADNE after ARGUS accepted implementation:
 
