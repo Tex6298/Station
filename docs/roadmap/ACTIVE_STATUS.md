@@ -4,6 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR486A ARIADNE hosted rehearsal opened
+
+MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted
+PR486A:
+
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR486A - Document Migrator Archive Handoff Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_HUMAN_EYE_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse hosted `/studio/onboarding` and
+  `/studio/personas/[personaId]/files` at app commit `721ce7ad` or later on
+  desktop, `375px`, and `390px`.
+- Required checks are Document Migrator onboarding truth, Archive/files handoff
+  panel, empty/no-source state, existing-source state if available,
+  pending-review state if available, safe failed/processing state if available,
+  preview-before-confirm controls, real handoff links, Archive connector
+  no-new-live-claim behavior, mobile fit, and no private/secret-shaped visible
+  readback.
+- MIMIR should close PR486A only after ARIADNE returns `PASS_READY_TO_CLOSE`.
+  Product defects go to the smallest DAEDALUS repair; deployment waits and
+  privacy/scope failures should wake MIMIR with the concrete blocker.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR486A Document Migrator Archive handoff accepted
 
 ARGUS accepted DAEDALUS' PR486A implementation without a review patch:

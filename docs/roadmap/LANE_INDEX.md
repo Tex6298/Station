@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR486A | Document Migrator Archive Handoff Polish | MIMIR / A1 | Accepted by ARGUS without review patch and ready for ARIADNE hosted rehearsal routing. Aggregate-only Document Migrator handoff panel on persona Archive/files links only to rendered anchors or existing owner routes, preserves preview-before-confirm, Import Review/Memory inbox separation, Archive connector behavior, onboarding truth, and existing fetches, and keeps APIs, parsers, backend, connectors, provider/model/prompt/retrieval, public behavior, broad redesign, private readback, CSS, and placeholder controls out of scope. | `docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_REVIEW_RESULT.md` |
+| PR486A | Document Migrator Archive Handoff Hosted Rehearsal | ARIADNE / A4 | Open hosted human-eye rehearsal after ARGUS accepted the aggregate-only Document Migrator Archive/files handoff panel. Verify hosted `/studio/onboarding` and `/studio/personas/[personaId]/files` at `721ce7ad` or later on desktop, 375px, and 390px across onboarding truth, handoff panel fit, empty/existing/pending/failed/processing states if available, preview-before-confirm controls, real handoff links, Archive connector no-new-live-claim behavior, and privacy/scope no-leak. | `docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
