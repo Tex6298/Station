@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR487A | Global Archive Result Provenance Readback | MIMIR / A1 | ARGUS accepted the implementation with a narrow review patch for owner evidence route normalization and public-route gate hardening. MIMIR should route ARIADNE hosted desktop/mobile rehearsal for `/studio/archive` before closeout, covering overview/search results, empty/degraded states, provenance labels, owner-safe evidence links, Global Archive intake no-drift, Import Review separation, mobile fit, and no private/raw/secret/public/live-connector/placeholder drift. | `docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REVIEW_RESULT.md` |
+| PR487A | Global Archive Result Provenance Hosted Rehearsal | ARIADNE / A4 | Open hosted human-eye rehearsal after ARGUS accepted DAEDALUS' PR487A implementation with a narrow evidence-route gating patch. Verify `/studio/archive` on desktop, 375px, and 390px across overview results, private search/filter results if available, no-match/empty state, partial/degraded warning if safely available, provenance labels, owner-safe evidence links, Global Archive intake no-drift, Import Review separation, mobile fit, and privacy/scope no-leak. | `docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 

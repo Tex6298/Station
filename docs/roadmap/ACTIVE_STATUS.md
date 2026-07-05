@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR487A ARIADNE hosted rehearsal opened
+
+MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted
+PR487A:
+
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR487A - Global Archive Result Provenance Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_HUMAN_EYE_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse hosted `/studio/archive` at app commit `c2d0a61e` or
+  later on desktop, `375px`, and `390px`.
+- Required checks are hosted web/API health, overview results, private
+  search/filter results if available, no-match/empty state, partial/degraded
+  warning if safely available, provenance labels, owner-only/private
+  visibility, owner-safe evidence links, Global Archive intake no-drift, Import
+  Review separation, mobile fit, and no private/raw/secret/public/
+  live-connector/placeholder-control drift.
+- MIMIR should close PR487A only after ARIADNE returns `PASS_READY_TO_CLOSE`.
+  Product defects go to the smallest DAEDALUS repair; deployment waits and
+  privacy/scope failures should wake MIMIR with the concrete blocker.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR487A accepted for ARIADNE routing
 
 ARGUS accepted DAEDALUS' PR487A implementation with a narrow review patch:
