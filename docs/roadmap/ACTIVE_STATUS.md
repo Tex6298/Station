@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR492A ready for closeout
+
+ARIADNE completed PR492B fixture setup and the PR492A hosted owner-gate proof:
+
+`docs/roadmap/PR492B_OWNER_GATED_PUBLIC_PERSONA_FIXTURE_SETUP_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_FOR_PR492A_CLOSEOUT
+```
+
+Current lane:
+
+```text
+PR492A / PR492B - Owner-Controlled Anonymous Public Chat Gate
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR492A_CLOSEOUT
+```
+
+Result:
+
+- approved fixture `station-replay-owner-gate-alpha-persona` existed under the
+  replay owner;
+- owner API readback proved default-off, owner-enable, readiness/storage
+  boundaries, public-source-only scope, owner-paid attribution, and rollback;
+- signed-out anonymous chat succeeded for the owner-enabled fixture and replay
+  alpha only;
+- `station-replay-signed-in-alpha-persona` remained signed-in alpha and
+  anonymous-denied;
+- public route, roulette, and Discover cards exposed safe mode without raw owner
+  gate fields;
+- browser proof passed desktop, `375px`, and `390px` for enabled fixture public
+  page, owner `/edit` control surface, rollback fixture public page, negative
+  control public page, and replay public page;
+- fixture was restored to public chat enabled and anonymous owner gate disabled.
+
+Current baton:
+
+- MIMIR should close PR492A / PR492B.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR492B owner-gated fixture setup
 
 ARIADNE reran PR492A after the hosted migration and returned:

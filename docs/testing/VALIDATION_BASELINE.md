@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR492B Owner-Gated Public Persona Fixture Setup
+
+ARIADNE completed PR492B and the PR492A hosted owner-gate proof on 2026-07-05:
+`docs/roadmap/PR492B_OWNER_GATED_PUBLIC_PERSONA_FIXTURE_SETUP_RESULT.md`.
+
+Validation result:
+`PASS_READY_FOR_PR492A_CLOSEOUT`.
+
+Reason:
+
+- approved fixture `station-replay-owner-gate-alpha-persona` existed under the
+  replay owner;
+- hosted owner API proved default-off, owner-enable, signed-out success,
+  readiness/storage boundaries, public-source-only scope, and rollback;
+- replay alpha remained legacy anonymous alpha;
+- signed-in-alpha negative-control fixture remained signed-in and
+  anonymous-denied;
+- public route/card no-leak checks and desktop/`375px`/`390px` browser fit
+  checks passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services were fresh at app commit `a2d3f6be`. |
+| Hosted owner API fixture setup/proof | Pass | Found the approved fixture, proved default-off, enabled owner anonymous gate, proved signed-out success, rolled back, and restored anonymous gate off. |
+| Hosted public route/card no-leak proof | Pass | Public route, roulette, and Discover cards exposed safe mode without raw owner gate fields. |
+| Hosted negative-control/replay no-drift proof | Pass | Signed-in-alpha fixture stayed anonymous-denied; replay alpha stayed anonymous-enabled. |
+| Temporary Chrome/CDP browser proof | Pass | Desktop, `375px`, and `390px` passed for enabled fixture public page, owner `/edit` control, rollback fixture public page, negative-control public page, and replay public page; temporary harness removed before commit. |
+
 ## PR492A Owner-Controlled Anonymous Public Chat Gate Hosted Rerun
 
 ARIADNE reran PR492A hosted proof on 2026-07-05:
