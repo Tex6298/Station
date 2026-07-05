@@ -20,6 +20,52 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR486A Document Migrator Archive Handoff Hosted Rehearsal
+
+ARIADNE passed PR486A hosted rehearsal on 2026-07-05:
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web and API health reported app commit `721ce7ad`;
+- signed-in `/studio/onboarding` preserved Document Migrator as an alpha
+  owner path and routed existing personas to Archive/files;
+- signed-out onboarding did not expose owner path cards or private persona
+  targets;
+- hosted `/studio/personas/[personaId]/files` passed desktop, `375px`, and
+  `390px` layout/fit checks for the Document Migrator handoff panel;
+- existing-source, pending-review, and failed/processing aggregate hosted states
+  were available and read honestly;
+- pasted-source and file-import confirm controls stayed disabled until exact
+  no-write previews ran;
+- handoff links targeted only rendered anchors or existing owner surfaces:
+  pasted source, file import, Import Review, Memory inbox, Global Archive, and
+  settings/storage;
+- Import Review and Memory inbox remained separate;
+- Archive connector copy did not claim a newly live connector, automatic import,
+  or recurring sync;
+- visible page text did not expose raw UUID-shaped ids, bearer/JWT-shaped
+  values, secret-shaped values, storage/signed URLs, provider payloads, or
+  private source bodies;
+- no API, migration, schema, parser, import handler, storage behavior, Archive
+  connector behavior, provider/model, prompt/retrieval, auth/session,
+  deployment/config, queue/worker, Redis, Cloudflare, billing, public behavior,
+  broad redesign, private readback, or placeholder-control scope was changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services reported ready at app commit `721ce7ad`. |
+| `npm exec --yes pnpm@10.32.1 -- dlx @playwright/test test pr486a-document-migrator-rehearsal.spec.js --reporter=line --workers=1 --output=.codex-tmp\pw-pr486a-output` | Pass | 6 hosted browser checks passed. |
+| Aggregate hosted state probe | Pass | Selected hosted persona had existing sources, pending review, and failed/processing aggregate state available. |
+| Screenshot review | Pass | Desktop, `375px`, and `390px` screenshots were reviewed for the handoff/form surfaces. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+`npm exec` emitted npm warnings about pnpm-only `.npmrc` keys during the
+temporary Playwright run; those warnings match the documented fallback runner
+noise above and are not validation failures.
+
 ## PR486A Document Migrator Archive Handoff Review
 
 ARGUS accepted PR486A on 2026-07-05:

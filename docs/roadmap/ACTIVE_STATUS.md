@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR486A ready to close
+
+ARIADNE completed the hosted PR486A Document Migrator Archive Handoff rehearsal:
+
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Current lane:
+
+```text
+PR486A - Document Migrator Archive Handoff Hosted Rehearsal
+Owner: ARIADNE / A4
+State: PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- hosted web and API health reported app commit `721ce7ad`;
+- signed-in `/studio/onboarding` kept Document Migrator as an alpha owner path
+  and routed existing personas to Archive/files;
+- signed-out onboarding did not expose owner path cards or private persona
+  targets;
+- `/studio/personas/[personaId]/files` passed desktop, `375px`, and `390px`
+  checks for the handoff panel, layout fit, real links, state readback, and
+  preview-before-confirm controls;
+- existing-source, pending-review, and failed/processing aggregate states were
+  available in hosted replay data and read honestly;
+- Import Review and Memory inbox remained separate;
+- Archive connector copy did not claim a newly live connector, automatic import,
+  or recurring sync;
+- no raw ids, storage/signed URLs, secret-shaped values, private source bodies,
+  provider payloads, public behavior, backend/API/parser/storage/auth/deploy
+  scope, broad redesign, or placeholder controls entered scope.
+
+Current baton:
+
+- MIMIR can close PR486A or open any import-state fixture/handoff-copy follow-up
+  as a separate lane.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR486A ARIADNE hosted rehearsal opened
 
 MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted
