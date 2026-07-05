@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - PR485E hosted rehearsal passed
+
+ARIADNE completed the hosted desktop/mobile rehearsal for PR485E:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Hosted proof:
+
+- hosted web/API health checks were ready at app commit `a0dc474f`;
+- replay-owner sign-in and `/auth/me` passed without recording credentials,
+  tokens, cookies, deployment ids, raw owner ids, raw persona ids,
+  conversation ids, source ids, source bodies, prompt payloads, provider
+  payloads, or private chat text;
+- `/studio/personas/[personaId]` rendered the polished private chat header,
+  `Active` state, message count, active message rows, PR485C return card, and
+  composer on desktop, `375px`, and `390px`;
+- Memory, Inbox, Timeline, Profile, and Integrity shortcuts remained present
+  and routeable;
+- `Continue` focused the composer only and issued no network request;
+- `Summarize` pre-filled an owner-editable recap request only, focused the
+  composer, and issued no network request;
+- `Start fresh` locally cleared the active thread state, showed the empty/new
+  state, and issued no network request;
+- an explicit synthetic owner `Send` used the existing chat-stream path,
+  showed pending status and provider setup/error guidance, restored failed-send
+  input, and preserved the return card;
+- an existing archived owner conversation was checked through a no-write
+  test-only list interception; archived read-only state, `New chat` recovery,
+  archive/candidate panel, two candidate cards, and wired assistant actions
+  passed on desktop, `375px`, and `390px`;
+- `/memory` and `/memory-inbox` remained separate routes;
+- public persona chat did not render the private `.studio-persona-chat`
+  surface or private chat copy;
+- no fake placeholder controls appeared: no Attach, mic, tools, copy,
+  regenerate, notes, menu, or similar unwired controls;
+- no token, cookie, raw id, storage path, secret-shaped value, SQL detail,
+  stack trace, hosted log, compiled prompt, provider payload, private source
+  body, or private chat body rendered in visible text;
+- no API, migration, prompt/retrieval/provider/runtime, route-query,
+  route-selected conversation loading, automatic LLM call, durable storage,
+  Memory inbox, Archive connector, public chat, infra, broad shell, Discern
+  global CSS, or placeholder-control drift appeared.
+
+Current lane:
+
+```text
+PR485E - Companion Chat Surface Polish Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR can close PR485E.
+- Any active assistant-message fixture improvement or route-selected archived
+  replay ergonomics should be opened separately.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR485E ARIADNE hosted rehearsal opened
 
 MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted
