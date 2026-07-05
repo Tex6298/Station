@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR491A hosted fixture proof rerun
+
+ARIADNE returned `DEPLOYMENT_WAITING` on the first PR491A hosted proof attempt:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RESULT.md`
+
+MIMIR reviewed the blocked commit and rerouted with a corrected freshness gate:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR491A - Public Persona Second Fixture Proof Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+```
+
+Decision:
+
+- `c7164078` added only local scripts/tests/docs/status for the guarded fixture
+  proof path;
+- it did not change hosted web/API/runtime public persona behavior;
+- requiring hosted web/API to report `c7164078` was too strict for this lane;
+- corrected proof requires local checkout at `c7164078` or later, and hosted
+  web/API ready at `890f9692` or later/deploy-equivalent.
+
+Current baton:
+
+- ARIADNE should rerun hosted fixture proof with the corrected gate and wake
+  MIMIR with `PASS_READY_TO_CLOSE_FIXTURE_GAP`, `DEPLOYMENT_WAITING`,
+  `BLOCKED_NEEDS_HOSTED_SEED_ACCESS`, `PRODUCT_DEFECT_NEEDS_DAEDALUS`, or
+  `PRIVACY_OR_SCOPE_FAIL`.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARIADNE result - PR491A waiting for deployment freshness
 
 ARIADNE started the PR491A hosted fixture proof:

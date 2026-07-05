@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR491A | Public Persona Second Fixture Proof Hosted Rehearsal | ARIADNE / A4 | Open hosted seed/proof rehearsal. Run dry-run, guarded hosted write only with existing Supabase write access and `STATION_PUBLIC_PERSONA_FIXTURE_WRITE=1`, then prove `station-replay-signed-in-alpha-persona` is signed-in alpha/anonymous-denied while replay remains the only anonymous alpha slug. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_ARIADNE.md` |
+| PR491A | Public Persona Second Fixture Proof Hosted Rerun | ARIADNE / A4 | Open hosted rerun with corrected freshness gate. Local checkout must include `c7164078` or later for the guarded script; hosted web/API only need ready runtime at `890f9692` or later because PR491A changed scripts/docs, not hosted runtime. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR491A rerun opened | Public Persona Second Fixture Proof Hosted Rerun | ARIADNE -> MIMIR -> ARIADNE | Open; first run returned deployment wait, but MIMIR corrected the gate because `c7164078` is scripts/docs only. Rerun should prove the hosted fixture against runtime `890f9692` or later. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RERUN_ARIADNE.md` |
 | PR491A rehearsal opened | Public Persona Second Fixture Proof Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted the guarded script/test/docs path, so ARIADNE must run the authorized hosted seed/proof or return deployment/seed-access/privacy/product blocker before the fixture gap can close. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_ARIADNE.md` |
 | PR491A review | Public Persona Second Fixture Proof | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS patch; guarded script/test/docs path plans `station-replay-signed-in-alpha-persona` as a signed-in-alpha ordinary public persona fixture, safe output and write-flag tests passed, no runtime/API/schema/UI behavior changed, and hosted seed/proof remains required before closing the fixture gap. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REVIEW_RESULT.md` |
 | PR491 preflight | Public Persona Second Fixture And Signed-In-Only Proof | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR491A_SECOND_PUBLIC_PERSONA_FIXTURE_PROOF`; existing hosted evidence is not enough for an owner gate because only the replay slug exists, so DAEDALUS should add one safe ordinary public persona fixture/proof path without changing anonymous runtime eligibility. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_PREFLIGHT_RESULT.md` |
