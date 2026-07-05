@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR493A roulette encounter accepted
+
+ARGUS accepted the PR493 hostile preflight:
+
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR493A_ROULETTE_VISITOR_ENCOUNTER
+```
+
+Accepted:
+
+- protected-alpha `/discover/roulette` visitor text encounter;
+- optional `GET /personas/public/roulette?chatMode=anonymous_alpha` filter;
+- reuse of `POST /personas/public/:publicSlug/chat`;
+- browser-local five-message encounter UX with no transcript, visitor identity,
+  or raw event storage;
+- CTA to sign up / create a Studio after exhaustion or continuation;
+- existing server anonymous chat rate limits, provider readiness, quota checks,
+  and owner-paid token attribution remain the real enforcement boundaries.
+
+Current lane:
+
+```text
+PR493A - Persona Roulette Visitor Encounter
+Owner: DAEDALUS / A2
+State: READY_FOR_IMPLEMENTATION
+```
+
+Routing:
+
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md`
+
+Current baton:
+
+- DAEDALUS should add the bounded page/helper/API filter/tests within the
+  accepted preflight scope, preserving default roulette compatibility, owner
+  gate boundaries, signed-in-alpha denial, public-source-only prompting,
+  no-leak public cards, and public report auth.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout - PR492 accepted, PR493 opened
 
 MIMIR closes PR492 / PR492A / PR492B as accepted:

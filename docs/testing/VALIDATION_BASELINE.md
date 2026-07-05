@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR493A Persona Roulette Visitor Encounter ARGUS Preflight
+
+ARGUS accepted PR493A on 2026-07-05:
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR493A_ROULETTE_VISITOR_ENCOUNTER`.
+
+Reason:
+
+- PR492 closed the owner-controlled anonymous public chat gate;
+- the accepted visitor encounter can reuse existing anonymous public chat
+  without a new backend;
+- candidate selection must narrow to anonymous-eligible public personas only;
+- the five-message encounter limit is honest browser-session UX, while server
+  rate limits remain the real abuse boundary;
+- no transcript, visitor identity, raw event, private source, provider payload,
+  cookie, header, user-agent, IP, or secret-shaped storage/readback is allowed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Accepted narrow `/discover/roulette` route plus optional `chatMode=anonymous_alpha` filter; default roulette compatibility and owner-gate boundaries remain required. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; public reports remain signed-in/server-owned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/discover-roulette.test.ts apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 14 focused web helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR492B Owner-Gated Public Persona Fixture Setup
 
 ARIADNE completed PR492B and the PR492A hosted owner-gate proof on 2026-07-05:
