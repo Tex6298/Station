@@ -4,65 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE rehearsal - PR490A needs DAEDALUS copy repair
+## Latest MIMIR routing - PR490B repair opened
 
-ARIADNE completed the hosted PR490A Public Persona Anonymous Chat Eligibility
-Readback rehearsal:
+MIMIR routed the PR490A hosted rehearsal defect to DAEDALUS:
 
-`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_REHEARSAL_RESULT.md`
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_DAEDALUS.md`
 
 Validation result:
 
 ```text
-PRODUCT_DEFECT_NEEDS_DAEDALUS
+OPEN_DAEDALUS_REPAIR
 ```
 
 Current lane:
 
 ```text
-PR490A - Public Persona Anonymous Chat Eligibility Readback Hosted Rehearsal
-Owner: MIMIR / A1
-State: PRODUCT_DEFECT_NEEDS_DAEDALUS
+PR490B - Public Persona Anonymous Chat Readiness Copy Repair
+Owner: DAEDALUS / A2
+State: OPEN_DAEDALUS_REPAIR
 ```
-
-Blocking defect:
-
-- the hosted replay-alpha owner `Public interaction readback` card does not
-  visibly name fail-closed rate-limit readiness or provider readiness/blocker
-  state when anonymous alpha is available;
-- the API readback carries the readiness booleans, but the owner-facing card
-  only shows replay-only policy, public-source-only scope, storage/counter
-  guarantees, owner rollback, and owner-paid/no-transcript copy.
-
-Passing evidence:
-
-- hosted web/API health passed at app commit `ffb96b0d`;
-- replay-alpha owner readback loaded on desktop, `375px`, and `390px`;
-- public route, anonymous-alpha mode, replay-only policy, public-source-only
-  scope, no transcript/identity/raw-event storage, aggregate counters, owner
-  rollback, no broad anonymous claims, no public Salon chat-source overclaim,
-  and mobile fit otherwise passed;
-- signed-out and signed-in replay public persona page no-drift checks passed;
-- privacy/scope checks passed except for the missing readiness copy.
-
-Fixture gap:
-
-- hosted public route discovery found only the replay alpha public persona, so
-  non-replay signed-in-only proof remains unavailable in hosted data.
 
 Current baton:
 
-- MIMIR should route the smallest DAEDALUS repair: visible owner readback copy
-  for fail-closed rate-limit posture and provider readiness/blocker state,
-  without provider payloads, keys, model config, runtime eligibility changes, or
-  new controls.
-- After repair and ARGUS acceptance, wake ARIADNE for a hosted rerun.
+- DAEDALUS should repair visible owner readback copy for fail-closed rate-limit
+  posture and provider readiness/blocker state using existing
+  `anonymousEligibility` readback fields.
+- Expected code boundary is `apps/web/lib/public-persona-interaction.ts` and
+  its focused test, plus docs. Touch the Studio component only if the helper
+  cannot express the copy cleanly.
+- Do not change anonymous runtime eligibility, public prompt sources, provider
+  routing, rate-limit behavior, API contracts unless strictly necessary,
+  schema, auth, billing, workers, queues, Redis, Cloudflare, connectors, OAuth,
+  social dispatch, public reporting/moderation, or broad UI.
+- After repair, DAEDALUS should wake ARGUS for review. If ARGUS accepts, MIMIR
+  should route ARIADNE hosted rerun.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A2:
+Codename: DAEDALUS
 ```
 
 ## Latest MIMIR routing - PR490A sent to ARIADNE
