@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR blocker - PR484J-N hosted setup config blocked
+## Latest MIMIR routing - PR485 Discern companion UX translation opened
+
+MIMIR inspected the requested Discern reference commits:
+
+- `de7b918e feat: refine Station companion UX`
+- `99ae8a5c feat: refine Studio chat layout`
+
+MIMIR keeps PR484J-N parked as externally blocked and opens the next numbered
+product lane:
+
+`docs/roadmap/PR485_DISCERN_COMPANION_UX_TRANSLATION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR485 - Discern Companion UX Translation Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide the smallest safe PR485A slice that translates useful
+  Discern companion/UI behavior into Tex Station.
+- Candidate slices are companion home shortcuts, Memory inbox / continuity
+  candidate inbox, return-to-thread readback, and companion capability/presence
+  prompt context.
+- Treat Discern as reference behavior only; do not wholesale import global CSS,
+  broad-reskin unrelated pages, or overwrite Tex streaming chat/runtime
+  behavior.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous MIMIR blocker - PR484J-N hosted setup config blocked
 
 MIMIR documented the PR484J-N hosted setup blocker:
 
