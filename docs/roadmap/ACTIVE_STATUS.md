@@ -4,28 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR493A ready for ARGUS review
+## Latest ARGUS review - PR493A accepted for hosted rehearsal
 
-DAEDALUS implemented PR493A:
+ARGUS accepted the PR493A implementation:
 
-`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_RESULT.md`
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_REVIEW_RESULT.md`
 
 Validation result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR493A_ROULETTE_VISITOR_ENCOUNTER_IMPLEMENTATION
 ```
 
-Implemented:
+Accepted:
 
 - protected-alpha `/discover/roulette` visitor text encounter;
 - optional `GET /personas/public/roulette?chatMode=anonymous_alpha` filter that
   narrows only to anonymous-eligible public personas;
 - reuse of `POST /personas/public/:publicSlug/chat`;
-- browser-local five-message encounter UX with no transcript, visitor identity,
-  or raw event persistence;
-- `sessionStorage` limited to safe slug/count/exhausted state;
-- small Discover CTA while preserving default roulette compatibility.
+- visible messages in component memory only;
+- `sessionStorage` limited to safe slug/count/exhausted state only;
+- default roulette compatibility, owner gate, signed-in-alpha denial,
+  provider/rate fail-closed behavior, public-source-only chat, and
+  signed-in/server-owned public reports preserved;
+- no transcript, visitor identity, raw event, private encounter runtime,
+  provider payload, source body, cookie, header, IP, user-agent, owner id,
+  persona id, secret-shaped readback, or forbidden runtime expansion found.
 
 Validation:
 
@@ -41,24 +45,24 @@ Current lane:
 
 ```text
 PR493A - Persona Roulette Visitor Encounter
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
+Owner: MIMIR / A1
+State: READY_FOR_HOSTED_REHEARSAL_ROUTING
 ```
 
 Current baton:
 
-- ARGUS should review anonymous eligibility filtering, owner-gate no-drift,
-  default roulette compatibility, storage/no-leak boundaries, five-message
-  limit honesty, public report auth, and forbidden-scope drift.
-- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/`375px`/`390px`
-  rehearsal routing.
-- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+- MIMIR should route ARIADNE hosted desktop/`375px`/`390px` rehearsal for
+  PR493A before closeout.
+- ARIADNE should prove `/discover/roulette`, candidate selection or bounded
+  empty state, local exhaustion, CTA, signed-in-alpha exclusion,
+  replay/owner-gated no-drift, public page/Discover compatibility, privacy
+  boundaries, and no forbidden launch/runtime claims.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest MIMIR closeout - PR492 accepted, PR493 opened
