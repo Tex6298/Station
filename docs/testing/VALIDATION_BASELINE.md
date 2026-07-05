@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495B Durable Seminar Record Contract ARGUS Review
+
+ARGUS accepted PR495B on 2026-07-05:
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_IMPLEMENTATION`.
+
+Reason:
+
+- migration 069 defines the accepted owner-scoped durable seminar record table,
+  uniqueness, indexes, updated-at trigger, and owner-only RLS with no direct
+  public table select policy;
+- owner record create is auth-bound, creator-gated, document-source-only,
+  owner-authority checked, route-safe, and idempotent;
+- owner record list is auth-bound and owner-filtered;
+- the serializer omits raw owner/source/discussion ids, source bodies, private
+  labels, SQL/storage/provider details, tokens, cookies/headers, IP/UA, stack
+  traces, and secret-shaped values;
+- public `/events/seminars` and signed-in interest behavior did not drift;
+- hosted migration/API proof is still required before closeout.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Reviewed migration/RLS, owner document authority, creator gate, idempotent owner API behavior, serializer redaction, forbidden scope, and public seminar/interest no-drift. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 19 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning for consumed ARGUS state only; no whitespace errors. |
+
 ## PR495B Durable Seminar Record Contract Implementation
 
 DAEDALUS implemented PR495B on 2026-07-05:

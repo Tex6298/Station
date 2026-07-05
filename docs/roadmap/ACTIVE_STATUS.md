@@ -4,19 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR495B ready for ARGUS review
+## Latest ARGUS review - PR495B accepted, hosted proof required
 
-DAEDALUS implemented PR495B:
+ARGUS accepted the PR495B implementation:
 
-`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_RESULT.md`
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_IMPLEMENTATION
 ```
 
-Implemented:
+Accepted:
 
 - migration `infra/supabase/migrations/069_public_seminar_records.sql` for
   owner-scoped durable seminar records;
@@ -27,9 +27,10 @@ Implemented:
 - creator-gated owner-only `POST /events/seminars/records`;
 - document-source-only validation requiring the signed-in author, public
   published document state, and a routeable public Space;
-- focused tests for auth/tier gates, idempotent create, owner-only listing,
-  invalid source fail-closed behavior, bounded storage errors, and public
-  seminar/interest no-drift.
+- safe owner serializer omitting raw owner/source/discussion ids, source bodies,
+  private labels, SQL/storage/provider details, tokens, cookies/headers, IP/UA,
+  stack traces, and secret-shaped values;
+- public `/events/seminars` and signed-in interest behavior stayed unchanged.
 
 Validation:
 
@@ -42,25 +43,24 @@ Validation:
 Current lane:
 
 ```text
-PR495B - Durable Seminar Record Contract
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
+PR495B - Durable Seminar Record Contract Hosted Proof
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW_HOSTED_PROOF_REQUIRED
 ```
 
 Current baton:
 
-- ARGUS should review migration/RLS shape, document author ownership,
-  safe serialization/redaction, idempotent owner API behavior, and public
-  `/events/seminars`/interest no-drift.
-- If accepted, ARGUS should wake MIMIR for hosted migration/API proof before
-  closeout.
-- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+- MIMIR should route hosted migration/API proof before closeout.
+- Hosted proof must apply migration 069, verify owner-only RLS and no public
+  table select policy, prove owner create/list and duplicate stability, confirm
+  signed-out/non-owner denial, and re-check public `/events/seminars` plus
+  interest no-drift.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest MIMIR closeout/opening - PR495A closed, PR495B opened
