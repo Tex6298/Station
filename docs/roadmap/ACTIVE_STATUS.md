@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR495A accepted with routeability patch
+
+ARGUS accepted PR495A:
+
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE_IMPLEMENTATION
+```
+
+Accepted:
+
+- `/studio/publishing` now has a readback-only owner seminar readiness gate;
+- the panel uses only already-loaded owner documents and Spaces;
+- candidates require public published documents in routeable public Spaces;
+- linked discussion readiness remains metadata-only from
+  `discussion_thread_id`;
+- panel links stay on existing public document/Space routes;
+- no API, schema, public `/events/seminars`, interest, seminar persistence,
+  runtime, provider, queue/worker, Redis, Cloudflare, billing, or launch-claim
+  drift entered scope.
+
+ARGUS patch:
+
+- matched the helper Space routeability gate to the accepted public seminar
+  resolver by rejecting UUID-shaped and unsafe public Space slugs;
+- counted only routeable public Spaces in readiness gaps;
+- added focused tests for UUID-shaped and unsafe public Space fixtures.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR495A - Public Seminar Owner Readiness Gate Hosted Rehearsal Routing
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_READY_FOR_ARIADNE
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE for hosted desktop/`375px`/`390px`
+  `/studio/publishing` proof plus public `/events/seminars` no-drift.
+- If hosted proof passes, MIMIR can close PR495A.
+- If hosted proof finds a product defect, MIMIR should route the smallest
+  concrete repair.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR495A ready for ARGUS review
 
 DAEDALUS implemented PR495A:

@@ -32,12 +32,15 @@ export interface SeminarHostReadinessReadback {
 }
 
 const MAX_CANDIDATES = 4;
+const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const UUID_SHAPED_ROUTE_SLUG_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function seminarHostReadiness(
   documents: PublishingDocument[],
   spaces: PublishingSpace[],
 ): SeminarHostReadinessReadback {
-  const publicSpaces = spaces.filter(spaceIsPublic);
+  const publicSpaces = spaces.filter((space) => spaceIsPublic(space) && publicSpaceHref(space));
   const candidates = documents
     .map((document) => seminarCandidate(document, spaces))
     .filter((candidate): candidate is SeminarHostReadinessCandidate => Boolean(candidate))
@@ -120,7 +123,8 @@ function publicSpaceHref(space: PublishingSpace) {
 }
 
 function safeRouteSegment(value: string) {
-  return /^[a-z0-9-]{2,80}$/.test(value);
+  return SAFE_ROUTE_SLUG_PATTERN.test(value) &&
+    !UUID_SHAPED_ROUTE_SLUG_PATTERN.test(value);
 }
 
 function formatCount(count: number, singular: string) {

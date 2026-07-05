@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495A Public Seminar Owner Readiness Gate ARGUS Review
+
+ARGUS accepted PR495A on 2026-07-05:
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE_IMPLEMENTATION`.
+
+Reason:
+
+- DAEDALUS stayed within the accepted web-only owner readback scope;
+- ARGUS applied a narrow routeability patch so UUID-shaped and unsafe public
+  Space slugs do not count as seminar-ready;
+- candidates now require public published documents in routeable public Spaces;
+- linked discussion readiness is metadata-only;
+- public `/events/seminars` and signed-in interest behavior did not change;
+- hosted ARIADNE proof is still required before closeout.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed implementation files, DAEDALUS result docs, active status, lane index, validation baseline, candidate gating, route safety, metadata-only discussion readback, no public seminar drift, and forbidden scope. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 34 focused tests passed after the ARGUS routeability patch. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck passed from cache; web typecheck passed after the helper patch. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495A Public Seminar Owner Readiness Gate Implementation
 
 DAEDALUS implemented PR495A on 2026-07-05:

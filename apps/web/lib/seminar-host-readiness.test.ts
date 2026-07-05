@@ -10,6 +10,8 @@ const BANNED_COPY =
 const spaces: PublishingSpace[] = [
   { id: "space-public", slug: "station-house", title: "Station House", is_public: true },
   { id: "space-private", slug: "private-house", title: "Private House", is_public: false },
+  { id: "space-uuid", slug: "550e8400-e29b-41d4-a716-446655440000", title: "Unsafe UUID Space", is_public: true },
+  { id: "space-unsafe", slug: "unsafe--space-", title: "Unsafe Route Space", is_public: true },
 ];
 
 const documents: PublishingDocument[] = [
@@ -39,6 +41,8 @@ const documents: PublishingDocument[] = [
   { id: "doc-draft", title: "Draft", document_type: "essay", status: "draft", visibility: "public", space_id: "space-public" },
   { id: "doc-no-space", title: "No Space", document_type: "essay", status: "published", visibility: "public", space_id: null },
   { id: "doc-private-space", title: "Private Space", document_type: "essay", status: "published", visibility: "public", space_id: "space-private" },
+  { id: "doc-uuid-space", title: "UUID Space", document_type: "essay", status: "published", visibility: "public", space_id: "space-uuid" },
+  { id: "doc-unsafe-space", title: "Unsafe Space", document_type: "essay", status: "published", visibility: "public", space_id: "space-unsafe" },
 ];
 
 test("seminar host readiness only counts public published documents in public Spaces", () => {
@@ -67,7 +71,11 @@ test("seminar host readiness only counts public published documents in public Sp
     "doc-draft",
     "doc-no-space",
     "doc-private-space",
+    "doc-uuid-space",
+    "doc-unsafe-space",
     "private-house",
+    "550e8400-e29b-41d4-a716-446655440000",
+    "unsafe--space-",
   ]) {
     assert.equal(serialized.includes(excluded), false, `${excluded} should not be counted`);
   }
