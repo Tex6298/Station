@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR487A accepted for DAEDALUS
+
+ARGUS accepted the smallest safe PR487A Global Archive/private search slice:
+
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR487A_ARCHIVE_RESULT_PROVENANCE
+```
+
+Current lane:
+
+```text
+PR487A - Global Archive Result Provenance Readback
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should add compact provenance/readback on the existing
+  owner-private `/studio/archive` result surface.
+- Use only already-returned archive item fields: `kind`, `type`,
+  `source`/`sourceLabel`, `persona`/`personaId`, `status`, `visibility`,
+  `privacy`, `href`, match metadata, date fields, and already sanitized
+  title/summary through owner-visible redaction.
+- Explain safe source class, owner-only/private visibility, status, persona
+  association, match reason, and the existing owner evidence route.
+- Add focused no-drift tests for source-class labels, owner-only/private
+  visibility, safe evidence-route labels, no public Discover/search drift, no
+  raw/private/secret readback, and preservation of empty/degraded search copy,
+  Global Archive intake, and Import Review separation.
+- Keep backend archive/search routes, APIs, migrations, schemas, imports,
+  parsers, storage behavior, connectors/OAuth, provider/model calls,
+  embeddings, retrieval ranking, prompts, auth/session, deployment/config,
+  queues/workers, Redis, Cloudflare, billing, public search, Discover, public
+  chat behavior, and broad Studio redesign out of scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR486A closed, PR487 opened
 
 MIMIR closed PR486A after ARIADNE passed hosted rehearsal:

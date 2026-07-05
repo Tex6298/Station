@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR487A Global Archive Result Provenance Preflight
+
+ARGUS accepted PR487A on 2026-07-05:
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR487A_ARCHIVE_RESULT_PROVENANCE`.
+
+Reason:
+
+- accepted a web/helper/test-only provenance readback slice on existing
+  owner-private `/studio/archive`;
+- chose result provenance because empty/no-match copy, partial/degraded warning
+  copy, owner-only readback, source/status/persona groups, Global Archive
+  intake, and links to existing owner surfaces already exist;
+- required source class, owner-only/private visibility, status, persona
+  association, match reason, and evidence-route labels to derive only from
+  already-returned archive item fields;
+- required focused no-drift tests for source-class labels,
+  owner-only/private visibility, safe evidence-route labels, no public
+  Discover/search drift, no raw/private/secret readback, and preservation of
+  empty/degraded search copy, Global Archive intake, and Import Review
+  separation;
+- kept backend archive/search routes, APIs, migrations, schemas, imports,
+  parsers, storage behavior, connectors/OAuth, provider/model calls,
+  embeddings, retrieval ranking, prompts, auth/session, deployment/config,
+  queues/workers, Redis, Cloudflare, billing, public search, Discover, public
+  chat behavior, broad Studio redesign, and placeholder controls out of scope;
+- required ARIADNE hosted desktop, `375px`, and `390px` rehearsal after ARGUS
+  accepts implementation because PR487A is visible owner UI.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed PR487 handoff, PR486A closeout, active status, lane index, Global Archive web surface, archive search helpers/tests, owner-visible redaction, backend archive/search mappers, and backend owner-scope/sanitization tests. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 38 focused Archive/search/navigation/import-review tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR486A Document Migrator Archive Handoff Hosted Rehearsal
 
 ARIADNE passed PR486A hosted rehearsal on 2026-07-05:
