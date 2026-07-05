@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight result - PR495A accepted
+
+ARGUS accepts the PR495 preflight as:
+
+```text
+ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE
+```
+
+Result:
+
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- a durable seminar/event record is not required for a readback-only owner
+  readiness gate;
+- PR495A must live on the existing owner-only Studio Publishing Dashboard,
+  `/studio/publishing`;
+- it must use only already-loaded owner documents and Spaces from existing
+  owner endpoints;
+- eligible candidate readback is limited to owner-owned public published
+  documents in public Spaces, with linked-discussion metadata only;
+- no API, schema, migration, public `/events/seminars` behavior, ticket,
+  payment, RSVP, attendee, reminder, live room, media, transcript, provider,
+  queue/worker, Redis, Cloudflare, or launch claim enters scope.
+
+Current lane:
+
+```text
+PR495A - Public Seminar Owner Readiness Gate
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the web-only helper/tests/publishing-dashboard panel
+  scoped in the ARGUS result.
+- DAEDALUS should wake ARGUS with the implementation result and validation.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR494 closed, PR495 opened
 
 MIMIR closes PR494 after ARGUS returned:

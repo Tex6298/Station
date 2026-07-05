@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495 | Public Seminar Host Readiness Preflight | ARGUS / A3 | Open hostile preflight; decide whether the next Live Events / Seminars slice is owner seminar readiness gate, public seminar method copy, durable seminar record contract blocker, defer, or MIMIR decision. | `docs/roadmap/PR495_PUBLIC_SEMINAR_HOST_READINESS_PREFLIGHT_ARGUS.md` |
+| PR495A | Public Seminar Owner Readiness Gate | DAEDALUS / A2 | Accepted preflight; implement a web-only owner seminar readiness gate on `/studio/publishing` using already-loaded owner documents and Spaces, with no seminar persistence, public seminar API change, runtime expansion, RSVP/tickets/payments/reminders/live rooms/provider calls/queues/Cloudflare/Redis, or launch claims. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495 preflight | Public Seminar Host Readiness | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE`; first slice is an owner-only `/studio/publishing` readiness panel over existing owner documents/Spaces, limited to public published documents in public Spaces plus linked-discussion metadata, with no durable seminar record or runtime/event claims. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md` |
 | PR494 closeout | Discern Companion Home Translation | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; PR485A-E plus PR494A cover the safe companion-home translation, and remaining Discern material is duplicate, unsafe, or skin. PR495 opens Public Seminar Host Readiness as the next distinct customer-facing product lane. | `docs/roadmap/PR494_DISCERN_COMPANION_HOME_TRANSLATION_CLOSEOUT.md` |
 | PR494B completion preflight | Discern Companion Home Completion | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; no non-duplicate safe companion-home product delta remains after PR485A-E and PR494A, and leftover Discern material is broad shell/CSS/right-panel skin, stale inbox/source=all behavior, query-selected conversation behavior, placeholder controls, autonomy claims, or API/prompt/runtime/infra drift. | `docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md` |
 | PR494A closeout | Companion Home Context Rail | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted owner persona-home proof passed desktop/375px/390px rail visibility/readability/fit, exact Memory/Inbox/Timeline/Canon/Archive/Profile/Integrity route targets, Memory/Inbox separation, aggregate-only rail readback, Runtime Context Preview separation, private chat accepted provider setup copy, and privacy/no-leak/no-shell-drift boundaries. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_CLOSEOUT.md` |
