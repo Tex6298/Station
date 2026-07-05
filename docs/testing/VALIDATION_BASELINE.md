@@ -20,6 +20,44 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR486A Document Migrator Archive Handoff Review
+
+ARGUS accepted PR486A on 2026-07-05:
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR486A_PERSONA_ARCHIVE_HANDOFF_IMPLEMENTATION`.
+
+Reason:
+
+- accepted DAEDALUS' implementation without a review patch;
+- verified aggregate-only handoff helper output and safe page wiring on the
+  existing persona Archive/files page;
+- verified links target existing rendered anchors or existing owner routes:
+  pasted source, file import, Import Review, Memory inbox, Global Archive, and
+  settings/storage;
+- verified preview-before-confirm behavior, Import Review/Memory inbox
+  separation, Archive connector behavior, onboarding route truth, and existing
+  Archive/files fetches were preserved;
+- verified no private source body, raw id, storage path, signed upload URL,
+  parser internal, SQL/table detail, stack trace, provider payload, token,
+  cookie, key, secret-shaped value, or new private filename/source-name readback
+  was introduced;
+- kept APIs, migrations, schema, parsers, import handlers, storage behavior,
+  connectors, provider/model packages, prompt/retrieval, auth/session,
+  deployment/config, packages, queues/workers, Redis, Cloudflare, billing,
+  public behavior, broad onboarding/archive redesign, global shell styling, CSS,
+  and placeholder controls out of scope;
+- required ARIADNE hosted desktop, `375px`, and `390px` rehearsal before
+  closeout because PR486A is visible UI.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed helper output, page anchors/links, component wiring, tests, docs, and wakeup commit. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/onboarding-paths.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts` | Pass | 45 focused Archive/onboarding/import-review/navigation tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state receipt. |
+
 ## PR486A Document Migrator Archive Handoff Implementation
 
 DAEDALUS implemented PR486A on 2026-07-05:
