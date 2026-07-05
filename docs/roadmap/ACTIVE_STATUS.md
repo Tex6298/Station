@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR485D companion context accepted
+
+ARGUS accepted PR485D with a tightened no-migration private prompt-context
+boundary:
+
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_WITH_PATCHED_BOUNDARY
+```
+
+Implementation label:
+
+```text
+PR485D_NO_MIGRATION_PRIVATE_PROMPT_CONTEXT
+```
+
+Accepted boundary:
+
+- add deterministic `packages/ai` capability/presence helpers;
+- default capability is `conversation-first` only;
+- presence is computed in the private chat route from already-loaded
+  same-conversation history before the new owner message is inserted;
+- `buildPersonaChatPrompt` may render optional capability/presence sections for
+  private prompts only;
+- `assemblePersonaRuntimeContext` may accept optional preformatted prompt
+  strings and must preserve retrieval topology, selected sources, answer focus,
+  trace shape, provider routing, and token-accounting paths;
+- owner context-preview may include capability context only, not presence;
+- public persona chat and public context-preview remain unchanged;
+- no migrations, schema fields, route/query behavior, automatic LLM calls,
+  durable presence storage, tool/autonomy claims, provider routing change,
+  token-accounting rule change, retrieval ordering change, Archive connector
+  behavior, Memory inbox behavior, Redis, Cloudflare, billing, public write,
+  web UI, broad shell, or Discern CSS.
+
+Validation:
+
+- Code/reference review passed for current prompt/runtime/private-chat/public
+  contracts and Discern helper references.
+- Current AI/API focused suite passed with 52 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR485D - Companion Presence And Capability Context
+Owner: DAEDALUS / A2
+State: OPEN_FOR_NO_MIGRATION_PRIVATE_PROMPT_CONTEXT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact private prompt-context boundary in the
+  ARGUS preflight result.
+- If implementation requires schema, public route, provider routing,
+  token-accounting, retrieval-order, UI, or durable state work, stop and wake
+  MIMIR instead of broadening scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR485D companion context preflight opened
 
 MIMIR closed PR485C as accepted and hosted-rehearsed:

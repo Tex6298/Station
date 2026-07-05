@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485D Companion Presence And Capability Context Preflight
+
+ARGUS accepted PR485D on 2026-07-05:
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_WITH_PATCHED_BOUNDARY`.
+
+Reason:
+
+- accepted deterministic `packages/ai` companion capability/presence helpers;
+- defaulted current personas to `conversation-first` only;
+- limited presence to soft same-thread context computed in the private chat
+  route from already-loaded prior messages;
+- allowed private-only optional prompt sections and capability-only owner
+  context-preview;
+- kept public persona chat/preview, schema, routes/query params, automatic LLM
+  calls, durable presence storage, tool/autonomy claims, provider routing,
+  token-accounting rules, retrieval ordering, Archive connector behavior,
+  Memory inbox behavior, Redis, Cloudflare, billing, public writes, web UI,
+  broad shell work, and Discern CSS out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code and reference inspection | Pass | Reviewed current prompt/runtime/private-chat/public contracts and Discern reference helpers as reference-only material. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/retrieval-metadata.test.ts apps/api/src/routes/conversation-archive.test.ts apps/api/src/routes/persona-context.test.ts apps/api/src/routes/personas.test.ts` | Pass | 52 current AI/API tests passed across private chat, public persona chat/preview, runtime context, and retrieval. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors before ARGUS preflight docs. |
+
 ## PR485C Return-To-Thread Readback Hosted Rehearsal
 
 ARIADNE completed the hosted PR485C rehearsal on 2026-07-05:
