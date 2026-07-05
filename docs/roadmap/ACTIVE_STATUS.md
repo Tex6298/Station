@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR485E ready for ARGUS review
+
+DAEDALUS implemented the accepted web-only `PersonaChat` polish lane:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- replaced inline PersonaChat layout styling with scoped
+  `.studio-persona-chat-*` classes;
+- polished the existing private chat header, state/count readback, return card,
+  message rows, live assistant actions, sending/error/provider setup/empty
+  states, existing continuity-candidate archive panel, and composer fit;
+- preserved the existing streaming send path, token handling, conversation
+  loading, archive/candidate review routes, local return-card actions, archived
+  read-only behavior, and public/no-drift boundaries;
+- added focused no-drift tests proving scoped CSS and no placeholder controls;
+- no API, migration, `packages/ai`, prompt/retrieval/provider/runtime,
+  token-accounting, route-query, automatic LLM call, durable summary/presence,
+  Memory inbox, Archive connector, public chat, infra, hosted runtime, broad
+  shell, Discern global CSS, sidebar/topbar, unrelated page styling, or
+  placeholder control drift entered scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts`
+  passed with 29 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485E - Companion Chat Surface Polish
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review scoped CSS locality, behavior preservation, honest live
+  controls, no placeholder controls, and mobile fit readiness.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for ARIADNE hosted
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- ARIADNE hosted desktop, `375px`, and `390px` rehearsal remains required
+  after ARGUS accepts the implementation because PR485E is visible UI.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR485E chat surface polish accepted
 
 ARGUS accepted PR485E as a strict web-only `PersonaChat` polish lane:

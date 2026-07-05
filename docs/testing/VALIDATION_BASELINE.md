@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485E Companion Chat Surface Polish Implementation
+
+DAEDALUS implemented PR485E on 2026-07-05:
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- replaced inline `PersonaChat` layout styling with scoped
+  `.studio-persona-chat-*` classes;
+- polished only the accepted existing private chat surface areas: header,
+  state/count readback, return card, message rows, live assistant actions,
+  sending/error/provider setup/empty states, existing continuity-candidate
+  archive panel, and composer fit;
+- preserved the existing streaming send path, token handling, conversation
+  loading, archive/candidate review routes, local return-card actions, archived
+  read-only behavior, and public/no-drift boundaries;
+- added focused no-drift tests proving scoped CSS and absence of placeholder
+  controls;
+- kept APIs, migrations, `packages/ai`, prompt/retrieval/provider/runtime,
+  token accounting, route-query behavior, automatic LLM calls, durable
+  summary/presence storage, Memory inbox behavior, Archive connector behavior,
+  public chat behavior, infrastructure, hosted runtime, broad Studio shell,
+  Discern global CSS, sidebar/topbar, unrelated page styling, and placeholder
+  controls out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 29 focused web tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR485E Companion Chat Surface Polish Preflight
 
 ARGUS accepted PR485E on 2026-07-05:

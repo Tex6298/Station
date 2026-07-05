@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const source = readFileSync("apps/web/components/studio/persona-chat.tsx", "utf8");
+const css = readFileSync("apps/web/app/globals.css", "utf8");
 
 test("PersonaChat return card preserves the existing streaming send path", () => {
   assert.match(source, /import \{ sendPersonaChatWithStream \} from "@\/lib\/chat-stream"/);
@@ -47,6 +48,35 @@ test("PersonaChat return card keeps archived conversations read-only and avoids 
     source,
     /useRouter|useSearchParams|URLSearchParams|window\.history|\?c=|source=all|\/conversations\/candidates\/inbox|archive-connectors|source_inventory|cloudflare|redis|stripe|billing|new Queue|Worker\(|social connector|provider payload|prompt context/i,
   );
+});
+
+test("PersonaChat polish keeps live controls honest and avoids placeholders", () => {
+  assert.match(source, /studio-persona-chat-header/);
+  assert.match(source, /studio-persona-chat-return/);
+  assert.match(source, /studio-persona-chat-message-actions/);
+  assert.match(source, /Save to memory/);
+  assert.match(source, /Promote to canon/);
+  assert.match(source, /Continuity candidates/);
+  assert.match(source, /studio-persona-chat-composer/);
+  assert.doesNotMatch(source, /\b(?:Attach|Microphone|Mic|Tools|Regenerate|Copy|Notes|Menu|More options)\b/i);
+});
+
+test("PersonaChat polish CSS stays scoped to studio-persona-chat selectors", () => {
+  assert.match(css, /\.studio-persona-chat/);
+  assert.doesNotMatch(css, /\.public-persona-chat[^{]*\.studio-persona-chat|\.studio-persona-chat[^{]*\.public-persona-chat/);
+
+  const selectors = css
+    .split("}")
+    .map((block) => block.split("{")[0]?.trim() ?? "")
+    .filter((selector) => selector.includes(".studio-persona-chat"));
+  assert.equal(selectors.length > 20, true);
+
+  for (const selector of selectors) {
+    for (const part of selector.split(",")) {
+      assert.match(part.trim(), /^\.studio-persona-chat/);
+      assert.doesNotMatch(part, /\.card|\.button(?!-)|\.textarea(?!-)|\.studio-frame|\.studio-dashboard|\.studio-companion|\.public-persona/);
+    }
+  }
 });
 
 function functionBody(name: string) {
