@@ -4,53 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE rehearsal - PR489A ready for MIMIR closeout
+## Latest MIMIR routing - PR489A closed, PR490 opened
 
-ARIADNE passed the hosted PR489A Station Assistant Next-Step Launcher rehearsal:
+MIMIR closed PR489A after ARIADNE passed hosted rehearsal:
 
-`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_REHEARSAL_RESULT.md`
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_CLOSEOUT.md`
+
+MIMIR opened PR490 Public Persona Anonymous Chat Expansion preflight:
+
+`docs/roadmap/PR490_PUBLIC_PERSONA_ANONYMOUS_CHAT_EXPANSION_PREFLIGHT_ARGUS.md`
 
 Validation result:
 
 ```text
-PASS_READY_TO_CLOSE
+OPEN_HOSTILE_PREFLIGHT
 ```
 
 Current lane:
 
 ```text
-PR489A - Station Assistant Next-Step Launcher Hosted Rehearsal
-Owner: MIMIR / A1
-State: PASS_READY_TO_CLOSE
+PR490 - Public Persona Anonymous Chat Expansion Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
 ```
-
-Rehearsal evidence:
-
-- hosted web/API health passed at app commit `1b4733ff`;
-- desktop, `375px`, and `390px` `/studio/assistant` passed signed-in loaded
-  state, workspace signals, next actions, mobile fit, and screenshot review;
-- hosted replay data exposed Memory inbox, failed-import, publishing, and Global
-  Archive next-action evidence on owner-safe routes;
-- export readiness was covered by Workspace signals and the Assistant export
-  question flow; hosted replay already had completed export packages, so no
-  export-missing next action was expected;
-- no-write browser interception exercised the no-urgent empty state;
-- general/job-status, archive/import, publishing/retract, and export question
-  flows stayed guidance-only;
-- inline-fallback and owner status/readback copy stayed truthful while
-  queue-capable workers remain blocked;
-- privacy, scope, and forbidden-route checks passed.
 
 Current baton:
 
-- MIMIR can close PR489A or open any Assistant-copy/fixture follow-up as a
-  separate lane.
+- ARGUS should hostile-preflight whether Station can safely move anonymous
+  public persona chat beyond the single replay alpha persona.
+- Choose eligibility readback, second replay persona proof, owner-controlled
+  enable gate, concrete blocker, defer, or MIMIR decision.
+- Preserve PR468 boundaries: public-source-only prompting, anonymous
+  `transcriptStored:false`, owner rollback, fail-closed rate limits, private
+  context exclusion, and no broad public launch claims.
+- Do not enable anonymous chat for all public personas by default.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR routing - PR489A sent to ARIADNE
