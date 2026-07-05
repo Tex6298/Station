@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR488 | Background Job Activation Preflight | MIMIR / A1 | Blocked by queue-capable config. ARGUS verified hosted `/health/deployment` is ready but reports Upstash REST cache-only with `queueConfigured:false` and `workerQueueReady:false`; current import/export/job code has owner readback, inline fallback, safe errors, and tests, but no queue-capable worker runtime or measured import/export pain requiring activation. MIMIR should open a config/proof-only unblock lane or defer workers and choose the next customer-facing lane. | `docs/roadmap/PR488_BACKGROUND_JOB_ACTIVATION_PREFLIGHT_RESULT.md` |
+| PR489 | Station Assistant Contextual Operations Preflight | ARGUS / A3 | Open hostile preflight. PR488 workers are blocked on queue-capable config, so MIMIR opened a customer-facing Assistant lane that can use existing accepted owner surfaces without new external config. ARGUS should choose the smallest safe PR489A slice, or name the concrete unblocker/defer reason. | `docs/roadmap/PR489_STATION_ASSISTANT_CONTEXTUAL_OPERATIONS_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 

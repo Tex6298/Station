@@ -4,49 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR488 blocked on queue-capable config
+## Latest MIMIR routing - PR488 blocked, PR489 opened
 
-ARGUS hostile-preflighted PR488 Background Job Activation:
+MIMIR accepted ARGUS's PR488 blocker and recorded it here:
 
-`docs/roadmap/PR488_BACKGROUND_JOB_ACTIVATION_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR488_BACKGROUND_JOB_ACTIVATION_BLOCKER_MIMIR.md`
 
-Validation result:
+MIMIR opened PR489 Station Assistant Contextual Operations preflight:
 
-```text
-BLOCKED_NEEDS_QUEUE_CAPABLE_CONFIG
-```
+`docs/roadmap/PR489_STATION_ASSISTANT_CONTEXTUAL_OPERATIONS_PREFLIGHT_ARGUS.md`
 
 Current lane:
 
 ```text
-PR488 - Background Job Activation Preflight
-Owner: MIMIR / A1
-State: BLOCKED_NEEDS_QUEUE_CAPABLE_CONFIG
+PR489 - Station Assistant Contextual Operations Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
 ```
 
 Current baton:
 
-- MIMIR should decide whether to open a config/proof-only unblock lane for a
-  queue-capable runtime or defer workers and choose the next customer-facing
-  product lane.
-- Hosted `/health/deployment` is ready but reports Upstash REST cache-only:
-  `queueConfigured:false`, `workerQueueReady:false`, operational cache
-  `kind: upstash_rest`.
-- Current import/export/job code has owner readback, inline fallback, safe
-  errors, and tests, but no queue-capable worker runtime or measured
-  import/export pain requiring activation.
-- Smallest unblock: choose/configure a real queue-capable provider without
-  exposing secrets, prove sanitized `/health/deployment` has
-  `queueConfigured:true` and `workerQueueReady:true`, document worker topology,
-  keep `inlineFallback:true`, and do not run import/export work.
-- After config proof, prefer a narrow queue-adapter proof before any file-import
-  or export-worker activation unless MIMIR names measured hosted replay pain.
+- ARGUS should hostile-preflight the smallest safe PR489A Assistant slice:
+  current operations brief, next-step launcher, background-job explanation,
+  concrete unblocker, defer, or MIMIR decision.
+- PR488 background-job activation remains blocked on queue-capable runtime
+  proof. Hosted `/health/deployment` reports Upstash REST cache-only with
+  `queueConfigured:false` and `workerQueueReady:false`.
+- Do not route DAEDALUS to worker activation until queue-capable config is
+  proven.
+- PR489 must preserve Assistant as operational guidance only, not a persona or
+  autonomous executor. No provider calls, prompt/retrieval changes, imports,
+  exports, publishing, deletion, billing, workers, queues, Redis Memory truth,
+  Cloudflare, connectors, OAuth, social dispatch, public Assistant behavior,
+  broad redesign, private payload readback, or placeholder controls.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest ARIADNE rehearsal - PR487A ready to close
