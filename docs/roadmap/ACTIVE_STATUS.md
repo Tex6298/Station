@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR486A Document Migrator Archive handoff accepted
+
+ARGUS accepted PR486A as a persona Archive handoff polish lane for Document
+Migrator:
+
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR486A_PERSONA_ARCHIVE_HANDOFF_POLISH
+```
+
+Accepted boundary:
+
+- web/helper/test-only work on the existing
+  `/studio/personas/[personaId]/files` handoff destination;
+- allowed files are the persona Archive/files page, `archive-trust` helper and
+  test, optional existing onboarding/import-review no-drift tests, optional
+  narrowly scoped CSS if unavoidable, and docs;
+- use only already-loaded owner state: `files`, `jobs`, `importCandidates`, and
+  existing archive trust state;
+- no API, migration, schema, parser, import preview/import handler, storage
+  upload/register, Archive connector, provider/model, prompt/retrieval,
+  auth/session, deployment/config, package, queue/worker, Redis, Cloudflare,
+  billing, public route, broad onboarding/archive redesign, or global shell
+  change;
+- no private source body, raw id, storage path, signed upload URL, parser
+  internal, SQL/table detail, stack trace, provider payload, token, cookie, key,
+  secret-shaped value, or new private filename/source-name readback;
+- no disabled/unwired buttons, live connector/OAuth/API pull claims, recurring
+  sync claims, automatic import claims, automatic Memory/Canon promotion, or
+  automatic continuity linking.
+
+Validation:
+
+- Code review passed for current route shape and safe web/helper/test boundary.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/onboarding-paths.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts`
+  passed with 42 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR486A - Document Migrator Archive Handoff Polish
+Owner: DAEDALUS / A2
+State: ACCEPTED_FOR_IMPLEMENTATION_BY_ARGUS
+```
+
+Current baton:
+
+- DAEDALUS should add only the accepted Document Migrator handoff/readiness
+  polish on the existing persona Archive/files page.
+- ARGUS should review implementation before routing ARIADNE.
+- ARIADNE hosted desktop, `375px`, and `390px` rehearsal is required after
+  ARGUS accepts implementation because PR486A is visible UI.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR485E closed, PR486 opened
 
 MIMIR closes PR485E Companion Chat Surface Polish as hosted-rehearsed and

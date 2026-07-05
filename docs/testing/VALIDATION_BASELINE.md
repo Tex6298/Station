@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR486A Document Migrator Archive Handoff Preflight
+
+ARGUS accepted PR486A on 2026-07-05:
+`docs/roadmap/PR486A_DOCUMENT_MIGRATOR_ARCHIVE_HANDOFF_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR486A_PERSONA_ARCHIVE_HANDOFF_POLISH`.
+
+Reason:
+
+- accepted web/helper/test-only polish on the existing
+  `/studio/personas/[personaId]/files` Document Migrator handoff destination;
+- rejected a broad onboarding rewrite because current onboarding already has
+  state-aware Document Migrator routing and truthful live/deferred copy;
+- limited implementation to already-loaded owner state: files, jobs, import
+  candidates, and existing archive trust state;
+- required focused no-drift coverage for handoff copy, route preservation,
+  preview-before-confirm behavior, Import Review separation, Archive connector
+  no-drift, live connector deferral, and no private/secret readback;
+- required ARIADNE hosted desktop, `375px`, and `390px` rehearsal after ARGUS
+  accepts implementation because PR486A is visible UI;
+- kept APIs, migrations, schema, parsers, import handlers, storage behavior,
+  connectors, provider/model packages, prompt/retrieval, auth/session,
+  deployment/config, packages, queues/workers, Redis, Cloudflare, billing,
+  public behavior, broad onboarding/archive redesign, global shell styling, and
+  placeholder controls out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed PR486 handoff, onboarding path helpers/tests, onboarding UI, persona Archive/files page, Archive trust helpers/tests, import preview helper, import review helper/component, Global Archive helper, active status, lane index, and PR485E closeout. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/onboarding-paths.test.ts apps/web/lib/import-review.test.ts apps/web/lib/studio-navigation.test.ts` | Pass | 42 focused Archive/onboarding/import-review/navigation tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR485E Companion Chat Surface Polish Hosted Rehearsal
 
 ARIADNE completed the hosted PR485E rehearsal on 2026-07-05:
