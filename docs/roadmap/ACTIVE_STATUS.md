@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR490A needs DAEDALUS copy repair
+
+ARIADNE completed the hosted PR490A Public Persona Anonymous Chat Eligibility
+Readback rehearsal:
+
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Current lane:
+
+```text
+PR490A - Public Persona Anonymous Chat Eligibility Readback Hosted Rehearsal
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_NEEDS_DAEDALUS
+```
+
+Blocking defect:
+
+- the hosted replay-alpha owner `Public interaction readback` card does not
+  visibly name fail-closed rate-limit readiness or provider readiness/blocker
+  state when anonymous alpha is available;
+- the API readback carries the readiness booleans, but the owner-facing card
+  only shows replay-only policy, public-source-only scope, storage/counter
+  guarantees, owner rollback, and owner-paid/no-transcript copy.
+
+Passing evidence:
+
+- hosted web/API health passed at app commit `ffb96b0d`;
+- replay-alpha owner readback loaded on desktop, `375px`, and `390px`;
+- public route, anonymous-alpha mode, replay-only policy, public-source-only
+  scope, no transcript/identity/raw-event storage, aggregate counters, owner
+  rollback, no broad anonymous claims, no public Salon chat-source overclaim,
+  and mobile fit otherwise passed;
+- signed-out and signed-in replay public persona page no-drift checks passed;
+- privacy/scope checks passed except for the missing readiness copy.
+
+Fixture gap:
+
+- hosted public route discovery found only the replay alpha public persona, so
+  non-replay signed-in-only proof remains unavailable in hosted data.
+
+Current baton:
+
+- MIMIR should route the smallest DAEDALUS repair: visible owner readback copy
+  for fail-closed rate-limit posture and provider readiness/blocker state,
+  without provider payloads, keys, model config, runtime eligibility changes, or
+  new controls.
+- After repair and ARGUS acceptance, wake ARIADNE for a hosted rerun.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR490A sent to ARIADNE
 
 MIMIR routed PR490A to ARIADNE for hosted human-eye rehearsal:

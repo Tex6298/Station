@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR490A Public Persona Anonymous Chat Eligibility Readback ARIADNE Rehearsal
+
+ARIADNE completed PR490A hosted rehearsal on 2026-07-05:
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PRODUCT_DEFECT_NEEDS_DAEDALUS`.
+
+Reason:
+
+- hosted web/API health passed at app commit `ffb96b0d`;
+- replay-alpha owner `Public interaction readback` loaded on desktop, `375px`,
+  and `390px`;
+- public route, anonymous-alpha mode, replay-only policy, public-source-only
+  scope, no visitor transcript/identity/raw-event storage, aggregate counters,
+  owner rollback, no broad anonymous claim, no public Salon chat-source
+  overclaim, and mobile fit otherwise passed;
+- visible owner readback did not name fail-closed rate-limit readiness or
+  provider readiness/blocker state when anonymous alpha was available;
+- signed-out and signed-in replay public persona page no-drift checks passed;
+- hosted route discovery still found no second ordinary public persona for
+  non-replay signed-in-only proof, so that remains an explicit fixture gap.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services reported ready at app commit `ffb96b0d`. |
+| `npm exec --yes pnpm@10.32.1 -- dlx @playwright/test test pr490a-eligibility-readback-rehearsal.spec.js --reporter=line --workers=1 --output=.codex-tmp\pw-pr490a-output` | Fail - product defect | 3 owner-readback viewport checks failed because visible copy omitted fail-closed rate-limit readiness and provider readiness/blocker state; 3 public/no-drift checks passed; 1 ordinary-public-persona check was skipped for fixture gap. |
+| Screenshot review | Fail - product defect | Desktop, `375px`, and `390px` owner screenshots confirmed the missing readiness copy; signed-out public replay screenshot confirmed public chat no-drift. |
+| Ordinary public persona fixture discovery | Gap | Public route discovery found only the replay alpha public persona. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
 ## PR490A Public Persona Anonymous Chat Eligibility Readback ARGUS Review
 
 ARGUS accepted PR490A on 2026-07-05:
