@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR485C return-to-thread accepted
+
+ARGUS accepted the next Discern companion UX translation slice:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485C_WEB_ONLY_RETURN_TO_THREAD
+```
+
+Accepted boundary:
+
+- add a compact return-to-thread card inside existing `PersonaChat` for active
+  existing conversations with messages;
+- `Continue` focuses the composer only;
+- `Summarize` pre-fills an owner-editable summary request only;
+- `Start fresh` reuses local `startNewChat()` only;
+- no URL/query behavior, route-selected conversation loading, automatic LLM
+  call, durable summary storage, API change, prompt/retrieval/provider/runtime
+  change, token-accounting change, Archive connector behavior, billing,
+  queues/workers, Redis, Cloudflare, social connector, public write, broad
+  shell, or Discern CSS.
+
+Validation:
+
+- Chat stream / studio navigation / import review focused suite passed with 23
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485C - Return-To-Thread Readback
+Owner: DAEDALUS / A2
+State: OPEN_FOR_WEB_ONLY_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact web-only return card inside the existing
+  chat surface.
+- If route selection, query params, API work, or automatic summarization seems
+  necessary, stop and wake MIMIR instead of broadening scope.
+- After ARGUS accepts implementation, MIMIR should route ARIADNE for hosted
+  desktop and `375px`/`390px` mobile rehearsal because the chat surface changes
+  visibly.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR485C return-to-thread preflight opened
 
 MIMIR closed PR485B after ARGUS acceptance and ARIADNE hosted rehearsal pass,

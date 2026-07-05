@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485C Return-To-Thread Readback Preflight
+
+ARGUS accepted PR485C on 2026-07-05:
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR485C_WEB_ONLY_RETURN_TO_THREAD`.
+
+Reason:
+
+- accepted a compact return-to-thread card inside existing `PersonaChat` for
+  active existing conversations with messages;
+- kept `Continue` focus-only, `Summarize` prefill-only, and `Start fresh`
+  local-state-only;
+- forbade query params, route-selected conversation loading, automatic LLM
+  calls, durable summary storage, API changes, prompt/retrieval/provider/runtime
+  changes, token-accounting changes, Archive connector behavior, billing,
+  queues/workers, Redis, Cloudflare, social connectors, public writes, broad
+  shell work, and Discern CSS;
+- preserved archived read-only behavior, provider setup/error handling,
+  streaming chat, and PR485B Memory inbox behavior.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code and handoff inspection | Pass | Reviewed PR485C handoff, current PersonaChat streaming/archive/new-chat behavior, chat-stream client, and existing no-drift tests. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 23 streaming, navigation, Memory inbox, and no-drift tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors after doc updates; CRLF normalization warnings only. |
+
 ## PR485B Memory And Continuity Candidate Inbox Hosted Rehearsal
 
 ARIADNE completed the hosted PR485B rehearsal on 2026-07-05:
