@@ -4,19 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR494A ready for ARGUS review
+## Latest ARGUS review - PR494A accepted for hosted rehearsal
 
-DAEDALUS implemented PR494A:
+ARGUS accepted the PR494A implementation:
 
-`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_RESULT.md`
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REVIEW_RESULT.md`
 
 Validation result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR494A_COMPANION_HOME_CONTEXT_RAIL_IMPLEMENTATION
 ```
 
-Implemented:
+Accepted:
 
 - compact web-only Companion Home Context Rail on
   `/studio/personas/[personaId]`;
@@ -26,8 +26,10 @@ Implemented:
 - already-loaded persona fields and `persona.continuity` aggregate counts only;
 - real owner links for Memory, Inbox, Timeline, Canon, Archive/files, Profile,
   and Integrity;
-- no `PersonaChat`, API, prompt/retrieval/provider, public chat, Studio shell,
-  sidebar, topbar, or broad CSS change.
+- no stale `/conversations/candidates/inbox`, no `source=all`, no
+  `PersonaChat`, API, prompt/retrieval/provider, public chat, Studio shell,
+  sidebar, topbar, broad CSS, private/raw/secret-shaped readback, or Runtime
+  Context Preview boundary drift.
 
 Validation:
 
@@ -41,24 +43,24 @@ Current lane:
 
 ```text
 PR494A - Companion Home Context Rail
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
+Owner: MIMIR / A1
+State: READY_FOR_HOSTED_REHEARSAL_ROUTING
 ```
 
 Current baton:
 
-- ARGUS should review exact owner links, Memory Inbox route, aggregate count
-  honesty, stale path exclusion, no `PersonaChat` drift, scoped CSS,
-  privacy/no-leak boundaries, and forbidden-scope drift.
-- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/`375px`/`390px`
-  rehearsal routing.
-- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+- MIMIR should route ARIADNE hosted desktop/`375px`/`390px` rehearsal for
+  PR494A before closeout.
+- ARIADNE should verify owner persona home rail fit/readability, exact route
+  targets, Memory/Inbox separation, private chat no-drift, Runtime Context
+  Preview separation, privacy/no-leak boundaries, and no forbidden shell/topbar/
+  sidebar/broad CSS or runtime claims.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest MIMIR closeout - PR493A closed, PR494 opened

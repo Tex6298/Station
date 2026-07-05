@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR494A Companion Home Context Rail ARGUS Review
+
+ARGUS accepted PR494A implementation on 2026-07-05:
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR494A_COMPANION_HOME_CONTEXT_RAIL_IMPLEMENTATION`.
+
+Reason:
+
+- the rail uses already-loaded persona fields and aggregate continuity counts;
+- route links are exact owner routes for Memory, Inbox, Timeline, Canon,
+  Archive/files, Profile, and Integrity;
+- Memory Inbox stays on `/studio/personas/[personaId]/memory-inbox`;
+- stale `/conversations/candidates/inbox` and `source=all` paths remain absent;
+- `PersonaChat`, APIs, prompts, retrieval, provider routing, public chat,
+  Studio shell/sidebar/topbar, broad CSS, and Runtime Context Preview boundaries
+  did not drift.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Exact owner links, aggregate labels, Memory Inbox route, scoped CSS, no-leak copy, and no `PersonaChat`/API/prompt/runtime drift passed review. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts apps/web/lib/import-review.test.ts packages/ai/test/companion-context.test.ts` | Pass | 37 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for `.station-agents/state/ARGUS.json`; no whitespace errors. |
+
 ## PR494A Companion Home Context Rail Implementation
 
 DAEDALUS implemented PR494A on 2026-07-05:
