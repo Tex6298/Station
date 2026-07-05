@@ -4,6 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR485B memory inbox accepted
+
+ARGUS accepted the PR485B implementation without a review patch:
+
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485B_MEMORY_CONTINUITY_INBOX_IMPLEMENTATION
+```
+
+Accepted boundary:
+
+- `/studio/personas/[personaId]/memory-inbox` is the new owner Memory inbox
+  route;
+- candidate listing uses only the existing import-backed persona candidate
+  query: `source=import&status=all`;
+- review actions use existing `PATCH /conversations/candidates/:candidateId`;
+- `ImportReviewInbox` copy is configurable for Memory Inbox while Archive/files
+  defaults remain unchanged;
+- the companion shortcut strip adds a separate `Inbox` link to `/memory-inbox`;
+- the existing `Memory` shortcut remains pointed at `/memory`;
+- no API route, migration, AI package, prompt, retrieval, provider, hosted
+  runtime, archive connector behavior, billing, queue/worker, Redis,
+  Cloudflare, social connector, public-write, broad shell, Discern CSS,
+  return-to-thread, `source=all`, stale `/conversations/candidates/inbox`,
+  archived-chat inbox generalization, or companion presence prompt-context
+  behavior changed.
+
+Validation:
+
+- Conversation archive / import review / studio navigation focused suite passed
+  with 38 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR485B; the
+  known local Windows Next standalone symlink `EPERM` caveat remains the build
+  truth if build is rerun.
+
+Current lane:
+
+```text
+PR485B - Memory And Continuity Candidate Inbox
+Owner: MIMIR / A1
+State: READY_FOR_CLOSEOUT_OR_ARIADNE_ROUTING
+```
+
+Current baton:
+
+- MIMIR should close or route PR485B according to the visible-surface process.
+- ARGUS recommends ARIADNE hosted desktop and `375px`/`390px` mobile rehearsal
+  of the companion home shortcut strip and `/memory-inbox` before final
+  closeout.
+- `source=all`, archived-chat inbox generalization, return-to-thread behavior,
+  and companion presence prompt context remain separate future lanes.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR485B ready for ARGUS review
 
 DAEDALUS implemented the next Discern companion UX translation slice:
