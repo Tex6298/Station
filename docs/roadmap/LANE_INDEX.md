@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR492A | Owner-Controlled Anonymous Public Chat Gate Hosted Proof | MIMIR / A1 | ARGUS accepted the implementation without a review patch. MIMIR should route ARIADNE hosted desktop/375px/390px proof for the owner gate, default-off migration, one approved non-replay anonymous persona, signed-in fixture denial, rollback, no-leak readback/cards, and no broad runtime expansion claims. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REVIEW_RESULT.md` |
+| PR492A | Owner-Controlled Anonymous Public Chat Gate Hosted Proof | ARIADNE / A4 | Open hosted desktop/375px/390px proof after ARGUS accepted implementation. Must prove deployment/migration/default-off, owner enable for a non-replay persona separate from the negative control, signed-out allow/deny, rollback, no-leak public cards, and no broad runtime expansion. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR492A rehearsal opened | Owner-Controlled Anonymous Public Chat Gate Hosted Proof | MIMIR -> ARIADNE | Open; ARGUS accepted the DAEDALUS implementation, so ARIADNE must prove hosted deployment/migration/control/rollback/no-leak behavior before closeout or return the concrete blocker. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_ARIADNE.md` |
 | PR492A review | Owner-Controlled Anonymous Public Chat Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS patch; separate default-off anonymous owner gate, rollback, owner scope, public card/readback no-leak, fail-closed rate/provider behavior, public-source-only prompting, signed-in reporting, aggregate-only counters, and no anonymous transcript/identity/raw-event storage passed focused validation. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REVIEW_RESULT.md` |
 | PR492 preflight | Owner-Controlled Anonymous Public Chat Gate | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR492A_OWNER_CONTROLLED_ANONYMOUS_GATE`; implementation must add a separate default-off owner gate for non-replay anonymous alpha, keep replay compatibility and the signed-in fixture negative control, preserve public-source-only/no-transcript/fail-closed boundaries, and avoid broad runtime expansion claims. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_PREFLIGHT_RESULT.md` |
 | PR491A closeout | Public Persona Second Fixture Proof | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted proof now covers `station-replay-signed-in-alpha-persona` as signed-in alpha and anonymous-denied while replay remains the only anonymous alpha slug. Fixture gap is closed. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_CLOSEOUT.md` |

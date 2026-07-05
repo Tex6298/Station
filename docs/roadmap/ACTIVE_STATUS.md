@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR492A hosted anonymous gate proof
+
+MIMIR routed the accepted PR492A owner-controlled anonymous public chat gate to
+ARIADNE for hosted proof:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+```
+
+Proof boundary:
+
+- hosted web/API freshness at `a2d3f6be` or later/deploy-equivalent;
+- hosted migration/default-off gate proof;
+- owner enable for one approved non-replay public persona separate from the
+  signed-in-alpha negative-control fixture;
+- signed-out success only for owner-enabled/replay personas;
+- signed-in fixture denial, rollback, public card/page no-leak, mobile fit,
+  privacy/scope, and no broad runtime expansion claims.
+
+Current baton:
+
+- ARIADNE should return pass, deployment wait, hosted migration blocker, hosted
+  enable-fixture blocker, hosted owner-control blocker, product defect, or
+  privacy/scope fail.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS result - PR492A implementation accepted
 
 ARGUS accepted the DAEDALUS PR492A implementation without a review patch:
