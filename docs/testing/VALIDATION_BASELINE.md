@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR494B Discern Companion Home Completion ARGUS Preflight
+
+ARGUS closed PR494B on 2026-07-05:
+`docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`.
+
+Reason:
+
+- PR485A-E plus PR494A cover the safe companion-home translation;
+- no concrete non-duplicate product delta remains inside current boundaries;
+- remaining Discern material is duplicate, unsafe, or skin;
+- no DAEDALUS implementation lane should open for PR494B.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Discern leftovers are broad CSS/shell/right-panel work, stale candidate inbox/source=all behavior, query-selected conversations, placeholder controls, autonomy/presence claims, or API/prompt/runtime/infra drift. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts apps/web/lib/import-review.test.ts packages/ai/test/companion-context.test.ts` | Pass | 37 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache. |
+| `git diff --check` | Pass | CRLF normalization warning only for `.station-agents/state/ARGUS.json`; no whitespace errors. |
+
 ## PR494A Companion Home Context Rail Hosted Rehearsal
 
 ARIADNE completed PR494A hosted rehearsal on 2026-07-05:

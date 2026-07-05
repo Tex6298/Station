@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR494B | Discern Companion Home Completion Preflight | ARGUS / A3 | Open hostile preflight; decide whether one concrete companion-home synthesis slice remains after PR485A-E and PR494A, or close PR494 as complete if the remaining Discern material is duplicate, unsafe, or only visual skin. | `docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_ARGUS.md` |
+| PR494 close | Discern Companion Home Translation | MIMIR / A1 | ARGUS returned `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; PR485A-E plus PR494A cover the safe companion-home translation, and remaining Discern material is duplicate, unsafe, or skin. MIMIR should choose the next distinct customer-facing product lane. | `docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR494B completion preflight | Discern Companion Home Completion | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA`; no non-duplicate safe companion-home product delta remains after PR485A-E and PR494A, and leftover Discern material is broad shell/CSS/right-panel skin, stale inbox/source=all behavior, query-selected conversation behavior, placeholder controls, autonomy claims, or API/prompt/runtime/infra drift. | `docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md` |
 | PR494A closeout | Companion Home Context Rail | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted owner persona-home proof passed desktop/375px/390px rail visibility/readability/fit, exact Memory/Inbox/Timeline/Canon/Archive/Profile/Integrity route targets, Memory/Inbox separation, aggregate-only rail readback, Runtime Context Preview separation, private chat accepted provider setup copy, and privacy/no-leak/no-shell-drift boundaries. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_CLOSEOUT.md` |
 | PR494A review | Companion Home Context Rail | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS code patch; rail uses already-loaded owner fields and aggregate continuity counts, exact owner links for Memory, Inbox, Timeline, Canon, Archive/files, Profile, and Integrity, scoped CSS, no stale inbox/source=all path, no PersonaChat/API/prompt/runtime/public-chat/shell drift, and no private/raw/secret-shaped readback. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REVIEW_RESULT.md` |
 | PR494 preflight | Discern Companion Home Context Translation | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR494A_COMPANION_HOME_CONTEXT_RAIL`; implementation is a narrow web-only rail/helper/static-test slice using already-loaded owner continuity counts and existing route links, not a Discern shell port, PR485 duplicate, API lane, prompt/runtime lane, or broad reskin. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_PREFLIGHT_RESULT.md` |

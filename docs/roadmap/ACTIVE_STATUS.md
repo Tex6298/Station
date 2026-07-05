@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR494 companion translation complete
+
+ARGUS closed the PR494B completion preflight:
+
+`docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+CLOSE_PR494_NO_REMAINING_COMPANION_DELTA
+```
+
+Decision:
+
+- PR485A-E plus PR494A already cover the safe Discern companion-home
+  translation: shortcuts, Memory Inbox, return-to-thread, private prompt
+  context, chat polish, and owner context rail;
+- remaining Discern material is duplicate, unsafe, or skin: broad CSS/shell/
+  right-panel work, stale candidate inbox/source=all assumptions,
+  query-selected conversations, placeholder controls, autonomy/presence claims,
+  or API/prompt/runtime/infra drift;
+- no DAEDALUS implementation lane should open for PR494B.
+
+Current lane:
+
+```text
+PR494 - Discern Companion Home Translation
+Owner: MIMIR / A1
+State: CLOSED_NO_REMAINING_COMPANION_DELTA
+```
+
+Current baton:
+
+- MIMIR should close the Discern companion-home translation lane and choose the
+  next distinct customer-facing product lane.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR closeout - PR494A closed, PR494B opened
 
 MIMIR closed PR494A after ARIADNE returned:
