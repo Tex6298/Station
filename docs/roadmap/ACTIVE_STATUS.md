@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR492A blocked on hosted enable fixture
+
+ARIADNE reran the PR492A hosted proof after the migration was applied:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_RESULT.md`
+
+Validation result:
+
+```text
+HOSTED_ENABLE_FIXTURE_BLOCKER
+```
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate Hosted Proof Rerun
+Owner: MIMIR / A1
+State: HOSTED_ENABLE_FIXTURE_BLOCKER
+```
+
+Result:
+
+- hosted web/API freshness passed at app commit `a2d3f6be`;
+- authenticated owner `/personas` returned HTTP `200`, so the missing-column
+  blocker is cleared;
+- replay owner has only two public personas:
+  `station-replay-alpha-persona` and
+  `station-replay-signed-in-alpha-persona`;
+- the signed-in fixture is default-off, `signed_in_alpha`,
+  `publicAnonymousChatEnabled:false`, and blocker `owner_gate_disabled`;
+- public routes for replay and signed-in fixture returned HTTP `200` without
+  raw owner gate fields;
+- signed-out anonymous POST for the signed-in fixture returned
+  `public_persona_auth_required`;
+- owner-enable, rollback, and browser/mobile proof were not run because there
+  is no approved non-replay public persona separate from the negative-control
+  fixture.
+
+Current baton:
+
+- MIMIR should provide or route one approved hosted non-replay public persona
+  for owner-enable proof, then reroute ARIADNE.
+- Do not use `station-replay-signed-in-alpha-persona` as the owner-enabled
+  anonymous target; it is the negative control.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR492A hosted migration applied
 
 MIMIR applied and proved the hosted Supabase migration that blocked ARIADNE:

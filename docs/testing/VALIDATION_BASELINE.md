@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR492A Owner-Controlled Anonymous Public Chat Gate Hosted Rerun
+
+ARIADNE reran PR492A hosted proof on 2026-07-05:
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_RESULT.md`.
+
+Validation result:
+`HOSTED_ENABLE_FIXTURE_BLOCKER`.
+
+Reason:
+
+- hosted migration blocker is cleared;
+- hosted web/API health passed at app commit `a2d3f6be`;
+- owner `/personas` returned HTTP `200`;
+- signed-in fixture default-off and public no-leak checks passed;
+- replay owner has no approved non-replay public persona separate from the
+  signed-in-alpha negative-control fixture for owner-enable proof.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services were fresh at app commit `a2d3f6be`. |
+| Authenticated owner `/personas` probe | Pass | Returned HTTP `200`; only replay alpha and the signed-in negative-control fixture are public for the replay owner. |
+| Default-off gate readback | Pass | `station-replay-signed-in-alpha-persona` remained `signed_in_alpha`, `publicAnonymousChatEnabled:false`, with blocker `owner_gate_disabled`. |
+| Public route no-leak probe | Pass | Replay and signed-in fixture public routes returned HTTP `200`, exposed mode, and did not expose raw owner gate fields. |
+| Signed-out fixture denial | Pass | Anonymous POST for the signed-in fixture returned HTTP `401` with `public_persona_auth_required`. |
+| Owner-enable fixture availability | Blocked | No approved non-replay public persona exists separate from the signed-in-alpha negative-control fixture. |
+
 ## PR492A Owner-Controlled Anonymous Public Chat Gate Hosted Proof
 
 ARIADNE started PR492A hosted proof on 2026-07-05:
