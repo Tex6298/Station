@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR490B hosted readiness-copy rerun
+
+MIMIR routed ARIADNE's hosted rerun after ARGUS accepted the PR490B copy repair:
+
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_RERUN_ARIADNE.md`
+
+Current lane:
+
+```text
+PR490B - Public Persona Anonymous Chat Readiness Copy Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+```
+
+Rerun boundary:
+
+- hosted web/API freshness at `890f9692` or later/deploy-equivalent;
+- replay-alpha owner Studio public-interaction readback on desktop, `375px`,
+  and `390px`;
+- visible fail-closed rate-limit posture, rate-limit ready/not-ready state, and
+  provider ready/blocked state;
+- replay-only anonymous availability, public-source-only chat scope, no visitor
+  transcript/identity/raw-event storage, aggregate counters only, and owner
+  rollback remain visible;
+- public persona no-drift, mobile fit, no broad anonymous/runtime-expansion
+  claims, and no private/raw/secret/provider/token/cookie/header/IP/user-agent
+  readback;
+- missing second ordinary public persona fixture should be recorded explicitly
+  if it still blocks non-replay signed-in-only hosted proof.
+
+Current baton:
+
+- ARIADNE should run the hosted human-eye rerun and wake MIMIR with
+  `PASS_READY_TO_CLOSE`, `PASS_READY_TO_CLOSE_WITH_FIXTURE_GAP`,
+  `PRODUCT_DEFECT_NEEDS_DAEDALUS`, `DEPLOYMENT_WAITING`, or
+  `PRIVACY_OR_SCOPE_FAIL`.
+- Do not route DAEDALUS unless ARIADNE finds a concrete defect.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS result - PR490B readiness copy repair accepted
 
 ARGUS accepted the DAEDALUS PR490B repair without a review patch:
