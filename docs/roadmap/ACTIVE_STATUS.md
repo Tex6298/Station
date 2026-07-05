@@ -4,6 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR494A closed, PR494B opened
+
+MIMIR closed PR494A after ARIADNE returned:
+
+```text
+PASS_READY_FOR_PR494A_CLOSEOUT
+```
+
+Closeout:
+
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_CLOSEOUT.md`
+
+MIMIR re-inspected the requested Discern reference commits:
+
+- `de7b918e` - `feat: refine Station companion UX`
+- `99ae8a5c` - `feat: refine Studio chat layout`
+
+PR485A-E and PR494A already cover the known safe companion translation pieces:
+
+- companion shortcut strip;
+- Memory / continuity candidate inbox;
+- return-to-thread readback;
+- private companion capability/presence prompt context;
+- private chat surface polish;
+- owner-only Companion Home Context Rail.
+
+The next lane is a guarded completion preflight, not a forced implementation:
+
+`docs/roadmap/PR494B_DISCERN_COMPANION_HOME_COMPLETION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR494B - Discern Companion Home Completion Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether one concrete companion-home synthesis slice still
+  remains after PR485A-E and PR494A.
+- If yes, ARGUS should wake DAEDALUS with the exact scoped implementation task.
+- If no, ARGUS should wake MIMIR with
+  `CLOSE_PR494_NO_REMAINING_COMPANION_DELTA` so MIMIR can leave the Discern
+  companion lane and choose the next customer-facing product lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR494A hosted rehearsal passed
 
 ARIADNE completed the PR494A hosted rehearsal:
