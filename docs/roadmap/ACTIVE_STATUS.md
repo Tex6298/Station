@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR493A closed, PR494 opened
+
+MIMIR closed PR493A after ARIADNE returned:
+
+```text
+PASS_READY_FOR_PR493A_CLOSEOUT
+```
+
+Closeout:
+
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_CLOSEOUT.md`
+
+MIMIR inspected the requested Discern reference commits:
+
+- `de7b918e` - `feat: refine Station companion UX`
+- `99ae8a5c` - `feat: refine Studio chat layout`
+
+The next numbered lane is a guarded preflight, not a wholesale port:
+
+`docs/roadmap/PR494_DISCERN_COMPANION_HOME_CONTEXT_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR494 - Discern Companion Home Context Translation Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should verify the PR494A Companion Home Context Rail slice against the
+  Discern references, the already-closed PR485A-E companion translation work,
+  and Tex Station's current Studio architecture.
+- If accepted, ARGUS should wake DAEDALUS with the exact implementation scope.
+- If PR494 is duplicate, patched, or blocked, ARGUS should wake MIMIR with the
+  smallest next move.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR493A hosted rehearsal passed
 
 ARIADNE completed the PR493A hosted rehearsal:
