@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR491A ready for ARGUS review
+
+DAEDALUS added the narrow second ordinary public persona fixture/proof path:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR491A - Public Persona Second Fixture Proof
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- added `scripts/staging-public-persona-fixture.mjs`;
+- added `scripts/staging-public-persona-fixture.test.mjs`;
+- added `docs/ops/STAGING_PUBLIC_PERSONA_FIXTURE_PROOF.md`;
+- the planned fixture is `station-replay-signed-in-alpha-persona`;
+- the fixture is public, `public_chat_enabled:true`, and must remain
+  `signed_in_alpha`;
+- signed-out anonymous chat for the fixture is expected to return
+  `public_persona_auth_required`;
+- `station-replay-alpha-persona` remains the only `anonymous_alpha` slug;
+- hosted writes require the explicit
+  `STATION_PUBLIC_PERSONA_FIXTURE_WRITE=1` guard and staging Supabase access;
+- no runtime/API/schema/UI behavior changed.
+
+Validation:
+
+- `node scripts/staging-public-persona-fixture.mjs --dry-run` passed.
+- `node --test scripts/staging-public-persona-fixture.test.mjs` passed with 5
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 12 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache.
+- `git diff --check` passed.
+
+Current baton:
+
+- ARGUS should review PR491A against the script/test/docs-only fixture-proof
+  boundary.
+- If accepted, ARGUS should wake MIMIR to route the authorized hosted seed/proof
+  rehearsal.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR491A accepted for DAEDALUS
 
 ARGUS accepted a narrow second public persona fixture proof lane:

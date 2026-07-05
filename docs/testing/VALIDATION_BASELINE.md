@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR491A Public Persona Second Fixture Proof
+
+DAEDALUS implemented PR491A on 2026-07-05:
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_RESULT.md`.
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- PR491A needed a safe ordinary public persona fixture/proof path before any
+  owner-controlled anonymous gate;
+- the new script plans exactly one ordinary fixture,
+  `station-replay-signed-in-alpha-persona`;
+- the fixture remains `signed_in_alpha`, while
+  `station-replay-alpha-persona` remains the only `anonymous_alpha` slug;
+- signed-out anonymous chat for the ordinary fixture is expected to return
+  `public_persona_auth_required`;
+- hosted writes require an explicit write flag and staging Supabase access;
+- no runtime/API/schema/UI behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node scripts/staging-public-persona-fixture.mjs --dry-run` | Pass | Printed safe dry-run proof for the ordinary fixture, signed-in mode, and anonymous-deny code. |
+| `node --test scripts/staging-public-persona-fixture.test.mjs` | Pass | 5 script tests passed for safe output, slug validation, idempotent write behavior, write flag, and cross-owner conflict. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 personas tests passed; replay anonymous alpha and ordinary signed-in alpha boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 12 public persona route/interaction helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR491A Public Persona Second Fixture Proof Preflight
 
 ARGUS accepted PR491A on 2026-07-05:

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR491A | Public Persona Second Fixture Proof | DAEDALUS / A2 | ARGUS accepted a narrow second ordinary public persona fixture/proof lane. Add one safe non-production public persona fixture, prove it remains signed-in alpha and anonymous-denied, keep station-replay-alpha-persona as the only anonymous alpha slug, and avoid runtime/API/broad UI expansion. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_PREFLIGHT_RESULT.md` |
+| PR491A | Public Persona Second Fixture Proof | ARGUS / A3 | Ready for review. DAEDALUS added a narrow script/test/docs fixture-proof path for `station-replay-signed-in-alpha-persona`, guarded hosted writes, safe output checks, and no runtime/API/schema/UI expansion. | `docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_RESULT.md` |
 
 ## Recently Closed
 
