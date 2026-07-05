@@ -38,6 +38,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
   const [saving, setSaving]   = useState<string | null>(null); // message id being saved
   const [reviewing, setReviewing] = useState<string | null>(null);
   const bottomRef             = useRef<HTMLDivElement>(null);
+  const composerRef           = useRef<HTMLTextAreaElement>(null);
 
   const [state, setState] = useState<ChatState>({
     conversationId: null,
@@ -213,6 +214,15 @@ export function PersonaChat({ personaId, personaName }: Props) {
     }));
   }
 
+  function focusComposerOnly() {
+    composerRef.current?.focus();
+  }
+
+  function prefillThreadSummary() {
+    setInput(returnToThreadSummaryRequest(personaName));
+    composerRef.current?.focus();
+  }
+
   async function reviewCandidate(
     candidateId: string,
     action: "accept" | "reject",
@@ -261,6 +271,14 @@ export function PersonaChat({ personaId, personaName }: Props) {
     );
   }
 
+  const visibleMessages = state.messages.filter((m) => m.role !== "system");
+  const showReturnThreadCard =
+    !state.loading &&
+    state.conversationStatus === "active" &&
+    Boolean(state.conversationId) &&
+    visibleMessages.length > 0 &&
+    !state.sending;
+
   return (
     <div className="card" style={{ display: "flex", flexDirection: "column", gap: 0, padding: 0, overflow: "hidden" }}>
 
@@ -278,7 +296,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
           {state.conversationId && (
             <span style={{ fontSize: "0.7rem", color: "#7b8498" }}>
-              {state.messages.filter((m) => m.role !== "system").length} messages
+              {visibleMessages.length} messages
             </span>
           )}
           {state.conversationStatus === "archived" ? (
@@ -319,6 +337,75 @@ export function PersonaChat({ personaId, personaName }: Props) {
         </div>
       </div>
 
+      {showReturnThreadCard && (
+        <div
+          aria-label="Return to active thread"
+          style={{
+            borderBottom: "1px solid #1e2535",
+            padding: "0.75rem 1rem",
+            background: "#111827",
+            display: "flex",
+            gap: "0.75rem",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ minWidth: 220, flex: "1 1 260px" }}>
+            <div style={{ fontSize: "0.78rem", color: "#9fb7ff", fontWeight: 800 }}>
+              Return to this thread
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "#9aa6bd", lineHeight: 1.5 }}>
+              Keep writing with {personaName}, ask for an editable recap, or start a clean thread.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <button
+              onClick={focusComposerOnly}
+              style={{
+                padding: "0.35rem 0.7rem",
+                fontSize: "0.72rem",
+                background: "#24406f",
+                border: "1px solid #355a99",
+                borderRadius: 6,
+                color: "#eef4ff",
+                cursor: "pointer",
+              }}
+            >
+              Continue
+            </button>
+            <button
+              onClick={prefillThreadSummary}
+              style={{
+                padding: "0.35rem 0.7rem",
+                fontSize: "0.72rem",
+                background: "transparent",
+                border: "1px solid #313c55",
+                borderRadius: 6,
+                color: "#d7def2",
+                cursor: "pointer",
+              }}
+            >
+              Summarize
+            </button>
+            <button
+              onClick={startNewChat}
+              style={{
+                padding: "0.35rem 0.7rem",
+                fontSize: "0.72rem",
+                background: "transparent",
+                border: "1px solid #3a2631",
+                borderRadius: 6,
+                color: "#e0a0aa",
+                cursor: "pointer",
+              }}
+            >
+              Start fresh
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Message list */}
       <div style={{
         display: "flex",
@@ -336,67 +423,65 @@ export function PersonaChat({ personaId, personaName }: Props) {
           </div>
         )}
 
-        {state.messages
-          .filter((m) => m.role !== "system")
-          .map((msg) => (
-            <div key={msg.id}>
-              <div
-                style={{
-                  borderRadius: 12,
-                  padding: "0.75rem 1rem",
-                  background: msg.role === "user" ? "#1d3a7a" : "#1a1f2e",
-                  border: `1px solid ${msg.role === "user" ? "#2e4f9f" : "#252d3e"}`,
-                  color: msg.role === "user" ? "#f4f7ff" : "#e7edf8",
-                  alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "85%",
-                  marginLeft: msg.role === "user" ? "auto" : 0,
-                  whiteSpace: "pre-wrap",
-                  fontSize: "0.9rem",
-                  lineHeight: 1.6,
-                }}
-              >
-                {msg.content}
-              </div>
-
-              {/* Save buttons for assistant messages */}
-              {msg.role === "assistant" && state.conversationId && (
-                <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.3rem" }}>
-                  <button
-                    onClick={() => saveAsMemory(msg.id)}
-                    disabled={saving === msg.id}
-                    style={{
-                      padding: "0.2rem 0.6rem",
-                      fontSize: "0.7rem",
-                      background: "transparent",
-                      border: "1px solid #2a3242",
-                      borderRadius: 6,
-                      color: "#555",
-                      cursor: "pointer",
-                    }}
-                    title="Save to archive as memory"
-                  >
-                    {saving === msg.id ? "..." : "Save to memory"}
-                  </button>
-                  <button
-                    onClick={() => saveAsCanon(msg.id)}
-                    disabled={saving === msg.id}
-                    style={{
-                      padding: "0.2rem 0.6rem",
-                      fontSize: "0.7rem",
-                      background: "transparent",
-                      border: "1px solid #2a3242",
-                      borderRadius: 6,
-                      color: "#555",
-                      cursor: "pointer",
-                    }}
-                    title="Promote to canon (always injected)"
-                  >
-                    {saving === msg.id ? "..." : "Promote to canon"}
-                  </button>
-                </div>
-              )}
+        {visibleMessages.map((msg) => (
+          <div key={msg.id}>
+            <div
+              style={{
+                borderRadius: 12,
+                padding: "0.75rem 1rem",
+                background: msg.role === "user" ? "#1d3a7a" : "#1a1f2e",
+                border: `1px solid ${msg.role === "user" ? "#2e4f9f" : "#252d3e"}`,
+                color: msg.role === "user" ? "#f4f7ff" : "#e7edf8",
+                alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                maxWidth: "85%",
+                marginLeft: msg.role === "user" ? "auto" : 0,
+                whiteSpace: "pre-wrap",
+                fontSize: "0.9rem",
+                lineHeight: 1.6,
+              }}
+            >
+              {msg.content}
             </div>
-          ))}
+
+            {/* Save buttons for assistant messages */}
+            {msg.role === "assistant" && state.conversationId && (
+              <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.3rem" }}>
+                <button
+                  onClick={() => saveAsMemory(msg.id)}
+                  disabled={saving === msg.id}
+                  style={{
+                    padding: "0.2rem 0.6rem",
+                    fontSize: "0.7rem",
+                    background: "transparent",
+                    border: "1px solid #2a3242",
+                    borderRadius: 6,
+                    color: "#555",
+                    cursor: "pointer",
+                  }}
+                  title="Save to archive as memory"
+                >
+                  {saving === msg.id ? "..." : "Save to memory"}
+                </button>
+                <button
+                  onClick={() => saveAsCanon(msg.id)}
+                  disabled={saving === msg.id}
+                  style={{
+                    padding: "0.2rem 0.6rem",
+                    fontSize: "0.7rem",
+                    background: "transparent",
+                    border: "1px solid #2a3242",
+                    borderRadius: 6,
+                    color: "#555",
+                    cursor: "pointer",
+                  }}
+                  title="Promote to canon (always injected)"
+                >
+                  {saving === msg.id ? "..." : "Promote to canon"}
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
 
         {state.sending && (
           <div style={{
@@ -469,6 +554,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
         alignItems: "flex-end",
       }}>
         <textarea
+          ref={composerRef}
           className="textarea"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -494,6 +580,10 @@ export function PersonaChat({ personaId, personaName }: Props) {
       </div>
     </div>
   );
+}
+
+function returnToThreadSummaryRequest(personaName: string) {
+  return `Summarize this thread with ${personaName} in a short owner-editable recap. Include the decisions, open questions, and what we should continue next.`;
 }
 
 function ChatErrorCallout({ error }: { error: ChatErrorMetadata }) {

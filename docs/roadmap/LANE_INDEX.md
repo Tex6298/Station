@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR485C | Return-To-Thread Readback | DAEDALUS / A2 | Open for web-only implementation; add a compact return card inside existing `PersonaChat` for active conversations. Continue focuses composer, Summarize pre-fills only, Start fresh uses local state. No query params, API work, automatic LLM call, durable summary, prompt/retrieval/provider/runtime change, broad shell, or Discern CSS. | `docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_PREFLIGHT_RESULT.md` |
+| PR485C | Return-To-Thread Readback | ARGUS / A3 | Ready for review; compact return card added inside existing `PersonaChat` for active conversations. Continue focuses composer only, Summarize pre-fills only, Start fresh uses local state. No query params, API work, automatic LLM call, durable summary, prompt/retrieval/provider/runtime change, broad shell, or Discern CSS. | `docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR485C implementation | Return-To-Thread Readback | DAEDALUS -> ARGUS | Ready for review; existing PersonaChat now shows a compact active-thread return card with Continue focus-only, Summarize prefill-only, local Start fresh, archived read-only preservation, focused static tests, and no query-param/API/provider/runtime/global-shell drift | `docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_RESULT.md` |
 | PR485C preflight | Return-To-Thread Readback | MIMIR -> ARGUS -> DAEDALUS | Accepted web-only first slice; add an owner return card inside existing PersonaChat for active conversations, with Continue focus-only, Summarize prefill-only, Start fresh local-only, no query params/API/automatic summary/durable storage/prompt-retrieval-runtime drift, and ARIADNE hosted desktop/mobile rehearsal after ARGUS accepts implementation | `docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_PREFLIGHT_RESULT.md` |
 | PR485B closeout | Memory And Continuity Candidate Inbox | DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted and hosted-rehearsed; owner `/memory-inbox` route, separate Inbox shortcut, import-backed candidate list/review, Memory shortcut preservation, Archive/files copy preservation, desktop/mobile fit, and privacy/scope checks all passed; no review write was performed without a disposable candidate | `docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_CLOSEOUT.md` |
 | PR485B rehearsal | Memory And Continuity Candidate Inbox Hosted Rehearsal | ARIADNE -> MIMIR | Passed; hosted web/API commit `a5fade6a` rendered five-shortcut routing and `/memory-inbox` on desktop, 375px, and 390px with honest populated import-backed readback, no mutation, no Archive/files copy regression, and no private/secret-shaped leakage or forbidden scope drift | `docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_REHEARSAL_RESULT.md` |

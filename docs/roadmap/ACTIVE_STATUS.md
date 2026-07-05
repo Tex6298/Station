@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR485C ready for ARGUS review
+
+DAEDALUS implemented the accepted web-only return-to-thread slice:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- added a compact owner-visible return card inside existing `PersonaChat` for
+  active existing conversations with non-system messages;
+- `Continue` focuses the existing composer only;
+- `Summarize` pre-fills an owner-editable recap request only;
+- `Start fresh` reuses the existing local `startNewChat()` behavior only;
+- archived conversations remain read-only and keep the existing `Archived` /
+  `New chat` path;
+- no URL/query behavior, route-selected conversation loading, automatic LLM
+  call, durable summary storage, API change, prompt/retrieval/provider/runtime
+  change, token-accounting change, Archive connector behavior, billing,
+  queues/workers, Redis, Cloudflare, social connector, public write, broad
+  shell, or Discern CSS.
+
+Validation:
+
+- Chat stream / studio navigation / import review / PersonaChat focused suite
+  passed with 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485C - Return-To-Thread Readback
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the return-card trigger, local actions, archived read-only
+  preservation, existing streaming send path, and static no-drift tests.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for closeout and
+  ARIADNE hosted desktop/mobile rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR485C return-to-thread accepted
 
 ARGUS accepted the next Discern companion UX translation slice:

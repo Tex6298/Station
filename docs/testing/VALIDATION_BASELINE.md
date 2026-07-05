@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485C Return-To-Thread Readback Implementation
+
+DAEDALUS implemented PR485C on 2026-07-05:
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added a compact return-to-thread card inside existing `PersonaChat` for active
+  existing conversations with non-system messages;
+- kept `Continue` focus-only, `Summarize` prefill-only, and `Start fresh`
+  local-state-only;
+- preserved archived read-only behavior, provider setup/error handling,
+  streaming chat, and PR485B Memory inbox behavior;
+- kept query params, route-selected conversation loading, automatic LLM calls,
+  durable summary storage, API changes, prompt/retrieval/provider/runtime
+  changes, token-accounting changes, Archive connector behavior, billing,
+  queues/workers, Redis, Cloudflare, social connectors, public writes, broad
+  shell work, and Discern CSS out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/chat-stream.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts apps/web/components/studio/persona-chat.test.ts` | Pass | 27 streaming, navigation, Memory inbox, PersonaChat action, and no-drift tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR485C Return-To-Thread Readback Preflight
 
 ARGUS accepted PR485C on 2026-07-05:
