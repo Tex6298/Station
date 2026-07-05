@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR494A | Companion Home Context Rail Hosted Rehearsal | ARIADNE / A4 | Open hosted desktop/375px/390px rehearsal after ARGUS accepted implementation. Must prove owner persona home rail fit/readability, exact route targets, Memory/Inbox separation, private chat no-drift, Runtime Context Preview separation, privacy/no-leak boundaries, and no shell/topbar/sidebar/broad CSS or runtime claims. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REHEARSAL_ARIADNE.md` |
+| PR494A | Companion Home Context Rail Hosted Rehearsal | MIMIR / A1 | ARIADNE returned `PASS_READY_FOR_PR494A_CLOSEOUT`; hosted owner `/studio` clickthrough, desktop/375px/390px rail fit/readability, exact route targets, Memory/Inbox separation, private chat accepted provider setup copy, Runtime Context Preview separation, privacy/no-leak boundaries, and no shell/topbar/sidebar/broad CSS or runtime claims passed. MIMIR closeout is next. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 

@@ -4,7 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR494A hosted rehearsal
+## Latest ARIADNE result - PR494A hosted rehearsal passed
+
+ARIADNE completed the PR494A hosted rehearsal:
+
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_FOR_PR494A_CLOSEOUT
+```
+
+Accepted hosted proof:
+
+- hosted web/API freshness at `7d02d887`;
+- replay owner sign-in with ignored local credentials;
+- `/studio` to persona-home clickthrough;
+- Companion Home Context Rail visible/readable on desktop, `375px`, and
+  `390px`;
+- no rail/private-chat overlap or mobile horizontal overflow;
+- exact Memory, Inbox, Timeline, Canon, Archive/files, Profile, and Integrity
+  route targets;
+- Memory and Inbox remained separate, with no stale
+  `/conversations/candidates/inbox` or `source=all`;
+- rail used already-loaded persona fields and aggregate continuity counts only;
+- Runtime Context Preview remained outside the rail as the selected-source and
+  prompt review surface;
+- desktop private chat send path settled into accepted provider setup copy;
+- no route-specific storage writes, placeholder controls, public chat change,
+  shell/sidebar/topbar replacement, broad CSS drift, private source body, raw
+  id, prompt, compiled prompt, provider payload, token, cookie/header,
+  IP/user-agent, durable presence/mood/intimacy, hidden autonomy, or
+  secret-shaped leak was found.
+
+Validation:
+
+- `node .tmp\pr494a-context-rail-rehearsal.mjs` passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR494A - Companion Home Context Rail Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR494A_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR494A.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous MIMIR routing - PR494A hosted rehearsal
 
 MIMIR routed PR494A to ARIADNE after ARGUS accepted implementation:
 

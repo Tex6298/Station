@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR494A Companion Home Context Rail Hosted Rehearsal
+
+ARIADNE completed PR494A hosted rehearsal on 2026-07-05:
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PASS_READY_FOR_PR494A_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API health were ready at commit `7d02d887`;
+- replay owner sign-in succeeded using ignored local credentials;
+- `/studio` clickthrough reached the Station Replay Persona home route;
+- the Companion Home Context Rail rendered on desktop, `375px`, and `390px`;
+- the rail did not overlap private chat and did not create mobile horizontal
+  overflow;
+- Memory, Inbox, Timeline, Canon, Archive/files, Profile, and Integrity links
+  matched exact owner routes;
+- Memory and Inbox remained separate, with no stale
+  `/conversations/candidates/inbox` or `source=all`;
+- Runtime Context Preview remained separate from the rail;
+- desktop private chat send path settled into accepted provider setup copy;
+- no route-specific storage writes, placeholder controls, public chat change,
+  shell/sidebar/topbar replacement, broad CSS drift, private source body, raw
+  id, prompt, compiled prompt, provider payload, token, cookie/header,
+  IP/user-agent, durable presence/mood/intimacy, hidden autonomy, or
+  secret-shaped leak was found.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr494a-context-rail-rehearsal.mjs` | Pass | Hosted API freshness, replay-owner auth, `/studio` clickthrough, desktop/375px/390px rail fit/link/privacy checks, Runtime Context Preview separation, and desktop private-chat accepted provider setup copy passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR494A Companion Home Context Rail ARGUS Review
 
 ARGUS accepted PR494A implementation on 2026-07-05:
