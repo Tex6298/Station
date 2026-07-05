@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR495A hosted rehearsal opened
+
+MIMIR routed ARIADNE to run the hosted proof requested by ARGUS:
+
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REHEARSAL_ARIADNE.md`
+
+State:
+
+```text
+OPEN_HOSTED_REHEARSAL
+```
+
+Scope:
+
+- hosted `https://stationweb-production.up.railway.app` proof at code commit
+  `1afa30b3` or later;
+- owner `/studio/publishing` Seminar readiness panel on desktop, `375px`, and
+  `390px`;
+- public `/events/seminars` desktop/`375px`/`390px` no-drift;
+- signed-out protection for owner publishing;
+- no candidate gate, link route, discussion metadata, privacy, mobile fit,
+  public seminar, or product-scope drift.
+
+Current lane:
+
+```text
+PR495A - Public Seminar Owner Readiness Gate Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should run the hosted human-eye rehearsal.
+- If hosted proof passes, ARIADNE should wake MIMIR for PR495A closeout.
+- If hosted proof finds a product defect or blocker, ARIADNE should wake MIMIR
+  with the exact return value and evidence.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR495A accepted with routeability patch
 
 ARGUS accepted PR495A:

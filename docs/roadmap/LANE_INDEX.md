@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495A | Public Seminar Owner Readiness Gate Hosted Rehearsal Routing | MIMIR / A1 | ARGUS accepted the implementation with a narrow routeability patch; MIMIR should route ARIADNE for hosted owner `/studio/publishing` desktop/375px/390px proof plus public `/events/seminars` no-drift before closeout. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REVIEW_RESULT.md` |
+| PR495A | Public Seminar Owner Readiness Gate Hosted Rehearsal | ARIADNE / A4 | Open hosted rehearsal; ARIADNE should prove owner `/studio/publishing` Seminar readiness on desktop/375px/390px, public `/events/seminars` no-drift, signed-out protection, and no privacy/product drift before MIMIR closeout. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
