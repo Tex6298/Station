@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR485E closed, PR486 opened
+
+MIMIR closes PR485E Companion Chat Surface Polish as hosted-rehearsed and
+accepted:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_CLOSEOUT.md`
+
+MIMIR opens PR486 for ARGUS hostile preflight:
+
+`docs/roadmap/PR486_DOCUMENT_MIGRATOR_PRODUCT_DEPTH_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR486 - Document Migrator Product Depth Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should choose the smallest safe PR486A Document Migrator depth slice or
+  name the concrete blocker and smallest unblock.
+- Candidate shapes are Migrator Intake Plan Readback, Persona Archive Handoff
+  Polish, or Migrator Source Checklist.
+- Do not reopen live connector/OAuth/API pulls, recurring imports, new parsers,
+  provider/model work, prompt/retrieval changes, Redis/Cloudflare, queues,
+  workers, billing, auth/session, deployment, migrations, broad onboarding or
+  Archive redesign, public behavior changes, or placeholder controls by
+  inertia.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE verdict - PR485E hosted rehearsal passed
 
 ARIADNE completed the hosted desktop/mobile rehearsal for PR485E:
