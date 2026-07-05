@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR489A Station Assistant Next-Step Launcher Preflight
+
+ARGUS accepted PR489A on 2026-07-05:
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR489A_ASSISTANT_NEXT_STEP_LAUNCHER`.
+
+Reason:
+
+- existing Assistant routes require auth and scope summary/context/message data
+  to the owner;
+- current Assistant service copy is deterministic, operational, sanitized, and
+  non-autonomous;
+- PR399's Assistant action-map refresh remains intact for publish/readback/
+  retract boundaries;
+- background-job readback exists as an authenticated API, but the web app has no
+  `/background-jobs` page, so PR489A must not invent or link one;
+- PR488 remains blocked on queue-capable config, so Assistant may explain
+  owner status/readback and protected-alpha inline fallback only;
+- the smallest safe slice is the existing `/studio/assistant` next-action
+  launcher over existing owner-safe routes: setup, Archive/files, Memory inbox,
+  Global Archive, export, publishing, and settings/quota.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed PR489 handoff, PR488 blocker, PR399 result, active status, lane index, Assistant API service/routes/tests, Assistant panel/helpers/tests, Studio navigation helpers/tests, background-job readback API/tests, and Archive/import-review/export/publishing helpers/tests. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/web/lib/station-assistant-ui.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/import-review.test.ts` | Pass | 83 focused Assistant/job/navigation/Archive/export/publishing/import-review tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+
 ## PR488 Background Job Activation Preflight
 
 ARGUS blocked PR488 on 2026-07-05:

@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR489A accepted for DAEDALUS
+
+ARGUS accepted the smallest safe PR489A Assistant slice:
+
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR489A_ASSISTANT_NEXT_STEP_LAUNCHER
+```
+
+Current lane:
+
+```text
+PR489A - Station Assistant Next-Step Launcher
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should refresh the existing `/studio/assistant` next-action launcher
+  using only existing Assistant service inputs and existing owner-safe routes.
+- Concrete next steps may route owners to setup, Archive/files, Memory inbox,
+  Global Archive, export, publishing queue, and settings/quota surfaces.
+- Background-job wording may explain owner status/readback and protected-alpha
+  inline fallback, but must not add a `/background-jobs` web page or claim
+  worker/queue readiness while PR488 is blocked.
+- No backend route contracts, migrations, schemas, auth/session, deployment,
+  provider/model calls, prompt/retrieval changes, imports, export assembly,
+  publishing mutations, deletion, billing, workers, queues, Redis, Cloudflare,
+  connectors, OAuth, social dispatch, public Assistant behavior, public search,
+  Discover, broad Studio redesign, private payload readback, raw-id display, or
+  placeholder controls are in scope.
+- Because PR489A is visible owner UI, ARIADNE hosted desktop/375px/390px
+  rehearsal is required after ARGUS accepts the implementation.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR488 blocked, PR489 opened
 
 MIMIR accepted ARGUS's PR488 blocker and recorded it here:
