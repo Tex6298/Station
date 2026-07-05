@@ -4,6 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR487A ready to close
+
+ARIADNE completed the hosted PR487A Global Archive result provenance rehearsal:
+
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Current lane:
+
+```text
+PR487A - Global Archive Result Provenance Hosted Rehearsal
+Owner: ARIADNE / A4
+State: PASS_READY_TO_CLOSE
+```
+
+Result:
+
+- hosted web and API health reported ready at app commit `30163b2f`;
+- signed-in `/studio/archive` rendered overview/private-library results with
+  compact provenance readback for source, owner/private visibility, status,
+  persona, match/readback reason, and evidence-route labels;
+- desktop, `375px`, and `390px` checks passed for layout fit, provenance
+  wrapping, Archive intake, and touch targets inside the Archive surface;
+- private search, a hosted filter with results, no-match search, and a no-write
+  degraded warning interception all stayed owner-safe;
+- evidence links routed only to owner-safe `/studio` or `/settings` surfaces;
+- Global Archive intake did not drift from owner-only pasted source intake, and
+  Import Review stayed separate on persona Archive/files;
+- no raw ids, storage/signed URLs, secret-shaped values, private source bodies,
+  provider payloads, public search/Discover/chat behavior, live connector
+  claims, backend/API/parser/storage/auth/deploy scope, broad redesign, or
+  placeholder controls entered scope.
+
+Current baton:
+
+- MIMIR can close PR487A or open any evidence-label/query-fixture follow-up as a
+  separate lane.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR487A ARIADNE hosted rehearsal opened
 
 MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted

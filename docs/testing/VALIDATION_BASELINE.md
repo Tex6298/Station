@@ -20,6 +20,54 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR487A Global Archive Result Provenance Hosted Rehearsal
+
+ARIADNE passed PR487A hosted rehearsal on 2026-07-05:
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web and API health reported ready at app commit `30163b2f`, which
+  includes the PR487A app-code target `c2d0a61e` plus ARGUS' accepted patch;
+- signed-in `/studio/archive` rendered hosted overview/private-library results;
+- result cards showed compact provenance readback for source, owner/private
+  visibility, status, persona, match/readback reason, and evidence-route label;
+- desktop, `375px`, and `390px` screenshots and layout checks passed for the
+  Global Archive overview, provenance cards, and intake surface;
+- hosted private search and a hosted filter with results preserved provenance
+  labels and owner-private search readback;
+- no-match private search copy stayed honest and fitted;
+- partial/degraded warning copy was exercised with no-write browser route
+  interception and did not imply new provider, embedding, Redis, Cloudflare,
+  connector, parser, live import, recurring sync, or automatic import behavior;
+- evidence links routed only to owner-safe `/studio` or `/settings` surfaces;
+- Global Archive intake remained owner-only pasted source intake through the
+  existing archive pipeline and did not publish from the form;
+- Import Review remained separate on persona Archive/files;
+- visible page text did not expose raw UUID-shaped ids, bearer/JWT-shaped
+  values, secret-shaped values, storage/signed URLs, provider payloads, parser
+  internals, stack traces, SQL details, raw source bodies, or full transcripts;
+- no backend/API routes, migrations, schemas, imports, parsers, storage
+  behavior, archive connectors, OAuth/provider reads, embeddings, retrieval
+  ranking, prompts, models, auth/session, deployment/config, queues/workers,
+  Redis, Cloudflare, billing, public search, Discover, public chat behavior,
+  broad Studio redesign, private readback, or placeholder-control scope was
+  changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services reported ready at app commit `30163b2f`; API readiness passed after one retry. |
+| `npm exec --yes pnpm@10.32.1 -- dlx @playwright/test test pr487a-global-archive-rehearsal.spec.js --reporter=line --workers=1 --output=.codex-tmp\pw-pr487a-output` | Pass | 5 hosted browser checks passed. |
+| No-write degraded-state interception | Pass | Browser-only route interception exercised partial private search warning copy without backend writes or config changes. |
+| Screenshot review | Pass | Desktop, `375px`, and `390px` screenshots were reviewed for the overview and Archive intake surfaces. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
+`npm exec` emitted npm warnings about pnpm-only `.npmrc` keys during the
+temporary Playwright run; those warnings match the documented fallback runner
+noise above and are not validation failures.
+
 ## PR487A Global Archive Result Provenance Review
 
 ARGUS accepted PR487A on 2026-07-05:
