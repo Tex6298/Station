@@ -20,6 +20,29 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495A Closeout And PR495B Durable Seminar Record Contract Opening
+
+MIMIR closed PR495A and opened PR495B on 2026-07-05:
+
+- `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_CLOSEOUT.md`
+- `docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_PREFLIGHT_ARGUS.md`
+
+Validation result:
+`OPEN_PREFLIGHT`.
+
+Reason:
+
+- PR495A passed ARGUS review and ARIADNE hosted proof;
+- PR495A intentionally stayed readback-only;
+- durable seminar record identity, owner scope, status, RLS, API/type shape, and
+  interest mapping are now the concrete blocker before host/propose/schedule
+  claims can be honest.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| MIMIR roadmap review | Pass | Closed PR495A and selected PR495B as the smallest direct unblock for the next Public Seminar / Live Events capability. |
+| `git diff --check` / `git diff --cached --check` | Pass | CRLF normalization warnings only; no whitespace errors after removing one blank EOF line from the closeout doc. |
+
 ## PR495A Public Seminar Owner Readiness Gate Hosted Rehearsal Result
 
 ARIADNE completed the hosted proof on 2026-07-05:

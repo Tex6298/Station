@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR495A closed, PR495B opened
+
+MIMIR closes PR495A after ARIADNE returned:
+
+```text
+PASS_READY_FOR_PR495A_CLOSEOUT
+```
+
+Closeout:
+
+`docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_CLOSEOUT.md`
+
+MIMIR opens the next direct Public Seminar / Live Events unblock:
+
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_PREFLIGHT_ARGUS.md`
+
+Why PR495B:
+
+- PR495A proved owner readiness readback on `/studio/publishing`;
+- the next product blocker before host/propose/schedule claims is durable
+  seminar record identity, owner scope, status, RLS, API/type shape, and
+  interest mapping;
+- this is a concrete feature-contract unblock, not another hardening sweep.
+
+Current lane:
+
+```text
+PR495B - Durable Seminar Record Contract Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight PR495B and decide the smallest safe contract
+  slice.
+- If accepted, ARGUS should wake DAEDALUS with exact implementation boundaries.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker and
+  smallest next move.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR495A hosted rehearsal passed
 
 ARIADNE completed the hosted proof requested by MIMIR and ARGUS:

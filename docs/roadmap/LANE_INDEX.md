@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495A | Public Seminar Owner Readiness Gate Closeout | MIMIR / A1 | Hosted rehearsal passed as `PASS_READY_FOR_PR495A_CLOSEOUT`; MIMIR should close PR495A or route any final wording-only closeout work. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REHEARSAL_RESULT.md` |
+| PR495B | Durable Seminar Record Contract Preflight | ARGUS / A3 | Open hostile preflight; decide the smallest durable seminar record/source-reference contract that can safely unblock future host/propose/schedule work after PR495A readback-only readiness passed. | `docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495A closeout | Public Seminar Owner Readiness Gate | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; owner `/studio/publishing` Seminar readiness is readback-only, counts public published documents in routeable public Spaces, keeps linked discussion metadata-only, preserves public `/events/seminars` no-drift, passes hosted desktop/375px/390px proof, and leaves durable seminar records for PR495B. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_CLOSEOUT.md` |
 | PR495A rehearsal | Public Seminar Owner Readiness Gate Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; owner `/studio/publishing` Seminar readiness passed desktop/375px/390px, public `/events/seminars` no-drift passed, signed-out protection held, candidate/link safety and linked-discussion metadata-only boundaries held, and no privacy/product drift was found. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REHEARSAL_RESULT.md` |
 | PR495A review | Public Seminar Owner Readiness Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted with a narrow ARGUS routeability patch; owner-only `/studio/publishing` readiness uses already-loaded documents/Spaces, counts only public published documents in routeable public Spaces, keeps linked discussion metadata-only, preserves public `/events/seminars` no-drift, and excludes seminar persistence/runtime/RSVP/tickets/payments/reminders/live rooms/provider/queue/Cloudflare/Redis/launch claims. Hosted ARIADNE rehearsal is required before closeout. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_REVIEW_RESULT.md` |
 | PR495 preflight | Public Seminar Host Readiness | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495A_OWNER_SEMINAR_READINESS_GATE`; first slice is an owner-only `/studio/publishing` readiness panel over existing owner documents/Spaces, limited to public published documents in public Spaces plus linked-discussion metadata, with no durable seminar record or runtime/event claims. | `docs/roadmap/PR495A_PUBLIC_SEMINAR_OWNER_READINESS_GATE_PREFLIGHT_RESULT.md` |
