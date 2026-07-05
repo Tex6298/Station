@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR490B Public Persona Anonymous Chat Readiness Copy ARIADNE Rerun
+
+ARIADNE passed the PR490B hosted rerun on 2026-07-05:
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_RERUN_RESULT.md`.
+
+Validation result:
+`PASS_READY_TO_CLOSE_WITH_FIXTURE_GAP`.
+
+Reason:
+
+- hosted web/API health passed at app commit `890f9692`;
+- replay-alpha owner public-interaction readback passed on desktop, `375px`,
+  and `390px`;
+- visible owner copy now names fail-closed rate-limit posture, rate-limit
+  backing readiness, and provider route readiness;
+- replay-only anonymous availability, public-source-only chat scope, no visitor
+  transcript/identity/raw event storage, aggregate counters only, owner
+  rollback, no public Salon chat-source overclaim, no broad anonymous/runtime
+  expansion claims, mobile fit, and privacy/scope checks passed;
+- signed-out and signed-in replay public persona page no-drift checks passed;
+- hosted public route discovery still found only the replay alpha public persona,
+  so non-replay signed-in-only proof remains a fixture gap.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services reported ready at app commit `890f9692`. |
+| `npm exec --yes pnpm@10.32.1 -- dlx @playwright/test test pr490b-readiness-rerun.spec.js --reporter=line --workers=1 --output=.codex-tmp\pw-pr490b-output` | Pass with fixture gap | 6 hosted browser checks passed; 1 ordinary-public-persona check skipped because no second fixture exists. |
+| Screenshot review | Pass | Desktop, `375px`, and `390px` owner screenshots confirmed repaired readiness copy; signed-out public replay screenshot confirmed public chat no-drift. |
+| Ordinary public persona fixture discovery | Gap | Public route discovery found only the replay alpha public persona. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
 ## PR490B Public Persona Anonymous Chat Readiness Copy Repair ARGUS Review
 
 ARGUS accepted PR490B on 2026-07-05:

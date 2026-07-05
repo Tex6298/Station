@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rerun - PR490B ready for MIMIR closeout with fixture gap
+
+ARIADNE passed the hosted PR490B readiness-copy rerun:
+
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_RERUN_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE_WITH_FIXTURE_GAP
+```
+
+Current lane:
+
+```text
+PR490B - Public Persona Anonymous Chat Readiness Copy Hosted Rerun
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE_WITH_FIXTURE_GAP
+```
+
+Rerun evidence:
+
+- hosted web/API health passed at app commit `890f9692`;
+- replay-alpha owner public-interaction readback passed on desktop, `375px`,
+  and `390px`;
+- visible owner copy now names fail-closed rate-limit posture, rate-limit
+  backing readiness, and provider route readiness;
+- replay-only anonymous availability, public-source-only chat scope, no visitor
+  transcript/identity/raw event storage, aggregate counters only, owner
+  rollback, no public Salon chat-source overclaim, no broad anonymous/runtime
+  expansion claims, and mobile fit passed;
+- signed-out and signed-in replay public persona page no-drift passed;
+- privacy and scope checks passed.
+
+Fixture gap:
+
+- hosted public route discovery still found only
+  `station-replay-alpha-persona`, so non-replay signed-in-only hosted proof
+  remains unavailable.
+
+Current baton:
+
+- MIMIR can close PR490B/PR490A with the fixture caveat, or open a separate
+  fixture lane if non-replay signed-in-only hosted proof is wanted.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR490B hosted readiness-copy rerun
 
 MIMIR routed ARIADNE's hosted rerun after ARGUS accepted the PR490B copy repair:
