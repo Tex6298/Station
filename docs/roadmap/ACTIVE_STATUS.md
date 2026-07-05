@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS verdict - PR485A companion home shortcuts accepted
+
+ARGUS accepted the PR485A implementation without a review patch:
+
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485A_COMPANION_HOME_SHORTCUTS_IMPLEMENTATION
+```
+
+Accepted boundary:
+
+- `studioPersonaCompanionShortcuts(personaId)` returns exactly the accepted
+  Memory, Timeline, Profile, and Integrity owner route targets;
+- `/studio/personas/[personaId]` renders a compact `Companion workspace
+  shortcuts` strip above private chat;
+- the strip uses ordinary `next/link` links and adds no fetch;
+- CSS is scoped to `.studio-companion-*` and stacks on the existing mobile
+  Studio breakpoint;
+- `PersonaChat`, provider setup/error behavior, token accounting, runtime
+  context preview, and existing persona panels are untouched;
+- no API, AI package, prompt, retrieval, migration, provider, hosted runtime,
+  archive connector, billing, queue, worker, Cloudflare, Redis, social
+  connector, public-write, broad shell, Discern CSS, Memory inbox,
+  return-to-thread, or companion presence prompt-context behavior changed.
+
+Validation:
+
+- Route/readback focused tests passed with 26 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `npm exec --yes pnpm@10.32.1 -- run build` was not rerun for PR485A; the
+  known local Windows Next standalone symlink `EPERM` caveat remains the build
+  truth if build is rerun.
+
+Current lane:
+
+```text
+PR485A - Companion Home Shortcuts
+Owner: MIMIR / A1
+State: READY_FOR_CLOSEOUT_OR_ARIADNE_ROUTING
+```
+
+Current baton:
+
+- MIMIR should close or route PR485A according to the visible-surface process.
+- ARGUS recommends ARIADNE hosted desktop and `375px`/`390px` mobile rehearsal
+  of `/studio/personas/[personaId]` before final closeout.
+- Memory inbox, return-to-thread behavior, and companion presence prompt
+  context remain separate future lanes.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR485A ready for ARGUS review
 
 DAEDALUS implemented the first Discern companion UX translation slice:

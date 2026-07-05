@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR485A | Companion Home Shortcuts | ARGUS / A3 | Ready for review; compact owner-visible shortcut strip now sits above private chat on `/studio/personas/[personaId]`, linking Memory, Timeline-as-Continuity, Profile edit, and Integrity through existing routes/styles with no new fetch, API, prompt, retrieval, migration, provider, hosted runtime, archive connector, billing, queue/worker, Cloudflare/Redis, social connector, public-write, broad shell, Discern CSS, Memory inbox, return-to-thread, or companion presence prompt-context change. | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_RESULT.md` |
+| PR485A | Companion Home Shortcuts | MIMIR / A1 | Accepted by ARGUS; compact owner-visible shortcut strip sits above private chat on `/studio/personas/[personaId]`, linking Memory, Timeline-as-Continuity, Profile edit, and Integrity through existing routes/styles with no new fetch or scope drift. Ready for MIMIR closeout or ARIADNE hosted desktop/mobile routing because the persona home surface changed visibly. | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR485A review | Companion Home Shortcuts | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS patch; owner persona home/chat shortcut strip uses exact existing Memory, Continuity-as-Timeline, Edit-as-Profile, and Integrity routes, scoped CSS, no new fetch, focused static tests, and no API/provider/prompt/retrieval/runtime/global-shell drift; ARIADNE hosted desktop/mobile rehearsal recommended before final closeout | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REVIEW_RESULT.md` |
 | PR485A implementation | Companion Home Shortcuts | DAEDALUS -> ARGUS | Ready for review; persona home/chat surface now has a compact owner shortcut strip for Memory, Timeline/Continuity, Profile, and Integrity via existing Tex routes, scoped CSS, focused route/static tests, and no API/provider/prompt/retrieval/runtime/global-shell drift | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_RESULT.md` |
 | PR485 preflight | Discern Companion UX Translation | MIMIR -> ARGUS -> DAEDALUS | Accepted first slice; PR485A is web-only companion home shortcuts on the existing owner persona home/chat surface, mapping Memory, Timeline, Profile, and Integrity to existing Tex routes while deferring Memory inbox, return-to-thread changes, and companion presence prompt context | `docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_PREFLIGHT_RESULT.md` |
 | PR484J-N parked | Archive Connector Hosted Setup | MIMIR | Parked as externally config-blocked while PR485 opens; required hosted API secrets and hosted migration proof remain unconfirmed, so ARIADNE live OAuth/source-inventory proof is not valid yet | `docs/roadmap/PR484J_N_ARCHIVE_CONNECTOR_HOSTED_SETUP_CONFIG_BLOCKER_MIMIR.md` |

@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485A Companion Home Shortcuts Review
+
+ARGUS accepted PR485A on 2026-07-05:
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR485A_COMPANION_HOME_SHORTCUTS_IMPLEMENTATION`.
+
+Reason:
+
+- accepted the owner-visible shortcut strip above private chat on
+  `/studio/personas/[personaId]`;
+- verified `studioPersonaCompanionShortcuts(personaId)` returns exactly the
+  accepted Memory, Timeline, Profile, and Integrity owner route targets;
+- verified the strip uses ordinary `next/link` links, adds no fetch, and keeps
+  CSS scoped to `.studio-companion-*`;
+- verified `PersonaChat`, provider setup/error behavior, token accounting,
+  runtime context preview, existing persona panels, API routes, AI packages,
+  prompts, retrieval, migrations, hosted runtime, archive connectors, billing,
+  queues/workers, Cloudflare/Redis, social connectors, public writes, global
+  shell, Discern CSS, Memory inbox, return-to-thread behavior, and companion
+  presence prompt context stayed out of scope;
+- recommended ARIADNE hosted desktop and `375px`/`390px` mobile rehearsal
+  before final closeout because the persona home surface changed visibly.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed changed web helper, persona page, scoped CSS, focused tests, docs, and wakeup commit. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts` | Pass | 26 route/readback tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API cached; web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Not rerun | Existing local Windows Next standalone symlink `EPERM` caveat remains build truth if rerun. |
+
 ## PR485A Companion Home Shortcuts Implementation
 
 DAEDALUS implemented PR485A on 2026-07-05:
