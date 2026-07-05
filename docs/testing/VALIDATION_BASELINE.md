@@ -20,6 +20,55 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485B Memory And Continuity Candidate Inbox Hosted Rehearsal
+
+ARIADNE completed the hosted PR485B rehearsal on 2026-07-05:
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API health checks were ready at app commit `a5fade6a`;
+- replay-owner sign-in, `/auth/me`, and persona readback passed without
+  recording credentials, tokens, cookies, deployment ids, raw owner ids, raw
+  persona ids, conversation ids, candidate ids, source labels, source bodies,
+  or private candidate text;
+- `/studio/personas/[personaId]` rendered the five-link companion shortcut
+  strip: Memory, Inbox, Timeline, Profile, and Integrity;
+- Memory still routed to `/memory`, Inbox routed to `/memory-inbox`, and
+  Timeline/Profile/Integrity kept `/continuity`, `/edit`, and `/calibration`;
+- desktop, `375px`, and `390px` home-route fit checks passed with no horizontal
+  overflow, clipped labels, broken touch targets, or overlap;
+- private chat still rendered with the existing composer, and Continuity Brief,
+  Runtime Context, and Published Continuity remained present;
+- `/memory-inbox` loaded on desktop, `375px`, and `390px` with breadcrumb,
+  owner-review heading, honest populated state, Pending/Reviewed/Memory/Canon
+  counters, and fitted Home/Memory/Timeline/Integrity route links;
+- hosted candidate readback used only
+  `/conversations/persona/[personaId]/candidates?source=import&status=all`;
+- hosted data was populated with 8 import-backed candidates: 2 pending, 6
+  reviewed, 4 Memory, and 4 Canon;
+- no accept/reject write was rehearsed because no explicitly disposable
+  candidate was provided;
+- `/memory` still loaded as the saved Memory owner workspace;
+- `/files` still loaded with the existing Archive/files import review copy; the
+  Memory Inbox copy did not replace Archive tab defaults;
+- no token, cookie, raw owner id, raw persona id, candidate id, conversation id,
+  storage path, secret-shaped value, SQL detail, stack trace, hosted log,
+  compiled prompt, or provider payload rendered in visible text;
+- no `source=all`, stale `/conversations/candidates/inbox`, return-to-thread,
+  prompt/presence context, Archive Connector expansion, billing, public write,
+  broad shell, or Discern CSS drift appeared;
+- no mutating request fired during the rehearsal.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web health | Pass | Ready at app commit `a5fade6a`; deployment ids were not recorded. |
+| Hosted API health | Pass | Ready at app commit `a5fade6a`; deployment ids were not recorded. |
+| Temporary hosted browser rehearsal | Pass | Desktop, `375px`, and `390px`; home strip, Memory inbox, `/memory`, `/files`, and owner targets checked; temporary harness removed before commit. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR485B Memory And Continuity Candidate Inbox Review
 
 ARGUS accepted PR485B on 2026-07-05:
