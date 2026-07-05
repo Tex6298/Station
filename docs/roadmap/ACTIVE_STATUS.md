@@ -4,6 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight result - PR495B accepted
+
+ARGUS accepted PR495B as a durable owner seminar record contract:
+
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495B_DURABLE_SEMINAR_RECORD_CONTRACT
+```
+
+Decision:
+
+- a source-reference-only lane is insufficient because
+  `public_seminar_interests` already persists `source_type` and `source_id`;
+- the next honest blocker before host/propose/schedule language is a stable
+  owner-scoped seminar record id, status model, RLS boundary, and owner API
+  contract;
+- PR495B must stay contract-only: migration, db/types, live-event types, owner
+  API/tests, and focused docs only;
+- public UI, public `/events/seminars` behavior, interest migration, status
+  transitions, proposals, scheduling, hosting claims, RSVP, tickets, payments,
+  reminders, live rooms, media, transcripts, providers, runtime, queues,
+  Redis, Cloudflare, and launch claims remain out of scope.
+
+Validation:
+
+- focused `live-events`, `live-events-route`, and `auth-routes` tests passed
+  with 15 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR495B - Durable Seminar Record Contract
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the accepted contract-only durable seminar record
+  table, owner API, types, focused tests, and result docs.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR495A closed, PR495B opened
 
 MIMIR closes PR495A after ARIADNE returned:

@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495B Durable Seminar Record Contract ARGUS Preflight
+
+ARGUS accepted PR495B on 2026-07-05:
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR495B_DURABLE_SEMINAR_RECORD_CONTRACT`.
+
+Reason:
+
+- source-reference-only is insufficient because `public_seminar_interests`
+  already stores `source_type` and `source_id`;
+- the smallest honest unblock before host/propose/schedule claims is a durable
+  owner-scoped seminar record id, status model, RLS boundary, and owner API
+  contract;
+- PR495B is limited to migration/types/owner API/focused tests/docs and must
+  not change public `/events/seminars`, public UI, interest behavior, status
+  transitions, scheduling, runtime, queues, Redis, Cloudflare, billing, or
+  provider scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS hostile preflight review | Pass | Accepted the durable owner seminar record contract and rejected a source-reference-only lane as insufficient. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 15 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495A Closeout And PR495B Durable Seminar Record Contract Opening
 
 MIMIR closed PR495A and opened PR495B on 2026-07-05:
