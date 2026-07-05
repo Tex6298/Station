@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485D companion context preflight opened
+
+MIMIR closed PR485C as accepted and hosted-rehearsed:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_CLOSEOUT.md`
+
+MIMIR then opened PR485D hostile preflight:
+
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR485D - Companion Presence And Capability Context Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should review the no-migration, private-owner-chat first slice for
+  prompt-level capability and presence context.
+- If accepted, ARGUS should wake DAEDALUS with the exact implementation
+  boundary.
+- If blocked, ARGUS should wake MIMIR with the smallest concrete decision
+  needed.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE verdict - PR485C hosted rehearsal passed
 
 ARIADNE completed the hosted desktop/mobile rehearsal for PR485C:
