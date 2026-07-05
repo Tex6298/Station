@@ -20,6 +20,55 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485C Return-To-Thread Readback Hosted Rehearsal
+
+ARIADNE completed the hosted PR485C rehearsal on 2026-07-05:
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_REHEARSAL_RESULT.md`.
+
+Validation result: `PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API health checks were at app commit `72dc8833`;
+- replay-owner sign-in and `/auth/me` passed without recording credentials,
+  tokens, cookies, deployment ids, raw owner ids, raw persona ids,
+  conversation ids, source ids, source bodies, prompt payloads, provider
+  payloads, or private chat text;
+- the replay owner did not initially expose an active non-empty latest
+  conversation, so ARIADNE performed one explicit synthetic owner-send setup
+  through the existing UI `Send` control;
+- after setup, `/studio/personas/[personaId]` rendered the compact
+  return-to-thread card on desktop, `375px`, and `390px`;
+- Memory, Inbox, Timeline, Profile, and Integrity shortcuts remained present
+  and routeable;
+- `Continue` focused the composer only and issued no network request;
+- `Summarize` pre-filled an owner-editable recap request only, focused the
+  composer, and issued no network request;
+- `Start fresh` locally cleared the active thread state, hid the return card,
+  showed the empty chat state, and issued no network request;
+- the owner still had to press `Send` for any LLM call;
+- an existing archived owner conversation was checked through a no-write
+  test-only list interception because no persona had an archived latest
+  conversation after setup;
+- archived read-only state passed on desktop, `375px`, and `390px`;
+- `/memory` and `/memory-inbox` remained separate routes, and Timeline,
+  Profile, and Integrity still loaded;
+- no token, cookie, raw id, storage path, secret-shaped value, SQL detail,
+  stack trace, hosted log, compiled prompt, provider payload, or private source
+  body rendered in visible text;
+- no query-param route selection, route-selected conversation loading,
+  automatic summary/LLM call, durable summary storage, API change,
+  prompt/retrieval/provider/runtime change, token-accounting change, Archive
+  connector behavior, Memory inbox behavior, billing, public write, broad shell
+  work, or Discern CSS drift appeared.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web health | Pass | At app commit `72dc8833`; deployment ids were not recorded. |
+| Hosted API health | Pass | At app commit `72dc8833`; deployment ids were not recorded. |
+| Temporary hosted Playwright rehearsal | Pass | Desktop, `375px`, and `390px`; active return card, local actions, archived read-only state, shortcuts, Memory inbox separation, and privacy/scope checks passed; temporary harness removed before commit. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR485C Return-To-Thread Readback ARGUS Review
 
 ARGUS accepted PR485C on 2026-07-05:

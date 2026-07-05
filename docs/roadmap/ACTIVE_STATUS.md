@@ -4,6 +4,76 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - PR485C hosted rehearsal passed
+
+ARIADNE completed the hosted desktop/mobile rehearsal for PR485C:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Hosted proof:
+
+- hosted web/API health checks were at app commit `72dc8833`;
+- replay-owner sign-in and `/auth/me` passed without recording credentials,
+  tokens, cookies, deployment ids, raw owner ids, raw persona ids,
+  conversation ids, source ids, source bodies, prompt payloads, provider
+  payloads, or private chat text;
+- the replay owner did not initially expose an active non-empty latest
+  conversation, so ARIADNE performed one explicit synthetic owner-send setup
+  through the existing UI `Send` control;
+- after setup, `/studio/personas/[personaId]` rendered the compact
+  return-to-thread card on desktop, `375px`, and `390px`;
+- the five companion shortcuts remained present and routeable: Memory, Inbox,
+  Timeline, Profile, and Integrity;
+- `Continue` focused the composer only and issued no network request;
+- `Summarize` pre-filled an owner-editable recap request only, focused the
+  composer, and issued no network request;
+- `Start fresh` locally cleared the active thread state, hid the return card,
+  showed the empty chat state, and issued no network request;
+- the owner still had to press `Send` for any LLM call;
+- an existing archived owner conversation was checked through a no-write
+  test-only list interception because no persona had an archived latest
+  conversation after setup;
+- archived read-only state passed on desktop, `375px`, and `390px`: no return
+  card, existing `Archived` label, existing `New chat` recovery, disabled
+  composer, `Archived` send state, and no active `Archive` control;
+- `/memory` and `/memory-inbox` remained separate routes, and Timeline,
+  Profile, and Integrity still loaded;
+- no token, cookie, raw id, storage path, secret-shaped value, SQL detail,
+  stack trace, hosted log, compiled prompt, provider payload, or private source
+  body rendered in visible text;
+- no query-param route selection, route-selected conversation loading,
+  automatic summary/LLM call, durable summary storage, API change,
+  prompt/retrieval/provider/runtime change, token-accounting change, Archive
+  connector behavior, Memory inbox behavior, billing, public write, broad shell
+  work, or Discern CSS drift appeared.
+
+Current lane:
+
+```text
+PR485C - Return-To-Thread Readback Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR can close PR485C.
+- Any route-selected conversation loading, active-thread seed hygiene, or
+  provider-policy follow-up should be opened as a separate lane.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR485C hosted rehearsal opened
 
 MIMIR routed PR485C to ARIADNE for hosted human-eye rehearsal after ARGUS
