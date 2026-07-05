@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR488 blocked on queue-capable config
+
+ARGUS hostile-preflighted PR488 Background Job Activation:
+
+`docs/roadmap/PR488_BACKGROUND_JOB_ACTIVATION_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+BLOCKED_NEEDS_QUEUE_CAPABLE_CONFIG
+```
+
+Current lane:
+
+```text
+PR488 - Background Job Activation Preflight
+Owner: MIMIR / A1
+State: BLOCKED_NEEDS_QUEUE_CAPABLE_CONFIG
+```
+
+Current baton:
+
+- MIMIR should decide whether to open a config/proof-only unblock lane for a
+  queue-capable runtime or defer workers and choose the next customer-facing
+  product lane.
+- Hosted `/health/deployment` is ready but reports Upstash REST cache-only:
+  `queueConfigured:false`, `workerQueueReady:false`, operational cache
+  `kind: upstash_rest`.
+- Current import/export/job code has owner readback, inline fallback, safe
+  errors, and tests, but no queue-capable worker runtime or measured
+  import/export pain requiring activation.
+- Smallest unblock: choose/configure a real queue-capable provider without
+  exposing secrets, prove sanitized `/health/deployment` has
+  `queueConfigured:true` and `workerQueueReady:true`, document worker topology,
+  keep `inlineFallback:true`, and do not run import/export work.
+- After config proof, prefer a narrow queue-adapter proof before any file-import
+  or export-worker activation unless MIMIR names measured hosted replay pain.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest ARIADNE rehearsal - PR487A ready to close
 
 ARIADNE completed the hosted PR487A Global Archive result provenance rehearsal:

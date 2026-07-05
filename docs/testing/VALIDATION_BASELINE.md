@@ -20,6 +20,45 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR488 Background Job Activation Preflight
+
+ARGUS blocked PR488 on 2026-07-05:
+`docs/roadmap/PR488_BACKGROUND_JOB_ACTIVATION_PREFLIGHT_RESULT.md`.
+
+Validation result: `BLOCKED_NEEDS_QUEUE_CAPABLE_CONFIG`.
+
+Reason:
+
+- public hosted `/health/deployment` was `ready:true` but reported
+  `provider: upstash_rest_cache_only`, `queueConfigured:false`, and
+  `workerQueueReady:false`;
+- operational cache is enabled as `kind: upstash_rest`, which supports
+  cache/idempotency/rate-limit/short-lived queue-state posture but does not
+  prove a BullMQ-compatible TCP queue or worker runtime;
+- PR114 background-job foundation and PR148 owner-only job readback remain
+  intact;
+- current file-import runner is explicit protected-alpha inline fallback and
+  deferred file registration still reports `workerQueue:false`;
+- current export assembly remains inline with owner-visible failed package rows;
+- no worker process, queue adapter, enqueue/dequeue loop, or measured
+  import/export timeout/fanout defect justifies activation;
+- smallest unblock is queue-capable config proof before any DAEDALUS worker
+  implementation.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Public hosted `/health/deployment` sanitized Redis readback | Pass | `ready:true`; `provider: upstash_rest_cache_only`; `queueConfigured:false`; `workerQueueReady:false`; operational cache `kind: upstash_rest`. |
+| Code review | Pass | Reviewed PR114/147/148/368 docs, PR488 handoff, PR487A closeout, background-job/readiness/cache/file-import/import/export code, and focused tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:jobs` | Pass | 10 background job readback/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:cache` | Pass | 5 operational cache tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:health` | Pass | 18 health/deployment readiness tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:storage` | Pass | 19 storage/import tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 export tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:replay-readiness` | Pass | 2 replay-readiness tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR487A Global Archive Result Provenance Hosted Rehearsal
 
 ARIADNE passed PR487A hosted rehearsal on 2026-07-05:
