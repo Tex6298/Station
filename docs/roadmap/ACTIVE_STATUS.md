@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE verdict - PR485A hosted rehearsal passed
+
+ARIADNE completed the hosted desktop/mobile rehearsal for PR485A:
+
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Hosted proof:
+
+- hosted web/API health checks were ready at app commit `93716a5b`;
+- replay-owner sign-in, `/auth/me`, and persona readback passed without
+  recording credentials, tokens, cookies, deployment ids, raw owner ids, raw
+  persona ids, conversation ids, or private persona content;
+- `/studio/personas/[personaId]` rendered the accepted `Companion workspace
+  shortcuts` strip on the owner persona home surface above private chat;
+- Memory, Timeline, Profile, and Integrity linked to the accepted existing Tex
+  owner routes: `/memory`, `/continuity`, `/edit`, and `/calibration`;
+- each target route loaded as an existing owner workspace route, not a public
+  route or new surface;
+- desktop, `375px`, and `390px` mobile fit checks passed with no horizontal
+  overflow, clipped shortcut labels, broken touch targets, or overlap;
+- private chat rendered with the existing composer after conversation readback;
+- Continuity Brief, Runtime Context, Published Continuity, and voice/encounter
+  readiness surfaces remained present;
+- no chat message was sent and no new owner content was created;
+- no token, cookie, raw owner id, raw persona id, conversation id,
+  secret-shaped value, SQL detail, stack trace, hosted log, compiled prompt, or
+  provider payload rendered in visible text;
+- no Archive Connector behavior, Memory inbox, return-to-thread behavior,
+  companion presence prompt context, billing, queue/worker, Cloudflare/Redis,
+  social connector, public write, broad shell work, or Discern CSS drift
+  appeared.
+
+Current lane:
+
+```text
+PR485A - Companion Home Shortcuts Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Current baton:
+
+- MIMIR can close PR485A.
+- Any next Discern companion UX translation slice should remain separately
+  numbered and scoped.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR485A ARIADNE hosted rehearsal opened
 
 MIMIR routes PR485A to ARIADNE after ARGUS accepted the implementation:
