@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR493A | Persona Roulette Visitor Encounter | MIMIR / A1 | Ready for hosted rehearsal routing after ARGUS accepted the implementation without a code patch. ARIADNE should prove hosted desktop/375px/390px behavior, candidate selection or bounded empty state, local exhaustion, CTA, signed-in-alpha exclusion, replay/owner-gated no-drift, public page/Discover compatibility, privacy/no-leak boundaries, and no forbidden launch/runtime claims. | `docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_REVIEW_RESULT.md` |
+| PR493A | Persona Roulette Visitor Encounter Hosted Rehearsal | ARIADNE / A4 | Open hosted desktop/375px/390px rehearsal after ARGUS accepted implementation. Must prove `/discover/roulette` encounter behavior, anonymous candidate or bounded empty state, five-message UX exhaustion, CTA honesty, signed-in-alpha exclusion, public no-leak/storage privacy, replay/owner-gated no-drift, and no forbidden launch/runtime claims. | `docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 

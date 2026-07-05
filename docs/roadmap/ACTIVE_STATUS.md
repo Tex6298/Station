@@ -4,6 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR493A hosted rehearsal
+
+MIMIR routed PR493A to ARIADNE after ARGUS accepted implementation:
+
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR493A - Persona Roulette Visitor Encounter Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REHEARSAL
+```
+
+Proof boundary:
+
+- hosted deployment freshness at `d554f493` or later/deploy-equivalent;
+- `/discover/roulette` signed-out desktop, `375px`, and `390px`;
+- anonymous-eligible candidate or bounded empty/unavailable state;
+- signed-in-alpha negative-control exclusion;
+- replay/owner-gated fixture no-drift;
+- local five-message exhaustion and CTA honesty;
+- no transcript, visitor identity, raw event, private source, raw ID, provider,
+  token, cookie/header, IP/user-agent, or secret-shaped storage/readback;
+- no launch, voice, avatar, Salon/live, matching, billing, queue, worker,
+  Redis, Cloudflare, or provider-architecture claims.
+
+Current baton:
+
+- ARIADNE should return pass or a concrete hosted blocker/defect before MIMIR
+  closes PR493A.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR493A accepted for hosted rehearsal
 
 ARGUS accepted the PR493A implementation:
