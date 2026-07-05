@@ -27,12 +27,27 @@ export function publicInteractionAnonymousEligibilityCopy(readback?: PublicPerso
   const scope = "Public-source-only: public profile, published public documents, and linked public discussions.";
   const storage = "No visitor transcript, identity, or raw events are stored; only aggregate counters remain.";
   const rollback = "Owner rollback is the public chat enable/disable control.";
+  const readiness = publicInteractionAnonymousReadinessCopy(readback);
 
   if (eligibility.available) {
-    return `Anonymous alpha is available for the replay alpha persona only. ${scope} ${storage} ${rollback}`;
+    return `Anonymous alpha is available for the replay alpha persona only. ${readiness} ${scope} ${storage} ${rollback}`;
   }
 
-  return `${eligibility.blocker ?? "Anonymous alpha is unavailable."} ${scope} ${storage} ${rollback}`;
+  return `${eligibility.blocker ?? "Anonymous alpha is unavailable."} ${readiness} ${scope} ${storage} ${rollback}`;
+}
+
+export function publicInteractionAnonymousReadinessCopy(readback?: PublicPersonaInteractionReadback | null) {
+  const eligibility = readback?.publicChat.anonymousEligibility;
+  if (!eligibility) return "Rate-limit and provider readiness unavailable.";
+
+  const rateLimit = eligibility.rateLimitFailClosed
+    ? `Rate limits fail closed; rate-limit backing is ${eligibility.rateLimitAvailable ? "ready" : "not ready"}.`
+    : "Rate-limit posture needs review.";
+  const provider = eligibility.providerAvailable
+    ? "Provider route is ready."
+    : "Provider route is blocked.";
+
+  return `${rateLimit} ${provider}`;
 }
 
 export function publicInteractionRouteLabel(readback?: PublicPersonaInteractionReadback | null) {

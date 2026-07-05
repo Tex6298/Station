@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS repair - PR490B ready for ARGUS review
+
+DAEDALUS repaired the PR490A hosted owner-readback copy defect:
+
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR490B - Public Persona Anonymous Chat Readiness Copy Repair
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- owner-visible anonymous eligibility copy now names fail-closed rate-limit
+  posture and provider readiness/blocker state using existing
+  `anonymousEligibility` readback fields;
+- `publicInteractionAnonymousReadinessCopy` renders concise ready/blocked copy
+  for rate-limit backing and provider route state;
+- available, rate-limit-blocked, and provider-blocked branches are covered by
+  focused helper tests;
+- no anonymous runtime eligibility, public prompt/source selection,
+  provider/model routing, rate-limit behavior, API contract, public reporting/
+  moderation, or broad UI changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-interaction.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review PR490B against the copy/readback-only repair boundary.
+- If accepted, ARGUS should wake MIMIR to route ARIADNE hosted rerun.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR routing - PR490B repair opened
 
 MIMIR routed the PR490A hosted rehearsal defect to DAEDALUS:

@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR490B Public Persona Anonymous Chat Readiness Copy Repair
+
+DAEDALUS implemented PR490B on 2026-07-05:
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- hosted PR490A rehearsal found one product defect: visible owner readback did
+  not name fail-closed rate-limit readiness or provider readiness/blocker state
+  when anonymous alpha was available;
+- repair changed only the public persona interaction helper/test surface plus
+  docs;
+- visible copy now names rate-limit fail-closed posture, rate-limit backing
+  ready/not-ready state, and provider route ready/blocked state from existing
+  `anonymousEligibility` fields;
+- no anonymous runtime eligibility, public prompt/source selection,
+  provider/model routing, rate-limit behavior, API contract, public reporting/
+  moderation, or broad UI changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-interaction.test.ts` | Pass | 4 public-interaction helper tests passed, including visible rate-limit/provider readiness copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 personas tests passed; runtime and owner/admin readback protections remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
 ## PR490A Public Persona Anonymous Chat Eligibility Readback ARIADNE Rehearsal
 
 ARIADNE completed PR490A hosted rehearsal on 2026-07-05:

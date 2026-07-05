@@ -7,6 +7,7 @@ import {
   publicInteractionActivityValue,
   publicInteractionAnonymousEligibilityCopy,
   publicInteractionAnonymousEligibilityLabel,
+  publicInteractionAnonymousReadinessCopy,
   publicInteractionChatLabel,
   publicInteractionReportSummary,
   publicInteractionRouteLabel,
@@ -93,6 +94,9 @@ test("public interaction helper labels stay bounded to owner-safe state", () => 
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /replay alpha persona/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Public-source-only/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /No visitor transcript/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Rate limits fail closed; rate-limit backing is ready/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Provider route is ready/);
+  assert.equal(publicInteractionAnonymousReadinessCopy(readback), "Rate limits fail closed; rate-limit backing is ready. Provider route is ready.");
   assert.doesNotMatch(publicInteractionAnonymousEligibilityCopy(readback), /Salon/i);
   assert.equal(publicInteractionRouteLabel(readback), "Public route live");
   assert.equal(publicInteractionReportSummary(readback), "2 active / 3 total persona reports");
@@ -122,7 +126,53 @@ test("public interaction helper labels anonymous replay eligibility explicitly",
   assert.equal(publicInteractionAnonymousEligibilityLabel(anonymousReadback), "Anonymous alpha available");
   assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /replay alpha persona only/);
   assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Owner rollback/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Rate limits fail closed; rate-limit backing is ready/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /Provider route is ready/);
   assert.doesNotMatch(publicInteractionAnonymousEligibilityCopy(anonymousReadback), /visitor id|raw event rows|private memory|provider payload|token|cookie/i);
+});
+
+test("public interaction helper names readiness blockers without debug details", () => {
+  const rateBlocked: PublicPersonaInteractionReadback = {
+    ...readback,
+    publicChat: {
+      ...readback.publicChat,
+      mode: "anonymous_alpha",
+      anonymousEligibility: {
+        ...readback.publicChat.anonymousEligibility,
+        mode: "anonymous_alpha",
+        blockerCode: "rate_limit_unavailable",
+        blocker: "Fail-closed anonymous rate limiting is unavailable.",
+        rateLimitAvailable: false,
+        providerAvailable: true,
+      },
+    },
+  };
+  const providerBlocked: PublicPersonaInteractionReadback = {
+    ...readback,
+    publicChat: {
+      ...readback.publicChat,
+      mode: "anonymous_alpha",
+      anonymousEligibility: {
+        ...readback.publicChat.anonymousEligibility,
+        mode: "anonymous_alpha",
+        blockerCode: "provider_unavailable",
+        blocker: "Public persona chat provider configuration is unavailable.",
+        rateLimitAvailable: true,
+        providerAvailable: false,
+      },
+    },
+  };
+
+  assert.match(publicInteractionAnonymousEligibilityCopy(rateBlocked), /Fail-closed anonymous rate limiting is unavailable/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(rateBlocked), /rate-limit backing is not ready/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(rateBlocked), /Provider route is ready/);
+  assert.equal(publicInteractionAnonymousReadinessCopy(providerBlocked), "Rate limits fail closed; rate-limit backing is ready. Provider route is blocked.");
+  assert.match(publicInteractionAnonymousEligibilityCopy(providerBlocked), /provider configuration is unavailable/);
+  assert.match(publicInteractionAnonymousEligibilityCopy(providerBlocked), /Provider route is blocked/);
+  assert.doesNotMatch(
+    `${publicInteractionAnonymousEligibilityCopy(rateBlocked)} ${publicInteractionAnonymousEligibilityCopy(providerBlocked)}`,
+    /sk-|Bearer|cookie|auth header|user agent|IP address|provider payload|raw config|model:/i,
+  );
 });
 
 test("public interaction helper handles unavailable state without inventing details", () => {

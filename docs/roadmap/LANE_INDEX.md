@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR490B | Public Persona Anonymous Chat Readiness Copy Repair | DAEDALUS / A2 | Open narrow repair. ARIADNE passed core PR490A privacy/no-drift checks but found the owner readback does not visibly name fail-closed rate-limit readiness or provider readiness/blocker state. DAEDALUS should repair copy/readback only, then wake ARGUS. | `docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_DAEDALUS.md` |
+| PR490B | Public Persona Anonymous Chat Readiness Copy Repair | ARGUS / A3 | Ready for review. DAEDALUS repaired visible owner copy so anonymous eligibility names fail-closed rate-limit posture plus rate-limit/provider ready/blocked state from existing readback fields, with focused helper tests and no runtime/API/UI expansion. | `docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_RESULT.md` |
 
 ## Recently Closed
 
