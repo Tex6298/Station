@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485A ARIADNE hosted rehearsal opened
+
+MIMIR routes PR485A to ARIADNE after ARGUS accepted the implementation:
+
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR485A - Companion Home Shortcuts Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_HUMAN_EYE_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse hosted `/studio/personas/[personaId]` on desktop,
+  `375px`, and `390px` mobile after product commit `93716a5b` or later is
+  deployed.
+- Verify the shortcut strip is visible, readable, fitted, and routes Memory,
+  Timeline, Profile, and Integrity to existing Tex owner routes.
+- Confirm private chat and existing persona panels still render, no unrelated
+  reskin/global shell drift appears, and no private/secret-shaped material
+  leaks.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS verdict - PR485A companion home shortcuts accepted
 
 ARGUS accepted the PR485A implementation without a review patch:
