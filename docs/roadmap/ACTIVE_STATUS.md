@@ -54,6 +54,45 @@ WAKEUP A1:
 Codename: MIMIR
 ```
 
+## Latest MIMIR routing - PR487A closed, PR488 opened
+
+MIMIR closed PR487A after ARIADNE passed hosted rehearsal:
+
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_CLOSEOUT.md`
+
+MIMIR opened PR488 as the next backend/product capability preflight:
+
+`docs/roadmap/PR488_BACKGROUND_JOB_ACTIVATION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR488 - Background Job Activation Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight whether current import/export/replay evidence
+  and Redis/Upstash posture justify a smallest safe background-job activation
+  slice.
+- Candidate outcomes are file-import job activation, export assembly retry,
+  queue adapter proof, scheduled publishing worker gate, queue-capable config
+  blocker, MIMIR decision, or no-worker deferral.
+- If accepted, ARGUS should wake DAEDALUS with exact implementation boundary,
+  tests, privacy/payload rules, owner-readback requirements, and ARIADNE
+  rehearsal requirement if visible routes change.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker or
+  next better customer-facing lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR routing - PR487A ARIADNE hosted rehearsal opened
 
 MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted
