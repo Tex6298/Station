@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR492A | Owner-Controlled Anonymous Public Chat Gate Hosted Proof Rerun | ARIADNE / A4 | Open rerun after MIMIR applied/proved hosted migration 068. Must prove deployment freshness, owner route recovery, default-off gate, owner enable for a non-replay persona separate from the negative control, signed-out allow/deny, rollback, no-leak public cards, desktop/mobile fit, and no broad runtime expansion. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_ARIADNE.md` |
+| PR492B | Owner-Gated Public Persona Fixture Setup | ARIADNE / A4 | Open hosted fixture setup after PR492A rerun found no approved owner-enable target. ARIADNE should create/find `station-replay-owner-gate-alpha-persona` through hosted owner UI/API, leave it default-off, prove owner enable/rollback/no-leak/no-drift on desktop/mobile, then wake MIMIR. | `docs/roadmap/PR492B_OWNER_GATED_PUBLIC_PERSONA_FIXTURE_SETUP_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR492A rerun | Owner-Controlled Anonymous Public Chat Gate Hosted Proof Rerun | ARIADNE -> MIMIR -> ARIADNE | Migration blocker cleared and default-off/no-leak checks passed, but owner-enable proof is blocked because the replay owner has no approved non-replay public persona separate from the signed-in-alpha negative control. PR492B opens the smallest fixture setup. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_RESULT.md` |
 | PR492A hosted migration | Owner-Controlled Anonymous Public Chat Gate Hosted Migration | ARIADNE -> MIMIR -> ARIADNE | Migration blocker cleared; hosted Supabase has `public_anonymous_chat_enabled`, the gate constraint exists, and Data API can select `id,public_anonymous_chat_enabled` with HTTP `200`. ARIADNE rerun is required before closeout. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_HOSTED_MIGRATION_RESULT.md` |
 | PR492A rehearsal opened | Owner-Controlled Anonymous Public Chat Gate Hosted Proof | MIMIR -> ARIADNE | Open; ARGUS accepted the DAEDALUS implementation, so ARIADNE must prove hosted deployment/migration/control/rollback/no-leak behavior before closeout or return the concrete blocker. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_ARIADNE.md` |
 | PR492A review | Owner-Controlled Anonymous Public Chat Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS patch; separate default-off anonymous owner gate, rollback, owner scope, public card/readback no-leak, fail-closed rate/provider behavior, public-source-only prompting, signed-in reporting, aggregate-only counters, and no anonymous transcript/identity/raw-event storage passed focused validation. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REVIEW_RESULT.md` |

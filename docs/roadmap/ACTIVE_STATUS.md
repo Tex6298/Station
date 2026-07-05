@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR492B owner-gated fixture setup
+
+ARIADNE reran PR492A after the hosted migration and returned:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_RESULT.md`
+
+Validation result:
+
+```text
+HOSTED_ENABLE_FIXTURE_BLOCKER
+```
+
+Current lane:
+
+```text
+PR492B - Owner-Gated Public Persona Fixture Setup
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_FIXTURE_SETUP_AND_PR492A_RERUN
+```
+
+Decision:
+
+- No DAEDALUS code lane is needed yet.
+- The product already has hosted owner persona creation and owner gate controls.
+- MIMIR approves one explicit non-production public persona fixture:
+  `station-replay-owner-gate-alpha-persona`.
+- ARIADNE should create or locate that fixture through the hosted owner UI/API
+  path, leave it default-off, then rerun the PR492A owner enable/rollback proof.
+
+Routing:
+
+`docs/roadmap/PR492B_OWNER_GATED_PUBLIC_PERSONA_FIXTURE_SETUP_ARIADNE.md`
+
+Current baton:
+
+- ARIADNE should return pass or the smallest concrete fixture/control/provider
+  blocker.
+- Do not use the signed-in-alpha negative-control fixture as the owner-enabled
+  target.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARIADNE result - PR492A blocked on hosted enable fixture
 
 ARIADNE reran the PR492A hosted proof after the migration was applied:
