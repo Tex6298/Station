@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR489A | Station Assistant Next-Step Launcher | DAEDALUS / A2 | Open implementation. ARGUS accepted the existing `/studio/assistant` next-action launcher refresh as the smallest safe Assistant slice: use existing owner-safe routes for Archive/files, Memory inbox, Global Archive, export, publishing, and settings/quota; explain job inline fallback/readback honestly if useful; do not add background-job web UI, worker/queue readiness, provider/model calls, prompt/retrieval changes, backend contracts, public behavior, or autonomy. ARIADNE rehearsal is required after ARGUS accepts implementation. | `docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_PREFLIGHT_RESULT.md` |
+| PR489A | Station Assistant Next-Step Launcher | ARGUS / A3 | Ready for review. DAEDALUS refreshed the existing `/studio/assistant` next-action launcher: pending imported Memory/Canon candidates route to Memory inbox, owner actions stay on existing Archive/files, Global Archive, export, publishing, and settings/quota routes, inline-fallback/job copy stays queue-blocked, unsafe route drift is filtered, and 87 focused tests plus typecheck/lint/diff-check passed. ARIADNE rehearsal remains required after ARGUS accepts implementation. | `docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_RESULT.md` |
 
 ## Recently Closed
 

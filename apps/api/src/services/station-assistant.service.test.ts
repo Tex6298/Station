@@ -36,11 +36,11 @@ const summary: StationAssistantSummary = {
   },
   nextActions: [
     {
-      id: "import-review-33333333-3333-4333-8333-333333333333",
+      id: "review-import-memory-canon",
       kind: "import_review",
-      label: "Review Memory/Canon candidates",
+      label: "Open Memory inbox",
       detail: "2 imported candidates need owner review.",
-      href: "/studio/personas/33333333-3333-4333-8333-333333333333/files",
+      href: "/studio/personas/33333333-3333-4333-8333-333333333333/memory-inbox",
       priority: "critical",
       count: 2,
       status: "pending",
@@ -87,6 +87,52 @@ test("Station Assistant does not present itself as a persona", () => {
   assert.match(reply.guardrail, /no persona canon/);
 });
 
+test("Station Assistant job wording is honest without adding unsafe routes", () => {
+  const reply = composeStationAssistantReply("where is job status?", summary);
+  const serializedActions = JSON.stringify(reply.actions);
+
+  assert.match(reply.content, /owner surfaces/);
+  assert.match(reply.content, /queue-capable workers remain blocked/i);
+  assert.doesNotMatch(reply.content, /\/background-jobs|worker ready|durable queue is live/i);
+  assert.doesNotMatch(serializedActions, /\/background-jobs|\/discover|\/public|oauth|billing|queue|worker|redis|cloudflare|provider|social/i);
+});
+
+test("Station Assistant filters unsafe action hrefs supplied to replies", () => {
+  const reply = composeStationAssistantReply("what should I do next?", {
+    counts: { personas: 1 },
+    nextActions: [
+      {
+        id: "safe-inbox",
+        kind: "import_review",
+        label: "Open Memory inbox",
+        detail: "Review owner candidates.",
+        href: "/studio/personas/persona-1/memory-inbox",
+        priority: "critical",
+      },
+      {
+        id: "unsafe-jobs",
+        kind: "import_progress",
+        label: "Open jobs",
+        detail: "Unsafe route",
+        href: "/background-jobs",
+        priority: "high",
+      },
+      {
+        id: "unsafe-public",
+        kind: "archive_search",
+        label: "Public search",
+        detail: "Unsafe route",
+        href: "/public/search",
+        priority: "normal",
+      },
+    ],
+  });
+
+  assert.equal(reply.actions.some((action) => action.href === "/studio/personas/persona-1/memory-inbox"), true);
+  assert.equal(reply.actions.some((action) => action.href === "/background-jobs"), false);
+  assert.equal(reply.actions.some((action) => action.href === "/public/search"), false);
+});
+
 test("launch-core private routes require auth and scope assistant summary to the owner", async () => {
   const db = new LaunchCoreRouteDb();
   setSupabaseAdminForTests(db.client as any);
@@ -102,9 +148,16 @@ test("launch-core private routes require auth and scope assistant summary to the
     assert.equal(owner.body.summary.counts.memoryItems, 1);
     assert.equal(owner.body.summary.recent.personas[0].id, OWNER_ID_PERSONA);
     assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "import_review"), true);
+    const importReviewAction = owner.body.summary.nextActions.find((action: any) => action.kind === "import_review");
+    assert.equal(importReviewAction.label, "Open Memory inbox");
     assert.equal(
-      owner.body.summary.nextActions.some((action: any) => action.href === `/studio/personas/${OWNER_ID_PERSONA}/files`),
+      owner.body.summary.nextActions.some((action: any) => action.href === `/studio/personas/${OWNER_ID_PERSONA}/memory-inbox`),
       true
+    );
+    assert.match(importReviewAction.detail, /imported Memory\/Canon candidate/);
+    assert.doesNotMatch(
+      `${importReviewAction.label} ${importReviewAction.detail} ${importReviewAction.status}`,
+      /33333333|private\/path|sk-live-secret|token=|https?:\/\//i
     );
     assert.equal(owner.body.summary.nextActions.some((action: any) => action.kind === "publishing"), true);
     const publishingAction = owner.body.summary.nextActions.find((action: any) => action.kind === "publishing");
@@ -127,6 +180,10 @@ test("launch-core private routes require auth and scope assistant summary to the
     assert.equal(ownerContext.body.assistant.nextActions[0].id, "review-failed-import");
     assert.match(ownerContext.body.assistant.nextActions[0].detail, /One import failed/);
     assert.match(ownerContext.body.assistant.nextActions[0].detail, /\[redacted\]/);
+    assert.equal(
+      JSON.stringify(owner.body.summary.nextActions).includes("/background-jobs"),
+      false
+    );
 
     const other = await requestJson(app, "GET", "/assistant/summary", { token: "other-token" });
     assert.equal(other.status, 200);

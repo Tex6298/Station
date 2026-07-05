@@ -5,7 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { assistantActionStatusLabel, assistantPromptFromSearch } from "@/lib/station-assistant-ui";
+import {
+  assistantActionEmptyCopy,
+  assistantActionStatusLabel,
+  assistantJobPostureCopy,
+  assistantPromptFromSearch,
+  assistantVisibleActions,
+} from "@/lib/station-assistant-ui";
 
 type AssistantAction = {
   id: string;
@@ -90,7 +96,10 @@ export function StationAssistantPanel() {
     });
   }, []);
 
-  const actions = useMemo(() => reply?.actions ?? summary?.nextActions ?? [], [reply, summary]);
+  const actions = useMemo(
+    () => assistantVisibleActions(reply?.actions ?? summary?.nextActions ?? []),
+    [reply, summary],
+  );
 
   async function askAssistant(nextMessage?: string) {
     const content = (nextMessage ?? message).trim();
@@ -177,16 +186,21 @@ export function StationAssistantPanel() {
 
             <section style={panel}>
               <h2 style={sectionTitle}>Next actions</h2>
+              <p style={{ ...mutedSmall, margin: "0 0 10px", lineHeight: 1.45 }}>{assistantJobPostureCopy()}</p>
               <div style={{ display: "grid", gap: 8 }}>
-                {actions.map((action) => (
-                  <Link key={action.id} href={action.href} style={actionLink(action.priority)}>
-                    <span style={{ display: "grid", gap: 4, minWidth: 0 }}>
-                      <span style={{ overflowWrap: "anywhere" }}>{action.label}</span>
-                      <span style={actionDetail}>{action.detail}</span>
-                    </span>
-                    <span style={actionMeta}>{assistantActionStatusLabel(action)}</span>
-                  </Link>
-                ))}
+                {actions.length > 0 ? (
+                  actions.map((action) => (
+                    <Link key={action.id} href={action.href} style={actionLink(action.priority)}>
+                      <span style={{ display: "grid", gap: 4, minWidth: 0 }}>
+                        <span style={{ overflowWrap: "anywhere" }}>{action.label}</span>
+                        <span style={actionDetail}>{action.detail}</span>
+                      </span>
+                      <span style={actionMeta}>{assistantActionStatusLabel(action)}</span>
+                    </Link>
+                  ))
+                ) : (
+                  <p style={{ ...muted, margin: 0 }}>{assistantActionEmptyCopy(0)}</p>
+                )}
               </div>
             </section>
 

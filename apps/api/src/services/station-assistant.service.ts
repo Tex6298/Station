@@ -212,9 +212,15 @@ async function readRows<T>(query: PromiseLike<{ data: T[] | null; error?: { mess
 function safeSnippet(value: string | null | undefined, maxLength = 90) {
   const normalized = (value ?? "")
     .replace(/\s+/g, " ")
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(/\b(?:s3|gs|storage):\/\/\S+/gi, "[redacted-storage]")
     .replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/gi, "Bearer [redacted]")
+    .replace(/\b[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[redacted-token]")
     .replace(/\bsk-[A-Za-z0-9_-]+\b/g, "[redacted]")
-    .replace(/\b(?:service[_-]?role|api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, "[redacted]")
+    .replace(/\b(?:ghp|github_pat|whsec|AKIA)[A-Za-z0-9_-]+\b/g, "[redacted-secret]")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
+    .replace(/\b(?:service[_-]?role|api[_-]?key|secret|token|password|cookie|database[_-]?url|storage[_-]?path)\s*[:=]\s*\S+/gi, "[redacted]")
+    .replace(/\b(?:stack trace|sql detail|provider payload|parser internal)\b[^.]*\.?/gi, "[redacted-internal]")
     .trim();
   if (!normalized) return "";
   return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3)}...` : normalized;
@@ -477,7 +483,9 @@ function buildAssistantSummaryActions(input: {
   const firstPersonaId = input.personas[0]?.id;
   const personaNames = new Map(input.personas.map((persona) => [persona.id, safeSnippet(persona.name, 60)]));
   const pendingImportCandidates = input.candidates.filter((candidate) =>
-    candidate.status === "pending" && candidate.source_table === "persona_files"
+    candidate.status === "pending"
+      && candidate.source_table === "persona_files"
+      && (candidate.candidate_type === "memory" || candidate.candidate_type === "canon")
   );
 
   if (input.personas.length === 0) {
@@ -495,11 +503,11 @@ function buildAssistantSummaryActions(input: {
     const personaId = pendingImportCandidates[0]?.persona_id ?? firstPersonaId;
     const personaLabel = personaId ? personaNames.get(personaId) ?? "this persona" : "this persona";
     actions.push({
-      id: `import-review-${personaId ?? "all"}`,
+      id: "review-import-memory-canon",
       kind: "import_review",
-      label: "Review import Memory/Canon",
-      detail: `${pendingImportCandidates.length} imported candidate${pendingImportCandidates.length === 1 ? "" : "s"} need owner review for ${personaLabel}.`,
-      href: personaId ? `/studio/personas/${personaId}/files` : "/studio/archive",
+      label: "Open Memory inbox",
+      detail: `${pendingImportCandidates.length} imported Memory/Canon candidate${pendingImportCandidates.length === 1 ? "" : "s"} need owner review for ${personaLabel} before promotion.`,
+      href: personaId ? `/studio/personas/${personaId}/memory-inbox` : "/studio/archive",
       priority: "critical",
       count: pendingImportCandidates.length,
       status: "pending",
@@ -526,11 +534,11 @@ function buildAssistantSummaryActions(input: {
       id: "check-import-progress",
       kind: "import_progress",
       label: "Check import progress",
-      detail: `${input.pendingImports} import job${input.pendingImports === 1 ? "" : "s"} still need completion before review is reliable.`,
+      detail: `${input.pendingImports} import job${input.pendingImports === 1 ? "" : "s"} still need owner status/readback. Protected-alpha imports use inline fallback while queue-capable workers remain blocked.`,
       href: active?.persona_id ? `/studio/personas/${active.persona_id}/files` : "/studio/archive",
       priority: "high",
       count: input.pendingImports,
-      status: "processing",
+      status: "owner readback",
     });
   }
   if (firstPersonaId && !input.integritySessions.some((session) => session.status === "completed" || session.completed_at)) {
@@ -560,8 +568,8 @@ function buildAssistantSummaryActions(input: {
     actions.push({
       id: "export-backup",
       kind: "export",
-      label: "Create export backup",
-      detail: "Create a portable owner archive so preservation is not only inside Station.",
+      label: "Open export readback",
+      detail: "Review package state and create a portable owner archive from the Export Workspace when you choose.",
       href: "/studio/export",
       priority: "high",
       status: "missing",
@@ -571,7 +579,7 @@ function buildAssistantSummaryActions(input: {
     actions.push({
       id: "search-private-archive",
       kind: "archive_search",
-      label: "Search private archive",
+      label: "Search Global Archive",
       detail: "Search owner-private archive material without exposing raw source bodies or transcripts.",
       href: "/studio/archive",
       priority: "normal",
@@ -582,7 +590,7 @@ function buildAssistantSummaryActions(input: {
     actions.push({
       id: "review-quota-config",
       kind: "quota_config",
-      label: "Check storage and quota settings",
+      label: "Open storage settings",
       detail: "A failed import looks quota-related; review storage and account settings before retrying.",
       href: "/settings",
       priority: "high",
@@ -593,13 +601,13 @@ function buildAssistantSummaryActions(input: {
     actions.push({
       id: "open-archive",
       kind: "archive_search",
-      label: "Open private archive",
+      label: "Open Global Archive",
       detail: "Archive, search, and review private source material before publishing.",
       href: "/studio/archive",
       priority: "normal",
     });
   }
-  return actions.slice(0, 5);
+  return actions.filter((action) => isAllowedAssistantActionHref(action.href)).slice(0, 5);
 }
 
 export type StationAssistantSummary = {
@@ -645,7 +653,7 @@ function contentForIntent(intent: StationAssistantIntent, summary: StationAssist
     case "archive":
       return failedImports > 0
         ? "Archive next step: review failed imports first, then retry or replace the source before trusting memory extraction."
-        : "Archive next step: add source material, preserve it privately, then review Memory/Canon candidates before promotion.";
+        : "Archive next step: add source material, preserve it privately, then review Memory/Canon candidates before promotion. Protected-alpha imports use inline fallback with owner status/readback while queue-capable workers remain blocked.";
     case "publish":
       return draftDocuments > 0
         ? "Publishing next step: open the approval queue, review visibility and provenance, publish only after owner review, confirm public document and linked discussion readback, then retract to private if needed. Retract hides public reads; it does not delete artifacts."
@@ -655,7 +663,7 @@ function contentForIntent(intent: StationAssistantIntent, summary: StationAssist
     case "export":
       return "Export next step: generate a portable archive package and verify that personas, canon, memory, transcripts, documents, and source metadata are included.";
     default:
-      return "Next step: use Station Assistant for archive, publishing, export, onboarding, and continuity operations. It is not a persona and does not carry its own Canon.";
+      return "Next step: use Station Assistant for archive, publishing, export, onboarding, and continuity operations. It is not a persona and does not carry its own Canon. Protected-alpha job status stays on existing owner surfaces; queue-capable workers remain blocked.";
   }
 }
 
@@ -667,9 +675,10 @@ function actionsForIntent(intent: StationAssistantIntent, fallback: AssistantAct
     export: ["export"],
     general: [],
   };
+  const safeFallback = fallback.filter((action) => isAllowedAssistantActionHref(action.href));
   const selected = wanted[intent].length
-    ? fallback.filter((action) => wanted[intent].includes(action.kind))
-    : fallback;
+    ? safeFallback.filter((action) => wanted[intent].includes(action.kind))
+    : safeFallback;
   const defaultAction: AssistantActionCard = {
     id: `open-${intent}`,
     kind: intent === "publish" ? "publishing" : intent === "integrity" ? "integrity" : intent === "export" ? "export" : "archive_search",
@@ -679,9 +688,30 @@ function actionsForIntent(intent: StationAssistantIntent, fallback: AssistantAct
     priority: "normal",
   };
 
-  return [...selected, defaultAction, ...fallback].filter(uniqueAction).slice(0, 3);
+  return [...selected, defaultAction, ...safeFallback].filter(uniqueAction).slice(0, 3);
 }
 
 function uniqueAction(action: AssistantActionCard, index: number, actions: AssistantActionCard[]) {
   return actions.findIndex((item) => item.id === action.id || item.href === action.href) === index;
+}
+
+function isAllowedAssistantActionHref(href: string) {
+  if (/\/(?:background-jobs|discover|public|search|connectors?|oauth|billing|queue|worker|redis|cloudflare|provider|social)(?:\/|$|\?)/i.test(href)) {
+    return false;
+  }
+
+  const normalized = href.split(/[?#]/)[0] ?? href;
+  if ([
+    "/studio",
+    "/studio/new",
+    "/studio/archive",
+    "/studio/export",
+    "/studio/publish",
+    "/studio/publishing",
+    "/settings",
+  ].includes(normalized)) {
+    return true;
+  }
+
+  return /^\/studio\/personas\/[^/?#]+(?:\/(?:files|memory-inbox|calibration|canon|continuity|memory|edit))?$/.test(normalized);
 }

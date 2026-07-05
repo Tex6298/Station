@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR489A ready for ARGUS review
+
+DAEDALUS implemented the accepted PR489A Station Assistant launcher slice:
+
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Current lane:
+
+```text
+PR489A - Station Assistant Next-Step Launcher
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- pending imported Memory/Canon candidates route to the existing persona Memory
+  inbox when a known persona is available;
+- Assistant action labels now point owners to existing owner-safe surfaces:
+  Memory inbox, Archive/files, Global Archive, export readback, publishing
+  queue, and settings/quota;
+- protected-alpha import/job copy says inline fallback plus owner
+  status/readback, while queue-capable workers remain blocked;
+- API reply actions and web-visible launcher actions filter out background-job
+  web pages, Discover/public search, OAuth/connectors, billing, queues/workers,
+  Redis, Cloudflare, provider/model, and social route drift;
+- visible labels/details/statuses have stronger redaction for URLs, storage
+  URLs, JWT-shaped tokens, common secret prefixes, UUID-shaped ids, database/
+  storage labels, and internal stack/SQL/provider/parser wording.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/web/lib/station-assistant-ui.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/import-review.test.ts`
+  passed with 87 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- ARGUS should review the PR489A implementation against the accepted preflight
+  boundary, especially Memory inbox routing, safe action hrefs, no private/raw/
+  secret display text, honest inline-fallback/queue-blocked copy, and publishing
+  retract/readback boundaries.
+- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/375px/390px
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR489A accepted for DAEDALUS
 
 ARGUS accepted the smallest safe PR489A Assistant slice:

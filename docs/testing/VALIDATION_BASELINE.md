@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR489A Station Assistant Next-Step Launcher Implementation
+
+DAEDALUS implemented PR489A on 2026-07-05:
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- pending imported Memory/Canon candidates now route to the existing persona
+  Memory inbox when a known persona is available;
+- Assistant action labels/details point only to existing owner-safe surfaces for
+  Memory inbox, Archive/files, Global Archive, export readback, publishing
+  queue, and settings/quota;
+- API reply actions and web-visible launcher actions filter out background-job
+  web pages, Discover/public search, OAuth/connectors, billing, queues/workers,
+  Redis, Cloudflare, provider/model, and social route drift;
+- protected-alpha import/job wording is bounded to inline fallback plus owner
+  status/readback while queue-capable workers remain blocked;
+- visible labels/details/statuses get stronger redaction for URLs, storage
+  URLs, JWT-shaped tokens, common secret prefixes, UUID-shaped ids, database/
+  storage labels, stack traces, SQL details, provider payloads, and parser
+  internals.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/routes/background-jobs.test.ts apps/api/src/services/background-jobs.service.test.ts apps/web/lib/station-assistant-ui.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/import-review.test.ts` | Pass | 87 focused Assistant/job/navigation/Archive/export/publishing/import-review tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
 ## PR489A Station Assistant Next-Step Launcher Preflight
 
 ARGUS accepted PR489A on 2026-07-05:
