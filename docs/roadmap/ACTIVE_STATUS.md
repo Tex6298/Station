@@ -4,53 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS result - PR493A roulette encounter accepted
+## Latest DAEDALUS implementation - PR493A ready for ARGUS review
 
-ARGUS accepted the PR493 hostile preflight:
+DAEDALUS implemented PR493A:
 
-`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_RESULT.md`
 
 Validation result:
 
 ```text
-ACCEPT_PR493A_ROULETTE_VISITOR_ENCOUNTER
+READY_FOR_ARGUS_REVIEW
 ```
 
-Accepted:
+Implemented:
 
 - protected-alpha `/discover/roulette` visitor text encounter;
-- optional `GET /personas/public/roulette?chatMode=anonymous_alpha` filter;
+- optional `GET /personas/public/roulette?chatMode=anonymous_alpha` filter that
+  narrows only to anonymous-eligible public personas;
 - reuse of `POST /personas/public/:publicSlug/chat`;
 - browser-local five-message encounter UX with no transcript, visitor identity,
-  or raw event storage;
-- CTA to sign up / create a Studio after exhaustion or continuation;
-- existing server anonymous chat rate limits, provider readiness, quota checks,
-  and owner-paid token attribution remain the real enforcement boundaries.
+  or raw event persistence;
+- `sessionStorage` limited to safe slug/count/exhausted state;
+- small Discover CTA while preserving default roulette compatibility.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/discover-roulette.test.ts apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 17 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 Current lane:
 
 ```text
 PR493A - Persona Roulette Visitor Encounter
-Owner: DAEDALUS / A2
-State: READY_FOR_IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
-
-Routing:
-
-`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md`
 
 Current baton:
 
-- DAEDALUS should add the bounded page/helper/API filter/tests within the
-  accepted preflight scope, preserving default roulette compatibility, owner
-  gate boundaries, signed-in-alpha denial, public-source-only prompting,
-  no-leak public cards, and public report auth.
+- ARGUS should review anonymous eligibility filtering, owner-gate no-drift,
+  default roulette compatibility, storage/no-leak boundaries, five-message
+  limit honesty, public report auth, and forbidden-scope drift.
+- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/`375px`/`390px`
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout - PR492 accepted, PR493 opened

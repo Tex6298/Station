@@ -45,7 +45,7 @@ interface PublicPersonaRouletteCard {
   href: string;
   publicChat?: {
     enabled: boolean;
-    mode: "signed_in_alpha";
+    mode: "signed_in_alpha" | "anonymous_alpha";
   };
 }
 
@@ -300,6 +300,9 @@ function Sidebar({ sidebar, user, loading, roulette, rouletteStatus, onRouletteS
             >
               Shuffle
             </button>
+            <Link href="/discover/roulette" className="public-home-primary" style={{ fontSize: "0.82rem", textAlign: "center" }}>
+              Start encounter
+            </Link>
           </div>
         ) : (
           <div style={{ display: "grid", gap: "0.5rem" }}>

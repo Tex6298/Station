@@ -20,34 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
-## PR493A Persona Roulette Visitor Encounter ARGUS Preflight
+## PR493A Persona Roulette Visitor Encounter Implementation
 
-ARGUS accepted PR493A on 2026-07-05:
-`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md`.
+DAEDALUS implemented PR493A on 2026-07-05:
+`docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_RESULT.md`.
 
 Validation result:
-`ACCEPT_PR493A_ROULETTE_VISITOR_ENCOUNTER`.
+`READY_FOR_ARGUS_REVIEW`.
 
 Reason:
 
-- PR492 closed the owner-controlled anonymous public chat gate;
-- the accepted visitor encounter can reuse existing anonymous public chat
-  without a new backend;
-- candidate selection must narrow to anonymous-eligible public personas only;
+- `/discover/roulette` now provides the bounded protected-alpha visitor
+  encounter;
+- `GET /personas/public/roulette?chatMode=anonymous_alpha` narrows candidates
+  to anonymous-eligible public personas without changing default roulette
+  compatibility;
+- messages reuse the existing
+  `POST /personas/public/:publicSlug/chat` route;
+- visible conversation text remains component-local;
+- session storage is limited to safe public slug, submitted count, and
+  exhausted state;
 - the five-message encounter limit is honest browser-session UX, while server
-  rate limits remain the real abuse boundary;
-- no transcript, visitor identity, raw event, private source, provider payload,
-  cookie, header, user-agent, IP, or secret-shaped storage/readback is allowed.
+  rate limits, provider readiness, quota checks, and owner-paid token
+  attribution remain the real enforcement boundaries.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| Code review | Pass | Accepted narrow `/discover/roulette` route plus optional `chatMode=anonymous_alpha` filter; default roulette compatibility and owner-gate boundaries remain required. |
-| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 16 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 16 tests passed, including default roulette compatibility, anonymous filter narrowing, owner gate, rate-limit unavailable, provider unavailable, public no-leak, and replay compatibility coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 tests passed; public reports remain signed-in/server-owned. |
-| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/discover-roulette.test.ts apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 14 focused web helper tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache. |
-| `git diff --check` | Pass | No whitespace errors. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/discover-roulette.test.ts apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 17 focused web helper tests passed, including browser-session limit, safe session serialization, public-source-only copy, and route helper no-leak coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
 
 ## PR492B Owner-Gated Public Persona Fixture Setup
 

@@ -991,8 +991,18 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
 
 test("public persona roulette returns eligible public cards without private fields", async () => {
   const db = new InMemorySupabase();
+  const rateLimitProvider = new TestRateLimitProvider();
   setSupabaseAdminForTests(db.client as any);
+  setOperationalCacheProviderForTests(rateLimitProvider);
   const app = createPersonasApp();
+  const previousNvidiaKey = process.env.NVIDIA_AI_API_KEY;
+  const previousNvidiaModel = process.env.NVIDIA_MODEL;
+  const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
+  const previousDeepseekKey = process.env.DEEPSEEK_API_KEY;
+  process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+  process.env.NVIDIA_MODEL = "test-public-model";
+  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.DEEPSEEK_API_KEY;
 
   try {
     const blue = db.insertRow("personas", {
@@ -1007,6 +1017,15 @@ test("public persona roulette returns eligible public cards without private fiel
       visibility: "public",
       public_slug: "blue-lantern-guide",
       public_chat_enabled: true,
+    });
+    const ownerGated = db.insertRow("personas", {
+      owner_user_id: "creator-owner",
+      name: "Owner Gated Roulette",
+      short_description: "Public-safe anonymous roulette candidate.",
+      visibility: "public",
+      public_slug: "owner-gated-roulette",
+      public_chat_enabled: true,
+      public_anonymous_chat_enabled: true,
     });
     const green = db.insertRow("personas", {
       owner_user_id: "canon-owner",
@@ -1057,7 +1076,7 @@ test("public persona roulette returns eligible public cards without private fiel
       roulette.body.personas
         .map((persona: Row) => persona.name)
         .sort(),
-      ["Blue Lantern Guide", "Green Door Archivist"]
+      ["Blue Lantern Guide", "Green Door Archivist", "Owner Gated Roulette"]
     );
     assert.deepEqual(
       roulette.body.personas
@@ -1093,8 +1112,41 @@ test("public persona roulette returns eligible public cards without private fiel
             mode: "signed_in_alpha",
           },
         },
+        {
+          name: "Owner Gated Roulette",
+          shortDescription: "Public-safe anonymous roulette candidate.",
+          avatarUrl: null,
+          publicSlug: "owner-gated-roulette",
+          href: "/personas/owner-gated-roulette",
+          publicChat: {
+            enabled: true,
+            mode: "anonymous_alpha",
+          },
+        },
       ]
     );
+
+    const anonymousRoulette = await requestJson(app, "GET", "/personas/public/roulette?limit=5&seed=alpha&chatMode=anonymous_alpha");
+    assert.equal(anonymousRoulette.status, 200);
+    assert.deepEqual(
+      anonymousRoulette.body.personas.map((persona: Row) => persona.name),
+      ["Owner Gated Roulette"]
+    );
+    assert.equal(JSON.stringify(anonymousRoulette.body).includes(ownerGated.id), false);
+
+    setOperationalCacheProviderForTests(new DisabledOperationalCacheProvider("test_disabled"));
+    const rateUnavailableRoulette = await requestJson(app, "GET", "/personas/public/roulette?limit=5&seed=alpha&chatMode=anonymous_alpha");
+    assert.equal(rateUnavailableRoulette.status, 200);
+    assert.deepEqual(rateUnavailableRoulette.body.personas, []);
+
+    setOperationalCacheProviderForTests(rateLimitProvider);
+    delete process.env.NVIDIA_AI_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.DEEPSEEK_API_KEY;
+    const providerUnavailableRoulette = await requestJson(app, "GET", "/personas/public/roulette?limit=5&seed=alpha&chatMode=anonymous_alpha");
+    assert.equal(providerUnavailableRoulette.status, 200);
+    assert.deepEqual(providerUnavailableRoulette.body.personas, []);
+    process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
 
     const responseJson = JSON.stringify(roulette.body);
     for (const forbidden of [
@@ -1115,6 +1167,8 @@ test("public persona roulette returns eligible public cards without private fiel
       "publicInteraction",
       "report_created_count",
       "chat_attempt_count",
+      "public_anonymous_chat_enabled",
+      "publicAnonymousChatEnabled",
       "550e8400-e29b-41d4-a716-446655440000",
       "Ineligible Public Persona",
       "Private Roulette Persona",
@@ -1122,7 +1176,28 @@ test("public persona roulette returns eligible public cards without private fiel
       assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked into roulette payload`);
     }
   } finally {
+    if (previousNvidiaKey == null) {
+      delete process.env.NVIDIA_AI_API_KEY;
+    } else {
+      process.env.NVIDIA_AI_API_KEY = previousNvidiaKey;
+    }
+    if (previousNvidiaModel == null) {
+      delete process.env.NVIDIA_MODEL;
+    } else {
+      process.env.NVIDIA_MODEL = previousNvidiaModel;
+    }
+    if (previousAnthropicKey == null) {
+      delete process.env.ANTHROPIC_API_KEY;
+    } else {
+      process.env.ANTHROPIC_API_KEY = previousAnthropicKey;
+    }
+    if (previousDeepseekKey == null) {
+      delete process.env.DEEPSEEK_API_KEY;
+    } else {
+      process.env.DEEPSEEK_API_KEY = previousDeepseekKey;
+    }
     setSupabaseAdminForTests(null);
+    resetOperationalCacheProviderForTests();
   }
 });
 

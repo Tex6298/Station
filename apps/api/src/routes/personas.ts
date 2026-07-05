@@ -163,6 +163,10 @@ function publicPersonaRouletteSeed(value: unknown, now = new Date()) {
   return normalized || `daily-${now.toISOString().slice(0, 10)}`;
 }
 
+function publicPersonaRouletteChatMode(value: unknown): "anonymous_alpha" | null {
+  return firstQueryValue(value) === "anonymous_alpha" ? "anonymous_alpha" : null;
+}
+
 function publicPersonaEventsLimit(value: unknown) {
   const parsed = Number.parseInt(String(firstQueryValue(value) ?? ""), 10);
   if (!Number.isInteger(parsed)) return PUBLIC_PERSONA_EVENTS_DEFAULT_LIMIT;
@@ -227,8 +231,33 @@ function serializePublicPersonaRouletteCard(row: any): PublicPersonaRouletteCard
   };
 }
 
-async function loadPublicPersonaRouletteRows(limit: number, seed: string) {
+async function publicPersonaAnonymousRouletteReady(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  row: any,
+) {
+  if (!row.public_chat_enabled) return false;
+  if (publicPersonaChatMode(row) !== "anonymous_alpha") return false;
+  if (!operationalCacheStatus().enabled) return false;
+
+  const { data: ownerProfile, error } = await sb
+    .from("profiles")
+    .select("tier")
+    .eq("id", row.owner_user_id)
+    .maybeSingle();
+  if (error) return false;
+
+  const { chatRoute } = platformChatRouteForPublicPersona(ownerProfile?.tier);
+  return Boolean(chatRoute.configured && chatRoute.provider);
+}
+
+async function loadPublicPersonaRouletteRows(
+  limit: number,
+  seed: string,
+  chatMode: "anonymous_alpha" | null = null
+) {
   const sb = getSupabaseAdmin();
+  if (chatMode === "anonymous_alpha" && !operationalCacheStatus().enabled) return [];
+
   const { data, error } = await sb
     .from("personas")
     .select("id, name, short_description, visibility, avatar_url, public_slug, owner_user_id, public_chat_enabled, public_anonymous_chat_enabled, created_at")
@@ -242,6 +271,7 @@ async function loadPublicPersonaRouletteRows(limit: number, seed: string) {
   for (const row of data ?? []) {
     if (!isSafePublicPersonaSlug(row.public_slug)) continue;
     if (!await ownerCanExposeExistingPublicPersonas(sb, row.owner_user_id)) continue;
+    if (chatMode === "anonymous_alpha" && !await publicPersonaAnonymousRouletteReady(sb, row)) continue;
     eligible.push(row);
   }
 
@@ -1021,10 +1051,11 @@ function baseAnonymousEligibility(input: {
 personasRouter.get("/public/roulette", async (req, res) => {
   const limit = publicPersonaRouletteLimit(req.query.limit);
   const seed = publicPersonaRouletteSeed(req.query.seed);
+  const chatMode = publicPersonaRouletteChatMode(req.query.chatMode);
 
   try {
     const response = await withPublicPersonaRouteRead(async () => {
-      const rows = await loadPublicPersonaRouletteRows(limit, seed);
+      const rows = await loadPublicPersonaRouletteRows(limit, seed, chatMode);
       return {
         seed,
         personas: rows

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR493A | Persona Roulette Visitor Encounter | DAEDALUS / A2 | Ready for implementation after ARGUS accepted a protected-alpha `/discover/roulette` encounter using one anonymous-eligible public persona, optional `chatMode=anonymous_alpha` roulette filter, existing public chat POST route, browser-local five-message UX, and no transcript/identity/raw-event storage. | `docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_RESULT.md` |
+| PR493A | Persona Roulette Visitor Encounter | ARGUS / A3 | Ready for review after DAEDALUS implemented protected-alpha `/discover/roulette`, optional `chatMode=anonymous_alpha` roulette narrowing, existing public chat POST reuse, browser-local five-message UX, safe slug/count/exhausted session state only, focused tests, and no transcript/identity/raw-event persistence. | `docs/roadmap/PR493A_PERSONA_ROULETTE_VISITOR_ENCOUNTER_RESULT.md` |
 
 ## Recently Closed
 
