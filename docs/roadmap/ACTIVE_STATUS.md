@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485C return-to-thread preflight opened
+
+MIMIR closed PR485B after ARGUS acceptance and ARIADNE hosted rehearsal pass,
+then opened the next separately scoped Discern companion UX translation slice:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR485C - Return-To-Thread Readback Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the return-to-thread slice.
+- Decide whether the first implementation is web-only, route-selection-only,
+  copy-only, or blocked.
+- Decide summarize prefill vs owner-triggered streamed chat turn, trigger
+  conditions, URL/state behavior, validation, and ARIADNE rehearsal needs.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Latest MIMIR closeout - PR485B memory inbox closed
+
+MIMIR closed PR485B as accepted and hosted-rehearsed:
+
+`docs/roadmap/PR485B_MEMORY_CONTINUITY_INBOX_CLOSEOUT.md`
+
+Closeout result:
+
+```text
+CLOSED_ACCEPTED_HOSTED_REHEARSED
+```
+
+Next Discern companion UX slices remain separate:
+
+- PR485C: return-to-thread readback.
+- Later: companion capability/presence prompt context.
+- Later: local chat surface polish where it improves Tex without importing
+  Discern's skin.
+
 ## Latest ARIADNE verdict - PR485B hosted rehearsal passed
 
 ARIADNE completed the hosted desktop/mobile rehearsal for PR485B:
