@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR492 accepted, PR493 opened
+
+MIMIR closes PR492 / PR492A / PR492B as accepted:
+
+`docs/roadmap/PR492_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_CLOSEOUT.md`
+
+Validation result:
+
+```text
+ACCEPTED_CLOSE_PR492A_PR492B
+```
+
+Accepted:
+
+- owner-controlled anonymous public chat gate for eligible non-replay public
+  personas;
+- default-off owner consent via `public_anonymous_chat_enabled`;
+- hosted migration, owner enable, signed-out success, rollback, replay no-drift,
+  negative-control denial, public no-leak, and desktop/mobile proof;
+- no transcript, visitor identity, raw event, private source, broad runtime,
+  voice, Salon, provider, billing, worker, Redis, or Cloudflare expansion.
+
+Current lane:
+
+```text
+PR493 - Persona Roulette Visitor Encounter Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+```
+
+Routing:
+
+`docs/roadmap/PR493_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_ARGUS.md`
+
+Current baton:
+
+- ARGUS should hostile-preflight whether Persona Roulette can move from
+  discovery/readback to a bounded visitor text encounter using the accepted
+  owner-gated anonymous public chat path.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR492A ready for closeout
 
 ARIADNE completed PR492B fixture setup and the PR492A hosted owner-gate proof:

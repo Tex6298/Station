@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR492B | Owner-Gated Public Persona Fixture Setup | ARIADNE / A4 | Open hosted fixture setup after PR492A rerun found no approved owner-enable target. ARIADNE should create/find `station-replay-owner-gate-alpha-persona` through hosted owner UI/API, leave it default-off, prove owner enable/rollback/no-leak/no-drift on desktop/mobile, then wake MIMIR. | `docs/roadmap/PR492B_OWNER_GATED_PUBLIC_PERSONA_FIXTURE_SETUP_ARIADNE.md` |
+| PR493 | Persona Roulette Visitor Encounter Preflight | ARGUS / A3 | Open hostile preflight after PR492 closeout. Decide whether Persona Roulette can move from discovery/readback to a bounded visitor text encounter using owner-gated anonymous public chat, or return the concrete smallest blocker. | `docs/roadmap/PR493_PERSONA_ROULETTE_VISITOR_ENCOUNTER_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR492 closeout | Owner-Controlled Anonymous Public Chat Gate | MIMIR | Closed accepted; hosted migration, owner enable, signed-out success, rollback, replay no-drift, negative-control denial, public no-leak, and desktop/mobile proof passed, with owner-gate fixture restored off. | `docs/roadmap/PR492_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_CLOSEOUT.md` |
 | PR492A rerun | Owner-Controlled Anonymous Public Chat Gate Hosted Proof Rerun | ARIADNE -> MIMIR -> ARIADNE | Migration blocker cleared and default-off/no-leak checks passed, but owner-enable proof is blocked because the replay owner has no approved non-replay public persona separate from the signed-in-alpha negative control. PR492B opens the smallest fixture setup. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_RERUN_RESULT.md` |
 | PR492A hosted migration | Owner-Controlled Anonymous Public Chat Gate Hosted Migration | ARIADNE -> MIMIR -> ARIADNE | Migration blocker cleared; hosted Supabase has `public_anonymous_chat_enabled`, the gate constraint exists, and Data API can select `id,public_anonymous_chat_enabled` with HTTP `200`. ARIADNE rerun is required before closeout. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_HOSTED_MIGRATION_RESULT.md` |
 | PR492A rehearsal opened | Owner-Controlled Anonymous Public Chat Gate Hosted Proof | MIMIR -> ARIADNE | Open; ARGUS accepted the DAEDALUS implementation, so ARIADNE must prove hosted deployment/migration/control/rollback/no-leak behavior before closeout or return the concrete blocker. | `docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REHEARSAL_ARIADNE.md` |
