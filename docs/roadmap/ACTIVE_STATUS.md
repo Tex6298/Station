@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485E chat surface polish preflight opened
+
+MIMIR closed PR485D as accepted by ARGUS:
+
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_CLOSEOUT.md`
+
+MIMIR then opened PR485E hostile preflight:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR485E - Companion Chat Surface Polish Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should decide whether PR485E is safe as a web-only `PersonaChat` polish
+  lane or should be split.
+- If accepted, ARGUS should wake DAEDALUS with exact implementation boundaries,
+  no-drift validation, and ARIADNE hosted rehearsal requirements.
+- If split or blocked, ARGUS should wake MIMIR with the smallest concrete
+  decision needed.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR485D companion context accepted
 
 ARGUS accepted DAEDALUS' PR485D implementation without a review patch:
