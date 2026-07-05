@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR489A Station Assistant Next-Step Launcher ARIADNE Rehearsal
+
+ARIADNE passed PR489A on 2026-07-05:
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PASS_READY_TO_CLOSE`.
+
+Reason:
+
+- hosted web/API health passed at app commit `1b4733ff`;
+- signed-in `/studio/assistant` rendered Station Assistant as an operational
+  helper, not a persona;
+- desktop, `375px`, and `390px` passed workspace signals, next actions,
+  screenshot review, mobile fit, and privacy/scope checks;
+- hosted replay data exposed owner-safe Memory inbox, failed-import,
+  publishing, and Global Archive next-action evidence;
+- export readiness was covered by Workspace signals and Assistant export
+  guidance; hosted replay already had completed export packages, so no
+  export-missing action was expected;
+- a no-write browser interception exercised the honest no-urgent state;
+- general/job-status, archive/import, publishing/retract, and export question
+  flows stayed guidance-only and did not claim autonomous execution, live
+  workers, durable queues, provider/model action, mutation, deletion, or public
+  movement without owner review.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted web/API health | Pass | Both services reported ready at app commit `1b4733ff`; API queue readiness stayed inline fallback with queue-capable workers not ready. |
+| `npm exec --yes pnpm@10.32.1 -- dlx @playwright/test test pr489a-station-assistant-rehearsal.spec.js --reporter=line --workers=1 --output=.codex-tmp\pw-pr489a-output` | Pass | 6 hosted browser checks passed. |
+| Screenshot review | Pass | Desktop, `375px`, and `390px` screenshots were reviewed for fit, wrapping, and action readability. |
+| No-write empty-state interception | Pass | Browser-only route interception exercised the no-urgent state without backend writes or config changes. |
+| `git diff --check` | Pass | Whitespace check passed with CRLF normalization warnings only. |
+
 ## PR489A Station Assistant Next-Step Launcher ARGUS Review
 
 ARGUS accepted PR489A on 2026-07-05:

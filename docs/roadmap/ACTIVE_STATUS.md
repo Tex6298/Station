@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE rehearsal - PR489A ready for MIMIR closeout
+
+ARIADNE passed the hosted PR489A Station Assistant Next-Step Launcher rehearsal:
+
+`docs/roadmap/PR489A_STATION_ASSISTANT_NEXT_STEP_LAUNCHER_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+PASS_READY_TO_CLOSE
+```
+
+Current lane:
+
+```text
+PR489A - Station Assistant Next-Step Launcher Hosted Rehearsal
+Owner: MIMIR / A1
+State: PASS_READY_TO_CLOSE
+```
+
+Rehearsal evidence:
+
+- hosted web/API health passed at app commit `1b4733ff`;
+- desktop, `375px`, and `390px` `/studio/assistant` passed signed-in loaded
+  state, workspace signals, next actions, mobile fit, and screenshot review;
+- hosted replay data exposed Memory inbox, failed-import, publishing, and Global
+  Archive next-action evidence on owner-safe routes;
+- export readiness was covered by Workspace signals and the Assistant export
+  question flow; hosted replay already had completed export packages, so no
+  export-missing next action was expected;
+- no-write browser interception exercised the no-urgent empty state;
+- general/job-status, archive/import, publishing/retract, and export question
+  flows stayed guidance-only;
+- inline-fallback and owner status/readback copy stayed truthful while
+  queue-capable workers remain blocked;
+- privacy, scope, and forbidden-route checks passed.
+
+Current baton:
+
+- MIMIR can close PR489A or open any Assistant-copy/fixture follow-up as a
+  separate lane.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR489A sent to ARIADNE
 
 MIMIR routed PR489A to ARIADNE for hosted human-eye rehearsal:
