@@ -6,6 +6,8 @@ import {
   archiveSearchModeLabel,
   archiveSearchPath,
   archiveSearchReadbackCopy,
+  archiveResultEvidenceHref,
+  archiveResultProvenanceReadback,
   archiveSearchTypeParam,
   archiveSearchUsesBackend,
   globalArchiveIntakeCanSubmit,
@@ -216,6 +218,75 @@ test("archive search readback groups owner-only results honestly", () => {
     archiveSearchReadbackCopy({ filter: "All", query: "", sort: "date" }, 3).body,
     /Global Archive intake/,
   );
+});
+
+test("archive result provenance maps source classes and owner evidence labels", () => {
+  const cases = [
+    [{ type: "memory", source: "Memory", href: "/studio/personas/persona-1/memory" }, "Memory", "Open persona Memory"],
+    [{ type: "canon", source: "Canon", href: "/studio/personas/persona-1/canon" }, "Canon", "Open persona Canon"],
+    [{ type: "file", source: "persona_file", href: "/studio/personas/persona-1/files" }, "Persona file", "Open persona Archive files"],
+    [{ type: "import", source: "archive_import", href: "/studio/personas/persona-1/files" }, "Import job", "Open persona Archive files"],
+    [{ kind: "archived_chat", type: "conversation", source: "Archived chat", href: "/studio/personas/persona-1" }, "Archived chat", "Open persona workspace"],
+    [{ type: "continuity", source: "Continuity", href: "/studio/personas/persona-1/continuity" }, "Continuity", "Open continuity timeline"],
+    [{ type: "integrity", source: "Integrity Session", href: "/studio/personas/persona-1/calibration" }, "Integrity", "Open Integrity"],
+    [{ type: "document", source: "Document", href: "/studio/publish" }, "Document", "Open publishing"],
+    [{ type: "archive", source: "Archive", href: "/studio/archive" }, "Archive", "Open Global Archive"],
+    [{ type: "mystery", source: "", href: "/studio" }, "Unknown archive source", "Open owner Studio"],
+  ] as const;
+
+  for (const [item, sourceClassLabel, evidenceLabel] of cases) {
+    const readback = archiveResultProvenanceReadback({
+      ...item,
+      status: "indexed",
+      privacy: "owner_only",
+      persona: item.source === "" ? "" : "Harbor",
+      match: { field: "summary", reason: "Matched sanitized summary." },
+    });
+
+    assert.equal(readback.sourceClassLabel, sourceClassLabel);
+    assert.equal(readback.evidenceLabel, evidenceLabel);
+    assert.equal(readback.visibilityLabel, "Owner-only private");
+    assert.match(readback.statusLabel, /indexed/);
+    assert.match(readback.matchLabel, /Matched sanitized summary/);
+  }
+
+  assert.equal(
+    archiveResultProvenanceReadback({
+      type: "memory",
+      source: "Memory",
+      status: "indexed",
+      privacy: "owner_only",
+      persona: "",
+      href: "/studio/archive",
+    }).personaLabel,
+    "Shared/global",
+  );
+});
+
+test("archive result provenance redacts raw private and secret-shaped fields", () => {
+  const readback = archiveResultProvenanceReadback({
+    kind: "memory",
+    type: "memory",
+    source: "https://example.invalid/private token=abc123",
+    sourceLabel: "memory 11111111-1111-4111-8111-111111111111",
+    persona: "22222222-2222-4222-8222-222222222222",
+    personaId: "33333333-3333-4333-8333-333333333333",
+    status: "storage_path=/private/source signed_url=https://example.invalid/upload",
+    visibility: "private",
+    privacy: "owner_only",
+    href: "/discover/private-result",
+    match: {
+      field: "summary",
+      reason: "Bearer abc.def token=abc123 https://example.invalid/private source body should not render",
+    },
+  });
+  const rendered = JSON.stringify(readback);
+
+  assert.equal(readback.evidenceLabel, "Owner evidence route unavailable");
+  assert.equal(archiveResultEvidenceHref({ href: "/discover/private-result" }), null);
+  assert.equal(archiveResultEvidenceHref({ href: "/studio/personas/persona-1/files" }), "/studio/personas/persona-1/files");
+  assert.doesNotMatch(rendered, /example\.invalid|abc123|11111111|22222222|33333333|storage_path|signed_url|Bearer abc\.def|source body/i);
+  assert.doesNotMatch(rendered, /Discover|public search|published/i);
 });
 
 test("global archive boundary rows separate archive, export, and storage surfaces", () => {
@@ -456,4 +527,16 @@ test("document migrator handoff page uses real anchors and preserves route bound
   assert.match(page, /href: "\/studio\/archive"/);
   assert.match(page, /href: "\/settings"/);
   assert.doesNotMatch(page, /source=all|\/conversations\/candidates\/inbox|connect your|bot token|recurring sync is active|automatic import is active|new Queue|Worker\(|cloudflare|redis|stripe|billing|provider payload|prompt context/i);
+});
+
+test("Global Archive component renders provenance without public search drift", () => {
+  const component = readFileSync("apps/web/components/studio/archive-library.tsx", "utf8");
+
+  assert.match(component, /ArchiveResultProvenance/);
+  assert.match(component, /archiveResultProvenanceReadback\(item\)/);
+  assert.match(component, /archiveResultEvidenceHref\(item\)/);
+  assert.match(component, /ownerVisibleText\(item\.sourceLabel \?\? item\.source/);
+  assert.match(component, /aria-label="Archive result provenance"/);
+  assert.doesNotMatch(component, /Open source/);
+  assert.doesNotMatch(component, /\/discover|public search|source_inventory|archive-connectors|OAuth token|bot token|recurring sync|automatic import|new Queue|Worker\(|cloudflare|redis|stripe|billing|provider payload|prompt context/i);
 });

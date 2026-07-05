@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR487A Global Archive Result Provenance Implementation
+
+DAEDALUS implemented PR487A on 2026-07-05:
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added result provenance helper/readback for source class, owner/private
+  visibility, status, persona association, match reason, and evidence-route
+  labels over already-returned archive item fields;
+- rendered compact provenance readback on existing Global Archive result cards;
+- gated evidence links to owner-safe `/studio` and `/settings` routes;
+- preserved empty/no-match copy, partial/degraded warning copy, Global Archive
+  intake, Import Review separation, private search boundaries, and existing
+  Archive fetches;
+- added focused tests for source-class labels, owner-only/private visibility,
+  safe evidence-route labels, raw/private/secret redaction, no public
+  Discover/search drift, empty/degraded copy preservation, Global Archive
+  intake, and Import Review separation;
+- kept backend archive/search routes, imports, connectors, parsers, embeddings,
+  provider calls, prompts, retrieval, public search, Discover, public chat,
+  infra, broad Studio redesign, CSS, and placeholder controls out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts` | Pass | 41 focused Archive/search/navigation/import-review tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR487A Global Archive Result Provenance Preflight
 
 ARGUS accepted PR487A on 2026-07-05:

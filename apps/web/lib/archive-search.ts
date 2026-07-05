@@ -1,3 +1,5 @@
+import { ownerVisibleText } from "./owner-visible-redaction";
+
 export const ARCHIVE_SEARCH_FILTERS = [
   "All",
   "Shared/global",
@@ -14,14 +16,29 @@ export const ARCHIVE_SEARCH_FILTERS = [
 ];
 
 export interface ArchiveSearchItemLike {
+  kind?: string | null;
   type?: string | null;
   source?: string | null;
+  sourceLabel?: string | null;
   persona?: string | null;
+  personaId?: string | null;
   status?: string | null;
+  visibility?: string | null;
+  privacy?: string | null;
+  href?: string | null;
   match?: {
     field?: string | null;
     reason?: string | null;
   } | null;
+}
+
+export interface ArchiveResultProvenanceReadback {
+  sourceClassLabel: string;
+  visibilityLabel: string;
+  statusLabel: string;
+  personaLabel: string;
+  matchLabel: string;
+  evidenceLabel: string;
 }
 
 export interface ArchiveSearchGroupRow {
@@ -205,6 +222,91 @@ export function archiveSearchGroupCounts(
     .slice(0, limit);
 }
 
+export function archiveResultProvenanceReadback(item: ArchiveSearchItemLike): ArchiveResultProvenanceReadback {
+  return {
+    sourceClassLabel: archiveResultSourceClassLabel(item),
+    visibilityLabel: archiveResultVisibilityLabel(item),
+    statusLabel: archiveResultStatusLabel(item),
+    personaLabel: archiveResultPersonaLabel(item),
+    matchLabel: archiveResultMatchLabel(item),
+    evidenceLabel: archiveResultEvidenceLabel(item.href),
+  };
+}
+
+export function archiveResultEvidenceHref(item: ArchiveSearchItemLike) {
+  const href = item.href?.trim() ?? "";
+  if (!href.startsWith("/")) return null;
+  if (/^\/(?:discover|public|forums?|space)(?:\/|$)/i.test(href)) return null;
+  if (/^\/(?:studio|settings)(?:\/|$)/i.test(href)) return href;
+  return null;
+}
+
+function archiveResultSourceClassLabel(item: ArchiveSearchItemLike) {
+  const haystack = [
+    item.kind,
+    item.type,
+    item.source,
+    item.sourceLabel,
+    item.href,
+  ].map((value) => value?.trim().toLowerCase() ?? "").join(" ");
+
+  if (/\bmemory\b/.test(haystack)) return "Memory";
+  if (/\bcanon\b/.test(haystack)) return "Canon";
+  if (/persona[_ -]?file|\bfile\b|uploaded/.test(haystack)) return "Persona file";
+  if (/import[_ -]?job|\bimport\b|pasted/.test(haystack)) return "Import job";
+  if (/archived[_ -]?chat|conversation|chat transcript/.test(haystack)) return "Archived chat";
+  if (/continuity|timeline/.test(haystack)) return "Continuity";
+  if (/integrity|calibration/.test(haystack)) return "Integrity";
+  if (/document|publishing|writing/.test(haystack)) return "Document";
+  if (/archive/.test(haystack)) return "Archive";
+  return "Unknown archive source";
+}
+
+function archiveResultVisibilityLabel(item: ArchiveSearchItemLike) {
+  const visibility = `${item.privacy ?? ""} ${item.visibility ?? ""}`.toLowerCase();
+  if (/owner/.test(visibility) || /private/.test(visibility)) return "Owner-only private";
+  return "Owner-only archive readback";
+}
+
+function archiveResultStatusLabel(item: ArchiveSearchItemLike) {
+  const label = archiveOwnerVisibleField(item.status, "Status not reported");
+  if (label === "Status not reported") return label;
+  return label.replace(/[_-]+/g, " ");
+}
+
+function archiveResultPersonaLabel(item: ArchiveSearchItemLike) {
+  const persona = archiveOwnerVisibleField(item.persona, "");
+  if (!persona) return item.personaId ? "Known persona" : "Shared/global";
+  if (/^\[redacted-id\]$/.test(persona)) return "Known persona";
+  return persona;
+}
+
+function archiveResultMatchLabel(item: ArchiveSearchItemLike) {
+  const reason = archiveOwnerVisibleField(item.match?.reason, "");
+  if (reason) return reason;
+
+  const field = archiveOwnerVisibleField(item.match?.field, "");
+  if (field) return `Matched ${field} field`;
+
+  return "Included in this owner-only archive view";
+}
+
+function archiveResultEvidenceLabel(href?: string | null) {
+  const normalized = href?.trim().toLowerCase() ?? "";
+  if (!archiveResultEvidenceHref({ href })) return "Owner evidence route unavailable";
+  if (/^\/studio\/personas\/[^/]+\/memory(?:\/|$)/.test(normalized)) return "Open persona Memory";
+  if (/^\/studio\/personas\/[^/]+\/canon(?:\/|$)/.test(normalized)) return "Open persona Canon";
+  if (/^\/studio\/personas\/[^/]+\/files(?:\/|$)/.test(normalized)) return "Open persona Archive files";
+  if (/^\/studio\/personas\/[^/]+\/continuity(?:\/|$)/.test(normalized)) return "Open continuity timeline";
+  if (/^\/studio\/personas\/[^/]+\/calibration(?:\/|$)/.test(normalized)) return "Open Integrity";
+  if (/^\/studio\/personas\/[^/]+(?:\/|$)/.test(normalized)) return "Open persona workspace";
+  if (/^\/studio\/archive(?:\/|$)/.test(normalized)) return "Open Global Archive";
+  if (/^\/studio\/publish(?:\/|$)/.test(normalized)) return "Open publishing";
+  if (/^\/studio\/export(?:\/|$)/.test(normalized)) return "Open Export Workspace";
+  if (/^\/settings(?:\/|$)/.test(normalized)) return "Open settings";
+  return "Open owner Studio";
+}
+
 function labelForArchiveSearchGroup(value: string | null | undefined, field: string) {
   const normalized = value?.trim();
   if (normalized) return normalized;
@@ -227,4 +329,21 @@ function globalArchiveIntakeNoticeLabel(value: string | null | undefined, fallba
     .trim();
 
   return sanitized.length > 120 ? `${sanitized.slice(0, 117).trim()}...` : sanitized;
+}
+
+function archiveOwnerVisibleField(value: string | null | undefined, fallback: string) {
+  const redacted = ownerVisibleText(value, fallback)
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(/\b(?:sk|pk|rk|whsec|ghp|pat)[_-][A-Za-z0-9._-]+/gi, "[redacted-secret]")
+    .replace(/\b(?:bearer)\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(token|cookie|authorization|api[_-]?key|x-api-key|secret|password)\b\s*[:=]\s*\S+/gi, "$1=[redacted]")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!redacted) return fallback;
+  if (/storage(?: path|_path|-path|Path)|signed(?: url|_url|-url|Url)|provider payload|source body|transcript|sql|stack trace|parser internal/i.test(redacted)) {
+    return fallback;
+  }
+
+  return redacted.length > 120 ? `${redacted.slice(0, 117).trim()}...` : redacted;
 }

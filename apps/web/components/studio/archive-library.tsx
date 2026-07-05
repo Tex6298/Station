@@ -9,6 +9,8 @@ import {
   archiveSearchModeLabel,
   archiveSearchPath,
   archiveSearchReadbackCopy,
+  archiveResultEvidenceHref,
+  archiveResultProvenanceReadback,
   archiveSearchUsesBackend,
   globalArchiveIntakeCanSubmit,
   globalArchiveIntakeErrorMessage,
@@ -362,23 +364,15 @@ export function ArchiveLibrary() {
                         <h3 style={{ margin: 0, color: "var(--station-page-text)", fontSize: 14, lineHeight: 1.25 }}>
                           {ownerVisibleText(item.title, "Untitled archive item")}
                         </h3>
-                        <div style={{ color: "var(--station-page-muted)", fontSize: 11 }}>{item.source} / {formatDate(item.date)}</div>
+                        <div style={{ color: "var(--station-page-muted)", fontSize: 11 }}>
+                          {ownerVisibleText(item.sourceLabel ?? item.source, "Archive source")} / {formatDate(item.date)}
+                        </div>
                       </div>
                     </div>
                     <p style={{ margin: "0 0 12px", color: "var(--station-page-muted)", fontSize: 12, lineHeight: 1.55 }}>
                       {ownerVisibleText(item.summary, "No archive summary saved.")}
                     </p>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-                      <span style={pill}>{item.type}</span>
-                      <span style={pill}>{item.persona}</span>
-                      <span style={statusPill(item.status)}>{item.status}</span>
-                    </div>
-                    {item.match ? (
-                      <div style={{ color: "var(--station-page-accent)", fontSize: 11, marginBottom: 12 }}>
-                        {ownerVisibleText(item.match.reason, "Archive match")}
-                      </div>
-                    ) : null}
-                    <Link href={item.href} style={miniLink}>Open source</Link>
+                    <ArchiveResultProvenance item={item} />
                   </article>
                 ))}
               </div>
@@ -393,6 +387,50 @@ export function ArchiveLibrary() {
         ) : null}
       </div>
     </main>
+  );
+}
+
+function ArchiveResultProvenance({ item }: { item: ArchiveItem }) {
+  const readback = archiveResultProvenanceReadback(item);
+  const evidenceHref = archiveResultEvidenceHref(item);
+
+  return (
+    <section style={provenancePanel} aria-label="Archive result provenance">
+      <div style={provenanceGrid}>
+        <ProvenanceFact label="Source" value={readback.sourceClassLabel} />
+        <ProvenanceFact label="Visibility" value={readback.visibilityLabel} />
+        <ProvenanceFact label="Status" value={readback.statusLabel} tone={statusTone(item.status)} />
+        <ProvenanceFact label="Persona" value={readback.personaLabel} />
+      </div>
+      <p style={provenanceCopy}>{readback.matchLabel}</p>
+      {evidenceHref ? (
+        <Link href={evidenceHref} style={miniLink}>{readback.evidenceLabel}</Link>
+      ) : (
+        <span style={provenanceUnavailable}>Owner evidence route unavailable</span>
+      )}
+    </section>
+  );
+}
+
+function ProvenanceFact({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string;
+  tone?: "neutral" | "good" | "bad";
+}) {
+  return (
+    <div style={provenanceFact}>
+      <span style={provenanceFactLabel}>{label}</span>
+      <strong style={{
+        ...provenanceFactValue,
+        color: tone === "bad" ? "var(--station-page-red)" : tone === "good" ? "#25633f" : "var(--station-page-text)",
+      }}>
+        {value}
+      </strong>
+    </div>
   );
 }
 
@@ -612,33 +650,10 @@ function formatDate(value: string | null) {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function statusPill(status: string) {
-  const failed = status === "failed";
-  const good = ["completed", "processed", "indexed", "archived", "published"].includes(status);
-  if (failed) {
-    return {
-      ...pill,
-      borderColor: "rgba(157, 60, 53, 0.35)",
-      color: "var(--station-page-red)",
-      background: "#f8e6e3",
-    };
-  }
-
-  if (good) {
-    return {
-      ...pill,
-      borderColor: "rgba(59, 143, 99, 0.35)",
-      color: "#25633f",
-      background: "#e9f5ee",
-    };
-  }
-
-  return {
-    ...pill,
-    borderColor: "var(--station-page-border)",
-    color: "var(--station-page-muted)",
-    background: "var(--station-page-soft-2)",
-  };
+function statusTone(status: string): "neutral" | "good" | "bad" {
+  if (status === "failed") return "bad";
+  if (["completed", "processed", "indexed", "archived", "published"].includes(status)) return "good";
+  return "neutral";
 }
 
 const panel = {
@@ -661,6 +676,48 @@ const boundaryCard = {
   minHeight: 178,
   display: "flex",
   flexDirection: "column" as const,
+};
+
+const provenancePanel = {
+  display: "grid",
+  gap: 10,
+  marginTop: "auto",
+};
+
+const provenanceGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 6,
+};
+
+const provenanceFact = {
+  minWidth: 0,
+  border: "1px solid var(--station-page-border)",
+  borderRadius: 8,
+  background: "var(--station-page-soft-2)",
+  padding: "7px 8px",
+};
+
+const provenanceFactLabel = {
+  display: "block",
+  color: "var(--station-page-muted)",
+  fontSize: 10,
+  fontWeight: 800,
+  marginBottom: 4,
+};
+
+const provenanceFactValue = {
+  display: "block",
+  overflowWrap: "anywhere" as const,
+  fontSize: 11,
+  lineHeight: 1.25,
+};
+
+const provenanceCopy = {
+  margin: 0,
+  color: "var(--station-page-muted)",
+  fontSize: 12,
+  lineHeight: 1.5,
 };
 
 const sectionTitle = {
@@ -781,6 +838,13 @@ const miniLink = {
   fontWeight: 800,
   textDecoration: "none",
   marginTop: "auto",
+};
+
+const provenanceUnavailable = {
+  ...miniLink,
+  width: "fit-content",
+  color: "var(--station-page-muted)",
+  background: "var(--station-page-soft-2)",
 };
 
 const boundaryLink = {

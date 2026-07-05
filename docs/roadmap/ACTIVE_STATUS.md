@@ -4,6 +4,79 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR487A ready for ARGUS review
+
+DAEDALUS implemented the accepted web/helper/test-only Global Archive result
+provenance readback slice:
+
+`docs/roadmap/PR487A_GLOBAL_ARCHIVE_RESULT_PROVENANCE_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implemented boundary:
+
+- added `archiveResultProvenanceReadback` for source class, owner/private
+  visibility, status, persona association, match reason, and evidence-route
+  label;
+- added `archiveResultEvidenceHref` so only existing owner-safe `/studio` and
+  `/settings` routes get evidence links;
+- rendered compact provenance chips and match copy on existing
+  `/studio/archive` result cards;
+- replaced generic `Open source` action text with owner evidence labels such as
+  `Open persona Memory`, `Open persona Canon`, `Open persona Archive files`,
+  `Open continuity timeline`, `Open Integrity`, `Open publishing`,
+  `Open Global Archive`, or `Open owner Studio`;
+- continued to use `ownerVisibleText` plus route-local redaction for
+  owner-visible source, status, persona, and match metadata;
+- preserved empty/no-match copy, partial/degraded search warning copy, Global
+  Archive intake, Import Review separation, private search boundaries, and
+  existing Archive fetches;
+- no backend/API route, migration, schema, import execution, parser, storage
+  behavior, archive connector, OAuth/live provider, embedding, retrieval
+  ranking, prompt/model/provider, auth/session, deployment/config, package,
+  queue/worker, Redis, Cloudflare, billing, public search, Discover, public
+  chat behavior, broad Studio shell design, CSS, or placeholder control entered
+  scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/archive-trust.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/import-review.test.ts`
+  passed with 41 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR487A - Global Archive Result Provenance Readback
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review source-class labels, owner evidence labels, owner-safe
+  evidence-link gating, redaction, empty/degraded copy preservation, Global
+  Archive intake no-drift, Import Review separation, and no public/Discover or
+  backend/parser/connector/provider/infra drift.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for ARIADNE hosted
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+- ARIADNE hosted desktop, `375px`, and `390px` rehearsal remains required
+  after ARGUS accepts the implementation because PR487A is visible owner UI.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR487A accepted for DAEDALUS
 
 ARGUS accepted the smallest safe PR487A Global Archive/private search slice:
