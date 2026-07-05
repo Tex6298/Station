@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485E ARIADNE hosted rehearsal opened
+
+MIMIR routed ARIADNE hosted desktop/mobile rehearsal after ARGUS accepted
+PR485E:
+
+`docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR485E - Companion Chat Surface Polish Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_HUMAN_EYE_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse hosted `/studio/personas/[personaId]` at app commit
+  `a0dc474f` or later on desktop, `375px`, and `390px`.
+- Required checks are active thread with return card, empty/new chat, archived
+  read-only plus `New chat` recovery, safe sending/status and provider
+  setup/error states if triggerable, existing archive/candidate panel if
+  present, shortcut route continuity, Memory/Memory inbox separation, public
+  chat no-drift, visual fit, honest wired controls, and no secret-shaped visible
+  readback.
+- MIMIR should close PR485E only after ARIADNE returns `PASS_READY_TO_CLOSE`.
+  Product defects go to the smallest DAEDALUS repair; deployment waits and
+  privacy/scope failures should wake MIMIR with the concrete blocker.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR485E chat surface polish accepted
 
 ARGUS accepted DAEDALUS' PR485E implementation without a review patch:

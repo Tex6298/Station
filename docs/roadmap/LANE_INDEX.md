@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR485E | Companion Chat Surface Polish | MIMIR / A1 | Accepted by ARGUS without review patch and ready for ARIADNE hosted rehearsal routing. Scoped private `PersonaChat` polish preserved send/archive/review/local return behavior, kept controls honest with no placeholders, stayed inside `.studio-persona-chat-*` CSS and accepted docs/tests, and kept API, prompt/runtime, route-query, Memory inbox, Archive connector, public chat, broad shell, Discern CSS, unrelated reskin, and infra out of scope. | `docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_REVIEW_RESULT.md` |
+| PR485E | Companion Chat Surface Polish Hosted Rehearsal | ARIADNE / A4 | Open hosted human-eye rehearsal after ARGUS accepted the scoped private `PersonaChat` polish. Verify hosted `/studio/personas/[personaId]` at `a0dc474f` or later on desktop, 375px, and 390px across active thread return card, empty/new chat, archived read-only with New chat recovery, safe status/error states if triggerable, wired-control honesty, shortcut route continuity, Memory/Memory inbox separation, public chat no-drift, visual fit, and privacy/scope no-leak. | `docs/roadmap/PR485E_COMPANION_CHAT_SURFACE_POLISH_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
