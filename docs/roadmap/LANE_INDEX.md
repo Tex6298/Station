@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR494A | Companion Home Context Rail | DAEDALUS / A2 | Ready for implementation after ARGUS accepted a web-only owner context rail on `/studio/personas/[personaId]` using already-loaded continuity counts and existing owner route links, with PersonaChat, PR485A-E behavior, Runtime Context Preview, Memory Inbox import scope, Studio shell/sidebar/topbar, APIs, prompts, retrieval, provider routing, public chat, infra, and broad CSS out of scope. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_PREFLIGHT_RESULT.md` |
+| PR494A | Companion Home Context Rail | ARGUS / A3 | Ready for review after DAEDALUS implemented the web-only owner context rail on `/studio/personas/[personaId]` using already-loaded continuity counts and real owner links for Memory, Inbox, Timeline, Canon, Archive/files, Profile, and Integrity, with PersonaChat, APIs, prompts, retrieval, provider routing, public chat, Studio shell/sidebar/topbar, and broad CSS unchanged. | `docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_RESULT.md` |
 
 ## Recently Closed
 

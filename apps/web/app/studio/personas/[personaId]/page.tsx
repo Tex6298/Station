@@ -7,6 +7,7 @@ import type { ArchiveExportPackage } from "@station/types/export";
 import type { PersonaSummary } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
+import { companionHomeContextRail } from "@/lib/companion-home-context";
 import { personaEncounterContractCanRenderForOwner } from "@/lib/persona-encounter-contract";
 import { studioPersonaCompanionShortcuts } from "@/lib/studio-navigation";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
@@ -109,19 +110,7 @@ export default function PersonaPage() {
           <PersonaChat personaId={persona.id} personaName={persona.name} />
         </div>
 
-        <aside className="studio-context-panel">
-          <div className="section-label">Continuity Brief</div>
-          <p>{persona.longDescription || persona.awakeningPrompt || "This persona does not have a long-form continuity brief yet."}</p>
-          {persona.styleNotes && (
-            <>
-              <div className="section-label">Style Notes</div>
-              <p>{persona.styleNotes}</p>
-            </>
-          )}
-          <Link className="button" href={`/studio/personas/${persona.id}/calibration`}>
-            Run Integrity Session
-          </Link>
-        </aside>
+        <CompanionHomeContextRail persona={persona} />
       </section>
 
       <RuntimeContextPreview personaId={persona.id} />
@@ -149,6 +138,49 @@ function CompanionShortcutStrip({ personaId }: { personaId: string }) {
         </Link>
       ))}
     </nav>
+  );
+}
+
+function CompanionHomeContextRail({ persona }: { persona: PersonaWithContinuity }) {
+  const rail = companionHomeContextRail({
+    personaId: persona.id,
+    personaName: persona.name,
+    longDescription: persona.longDescription,
+    awakeningPrompt: persona.awakeningPrompt,
+    styleNotes: persona.styleNotes,
+    continuity: persona.continuity,
+  });
+
+  return (
+    <aside className="studio-companion-context-rail" aria-label="Companion context rail">
+      <div className="studio-companion-context-brief">
+        <div className="section-label">Companion Context</div>
+        <h3>{rail.title}</h3>
+        <p>{rail.brief}</p>
+        {rail.styleNotes && (
+          <div className="studio-companion-context-note">
+            <span>Style notes</span>
+            <p>{rail.styleNotes}</p>
+          </div>
+        )}
+      </div>
+
+      <nav className="studio-companion-context-map" aria-label="Owner context stops">
+        {rail.stops.map((stop) => (
+          <Link
+            key={stop.href}
+            href={stop.href}
+            className={stop.emphasis ? "studio-companion-context-stop is-emphasized" : "studio-companion-context-stop"}
+          >
+            <span className="studio-companion-context-stop-label">{stop.label}</span>
+            <strong>{stop.countLabel}</strong>
+            <small>{stop.detail}</small>
+          </Link>
+        ))}
+      </nav>
+
+      <p className="studio-companion-context-boundary">{rail.boundaryCopy}</p>
+    </aside>
   );
 }
 

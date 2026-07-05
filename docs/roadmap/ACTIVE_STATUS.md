@@ -4,51 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS result - PR494A context rail accepted
+## Latest DAEDALUS implementation - PR494A ready for ARGUS review
 
-ARGUS accepted the PR494 hostile preflight:
+DAEDALUS implemented PR494A:
 
-`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_RESULT.md`
 
 Validation result:
 
 ```text
-ACCEPT_PR494A_COMPANION_HOME_CONTEXT_RAIL
+READY_FOR_ARGUS_REVIEW
 ```
 
-Accepted:
+Implemented:
 
-- web-only Companion Home Context Rail on `/studio/personas/[personaId]`;
-- use already-loaded persona continuity counts and existing owner route links;
-- keep `PersonaChat`, PR485A-E surfaces, Memory Inbox import-backed scope,
-  Runtime Context Preview, Studio shell, sidebar, and topbar intact;
-- no API, migration, prompt/retrieval/provider, public chat, billing, queue,
-  worker, Redis, Cloudflare, Stripe, connector, OAuth, Discern global CSS, or
-  broad shell/page reskin scope.
+- compact web-only Companion Home Context Rail on
+  `/studio/personas/[personaId]`;
+- deterministic helper and tests for exact owner route links, aggregate count
+  labels, Memory Inbox routing, stale path exclusion, page static wiring, and
+  scoped CSS;
+- already-loaded persona fields and `persona.continuity` aggregate counts only;
+- real owner links for Memory, Inbox, Timeline, Canon, Archive/files, Profile,
+  and Integrity;
+- no `PersonaChat`, API, prompt/retrieval/provider, public chat, Studio shell,
+  sidebar, topbar, or broad CSS change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts apps/web/lib/import-review.test.ts packages/ai/test/companion-context.test.ts`
+  passed with 37 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
 
 Current lane:
 
 ```text
 PR494A - Companion Home Context Rail
-Owner: DAEDALUS / A2
-State: READY_FOR_IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
-
-Routing:
-
-`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_PREFLIGHT_RESULT.md`
 
 Current baton:
 
-- DAEDALUS should implement the compact owner-only rail/helper/static tests
-  within the accepted file boundary, using real links for Memory, Inbox,
-  Timeline, Canon, Archive/files, Profile, and Integrity.
+- ARGUS should review exact owner links, Memory Inbox route, aggregate count
+  honesty, stale path exclusion, no `PersonaChat` drift, scoped CSS,
+  privacy/no-leak boundaries, and forbidden-scope drift.
+- If accepted, ARGUS should wake MIMIR for ARIADNE hosted desktop/`375px`/`390px`
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout - PR493A closed, PR494 opened
