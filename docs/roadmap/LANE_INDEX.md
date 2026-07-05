@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR485C | Return-To-Thread Readback | MIMIR / A1 | Accepted by ARGUS without a review patch; compact return card added inside existing `PersonaChat` for active conversations. Continue focuses composer only, Summarize pre-fills only, Start fresh uses local state. No query params, API work, automatic LLM call, durable summary, prompt/retrieval/provider/runtime change, broad shell, or Discern CSS. ARIADNE hosted desktop/mobile rehearsal recommended before closeout. | `docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_REVIEW_RESULT.md` |
+| PR485C | Return-To-Thread Readback Hosted Rehearsal | ARIADNE / A4 | Open hosted human-eye rehearsal; ARGUS accepted the compact return card, and ARIADNE should verify `/studio/personas/[personaId]` on desktop, 375px, and 390px. Active existing conversations should show the return card; empty/new and archived chats should not expose misleading active-thread controls. Continue focuses only, Summarize pre-fills only, Start fresh is local-only, and no query/API/provider/runtime/Discern CSS drift should appear. | `docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 

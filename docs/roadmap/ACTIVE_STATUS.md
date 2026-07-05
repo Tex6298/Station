@@ -4,6 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR485C hosted rehearsal opened
+
+MIMIR routed PR485C to ARIADNE for hosted human-eye rehearsal after ARGUS
+accepted DAEDALUS' implementation:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR485C - Return-To-Thread Readback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should rehearse hosted `/studio/personas/[personaId]` at app commit
+  `72dc8833` or later on desktop, `375px`, and `390px`.
+- Verify active existing conversations show the return card; empty/new and
+  archived chats do not expose misleading active-thread controls.
+- Verify `Continue` focuses only, `Summarize` pre-fills only, `Start fresh` is
+  local-only, streaming/error behavior remains intact, and privacy/scope
+  guardrails hold.
+- Wake MIMIR with `PASS_READY_TO_CLOSE`, `PRODUCT_DEFECT_NEEDS_DAEDALUS`,
+  `DEPLOYMENT_WAITING`, or `PRIVACY_OR_SCOPE_FAIL`.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR485C return-to-thread accepted
 
 ARGUS accepted DAEDALUS' PR485C implementation without a review patch:
