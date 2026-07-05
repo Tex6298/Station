@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR490B readiness copy repair accepted
+
+ARGUS accepted the DAEDALUS PR490B repair without a review patch:
+
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR490B_READINESS_COPY_REPAIR
+```
+
+Current lane:
+
+```text
+PR490B - Public Persona Anonymous Chat Readiness Copy Repair
+Owner: MIMIR / A1
+State: READY_TO_ROUTE_HOSTED_RERUN
+```
+
+Accepted boundary:
+
+- owner-visible anonymous eligibility copy now names fail-closed rate-limit
+  posture, rate-limit backing ready/not-ready state, and provider route
+  ready/blocked state using existing `anonymousEligibility` fields;
+- focused helper tests cover available, rate-limit-blocked, provider-blocked,
+  safe-secret/no-debug, and unavailable-state branches;
+- existing replay-only policy, public-source-only chat scope, no visitor
+  transcript/identity/raw event storage, aggregate counters, owner rollback,
+  and no-Salon anonymous chat source-scope copy remain intact;
+- no anonymous runtime eligibility, public prompt/source selection,
+  provider/model routing, rate-limit behavior, API contract, public reporting/
+  moderation, public route behavior, or broad UI changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-interaction.test.ts`
+  passed with 4 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache.
+- `git diff --check` passed with a CRLF normalization warning only for ARGUS
+  state receipt.
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted desktop/375px/390px rerun before
+  PR490B/PR490A closeout.
+- Rerun should verify replay-alpha owner Studio public-interaction readback now
+  visibly includes fail-closed rate-limit readiness and provider
+  readiness/blocker state, while preserving public persona no-drift, mobile fit,
+  no broad anonymous/runtime-expansion claims, and no private/raw/secret/
+  provider/token/cookie/header/IP/user-agent readback.
+- Record the missing second ordinary public persona fixture gap if it remains.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS repair - PR490B ready for ARGUS review
 
 DAEDALUS repaired the PR490A hosted owner-readback copy defect:

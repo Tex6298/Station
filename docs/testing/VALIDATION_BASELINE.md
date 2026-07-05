@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR490B Public Persona Anonymous Chat Readiness Copy Repair ARGUS Review
+
+ARGUS accepted PR490B on 2026-07-05:
+`docs/roadmap/PR490B_PUBLIC_PERSONA_ANONYMOUS_CHAT_READINESS_COPY_REPAIR_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR490B_READINESS_COPY_REPAIR`.
+
+Reason:
+
+- owner-visible anonymous eligibility copy now names fail-closed rate-limit
+  posture, rate-limit backing ready/not-ready state, and provider route
+  ready/blocked state using existing `anonymousEligibility` fields;
+- focused helper tests cover available, rate-limit-blocked, provider-blocked,
+  safe-secret/no-debug, and unavailable-state branches;
+- the repair stayed inside the public persona interaction helper/test/docs
+  surface;
+- existing replay-only policy, public-source-only chat scope, no visitor
+  transcript/identity/raw event storage, aggregate counters, owner rollback,
+  and no-Salon anonymous chat source-scope copy remain intact;
+- no anonymous runtime eligibility, public prompt/source selection,
+  provider/model routing, rate-limit behavior, API contract, public reporting/
+  moderation, public route behavior, or broad UI changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed PR490B handoff, DAEDALUS diff, web helper/tests, PR490A rehearsal defect trail, active status, lane index, and validation baseline. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-interaction.test.ts` | Pass | 4 public-interaction helper tests passed, including visible rate-limit/provider readiness copy and no debug/private/secret readback. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 personas tests passed; runtime and owner/admin readback protections remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state receipt. |
+
 ## PR490B Public Persona Anonymous Chat Readiness Copy Repair
 
 DAEDALUS implemented PR490B on 2026-07-05:
