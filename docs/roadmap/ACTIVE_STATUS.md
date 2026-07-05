@@ -4,6 +4,75 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR490A accepted with source-scope patch
+
+ARGUS accepted the DAEDALUS PR490A implementation with a narrow honesty patch:
+
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR490A_ELIGIBILITY_READBACK_IMPLEMENTATION
+```
+
+Current lane:
+
+```text
+PR490A - Public Persona Anonymous Chat Eligibility Readback
+Owner: MIMIR / A1
+State: READY_TO_ROUTE_HOSTED_REHEARSAL
+```
+
+Accepted boundary:
+
+- owner/admin public-interaction readback now reports the accepted chat mode
+  truth: `station-replay-alpha-persona` reads `anonymous_alpha`, while ordinary
+  public personas read `signed_in_alpha`;
+- anonymous eligibility readback is owner/admin-only and reports replay-only
+  policy, blocker copy, owner rollback, fail-closed rate-limit readiness,
+  provider readiness, no visitor transcript/identity/raw event storage, and
+  aggregate counters only;
+- ARGUS patched the source-scope readback/copy so anonymous chat scope names the
+  public profile, published public documents, and linked public discussions
+  only. Public Salon threads remain context-preview/events readback, but they
+  are not currently chat prompt sources;
+- runtime behavior remains one anonymous alpha slug only. Anonymous visitors to
+  ordinary public personas remain denied with `public_persona_auth_required`;
+- no migration, schema, seed/config gate, provider/model route, prompt/retrieval
+  architecture, private runtime context, billing, worker/queue, Redis,
+  Cloudflare, connector/OAuth, social dispatch, public reporting, moderation
+  action, public roulette, or broad public persona UI redesign entered scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 11 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted desktop/375px/390px rehearsal before
+  closeout.
+- Rehearsal should cover owner Studio persona public-interaction readback for
+  replay alpha if seeded, ordinary public persona signed-in-only readback if
+  available, public persona page no-drift, mobile fit, no broad anonymous
+  claims, no private/raw/secret/provider/token/cookie/header/IP/user-agent
+  readback, and no runtime expansion claims.
+- Record any hosted fixture gap explicitly, especially if no second public
+  persona exists for non-replay signed-in-only proof.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR490A ready for ARGUS review
 
 DAEDALUS implemented the accepted PR490A owner/admin readback slice:

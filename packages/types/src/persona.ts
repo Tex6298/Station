@@ -52,7 +52,6 @@ export interface PublicPersonaAnonymousEligibilityReadback {
     "public_profile",
     "published_public_documents",
     "linked_public_discussions",
-    "public_salon_threads",
   ];
   transcriptStored: false;
   visitorIdentityStored: false;

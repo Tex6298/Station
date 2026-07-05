@@ -24,7 +24,7 @@ export function publicInteractionAnonymousEligibilityCopy(readback?: PublicPerso
   const eligibility = readback?.publicChat.anonymousEligibility;
   if (!eligibility) return "Anonymous eligibility readback is unavailable.";
 
-  const scope = "Public-source-only: public profile, published public documents, linked public discussions, and public Salon threads.";
+  const scope = "Public-source-only: public profile, published public documents, and linked public discussions.";
   const storage = "No visitor transcript, identity, or raw events are stored; only aggregate counters remain.";
   const rollback = "Owner rollback is the public chat enable/disable control.";
 

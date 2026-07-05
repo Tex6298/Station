@@ -20,6 +20,47 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR490A Public Persona Anonymous Chat Eligibility Readback ARGUS Review
+
+ARGUS accepted PR490A on 2026-07-05:
+`docs/roadmap/PR490A_PUBLIC_PERSONA_ANONYMOUS_CHAT_ELIGIBILITY_READBACK_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR490A_ELIGIBILITY_READBACK_IMPLEMENTATION`.
+
+Reason:
+
+- owner/admin public-interaction readback now reports the existing chat-mode
+  truth: `station-replay-alpha-persona` is `anonymous_alpha`, ordinary public
+  personas are `signed_in_alpha`;
+- anonymous eligibility readback is owner/admin-only and reports replay-only
+  policy, blocker copy, owner rollback, fail-closed rate-limit readiness,
+  provider readiness, no visitor transcript/identity/raw event storage, and
+  aggregate counters only;
+- ARGUS patched the anonymous chat source-scope readback/copy so it names the
+  actual chat prompt scope: public profile, published public documents, and
+  linked public discussions. Public Salon threads remain context-preview/events
+  readback, not anonymous chat prompt sources;
+- ordinary public personas remain signed-in alpha and anonymous visitors to
+  those personas are still denied with `public_persona_auth_required`;
+- `station-replay-alpha-persona` remains the only anonymous alpha slug;
+- no public runtime allow/deny behavior, reporting behavior, transcript
+  persistence, rate-limit key, token attribution, provider call, prompt/retrieval
+  behavior, schema, migration, seed, config gate, billing, queue/worker, Redis,
+  Cloudflare, connector/OAuth, social dispatch, or broad public persona UI
+  behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed DAEDALUS diff, PR490A preflight/result docs, changed API/types/web files, owner readback serialization, public runtime routes, source caps, Studio helper copy, active status, lane index, and validation baseline. |
+| ARGUS source-scope patch | Pass | Removed `public_salon_threads` from anonymous chat eligibility scope/types/tests/copy because runtime chat prompts currently include public profile, published public documents, and linked public discussions only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 15 personas tests passed, including owner/admin eligibility readback, replay anonymous availability, signed-in-only non-replay default, fail-closed rate-limit blocker, provider blocker, owner rollback, public-source-only provider payloads, no transcript/identity persistence, and no runtime expansion. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 report tests passed; public reporting remains signed-in/server-owned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 11 public persona route/interaction helper tests passed, including the no-Salon anonymous chat scope copy assertion. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint completed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only for touched files. |
+
 ## PR490A Public Persona Anonymous Chat Eligibility Readback Implementation
 
 DAEDALUS implemented PR490A on 2026-07-05:

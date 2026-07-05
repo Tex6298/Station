@@ -32,7 +32,6 @@ const readback: PublicPersonaInteractionReadback = {
         "public_profile",
         "published_public_documents",
         "linked_public_discussions",
-        "public_salon_threads",
       ],
       transcriptStored: false,
       visitorIdentityStored: false,
@@ -94,6 +93,7 @@ test("public interaction helper labels stay bounded to owner-safe state", () => 
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /replay alpha persona/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /Public-source-only/);
   assert.match(publicInteractionAnonymousEligibilityCopy(readback), /No visitor transcript/);
+  assert.doesNotMatch(publicInteractionAnonymousEligibilityCopy(readback), /Salon/i);
   assert.equal(publicInteractionRouteLabel(readback), "Public route live");
   assert.equal(publicInteractionReportSummary(readback), "2 active / 3 total persona reports");
   assert.equal(publicInteractionTokenBoundaryCopy(readback), "Owner-paid; visitor transcript not stored.");
