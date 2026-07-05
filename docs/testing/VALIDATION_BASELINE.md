@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR492A Owner-Controlled Anonymous Public Chat Gate ARGUS Review
+
+ARGUS accepted PR492A implementation on 2026-07-05:
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR492A_OWNER_CONTROLLED_ANONYMOUS_GATE_IMPLEMENTATION`.
+
+Reason:
+
+- separate default-off `public_anonymous_chat_enabled` owner gate added;
+- `public_chat_enabled` remains the base public chat enable/disable and
+  rollback switch;
+- non-replay anonymous alpha requires the owner gate;
+- replay legacy anonymous alpha remains compatible;
+- ordinary public personas remain signed-in alpha by default;
+- public cards/readback expose mode without leaking the raw owner gate;
+- fail-closed rate/provider behavior, owner-paid token attribution,
+  public-source-only prompting, aggregate-only counters, signed-in reporting,
+  and no anonymous transcript/identity/raw-event storage remain intact.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed migration/check constraint, DB/types, API resolver/routes, public serialization, owner Studio control, helper copy, docs, and focused tests against ARGUS preflight. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 16 tests passed for owner-gated default-off behavior, owner-only mutation, signed-in fixture no-drift, rollback, fail-closed provider/rate-limit behavior, aggregate-only storage, replay compatibility, and public-source-only payloads. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 report tests passed; public reports remain signed-in/server-owned. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/spaces.test.ts` | Pass | 2 spaces tests passed; public Space persona cards serialize anonymous mode without raw gate leakage. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts` | Pass | 13 public persona route/interaction helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/community.test.ts` | Pass | 27 community/Discover tests passed, including public persona card mode serialization and raw gate no-leak. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed with fresh cache misses. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only for ARGUS/DAEDALUS state receipts. |
+
 ## PR492A Owner-Controlled Anonymous Public Chat Gate
 
 DAEDALUS implemented PR492A on 2026-07-05:

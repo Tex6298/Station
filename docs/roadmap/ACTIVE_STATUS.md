@@ -4,6 +4,75 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS result - PR492A implementation accepted
+
+ARGUS accepted the DAEDALUS PR492A implementation without a review patch:
+
+`docs/roadmap/PR492A_OWNER_CONTROLLED_ANONYMOUS_PUBLIC_CHAT_GATE_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR492A_OWNER_CONTROLLED_ANONYMOUS_GATE_IMPLEMENTATION
+```
+
+Current lane:
+
+```text
+PR492A - Owner-Controlled Anonymous Public Chat Gate Hosted Proof
+Owner: MIMIR / A1
+State: READY_TO_ROUTE_HOSTED_PROOF
+```
+
+Accepted implementation:
+
+- separate default-off `public_anonymous_chat_enabled` owner gate;
+- `publicAnonymousChatEnabled` owner PATCH field;
+- `public_chat_enabled` remains the base public chat enable/disable and
+  rollback switch;
+- disabling public chat or setting private visibility forces the anonymous gate
+  off;
+- non-replay anonymous alpha requires the owner gate;
+- `station-replay-alpha-persona` remains legacy anonymous alpha;
+- ordinary public personas remain signed-in alpha by default;
+- public cards/readback expose mode without leaking the raw owner gate;
+- public-source-only prompting, fail-closed rate/provider behavior, owner-paid
+  token attribution, aggregate-only counters, signed-in reporting, and no
+  anonymous transcript/identity/raw-event storage remain intact.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:personas` passed with 16 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/spaces.test.ts`
+  passed with 2 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/public-persona-interaction.test.ts`
+  passed with 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/community.test.ts`
+  passed with 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed with fresh cache
+  misses.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed with fresh cache miss.
+- `git diff --check` passed with CRLF normalization warnings only for
+  ARGUS/DAEDALUS state receipts.
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted desktop/`375px`/`390px` proof before PR492A
+  closeout.
+- Hosted proof must cover freshness at `a2d3f6be` or later, migration/default
+  off gate, owner enable for one approved non-replay persona, signed-out success
+  only for owner-enabled/replay personas, signed-in fixture denial, rollback,
+  public card/page no-leak, mobile fit, privacy/scope, and no broad runtime
+  expansion claims.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR492A ready for ARGUS review
 
 DAEDALUS implemented the owner-controlled anonymous public chat gate:
