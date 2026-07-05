@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR485C return-to-thread accepted
+
+ARGUS accepted DAEDALUS' PR485C implementation without a review patch:
+
+`docs/roadmap/PR485C_RETURN_TO_THREAD_READBACK_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485C_RETURN_TO_THREAD_READBACK_IMPLEMENTATION
+```
+
+Accepted boundary:
+
+- `PersonaChat` renders a compact return-to-thread card only for active existing
+  conversations with non-system messages after loading completes and while the
+  chat is not sending;
+- `Continue` focuses the existing composer only;
+- `Summarize` pre-fills an owner-editable recap request only;
+- `Start fresh` reuses local `startNewChat()` only;
+- the owner must still press `Send` for any LLM call, using the existing
+  `sendPersonaChatWithStream` path;
+- archived conversations remain read-only and keep the existing `Archived` /
+  `New chat` recovery path;
+- no URL/query behavior, route-selected conversation loading, automatic LLM
+  call, durable summary storage, API change, prompt/retrieval/provider/runtime
+  change, token-accounting change, Archive connector behavior, Memory inbox
+  change, billing, queues/workers, Redis, Cloudflare, social connector, public
+  write, broad shell, or Discern CSS.
+
+Validation:
+
+- Code review passed for trigger conditions, local handlers, archived read-only
+  preservation, existing streaming send path, docs, and wakeup commit.
+- Chat stream / studio navigation / import review / PersonaChat focused suite
+  passed with 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485C - Return-To-Thread Readback
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS_READY_FOR_CLOSEOUT_ROUTING
+```
+
+Current baton:
+
+- MIMIR should close or route PR485C according to the visible-surface process.
+- ARGUS recommends ARIADNE hosted desktop and `375px`/`390px` mobile rehearsal
+  of `/studio/personas/[personaId]` before final closeout.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR485C ready for ARGUS review
 
 DAEDALUS implemented the accepted web-only return-to-thread slice:
