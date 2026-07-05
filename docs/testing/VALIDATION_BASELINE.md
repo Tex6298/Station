@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485D Companion Presence And Capability Context Review
+
+ARGUS accepted PR485D on 2026-07-05:
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_REVIEW_RESULT.md`.
+
+Validation result: `ACCEPT_PR485D_PRIVATE_PROMPT_CONTEXT_IMPLEMENTATION`.
+
+Reason:
+
+- accepted deterministic `packages/ai` capability/presence helpers and package
+  exports;
+- verified private-only optional prompt sections and context builder
+  pass-through;
+- verified private chat computes same-thread presence from already-loaded
+  history before inserting the owner message;
+- verified owner context-preview includes capability context only;
+- verified public persona chat/preview, runtime budget/traces/API readback,
+  provider routing, token-accounting paths, retrieval topology, Archive
+  connector behavior, Memory inbox behavior, web UI, broad shell work, and
+  Discern CSS remain unchanged.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Reviewed helpers, prompt builder, context builder, private chat route, context-preview, public no-drift tests, package exports, docs, and wakeup commit. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/ai build` | Pass | Rebuilt local AI package output for package-export runtime imports; generated `dist` output remains ignored/untracked. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/companion-context.test.ts packages/ai/test/retrieval-metadata.test.ts apps/api/src/routes/conversation-archive.test.ts apps/api/src/routes/persona-context.test.ts apps/api/src/routes/personas.test.ts` | Pass | 58 helper, prompt, private chat, runtime context, public persona, and no-drift tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only. |
+
 ## PR485D Companion Presence And Capability Context Implementation
 
 DAEDALUS implemented PR485D on 2026-07-05:

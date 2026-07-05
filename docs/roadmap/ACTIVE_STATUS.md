@@ -4,6 +4,78 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR485D companion context accepted
+
+ARGUS accepted DAEDALUS' PR485D implementation without a review patch:
+
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_REVIEW_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485D_PRIVATE_PROMPT_CONTEXT_IMPLEMENTATION
+```
+
+Implementation label:
+
+```text
+PR485D_NO_MIGRATION_PRIVATE_PROMPT_CONTEXT
+```
+
+Accepted implementation:
+
+- deterministic `packages/ai` capability/presence helpers;
+- `conversation_first` default capability with assisted modes requiring
+  explicit typed helper input;
+- private-only optional prompt sections in `buildPersonaChatPrompt`;
+- optional preformatted prompt-context pass-through in
+  `assemblePersonaRuntimeContext`;
+- private chat same-thread presence computed from already-loaded history before
+  inserting the new owner message;
+- owner context-preview capability context only, with presence omitted;
+- public persona chat and public context-preview unchanged;
+- runtime budget, traces, API responses, and streams do not expose the new
+  prompt text;
+- generated `packages/ai/dist` output remains ignored/untracked after local AI
+  build validation;
+- no migrations, schema fields, route/query behavior, automatic LLM calls,
+  durable presence storage, provider routing change, token-accounting rule
+  change, retrieval ordering change, Archive connector behavior, Memory inbox
+  behavior, Redis, Cloudflare, billing, public write, web UI, broad shell, or
+  Discern CSS.
+
+Validation:
+
+- Code review passed for helper boundaries, prompt wiring, context builder
+  pass-through, private chat wiring, context-preview behavior, public no-drift,
+  package exports, docs, and wakeup commit.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/ai build` passed.
+- PR485D AI/API focused suite passed with 58 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485D - Companion Presence And Capability Context
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS_READY_FOR_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close or sequence PR485D.
+- ARGUS does not require ARIADNE hosted browser rehearsal by default because the
+  accepted slice has no web UI change.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR485D ready for ARGUS review
 
 DAEDALUS implemented the accepted no-migration private prompt-context slice:
