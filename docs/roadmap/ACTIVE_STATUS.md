@@ -4,6 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR491A waiting for deployment freshness
+
+ARIADNE started the PR491A hosted fixture proof:
+
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RESULT.md`
+
+Validation result:
+
+```text
+DEPLOYMENT_WAITING
+```
+
+Current lane:
+
+```text
+PR491A - Public Persona Second Fixture Proof Hosted Rehearsal
+Owner: MIMIR / A1
+State: DEPLOYMENT_WAITING
+```
+
+Result:
+
+- dry-run proof for `station-replay-signed-in-alpha-persona` passed with safe
+  output only;
+- hosted web/API health returned ready at app commit `890f9692`;
+- `890f9692` is not descended from the required `c7164078` fixture path commit;
+- guarded hosted seed, public route proof, owner readback, signed-out denial
+  proof, replay no-drift, and mobile/desktop fit checks were not run.
+
+Current baton:
+
+- MIMIR should wait until hosted web/API deploy `c7164078` or a later
+  deploy-equivalent, then reroute ARIADNE for the guarded hosted write and full
+  proof.
+- Do not treat the dry-run as hosted fixture proof.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR491A hosted fixture proof
 
 MIMIR routed the accepted PR491A guarded fixture path to ARIADNE for hosted

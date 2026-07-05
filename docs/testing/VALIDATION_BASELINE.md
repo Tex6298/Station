@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR491A Public Persona Second Fixture Proof Hosted Rehearsal
+
+ARIADNE started PR491A hosted proof on 2026-07-05:
+`docs/roadmap/PR491A_PUBLIC_PERSONA_SECOND_FIXTURE_PROOF_REHEARSAL_RESULT.md`.
+
+Validation result:
+`DEPLOYMENT_WAITING`.
+
+Reason:
+
+- dry-run proof for `station-replay-signed-in-alpha-persona` passed with safe
+  public output only;
+- hosted web/API health returned ready at app commit `890f9692`;
+- deployed commit `890f9692` is not descended from the required `c7164078`
+  fixture path commit;
+- guarded hosted fixture write and hosted browser/API proof were intentionally
+  not run.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node scripts/staging-public-persona-fixture.mjs --dry-run` | Pass | Printed safe dry-run proof for the ordinary fixture, signed-in mode, and anonymous-deny code. |
+| Hosted web/API health | Pass | Both services returned `ready:true` at app commit `890f9692`. |
+| Hosted freshness | Blocked | `c7164078` was not an ancestor of deployed commit `890f9692`, so the hosted seed/proof remained blocked on deployment freshness. |
+| Guarded hosted write | Not run | The freshness gate failed before any hosted fixture data was written. |
+| Hosted browser/API proof | Not run | Public route, owner readback, signed-out denial, replay no-drift, and mobile/desktop fit checks require a fresh deployment first. |
+
 ## PR491A Public Persona Second Fixture Proof ARGUS Review
 
 ARGUS accepted PR491A on 2026-07-05:
