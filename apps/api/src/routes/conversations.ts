@@ -7,6 +7,15 @@ import {
   type PersonaContextSource,
   type PersonaRuntimeContext,
 } from "@station/ai/retrieval/context-builder";
+import {
+  buildCompanionCapabilityProfile,
+  formatCompanionCapabilityPrompt,
+} from "@station/ai/companion-capabilities";
+import {
+  buildCompanionPresenceProfile,
+  formatCompanionPresencePrompt,
+  type CompanionPresenceMessage,
+} from "@station/ai/companion-presence";
 import { retrievePrivateArchive } from "@station/ai/retrieval/archive-retrieval";
 import { resolveChatProviderRuntimeRoute } from "@station/ai/providers/router";
 import { addMemoryItem, ingestTextIntoArchive, saveMessageAsMemory } from "../services/archive.service";
@@ -207,6 +216,18 @@ const ANSWER_CONTRACT_STOP_WORDS = new Set([
   "title",
   "with",
 ]);
+
+function defaultCompanionCapabilityContext() {
+  return formatCompanionCapabilityPrompt(buildCompanionCapabilityProfile());
+}
+
+function companionPresenceContextFromHistory(historyRows: Array<{ role?: string | null; created_at?: string | null }>) {
+  const messages: CompanionPresenceMessage[] = historyRows.map((row) => ({
+    role: row.role,
+    createdAt: row.created_at,
+  }));
+  return formatCompanionPresencePrompt(buildCompanionPresenceProfile({ messages }));
+}
 
 type ProviderFocusOptions = {
   contractRetry?: boolean;
@@ -917,6 +938,7 @@ conversationsRouter.get("/persona/:personaId/context-preview", async (req, res) 
     ownerUserId: userId,
     userQuery: query,
     embeddingApiKey,
+    companionCapabilityContext: defaultCompanionCapabilityContext(),
   });
 
   return res.json({ query, context });
@@ -1090,6 +1112,8 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
   const rawHistoryRows = historyRows ?? [];
   const historyLimit = 20;
   const history = toChronologicalRuntimeHistory(rawHistoryRows, historyLimit);
+  const companionCapabilityContext = defaultCompanionCapabilityContext();
+  const companionPresenceContext = companionPresenceContextFromHistory(rawHistoryRows);
 
   // Save the user message
   await sb.from("conversation_messages").insert({
@@ -1118,6 +1142,8 @@ async function runPersonaChatTurn(input: ChatTurnInput): Promise<ChatTurnResult>
       byokOpenaiKey: runtimeByokKeys.openai,
       byok_openai_key: profile?.byok_openai_key,
     }),
+    companionCapabilityContext,
+    companionPresenceContext,
   });
   const { systemPrompt } = runtimeContext;
   const {

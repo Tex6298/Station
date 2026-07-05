@@ -22,6 +22,16 @@
       "require": "./dist/providers/*.js",
       "default": "./dist/providers/*.js"
     },
+    "./companion-capabilities": {
+      "types": "./dist/companion-capabilities.d.ts",
+      "require": "./dist/companion-capabilities.js",
+      "default": "./dist/companion-capabilities.js"
+    },
+    "./companion-presence": {
+      "types": "./dist/companion-presence.d.ts",
+      "require": "./dist/companion-presence.js",
+      "default": "./dist/companion-presence.js"
+    },
     "./retrieval/*": {
       "types": "./dist/retrieval/*.d.ts",
       "require": "./dist/retrieval/*.js",

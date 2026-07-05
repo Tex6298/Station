@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485D Companion Presence And Capability Context Implementation
+
+DAEDALUS implemented PR485D on 2026-07-05:
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_RESULT.md`.
+
+Validation result: `READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added deterministic `packages/ai` capability and presence helpers;
+- kept the default capability profile `conversation-first`;
+- limited future assisted capability profiles to explicit typed helper input;
+- limited presence to soft same-thread context computed in the private chat
+  route from already-loaded prior messages;
+- added private-only optional prompt sections and capability-only owner
+  context-preview;
+- kept public persona chat/preview, schema, routes/query params, automatic LLM
+  calls, durable presence storage, tool/autonomy claims, provider routing,
+  token-accounting rules, retrieval ordering, Archive connector behavior,
+  Memory inbox behavior, Redis, Cloudflare, billing, public writes, web UI,
+  broad shell work, and Discern CSS out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/ai build` | Pass | Rebuilt local AI package output for package-export runtime imports; generated `dist` output remains untracked. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test packages/ai/test/companion-context.test.ts packages/ai/test/retrieval-metadata.test.ts apps/api/src/routes/conversation-archive.test.ts apps/api/src/routes/persona-context.test.ts apps/api/src/routes/personas.test.ts` | Pass | 58 helper, prompt, private chat, runtime context, public persona, and no-drift tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only. |
+
 ## PR485D Companion Presence And Capability Context Preflight
 
 ARGUS accepted PR485D on 2026-07-05:

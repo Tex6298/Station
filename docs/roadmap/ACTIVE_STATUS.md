@@ -4,6 +4,78 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR485D ready for ARGUS review
+
+DAEDALUS implemented the accepted no-migration private prompt-context slice:
+
+`docs/roadmap/PR485D_COMPANION_PRESENCE_CAPABILITY_CONTEXT_RESULT.md`
+
+Validation result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Implementation label:
+
+```text
+PR485D_NO_MIGRATION_PRIVATE_PROMPT_CONTEXT
+```
+
+Implemented boundary:
+
+- added deterministic `packages/ai` capability and presence helpers;
+- default capability remains `conversation-first` only;
+- future assisted capability profiles require explicit typed helper input;
+- presence remains soft same-thread context with `first_contact`,
+  `active_thread`, `returning`, and `long_gap`;
+- `buildPersonaChatPrompt` renders optional capability/presence sections only
+  for private prompts;
+- `assemblePersonaRuntimeContext` accepts preformatted prompt-context strings
+  without changing retrieval topology, selected sources, answer focus, or trace
+  shape;
+- private chat computes capability and same-thread presence from already-loaded
+  `conversation_messages` history before inserting the new owner message;
+- owner context-preview gets capability context only and omits presence;
+- public persona chat and public context-preview remain unchanged;
+- no migrations, schema fields, route/query behavior, automatic LLM calls,
+  durable presence storage, tool/autonomy claims, provider routing change,
+  token-accounting rule change, retrieval ordering change, Archive connector
+  behavior, Memory inbox behavior, Redis, Cloudflare, billing, public write,
+  web UI, broad shell, or Discern CSS.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/ai build` passed.
+- PR485D AI/API focused suite passed with 58 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR485D - Companion Presence And Capability Context
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review helper boundaries, private prompt wiring, use of
+  already-loaded chat history, owner context-preview capability-only behavior,
+  public no-drift coverage, and provider/token/retrieval preservation.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:` for
+  closeout/sequencing.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR485D companion context accepted
 
 ARGUS accepted PR485D with a tightened no-migration private prompt-context

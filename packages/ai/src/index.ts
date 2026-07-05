@@ -8,6 +8,10 @@ export * from "./providers/openai";
 export * from "./providers/anthropic";
 export * from "./providers/router";
 
+// Companion prompt context
+export * from "./companion-capabilities";
+export * from "./companion-presence";
+
 // Prompts
 export * from "./prompts/persona-chat";
 export * from "./prompts/calibration";

@@ -10,6 +10,8 @@ export function buildPersonaChatPrompt(input: {
   memory?: string[];
   continuity?: string[];
   archive?: string[];
+  companionCapabilityContext?: string;
+  companionPresenceContext?: string;
 }): string {
   const sections: string[] = [];
   const answerFocus = input.visibility === "private" ? buildAnswerFocus(input) : null;
@@ -36,6 +38,14 @@ export function buildPersonaChatPrompt(input: {
       "You are speaking in public representation mode. " +
       "You may be addressing people unfamiliar with you - introduce yourself naturally when relevant."
     );
+  }
+
+  if (input.visibility === "private" && input.companionCapabilityContext?.trim()) {
+    sections.push(input.companionCapabilityContext.trim());
+  }
+
+  if (input.visibility === "private" && input.companionPresenceContext?.trim()) {
+    sections.push(input.companionPresenceContext.trim());
   }
 
   // Awakening / initiatory prompt (the ritual seed)

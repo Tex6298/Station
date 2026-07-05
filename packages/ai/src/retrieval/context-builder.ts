@@ -19,6 +19,8 @@ export interface PersonaContextInput {
   userQuery: string;
   embeddingApiKey?: string;
   ownerUserId?: string;
+  companionCapabilityContext?: string;
+  companionPresenceContext?: string;
   maxCanon?: number;
   maxMemory?: number;
   maxIntegrity?: number;
@@ -276,6 +278,8 @@ export async function assemblePersonaRuntimeContext(
       memory: topology.buckets.memory.sources.map((source) => formatSourceForPrompt(source)),
       continuity: topology.buckets.continuity.sources.map((source) => source.content),
       archive: topology.buckets.archive.sources.map((source) => formatSourceForPrompt(source)),
+      companionCapabilityContext: input.companionCapabilityContext,
+      companionPresenceContext: input.companionPresenceContext,
     });
 
     return { topology, sources, safeMemorySkipped, systemPrompt };

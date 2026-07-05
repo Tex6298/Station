@@ -114,6 +114,56 @@ test("persona runtime context shares one query embedding across memory and archi
   }
 });
 
+test("persona runtime context passes optional private companion prompt context without changing retrieval shape", async () => {
+  const db = new VectorSupabase();
+  const embeddingFetch = mockEmbeddingFetch(new Array(ACTIVE_EMBEDDING_DIMENSION).fill(0.001));
+
+  try {
+    const context = await assemblePersonaRuntimeContext({
+      supabase: db.client as any,
+      ownerUserId: "owner-1",
+      persona: {
+        id: "persona-1",
+        name: "Replay Persona",
+        shortDescription: "Synthetic replay persona.",
+        longDescription: "Used for replay measurement.",
+        visibility: "private",
+      },
+      userQuery: "continuity blue notebook",
+      embeddingApiKey: "test-key",
+      companionCapabilityContext: "Companion capability boundary:\n- Capability mode: conversation-first.",
+      companionPresenceContext: "Companion thread presence:\n- Thread state: active_thread.",
+    });
+
+    assert.equal(embeddingFetch.calls(), 1);
+    assert.equal(context.counts.memory, 1);
+    assert.equal(context.counts.archive, 1);
+    assert.match(context.systemPrompt, /Companion capability boundary/);
+    assert.match(context.systemPrompt, /Capability mode: conversation-first/);
+    assert.match(context.systemPrompt, /Companion thread presence/);
+    assert.match(context.systemPrompt, /Thread state: active_thread/);
+    assert.match(context.systemPrompt, /Selected-context answer focus/);
+    assert.deepEqual(
+      context.trace.timing.stages.map((stage) => stage.stage),
+      [
+        "total",
+        "query_embedding",
+        "canon",
+        "owner_memory",
+        "memory_vector_search",
+        "integrity",
+        "preference_profile",
+        "archive_retrieval",
+        "continuity",
+        "topology_prompt_assembly",
+      ],
+    );
+    assert.equal(context.trace.selectedSources.every((source) => !("content" in source)), true);
+  } finally {
+    embeddingFetch.restore();
+  }
+});
+
 test("vector memory search backfills exact lexical anchors when vector misses them", async () => {
   const db = new VectorMissesLexicalSupabase();
 

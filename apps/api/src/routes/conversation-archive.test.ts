@@ -960,6 +960,15 @@ test("chat runtime budget does not block configured BYOK providers when platform
     const providerPayload = JSON.parse(providerCalls[0].body) as {
       messages: Array<{ role: string; content: string }>;
     };
+    const systemMessage = providerPayload.messages[0];
+    assert.equal(systemMessage?.role, "system");
+    assert.match(systemMessage?.content ?? "", /Companion capability boundary/);
+    assert.match(systemMessage?.content ?? "", /Capability mode: conversation-first/);
+    assert.match(systemMessage?.content ?? "", /cannot read files, edit systems, browse, call tools, use MCP/);
+    assert.match(systemMessage?.content ?? "", /Companion thread presence/);
+    assert.match(systemMessage?.content ?? "", /Thread state: long_gap/);
+    assert.match(systemMessage?.content ?? "", /soft same-thread context/);
+    assert.doesNotMatch(systemMessage?.content ?? "", /provider payload|token=|secret=|cookie=|authorization=/i);
     const finalProviderMessage = providerPayload.messages.at(-1);
     assert.equal(finalProviderMessage?.role, "user");
     assert.match(finalProviderMessage?.content ?? "", /Station-selected context/);
@@ -999,8 +1008,11 @@ test("chat runtime budget does not block configured BYOK providers when platform
     const llmEvent = db.tables.ai_trace_events.find((event) => event.label === "Persona chat response");
     assert.equal(llmEvent.provider, "byok_openai");
     assert.doesNotMatch(JSON.stringify(response.body), /runtimeBudget|Use my own model/);
+    assert.doesNotMatch(JSON.stringify(response.body), /Companion capability boundary|Companion thread presence|long_gap/);
     assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Meridian Loom|silver compass ledger|blue lantern checksum/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_events), /Companion capability boundary|Companion thread presence|long_gap/);
     assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Meridian Loom|silver compass ledger|blue lantern checksum/);
+    assert.doesNotMatch(JSON.stringify(db.tables.ai_trace_sessions), /Companion capability boundary|Companion thread presence|long_gap/);
   } finally {
     globalThis.fetch = originalFetch;
     setSupabaseAdminForTests(null);
