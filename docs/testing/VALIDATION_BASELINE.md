@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR494A Companion Home Context Rail ARGUS Preflight
+
+ARGUS accepted PR494A on 2026-07-05:
+`docs/roadmap/PR494A_COMPANION_HOME_CONTEXT_RAIL_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR494A_COMPANION_HOME_CONTEXT_RAIL`.
+
+Reason:
+
+- PR485A-E already closed shortcuts, Memory Inbox, return-to-thread, private
+  prompt context, and chat polish;
+- current persona home already loads the continuity counts and owner route ids
+  needed for a compact context rail;
+- no API, migration, chat behavior, prompt/retrieval/provider, public chat,
+  shell/sidebar/topbar, or broad CSS change is needed;
+- Memory Inbox must remain the accepted import-backed owner route and not revive
+  stale `/conversations/candidates/inbox` or `source=all` behavior.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code review | Pass | Discern commits were treated as references only; accepted slice is a Tex-native rail using already-loaded owner data and links. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts apps/web/lib/import-review.test.ts packages/ai/test/companion-context.test.ts` | Pass | 32 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR493A Persona Roulette Visitor Encounter Hosted Rehearsal
 
 ARIADNE completed PR493A hosted rehearsal on 2026-07-05:
