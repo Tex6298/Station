@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR485A companion home shortcuts accepted
+
+ARGUS accepted the first Discern companion UX translation slice:
+
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_PREFLIGHT_RESULT.md`
+
+Validation result:
+
+```text
+ACCEPT_PR485A_COMPANION_HOME_SHORTCUTS
+```
+
+Accepted boundary:
+
+- add a compact owner-visible shortcut strip on the existing persona home/chat
+  surface;
+- link Memory to `/studio/personas/[personaId]/memory`;
+- link Timeline to `/studio/personas/[personaId]/continuity`;
+- link Profile to `/studio/personas/[personaId]/edit`;
+- link Integrity to `/studio/personas/[personaId]/calibration`;
+- keep the first slice web-only with no API, migration, prompt, retrieval,
+  provider, hosted runtime, archive connector, billing, queue, worker,
+  Cloudflare, Redis, social connector, public-write, or broad shell changes;
+- preserve Tex streaming chat, provider setup/error behavior, token accounting,
+  runtime/retrieval privacy, existing persona panels, and scoped Tex visual
+  language;
+- defer Memory inbox, return-to-thread changes, and companion presence prompt
+  context to later numbered lanes.
+
+Validation:
+
+- Route/readback focused tests passed with 24 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR485A - Companion Home Shortcuts
+Owner: DAEDALUS / A2
+State: OPEN_FOR_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact web-only shortcut strip on the existing
+  owner persona home/chat surface.
+- If DAEDALUS creates a shortcut helper, focused tests should assert the four
+  labels and route targets.
+- After ARGUS accepts the implementation, MIMIR should route ARIADNE for hosted
+  desktop and `375px`/`390px` mobile rehearsal because the persona home surface
+  changes visibly.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR routing - PR485 Discern companion UX translation opened
 
 MIMIR inspected the requested Discern reference commits:

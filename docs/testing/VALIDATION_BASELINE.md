@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR485A Companion Home Shortcuts Preflight
+
+ARGUS accepted PR485A on 2026-07-05:
+`docs/roadmap/PR485A_COMPANION_HOME_SHORTCUTS_PREFLIGHT_RESULT.md`.
+
+Validation result: `ACCEPT_PR485A_COMPANION_HOME_SHORTCUTS`.
+
+Reason:
+
+- selected the smallest safe Discern companion UX translation slice: a compact
+  owner-visible shortcut strip on the existing persona home/chat surface;
+- mapped Memory, Timeline, Profile, and Integrity to existing Tex owner routes:
+  `/memory`, `/continuity`, `/edit`, and `/calibration`;
+- kept PR485A web-only, with no API, migration, prompt, retrieval, provider,
+  hosted runtime, archive connector, billing, queue/worker, Cloudflare/Redis,
+  social connector, public-write, or broad shell changes;
+- preserved Tex streaming chat, provider setup/error behavior, token
+  accounting, runtime/retrieval privacy, existing persona panels, and scoped
+  visual language;
+- deferred Memory inbox, return-to-thread changes, and companion presence
+  prompt context to later numbered lanes.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Code and reference inspection | Pass | Reviewed the PR485 handoff, current persona home/chat surface, route helpers, candidate list/review route boundaries, and Discern reference stats/snippets. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/lib/archive-trust.test.ts` | Pass | 24 route/readback tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors after doc updates. |
+
 ## PR484J-N Archive Connector Hosted Setup Preflight
 
 ARGUS accepted PR484J-N on 2026-06-30:
