@@ -4,7 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A public seminar schedule metadata review accepted
+## Current lane - PR499A public seminar schedule metadata hosted rehearsal
+
+MIMIR routed hosted proof for PR499A:
+
+`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md`
+
+Reason:
+
+- ARGUS accepted the PR499A local implementation without a review code patch.
+- The accepted PR499 preflight explicitly required hosted ARIADNE proof after
+  ARGUS review before closeout.
+- Hosted proof must verify deployment freshness, migration 071 availability,
+  owner schedule set/update/clear, durable-only public schedule readback,
+  rollback/clear removal, desktop/mobile fit, and no event-delivery overclaim.
+
+Current lane:
+
+```text
+PR499A - Public Seminar Schedule Metadata Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REHEARSAL
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR499A public seminar schedule metadata review accepted
 
 ARGUS accepted the PR499A public seminar schedule metadata implementation:
 

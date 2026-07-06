@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499A | Public Seminar Schedule Metadata | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_IMPLEMENTATION`; ready for MIMIR closeout and next-roadmap decision. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REVIEW_RESULT.md` |
+| PR499A | Public Seminar Schedule Metadata Hosted Rehearsal | ARIADNE / A4 | Open hosted proof because PR499 preflight required ARIADNE verification after ARGUS review before closeout. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR499A hosted rehearsal opened | Public Seminar Schedule Metadata Hosted Rehearsal | MIMIR -> ARIADNE | Open; prove hosted runtime freshness, migration 071 availability through owner schedule behavior, owner set/update/clear, durable-only public schedule readback, rollback/clear removal, desktop/mobile fit, and no privacy/product-boundary drift. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md` |
 | PR499A review | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS code patch; nullable stored schedule metadata, owner-only exact schedule mutation, durable-only public readback, owner/public copy honesty, privacy boundaries, and forbidden live-event/payment/calendar/provider/runtime scope passed local review. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REVIEW_RESULT.md` |
 | PR499A implementation | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS | Ready for ARGUS review; nullable `public_seminar_records` schedule metadata, owner-only schedule mutation, typed owner/public schedule readback, and owner/public web copy are implemented without live hosting, RSVP, tickets, reminders, calendar invites, queues, Cloudflare, runtime, launch claims, private data, or new public mutations. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md` |
 | PR499 preflight | Public Seminar Schedule Metadata Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA`; schedule cannot be derived from lifecycle timestamps, so DAEDALUS may add only nullable start/time-zone/duration metadata on owner seminar records plus honest owner/public readback, with no RSVP, tickets, payments, reminders, calendar invites, jobs, live rooms, runtime, queues, Cloudflare, private data, raw ids, or launch claims. | `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md` |
