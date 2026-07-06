@@ -4,39 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500 social publishing connector boundary preflight
+## Current lane - PR500 social publishing connector boundary preflight accepted
 
-MIMIR closed PR499/PR499A/PR499B and opened PR500:
+ARGUS accepted the PR500 Social Publishing connector boundary preflight:
 
-`docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_CLOSEOUT.md`
+`docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_RESULT.md`
 
-`docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md`
+Result:
 
-Reason:
+```text
+ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT
+```
 
-- PR499A passed hosted closeout after PR499B repaired migration 071 drift.
-- Per the feature-expansion rule, the next lane moves to a distinct
-  customer-facing Phase 3 surface instead of extending seminars.
-- Social Publishing is currently honest and readback-only from PR476A.
-- Live social connectors remain blocked until ARGUS accepts credential/OAuth,
-  outbound payload, and execution/retry boundaries.
-- PR484 archive connector credential/OAuth work is useful reference material
-  but not a direct social connector implementation.
+Decision:
+
+- PR500A may add only a social-specific encrypted credential storage contract
+  plus legacy live-code quarantine.
+- The active PR476A Social Publishing route/UI fence must remain readback-only,
+  owner-only, and paused.
+- PR484 archive connector credential/OAuth work is reference material only; no
+  archive table, archive state, archive provider config, or source-inventory
+  assumption may be reused as a social connector shortcut.
+- Dormant live posting code in `apps/api/src/services/social.service.ts` and
+  `apps/web/components/social/post-composer.tsx` should be deleted or explicitly
+  quarantined before any social connector path grows.
+- No OAuth, provider account linking, external provider calls, live posting,
+  queues/workers, billing, credential UI, or public syndication behavior is
+  accepted in PR500A.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts`
+  passed: 101 social/auth/archive connector tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
 
 Current lane:
 
 ```text
 PR500 - Social Publishing Connector Boundary Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT
+Source: docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR499A hosted schedule metadata rerun passed

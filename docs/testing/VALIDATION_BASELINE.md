@@ -4,6 +4,36 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500 Social Publishing Connector Boundary Preflight
+
+ARGUS accepted the PR500 Social Publishing connector boundary preflight on
+2026-07-06:
+
+- `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT`.
+
+Reason:
+
+- PR476A still fences Social Publishing as owner-only, readback-only, and
+  paused before DB writes or provider calls;
+- legacy `social_connections` / `social_posts` schema and dormant provider
+  posting service/composer remain unsafe for live connectors;
+- PR484 archive connector credential/OAuth contracts are useful reference
+  patterns but archive-specific;
+- PR500A is limited to social-specific encrypted credential storage and
+  deletion/quarantine of dormant live posting code;
+- OAuth/account linking, provider calls, live posting, queues/workers, billing,
+  credential UI, public syndication, and social readiness unpause remain out of
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts` | Pass | 101 social/auth/archive connector tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors before ARGUS docs edits. |
+
 ## PR499A Public Seminar Schedule Metadata Hosted Rerun
 
 ARIADNE completed the hosted PR499A public seminar schedule metadata rerun on

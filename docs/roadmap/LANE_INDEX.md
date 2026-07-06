@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500 | Social Publishing Connector Boundary Preflight | ARGUS / A3 | Open hostile preflight; choose the smallest safe next Social Publishing lane after PR476A readiness, using PR484 connector work as reference only. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md` |
+| PR500 | Social Publishing Connector Boundary Preflight | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT`; PR500A may add only social-specific encrypted credential storage plus legacy live-code quarantine, with Social Publishing still paused/readback-only. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500 preflight | Social Publishing Connector Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT`; next slice is social-specific encrypted credential storage and dormant live-code quarantine only, with no OAuth, provider calls, posting, queues, billing, credential UI, or social-readiness unpause. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_RESULT.md` |
 | PR500 opened | Social Publishing Connector Boundary Preflight | MIMIR -> ARGUS | Open; decide the smallest safe social connector credential/OAuth/payload/execution lane or name the concrete blocker. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md` |
 | PR499 closeout | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> DAEDALUS -> ARIADNE -> MIMIR | Closed accepted; schedule metadata, hosted migration 071 repair, rerun schedule mutation/readback/clear/rollback, desktop/mobile fit, and privacy/product-boundary scans passed. | `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_CLOSEOUT.md` |
 | PR499A hosted rerun | Public Seminar Schedule Metadata Hosted Rerun | ARIADNE -> MIMIR | Passed hosted closeout; fresh web/API at `a8a384c9452e`, owner records `200` with count `2`, schedule mutation/readback/clear/rollback and desktop/375px/390px privacy/product-boundary scans passed, and the selected record was restored to draft/private with no schedule. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md` |
