@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495F Owner Seminar Publish/Rollback Hosted Rehearsal Result
+
+ARIADNE completed the hosted proof on 2026-07-06:
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PASS_READY_FOR_PR495F_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API freshness was at review commit `b991662c` or later;
+- replay owner auth and `/studio` to `/studio/publishing` clickthrough worked;
+- hosted owner data began with four candidates, two private drafts, zero ready
+  records, and zero published records;
+- ARIADNE used the accepted owner ready gate as visible setup, then proved
+  PR495F publish/rollback on that same record;
+- desktop publish moved the record to `published` + `public` and showed
+  `Public record`, `Public listing pending readback wiring.`, and
+  `Return to ready`;
+- duplicate publish, rollback, duplicate rollback, and refresh stayed stable;
+- public card ids did not change and no durable record became a public card;
+- mobile `375px` and `390px` kept fit with ready/publish controls after
+  rollback;
+- private-tier non-creator publish transition returned `403`;
+- signed-out publish transition returned `401`, and signed-out
+  `/studio/publishing` remained protected;
+- public `/events/seminars` preserved signed-out/signed-in readback and
+  interest mark/withdraw passed;
+- no privacy leak, mobile fit defect, product drift, or forbidden runtime/scope
+  claim was found.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Chrome/CDP rehearsal | Pass | Proved owner ready setup, publish, duplicate publish, rollback, duplicate rollback, refresh stability, desktop/375px/390px fit, creator/signed-out gates, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and no product drift. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No whitespace errors. |
+
 ## PR495F Owner Publish/Rollback ARGUS Review
 
 ARGUS accepted the PR495F implementation on 2026-07-06:

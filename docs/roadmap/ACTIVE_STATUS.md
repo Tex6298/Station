@@ -4,7 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR495F hosted rehearsal opened
+## Latest ARIADNE result - PR495F hosted rehearsal passed
+
+ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REHEARSAL_RESULT.md`
+
+State:
+
+```text
+PASS_READY_FOR_PR495F_CLOSEOUT
+```
+
+Proof:
+
+- hosted web/API freshness at review commit `b991662c` or later;
+- replay owner authenticated and had creator-or-above entitlement;
+- owner `/studio` to `/studio/publishing` clickthrough worked;
+- initial hosted owner readback had four candidates, two private draft records,
+  zero ready records, zero published records, two enabled
+  `Create seminar draft` actions, and two enabled `Mark ready for review`
+  actions;
+- ARIADNE used the accepted ready gate as visible setup, then exercised the
+  PR495F publish/rollback gate on the same record;
+- desktop publish succeeded and showed `Public record`,
+  `Public listing pending readback wiring.`, and `Return to ready`;
+- duplicate publish retry stayed stable;
+- rollback restored `ready` + `private`;
+- duplicate rollback retry and refresh stayed stable with no duplicate visible
+  rows or actions;
+- mobile `375px` and `390px` retained one private ready readback, one
+  `Publish record` action, one `Return to draft` action, one remaining
+  `Mark ready for review` action, and two `Create seminar draft` actions
+  without panel overflow or clipped controls;
+- public card ids stayed unchanged throughout and no durable seminar record
+  appeared as a public card;
+- private-tier non-creator publish transition returned `403` and showed no
+  enabled publish/rollback action;
+- signed-out publish transition returned `401`, and signed-out users could not
+  reach `/studio/publishing`;
+- public `/events/seminars` kept the accepted readback surface and signed-in
+  interest mark/withdraw passed;
+- no private/raw/secret/runtime/scope leak or product drift was found.
+
+Current lane:
+
+```text
+PR495F - Owner Seminar Publish/Rollback Closeout
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR495F_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR495F or route any final wording-only closeout work.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous MIMIR routing - PR495F hosted rehearsal opened
 
 MIMIR routed hosted browser proof for the ARGUS-accepted PR495F owner
 publish/rollback implementation:
