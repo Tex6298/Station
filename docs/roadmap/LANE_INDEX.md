@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500B | Social Credential Hosted Migration 072 Proof | MIMIR / A1 | Migration 072 applied and hosted schema proof passed; MIMIR should decide the next owner social credential route step. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md` |
+| PR500C | Social Credential Owner API Preflight | ARGUS / A3 | Open hostile preflight; hosted migration 072 is ready, so decide the exact backend-only owner credential API boundary or name the blocker/rejection. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500C opened | Social Credential Owner API Preflight | MIMIR -> ARGUS | Open; decide whether DAEDALUS may implement a backend-only owner social credential API after hosted migration 072 proof, without OAuth, provider calls, posting, UI, queues, billing, public syndication, or readiness unpause. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md` |
+| PR500B hosted proof closeout | Social Credential Hosted Migration 072 Proof | MIMIR | Closed accepted as `MIGRATION_072_APPLIED_HOSTED_SCHEMA_READY`; hosted schema is ready for future route preflight. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_CLOSEOUT.md` |
 | PR500B hosted proof | Social Credential Hosted Migration 072 Proof | MIMIR -> DAEDALUS -> MIMIR | Migration-only hosted repair complete; migration 072 was absent, DAEDALUS applied the accepted migration, and table/columns/constraints/indexes/trigger/RLS/owner policy now pass. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md` |
 | PR500B hosted proof opened | Social Credential Hosted Migration 072 Proof | MIMIR -> DAEDALUS | Open; probe hosted migration 072 shape and apply only the accepted migration if missing, without route/UI/OAuth/provider/posting/package/runtime drift. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md` |
 | PR500B preflight closeout | Social Credential Owner Route Preflight | MIMIR | Closed accepted as `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`; hosted migration 072 must be proven before any owner credential API route. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_CLOSEOUT.md` |

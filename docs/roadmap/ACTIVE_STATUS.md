@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500B social credential hosted migration 072 proof complete
+## Current lane - PR500C social credential owner API preflight
+
+MIMIR closed PR500B hosted migration proof and opened PR500C for ARGUS:
+
+`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_CLOSEOUT.md`
+
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md`
+
+Reason:
+
+- Hosted migration 072 is now proven present after DAEDALUS applied the
+  accepted migration and re-probed successfully.
+- The owner social credential API route is not yet accepted.
+- ARGUS should decide the smallest backend-only route boundary for safe
+  credential metadata readback, Bluesky manual credential storage, and local
+  revoke/disconnect without OAuth, provider calls, posting, UI, queues,
+  billing, public syndication, or readiness unpause.
+
+Current lane:
+
+```text
+PR500C - Social Credential Owner API Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR500B social credential hosted migration 072 proof complete
 
 DAEDALUS completed the PR500B hosted migration 072 proof/repair:
 
