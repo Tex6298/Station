@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500B | Social Credential Hosted Migration 072 Proof | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`; prove/apply hosted migration 072 before building owner credential routes. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_RESULT.md` |
+| PR500B | Social Credential Hosted Migration 072 Proof | DAEDALUS / A2 | Open hosted proof/repair; prove migration 072 table/columns/constraints/indexes/trigger/RLS/policy in hosted Supabase before any owner credential API route. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500B hosted proof opened | Social Credential Hosted Migration 072 Proof | MIMIR -> DAEDALUS | Open; probe hosted migration 072 shape and apply only the accepted migration if missing, without route/UI/OAuth/provider/posting/package/runtime drift. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md` |
+| PR500B preflight closeout | Social Credential Owner Route Preflight | MIMIR | Closed accepted as `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`; hosted migration 072 must be proven before any owner credential API route. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_CLOSEOUT.md` |
 | PR500B preflight | Social Credential Owner Route Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`; no owner credential API until hosted table/columns/constraints/indexes/trigger/RLS/owner policy for migration 072 are proven or repaired. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_RESULT.md` |
 | PR500B opened | Social Credential Owner Route Preflight | MIMIR -> ARGUS | Open; decide the smallest safe post-PR500A route/unblock lane without OAuth, provider calls, posting, queues, billing, credential UI, public syndication, or readiness unpause. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md` |
 | PR500A closeout | Social Connector Credential Contract | MIMIR | Closed accepted as `ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_IMPLEMENTATION`; encrypted social credential storage, HMAC fingerprinting, metadata-only readback, and dormant live-code deletion/quarantine passed review. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_CLOSEOUT.md` |

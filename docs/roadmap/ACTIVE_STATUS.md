@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500B hosted migration 072 proof first
+## Current lane - PR500B social credential hosted migration 072 proof
+
+MIMIR accepted ARGUS's PR500B preflight and routed hosted migration proof to
+DAEDALUS:
+
+`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md`
+
+Reason:
+
+- ARGUS returned `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`.
+- The first owner social credential route would be the first hosted runtime
+  dependency on `public.social_connector_credentials`.
+- Recent hosted migration drift proved local migration acceptance is not enough
+  before route work depends on new hosted schema.
+- DAEDALUS should probe hosted Supabase for migration 072 shape and apply only
+  `infra/supabase/migrations/072_social_connector_credentials.sql` if missing.
+- No owner credential API route, Settings UI, OAuth/provider call, posting,
+  queue, billing, Redis, Cloudflare, public syndication, package, or runtime
+  behavior is accepted in this proof lane.
+
+Current lane:
+
+```text
+PR500B - Social Credential Hosted Migration 072 Proof
+Owner: DAEDALUS / A2
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR500B hosted migration 072 proof first
 
 ARGUS completed the PR500B social credential owner route preflight:
 
