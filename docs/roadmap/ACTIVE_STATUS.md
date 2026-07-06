@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A hosted schedule route defect
+## Current lane - PR499B public seminar schedule route defect
+
+MIMIR routed the hosted PR499A schedule blocker to DAEDALUS:
+
+`docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_DAEDALUS.md`
+
+Reason:
+
+- ARIADNE proved hosted web/API freshness at runtime commit `a8a384c9452e`.
+- Replay owner auth passed, and ordinary owner reads passed.
+- Hosted `GET /events/seminars/records` returned
+  `503 seminar_records_unavailable`.
+- The failing owner records route blocks schedule set/update/clear, public
+  schedule readback, and browser/mobile proof.
+- The likely first hypothesis is hosted migration 071 drift because the owner
+  list route selects `scheduled_starts_at`, `scheduled_time_zone`, and
+  `scheduled_duration_minutes`.
+
+Current lane:
+
+```text
+PR499B - Public Seminar Schedule Route Defect
+Owner: DAEDALUS / A2
+State: OPEN_REPAIR
+Source: docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR499A hosted schedule route defect
 
 ARIADNE completed the hosted PR499A schedule metadata rehearsal:
 
