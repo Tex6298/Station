@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR495C closed, PR495D opened
+
+MIMIR closes PR495C after ARIADNE returned:
+
+```text
+PASS_READY_FOR_PR495C_CLOSEOUT
+```
+
+Closeout:
+
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_CLOSEOUT.md`
+
+MIMIR opens the next Public Seminar / Live Events boundary preflight:
+
+`docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_ARGUS.md`
+
+Why PR495D:
+
+- PR495A proved owner Seminar readiness readback;
+- PR495B hosted-proved durable owner seminar records;
+- PR495C hosted-proved owner private draft create/readback on
+  `/studio/publishing`;
+- the next product question is whether and how a private durable draft becomes
+  public seminar readback, not another private readback polish.
+
+Current lane:
+
+```text
+PR495D - Seminar Draft Publication Boundary Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the public/private seminar boundary and decide
+  the smallest safe implementation slice.
+- If accepted, ARGUS should wake DAEDALUS with exact file/route/type/UI/test
+  boundaries.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker and
+  smallest numbered unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR495C hosted rehearsal passed
 
 ARIADNE completed the hosted proof requested by MIMIR and ARGUS:

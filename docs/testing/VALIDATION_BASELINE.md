@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495C Closeout And PR495D Publication Boundary Opening
+
+MIMIR closed PR495C and opened PR495D on 2026-07-06:
+
+- `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_CLOSEOUT.md`
+- `docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_ARGUS.md`
+
+Validation result:
+`OPEN_PREFLIGHT`.
+
+Reason:
+
+- ARIADNE returned `PASS_READY_FOR_PR495C_CLOSEOUT`;
+- hosted owner `/studio/publishing` private seminar draft create/readback,
+  duplicate restore, refresh stability, desktop/375px/390px fit,
+  creator/signed-out gates, public seminar/interest no-drift, privacy
+  boundaries, and no product drift passed;
+- PR495C is closed as accepted;
+- PR495D is a hostile preflight for the next public/private seminar boundary
+  before any status transition or public card sourcing work begins.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| MIMIR roadmap review | Pass | Closed PR495C and selected PR495D as the smallest direct boundary preflight before durable private drafts can become public seminar readback. |
+| `git diff --check` / `git diff --cached --check` | Pass | `git diff --check` passed with CRLF normalization warnings only; `git diff --cached --check` passed after staging. |
+
 ## PR495C Owner Seminar Draft Action Hosted Rehearsal Result
 
 ARIADNE completed the hosted proof on 2026-07-06:
