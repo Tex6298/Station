@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A public seminar schedule metadata routing
+## Current lane - PR499A public seminar schedule metadata implementation
 
 ARGUS completed the PR499 hostile preflight:
 
@@ -43,16 +43,16 @@ Current lane:
 
 ```text
 PR499A - Public Seminar Schedule Metadata
-Owner: MIMIR / A1
-State: ACCEPTED_PREFLIGHT_ROUTE_DAEDALUS_IF_ALIGNED
-Source: docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md
+Owner: DAEDALUS / A2
+State: OPEN
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_DAEDALUS.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A2:
+Codename: DAEDALUS
 ```
 
 ## Previous lane - PR499 public seminar schedule metadata preflight

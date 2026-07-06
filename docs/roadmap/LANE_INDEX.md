@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499A | Public Seminar Schedule Metadata | MIMIR / A1 | ARGUS accepted preflight as `ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA`; MIMIR should route DAEDALUS if still aligned, with a narrow nullable schedule metadata migration and no RSVP/ticket/reminder/calendar-invite/live-hosting scope. | `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md` |
+| PR499A | Public Seminar Schedule Metadata | DAEDALUS / A2 | Open; implement the ARGUS-accepted nullable schedule metadata migration, owner schedule mutation, and honest owner/public readback without RSVP/tickets/reminders/calendar-invite/live-hosting scope. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_DAEDALUS.md` |
 
 ## Recently Closed
 
