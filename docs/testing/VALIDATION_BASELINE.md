@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495G Public Durable Seminar Readback Implementation
+
+DAEDALUS implemented PR495G on 2026-07-06:
+
+- `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- public `/events/seminars` now merges discover-feed featured cards with
+  eligible `published` + `public` durable seminar records;
+- durable records resolve only through the PR495E serializer and stale records
+  are dropped;
+- durable document cards replace matching source-derived document cards by
+  `document:<source id>`, durable-only cards append after source-derived cards,
+  and limits apply after merge;
+- durable digest ids now resolve for interest mark/withdraw while interest rows
+  still store only source-derived `source_type` and `source_id`;
+- `PublicSeminarsResponse.source` now returns the mixed-source value
+  `discover_feed_featured_and_durable_records`;
+- public detail pages, schema/RLS migrations, owner UI expansion, runtime,
+  queues/workers, Redis, Cloudflare, billing, scheduling, hosting, RSVP,
+  tickets, payments, reminders, rooms, media, transcripts, provider runtime,
+  launch claims, broad UI redesign, private-source exposure, raw ids, and
+  secret leakage did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 36 focused API/public-route/auth tests passed, including durable-only readback, durable replacement, append/limit behavior, stale exclusion, durable digest interest mark/withdraw, source-derived interest rows, and bounded storage errors. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; Git reported CRLF normalization warnings only. |
+
 ## PR495G Public Durable Seminar Readback ARGUS Preflight
 
 ARGUS completed the PR495G hostile preflight on 2026-07-06:

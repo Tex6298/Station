@@ -23,7 +23,7 @@ export interface PublicSeminarCard {
 }
 
 export interface PublicSeminarsResponse {
-  source: "discover_feed_featured";
+  source: "discover_feed_featured" | "discover_feed_featured_and_durable_records";
   cards: PublicSeminarCard[];
   generatedAt: string;
 }

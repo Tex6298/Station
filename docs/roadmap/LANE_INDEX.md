@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495G | Public Durable Seminar Readback | DAEDALUS / A2 | Accepted preflight; wire eligible published/public durable seminar records into public `/events/seminars`, include durable digest interest resolution, keep interest source-derived, and avoid schema/RLS/runtime/owner-UI/scope expansion. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_RESULT.md` |
+| PR495G | Public Durable Seminar Readback | ARGUS / A3 | Ready for review; DAEDALUS wired eligible published/public durable seminar records into public `/events/seminars`, added durable digest interest resolution while keeping interest rows source-derived, updated the mixed-source response type, and kept schema/RLS/runtime/owner-UI/scope expansion out. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_RESULT.md` |
 
 ## Recently Closed
 

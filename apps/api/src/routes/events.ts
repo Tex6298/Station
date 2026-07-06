@@ -91,7 +91,7 @@ eventsRouter.get("/seminars", optionalAuth, async (req, res) => {
   try {
     const cards = await loadPublicSeminarCards(limit, req.user?.id ?? null);
     return res.json({
-      source: "discover_feed_featured",
+      source: "discover_feed_featured_and_durable_records",
       cards,
       generatedAt: new Date().toISOString(),
     });
@@ -450,6 +450,30 @@ function firstQueryValue(value: unknown) {
 
 async function loadPublicSeminarCards(limit: number, viewerUserId?: string | null) {
   const sb = getSupabaseAdmin();
+  const resolvedCards = await loadResolvedPublicSeminarCards(sb, limit);
+
+  try {
+    return await applySeminarInterestReadback(sb, resolvedCards, viewerUserId);
+  } catch {
+    return resolvedCards.map((resolved) => resolved.card);
+  }
+}
+
+async function loadResolvedPublicSeminarCards(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  limit: number
+) {
+  const [sourceCards, durableCards] = await Promise.all([
+    loadSourceDerivedPublicSeminarCards(sb, limit),
+    loadDurablePublicSeminarCards(sb, limit),
+  ]);
+  return mergePublicSeminarCardsWithDurableCards(sourceCards, durableCards, limit);
+}
+
+async function loadSourceDerivedPublicSeminarCards(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  limit: number
+) {
   const { data, error } = await sb
     .from("discover_feed")
     .select("id, item_type, item_id, event_type, created_at")
@@ -467,11 +491,32 @@ async function loadPublicSeminarCards(limit: number, viewerUserId?: string | nul
     if (cards.length >= limit) break;
   }
 
-  try {
-    return await applySeminarInterestReadback(sb, cards, viewerUserId);
-  } catch {
-    return cards.map((resolved) => resolved.card);
+  return cards;
+}
+
+async function loadDurablePublicSeminarCards(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  limit: number
+) {
+  const { data, error } = await (sb as any)
+    .from("public_seminar_records")
+    .select(SEMINAR_RECORD_TRANSITION_SELECT)
+    .eq("source_type", "document")
+    .eq("status", "published")
+    .eq("visibility", "public")
+    .order("updated_at", { ascending: false })
+    .limit(limit * 3);
+
+  if (error) throw new Error("Could not load durable public seminars.");
+
+  const cards: ResolvedPublicSeminarCard[] = [];
+  for (const record of data ?? []) {
+    const card = await resolveDurablePublicSeminarRecordCard(sb, record);
+    if (card) cards.push(card);
+    if (cards.length >= limit) break;
   }
+
+  return cards;
 }
 
 async function resolvePublicSeminarTargetByCardId(
@@ -480,22 +525,8 @@ async function resolvePublicSeminarTargetByCardId(
 ) {
   if (!PUBLIC_SEMINAR_ID_PATTERN.test(seminarId)) return null;
 
-  const { data, error } = await sb
-    .from("discover_feed")
-    .select("id, item_type, item_id, event_type, created_at")
-    .eq("event_type", "featured")
-    .in("item_type", ["document", "thread", "space"])
-    .order("created_at", { ascending: false })
-    .limit(SEMINAR_INTEREST_LOOKUP_LIMIT);
-
-  if (error) throw new Error("Could not load public seminar curation.");
-
-  for (const item of data ?? []) {
-    const resolved = await resolvePublicSeminarCard(sb, item);
-    if (resolved?.card.id === seminarId) return resolved;
-  }
-
-  return null;
+  const cards = await loadResolvedPublicSeminarCards(sb, SEMINAR_INTEREST_LOOKUP_LIMIT);
+  return cards.find((resolved) => resolved.card.id === seminarId) ?? null;
 }
 
 async function resolvePublicSeminarCard(
