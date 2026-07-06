@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496B Workspace Export Hosted Create Failure
+
+DAEDALUS completed the PR496B repair on 2026-07-06:
+
+- `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- hosted schema inspection found migration 070 was not applied;
+- hosted `export_packages` constraints and owner policy still lacked
+  `workspace_manifest`, so owner `POST /exports/workspace` failed at insert;
+- migration 070 was applied through the existing local `SUPABASE_POOLER_URL`
+  path without printing credentials;
+- hosted schema re-probe confirmed `workspace_manifest` constraints/policy;
+- hosted owner proof then returned `201` for `POST /exports/workspace`, `200`
+  for package readback, and `200` for bundle readback with exactly
+  `README.md`, `manifest.json`, and `manifest.md`;
+- focused local coverage now checks migration 070 for the workspace kind,
+  null-target branch, owner index, and owner policy/check branch.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted schema probe before fix | Fail as expected | `export_packages_kind_check`, `export_packages_target_check`, and `export_packages_all_owner` were still at the PR249 state and lacked `workspace_manifest`. |
+| Hosted migration apply | Pass | Applied `infra/supabase/migrations/070_workspace_export_manifest.sql` through the existing local pooler path; no secrets printed. |
+| Hosted schema probe after fix | Pass | Constraints and owner policy include `workspace_manifest` and the null-target branch. |
+| Hosted API proof | Pass | Signed-out list `401`; owner list `200`; owner create `201`; owner readback `200`; owner bundle `200`; bundle files `README.md`, `manifest.json`, `manifest.md`. |
+| Hosted boundary scan | Pass | No raw persona/Space/Developer Space/Project/document ids or owner/target keys in readback/bundle; accepted negative trust/future labels remain. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 10 tests passed, including the migration 070 shape regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR496A Owner Workspace Export Package Contract Hosted Rehearsal
 
 ARIADNE completed hosted PR496A proof on 2026-07-06:

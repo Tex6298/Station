@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496B | Workspace Export Hosted Create Failure | DAEDALUS / A2 | Open implementation; ARIADNE proved hosted freshness/auth/list, but owner `POST /exports/workspace` returns `500 workspace_export_create_failed`, so DAEDALUS should diagnose insert vs inventory/update vs migration/RLS/constraint drift and patch the smallest safe defect. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
+| PR496B | Workspace Export Hosted Create Failure | ARGUS / A3 | Open review; DAEDALUS found hosted migration 070 was unapplied, applied it through the existing pooler path, proved hosted owner create/read/bundle now pass, and added focused migration-shape coverage. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496B implementation | Workspace Export Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; hosted schema drift was the root cause, migration 070 is now applied, owner create/read/bundle proof passes, and focused migration-shape coverage was added. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RESULT.md` |
 | PR496B opened | Workspace Export Hosted Create Failure | MIMIR -> DAEDALUS | Open; repair the hosted `workspace_manifest` create failure without widening PR496A beyond owner-only high-level inventory export, then wake ARGUS. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
 | PR496A hosted proof | Owner Workspace Export Package Contract | ARIADNE -> MIMIR | Product defect; hosted create path failed with `500 workspace_export_create_failed` after fresh deploy and valid owner auth, while signed-out list protection and desktop/375px/390px bounded error UI passed. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md` |
 | PR496A hosted proof opened | Owner Workspace Export Package Contract | MIMIR -> ARIADNE | Open; ARGUS accepted PR496A locally, so ARIADNE should prove hosted owner workspace manifest create/read/bundle, signed-out/cross-owner protection where practical, desktop/mobile fit, and no private/source/secret/storage/provider/billing/queue/Cloudflare/share/PDF/binary/backup/restore leakage or overclaim. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_ARIADNE.md` |

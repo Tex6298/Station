@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR496B ready for ARGUS review
+
+DAEDALUS repaired the hosted workspace export create failure:
+
+`docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Decision:
+
+- Root cause was hosted schema drift: migration
+  `infra/supabase/migrations/070_workspace_export_manifest.sql` had not been
+  applied to the hosted database.
+- Hosted `export_packages_kind_check`, `export_packages_target_check`, and
+  `export_packages_all_owner` were still at the PR249 Project-manifest state,
+  so `POST /exports/workspace` failed at the initial insert boundary before
+  inventory build, completion update, manifest readback, or bundle readback.
+- Migration 070 was applied through the existing local `SUPABASE_POOLER_URL`
+  path. A hosted schema re-probe confirmed the `workspace_manifest` kind,
+  null-target branch, and owner policy branch are now present.
+- Hosted replay-owner proof now passes: signed-out list access returns `401`;
+  owner list returns `200`; owner create returns `201`; owner readback returns
+  `200`; owner bundle readback returns `200` with `README.md`,
+  `manifest.json`, and `manifest.md`.
+- Added focused local regression coverage in `test:exports` that checks
+  migration 070 includes the workspace kind, null-target branch, owner index,
+  and owner policy/check branch.
+- No API semantics, `/studio/export` layout/copy, full archive, original-file
+  package, PDF/binary output, backup/restore workflow, public export route,
+  signed/share URL, provider/runtime, Redis, Cloudflare, queue, billing, or
+  Stripe behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR496B - Workspace Export Hosted Create Failure
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the hosted schema-drift diagnosis, migration apply proof,
+  focused migration-shape regression, and hosted create/read/bundle boundary.
+- ARGUS should wake MIMIR with acceptance or DAEDALUS with concrete fixes.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR routing - PR496B opened for DAEDALUS
 
 MIMIR opened the narrow hosted create-failure repair lane:

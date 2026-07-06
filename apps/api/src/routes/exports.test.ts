@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -2162,6 +2163,20 @@ test("workspace manifest package guards duplicate, malformed, and source failure
   } finally {
     setSupabaseAdminForTests(null);
   }
+});
+
+test("workspace manifest migration allows owner-level null-target export packages", () => {
+  const migration = readFileSync("infra/supabase/migrations/070_workspace_export_manifest.sql", "utf8");
+
+  assert.match(migration, /export_packages_kind_check/);
+  assert.match(
+    migration,
+    /check \(package_kind in \('persona_archive', 'developer_space_archive', 'project_manifest', 'workspace_manifest'\)\)/
+  );
+  assert.match(migration, /package_kind = 'workspace_manifest'\s+and persona_id is null\s+and developer_space_id is null\s+and project_id is null/);
+  assert.match(migration, /create index if not exists idx_export_packages_owner_workspace_manifest/);
+  assert.match(migration, /create policy "export_packages_all_owner"/);
+  assert.match(migration, /with check \(\s+auth\.uid\(\) = owner_user_id/);
 });
 
 test("export package concurrency guard blocks duplicate in-progress targets", async () => {
