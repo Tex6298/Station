@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500B social credential hosted migration 072 proof
+## Current lane - PR500B social credential hosted migration 072 proof complete
+
+DAEDALUS completed the PR500B hosted migration 072 proof/repair:
+
+`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md`
+
+Result:
+
+```text
+MIGRATION_072_APPLIED_HOSTED_SCHEMA_READY
+```
+
+Reason:
+
+- Pre-repair hosted schema probe found migration 072 missing: table did not
+  exist, expected columns were `0/12`, and constraints, indexes, trigger, RLS,
+  and owner policy were absent.
+- DAEDALUS applied only
+  `infra/supabase/migrations/072_social_connector_credentials.sql` through the
+  existing local `SUPABASE_POOLER_URL` path with a temporary `pg@8.13.1` client
+  under the OS temp directory.
+- Post-repair probe passed: table exists, columns are `12/12`, provider/
+  purpose/category/status constraints are present, active partial unique index
+  and status index are present, updated-at trigger is present, RLS is enabled,
+  and owner policy is scoped to `auth.uid() = owner_user_id`.
+- No repo code, route behavior, UI behavior, package manifests, lockfiles,
+  credential storage rows, provider calls, public behavior, or hosted raw data
+  changed beyond applying the accepted migration and documenting this result.
+- No connection strings, passwords, tokens, service keys, raw SQL errors, table
+  row data, owner ids, provider payloads, encrypted payloads, or hosted logs
+  were printed or recorded.
+
+Current lane:
+
+```text
+PR500B - Social Credential Hosted Migration 072 Proof
+Owner: MIMIR / A1
+State: MIGRATION_072_APPLIED_HOSTED_SCHEMA_READY
+Source: docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR500B social credential hosted migration 072 proof opened
 
 MIMIR accepted ARGUS's PR500B preflight and routed hosted migration proof to
 DAEDALUS:
@@ -25,22 +73,6 @@ Reason:
 - No owner credential API route, Settings UI, OAuth/provider call, posting,
   queue, billing, Redis, Cloudflare, public syndication, package, or runtime
   behavior is accepted in this proof lane.
-
-Current lane:
-
-```text
-PR500B - Social Credential Hosted Migration 072 Proof
-Owner: DAEDALUS / A2
-State: OPEN_HOSTED_PROOF
-Source: docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
-```
 
 ## Previous lane - PR500B hosted migration 072 proof first
 

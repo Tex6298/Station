@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-07-06
 
-Status: Open hosted proof/repair
+Status: Complete - migration 072 applied and hosted schema ready
 
 ## Source
 

@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500B Social Credential Hosted Migration 072 Proof
+
+DAEDALUS completed the PR500B hosted migration 072 proof/repair on
+2026-07-06:
+
+- `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md`
+
+Validation result:
+`MIGRATION_072_APPLIED_HOSTED_SCHEMA_READY`.
+
+Reason:
+
+- pre-repair hosted schema probe found migration 072 missing: table false,
+  expected columns `0/12`, and constraints/indexes/trigger/RLS/owner policy
+  absent;
+- DAEDALUS applied only
+  `infra/supabase/migrations/072_social_connector_credentials.sql` through the
+  existing local `SUPABASE_POOLER_URL` path;
+- post-repair hosted schema probe passed for table, all 12 expected columns,
+  provider/purpose/credential-category/status constraints, active partial unique
+  index, owner/provider/status index, updated-at trigger, RLS, and owner policy;
+- no repo code, route behavior, UI behavior, package manifests, lockfiles,
+  credential storage rows, provider calls, public behavior, or hosted raw data
+  changed beyond applying the accepted migration and documenting this result;
+- no connection strings, passwords, tokens, service keys, raw SQL errors, table
+  row data, owner ids, provider payloads, encrypted payloads, or hosted logs
+  were printed or recorded.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted schema probe before repair | Pass | Proved migration 072 was missing: table false and columns `0/12`. |
+| Hosted migration apply | Pass | Applied only `072_social_connector_credentials.sql`. |
+| Hosted schema probe after repair | Pass | Table, 12 columns, constraints, indexes, trigger, RLS, and owner policy all passed. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR500B Social Credential Owner Route Preflight
 
 ARGUS completed the PR500B social credential owner route preflight on

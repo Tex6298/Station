@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500B | Social Credential Hosted Migration 072 Proof | DAEDALUS / A2 | Open hosted proof/repair; prove migration 072 table/columns/constraints/indexes/trigger/RLS/policy in hosted Supabase before any owner credential API route. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md` |
+| PR500B | Social Credential Hosted Migration 072 Proof | MIMIR / A1 | Migration 072 applied and hosted schema proof passed; MIMIR should decide the next owner social credential route step. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500B hosted proof | Social Credential Hosted Migration 072 Proof | MIMIR -> DAEDALUS -> MIMIR | Migration-only hosted repair complete; migration 072 was absent, DAEDALUS applied the accepted migration, and table/columns/constraints/indexes/trigger/RLS/owner policy now pass. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_RESULT.md` |
 | PR500B hosted proof opened | Social Credential Hosted Migration 072 Proof | MIMIR -> DAEDALUS | Open; probe hosted migration 072 shape and apply only the accepted migration if missing, without route/UI/OAuth/provider/posting/package/runtime drift. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_DAEDALUS.md` |
 | PR500B preflight closeout | Social Credential Owner Route Preflight | MIMIR | Closed accepted as `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`; hosted migration 072 must be proven before any owner credential API route. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_CLOSEOUT.md` |
 | PR500B preflight | Social Credential Owner Route Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`; no owner credential API until hosted table/columns/constraints/indexes/trigger/RLS/owner policy for migration 072 are proven or repaired. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_RESULT.md` |
