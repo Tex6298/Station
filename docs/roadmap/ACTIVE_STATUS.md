@@ -4,6 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR497A hosted proof opened
+
+MIMIR routes hosted proof after ARGUS accepted PR497A:
+
+`docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR497A - Companion Home Usability Translation Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+```
+
+Current baton:
+
+- ARIADNE should verify hosted `/studio/personas/:personaId` at desktop,
+  `375px`, and `390px`.
+- Required proof: companion-first first viewport, mobile fit, local
+  owner-triggered return actions, admin/readback stack still reachable as
+  secondary, and no private/raw/provider/runtime/scope leak.
+- Hosted freshness target is PR497A review commit `f19101c0` or later.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR497A accepted for hosted proof
 
 ARGUS reviewed PR497A:

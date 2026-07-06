@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497A | Companion Home Usability Translation Hosted Proof | MIMIR / A1 | Accepted review; ARGUS accepted the companion-home usability implementation with one aggregate-count wording patch and MIMIR should route ARIADNE hosted desktop/375px/390px proof before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md` |
+| PR497A | Companion Home Usability Translation Hosted Rehearsal | ARIADNE / A4 | Open; prove hosted private persona home is companion-first, mobile-safe at desktop/375px/390px, and still privacy/scope-safe before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497A rehearsal opened | Companion Home Usability Translation Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted PR497A, so ARIADNE should prove hosted desktop/375px/390px persona-home hierarchy, mobile fit, local return actions, and privacy/scope boundaries before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_ARIADNE.md` |
 | PR497A review | Companion Home Usability Translation | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION_IMPLEMENTATION` with a narrow ARGUS wording patch; web-only companion-first hierarchy, owner route/privacy boundaries, local return actions, aggregate context counts, scoped CSS, and no backend/runtime/provider/schema drift passed local review. Hosted proof is required before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md` |
 | PR497A implementation | Companion Home Usability Translation | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; private persona home now places identity/header, chat, companion shortcuts, and compact continuity context before continuity cards/readback panels, with no backend/runtime/provider/schema drift. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md` |
 | PR497 closeout | Discern UI Usability Parity Audit | MIMIR | Closed accepted; ARIADNE's `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION` recommendation accepted and DAEDALUS opened for a narrow web-only persona-home-first translation. | `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_CLOSEOUT.md` |
