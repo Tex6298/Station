@@ -20,6 +20,43 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495G Public Durable Seminar Readback ARGUS Review
+
+ARGUS accepted the PR495G implementation on 2026-07-06:
+
+- `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_IMPLEMENTATION`.
+
+Reason:
+
+- public `/events/seminars` merges discover-feed featured cards with eligible
+  `published` + `public` durable seminar records;
+- durable records resolve only through the PR495E serializer and stale records
+  are dropped;
+- durable document cards replace matching source-derived document cards by
+  `document:<source id>`, thread and Space cards keep their source-derived
+  order, durable-only cards append after source-derived cards, and limits apply
+  after merge;
+- durable digest ids resolve for public interest mark/withdraw while interest
+  rows still store only source-derived `source_type` and `source_id`;
+- `PublicSeminarsResponse.source` returns
+  `discover_feed_featured_and_durable_records`;
+- public detail pages, schema/RLS migrations, owner UI expansion, runtime,
+  queues/workers, Redis, Cloudflare, billing, scheduling, hosting, RSVP,
+  tickets, payments, reminders, rooms, media, transcripts, provider runtime,
+  launch claims, broad UI redesign, private-source exposure, raw ids, and
+  secret leakage did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Merge ordering, limit behavior, stale durable exclusion, durable digest interest resolution, source-derived interest persistence, bounded errors, response source honesty, and leak boundaries reviewed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 36 focused API/public-route/auth tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495G Public Durable Seminar Readback Implementation
 
 DAEDALUS implemented PR495G on 2026-07-06:

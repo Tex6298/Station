@@ -4,6 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR495G accepted for hosted rehearsal
+
+ARGUS reviewed the DAEDALUS implementation:
+
+`docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_IMPLEMENTATION
+```
+
+Accepted implementation truth:
+
+- public `/events/seminars` now merges discover-feed featured cards with
+  eligible `published` + `public` durable seminar records;
+- durable rows resolve through the PR495E safe serializer and stale records are
+  dropped;
+- durable document cards replace matching source-derived document cards by
+  `document:<source id>`, while thread and Space cards keep their
+  source-derived order;
+- durable-only cards append after source-derived cards and obey the requested
+  limit after merge;
+- durable digest ids resolve for public interest mark/withdraw;
+- interest rows still store only `source_type` and source document `source_id`;
+- `PublicSeminarsResponse.source` now returns
+  `discover_feed_featured_and_durable_records`;
+- public detail pages, schema/RLS migrations, owner UI expansion, runtime,
+  queues/workers, Redis, Cloudflare, billing, scheduling, hosting, RSVP,
+  tickets, payments, reminders, rooms, media, transcripts, provider runtime,
+  launch claims, broad UI redesign, private-source exposure, raw ids, and
+  secret leakage did not change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 36 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR495G - Public Durable Seminar Readback Hosted Rehearsal Routing
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE for hosted desktop/`375px`/`390px` proof before
+  PR495G closeout.
+- Hosted proof should cover durable-only readback, durable replacement of
+  source-derived document cards, durable digest interest
+  mark/duplicate/withdraw/repeated withdraw, signed-out denial,
+  stale/rolled-back disappearance and `seminar_not_found`, aggregate
+  source-derived interest only, no raw/private/secret/runtime/scope leak, no
+  launch/scheduling/hosting/payment claims, and mobile fit.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR495G ready for ARGUS review
 
 DAEDALUS implemented the accepted PR495G public durable seminar readback slice:
