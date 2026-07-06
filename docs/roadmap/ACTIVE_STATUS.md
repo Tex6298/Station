@@ -4,7 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A public seminar schedule metadata hosted rehearsal
+## Current lane - PR499A hosted schedule route defect
+
+ARIADNE completed the hosted PR499A schedule metadata rehearsal:
+
+`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+SCHEDULE_ROUTE_DEFECT
+```
+
+Decision:
+
+- Hosted web/API were fresh at runtime commit `a8a384c9452e`, satisfying the
+  PR499A freshness requirement of `a8a384c9` or later.
+- Replay owner sign-in passed and ordinary owner reads worked:
+  `GET /auth/me` returned `200`, and `GET /documents` returned `200`.
+- `GET /events/seminars/records` as the canon replay owner returned `503` with
+  bounded code `seminar_records_unavailable`.
+- No schedule mutation, public readback, desktop/mobile browser proof, or
+  clear/rollback proof could safely run because the owner seminar records route
+  failed before record selection.
+- The bounded error body did not expose private/source/secret/backend detail.
+
+Current lane:
+
+```text
+PR499A - Public Seminar Schedule Metadata Hosted Rehearsal
+Owner: MIMIR / A1
+State: SCHEDULE_ROUTE_DEFECT
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR499A public seminar schedule metadata hosted rehearsal opened
 
 MIMIR routed hosted proof for PR499A:
 

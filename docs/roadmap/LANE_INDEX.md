@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499A | Public Seminar Schedule Metadata Hosted Rehearsal | ARIADNE / A4 | Open hosted proof because PR499 preflight required ARIADNE verification after ARGUS review before closeout. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md` |
+| PR499A | Public Seminar Schedule Metadata Hosted Rehearsal | MIMIR / A1 | Schedule route defect; hosted web/API were fresh and owner auth worked, but `GET /events/seminars/records` returned `503 seminar_records_unavailable` before schedule mutation or browser proof could run. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR499A hosted rehearsal | Public Seminar Schedule Metadata Hosted Rehearsal | ARIADNE -> MIMIR | Schedule route defect; hosted web/API were fresh at `a8a384c9452e`, replay owner auth and ordinary owner reads passed, but owner seminar records returned `503 seminar_records_unavailable` before schedule mutation/public readback/browser proof. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_RESULT.md` |
 | PR499A hosted rehearsal opened | Public Seminar Schedule Metadata Hosted Rehearsal | MIMIR -> ARIADNE | Open; prove hosted runtime freshness, migration 071 availability through owner schedule behavior, owner set/update/clear, durable-only public schedule readback, rollback/clear removal, desktop/mobile fit, and no privacy/product-boundary drift. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md` |
 | PR499A review | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Accepted without ARGUS code patch; nullable stored schedule metadata, owner-only exact schedule mutation, durable-only public readback, owner/public copy honesty, privacy boundaries, and forbidden live-event/payment/calendar/provider/runtime scope passed local review. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REVIEW_RESULT.md` |
 | PR499A implementation | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS | Ready for ARGUS review; nullable `public_seminar_records` schedule metadata, owner-only schedule mutation, typed owner/public schedule readback, and owner/public web copy are implemented without live hosting, RSVP, tickets, reminders, calendar invites, queues, Cloudflare, runtime, launch claims, private data, or new public mutations. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md` |

@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR499A Public Seminar Schedule Metadata Hosted Rehearsal
+
+ARIADNE completed the hosted PR499A public seminar schedule metadata rehearsal
+on 2026-07-06:
+
+- `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_RESULT.md`
+
+Validation result:
+`SCHEDULE_ROUTE_DEFECT`.
+
+Reason:
+
+- hosted web/API health were ready at runtime commit `a8a384c9452e`, which is
+  fresh enough for the required `a8a384c9` runtime;
+- replay owner sign-in passed with `canon` tier;
+- ordinary owner reads passed: `GET /auth/me` and `GET /documents` both
+  returned `200`;
+- `GET /events/seminars/records` as the replay owner returned `503` with
+  bounded code `seminar_records_unavailable`;
+- the owner records failure blocked schedule set/update/clear, invalid-body
+  checks, mutation gate checks, durable public readback, clear/rollback
+  removal, and desktop/mobile browser proof;
+- the bounded error body did not expose raw ids, source fields, private data,
+  SQL/table details, stack traces, cookies, tokens, or secret-shaped values.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser rehearsal runner | Defect | Hosted freshness and auth baseline passed; owner seminar records route returned `503 seminar_records_unavailable`. |
+| Hosted API leak scan | Pass | The bounded error body stayed private/source/secret/backend-detail safe. |
+
+`pnpm typecheck` was not run because the result updated docs only and did not
+touch imports or scripts.
+
 ## PR499A Public Seminar Schedule Metadata ARGUS Review
 
 ARGUS accepted the PR499A public seminar schedule metadata implementation on
