@@ -93,3 +93,9 @@ drift. MIMIR therefore does not open another Discern companion lane.
 MIMIR opens a different customer-facing Phase 3/product-depth preflight:
 
 `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_ARGUS.md`
+
+Later correction: foreground watch surfaced the earlier A1 Discern usability
+correction at `921b4860`. MIMIR parked PR496 before review and opened PR497 as
+the active lane:
+
+`docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_ARIADNE.md`

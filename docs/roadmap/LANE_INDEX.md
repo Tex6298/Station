@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496 | Workspace Export Package Contract Preflight | ARGUS / A3 | Open; decide whether Workspace Export can move from owner readback map to a real owner-only workspace package contract, or return design/blocker/reject with the smallest unblock lane. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_ARGUS.md` |
+| PR497 | Discern UI Usability Parity Audit | ARIADNE / A4 | Open; audit Discern commits `de7b918e` and `99ae8a5c` against current Tex companion/persona home/chat for product-feel and usability deltas we wrongly dismissed as skin. | `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496 parked | Workspace Export Package Contract Preflight | MIMIR | Parked before ARGUS review; foreground watch surfaced an unprocessed A1 correction wakeup requiring Discern UI usability parity/audit immediately after PR495G. Workspace Export remains a future candidate, not the current lane. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_SUPERSEDED.md` |
 | PR495G closeout | Public Durable Seminar Readback | MIMIR | Closed accepted; durable public seminar readback, durable replacement/append, digest interest mark/duplicate/withdraw/repeated-withdraw, stale rollback failure, privacy boundaries, and hosted desktop/mobile proof passed. Stale Discern companion wakeup reconciled as already closed by PR485/PR494; PR496 opened. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_CLOSEOUT.md` |
 | PR495G rehearsal | Public Durable Seminar Readback Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; durable-only readback, durable replacement, durable digest interest mark/duplicate/withdraw/repeated withdraw, signed-out denial, rollback/stale disappearance with `seminar_not_found`, aggregate/viewer-local interest only, privacy boundaries, no launch/scheduling/hosting/payment claims, and desktop/375px/390px fit passed. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_RESULT.md` |
 | PR495G rehearsal opened | Public Durable Seminar Readback Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted PR495G durable public readback and durable digest interest resolution, so ARIADNE must prove hosted public durable readback, interest mutation, stale rollback behavior, privacy, product-boundary, and mobile fit before closeout. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_ARIADNE.md` |

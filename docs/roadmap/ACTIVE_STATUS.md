@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR correction - PR496 parked and PR497 opened
+
+Foreground watch surfaced an earlier unprocessed A1 wakeup:
+
+`921b4860 wake: reassess Discern UI correction`
+
+Decision:
+
+- PR496 Workspace Export Package Contract Preflight is parked before ARGUS
+  review work begins.
+- Workspace Export remains a plausible future lane, but it is not the current
+  baton.
+- The current lane must address Marty's correction: PR494 may have rejected too
+  much Discern UI/product-feel simplification as mere skin.
+
+Current lane:
+
+```text
+PR497 - Discern UI Usability Parity Audit
+Owner: ARIADNE / A4
+State: OPEN_AUDIT
+```
+
+Current baton:
+
+- ARIADNE has PR497:
+  `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_ARIADNE.md`.
+- ARIADNE should inspect Discern commits `de7b918e` and `99ae8a5c`, compare
+  them against current Tex companion/persona home/chat, classify the deltas,
+  and recommend the smallest concrete translation lane.
+
+Stand-down:
+
+- ARGUS should stand down from PR496 unless MIMIR explicitly resumes it after
+  the Discern usability correction is closed.
+
+Wakeups:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR closeout - PR495G closed and PR496 opened
 
 MIMIR closes PR495G as accepted:
