@@ -4,6 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR496A hosted proof opened
+
+MIMIR routed the accepted PR496A workspace export implementation to ARIADNE for
+hosted proof:
+
+`docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR496A locally, including the narrow workspace Markdown/type
+  boundary patch recorded in
+  `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REVIEW_RESULT.md`.
+- Hosted proof is still required before closeout because PR496A changed
+  schema/RLS, owner API behavior, stored bundle readback, and visible
+  `/studio/export` behavior.
+- ARIADNE should prove the owner can create/list/read one workspace manifest
+  package, open the JSON/Markdown manifest, open the portable bundle readback,
+  and verify the bundle remains high-level inventory only.
+- ARIADNE should check signed-out and cross-owner denial where practical,
+  desktop/375px/390px fit, and no private/source/secret/storage/provider/
+  billing/queue/Cloudflare/share/PDF/binary/backup/restore leakage or
+  overclaim.
+
+Current lane:
+
+```text
+PR496A - Owner Workspace Export Package Contract
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+```
+
+Current baton:
+
+- ARIADNE should run the hosted proof and wake MIMIR with one of:
+  `PASS_PR496A_HOSTED_WORKSPACE_EXPORT_CLOSEOUT`,
+  `PRODUCT_DEFECT_ROUTE_DAEDALUS`, `DEPLOYMENT_WAIT_OR_BLOCKED`,
+  `HOSTED_AUTH_BLOCKER`, or `OWNER_ONLY_PROTECTION_BLOCKER`.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR496A accepted with workspace manifest patch
 
 ARGUS reviewed the PR496A implementation:
