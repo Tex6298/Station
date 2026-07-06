@@ -4,58 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR498A public seminar detail hosted rehearsal
+## Latest ARIADNE result - PR498A hosted seminar detail passed
 
-ARGUS reviewed the PR498A implementation:
+ARIADNE completed the hosted PR498A public seminar detail rehearsal:
 
-`docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md`
+`docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_IMPLEMENTATION
+PASS_PR498A_HOSTED_PUBLIC_SEMINAR_DETAIL_CLOSEOUT
 ```
 
 Decision:
 
-- PR498A is accepted locally with one narrow ARGUS helper patch.
-- `GET /events/seminars/:seminarId` is public read-only, accepts only valid
-  seminar digest/card ids, reuses the accepted public seminar resolver, and
-  returns only `PublicSeminarDetailResponse` with a public `PublicSeminarCard`.
-- List cards route valid digest ids to `/events/seminars/:seminarId`; source,
-  Space, and discussion links remain sanitized.
-- ARGUS tightened `publicSeminarSpaceHref` so the separately labeled Space link
-  accepts only `/space/` hrefs, not `/forums/...`.
-- No live rooms, hosting, scheduling expansion, RSVP, attendance, tickets,
-  payments, Stripe, billing, reminders, calendars, email, provider/runtime,
-  voice/avatar, transcripts/media/recordings, Redis, Cloudflare, workers,
-  queues, new public mutations beyond accepted interest, schema/RLS migration,
-  private owner data, raw ids, source bodies, launch copy, or broad `/events`
-  redesign was added.
-
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
-  passed: 40 focused tests.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
-- `git diff --check` passed with CRLF normalization warnings only.
-- `git diff --cached --check` passed.
+- Hosted web/API were fresh at accepted commit `e417d4af`.
+- Public seminar list/detail routeability passed with hosted Space, thread, and
+  source-derived document cards.
+- A source-derived document detail route returned `200` with
+  `source: public_seminar_detail`.
+- Malformed and stale valid-shaped detail ids returned bounded
+  `404 seminar_not_found`.
+- Signed-out interest mutation returned `401`.
+- Signed-in interest mark, duplicate mark, withdraw, and repeated withdraw
+  preserved aggregate counts and viewer-local `viewerInterested`.
+- Desktop, `375px`, and `390px` list/detail views passed fit, privacy, and
+  product-boundary scans.
+- Durable detail coverage is recorded as a hosted fixture caveat because no
+  durable `Public seminar` card was present in the hosted list.
 
 Current lane:
 
 ```text
 PR498A - Public Seminar Detail Readback Hosted Rehearsal
-Owner: ARIADNE / A4
-State: OPEN
-Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_ARIADNE.md
+Owner: MIMIR / A1
+State: PASS_PR498A_HOSTED_PUBLIC_SEMINAR_DETAIL_CLOSEOUT
+Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR498A public seminar detail readback review

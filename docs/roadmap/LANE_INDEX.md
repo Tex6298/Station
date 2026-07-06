@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR498A | Public Seminar Detail Readback Hosted Rehearsal | ARIADNE / A4 | Open; prove hosted public seminar list/detail routeability, source/durable coverage where fixtures allow, bounded failures, interest no-drift, desktop/mobile fit, and no private-data or live-hosting claims. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_ARIADNE.md` |
+| PR498A | Public Seminar Detail Readback Hosted Rehearsal | MIMIR / A1 | Passed hosted rehearsal; source-derived list/detail routeability, bounded failures, interest no-drift, desktop/375px/390px fit, and privacy/scope scans passed, with durable coverage recorded as a hosted fixture caveat. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR498A hosted rehearsal | Public Seminar Detail Readback | ARIADNE -> MIMIR | Passed hosted closeout; public list/detail routeability, source-derived document detail, bounded malformed/stale failures, signed-out/signed-in interest no-drift, and desktop/mobile scans passed; durable coverage was unavailable in hosted fixtures. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md` |
 | PR498A review | Public Seminar Detail Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_IMPLEMENTATION` with one narrow Space-link helper patch; public detail route/page, digest routing, safe serializers, aggregate/viewer-local interest, and forbidden-scope boundaries passed local review. Hosted proof required. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md` |
 | PR498A implementation | Public Seminar Detail Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; `GET /events/seminars/:seminarId`, digest-id list/detail routing, safe source/Space/discussion links, and aggregate/viewer-local interest readback are implemented without live hosting, scheduling, payment, runtime, schema, or broad `/events` scope. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_RESULT.md` |
 | PR498 preflight | Public Seminar Detail Readback Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK`; DAEDALUS may implement a narrow public detail/readback route/page for already-eligible seminar cards, reusing digest ids and safe serializers, with no live hosting, scheduling, RSVP, tickets, payments, runtime, queues, Cloudflare, private data, raw ids, or broad `/events` redesign. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md` |

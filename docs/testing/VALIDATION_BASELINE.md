@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR498A Public Seminar Detail Readback Hosted Rehearsal
+
+ARIADNE completed hosted PR498A proof on 2026-07-06:
+
+- `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md`
+
+Validation result:
+`PASS_PR498A_HOSTED_PUBLIC_SEMINAR_DETAIL_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API health were ready at accepted commit `e417d4af`;
+- hosted `GET /events/seminars?limit=20` returned `200` with three public
+  source-derived cards: Space, thread, and document;
+- source-derived document detail returned `200` with
+  `source: public_seminar_detail`;
+- malformed and stale valid-shaped detail ids returned bounded
+  `404 seminar_not_found`;
+- signed-out interest mutation returned `401`;
+- signed-in interest mark, duplicate mark, withdraw, and repeated withdraw
+  preserved aggregate count and viewer-local interest state;
+- the second replay identity saw aggregate count without inheriting the owner's
+  viewer-local interest;
+- desktop, `375px`, and `390px` list/detail screenshots had no measured
+  overflow, clipped controls, visible raw UUIDs, secret-shaped values, unsafe
+  field labels, or positive forbidden live-hosting/payment/scheduling claims;
+- API JSON scans found no owner/source id fields, private/source bodies,
+  storage paths, provider/runtime details, stack traces, SQL/table details, or
+  secret-shaped values;
+- no durable `Public seminar` card was present in hosted fixtures, so durable
+  detail proof is recorded as a fixture caveat rather than fabricated.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted API/browser proof | Pass | List/detail routeability, bounded failures, interest no-drift, and desktop/mobile proof passed. |
+| Hosted API leak/scope scan | Pass | List/detail/error JSON stayed public-safe. |
+| Desktop/375px/390px screenshots | Pass | Public list/detail views fit without visible privacy/scope drift. |
+| Durable coverage | Fixture caveat | Hosted list had no durable `Public seminar` card. |
+
 ## PR498A Public Seminar Detail Readback ARGUS Review
 
 ARGUS accepted the PR498A public seminar detail/readback implementation on
