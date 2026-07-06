@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496C Workspace Export Readback UI Boundary Hosted Rerun
+
+ARIADNE completed hosted PR496C proof on 2026-07-06:
+
+- `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_RESULT.md`
+
+Validation result:
+`PASS_PR496C_HOSTED_WORKSPACE_EXPORT_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API health were ready at runtime commit `f0918a82`;
+- owner workspace manifest create/read/bundle returned `201`/`200`/`200`;
+- the hosted bundle contained exactly `README.md`, `manifest.json`, and
+  `manifest.md` with schema `station.workspace.export_manifest.v1`;
+- signed-out list/readback/bundle returned `401`;
+- cross-owner readback/bundle returned `404`;
+- `/studio/export` no longer exposed the internal package id in bundle readback;
+- selected-row bundle readback was local and visible after tap on desktop,
+  `375px`, and `390px`;
+- API/bundle scans found no owner/target/source field names, raw UUIDs,
+  secret-shaped values, positive product-scope claims, or `(undefined)` text;
+- visible desktop/mobile scans found no overflow, clipped controls, incoherent
+  overlap, package id, secret-shaped value, raw UUID, or positive product-scope
+  overclaim.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted API/browser proof | Pass | Owner create/read/bundle passed and selected-row readback was visible. |
+| Hosted owner-only checks | Pass | Signed-out returned `401`; cross-owner returned `404`. |
+| API/bundle leak scan | Pass | High-level inventory-only contract held. |
+| Desktop/375px/390px screenshots | Pass | Package-id-free selected-row readback rendered without measured fit/privacy/scope drift. |
+
 ## PR496C Workspace Export Readback UI Boundary ARGUS Review
 
 ARGUS accepted the PR496C implementation on 2026-07-06:

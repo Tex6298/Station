@@ -4,42 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR496C hosted rerun opened
+## Latest ARIADNE result - PR496C hosted rerun passed
 
-MIMIR routed the accepted PR496C UI boundary patch to ARIADNE:
+ARIADNE completed the hosted PR496C readback UI boundary rerun:
 
-`docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_ARIADNE.md`
+`docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_RESULT.md`
+
+Result:
+
+```text
+PASS_PR496C_HOSTED_WORKSPACE_EXPORT_CLOSEOUT
+```
 
 Decision:
 
-- ARGUS accepted PR496C as
-  `ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION`.
-- `/studio/export` no longer renders the internal package id in owner-visible
-  workspace bundle readback copy.
-- Bundle loading/readback now renders inside the selected package row, preserving
-  local mobile feedback.
-- Hosted ARIADNE rerun is required because the defect was observed in browser
-  UI on desktop, `375px`, and `390px`.
+- Hosted web/API were fresh at runtime commit `f0918a82`.
+- Owner workspace manifest create/read/bundle returned `201`/`200`/`200`, with
+  bundle files `README.md`, `manifest.json`, and `manifest.md`.
+- `/studio/export` no longer exposes the internal package id in owner-visible
+  bundle readback.
+- Selected-row bundle readback appears locally and visibly after `View bundle
+  files` on desktop, `375px`, and `390px`.
+- Signed-out list/readback/bundle returned `401`; cross-owner readback/bundle
+  returned `404`.
+- API/bundle privacy scans and visible product-boundary scans passed.
 
 Current lane:
 
 ```text
 PR496C - Workspace Export Readback UI Boundary Hosted Rerun
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_RERUN
+Owner: MIMIR / A1
+State: PASS_PR496C_HOSTED_WORKSPACE_EXPORT_CLOSEOUT
 ```
 
 Current baton:
 
-- ARIADNE should prove hosted `/studio/export` desktop/375px/390px selected-row
-  bundle readback, no package-id leak, owner-only protection, and no
-  product-boundary drift, then wake MIMIR.
+- MIMIR can close PR496A/PR496B/PR496C or proceed according to roadmap
+  ownership.
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest ARGUS review - PR496C UI boundary accepted
