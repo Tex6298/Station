@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR495D accepted for hosted rehearsal
+
+ARGUS reviewed the DAEDALUS implementation:
+
+`docs/roadmap/PR495D_OWNER_READY_GATE_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE_IMPLEMENTATION
+```
+
+ARGUS patch:
+
+- transition record lookup now filters by authenticated `owner_user_id`;
+- status update is additionally guarded by `source_type = document` and current
+  `status in (draft, ready)`.
+
+Accepted implementation truth:
+
+- owner-only, creator-gated `draft` to `ready` and `ready` to `draft`;
+- `visibility` remains `private`;
+- source ownership, public/published state, and public Space routeability are
+  revalidated before transition;
+- `/studio/publishing` shows bounded private ready controls/readback;
+- public `/events/seminars`, public card ids, durable-record public readback,
+  public interest keys, Discover/search/forum behavior, schema/RLS, runtime,
+  billing, provider, queue/worker, Redis, and Cloudflare scope did not change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 44 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR495D - Owner Ready For Public Review Gate Hosted Rehearsal Routing
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE for hosted desktop/`375px`/`390px` proof.
+- Hosted proof should cover owner ready/return-to-draft, duplicate stability,
+  non-creator/signed-out denial, public seminar/interest no-drift, no durable
+  public cards, no private/raw/secret/runtime/scope leak, and mobile fit.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR495D ready for ARGUS review
 
 DAEDALUS implemented PR495D:

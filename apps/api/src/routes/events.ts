@@ -166,6 +166,7 @@ eventsRouter.post("/seminars/records/:recordId/transition", requireAuth, require
       .from("public_seminar_records")
       .select(SEMINAR_RECORD_TRANSITION_SELECT)
       .eq("id", req.params.recordId)
+      .eq("owner_user_id", req.user!.id)
       .maybeSingle();
 
     if (loadError) throw new Error("Could not load seminar draft.");
@@ -188,7 +189,9 @@ eventsRouter.post("/seminars/records/:recordId/transition", requireAuth, require
       .update({ status: targetStatus })
       .eq("id", record.id)
       .eq("owner_user_id", req.user!.id)
+      .eq("source_type", "document")
       .eq("visibility", "private")
+      .in("status", ["draft", "ready"])
       .select(SEMINAR_RECORD_SELECT)
       .single();
 

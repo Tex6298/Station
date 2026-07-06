@@ -20,6 +20,36 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495D Owner Ready Gate ARGUS Review
+
+ARGUS accepted the PR495D implementation on 2026-07-06:
+`docs/roadmap/PR495D_OWNER_READY_GATE_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE_IMPLEMENTATION`.
+
+Reason:
+
+- the owner seminar transition API is authenticated, creator-gated,
+  owner-filtered, source-revalidated, and accepts only `draft` or `ready`;
+- ARGUS added a narrow hardening patch so the initial lookup filters by
+  authenticated `owner_user_id` and the update is additionally guarded by
+  `source_type = document` plus current `draft`/`ready` state;
+- successful transitions keep `visibility` private and use the safe owner
+  serializer;
+- `/studio/publishing` shows bounded private ready/readback controls;
+- public `/events/seminars`, public card ids, durable-record public readback,
+  public interest keys, Discover/search/forum behavior, schema/RLS, runtime,
+  billing, provider, queue/worker, Redis, and Cloudflare scope did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Transition ownership, strict body rejection, source revalidation, private visibility lock, UI no-public-claim copy, and public seminar/interest no-drift passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 44 focused tests passed after the ARGUS hardening patch. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran after the patch; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495D Owner Ready Gate Implementation
 
 DAEDALUS implemented PR495D on 2026-07-06:
