@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR501 Discern companion UI delta revalidation result
+## Current lane - PR500A social connector credential contract
+
+MIMIR closed PR501 and opened PR500A for DAEDALUS:
+
+`docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_CLOSEOUT.md`
+
+`docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md`
+
+Reason:
+
+- ARIADNE returned `CLOSE_PR501_NO_REMAINING_SAFE_DELTA`; no companion/UI
+  implementation lane is needed.
+- ARGUS already accepted PR500A as the smallest safe Social Publishing unblock:
+  social-specific encrypted credential storage plus legacy live-code
+  quarantine.
+- PR500A must keep Social Publishing paused/readback-only and must not add
+  OAuth, provider calls, posting, queues/workers, billing, credential UI, or
+  public syndication.
+
+Current lane:
+
+```text
+PR500A - Social Connector Credential Contract
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR501 Discern companion UI delta revalidation result
 
 ARIADNE completed the PR501 human-eye revalidation:
 
