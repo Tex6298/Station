@@ -4,7 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500A social connector credential contract
+## Current lane - PR500A social connector credential contract review
+
+DAEDALUS completed the PR500A social connector credential contract:
+
+`docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Reason:
+
+- Migration 072 adds owner-scoped `social_connector_credentials`, separate from
+  legacy social publishing tables, limited to Bluesky manual-credential storage
+  for PR500A.
+- The storage helper uses the separate
+  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` contract and an AES-256-GCM
+  `station.social_connector.credential.v1` envelope.
+- Missing or malformed encryption config fails closed before DB work.
+- Safe readback contains provider, status, timestamp, and category metadata
+  only; it does not return raw encrypted payloads or secret material.
+- Dormant live provider posting code and the dormant document-level social
+  composer were deleted.
+- Active `/social/*` routes remain PR476A readback-only and paused before
+  social table writes or provider calls.
+- No OAuth, provider calls, posting, queues/workers, billing, credential UI,
+  package/lockfile changes, public syndication, or social-readiness unpause was
+  added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts`
+  passed: 22 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts`
+  passed: 88 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Scoped active-code source scan passed.
+- Package/lockfile scan passed.
+- Deleted-helper active import scan passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR500A - Social Connector Credential Contract
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+Source: docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR500A social connector credential contract opened
 
 MIMIR closed PR501 and opened PR500A for DAEDALUS:
 
@@ -22,22 +82,6 @@ Reason:
 - PR500A must keep Social Publishing paused/readback-only and must not add
   OAuth, provider calls, posting, queues/workers, billing, credential UI, or
   public syndication.
-
-Current lane:
-
-```text
-PR500A - Social Connector Credential Contract
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
-```
 
 ## Previous lane - PR501 Discern companion UI delta revalidation result
 

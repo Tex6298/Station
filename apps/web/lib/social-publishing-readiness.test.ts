@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 import {
   socialPublishingActionLabel,
@@ -67,6 +67,7 @@ test("settings social page only reads readiness and exposes disabled controls", 
 test("public document owner page no longer exposes a live social posting composer", () => {
   const documentPage = source("apps/web/app/space/[slug]/documents/[documentId]/page.tsx");
 
+  assert.equal(existsSync("apps/web/components/social/post-composer.tsx"), false);
   assert.match(documentPage, /Social connector readiness paused/);
   assert.doesNotMatch(documentPage, /PostComposer|showComposer|Signal Share to socials/);
   assert.doesNotMatch(documentPage, /\/social\/compose|\/social\/generate-teaser|\/social\/connections/);

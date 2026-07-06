@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500A Social Connector Credential Contract
+
+DAEDALUS completed the PR500A social connector credential contract on
+2026-07-06:
+
+- `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- migration 072 adds owner-scoped `social_connector_credentials`, separate from
+  legacy social publishing tables;
+- PR500A provider scope is Bluesky manual credentials only;
+- credential payloads are encrypted with a social-specific AES-256-GCM
+  `station.social_connector.credential.v1` envelope and the separate
+  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` contract;
+- missing or malformed encryption config fails closed before DB work;
+- readback returns provider/status/timestamp/category metadata only;
+- dormant live provider posting service and document composer were deleted;
+- active `/social/*` routes remain authenticated, paused/readback-only, and
+  fail closed before social table writes or provider calls;
+- no OAuth, provider calls, posting, queues/workers, billing, credential UI,
+  package/lockfile changes, public syndication, or social-readiness unpause was
+  added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 22 focused social credential, route, UI, and auth tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts` | Pass | 88 archive connector guard tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| Scoped active-code source scan | Pass | No provider `fetch`, dispatch, legacy social table writes, OAuth redirect/token-exchange calls, queues/workers, billing, credential UI, or live composer references in active PR500A surfaces. |
+| Package/lockfile scan | Pass | No `package.json`, package-specific manifest, or lockfile diff. |
+| Deleted-helper source scan | Pass | No active non-test imports of deleted social service/composer helpers. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR501 Discern Companion UI Delta Revalidation
 
 ARIADNE completed the PR501 human-eye companion/UI revalidation on 2026-07-06:

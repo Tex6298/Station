@@ -66,6 +66,10 @@ export type PublicSeminarRecordStatus = "draft" | "ready" | "published" | "cance
 export type PublicSeminarRecordVisibility = "private" | "public";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
+export type SocialConnectorProvider = "bluesky";
+export type SocialConnectorPurpose = "social_connector";
+export type SocialConnectorCredentialCategory = "manual_credential";
+export type SocialConnectorCredentialStatus = "active" | "revoked";
 export type ArchiveConnectorProvider = "reddit" | "discord";
 export type ArchiveConnectorPurpose = "archive_connector";
 export type ArchiveConnectorCredentialStatus = "active" | "revoked";
@@ -1605,6 +1609,33 @@ export interface Database {
           connected_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["social_connections"]["Insert"]>;
+      };
+      social_connector_credentials: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          provider: SocialConnectorProvider;
+          purpose: SocialConnectorPurpose;
+          credential_category: SocialConnectorCredentialCategory;
+          encrypted_credential: Record<string, unknown>;
+          credential_fingerprint: string;
+          status: SocialConnectorCredentialStatus;
+          created_at: string;
+          updated_at: string;
+          rotated_at: string | null;
+          revoked_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["social_connector_credentials"]["Row"], "id" | "purpose" | "credential_category" | "status" | "created_at" | "updated_at" | "rotated_at" | "revoked_at"> & {
+          id?: string;
+          purpose?: SocialConnectorPurpose;
+          credential_category?: SocialConnectorCredentialCategory;
+          status?: SocialConnectorCredentialStatus;
+          created_at?: string;
+          updated_at?: string;
+          rotated_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["social_connector_credentials"]["Insert"]>;
       };
       social_posts: {
         Row: {

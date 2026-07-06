@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -279,4 +280,14 @@ test("legacy social action routes fail closed before social table writes or prov
   } finally {
     setSupabaseAdminForTests(null);
   }
+});
+
+test("social routes do not import live posting helpers or credential storage", () => {
+  const routeSource = readFileSync("apps/api/src/routes/social.ts", "utf8");
+
+  assert.equal(existsSync("apps/api/src/services/social.service.ts"), false);
+  assert.match(routeSource, /socialRouter\.get\("\/readiness"/);
+  assert.match(routeSource, /social_connectors_paused/);
+  assert.doesNotMatch(routeSource, /socialConnectorCredential|social_connector_credentials/i);
+  assert.doesNotMatch(routeSource, /social_connections|social_posts|dispatchPost|postTo[A-Z]|fetch\(|new Queue|Worker\(|emitWebhook|billingClient/i);
 });

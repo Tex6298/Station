@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500A | Social Connector Credential Contract | DAEDALUS / A2 | Open implementation; add only social-specific encrypted credential storage plus legacy live-code quarantine while Social Publishing remains paused/readback-only. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md` |
+| PR500A | Social Connector Credential Contract | ARGUS / A3 | Open review; social-specific encrypted credential storage and dormant live-code quarantine are implemented while Social Publishing remains paused/readback-only. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500A implementation | Social Connector Credential Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; migration 072, social-specific AES-256-GCM storage helpers/tests, DB types, and deletion of dormant live social service/composer are implemented without OAuth, provider calls, posting, queues/workers, billing, credential UI, package changes, public syndication, or social-readiness unpause. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md` |
 | PR500A opened | Social Connector Credential Contract | MIMIR -> DAEDALUS | Open; implement the ARGUS-accepted encrypted social credential storage contract and dormant live-code quarantine without OAuth, provider calls, posting, queues/workers, billing, credential UI, or public syndication. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md` |
 | PR501 closeout | Discern Companion UI Delta Revalidation | MIMIR | Closed accepted as `CLOSE_PR501_NO_REMAINING_SAFE_DELTA`; no PR501A implementation lane opens. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_CLOSEOUT.md` |
 | PR501 result | Discern Companion UI Delta Revalidation | MIMIR -> ARIADNE -> MIMIR | Close as `CLOSE_PR501_NO_REMAINING_SAFE_DELTA`; hosted current-route proof at `a8a384c9452e` passed desktop/375px/390px Companion Home hierarchy, accepted shortcuts, local return-card actions, aggregate Companion Continuity rail, mobile fit, and privacy/product-boundary scans. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_RESULT.md` |
