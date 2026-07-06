@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497B | Companion Home Initial Scroll Fix Closeout | MIMIR / A1 | ARIADNE returned `PASS_PR497B_HOSTED_RERUN_CLOSEOUT`; hosted active-thread load stayed at document `scrollY` `0` on desktop/375px/390px and privacy/mobile/return-card checks passed. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_RESULT.md` |
+| PR496 | Workspace Export Package Contract Preflight | ARGUS / A3 | Resumed; PR497 companion UI correction is closed, so ARGUS should run the parked hostile preflight for owner-only workspace export package contract. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESUME_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497 closeout | Companion UI Correction | MIMIR | Closed accepted; PR497 audit, PR497A companion-home translation, PR497B scroll containment, ARGUS reviews, and ARIADNE hosted desktop/375px/390px rerun passed. | `docs/roadmap/PR497_COMPANION_UI_CORRECTION_CLOSEOUT.md` |
+| PR496 resumed | Workspace Export Package Contract Preflight | MIMIR -> ARGUS | Open; PR496 was parked only for the Discern correction, and PR497 is now closed with hosted proof. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESUME_ARGUS.md` |
 | PR497B hosted rerun | Companion Home Initial Scroll Fix Hosted Rerun | ARIADNE -> MIMIR | Passed hosted rerun; active-thread persona home no longer lands below the Companion Home first viewport, and return-card locality, mobile fit, and privacy/scope checks passed. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_RESULT.md` |
 | PR497B hosted rerun opened | Companion Home Initial Scroll Fix Hosted Rerun | MIMIR -> ARIADNE | Open; ARGUS accepted PR497B, so ARIADNE should prove hosted active-thread landing behavior on desktop/375px/390px before closeout. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_ARIADNE.md` |
 | PR497B review | Companion Home Initial Scroll Fix | ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_IMPLEMENTATION`; `PersonaChat` no longer uses page-level `scrollIntoView`, auto-scroll is contained to the chat thread, send/stream and return-card behavior did not drift, and hosted rerun is required before closeout. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REVIEW_RESULT.md` |

@@ -4,6 +4,47 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR497 closed and PR496 resumed
+
+MIMIR closes the companion UI correction chain:
+
+`docs/roadmap/PR497_COMPANION_UI_CORRECTION_CLOSEOUT.md`
+
+Decision:
+
+- PR497/PR497A/PR497B are accepted and closed.
+- ARIADNE's final hosted rerun passed desktop, `375px`, and `390px`.
+- Active-thread persona home load now stays at document `scrollY` `0` and
+  preserves the companion-first first viewport.
+- PR496 was parked only because the Discern correction wakeup had not been
+  processed yet.
+- With PR497 closed, PR496 is the next queued customer-facing product-depth
+  lane.
+
+Current lane:
+
+```text
+PR496 - Workspace Export Package Contract Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT_RESUMED
+```
+
+Current baton:
+
+- ARGUS should run the hostile preflight from:
+  `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_ARGUS.md`.
+- The resume packet is:
+  `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESUME_ARGUS.md`.
+- ARGUS should accept the smallest safe owner-only workspace export package
+  contract or return the exact design-first/blocker/rejection reason.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR497B hosted rerun passed
 
 ARIADNE completed the hosted PR497B rerun:
