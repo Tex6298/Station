@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496C | Workspace Export Readback UI Boundary Hosted Rerun | MIMIR / A1 | Passed hosted rerun; `/studio/export` owner create/read/bundle, owner-only protection, selected-row package-id-free readback, desktop/375px/390px fit, and privacy/product-boundary scans passed. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_RESULT.md` |
+| PR498 | Public Seminar Detail Readback Preflight | ARGUS / A3 | Open; hostile preflight for the next customer-facing Phase 3 seminar/lecture slice after PR495G durable public seminar cards and PR496 workspace export closeout. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496 closeout | Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; PR496A owner export contract, PR496B hosted create repair, PR496C UI boundary repair, and final hosted owner create/read/bundle plus desktop/mobile proof passed. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_CLOSEOUT.md` |
 | PR496C hosted rerun | Workspace Export Readback UI Boundary Hosted Rerun | ARIADNE -> MIMIR | Passed hosted closeout; selected-row bundle readback is local, package-id-free, and visible on desktop, `375px`, and `390px`, while owner create/read/bundle and owner-only protection passed. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_RESULT.md` |
 | PR496C hosted rerun opened | Workspace Export Readback UI Boundary Hosted Rerun | MIMIR -> ARIADNE | Open; prove hosted `/studio/export` selected-row bundle readback, no internal package id, owner-only protection, high-level bundle content, desktop/mobile fit, and no product-boundary drift. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_ARIADNE.md` |
 | PR496C review | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION`; `/studio/export` hides owner-visible internal package ids, renders bundle feedback in the selected row, and stays web-only with no API/export scope drift. Hosted rerun required. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md` |

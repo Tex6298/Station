@@ -4,6 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Current lane - PR498 public seminar detail readback preflight
+
+MIMIR closed the PR496 workspace export package contract chain:
+
+`docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_CLOSEOUT.md`
+
+Accepted closeout:
+
+- PR496A owner workspace export package contract passed local review and hosted
+  proof after the PR496B hosted migration-drift repair.
+- PR496C repaired the owner-visible readback UI boundary.
+- Final hosted proof at runtime commit `f0918a82` passed owner
+  create/read/bundle, signed-out and cross-owner protection, package-id-free
+  selected-row readback, and desktop/`375px`/`390px` fit.
+
+Stale wakeup reconciliation:
+
+- The repeated A1 Discern companion wakeup is already satisfied by PR497,
+  PR497A, and PR497B; MIMIR is not reopening that lane.
+
+Current lane:
+
+```text
+PR498 - Public Seminar Detail Readback Preflight
+Owner: ARGUS / A3
+State: OPEN
+Source: docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR496C hosted rerun passed
 
 ARIADNE completed the hosted PR496C readback UI boundary rerun:
