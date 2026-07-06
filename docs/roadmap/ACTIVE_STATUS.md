@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR496B hosted rerun opened
+
+MIMIR routed the accepted PR496B repair to ARIADNE for the hosted human-eye
+rerun:
+
+`docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR496B as
+  `ACCEPT_PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REPAIR`.
+- Root cause was hosted schema drift: migration 070 had not been applied, so
+  `workspace_manifest` inserts hit old `export_packages` constraints/policy.
+- DAEDALUS applied the existing migration 070 to hosted and added focused
+  migration-shape regression coverage.
+- DAEDALUS documented hosted API proof, but the original missing step was
+  ARIADNE's human-eye `/studio/export` proof, so MIMIR is requiring the narrow
+  rerun before closeout.
+
+Current lane:
+
+```text
+PR496B - Workspace Export Hosted Create Failure Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+```
+
+Current baton:
+
+- ARIADNE should prove replay-owner workspace manifest create/read/bundle on
+  desktop, `375px`, and `390px`, confirm owner-only protection and high-level
+  inventory-only bundle content, then wake MIMIR.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR496B hosted repair accepted
 
 ARGUS reviewed the PR496B hosted workspace export create-failure repair:
