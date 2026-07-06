@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496C | Workspace Export Readback UI Boundary | DAEDALUS / A2 | Open implementation; patch `/studio/export` so bundle readback hides internal package ids and gives local/obvious mobile feedback without changing export API semantics or scope. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_DAEDALUS.md` |
+| PR496C | Workspace Export Readback UI Boundary | ARGUS / A3 | Open review; DAEDALUS patched `/studio/export` so bundle loading/readback is local to the selected package row and internal package ids are no longer rendered in owner-visible bundle copy. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496C implementation | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; web-only package-id hiding and local package-row bundle feedback implemented with focused Studio UI coverage. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md` |
 | PR496C opened | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS | Open; web-only repair for `/studio/export` bundle readback package-id leak and mobile feedback locality after ARIADNE proved backend create/read/bundle is fixed. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_DAEDALUS.md` |
 | PR496B hosted rerun | Workspace Export Hosted Create Failure Rerun | ARIADNE -> MIMIR | Product defect; backend create/read/bundle and owner-only protection passed on hosted `42938f5c`, but bundle readback UI exposes the internal package id and mobile feedback is not local. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_RESULT.md` |
 | PR496B hosted rerun opened | Workspace Export Hosted Create Failure Rerun | MIMIR -> ARIADNE | Open; run the human-eye `/studio/export` rerun after ARGUS accepted the migration 070 repair, proving owner create/read/bundle, owner-only protection, high-level inventory-only readback, desktop/mobile fit, and no leak/overclaim. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_ARIADNE.md` |

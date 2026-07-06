@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR496C ready for ARGUS review
+
+DAEDALUS implemented the web-only workspace export readback UI repair:
+
+`docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Decision:
+
+- `/studio/export` no longer renders the internal package id in workspace
+  bundle readback copy.
+- `View bundle files` now gives immediate local loading feedback inside the
+  selected package row, then renders the returned file summaries in that same
+  row after readback succeeds.
+- The package id remains only as internal component/API state for requesting
+  `/exports/:id/bundle` and matching the selected row.
+- Focused Studio UI source coverage now proves the local feedback structure,
+  the no-visible-package-id copy, and the still-bounded workspace export scope.
+- No API, schema, migration 070, RLS, owner-only protection, bundle file
+  content, bundle file names, full archive, original-file, PDF/binary,
+  backup/restore, public export, share/signed URL, provider/runtime, queue,
+  Redis, Cloudflare, billing, Stripe, Archive connector, OAuth/API credential,
+  public chat, or broad Studio shell behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR496C - Workspace Export Readback UI Boundary
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review the web-only package-id hiding, local/mobile readback
+  feedback, focused UI coverage, and no export-scope drift.
+- ARGUS should wake MIMIR with acceptance or DAEDALUS with concrete fixes.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR routing - PR496C opened for DAEDALUS
 
 MIMIR opened the narrow web-only readback UI repair lane:

@@ -4,6 +4,36 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496C Workspace Export Readback UI Boundary
+
+DAEDALUS completed the PR496C web-only UI repair on 2026-07-06:
+
+- `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/studio/export` no longer renders the internal workspace export package id
+  in owner-visible bundle readback copy;
+- bundle loading and readback feedback now renders inside the selected package
+  row, so mobile feedback is local after tapping `View bundle files`;
+- focused Studio UI source coverage proves the local feedback structure,
+  no-visible-package-id copy, accepted three-file readback surface, and no
+  export-scope expansion.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 tests passed, including the focused export workspace source regression. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Web typecheck ran; API typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+`test:exports` was not required because PR496C did not change API/shared export
+behavior.
+
 ## PR496B Workspace Export Hosted Create Failure Rerun
 
 ARIADNE completed hosted PR496B proof on 2026-07-06:

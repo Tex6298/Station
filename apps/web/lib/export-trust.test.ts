@@ -93,6 +93,7 @@ test("workspace export scope readback excludes private and infrastructure materi
   assert.match(rendered, /Storage paths/);
   assert.match(rendered, /Credentials/);
   assert.match(readback.boundary, /Owner-only manifest readback/);
+  assert.match(rendered, /package IDs, table names, SQL details, hosted logs, and stack traces are not shown/);
   assert.doesNotMatch(rendered, /raw private source body:|archive snippet:|signed URL: https:\/\/|provider payload:|secret_[A-Za-z0-9]/i);
 });
 
@@ -107,9 +108,16 @@ test("workspace export scope readback is wired into Studio export with bounded o
   assert.match(source, /apiGet<\{ bundle: ArchiveExportBundle \}>/);
   assert.match(source, /Create workspace manifest/);
   assert.match(source, /owner-only JSON\/Markdown manifest/);
+  assert.match(source, /loadingBundlePackageId === item\.id/);
+  assert.match(source, /WorkspaceBundleLoading/);
+  assert.match(source, /bundleReadback\?\.packageId === item\.id/);
+  assert.match(source, /WorkspaceBundleReadback files=\{activeBundleReadback\.files\}/);
+  assert.match(source, /Loading the selected workspace manifest bundle files/);
+  assert.match(source, /Selected workspace manifest bundle contains only these owner-only readback files/);
   assert.match(source, /not a full archive, backup, restore workflow, PDF, binary package, public download, share link, signed URL, or background job/);
   assert.match(source, /futureUnavailable\.map/);
   assert.doesNotMatch(source, /futureUnavailable\.slice/);
+  assert.doesNotMatch(source, /Package \{bundleReadback\.packageId\}/);
   assert.doesNotMatch(source, /apiPatch|apiDelete|fetch\(|\/exports\/public|shareUrl|signedUrl|restoreWorkspace|createBackup|createPdf|createBinary/i);
 });
 

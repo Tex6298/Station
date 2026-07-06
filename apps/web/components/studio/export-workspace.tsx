@@ -32,6 +32,7 @@ export function ExportWorkspace() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bundleReadback, setBundleReadback] = useState<{ packageId: string; files: string[] } | null>(null);
+  const [loadingBundlePackageId, setLoadingBundlePackageId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +65,7 @@ export function ExportWorkspace() {
     setCreating(true);
     setError(null);
     setBundleReadback(null);
+    setLoadingBundlePackageId(null);
     try {
       const data = await apiPost<{ exportPackage: ArchiveExportPackage }>("/exports/workspace", {}, token);
       setPackages((current) => [data.exportPackage, ...current]);
@@ -77,6 +79,8 @@ export function ExportWorkspace() {
   async function loadWorkspaceBundle(packageId: string) {
     if (!token) return;
     setError(null);
+    setBundleReadback(null);
+    setLoadingBundlePackageId(packageId);
     try {
       const data = await apiGet<{ bundle: ArchiveExportBundle }>(`/exports/${packageId}/bundle`, token);
       setBundleReadback({
@@ -85,6 +89,8 @@ export function ExportWorkspace() {
       });
     } catch {
       setError("Could not load workspace manifest bundle readback.");
+    } finally {
+      setLoadingBundlePackageId(null);
     }
   }
 
@@ -113,6 +119,7 @@ export function ExportWorkspace() {
           creating={creating}
           error={error}
           bundleReadback={bundleReadback}
+          loadingBundlePackageId={loadingBundlePackageId}
           onCreate={createWorkspaceManifest}
           onLoadBundle={loadWorkspaceBundle}
         />
@@ -172,6 +179,7 @@ function WorkspaceManifestControls({
   creating,
   error,
   bundleReadback,
+  loadingBundlePackageId,
   onCreate,
   onLoadBundle,
 }: {
@@ -180,6 +188,7 @@ function WorkspaceManifestControls({
   creating: boolean;
   error: string | null;
   bundleReadback: { packageId: string; files: string[] } | null;
+  loadingBundlePackageId: string | null;
   onCreate: () => void;
   onLoadBundle: (packageId: string) => void;
 }) {
@@ -207,6 +216,8 @@ function WorkspaceManifestControls({
         <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
           {packages.map((item) => {
             const copy = exportPackageTrustCopy(item, "workspace");
+            const activeBundleReadback = bundleReadback?.packageId === item.id ? bundleReadback : null;
+            const loadingBundle = loadingBundlePackageId === item.id;
             return (
               <article key={item.id} style={scopeRow}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
@@ -220,28 +231,41 @@ function WorkspaceManifestControls({
                   <button
                     type="button"
                     onClick={() => onLoadBundle(item.id)}
-                    disabled={item.status !== "completed"}
-                    style={item.status === "completed" ? miniButton : disabledButton}
+                    disabled={item.status !== "completed" || loadingBundle}
+                    style={item.status === "completed" && !loadingBundle ? miniButton : disabledButton}
                   >
-                    View bundle files
+                    {loadingBundle ? "Loading bundle files" : activeBundleReadback ? "Bundle files shown" : "View bundle files"}
                   </button>
                 </div>
+                {loadingBundle && <WorkspaceBundleLoading />}
+                {activeBundleReadback && <WorkspaceBundleReadback files={activeBundleReadback.files} />}
               </article>
             );
           })}
         </div>
       )}
-
-      {bundleReadback && (
-        <div style={{ ...scopeRow, marginTop: 12 }}>
-          <h3 style={subhead}>Bundle file readback</h3>
-          <p style={scopeCopy}>Package {bundleReadback.packageId} contains only these owner-only readback files.</p>
-          <ul style={{ margin: "0.5rem 0 0", paddingLeft: 18, color: "#cbd5e1", fontSize: 12, lineHeight: 1.6 }}>
-            {bundleReadback.files.map((file) => <li key={file}>{file}</li>)}
-          </ul>
-        </div>
-      )}
     </section>
+  );
+}
+
+function WorkspaceBundleLoading() {
+  return (
+    <div style={bundleReadbackPanel} aria-live="polite">
+      <h3 style={subhead}>Bundle file readback</h3>
+      <p style={scopeCopy}>Loading the selected workspace manifest bundle files.</p>
+    </div>
+  );
+}
+
+function WorkspaceBundleReadback({ files }: { files: string[] }) {
+  return (
+    <div style={bundleReadbackPanel} aria-live="polite">
+      <h3 style={subhead}>Bundle file readback</h3>
+      <p style={scopeCopy}>Selected workspace manifest bundle contains only these owner-only readback files.</p>
+      <ul style={{ margin: "0.5rem 0 0", paddingLeft: 18, color: "#cbd5e1", fontSize: 12, lineHeight: 1.6 }}>
+        {files.map((file) => <li key={file}>{file}</li>)}
+      </ul>
+    </div>
   );
 }
 
@@ -417,6 +441,12 @@ const scopeRow = {
   borderRadius: 8,
   background: "#0d1420",
   padding: 12,
+};
+
+const bundleReadbackPanel = {
+  borderTop: "1px solid #202938",
+  marginTop: 12,
+  paddingTop: 12,
 };
 
 const scopePillRow = {
