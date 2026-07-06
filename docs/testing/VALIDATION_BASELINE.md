@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR499B Public Seminar Schedule Route Defect Repair
+
+DAEDALUS completed the PR499B hosted migration-only repair on 2026-07-06:
+
+- `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md`
+
+Validation result:
+`MIGRATION_071_APPLIED_READY_FOR_PR499A_RERUN`.
+
+Reason:
+
+- hosted schema probe confirmed migration 071 drift: schedule columns were
+  `0/3` present, schedule constraint missing, and schedule index missing;
+- DAEDALUS applied only
+  `infra/supabase/migrations/071_public_seminar_schedule_metadata.sql` through
+  the existing local `SUPABASE_POOLER_URL` path;
+- post-repair schema probe found schedule columns `3/3`, schedule constraint
+  present, and schedule index present;
+- hosted replay-owner sign-in returned `200`;
+- hosted `GET /events/seminars/records` returned `200`, response code was
+  absent, and record count was `2`;
+- no repo code, route logic, migration file, web UI, tests, or product behavior
+  changed;
+- no secrets, connection strings, bearer tokens, raw owner ids, private/source
+  bodies, SQL errors, table-error details, or stack traces were printed in docs
+  or commit output.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted schema probe before repair | Pass | Proved migration 071 was missing: schedule columns `0/3`, constraint missing, index missing. |
+| Hosted migration apply | Pass | Applied only `071_public_seminar_schedule_metadata.sql`. |
+| Hosted schema probe after repair | Pass | Schedule columns `3/3`, constraint present, index present. |
+| Hosted owner route probe | Pass | Sign-in `200`; `GET /events/seminars/records` `200`; no `seminar_records_unavailable`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+No code tests, typecheck, or lint were run because this is a migration-only
+hosted repair with docs-only repo updates.
+
 ## PR499A Public Seminar Schedule Metadata Hosted Rehearsal
 
 ARIADNE completed the hosted PR499A public seminar schedule metadata rehearsal

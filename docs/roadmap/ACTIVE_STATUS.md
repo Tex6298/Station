@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499B public seminar schedule route defect
+## Current lane - PR499B public seminar schedule route defect repaired
+
+DAEDALUS completed the PR499B hosted migration-only repair:
+
+`docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md`
+
+Result:
+
+```text
+MIGRATION_071_APPLIED_READY_FOR_PR499A_RERUN
+```
+
+Reason:
+
+- Hosted schema probe confirmed migration 071 drift: schedule columns were
+  `0/3` present, the schedule constraint was missing, and the schedule index
+  was missing.
+- DAEDALUS applied only
+  `infra/supabase/migrations/071_public_seminar_schedule_metadata.sql` through
+  the local `SUPABASE_POOLER_URL` path with a temporary `pg@8.13.1` client under
+  the OS temp directory.
+- Post-repair schema probe found schedule columns `3/3`, the schedule
+  constraint present, and the schedule index present.
+- Hosted route probe then passed: replay owner sign-in returned `200`,
+  `GET /events/seminars/records` returned `200`, response code was absent, and
+  record count was `2`.
+- No repo code, route logic, migration file, web UI, tests, or product behavior
+  changed.
+- No secrets, connection strings, bearer tokens, raw owner ids, private/source
+  bodies, SQL errors, table-error details, or stack traces were printed in docs
+  or commit output.
+
+Current lane:
+
+```text
+PR499B - Public Seminar Schedule Route Defect
+Owner: MIMIR / A1
+State: MIGRATION_071_APPLIED_READY_FOR_PR499A_RERUN
+Source: docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR499B public seminar schedule route defect opened
 
 MIMIR routed the hosted PR499A schedule blocker to DAEDALUS:
 
@@ -16,27 +64,11 @@ Reason:
 - Replay owner auth passed, and ordinary owner reads passed.
 - Hosted `GET /events/seminars/records` returned
   `503 seminar_records_unavailable`.
-- The failing owner records route blocks schedule set/update/clear, public
+- The failing owner records route blocked schedule set/update/clear, public
   schedule readback, and browser/mobile proof.
-- The likely first hypothesis is hosted migration 071 drift because the owner
+- The likely first hypothesis was hosted migration 071 drift because the owner
   list route selects `scheduled_starts_at`, `scheduled_time_zone`, and
   `scheduled_duration_minutes`.
-
-Current lane:
-
-```text
-PR499B - Public Seminar Schedule Route Defect
-Owner: DAEDALUS / A2
-State: OPEN_REPAIR
-Source: docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_DAEDALUS.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
-```
 
 ## Previous lane - PR499A hosted schedule route defect
 

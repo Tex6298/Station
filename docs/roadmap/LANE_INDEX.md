@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499B | Public Seminar Schedule Route Defect | DAEDALUS / A2 | Open repair; hosted PR499A proof is blocked because `GET /events/seminars/records` returns `503 seminar_records_unavailable` despite fresh web/API and valid owner auth. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_DAEDALUS.md` |
+| PR499B | Public Seminar Schedule Route Defect | MIMIR / A1 | Migration 071 applied; hosted schema probe and owner records route now pass, so PR499A hosted schedule proof is ready for rerun. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR499B repair | Public Seminar Schedule Route Defect | MIMIR -> DAEDALUS -> MIMIR | Migration-only repair complete; hosted migration 071 was missing, DAEDALUS applied the accepted migration through the pooler path, schema probe now shows schedule columns/constraint/index present, and `GET /events/seminars/records` now returns `200`. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md` |
 | PR499B opened | Public Seminar Schedule Route Defect | ARIADNE -> MIMIR -> DAEDALUS | Open; diagnose hosted migration 071 drift first, apply the existing accepted migration if that is the only blocker, or make the smallest owner seminar records/schedule route repair if code is actually faulty. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_DAEDALUS.md` |
 | PR499A hosted rehearsal | Public Seminar Schedule Metadata Hosted Rehearsal | ARIADNE -> MIMIR | Schedule route defect; hosted web/API were fresh at `a8a384c9452e`, replay owner auth and ordinary owner reads passed, but owner seminar records returned `503 seminar_records_unavailable` before schedule mutation/public readback/browser proof. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_RESULT.md` |
 | PR499A hosted rehearsal opened | Public Seminar Schedule Metadata Hosted Rehearsal | MIMIR -> ARIADNE | Open; prove hosted runtime freshness, migration 071 availability through owner schedule behavior, owner set/update/clear, durable-only public schedule readback, rollback/clear removal, desktop/mobile fit, and no privacy/product-boundary drift. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REHEARSAL_ARIADNE.md` |
