@@ -18,7 +18,7 @@ import {
 } from "./live-events-route";
 
 const BANNED_CLAIMS =
-  /\b(?:RSVP|ticket|tickets|payment|Stripe|attendance|attend|reminder|calendar|livestream|realtime|live room|recording|transcript|provider|private runtime|WebSocket|SSE)\b/i;
+  /\b(?:RSVP|ticket|tickets|payment|Stripe|attendance|attend|host|hosting|schedule|scheduling|reminder|calendar|livestream|stream|media|realtime|live room|room|recording|transcript|provider|private runtime|launch readiness|delivery guarantee|WebSocket|SSE)\b/i;
 
 test("public seminars copy stays readback-only", () => {
   for (const copy of [

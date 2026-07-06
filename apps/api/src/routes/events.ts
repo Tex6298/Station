@@ -67,7 +67,7 @@ const PUBLIC_SEMINAR_ID_PATTERN = /^seminar_[a-f0-9]{16}$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-type ResolvedPublicSeminarCard = {
+export type ResolvedPublicSeminarCard = {
   sourceType: PublicSeminarSourceType;
   sourceId: string;
   card: PublicSeminarCard;
@@ -407,6 +407,68 @@ async function resolvePublicSeminarCard(
   return null;
 }
 
+export async function resolveDurablePublicSeminarRecordCard(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  record: any
+): Promise<ResolvedPublicSeminarCard | null> {
+  if (
+    !record ||
+    record.source_type !== "document" ||
+    record.status !== "published" ||
+    record.visibility !== "public"
+  ) {
+    return null;
+  }
+
+  const { data: document, error } = await sb
+    .from("documents")
+    .select("id, status, visibility, space_id, author_user_id")
+    .eq("id", record.source_id)
+    .maybeSingle();
+
+  if (error) throw new Error("Could not resolve durable seminar source.");
+  if (
+    !document ||
+    document.author_user_id !== record.owner_user_id ||
+    document.status !== "published" ||
+    document.visibility !== "public"
+  ) {
+    return null;
+  }
+
+  const space = await loadPublicSpace(sb, document.space_id);
+  if (!space) return null;
+
+  const discussionHref = record.discussion_thread_id
+    ? await publicDiscussionHrefForDocument(sb, record.discussion_thread_id, document.id)
+    : null;
+  const featuredAt = record.updated_at ?? record.created_at ?? new Date(0).toISOString();
+  const safeSpace = {
+    ...space,
+    title: ownerSeminarText(space.title, 120) ?? "Public Space",
+  };
+  const card = seminarCard({
+    sourceType: "document",
+    label: "Public seminar",
+    title: ownerSeminarText(record.title, 160) ?? "Untitled public seminar",
+    description: ownerSeminarText(record.summary, 240),
+    href: `/space/${space.slug}/documents/${document.id}`,
+    discussionHref,
+    featuredAt,
+    publishedAt: featuredAt,
+    space: safeSpace,
+  });
+
+  return {
+    sourceType: "document",
+    sourceId: document.id,
+    card: {
+      ...card,
+      id: durablePublicSeminarCardId(record.id),
+    },
+  };
+}
+
 async function publicDocumentSeminarCard(
   sb: ReturnType<typeof getSupabaseAdmin>,
   item: any
@@ -442,6 +504,38 @@ async function publicDocumentSeminarCard(
       space,
     }),
   };
+}
+
+export function mergePublicSeminarCardsWithDurableCards(
+  sourceCards: ResolvedPublicSeminarCard[],
+  durableCards: ResolvedPublicSeminarCard[],
+  limit: number
+) {
+  const orderedDurable = [...durableCards].sort((left, right) =>
+    String(right.card.featuredAt).localeCompare(String(left.card.featuredAt))
+  );
+  const durableByKey = new Map<string, ResolvedPublicSeminarCard>();
+  for (const durable of orderedDurable) {
+    const key = seminarInterestKey(durable);
+    if (!durableByKey.has(key)) durableByKey.set(key, durable);
+  }
+
+  const usedKeys = new Set<string>();
+  const merged = sourceCards.map((source) => {
+    const key = seminarInterestKey(source);
+    const durable = durableByKey.get(key);
+    usedKeys.add(key);
+    return durable ?? source;
+  });
+
+  for (const durable of orderedDurable) {
+    const key = seminarInterestKey(durable);
+    if (usedKeys.has(key)) continue;
+    merged.push(durable);
+    usedKeys.add(key);
+  }
+
+  return merged.slice(0, Math.max(0, limit));
 }
 
 async function publicThreadSeminarCard(
@@ -540,7 +634,7 @@ async function applySeminarInterestReadback(
   });
 }
 
-function seminarInterestKey(resolved: Pick<ResolvedPublicSeminarCard, "sourceType" | "sourceId">) {
+export function seminarInterestKey(resolved: Pick<ResolvedPublicSeminarCard, "sourceType" | "sourceId">) {
   return `${resolved.sourceType}:${resolved.sourceId}`;
 }
 
@@ -656,6 +750,14 @@ function publicSeminarCardId(sourceType: PublicSeminarSourceType, href: string, 
   return `seminar_${digest}`;
 }
 
+export function durablePublicSeminarCardId(recordId: string) {
+  const digest = createHash("sha256")
+    .update(`station.public-seminar-record:v1:${recordId}`)
+    .digest("hex")
+    .slice(0, 16);
+  return `seminar_${digest}`;
+}
+
 function publicExcerpt(value?: string | null, max = 180) {
   if (!value) return null;
   const normalized = value.replace(/\s+/g, " ").trim();
@@ -668,8 +770,8 @@ function ownerSeminarText(value?: string | null, max = 180) {
   const normalized = value
     .replace(/\s+/g, " ")
     .replace(/bearer\s+[a-z0-9._~+/=-]+/gi, "[redacted]")
-    .replace(/(?:authorization|cookie|set-cookie|x-api-key|api[_-]?key|token|secret|password)\s*[:=]\s*[^,\s]+/gi, "[redacted]")
-    .replace(/(?:source_id|owner_user_id|author_user_id|user_id|discussion_thread_id)\s*[:=]\s*[^,\s]+/gi, "[redacted]")
+    .replace(/\b(?:authorization|cookie|set-cookie|x-api-key|api[_-]?key|token|secret|password)\b(?:\s*[:=]\s*|\s+)[^,\s]+/gi, "[redacted]")
+    .replace(/\b(?:source_id|owner_user_id|author_user_id|user_id|discussion_thread_id)\b(?:\s*[:=]\s*|\s+)[^,\s]+/gi, "[redacted]")
     .replace(/\b\d{1,3}(?:\.\d{1,3}){3}\b/g, "[redacted-ip]")
     .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
     .replace(/stack trace/gi, "[redacted]")

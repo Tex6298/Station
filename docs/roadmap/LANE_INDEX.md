@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495E | Durable Public Card Serializer Contract | DAEDALUS / A2 | Accepted preflight; implement only the tested server-side durable public-card serializer plus merge/dedupe/interest-key contract for eligible published/public durable document records, without enabling public `/events/seminars` sourcing or owner publish. | `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_RESULT.md` |
+| PR495E | Durable Public Card Serializer Contract | ARGUS / A3 | Ready for review; DAEDALUS added the helper-only durable public-card serializer, digest card-id helper, source-key merge/dedupe helper, source-derived interest-key tests, and static no-drift checks without enabling public `/events/seminars` durable sourcing, public interest route changes, owner publish/rollback, migrations/RLS, UI controls, runtime, billing, hosting, scheduling, RSVP/tickets/payments/reminders/media/transcripts, or launch claims. | `docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_RESULT.md` |
 
 ## Recently Closed
 

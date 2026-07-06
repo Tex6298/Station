@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -10,7 +11,14 @@ import type {
   PublicSeminarsResponse,
 } from "@station/types";
 import { setSupabaseAdminForTests } from "../lib/supabase";
-import { eventsRouter } from "./events";
+import {
+  durablePublicSeminarCardId,
+  eventsRouter,
+  mergePublicSeminarCardsWithDurableCards,
+  resolveDurablePublicSeminarRecordCard,
+  seminarInterestKey,
+  type ResolvedPublicSeminarCard,
+} from "./events";
 
 process.env.NODE_ENV = "test";
 
@@ -460,6 +468,58 @@ function seedOwnerSeminarRecord(db: InMemorySupabase, recordOverrides: Row = {},
     discussion_thread_id: "thread-discussion",
     ...recordOverrides,
   });
+}
+
+function seedPublicSeminarDiscussion(db: InMemorySupabase, overrides: Row = {}) {
+  const categoryId = overrides.category_id ?? "category-public";
+  if (!db.rows("forum_categories").some((row) => row.id === categoryId)) {
+    db.insertRow("forum_categories", {
+      id: categoryId,
+      slug: "seminar-room",
+      title: "Seminar Room",
+    });
+  }
+  return db.insertRow("threads", {
+    id: overrides.id ?? "thread-discussion",
+    title: "Public Seminar Discussion",
+    body: "Public follow-up discussion.",
+    category_id: categoryId,
+    linked_document_id: overrides.linked_document_id ?? "doc-public",
+    ...overrides,
+  });
+}
+
+function resolvedSeminarCard(
+  sourceType: ResolvedPublicSeminarCard["sourceType"],
+  sourceId: string,
+  title: string,
+  featuredAt: string
+): ResolvedPublicSeminarCard {
+  const href = sourceType === "space"
+    ? `/space/${sourceId}`
+    : sourceType === "thread"
+      ? `/forums/seminar-room/${sourceId}`
+      : `/space/station-house/documents/${sourceId}`;
+
+  return {
+    sourceType,
+    sourceId,
+    card: {
+      id: `seminar_${sourceType}_${sourceId}`,
+      sourceType,
+      label: sourceType === "document" ? "Published readback" : "Public seminar",
+      title,
+      description: null,
+      href,
+      discussionHref: null,
+      featuredAt,
+      publishedAt: featuredAt,
+      interestCount: 0,
+      space: sourceType === "document"
+        ? { title: "Station House", href: "/space/station-house" }
+        : null,
+    },
+  };
 }
 
 test("owner seminar record routes require auth and creator tier", async () => {
@@ -984,6 +1044,396 @@ test("owner seminar record transition storage failures return bounded errors", a
   } finally {
     setSupabaseAdminForTests(null);
   }
+});
+
+test("durable public seminar serializer emits safe published public document cards", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+
+  try {
+    seedOwnerSeminarRecordSource(db, {
+      id: "doc-public",
+      title: "Source title should not be used",
+      body: "Source body should not be used.",
+      author_user_id: "owner-user",
+    });
+    seedPublicSeminarDiscussion(db, {
+      id: "thread-discussion",
+      linked_document_id: "doc-public",
+    });
+    const record = db.insertRow("public_seminar_records", {
+      id: "record-secret-id",
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Durable title Bearer super-token cookie=session authorization=header source_id=doc-public owner_user_id=owner-user discussion_thread_id=thread-discussion 10.0.0.1 550e8400-e29b-41d4-a716-446655440000 stack trace secret=value",
+      summary: "Summary token=abc password=hunter2 source_id=doc-public owner_user_id=owner-user discussion_thread_id=thread-discussion 10.0.0.2 stack trace secret=value",
+      status: "published",
+      visibility: "public",
+      discussion_thread_id: "thread-discussion",
+      created_at: "2026-07-05T11:00:00.000Z",
+      updated_at: "2026-07-05T12:00:00.000Z",
+    });
+    db.rows("spaces").find((row) => row.id === "space-public")!.title =
+      "Station House cookie=session source_id=doc-public owner_user_id=owner-user secret=value";
+
+    const resolved = await resolveDurablePublicSeminarRecordCard(db.client as any, record);
+
+    assert.ok(resolved);
+    assert.equal(resolved.sourceType, "document");
+    assert.equal(resolved.sourceId, "doc-public");
+    assert.equal(seminarInterestKey(resolved), "document:doc-public");
+    assert.equal(resolved.card.id, durablePublicSeminarCardId("record-secret-id"));
+    assert.match(resolved.card.id, /^seminar_[a-f0-9]{16}$/);
+    assert.equal(resolved.card.id.includes("record-secret-id"), false);
+    assert.equal(resolved.card.label, "Public seminar");
+    assert.equal(resolved.card.href, "/space/station-house/documents/doc-public");
+    assert.equal(resolved.card.discussionHref, "/forums/seminar-room/thread-discussion");
+    assert.equal(resolved.card.featuredAt, "2026-07-05T12:00:00.000Z");
+    assert.equal(resolved.card.publishedAt, "2026-07-05T12:00:00.000Z");
+    assert.equal(resolved.card.interestCount, 0);
+    assert.deepEqual(resolved.card.space, {
+      title: "Station House [redacted] [redacted] [redacted] [redacted]",
+      href: "/space/station-house",
+    });
+
+    const json = JSON.stringify(resolved.card);
+    for (const forbidden of [
+      "record-secret-id",
+      "owner-user",
+      "owner_user_id",
+      "source_id",
+      "discussion_thread_id",
+      "Bearer",
+      "super-token",
+      "cookie=session",
+      "authorization=header",
+      "token=abc",
+      "password=hunter2",
+      "secret=value",
+      "10.0.0.1",
+      "10.0.0.2",
+      "550e8400-e29b-41d4-a716-446655440000",
+      "stack trace",
+      "Source body should not be used",
+      "Source title should not be used",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("durable public seminar serializer rejects ineligible records and sources", async () => {
+  const scenarios: Array<{
+    name: string;
+    record?: Row;
+    source?: Row;
+    space?: Row;
+  }> = [
+    { name: "draft record", record: { status: "draft", visibility: "public" } },
+    { name: "ready record", record: { status: "ready", visibility: "public" } },
+    { name: "cancelled record", record: { status: "cancelled", visibility: "public" } },
+    { name: "private record", record: { status: "published", visibility: "private" } },
+    { name: "non-document record", record: { source_type: "thread", status: "published", visibility: "public" } },
+    { name: "private source", source: { visibility: "private" } },
+    { name: "community source", source: { visibility: "community" } },
+    { name: "unlisted source", source: { visibility: "unlisted" } },
+    { name: "draft source", source: { status: "draft" } },
+    { name: "archived source", source: { status: "archived" } },
+    { name: "no Space", source: { space_id: null } },
+    {
+      name: "private Space",
+      source: { space_id: "space-private" },
+      space: { id: "space-private", slug: "private-house", is_public: false },
+    },
+    {
+      name: "unsafe UUID Space",
+      source: { space_id: "space-uuid" },
+      space: { id: "space-uuid", slug: "550e8400-e29b-41d4-a716-446655440000", is_public: true },
+    },
+    {
+      name: "unsafe slug Space",
+      source: { space_id: "space-bad-slug" },
+      space: { id: "space-bad-slug", slug: "Bad Slug!", is_public: true },
+    },
+    { name: "owner mismatch", source: { author_user_id: "member-user" } },
+  ];
+
+  for (const scenario of scenarios) {
+    const db = new InMemorySupabase();
+    if (scenario.space) db.insertRow("spaces", scenario.space);
+    const source = seedOwnerSeminarRecordSource(db, {
+      id: "doc-public",
+      author_user_id: "owner-user",
+      ...scenario.source,
+    });
+    const record = db.insertRow("public_seminar_records", {
+      id: `record-${scenario.name.replace(/\W+/g, "-")}`,
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: source.id,
+      status: "published",
+      visibility: "public",
+      ...scenario.record,
+    });
+
+    const resolved = await resolveDurablePublicSeminarRecordCard(db.client as any, record);
+    assert.equal(resolved, null, scenario.name);
+  }
+});
+
+test("durable public seminar serializer only links public routeable discussions", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+
+  try {
+    seedOwnerSeminarRecordSource(db, { id: "doc-public", author_user_id: "owner-user" });
+    db.insertRow("forum_categories", {
+      id: "category-unsafe",
+      slug: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Unsafe Category",
+    });
+    db.insertRow("forum_categories", {
+      id: "category-private",
+      slug: "private-seminar",
+      title: "Private Seminar",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "subcommunity-private",
+      category_id: "category-private",
+      slug: "private-seminar",
+      title: "Private Seminar",
+      visibility: "community",
+      status: "active",
+    });
+
+    seedPublicSeminarDiscussion(db, { id: "thread-public", linked_document_id: "doc-public" });
+    seedPublicSeminarDiscussion(db, { id: "thread-hidden", linked_document_id: "doc-public", is_hidden: true });
+    seedPublicSeminarDiscussion(db, { id: "thread-wrong-document", linked_document_id: "doc-other" });
+    seedPublicSeminarDiscussion(db, {
+      id: "thread-unsafe-category",
+      linked_document_id: "doc-public",
+      category_id: "category-unsafe",
+    });
+    seedPublicSeminarDiscussion(db, {
+      id: "thread-private-subcommunity",
+      linked_document_id: "doc-public",
+      category_id: "category-private",
+    });
+
+    const baseRecord = {
+      id: "record-public-discussion",
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-public",
+      status: "published",
+      visibility: "public",
+      title: "Public discussion contract",
+    };
+
+    const publicResolved = await resolveDurablePublicSeminarRecordCard(db.client as any, {
+      ...baseRecord,
+      discussion_thread_id: "thread-public",
+    });
+    assert.equal(publicResolved?.card.discussionHref, "/forums/seminar-room/thread-public");
+
+    for (const discussion_thread_id of [
+      "thread-hidden",
+      "thread-wrong-document",
+      "thread-unsafe-category",
+      "thread-private-subcommunity",
+      "thread-missing",
+    ]) {
+      const resolved = await resolveDurablePublicSeminarRecordCard(db.client as any, {
+        ...baseRecord,
+        id: `record-${discussion_thread_id}`,
+        discussion_thread_id,
+      });
+      assert.ok(resolved, `${discussion_thread_id} should still serialize the document card`);
+      assert.equal(resolved.card.discussionHref, null, `${discussion_thread_id} should not link`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("durable public seminar merge contract dedupes by source interest key", () => {
+  const sourceDocument = resolvedSeminarCard("document", "doc-1", "Source document", "2026-07-05T10:00:00.000Z");
+  const sourceThread = resolvedSeminarCard("thread", "thread-1", "Source thread", "2026-07-05T09:00:00.000Z");
+  const sourceSpace = resolvedSeminarCard("space", "space-1", "Source Space", "2026-07-05T08:00:00.000Z");
+  const durableDocument = {
+    ...resolvedSeminarCard("document", "doc-1", "Durable document", "2026-07-05T12:00:00.000Z"),
+    card: {
+      ...resolvedSeminarCard("document", "doc-1", "Durable document", "2026-07-05T12:00:00.000Z").card,
+      id: durablePublicSeminarCardId("record-doc-1"),
+      label: "Public seminar",
+    },
+  };
+  const durableOnly = {
+    ...resolvedSeminarCard("document", "doc-2", "Durable only", "2026-07-05T13:00:00.000Z"),
+    card: {
+      ...resolvedSeminarCard("document", "doc-2", "Durable only", "2026-07-05T13:00:00.000Z").card,
+      id: durablePublicSeminarCardId("record-doc-2"),
+      label: "Public seminar",
+    },
+  };
+  const olderDurableDuplicate = {
+    ...resolvedSeminarCard("document", "doc-2", "Older durable only", "2026-07-05T11:00:00.000Z"),
+    card: {
+      ...resolvedSeminarCard("document", "doc-2", "Older durable only", "2026-07-05T11:00:00.000Z").card,
+      id: durablePublicSeminarCardId("record-doc-2-older"),
+      label: "Public seminar",
+    },
+  };
+
+  const merged = mergePublicSeminarCardsWithDurableCards(
+    [sourceDocument, sourceThread, sourceSpace],
+    [olderDurableDuplicate, durableOnly, durableDocument],
+    10
+  );
+
+  assert.deepEqual(merged.map((resolved) => resolved.card.title), [
+    "Durable document",
+    "Source thread",
+    "Source Space",
+    "Durable only",
+  ]);
+  assert.equal(merged[0].card.id, durablePublicSeminarCardId("record-doc-1"));
+  assert.equal(merged[1].card.id, sourceThread.card.id);
+  assert.equal(merged[2].card.id, sourceSpace.card.id);
+  assert.equal(merged[3].card.id, durablePublicSeminarCardId("record-doc-2"));
+  assert.equal(seminarInterestKey(merged[0]), "document:doc-1");
+  assert.equal(seminarInterestKey(merged[3]), "document:doc-2");
+
+  const limited = mergePublicSeminarCardsWithDurableCards(
+    [sourceDocument, sourceThread, sourceSpace],
+    [durableOnly, durableDocument],
+    2
+  );
+  assert.deepEqual(limited.map((resolved) => resolved.card.title), ["Durable document", "Source thread"]);
+});
+
+test("public seminar readback ignores durable records until enabled in a later lane", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecordSource(db, { id: "doc-public", author_user_id: "owner-user" });
+    const record = db.insertRow("public_seminar_records", {
+      id: "record-published-public",
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Durable public seminar",
+      summary: "This should not appear until durable readback is enabled.",
+      status: "published",
+      visibility: "public",
+    });
+
+    const empty = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars?limit=20");
+    assert.equal(empty.status, 200);
+    assert.equal(empty.body.source, "discover_feed_featured");
+    assert.deepEqual(empty.body.cards, []);
+
+    seedFeatured(db, "document", "doc-public");
+    const sourceDerived = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars?limit=20");
+    assert.equal(sourceDerived.status, 200);
+    assert.equal(sourceDerived.body.source, "discover_feed_featured");
+    assert.equal(sourceDerived.body.cards.length, 1);
+    assert.equal(sourceDerived.body.cards[0].label, "Published readback");
+    assert.notEqual(sourceDerived.body.cards[0].id, durablePublicSeminarCardId(record.id));
+
+    const marked = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "POST",
+      `/events/seminars/${sourceDerived.body.cards[0].id}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(marked.status, 200);
+    assert.equal(db.rows("public_seminar_interests")[0].source_type, "document");
+    assert.equal(db.rows("public_seminar_interests")[0].source_id, "doc-public");
+    assert.equal(db.rows("public_seminar_interests")[0].source_id === record.id, false);
+
+    const withdrawn = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "DELETE",
+      `/events/seminars/${sourceDerived.body.cards[0].id}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(withdrawn.status, 200);
+    assert.equal(db.rows("public_seminar_interests").length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("durable public seminar serializer storage failures are bounded", async () => {
+  const db = new InMemorySupabase();
+  const record = seedOwnerSeminarRecord(db, {
+    id: "record-public",
+    status: "published",
+    visibility: "public",
+  });
+
+  db.failNext(
+    "documents",
+    "select",
+    "table=documents owner_user_id=owner-user source_id=doc-public stack trace storage_path=secret"
+  );
+
+  await assert.rejects(
+    resolveDurablePublicSeminarRecordCard(db.client as any, record),
+    (error: any) => {
+      assert.equal(error.message, "Could not resolve durable seminar source.");
+      for (const forbidden of [
+        "documents",
+        "owner-user",
+        "doc-public",
+        "source_id",
+        "storage_path",
+        "secret",
+        "stack trace",
+      ]) {
+        assert.equal(error.message.includes(forbidden), false, `${forbidden} leaked`);
+      }
+      return true;
+    }
+  );
+});
+
+test("durable public seminar helper is not wired into public sourcing or interests", () => {
+  const routeSource = readFileSync("apps/api/src/routes/events.ts", "utf8");
+  const loadStart = routeSource.indexOf("async function loadPublicSeminarCards");
+  const targetStart = routeSource.indexOf("async function resolvePublicSeminarTargetByCardId");
+  const cardStart = routeSource.indexOf("async function resolvePublicSeminarCard");
+  const postInterestStart = routeSource.indexOf('eventsRouter.post("/seminars/:seminarId/interest"');
+  const transitionHelperStart = routeSource.indexOf("function transitionTarget");
+
+  assert.notEqual(loadStart, -1);
+  assert.notEqual(targetStart, -1);
+  assert.notEqual(cardStart, -1);
+  assert.notEqual(postInterestStart, -1);
+  assert.notEqual(transitionHelperStart, -1);
+  assert.equal(postInterestStart < transitionHelperStart, true);
+  assert.match(routeSource, /source:\s*"discover_feed_featured"/);
+  assert.match(routeSource, /export async function resolveDurablePublicSeminarRecordCard/);
+
+  const loadPublicSource = routeSource.slice(loadStart, targetStart);
+  assert.doesNotMatch(loadPublicSource, /public_seminar_records/);
+  assert.doesNotMatch(loadPublicSource, /resolveDurablePublicSeminarRecordCard/);
+  assert.doesNotMatch(loadPublicSource, /mergePublicSeminarCardsWithDurableCards/);
+
+  const targetLookupSource = routeSource.slice(targetStart, cardStart);
+  assert.doesNotMatch(targetLookupSource, /public_seminar_records/);
+  assert.doesNotMatch(targetLookupSource, /durablePublicSeminarCardId/);
+
+  const interestRouteSource = routeSource.slice(postInterestStart, transitionHelperStart);
+  assert.doesNotMatch(interestRouteSource, /public_seminar_records/);
+  assert.doesNotMatch(interestRouteSource, /durablePublicSeminarCardId/);
+  assert.doesNotMatch(interestRouteSource, /resolveDurablePublicSeminarRecordCard/);
 });
 
 test("public seminar readback returns only public routeable featured bundles", async () => {

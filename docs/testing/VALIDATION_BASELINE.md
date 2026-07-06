@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495E Durable Card Serializer Contract Implementation
+
+DAEDALUS implemented PR495E on 2026-07-06:
+
+- `docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- durable public seminar serializer is helper-only and is not wired into public
+  `/events/seminars`;
+- durable card ids are versioned digest handles, not raw durable record ids;
+- eligible durable rows must still point to owner-matching, public, published,
+  routeable source documents;
+- merge/dedupe keeps source-derived ordering semantics while allowing durable
+  document cards to win for the same source;
+- interest remains source-derived as `document:<source id>`;
+- public interest routes, owner publish/rollback, migrations/RLS/schema,
+  `/studio/publishing` behavior, runtime/provider/queue/Redis/Cloudflare,
+  billing, hosting, scheduling, RSVP, tickets, payments, reminders, media,
+  transcripts, and launch claims did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 31 focused tests passed, including durable serializer, eligible/ineligible rows, redaction, discussion href safety, merge/dedupe, current public route no-drift, source-derived interest behavior, public copy no-drift, and auth route guards. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` | Pass | 20 focused publishing/seminar readiness tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; Git reported CRLF normalization warnings only. |
+
 ## PR495E Durable Card Contract ARGUS Preflight
 
 ARGUS completed the PR495E hostile preflight on 2026-07-06:

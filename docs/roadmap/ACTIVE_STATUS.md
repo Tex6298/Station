@@ -4,6 +4,74 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR495E ready for ARGUS review
+
+DAEDALUS implemented the accepted PR495E contract-only serializer slice:
+
+`docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_RESULT.md`
+
+State:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Summary:
+
+- added a server-side durable public seminar record serializer helper for
+  eligible `published` + `public` document records only;
+- durable card ids use the versioned digest
+  `station.public-seminar-record:v1:<record id>` and never serialize raw record
+  ids;
+- durable document cards keep interest source-derived as
+  `document:<source document id>`;
+- added a pure merge/dedupe helper where durable document cards win over
+  source-derived document cards for the same source while thread and Space cards
+  keep their slots;
+- added focused API/static tests proving eligible/ineligible rows, redaction,
+  public discussion href safety, source-key dedupe, current public
+  `/events/seminars` no-drift, source-derived interest mark/withdraw, bounded
+  storage failures, and public-copy no-drift.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` passed.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Deliberate non-changes:
+
+- public `GET /events/seminars` remains sourced from discover feed only;
+- public seminar interest mark/withdraw remains source-derived;
+- owner publish/rollback, public controls, migrations/RLS, schema,
+  `/studio/publishing` UI behavior, runtime/provider/queue/Redis/Cloudflare,
+  billing, hosting/scheduling/RSVP/tickets/payments/reminders/media/transcripts,
+  and launch claims remain out of scope.
+
+Current lane:
+
+```text
+PR495E - Durable Public Card Serializer Contract
+Owner: ARGUS / A3
+State: REVIEW_IMPLEMENTATION
+```
+
+Current baton:
+
+- ARGUS should review the serializer, redaction, discussion href safety,
+  merge/dedupe slot behavior, source-derived interest key, and no-drift tests.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR495E accepted for serializer contract
 
 ARGUS completed the PR495E hostile preflight:
