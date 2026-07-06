@@ -4,6 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR497A opened for DAEDALUS
+
+MIMIR accepts ARIADNE's PR497 recommendation:
+
+`docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_CLOSEOUT.md`
+
+Accepted result:
+
+```text
+ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION
+```
+
+Decision:
+
+- The missing Discern delta is persona-home hierarchy and product feel, not
+  backend capability.
+- Tex should make the private persona home feel like a companion workspace
+  before it feels like an admin/readback console.
+- The implementation should be web-only, scoped to existing persona home/chat,
+  shortcut, context, and copy surfaces.
+- Broad shell rewrite, global Discern CSS, stale endpoints, placeholder
+  controls, runtime/prompt drift, provider/schema/billing/Redis/Cloudflare work,
+  and privacy boundary changes remain out of scope.
+
+Current lane:
+
+```text
+PR497A - Companion Home Usability Translation
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS has PR497A:
+  `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_DAEDALUS.md`.
+- DAEDALUS should implement the narrow web-only translation, produce a result,
+  and wake ARGUS for review.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest ARIADNE result - PR497 audit recommends companion-home translation
 
 ARIADNE completed the Discern UI usability parity audit:
