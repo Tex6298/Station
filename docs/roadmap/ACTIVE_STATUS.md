@@ -4,7 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A public seminar schedule metadata hosted rerun
+## Current lane - PR499A hosted schedule metadata rerun passed
+
+ARIADNE completed the hosted PR499A schedule metadata rerun:
+
+`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md`
+
+Result:
+
+```text
+PASS_PR499A_HOSTED_SEMINAR_SCHEDULE_CLOSEOUT
+```
+
+Decision:
+
+- Hosted web/API were fresh at runtime commit `a8a384c9452e`.
+- Replay owner sign-in, `GET /auth/me`, `GET /documents`, and
+  `GET /events/seminars/records` passed; owner seminar record count was `2`.
+- Owner schedule set/update/clear passed and preserved draft/private state.
+- Invalid ISO, invalid time zone, invalid duration, and extra-key bodies
+  returned bounded `400 seminar_record_invalid_schedule`.
+- Signed-out owner reads/mutations returned `401`; lower-tier and non-owner
+  lower-tier schedule patches returned `403`.
+- Ready, duplicate ready, publish, duplicate publish, rollback, and duplicate
+  rollback semantics passed.
+- Source-derived public cards stayed `schedule: null`; durable public list and
+  detail read back the stored schedule, clear removed schedule readback, and
+  rollback/private stale detail returned `404 seminar_not_found`.
+- Desktop, `375px`, and `390px` owner/list/detail views passed fit and
+  placement checks; schedule controls stayed inside the Seminar readiness panel.
+- API and visible UI leak/product-boundary scans passed.
+- The selected hosted record was restored to draft/private with no schedule
+  metadata.
+
+Current lane:
+
+```text
+PR499A - Public Seminar Schedule Metadata Hosted Rerun
+Owner: MIMIR / A1
+State: PASS_PR499A_HOSTED_SEMINAR_SCHEDULE_CLOSEOUT
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR499A public seminar schedule metadata hosted rerun opened
 
 MIMIR routed the PR499A hosted schedule metadata rerun to ARIADNE:
 

@@ -4,6 +4,52 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR499A Public Seminar Schedule Metadata Hosted Rerun
+
+ARIADNE completed the hosted PR499A public seminar schedule metadata rerun on
+2026-07-06:
+
+- `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md`
+
+Validation result:
+`PASS_PR499A_HOSTED_SEMINAR_SCHEDULE_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API health were ready at runtime commit `a8a384c9452e`, fresh for
+  the required `a8a384c9` runtime;
+- replay owner sign-in passed with `canon` tier;
+- ordinary owner reads passed, and `GET /events/seminars/records` returned
+  `200` with record count `2`;
+- schedule set/update/clear preserved the selected record's draft/private state;
+- invalid ISO, invalid time zone, invalid duration, and extra-key bodies
+  returned bounded `400 seminar_record_invalid_schedule`;
+- signed-out owner reads/mutations returned `401`; lower-tier and non-owner
+  lower-tier schedule patches returned `403`;
+- ready, duplicate ready, publish, duplicate publish, rollback, and duplicate
+  rollback semantics passed;
+- source-derived public cards stayed `schedule: null`;
+- durable public list/detail read back stored schedule metadata from the
+  serialized schedule shape, clear removed schedule readback, and rollback/
+  private stale detail returned `404 seminar_not_found`;
+- desktop, `375px`, and `390px` owner publishing, public list, and public detail
+  views passed fit checks with no horizontal overflow;
+- owner schedule controls stayed inside the Seminar readiness panel;
+- public API JSON and visible UI scans found no privacy leak or positive
+  event-delivery claim;
+- the selected hosted record was restored to draft/private with no schedule
+  metadata.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser rerun runner | Pass | 20 checks passed with no failed checks or caveats. |
+| Screenshot inspection | Pass | Desktop, `375px`, and `390px` owner/list/detail views fit without visible privacy/scope drift. |
+| Hosted API leak/scope scan | Pass | Public JSON and visible UI stayed bounded. |
+| Cleanup verification | Pass | Selected hosted record was restored to draft/private with no schedule metadata. |
+
+`pnpm typecheck` was not run because the result updated docs only and did not
+touch imports or scripts.
+
 ## PR499B Public Seminar Schedule Route Defect Repair
 
 DAEDALUS completed the PR499B hosted migration-only repair on 2026-07-06:

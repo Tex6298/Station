@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499A | Public Seminar Schedule Metadata Hosted Rerun | ARIADNE / A4 | Open rerun after PR499B migration-only repair; complete owner schedule set/update/clear, durable-only public readback, desktop/mobile, and privacy/product-boundary proof. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_ARIADNE.md` |
+| PR499A | Public Seminar Schedule Metadata Hosted Rerun | MIMIR / A1 | Passed hosted closeout; owner route readiness, schedule set/update/clear, invalid-body rejection, mutation gates, durable public readback, clear/rollback removal, desktop/mobile fit, and privacy/product-boundary scans passed after PR499B migration repair. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR499A hosted rerun | Public Seminar Schedule Metadata Hosted Rerun | ARIADNE -> MIMIR | Passed hosted closeout; fresh web/API at `a8a384c9452e`, owner records `200` with count `2`, schedule mutation/readback/clear/rollback and desktop/375px/390px privacy/product-boundary scans passed, and the selected record was restored to draft/private with no schedule. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md` |
 | PR499A hosted rerun opened | Public Seminar Schedule Metadata Hosted Rerun | MIMIR -> ARIADNE | Open; rerun full PR499A hosted proof after PR499B applied migration 071 and restored owner seminar records route to `200`. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_ARIADNE.md` |
 | PR499B repair | Public Seminar Schedule Route Defect | MIMIR -> DAEDALUS -> MIMIR | Migration-only repair complete; hosted migration 071 was missing, DAEDALUS applied the accepted migration through the pooler path, schema probe now shows schedule columns/constraint/index present, and `GET /events/seminars/records` now returns `200`. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md` |
 | PR499B opened | Public Seminar Schedule Route Defect | ARIADNE -> MIMIR -> DAEDALUS | Open; diagnose hosted migration 071 drift first, apply the existing accepted migration if that is the only blocker, or make the smallest owner seminar records/schedule route repair if code is actually faulty. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_DAEDALUS.md` |
