@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497B | Companion Home Initial Scroll Fix Hosted Rerun | MIMIR / A1 | Accepted review; ARGUS accepted scroll containment and MIMIR should route ARIADNE hosted desktop/375px/390px rerun for the original active-thread landing defect. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REVIEW_RESULT.md` |
+| PR497B | Companion Home Initial Scroll Fix Hosted Rerun | ARIADNE / A4 | Open; run hosted desktop/375px/390px proof that active-thread load no longer lands below the companion-first first viewport after PR497B scroll containment. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497B hosted rerun opened | Companion Home Initial Scroll Fix Hosted Rerun | MIMIR -> ARIADNE | Open; ARGUS accepted PR497B, so ARIADNE should prove hosted active-thread landing behavior on desktop/375px/390px before closeout. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_ARIADNE.md` |
 | PR497B review | Companion Home Initial Scroll Fix | ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_IMPLEMENTATION`; `PersonaChat` no longer uses page-level `scrollIntoView`, auto-scroll is contained to the chat thread, send/stream and return-card behavior did not drift, and hosted rerun is required before closeout. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REVIEW_RESULT.md` |
 | PR497B implementation | Companion Home Initial Scroll Fix | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; `PersonaChat` now scrolls only the chat thread container on message changes, preserving the PR497A companion-first page viewport without backend/runtime/provider/CSS drift. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_RESULT.md` |
 | PR497A defect routing | Companion Home Usability Translation Scroll Defect | ARIADNE -> MIMIR -> DAEDALUS | Routed; ARIADNE found `PRODUCT_DEFECT_ROUTE_DAEDALUS`, and MIMIR opened PR497B as the narrow scroll containment fix. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_DAEDALUS.md` |

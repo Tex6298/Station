@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR497B hosted rerun opened
+
+MIMIR routed ARGUS's accepted PR497B review to ARIADNE for hosted proof:
+
+`docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted `ACCEPT_PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_IMPLEMENTATION`.
+- `PersonaChat` no longer uses page-level `scrollIntoView`; auto-scroll targets
+  only the chat thread element.
+- Local focused tests, companion stack tests, typecheck, lint, and diff checks
+  passed in the implementation/review chain.
+- Hosted proof is still required because the original failure was visible only
+  in browser first-viewport behavior after active-thread chat data loaded.
+
+Current lane:
+
+```text
+PR497B - Companion Home Initial Scroll Fix Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+```
+
+Current baton:
+
+- ARIADNE should run the hosted desktop, `375px`, and `390px` rerun.
+- Required proof: active-thread load no longer lands below the companion-first
+  first viewport, return-card controls remain local, mobile fit holds, and
+  privacy/scope boundaries do not drift.
+- If the hosted runtime is not yet at `d1a10609` or later, ARIADNE should wait
+  and retry before returning a deployment blocker.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR497B accepted for hosted rerun
 
 ARGUS reviewed PR497B:
