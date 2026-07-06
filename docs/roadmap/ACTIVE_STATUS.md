@@ -4,6 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR495E accepted
+
+ARGUS reviewed the DAEDALUS implementation:
+
+`docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_IMPLEMENTATION
+```
+
+ARGUS patch:
+
+- durable serializer rejects rows without a non-empty string record id before
+  hashing;
+- merge/dedupe ignores malformed durable thread/Space inputs so current
+  source-derived thread/Space cards cannot be replaced by bad durable inputs.
+
+Accepted implementation truth:
+
+- durable public-card serializer helper is server-side only;
+- eligible durable rows require published/public document records with
+  owner-matching, public, published, routeable source documents;
+- durable card ids are digest handles, not raw record ids;
+- durable cards remain source-derived internally as `document:<source id>`;
+- merge/dedupe makes durable document cards win over source-derived document
+  cards for the same source while preserving thread and Space cards;
+- public `/events/seminars`, public interest mark/withdraw, owner
+  publish/rollback, migrations/RLS, `/studio/publishing`, public route copy,
+  runtime, provider, queue/worker, Redis, Cloudflare, billing, hosting,
+  scheduling, RSVP, tickets, payments, reminders, media, transcripts, and
+  launch claims did not change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 31 tests;
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts`
+  passed with 20 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR495E - Durable Public Card Serializer Contract Review
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW
+```
+
+Current baton:
+
+- MIMIR should close PR495E or choose the next lane for owner publish/rollback
+  or public durable readback.
+- ARIADNE hosted proof is not required for this dormant serializer-only lane.
+- Hosted proof is required when a later lane wires public durable cards or owner
+  publish controls.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR495E ready for ARGUS review
 
 DAEDALUS implemented the accepted PR495E contract-only serializer slice:

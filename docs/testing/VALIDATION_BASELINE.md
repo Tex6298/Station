@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495E Durable Card Serializer ARGUS Review
+
+ARGUS accepted the PR495E implementation on 2026-07-06:
+
+- `docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_IMPLEMENTATION`.
+
+Reason:
+
+- durable public seminar serializer remains helper-only and dormant;
+- ARGUS patched malformed input handling so rows without non-empty record ids
+  are rejected before hashing and malformed durable thread/Space merge inputs
+  cannot replace current source-derived thread/Space cards;
+- durable card ids are digest handles, not raw durable record ids;
+- serializer eligibility, redaction, public discussion href safety,
+  source-derived interest keys, merge/dedupe behavior, and public route
+  no-drift passed review;
+- public `/events/seminars`, public interest routes, owner publish/rollback,
+  migrations/RLS/schema, `/studio/publishing`, runtime/provider/queue/Redis/
+  Cloudflare, billing, hosting, scheduling, RSVP, tickets, payments, reminders,
+  media, transcripts, and launch claims did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Serializer eligibility/redaction, discussion href safety, digest card ids, source-derived interest keys, merge/dedupe behavior, and route no-drift passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 31 focused API/public-route/auth tests passed after the ARGUS hardening patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` | Pass | 20 focused publishing/seminar readiness tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran after the patch; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495E Durable Card Serializer Contract Implementation
 
 DAEDALUS implemented PR495E on 2026-07-06:

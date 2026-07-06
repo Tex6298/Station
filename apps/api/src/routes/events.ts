@@ -413,6 +413,8 @@ export async function resolveDurablePublicSeminarRecordCard(
 ): Promise<ResolvedPublicSeminarCard | null> {
   if (
     !record ||
+    typeof record.id !== "string" ||
+    record.id.trim().length === 0 ||
     record.source_type !== "document" ||
     record.status !== "published" ||
     record.visibility !== "public"
@@ -511,9 +513,9 @@ export function mergePublicSeminarCardsWithDurableCards(
   durableCards: ResolvedPublicSeminarCard[],
   limit: number
 ) {
-  const orderedDurable = [...durableCards].sort((left, right) =>
-    String(right.card.featuredAt).localeCompare(String(left.card.featuredAt))
-  );
+  const orderedDurable = durableCards
+    .filter((durable) => durable.sourceType === "document")
+    .sort((left, right) => String(right.card.featuredAt).localeCompare(String(left.card.featuredAt)));
   const durableByKey = new Map<string, ResolvedPublicSeminarCard>();
   for (const durable of orderedDurable) {
     const key = seminarInterestKey(durable);

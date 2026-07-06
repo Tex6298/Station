@@ -1132,6 +1132,7 @@ test("durable public seminar serializer rejects ineligible records and sources",
     source?: Row;
     space?: Row;
   }> = [
+    { name: "missing record id", record: { id: "" } },
     { name: "draft record", record: { status: "draft", visibility: "public" } },
     { name: "ready record", record: { status: "ready", visibility: "public" } },
     { name: "cancelled record", record: { status: "cancelled", visibility: "public" } },
@@ -1263,6 +1264,8 @@ test("durable public seminar merge contract dedupes by source interest key", () 
   const sourceDocument = resolvedSeminarCard("document", "doc-1", "Source document", "2026-07-05T10:00:00.000Z");
   const sourceThread = resolvedSeminarCard("thread", "thread-1", "Source thread", "2026-07-05T09:00:00.000Z");
   const sourceSpace = resolvedSeminarCard("space", "space-1", "Source Space", "2026-07-05T08:00:00.000Z");
+  const malformedDurableThread = resolvedSeminarCard("thread", "thread-1", "Malformed durable thread", "2026-07-05T14:00:00.000Z");
+  const malformedDurableSpace = resolvedSeminarCard("space", "space-1", "Malformed durable Space", "2026-07-05T14:00:00.000Z");
   const durableDocument = {
     ...resolvedSeminarCard("document", "doc-1", "Durable document", "2026-07-05T12:00:00.000Z"),
     card: {
@@ -1290,7 +1293,7 @@ test("durable public seminar merge contract dedupes by source interest key", () 
 
   const merged = mergePublicSeminarCardsWithDurableCards(
     [sourceDocument, sourceThread, sourceSpace],
-    [olderDurableDuplicate, durableOnly, durableDocument],
+    [olderDurableDuplicate, malformedDurableThread, malformedDurableSpace, durableOnly, durableDocument],
     10
   );
 
