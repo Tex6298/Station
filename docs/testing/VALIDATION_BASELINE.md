@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495C Owner Seminar Draft Action ARGUS Preflight
+
+ARGUS accepted PR495C on 2026-07-05:
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_PREFLIGHT_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION`.
+
+Reason:
+
+- PR495B hosted proof removed the API/schema blocker for private seminar draft
+  records;
+- the smallest safe owner-facing slice is web-only on `/studio/publishing`;
+- DAEDALUS can load owner records, match existing drafts by public document
+  href, and create/restore a private draft with the accepted document-only
+  owner API;
+- no API/schema/public seminar/interest/Discover/search/forum/billing/runtime/
+  queue/Cloudflare/schedule/host/publish/RSVP/ticket/payment/reminder/live-room/
+  media/transcript scope is accepted.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS hostile preflight review | Pass | Accepted the web-only owner draft action/readback slice and kept backend/schema/runtime/public surfaces out of scope. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 38 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495B Hosted Proof Closeout And PR495C Opening
 
 MIMIR hosted-proved and closed PR495B, then opened PR495C on 2026-07-05:

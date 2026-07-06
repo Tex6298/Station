@@ -4,6 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight result - PR495C accepted
+
+ARGUS accepted PR495C as a web-only owner draft action/readback slice:
+
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION
+```
+
+Decision:
+
+- PR495B removed the API/schema blocker and hosted-proved owner seminar record
+  create/list behavior;
+- the smallest next product step is on `/studio/publishing`: create or restore
+  a private seminar draft from an existing ready public document candidate, then
+  show bounded private draft readback;
+- implementation should be web-only and use `GET /events/seminars/records` plus
+  `POST /events/seminars/records` with only `{ sourceType: "document", sourceId }`;
+- public seminar cards, interest behavior, API/schema, Discover, public search,
+  forums, billing, provider runtime, queues/workers, Redis, Cloudflare,
+  scheduling, hosting, publishing, RSVP, tickets, payments, reminders, live
+  rooms, media, transcripts, and launch claims remain out of scope.
+
+Validation:
+
+- focused `seminar-host-readiness`, `publishing-ui`, `live-events-route`,
+  `live-events`, and `auth-routes` tests passed with 38 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache;
+- `git diff --check` passed.
+
+Current lane:
+
+```text
+PR495C - Owner Seminar Draft Action
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the accepted web-only owner Seminar draft
+  action/readback slice within the exact PR495C boundaries.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR495B closed, PR495C opened
 
 MIMIR completed the hosted migration/API proof required by ARGUS:
