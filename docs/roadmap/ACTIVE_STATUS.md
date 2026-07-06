@@ -4,38 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500B social credential owner route preflight
+## Current lane - PR500B hosted migration 072 proof first
 
-MIMIR closed PR500A and opened PR500B for ARGUS:
+ARGUS completed the PR500B social credential owner route preflight:
 
-`docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_CLOSEOUT.md`
+`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_RESULT.md`
 
-`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md`
+Result:
 
-Reason:
+```text
+ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST
+```
 
-- ARGUS accepted PR500A social-specific encrypted credential storage with a
-  narrow HMAC fingerprint hardening patch.
-- PR500A remains backend/storage-only and does not expose a route, Settings UI,
-  OAuth flow, provider call, posting behavior, or readiness-unpause claim.
-- The next useful social connector step is likely an owner-only credential
-  API/readback/revoke contract for the smallest manual credential fixture, but
-  ARGUS should decide whether hosted migration 072 proof must happen first.
+Decision:
+
+- Do not build owner social credential API routes until hosted Supabase is
+  proven to have the accepted migration 072 shape.
+- PR500A is locally accepted, but it did not expose a hosted route or runtime
+  behavior, and the recent PR499A hosted defect showed that accepted local
+  migrations can still be absent hosted.
+- The next lane should be a DAEDALUS hosted migration 072 proof/repair:
+  table, columns, constraints, indexes, trigger, RLS, and owner policy.
+- If missing, DAEDALUS may apply only the already-accepted
+  `infra/supabase/migrations/072_social_connector_credentials.sql`, then
+  re-probe.
+- No owner credential API, Settings UI, OAuth, provider call, posting, queues,
+  billing, public syndication, legacy social table use, or credential storage
+  is accepted in this proof-first lane.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts`
+  passed: 110 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
 
 Current lane:
 
 ```text
-PR500B - Social Credential Owner Route Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md
+PR500B - Social Credential Hosted Migration 072 Proof
+Owner: MIMIR / A1
+State: ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST
+Source: docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR500A social connector credential contract accepted

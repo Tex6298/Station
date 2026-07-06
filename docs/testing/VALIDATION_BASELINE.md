@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500B Social Credential Owner Route Preflight
+
+ARGUS completed the PR500B social credential owner route preflight on
+2026-07-06:
+
+- `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR500B_HOSTED_MIGRATION_072_PROOF_FIRST`.
+
+Reason:
+
+- PR500A added local/backend social credential storage but no hosted route or
+  runtime proof;
+- an owner credential API would be the first runtime dependency on hosted
+  migration 072;
+- the recent PR499A hosted migration defect makes schema proof the smallest
+  safe next lane;
+- no owner credential API, Settings UI, OAuth, provider calls, posting,
+  queues/workers, billing, credential storage, legacy social table use, or
+  public syndication is accepted before hosted migration 072 proof/repair.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts` | Pass | 110 social/auth/archive connector tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors before ARGUS docs edits. |
+
 ## PR500A Social Connector Credential Contract ARGUS Review
 
 ARGUS accepted the PR500A social connector credential contract on
