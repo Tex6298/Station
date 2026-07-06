@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497 Discern UI Usability Parity Audit
+
+ARIADNE completed PR497 on 2026-07-06:
+
+- `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION`.
+
+Reason:
+
+- Discern commits `de7b918e` and `99ae8a5c` contained a real product-feel and
+  first-viewport hierarchy correction.
+- Current Tex carried over safe companion function, including shortcuts, Memory
+  Inbox, return-to-thread, scoped chat polish, provider/setup safety, context
+  rail, Runtime Preview separation, Assistant boundaries, and owner-only route
+  posture.
+- Current Tex still leads with too much admin/readback machinery before it feels
+  like a private companion workspace.
+- The next safe lane is web-only, persona-home-first UI/UX translation with no
+  backend, runtime, schema, billing, queue, Redis, Cloudflare, provider, or broad
+  shell drift.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARIADNE product/UX audit | Pass | Compared Discern UI/product-feel deltas with current Tex companion/persona home/chat and recommended the smallest safe translation lane. |
+
 ## Tooling
 
 - Package manager: `pnpm@10.32.1`, from the root `packageManager` field.

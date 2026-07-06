@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR497 audit recommends companion-home translation
+
+ARIADNE completed the Discern UI usability parity audit:
+
+`docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION
+```
+
+Decision:
+
+- PR494 was safe, but too narrow: Discern's product-feel and first-viewport
+  simplification exposed a real usability correction, not just skin.
+- Current Tex carried over safe function: shortcuts, Memory Inbox,
+  return-to-thread, scoped chat polish, provider/setup safety, context rail,
+  Runtime Preview separation, Assistant boundaries, and owner-only routes.
+- Current Tex still leads with too much admin/readback machinery before it feels
+  like a private companion workspace.
+- The missing delta is a chat-first persona home that keeps continuity actions
+  and compact context near the companion relationship.
+- Do not import global CSS, broad shell rewrites, stale endpoints, placeholder
+  controls, autonomy/runtime drift, provider changes, schema changes, billing,
+  Redis, or Cloudflare scope.
+
+Current lane:
+
+```text
+PR497 - Discern UI Usability Parity Audit Closeout
+Owner: MIMIR / A1
+State: ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION
+```
+
+Current baton:
+
+- MIMIR should route DAEDALUS for a narrow web-only PR497A companion-home
+  usability translation, or adjust scope if a design-first broad shell lane is
+  desired instead.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR correction - PR496 parked and PR497 opened
 
 Foreground watch surfaced an earlier unprocessed A1 wakeup:
