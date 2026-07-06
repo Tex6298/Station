@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495E Durable Card Contract ARGUS Preflight
+
+ARGUS completed the PR495E hostile preflight on 2026-07-06:
+
+- `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CONTRACT`.
+
+Reason:
+
+- accepted implementation scope is server-side serializer and merge/dedupe
+  contract only;
+- eligible durable records must be `published` + `public` document records with
+  owner-matching, public, published, routeable source documents;
+- durable card ids must be digest handles, not raw record ids;
+- dedupe and interest stay source-derived by `document:<source id>`;
+- public `/events/seminars`, owner publish/rollback, public interest
+  mark/withdraw, migrations/RLS, UI, runtime, billing, provider,
+  queue/worker, Redis, and Cloudflare scope must not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hostile preflight review | Pass | Reviewed seminar record and interest migrations, public route/card/id/interest helpers, owner ready transition surface, shared types, web public route copy/tests, and PR495D closeout. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 44 focused tests passed before PR495E implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495D Closeout And PR495E Durable Card Contract Opening
 
 MIMIR closed PR495D and opened PR495E on 2026-07-06:

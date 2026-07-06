@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495E | Public Seminar Durable Card Contract Preflight | ARGUS / A3 | Open hostile preflight; decide the smallest safe durable public-card contract slice, or return the concrete blocker/defer verdict to MIMIR. | `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_ARGUS.md` |
+| PR495E | Durable Public Card Serializer Contract | DAEDALUS / A2 | Accepted preflight; implement only the tested server-side durable public-card serializer plus merge/dedupe/interest-key contract for eligible published/public durable document records, without enabling public `/events/seminars` sourcing or owner publish. | `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495E preflight | Public Seminar Durable Card Contract | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CONTRACT`; DAEDALUS should implement only the server-side durable card serializer, digest card-id rule, source-key dedupe, and source-derived interest-key tests, with no public route sourcing, owner publish/rollback, interest migration, schema/RLS, UI, runtime, billing, queue, Redis, or Cloudflare scope. | `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_RESULT.md` |
 | PR495D closeout | Owner Ready Gate | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted owner private ready/return-to-draft, duplicate stability, refresh stability, desktop/375px/390px fit, creator/signed-out gates, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and no product drift passed. PR495E opens the durable public-card contract preflight. | `docs/roadmap/PR495D_OWNER_READY_GATE_CLOSEOUT.md` |
 | PR495D rehearsal | Owner Ready Gate Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; owner ready/return-to-draft, duplicate ready stability, refresh stability, desktop/375px/390px panel fit, private-tier non-creator API denial, signed-out API/UI protection, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and no product drift passed. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_RESULT.md` |
 | PR495D rehearsal opened | Owner Ready Gate Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted the owner-only private `draft`/`ready` implementation, so ARIADNE must prove hosted owner ready/return-to-draft behavior plus public seminar no-drift before closeout. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_ARIADNE.md` |

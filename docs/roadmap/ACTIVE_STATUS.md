@@ -4,6 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR495E accepted for serializer contract
+
+ARGUS completed the PR495E hostile preflight:
+
+`docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CONTRACT
+```
+
+Verdict:
+
+- accept only a server-side durable public-card serializer plus merge/dedupe
+  contract under tests;
+- eligible durable records must be `status === "published"` and
+  `visibility === "public"` document records whose source document is still
+  owner-matching, public, published, and routeable through a public Space;
+- durable card ids must use a versioned digest of the durable record id and
+  never expose raw record ids;
+- durable document cards dedupe by `sourceType:sourceId`, with durable cards
+  winning over source-derived document cards for the same source;
+- interest remains source-derived as `document:<source id>`;
+- public `/events/seminars`, owner publish/rollback, public interest
+  mark/withdraw, migrations/RLS, UI, runtime, provider, queue/worker, Redis,
+  Cloudflare, billing, hosting, scheduling, RSVP, tickets, payments, reminders,
+  media, transcripts, and launch claims remain out of scope.
+
+Current lane:
+
+```text
+PR495E - Durable Public Card Serializer Contract
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact serializer/card-id/dedupe/interest-key
+  helper and tests from the ARGUS result.
+- DAEDALUS must not enable durable records in public `/events/seminars`, add
+  owner publish/public controls, or change interest behavior/migrations.
+- ARIADNE hosted proof is not required for this serializer-only implementation;
+  hosted proof is required when a later lane enables public durable readback or
+  owner publish.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR495D closed, PR495E opened
 
 MIMIR closes PR495D after ARIADNE returned:
