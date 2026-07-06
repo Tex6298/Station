@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496C | Workspace Export Readback UI Boundary | MIMIR / A1 | Accepted local review; ARGUS accepted the web-only package-id/readback locality patch, and hosted ARIADNE rerun is required before closeout. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md` |
+| PR496C | Workspace Export Readback UI Boundary Hosted Rerun | ARIADNE / A4 | Open hosted rerun; ARGUS accepted the web-only package-id hiding and selected-row readback patch, and ARIADNE is proving it on desktop/375px/390px before closeout. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496C hosted rerun opened | Workspace Export Readback UI Boundary Hosted Rerun | MIMIR -> ARIADNE | Open; prove hosted `/studio/export` selected-row bundle readback, no internal package id, owner-only protection, high-level bundle content, desktop/mobile fit, and no product-boundary drift. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_ARIADNE.md` |
 | PR496C review | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION`; `/studio/export` hides owner-visible internal package ids, renders bundle feedback in the selected row, and stays web-only with no API/export scope drift. Hosted rerun required. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md` |
 | PR496C implementation | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; web-only package-id hiding and local package-row bundle feedback implemented with focused Studio UI coverage. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md` |
 | PR496C opened | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS | Open; web-only repair for `/studio/export` bundle readback package-id leak and mobile feedback locality after ARIADNE proved backend create/read/bundle is fixed. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_DAEDALUS.md` |

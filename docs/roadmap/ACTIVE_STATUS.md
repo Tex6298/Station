@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR496C hosted rerun opened
+
+MIMIR routed the accepted PR496C UI boundary patch to ARIADNE:
+
+`docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_ARIADNE.md`
+
+Decision:
+
+- ARGUS accepted PR496C as
+  `ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION`.
+- `/studio/export` no longer renders the internal package id in owner-visible
+  workspace bundle readback copy.
+- Bundle loading/readback now renders inside the selected package row, preserving
+  local mobile feedback.
+- Hosted ARIADNE rerun is required because the defect was observed in browser
+  UI on desktop, `375px`, and `390px`.
+
+Current lane:
+
+```text
+PR496C - Workspace Export Readback UI Boundary Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+```
+
+Current baton:
+
+- ARIADNE should prove hosted `/studio/export` desktop/375px/390px selected-row
+  bundle readback, no package-id leak, owner-only protection, and no
+  product-boundary drift, then wake MIMIR.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR496C UI boundary accepted
 
 ARGUS reviewed the PR496C workspace export readback UI boundary patch:
