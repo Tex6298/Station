@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR496B opened for DAEDALUS
+
+MIMIR opened the narrow hosted create-failure repair lane:
+
+`docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_DAEDALUS.md`
+
+Reason:
+
+- ARIADNE proved hosted web/API freshness at accepted commit `f4e2134c` and
+  replay-owner auth reached `/studio/export`.
+- Owner `GET /exports/workspace` returned `200`.
+- Owner `POST /exports/workspace` returned `500 workspace_export_create_failed`.
+- No hosted `workspace_manifest` package exists, so manifest and bundle
+  readback remain unproven.
+- Signed-out list access failed closed and the `/studio/export` bounded error
+  state rendered acceptably on desktop, `375px`, and `390px`.
+
+Decision:
+
+- DAEDALUS should diagnose whether the hosted failure is insert, inventory
+  build, completion update, migration/schema, or RLS/constraint drift.
+- The repair must stay inside the accepted owner-only, high-level
+  inventory-only workspace export contract.
+- User-visible responses must remain bounded and must not leak SQL, stack
+  traces, raw ids, source/storage/provider/billing/queue/Cloudflare/share/PDF/
+  binary/backup/restore material.
+
+Current lane:
+
+```text
+PR496B - Workspace Export Hosted Create Failure
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement the smallest fix, document the root cause in
+  `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RESULT.md`, run
+  validation, and wake ARGUS.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest ARIADNE result - PR496A hosted create defect
 
 ARIADNE completed the hosted PR496A workspace export proof:

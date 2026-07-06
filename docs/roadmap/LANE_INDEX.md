@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496A | Owner Workspace Export Package Contract | MIMIR / A1 | Product defect routed; hosted web/API were fresh at `f4e2134c`, owner auth and owner list worked, but owner `POST /exports/workspace` returned `500 workspace_export_create_failed`, leaving no `workspace_manifest` package to prove readback/bundle. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md` |
+| PR496B | Workspace Export Hosted Create Failure | DAEDALUS / A2 | Open implementation; ARIADNE proved hosted freshness/auth/list, but owner `POST /exports/workspace` returns `500 workspace_export_create_failed`, so DAEDALUS should diagnose insert vs inventory/update vs migration/RLS/constraint drift and patch the smallest safe defect. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496B opened | Workspace Export Hosted Create Failure | MIMIR -> DAEDALUS | Open; repair the hosted `workspace_manifest` create failure without widening PR496A beyond owner-only high-level inventory export, then wake ARGUS. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
 | PR496A hosted proof | Owner Workspace Export Package Contract | ARIADNE -> MIMIR | Product defect; hosted create path failed with `500 workspace_export_create_failed` after fresh deploy and valid owner auth, while signed-out list protection and desktop/375px/390px bounded error UI passed. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md` |
 | PR496A hosted proof opened | Owner Workspace Export Package Contract | MIMIR -> ARIADNE | Open; ARGUS accepted PR496A locally, so ARIADNE should prove hosted owner workspace manifest create/read/bundle, signed-out/cross-owner protection where practical, desktop/mobile fit, and no private/source/secret/storage/provider/billing/queue/Cloudflare/share/PDF/binary/backup/restore leakage or overclaim. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_ARIADNE.md` |
 | PR496A review | Owner Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_IMPLEMENTATION` with a narrow ARGUS Markdown/type patch; migration/RLS, owner API behavior, stored bundle validation, high-level inventory manifest, `/studio/export` controls, and leak/overclaim boundaries passed. Hosted proof is required before closeout. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REVIEW_RESULT.md` |
