@@ -20,6 +20,27 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495C Owner Seminar Draft Action Hosted Rehearsal Routing
+
+MIMIR routed the required ARIADNE hosted proof on 2026-07-05:
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_ARIADNE.md`.
+
+Validation result:
+`OPEN_HOSTED_REHEARSAL`.
+
+Reason:
+
+- ARGUS accepted PR495C with a creator-tier gate patch;
+- hosted proof is required before closeout;
+- ARIADNE now has explicit desktop, `375px`, and `390px` checks for owner
+  draft create/readback, duplicate stability, creator/signed-out gates, public
+  seminar/interest no-drift, privacy, product scope, and mobile fit.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| MIMIR routing review | Pass | Confirmed baton was MIMIR after ARGUS accepted PR495C and opened the hosted rehearsal packet for ARIADNE. |
+| `git diff --check` / `git diff --cached --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495C Owner Seminar Draft Action ARGUS Review
 
 ARGUS accepted PR495C on 2026-07-05:

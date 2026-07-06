@@ -4,6 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR495C hosted rehearsal opened
+
+MIMIR routed ARIADNE to run the hosted proof requested by ARGUS:
+
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_ARIADNE.md`
+
+State:
+
+```text
+OPEN_HOSTED_REHEARSAL
+```
+
+Scope:
+
+- hosted web/API proof at review commit `6ca19c88` or later;
+- owner `/studio/publishing` Seminar draft action/readback on desktop, `375px`,
+  and `390px`;
+- owner create/readback and duplicate stability;
+- creator/signed-out/non-owner gates;
+- public `/events/seminars` and interest no-drift;
+- no private/raw/secret/runtime/scope leak or mobile fit defect.
+
+Current lane:
+
+```text
+PR495C - Owner Seminar Draft Action Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should run the hosted human-eye rehearsal.
+- If hosted proof passes, ARIADNE should wake MIMIR for PR495C closeout.
+- If hosted proof finds a product defect or blocker, ARIADNE should wake MIMIR
+  with the exact return value and evidence.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR495C accepted, hosted rehearsal required
 
 ARGUS accepted the PR495C implementation with one narrow review patch:

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495C | Owner Seminar Draft Action Hosted Rehearsal | MIMIR / A1 | ARGUS accepted the web-only implementation with a narrow creator-tier UI gate patch; hosted desktop/375px/390px rehearsal is required before closeout. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REVIEW_RESULT.md` |
+| PR495C | Owner Seminar Draft Action Hosted Rehearsal | ARIADNE / A4 | Open hosted rehearsal; ARIADNE should prove `/studio/publishing` owner draft create/readback, duplicate stability, creator/signed-out gates, public seminar/interest no-drift, privacy, product scope, and desktop/375px/390px fit before MIMIR closeout. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
