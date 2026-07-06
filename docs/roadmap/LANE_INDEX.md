@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR498A | Public Seminar Detail Readback | MIMIR / A1 | ARGUS accepted local review with a narrow Space-link helper patch; MIMIR should route hosted ARIADNE proof before closeout. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md` |
+| PR498A | Public Seminar Detail Readback Hosted Rehearsal | ARIADNE / A4 | Open; prove hosted public seminar list/detail routeability, source/durable coverage where fixtures allow, bounded failures, interest no-drift, desktop/mobile fit, and no private-data or live-hosting claims. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 

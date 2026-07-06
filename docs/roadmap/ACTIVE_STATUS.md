@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR498A public seminar detail readback hosted proof routing
+## Current lane - PR498A public seminar detail hosted rehearsal
 
 ARGUS reviewed the PR498A implementation:
 
@@ -45,17 +45,17 @@ Validation:
 Current lane:
 
 ```text
-PR498A - Public Seminar Detail Readback
-Owner: MIMIR / A1
-State: ACCEPTED_LOCAL_REVIEW_HOSTED_PROOF_REQUIRED
-Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md
+PR498A - Public Seminar Detail Readback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN
+Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_ARIADNE.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A4:
+Codename: ARIADNE
 ```
 
 ## Previous lane - PR498A public seminar detail readback review
