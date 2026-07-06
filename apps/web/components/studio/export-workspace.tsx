@@ -1,10 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { ArchiveExportBundle, ArchiveExportPackage } from "@station/types/export";
+import { apiGet, apiPost } from "@/lib/api-client";
+import { getSession } from "@/lib/auth";
 import {
   exportBackupSurfaceStateLabel,
   exportBackupTrustSummary,
   exportBackupTrustSurfaces,
+  exportPackageFormatLabel,
+  exportPackageStatusLabel,
+  exportPackageSummaryLine,
+  exportPackageTrustCopy,
   workspaceExportScopeReadback,
   type ExportBackupSurface,
   type WorkspaceExportScopeReadback,
@@ -18,6 +26,68 @@ const summary = exportBackupTrustSummary(surfaces);
 const workspaceScope = workspaceExportScopeReadback(surfaces);
 
 export function ExportWorkspace() {
+  const [token, setToken] = useState<string | null>(null);
+  const [packages, setPackages] = useState<ArchiveExportPackage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [bundleReadback, setBundleReadback] = useState<{ packageId: string; files: string[] } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const session = await getSession();
+        if (!session) {
+          if (!cancelled) setLoading(false);
+          return;
+        }
+        if (!cancelled) setToken(session.access_token);
+        const data = await apiGet<{ exports: ArchiveExportPackage[] }>("/exports/workspace", session.access_token);
+        if (!cancelled) setPackages(data.exports ?? []);
+      } catch {
+        if (!cancelled) setError("Could not load workspace manifest packages.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function createWorkspaceManifest() {
+    if (!token || creating) return;
+    setCreating(true);
+    setError(null);
+    setBundleReadback(null);
+    try {
+      const data = await apiPost<{ exportPackage: ArchiveExportPackage }>("/exports/workspace", {}, token);
+      setPackages((current) => [data.exportPackage, ...current]);
+    } catch {
+      setError("Could not create workspace manifest package.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function loadWorkspaceBundle(packageId: string) {
+    if (!token) return;
+    setError(null);
+    try {
+      const data = await apiGet<{ bundle: ArchiveExportBundle }>(`/exports/${packageId}/bundle`, token);
+      setBundleReadback({
+        packageId,
+        files: data.bundle.files.map((file) => `${file.path} (${file.mediaType}, ${file.bytes} bytes)`),
+      });
+    } catch {
+      setError("Could not load workspace manifest bundle readback.");
+    }
+  }
+
   return (
     <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
@@ -37,6 +107,15 @@ export function ExportWorkspace() {
         </header>
 
         <WorkspaceScopeReadback readback={workspaceScope} />
+        <WorkspaceManifestControls
+          packages={packages}
+          loading={loading}
+          creating={creating}
+          error={error}
+          bundleReadback={bundleReadback}
+          onCreate={createWorkspaceManifest}
+          onLoadBundle={loadWorkspaceBundle}
+        />
 
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 330px", gap: 18, alignItems: "start" }}>
           <section style={panel}>
@@ -84,6 +163,85 @@ export function ExportWorkspace() {
         </section>
       </div>
     </main>
+  );
+}
+
+function WorkspaceManifestControls({
+  packages,
+  loading,
+  creating,
+  error,
+  bundleReadback,
+  onCreate,
+  onLoadBundle,
+}: {
+  packages: ArchiveExportPackage[];
+  loading: boolean;
+  creating: boolean;
+  error: string | null;
+  bundleReadback: { packageId: string; files: string[] } | null;
+  onCreate: () => void;
+  onLoadBundle: (packageId: string) => void;
+}) {
+  return (
+    <section style={{ ...panel, marginBottom: 18 }} aria-labelledby="workspace-manifest-title">
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div>
+          <SectionTitle title="Workspace manifest package" id="workspace-manifest-title" />
+          <p style={{ margin: "-4px 0 0", color: "#a9b0bd", fontSize: 13, lineHeight: 1.55, maxWidth: 760 }}>
+            Create an owner-only JSON/Markdown manifest with high-level workspace inventory. This is not a full archive, backup, restore workflow, PDF, binary package, public download, share link, signed URL, or background job.
+          </p>
+        </div>
+        <button type="button" onClick={onCreate} disabled={creating || loading} style={creating || loading ? disabledButton : primaryButton}>
+          {creating ? "Creating manifest" : "Create workspace manifest"}
+        </button>
+      </div>
+
+      {error && <p style={errorText}>{error}</p>}
+
+      {loading ? (
+        <p style={emptyText}>Loading owner workspace manifest packages.</p>
+      ) : packages.length === 0 ? (
+        <p style={emptyText}>No workspace manifest packages yet.</p>
+      ) : (
+        <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+          {packages.map((item) => {
+            const copy = exportPackageTrustCopy(item, "workspace");
+            return (
+              <article key={item.id} style={scopeRow}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <div>
+                    <strong style={{ color: "#f8fafc", fontSize: 13 }}>{exportPackageStatusLabel(item.status)}</strong>
+                    <p style={scopeCopy}>{copy.body}</p>
+                    <p style={scopeFinePrint}>
+                      {exportPackageFormatLabel(item.format)} / {exportPackageSummaryLine(item.contentSummary, "workspace")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onLoadBundle(item.id)}
+                    disabled={item.status !== "completed"}
+                    style={item.status === "completed" ? miniButton : disabledButton}
+                  >
+                    View bundle files
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {bundleReadback && (
+        <div style={{ ...scopeRow, marginTop: 12 }}>
+          <h3 style={subhead}>Bundle file readback</h3>
+          <p style={scopeCopy}>Package {bundleReadback.packageId} contains only these owner-only readback files.</p>
+          <ul style={{ margin: "0.5rem 0 0", paddingLeft: 18, color: "#cbd5e1", fontSize: 12, lineHeight: 1.6 }}>
+            {bundleReadback.files.map((file) => <li key={file}>{file}</li>)}
+          </ul>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -287,6 +445,20 @@ const scopeFinePrint = {
   color: "#8ea0b8",
   fontSize: 11,
   lineHeight: 1.45,
+};
+
+const emptyText = {
+  margin: "14px 0 0",
+  color: "#94a3b8",
+  fontSize: 13,
+  lineHeight: 1.55,
+};
+
+const errorText = {
+  margin: "14px 0 0",
+  color: "#fca5a5",
+  fontSize: 13,
+  lineHeight: 1.55,
 };
 
 const miniButton = {

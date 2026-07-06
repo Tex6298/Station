@@ -100,7 +100,7 @@ export type DeveloperSpaceAgentExecutionReceiptAction =
   | "update_observatory";
 export type DeveloperSpaceDocumentRole = "methodology" | "finding" | "field_log" | "note";
 export type DeveloperSpaceDocumentLinkVisibility = "owner" | "public";
-export type ExportPackageKind = "persona_archive" | "developer_space_archive" | "project_manifest";
+export type ExportPackageKind = "persona_archive" | "developer_space_archive" | "project_manifest" | "workspace_manifest";
 export type ExportPackageStatus = "requested" | "processing" | "completed" | "failed";
 export type ExportPackageFormat = "json_markdown";
 export type ProjectVisibility = "private" | "unlisted" | "community" | "public";

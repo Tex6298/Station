@@ -1,6 +1,6 @@
 export type ExportPackageTone = "info" | "good" | "warning" | "danger";
 export type ExportBackupSurfaceState = "live" | "preview" | "future";
-export type ExportPackageTrustScope = "persona" | "developer_space";
+export type ExportPackageTrustScope = "persona" | "developer_space" | "workspace";
 export type WorkspaceExportScopeState = "live" | "future" | "excluded" | "decision_needed";
 
 export interface ArchiveExportPackageLike {
@@ -35,7 +35,7 @@ export interface WorkspaceExportScopeRow {
 
 export interface WorkspaceExportLiveClass extends WorkspaceExportScopeRow {
   state: "live";
-  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest";
+  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest" | "workspace_manifest";
   format: "JSON / Markdown";
   includedSections: string[];
   href?: string;
@@ -71,6 +71,14 @@ const SUMMARY_LABELS: Record<ExportPackageTrustScope, Array<[string, string]>> =
     ["snapshots", "snapshots"],
     ["linkedPublicDocuments", "public docs"],
     ["usage", "usage"],
+  ],
+  workspace: [
+    ["personas", "personas"],
+    ["spaces", "Spaces"],
+    ["developerSpaces", "Developer Spaces"],
+    ["projects", "Projects"],
+    ["publicPublishedDocumentRefs", "public refs"],
+    ["exportPackages", "package rows"],
   ],
 };
 
@@ -111,12 +119,14 @@ export function exportBackupTrustSurfaces(): ExportBackupSurface[] {
     },
     {
       id: "workspace-export",
-      title: "Full workspace export",
-      state: "preview",
-      actionLabel: "Not enabled",
-      readback: "This screen is the current workspace export readback map; it does not start a global export job.",
-      boundary: "Existing live packages stay scoped to their owner-controlled persona, Developer Space, or Project source.",
-      limitation: "A cross-Studio workspace package still needs product shape, owner review, background job behavior, and storage policy.",
+      title: "Workspace manifest package",
+      state: "live",
+      packageKind: "workspace_manifest",
+      href: "/studio/export",
+      actionLabel: "Create manifest",
+      readback: "Owner-only high-level workspace inventory manifest and JSON/Markdown bundle readback from this page.",
+      boundary: "Includes bounded counts and inventory for personas, Spaces, Developer Spaces, Projects, public published document refs, and export package classes.",
+      limitation: "Does not package private bodies, original files, storage objects, PDFs, backups, restore jobs, share links, or signed URLs.",
     },
     {
       id: "pdf-binary-originals",
@@ -168,15 +178,15 @@ export function workspaceExportScopeReadback(
 
   return {
     heading: "Workspace export scope readback",
-    summary: "This owner-only Studio surface maps the scoped export classes Station can read back today. It is not a full workspace package job, file bundle, PDF generator, backup service, or public download surface.",
+    summary: "This owner-only Studio surface maps the scoped export classes Station can read back today, including the workspace manifest package. It is not a private archive bundle, original-file package, PDF generator, backup service, restore workflow, or public download surface.",
     livePackageClasses,
     currentBundleFormat: "Owner-only JSON/Markdown manifests and portable bundle readback.",
     futureUnavailable: [
       {
         id: "full-workspace-bundle",
-        label: "Full workspace bundle",
+        label: "Full workspace archive bundle",
         state: "future",
-        detail: "No current route creates a single cross-Studio package across personas, Developer Spaces, Projects, archive files, and documents.",
+        detail: "No current route creates a raw cross-Studio archive across private bodies, archive files, original uploads, and documents.",
       },
       {
         id: "original-files",
@@ -241,9 +251,9 @@ export function workspaceExportScopeReadback(
       "Open personas for current persona archive package readback.",
       "Open Developer Spaces for current Developer Space package readback.",
       "Open Projects for current Project manifest readback.",
-      "Use this page as the owner-only scope map before choosing a future workspace package contract.",
+      "Create an owner-only workspace manifest here for high-level inventory readback.",
     ],
-    boundary: "Readback only: no new API route, package kind, bundle format, original-file packaging, generated PDF, binary archive, background job, worker, queue, Redis, Cloudflare, schema change, migration, billing, Stripe, provider/model call, public export access, signed URL, shareable private package URL, storage architecture, backup/redundancy claim, restore drill, or download behavior is added.",
+    boundary: "Owner-only manifest readback: no original-file packaging, generated PDF, binary archive, background job, worker, queue, Redis, Cloudflare, billing, Stripe, provider/model call, public export access, signed URL, shareable private package URL, storage architecture, backup/redundancy claim, or restore drill is added.",
   };
 }
 
@@ -254,7 +264,7 @@ export function exportBackupSurfaceStateLabel(state: ExportBackupSurfaceState) {
 }
 
 function isWorkspaceLivePackageKind(value: string | undefined): value is WorkspaceExportLiveClass["packageKind"] {
-  return value === "persona_archive" || value === "developer_space_archive" || value === "project_manifest";
+  return value === "persona_archive" || value === "developer_space_archive" || value === "project_manifest" || value === "workspace_manifest";
 }
 
 function workspaceIncludedSections(packageKind: WorkspaceExportLiveClass["packageKind"]) {
@@ -264,6 +274,10 @@ function workspaceIncludedSections(packageKind: WorkspaceExportLiveClass["packag
 
   if (packageKind === "developer_space_archive") {
     return ["space summary", "nodes", "events", "snapshots", "linked public documents", "usage"];
+  }
+
+  if (packageKind === "workspace_manifest") {
+    return ["workspace counts", "public refs", "package classes", "trust notes", "excluded material"];
   }
 
   return ["project summary", "attached Developer Space", "owner evidence reference", "public evidence reference", "trust metadata"];
@@ -312,6 +326,27 @@ export function exportPackageTrustCopy(
     return {
       body: "Station is preparing an owner-only Developer Space manifest from the current space state.",
       nextAction: "Wait for the status to complete before relying on manifest or bundle readback.",
+    };
+  }
+
+  if (scope === "workspace") {
+    if (exportPackage.status === "failed") {
+      return {
+        body: "This workspace manifest did not complete.",
+        nextAction: "Private source material remains owner-only. Create a fresh workspace manifest when ready.",
+      };
+    }
+
+    if (exportPackage.status === "completed") {
+      return {
+        body: "This owner-only workspace manifest is complete.",
+        nextAction: "Use bundle readback to inspect the high-level JSON/Markdown inventory.",
+      };
+    }
+
+    return {
+      body: "Station is preparing an owner-only workspace manifest from high-level inventory.",
+      nextAction: "Wait for completion before relying on bundle readback.",
     };
   }
 

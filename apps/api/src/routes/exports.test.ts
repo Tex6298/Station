@@ -1864,6 +1864,303 @@ test("project manifest bundle rejects non-completed and malformed stored readbac
   }
 });
 
+test("owner can create and read workspace manifest bundles from high-level inventory", async () => {
+  const db = new InMemorySupabase();
+  db.tables.personas[0].visibility = "public";
+  db.tables.personas[0].public_slug = "harbor-guide";
+  db.tables.personas[0].public_chat_enabled = true;
+  db.tables.personas[0].public_anonymous_chat_enabled = false;
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    const anonymousList = await requestJson(app, "GET", "/exports/workspace");
+    assert.equal(anonymousList.status, 401);
+
+    const anonymousCreate = await requestJson(app, "POST", "/exports/workspace");
+    assert.equal(anonymousCreate.status, 401);
+
+    const created = await requestJson(app, "POST", "/exports/workspace", {
+      token: "owner-token",
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.exportPackage.packageKind, "workspace_manifest");
+    assert.equal(created.body.exportPackage.status, "completed");
+    assert.equal("ownerUserId" in created.body.exportPackage, false);
+    assert.equal("personaId" in created.body.exportPackage, false);
+    assert.equal("developerSpaceId" in created.body.exportPackage, false);
+    assert.equal("projectId" in created.body.exportPackage, false);
+    assert.deepEqual(created.body.exportPackage.includedSections, [
+      "personas",
+      "spaces",
+      "developer_spaces",
+      "projects",
+      "public_published_document_refs",
+      "export_package_class_counts",
+      "trust",
+      "excluded_material",
+      "future_material",
+    ]);
+
+    const packageRow = db.tables.export_packages.find((row) => row.id === created.body.exportPackage.id);
+    assert.equal(packageRow.owner_user_id, OWNER_ID);
+    assert.equal(packageRow.package_kind, "workspace_manifest");
+    assert.equal(packageRow.persona_id, null);
+    assert.equal(packageRow.developer_space_id, null);
+    assert.equal(packageRow.project_id, null);
+
+    assert.deepEqual(Object.keys(created.body.manifest).sort(), [
+      "counts",
+      "excludedMaterial",
+      "futureMaterial",
+      "generatedAt",
+      "package",
+      "schema",
+      "trust",
+      "workspaceInventory",
+    ]);
+    assert.equal(created.body.manifest.schema, "station.workspace.export_manifest.v1");
+    assert.equal(created.body.manifest.package.packageKind, "workspace_manifest");
+    assert.equal(created.body.manifest.counts.personas, 1);
+    assert.equal(created.body.manifest.counts.spaces, 1);
+    assert.equal(created.body.manifest.counts.developerSpaces, 1);
+    assert.equal(created.body.manifest.counts.projects, 1);
+    assert.equal(created.body.manifest.counts.publicPublishedDocumentRefs, 1);
+    assert.equal(created.body.manifest.counts.exportPackages, 1);
+    assert.equal(created.body.manifest.workspaceInventory.personas[0].name, "Harbor");
+    assert.equal(created.body.manifest.workspaceInventory.personas[0].publicHref, "/personas/harbor-guide");
+    assert.equal(created.body.manifest.workspaceInventory.spaces[0].publicHref, "/space/harbor-space");
+    assert.equal(created.body.manifest.workspaceInventory.developerSpaces[0].linkedProject.name, "Animus Project");
+    assert.equal(created.body.manifest.workspaceInventory.projects[0].name, "Animus Project");
+    assert.deepEqual(created.body.manifest.workspaceInventory.publicPublishedDocumentRefs, [{
+      title: "Published Continuity Note",
+      slug: "published-continuity-note",
+      documentType: "essay",
+      publishedAt: "2026-05-26T09:06:00.000Z",
+      publicHref: "/space/harbor-space",
+      publicSpace: {
+        title: "Harbor Space",
+        slug: "harbor-space",
+      },
+      createdAt: "2026-05-26T09:06:00.000Z",
+      updatedAt: "2026-05-26T09:06:00.000Z",
+    }]);
+    assert.equal(created.body.manifest.workspaceInventory.exportPackageClasses[0].packageKind, "workspace_manifest");
+    assert.equal(created.body.manifest.workspaceInventory.exportPackageClasses[0].statuses.completed, 1);
+    assert.equal(created.body.manifest.trust.ownerOnly, true);
+    assert.equal(created.body.manifest.trust.documentBodiesOmitted, true);
+    assert.equal(created.body.manifest.trust.privateSourceBodiesOmitted, true);
+    assert.equal(created.body.manifest.trust.originalFilesOmitted, true);
+    assert.equal(created.body.manifest.trust.storagePathsAndSignedUrlsOmitted, true);
+    assert.equal(created.body.manifest.trust.noPublicExportAccess, true);
+    assert.equal(created.body.manifest.trust.noManagedBackupRestoreGuarantee, true);
+
+    const manifestText = JSON.stringify(created.body.manifest);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_ID,
+      PERSONA_ID,
+      SPACE_ID,
+      DOC_ID,
+      DEVELOPER_SPACE_ID,
+      PROJECT_ID,
+      DEV_PUBLIC_DOC_ID,
+      DEV_PRIVATE_DOC_ID,
+      "memory-1",
+      "canon-1",
+      "conversation-1",
+      "Harbor remembers the owner values grounded continuity",
+      "Private long-form continuity brief",
+      "Wake with durable context",
+      "Careful, direct, steady",
+      "Public copy body is not required for export refs",
+      "Public field log body is safe to reference",
+      "Private Developer Space method must not leave public-safe export refs",
+      "Canon / priority 8",
+      "source_id",
+      "sourceId",
+      "owner_user_id",
+      "ownerUserId",
+      "storage_path",
+      "DATABASE_URL",
+      "stack trace",
+      "SQL",
+    ]) {
+      assert.equal(manifestText.includes(forbidden), false, `${forbidden} leaked into Workspace manifest`);
+    }
+
+    const listed = await requestJson(app, "GET", "/exports/workspace", {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.exports.length, 1);
+    assert.equal(listed.body.exports[0].packageKind, "workspace_manifest");
+    assert.equal(listed.body.exports[0].contentSummary.publicPublishedDocumentRefs, 1);
+    assert.equal("ownerUserId" in listed.body.exports[0], false);
+
+    const readBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(readBack.status, 200);
+    assert.equal(readBack.body.exportPackage.packageKind, "workspace_manifest");
+    assert.equal("ownerUserId" in readBack.body.exportPackage, false);
+    assert.match(readBack.body.manifestMarkdown, /Station Workspace Export Manifest/);
+    assert.match(readBack.body.manifestMarkdown, /Document bodies omitted: yes/);
+    assert.match(readBack.body.manifestMarkdown, /Managed backup or restore guarantee: no/);
+
+    const storedManifest = clone(packageRow.manifest_json);
+    const storedMarkdown = packageRow.manifest_markdown;
+    db.tables.personas[0].name = "Mutated persona must not leak";
+    db.tables.spaces[0].title = "Mutated Space must not leak";
+    db.tables.developer_spaces[0].project_name = "Mutated Developer Space must not leak";
+    db.tables.projects[0].name = "Mutated Project must not leak";
+    db.tables.documents[0].title = "Mutated Document must not leak";
+    for (const table of ["personas", "spaces", "developer_spaces", "projects", "documents"]) {
+      db.failSelectTables.add(table);
+    }
+
+    const blockedReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
+      token: "other-token",
+    });
+    assert.equal(blockedReadBack.status, 404);
+
+    const blockedBundle = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "other-token",
+    });
+    assert.equal(blockedBundle.status, 404);
+
+    const bundleReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(bundleReadBack.status, 200);
+    const bundle = bundleReadBack.body.bundle;
+    const files = assertBundleIntegrity(bundle, "workspace_manifest");
+    assert.deepEqual(Object.keys(bundle.package).sort(), ["format", "id", "packageKind", "status"]);
+    assert.deepEqual(JSON.parse(files.get("manifest.json")?.content ?? "{}"), storedManifest);
+    assert.equal(files.get("manifest.md")?.content, storedMarkdown);
+    assert.match(files.get("README.md")?.content ?? "", /high-level workspace inventory only/);
+
+    const bundleText = JSON.stringify(bundle);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_ID,
+      PERSONA_ID,
+      SPACE_ID,
+      DOC_ID,
+      DEVELOPER_SPACE_ID,
+      PROJECT_ID,
+      DEV_PUBLIC_DOC_ID,
+      "ownerUserId",
+      "personaId",
+      "developerSpaceId",
+      "projectId",
+      "owner_user_id",
+      "source_id",
+      "storage_path",
+      "Mutated persona must not leak",
+      "Mutated Space must not leak",
+      "Mutated Developer Space must not leak",
+      "Mutated Project must not leak",
+      "Mutated Document must not leak",
+      "Public copy body is not required for export refs",
+      "Private Developer Space method must not leave public-safe export refs",
+      "DATABASE_URL",
+      "stack trace",
+      "SQL",
+    ]) {
+      assert.equal(bundleText.includes(forbidden), false, `${forbidden} leaked into Workspace bundle`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("workspace manifest package guards duplicate, malformed, and source failure states", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    db.insertRow("export_packages", {
+      owner_user_id: OWNER_ID,
+      package_kind: "workspace_manifest",
+      status: "processing",
+    });
+
+    const blocked = await requestJson(app, "POST", "/exports/workspace", {
+      token: "owner-token",
+    });
+    assert.equal(blocked.status, 429);
+    assert.equal(blocked.body.code, "quota_exceeded");
+    assert.equal(blocked.body.resource, "export_packages");
+    assert.equal(db.tables.export_packages.length, 1);
+
+    db.tables.export_packages[0].status = "completed";
+    const allowed = await requestJson(app, "POST", "/exports/workspace", {
+      token: "owner-token",
+    });
+    assert.equal(allowed.status, 201);
+
+    for (const scenario of [
+      { label: "missing inventory", manifestJson: { schema: "station.workspace.export_manifest.v1" }, manifestMarkdown: "# stored markdown must not leak" },
+      { label: "wrong schema", manifestJson: { schema: "station.workspace.wrong.v1", privateDetail: "wrong schema detail must not leak" }, manifestMarkdown: "# wrong schema markdown must not leak" },
+      { label: "empty markdown", manifestJson: allowed.body.manifest, manifestMarkdown: "" },
+    ]) {
+      const row = db.insertRow("export_packages", {
+        owner_user_id: OWNER_ID,
+        package_kind: "workspace_manifest",
+        status: "completed",
+        manifest_json: scenario.manifestJson,
+        manifest_markdown: scenario.manifestMarkdown,
+      });
+      const response = await requestJson(app, "GET", `/exports/${row.id}/bundle`, {
+        token: "owner-token",
+      });
+      assert.equal(response.status, 409, scenario.label);
+      const responseText = JSON.stringify(response.body);
+      assert.match(responseText, /stored manifest readback is complete/);
+      assert.doesNotMatch(responseText, /wrong schema detail/);
+      assert.doesNotMatch(responseText, /stored markdown must not leak/);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const failingDb = new InMemorySupabase();
+  failingDb.failSelectTables.add("personas");
+  setSupabaseAdminForTests(failingDb.client as any);
+  const failingApp = await createExportsApp();
+
+  try {
+    const failed = await requestJson(failingApp, "POST", "/exports/workspace", {
+      token: "owner-token",
+    });
+    assert.equal(failed.status, 500);
+    assert.deepEqual(failed.body, {
+      error: "Could not create workspace manifest package.",
+      code: "workspace_export_create_failed",
+    });
+    const row = failingDb.tables.export_packages[0];
+    assert.equal(row.package_kind, "workspace_manifest");
+    assert.equal(row.status, "failed");
+    assert.equal(row.error_message, "Could not finish workspace manifest package.");
+    assert.equal(row.persona_id, null);
+    assert.equal(row.developer_space_id, null);
+    assert.equal(row.project_id, null);
+
+    const listed = await requestJson(failingApp, "GET", "/exports/workspace", {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.exports[0].status, "failed");
+    assert.equal(listed.body.exports[0].errorMessage, "Could not finish workspace manifest package.");
+    const listedText = JSON.stringify(listed.body);
+    assert.doesNotMatch(listedText, /owner_user_id|SQL|stack|DATABASE_URL/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("export package concurrency guard blocks duplicate in-progress targets", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);

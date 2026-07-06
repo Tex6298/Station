@@ -3,7 +3,8 @@ export interface ArchiveExportPackage {
   ownerUserId: string;
   personaId?: string | null;
   developerSpaceId?: string | null;
-  packageKind: 'persona_archive' | 'developer_space_archive';
+  projectId?: string | null;
+  packageKind: 'persona_archive' | 'developer_space_archive' | 'project_manifest' | 'workspace_manifest';
   status: 'requested' | 'processing' | 'completed' | 'failed';
   format: 'json_markdown';
   includedSections: string[];
@@ -47,6 +48,22 @@ export interface DeveloperSpaceExportManifest {
   snapshots: Array<Record<string, unknown>>;
   linkedPublicDocumentRefs: Array<Record<string, unknown>>;
   trust: Record<string, unknown>;
+}
+
+export interface WorkspaceExportManifest {
+  schema: 'station.workspace.export_manifest.v1';
+  generatedAt: string;
+  package: {
+    id: string;
+    status: string;
+    format: string;
+    packageKind: 'workspace_manifest';
+  };
+  counts: Record<string, unknown>;
+  workspaceInventory: Record<string, unknown>;
+  trust: Record<string, unknown>;
+  excludedMaterial: string[];
+  futureMaterial: string[];
 }
 
 export interface ArchiveExportBundleFile {

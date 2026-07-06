@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496A Owner Workspace Export Package Contract
+
+DAEDALUS completed the PR496A implementation on 2026-07-06:
+
+- `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `workspace_manifest` is now an owner-only `export_packages` package kind with
+  a null-target migration/RLS branch.
+- `GET /exports/workspace` and `POST /exports/workspace` provide authenticated
+  owner list/create behavior.
+- Completed workspace manifests use stored JSON/Markdown readback and validated
+  three-file bundle readback.
+- `/studio/export` exposes bounded owner controls for create/list/bundle-file
+  readback while preserving future boundaries for full archive, original files,
+  PDF/binary, backup, restore, share-link, and signed-URL work.
+- Manifest content is high-level inventory only and tests reject raw ids,
+  private bodies, source/storage/provider/runtime/secret-shaped material, and
+  cross-owner readback.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 9 export API tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| Diff-only scope scan | Pass | Changes stayed inside accepted PR496A schema/API/types/web/helper/test/doc files. |
+
 ## PR496A Owner Workspace Export Package Contract ARGUS Preflight
 
 ARGUS accepted PR496A on 2026-07-06:

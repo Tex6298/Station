@@ -104,7 +104,7 @@ export async function assertActiveImportJobQuota(input: {
 
 export async function assertNoInProgressExportPackage(input: {
   ownerUserId: string;
-  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest";
+  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest" | "workspace_manifest";
   personaId?: string | null;
   developerSpaceId?: string | null;
   projectId?: string | null;

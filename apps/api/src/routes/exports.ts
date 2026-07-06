@@ -54,6 +54,36 @@ const PROJECT_INCLUDED_SECTIONS = [
   "trust",
 ];
 
+const WORKSPACE_INCLUDED_SECTIONS = [
+  "personas",
+  "spaces",
+  "developer_spaces",
+  "projects",
+  "public_published_document_refs",
+  "export_package_class_counts",
+  "trust",
+  "excluded_material",
+  "future_material",
+];
+
+const WORKSPACE_EXCLUDED_MATERIAL = [
+  "Raw private archive bodies",
+  "Memory, Canon, continuity, integrity, and chat transcript bodies",
+  "Original uploaded files and source filenames",
+  "Private, draft, unlisted, or community document refs",
+  "Developer Space raw nodes, events, snapshots, ingestion payloads, and keys",
+  "Project owner evidence private refs and linked source rows",
+  "Storage paths, credential material, request secrets, and private integration payloads",
+];
+
+const WORKSPACE_FUTURE_MATERIAL = [
+  "Original-file packages",
+  "PDF, binary archive, print, and Station Press output",
+  "Managed backups, restore drills, redundancy, retention, and expiry",
+  "Public export access, share URLs, signed URLs, and package download URLs",
+  "External job infrastructure and paid entitlement work",
+];
+
 const EXPORT_ERROR_RESPONSES = {
   personaList: {
     error: "Could not load export packages.",
@@ -79,6 +109,14 @@ const EXPORT_ERROR_RESPONSES = {
     error: "Could not create Project manifest package.",
     code: "project_export_create_failed",
   },
+  workspaceList: {
+    error: "Could not load workspace export packages.",
+    code: "workspace_export_list_failed",
+  },
+  workspaceCreate: {
+    error: "Could not create workspace manifest package.",
+    code: "workspace_export_create_failed",
+  },
 } as const;
 
 function exportRow(row: any) {
@@ -88,6 +126,22 @@ function exportRow(row: any) {
     personaId: row.persona_id,
     developerSpaceId: row.developer_space_id ?? null,
     projectId: row.project_id ?? null,
+    packageKind: row.package_kind,
+    status: row.status,
+    format: row.format,
+    includedSections: row.included_sections ?? [],
+    contentSummary: row.content_summary ?? {},
+    errorMessage: row.error_message ?? null,
+    requestedAt: row.requested_at,
+    completedAt: row.completed_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function workspaceExportRow(row: any) {
+  return {
+    id: row.id,
     packageKind: row.package_kind,
     status: row.status,
     format: row.format,
@@ -1101,6 +1155,268 @@ function buildProjectManifestMarkdown(manifest: any) {
   ].join("\n");
 }
 
+function publicPersonaHref(publicSlug: string | null | undefined) {
+  return publicSlug ? `/personas/${encodeURIComponent(publicSlug)}` : null;
+}
+
+function publicSpaceHref(slug: string) {
+  return `/space/${encodeURIComponent(slug)}`;
+}
+
+function publicDocumentSpaceHref(spaceSlug: string) {
+  return publicSpaceHref(spaceSlug);
+}
+
+function latestTimestamp(values: Array<string | null | undefined>) {
+  const sorted = values
+    .filter((value): value is string => typeof value === "string" && value.length > 0)
+    .sort((a, b) => Date.parse(b) - Date.parse(a));
+  return sorted[0] ?? null;
+}
+
+function buildExportPackageClassCounts(rows: Array<Record<string, any>>, currentPackageId: string) {
+  const byKind = new Map<string, Array<Record<string, any>>>();
+  for (const row of rows) {
+    const kind = String(row.package_kind ?? "unknown");
+    const normalized = row.id === currentPackageId
+      ? { ...row, status: "completed", completed_at: row.completed_at ?? new Date().toISOString() }
+      : row;
+    byKind.set(kind, [...(byKind.get(kind) ?? []), normalized]);
+  }
+
+  return [...byKind.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([packageKind, kindRows]) => ({
+      packageKind,
+      total: kindRows.length,
+      statuses: countBy(kindRows, "status"),
+      latestRequestedAt: latestTimestamp(kindRows.map((row) => row.requested_at)),
+      latestCompletedAt: latestTimestamp(kindRows.map((row) => row.completed_at)),
+    }));
+}
+
+async function buildWorkspaceExportManifest(ownerUserId: string, packageId: string) {
+  const sb = getSupabaseAdmin();
+  const [
+    personasRes,
+    spacesRes,
+    developerSpacesRes,
+    projectsRes,
+    documentsRes,
+    exportPackagesRes,
+  ] = await Promise.all([
+    sb
+      .from("personas")
+      .select("name, short_description, visibility, public_slug, public_chat_enabled, public_anonymous_chat_enabled, created_at, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .order("updated_at", { ascending: false }),
+    sb
+      .from("spaces")
+      .select("id, title, slug, short_description, is_public, created_at, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .order("updated_at", { ascending: false }),
+    sb
+      .from("developer_spaces")
+      .select("project_id, project_name, slug, visibility, visualisation_type, created_at, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .order("updated_at", { ascending: false }),
+    sb
+      .from("projects")
+      .select("id, name, slug, visibility, description, created_at, updated_at")
+      .eq("owner_user_id", ownerUserId)
+      .order("updated_at", { ascending: false }),
+    sb
+      .from("documents")
+      .select("title, slug, document_type, status, visibility, published_at, space_id, created_at, updated_at")
+      .eq("author_user_id", ownerUserId)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("published_at", { ascending: false }),
+    sb
+      .from("export_packages")
+      .select("id, package_kind, status, requested_at, completed_at")
+      .eq("owner_user_id", ownerUserId)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  throwIfQueryError(personasRes, "workspace persona inventory");
+  throwIfQueryError(spacesRes, "workspace Space inventory");
+  throwIfQueryError(developerSpacesRes, "workspace Developer Space inventory");
+  throwIfQueryError(projectsRes, "workspace Project inventory");
+  throwIfQueryError(documentsRes, "workspace public document inventory");
+  throwIfQueryError(exportPackagesRes, "workspace export package inventory");
+
+  const projectsById = new Map((projectsRes.data ?? []).map((project: any) => [project.id, project]));
+  const publicSpaces = (spacesRes.data ?? []).filter((space: any) => space.is_public === true);
+  const publicSpacesById = new Map(publicSpaces.map((space: any) => [space.id, space]));
+
+  const personas = (personasRes.data ?? []).map((persona: any) => ({
+    name: persona.name,
+    visibility: persona.visibility,
+    shortDescription: persona.short_description ?? null,
+    publicHref: persona.visibility === "public" ? publicPersonaHref(persona.public_slug) : null,
+    publicChat: {
+      enabled: persona.public_chat_enabled === true,
+      anonymousEnabled: persona.public_anonymous_chat_enabled === true,
+    },
+    createdAt: persona.created_at,
+    updatedAt: persona.updated_at,
+  }));
+
+  const spaces = (spacesRes.data ?? []).map((space: any) => ({
+    title: space.title,
+    slug: space.slug,
+    isPublic: space.is_public === true,
+    shortDescription: space.short_description ?? null,
+    publicHref: space.is_public === true ? publicSpaceHref(space.slug) : null,
+    createdAt: space.created_at,
+    updatedAt: space.updated_at,
+  }));
+
+  const developerSpaces = (developerSpacesRes.data ?? []).map((space: any) => {
+    const project = space.project_id ? projectsById.get(space.project_id) : null;
+    return {
+      projectName: space.project_name,
+      slug: space.slug,
+      visibility: space.visibility,
+      visualisationType: space.visualisation_type,
+      linkedProject: project
+        ? {
+          name: project.name,
+          slug: project.slug,
+        }
+        : null,
+      createdAt: space.created_at,
+      updatedAt: space.updated_at,
+    };
+  });
+
+  const projects = (projectsRes.data ?? []).map((project: any) => ({
+    name: project.name,
+    slug: project.slug,
+    visibility: project.visibility,
+    description: project.description ?? null,
+    createdAt: project.created_at,
+    updatedAt: project.updated_at,
+  }));
+
+  const publicPublishedDocumentRefs = (documentsRes.data ?? [])
+    .flatMap((document: any) => {
+      const space = document.space_id ? publicSpacesById.get(document.space_id) : null;
+      if (!space) return [];
+      return [{
+        title: document.title,
+        slug: document.slug,
+        documentType: document.document_type,
+        publishedAt: document.published_at,
+        publicHref: publicDocumentSpaceHref(space.slug),
+        publicSpace: {
+          title: space.title,
+          slug: space.slug,
+        },
+        createdAt: document.created_at,
+        updatedAt: document.updated_at,
+      }];
+    });
+
+  const exportPackageClasses = buildExportPackageClassCounts(exportPackagesRes.data ?? [], packageId);
+  const counts = {
+    personas: personas.length,
+    spaces: spaces.length,
+    developerSpaces: developerSpaces.length,
+    projects: projects.length,
+    publicPublishedDocumentRefs: publicPublishedDocumentRefs.length,
+    exportPackages: (exportPackagesRes.data ?? []).length,
+  };
+
+  const generatedAt = new Date().toISOString();
+  return {
+    schema: "station.workspace.export_manifest.v1" as const,
+    generatedAt,
+    package: {
+      id: packageId,
+      status: "completed",
+      format: "json_markdown",
+      packageKind: "workspace_manifest",
+    },
+    counts,
+    workspaceInventory: {
+      personas,
+      spaces,
+      developerSpaces,
+      projects,
+      publicPublishedDocumentRefs,
+      exportPackageClasses,
+    },
+    trust: {
+      ownerOnly: true,
+      publicCopiesRemainSeparate: true,
+      documentBodiesOmitted: true,
+      privateSourceBodiesOmitted: true,
+      originalFilesOmitted: true,
+      storagePathsAndSignedUrlsOmitted: true,
+      noPublicExportAccess: true,
+      noManagedBackupRestoreGuarantee: true,
+    },
+    excludedMaterial: WORKSPACE_EXCLUDED_MATERIAL,
+    futureMaterial: WORKSPACE_FUTURE_MATERIAL,
+  };
+}
+
+function buildWorkspaceManifestMarkdown(manifest: any) {
+  return [
+    "# Station Workspace Export Manifest",
+    "",
+    `Generated: ${manifest.generatedAt}`,
+    `Package: ${manifest.package.id}`,
+    "",
+    "## Trust Notes",
+    `- Owner-only package: ${manifest.trust.ownerOnly ? "yes" : "no"}`,
+    `- Document bodies omitted: ${manifest.trust.documentBodiesOmitted ? "yes" : "no"}`,
+    `- Private source bodies omitted: ${manifest.trust.privateSourceBodiesOmitted ? "yes" : "no"}`,
+    `- Original files omitted: ${manifest.trust.originalFilesOmitted ? "yes" : "no"}`,
+    `- Storage paths and signed URLs omitted: ${manifest.trust.storagePathsAndSignedUrlsOmitted ? "yes" : "no"}`,
+    `- Public export access: ${manifest.trust.noPublicExportAccess ? "no" : "yes"}`,
+    `- Managed backup or restore guarantee: ${manifest.trust.noManagedBackupRestoreGuarantee ? "no" : "yes"}`,
+    "",
+    "## Counts",
+    ...Object.entries(manifest.counts).map(([key, value]) => `- ${key}: ${value}`),
+    "",
+    "## Personas",
+    markdownList(manifest.workspaceInventory.personas, "name"),
+    "",
+    "## Spaces",
+    markdownList(manifest.workspaceInventory.spaces, "title"),
+    "",
+    "## Developer Spaces",
+    markdownList(manifest.workspaceInventory.developerSpaces, "projectName"),
+    "",
+    "## Projects",
+    markdownList(manifest.workspaceInventory.projects, "name"),
+    "",
+    "## Public Published Document References",
+    manifest.workspaceInventory.publicPublishedDocumentRefs.length === 0
+      ? "- None"
+      : manifest.workspaceInventory.publicPublishedDocumentRefs.map((document: any) =>
+        `- ${document.title} (${document.documentType}) -> ${document.publicHref}`
+      ).join("\n"),
+    "",
+    "## Existing Export Package Classes",
+    manifest.workspaceInventory.exportPackageClasses.length === 0
+      ? "- None"
+      : manifest.workspaceInventory.exportPackageClasses.map((row: any) =>
+        `- ${row.packageKind}: ${row.total} total`
+      ).join("\n"),
+    "",
+    "## Excluded Material",
+    manifest.excludedMaterial.map((item: string) => `- ${item}`).join("\n"),
+    "",
+    "## Future Material",
+    manifest.futureMaterial.map((item: string) => `- ${item}`).join("\n"),
+    "",
+  ].join("\n");
+}
+
 function sha256(value: string) {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
@@ -1228,6 +1544,90 @@ function buildProjectManifestBundle(row: any) {
     privacy: {
       ownerOnly: true,
       note: "Stored Project manifest readback for the authenticated package owner.",
+    },
+    integrity: {
+      algorithm: "sha256",
+      fileCount: files.length,
+      files: Object.fromEntries(files.map((file) => [file.path, file.sha256])),
+    },
+    files,
+  };
+}
+
+function hasStoredWorkspaceManifestReadback(row: any) {
+  const manifest = row.manifest_json;
+  if (!isPlainRecord(manifest)) return false;
+  const packageInfo = manifest.package;
+  const counts = manifest.counts;
+  const inventory = manifest.workspaceInventory;
+  const trust = manifest.trust;
+  return (
+    manifest.schema === "station.workspace.export_manifest.v1" &&
+    typeof manifest.generatedAt === "string" &&
+    isPlainRecord(packageInfo) &&
+    typeof packageInfo.id === "string" &&
+    packageInfo.packageKind === "workspace_manifest" &&
+    isPlainRecord(counts) &&
+    isPlainRecord(inventory) &&
+    Array.isArray(inventory.personas) &&
+    Array.isArray(inventory.spaces) &&
+    Array.isArray(inventory.developerSpaces) &&
+    Array.isArray(inventory.projects) &&
+    Array.isArray(inventory.publicPublishedDocumentRefs) &&
+    Array.isArray(inventory.exportPackageClasses) &&
+    isPlainRecord(trust) &&
+    trust.ownerOnly === true &&
+    trust.documentBodiesOmitted === true &&
+    trust.privateSourceBodiesOmitted === true &&
+    trust.originalFilesOmitted === true &&
+    trust.storagePathsAndSignedUrlsOmitted === true &&
+    trust.noPublicExportAccess === true &&
+    trust.noManagedBackupRestoreGuarantee === true &&
+    Array.isArray(manifest.excludedMaterial) &&
+    Array.isArray(manifest.futureMaterial) &&
+    typeof row.manifest_markdown === "string" &&
+    row.manifest_markdown.trim().length > 0
+  );
+}
+
+function buildWorkspaceManifestBundle(row: any) {
+  const manifestJson = JSON.stringify(row.manifest_json, null, 2);
+  const manifestMarkdown = row.manifest_markdown;
+  const readme = [
+    `# Station Export Bundle`,
+    "",
+    `Package: ${row.id}`,
+    `Kind: ${row.package_kind}`,
+    `Format: ${row.format}`,
+    `Status: ${row.status}`,
+    "",
+    "## Contents",
+    "- `manifest.json` is the canonical structured owner-only workspace manifest readback.",
+    "- `manifest.md` is the human-readable Markdown readback for the same package.",
+    "",
+    "## Privacy",
+    "This bundle is returned only to the authenticated owner.",
+    "It contains high-level workspace inventory only. Private bodies, raw source rows, original files, storage paths, signed URLs, public download links, backups, and restore claims remain outside this API response.",
+    "",
+  ].join("\n");
+  const files = [
+    bundleFile("README.md", "text/markdown; charset=utf-8", readme),
+    bundleFile("manifest.json", "application/json; charset=utf-8", manifestJson),
+    bundleFile("manifest.md", "text/markdown; charset=utf-8", manifestMarkdown),
+  ];
+
+  return {
+    schema: "station.export.bundle.v1",
+    generatedAt: new Date().toISOString(),
+    package: {
+      id: row.id,
+      packageKind: row.package_kind,
+      format: row.format,
+      status: row.status,
+    },
+    privacy: {
+      ownerOnly: true,
+      note: "Stored workspace manifest readback for the authenticated package owner.",
     },
     integrity: {
       algorithm: "sha256",
@@ -1425,6 +1825,68 @@ async function createProjectExportPackage(project: any, ownerUserId: string) {
   }
 }
 
+async function createWorkspaceExportPackage(ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const requestedAt = new Date().toISOString();
+  await assertNoInProgressExportPackage({
+    ownerUserId,
+    packageKind: "workspace_manifest",
+  });
+
+  const { data: initial, error } = await sb
+    .from("export_packages")
+    .insert({
+      owner_user_id: ownerUserId,
+      persona_id: null,
+      developer_space_id: null,
+      project_id: null,
+      package_kind: "workspace_manifest",
+      status: "processing",
+      format: "json_markdown",
+      included_sections: WORKSPACE_INCLUDED_SECTIONS,
+      manifest_json: {},
+      manifest_markdown: "",
+      content_summary: {},
+      requested_at: requestedAt,
+      completed_at: null,
+    })
+    .select("*")
+    .single();
+
+  if (error || !initial) throw new Error(error?.message ?? "Could not create workspace manifest package.");
+
+  try {
+    const manifest = await buildWorkspaceExportManifest(ownerUserId, initial.id);
+    const manifestMarkdown = buildWorkspaceManifestMarkdown(manifest);
+    const completedAt = new Date().toISOString();
+
+    const { data: completed, error: updateError } = await sb
+      .from("export_packages")
+      .update({
+        status: "completed",
+        manifest_json: manifest,
+        manifest_markdown: manifestMarkdown,
+        content_summary: manifest.counts,
+        completed_at: completedAt,
+      })
+      .eq("id", initial.id)
+      .eq("owner_user_id", ownerUserId)
+      .eq("package_kind", "workspace_manifest")
+      .select("*")
+      .single();
+
+    if (updateError || !completed) {
+      throw new Error(updateError?.message ?? "Could not finish workspace manifest package.");
+    }
+
+    return { row: completed, manifest, manifestMarkdown };
+  } catch {
+    const message = "Could not finish workspace manifest package.";
+    await markExportPackageFailed(initial.id, ownerUserId, message);
+    throw new Error(message);
+  }
+}
+
 async function markExportPackageFailed(packageId: string, ownerUserId: string, message: string) {
   const sb = getSupabaseAdmin();
   await sb
@@ -1437,6 +1899,34 @@ async function markExportPackageFailed(packageId: string, ownerUserId: string, m
     .eq("id", packageId)
     .eq("owner_user_id", ownerUserId);
 }
+
+exportsRouter.get("/workspace", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("export_packages")
+    .select("id, package_kind, status, format, included_sections, content_summary, error_message, requested_at, completed_at, created_at, updated_at")
+    .eq("owner_user_id", req.user!.id)
+    .eq("package_kind", "workspace_manifest")
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json(EXPORT_ERROR_RESPONSES.workspaceList);
+  return res.json({ exports: (data ?? []).map(workspaceExportRow) });
+});
+
+exportsRouter.post("/workspace", async (req, res) => {
+  try {
+    const { row, manifest, manifestMarkdown } = await createWorkspaceExportPackage(req.user!.id);
+    return res.status(201).json({
+      exportPackage: workspaceExportRow(row),
+      manifest,
+      manifestMarkdown,
+    });
+  } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
+    return res.status(500).json(EXPORT_ERROR_RESPONSES.workspaceCreate);
+  }
+});
 
 exportsRouter.get("/developer-spaces/:spaceId", async (req, res) => {
   const space = await loadOwnedDeveloperSpace(req.params.spaceId, req.user!.id);
@@ -1552,7 +2042,7 @@ exportsRouter.get("/:id", async (req, res) => {
 
   if (error || !data) return res.status(404).json({ error: "Export package not found." });
   return res.json({
-    exportPackage: exportRow(data),
+    exportPackage: data.package_kind === "workspace_manifest" ? workspaceExportRow(data) : exportRow(data),
     manifest: data.manifest_json,
     manifestMarkdown: data.manifest_markdown,
   });
@@ -1578,6 +2068,14 @@ exportsRouter.get("/:id/bundle", async (req, res) => {
       });
     }
     return res.json({ bundle: buildProjectManifestBundle(data) });
+  }
+  if (data.package_kind === "workspace_manifest") {
+    if (!hasStoredWorkspaceManifestReadback(data)) {
+      return res.status(409).json({
+        error: "Workspace manifest bundle is available only when stored manifest readback is complete.",
+      });
+    }
+    return res.json({ bundle: buildWorkspaceManifestBundle(data) });
   }
 
   return res.json({ bundle: buildExportBundle(data) });

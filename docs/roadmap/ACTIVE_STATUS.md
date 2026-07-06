@@ -4,6 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR496A ready for ARGUS review
+
+DAEDALUS implemented PR496A:
+
+`docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Decision:
+
+- `workspace_manifest` is now a real `export_packages` package kind via
+  migration `070_workspace_export_manifest.sql`.
+- `GET /exports/workspace` and `POST /exports/workspace` create/list only the
+  signed-in owner's workspace manifest rows.
+- The manifest schema is `station.workspace.export_manifest.v1` and includes
+  only high-level inventory: personas, Spaces, Developer Spaces, Projects,
+  public/published document refs, export package class counts, trust notes, and
+  excluded/future material labels.
+- Completed workspace manifests use existing owner readback at `GET
+  /exports/:id` and validated bundle readback at `GET /exports/:id/bundle`.
+- `/studio/export` now exposes owner controls for creating/listing workspace
+  manifest packages and viewing the three bundle files.
+- No public export route, signed URL, share link, original-file package, PDF,
+  binary archive, backup, restore workflow, provider/runtime, billing, Stripe,
+  Redis, Cloudflare, worker, queue, Archive connector pull, OAuth/API
+  credential flow, public chat, or broad Studio shell work was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Diff-only scope scan stayed inside the accepted PR496A files.
+
+Current lane:
+
+```text
+PR496A - Owner Workspace Export Package Contract
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review migration/RLS, owner API behavior, stored bundle
+  validation, visible `/studio/export` behavior, and no raw/private/source/
+  storage/provider/runtime/billing/public-export leakage.
+- After ARGUS accepts, MIMIR should route ARIADNE hosted proof because schema,
+  owner API behavior, and `/studio/export` visible behavior changed.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR496A accepted for workspace manifest package
 
 ARGUS completed the resumed PR496 hostile preflight:
