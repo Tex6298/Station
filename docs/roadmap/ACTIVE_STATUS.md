@@ -4,19 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500A social connector credential contract review
+## Current lane - PR500A social connector credential contract accepted
 
-DAEDALUS completed the PR500A social connector credential contract:
+ARGUS accepted the PR500A social connector credential contract:
 
-`docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md`
+`docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_IMPLEMENTATION
 ```
 
-Reason:
+Decision:
 
 - Migration 072 adds owner-scoped `social_connector_credentials`, separate from
   legacy social publishing tables, limited to Bluesky manual-credential storage
@@ -24,7 +24,10 @@ Reason:
 - The storage helper uses the separate
   `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` contract and an AES-256-GCM
   `station.social_connector.credential.v1` envelope.
-- Missing or malformed encryption config fails closed before DB work.
+- ARGUS hardened the credential fingerprint to use an HMAC keyed by the social
+  credential encryption key instead of an unkeyed digest over secret material.
+- Missing or malformed encryption config fails closed before DB work, and
+  invalid credential material fails bounded before encryption/fingerprinting.
 - Safe readback contains provider, status, timestamp, and category metadata
   only; it does not return raw encrypted payloads or secret material.
 - Dormant live provider posting code and the dormant document-level social
@@ -52,16 +55,16 @@ Current lane:
 
 ```text
 PR500A - Social Connector Credential Contract
-Owner: ARGUS / A3
-State: OPEN_REVIEW
-Source: docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS
+Source: docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR500A social connector credential contract opened

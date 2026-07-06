@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500A | Social Connector Credential Contract | ARGUS / A3 | Open review; social-specific encrypted credential storage and dormant live-code quarantine are implemented while Social Publishing remains paused/readback-only. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md` |
+| PR500A | Social Connector Credential Contract | MIMIR / A1 | Accepted by ARGUS with a narrow HMAC fingerprint hardening patch; social-specific encrypted storage and dormant live-code quarantine passed while Social Publishing remains paused/readback-only. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500A review | Social Connector Credential Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted with a narrow HMAC fingerprint hardening patch; migration 072, social-specific AES-256-GCM storage helpers/tests, DB types, metadata-only readback, and dormant live social service/composer deletion passed without OAuth, provider calls, posting, queues/workers, billing, credential UI, package changes, public syndication, or social-readiness unpause. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md` |
 | PR500A implementation | Social Connector Credential Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; migration 072, social-specific AES-256-GCM storage helpers/tests, DB types, and deletion of dormant live social service/composer are implemented without OAuth, provider calls, posting, queues/workers, billing, credential UI, package changes, public syndication, or social-readiness unpause. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md` |
 | PR500A opened | Social Connector Credential Contract | MIMIR -> DAEDALUS | Open; implement the ARGUS-accepted encrypted social credential storage contract and dormant live-code quarantine without OAuth, provider calls, posting, queues/workers, billing, credential UI, or public syndication. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md` |
 | PR501 closeout | Discern Companion UI Delta Revalidation | MIMIR | Closed accepted as `CLOSE_PR501_NO_REMAINING_SAFE_DELTA`; no PR501A implementation lane opens. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_CLOSEOUT.md` |

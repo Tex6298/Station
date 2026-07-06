@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto";
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes } from "crypto";
 import { getSupabaseAdmin } from "../../lib/supabase";
 import {
   SOCIAL_CONNECTOR_CREDENTIAL_ALGORITHM,
@@ -81,8 +81,10 @@ export function fingerprintSocialConnectorCredential(
   provider: SocialConnectorProviderId,
   secretMaterial: unknown,
 ) {
-  return createHash("sha256")
-    .update(`station.social_connector.credential:${provider}:${stableSecretMaterial(secretMaterial)}`)
+  const key = requiredSocialConnectorCredentialEncryptionKey();
+  return createHmac("sha256", key)
+    .update(`station.social_connector.credential:${provider}:`)
+    .update(stableSecretMaterial(secretMaterial))
     .digest("hex")
     .slice(0, 16);
 }
@@ -318,7 +320,14 @@ function requiredSocialConnectorCredentialEncryptionKey() {
 }
 
 function stableSecretMaterial(value: unknown): string {
-  return JSON.stringify(sortJsonValue(value));
+  const serialized = JSON.stringify(sortJsonValue(value));
+  if (typeof serialized !== "string") {
+    throw new SocialConnectorCredentialStorageError(
+      "social_connector_credential_payload_invalid",
+      "Social connector credential payload is invalid.",
+    );
+  }
+  return serialized;
 }
 
 function sortJsonValue(value: unknown): unknown {

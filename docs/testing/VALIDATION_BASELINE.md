@@ -4,15 +4,15 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR500A Social Connector Credential Contract
+## PR500A Social Connector Credential Contract ARGUS Review
 
-DAEDALUS completed the PR500A social connector credential contract on
+ARGUS accepted the PR500A social connector credential contract on
 2026-07-06:
 
-- `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md`
+- `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_IMPLEMENTATION`.
 
 Reason:
 
@@ -22,6 +22,8 @@ Reason:
 - credential payloads are encrypted with a social-specific AES-256-GCM
   `station.social_connector.credential.v1` envelope and the separate
   `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` contract;
+- ARGUS hardened credential fingerprints to use an HMAC keyed by the social
+  credential encryption key instead of an unkeyed digest over secret material;
 - missing or malformed encryption config fails closed before DB work;
 - readback returns provider/status/timestamp/category metadata only;
 - dormant live provider posting service and document composer were deleted;

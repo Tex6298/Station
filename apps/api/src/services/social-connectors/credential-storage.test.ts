@@ -398,4 +398,6 @@ test("social connector credential migration and source stay inside dormant stora
 
   assert.doesNotMatch(storageSource, /fetch\s*\(|dispatchPost|postTo[A-Z]|social_connections|social_posts|OAuth|tokenExchange|callbackUrl|webhook|new Queue|Worker\(|redis|cloudflare|stripe|billing/i);
   assert.doesNotMatch(storageSource, /providerSdk|providerClient|externalPost|scheduled_for|sent_at|error_message/i);
+  assert.match(storageSource, /createHmac\("sha256", key\)/);
+  assert.doesNotMatch(storageSource, /createHash\("sha256"\)\s*\.update\(`station\.social_connector\.credential/);
 });
