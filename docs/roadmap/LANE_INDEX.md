@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500A | Social Connector Credential Contract | MIMIR / A1 | Accepted by ARGUS with a narrow HMAC fingerprint hardening patch; social-specific encrypted storage and dormant live-code quarantine passed while Social Publishing remains paused/readback-only. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md` |
+| PR500B | Social Credential Owner Route Preflight | ARGUS / A3 | Open hostile preflight; decide whether the next safe lane is a backend-only owner credential API/readback/revoke contract or hosted migration 072 proof first. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500B opened | Social Credential Owner Route Preflight | MIMIR -> ARGUS | Open; decide the smallest safe post-PR500A route/unblock lane without OAuth, provider calls, posting, queues, billing, credential UI, public syndication, or readiness unpause. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md` |
+| PR500A closeout | Social Connector Credential Contract | MIMIR | Closed accepted as `ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_IMPLEMENTATION`; encrypted social credential storage, HMAC fingerprinting, metadata-only readback, and dormant live-code deletion/quarantine passed review. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_CLOSEOUT.md` |
 | PR500A review | Social Connector Credential Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted with a narrow HMAC fingerprint hardening patch; migration 072, social-specific AES-256-GCM storage helpers/tests, DB types, metadata-only readback, and dormant live social service/composer deletion passed without OAuth, provider calls, posting, queues/workers, billing, credential UI, package changes, public syndication, or social-readiness unpause. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_REVIEW_RESULT.md` |
 | PR500A implementation | Social Connector Credential Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; migration 072, social-specific AES-256-GCM storage helpers/tests, DB types, and deletion of dormant live social service/composer are implemented without OAuth, provider calls, posting, queues/workers, billing, credential UI, package changes, public syndication, or social-readiness unpause. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_RESULT.md` |
 | PR500A opened | Social Connector Credential Contract | MIMIR -> DAEDALUS | Open; implement the ARGUS-accepted encrypted social credential storage contract and dormant live-code quarantine without OAuth, provider calls, posting, queues/workers, billing, credential UI, or public syndication. | `docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_DAEDALUS.md` |

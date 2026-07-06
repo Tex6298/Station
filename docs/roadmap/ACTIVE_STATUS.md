@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500A social connector credential contract accepted
+## Current lane - PR500B social credential owner route preflight
+
+MIMIR closed PR500A and opened PR500B for ARGUS:
+
+`docs/roadmap/PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT_CLOSEOUT.md`
+
+`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md`
+
+Reason:
+
+- ARGUS accepted PR500A social-specific encrypted credential storage with a
+  narrow HMAC fingerprint hardening patch.
+- PR500A remains backend/storage-only and does not expose a route, Settings UI,
+  OAuth flow, provider call, posting behavior, or readiness-unpause claim.
+- The next useful social connector step is likely an owner-only credential
+  API/readback/revoke contract for the smallest manual credential fixture, but
+  ARGUS should decide whether hosted migration 072 proof must happen first.
+
+Current lane:
+
+```text
+PR500B - Social Credential Owner Route Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR500B_SOCIAL_CREDENTIAL_OWNER_ROUTE_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR500A social connector credential contract accepted
 
 ARGUS accepted the PR500A social connector credential contract:
 
