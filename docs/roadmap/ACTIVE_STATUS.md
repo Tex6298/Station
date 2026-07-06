@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR495C hosted rehearsal opened
+## Latest ARIADNE result - PR495C hosted rehearsal passed
+
+ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
+
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_RESULT.md`
+
+State:
+
+```text
+PASS_READY_FOR_PR495C_CLOSEOUT
+```
+
+Proof:
+
+- hosted web/API freshness at review commit `6ca19c88` or later;
+- replay owner authenticated and had creator-or-above entitlement;
+- owner `/studio` to `/studio/publishing` clickthrough worked;
+- owner Seminar readiness panel passed desktop, `375px`, and `390px` checks;
+- initial hosted readback had four candidates, one existing private draft, and
+  three enabled `Create seminar draft` actions;
+- desktop create succeeded and swapped the row to `Private draft saved`;
+- duplicate restore through the owner records API stayed idempotent;
+- refresh kept four visible candidate rows with no duplicate draft row;
+- mobile `375px` and `390px` retained two private draft readbacks and two
+  remaining create actions without panel overflow or clipped controls;
+- private-tier non-creator API create returned `403` and showed no enabled
+  owner draft action;
+- signed-out users could not reach `/studio/publishing`;
+- public `/events/seminars` kept the accepted readback surface and signed-in
+  interest mark/withdraw passed;
+- no private/raw/secret/runtime/scope leak or product drift was found.
+
+Current lane:
+
+```text
+PR495C - Owner Seminar Draft Action Closeout
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR495C_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR495C or route any final wording-only closeout work.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous MIMIR routing - PR495C hosted rehearsal opened
 
 MIMIR routed ARIADNE to run the hosted proof requested by ARGUS:
 

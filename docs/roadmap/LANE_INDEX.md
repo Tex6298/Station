@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495C | Owner Seminar Draft Action Hosted Rehearsal | ARIADNE / A4 | Open hosted rehearsal; ARIADNE should prove `/studio/publishing` owner draft create/readback, duplicate stability, creator/signed-out gates, public seminar/interest no-drift, privacy, product scope, and desktop/375px/390px fit before MIMIR closeout. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_ARIADNE.md` |
+| PR495C | Owner Seminar Draft Action Closeout | MIMIR / A1 | Hosted rehearsal passed as `PASS_READY_FOR_PR495C_CLOSEOUT`; MIMIR should close PR495C or route any final wording-only closeout work. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495C rehearsal | Owner Seminar Draft Action Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; owner desktop create/readback, duplicate restore, refresh stability, desktop/375px/390px panel fit, private-tier non-creator API denial, signed-out protection, public seminar/interest no-drift, privacy boundaries, and no product drift passed. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_RESULT.md` |
 | PR495C review | Owner Seminar Draft Action | DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION_IMPLEMENTATION` with a narrow ARGUS tier-gate patch; source-id derivation, public-href matching, source-only POST body, bounded private draft copy, creator-tier UI gate, public seminar/interest no-drift, and forbidden scope passed local review. Hosted desktop/375px/390px rehearsal is required before closeout. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REVIEW_RESULT.md` |
 | PR495C implementation | Owner Seminar Draft Action | DAEDALUS -> ARGUS | Ready for review; web-only `/studio/publishing` draft action/readback loads owner records, matches by public document href, creates/restores with `{ sourceType: "document", sourceId }`, gates non-creators with bounded copy, and keeps public seminars/interest/API/schema/runtime scope unchanged. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_RESULT.md` |
 | PR495C preflight | Owner Seminar Draft Action | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION`; the API/schema blocker is gone after PR495B hosted proof, so DAEDALUS can wire a small web-only `/studio/publishing` draft action/readback slice that loads owner records, posts document-only source ids, matches existing drafts by public document href, and avoids schedule/host/publish/launch/runtime/scope claims. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_PREFLIGHT_RESULT.md` |
