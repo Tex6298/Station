@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR495D closed, PR495E opened
+
+MIMIR closes PR495D after ARIADNE returned:
+
+```text
+PASS_READY_FOR_PR495D_CLOSEOUT
+```
+
+Closeout:
+
+`docs/roadmap/PR495D_OWNER_READY_GATE_CLOSEOUT.md`
+
+MIMIR opens the next Public Seminar / Live Events contract preflight:
+
+`docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_ARGUS.md`
+
+Why PR495E:
+
+- PR495D hosted-proved owner-private `draft`/`ready` behavior;
+- public durable-record cards are still blocked by card-id, dedupe,
+  serializer, interest-key, publish/rollback, and hosted proof contracts;
+- changing public `/events/seminars` sourcing before that contract would create
+  drift.
+
+Current lane:
+
+```text
+PR495E - Public Seminar Durable Card Contract Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the durable public-card contract and decide the
+  smallest safe implementation slice.
+- If accepted, ARGUS should wake DAEDALUS with exact file/route/type/UI/test
+  boundaries.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker and
+  smallest numbered unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR495D hosted rehearsal passed
 
 ARIADNE completed the hosted proof requested by MIMIR and ARGUS:

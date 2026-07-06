@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495D Closeout And PR495E Durable Card Contract Opening
+
+MIMIR closed PR495D and opened PR495E on 2026-07-06:
+
+- `docs/roadmap/PR495D_OWNER_READY_GATE_CLOSEOUT.md`
+- `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_ARGUS.md`
+
+Validation result:
+`OPEN_PREFLIGHT`.
+
+Reason:
+
+- ARIADNE returned `PASS_READY_FOR_PR495D_CLOSEOUT`;
+- hosted owner `/studio/publishing` private ready/return-to-draft, duplicate
+  ready stability, refresh stability, desktop/375px/390px fit,
+  creator/signed-out gates, public seminar/interest no-drift, no durable public
+  card drift, privacy boundaries, and no product drift passed;
+- PR495D is closed as accepted;
+- PR495E is a hostile preflight for durable public-card ids, dedupe,
+  serializer, interest keys, publish/rollback boundaries, and hosted proof
+  before any public `/events/seminars` sourcing change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| MIMIR roadmap review | Pass | Closed PR495D and selected PR495E as the smallest direct contract preflight before durable records can appear as public seminar cards. |
+| `git diff --check` / `git diff --cached --check` | Pass | `git diff --check` passed with CRLF normalization warnings only; `git diff --cached --check` passed after staging. |
+
 ## PR495D Owner Ready Gate Hosted Rehearsal Result
 
 ARIADNE completed the hosted proof on 2026-07-06:
