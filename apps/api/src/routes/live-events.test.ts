@@ -183,6 +183,9 @@ class InMemorySupabase {
       row.status ??= "draft";
       row.visibility ??= "private";
       row.discussion_thread_id ??= null;
+      row.scheduled_starts_at ??= null;
+      row.scheduled_time_zone ??= null;
+      row.scheduled_duration_minutes ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -515,6 +518,7 @@ function resolvedSeminarCard(
       discussionHref: null,
       featuredAt,
       publishedAt: featuredAt,
+      schedule: null,
       interestCount: 0,
       space: sourceType === "document"
         ? { title: "Station House", href: "/space/station-house" }
@@ -1307,6 +1311,291 @@ test("owner seminar record transition storage failures return bounded errors", a
     ]) {
       assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
     }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public seminar schedule migration and DB types stay narrow", () => {
+  const migration = readFileSync("infra/supabase/migrations/071_public_seminar_schedule_metadata.sql", "utf8");
+  const dbTypes = readFileSync("packages/db/src/types.ts", "utf8");
+
+  for (const column of [
+    "scheduled_starts_at timestamptz null",
+    "scheduled_time_zone text null",
+    "scheduled_duration_minutes integer null",
+  ]) {
+    assert.match(migration, new RegExp(column.replace(/[()]/g, "\\$&")));
+  }
+  assert.match(migration, /public_seminar_records_schedule_metadata_check/);
+  assert.match(migration, /scheduled_duration_minutes between 15 and 480/);
+  assert.match(migration, /idx_public_seminar_records_public_schedule/);
+  assert.match(migration, /where status = 'published'\s+and visibility = 'public'\s+and scheduled_starts_at is not null/);
+  assert.doesNotMatch(migration, /add column if not exists .*?(location|meeting_url|calendar_url|reminder|registration|ticket|host_user|moderator|attendee|provider|runtime)/i);
+  assert.doesNotMatch(migration, /create table/i);
+
+  assert.match(dbTypes, /scheduled_starts_at: string \| null/);
+  assert.match(dbTypes, /scheduled_time_zone: string \| null/);
+  assert.match(dbTypes, /scheduled_duration_minutes: number \| null/);
+});
+
+test("owner can set, update, and clear seminar schedule metadata without status changes", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    (db as any).authUsers["other-creator-token"] = { id: "other-creator", email: "other@example.test" };
+    db.insertRow("profiles", {
+      id: "other-creator",
+      email: "other@example.test",
+      tier: "creator",
+      is_admin: false,
+    });
+    const record = seedOwnerSeminarRecord(db, {
+      id: "record-schedule",
+      status: "ready",
+      visibility: "private",
+    });
+
+    const signedOut = await requestJson(app, "PATCH", `/events/seminars/records/${record.id}/schedule`, {
+      body: { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 60 },
+    });
+    assert.equal(signedOut.status, 401);
+
+    const insufficientTier = await requestJson(app, "PATCH", `/events/seminars/records/${record.id}/schedule`, {
+      token: "member-token",
+      body: { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 60 },
+    });
+    assert.equal(insufficientTier.status, 403);
+
+    const nonOwner = await requestJson(app, "PATCH", `/events/seminars/records/${record.id}/schedule`, {
+      token: "other-creator-token",
+      body: { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 60 },
+    });
+    assert.equal(nonOwner.status, 404);
+
+    const scheduled = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "PATCH",
+      `/events/seminars/records/${record.id}/schedule`,
+      {
+        token: "owner-token",
+        body: {
+          startsAt: "2026-07-06T18:00:00.000Z",
+          timeZone: "Europe/London",
+          durationMinutes: 90,
+        },
+      }
+    );
+    assert.equal(scheduled.status, 200);
+    assert.deepEqual(scheduled.body.record.schedule, {
+      status: "scheduled",
+      startsAt: "2026-07-06T18:00:00.000Z",
+      timeZone: "Europe/London",
+      durationMinutes: 90,
+    });
+    assert.equal(scheduled.body.record.status, "ready");
+    assert.equal(scheduled.body.record.visibility, "private");
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === record.id)!.scheduled_time_zone, "Europe/London");
+
+    const updated = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "PATCH",
+      `/events/seminars/records/${record.id}/schedule`,
+      {
+        token: "owner-token",
+        body: {
+          startsAt: "2026-07-06T19:30:00+01:00",
+          timeZone: "UTC",
+          durationMinutes: null,
+        },
+      }
+    );
+    assert.equal(updated.status, 200);
+    assert.deepEqual(updated.body.record.schedule, {
+      status: "scheduled",
+      startsAt: "2026-07-06T18:30:00.000Z",
+      timeZone: "UTC",
+      durationMinutes: null,
+    });
+    assert.equal(updated.body.record.status, "ready");
+
+    const cleared = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "PATCH",
+      `/events/seminars/records/${record.id}/schedule`,
+      {
+        token: "owner-token",
+        body: {
+          startsAt: null,
+          timeZone: null,
+        },
+      }
+    );
+    assert.equal(cleared.status, 200);
+    assert.equal(cleared.body.record.schedule, null);
+    assert.equal(cleared.body.record.status, "ready");
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === record.id)!.scheduled_starts_at, null);
+
+    const json = JSON.stringify({ scheduled: scheduled.body, updated: updated.body, cleared: cleared.body });
+    for (const forbidden of [
+      "owner_user_id",
+      "source_id",
+      "discussion_thread_id",
+      "other-creator",
+      "owner-user",
+      "public_seminar_records",
+      "provider payload",
+      "stack trace",
+      "ticket",
+      "attendee",
+      "calendar invite",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar schedule metadata rejects invalid or expanded bodies", async () => {
+  const invalidBodies = [
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 60, ticketUrl: "https://example.test" },
+    { startsAt: "2026-07-06T18:00:00.000Z" },
+    { startsAt: "not-a-date", timeZone: "UTC", durationMinutes: 60 },
+    { startsAt: "2026-07-06 18:00:00", timeZone: "UTC", durationMinutes: 60 },
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "Mars/Base", durationMinutes: 60 },
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "", durationMinutes: 60 },
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 14 },
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 481 },
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 30.5 },
+    { startsAt: null, timeZone: null, durationMinutes: 60 },
+    { startsAt: null, timeZone: "UTC", durationMinutes: null },
+    { startsAt: "2026-07-06T18:00:00.000Z", timeZone: null, durationMinutes: null },
+  ];
+
+  for (const [index, body] of invalidBodies.entries()) {
+    const db = new InMemorySupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = createEventsApp();
+
+    try {
+      const record = seedOwnerSeminarRecord(db, { id: `record-invalid-schedule-${index}` });
+      const response = await requestJson(app, "PATCH", `/events/seminars/records/${record.id}/schedule`, {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400, JSON.stringify(body));
+      assert.deepEqual(response.body, {
+        error: "Unsupported seminar schedule metadata.",
+        code: "seminar_record_invalid_schedule",
+      });
+      assert.equal(db.rows("public_seminar_records").find((row) => row.id === record.id)!.scheduled_starts_at, null);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("public list and detail show stored schedule only for durable published records", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecordSource(db, { id: "doc-public", author_user_id: "owner-user" });
+    seedOwnerSeminarRecordSource(db, { id: "doc-unscheduled", author_user_id: "owner-user" });
+    db.insertRow("discover_feed", {
+      id: "feed-source",
+      item_type: "document",
+      item_id: "doc-unscheduled",
+      event_type: "featured",
+      created_at: "2026-07-05T12:00:00.000Z",
+    });
+    const record = db.insertRow("public_seminar_records", {
+      id: "record-scheduled-public",
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Scheduled durable seminar",
+      summary: "Stored schedule only.",
+      status: "published",
+      visibility: "public",
+      scheduled_starts_at: "2026-07-06T18:00:00.000Z",
+      scheduled_time_zone: "Europe/London",
+      scheduled_duration_minutes: 75,
+      updated_at: "2026-07-05T13:00:00.000Z",
+    });
+    db.insertRow("public_seminar_records", {
+      id: "record-unscheduled-public",
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-unscheduled",
+      title: "Unscheduled durable seminar",
+      summary: "No schedule metadata.",
+      status: "published",
+      visibility: "public",
+      updated_at: "2026-07-05T11:00:00.000Z",
+    });
+
+    const list = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars?limit=20");
+    assert.equal(list.status, 200);
+    const scheduled = list.body.cards.find((card) => card.id === durablePublicSeminarCardId(record.id));
+    assert.ok(scheduled);
+    assert.deepEqual(scheduled.schedule, {
+      status: "scheduled",
+      startsAt: "2026-07-06T18:00:00.000Z",
+      timeZone: "Europe/London",
+      durationMinutes: 75,
+    });
+    const sourceDerived = list.body.cards.find((card) => card.sourceType === "document" && card.href.endsWith("/doc-unscheduled"));
+    assert.equal(sourceDerived?.schedule, null);
+
+    const detail = await requestJson<PublicSeminarDetailResponse>(
+      app,
+      "GET",
+      `/events/seminars/${scheduled.id}`
+    );
+    assert.equal(detail.status, 200);
+    assert.deepEqual(detail.body.card.schedule, scheduled.schedule);
+
+    db.rows("public_seminar_records").find((row) => row.id === record.id)!.visibility = "private";
+    const privateTarget = await requestJson(app, "GET", `/events/seminars/${scheduled.id}`);
+    assert.equal(privateTarget.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar schedule storage failures return bounded errors", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    const record = seedOwnerSeminarRecord(db, { id: "record-schedule-failure" });
+    db.failNext(
+      "public_seminar_records",
+      "select",
+      "table=public_seminar_records owner_user_id=owner-user source_id=doc-public stack trace"
+    );
+
+    const response = await requestJson(app, "PATCH", `/events/seminars/records/${record.id}/schedule`, {
+      token: "owner-token",
+      body: { startsAt: "2026-07-06T18:00:00.000Z", timeZone: "UTC", durationMinutes: 60 },
+    });
+    assert.equal(response.status, 503);
+    assert.deepEqual(response.body, {
+      error: "Could not update seminar schedule metadata.",
+      code: "seminar_record_schedule_unavailable",
+    });
+
+    const json = JSON.stringify(response.body);
+    assert.equal(json.includes("public_seminar_records"), false);
+    assert.equal(json.includes("owner-user"), false);
+    assert.equal(json.includes("doc-public"), false);
+    assert.equal(json.includes("stack trace"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

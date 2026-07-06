@@ -3,15 +3,19 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import type { OwnerPublicSeminarRecord } from "@station/types";
 import {
+  seminarScheduleFormDefaults,
   seminarHostReadiness,
   seminarRecordForCandidate,
+  seminarScheduleMetadataCopy,
+  seminarSchedulePatchBody,
+  seminarScheduleReadback,
   seminarSourceDocumentForCandidate,
   upsertSeminarRecord,
 } from "./seminar-host-readiness";
 import type { PublishingDocument, PublishingSpace } from "./publishing";
 
 const BANNED_COPY =
-  /\b(?:host|propose|schedule|book|reserve|launch|invite|attendee|attendees|RSVP|ticket|tickets|payment|waitlist|reminder|calendar|live room|stream|recording|recorded|transcript|media|provider|queue|worker|Redis|Cloudflare|Stripe)\b/i;
+  /\b(?:host|propose|book|reserve|launch|invite|attendee|attendees|RSVP|ticket|tickets|payment|waitlist|reminder|calendar invite|add to calendar|live room|stream|recording|recorded|transcript|media|provider|queue|worker|Redis|Cloudflare|Stripe)\b/i;
 
 const spaces: PublishingSpace[] = [
   { id: "space-public", slug: "station-house", title: "Station House", is_public: true },
@@ -152,6 +156,52 @@ test("seminar draft helpers match by public href and keep creates source-only", 
   assert.equal(Object.keys(publishBody).join(","), "status");
 });
 
+test("seminar schedule helpers keep metadata exact and bounded", () => {
+  const record = ownerSeminarRecord({
+    schedule: {
+      status: "scheduled",
+      startsAt: "2026-07-06T18:00:00.000Z",
+      timeZone: "UTC",
+      durationMinutes: 60,
+    },
+  });
+
+  assert.deepEqual(seminarScheduleFormDefaults(record), {
+    startsAt: "2026-07-06T18:00:00.000Z",
+    timeZone: "UTC",
+    durationMinutes: "60",
+  });
+  assert.deepEqual(seminarSchedulePatchBody({
+    startsAt: "2026-07-06T18:00:00.000Z",
+    timeZone: "Europe/London",
+    durationMinutes: "90",
+  }), {
+    startsAt: "2026-07-06T18:00:00.000Z",
+    timeZone: "Europe/London",
+    durationMinutes: 90,
+  });
+  assert.deepEqual(seminarSchedulePatchBody({
+    startsAt: "",
+    timeZone: "",
+    durationMinutes: "",
+  }), {
+    startsAt: null,
+    timeZone: null,
+    durationMinutes: null,
+  });
+  assert.equal(seminarSchedulePatchBody({
+    startsAt: "2026-07-06T18:00:00.000Z",
+    timeZone: "UTC",
+    durationMinutes: "soon",
+  }), null);
+  assert.equal(seminarSchedulePatchBody({ startsAt: "2026-07-06T18:00:00.000Z", timeZone: "", durationMinutes: "" }), null);
+  assert.match(seminarScheduleReadback(record), /Scheduled/);
+  assert.match(seminarScheduleReadback(record), /60 min/);
+  assert.equal(seminarScheduleReadback(ownerSeminarRecord()), "Schedule metadata not posted.");
+  assert.equal(seminarScheduleMetadataCopy(), "Schedule metadata only. Public readback appears only after the record is published.");
+  assert.doesNotMatch(seminarScheduleMetadataCopy(), BANNED_COPY);
+});
+
 test("publishing dashboard wires seminar readiness without new API or public route drift", () => {
   const source = readFileSync("apps/web/components/studio/publishing-dashboard.tsx", "utf8");
 
@@ -159,8 +209,14 @@ test("publishing dashboard wires seminar readiness without new API or public rou
   assert.match(source, /apiGet<OwnerPublicSeminarRecordsResponse>\("\/events\/seminars\/records"/);
   assert.match(source, /apiPost<OwnerPublicSeminarRecordResponse>\(\s*"\/events\/seminars\/records"/);
   assert.match(source, /apiPost<OwnerPublicSeminarRecordResponse>\(\s*`\/events\/seminars\/records\/\$\{encodeURIComponent\(record\.id\)\}\/transition`/);
+  assert.match(source, /apiPatch<OwnerPublicSeminarRecordResponse>\(\s*`\/events\/seminars\/records\/\$\{encodeURIComponent\(record\.id\)\}\/schedule`/);
   assert.match(source, /\{ sourceType: "document", sourceId: document\.id \}/);
   assert.match(source, /const body: TransitionOwnerPublicSeminarRecordRequest = \{ status \}/);
+  assert.match(source, /seminarSchedulePatchBody\(input\)/);
+  assert.match(source, /\{ startsAt: null, timeZone: null, durationMinutes: null \}/);
+  assert.match(source, /seminarScheduleMetadataCopy/);
+  assert.match(source, /Save schedule metadata/);
+  assert.match(source, /Clear schedule metadata/);
   assert.match(source, /seminarRecordForCandidate/);
   assert.match(source, /seminarSourceDocumentForCandidate/);
   assert.match(source, /upsertSeminarRecord/);
@@ -173,7 +229,7 @@ test("publishing dashboard wires seminar readiness without new API or public rou
   assert.match(source, /Public listing is not live\./);
   assert.match(source, /Publish record/);
   assert.match(source, /Public record/);
-  assert.match(source, /Public listing pending readback wiring\./);
+  assert.match(source, /Public listing uses stored schedule metadata only\./);
   assert.match(source, /Return to ready/);
   assert.match(source, /Return to draft/);
   assert.match(source, /Seminar draft status is unavailable\./);
@@ -193,7 +249,7 @@ test("publishing dashboard wires seminar readiness without new API or public rou
     source.indexOf("function upsertApproval"),
   );
   for (const scopedSource of [createDraftBlock, seminarActionBlock]) {
-    assert.doesNotMatch(scopedSource, /title:\s*document\.title|summary:\s*document|status:\s*"|visibility:\s*"|ownerUserId|owner_user_id|discussionThreadId|discussion_thread_id|sourceBody|source_label|RSVP|ticket|payment|Stripe|Cloudflare|Redis|Worker\(|new Queue|propose|schedule|book|attendee|waitlist|reminder|live room|stream|recording|transcript|provider|public seminar is live/i);
+    assert.doesNotMatch(scopedSource, /title:\s*document\.title|summary:\s*document|status:\s*"|visibility:\s*"|ownerUserId|owner_user_id|discussionThreadId|discussion_thread_id|sourceBody|source_label|RSVP|ticket|payment|Stripe|Cloudflare|Redis|Worker\(|new Queue|propose|book|attendee|waitlist|reminder|calendar invite|add to calendar|live room|stream|recording|transcript|provider|public seminar is live/i);
   }
 });
 
@@ -210,6 +266,7 @@ function ownerSeminarRecord(overrides: Partial<OwnerPublicSeminarRecord> = {}): 
       title: "Station House",
       href: "/space/station-house",
     },
+    schedule: null,
     discussionLinked: false,
     createdAt: "2026-07-05T10:00:00.000Z",
     updatedAt: "2026-07-05T10:00:00.000Z",

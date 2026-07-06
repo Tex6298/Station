@@ -34,11 +34,16 @@ import {
 } from "@/lib/publishing";
 import {
   seminarRecordForCandidate,
+  seminarScheduleFormDefaults,
+  seminarScheduleMetadataCopy,
+  seminarSchedulePatchBody,
+  seminarScheduleReadback,
   seminarHostReadiness,
   seminarSourceDocumentForCandidate,
   upsertSeminarRecord,
   type SeminarHostReadinessCandidate,
   type SeminarHostReadinessReadback,
+  type SeminarScheduleFormState,
 } from "@/lib/seminar-host-readiness";
 
 const routeStoryRows = publishingDashboardRouteStoryRows();
@@ -57,6 +62,8 @@ export function PublishingDashboard() {
   const [seminarRecordsLoading, setSeminarRecordsLoading] = useState(true);
   const [seminarRecordsError, setSeminarRecordsError] = useState<string | null>(null);
   const [busySeminarHref, setBusySeminarHref] = useState<string | null>(null);
+  const [busySeminarScheduleId, setBusySeminarScheduleId] = useState<string | null>(null);
+  const [seminarScheduleInputs, setSeminarScheduleInputs] = useState<Record<string, SeminarScheduleFormState>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -165,6 +172,63 @@ export function PublishingDashboard() {
       setSeminarRecordsError("Seminar draft status is unavailable.");
     } finally {
       setBusySeminarHref(null);
+    }
+  }
+
+  function updateSeminarScheduleInput(record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) {
+    setSeminarScheduleInputs((current) => ({
+      ...current,
+      [record.id]: input,
+    }));
+  }
+
+  async function saveSeminarSchedule(record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) {
+    if (!token || !seminarDraftAllowed) return;
+    const body = seminarSchedulePatchBody(input);
+    if (!body) {
+      setSeminarRecordsError("Seminar schedule metadata is unavailable.");
+      return;
+    }
+
+    setBusySeminarScheduleId(record.id);
+    setSeminarRecordsError(null);
+    try {
+      const response = await apiPatch<OwnerPublicSeminarRecordResponse>(
+        `/events/seminars/records/${encodeURIComponent(record.id)}/schedule`,
+        body,
+        token,
+      );
+      setSeminarRecords((current) => upsertSeminarRecord(current, response.record));
+      setSeminarScheduleInputs((current) => ({
+        ...current,
+        [response.record.id]: seminarScheduleFormDefaults(response.record),
+      }));
+    } catch {
+      setSeminarRecordsError("Seminar schedule metadata is unavailable.");
+    } finally {
+      setBusySeminarScheduleId(null);
+    }
+  }
+
+  async function clearSeminarSchedule(record: OwnerPublicSeminarRecord) {
+    if (!token || !seminarDraftAllowed) return;
+    setBusySeminarScheduleId(record.id);
+    setSeminarRecordsError(null);
+    try {
+      const response = await apiPatch<OwnerPublicSeminarRecordResponse>(
+        `/events/seminars/records/${encodeURIComponent(record.id)}/schedule`,
+        { startsAt: null, timeZone: null, durationMinutes: null },
+        token,
+      );
+      setSeminarRecords((current) => upsertSeminarRecord(current, response.record));
+      setSeminarScheduleInputs((current) => ({
+        ...current,
+        [response.record.id]: seminarScheduleFormDefaults(response.record),
+      }));
+    } catch {
+      setSeminarRecordsError("Seminar schedule metadata is unavailable.");
+    } finally {
+      setBusySeminarScheduleId(null);
     }
   }
 
@@ -282,8 +346,13 @@ export function PublishingDashboard() {
           recordsError={seminarRecordsError}
           canCreateDraft={seminarDraftAllowed}
           busyDocumentHref={busySeminarHref}
+          busyScheduleId={busySeminarScheduleId}
+          scheduleInputs={seminarScheduleInputs}
           onCreateDraft={createSeminarDraft}
           onTransitionDraft={transitionSeminarDraft}
+          onScheduleInputChange={updateSeminarScheduleInput}
+          onSaveSchedule={saveSeminarSchedule}
+          onClearSchedule={clearSeminarSchedule}
         />
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
@@ -393,8 +462,13 @@ function SeminarReadinessPanel({
   recordsError,
   canCreateDraft,
   busyDocumentHref,
+  busyScheduleId,
+  scheduleInputs,
   onCreateDraft,
   onTransitionDraft,
+  onScheduleInputChange,
+  onSaveSchedule,
+  onClearSchedule,
 }: {
   readback: SeminarHostReadinessReadback;
   loading: boolean;
@@ -403,8 +477,13 @@ function SeminarReadinessPanel({
   recordsError: string | null;
   canCreateDraft: boolean;
   busyDocumentHref: string | null;
+  busyScheduleId: string | null;
+  scheduleInputs: Record<string, SeminarScheduleFormState>;
   onCreateDraft: (candidate: SeminarHostReadinessCandidate) => void;
   onTransitionDraft: (record: OwnerPublicSeminarRecord, status: OwnerPublicSeminarRecordTransitionTarget) => void;
+  onScheduleInputChange: (record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) => void;
+  onSaveSchedule: (record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) => void;
+  onClearSchedule: (record: OwnerPublicSeminarRecord) => void;
 }) {
   return (
     <section className="station-panel" aria-label="Seminar readiness" style={seminarPanel}>
@@ -467,8 +546,13 @@ function SeminarReadinessPanel({
                           record={record}
                           canCreateDraft={canCreateDraft}
                           busy={busy}
+                          busySchedule={busyScheduleId === record?.id}
+                          scheduleInput={record ? scheduleInputs[record.id] ?? seminarScheduleFormDefaults(record) : null}
                           onCreateDraft={onCreateDraft}
                           onTransitionDraft={onTransitionDraft}
+                          onScheduleInputChange={onScheduleInputChange}
+                          onSaveSchedule={onSaveSchedule}
+                          onClearSchedule={onClearSchedule}
                         />
                         <Link href={candidate.documentHref} style={miniLink}>View document</Link>
                         <Link href={candidate.spaceHref} style={miniLink}>View Space</Link>
@@ -490,15 +574,25 @@ function SeminarDraftAction({
   record,
   canCreateDraft,
   busy,
+  busySchedule,
+  scheduleInput,
   onCreateDraft,
   onTransitionDraft,
+  onScheduleInputChange,
+  onSaveSchedule,
+  onClearSchedule,
 }: {
   candidate: SeminarHostReadinessCandidate;
   record: OwnerPublicSeminarRecord | null;
   canCreateDraft: boolean;
   busy: boolean;
+  busySchedule: boolean;
+  scheduleInput: SeminarScheduleFormState | null;
   onCreateDraft: (candidate: SeminarHostReadinessCandidate) => void;
   onTransitionDraft: (record: OwnerPublicSeminarRecord, status: OwnerPublicSeminarRecordTransitionTarget) => void;
+  onScheduleInputChange: (record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) => void;
+  onSaveSchedule: (record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) => void;
+  onClearSchedule: (record: OwnerPublicSeminarRecord) => void;
 }) {
   if (record) {
     if (!canCreateDraft) {
@@ -509,9 +603,21 @@ function SeminarDraftAction({
       );
     }
 
+    const scheduleControls = scheduleInput ? (
+      <SeminarScheduleControls
+        busy={busySchedule}
+        input={scheduleInput}
+        record={record}
+        onClearSchedule={onClearSchedule}
+        onInputChange={onScheduleInputChange}
+        onSaveSchedule={onSaveSchedule}
+      />
+    ) : null;
+
     if (record.status === "ready") {
       return (
         <>
+          {scheduleControls}
           <button type="button" disabled title="This private seminar draft is ready for owner review." style={disabledMiniButton}>
             Ready for review
           </button>
@@ -529,10 +635,11 @@ function SeminarDraftAction({
     if (record.status === "published" && record.visibility === "public") {
       return (
         <>
-          <button type="button" disabled title="This seminar record is public-eligible but not listed until public readback wiring is enabled." style={disabledMiniButton}>
+          {scheduleControls}
+          <button type="button" disabled title="This seminar record is public-eligible for public list and detail readback." style={disabledMiniButton}>
             Public record
           </button>
-          <span style={seminarStatusCopy}>Public listing pending readback wiring.</span>
+          <span style={seminarStatusCopy}>Public listing uses stored schedule metadata only.</span>
           <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "ready")} style={miniButton}>
             {busy ? "Saving record..." : "Return to ready"}
           </button>
@@ -542,16 +649,22 @@ function SeminarDraftAction({
 
     if (record.status === "draft") {
       return (
-        <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "ready")} style={miniButton}>
-          {busy ? "Saving draft..." : "Mark ready for review"}
-        </button>
+        <>
+          {scheduleControls}
+          <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "ready")} style={miniButton}>
+            {busy ? "Saving draft..." : "Mark ready for review"}
+          </button>
+        </>
       );
     }
 
     return (
-      <button type="button" disabled title="This private seminar draft is saved for this source." style={disabledMiniButton}>
-        Private draft saved
-      </button>
+      <>
+        {scheduleControls}
+        <button type="button" disabled title="This private seminar draft is saved for this source." style={disabledMiniButton}>
+          Private draft saved
+        </button>
+      </>
     );
   }
 
@@ -567,6 +680,62 @@ function SeminarDraftAction({
     <button type="button" disabled={busy} onClick={() => onCreateDraft(candidate)} style={miniButton}>
       {busy ? "Saving draft..." : "Create seminar draft"}
     </button>
+  );
+}
+
+function SeminarScheduleControls({
+  busy,
+  input,
+  record,
+  onClearSchedule,
+  onInputChange,
+  onSaveSchedule,
+}: {
+  busy: boolean;
+  input: SeminarScheduleFormState;
+  record: OwnerPublicSeminarRecord;
+  onClearSchedule: (record: OwnerPublicSeminarRecord) => void;
+  onInputChange: (record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) => void;
+  onSaveSchedule: (record: OwnerPublicSeminarRecord, input: SeminarScheduleFormState) => void;
+}) {
+  return (
+    <div style={seminarScheduleControls}>
+      <span style={seminarStatusCopy}>{seminarScheduleMetadataCopy()}</span>
+      <span style={seminarStatusCopy}>{seminarScheduleReadback(record)}</span>
+      <input
+        aria-label="Seminar schedule ISO instant"
+        disabled={busy}
+        onChange={(event) => onInputChange(record, { ...input, startsAt: event.target.value })}
+        placeholder="2026-07-06T18:00:00.000Z"
+        style={seminarScheduleInput}
+        value={input.startsAt}
+      />
+      <input
+        aria-label="Seminar schedule time zone"
+        disabled={busy}
+        onChange={(event) => onInputChange(record, { ...input, timeZone: event.target.value })}
+        placeholder="UTC"
+        style={seminarScheduleInput}
+        value={input.timeZone}
+      />
+      <input
+        aria-label="Seminar schedule duration minutes"
+        disabled={busy}
+        min={15}
+        max={480}
+        onChange={(event) => onInputChange(record, { ...input, durationMinutes: event.target.value })}
+        placeholder="60"
+        style={seminarScheduleNumberInput}
+        type="number"
+        value={input.durationMinutes}
+      />
+      <button type="button" disabled={busy} onClick={() => onSaveSchedule(record, input)} style={miniButton}>
+        {busy ? "Saving metadata..." : "Save schedule metadata"}
+      </button>
+      <button type="button" disabled={busy} onClick={() => onClearSchedule(record)} style={miniButton}>
+        Clear schedule metadata
+      </button>
+    </div>
   );
 }
 
@@ -782,6 +951,30 @@ const seminarStatusCopy = {
   alignItems: "center",
   color: "#687078",
   fontSize: 12,
+};
+
+const seminarScheduleControls = {
+  display: "flex",
+  flexWrap: "wrap" as const,
+  alignItems: "center",
+  gap: 8,
+  width: "100%",
+};
+
+const seminarScheduleInput = {
+  border: "1px solid #d8d3c8",
+  borderRadius: 7,
+  background: "#ffffff",
+  color: "#1f2529",
+  padding: "7px 9px",
+  fontSize: 12,
+  minWidth: 180,
+  cursor: "text",
+};
+
+const seminarScheduleNumberInput = {
+  ...seminarScheduleInput,
+  minWidth: 88,
 };
 
 const storyHeader = {

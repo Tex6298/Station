@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499A | Public Seminar Schedule Metadata | DAEDALUS / A2 | Open; implement the ARGUS-accepted nullable schedule metadata migration, owner schedule mutation, and honest owner/public readback without RSVP/tickets/reminders/calendar-invite/live-hosting scope. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_DAEDALUS.md` |
+| PR499A | Public Seminar Schedule Metadata | ARGUS / A3 | Open review; DAEDALUS added nullable schedule metadata, owner schedule mutation, durable-only stored schedule readback, owner Studio controls, and honest public list/detail copy without RSVP/tickets/reminders/calendar-invite/live-hosting scope. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR499A implementation | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS | Ready for ARGUS review; nullable `public_seminar_records` schedule metadata, owner-only schedule mutation, typed owner/public schedule readback, and owner/public web copy are implemented without live hosting, RSVP, tickets, reminders, calendar invites, queues, Cloudflare, runtime, launch claims, private data, or new public mutations. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md` |
 | PR499 preflight | Public Seminar Schedule Metadata Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA`; schedule cannot be derived from lifecycle timestamps, so DAEDALUS may add only nullable start/time-zone/duration metadata on owner seminar records plus honest owner/public readback, with no RSVP, tickets, payments, reminders, calendar invites, jobs, live rooms, runtime, queues, Cloudflare, private data, raw ids, or launch claims. | `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md` |
 | PR498A closeout | Public Seminar Detail Readback | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted public list/detail routeability, source-derived detail, bounded failures, interest no-drift, desktop/mobile fit, and privacy/product-boundary scans passed, with durable-card coverage recorded as a fixture caveat. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_CLOSEOUT.md` |
 | PR498A hosted rehearsal | Public Seminar Detail Readback | ARIADNE -> MIMIR | Passed hosted closeout; public list/detail routeability, source-derived document detail, bounded malformed/stale failures, signed-out/signed-in interest no-drift, and desktop/mobile scans passed; durable coverage was unavailable in hosted fixtures. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md` |

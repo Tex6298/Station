@@ -4,6 +4,13 @@ export type OwnerPublicSeminarRecordStatus = "draft" | "ready" | "published" | "
 export type OwnerPublicSeminarRecordVisibility = "private" | "public";
 export type OwnerPublicSeminarRecordTransitionTarget = "draft" | "ready" | "published";
 
+export interface PublicSeminarSchedule {
+  status: "scheduled";
+  startsAt: string;
+  timeZone: string;
+  durationMinutes: number | null;
+}
+
 export interface PublicSeminarCard {
   id: string;
   sourceType: PublicSeminarSourceType;
@@ -14,6 +21,7 @@ export interface PublicSeminarCard {
   discussionHref: string | null;
   featuredAt: string;
   publishedAt: string | null;
+  schedule: PublicSeminarSchedule | null;
   interestCount: number;
   viewerInterested?: boolean;
   space: {
@@ -55,6 +63,7 @@ export interface OwnerPublicSeminarRecord {
     title: string;
     href: string;
   } | null;
+  schedule: PublicSeminarSchedule | null;
   discussionLinked: boolean;
   createdAt: string;
   updatedAt: string;
@@ -75,4 +84,10 @@ export interface CreateOwnerPublicSeminarRecordRequest {
 
 export interface TransitionOwnerPublicSeminarRecordRequest {
   status: OwnerPublicSeminarRecordTransitionTarget;
+}
+
+export interface UpdateOwnerPublicSeminarRecordScheduleRequest {
+  startsAt: string | null;
+  timeZone: string | null;
+  durationMinutes?: number | null;
 }

@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR499A Public Seminar Schedule Metadata Implementation
+
+DAEDALUS completed the PR499A public seminar schedule metadata implementation on
+2026-07-06:
+
+- `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- migration 071 adds only nullable schedule metadata on
+  `public_seminar_records`;
+- owner schedule mutation is authenticated, creator-tier gated, owner-scoped,
+  exact-body validated, and supports exact null clearing;
+- durable public seminar readback uses stored schedule metadata only;
+- source-derived cards and unscheduled durable records remain
+  `schedule: null`;
+- owner Studio schedule controls stay inside the existing publishing panel, and
+  public list/detail pages show stored schedule or honest missing-schedule copy;
+- RSVP, tickets, payments, reminders, calendar invites, email, scheduled jobs,
+  live rooms, host/moderator controls, provider/runtime, Redis, Cloudflare,
+  queues, workers, public launch claims, new public mutations, private data,
+  raw ids, source bodies, secrets, stack traces, and SQL/table details remain
+  out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 66 focused seminar/public/owner-publishing/auth tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR499 Public Seminar Schedule Metadata ARGUS Preflight
 
 ARGUS accepted the PR499A public seminar schedule metadata preflight on

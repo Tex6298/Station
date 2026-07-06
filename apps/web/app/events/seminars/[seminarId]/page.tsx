@@ -16,6 +16,8 @@ import {
   publicSeminarInterestActionLabel,
   publicSeminarInterestCountLabel,
   publicSeminarInterestSafetyCopy,
+  publicSeminarMissingScheduleCopy,
+  publicSeminarScheduleLabel,
   publicSeminarSignInPromptCopy,
   publicSeminarSourceLabel,
   publicSeminarSpaceHref,
@@ -143,12 +145,14 @@ function SeminarDetail({
   const sourceHref = publicSeminarCardHref(card);
   const discussionHref = publicSeminarDiscussionHref(card);
   const spaceHref = publicSeminarSpaceHref(card);
+  const scheduleLabel = publicSeminarScheduleLabel(card);
 
   return (
     <article className="public-seminar-card public-seminar-detail">
       <div className="public-seminar-card-body">
         <span>{card.label || publicSeminarSourceLabel(card.sourceType)}</span>
         <strong>{card.title}</strong>
+        <small>{scheduleLabel ?? publicSeminarMissingScheduleCopy()}</small>
         <time dateTime={card.publishedAt ?? card.featuredAt}>
           {publicSeminarDateLabel(card.publishedAt ?? card.featuredAt)}
         </time>

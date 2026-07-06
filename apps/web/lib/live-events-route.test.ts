@@ -13,6 +13,8 @@ import {
   publicSeminarInterestActionLabel,
   publicSeminarInterestCountLabel,
   publicSeminarInterestSafetyCopy,
+  publicSeminarMissingScheduleCopy,
+  publicSeminarScheduleLabel,
   publicSeminarSignInPromptCopy,
   publicSeminarSpaceHref,
   publicSeminarSourceLabel,
@@ -24,7 +26,7 @@ import {
 } from "./live-events-route";
 
 const BANNED_CLAIMS =
-  /\b(?:RSVP|ticket|tickets|payment|Stripe|attendance|attend|host|hosting|schedule|scheduling|reminder|calendar|livestream|stream|media|realtime|live room|room|recording|transcript|provider|private runtime|launch readiness|delivery guarantee|WebSocket|SSE)\b/i;
+  /\b(?:RSVP|ticket|tickets|payment|Stripe|attendance|attend|host|hosting|reminder|calendar invite|add to calendar|livestream|stream|media|realtime|live room|room|recording|transcript|provider|private runtime|launch readiness|delivery guarantee|WebSocket|SSE)\b/i;
 
 test("public seminars copy stays readback-only", () => {
   for (const copy of [
@@ -38,6 +40,7 @@ test("public seminars copy stays readback-only", () => {
     publicSeminarDetailIntroCopy(),
     publicSeminarDetailUnavailableCopy(),
     publicSeminarDetailNotFoundCopy(),
+    publicSeminarMissingScheduleCopy(),
   ]) {
     assert.doesNotMatch(copy, BANNED_CLAIMS);
     assert.doesNotMatch(copy, /ownerUserId|storage_path|provider payload|token|cookie|secret/i);
@@ -55,6 +58,12 @@ test("public seminar card helpers keep route scope public", () => {
     discussionHref: "/forums/seminar-room/thread-public",
     featuredAt: "2026-06-29T08:00:00.000Z",
     publishedAt: "2026-06-29T07:00:00.000Z",
+    schedule: {
+      status: "scheduled",
+      startsAt: "2026-07-06T18:00:00.000Z",
+      timeZone: "UTC",
+      durationMinutes: 60,
+    },
     interestCount: 0,
     space: {
       title: "Station House",
@@ -70,6 +79,9 @@ test("public seminar card helpers keep route scope public", () => {
   assert.equal(publicSeminarSourceLabel("thread"), "Public discussion");
   assert.equal(publicSeminarSourceLabel("space"), "Public Space");
   assert.match(publicSeminarDateLabel(card.publishedAt), /2026/);
+  assert.match(publicSeminarScheduleLabel(card) ?? "", /Scheduled/);
+  assert.match(publicSeminarScheduleLabel(card) ?? "", /60 min/);
+  assert.equal(publicSeminarScheduleLabel({ ...card, schedule: null }), null);
 
   assert.equal(publicSeminarDetailHref({ ...card, id: "doc-public" }), null);
   assert.equal(publicSeminarDetailHref({ ...card, id: "seminar_0123456789abcdeg" }), null);
@@ -91,6 +103,7 @@ test("public seminar interest helpers stay aggregate and viewer-local", () => {
     discussionHref: null,
     featuredAt: "2026-06-29T08:00:00.000Z",
     publishedAt: null,
+    schedule: null,
     interestCount: 2,
     viewerInterested: false,
     space: null,

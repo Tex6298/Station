@@ -1,4 +1,7 @@
-import type { OwnerPublicSeminarRecord } from "@station/types";
+import type {
+  OwnerPublicSeminarRecord,
+  UpdateOwnerPublicSeminarRecordScheduleRequest,
+} from "@station/types";
 import {
   publicDocumentHref,
   spaceForDocument,
@@ -32,6 +35,12 @@ export interface SeminarHostReadinessReadback {
   gaps: SeminarHostReadinessGap[];
 }
 
+export interface SeminarScheduleFormState {
+  startsAt: string;
+  timeZone: string;
+  durationMinutes: string;
+}
+
 export function seminarRecordForCandidate(
   candidate: Pick<SeminarHostReadinessCandidate, "documentHref">,
   records: OwnerPublicSeminarRecord[],
@@ -58,6 +67,63 @@ export function upsertSeminarRecord(
 ) {
   const without = records.filter((item) => item.id !== record.id && item.publicDocumentHref !== record.publicDocumentHref);
   return [record, ...without];
+}
+
+export function seminarScheduleFormDefaults(record: OwnerPublicSeminarRecord): SeminarScheduleFormState {
+  return {
+    startsAt: record.schedule?.startsAt ?? "",
+    timeZone: record.schedule?.timeZone ?? "UTC",
+    durationMinutes: record.schedule?.durationMinutes ? String(record.schedule.durationMinutes) : "",
+  };
+}
+
+export function seminarSchedulePatchBody(
+  input: SeminarScheduleFormState
+): UpdateOwnerPublicSeminarRecordScheduleRequest | null {
+  const startsAt = input.startsAt.trim();
+  const timeZone = input.timeZone.trim();
+  const durationText = input.durationMinutes.trim();
+
+  if (!startsAt && !timeZone && !durationText) {
+    return {
+      startsAt: null,
+      timeZone: null,
+      durationMinutes: null,
+    };
+  }
+
+  if (!startsAt || !timeZone) return null;
+  const durationMinutes = durationText ? Number(durationText) : null;
+  if (durationMinutes !== null && !Number.isInteger(durationMinutes)) return null;
+  const body: UpdateOwnerPublicSeminarRecordScheduleRequest = {
+    startsAt,
+    timeZone,
+    durationMinutes,
+  };
+  return body;
+}
+
+export function seminarScheduleReadback(record: OwnerPublicSeminarRecord) {
+  if (!record.schedule) return "Schedule metadata not posted.";
+  const date = new Date(record.schedule.startsAt);
+  if (Number.isNaN(date.getTime())) return "Schedule metadata not posted.";
+  const when = date.toLocaleString(undefined, {
+    timeZone: record.schedule.timeZone,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+  const duration = record.schedule.durationMinutes
+    ? `, ${record.schedule.durationMinutes} min`
+    : "";
+  return `Scheduled ${when}${duration}`;
+}
+
+export function seminarScheduleMetadataCopy() {
+  return "Schedule metadata only. Public readback appears only after the record is published.";
 }
 
 const MAX_CANDIDATES = 4;

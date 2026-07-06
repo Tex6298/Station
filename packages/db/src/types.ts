@@ -1552,15 +1552,21 @@ export interface Database {
           status: PublicSeminarRecordStatus;
           visibility: PublicSeminarRecordVisibility;
           discussion_thread_id: string | null;
+          scheduled_starts_at: string | null;
+          scheduled_time_zone: string | null;
+          scheduled_duration_minutes: number | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["public_seminar_records"]["Row"], "id" | "summary" | "status" | "visibility" | "discussion_thread_id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["public_seminar_records"]["Row"], "id" | "summary" | "status" | "visibility" | "discussion_thread_id" | "scheduled_starts_at" | "scheduled_time_zone" | "scheduled_duration_minutes" | "created_at" | "updated_at"> & {
           id?: string;
           summary?: string | null;
           status?: PublicSeminarRecordStatus;
           visibility?: PublicSeminarRecordVisibility;
           discussion_thread_id?: string | null;
+          scheduled_starts_at?: string | null;
+          scheduled_time_zone?: string | null;
+          scheduled_duration_minutes?: number | null;
           created_at?: string;
           updated_at?: string;
         };

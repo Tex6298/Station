@@ -7,8 +7,10 @@ import type {
   OwnerPublicSeminarRecordsResponse,
   PublicSeminarCard,
   PublicSeminarDetailResponse,
+  PublicSeminarSchedule,
   PublicSeminarSourceType,
   TransitionOwnerPublicSeminarRecordRequest,
+  UpdateOwnerPublicSeminarRecordScheduleRequest,
 } from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth } from "../middleware/require-auth";
@@ -60,11 +62,21 @@ const SEMINAR_RECORD_TRANSITION_ERROR = {
   error: "Could not update seminar draft status.",
   code: "seminar_record_transition_unavailable",
 } as const;
+const SEMINAR_RECORD_SCHEDULE_INVALID_ERROR = {
+  error: "Unsupported seminar schedule metadata.",
+  code: "seminar_record_invalid_schedule",
+} as const;
+const SEMINAR_RECORD_SCHEDULE_ERROR = {
+  error: "Could not update seminar schedule metadata.",
+  code: "seminar_record_schedule_unavailable",
+} as const;
 const SEMINAR_RECORD_SELECT =
-  "id, source_type, source_id, title, summary, status, visibility, discussion_thread_id, created_at, updated_at";
+  "id, source_type, source_id, title, summary, status, visibility, discussion_thread_id, scheduled_starts_at, scheduled_time_zone, scheduled_duration_minutes, created_at, updated_at";
 const SEMINAR_RECORD_TRANSITION_SELECT = `${SEMINAR_RECORD_SELECT}, owner_user_id`;
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PUBLIC_SEMINAR_ID_PATTERN = /^seminar_[a-f0-9]{16}$/;
+const SEMINAR_DURATION_MIN_MINUTES = 15;
+const SEMINAR_DURATION_MAX_MINUTES = 480;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -243,6 +255,48 @@ eventsRouter.post("/seminars/records/:recordId/transition", requireAuth, require
   }
 });
 
+eventsRouter.patch("/seminars/records/:recordId/schedule", requireAuth, requireTier("creator"), async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const schedule = schedulePatch(req.body);
+  if (!schedule) return res.status(400).json(SEMINAR_RECORD_SCHEDULE_INVALID_ERROR);
+
+  try {
+    const { data: record, error: loadError } = await (sb as any)
+      .from("public_seminar_records")
+      .select(SEMINAR_RECORD_TRANSITION_SELECT)
+      .eq("id", req.params.recordId)
+      .eq("owner_user_id", req.user!.id)
+      .maybeSingle();
+
+    if (loadError) throw new Error("Could not load seminar draft schedule.");
+    if (!record || record.owner_user_id !== req.user!.id) {
+      return res.status(404).json(SEMINAR_RECORD_NOT_FOUND_ERROR);
+    }
+
+    const { data, error } = await (sb as any)
+      .from("public_seminar_records")
+      .update({
+        scheduled_starts_at: schedule.startsAt,
+        scheduled_time_zone: schedule.timeZone,
+        scheduled_duration_minutes: schedule.durationMinutes,
+      })
+      .eq("id", record.id)
+      .eq("owner_user_id", req.user!.id)
+      .eq("source_type", "document")
+      .select(SEMINAR_RECORD_SELECT)
+      .single();
+
+    if (error || !data) throw new Error("Could not update seminar schedule.");
+
+    const response: OwnerPublicSeminarRecordResponse = {
+      record: await serializeOwnerSeminarRecord(sb, data),
+    };
+    return res.json(response);
+  } catch {
+    return res.status(503).json(SEMINAR_RECORD_SCHEDULE_ERROR);
+  }
+});
+
 eventsRouter.post("/seminars/:seminarId/interest", requireAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
 
@@ -298,6 +352,57 @@ function transitionTarget(body: unknown) {
   if (keys.length !== 1 || keys[0] !== "status") return null;
   const status = (body as TransitionOwnerPublicSeminarRecordRequest).status;
   return status === "draft" || status === "ready" || status === "published" ? status : null;
+}
+
+function schedulePatch(body: unknown): Required<UpdateOwnerPublicSeminarRecordScheduleRequest> | null {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+  const keys = Object.keys(body);
+  if (!keys.every((key) => key === "startsAt" || key === "timeZone" || key === "durationMinutes")) return null;
+  if (!keys.includes("startsAt") || !keys.includes("timeZone")) return null;
+
+  const input = body as UpdateOwnerPublicSeminarRecordScheduleRequest;
+  const duration = "durationMinutes" in input ? input.durationMinutes : null;
+  if (input.startsAt === null && input.timeZone === null && (duration === null || duration === undefined)) {
+    return { startsAt: null, timeZone: null, durationMinutes: null };
+  }
+
+  if (typeof input.startsAt !== "string" || typeof input.timeZone !== "string") return null;
+  const startsAt = normalizedIsoInstant(input.startsAt);
+  const timeZone = normalizedTimeZone(input.timeZone);
+  if (!startsAt || !timeZone) return null;
+  if (duration !== null && duration !== undefined && !validDurationMinutes(duration)) return null;
+
+  return {
+    startsAt,
+    timeZone,
+    durationMinutes: duration === undefined ? null : duration,
+  };
+}
+
+function normalizedIsoInstant(value: string) {
+  const trimmed = value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(trimmed)) {
+    return null;
+  }
+  const date = new Date(trimmed);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function normalizedTimeZone(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  try {
+    new Intl.DateTimeFormat("en-GB", { timeZone: trimmed }).format(new Date("2026-01-01T00:00:00.000Z"));
+    return trimmed;
+  } catch {
+    return null;
+  }
+}
+
+function validDurationMinutes(value: unknown) {
+  return Number.isInteger(value) &&
+    (value as number) >= SEMINAR_DURATION_MIN_MINUTES &&
+    (value as number) <= SEMINAR_DURATION_MAX_MINUTES;
 }
 
 function seminarRecordTransition(
@@ -433,6 +538,7 @@ async function serializeOwnerSeminarRecord(
           href: `/space/${source.space.slug}`,
         }
       : null,
+    schedule: publicSeminarSchedule(row),
     discussionLinked: Boolean(row.discussion_thread_id),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
@@ -623,6 +729,7 @@ export async function resolveDurablePublicSeminarRecordCard(
     discussionHref,
     featuredAt,
     publishedAt: featuredAt,
+    schedule: publicSeminarSchedule(record),
     space: safeSpace,
   });
 
@@ -668,6 +775,7 @@ async function publicDocumentSeminarCard(
       discussionHref,
       featuredAt: item.created_at,
       publishedAt: document.published_at ?? document.created_at ?? null,
+      schedule: null,
       space,
     }),
   };
@@ -736,6 +844,7 @@ async function publicThreadSeminarCard(
       discussionHref: null,
       featuredAt: item.created_at,
       publishedAt: thread.created_at ?? null,
+      schedule: null,
       space: null,
     }),
   };
@@ -760,6 +869,7 @@ async function publicSpaceSeminarCard(
       discussionHref: null,
       featuredAt: item.created_at,
       publishedAt: space.updated_at ?? space.created_at ?? null,
+      schedule: null,
       space,
     }),
   };
@@ -887,6 +997,7 @@ function seminarCard(input: {
   discussionHref: string | null;
   featuredAt: string;
   publishedAt: string | null;
+  schedule: PublicSeminarSchedule | null;
   space: any | null;
 }): PublicSeminarCard {
   return {
@@ -899,6 +1010,7 @@ function seminarCard(input: {
     discussionHref: input.discussionHref,
     featuredAt: input.featuredAt,
     publishedAt: input.publishedAt,
+    schedule: input.schedule,
     interestCount: 0,
     space: input.space
       ? {
@@ -906,6 +1018,22 @@ function seminarCard(input: {
           href: `/space/${input.space.slug}`,
         }
       : null,
+  };
+}
+
+function publicSeminarSchedule(row: any): PublicSeminarSchedule | null {
+  if (!row?.scheduled_starts_at || typeof row.scheduled_time_zone !== "string") return null;
+  const startsAt = normalizedIsoInstant(String(row.scheduled_starts_at));
+  const timeZone = normalizedTimeZone(row.scheduled_time_zone);
+  const duration = row.scheduled_duration_minutes;
+  if (!startsAt || !timeZone) return null;
+  if (duration !== null && duration !== undefined && !validDurationMinutes(duration)) return null;
+
+  return {
+    status: "scheduled",
+    startsAt,
+    timeZone,
+    durationMinutes: duration ?? null,
   };
 }
 

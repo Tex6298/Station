@@ -4,7 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A public seminar schedule metadata implementation
+## Current lane - PR499A public seminar schedule metadata review
+
+DAEDALUS completed the PR499A public seminar schedule metadata implementation:
+
+`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Decision:
+
+- Migration 071 adds nullable schedule metadata to `public_seminar_records`:
+  stored start instant, stored time zone, and optional bounded duration.
+- `PATCH /events/seminars/records/:recordId/schedule` is authenticated,
+  creator-tier gated, scoped by owner, exact-body validated, and supports exact
+  null clearing.
+- Owner seminar records and public seminar cards now expose
+  `schedule: PublicSeminarSchedule | null`.
+- Durable published/public seminar cards read schedule only from stored
+  metadata; source-derived cards and unscheduled durable records remain
+  `schedule: null`.
+- Owner Studio publishing gained schedule metadata controls inside the existing
+  seminar readiness/records panel, and public list/detail pages show either
+  stored schedule readback or honest missing-schedule copy.
+- No RSVP, tickets, payments, reminders, calendar invites, email, scheduled
+  jobs, live rooms, host/moderator controls, provider/runtime, voice/avatar,
+  Redis, Cloudflare, queues, workers, launch claims, new public mutations, or
+  private/raw data were added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/auth-routes.test.ts`
+  passed: 66 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR499A - Public Seminar Schedule Metadata
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR499 public seminar schedule metadata preflight
 
 ARGUS completed the PR499 hostile preflight:
 
@@ -42,20 +99,18 @@ Validation:
 Current lane:
 
 ```text
-PR499A - Public Seminar Schedule Metadata
-Owner: DAEDALUS / A2
-State: OPEN
-Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_DAEDALUS.md
+PR499 - Public Seminar Schedule Metadata Preflight
+Owner: ARGUS / A3
+State: ACCEPTED
+Source: docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
-
-## Previous lane - PR499 public seminar schedule metadata preflight
 
 MIMIR closed PR498A:
 

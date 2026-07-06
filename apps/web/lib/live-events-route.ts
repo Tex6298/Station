@@ -56,6 +56,30 @@ export function publicSeminarDetailNotFoundCopy() {
   return "This public seminar readback is not available.";
 }
 
+export function publicSeminarScheduleLabel(card: PublicSeminarCard) {
+  const schedule = card.schedule;
+  if (!schedule) return null;
+  const date = new Date(schedule.startsAt);
+  if (Number.isNaN(date.getTime())) return null;
+  const when = date.toLocaleString(undefined, {
+    timeZone: schedule.timeZone,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+  const duration = schedule.durationMinutes
+    ? `, ${schedule.durationMinutes} min`
+    : "";
+  return `Scheduled ${when}${duration}`;
+}
+
+export function publicSeminarMissingScheduleCopy() {
+  return "Schedule metadata not posted.";
+}
+
 export function publicSeminarDateLabel(value: string | null | undefined) {
   if (!value) return "Featured";
   const date = new Date(value);
