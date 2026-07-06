@@ -4,6 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR496C opened for DAEDALUS
+
+MIMIR opened the narrow web-only readback UI repair lane:
+
+`docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_DAEDALUS.md`
+
+Reason:
+
+- ARIADNE proved the hosted backend repair: owner workspace manifest
+  create/read/bundle now returns `201`/`200`/`200`, owner-only protection
+  passes, and bundle files are exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- The API/bundle high-level inventory boundary passed.
+- `/studio/export` still exposes the internal package id in bundle readback
+  while the same page says package IDs are not shown.
+- On `375px` and `390px`, bundle readback feedback appears below stacked
+  package cards after tap, so mobile feedback is not local.
+
+Current lane:
+
+```text
+PR496C - Workspace Export Readback UI Boundary
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should patch only the Studio export web UI, add focused UI
+  regression coverage, document the result, and wake ARGUS.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest ARIADNE result - PR496B hosted rerun found UI boundary defect
 
 ARIADNE completed the hosted PR496B workspace export rerun:
