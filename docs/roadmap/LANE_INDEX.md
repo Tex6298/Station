@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR498A | Public Seminar Detail Readback Hosted Rehearsal | MIMIR / A1 | Passed hosted rehearsal; source-derived list/detail routeability, bounded failures, interest no-drift, desktop/375px/390px fit, and privacy/scope scans passed, with durable coverage recorded as a hosted fixture caveat. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md` |
+| PR499 | Public Seminar Schedule Metadata Preflight | ARGUS / A3 | Open; hostile preflight for the next Phase 3 seminar capability after public list/detail/readback: schedule metadata and honest calendar/readback shape, without RSVP, tickets, reminders, live rooms, runtime, or infra scope. | `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR498A closeout | Public Seminar Detail Readback | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted public list/detail routeability, source-derived detail, bounded failures, interest no-drift, desktop/mobile fit, and privacy/product-boundary scans passed, with durable-card coverage recorded as a fixture caveat. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_CLOSEOUT.md` |
 | PR498A hosted rehearsal | Public Seminar Detail Readback | ARIADNE -> MIMIR | Passed hosted closeout; public list/detail routeability, source-derived document detail, bounded malformed/stale failures, signed-out/signed-in interest no-drift, and desktop/mobile scans passed; durable coverage was unavailable in hosted fixtures. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REHEARSAL_RESULT.md` |
 | PR498A review | Public Seminar Detail Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_IMPLEMENTATION` with one narrow Space-link helper patch; public detail route/page, digest routing, safe serializers, aggregate/viewer-local interest, and forbidden-scope boundaries passed local review. Hosted proof required. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md` |
 | PR498A implementation | Public Seminar Detail Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; `GET /events/seminars/:seminarId`, digest-id list/detail routing, safe source/Space/discussion links, and aggregate/viewer-local interest readback are implemented without live hosting, scheduling, payment, runtime, schema, or broad `/events` scope. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_RESULT.md` |

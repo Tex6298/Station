@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARIADNE result - PR498A hosted seminar detail passed
+## Current lane - PR499 public seminar schedule metadata preflight
+
+MIMIR closed PR498A:
+
+`docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_CLOSEOUT.md`
+
+Accepted closeout:
+
+- Hosted web/API were fresh at accepted commit `e417d4af`.
+- Public seminar list/detail routeability passed with source-derived Space,
+  thread, and document cards.
+- A source-derived document detail route returned `200`.
+- Malformed and stale valid-shaped detail ids returned bounded
+  `seminar_not_found`.
+- Signed-in interest mark/duplicate/withdraw/repeated-withdraw preserved
+  aggregate and viewer-local state.
+- Desktop, `375px`, and `390px` list/detail views passed fit, privacy, and
+  product-boundary scans.
+
+Current lane:
+
+```text
+PR499 - Public Seminar Schedule Metadata Preflight
+Owner: ARGUS / A3
+State: OPEN
+Source: docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR498A hosted seminar detail passed
 
 ARIADNE completed the hosted PR498A public seminar detail rehearsal:
 
