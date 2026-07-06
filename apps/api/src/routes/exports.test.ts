@@ -2007,6 +2007,9 @@ test("owner can create and read workspace manifest bundles from high-level inven
     assert.match(readBack.body.manifestMarkdown, /Station Workspace Export Manifest/);
     assert.match(readBack.body.manifestMarkdown, /Document bodies omitted: yes/);
     assert.match(readBack.body.manifestMarkdown, /Managed backup or restore guarantee: no/);
+    assert.match(readBack.body.manifestMarkdown, /- Harbor/);
+    assert.match(readBack.body.manifestMarkdown, /- Harbor Space/);
+    assert.doesNotMatch(readBack.body.manifestMarkdown, /\(undefined\)|ownerUserId|personaId|developerSpaceId|projectId|owner_user_id/);
 
     const storedManifest = clone(packageRow.manifest_json);
     const storedMarkdown = packageRow.manifest_markdown;

@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496A Owner Workspace Export Package Contract ARGUS Review
+
+ARGUS accepted the PR496A implementation on 2026-07-06:
+
+- `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_IMPLEMENTATION`.
+
+Reason:
+
+- `workspace_manifest` is a real owner-only `export_packages` package kind with
+  null targets and owner-only RLS;
+- `GET /exports/workspace`, `POST /exports/workspace`, existing owner package
+  readback, and validated bundle readback stay authenticated and owner-scoped;
+- manifest content remains high-level inventory only and tests reject raw ids,
+  owner/target field names, private bodies, source/storage/provider/runtime/
+  secret-shaped material, malformed bundle leaks, and cross-owner access;
+- ARGUS applied a narrow patch so workspace Markdown no longer uses the
+  persona/archive ID-slot helper and the shared type models the sanitized
+  workspace response honestly;
+- hosted ARIADNE proof is required before closeout because schema/RLS, owner
+  API behavior, and visible `/studio/export` behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS implementation review | Pass | Reviewed migration 070, typed package support, quota guard, owner API routes, high-level manifest builder, stored workspace bundle validation, `/studio/export` controls, export trust helpers, focused tests, and roadmap claims. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 9 export API tests passed, including the ARGUS Markdown/type boundary assertion. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR496A Owner Workspace Export Package Contract
 
 DAEDALUS completed the PR496A implementation on 2026-07-06:

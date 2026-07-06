@@ -1,10 +1,9 @@
-export interface ArchiveExportPackage {
+export type ExportPackageKind = 'persona_archive' | 'developer_space_archive' | 'project_manifest' | 'workspace_manifest';
+export type ScopedExportPackageKind = Exclude<ExportPackageKind, 'workspace_manifest'>;
+
+interface ExportPackageBase {
   id: string;
-  ownerUserId: string;
-  personaId?: string | null;
-  developerSpaceId?: string | null;
-  projectId?: string | null;
-  packageKind: 'persona_archive' | 'developer_space_archive' | 'project_manifest' | 'workspace_manifest';
+  packageKind: ExportPackageKind;
   status: 'requested' | 'processing' | 'completed' | 'failed';
   format: 'json_markdown';
   includedSections: string[];
@@ -15,6 +14,20 @@ export interface ArchiveExportPackage {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ScopedArchiveExportPackage extends ExportPackageBase {
+  ownerUserId: string;
+  personaId?: string | null;
+  developerSpaceId?: string | null;
+  projectId?: string | null;
+  packageKind: ScopedExportPackageKind;
+}
+
+export interface WorkspaceExportPackage extends ExportPackageBase {
+  packageKind: 'workspace_manifest';
+}
+
+export type ArchiveExportPackage = ScopedArchiveExportPackage | WorkspaceExportPackage;
 
 export interface ArchiveExportManifest {
   schema: 'station.persona.export.v1';

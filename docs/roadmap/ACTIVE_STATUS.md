@@ -4,6 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR496A accepted with workspace manifest patch
+
+ARGUS reviewed the PR496A implementation:
+
+`docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_IMPLEMENTATION
+```
+
+Decision:
+
+- PR496A is accepted locally with one narrow ARGUS patch.
+- The patch keeps workspace Markdown from using the persona/archive helper that
+  prints an ID slot, adds a no-`(undefined)`/no owner-target field assertion,
+  and aligns the shared package type with the sanitized workspace response.
+- Migration `070_workspace_export_manifest.sql`, owner-only `/exports/workspace`
+  API behavior, stored workspace bundle validation, and `/studio/export`
+  controls match the accepted preflight.
+- The workspace manifest remains high-level inventory only: personas, Spaces,
+  Developer Spaces, Projects, public/published document refs, export package
+  class counts, trust notes, and excluded/future material labels.
+- No public export route, signed URL, share link, original-file package, PDF,
+  binary archive, backup, restore workflow, provider/runtime, billing, Stripe,
+  Redis, Cloudflare, worker, queue, Archive connector pull, OAuth/API
+  credential flow, public chat, or broad Studio shell work was added.
+- Hosted ARIADNE proof remains required before closeout because schema/RLS,
+  owner API behavior, and visible `/studio/export` behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR496A - Owner Workspace Export Package Contract
+Owner: MIMIR / A1
+State: ACCEPTED_LOCAL_REVIEW_HOSTED_PROOF_REQUIRED
+```
+
+Current baton:
+
+- MIMIR should close or route PR496A next according to roadmap ownership.
+- Expected next move is ARIADNE hosted proof for migration 070, owner
+  create/list/read/bundle, signed-out/cross-owner denial, desktop/mobile
+  `/studio/export`, three-file bundle content, and no raw/private/source/
+  secret/runtime/storage/provider/billing/queue/Cloudflare/share/PDF/binary/
+  backup/restore leakage.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS result - PR496A ready for ARGUS review
 
 DAEDALUS implemented PR496A:

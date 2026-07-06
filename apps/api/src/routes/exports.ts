@@ -706,6 +706,11 @@ function markdownList(items: Array<Record<string, any>>, titleKey = "title") {
   }).join("\n");
 }
 
+function workspaceMarkdownList(items: Array<Record<string, any>>, titleKey = "title") {
+  if (items.length === 0) return "- None";
+  return items.map((item) => `- ${item[titleKey] ?? "Untitled"}`).join("\n");
+}
+
 function buildManifestMarkdown(manifest: any) {
   const persona = manifest.persona;
   return [
@@ -1383,16 +1388,16 @@ function buildWorkspaceManifestMarkdown(manifest: any) {
     ...Object.entries(manifest.counts).map(([key, value]) => `- ${key}: ${value}`),
     "",
     "## Personas",
-    markdownList(manifest.workspaceInventory.personas, "name"),
+    workspaceMarkdownList(manifest.workspaceInventory.personas, "name"),
     "",
     "## Spaces",
-    markdownList(manifest.workspaceInventory.spaces, "title"),
+    workspaceMarkdownList(manifest.workspaceInventory.spaces, "title"),
     "",
     "## Developer Spaces",
-    markdownList(manifest.workspaceInventory.developerSpaces, "projectName"),
+    workspaceMarkdownList(manifest.workspaceInventory.developerSpaces, "projectName"),
     "",
     "## Projects",
-    markdownList(manifest.workspaceInventory.projects, "name"),
+    workspaceMarkdownList(manifest.workspaceInventory.projects, "name"),
     "",
     "## Public Published Document References",
     manifest.workspaceInventory.publicPublishedDocumentRefs.length === 0
