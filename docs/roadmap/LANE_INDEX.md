@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR501 | Discern Companion UI Delta Revalidation | ARIADNE / A4 | Open human-eye preflight; verify current HEAD against Discern commits `de7b918e` and `99ae8a5c`, then name the exact remaining DAEDALUS slice, route defect, no-safe-delta closeout, or concrete blocker. PR500A remains accepted backlog. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_ARIADNE.md` |
+| PR501 | Discern Companion UI Delta Revalidation | MIMIR / A1 | ARIADNE returned `CLOSE_PR501_NO_REMAINING_SAFE_DELTA`; current hosted Tex carries the safe companion-home translation on desktop/375px/390px with no stale Discern endpoint, route defect, broad shell/skin need, or distinct safe delta. PR500A remains accepted backlog. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR501 result | Discern Companion UI Delta Revalidation | MIMIR -> ARIADNE -> MIMIR | Close as `CLOSE_PR501_NO_REMAINING_SAFE_DELTA`; hosted current-route proof at `a8a384c9452e` passed desktop/375px/390px Companion Home hierarchy, accepted shortcuts, local return-card actions, aggregate Companion Continuity rail, mobile fit, and privacy/product-boundary scans. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_RESULT.md` |
 | PR501 opened | Discern Companion UI Delta Revalidation | MIMIR -> ARIADNE | Open; fresh A1 wakeup asks for current-HEAD human-eye revalidation of the Discern companion/UI translation before opening any DAEDALUS code slice. | `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_ARIADNE.md` |
 | PR500 preflight | Social Publishing Connector Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500A_SOCIAL_CONNECTOR_CREDENTIAL_CONTRACT`; next slice is social-specific encrypted credential storage and dormant live-code quarantine only, with no OAuth, provider calls, posting, queues, billing, credential UI, or social-readiness unpause. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_RESULT.md` |
 | PR500 opened | Social Publishing Connector Boundary Preflight | MIMIR -> ARGUS | Open; decide the smallest safe social connector credential/OAuth/payload/execution lane or name the concrete blocker. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md` |

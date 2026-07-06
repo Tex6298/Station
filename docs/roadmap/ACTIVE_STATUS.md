@@ -4,46 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR501 Discern companion UI delta revalidation
+## Current lane - PR501 Discern companion UI delta revalidation result
 
-MIMIR received a fresh A1 wakeup to inspect the Discern-AI/Station companion/UI
-reference commits and open a numbered Tex Station lane:
+ARIADNE completed the PR501 human-eye revalidation:
 
-`docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_ARIADNE.md`
+`docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_RESULT.md`
 
-Reference commits:
+Result:
 
-- `de7b918e` - `feat: refine Station companion UX`
-- `99ae8a5c` - `feat: refine Studio chat layout`
+```text
+CLOSE_PR501_NO_REMAINING_SAFE_DELTA
+```
 
 Decision:
 
-- PR485A-E, PR494A/B, and PR497A/B already claim the safe Discern-derived
-  companion behavior: shortcut strip, Memory inbox, return-to-thread, prompt
-  context, chat polish, context rail, companion-first hierarchy, and hosted
-  scroll-containment proof.
-- The new wakeup is still concrete enough to require fresh current-HEAD
-  revalidation rather than silently dismissing it as stale.
-- ARIADNE should run a human-eye preflight and decide whether there is a
-  concrete remaining companion/UI delta, an actual route defect, no remaining
-  safe delta, or a concrete blocker.
-- PR500A social connector credential-contract work is accepted backlog but is
-  not opened in this UI lane.
+- Current Tex Station still carries the safe Discern-derived companion-home
+  behavior from PR485A-E, PR494A/B, and PR497A/B.
+- Hosted web/API were fresh at runtime commit `a8a384c9452e`, and relevant
+  companion UI files had no post-runtime diff from that commit to current HEAD.
+- Replay owner hosted proof passed on desktop, `375px`, and `390px`: the route
+  landed at document `scrollY` `0`, preserved the Companion Home hierarchy,
+  kept accepted shortcuts and return-card actions visible, rendered the
+  aggregate Companion Continuity rail, and showed no horizontal overflow.
+- Visible UI scans found no stale Discern endpoint, unsupported capability
+  claim, raw-id/private/source leak, prompt/provider payload, token, cookie, or
+  secret-shaped value.
+- The remaining Discern material is duplicate, unsafe, broad shell/skin work,
+  or outside current Station architecture.
+- PR500A social connector credential-contract work remains accepted backlog and
+  is not part of PR501.
+
+Validation:
+
+- Temporary hosted API/browser revalidation runner passed 5 checks with no
+  failed checks or caveats.
+- Screenshot inspection passed on desktop, `375px`, and `390px`.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts apps/web/lib/import-review.test.ts packages/ai/test/companion-context.test.ts`
+  passed: 38 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
 
 Current lane:
 
 ```text
 PR501 - Discern Companion UI Delta Revalidation
-Owner: ARIADNE / A4
-State: OPEN_HUMAN_EYE_PREFLIGHT
-Source: docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_ARIADNE.md
+Owner: MIMIR / A1
+State: CLOSE_PR501_NO_REMAINING_SAFE_DELTA
+Source: docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR500 social publishing connector boundary preflight accepted

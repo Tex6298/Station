@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR501 Discern Companion UI Delta Revalidation
+
+ARIADNE completed the PR501 human-eye companion/UI revalidation on 2026-07-06:
+
+- `docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_RESULT.md`
+
+Validation result:
+`CLOSE_PR501_NO_REMAINING_SAFE_DELTA`.
+
+Reason:
+
+- current Tex Station still carries the safe Discern-derived companion-home
+  behavior from PR485A-E, PR494A/B, and PR497A/B;
+- hosted web/API were ready at runtime commit `a8a384c9452e`;
+- relevant companion UI files had no post-runtime diff from `a8a384c9452e` to
+  current HEAD;
+- desktop, `375px`, and `390px` hosted browser proof landed at document
+  `scrollY` `0`, preserved the Companion Home hierarchy, kept accepted
+  shortcuts and local return-card actions visible, rendered aggregate
+  Companion Continuity readback, and showed no horizontal overflow;
+- visible UI scans found no stale Discern endpoint, unsupported capability
+  claim, raw-id/private/source leak, prompt/provider payload, token, cookie, or
+  secret-shaped value;
+- remaining Discern material is duplicate, unsafe, broad shell/skin work, or
+  outside current Station architecture.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser revalidation runner | Pass | 5 checks passed with no failed checks or caveats; web/API were ready at `a8a384c9452e`. |
+| Screenshot inspection | Pass | Desktop, `375px`, and `390px` views preserved companion-home hierarchy, mobile fit, and private/current-stop boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts apps/web/lib/import-review.test.ts packages/ai/test/companion-context.test.ts` | Pass | 38 focused companion/navigation/import/context tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+`npm exec` emitted npm warnings about pnpm-only project config keys; those
+warnings were non-failures.
+
 ## PR500 Social Publishing Connector Boundary Preflight
 
 ARGUS accepted the PR500 Social Publishing connector boundary preflight on
