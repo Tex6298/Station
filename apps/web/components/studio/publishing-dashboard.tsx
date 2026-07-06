@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { canPublishDocuments } from "@station/auth";
+import { canPublishDocuments, hasTier } from "@station/auth";
 import type {
   OwnerPublicSeminarRecord,
   OwnerPublicSeminarRecordResponse,
@@ -48,6 +48,7 @@ export function PublishingDashboard() {
   const [approvals, setApprovals] = useState<PublishingApproval[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const [publishingAllowed, setPublishingAllowed] = useState(false);
+  const [seminarDraftAllowed, setSeminarDraftAllowed] = useState(false);
   const [userTier, setUserTier] = useState("visitor");
   const [busyApprovalId, setBusyApprovalId] = useState<string | null>(null);
   const [seminarRecords, setSeminarRecords] = useState<OwnerPublicSeminarRecord[]>([]);
@@ -85,6 +86,7 @@ export function PublishingDashboard() {
         if (!cancelled) {
           setToken(session.access_token);
           setPublishingAllowed(canPublishDocuments(session.user));
+          setSeminarDraftAllowed(hasTier(session.user, "creator"));
           setUserTier(session.user.tier);
           setDocuments(documentData.documents ?? []);
           setSpaces(spaceData.spaces ?? []);
@@ -113,7 +115,7 @@ export function PublishingDashboard() {
   const seminarReadiness = useMemo(() => seminarHostReadiness(documents, spaces), [documents, spaces]);
 
   async function createSeminarDraft(candidate: SeminarHostReadinessCandidate) {
-    if (!token || !publishingAllowed) return;
+    if (!token || !seminarDraftAllowed) return;
 
     const document = seminarSourceDocumentForCandidate(candidate, documents, spaces);
     if (!document) {
@@ -249,7 +251,7 @@ export function PublishingDashboard() {
           records={seminarRecords}
           recordsLoading={seminarRecordsLoading}
           recordsError={seminarRecordsError}
-          canCreateDraft={publishingAllowed}
+          canCreateDraft={seminarDraftAllowed}
           busyDocumentHref={busySeminarHref}
           onCreateDraft={createSeminarDraft}
         />

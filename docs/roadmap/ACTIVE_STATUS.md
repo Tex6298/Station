@@ -4,19 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest DAEDALUS implementation - PR495C ready for ARGUS review
+## Latest ARGUS review - PR495C accepted, hosted rehearsal required
 
-DAEDALUS implemented PR495C:
+ARGUS accepted the PR495C implementation with one narrow review patch:
 
-`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_RESULT.md`
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION_IMPLEMENTATION
 ```
 
-Implemented:
+Accepted:
 
 - `/studio/publishing` loads owner seminar records with
   `GET /events/seminars/records`;
@@ -28,9 +28,17 @@ Implemented:
   `POST /events/seminars/records`;
 - successful create upserts the returned record into local readback state and
   swaps the action to bounded `Private draft saved` copy;
-- non-creators see bounded `Creator required` copy;
+- ARGUS patched the visible create gate to use `hasTier(session.user,
+  "creator")`, matching the API `requireTier("creator")` gate;
+- non-creators, including lower-tier admins, see bounded `Creator required`
+  copy;
 - owner record readback/create failures show bounded panel-local unavailable
-  copy.
+  copy;
+- public `/events/seminars`, signed-in interest behavior, API/schema, Discover,
+  public search, forums, billing, provider runtime, queues/workers, Redis,
+  Cloudflare, scheduling, hosting, public publishing, RSVP, tickets, payments,
+  reminders, live rooms, media, transcripts, and launch claims stayed out of
+  scope.
 
 Validation:
 
@@ -43,25 +51,24 @@ Validation:
 Current lane:
 
 ```text
-PR495C - Owner Seminar Draft Action
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
+PR495C - Owner Seminar Draft Action Hosted Rehearsal
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW_HOSTED_REHEARSAL_REQUIRED
 ```
 
 Current baton:
 
-- ARGUS should review source-id derivation from already-loaded documents,
-  public-href record matching, panel-local error copy, mobile action wrapping,
-  and no forbidden schedule/host/publish/RSVP/ticket/runtime copy.
-- If accepted, ARGUS should wake MIMIR for hosted desktop/`375px`/`390px`
-  rehearsal routing.
-- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+- MIMIR should route ARIADNE for hosted desktop/`375px`/`390px` rehearsal of
+  `/studio/publishing` Seminar draft action/readback.
+- Hosted proof should cover owner create/readback, duplicate stability,
+  non-creator/signed-out denial, public seminar/interest no-drift, no
+  private/raw/secret/runtime/scope leak, and mobile fit.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest MIMIR closeout/opening - PR495B closed, PR495C opened

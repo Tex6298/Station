@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495C Owner Seminar Draft Action ARGUS Review
+
+ARGUS accepted PR495C on 2026-07-05:
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REVIEW_RESULT.md`.
+
+Validation result:
+`ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION_IMPLEMENTATION`.
+
+Reason:
+
+- `/studio/publishing` now uses the accepted owner records API to load and
+  create private Seminar drafts from ready public document candidates;
+- existing drafts match candidates by public document href, not raw source id;
+- create/restore POST bodies stay source-only;
+- ARGUS patched the visible create gate to `hasTier(session.user, "creator")`
+  so the UI matches the API `requireTier("creator")` gate;
+- public `/events/seminars`, signed-in interest behavior, API/schema, Discover,
+  public search, forums, billing, provider runtime, queues/workers, Redis,
+  Cloudflare, scheduling, hosting, public publishing, RSVP, tickets, payments,
+  reminders, live rooms, media, transcripts, and launch claims stayed out of
+  scope;
+- hosted desktop/`375px`/`390px` rehearsal is still required before closeout.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Reviewed source-id derivation, public-href matching, source-only POST body, creator-tier UI gate, panel-local bounded errors, visible copy, forbidden scope, and public seminar/interest no-drift. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 39 focused tests passed after the ARGUS tier-gate patch. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck passed after the patch. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495C Owner Seminar Draft Action Implementation
 
 DAEDALUS implemented PR495C on 2026-07-05:

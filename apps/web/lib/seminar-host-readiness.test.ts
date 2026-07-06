@@ -154,6 +154,8 @@ test("publishing dashboard wires seminar readiness without new API or public rou
   assert.match(source, /seminarRecordForCandidate/);
   assert.match(source, /seminarSourceDocumentForCandidate/);
   assert.match(source, /upsertSeminarRecord/);
+  assert.match(source, /setSeminarDraftAllowed\(hasTier\(session\.user, "creator"\)\)/);
+  assert.match(source, /canCreateDraft=\{seminarDraftAllowed\}/);
   assert.match(source, /Private draft saved/);
   assert.match(source, /Create seminar draft/);
   assert.match(source, /Creator required/);
