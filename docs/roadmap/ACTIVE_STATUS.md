@@ -4,6 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR495F accepted for owner publish gate
+
+ARGUS completed the PR495F hostile preflight:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495F_OWNER_PUBLISH_ROLLBACK_GATE_ONLY
+```
+
+Verdict:
+
+- accept only an owner publish/rollback gate;
+- publish moves `ready` + `private` durable seminar records to
+  `published` + `public`;
+- rollback moves `published` + `public` back to `ready` + `private`;
+- publish must revalidate owner/source/public/published/public Space
+  routeability and PR495E serializer compatibility;
+- rollback should be allowed even if the source becomes unroutable because it
+  reduces public eligibility;
+- public `/events/seminars`, public durable readback wiring, public interest
+  mark/withdraw, migrations/RLS/schema, scheduling, hosting, RSVP, tickets,
+  payments, reminders, media, transcripts, provider runtime, queues/workers,
+  Redis, Cloudflare, billing, and launch claims remain out of scope.
+
+Current lane:
+
+```text
+PR495F - Owner Seminar Publish/Rollback Gate
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact owner publish/rollback API/type/UI/tests
+  from the ARGUS result.
+- Visible owner copy must say the public listing is pending or not live yet
+  because public durable readback remains unwired.
+- ARIADNE hosted desktop/`375px`/`390px` proof is required after ARGUS accepts
+  implementation.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR495E closed, PR495F opened
 
 MIMIR closes PR495E after ARGUS returned:

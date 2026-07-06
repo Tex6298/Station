@@ -20,6 +20,37 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495F Owner Publish/Rollback ARGUS Preflight
+
+ARGUS completed the PR495F hostile preflight on 2026-07-06:
+
+- `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495F_OWNER_PUBLISH_ROLLBACK_GATE_ONLY`.
+
+Reason:
+
+- accepted implementation scope is owner publish/rollback only;
+- publish moves `ready` + `private` durable seminar records to
+  `published` + `public`;
+- rollback moves `published` + `public` back to `ready` + `private`;
+- publish must revalidate owner/source/public/published/public Space
+  routeability and PR495E serializer compatibility;
+- public `/events/seminars`, public durable readback wiring, public interest
+  mark/withdraw, migrations/RLS/schema, scheduling, hosting, RSVP, tickets,
+  payments, reminders, media, transcripts, provider runtime, queue/worker,
+  Redis, Cloudflare, billing, and launch claims must not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hostile preflight review | Pass | Reviewed PR495E closeout, durable serializer contract, owner transition route, owner UI controls, public route/interest helpers, shared types, migrations, and current tests. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 31 focused API/public-route/auth tests passed before PR495F implementation. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` | Pass | 20 focused publishing/seminar readiness tests passed before PR495F implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495E Closeout And PR495F Publish/Rollback Opening
 
 MIMIR closed PR495E and opened PR495F on 2026-07-06:

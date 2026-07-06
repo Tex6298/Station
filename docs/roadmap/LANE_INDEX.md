@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495F | Owner Seminar Publish/Rollback Preflight | ARGUS / A3 | Open hostile preflight; decide whether owner publish/rollback, public durable readback, a combined slice, or a concrete blocker is the next safe move. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_ARGUS.md` |
+| PR495F | Owner Seminar Publish/Rollback Gate | DAEDALUS / A2 | Accepted preflight; implement only owner `ready`/`private` to `published`/`public` and `published`/`public` back to `ready`/`private`, while public `/events/seminars` and interest routes remain unwired from durable records. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495F preflight | Owner Seminar Publish/Rollback | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495F_OWNER_PUBLISH_ROLLBACK_GATE_ONLY`; DAEDALUS should add only owner publish/rollback over durable records with pending-public-listing copy, no public durable readback wiring, no public interest migration, no schema/RLS migration, and hosted desktop/375px/390px proof after ARGUS review. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_RESULT.md` |
 | PR495E closeout | Durable Public Card Serializer Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Closed accepted; dormant durable public-card serializer, digest ids, source-key dedupe, safe redaction, malformed-input hardening, current public route no-drift, and source-derived interest no-drift passed review. No hosted proof required because no route/UI behavior changed. | `docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CLOSEOUT.md` |
 | PR495E review | Durable Public Card Serializer Contract | DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_IMPLEMENTATION` with a narrow ARGUS patch; durable card serializer remains dormant, rejects malformed record ids, ignores malformed durable thread/Space merge inputs, preserves source-derived interest keys, and keeps public routes, owner publish/rollback, migrations/RLS, UI, runtime, billing, queue, Redis, and Cloudflare scope unchanged. | `docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_REVIEW_RESULT.md` |
 | PR495E preflight | Public Seminar Durable Card Contract | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CONTRACT`; DAEDALUS should implement only the server-side durable card serializer, digest card-id rule, source-key dedupe, and source-derived interest-key tests, with no public route sourcing, owner publish/rollback, interest migration, schema/RLS, UI, runtime, billing, queue, Redis, or Cloudflare scope. | `docs/roadmap/PR495E_PUBLIC_SEMINAR_DURABLE_CARD_CONTRACT_PREFLIGHT_RESULT.md` |
