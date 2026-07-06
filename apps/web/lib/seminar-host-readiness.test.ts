@@ -142,6 +142,10 @@ test("seminar draft helpers match by public href and keep creates source-only", 
   const createBody = { sourceType: "document", sourceId: source?.id };
   assert.deepEqual(createBody, { sourceType: "document", sourceId: "doc-ready" });
   assert.equal(Object.keys(createBody).sort().join(","), "sourceId,sourceType");
+
+  const transitionBody = { status: "ready" };
+  assert.deepEqual(transitionBody, { status: "ready" });
+  assert.equal(Object.keys(transitionBody).join(","), "status");
 });
 
 test("publishing dashboard wires seminar readiness without new API or public route drift", () => {
@@ -150,7 +154,9 @@ test("publishing dashboard wires seminar readiness without new API or public rou
   assert.match(source, /seminarHostReadiness/);
   assert.match(source, /apiGet<OwnerPublicSeminarRecordsResponse>\("\/events\/seminars\/records"/);
   assert.match(source, /apiPost<OwnerPublicSeminarRecordResponse>\(\s*"\/events\/seminars\/records"/);
+  assert.match(source, /apiPost<OwnerPublicSeminarRecordResponse>\(\s*`\/events\/seminars\/records\/\$\{encodeURIComponent\(record\.id\)\}\/transition`/);
   assert.match(source, /\{ sourceType: "document", sourceId: document\.id \}/);
+  assert.match(source, /const body: TransitionOwnerPublicSeminarRecordRequest = \{ status \}/);
   assert.match(source, /seminarRecordForCandidate/);
   assert.match(source, /seminarSourceDocumentForCandidate/);
   assert.match(source, /upsertSeminarRecord/);
@@ -158,6 +164,11 @@ test("publishing dashboard wires seminar readiness without new API or public rou
   assert.match(source, /canCreateDraft=\{seminarDraftAllowed\}/);
   assert.match(source, /Private draft saved/);
   assert.match(source, /Create seminar draft/);
+  assert.match(source, /Mark ready for review/);
+  assert.match(source, /Ready for review/);
+  assert.match(source, /Public listing is not live\./);
+  assert.match(source, /Return to draft/);
+  assert.match(source, /Seminar draft status is unavailable\./);
   assert.match(source, /Creator required/);
   assert.match(source, /apiGet<\{ documents: PublishingDocument\[\] \}>\("\/documents"/);
   assert.match(source, /apiGet<\{ spaces: PublishingSpace\[\] \}>\("\/spaces"/);
@@ -172,7 +183,7 @@ test("publishing dashboard wires seminar readiness without new API or public rou
     source.indexOf("function upsertApproval"),
   );
   for (const scopedSource of [createDraftBlock, seminarActionBlock]) {
-    assert.doesNotMatch(scopedSource, /title:\s*document\.title|summary:\s*document|status:\s*"|visibility:\s*"|ownerUserId|owner_user_id|discussionThreadId|discussion_thread_id|sourceBody|source_label|RSVP|ticket|payment|Stripe|Cloudflare|Redis|Worker\(|new Queue/i);
+    assert.doesNotMatch(scopedSource, /title:\s*document\.title|summary:\s*document|status:\s*"|visibility:\s*"|ownerUserId|owner_user_id|discussionThreadId|discussion_thread_id|sourceBody|source_label|RSVP|ticket|payment|Stripe|Cloudflare|Redis|Worker\(|new Queue|propose|schedule|book|attendee|waitlist|reminder|live room|stream|recording|transcript|provider|public seminar is live/i);
   }
 });
 

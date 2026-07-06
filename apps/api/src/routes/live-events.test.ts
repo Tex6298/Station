@@ -183,7 +183,7 @@ class InMemorySupabase {
 }
 
 class QueryBuilder {
-  private operation: "select" | "upsert" | "delete" = "select";
+  private operation: "select" | "upsert" | "update" | "delete" = "select";
   private filters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
@@ -201,6 +201,12 @@ class QueryBuilder {
     this.operation = "upsert";
     this.mutationPayload = payload;
     this.onConflict = options.onConflict?.split(",").map((field) => field.trim()).filter(Boolean) ?? [];
+    return this;
+  }
+
+  update(payload: Row) {
+    this.operation = "update";
+    this.mutationPayload = payload;
     return this;
   }
 
@@ -249,6 +255,17 @@ class QueryBuilder {
       const row = this.upsertRow();
       const data = JSON.parse(JSON.stringify(row));
       return { data: mode ? data : [data], error: null };
+    }
+
+    if (this.operation === "update") {
+      const rows = this.updateRows();
+      const data = JSON.parse(JSON.stringify(rows));
+      if (mode === "single") {
+        return data.length > 0
+          ? { data: data[0], error: null }
+          : { data: null, error: { message: "No rows returned." } };
+      }
+      return { data, error: null };
     }
 
     if (this.operation === "delete") {
@@ -318,6 +335,15 @@ class QueryBuilder {
     }
 
     return this.db.insertRow(this.table, this.mutationPayload);
+  }
+
+  private updateRows() {
+    if (!this.mutationPayload) throw new Error("Missing update payload.");
+    const rows = this.db.rows(this.table).filter((row) => this.matches(row));
+    for (const row of rows) {
+      Object.assign(row, this.mutationPayload, { updated_at: this.db.timestamp() });
+    }
+    return rows;
   }
 }
 
@@ -414,6 +440,25 @@ function seedOwnerSeminarRecordSource(db: InMemorySupabase, overrides: Row = {})
     space_id: spaceId,
     discussion_thread_id: "thread-discussion",
     ...overrides,
+  });
+}
+
+function seedOwnerSeminarRecord(db: InMemorySupabase, recordOverrides: Row = {}, sourceOverrides: Row = {}) {
+  const source = seedOwnerSeminarRecordSource(db, {
+    id: recordOverrides.source_id ?? sourceOverrides.id ?? "doc-public",
+    ...sourceOverrides,
+  });
+  return db.insertRow("public_seminar_records", {
+    id: recordOverrides.id ?? "record-public",
+    owner_user_id: "owner-user",
+    source_type: "document",
+    source_id: source.id,
+    title: "Public Readback Notes",
+    summary: "Public excerpt about careful seminar preparation.",
+    status: "draft",
+    visibility: "private",
+    discussion_thread_id: "thread-discussion",
+    ...recordOverrides,
   });
 }
 
@@ -663,6 +708,275 @@ test("owner seminar record storage failures return bounded errors", async () => 
       "owner_user_id",
       "author_user_id",
       "provider",
+      "stack trace",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record transition requires auth, creator tier, and owner scope", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecord(db);
+    db.insertRow("public_seminar_records", {
+      id: "record-member",
+      owner_user_id: "member-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Other owner seminar",
+      status: "draft",
+      visibility: "private",
+    });
+
+    const signedOut = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      body: { status: "ready" },
+    });
+    assert.equal(signedOut.status, 401);
+
+    const insufficientTier = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      token: "member-token",
+      body: { status: "ready" },
+    });
+    assert.equal(insufficientTier.status, 403);
+
+    const nonOwner = await requestJson(app, "POST", "/events/seminars/records/record-member/transition", {
+      token: "owner-token",
+      body: { status: "ready" },
+    });
+    assert.equal(nonOwner.status, 404);
+    assert.deepEqual(nonOwner.body, {
+      error: "Seminar draft not found.",
+      code: "seminar_record_not_found",
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record transition moves draft to ready and back while staying private", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecord(db, {
+      title: "Transition source_id=doc-public",
+      summary: "Summary with Bearer super-secret-token discussion_thread_id=thread-discussion",
+    });
+
+    const ready = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "ready" } }
+    );
+    assert.equal(ready.status, 200);
+    assert.equal(ready.body.record.id, "record-public");
+    assert.equal(ready.body.record.status, "ready");
+    assert.equal(ready.body.record.visibility, "private");
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.status, "ready");
+
+    const draft = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "draft" } }
+    );
+    assert.equal(draft.status, 200);
+    assert.equal(draft.body.record.id, "record-public");
+    assert.equal(draft.body.record.status, "draft");
+    assert.equal(draft.body.record.visibility, "private");
+
+    const json = JSON.stringify({ ready: ready.body, draft: draft.body });
+    for (const forbidden of [
+      "source_id",
+      "sourceId",
+      "owner_user_id",
+      "author_user_id",
+      "discussion_thread_id",
+      "thread-discussion",
+      "Bearer",
+      "super-secret-token",
+      "provider payload",
+      "storage_path",
+      "stack trace",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record transition revalidates source routeability", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    db.insertRow("spaces", {
+      id: "space-private",
+      slug: "private-house",
+      title: "Private House",
+      is_public: false,
+    });
+    db.insertRow("spaces", {
+      id: "space-uuid",
+      slug: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Unsafe UUID Space",
+      is_public: true,
+    });
+    db.insertRow("spaces", {
+      id: "space-bad-slug",
+      slug: "Bad Slug!",
+      title: "Unsafe Slug Space",
+      is_public: true,
+    });
+
+    const invalidSources = [
+      { id: "doc-private", visibility: "private" },
+      { id: "doc-community", visibility: "community" },
+      { id: "doc-unlisted", visibility: "unlisted" },
+      { id: "doc-draft", status: "draft" },
+      { id: "doc-archived", status: "archived" },
+      { id: "doc-missing-space", space_id: null },
+      { id: "doc-private-space", space_id: "space-private" },
+      { id: "doc-uuid-space", space_id: "space-uuid" },
+      { id: "doc-bad-slug", space_id: "space-bad-slug" },
+      { id: "doc-not-owned", author_user_id: "member-user" },
+    ];
+
+    for (const source of invalidSources) {
+      seedOwnerSeminarRecord(db, {
+        id: `record-${source.id}`,
+        source_id: source.id,
+      }, source);
+    }
+
+    for (const { id } of invalidSources) {
+      const response = await requestJson(app, "POST", `/events/seminars/records/record-${id}/transition`, {
+        token: "owner-token",
+        body: { status: "ready" },
+      });
+      assert.equal(response.status, 404, `${id} should not transition`);
+      assert.deepEqual(response.body, {
+        error: "Seminar source not available.",
+        code: "seminar_source_not_available",
+      });
+      assert.equal(db.rows("public_seminar_records").find((row) => row.id === `record-${id}`)?.status, "draft");
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record transition rejects unsupported payloads and states", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecord(db);
+    seedOwnerSeminarRecord(db, { id: "record-published", source_id: "doc-published", status: "published" }, { id: "doc-published" });
+    seedOwnerSeminarRecord(db, { id: "record-cancelled", source_id: "doc-cancelled", status: "cancelled" }, { id: "doc-cancelled" });
+    seedOwnerSeminarRecord(db, { id: "record-public-visibility", source_id: "doc-public-visibility", visibility: "public" }, { id: "doc-public-visibility" });
+    seedOwnerSeminarRecord(db, { id: "record-thread", source_type: "thread", source_id: "thread-public" });
+
+    const invalidRequests = [
+      { body: { status: "published" }, recordId: "record-public" },
+      { body: { status: "cancelled" }, recordId: "record-public" },
+      { body: { status: "ready", visibility: "public" }, recordId: "record-public" },
+      { body: { status: "ready", sourceId: "doc-public" }, recordId: "record-public" },
+      { body: { status: "ready", title: "Client title" }, recordId: "record-public" },
+      { body: { status: "ready", summary: "Client summary" }, recordId: "record-public" },
+      { body: { state: "ready" }, recordId: "record-public" },
+      { body: { status: "ready" }, recordId: "record-published" },
+      { body: { status: "ready" }, recordId: "record-cancelled" },
+      { body: { status: "ready" }, recordId: "record-public-visibility" },
+      { body: { status: "ready" }, recordId: "record-thread" },
+    ];
+
+    for (const { body, recordId } of invalidRequests) {
+      const response = await requestJson(app, "POST", `/events/seminars/records/${recordId}/transition`, {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400, `${recordId} ${JSON.stringify(body)} should be rejected`);
+      assert.deepEqual(response.body, {
+        error: "Unsupported seminar draft status.",
+        code: "seminar_record_invalid_transition",
+      });
+    }
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.status, "draft");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record transition storage failures return bounded errors", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecord(db);
+
+    db.failNext(
+      "public_seminar_records",
+      "select",
+      "table=public_seminar_records owner_user_id=owner-user source_id=doc-public stack trace"
+    );
+    const failedLoad = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      token: "owner-token",
+      body: { status: "ready" },
+    });
+    assert.equal(failedLoad.status, 503);
+
+    db.failNext(
+      "documents",
+      "select",
+      "table=documents author_user_id=owner-user source_id=doc-public provider payload stack trace"
+    );
+    const failedSource = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      token: "owner-token",
+      body: { status: "ready" },
+    });
+    assert.equal(failedSource.status, 503);
+
+    db.failNext(
+      "public_seminar_records",
+      "update",
+      "table=public_seminar_records owner_user_id=owner-user source_id=doc-public stack trace"
+    );
+    const failedUpdate = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      token: "owner-token",
+      body: { status: "ready" },
+    });
+    assert.equal(failedUpdate.status, 503);
+
+    for (const body of [failedLoad.body, failedSource.body, failedUpdate.body]) {
+      assert.deepEqual(body, {
+        error: "Could not update seminar draft status.",
+        code: "seminar_record_transition_unavailable",
+      });
+    }
+
+    const json = JSON.stringify({ failedLoad: failedLoad.body, failedSource: failedSource.body, failedUpdate: failedUpdate.body });
+    for (const forbidden of [
+      "public_seminar_records",
+      "documents",
+      "owner-user",
+      "doc-public",
+      "source_id",
+      "owner_user_id",
+      "author_user_id",
+      "provider payload",
       "stack trace",
     ]) {
       assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);

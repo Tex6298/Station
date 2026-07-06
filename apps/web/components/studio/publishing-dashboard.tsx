@@ -7,6 +7,8 @@ import type {
   OwnerPublicSeminarRecord,
   OwnerPublicSeminarRecordResponse,
   OwnerPublicSeminarRecordsResponse,
+  OwnerPublicSeminarRecordTransitionTarget,
+  TransitionOwnerPublicSeminarRecordRequest,
 } from "@station/types";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
@@ -139,6 +141,33 @@ export function PublishingDashboard() {
     }
   }
 
+  async function transitionSeminarDraft(
+    record: OwnerPublicSeminarRecord,
+    status: OwnerPublicSeminarRecordTransitionTarget,
+  ) {
+    if (!token || !seminarDraftAllowed) return;
+    if (!record.publicDocumentHref) {
+      setSeminarRecordsError("Seminar draft status is unavailable.");
+      return;
+    }
+
+    setBusySeminarHref(record.publicDocumentHref);
+    setSeminarRecordsError(null);
+    try {
+      const body: TransitionOwnerPublicSeminarRecordRequest = { status };
+      const response = await apiPost<OwnerPublicSeminarRecordResponse>(
+        `/events/seminars/records/${encodeURIComponent(record.id)}/transition`,
+        body,
+        token,
+      );
+      setSeminarRecords((current) => upsertSeminarRecord(current, response.record));
+    } catch {
+      setSeminarRecordsError("Seminar draft status is unavailable.");
+    } finally {
+      setBusySeminarHref(null);
+    }
+  }
+
   async function enqueueApproval(document: PublishingDocument) {
     if (!token) return;
     setBusyApprovalId(document.id);
@@ -254,6 +283,7 @@ export function PublishingDashboard() {
           canCreateDraft={seminarDraftAllowed}
           busyDocumentHref={busySeminarHref}
           onCreateDraft={createSeminarDraft}
+          onTransitionDraft={transitionSeminarDraft}
         />
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
@@ -364,6 +394,7 @@ function SeminarReadinessPanel({
   canCreateDraft,
   busyDocumentHref,
   onCreateDraft,
+  onTransitionDraft,
 }: {
   readback: SeminarHostReadinessReadback;
   loading: boolean;
@@ -373,6 +404,7 @@ function SeminarReadinessPanel({
   canCreateDraft: boolean;
   busyDocumentHref: string | null;
   onCreateDraft: (candidate: SeminarHostReadinessCandidate) => void;
+  onTransitionDraft: (record: OwnerPublicSeminarRecord, status: OwnerPublicSeminarRecordTransitionTarget) => void;
 }) {
   return (
     <section className="station-panel" aria-label="Seminar readiness" style={seminarPanel}>
@@ -436,6 +468,7 @@ function SeminarReadinessPanel({
                           canCreateDraft={canCreateDraft}
                           busy={busy}
                           onCreateDraft={onCreateDraft}
+                          onTransitionDraft={onTransitionDraft}
                         />
                         <Link href={candidate.documentHref} style={miniLink}>View document</Link>
                         <Link href={candidate.spaceHref} style={miniLink}>View Space</Link>
@@ -458,14 +491,46 @@ function SeminarDraftAction({
   canCreateDraft,
   busy,
   onCreateDraft,
+  onTransitionDraft,
 }: {
   candidate: SeminarHostReadinessCandidate;
   record: OwnerPublicSeminarRecord | null;
   canCreateDraft: boolean;
   busy: boolean;
   onCreateDraft: (candidate: SeminarHostReadinessCandidate) => void;
+  onTransitionDraft: (record: OwnerPublicSeminarRecord, status: OwnerPublicSeminarRecordTransitionTarget) => void;
 }) {
   if (record) {
+    if (!canCreateDraft) {
+      return (
+        <button type="button" disabled title="Creator tier is required to update a seminar draft." style={disabledMiniButton}>
+          Creator required
+        </button>
+      );
+    }
+
+    if (record.status === "ready") {
+      return (
+        <>
+          <button type="button" disabled title="This private seminar draft is ready for owner review." style={disabledMiniButton}>
+            Ready for review
+          </button>
+          <span style={seminarStatusCopy}>Public listing is not live.</span>
+          <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "draft")} style={miniButton}>
+            {busy ? "Saving draft..." : "Return to draft"}
+          </button>
+        </>
+      );
+    }
+
+    if (record.status === "draft") {
+      return (
+        <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "ready")} style={miniButton}>
+          {busy ? "Saving draft..." : "Mark ready for review"}
+        </button>
+      );
+    }
+
     return (
       <button type="button" disabled title="This private seminar draft is saved for this source." style={disabledMiniButton}>
         Private draft saved
@@ -693,6 +758,13 @@ const seminarPanel = {
 
 const seminarNotice = {
   margin: 0,
+};
+
+const seminarStatusCopy = {
+  display: "inline-flex",
+  alignItems: "center",
+  color: "#687078",
+  fontSize: 12,
 };
 
 const storyHeader = {

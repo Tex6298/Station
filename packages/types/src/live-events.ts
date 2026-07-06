@@ -2,6 +2,7 @@ export type PublicSeminarSourceType = "document" | "thread" | "space";
 export type OwnerPublicSeminarRecordSourceType = "document";
 export type OwnerPublicSeminarRecordStatus = "draft" | "ready" | "published" | "cancelled";
 export type OwnerPublicSeminarRecordVisibility = "private" | "public";
+export type OwnerPublicSeminarRecordTransitionTarget = "draft" | "ready";
 
 export interface PublicSeminarCard {
   id: string;
@@ -64,4 +65,8 @@ export interface OwnerPublicSeminarRecordResponse {
 export interface CreateOwnerPublicSeminarRecordRequest {
   sourceType: OwnerPublicSeminarRecordSourceType;
   sourceId: string;
+}
+
+export interface TransitionOwnerPublicSeminarRecordRequest {
+  status: OwnerPublicSeminarRecordTransitionTarget;
 }

@@ -20,6 +20,34 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495D Owner Ready Gate Implementation
+
+DAEDALUS implemented PR495D on 2026-07-06:
+`docs/roadmap/PR495D_OWNER_READY_GATE_RESULT.md`.
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- owner seminar records can transition privately from `draft` to `ready` and
+  back to `draft`;
+- the transition API is authenticated, creator-gated, owner-scoped, source
+  revalidated, and status-only;
+- `visibility` remains `private`;
+- `/studio/publishing` shows bounded private ready controls/readback and avoids
+  public listing claims;
+- public `/events/seminars`, public card ids, interest keys,
+  Discover/search/forum behavior, schema/RLS, runtime, billing, provider,
+  queue/worker, Redis, and Cloudflare scope did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 44 focused tests passed, including transition API gates/revalidation/rejection/bounded-error coverage plus web static no-drift coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck ran and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495D Owner Ready Gate ARGUS Preflight
 
 ARGUS completed the PR495D hostile preflight on 2026-07-06:

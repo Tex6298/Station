@@ -7,6 +7,7 @@ import type {
   OwnerPublicSeminarRecordsResponse,
   PublicSeminarCard,
   PublicSeminarSourceType,
+  TransitionOwnerPublicSeminarRecordRequest,
 } from "@station/types";
 import { getSupabaseAdmin } from "../lib/supabase";
 import { optionalAuth, requireAuth } from "../middleware/require-auth";
@@ -46,8 +47,21 @@ const SEMINAR_RECORD_SOURCE_ERROR = {
   error: "Seminar source not available.",
   code: "seminar_source_not_available",
 } as const;
+const SEMINAR_RECORD_NOT_FOUND_ERROR = {
+  error: "Seminar draft not found.",
+  code: "seminar_record_not_found",
+} as const;
+const SEMINAR_RECORD_TRANSITION_INVALID_ERROR = {
+  error: "Unsupported seminar draft status.",
+  code: "seminar_record_invalid_transition",
+} as const;
+const SEMINAR_RECORD_TRANSITION_ERROR = {
+  error: "Could not update seminar draft status.",
+  code: "seminar_record_transition_unavailable",
+} as const;
 const SEMINAR_RECORD_SELECT =
   "id, source_type, source_id, title, summary, status, visibility, discussion_thread_id, created_at, updated_at";
+const SEMINAR_RECORD_TRANSITION_SELECT = `${SEMINAR_RECORD_SELECT}, owner_user_id`;
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PUBLIC_SEMINAR_ID_PATTERN = /^seminar_[a-f0-9]{16}$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
@@ -142,6 +156,53 @@ eventsRouter.post("/seminars/records", requireAuth, requireTier("creator"), asyn
   }
 });
 
+eventsRouter.post("/seminars/records/:recordId/transition", requireAuth, requireTier("creator"), async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const targetStatus = transitionTarget(req.body);
+  if (!targetStatus) return res.status(400).json(SEMINAR_RECORD_TRANSITION_INVALID_ERROR);
+
+  try {
+    const { data: record, error: loadError } = await (sb as any)
+      .from("public_seminar_records")
+      .select(SEMINAR_RECORD_TRANSITION_SELECT)
+      .eq("id", req.params.recordId)
+      .maybeSingle();
+
+    if (loadError) throw new Error("Could not load seminar draft.");
+    if (!record || record.owner_user_id !== req.user!.id) {
+      return res.status(404).json(SEMINAR_RECORD_NOT_FOUND_ERROR);
+    }
+    if (
+      record.source_type !== "document" ||
+      record.visibility !== "private" ||
+      !["draft", "ready"].includes(record.status)
+    ) {
+      return res.status(400).json(SEMINAR_RECORD_TRANSITION_INVALID_ERROR);
+    }
+
+    const source = await resolveOwnerSeminarDocumentSource(sb, record.source_id, req.user!.id);
+    if (!source) return res.status(404).json(SEMINAR_RECORD_SOURCE_ERROR);
+
+    const { data, error } = await (sb as any)
+      .from("public_seminar_records")
+      .update({ status: targetStatus })
+      .eq("id", record.id)
+      .eq("owner_user_id", req.user!.id)
+      .eq("visibility", "private")
+      .select(SEMINAR_RECORD_SELECT)
+      .single();
+
+    if (error || !data) throw new Error("Could not transition seminar draft.");
+
+    const response: OwnerPublicSeminarRecordResponse = {
+      record: await serializeOwnerSeminarRecord(sb, data, source),
+    };
+    return res.json(response);
+  } catch {
+    return res.status(503).json(SEMINAR_RECORD_TRANSITION_ERROR);
+  }
+});
+
 eventsRouter.post("/seminars/:seminarId/interest", requireAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
 
@@ -190,6 +251,14 @@ eventsRouter.delete("/seminars/:seminarId/interest", requireAuth, async (req, re
     return res.status(503).json(SEMINAR_INTEREST_ERROR);
   }
 });
+
+function transitionTarget(body: unknown) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+  const keys = Object.keys(body);
+  if (keys.length !== 1 || keys[0] !== "status") return null;
+  const status = (body as TransitionOwnerPublicSeminarRecordRequest).status;
+  return status === "draft" || status === "ready" ? status : null;
+}
 
 async function resolveOwnerSeminarDocumentSource(
   sb: ReturnType<typeof getSupabaseAdmin>,

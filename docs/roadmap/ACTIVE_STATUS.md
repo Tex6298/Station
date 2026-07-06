@@ -4,56 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight - PR495D accepted for owner ready gate
+## Latest DAEDALUS implementation - PR495D ready for ARGUS review
 
-ARGUS completed the PR495D hostile preflight:
+DAEDALUS implemented PR495D:
 
-`docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR495D_OWNER_READY_GATE_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE
+READY_FOR_ARGUS_REVIEW
 ```
 
-Verdict:
+Implemented:
 
-- public durable-record readback is not accepted yet because stable public card
-  ids, dedupe with `discover_feed`, interest keys, public serializer rules, and
-  rollback semantics still need a separate contract;
-- private durable seminar records may move owner-only from `draft` to `ready`;
-- `ready` records may return owner-only to `draft`;
-- `visibility` must remain `private`;
-- `published` status, `public` visibility, durable-record public cards, and
-  durable-record interest behavior remain out of scope;
-- public `/events/seminars` must keep its current `discover_feed` featured
-  document/thread/Space sourcing.
+- shared request type for owner seminar record transitions;
+- authenticated creator-gated
+  `POST /events/seminars/records/:recordId/transition`;
+- strict body acceptance for only `{ status: "draft" }` or
+  `{ status: "ready" }`;
+- owner record lookup by authenticated owner;
+- source revalidation against still-owned public published documents in
+  routeable public Spaces;
+- status-only update between `draft` and `ready`;
+- `visibility` remains `private`;
+- `/studio/publishing` private ready controls/readback:
+  `Mark ready for review`, `Ready for review`, `Public listing is not live.`,
+  and `Return to draft`;
+- bounded panel-local transition failure copy.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 44 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
+- `git diff --check` passed.
 
 Current lane:
 
 ```text
 PR495D - Owner Ready For Public Review Gate
-Owner: DAEDALUS / A2
-State: ACCEPTED_PREFLIGHT
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the exact owner-only `draft` to `ready` and
-  `ready` to `draft` transition contract from the ARGUS result.
-- The implementation must include API/types, `/studio/publishing` UI readback,
-  focused tests, and result docs.
-- Keep public durable-record readback, `status=published`,
-  `visibility=public`, public interest migration, scheduling, hosting, RSVP,
-  tickets, payments, reminders, live rooms, media, transcripts, provider
-  runtime, queues/workers, Redis, Cloudflare, billing, and launch claims out of
-  scope.
+- ARGUS should review transition ownership, strict body rejection, source
+  revalidation, private visibility lock, UI no-public-claim copy, and public
+  seminar/interest no-drift.
+- If accepted, ARGUS should wake MIMIR for hosted desktop/`375px`/`390px`
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout/opening - PR495C closed, PR495D opened

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495D | Owner Ready For Public Review Gate | DAEDALUS / A2 | Accepted preflight; implement only owner-authenticated creator-gated private seminar record `draft` to `ready` and `ready` to `draft` transitions, with visibility staying private and public `/events/seminars` unchanged. | `docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md` |
+| PR495D | Owner Ready For Public Review Gate | ARGUS / A3 | Ready for review; owner-authenticated creator-gated private seminar records can move `draft` to `ready` and `ready` to `draft`, visibility stays private, and public `/events/seminars`/interest behavior remains unchanged. | `docs/roadmap/PR495D_OWNER_READY_GATE_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495D implementation | Owner Ready For Public Review Gate | DAEDALUS -> ARGUS | Ready for review; added strict owner creator-gated `draft`/`ready` transition API, source revalidation, private visibility lock, `/studio/publishing` ready/readback controls, and focused API/web no-drift tests without public durable-record readback, public card ids, interest keys, schema/RLS, runtime, billing, queue, Redis, or Cloudflare scope. | `docs/roadmap/PR495D_OWNER_READY_GATE_RESULT.md` |
 | PR495D preflight | Seminar Draft Publication Boundary | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE`; public durable-record readback, published/public transitions, durable-record interest keys, and `/events/seminars` durable-record sourcing remain blocked pending a separate card-id, dedupe, serializer, interest, and rollback contract. | `docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md` |
 | PR495C closeout | Owner Seminar Draft Action | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; hosted owner `/studio/publishing` can create/read back private durable seminar drafts, duplicate restore and refresh are stable, creator/signed-out gates passed, public `/events/seminars` and interest no-drift passed, and PR495D opens the public/private publication boundary preflight. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_CLOSEOUT.md` |
 | PR495C rehearsal | Owner Seminar Draft Action Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; owner desktop create/readback, duplicate restore, refresh stability, desktop/375px/390px panel fit, private-tier non-creator API denial, signed-out protection, public seminar/interest no-drift, privacy boundaries, and no product drift passed. | `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_REHEARSAL_RESULT.md` |
