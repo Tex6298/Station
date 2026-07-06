@@ -4,6 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR495G hosted rehearsal passed
+
+ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
+
+`docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_RESULT.md`
+
+State:
+
+```text
+PASS_READY_FOR_PR495G_CLOSEOUT
+```
+
+Proof:
+
+- hosted web/API health reported accepted PR495G code commit `018edcaf`;
+- ARGUS review commit `9c090d51` was docs/state-only after the code commit, so
+  Railway correctly skipped a no-watched-file deploy;
+- signed-out public `GET /events/seminars?limit=24` returned HTTP `200` with
+  source `discover_feed_featured_and_durable_records`;
+- public baseline had three cards and no raw source/owner/record fields,
+  storage details, provider payloads, tokens, cookies, stack traces, or
+  secret-shaped values;
+- replay owner authenticated as creator-or-above and reached
+  `/studio -> /studio/publishing`;
+- hosted owner data provided both a source-derived document replacement
+  candidate and a durable-only candidate;
+- durable replacement produced digest `seminar_18b38da421bf0c58`, replaced the
+  matching source-derived document card, kept a single href card, and preserved
+  thread/Space ordering;
+- durable-only publish produced digest `seminar_d22973dcc1991bc2`, appended a
+  public `Public seminar` card with bounded copy, public document href, and
+  public discussion href;
+- signed-out durable interest mutation returned `401`;
+- signed-in durable interest mark, duplicate mark, withdraw, and repeated
+  withdraw all passed with aggregate/viewer-local state only;
+- rollback returned the durable-only record to `ready` + `private`;
+- stale durable digest mark/withdraw both returned `404` with
+  `seminar_not_found`;
+- signed-out public desktop/`375px`/`390px` rendered three cards with sign-in
+  prompts and no mutation buttons;
+- signed-in public `390px` rendered viewer-local interest controls;
+- checked browser viewports had no horizontal overflow, clipped labels, broken
+  tap targets, or incoherent overlap;
+- no public detail page, scheduling, hosting, RSVP, tickets, payments,
+  reminders, attendance, live rooms, media, recordings, transcripts, provider
+  runtime, Redis, Cloudflare, billing, launch claim, Discern CSS import, private
+  data leak, or broad shell drift was found.
+
+Current lane:
+
+```text
+PR495G - Public Durable Seminar Readback Closeout
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR495G_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR495G or route any final wording-only closeout work.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR495G hosted rehearsal opened
 
 MIMIR routed hosted browser proof for the ARGUS-accepted PR495G public durable

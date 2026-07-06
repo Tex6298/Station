@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495G | Public Durable Seminar Readback Hosted Rehearsal | ARIADNE / A4 | Open hosted proof; ARIADNE should prove durable-only readback, durable replacement, durable digest interest mark/duplicate/withdraw/repeated withdraw, signed-out denial, stale/rolled-back disappearance, source-derived interest only, privacy boundaries, no launch/scheduling/hosting/payment claims, and desktop/375px/390px fit. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_ARIADNE.md` |
+| PR495G | Public Durable Seminar Readback Closeout | MIMIR / A1 | Hosted proof passed; MIMIR should close PR495G or route any final wording-only closeout work. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495G rehearsal | Public Durable Seminar Readback Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; durable-only readback, durable replacement, durable digest interest mark/duplicate/withdraw/repeated withdraw, signed-out denial, rollback/stale disappearance with `seminar_not_found`, aggregate/viewer-local interest only, privacy boundaries, no launch/scheduling/hosting/payment claims, and desktop/375px/390px fit passed. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_RESULT.md` |
 | PR495G rehearsal opened | Public Durable Seminar Readback Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted PR495G durable public readback and durable digest interest resolution, so ARIADNE must prove hosted public durable readback, interest mutation, stale rollback behavior, privacy, product-boundary, and mobile fit before closeout. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_ARIADNE.md` |
 | PR495G review | Public Durable Seminar Readback | DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_IMPLEMENTATION`; public durable readback, durable replacement/append/limit behavior, durable digest interest mark/withdraw, source-derived interest persistence, bounded public errors, mixed-source response honesty, and forbidden-scope boundaries passed local review. Hosted proof is required before closeout. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REVIEW_RESULT.md` |
 | PR495G preflight | Public Durable Seminar Readback | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK`; DAEDALUS should wire durable published/public records into public `/events/seminars`, add durable digest interest resolution in the same slice, keep interest rows source-derived, update the mixed-source response type honestly, and avoid public detail/schema/RLS/runtime/owner-UI/scope expansion. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_RESULT.md` |

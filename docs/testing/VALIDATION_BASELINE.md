@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495G Public Durable Seminar Readback Hosted Rehearsal
+
+ARIADNE completed hosted PR495G proof on 2026-07-06:
+
+- `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_REHEARSAL_RESULT.md`
+
+Validation result:
+`PASS_READY_FOR_PR495G_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API health reported accepted PR495G code commit `018edcaf`;
+- later review/routing commits were docs/state-only, so Railway correctly
+  skipped no-watched-file deploys;
+- signed-out public API returned source
+  `discover_feed_featured_and_durable_records`;
+- hosted owner data provided both a source-derived document replacement
+  candidate and a durable-only candidate;
+- durable replacement, durable-only readback, durable digest interest
+  mark/duplicate/withdraw/repeated withdraw, signed-out denial, rollback/stale
+  disappearance with `seminar_not_found`, aggregate/viewer-local interest only,
+  privacy boundaries, product-boundary copy, and desktop/`375px`/`390px` fit
+  passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Chrome/CDP rehearsal | Pass | Proved owner `/studio -> /studio/publishing`, public durable-only readback, durable replacement, durable digest interest, signed-out denial, stale rollback behavior, no raw/private/secret/runtime/scope leak, no launch/scheduling/hosting/payment claims, and desktop/mobile fit. |
+| Temporary rehearsal harness syntax check | Pass | Node syntax check passed. |
+
 ## PR495G Public Durable Seminar Readback ARGUS Review
 
 ARGUS accepted the PR495G implementation on 2026-07-06:
