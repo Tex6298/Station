@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497A Companion Home Usability Translation Hosted Rehearsal
+
+ARIADNE completed hosted PR497A proof on 2026-07-06:
+
+- `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_RESULT.md`
+
+Validation result:
+`PRODUCT_DEFECT_ROUTE_DAEDALUS`.
+
+Reason:
+
+- hosted web/API deployment identity reported accepted PR497A review commit
+  `f19101c0`;
+- signed-in replay owner reached the private persona home;
+- desktop, `375px`, and `390px` fit/privacy checks passed with no horizontal
+  overflow, clipped visible controls, raw-id readback, provider payload, stack
+  trace, secret-shaped value, or positive automation/booking/payment claim;
+- return-card controls stayed local and owner-triggered;
+- product defect: an active non-empty thread auto-scrolls the document down to
+  the lower chat/composer area after load, so the final landed viewport skips
+  the intended identity/header, Companion Home heading, shortcuts, and return
+  card.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Playwright/browser proof | Product defect | Fresh hosted app at `f19101c0`; layout, mobile fit, local return actions, and privacy/scope checks passed, but active-thread auto-scroll broke the first-viewport landing promise. |
+
 ## PR497A Companion Home Usability Translation ARGUS Review
 
 ARGUS accepted PR497A on 2026-07-06:

@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR497A hosted proof found auto-scroll defect
+
+ARIADNE completed hosted PR497A proof:
+
+`docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+PRODUCT_DEFECT_ROUTE_DAEDALUS
+```
+
+Decision:
+
+- Hosted web/API were fresh at PR497A review commit `f19101c0`.
+- Signed-in replay owner reached the private persona home.
+- Desktop, `375px`, and `390px` fit/privacy checks passed: no horizontal
+  overflow, clipped visible controls, broken tap targets, raw-id readback,
+  provider payload, stack trace, secret-shaped value, or positive
+  automation/booking/payment claim appeared.
+- Return-card controls stayed local and owner-triggered: recap prefilled the
+  composer, pick-up focused it, and start-fresh cleared local thread state.
+- Product defect: with an active non-empty thread, the loaded chat auto-scrolls
+  the document down to the lower chat/composer area, so the final landed
+  viewport no longer starts with the intended identity/header, Companion Home
+  heading, shortcuts, and return card.
+
+Current lane:
+
+```text
+PR497A - Companion Home Usability Translation Scroll Defect
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_ROUTE_DAEDALUS
+```
+
+Current baton:
+
+- MIMIR should route DAEDALUS for the narrow scroll fix or decide whether the
+  caveat is acceptable for closeout.
+- Smallest likely fix: keep chat auto-scroll inside the chat thread container or
+  suppress initial page-level scroll on conversation load.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR497A hosted proof opened
 
 MIMIR routes hosted proof after ARGUS accepted PR497A:
