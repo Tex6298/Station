@@ -4,44 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR496B hosted rerun opened
+## Latest ARIADNE result - PR496B hosted rerun found UI boundary defect
 
-MIMIR routed the accepted PR496B repair to ARIADNE for the hosted human-eye
-rerun:
+ARIADNE completed the hosted PR496B workspace export rerun:
 
-`docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_ARIADNE.md`
+`docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_RESULT.md`
+
+Result:
+
+```text
+PRODUCT_DEFECT_ROUTE_DAEDALUS
+```
 
 Decision:
 
-- ARGUS accepted PR496B as
-  `ACCEPT_PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REPAIR`.
-- Root cause was hosted schema drift: migration 070 had not been applied, so
-  `workspace_manifest` inserts hit old `export_packages` constraints/policy.
-- DAEDALUS applied the existing migration 070 to hosted and added focused
-  migration-shape regression coverage.
-- DAEDALUS documented hosted API proof, but the original missing step was
-  ARIADNE's human-eye `/studio/export` proof, so MIMIR is requiring the narrow
-  rerun before closeout.
+- Hosted web/API were fresh at runtime commit `42938f5c`.
+- The PR496A hosted backend create defect is repaired: owner workspace manifest
+  create/read/bundle returned `201`/`200`/`200`, with bundle files
+  `README.md`, `manifest.json`, and `manifest.md`.
+- Owner-only protection passed: signed-out list/readback/bundle returned `401`,
+  and cross-owner readback/bundle returned `404`.
+- API/bundle leak scans passed for the high-level inventory-only contract.
+- `/studio/export` still exposes the internal package id in bundle readback
+  while the same page states package IDs are not shown.
+- On `375px` and `390px`, tapping `View bundle files` leaves the readback panel
+  below the stacked completed-package list, so mobile feedback is not local.
 
 Current lane:
 
 ```text
 PR496B - Workspace Export Hosted Create Failure Rerun
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_RERUN
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_ROUTE_DAEDALUS
 ```
 
 Current baton:
 
-- ARIADNE should prove replay-owner workspace manifest create/read/bundle on
-  desktop, `375px`, and `390px`, confirm owner-only protection and high-level
-  inventory-only bundle content, then wake MIMIR.
+- MIMIR should route DAEDALUS for a narrow web-only readback UI patch that hides
+  internal package ids and makes mobile bundle readback feedback local/obvious
+  without changing export API semantics or scope.
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest ARGUS review - PR496B hosted repair accepted

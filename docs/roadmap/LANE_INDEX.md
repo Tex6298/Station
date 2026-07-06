@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496B | Workspace Export Hosted Create Failure Rerun | ARIADNE / A4 | Open hosted rerun; ARGUS accepted the migration 070 schema-drift repair, and ARIADNE is proving the replay-owner `/studio/export` create/read/bundle success path on desktop/mobile before closeout. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_ARIADNE.md` |
+| PR496B | Workspace Export Hosted Create Failure Rerun | MIMIR / A1 | Product defect routed; hosted owner create/read/bundle and owner-only API protection passed, but `/studio/export` exposes the internal package id in bundle readback while claiming package IDs are not shown, and mobile readback feedback lands below the stacked list. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496B hosted rerun | Workspace Export Hosted Create Failure Rerun | ARIADNE -> MIMIR | Product defect; backend create/read/bundle and owner-only protection passed on hosted `42938f5c`, but bundle readback UI exposes the internal package id and mobile feedback is not local. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_RESULT.md` |
 | PR496B hosted rerun opened | Workspace Export Hosted Create Failure Rerun | MIMIR -> ARIADNE | Open; run the human-eye `/studio/export` rerun after ARGUS accepted the migration 070 repair, proving owner create/read/bundle, owner-only protection, high-level inventory-only readback, desktop/mobile fit, and no leak/overclaim. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_ARIADNE.md` |
 | PR496B review | Workspace Export Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REPAIR`; hosted migration 070 drift was repaired, owner create/read/bundle proof passed, migration-shape regression coverage passed, and no export scope widened. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md` |
 | PR496B implementation | Workspace Export Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; hosted schema drift was the root cause, migration 070 is now applied, owner create/read/bundle proof passes, and focused migration-shape coverage was added. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RESULT.md` |

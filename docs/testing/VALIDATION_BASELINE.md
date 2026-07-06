@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496B Workspace Export Hosted Create Failure Rerun
+
+ARIADNE completed hosted PR496B proof on 2026-07-06:
+
+- `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_RESULT.md`
+
+Validation result:
+`PRODUCT_DEFECT_ROUTE_DAEDALUS`.
+
+Reason:
+
+- hosted web/API health were ready at runtime commit `42938f5c`;
+- migration 070 is effectively live because owner workspace manifest
+  create/read/bundle returned `201`/`200`/`200`;
+- the hosted bundle contained exactly `README.md`, `manifest.json`, and
+  `manifest.md` with schema `station.workspace.export_manifest.v1`;
+- signed-out list/readback/bundle returned `401`;
+- cross-owner readback/bundle returned `404`;
+- API/bundle scans found no owner/target/source field names, raw UUIDs,
+  secret-shaped values, positive product-scope claims, or `(undefined)` text;
+- hosted `/studio/export` exposed the internal package id in bundle readback
+  while the page states package IDs are not shown;
+- on `375px` and `390px`, bundle readback feedback landed below the stacked
+  package list after tap.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted API/browser proof | Product defect | Backend create/read/bundle passed, but UI readback exposed an internal package id. |
+| Hosted owner-only checks | Pass | Signed-out returned `401`; cross-owner returned `404`. |
+| API/bundle leak scan | Pass | High-level inventory-only contract held. |
+| Desktop/375px/390px screenshots | Product defect | No overflow or clipped controls, but the package id was visible in readback and mobile feedback was not local. |
+
 ## PR496B Workspace Export Hosted Create Failure ARGUS Review
 
 ARGUS accepted the PR496B repair on 2026-07-06:
