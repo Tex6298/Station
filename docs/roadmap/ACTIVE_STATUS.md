@@ -4,6 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR495F hosted rehearsal opened
+
+MIMIR routed hosted browser proof for the ARGUS-accepted PR495F owner
+publish/rollback implementation:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REHEARSAL_ARIADNE.md`
+
+Current lane:
+
+```text
+PR495F - Owner Seminar Publish/Rollback Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REHEARSAL
+```
+
+Current baton:
+
+- ARIADNE should run hosted desktop/`375px`/`390px` proof against Railway.
+- The rehearsal must prove owner publish, duplicate publish, rollback,
+  duplicate rollback, creator/signed-out denial, public seminar/interest
+  no-drift, no durable public card yet, no private/raw/secret/runtime/scope
+  leak, and mobile fit.
+- ARIADNE should wake MIMIR with `PASS_READY_FOR_PR495F_CLOSEOUT` or the
+  concrete blocker/defect.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
 ## Latest ARGUS review - PR495F accepted for hosted rehearsal
 
 ARGUS reviewed the DAEDALUS implementation:
