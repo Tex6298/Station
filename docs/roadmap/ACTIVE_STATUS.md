@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR495D accepted for owner ready gate
+
+ARGUS completed the PR495D hostile preflight:
+
+`docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE
+```
+
+Verdict:
+
+- public durable-record readback is not accepted yet because stable public card
+  ids, dedupe with `discover_feed`, interest keys, public serializer rules, and
+  rollback semantics still need a separate contract;
+- private durable seminar records may move owner-only from `draft` to `ready`;
+- `ready` records may return owner-only to `draft`;
+- `visibility` must remain `private`;
+- `published` status, `public` visibility, durable-record public cards, and
+  durable-record interest behavior remain out of scope;
+- public `/events/seminars` must keep its current `discover_feed` featured
+  document/thread/Space sourcing.
+
+Current lane:
+
+```text
+PR495D - Owner Ready For Public Review Gate
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact owner-only `draft` to `ready` and
+  `ready` to `draft` transition contract from the ARGUS result.
+- The implementation must include API/types, `/studio/publishing` UI readback,
+  focused tests, and result docs.
+- Keep public durable-record readback, `status=published`,
+  `visibility=public`, public interest migration, scheduling, hosting, RSVP,
+  tickets, payments, reminders, live rooms, media, transcripts, provider
+  runtime, queues/workers, Redis, Cloudflare, billing, and launch claims out of
+  scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR495C closed, PR495D opened
 
 MIMIR closes PR495C after ARIADNE returned:

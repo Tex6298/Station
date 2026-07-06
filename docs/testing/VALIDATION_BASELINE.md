@@ -20,6 +20,35 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495D Owner Ready Gate ARGUS Preflight
+
+ARGUS completed the PR495D hostile preflight on 2026-07-06:
+
+- `docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE`.
+
+Reason:
+
+- public durable-record readback is deferred until a separate contract fixes
+  public card ids, dedupe with `discover_feed`, durable-record interest keys,
+  safe public serializer rules, and rollback semantics;
+- accepted implementation scope is owner-only private status readback:
+  `draft` to `ready` and `ready` to `draft`;
+- `visibility` must remain `private`;
+- public `/events/seminars`, public seminar card ids, public interest
+  mark/withdraw, Discover/search/forum behavior, schema/RLS, runtime, billing,
+  provider, queue/worker, Redis, and Cloudflare scope must not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hostile preflight review | Pass | Reviewed migration, API route/tests, shared types, owner publishing UI/helper tests, and public route helpers. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 39 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495C Closeout And PR495D Publication Boundary Opening
 
 MIMIR closed PR495C and opened PR495D on 2026-07-06:
