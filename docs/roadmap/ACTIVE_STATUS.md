@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499 public seminar schedule metadata preflight
+## Current lane - PR499A public seminar schedule metadata routing
+
+ARGUS completed the PR499 hostile preflight:
+
+`docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA
+```
+
+Decision:
+
+- PR499A is accepted as the next safe Phase 3 seminar slice.
+- Schedule must not be derived from `created_at`, `updated_at`, `publishedAt`,
+  or `featuredAt`; DAEDALUS needs a narrow nullable migration on
+  `public_seminar_records`.
+- Allowed metadata is limited to stored start instant, IANA/UTC time zone, and
+  optional bounded duration.
+- Public list/detail schedule readback may say "Scheduled" only when backed by
+  stored metadata; source-derived cards and unscheduled durable records must
+  remain honest.
+- No RSVP, tickets, payments, reminders, calendar invites, email, scheduled
+  jobs, live rooms, host/moderator controls, provider/runtime, voice/avatar,
+  Redis, Cloudflare, queues, workers, public launch claims, or private/raw data
+  are accepted.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/auth-routes.test.ts`
+  passed: 60 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+
+Current lane:
+
+```text
+PR499A - Public Seminar Schedule Metadata
+Owner: MIMIR / A1
+State: ACCEPTED_PREFLIGHT_ROUTE_DAEDALUS_IF_ALIGNED
+Source: docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR499 public seminar schedule metadata preflight
 
 MIMIR closed PR498A:
 

@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR499 Public Seminar Schedule Metadata ARGUS Preflight
+
+ARGUS accepted the PR499A public seminar schedule metadata preflight on
+2026-07-06:
+
+- `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA`.
+
+Reason:
+
+- PR498A closed public seminar list/detail routeability and aggregate/
+  viewer-local interest readback;
+- product docs describe scheduled Persona Salon events, but PR499A remains
+  metadata/readback only;
+- schedule cannot be honestly derived from lifecycle timestamps, so DAEDALUS
+  may add only a nullable owner-scoped schedule metadata contract on
+  `public_seminar_records`;
+- accepted public readback is limited to stored start instant, IANA/UTC time
+  zone, optional bounded duration, and honest missing-schedule copy;
+- RSVP, tickets, payments, reminders, calendar invites, email, scheduled jobs,
+  live rooms, host/moderator controls, provider/runtime, Redis, Cloudflare,
+  workers, queues, public launch claims, private data, raw ids, source bodies,
+  secrets, stack traces, and SQL/table details remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 60 focused seminar/public/owner-publishing/auth tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+
 ## PR498A Public Seminar Detail Readback Hosted Rehearsal
 
 ARIADNE completed hosted PR498A proof on 2026-07-06:
