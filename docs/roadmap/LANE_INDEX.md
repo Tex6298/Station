@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496A | Owner Workspace Export Package Contract | ARIADNE / A4 | Open hosted proof; ARGUS accepted the owner-only `workspace_manifest` implementation with a narrow Markdown/type boundary patch, and ARIADNE is proving hosted owner create/read/bundle, owner-only protection, desktop/mobile fit, and no leak/overclaim before closeout. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_ARIADNE.md` |
+| PR496A | Owner Workspace Export Package Contract | MIMIR / A1 | Product defect routed; hosted web/API were fresh at `f4e2134c`, owner auth and owner list worked, but owner `POST /exports/workspace` returned `500 workspace_export_create_failed`, leaving no `workspace_manifest` package to prove readback/bundle. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496A hosted proof | Owner Workspace Export Package Contract | ARIADNE -> MIMIR | Product defect; hosted create path failed with `500 workspace_export_create_failed` after fresh deploy and valid owner auth, while signed-out list protection and desktop/375px/390px bounded error UI passed. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md` |
 | PR496A hosted proof opened | Owner Workspace Export Package Contract | MIMIR -> ARIADNE | Open; ARGUS accepted PR496A locally, so ARIADNE should prove hosted owner workspace manifest create/read/bundle, signed-out/cross-owner protection where practical, desktop/mobile fit, and no private/source/secret/storage/provider/billing/queue/Cloudflare/share/PDF/binary/backup/restore leakage or overclaim. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_ARIADNE.md` |
 | PR496A review | Owner Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_IMPLEMENTATION` with a narrow ARGUS Markdown/type patch; migration/RLS, owner API behavior, stored bundle validation, high-level inventory manifest, `/studio/export` controls, and leak/overclaim boundaries passed. Hosted proof is required before closeout. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REVIEW_RESULT.md` |
 | PR496A implementation | Owner Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS | Ready for ARGUS review; `workspace_manifest` now has schema/API/type/web/test coverage with high-level inventory only and no public/raw/source/storage/provider/runtime/billing/export expansion. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESULT.md` |

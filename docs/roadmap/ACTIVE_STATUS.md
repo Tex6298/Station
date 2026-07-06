@@ -4,49 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR496A hosted proof opened
+## Latest ARIADNE result - PR496A hosted create defect
 
-MIMIR routed the accepted PR496A workspace export implementation to ARIADNE for
-hosted proof:
+ARIADNE completed the hosted PR496A workspace export proof:
 
-`docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_ARIADNE.md`
+`docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+PRODUCT_DEFECT_ROUTE_DAEDALUS
+```
 
 Decision:
 
-- ARGUS accepted PR496A locally, including the narrow workspace Markdown/type
-  boundary patch recorded in
-  `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REVIEW_RESULT.md`.
-- Hosted proof is still required before closeout because PR496A changed
-  schema/RLS, owner API behavior, stored bundle readback, and visible
-  `/studio/export` behavior.
-- ARIADNE should prove the owner can create/list/read one workspace manifest
-  package, open the JSON/Markdown manifest, open the portable bundle readback,
-  and verify the bundle remains high-level inventory only.
-- ARIADNE should check signed-out and cross-owner denial where practical,
-  desktop/375px/390px fit, and no private/source/secret/storage/provider/
-  billing/queue/Cloudflare/share/PDF/binary/backup/restore leakage or
-  overclaim.
+- Hosted web and API were fresh and ready at accepted commit `f4e2134c`.
+- Replay-owner authentication worked and reached `/studio/export`.
+- Owner `GET /exports/workspace` returned `200` with an empty export list.
+- Owner `POST /exports/workspace` returned `500 workspace_export_create_failed`.
+- Because no `workspace_manifest` package was created, ARIADNE could not prove
+  hosted manifest readback or portable bundle readback.
+- Signed-out `GET /exports/workspace` failed closed with `401`.
+- `/studio/export` rendered the workspace manifest control and bounded
+  create-failure copy on desktop, `375px`, and `390px` without measured
+  overflow, visible secret-shaped values, or positive export-scope overclaim.
+- This is not a stale-deploy result and not a hosted-auth blocker.
 
 Current lane:
 
 ```text
 PR496A - Owner Workspace Export Package Contract
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF
+Owner: MIMIR / A1
+State: PRODUCT_DEFECT_ROUTE_DAEDALUS
 ```
 
 Current baton:
 
-- ARIADNE should run the hosted proof and wake MIMIR with one of:
-  `PASS_PR496A_HOSTED_WORKSPACE_EXPORT_CLOSEOUT`,
-  `PRODUCT_DEFECT_ROUTE_DAEDALUS`, `DEPLOYMENT_WAIT_OR_BLOCKED`,
-  `HOSTED_AUTH_BLOCKER`, or `OWNER_ONLY_PROTECTION_BLOCKER`.
+- MIMIR should route DAEDALUS to diagnose the hosted workspace manifest create
+  failure while preserving the accepted high-level inventory-only export scope.
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Latest ARGUS review - PR496A accepted with workspace manifest patch

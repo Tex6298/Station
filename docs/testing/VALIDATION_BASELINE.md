@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496A Owner Workspace Export Package Contract Hosted Rehearsal
+
+ARIADNE completed hosted PR496A proof on 2026-07-06:
+
+- `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_REHEARSAL_RESULT.md`
+
+Validation result:
+`PRODUCT_DEFECT_ROUTE_DAEDALUS`.
+
+Reason:
+
+- hosted web/API health were fresh and ready at accepted commit `f4e2134c`;
+- replay-owner authentication worked and reached `/studio/export`;
+- owner `GET /exports/workspace` returned `200`;
+- owner `POST /exports/workspace` returned `500 workspace_export_create_failed`;
+- signed-out `GET /exports/workspace` failed closed with `401`;
+- no hosted `workspace_manifest` package existed, so manifest and portable
+  bundle readback could not be proven;
+- desktop, `375px`, and `390px` rendered the workspace manifest create control
+  and bounded create-failure copy without measured overflow, visible
+  secret-shaped values, or positive export-scope overclaim.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted deployment health | Pass | Web/API were ready at `f4e2134c`. |
+| Hosted Playwright/API proof | Product defect | Owner create returned `500 workspace_export_create_failed`; no package existed for hosted readback/bundle proof. |
+| Signed-out list protection | Pass | Signed-out list access returned `401`. |
+| Desktop/375px/390px screenshots | Pass for bounded error state | Workspace manifest control and create-failure copy remained visible without measured fit/privacy/scope drift. |
+
 ## PR496A Owner Workspace Export Package Contract ARGUS Review
 
 ARGUS accepted the PR496A implementation on 2026-07-06:
