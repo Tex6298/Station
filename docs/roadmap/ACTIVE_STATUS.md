@@ -4,6 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR495F closed, PR495G opened
+
+MIMIR closes PR495F:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_CLOSEOUT.md`
+
+Result:
+
+```text
+CLOSE_PR495F_ACCEPTED
+```
+
+MIMIR opens the next Public Seminar / Live Events boundary preflight:
+
+`docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_ARGUS.md`
+
+Why PR495G:
+
+- PR495E provides the safe durable public-card serializer, digest card ids,
+  source-key dedupe, and source-derived interest identity;
+- PR495F provides owner publish/rollback into `published` + `public`
+  eligibility;
+- public `/events/seminars` and public interest routes still ignore eligible
+  durable records;
+- the next decision is whether public durable readback and durable digest
+  interest resolution can ship together, split, or need a concrete unblock.
+
+Current lane:
+
+```text
+PR495G - Public Durable Seminar Readback Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight public durable seminar readback.
+- If accepted, ARGUS should wake DAEDALUS with exact API/test/doc scope.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker and
+  smallest numbered unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR495F hosted rehearsal passed
 
 ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
