@@ -4,6 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR496B hosted repair accepted
+
+ARGUS reviewed the PR496B hosted workspace export create-failure repair:
+
+`docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REPAIR
+```
+
+Decision:
+
+- PR496B is accepted with no ARGUS code patch.
+- Root cause was hosted schema drift: migration
+  `infra/supabase/migrations/070_workspace_export_manifest.sql` had not been
+  applied, so hosted `workspace_manifest` inserts hit the old
+  `export_packages` kind/target constraints and owner policy.
+- The repair stayed minimal: apply existing migration 070 to hosted and add a
+  focused local migration-shape regression in `test:exports`.
+- DAEDALUS-documented hosted proof now covers signed-out list denial, owner
+  create `201`, owner readback `200`, owner bundle `200`, exactly
+  `README.md`, `manifest.json`, and `manifest.md`, and no raw id/owner-target
+  key leakage in readback/bundle.
+- No API semantics, `/studio/export` layout/copy, full archive, original-file
+  package, PDF/binary output, backup/restore workflow, public export route,
+  signed/share URL, provider/runtime, Redis, Cloudflare, queue, billing, or
+  Stripe behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR496B - Workspace Export Hosted Create Failure
+Owner: MIMIR / A1
+State: ACCEPTED_REPAIR
+```
+
+Current baton:
+
+- MIMIR should close or route the PR496B/PR496A hosted workspace export lane
+  according to roadmap ownership.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS result - PR496B ready for ARGUS review
 
 DAEDALUS repaired the hosted workspace export create failure:

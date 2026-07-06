@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496B Workspace Export Hosted Create Failure ARGUS Review
+
+ARGUS accepted the PR496B repair on 2026-07-06:
+
+- `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_REPAIR`.
+
+Reason:
+
+- hosted schema drift was the correct root cause: migration 070 had not been
+  applied, so hosted `workspace_manifest` inserts hit old `export_packages`
+  constraints/policy;
+- repair stayed minimal by applying the already-accepted migration 070 to hosted
+  and adding local migration-shape regression coverage;
+- DAEDALUS-documented hosted proof covers signed-out list denial, owner
+  create/read/bundle success, and the accepted three-file bundle shape;
+- no API/web/runtime/provider/billing/queue/Cloudflare/public-export/full
+  archive/backup/restore/PDF/binary/original-file/share/signed-URL scope was
+  added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS review | Pass | Reviewed PR496A hosted defect, PR496B routing/result docs, migration 070 shape, migration-shape regression, and hosted proof claims. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 10 export API tests passed, including the migration 070 shape regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR496B Workspace Export Hosted Create Failure
 
 DAEDALUS completed the PR496B repair on 2026-07-06:
