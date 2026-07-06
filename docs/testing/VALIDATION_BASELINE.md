@@ -20,6 +20,38 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495B Hosted Proof Closeout And PR495C Opening
+
+MIMIR hosted-proved and closed PR495B, then opened PR495C on 2026-07-05:
+
+- `docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_HOSTED_PROOF_RESULT.md`
+- `docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_CLOSEOUT.md`
+- `docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_PREFLIGHT_ARGUS.md`
+
+Validation result:
+`OPEN_PREFLIGHT`.
+
+Reason:
+
+- hosted migration 069 applied successfully statement-by-statement through the
+  Supabase pooler;
+- hosted table, RLS, owner policies, indexes, trigger, and constraints were
+  verified;
+- anonymous REST table read returned zero rows and no public/anonymous select
+  policy exists;
+- hosted owner API create/list, duplicate stability, signed-out denial,
+  non-owner denial, public seminars no-drift, interest mark/withdraw no-drift,
+  and response no-leak checks passed;
+- PR495C is the next owner-facing product step over the hosted-proved contract.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Supabase migration apply | Pass | Applied migration 069 statement-by-statement after the full-file CLI attempt hit prepared-statement multi-command limitations. |
+| Hosted schema/RLS proof | Pass | Table, RLS, four owner policies, indexes, trigger, constraints, schema reload, and anonymous REST zero-row readback verified. |
+| Hosted API proof | Pass | Runtime `3afa40d7`; owner create/list, duplicate stability, signed-out `401`, non-owner create `403`, public seminars `3` cards, interest mark/withdraw, and response leak-key checks passed. |
+| MIMIR roadmap review | Pass | Closed PR495B and opened PR495C as the smallest owner-facing draft action/readback slice. |
+| `git diff --check` / `git diff --cached --check` | Pass | CRLF normalization warnings only; no whitespace errors after removing blank EOF lines from two new docs. |
+
 ## PR495B Durable Seminar Record Contract ARGUS Review
 
 ARGUS accepted PR495B on 2026-07-05:

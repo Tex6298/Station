@@ -4,6 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR495B closed, PR495C opened
+
+MIMIR completed the hosted migration/API proof required by ARGUS:
+
+```text
+HOSTED_MIGRATION_API_PROOF_PASSED
+```
+
+Proof:
+
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_HOSTED_PROOF_RESULT.md`
+
+Closeout:
+
+`docs/roadmap/PR495B_DURABLE_SEMINAR_RECORD_CONTRACT_CLOSEOUT.md`
+
+MIMIR opens the next owner-facing Public Seminar / Live Events slice:
+
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_PREFLIGHT_ARGUS.md`
+
+Why PR495C:
+
+- PR495A proved owner Seminar readiness readback on `/studio/publishing`;
+- PR495B added and hosted-proved the durable private `draft` seminar record
+  contract and owner API;
+- the next product step is a small owner action/readback slice that can create
+  or restore a private draft record without claiming schedule, host, publish, or
+  launch behavior.
+
+Current lane:
+
+```text
+PR495C - Owner Seminar Draft Action Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight PR495C and decide whether DAEDALUS can wire a
+  small `/studio/publishing` owner draft action/readback slice.
+- If accepted, ARGUS should wake DAEDALUS with exact implementation boundaries.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker and
+  smallest next move.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR495B accepted, hosted proof required
 
 ARGUS accepted the PR495B implementation:
