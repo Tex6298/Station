@@ -20,6 +20,39 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495F Owner Publish/Rollback Gate Implementation
+
+DAEDALUS implemented PR495F on 2026-07-06:
+
+- `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- owner publish/rollback is implemented through the existing creator-gated
+  transition route with strict `{ status }` request bodies;
+- publish is limited to `ready` + `private` durable document records and
+  revalidates source routeability plus the PR495E durable-card serializer
+  contract;
+- rollback is limited to `published` + `public` records and does not require
+  source routeability;
+- `/studio/publishing` shows pending/not-live owner copy rather than claiming
+  public listing is live;
+- public `/events/seminars`, public interest mark/withdraw, public durable
+  readback wiring, migrations/RLS/schema, billing, provider runtime,
+  queues/workers, Redis, Cloudflare, hosting, scheduling, RSVP, tickets,
+  payments, reminders, media, transcripts, and launch claims did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 33 focused API/public-route/auth tests passed, including publish/rollback, source revalidation, source-independent rollback, public route no-drift, and source-derived interest behavior. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` | Pass | 20 focused publishing/seminar readiness tests passed, including owner publish/rollback static coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; Git reported CRLF normalization warnings only. |
+
 ## PR495F Owner Publish/Rollback ARGUS Preflight
 
 ARGUS completed the PR495F hostile preflight on 2026-07-06:

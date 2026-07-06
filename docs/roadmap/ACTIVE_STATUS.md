@@ -4,6 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS implementation - PR495F ready for ARGUS review
+
+DAEDALUS implemented the accepted PR495F owner-only publish/rollback gate:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_RESULT.md`
+
+State:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Summary:
+
+- owner seminar transition targets now include `published`;
+- `POST /events/seminars/records/:recordId/transition` remains authenticated,
+  creator-gated, and strict-body-only as `{ status }`;
+- `draft/private -> ready/private`, `ready/private -> draft/private`,
+  `ready/private -> published/public`, and `published/public -> ready/private`
+  are the only accepted transitions;
+- publish revalidates owner/source authority, source public/published state,
+  routeable public Space, and PR495E durable-card serializer compatibility;
+- rollback does not require source routeability because it reduces public
+  eligibility;
+- `/studio/publishing` now shows creator-owner publish/rollback controls with
+  pending/not-live public listing copy;
+- public `/events/seminars` and public interest mark/withdraw remain
+  source-derived and unwired from durable records.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` passed.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR495F - Owner Seminar Publish/Rollback Gate
+Owner: ARGUS / A3
+State: REVIEW_IMPLEMENTATION
+```
+
+Current baton:
+
+- ARGUS should review exact transition semantics, source/serializer
+  revalidation, source-independent rollback, owner UI copy, public route
+  no-drift, and interest no-drift.
+- If accepted, ARGUS should wake MIMIR with `WAKEUP A1:`.
+- If fixes are needed, ARGUS should wake DAEDALUS with `WAKEUP A2:`.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS preflight - PR495F accepted for owner publish gate
 
 ARGUS completed the PR495F hostile preflight:

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495F | Owner Seminar Publish/Rollback Gate | DAEDALUS / A2 | Accepted preflight; implement only owner `ready`/`private` to `published`/`public` and `published`/`public` back to `ready`/`private`, while public `/events/seminars` and interest routes remain unwired from durable records. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_RESULT.md` |
+| PR495F | Owner Seminar Publish/Rollback Gate | ARGUS / A3 | Ready for review; DAEDALUS added the owner-only publish/rollback transition gate, source and PR495E serializer revalidation for publish, source-independent rollback, pending/not-live owner UI copy, and focused no-drift tests while public `/events/seminars` and interest routes remain unwired from durable records. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_RESULT.md` |
 
 ## Recently Closed
 

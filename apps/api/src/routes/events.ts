@@ -78,6 +78,13 @@ type ResolvedSeminarRecordSource = {
   space: any;
 };
 
+type SeminarRecordTransition = {
+  status: "draft" | "ready" | "published";
+  visibility: "private" | "public";
+  requiresSource: boolean;
+  requiresDurableCard: boolean;
+};
+
 eventsRouter.get("/seminars", optionalAuth, async (req, res) => {
   const limit = seminarLimit(req.query.limit);
 
@@ -173,25 +180,35 @@ eventsRouter.post("/seminars/records/:recordId/transition", requireAuth, require
     if (!record || record.owner_user_id !== req.user!.id) {
       return res.status(404).json(SEMINAR_RECORD_NOT_FOUND_ERROR);
     }
-    if (
-      record.source_type !== "document" ||
-      record.visibility !== "private" ||
-      !["draft", "ready"].includes(record.status)
-    ) {
-      return res.status(400).json(SEMINAR_RECORD_TRANSITION_INVALID_ERROR);
-    }
+    const transition = seminarRecordTransition(record, targetStatus);
+    if (!transition) return res.status(400).json(SEMINAR_RECORD_TRANSITION_INVALID_ERROR);
 
-    const source = await resolveOwnerSeminarDocumentSource(sb, record.source_id, req.user!.id);
-    if (!source) return res.status(404).json(SEMINAR_RECORD_SOURCE_ERROR);
+    let source: ResolvedSeminarRecordSource | undefined;
+    if (transition.requiresSource) {
+      source = await resolveOwnerSeminarDocumentSource(sb, record.source_id, req.user!.id);
+      if (!source) return res.status(404).json(SEMINAR_RECORD_SOURCE_ERROR);
+
+      if (transition.requiresDurableCard) {
+        const card = await resolveDurablePublicSeminarRecordCard(sb, {
+          ...record,
+          status: transition.status,
+          visibility: transition.visibility,
+        });
+        if (!card) return res.status(404).json(SEMINAR_RECORD_SOURCE_ERROR);
+      }
+    }
 
     const { data, error } = await (sb as any)
       .from("public_seminar_records")
-      .update({ status: targetStatus })
+      .update({
+        status: transition.status,
+        visibility: transition.visibility,
+      })
       .eq("id", record.id)
       .eq("owner_user_id", req.user!.id)
       .eq("source_type", "document")
-      .eq("visibility", "private")
-      .in("status", ["draft", "ready"])
+      .eq("visibility", record.visibility)
+      .eq("status", record.status)
       .select(SEMINAR_RECORD_SELECT)
       .single();
 
@@ -260,7 +277,52 @@ function transitionTarget(body: unknown) {
   const keys = Object.keys(body);
   if (keys.length !== 1 || keys[0] !== "status") return null;
   const status = (body as TransitionOwnerPublicSeminarRecordRequest).status;
-  return status === "draft" || status === "ready" ? status : null;
+  return status === "draft" || status === "ready" || status === "published" ? status : null;
+}
+
+function seminarRecordTransition(
+  record: any,
+  targetStatus: OwnerPublicSeminarRecord["status"]
+): SeminarRecordTransition | null {
+  if (record.source_type !== "document") return null;
+
+  if (record.status === "draft" && record.visibility === "private" && targetStatus === "ready") {
+    return {
+      status: "ready",
+      visibility: "private",
+      requiresSource: true,
+      requiresDurableCard: false,
+    };
+  }
+
+  if (record.status === "ready" && record.visibility === "private" && targetStatus === "draft") {
+    return {
+      status: "draft",
+      visibility: "private",
+      requiresSource: true,
+      requiresDurableCard: false,
+    };
+  }
+
+  if (record.status === "ready" && record.visibility === "private" && targetStatus === "published") {
+    return {
+      status: "published",
+      visibility: "public",
+      requiresSource: true,
+      requiresDurableCard: true,
+    };
+  }
+
+  if (record.status === "published" && record.visibility === "public" && targetStatus === "ready") {
+    return {
+      status: "ready",
+      visibility: "private",
+      requiresSource: false,
+      requiresDurableCard: false,
+    };
+  }
+
+  return null;
 }
 
 async function resolveOwnerSeminarDocumentSource(

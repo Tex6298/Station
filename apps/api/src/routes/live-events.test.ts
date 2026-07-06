@@ -790,20 +790,47 @@ test("owner seminar record transition requires auth, creator tier, and owner sco
       source_type: "document",
       source_id: "doc-public",
       title: "Other owner seminar",
-      status: "draft",
+      status: "ready",
       visibility: "private",
+    });
+    db.insertRow("public_seminar_records", {
+      id: "record-member-published",
+      owner_user_id: "member-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Other owner published seminar",
+      status: "published",
+      visibility: "public",
     });
 
     const signedOut = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
       body: { status: "ready" },
     });
     assert.equal(signedOut.status, 401);
+    const signedOutPublish = await requestJson(app, "POST", "/events/seminars/records/record-member/transition", {
+      body: { status: "published" },
+    });
+    assert.equal(signedOutPublish.status, 401);
+    const signedOutRollback = await requestJson(app, "POST", "/events/seminars/records/record-member-published/transition", {
+      body: { status: "ready" },
+    });
+    assert.equal(signedOutRollback.status, 401);
 
     const insufficientTier = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
       token: "member-token",
       body: { status: "ready" },
     });
     assert.equal(insufficientTier.status, 403);
+    const insufficientPublishTier = await requestJson(app, "POST", "/events/seminars/records/record-member/transition", {
+      token: "member-token",
+      body: { status: "published" },
+    });
+    assert.equal(insufficientPublishTier.status, 403);
+    const insufficientRollbackTier = await requestJson(app, "POST", "/events/seminars/records/record-member-published/transition", {
+      token: "member-token",
+      body: { status: "ready" },
+    });
+    assert.equal(insufficientRollbackTier.status, 403);
 
     const nonOwner = await requestJson(app, "POST", "/events/seminars/records/record-member/transition", {
       token: "owner-token",
@@ -814,6 +841,16 @@ test("owner seminar record transition requires auth, creator tier, and owner sco
       error: "Seminar draft not found.",
       code: "seminar_record_not_found",
     });
+    const nonOwnerPublish = await requestJson(app, "POST", "/events/seminars/records/record-member/transition", {
+      token: "owner-token",
+      body: { status: "published" },
+    });
+    assert.equal(nonOwnerPublish.status, 404);
+    const nonOwnerRollback = await requestJson(app, "POST", "/events/seminars/records/record-member-published/transition", {
+      token: "owner-token",
+      body: { status: "ready" },
+    });
+    assert.equal(nonOwnerRollback.status, 404);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -842,6 +879,60 @@ test("owner seminar record transition moves draft to ready and back while stayin
     assert.equal(ready.body.record.visibility, "private");
     assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.status, "ready");
 
+    const published = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "published" } }
+    );
+    assert.equal(published.status, 200);
+    assert.equal(published.body.record.id, "record-public");
+    assert.equal(published.body.record.status, "published");
+    assert.equal(published.body.record.visibility, "public");
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.status, "published");
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.visibility, "public");
+
+    const durableCard = await resolveDurablePublicSeminarRecordCard(
+      db.client as any,
+      db.rows("public_seminar_records").find((row) => row.id === "record-public")
+    );
+    assert.ok(durableCard);
+    assert.equal(durableCard.sourceType, "document");
+    assert.equal(seminarInterestKey(durableCard), "document:doc-public");
+
+    const publicReadback = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars?limit=20");
+    assert.equal(publicReadback.status, 200);
+    assert.equal(publicReadback.body.source, "discover_feed_featured");
+    assert.deepEqual(publicReadback.body.cards, []);
+
+    seedFeatured(db, "document", "doc-public");
+    const sourceDerived = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars?limit=20");
+    assert.equal(sourceDerived.status, 200);
+    assert.equal(sourceDerived.body.cards.length, 1);
+    assert.equal(sourceDerived.body.cards[0].label, "Published readback");
+    assert.notEqual(sourceDerived.body.cards[0].id, durablePublicSeminarCardId("record-public"));
+
+    const marked = await requestJson<PublicSeminarInterestResponse>(
+      app,
+      "POST",
+      `/events/seminars/${sourceDerived.body.cards[0].id}/interest`,
+      { token: "owner-token" }
+    );
+    assert.equal(marked.status, 200);
+    assert.equal(db.rows("public_seminar_interests")[0].source_type, "document");
+    assert.equal(db.rows("public_seminar_interests")[0].source_id, "doc-public");
+
+    const rolledBack = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "ready" } }
+    );
+    assert.equal(rolledBack.status, 200);
+    assert.equal(rolledBack.body.record.id, "record-public");
+    assert.equal(rolledBack.body.record.status, "ready");
+    assert.equal(rolledBack.body.record.visibility, "private");
+
     const draft = await requestJson<OwnerPublicSeminarRecordResponse>(
       app,
       "POST",
@@ -853,7 +944,13 @@ test("owner seminar record transition moves draft to ready and back while stayin
     assert.equal(draft.body.record.status, "draft");
     assert.equal(draft.body.record.visibility, "private");
 
-    const json = JSON.stringify({ ready: ready.body, draft: draft.body });
+    const json = JSON.stringify({
+      ready: ready.body,
+      published: published.body,
+      rolledBack: rolledBack.body,
+      draft: draft.body,
+      marked: marked.body,
+    });
     for (const forbidden of [
       "source_id",
       "sourceId",
@@ -936,6 +1033,101 @@ test("owner seminar record transition revalidates source routeability", async ()
   }
 });
 
+test("owner seminar record publish revalidates source routeability and serializer compatibility", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    db.insertRow("spaces", {
+      id: "space-private",
+      slug: "private-house",
+      title: "Private House",
+      is_public: false,
+    });
+    db.insertRow("spaces", {
+      id: "space-uuid",
+      slug: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Unsafe UUID Space",
+      is_public: true,
+    });
+    db.insertRow("spaces", {
+      id: "space-bad-slug",
+      slug: "Bad Slug!",
+      title: "Unsafe Slug Space",
+      is_public: true,
+    });
+
+    const invalidSources = [
+      { id: "doc-private", visibility: "private" },
+      { id: "doc-community", visibility: "community" },
+      { id: "doc-unlisted", visibility: "unlisted" },
+      { id: "doc-draft", status: "draft" },
+      { id: "doc-archived", status: "archived" },
+      { id: "doc-missing-space", space_id: null },
+      { id: "doc-private-space", space_id: "space-private" },
+      { id: "doc-uuid-space", space_id: "space-uuid" },
+      { id: "doc-bad-slug", space_id: "space-bad-slug" },
+      { id: "doc-not-owned", author_user_id: "member-user" },
+    ];
+
+    for (const source of invalidSources) {
+      seedOwnerSeminarRecord(db, {
+        id: `record-publish-${source.id}`,
+        source_id: source.id,
+        status: "ready",
+      }, source);
+    }
+
+    for (const { id } of invalidSources) {
+      const response = await requestJson(app, "POST", `/events/seminars/records/record-publish-${id}/transition`, {
+        token: "owner-token",
+        body: { status: "published" },
+      });
+      assert.equal(response.status, 404, `${id} should not publish`);
+      assert.deepEqual(response.body, {
+        error: "Seminar source not available.",
+        code: "seminar_source_not_available",
+      });
+      const row = db.rows("public_seminar_records").find((item) => item.id === `record-publish-${id}`);
+      assert.equal(row?.status, "ready");
+      assert.equal(row?.visibility, "private");
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner seminar record rollback does not require routeable source", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecord(db, {
+      status: "published",
+      visibility: "public",
+    });
+    db.rows("documents").find((row) => row.id === "doc-public")!.visibility = "private";
+
+    const response = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "ready" } }
+    );
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.record.status, "ready");
+    assert.equal(response.body.record.visibility, "private");
+    assert.equal(response.body.record.publicDocumentHref, null);
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.status, "ready");
+    assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.visibility, "private");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("owner seminar record transition rejects unsupported payloads and states", async () => {
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
@@ -943,7 +1135,9 @@ test("owner seminar record transition rejects unsupported payloads and states", 
 
   try {
     seedOwnerSeminarRecord(db);
+    seedOwnerSeminarRecord(db, { id: "record-ready", source_id: "doc-ready", status: "ready" }, { id: "doc-ready" });
     seedOwnerSeminarRecord(db, { id: "record-published", source_id: "doc-published", status: "published" }, { id: "doc-published" });
+    seedOwnerSeminarRecord(db, { id: "record-published-public", source_id: "doc-published-public", status: "published", visibility: "public" }, { id: "doc-published-public" });
     seedOwnerSeminarRecord(db, { id: "record-cancelled", source_id: "doc-cancelled", status: "cancelled" }, { id: "doc-cancelled" });
     seedOwnerSeminarRecord(db, { id: "record-public-visibility", source_id: "doc-public-visibility", visibility: "public" }, { id: "doc-public-visibility" });
     seedOwnerSeminarRecord(db, { id: "record-thread", source_type: "thread", source_id: "thread-public" });
@@ -952,14 +1146,25 @@ test("owner seminar record transition rejects unsupported payloads and states", 
       { body: { status: "published" }, recordId: "record-public" },
       { body: { status: "cancelled" }, recordId: "record-public" },
       { body: { status: "ready", visibility: "public" }, recordId: "record-public" },
+      { body: { status: "published", visibility: "public" }, recordId: "record-ready" },
       { body: { status: "ready", sourceId: "doc-public" }, recordId: "record-public" },
       { body: { status: "ready", title: "Client title" }, recordId: "record-public" },
       { body: { status: "ready", summary: "Client summary" }, recordId: "record-public" },
+      { body: { status: "published", title: "Client title" }, recordId: "record-ready" },
+      { body: { status: "published", summary: "Client summary" }, recordId: "record-ready" },
+      { body: { status: "published", sourceId: "doc-public" }, recordId: "record-ready" },
+      { body: { status: "published", ownerUserId: "owner-user" }, recordId: "record-ready" },
+      { body: { status: "published", discussionThreadId: "thread-discussion" }, recordId: "record-ready" },
       { body: { state: "ready" }, recordId: "record-public" },
       { body: { status: "ready" }, recordId: "record-published" },
+      { body: { status: "draft" }, recordId: "record-published-public" },
+      { body: { status: "published" }, recordId: "record-published-public" },
       { body: { status: "ready" }, recordId: "record-cancelled" },
+      { body: { status: "published" }, recordId: "record-cancelled" },
       { body: { status: "ready" }, recordId: "record-public-visibility" },
+      { body: { status: "published" }, recordId: "record-public-visibility" },
       { body: { status: "ready" }, recordId: "record-thread" },
+      { body: { status: "published" }, recordId: "record-thread" },
     ];
 
     for (const { body, recordId } of invalidRequests) {
@@ -1020,14 +1225,49 @@ test("owner seminar record transition storage failures return bounded errors", a
     });
     assert.equal(failedUpdate.status, 503);
 
-    for (const body of [failedLoad.body, failedSource.body, failedUpdate.body]) {
+    db.rows("public_seminar_records").find((row) => row.id === "record-public")!.status = "ready";
+    db.failNext(
+      "documents",
+      "select",
+      "table=documents author_user_id=owner-user source_id=doc-public provider payload stack trace"
+    );
+    const failedPublishSource = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      token: "owner-token",
+      body: { status: "published" },
+    });
+    assert.equal(failedPublishSource.status, 503);
+
+    db.failNext(
+      "public_seminar_records",
+      "update",
+      "table=public_seminar_records owner_user_id=owner-user source_id=doc-public stack trace"
+    );
+    const failedPublishUpdate = await requestJson(app, "POST", "/events/seminars/records/record-public/transition", {
+      token: "owner-token",
+      body: { status: "published" },
+    });
+    assert.equal(failedPublishUpdate.status, 503);
+
+    for (const body of [
+      failedLoad.body,
+      failedSource.body,
+      failedUpdate.body,
+      failedPublishSource.body,
+      failedPublishUpdate.body,
+    ]) {
       assert.deepEqual(body, {
         error: "Could not update seminar draft status.",
         code: "seminar_record_transition_unavailable",
       });
     }
 
-    const json = JSON.stringify({ failedLoad: failedLoad.body, failedSource: failedSource.body, failedUpdate: failedUpdate.body });
+    const json = JSON.stringify({
+      failedLoad: failedLoad.body,
+      failedSource: failedSource.body,
+      failedUpdate: failedUpdate.body,
+      failedPublishSource: failedPublishSource.body,
+      failedPublishUpdate: failedPublishUpdate.body,
+    });
     for (const forbidden of [
       "public_seminar_records",
       "documents",

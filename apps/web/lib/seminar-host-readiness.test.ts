@@ -146,6 +146,10 @@ test("seminar draft helpers match by public href and keep creates source-only", 
   const transitionBody = { status: "ready" };
   assert.deepEqual(transitionBody, { status: "ready" });
   assert.equal(Object.keys(transitionBody).join(","), "status");
+
+  const publishBody = { status: "published" };
+  assert.deepEqual(publishBody, { status: "published" });
+  assert.equal(Object.keys(publishBody).join(","), "status");
 });
 
 test("publishing dashboard wires seminar readiness without new API or public route drift", () => {
@@ -167,9 +171,15 @@ test("publishing dashboard wires seminar readiness without new API or public rou
   assert.match(source, /Mark ready for review/);
   assert.match(source, /Ready for review/);
   assert.match(source, /Public listing is not live\./);
+  assert.match(source, /Publish record/);
+  assert.match(source, /Public record/);
+  assert.match(source, /Public listing pending readback wiring\./);
+  assert.match(source, /Return to ready/);
   assert.match(source, /Return to draft/);
   assert.match(source, /Seminar draft status is unavailable\./);
   assert.match(source, /Creator required/);
+  assert.match(source, /onTransitionDraft\(record, "published"\)/);
+  assert.match(source, /onTransitionDraft\(record, "ready"\)/);
   assert.match(source, /apiGet<\{ documents: PublishingDocument\[\] \}>\("\/documents"/);
   assert.match(source, /apiGet<\{ spaces: PublishingSpace\[\] \}>\("\/spaces"/);
   assert.deepEqual(source.match(/\/events\/seminars(?!\/records)/g) ?? [], []);

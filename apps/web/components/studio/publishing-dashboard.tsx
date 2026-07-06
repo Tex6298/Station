@@ -516,8 +516,25 @@ function SeminarDraftAction({
             Ready for review
           </button>
           <span style={seminarStatusCopy}>Public listing is not live.</span>
+          <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "published")} style={miniButton}>
+            {busy ? "Publishing record..." : "Publish record"}
+          </button>
           <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "draft")} style={miniButton}>
             {busy ? "Saving draft..." : "Return to draft"}
+          </button>
+        </>
+      );
+    }
+
+    if (record.status === "published" && record.visibility === "public") {
+      return (
+        <>
+          <button type="button" disabled title="This seminar record is public-eligible but not listed until public readback wiring is enabled." style={disabledMiniButton}>
+            Public record
+          </button>
+          <span style={seminarStatusCopy}>Public listing pending readback wiring.</span>
+          <button type="button" disabled={busy} onClick={() => onTransitionDraft(record, "ready")} style={miniButton}>
+            {busy ? "Saving record..." : "Return to ready"}
           </button>
         </>
       );
