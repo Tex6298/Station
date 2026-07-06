@@ -18,7 +18,7 @@ test("companion home context rail exposes exact owner route links", () => {
     },
   });
 
-  assert.equal(rail.title, "Ariadne context");
+  assert.equal(rail.title, "What Ariadne carries forward");
   assert.deepEqual(
     rail.stops.map((stop) => [stop.label, stop.href]),
     [
@@ -58,7 +58,7 @@ test("companion home context rail count labels stay aggregate and bounded", () =
   assert.equal(rail.stops.find((stop) => stop.label === "Canon")?.countLabel, "0 canon items");
   assert.equal(rail.stops.find((stop) => stop.label === "Archive/files")?.countLabel, "2 files / 1 archived chat");
   assert.equal(rail.stops.find((stop) => stop.label === "Integrity")?.countLabel, "0 integrity sessions");
-  assert.match(rail.boundaryCopy, /Owner-only links and aggregate counts/);
+  assert.match(rail.boundaryCopy, /Owner-only continuity map with aggregate counts/);
   assert.match(rail.boundaryCopy, /Runtime Context Preview/);
   assert.doesNotMatch(rendered, /pending-only|source=all|\/conversations\/candidates\/inbox/i);
 });
@@ -71,7 +71,7 @@ test("companion home context rail falls back without inventing context state", (
     continuity: null,
   });
 
-  assert.equal(rail.title, "Persona context");
+  assert.equal(rail.title, "What Persona carries forward");
   assert.equal(rail.brief, "Wake with care.");
   assert.equal(rail.styleNotes, null);
   assert.equal(rail.stops.find((stop) => stop.label === "Profile")?.countLabel, "Owner settings");
@@ -85,6 +85,17 @@ test("persona home renders context rail beside chat without PersonaChat drift", 
   assert.match(page, /<PersonaChat personaId=\{persona\.id\} personaName=\{persona\.name\} \/>/);
   assert.match(page, /className="studio-home-grid"/);
   assert.match(page, /aria-label="Companion context rail"/);
+  assert.equal(page.includes("Companion Home"), true);
+
+  const headerIndex = page.indexOf("<PersonaWorkspaceHeader persona={persona} />");
+  const homeIndex = page.indexOf('<section className="studio-home-grid">');
+  const continuityIndex = page.indexOf("<ContinuityCards persona={persona} />");
+  const publicReadbackIndex = page.indexOf("<PublicInteractionReadback persona={persona} />");
+
+  assert.equal(headerIndex > -1, true);
+  assert.equal(homeIndex > headerIndex, true);
+  assert.equal(continuityIndex > homeIndex, true);
+  assert.equal(publicReadbackIndex > homeIndex, true);
   assert.doesNotMatch(
     page,
     /useSearchParams|URLSearchParams|\?c=|source=all|\/conversations\/candidates\/inbox|StudioRightPanel|sendPersonaChatWithStream|provider payload|compiled prompt/i,

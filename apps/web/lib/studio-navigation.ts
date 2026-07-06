@@ -213,11 +213,11 @@ export function studioPersonaCompanionShortcuts(personaId: string): StudioPerson
   const base = `/studio/personas/${personaId}`;
 
   return [
-    { label: "Memory", href: `${base}/memory`, detail: "Recallable context" },
-    { label: "Inbox", href: `${base}/memory-inbox`, detail: "Review candidates" },
-    { label: "Timeline", href: `${base}/continuity`, detail: "Continuity records" },
-    { label: "Profile", href: `${base}/edit`, detail: "Persona settings" },
-    { label: "Integrity", href: `${base}/calibration`, detail: "Guided checks" },
+    { label: "Memory", href: `${base}/memory`, detail: "Review what carries forward" },
+    { label: "Inbox", href: `${base}/memory-inbox`, detail: "Shape suggested memory" },
+    { label: "Timeline", href: `${base}/continuity`, detail: "Trace the relationship" },
+    { label: "Profile", href: `${base}/edit`, detail: "Shape identity and boundaries" },
+    { label: "Integrity", href: `${base}/calibration`, detail: "Check alignment" },
   ];
 }
 

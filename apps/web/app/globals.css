@@ -2474,6 +2474,14 @@ html, body {
   font-size: 1.3rem;
 }
 
+.studio-home-heading p {
+  max-width: 62ch;
+  margin: -0.35rem 0 0.85rem;
+  color: #93a4ba;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .studio-companion-shortcuts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -2703,6 +2711,8 @@ html, body {
   font-size: 0.74rem;
   font-weight: 760;
   line-height: 1.1;
+  text-align: center;
+  white-space: normal;
 }
 
 .studio-persona-chat-button:hover:not(:disabled) {

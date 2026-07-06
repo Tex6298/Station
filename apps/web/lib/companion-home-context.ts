@@ -33,7 +33,7 @@ export interface CompanionHomeContextRail {
   stops: CompanionHomeContextStop[];
 }
 
-const FALLBACK_BRIEF = "This persona does not have a long-form continuity brief yet.";
+const FALLBACK_BRIEF = "No long-form companion brief yet. Add one when the relationship has a clearer shape.";
 
 export function companionHomeContextRail(input: CompanionHomeContextInput): CompanionHomeContextRail {
   const base = `/studio/personas/${input.personaId}`;
@@ -42,53 +42,53 @@ export function companionHomeContextRail(input: CompanionHomeContextInput): Comp
   const archivedChats = countValue(continuity.archivedChatCount);
 
   return {
-    title: `${input.personaName?.trim() || "Persona"} context`,
+    title: `What ${input.personaName?.trim() || "Persona"} carries forward`,
     brief: cleanText(input.longDescription) || cleanText(input.awakeningPrompt) || FALLBACK_BRIEF,
     styleNotes: cleanText(input.styleNotes),
-    boundaryCopy: "Owner-only links and aggregate counts. Runtime Context Preview remains the selected-source and prompt review surface.",
+    boundaryCopy: "Owner-only continuity map with aggregate counts. Runtime Context Preview stays below for selected-source and prompt review.",
     stops: [
       {
         label: "Memory",
         href: `${base}/memory`,
         countLabel: formatCount(countValue(continuity.memoryCount), "memory item"),
-        detail: "Recallable owner-reviewed context.",
+        detail: "Owner-reviewed recall for future conversations.",
       },
       {
         label: "Inbox",
         href: `${base}/memory-inbox`,
         countLabel: formatCount(countValue(continuity.continuityCandidateCount), "aggregate candidate"),
-        detail: "Import-backed Memory and Canon review stop.",
+        detail: "Suggested Memory and Canon waiting for you.",
         emphasis: true,
       },
       {
         label: "Timeline",
         href: `${base}/continuity`,
         countLabel: formatCount(countValue(continuity.continuityRecordCount), "continuity record"),
-        detail: "Owner-only continuity markers.",
+        detail: "Relationship moments and continuity markers.",
       },
       {
         label: "Canon",
         href: `${base}/canon`,
         countLabel: formatCount(countValue(continuity.canonCount), "canon item"),
-        detail: "Higher-priority rules and commitments.",
+        detail: "Commitments that should guide the companion.",
       },
       {
         label: "Archive/files",
         href: `${base}/files`,
         countLabel: `${formatCount(archiveFiles, "file")} / ${formatCount(archivedChats, "archived chat")}`,
-        detail: "Private source intake and preserved chats.",
+        detail: "Private source material and preserved chats.",
       },
       {
         label: "Profile",
         href: `${base}/edit`,
         countLabel: "Owner settings",
-        detail: "Identity, visibility, and public fields.",
+        detail: "Identity, visibility, and public boundaries.",
       },
       {
         label: "Integrity",
         href: `${base}/calibration`,
         countLabel: formatCount(countValue(continuity.integritySessionCount), "integrity session"),
-        detail: "Guided checks and history.",
+        detail: "Guided checks before the companion changes course.",
       },
     ],
   };

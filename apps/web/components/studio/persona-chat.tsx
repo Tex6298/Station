@@ -266,7 +266,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
   if (state.loading) {
     return (
       <div className="card studio-persona-chat studio-persona-chat-loading" aria-busy="true">
-        <span>Loading conversation...</span>
+        <span>Opening private companion workspace...</span>
       </div>
     );
   }
@@ -288,8 +288,8 @@ export function PersonaChat({ personaId, personaName }: Props) {
     <div className="card studio-persona-chat">
       <div className="studio-persona-chat-header">
         <div className="studio-persona-chat-heading">
-          <span className="studio-persona-chat-kicker">Private chat</span>
-          <strong>Talking with {personaName}</strong>
+          <span className="studio-persona-chat-kicker">Companion workspace</span>
+          <strong>Talk with {personaName}</strong>
         </div>
         <div className="studio-persona-chat-header-actions">
           <span className={`studio-persona-chat-state-pill studio-persona-chat-state-${chatStateLabel.toLowerCase()}`}>
@@ -319,15 +319,15 @@ export function PersonaChat({ personaId, personaName }: Props) {
       {showReturnThreadCard && (
         <div className="studio-persona-chat-return" aria-label="Return to active thread">
           <div className="studio-persona-chat-return-text">
-            <span>Return to this thread</span>
-            <p>Keep writing with {personaName}, ask for an editable recap, or start a clean thread.</p>
+            <span>Pick up where you left off</span>
+            <p>Return to the live thread with {personaName}, ask for an owner-editable recap, or begin again.</p>
           </div>
           <div className="studio-persona-chat-return-actions">
             <button onClick={focusComposerOnly} className="studio-persona-chat-button studio-persona-chat-button-primary">
-              Continue
+              Pick up where you left off
             </button>
             <button onClick={prefillThreadSummary} className="studio-persona-chat-button studio-persona-chat-button-secondary">
-              Summarize
+              Ask for recap
             </button>
             <button onClick={startNewChat} className="studio-persona-chat-button studio-persona-chat-button-danger">
               Start fresh
@@ -339,8 +339,8 @@ export function PersonaChat({ personaId, personaName }: Props) {
       <div className="studio-persona-chat-thread" aria-live={state.sending ? "polite" : "off"}>
         {visibleMessages.length === 0 && (
           <div className="studio-persona-chat-empty">
-            <strong>Signal</strong>
-            <span>Begin speaking to {personaName}.</span>
+            <strong>Start with {personaName}</strong>
+            <span>Share what you want to work through, remember, or shape next.</span>
           </div>
         )}
 
@@ -421,7 +421,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder={state.conversationStatus === "archived" ? "Start a new chat to continue." : `Speak to ${personaName}... (Enter to send, Shift+Enter for newline)`}
+          placeholder={state.conversationStatus === "archived" ? "Start a new chat to continue." : `Write privately to ${personaName}... (Enter to send, Shift+Enter for newline)`}
           disabled={state.sending || state.conversationStatus === "archived"}
         />
         <button

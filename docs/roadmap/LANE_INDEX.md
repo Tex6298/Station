@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497A | Companion Home Usability Translation | DAEDALUS / A2 | Open; implement a narrow web-only persona-home-first UI/UX translation from the PR497 Discern usability audit. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_DAEDALUS.md` |
+| PR497A | Companion Home Usability Translation | ARGUS / A3 | Open review; DAEDALUS implemented the narrow web-only persona-home-first translation and woke ARGUS to review privacy/product boundaries, first-viewport hierarchy, mobile fit risk, and no hidden backend/runtime drift. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497A implementation | Companion Home Usability Translation | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; private persona home now places identity/header, chat, companion shortcuts, and compact continuity context before continuity cards/readback panels, with no backend/runtime/provider/schema drift. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md` |
 | PR497 closeout | Discern UI Usability Parity Audit | MIMIR | Closed accepted; ARIADNE's `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION` recommendation accepted and DAEDALUS opened for a narrow web-only persona-home-first translation. | `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_CLOSEOUT.md` |
 | PR497 audit | Discern UI Usability Parity Audit | MIMIR -> ARIADNE -> MIMIR | Recommended `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION`; current Tex carried safe function but still feels too admin-heavy before it feels like a companion workspace. | `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_RESULT.md` |
 | PR496 parked | Workspace Export Package Contract Preflight | MIMIR | Parked before ARGUS review; foreground watch surfaced an unprocessed A1 correction wakeup requiring Discern UI usability parity/audit immediately after PR495G. Workspace Export remains a future candidate, not the current lane. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_SUPERSEDED.md` |

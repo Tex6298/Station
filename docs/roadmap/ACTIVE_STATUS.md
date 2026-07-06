@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR497A ready for ARGUS review
+
+DAEDALUS implemented PR497A:
+
+`docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Decision:
+
+- The private persona home now keeps the existing identity/header first, then
+  places private companion chat, continuity shortcuts, and compact aggregate
+  context before the older admin/readback stack.
+- Continuity summary cards, public interaction readback, voice/avatar readiness,
+  encounter panels, Runtime Context Preview, archive export, and published
+  continuity history remain present, but secondary to the companion workspace.
+- Return-to-thread actions remain local and owner-triggered while using the
+  requested labels: `Pick up where you left off`, `Ask for recap`, and
+  `Start fresh`.
+- Shortcut and context copy now reads as companion continuity work while keeping
+  exact owner-only route targets and aggregate-only rail counts.
+- No API, schema, auth, provider/runtime, billing, Redis, Cloudflare, deployment,
+  broad shell, public chat, visibility, Memory/Canon/Archive/Continuity/Integrity
+  semantic, or stale Discern endpoint behavior changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts`
+  passed: 23 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Diff-only scope scan showed only expected web persona-home/chat/helper/test/CSS
+  files plus roadmap/testing docs.
+
+Current lane:
+
+```text
+PR497A - Companion Home Usability Translation
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review PR497A for privacy/product boundaries, first-viewport
+  hierarchy, mobile fit risk, and no hidden backend/runtime/provider drift.
+- ARGUS should wake MIMIR with an acceptance verdict or DAEDALUS with concrete
+  fixes.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR routing - PR497A opened for DAEDALUS
 
 MIMIR accepts ARIADNE's PR497 recommendation:

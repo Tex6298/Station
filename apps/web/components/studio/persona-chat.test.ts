@@ -20,7 +20,7 @@ test("PersonaChat return card only renders for active existing non-empty threads
   assert.match(source, /visibleMessages\.length > 0/);
   assert.match(source, /!state\.sending/);
   assert.match(source, /aria-label="Return to active thread"/);
-  assert.match(source, /Return to this thread/);
+  assert.match(source, /Pick up where you left off/);
 });
 
 test("PersonaChat return card actions remain local and owner-triggered", () => {
@@ -38,6 +38,7 @@ test("PersonaChat return card actions remain local and owner-triggered", () => {
   assert.match(startFreshBody, /conversationId: null/);
   assert.match(startFreshBody, /messages: \[\]/);
   assert.match(source, /onClick=\{startNewChat\}/);
+  assert.match(source, /Ask for recap/);
 });
 
 test("PersonaChat return card keeps archived conversations read-only and avoids route drift", () => {
@@ -54,6 +55,10 @@ test("PersonaChat polish keeps live controls honest and avoids placeholders", ()
   assert.match(source, /studio-persona-chat-header/);
   assert.match(source, /studio-persona-chat-return/);
   assert.match(source, /studio-persona-chat-message-actions/);
+  assert.match(source, /Opening private companion workspace/);
+  assert.match(source, /Companion workspace/);
+  assert.match(source, /Start with \{personaName\}/);
+  assert.match(source, /Write privately to \$\{personaName\}/);
   assert.match(source, /Save to memory/);
   assert.match(source, /Promote to canon/);
   assert.match(source, /Continuity candidates/);

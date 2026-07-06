@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497A Companion Home Usability Translation
+
+DAEDALUS completed the PR497A implementation on 2026-07-06:
+
+- `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- The persona home hierarchy now presents the existing identity/header, private
+  chat, companion shortcuts, and compact continuity context before continuity
+  cards and admin/readback panels.
+- Chat return actions use warmer owner-triggered labels without changing the
+  local action bodies or streaming send path.
+- Shortcut/context helper copy changed, but owner-only route targets, aggregate
+  counts, and Runtime Context Preview separation remain guarded by tests.
+- No backend, schema, provider/runtime, billing, Redis, Cloudflare, deployment,
+  broad shell, public chat, visibility, or stale Discern behavior entered scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts` | Pass | 23 focused tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck executed and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| Diff-only scope scan | Pass | Changed implementation files are limited to expected web persona-home/chat/helper/test/CSS files plus roadmap/testing docs. |
+
 ## PR497 Discern UI Usability Parity Audit
 
 ARIADNE completed PR497 on 2026-07-06:

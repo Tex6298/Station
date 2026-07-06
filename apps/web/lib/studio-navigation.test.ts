@@ -64,6 +64,9 @@ test("Studio persona companion shortcuts expose the accepted owner routes", () =
   );
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.href, "/studio/personas/persona-1/memory");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.href, "/studio/personas/persona-1/memory-inbox");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.detail, "Review what carries forward");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.detail, "Shape suggested memory");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Timeline")?.detail, "Trace the relationship");
   assert.equal(shortcuts.some((shortcut) => shortcut.href.includes("/conversations/candidates/inbox")), false);
   assert.equal(shortcuts.some((shortcut) => shortcut.href.startsWith("/space")), false);
 });
@@ -74,7 +77,7 @@ test("Studio persona page renders companion shortcuts without broad companion dr
 
   assert.match(pageSource, /CompanionShortcutStrip/);
   assert.match(pageSource, /studioPersonaCompanionShortcuts\(personaId\)/);
-  assert.match(pageSource, /aria-label="Companion workspace shortcuts"/);
+  assert.match(pageSource, /aria-label="Companion next actions"/);
   assert.match(cssSource, /\.studio-companion-shortcuts/);
   assert.doesNotMatch(pageSource, /sendPersonaChatWithStream|returnToThread|return-to-thread|candidates\/inbox|archive-connectors|source_inventory/i);
 });

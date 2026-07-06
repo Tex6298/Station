@@ -91,20 +91,13 @@ export default function PersonaPage() {
       </div>
 
       <PersonaWorkspaceHeader persona={persona} />
-      <ContinuityCards persona={persona} />
-      <PublicInteractionReadback persona={persona} />
-      <VoiceAvatarReadinessGate />
-      <PersonaEncounterReadinessGate />
-      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
-      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
-        <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
-      )}
 
       <section className="studio-home-grid">
         <div className="studio-home-main">
-          <div className="studio-section-heading">
-            <div className="section-label">Private Chat</div>
-            <h2>Work with {persona.name}</h2>
+          <div className="studio-section-heading studio-home-heading">
+            <div className="section-label">Companion Home</div>
+            <h2>Talk with {persona.name}</h2>
+            <p>Private conversation, memory review, and continuity care stay close together here.</p>
           </div>
           <CompanionShortcutStrip personaId={persona.id} />
           <PersonaChat personaId={persona.id} personaName={persona.name} />
@@ -113,6 +106,14 @@ export default function PersonaPage() {
         <CompanionHomeContextRail persona={persona} />
       </section>
 
+      <ContinuityCards persona={persona} />
+      <PublicInteractionReadback persona={persona} />
+      <VoiceAvatarReadinessGate />
+      <PersonaEncounterReadinessGate />
+      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
+      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
+        <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
+      )}
       <RuntimeContextPreview personaId={persona.id} />
       <ArchiveExportStatus
         personaId={persona.id}
@@ -130,7 +131,7 @@ function CompanionShortcutStrip({ personaId }: { personaId: string }) {
   const shortcuts = studioPersonaCompanionShortcuts(personaId);
 
   return (
-    <nav className="studio-companion-shortcuts" aria-label="Companion workspace shortcuts">
+    <nav className="studio-companion-shortcuts" aria-label="Companion next actions">
       {shortcuts.map((shortcut) => (
         <Link key={shortcut.href} href={shortcut.href} className="studio-companion-shortcut">
           <span>{shortcut.label}</span>
@@ -154,7 +155,7 @@ function CompanionHomeContextRail({ persona }: { persona: PersonaWithContinuity 
   return (
     <aside className="studio-companion-context-rail" aria-label="Companion context rail">
       <div className="studio-companion-context-brief">
-        <div className="section-label">Companion Context</div>
+        <div className="section-label">Companion Continuity</div>
         <h3>{rail.title}</h3>
         <p>{rail.brief}</p>
         {rail.styleNotes && (
