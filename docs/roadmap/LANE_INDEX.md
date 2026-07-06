@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR499A | Public Seminar Schedule Metadata Hosted Rerun | MIMIR / A1 | Passed hosted closeout; owner route readiness, schedule set/update/clear, invalid-body rejection, mutation gates, durable public readback, clear/rollback removal, desktop/mobile fit, and privacy/product-boundary scans passed after PR499B migration repair. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md` |
+| PR500 | Social Publishing Connector Boundary Preflight | ARGUS / A3 | Open hostile preflight; choose the smallest safe next Social Publishing lane after PR476A readiness, using PR484 connector work as reference only. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500 opened | Social Publishing Connector Boundary Preflight | MIMIR -> ARGUS | Open; decide the smallest safe social connector credential/OAuth/payload/execution lane or name the concrete blocker. | `docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md` |
+| PR499 closeout | Public Seminar Schedule Metadata | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> DAEDALUS -> ARIADNE -> MIMIR | Closed accepted; schedule metadata, hosted migration 071 repair, rerun schedule mutation/readback/clear/rollback, desktop/mobile fit, and privacy/product-boundary scans passed. | `docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_CLOSEOUT.md` |
 | PR499A hosted rerun | Public Seminar Schedule Metadata Hosted Rerun | ARIADNE -> MIMIR | Passed hosted closeout; fresh web/API at `a8a384c9452e`, owner records `200` with count `2`, schedule mutation/readback/clear/rollback and desktop/375px/390px privacy/product-boundary scans passed, and the selected record was restored to draft/private with no schedule. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_RESULT.md` |
 | PR499A hosted rerun opened | Public Seminar Schedule Metadata Hosted Rerun | MIMIR -> ARIADNE | Open; rerun full PR499A hosted proof after PR499B applied migration 071 and restored owner seminar records route to `200`. | `docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_ARIADNE.md` |
 | PR499B repair | Public Seminar Schedule Route Defect | MIMIR -> DAEDALUS -> MIMIR | Migration-only repair complete; hosted migration 071 was missing, DAEDALUS applied the accepted migration through the pooler path, schema probe now shows schedule columns/constraint/index present, and `GET /events/seminars/records` now returns `200`. | `docs/roadmap/PR499B_PUBLIC_SEMINAR_SCHEDULE_ROUTE_DEFECT_RESULT.md` |

@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A hosted schedule metadata rerun passed
+## Current lane - PR500 social publishing connector boundary preflight
+
+MIMIR closed PR499/PR499A/PR499B and opened PR500:
+
+`docs/roadmap/PR499_PUBLIC_SEMINAR_SCHEDULE_METADATA_CLOSEOUT.md`
+
+`docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md`
+
+Reason:
+
+- PR499A passed hosted closeout after PR499B repaired migration 071 drift.
+- Per the feature-expansion rule, the next lane moves to a distinct
+  customer-facing Phase 3 surface instead of extending seminars.
+- Social Publishing is currently honest and readback-only from PR476A.
+- Live social connectors remain blocked until ARGUS accepts credential/OAuth,
+  outbound payload, and execution/retry boundaries.
+- PR484 archive connector credential/OAuth work is useful reference material
+  but not a direct social connector implementation.
+
+Current lane:
+
+```text
+PR500 - Social Publishing Connector Boundary Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR500_SOCIAL_PUBLISHING_CONNECTOR_BOUNDARY_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR499A hosted schedule metadata rerun passed
 
 ARIADNE completed the hosted PR499A schedule metadata rerun:
 
