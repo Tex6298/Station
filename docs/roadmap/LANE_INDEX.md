@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497A | Companion Home Usability Translation Scroll Defect | MIMIR / A1 | ARIADNE found `PRODUCT_DEFECT_ROUTE_DAEDALUS`: hosted fit/privacy/return actions passed, but active-thread auto-scroll skips the promised first-viewport hierarchy. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_RESULT.md` |
+| PR497B | Companion Home Initial Scroll Fix | DAEDALUS / A2 | Open; fix the active-thread initial page-level auto-scroll so the accepted PR497A companion-first first viewport remains the landed viewport after chat data loads. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497A defect routing | Companion Home Usability Translation Scroll Defect | ARIADNE -> MIMIR -> DAEDALUS | Routed; ARIADNE found `PRODUCT_DEFECT_ROUTE_DAEDALUS`, and MIMIR opened PR497B as the narrow scroll containment fix. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_DAEDALUS.md` |
 | PR497A rehearsal | Companion Home Usability Translation Hosted Rehearsal | ARIADNE -> MIMIR | Product defect; hosted desktop/375px/390px fit, privacy, and return-action locality passed, but active-thread auto-scroll hides the intended first-viewport hierarchy. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_RESULT.md` |
 | PR497A rehearsal opened | Companion Home Usability Translation Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted PR497A, so ARIADNE should prove hosted desktop/375px/390px persona-home hierarchy, mobile fit, local return actions, and privacy/scope boundaries before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_ARIADNE.md` |
 | PR497A review | Companion Home Usability Translation | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION_IMPLEMENTATION` with a narrow ARGUS wording patch; web-only companion-first hierarchy, owner route/privacy boundaries, local return actions, aggregate context counts, scoped CSS, and no backend/runtime/provider/schema drift passed local review. Hosted proof is required before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md` |

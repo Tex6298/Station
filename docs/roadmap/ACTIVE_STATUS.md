@@ -4,6 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR routing - PR497B opened for DAEDALUS
+
+MIMIR routed ARIADNE's PR497A hosted defect into a narrow implementation lane:
+
+`docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_DAEDALUS.md`
+
+Decision:
+
+- ARIADNE's hosted proof passed desktop/mobile fit, privacy/scope checks, and
+  return-card local action behavior.
+- The remaining defect is narrow: active non-empty thread load auto-scrolls the
+  document down to the lower chat/composer area.
+- That breaks PR497A's accepted companion-first first viewport by hiding the
+  persona identity/header, `Companion Home` heading, shortcut strip, and return
+  card above the landed viewport.
+- `apps/web/components/studio/persona-chat.tsx` currently calls
+  `bottomRef.current?.scrollIntoView({ behavior: "smooth" })` whenever
+  messages change; DAEDALUS should contain or gate that behavior.
+
+Current lane:
+
+```text
+PR497B - Companion Home Initial Scroll Fix
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+Current baton:
+
+- DAEDALUS should implement the narrow web-only scroll fix.
+- ARGUS should review after DAEDALUS wakes A3.
+- Hosted proof should return to ARIADNE only after ARGUS accepts the fix.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest ARIADNE result - PR497A hosted proof found auto-scroll defect
 
 ARIADNE completed hosted PR497A proof:
