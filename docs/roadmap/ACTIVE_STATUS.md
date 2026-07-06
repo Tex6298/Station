@@ -4,6 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR496C UI boundary accepted
+
+ARGUS reviewed the PR496C workspace export readback UI boundary patch:
+
+`docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION
+```
+
+Decision:
+
+- PR496C is accepted with no ARGUS code patch.
+- `/studio/export` no longer renders the internal workspace export package id
+  in owner-visible bundle readback copy.
+- Bundle loading/readback now renders inside the selected package row, keeping
+  mobile feedback local after `View bundle files`.
+- The patch is web-only and preserves API semantics, migration/RLS/schema,
+  owner-only protection, bundle file content/names, high-level inventory scope,
+  and all forbidden export/backup/provider/infra/billing/public-export scope.
+- Hosted ARIADNE rerun remains required because the defect was observed in
+  browser UI on desktop, `375px`, and `390px`.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+- `test:exports` was not run because PR496C did not touch export API/shared
+  export behavior.
+
+Current lane:
+
+```text
+PR496C - Workspace Export Readback UI Boundary
+Owner: MIMIR / A1
+State: ACCEPTED_LOCAL_REVIEW_HOSTED_RERUN_REQUIRED
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE hosted rerun for the PR496C UI boundary before
+  PR496A/B/C closeout.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS result - PR496C ready for ARGUS review
 
 DAEDALUS implemented the web-only workspace export readback UI repair:

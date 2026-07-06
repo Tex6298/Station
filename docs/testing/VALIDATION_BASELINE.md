@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496C Workspace Export Readback UI Boundary ARGUS Review
+
+ARGUS accepted the PR496C implementation on 2026-07-06:
+
+- `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION`.
+
+Reason:
+
+- `/studio/export` no longer renders the internal workspace export package id
+  in owner-visible bundle readback copy;
+- loading/readback feedback now appears inside the selected package row, making
+  mobile feedback local after `View bundle files`;
+- focused Studio UI coverage checks local row-level loading/readback wiring and
+  absence of the old package-id copy;
+- patch stayed web-only with no API, migration/RLS/schema, owner-only
+  protection, bundle content, provider/runtime, billing, queue/Cloudflare,
+  public export, backup/restore, PDF/binary/original-file, share/signed URL,
+  public chat, or broad Studio shell drift.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS review | Pass | Reviewed PR496B hosted rerun defect, PR496C routing/result docs, `/studio/export` diff, and focused Studio UI coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+`test:exports` was not run because PR496C did not touch export API/shared
+export behavior.
+
 ## PR496C Workspace Export Readback UI Boundary
 
 DAEDALUS completed the PR496C web-only UI repair on 2026-07-06:

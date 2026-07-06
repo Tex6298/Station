@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496C | Workspace Export Readback UI Boundary | ARGUS / A3 | Open review; DAEDALUS patched `/studio/export` so bundle loading/readback is local to the selected package row and internal package ids are no longer rendered in owner-visible bundle copy. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md` |
+| PR496C | Workspace Export Readback UI Boundary | MIMIR / A1 | Accepted local review; ARGUS accepted the web-only package-id/readback locality patch, and hosted ARIADNE rerun is required before closeout. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496C review | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_IMPLEMENTATION`; `/studio/export` hides owner-visible internal package ids, renders bundle feedback in the selected row, and stays web-only with no API/export scope drift. Hosted rerun required. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_REVIEW_RESULT.md` |
 | PR496C implementation | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; web-only package-id hiding and local package-row bundle feedback implemented with focused Studio UI coverage. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RESULT.md` |
 | PR496C opened | Workspace Export Readback UI Boundary | MIMIR -> DAEDALUS | Open; web-only repair for `/studio/export` bundle readback package-id leak and mobile feedback locality after ARIADNE proved backend create/read/bundle is fixed. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_DAEDALUS.md` |
 | PR496B hosted rerun | Workspace Export Hosted Create Failure Rerun | ARIADNE -> MIMIR | Product defect; backend create/read/bundle and owner-only protection passed on hosted `42938f5c`, but bundle readback UI exposes the internal package id and mobile feedback is not local. | `docs/roadmap/PR496B_WORKSPACE_EXPORT_HOSTED_CREATE_FAILURE_RERUN_RESULT.md` |
