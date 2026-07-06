@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR495F accepted for hosted rehearsal
+
+ARGUS reviewed the DAEDALUS implementation:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495F_OWNER_PUBLISH_ROLLBACK_GATE_IMPLEMENTATION
+```
+
+ARGUS patch:
+
+- duplicate/self transitions for `draft` + `private`, `ready` + `private`, and
+  `published` + `public` are retry-safe;
+- duplicate publish remains accepted when the source and PR495E serializer still
+  validate;
+- duplicate rollback remains accepted after returning to `ready` + `private`.
+
+Accepted implementation truth:
+
+- owner-only `ready` + `private` to `published` + `public` and
+  `published` + `public` back to `ready` + `private`;
+- publish revalidates source authority, source routeability, and PR495E
+  serializer compatibility;
+- rollback is source-independent because it reduces public eligibility;
+- public `/events/seminars` and public interest remain unwired/source-derived;
+- migrations/RLS/schema, public durable readback, runtime/provider/queue/Redis/
+  Cloudflare, billing, hosting, scheduling, RSVP, tickets, payments,
+  reminders, media, transcripts, and launch claims remain unchanged.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 33 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts`
+  passed with 20 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR495F - Owner Seminar Publish/Rollback Hosted Rehearsal Routing
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE for hosted desktop/`375px`/`390px` proof of
+  PR495F.
+- Hosted proof should cover owner publish, duplicate publish, rollback,
+  duplicate rollback, non-creator/signed-out denial, public seminar/interest
+  no-drift, no durable public card yet, no private/raw/secret/runtime/scope
+  leak, and mobile fit.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS implementation - PR495F ready for ARGUS review
 
 DAEDALUS implemented the accepted PR495F owner-only publish/rollback gate:

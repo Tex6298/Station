@@ -20,6 +20,40 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495F Owner Publish/Rollback ARGUS Review
+
+ARGUS accepted the PR495F implementation on 2026-07-06:
+
+- `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495F_OWNER_PUBLISH_ROLLBACK_GATE_IMPLEMENTATION`.
+
+Reason:
+
+- owner publish/rollback remains limited to the existing authenticated,
+  creator-gated, owner-scoped transition route;
+- publish moves `ready` + `private` durable document records to `published` +
+  `public` only after source routeability and PR495E serializer compatibility
+  revalidate;
+- rollback moves `published` + `public` records back to `ready` + `private`
+  without requiring source routeability;
+- ARGUS patched duplicate/self-transition stability for accepted owner states,
+  including duplicate publish and duplicate rollback;
+- public `/events/seminars`, public interest mark/withdraw, public durable
+  readback wiring, migrations/RLS/schema, billing, provider runtime,
+  queues/workers, Redis, Cloudflare, hosting, scheduling, RSVP, tickets,
+  payments, reminders, media, transcripts, and launch claims did not change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Transition semantics, source/serializer publish revalidation, source-independent rollback, owner UI copy, and public route/interest no-drift passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 33 focused API/public-route/auth tests passed after the ARGUS duplicate-stability patch. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts` | Pass | 20 focused publishing/seminar readiness tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran after the patch; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495F Owner Publish/Rollback Gate Implementation
 
 DAEDALUS implemented PR495F on 2026-07-06:

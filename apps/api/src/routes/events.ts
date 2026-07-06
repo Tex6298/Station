@@ -304,7 +304,46 @@ function seminarRecordTransition(
     };
   }
 
+  if (
+    record.status === "draft" &&
+    record.visibility === "private" &&
+    targetStatus === "draft"
+  ) {
+    return {
+      status: "draft",
+      visibility: "private",
+      requiresSource: false,
+      requiresDurableCard: false,
+    };
+  }
+
+  if (
+    record.status === "ready" &&
+    record.visibility === "private" &&
+    targetStatus === "ready"
+  ) {
+    return {
+      status: "ready",
+      visibility: "private",
+      requiresSource: false,
+      requiresDurableCard: false,
+    };
+  }
+
   if (record.status === "ready" && record.visibility === "private" && targetStatus === "published") {
+    return {
+      status: "published",
+      visibility: "public",
+      requiresSource: true,
+      requiresDurableCard: true,
+    };
+  }
+
+  if (
+    record.status === "published" &&
+    record.visibility === "public" &&
+    targetStatus === "published"
+  ) {
     return {
       status: "published",
       visibility: "public",

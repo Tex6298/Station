@@ -892,6 +892,17 @@ test("owner seminar record transition moves draft to ready and back while stayin
     assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.status, "published");
     assert.equal(db.rows("public_seminar_records").find((row) => row.id === "record-public")?.visibility, "public");
 
+    const duplicatePublish = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "published" } }
+    );
+    assert.equal(duplicatePublish.status, 200);
+    assert.equal(duplicatePublish.body.record.id, "record-public");
+    assert.equal(duplicatePublish.body.record.status, "published");
+    assert.equal(duplicatePublish.body.record.visibility, "public");
+
     const durableCard = await resolveDurablePublicSeminarRecordCard(
       db.client as any,
       db.rows("public_seminar_records").find((row) => row.id === "record-public")
@@ -933,6 +944,17 @@ test("owner seminar record transition moves draft to ready and back while stayin
     assert.equal(rolledBack.body.record.status, "ready");
     assert.equal(rolledBack.body.record.visibility, "private");
 
+    const duplicateRollback = await requestJson<OwnerPublicSeminarRecordResponse>(
+      app,
+      "POST",
+      "/events/seminars/records/record-public/transition",
+      { token: "owner-token", body: { status: "ready" } }
+    );
+    assert.equal(duplicateRollback.status, 200);
+    assert.equal(duplicateRollback.body.record.id, "record-public");
+    assert.equal(duplicateRollback.body.record.status, "ready");
+    assert.equal(duplicateRollback.body.record.visibility, "private");
+
     const draft = await requestJson<OwnerPublicSeminarRecordResponse>(
       app,
       "POST",
@@ -947,7 +969,9 @@ test("owner seminar record transition moves draft to ready and back while stayin
     const json = JSON.stringify({
       ready: ready.body,
       published: published.body,
+      duplicatePublish: duplicatePublish.body,
       rolledBack: rolledBack.body,
+      duplicateRollback: duplicateRollback.body,
       draft: draft.body,
       marked: marked.body,
     });
@@ -1158,7 +1182,6 @@ test("owner seminar record transition rejects unsupported payloads and states", 
       { body: { state: "ready" }, recordId: "record-public" },
       { body: { status: "ready" }, recordId: "record-published" },
       { body: { status: "draft" }, recordId: "record-published-public" },
-      { body: { status: "published" }, recordId: "record-published-public" },
       { body: { status: "ready" }, recordId: "record-cancelled" },
       { body: { status: "published" }, recordId: "record-cancelled" },
       { body: { status: "ready" }, recordId: "record-public-visibility" },
