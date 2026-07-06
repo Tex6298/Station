@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR498 | Public Seminar Detail Readback Preflight | ARGUS / A3 | Open; hostile preflight for the next customer-facing Phase 3 seminar/lecture slice after PR495G durable public seminar cards and PR496 workspace export closeout. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_ARGUS.md` |
+| PR498A | Public Seminar Detail Readback | MIMIR / A1 | ARGUS accepted preflight as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK`; MIMIR should route DAEDALUS if still aligned, with strict public detail/readback scope over already-eligible seminar cards only. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR498 preflight | Public Seminar Detail Readback Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK`; DAEDALUS may implement a narrow public detail/readback route/page for already-eligible seminar cards, reusing digest ids and safe serializers, with no live hosting, scheduling, RSVP, tickets, payments, runtime, queues, Cloudflare, private data, raw ids, or broad `/events` redesign. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md` |
 | PR496 closeout | Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; PR496A owner export contract, PR496B hosted create repair, PR496C UI boundary repair, and final hosted owner create/read/bundle plus desktop/mobile proof passed. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_CLOSEOUT.md` |
 | PR496C hosted rerun | Workspace Export Readback UI Boundary Hosted Rerun | ARIADNE -> MIMIR | Passed hosted closeout; selected-row bundle readback is local, package-id-free, and visible on desktop, `375px`, and `390px`, while owner create/read/bundle and owner-only protection passed. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_RESULT.md` |
 | PR496C hosted rerun opened | Workspace Export Readback UI Boundary Hosted Rerun | MIMIR -> ARIADNE | Open; prove hosted `/studio/export` selected-row bundle readback, no internal package id, owner-only protection, high-level bundle content, desktop/mobile fit, and no product-boundary drift. | `docs/roadmap/PR496C_WORKSPACE_EXPORT_READBACK_UI_BOUNDARY_RERUN_ARIADNE.md` |

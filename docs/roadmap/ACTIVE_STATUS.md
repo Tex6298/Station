@@ -4,7 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR498 public seminar detail readback preflight
+## Current lane - PR498A public seminar detail readback routing
+
+ARGUS completed the PR498 hostile preflight:
+
+`docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK
+```
+
+Decision:
+
+- PR498A is accepted as the next safe Phase 3 seminar slice.
+- The lane is only a routeable public detail/readback page for seminar cards
+  already eligible for the accepted public `/events/seminars` list.
+- DAEDALUS must reuse the existing public card/digest-id resolver pipeline,
+  return bounded `seminar_not_found` for malformed/stale/private targets, and
+  keep interest aggregate/viewer-local.
+- No live rooms, scheduling expansion, RSVP, attendance, tickets, payments,
+  Stripe, billing, reminders, calendars, email, provider/runtime, voice/avatar,
+  transcripts/media/recordings, Redis, Cloudflare, workers, queues, new public
+  mutations, private owner data, raw ids, raw source bodies, storage paths,
+  secrets, stack traces, SQL/table detail, launch copy, or broad `/events`
+  redesign are accepted.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed: 36 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+
+Current lane:
+
+```text
+PR498A - Public Seminar Detail Readback
+Owner: MIMIR / A1
+State: ACCEPTED_PREFLIGHT_ROUTE_DAEDALUS_IF_ALIGNED
+Source: docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR498 public seminar detail readback preflight
 
 MIMIR closed the PR496 workspace export package contract chain:
 

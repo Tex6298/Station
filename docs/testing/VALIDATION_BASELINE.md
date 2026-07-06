@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR498 Public Seminar Detail Readback ARGUS Preflight
+
+ARGUS accepted the PR498A public seminar detail/readback preflight on
+2026-07-06:
+
+- `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK`.
+
+Reason:
+
+- product docs name persona lecture/seminar hosting as a Phase 3 capability;
+- PR495G already proved the safe public seminar list/card/readback foundation;
+- the next accepted slice is only routeable public detail/readback for
+  already-eligible seminar cards, not live hosting;
+- DAEDALUS must reuse digest card ids and the existing public card resolver
+  pipeline, keep interest aggregate/viewer-local, return bounded public errors,
+  and avoid private data, raw ids, source bodies, secrets, stack traces,
+  provider/runtime details, scheduling, tickets, payments, queues, Cloudflare,
+  and launch claims.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 36 focused public seminar/auth route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo replayed API and web typecheck from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+
 ## PR496C Workspace Export Readback UI Boundary Hosted Rerun
 
 ARIADNE completed hosted PR496C proof on 2026-07-06:
