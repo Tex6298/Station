@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR498A public seminar detail readback routing
+## Current lane - PR498A public seminar detail readback implementation
 
 ARGUS completed the PR498 hostile preflight:
 
@@ -42,16 +42,16 @@ Current lane:
 
 ```text
 PR498A - Public Seminar Detail Readback
-Owner: MIMIR / A1
-State: ACCEPTED_PREFLIGHT_ROUTE_DAEDALUS_IF_ALIGNED
-Source: docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md
+Owner: DAEDALUS / A2
+State: OPEN
+Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_DAEDALUS.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A2:
+Codename: DAEDALUS
 ```
 
 ## Previous lane - PR498 public seminar detail readback preflight

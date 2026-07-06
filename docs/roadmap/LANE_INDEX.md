@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR498A | Public Seminar Detail Readback | MIMIR / A1 | ARGUS accepted preflight as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK`; MIMIR should route DAEDALUS if still aligned, with strict public detail/readback scope over already-eligible seminar cards only. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md` |
+| PR498A | Public Seminar Detail Readback | DAEDALUS / A2 | Open; implement the ARGUS-accepted narrow public seminar detail/readback route and page for already-eligible seminar cards, without live hosting or infra/runtime scope. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_DAEDALUS.md` |
 
 ## Recently Closed
 
