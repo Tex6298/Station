@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR498A | Public Seminar Detail Readback | ARGUS / A3 | Open review; DAEDALUS implemented the narrow public detail route/page for already-eligible seminar cards, without live hosting or infra/runtime scope. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_RESULT.md` |
+| PR498A | Public Seminar Detail Readback | MIMIR / A1 | ARGUS accepted local review with a narrow Space-link helper patch; MIMIR should route hosted ARIADNE proof before closeout. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR498A review | Public Seminar Detail Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_IMPLEMENTATION` with one narrow Space-link helper patch; public detail route/page, digest routing, safe serializers, aggregate/viewer-local interest, and forbidden-scope boundaries passed local review. Hosted proof required. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md` |
 | PR498A implementation | Public Seminar Detail Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; `GET /events/seminars/:seminarId`, digest-id list/detail routing, safe source/Space/discussion links, and aggregate/viewer-local interest readback are implemented without live hosting, scheduling, payment, runtime, schema, or broad `/events` scope. | `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_RESULT.md` |
 | PR498 preflight | Public Seminar Detail Readback Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK`; DAEDALUS may implement a narrow public detail/readback route/page for already-eligible seminar cards, reusing digest ids and safe serializers, with no live hosting, scheduling, RSVP, tickets, payments, runtime, queues, Cloudflare, private data, raw ids, or broad `/events` redesign. | `docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md` |
 | PR496 closeout | Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; PR496A owner export contract, PR496B hosted create repair, PR496C UI boundary repair, and final hosted owner create/read/bundle plus desktop/mobile proof passed. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_CLOSEOUT.md` |

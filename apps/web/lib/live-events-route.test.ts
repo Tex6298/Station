@@ -76,6 +76,7 @@ test("public seminar card helpers keep route scope public", () => {
   assert.equal(publicSeminarCardHref({ ...card, href: "/studio/personas/private" }), null);
   assert.equal(publicSeminarDiscussionHref({ ...card, discussionHref: "/settings/billing" }), null);
   assert.equal(publicSeminarSpaceHref({ ...card, space: { title: "Bad", href: "/billing" } }), null);
+  assert.equal(publicSeminarSpaceHref({ ...card, space: { title: "Forum", href: "/forums/seminar-room" } }), null);
   assert.equal(publicSeminarDateLabel("not-a-date"), "Featured");
 });
 

@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR498A Public Seminar Detail Readback ARGUS Review
+
+ARGUS accepted the PR498A public seminar detail/readback implementation on
+2026-07-06:
+
+- `docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_IMPLEMENTATION`.
+
+Reason:
+
+- public `GET /events/seminars/:seminarId` reuses the accepted public seminar
+  resolver and returns only a public `PublicSeminarCard` detail payload;
+- valid list cards route to `/events/seminars/:seminarId`, while source,
+  Space, and discussion links stay sanitized;
+- ARGUS tightened `publicSeminarSpaceHref` so Space links accept only
+  `/space/` hrefs;
+- malformed/stale/private/owner-mismatched targets stay bounded, interest
+  readback remains aggregate/viewer-local, and no live hosting, scheduling,
+  RSVP, tickets, payments, provider/runtime, queue/Cloudflare, schema/RLS,
+  private data, raw ids/fields, source bodies, secrets, stack traces, launch
+  copy, or broad `/events` redesign was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 40 focused public seminar/auth route tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR498A Public Seminar Detail Readback
 
 DAEDALUS completed the PR498A public seminar detail/readback implementation on
@@ -24,7 +56,7 @@ Reason:
   interest count remains public-safe;
 - malformed, stale, private, owner-mismatched, and missing targets return
   bounded `seminar_not_found`;
-- storage failures return bounded `live_events_unavailable`;
+- primary resolver storage failures return bounded `live_events_unavailable`;
 - the web list routes valid cards to `/events/seminars/:seminarId`, and the
   detail page keeps source, Space, and discussion links sanitized;
 - no live hosting, scheduling, RSVP, tickets, payments, provider/runtime,

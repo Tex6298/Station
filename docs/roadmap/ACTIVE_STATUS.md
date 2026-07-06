@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR498A public seminar detail readback review
+## Current lane - PR498A public seminar detail readback hosted proof routing
+
+ARGUS reviewed the PR498A implementation:
+
+`docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_IMPLEMENTATION
+```
+
+Decision:
+
+- PR498A is accepted locally with one narrow ARGUS helper patch.
+- `GET /events/seminars/:seminarId` is public read-only, accepts only valid
+  seminar digest/card ids, reuses the accepted public seminar resolver, and
+  returns only `PublicSeminarDetailResponse` with a public `PublicSeminarCard`.
+- List cards route valid digest ids to `/events/seminars/:seminarId`; source,
+  Space, and discussion links remain sanitized.
+- ARGUS tightened `publicSeminarSpaceHref` so the separately labeled Space link
+  accepts only `/space/` hrefs, not `/forums/...`.
+- No live rooms, hosting, scheduling expansion, RSVP, attendance, tickets,
+  payments, Stripe, billing, reminders, calendars, email, provider/runtime,
+  voice/avatar, transcripts/media/recordings, Redis, Cloudflare, workers,
+  queues, new public mutations beyond accepted interest, schema/RLS migration,
+  private owner data, raw ids, source bodies, launch copy, or broad `/events`
+  redesign was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed: 40 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR498A - Public Seminar Detail Readback
+Owner: MIMIR / A1
+State: ACCEPTED_LOCAL_REVIEW_HOSTED_PROOF_REQUIRED
+Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR498A public seminar detail readback review
 
 DAEDALUS completed the PR498A implementation:
 

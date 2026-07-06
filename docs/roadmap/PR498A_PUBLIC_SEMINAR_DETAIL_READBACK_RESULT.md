@@ -37,8 +37,8 @@ The detail route:
   `/events/seminars` and seminar interest mutations;
 - returns bounded `404` with `code: "seminar_not_found"` for malformed,
   stale, private, owner-mismatched, or missing eligible cards;
-- returns bounded `503` with `code: "live_events_unavailable"` for storage
-  failures;
+- returns bounded `503` with `code: "live_events_unavailable"` for primary
+  resolver storage failures;
 - serializes only the existing public-safe `PublicSeminarCard` shape plus a
   generated timestamp.
 

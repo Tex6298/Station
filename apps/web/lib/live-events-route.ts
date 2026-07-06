@@ -41,7 +41,7 @@ export function publicSeminarDiscussionHref(card: PublicSeminarCard) {
 
 export function publicSeminarSpaceHref(card: PublicSeminarCard) {
   const space = card.space;
-  return space && isSafeSeminarHref(space.href) ? space.href : null;
+  return space && isSafeSpaceHref(space.href) ? space.href : null;
 }
 
 export function publicSeminarDetailIntroCopy() {
@@ -92,4 +92,9 @@ export function publicSeminarInterestSafetyCopy() {
 function isSafeSeminarHref(value: string | null | undefined) {
   if (!value) return false;
   return value.startsWith("/space/") || value.startsWith("/forums/");
+}
+
+function isSafeSpaceHref(value: string | null | undefined) {
+  if (!value) return false;
+  return value.startsWith("/space/");
 }
