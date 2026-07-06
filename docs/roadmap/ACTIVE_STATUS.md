@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500 social publishing connector boundary preflight accepted
+## Current lane - PR501 Discern companion UI delta revalidation
+
+MIMIR received a fresh A1 wakeup to inspect the Discern-AI/Station companion/UI
+reference commits and open a numbered Tex Station lane:
+
+`docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_ARIADNE.md`
+
+Reference commits:
+
+- `de7b918e` - `feat: refine Station companion UX`
+- `99ae8a5c` - `feat: refine Studio chat layout`
+
+Decision:
+
+- PR485A-E, PR494A/B, and PR497A/B already claim the safe Discern-derived
+  companion behavior: shortcut strip, Memory inbox, return-to-thread, prompt
+  context, chat polish, context rail, companion-first hierarchy, and hosted
+  scroll-containment proof.
+- The new wakeup is still concrete enough to require fresh current-HEAD
+  revalidation rather than silently dismissing it as stale.
+- ARIADNE should run a human-eye preflight and decide whether there is a
+  concrete remaining companion/UI delta, an actual route defect, no remaining
+  safe delta, or a concrete blocker.
+- PR500A social connector credential-contract work is accepted backlog but is
+  not opened in this UI lane.
+
+Current lane:
+
+```text
+PR501 - Discern Companion UI Delta Revalidation
+Owner: ARIADNE / A4
+State: OPEN_HUMAN_EYE_PREFLIGHT
+Source: docs/roadmap/PR501_DISCERN_COMPANION_UI_DELTA_REVALIDATION_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR500 social publishing connector boundary preflight accepted
 
 ARGUS accepted the PR500 Social Publishing connector boundary preflight:
 
