@@ -4,6 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR495G accepted for public durable readback
+
+ARGUS completed the PR495G hostile preflight:
+
+`docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK
+```
+
+Verdict:
+
+- eligible `published` + `public` durable seminar records may be merged into
+  public `/events/seminars`;
+- durable rows must resolve through the PR495E safe serializer and merge helper;
+- durable digest interest resolution belongs in the same slice because the
+  public page renders interest controls for every returned card;
+- interest rows must continue storing only `source_type` and source document
+  `source_id`, never durable record ids;
+- `PublicSeminarsResponse.source` should gain an honest mixed-source value;
+- stale durable records should drop from readback and return
+  `seminar_not_found` for interest mutation;
+- schema/RLS migrations, owner UI expansion, public detail pages, scheduling,
+  hosting, RSVP, tickets, payments, reminders, rooms, media, transcripts,
+  provider runtime, queues/workers, Redis, Cloudflare, billing, launch claims,
+  broad UI redesign, private-source exposure, raw ids, and secret leakage stay
+  out of scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 33 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+
+Current lane:
+
+```text
+PR495G - Public Durable Seminar Readback
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact API/type/test/doc scope from the ARGUS
+  result.
+- Replace the current not-wired durable assertions with positive durable
+  readback, durable digest interest, stale exclusion, limit, redaction, and
+  bounded-error tests.
+- Hosted ARIADNE proof is required after ARGUS accepts the implementation.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout/opening - PR495F closed, PR495G opened
 
 MIMIR closes PR495F:

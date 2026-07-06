@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495G | Public Durable Seminar Readback Preflight | ARGUS / A3 | Open preflight; decide whether eligible published/public durable seminar records can be merged into public `/events/seminars`, whether durable digest interest resolution belongs in the same slice, or what concrete blocker remains. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_ARGUS.md` |
+| PR495G | Public Durable Seminar Readback | DAEDALUS / A2 | Accepted preflight; wire eligible published/public durable seminar records into public `/events/seminars`, include durable digest interest resolution, keep interest source-derived, and avoid schema/RLS/runtime/owner-UI/scope expansion. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495G preflight | Public Durable Seminar Readback | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK`; DAEDALUS should wire durable published/public records into public `/events/seminars`, add durable digest interest resolution in the same slice, keep interest rows source-derived, update the mixed-source response type honestly, and avoid public detail/schema/RLS/runtime/owner-UI/scope expansion. | `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_RESULT.md` |
 | PR495F closeout | Owner Seminar Publish/Rollback Gate | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR | Closed accepted; owner publish/duplicate publish/rollback/duplicate rollback, creator/signed-out gates, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and desktop/mobile hosted proof passed. PR495G opens public durable seminar readback preflight. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_CLOSEOUT.md` |
 | PR495F rehearsal | Owner Seminar Publish/Rollback Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; owner ready setup, publish, duplicate publish, rollback, duplicate rollback, refresh stability, desktop/375px/390px panel fit, private-tier non-creator API denial, signed-out API/UI protection, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and no product drift passed. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REHEARSAL_RESULT.md` |
 | PR495F rehearsal opened | Owner Seminar Publish/Rollback Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted PR495F owner-only publish/rollback with duplicate-stability hardening, so ARIADNE must prove hosted desktop/375px/390px owner publish/rollback behavior and public no-drift before closeout. | `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_REHEARSAL_ARIADNE.md` |

@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495G Public Durable Seminar Readback ARGUS Preflight
+
+ARGUS completed the PR495G hostile preflight on 2026-07-06:
+
+- `docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR495G_PUBLIC_DURABLE_SEMINAR_READBACK`.
+
+Reason:
+
+- PR495E provides the safe durable public-card serializer, deterministic digest
+  ids, source-key dedupe, redaction, and merge helper;
+- PR495F provides hosted-proved owner publish/rollback into `published` +
+  `public` durable eligibility;
+- eligible durable records can now be merged into public `/events/seminars`
+  through the existing serializer and merge contract;
+- durable digest interest resolution belongs in the same slice because the
+  public page renders interest controls for every returned card;
+- interest rows must remain source-derived as `document:<source document id>`
+  and must never store durable record ids;
+- public detail pages, schema/RLS migrations, owner UI expansion, runtime,
+  queues/workers, Redis, Cloudflare, billing, scheduling, hosting, RSVP,
+  tickets, payments, reminders, rooms, media, transcripts, provider runtime,
+  launch claims, broad UI redesign, private-source exposure, raw ids, and
+  secret leakage remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hostile preflight review | Pass | Reviewed PR495E/F closeouts, migrations/types, public route/card/id helpers, durable serializer, merge contract, interest readback, public web copy, and focused tests. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 33 focused API/public-route/auth tests passed before PR495G implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck ran; web typecheck replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+
 ## PR495F Owner Seminar Publish/Rollback Hosted Rehearsal Result
 
 ARIADNE completed the hosted proof on 2026-07-06:
