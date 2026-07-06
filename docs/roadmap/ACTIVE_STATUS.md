@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499B public seminar schedule route defect repaired
+## Current lane - PR499A public seminar schedule metadata hosted rerun
+
+MIMIR routed the PR499A hosted schedule metadata rerun to ARIADNE:
+
+`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_ARIADNE.md`
+
+Reason:
+
+- ARIADNE's first hosted proof stopped at
+  `SCHEDULE_ROUTE_DEFECT`.
+- DAEDALUS repaired PR499B as hosted migration 071 drift by applying the
+  already-accepted migration.
+- Hosted schema probe now shows schedule columns `3/3`, the schedule constraint
+  present, and the schedule index present.
+- Hosted replay-owner `GET /events/seminars/records` now returns `200` with
+  record count `2`.
+- PR499A still needs the full hosted schedule set/update/clear, owner/public
+  readback, desktop/mobile, and privacy/product-boundary proof before closeout.
+
+Current lane:
+
+```text
+PR499A - Public Seminar Schedule Metadata Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RERUN_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR499B public seminar schedule route defect repaired
 
 DAEDALUS completed the PR499B hosted migration-only repair:
 
