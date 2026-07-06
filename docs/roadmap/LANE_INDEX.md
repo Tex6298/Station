@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495D | Owner Ready Gate Hosted Rehearsal | ARIADNE / A4 | Open hosted rehearsal; prove owner private ready/return-to-draft, duplicate stability, creator/signed-out gates, public seminar/interest no-drift, no durable public cards, privacy boundaries, and desktop/375px/390px fit. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_ARIADNE.md` |
+| PR495D | Owner Ready Gate Closeout | MIMIR / A1 | Hosted rehearsal passed as `PASS_READY_FOR_PR495D_CLOSEOUT`; MIMIR should close PR495D or route any final wording-only closeout work. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495D rehearsal | Owner Ready Gate Hosted Rehearsal | ARIADNE -> MIMIR | Passed hosted proof; owner ready/return-to-draft, duplicate ready stability, refresh stability, desktop/375px/390px panel fit, private-tier non-creator API denial, signed-out API/UI protection, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and no product drift passed. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_RESULT.md` |
 | PR495D rehearsal opened | Owner Ready Gate Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted the owner-only private `draft`/`ready` implementation, so ARIADNE must prove hosted owner ready/return-to-draft behavior plus public seminar no-drift before closeout. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_ARIADNE.md` |
 | PR495D review | Owner Ready For Public Review Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE_IMPLEMENTATION` with a narrow ARGUS API hardening patch; owner-only `draft` to `ready` and `ready` to `draft` transitions stay private, revalidate source routeability, keep public `/events/seminars` and interest no-drift, and require hosted desktop/375px/390px rehearsal before closeout. | `docs/roadmap/PR495D_OWNER_READY_GATE_REVIEW_RESULT.md` |
 | PR495D implementation | Owner Ready For Public Review Gate | DAEDALUS -> ARGUS | Ready for review; added strict owner creator-gated `draft`/`ready` transition API, source revalidation, private visibility lock, `/studio/publishing` ready/readback controls, and focused API/web no-drift tests without public durable-record readback, public card ids, interest keys, schema/RLS, runtime, billing, queue, Redis, or Cloudflare scope. | `docs/roadmap/PR495D_OWNER_READY_GATE_RESULT.md` |

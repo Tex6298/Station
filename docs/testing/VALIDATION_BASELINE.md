@@ -20,6 +20,41 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495D Owner Ready Gate Hosted Rehearsal Result
+
+ARIADNE completed the hosted proof on 2026-07-06:
+`docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_RESULT.md`.
+
+Validation result:
+`PASS_READY_FOR_PR495D_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API freshness was at review commit `06441fb8` or later;
+- replay owner auth and `/studio` to `/studio/publishing` clickthrough worked;
+- owner Seminar readiness had four candidates, two private drafts, zero ready
+  records, two create actions, and two ready actions before transition;
+- desktop `Mark ready for review` succeeded, showed private ready readback and
+  `Public listing is not live.`, then `Return to draft` restored stable draft
+  readback;
+- duplicate ready transition and refresh stayed stable;
+- public card ids did not change and no durable record became a public card;
+- mobile `375px` and `390px` kept fit with two create actions and two ready
+  actions after return-to-draft;
+- private-tier non-creator transition returned `403`;
+- signed-out transition returned `401`, and signed-out `/studio/publishing`
+  remained protected;
+- public `/events/seminars` preserved signed-out/signed-in readback and
+  interest mark/withdraw passed;
+- no privacy leak, mobile fit defect, product drift, or forbidden runtime/scope
+  claim was found.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Chrome/CDP rehearsal | Pass | Proved owner ready/return-to-draft, duplicate ready stability, refresh stability, desktop/375px/390px fit, creator/signed-out gates, public seminar/interest no-drift, no durable public card drift, privacy boundaries, and no product drift. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No whitespace errors. |
+
 ## PR495D Owner Ready Gate Hosted Rehearsal Routing
 
 MIMIR routed the required ARIADNE hosted proof on 2026-07-06:

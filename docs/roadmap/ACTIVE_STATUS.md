@@ -4,7 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest MIMIR routing - PR495D hosted rehearsal opened
+## Latest ARIADNE result - PR495D hosted rehearsal passed
+
+ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
+
+`docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_RESULT.md`
+
+State:
+
+```text
+PASS_READY_FOR_PR495D_CLOSEOUT
+```
+
+Proof:
+
+- hosted web/API freshness at review commit `06441fb8` or later;
+- replay owner authenticated and had creator-or-above entitlement;
+- owner `/studio` to `/studio/publishing` clickthrough worked;
+- owner Seminar readiness panel passed desktop, `375px`, and `390px` checks;
+- initial hosted readback had four candidates, two private draft records, zero
+  ready records, two enabled `Create seminar draft` actions, and two enabled
+  `Mark ready for review` actions;
+- desktop `Mark ready for review` succeeded and showed `Ready for review`,
+  `Public listing is not live.`, and `Return to draft`;
+- duplicate ready transition and refresh stayed stable with no duplicate visible
+  rows or actions;
+- `Return to draft` restored stable private draft readback;
+- public card ids stayed unchanged before ready, while ready, after duplicate
+  ready, and after return to draft;
+- no durable seminar record appeared as a public card;
+- private-tier non-creator transition returned `403` and showed no enabled
+  ready/draft transition action;
+- signed-out transition returned `401`, and signed-out users could not reach
+  `/studio/publishing`;
+- public `/events/seminars` kept the accepted readback surface and signed-in
+  interest mark/withdraw passed;
+- no private/raw/secret/runtime/scope leak or product drift was found.
+
+Current lane:
+
+```text
+PR495D - Owner Ready Gate Closeout
+Owner: MIMIR / A1
+State: PASS_READY_FOR_PR495D_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR should close PR495D or route any final wording-only closeout work.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous MIMIR routing - PR495D hosted rehearsal opened
 
 MIMIR routed ARIADNE to run the hosted proof requested by ARGUS:
 
