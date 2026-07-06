@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { canPublishDocuments } from "@station/auth";
+import type {
+  OwnerPublicSeminarRecord,
+  OwnerPublicSeminarRecordResponse,
+  OwnerPublicSeminarRecordsResponse,
+} from "@station/types";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
@@ -26,7 +31,11 @@ import {
   type PublishingTab,
 } from "@/lib/publishing";
 import {
+  seminarRecordForCandidate,
   seminarHostReadiness,
+  seminarSourceDocumentForCandidate,
+  upsertSeminarRecord,
+  type SeminarHostReadinessCandidate,
   type SeminarHostReadinessReadback,
 } from "@/lib/seminar-host-readiness";
 
@@ -41,6 +50,10 @@ export function PublishingDashboard() {
   const [publishingAllowed, setPublishingAllowed] = useState(false);
   const [userTier, setUserTier] = useState("visitor");
   const [busyApprovalId, setBusyApprovalId] = useState<string | null>(null);
+  const [seminarRecords, setSeminarRecords] = useState<OwnerPublicSeminarRecord[]>([]);
+  const [seminarRecordsLoading, setSeminarRecordsLoading] = useState(true);
+  const [seminarRecordsError, setSeminarRecordsError] = useState<string | null>(null);
+  const [busySeminarHref, setBusySeminarHref] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -55,15 +68,19 @@ export function PublishingDashboard() {
           if (!cancelled) {
             setError("Sign in to manage publishing drafts.");
             setLoading(false);
+            setSeminarRecordsLoading(false);
           }
           return;
         }
 
-        const [documentData, spaceData] = await Promise.all([
+        const [documentData, spaceData, approvalData, seminarRecordData] = await Promise.all([
           apiGet<{ documents: PublishingDocument[] }>("/documents", session.access_token),
           apiGet<{ spaces: PublishingSpace[] }>("/spaces", session.access_token).catch(() => ({ spaces: [] })),
+          apiGet<{ approvals: PublishingApproval[] }>("/publishing/approvals", session.access_token),
+          apiGet<OwnerPublicSeminarRecordsResponse>("/events/seminars/records", session.access_token)
+            .then((response) => ({ records: response.records ?? [], error: null as string | null }))
+            .catch(() => ({ records: [] as OwnerPublicSeminarRecord[], error: "Seminar draft readback is unavailable." })),
         ]);
-        const approvalData = await apiGet<{ approvals: PublishingApproval[] }>("/publishing/approvals", session.access_token);
 
         if (!cancelled) {
           setToken(session.access_token);
@@ -72,11 +89,17 @@ export function PublishingDashboard() {
           setDocuments(documentData.documents ?? []);
           setSpaces(spaceData.spaces ?? []);
           setApprovals(approvalData.approvals ?? []);
+          setSeminarRecords(seminarRecordData.records);
+          setSeminarRecordsError(seminarRecordData.error);
+          setSeminarRecordsLoading(false);
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load publishing documents.");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setSeminarRecordsLoading(false);
+        }
       }
     }
 
@@ -88,6 +111,31 @@ export function PublishingDashboard() {
 
   const visible = useMemo(() => filterDocumentsForPublishingTab(documents, tab), [documents, tab]);
   const seminarReadiness = useMemo(() => seminarHostReadiness(documents, spaces), [documents, spaces]);
+
+  async function createSeminarDraft(candidate: SeminarHostReadinessCandidate) {
+    if (!token || !publishingAllowed) return;
+
+    const document = seminarSourceDocumentForCandidate(candidate, documents, spaces);
+    if (!document) {
+      setSeminarRecordsError("Seminar draft readback is unavailable.");
+      return;
+    }
+
+    setBusySeminarHref(candidate.documentHref);
+    setSeminarRecordsError(null);
+    try {
+      const response = await apiPost<OwnerPublicSeminarRecordResponse>(
+        "/events/seminars/records",
+        { sourceType: "document", sourceId: document.id },
+        token,
+      );
+      setSeminarRecords((current) => upsertSeminarRecord(current, response.record));
+    } catch {
+      setSeminarRecordsError("Seminar draft readback is unavailable.");
+    } finally {
+      setBusySeminarHref(null);
+    }
+  }
 
   async function enqueueApproval(document: PublishingDocument) {
     if (!token) return;
@@ -195,7 +243,16 @@ export function PublishingDashboard() {
           </div>
         </section>
 
-        <SeminarReadinessPanel readback={seminarReadiness} loading={loading} />
+        <SeminarReadinessPanel
+          readback={seminarReadiness}
+          loading={loading}
+          records={seminarRecords}
+          recordsLoading={seminarRecordsLoading}
+          recordsError={seminarRecordsError}
+          canCreateDraft={publishingAllowed}
+          busyDocumentHref={busySeminarHref}
+          onCreateDraft={createSeminarDraft}
+        />
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
         {notice ? <div className="station-notice" data-tone="success">{notice}</div> : null}
@@ -299,9 +356,21 @@ export function PublishingDashboard() {
 function SeminarReadinessPanel({
   readback,
   loading,
+  records,
+  recordsLoading,
+  recordsError,
+  canCreateDraft,
+  busyDocumentHref,
+  onCreateDraft,
 }: {
   readback: SeminarHostReadinessReadback;
   loading: boolean;
+  records: OwnerPublicSeminarRecord[];
+  recordsLoading: boolean;
+  recordsError: string | null;
+  canCreateDraft: boolean;
+  busyDocumentHref: string | null;
+  onCreateDraft: (candidate: SeminarHostReadinessCandidate) => void;
 }) {
   return (
     <section className="station-panel" aria-label="Seminar readiness" style={seminarPanel}>
@@ -316,6 +385,12 @@ function SeminarReadinessPanel({
         <div style={emptyState}>Checking owner documents and Spaces...</div>
       ) : (
         <>
+          {recordsError ? (
+            <div className="station-notice" data-tone="error" style={seminarNotice}>
+              {recordsError}
+            </div>
+          ) : null}
+
           <div style={seminarGapGrid}>
             {readback.gaps.map((gap) => (
               <div key={gap.id} style={seminarGapItem(gap.tone)}>
@@ -339,28 +414,75 @@ function SeminarReadinessPanel({
               <div style={emptyState}>No public source candidate is ready yet.</div>
             ) : (
               <div style={{ display: "grid", gap: 10 }}>
-                {readback.candidates.map((candidate) => (
-                  <article key={candidate.documentHref} style={seminarCandidateRow}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={rowHeader}>
-                        <h4 style={rowTitle}>{candidate.title}</h4>
-                        <span style={pill}>{candidate.discussionLabel}</span>
+                {readback.candidates.map((candidate) => {
+                  const record = seminarRecordForCandidate(candidate, records);
+                  const busy = busyDocumentHref === candidate.documentHref || recordsLoading;
+                  return (
+                    <article key={candidate.documentHref} style={seminarCandidateRow}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={rowHeader}>
+                          <h4 style={rowTitle}>{candidate.title}</h4>
+                          <span style={pill}>{candidate.discussionLabel}</span>
+                        </div>
+                        <div style={rowMeta}>{candidate.spaceTitle}</div>
+                        <div style={sourceLine}>{candidate.detail}</div>
                       </div>
-                      <div style={rowMeta}>{candidate.spaceTitle}</div>
-                      <div style={sourceLine}>{candidate.detail}</div>
-                    </div>
-                    <div style={buttonRow}>
-                      <Link href={candidate.documentHref} style={miniLink}>View document</Link>
-                      <Link href={candidate.spaceHref} style={miniLink}>View Space</Link>
-                    </div>
-                  </article>
-                ))}
+                      <div style={buttonRow}>
+                        <SeminarDraftAction
+                          candidate={candidate}
+                          record={record}
+                          canCreateDraft={canCreateDraft}
+                          busy={busy}
+                          onCreateDraft={onCreateDraft}
+                        />
+                        <Link href={candidate.documentHref} style={miniLink}>View document</Link>
+                        <Link href={candidate.spaceHref} style={miniLink}>View Space</Link>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>
         </>
       )}
     </section>
+  );
+}
+
+function SeminarDraftAction({
+  candidate,
+  record,
+  canCreateDraft,
+  busy,
+  onCreateDraft,
+}: {
+  candidate: SeminarHostReadinessCandidate;
+  record: OwnerPublicSeminarRecord | null;
+  canCreateDraft: boolean;
+  busy: boolean;
+  onCreateDraft: (candidate: SeminarHostReadinessCandidate) => void;
+}) {
+  if (record) {
+    return (
+      <button type="button" disabled title="This private seminar draft is saved for this source." style={disabledMiniButton}>
+        Private draft saved
+      </button>
+    );
+  }
+
+  if (!canCreateDraft) {
+    return (
+      <button type="button" disabled title="Creator tier is required to save a seminar draft." style={disabledMiniButton}>
+        Creator required
+      </button>
+    );
+  }
+
+  return (
+    <button type="button" disabled={busy} onClick={() => onCreateDraft(candidate)} style={miniButton}>
+      {busy ? "Saving draft..." : "Create seminar draft"}
+    </button>
   );
 }
 
@@ -565,6 +687,10 @@ const seminarPanel = {
   display: "grid",
   gap: 14,
   marginBottom: 14,
+};
+
+const seminarNotice = {
+  margin: 0,
 };
 
 const storyHeader = {

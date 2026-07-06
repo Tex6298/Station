@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { seminarHostReadiness } from "./seminar-host-readiness";
+import type { OwnerPublicSeminarRecord } from "@station/types";
+import {
+  seminarHostReadiness,
+  seminarRecordForCandidate,
+  seminarSourceDocumentForCandidate,
+  upsertSeminarRecord,
+} from "./seminar-host-readiness";
 import type { PublishingDocument, PublishingSpace } from "./publishing";
 
 const BANNED_COPY =
@@ -112,12 +118,78 @@ test("seminar host readiness reports honest gaps without forbidden claims", () =
   assert.doesNotMatch(copy, BANNED_COPY);
 });
 
+test("seminar draft helpers match by public href and keep creates source-only", () => {
+  const readback = seminarHostReadiness(documents, spaces);
+  const candidate = readback.candidates[0];
+  const source = seminarSourceDocumentForCandidate(candidate, documents, spaces);
+  const records: OwnerPublicSeminarRecord[] = [
+    ownerSeminarRecord({ id: "record-private", publicDocumentHref: null }),
+    ownerSeminarRecord({ id: "record-ready", publicDocumentHref: candidate.documentHref }),
+    ownerSeminarRecord({ id: "record-duplicate", publicDocumentHref: candidate.documentHref }),
+  ];
+
+  assert.equal(source?.id, "doc-ready");
+  assert.equal(seminarRecordForCandidate(candidate, records)?.id, "record-ready");
+  assert.equal(seminarRecordForCandidate(readback.candidates[1], records), null);
+
+  const updated = upsertSeminarRecord(records, ownerSeminarRecord({
+    id: "record-ready-next",
+    publicDocumentHref: candidate.documentHref,
+    updatedAt: "2026-07-05T12:00:00.000Z",
+  }));
+  assert.deepEqual(updated.map((record) => record.id), ["record-ready-next", "record-private"]);
+
+  const createBody = { sourceType: "document", sourceId: source?.id };
+  assert.deepEqual(createBody, { sourceType: "document", sourceId: "doc-ready" });
+  assert.equal(Object.keys(createBody).sort().join(","), "sourceId,sourceType");
+});
+
 test("publishing dashboard wires seminar readiness without new API or public route drift", () => {
   const source = readFileSync("apps/web/components/studio/publishing-dashboard.tsx", "utf8");
 
   assert.match(source, /seminarHostReadiness/);
-  assert.match(source, /<SeminarReadinessPanel readback=\{seminarReadiness\} loading=\{loading\} \/>/);
+  assert.match(source, /apiGet<OwnerPublicSeminarRecordsResponse>\("\/events\/seminars\/records"/);
+  assert.match(source, /apiPost<OwnerPublicSeminarRecordResponse>\(\s*"\/events\/seminars\/records"/);
+  assert.match(source, /\{ sourceType: "document", sourceId: document\.id \}/);
+  assert.match(source, /seminarRecordForCandidate/);
+  assert.match(source, /seminarSourceDocumentForCandidate/);
+  assert.match(source, /upsertSeminarRecord/);
+  assert.match(source, /Private draft saved/);
+  assert.match(source, /Create seminar draft/);
+  assert.match(source, /Creator required/);
   assert.match(source, /apiGet<\{ documents: PublishingDocument\[\] \}>\("\/documents"/);
   assert.match(source, /apiGet<\{ spaces: PublishingSpace\[\] \}>\("\/spaces"/);
-  assert.doesNotMatch(source, /\/events\/seminars|\/seminars|apiPost<.*seminar|apiPatch<.*seminar|apiGet<.*seminar|RSVP|ticket|payment|Stripe|Cloudflare|Redis|Worker\(|new Queue/i);
+  assert.deepEqual(source.match(/\/events\/seminars(?!\/records)/g) ?? [], []);
+
+  const createDraftBlock = source.slice(
+    source.indexOf("async function createSeminarDraft"),
+    source.indexOf("async function enqueueApproval"),
+  );
+  const seminarActionBlock = source.slice(
+    source.indexOf("function SeminarDraftAction"),
+    source.indexOf("function upsertApproval"),
+  );
+  for (const scopedSource of [createDraftBlock, seminarActionBlock]) {
+    assert.doesNotMatch(scopedSource, /title:\s*document\.title|summary:\s*document|status:\s*"|visibility:\s*"|ownerUserId|owner_user_id|discussionThreadId|discussion_thread_id|sourceBody|source_label|RSVP|ticket|payment|Stripe|Cloudflare|Redis|Worker\(|new Queue/i);
+  }
 });
+
+function ownerSeminarRecord(overrides: Partial<OwnerPublicSeminarRecord> = {}): OwnerPublicSeminarRecord {
+  return {
+    id: overrides.id ?? "record-1",
+    sourceType: "document",
+    title: "Public Readback Notes",
+    summary: null,
+    status: "draft",
+    visibility: "private",
+    publicDocumentHref: "/space/station-house/documents/doc-ready",
+    publicSpace: {
+      title: "Station House",
+      href: "/space/station-house",
+    },
+    discussionLinked: false,
+    createdAt: "2026-07-05T10:00:00.000Z",
+    updatedAt: "2026-07-05T10:00:00.000Z",
+    ...overrides,
+  };
+}

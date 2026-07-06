@@ -4,58 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Latest ARGUS preflight result - PR495C accepted
+## Latest DAEDALUS implementation - PR495C ready for ARGUS review
 
-ARGUS accepted PR495C as a web-only owner draft action/readback slice:
+DAEDALUS implemented PR495C:
 
-`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR495C_OWNER_SEMINAR_DRAFT_ACTION
+READY_FOR_ARGUS_REVIEW
 ```
 
-Decision:
+Implemented:
 
-- PR495B removed the API/schema blocker and hosted-proved owner seminar record
-  create/list behavior;
-- the smallest next product step is on `/studio/publishing`: create or restore
-  a private seminar draft from an existing ready public document candidate, then
-  show bounded private draft readback;
-- implementation should be web-only and use `GET /events/seminars/records` plus
-  `POST /events/seminars/records` with only `{ sourceType: "document", sourceId }`;
-- public seminar cards, interest behavior, API/schema, Discover, public search,
-  forums, billing, provider runtime, queues/workers, Redis, Cloudflare,
-  scheduling, hosting, publishing, RSVP, tickets, payments, reminders, live
-  rooms, media, transcripts, and launch claims remain out of scope.
+- `/studio/publishing` loads owner seminar records with
+  `GET /events/seminars/records`;
+- existing private drafts are matched to readiness candidates by
+  `publicDocumentHref`;
+- create/restore derives the source document id only from already-loaded owner
+  document state;
+- create/restore posts exactly `{ sourceType: "document", sourceId }` to
+  `POST /events/seminars/records`;
+- successful create upserts the returned record into local readback state and
+  swaps the action to bounded `Private draft saved` copy;
+- non-creators see bounded `Creator required` copy;
+- owner record readback/create failures show bounded panel-local unavailable
+  copy.
 
 Validation:
 
-- focused `seminar-host-readiness`, `publishing-ui`, `live-events-route`,
-  `live-events`, and `auth-routes` tests passed with 38 tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed from cache;
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed from cache;
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts`
+  passed with 39 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
 - `git diff --check` passed.
 
 Current lane:
 
 ```text
 PR495C - Owner Seminar Draft Action
-Owner: DAEDALUS / A2
-State: ACCEPTED_PREFLIGHT
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
 ```
 
 Current baton:
 
-- DAEDALUS should implement the accepted web-only owner Seminar draft
-  action/readback slice within the exact PR495C boundaries.
+- ARGUS should review source-id derivation from already-loaded documents,
+  public-href record matching, panel-local error copy, mobile action wrapping,
+  and no forbidden schedule/host/publish/RSVP/ticket/runtime copy.
+- If accepted, ARGUS should wake MIMIR for hosted desktop/`375px`/`390px`
+  rehearsal routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Latest MIMIR closeout/opening - PR495B closed, PR495C opened

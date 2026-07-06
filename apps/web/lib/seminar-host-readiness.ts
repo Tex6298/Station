@@ -1,3 +1,4 @@
+import type { OwnerPublicSeminarRecord } from "@station/types";
 import {
   publicDocumentHref,
   spaceForDocument,
@@ -29,6 +30,34 @@ export interface SeminarHostReadinessReadback {
   interactionCopy: string;
   candidates: SeminarHostReadinessCandidate[];
   gaps: SeminarHostReadinessGap[];
+}
+
+export function seminarRecordForCandidate(
+  candidate: Pick<SeminarHostReadinessCandidate, "documentHref">,
+  records: OwnerPublicSeminarRecord[],
+) {
+  return records.find((record) =>
+    record.sourceType === "document" &&
+    record.publicDocumentHref === candidate.documentHref
+  ) ?? null;
+}
+
+export function seminarSourceDocumentForCandidate(
+  candidate: Pick<SeminarHostReadinessCandidate, "documentHref">,
+  documents: PublishingDocument[],
+  spaces: PublishingSpace[],
+) {
+  return documents.find((document) =>
+    seminarCandidate(document, spaces)?.documentHref === candidate.documentHref
+  ) ?? null;
+}
+
+export function upsertSeminarRecord(
+  records: OwnerPublicSeminarRecord[],
+  record: OwnerPublicSeminarRecord,
+) {
+  const without = records.filter((item) => item.id !== record.id && item.publicDocumentHref !== record.publicDocumentHref);
+  return [record, ...without];
 }
 
 const MAX_CANDIDATES = 4;

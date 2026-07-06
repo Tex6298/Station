@@ -20,6 +20,33 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495C Owner Seminar Draft Action Implementation
+
+DAEDALUS implemented PR495C on 2026-07-05:
+`docs/roadmap/PR495C_OWNER_SEMINAR_DRAFT_ACTION_RESULT.md`.
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/studio/publishing` loads owner seminar records from the accepted owner API;
+- existing private drafts are matched to ready candidates by public document
+  href, not raw source id;
+- create/restore derives the source id from already-loaded owner documents and
+  posts only `{ sourceType: "document", sourceId }`;
+- successful create swaps the action to bounded private draft readback;
+- non-creators see bounded unavailable copy;
+- public `/events/seminars` cards and signed-in interest behavior did not
+  change.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/seminar-host-readiness.test.ts apps/web/lib/publishing-ui.test.ts apps/web/lib/live-events-route.test.ts apps/api/src/routes/live-events.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 39 focused tests passed, including PR495C draft-action helper/static coverage plus public seminar/interest no-drift coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck ran and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors. |
+
 ## PR495C Owner Seminar Draft Action ARGUS Preflight
 
 ARGUS accepted PR495C on 2026-07-05:
