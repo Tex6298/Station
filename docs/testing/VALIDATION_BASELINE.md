@@ -4,6 +4,31 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497B Companion Home Initial Scroll Fix Hosted Rerun
+
+ARIADNE completed hosted PR497B proof on 2026-07-06:
+
+- `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_RESULT.md`
+
+Validation result:
+`PASS_PR497B_HOSTED_RERUN_CLOSEOUT`.
+
+Reason:
+
+- hosted web/API deployment identity reported accepted PR497B code commit
+  `3d854083`;
+- ARGUS review commit `d1a10609` and later routing commits were docs/state-only;
+- signed-in replay owner reached a private persona home with an active non-empty
+  latest thread;
+- desktop, `375px`, and `390px` active-thread load stayed at document
+  `scrollY` `0`, preserving the intended identity/header and Companion Home
+  first viewport;
+- return-card locality, mobile fit, and privacy/scope scans passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted Playwright/browser rerun | Pass | Active-thread load no longer page-scrolls below the first viewport; return-card actions stayed local; no overflow, clipped visible controls, raw-id readback, provider payload, stack trace, secret-shaped value, stale endpoint text, or positive automation/booking/payment claim appeared. |
+
 ## PR497B Companion Home Initial Scroll Fix ARGUS Review
 
 ARGUS accepted PR497B on 2026-07-06:

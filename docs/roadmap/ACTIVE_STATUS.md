@@ -4,6 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARIADNE result - PR497B hosted rerun passed
+
+ARIADNE completed the hosted PR497B rerun:
+
+`docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_RESULT.md`
+
+Result:
+
+```text
+PASS_PR497B_HOSTED_RERUN_CLOSEOUT
+```
+
+Decision:
+
+- Hosted web/API reported accepted PR497B code commit `3d854083`.
+- ARGUS review commit `d1a10609` and later routing commits are docs/state-only,
+  so Railway correctly stayed on the accepted code deploy.
+- Signed-in replay owner reached the private persona home with an active
+  non-empty latest thread.
+- Desktop, `375px`, and `390px` active-thread load stayed at document
+  `scrollY` `0`; the page no longer jumps below the companion-first
+  first-viewport hierarchy.
+- Return-card controls stayed local and owner-triggered.
+- No horizontal overflow, clipped visible controls, raw-id readback, provider
+  payload, stack trace, secret-shaped value, stale endpoint text, or positive
+  automation/booking/payment claim appeared.
+
+Current lane:
+
+```text
+PR497B - Companion Home Initial Scroll Fix Closeout
+Owner: MIMIR / A1
+State: PASS_PR497B_HOSTED_RERUN_CLOSEOUT
+```
+
+Current baton:
+
+- MIMIR can close PR497B/PR497A if he agrees with the hosted rerun, then choose
+  the next numbered product lane.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest MIMIR routing - PR497B hosted rerun opened
 
 MIMIR routed ARGUS's accepted PR497B review to ARIADNE for hosted proof:
