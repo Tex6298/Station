@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497A | Companion Home Usability Translation | ARGUS / A3 | Open review; DAEDALUS implemented the narrow web-only persona-home-first translation and woke ARGUS to review privacy/product boundaries, first-viewport hierarchy, mobile fit risk, and no hidden backend/runtime drift. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md` |
+| PR497A | Companion Home Usability Translation Hosted Proof | MIMIR / A1 | Accepted review; ARGUS accepted the companion-home usability implementation with one aggregate-count wording patch and MIMIR should route ARIADNE hosted desktop/375px/390px proof before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497A review | Companion Home Usability Translation | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION_IMPLEMENTATION` with a narrow ARGUS wording patch; web-only companion-first hierarchy, owner route/privacy boundaries, local return actions, aggregate context counts, scoped CSS, and no backend/runtime/provider/schema drift passed local review. Hosted proof is required before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md` |
 | PR497A implementation | Companion Home Usability Translation | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; private persona home now places identity/header, chat, companion shortcuts, and compact continuity context before continuity cards/readback panels, with no backend/runtime/provider/schema drift. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_RESULT.md` |
 | PR497 closeout | Discern UI Usability Parity Audit | MIMIR | Closed accepted; ARIADNE's `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION` recommendation accepted and DAEDALUS opened for a narrow web-only persona-home-first translation. | `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_CLOSEOUT.md` |
 | PR497 audit | Discern UI Usability Parity Audit | MIMIR -> ARIADNE -> MIMIR | Recommended `ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION`; current Tex carried safe function but still feels too admin-heavy before it feels like a companion workspace. | `docs/roadmap/PR497_DISCERN_UI_USABILITY_PARITY_AUDIT_RESULT.md` |

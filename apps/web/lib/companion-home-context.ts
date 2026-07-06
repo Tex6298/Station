@@ -57,7 +57,7 @@ export function companionHomeContextRail(input: CompanionHomeContextInput): Comp
         label: "Inbox",
         href: `${base}/memory-inbox`,
         countLabel: formatCount(countValue(continuity.continuityCandidateCount), "aggregate candidate"),
-        detail: "Suggested Memory and Canon waiting for you.",
+        detail: "Suggested Memory and Canon review stop.",
         emphasis: true,
       },
       {

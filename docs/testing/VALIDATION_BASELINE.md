@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497A Companion Home Usability Translation ARGUS Review
+
+ARGUS accepted PR497A on 2026-07-06:
+
+- `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION_IMPLEMENTATION`.
+
+Reason:
+
+- PR497A stayed web-only and changed persona-home hierarchy/copy without API,
+  schema, auth, provider/runtime, billing, Redis, Cloudflare, deployment,
+  broad shell, public chat, or stale Discern endpoint drift;
+- private chat return actions remain local and owner-triggered while using
+  warmer labels;
+- shortcut/context links remain accepted owner Studio routes;
+- context rail counts remain aggregate and Runtime Context Preview stays below
+  for selected-source/prompt review;
+- ARGUS patched the Inbox rail detail to avoid implying a pending-only count,
+  because `continuityCandidateCount` is aggregate.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Reviewed web/CSS/helper/test/docs scope against PR497 audit and DAEDALUS lane guardrails. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts` | Pass | 23 focused tests passed after the ARGUS wording patch. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API typecheck replayed from cache; web typecheck executed and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR497A Companion Home Usability Translation
 
 DAEDALUS completed the PR497A implementation on 2026-07-06:

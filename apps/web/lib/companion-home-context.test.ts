@@ -55,6 +55,7 @@ test("companion home context rail count labels stay aggregate and bounded", () =
   assert.equal(rail.styleNotes, "Quiet voice.");
   assert.equal(rail.stops.find((stop) => stop.label === "Memory")?.countLabel, "1 memory item");
   assert.equal(rail.stops.find((stop) => stop.label === "Inbox")?.countLabel, "3 aggregate candidates");
+  assert.equal(rail.stops.find((stop) => stop.label === "Inbox")?.detail, "Suggested Memory and Canon review stop.");
   assert.equal(rail.stops.find((stop) => stop.label === "Canon")?.countLabel, "0 canon items");
   assert.equal(rail.stops.find((stop) => stop.label === "Archive/files")?.countLabel, "2 files / 1 archived chat");
   assert.equal(rail.stops.find((stop) => stop.label === "Integrity")?.countLabel, "0 integrity sessions");

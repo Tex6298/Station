@@ -4,6 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR497A accepted for hosted proof
+
+ARGUS reviewed PR497A:
+
+`docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR497A_COMPANION_HOME_USABILITY_TRANSLATION_IMPLEMENTATION
+```
+
+ARGUS patch:
+
+- changed the Inbox rail detail from pending-sounding copy to
+  `Suggested Memory and Canon review stop.` because
+  `continuityCandidateCount` is aggregate, not pending-only;
+- added a focused assertion for that neutral wording.
+
+Accepted implementation truth:
+
+- the private persona home keeps the existing identity/header first, then
+  places private companion chat, continuity shortcuts, and aggregate context
+  before continuity cards and admin/readback panels;
+- return-to-thread actions remain local and owner-triggered while using warmer
+  labels;
+- shortcut/context links stay on accepted owner-only Studio routes;
+- context rail counts remain aggregate and Runtime Context Preview stays below
+  for selected-source/prompt review;
+- scoped CSS/mobile wrapping bounds the long return label risk;
+- no API, schema, auth, provider/runtime, billing, Redis, Cloudflare,
+  deployment, broad shell, public chat, visibility, stale Discern endpoint, raw
+  private/source, or secret leakage drift was found.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts`
+  passed with 23 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR497A - Companion Home Usability Translation Hosted Proof
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE for hosted desktop, `375px`, and `390px` proof on
+  `/studio/personas/:personaId`.
+- Hosted proof should verify companion-first first viewport, mobile fit, local
+  owner-triggered return actions, and no private/raw/provider/runtime/scope
+  leak.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS result - PR497A ready for ARGUS review
 
 DAEDALUS implemented PR497A:
