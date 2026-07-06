@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR495D | Owner Ready For Public Review Gate Hosted Rehearsal Routing | MIMIR / A1 | Accepted review; ARGUS accepted the owner-only private `draft`/`ready` gate with a narrow owner/current-state hardening patch and MIMIR should route ARIADNE for hosted desktop/375px/390px proof. | `docs/roadmap/PR495D_OWNER_READY_GATE_REVIEW_RESULT.md` |
+| PR495D | Owner Ready Gate Hosted Rehearsal | ARIADNE / A4 | Open hosted rehearsal; prove owner private ready/return-to-draft, duplicate stability, creator/signed-out gates, public seminar/interest no-drift, no durable public cards, privacy boundaries, and desktop/375px/390px fit. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR495D rehearsal opened | Owner Ready Gate Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted the owner-only private `draft`/`ready` implementation, so ARIADNE must prove hosted owner ready/return-to-draft behavior plus public seminar no-drift before closeout. | `docs/roadmap/PR495D_OWNER_READY_GATE_REHEARSAL_ARIADNE.md` |
 | PR495D review | Owner Ready For Public Review Gate | DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE_IMPLEMENTATION` with a narrow ARGUS API hardening patch; owner-only `draft` to `ready` and `ready` to `draft` transitions stay private, revalidate source routeability, keep public `/events/seminars` and interest no-drift, and require hosted desktop/375px/390px rehearsal before closeout. | `docs/roadmap/PR495D_OWNER_READY_GATE_REVIEW_RESULT.md` |
 | PR495D implementation | Owner Ready For Public Review Gate | DAEDALUS -> ARGUS | Ready for review; added strict owner creator-gated `draft`/`ready` transition API, source revalidation, private visibility lock, `/studio/publishing` ready/readback controls, and focused API/web no-drift tests without public durable-record readback, public card ids, interest keys, schema/RLS, runtime, billing, queue, Redis, or Cloudflare scope. | `docs/roadmap/PR495D_OWNER_READY_GATE_RESULT.md` |
 | PR495D preflight | Seminar Draft Publication Boundary | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR495D_OWNER_READY_FOR_PUBLIC_REVIEW_GATE`; public durable-record readback, published/public transitions, durable-record interest keys, and `/events/seminars` durable-record sourcing remain blocked pending a separate card-id, dedupe, serializer, interest, and rollback contract. | `docs/roadmap/PR495D_SEMINAR_DRAFT_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md` |
