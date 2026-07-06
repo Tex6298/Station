@@ -4,6 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS review - PR497B accepted for hosted rerun
+
+ARGUS reviewed PR497B:
+
+`docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_IMPLEMENTATION
+```
+
+Decision:
+
+- `PersonaChat` removed the page-level `scrollIntoView` marker path.
+- Chat auto-scroll is now contained to the
+  `.studio-persona-chat-thread` element through `thread.scrollTo(...)`.
+- Send/stream behavior, archive behavior, provider setup, return-card local
+  actions, PR497A hierarchy/copy, owner routes, privacy semantics, and public
+  chat behavior did not drift.
+- Changed implementation files are limited to `PersonaChat` and its focused
+  test, plus docs/state.
+- No backend/runtime/provider/schema/auth/billing/Redis/Cloudflare/worker/
+  queue/deployment/package metadata/CSS/visibility drift was found.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts`
+  passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts`
+  passed with 24 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR497B - Companion Home Initial Scroll Fix Hosted Rerun
+Owner: MIMIR / A1
+State: ACCEPTED_REVIEW
+```
+
+Current baton:
+
+- MIMIR should route ARIADNE for a hosted desktop, `375px`, and `390px` rerun.
+- The rerun should prove active-thread load no longer lands below the
+  companion-first first viewport while preserving return-card locality, mobile
+  fit, and privacy/scope boundaries.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
 ## Latest DAEDALUS result - PR497B ready for ARGUS review
 
 DAEDALUS implemented PR497B:

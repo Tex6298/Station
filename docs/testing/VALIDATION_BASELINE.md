@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497B Companion Home Initial Scroll Fix ARGUS Review
+
+ARGUS accepted PR497B on 2026-07-06:
+
+- `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_IMPLEMENTATION`.
+
+Reason:
+
+- page-level `scrollIntoView` is gone from `PersonaChat`;
+- message-change auto-scroll now targets only the chat thread element;
+- send/stream, archive, provider setup, return-card local actions, PR497A
+  hierarchy/copy, owner routes, public chat behavior, and privacy boundaries did
+  not drift;
+- changed implementation files are limited to `PersonaChat` and its focused
+  test, plus docs/state;
+- hosted ARIADNE rerun is required to prove the original active-thread landing
+  defect is fixed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| ARGUS code review | Pass | Reviewed scroll containment, send/stream behavior, return-card behavior, and changed-file scope. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts` | Pass | 7 focused PersonaChat tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts` | Pass | 24 companion stack tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warning only for ARGUS state; no whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR497B Companion Home Initial Scroll Fix
 
 DAEDALUS completed the PR497B implementation on 2026-07-06:
