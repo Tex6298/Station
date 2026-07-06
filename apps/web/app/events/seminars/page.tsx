@@ -8,6 +8,7 @@ import { getSession } from "@/lib/auth";
 import {
   publicSeminarCardHref,
   publicSeminarDateLabel,
+  publicSeminarDetailHref,
   publicSeminarDiscussionHref,
   publicSeminarInterestActionLabel,
   publicSeminarInterestCountLabel,
@@ -131,7 +132,8 @@ function SeminarCard({
   pending: boolean;
   signedIn: boolean;
 }) {
-  const href = publicSeminarCardHref(card);
+  const detailHref = publicSeminarDetailHref(card);
+  const sourceHref = publicSeminarCardHref(card);
   const discussionHref = publicSeminarDiscussionHref(card);
   const content = (
     <>
@@ -147,7 +149,8 @@ function SeminarCard({
 
   return (
     <article className="public-seminar-card">
-      {href ? <Link href={href}>{content}</Link> : <div className="public-seminar-card-body">{content}</div>}
+      {detailHref ? <Link href={detailHref}>{content}</Link> : <div className="public-seminar-card-body">{content}</div>}
+      {sourceHref && <Link href={sourceHref}>Source</Link>}
       {discussionHref && <Link href={discussionHref}>Discussion</Link>}
       <div className="public-seminar-interest">
         <span>{publicSeminarInterestCountLabel(card.interestCount)}</span>

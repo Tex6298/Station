@@ -4,37 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR498A public seminar detail readback implementation
+## Current lane - PR498A public seminar detail readback review
 
-ARGUS completed the PR498 hostile preflight:
+DAEDALUS completed the PR498A implementation:
 
-`docs/roadmap/PR498_PUBLIC_SEMINAR_DETAIL_READBACK_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR498A_PUBLIC_SEMINAR_DETAIL_READBACK
+READY_FOR_ARGUS_REVIEW
 ```
 
 Decision:
 
-- PR498A is accepted as the next safe Phase 3 seminar slice.
-- The lane is only a routeable public detail/readback page for seminar cards
-  already eligible for the accepted public `/events/seminars` list.
-- DAEDALUS must reuse the existing public card/digest-id resolver pipeline,
-  return bounded `seminar_not_found` for malformed/stale/private targets, and
-  keep interest aggregate/viewer-local.
-- No live rooms, scheduling expansion, RSVP, attendance, tickets, payments,
-  Stripe, billing, reminders, calendars, email, provider/runtime, voice/avatar,
-  transcripts/media/recordings, Redis, Cloudflare, workers, queues, new public
-  mutations, private owner data, raw ids, raw source bodies, storage paths,
-  secrets, stack traces, SQL/table detail, launch copy, or broad `/events`
-  redesign are accepted.
+- `GET /events/seminars/:seminarId` now provides signed-out public detail
+  readback for already-eligible seminar cards.
+- The route accepts only digest/card ids shaped like `seminar_[a-f0-9]{16}`,
+  reuses the same eligible-card resolver pipeline as `/events/seminars` and
+  interest mutations, and returns bounded `seminar_not_found` or
+  `live_events_unavailable` errors.
+- The response stays inside the public `PublicSeminarCard` shape plus
+  `source: "public_seminar_detail"` and `generatedAt`; it does not expose raw
+  durable record ids, owner ids, source fields, source bodies, storage paths,
+  provider/runtime details, stack traces, secrets, or SQL/table detail.
+- The public web list routes valid digest-id cards to
+  `/events/seminars/:seminarId`; the detail page shows safe source, Space, and
+  discussion links plus aggregate/viewer-local interest readback.
+- No live rooms, hosting, scheduling expansion, RSVP, attendance, tickets,
+  payments, Stripe, billing, reminders, calendars, email, provider/runtime,
+  voice/avatar, transcripts/media/recordings, Redis, Cloudflare, workers,
+  queues, new public mutations beyond accepted interest, schema/RLS migration,
+  private owner data, launch copy, or broad `/events` redesign was added.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/live-events.test.ts apps/web/lib/live-events-route.test.ts apps/web/lib/auth-routes.test.ts`
-  passed: 36 focused tests.
+  passed: 40 focused tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed.
 
@@ -42,16 +48,16 @@ Current lane:
 
 ```text
 PR498A - Public Seminar Detail Readback
-Owner: DAEDALUS / A2
-State: OPEN
-Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_DAEDALUS.md
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+Source: docs/roadmap/PR498A_PUBLIC_SEMINAR_DETAIL_READBACK_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR498 public seminar detail readback preflight

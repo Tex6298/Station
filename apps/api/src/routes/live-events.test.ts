@@ -7,6 +7,7 @@ import express, { type Express } from "express";
 import type {
   OwnerPublicSeminarRecordResponse,
   OwnerPublicSeminarRecordsResponse,
+  PublicSeminarDetailResponse,
   PublicSeminarInterestResponse,
   PublicSeminarsResponse,
 } from "@station/types";
@@ -2202,6 +2203,208 @@ test("public seminar readback returns only public routeable featured bundles", a
     ]) {
       assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
     }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public seminar detail returns source-derived readback with viewer-local interest", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedPublicSeminarFixture(db);
+    db.rows("documents").find((row) => row.id === "doc-public")!.discussion_thread_id = "thread-discussion";
+    seedPublicSeminarDiscussion(db, {
+      id: "thread-discussion",
+      linked_document_id: "doc-public",
+    });
+    db.insertRow("public_seminar_interests", {
+      user_id: "member-user",
+      source_type: "document",
+      source_id: "doc-public",
+    });
+
+    const list = await requestJson<PublicSeminarsResponse>(app, "GET", "/events/seminars");
+    assert.equal(list.status, 200);
+    const seminarId = list.body.cards[0].id;
+
+    const signedOut = await requestJson<PublicSeminarDetailResponse>(
+      app,
+      "GET",
+      `/events/seminars/${seminarId}`
+    );
+    assert.equal(signedOut.status, 200);
+    assert.equal(signedOut.body.source, "public_seminar_detail");
+    assert.equal(signedOut.body.card.id, seminarId);
+    assert.equal(signedOut.body.card.href, "/space/station-house/documents/doc-public");
+    assert.equal(signedOut.body.card.discussionHref, "/forums/seminar-room/thread-discussion");
+    assert.equal(signedOut.body.card.interestCount, 1);
+    assert.equal("viewerInterested" in signedOut.body.card, false);
+
+    const signedIn = await requestJson<PublicSeminarDetailResponse>(
+      app,
+      "GET",
+      `/events/seminars/${seminarId}`,
+      { token: "member-token" }
+    );
+    assert.equal(signedIn.status, 200);
+    assert.equal(signedIn.body.card.id, seminarId);
+    assert.equal(signedIn.body.card.interestCount, 1);
+    assert.equal(signedIn.body.card.viewerInterested, true);
+
+    const json = JSON.stringify({ signedOut: signedOut.body, signedIn: signedIn.body });
+    for (const forbidden of [
+      "sourceId",
+      "source_id",
+      "owner_user_id",
+      "author_user_id",
+      "discussion_thread_id",
+      "user_id",
+      "member-user",
+      "member@example.test",
+      "public_seminar_interests",
+      "Curated private-note-shaped",
+      "/private/internal/path",
+      "storage_path",
+      "provider payload",
+      "stack trace",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+
+    db.rows("documents").find((row) => row.id === "doc-public")!.visibility = "private";
+    const privateTarget = await requestJson(app, "GET", `/events/seminars/${seminarId}`);
+    assert.equal(privateTarget.status, 404);
+    assert.deepEqual(privateTarget.body, {
+      error: "Seminar not found.",
+      code: "seminar_not_found",
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public seminar detail returns durable readback and fails closed for stale ids", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    seedOwnerSeminarRecordSource(db, {
+      id: "doc-public",
+      author_user_id: "owner-user",
+      title: "Source title should not drive durable detail",
+      body: "Private source body should not be serialized.",
+    });
+    seedPublicSeminarDiscussion(db, {
+      id: "thread-discussion",
+      linked_document_id: "doc-public",
+    });
+    const record = db.insertRow("public_seminar_records", {
+      id: "record-detail",
+      owner_user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-public",
+      title: "Durable detail title Bearer secret-token source_id=doc-public",
+      summary: "Durable detail summary token=abc owner_user_id=owner-user stack trace",
+      status: "published",
+      visibility: "public",
+      discussion_thread_id: "thread-discussion",
+      updated_at: "2026-07-05T12:00:00.000Z",
+    });
+    db.insertRow("public_seminar_interests", {
+      user_id: "owner-user",
+      source_type: "document",
+      source_id: "doc-public",
+    });
+    const durableId = durablePublicSeminarCardId(record.id);
+
+    const detail = await requestJson<PublicSeminarDetailResponse>(
+      app,
+      "GET",
+      `/events/seminars/${durableId}`,
+      { token: "owner-token" }
+    );
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.source, "public_seminar_detail");
+    assert.equal(detail.body.card.id, durableId);
+    assert.equal(detail.body.card.label, "Public seminar");
+    assert.equal(detail.body.card.title, "Durable detail title [redacted] [redacted]");
+    assert.equal(detail.body.card.description, "Durable detail summary [redacted] [redacted] [redacted]");
+    assert.equal(detail.body.card.discussionHref, "/forums/seminar-room/thread-discussion");
+    assert.equal(detail.body.card.interestCount, 1);
+    assert.equal(detail.body.card.viewerInterested, true);
+
+    const json = JSON.stringify(detail.body);
+    for (const forbidden of [
+      "record-detail",
+      "owner-user",
+      "owner_user_id",
+      "source_id",
+      "discussion_thread_id",
+      "Bearer",
+      "secret-token",
+      "token=abc",
+      "stack trace",
+      "Private source body",
+      "Source title should not drive",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked`);
+    }
+
+    db.rows("public_seminar_records").find((row) => row.id === record.id)!.status = "ready";
+    db.rows("public_seminar_records").find((row) => row.id === record.id)!.visibility = "private";
+    const rolledBack = await requestJson(app, "GET", `/events/seminars/${durableId}`);
+    assert.equal(rolledBack.status, 404);
+    assert.deepEqual(rolledBack.body, {
+      error: "Seminar not found.",
+      code: "seminar_not_found",
+    });
+
+    db.rows("public_seminar_records").find((row) => row.id === record.id)!.status = "published";
+    db.rows("public_seminar_records").find((row) => row.id === record.id)!.visibility = "public";
+    db.rows("documents").find((row) => row.id === "doc-public")!.author_user_id = "member-user";
+    const ownerMismatch = await requestJson(app, "GET", `/events/seminars/${durableId}`);
+    assert.equal(ownerMismatch.status, 404);
+
+    const malformed = await requestJson(app, "GET", "/events/seminars/not-a-seminar");
+    assert.equal(malformed.status, 404);
+    assert.deepEqual(malformed.body, {
+      error: "Seminar not found.",
+      code: "seminar_not_found",
+    });
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public seminar detail storage failures return bounded public errors", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createEventsApp();
+
+  try {
+    db.failNext(
+      "discover_feed",
+      "select",
+      "table=discover_feed source_id=doc-public storage_path=secret provider payload stack trace"
+    );
+
+    const response = await requestJson(app, "GET", "/events/seminars/seminar_0123456789abcdef");
+    assert.equal(response.status, 503);
+    assert.deepEqual(response.body, {
+      error: "Could not load public seminars.",
+      code: "live_events_unavailable",
+    });
+
+    const json = JSON.stringify(response.body);
+    assert.equal(json.includes("discover_feed"), false);
+    assert.equal(json.includes("source_id"), false);
+    assert.equal(json.includes("storage_path"), false);
+    assert.equal(json.includes("provider payload"), false);
+    assert.equal(json.includes("stack trace"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

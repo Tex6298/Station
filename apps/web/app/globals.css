@@ -1514,6 +1514,16 @@ html, body {
   color: #94a3b8;
 }
 
+.public-seminar-detail {
+  gap: 0.8rem;
+}
+
+.public-seminar-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .public-persona-preview-sources a,
 .public-persona-update-list a,
 .public-persona-chat-sources a {

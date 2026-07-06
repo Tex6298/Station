@@ -31,8 +31,29 @@ export function publicSeminarCardHref(card: PublicSeminarCard) {
   return isSafeSeminarHref(card.href) ? card.href : null;
 }
 
+export function publicSeminarDetailHref(card: PublicSeminarCard) {
+  return /^seminar_[a-f0-9]{16}$/.test(card.id) ? `/events/seminars/${card.id}` : null;
+}
+
 export function publicSeminarDiscussionHref(card: PublicSeminarCard) {
   return isSafeSeminarHref(card.discussionHref) ? card.discussionHref : null;
+}
+
+export function publicSeminarSpaceHref(card: PublicSeminarCard) {
+  const space = card.space;
+  return space && isSafeSeminarHref(space.href) ? space.href : null;
+}
+
+export function publicSeminarDetailIntroCopy() {
+  return "Public readback for an already published seminar card.";
+}
+
+export function publicSeminarDetailUnavailableCopy() {
+  return "This public seminar readback is temporarily unavailable.";
+}
+
+export function publicSeminarDetailNotFoundCopy() {
+  return "This public seminar readback is not available.";
 }
 
 export function publicSeminarDateLabel(value: string | null | undefined) {

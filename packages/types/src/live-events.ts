@@ -28,6 +28,12 @@ export interface PublicSeminarsResponse {
   generatedAt: string;
 }
 
+export interface PublicSeminarDetailResponse {
+  source: "public_seminar_detail";
+  card: PublicSeminarCard;
+  generatedAt: string;
+}
+
 export interface PublicSeminarsErrorResponse {
   error: string;
   code: "live_events_unavailable" | "seminar_not_found" | "seminar_interest_unavailable";

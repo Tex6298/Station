@@ -6,6 +6,7 @@ import type {
   OwnerPublicSeminarRecordResponse,
   OwnerPublicSeminarRecordsResponse,
   PublicSeminarCard,
+  PublicSeminarDetailResponse,
   PublicSeminarSourceType,
   TransitionOwnerPublicSeminarRecordRequest,
 } from "@station/types";
@@ -119,6 +120,25 @@ eventsRouter.get("/seminars/records", requireAuth, async (req, res) => {
     return res.json(response);
   } catch {
     return res.status(503).json(SEMINAR_RECORDS_ERROR);
+  }
+});
+
+eventsRouter.get("/seminars/:seminarId", optionalAuth, async (req, res) => {
+  const sb = getSupabaseAdmin();
+
+  try {
+    const target = await resolvePublicSeminarTargetByCardId(sb, req.params.seminarId);
+    if (!target) return res.status(404).json(SEMINAR_NOT_FOUND_ERROR);
+
+    const card = await applyPublicSeminarDetailInterestReadback(sb, target, req.user?.id ?? null);
+    const response: PublicSeminarDetailResponse = {
+      source: "public_seminar_detail",
+      card,
+      generatedAt: new Date().toISOString(),
+    };
+    return res.json(response);
+  } catch {
+    return res.status(503).json(SEMINAR_ERROR);
   }
 });
 
@@ -527,6 +547,19 @@ async function resolvePublicSeminarTargetByCardId(
 
   const cards = await loadResolvedPublicSeminarCards(sb, SEMINAR_INTEREST_LOOKUP_LIMIT);
   return cards.find((resolved) => resolved.card.id === seminarId) ?? null;
+}
+
+async function applyPublicSeminarDetailInterestReadback(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  target: ResolvedPublicSeminarCard,
+  viewerUserId?: string | null
+) {
+  try {
+    const [card] = await applySeminarInterestReadback(sb, [target], viewerUserId);
+    return card ?? target.card;
+  } catch {
+    return target.card;
+  }
 }
 
 async function resolvePublicSeminarCard(

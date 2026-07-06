@@ -1,14 +1,20 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import type { PublicSeminarCard } from "@station/types";
 import {
   publicSeminarCardHref,
   publicSeminarDateLabel,
+  publicSeminarDetailHref,
+  publicSeminarDetailIntroCopy,
+  publicSeminarDetailNotFoundCopy,
+  publicSeminarDetailUnavailableCopy,
   publicSeminarDiscussionHref,
   publicSeminarInterestActionLabel,
   publicSeminarInterestCountLabel,
   publicSeminarInterestSafetyCopy,
   publicSeminarSignInPromptCopy,
+  publicSeminarSpaceHref,
   publicSeminarSourceLabel,
   publicSeminarViewerInterestCopy,
   publicSeminarsEmptyCopy,
@@ -29,6 +35,9 @@ test("public seminars copy stays readback-only", () => {
     publicSeminarsStatusCopy("ready"),
     publicSeminarsStatusCopy("empty"),
     publicSeminarsStatusCopy("unavailable"),
+    publicSeminarDetailIntroCopy(),
+    publicSeminarDetailUnavailableCopy(),
+    publicSeminarDetailNotFoundCopy(),
   ]) {
     assert.doesNotMatch(copy, BANNED_CLAIMS);
     assert.doesNotMatch(copy, /ownerUserId|storage_path|provider payload|token|cookie|secret/i);
@@ -54,14 +63,19 @@ test("public seminar card helpers keep route scope public", () => {
   };
 
   assert.equal(publicSeminarCardHref(card), "/space/station-house/documents/doc-public");
+  assert.equal(publicSeminarDetailHref(card), "/events/seminars/seminar_0123456789abcdef");
   assert.equal(publicSeminarDiscussionHref(card), "/forums/seminar-room/thread-public");
+  assert.equal(publicSeminarSpaceHref(card), "/space/station-house");
   assert.equal(publicSeminarSourceLabel("document"), "Published readback");
   assert.equal(publicSeminarSourceLabel("thread"), "Public discussion");
   assert.equal(publicSeminarSourceLabel("space"), "Public Space");
   assert.match(publicSeminarDateLabel(card.publishedAt), /2026/);
 
+  assert.equal(publicSeminarDetailHref({ ...card, id: "doc-public" }), null);
+  assert.equal(publicSeminarDetailHref({ ...card, id: "seminar_0123456789abcdeg" }), null);
   assert.equal(publicSeminarCardHref({ ...card, href: "/studio/personas/private" }), null);
   assert.equal(publicSeminarDiscussionHref({ ...card, discussionHref: "/settings/billing" }), null);
+  assert.equal(publicSeminarSpaceHref({ ...card, space: { title: "Bad", href: "/billing" } }), null);
   assert.equal(publicSeminarDateLabel("not-a-date"), "Featured");
 });
 
@@ -95,4 +109,23 @@ test("public seminar interest helpers stay aggregate and viewer-local", () => {
     assert.match(safeCopy, new RegExp(phrase, "i"));
   }
   assert.doesNotMatch(safeCopy, /attendee list|email|avatar|owner control|admin panel|Stripe/i);
+});
+
+test("public seminar pages route list cards to detail without forbidden claims", () => {
+  const listSource = readFileSync("apps/web/app/events/seminars/page.tsx", "utf8");
+  const detailSource = readFileSync("apps/web/app/events/seminars/[seminarId]/page.tsx", "utf8");
+
+  assert.match(listSource, /publicSeminarDetailHref\(card\)/);
+  assert.match(listSource, /<Link href=\{detailHref\}>/);
+  assert.match(listSource, /publicSeminarCardHref\(card\)/);
+  assert.match(listSource, /publicSeminarDiscussionHref\(card\)/);
+
+  assert.match(detailSource, /\/events\/seminars\/\$\{encodeURIComponent\(seminarId\)\}/);
+  assert.match(detailSource, /publicSeminarCardHref\(card\)/);
+  assert.match(detailSource, /publicSeminarSpaceHref\(card\)/);
+  assert.match(detailSource, /publicSeminarDiscussionHref\(card\)/);
+  assert.match(detailSource, /publicSeminarInterestCountLabel\(card\.interestCount\)/);
+  assert.match(detailSource, /publicSeminarViewerInterestCopy\(card\.viewerInterested\)/);
+  assert.doesNotMatch(detailSource, /source_id|owner_user_id|discussion_thread_id|recordId|provider payload|storage_path/i);
+  assert.doesNotMatch(detailSource, BANNED_CLAIMS);
 });
