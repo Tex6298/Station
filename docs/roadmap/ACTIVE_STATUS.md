@@ -4,31 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR499A public seminar schedule metadata review
+## Current lane - PR499A public seminar schedule metadata review accepted
 
-DAEDALUS completed the PR499A public seminar schedule metadata implementation:
+ARGUS accepted the PR499A public seminar schedule metadata implementation:
 
-`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md`
+`docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_IMPLEMENTATION
 ```
 
 Decision:
 
-- Migration 071 adds nullable schedule metadata to `public_seminar_records`:
-  stored start instant, stored time zone, and optional bounded duration.
+- Migration 071 is limited to nullable schedule metadata on
+  `public_seminar_records`: stored start instant, stored time zone, and
+  optional bounded duration.
 - `PATCH /events/seminars/records/:recordId/schedule` is authenticated,
-  creator-tier gated, scoped by owner, exact-body validated, and supports exact
-  null clearing.
-- Owner seminar records and public seminar cards now expose
+  creator-tier gated, owner-scoped by `id` plus `owner_user_id`,
+  exact-body validated, and supports exact null clearing.
+- Owner seminar records and public seminar cards expose
   `schedule: PublicSeminarSchedule | null`.
 - Durable published/public seminar cards read schedule only from stored
   metadata; source-derived cards and unscheduled durable records remain
   `schedule: null`.
-- Owner Studio publishing gained schedule metadata controls inside the existing
+- Owner Studio publishing keeps schedule metadata controls inside the existing
   seminar readiness/records panel, and public list/detail pages show either
   stored schedule readback or honest missing-schedule copy.
 - No RSVP, tickets, payments, reminders, calendar invites, email, scheduled
@@ -42,23 +43,23 @@ Validation:
   passed: 66 focused tests.
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `npm exec --yes pnpm@10.32.1 -- run lint` passed.
-- `git diff --check` passed with CRLF normalization warnings only.
+- `git diff --check` passed.
 - `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
 PR499A - Public Seminar Schedule Metadata
-Owner: ARGUS / A3
-State: OPEN_REVIEW
-Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPTED_BY_ARGUS
+Source: docs/roadmap/PR499A_PUBLIC_SEMINAR_SCHEDULE_METADATA_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR499 public seminar schedule metadata preflight
