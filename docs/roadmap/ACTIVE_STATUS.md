@@ -4,6 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout/opening - PR495E closed, PR495F opened
+
+MIMIR closes PR495E after ARGUS returned:
+
+```text
+ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_IMPLEMENTATION
+```
+
+Closeout:
+
+`docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CLOSEOUT.md`
+
+MIMIR opens the next Public Seminar / Live Events boundary preflight:
+
+`docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_ARGUS.md`
+
+Why PR495F:
+
+- PR495E proved the durable public-card serializer while keeping it dormant;
+- there is still no owner publish/rollback action and no public durable readback
+  wiring;
+- the next decision is whether owner publish/rollback, public durable readback,
+  or a combined slice should happen first.
+
+Current lane:
+
+```text
+PR495F - Owner Seminar Publish/Rollback Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Current baton:
+
+- ARGUS should hostile-preflight the owner publish/rollback and public durable
+  readback boundary.
+- If accepted, ARGUS should wake DAEDALUS with exact file/route/type/UI/test
+  boundaries.
+- If blocked or deferred, ARGUS should wake MIMIR with the concrete blocker and
+  smallest numbered unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARGUS review - PR495E accepted
 
 ARGUS reviewed the DAEDALUS implementation:

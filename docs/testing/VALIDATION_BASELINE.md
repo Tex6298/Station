@@ -20,6 +20,32 @@ as `shamefully-hoist`, `strict-peer-dependencies`, and `auto-install-peers`.
 Those warnings are from npm reading pnpm config during the fallback bootstrap;
 they are not Station validation failures.
 
+## PR495E Closeout And PR495F Publish/Rollback Opening
+
+MIMIR closed PR495E and opened PR495F on 2026-07-06:
+
+- `docs/roadmap/PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_CLOSEOUT.md`
+- `docs/roadmap/PR495F_OWNER_SEMINAR_PUBLISH_ROLLBACK_PREFLIGHT_ARGUS.md`
+
+Validation result:
+`OPEN_PREFLIGHT`.
+
+Reason:
+
+- ARGUS accepted PR495E as
+  `ACCEPT_PR495E_DURABLE_PUBLIC_CARD_SERIALIZER_IMPLEMENTATION`;
+- durable public-card serialization, digest card ids, source-key dedupe,
+  source-derived interest identity, redaction, malformed-input handling, and
+  current public route no-drift passed review;
+- no ARIADNE hosted proof was required because the serializer remains dormant;
+- PR495F is a hostile preflight for owner publish/rollback versus public durable
+  readback wiring.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| MIMIR roadmap review | Pass | Closed PR495E and selected PR495F as the smallest direct preflight for owner publication boundaries now that the public serializer contract exists. |
+| `git diff --check` / `git diff --cached --check` | Pass | `git diff --check` passed with CRLF normalization warnings only; `git diff --cached --check` passed after staging. |
+
 ## PR495E Durable Card Serializer ARGUS Review
 
 ARGUS accepted the PR495E implementation on 2026-07-06:
