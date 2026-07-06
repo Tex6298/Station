@@ -4,6 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest ARGUS preflight - PR496A accepted for workspace manifest package
+
+ARGUS completed the resumed PR496 hostile preflight:
+
+`docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT
+```
+
+Decision:
+
+- DAEDALUS may implement only an authenticated owner-only
+  `workspace_manifest` package using the existing `export_packages` pattern.
+- A narrow package-kind/target/RLS migration is allowed because current
+  constraints only support `persona_archive`, `developer_space_archive`, and
+  `project_manifest`.
+- The manifest must be high-level inventory only: personas, Spaces, Developer
+  Spaces, Projects, public/published document refs, export package class
+  counts, trust notes, and excluded/future material.
+- Private bodies, raw ids, source ids, storage paths, signed URLs, share links,
+  original files, PDF/binary output, backups, restore claims, provider/runtime
+  work, Redis, Cloudflare, workers, queues, billing, Stripe, Archive connector
+  pulls, public export access, and broad `/studio/export` reskin are out of
+  scope.
+- Hosted ARIADNE proof is required after ARGUS accepts the implementation
+  because schema/RLS, owner API behavior, and visible `/studio/export` behavior
+  will change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed with 7 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+
+Current lane:
+
+```text
+PR496A - Owner Workspace Export Package Contract
+Owner: DAEDALUS / A2
+State: ACCEPTED_PREFLIGHT
+```
+
+Current baton:
+
+- DAEDALUS should implement the exact schema/API/web/type/test/doc scope in the
+  ARGUS result.
+- Required validation: `test:exports`, `test:studio-ui`, `typecheck`, `lint`,
+  `git diff --check`, and `git diff --cached --check`.
+- After ARGUS implementation review, MIMIR should route ARIADNE hosted proof.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
 ## Latest MIMIR closeout - PR497 closed and PR496 resumed
 
 MIMIR closes the companion UI correction chain:

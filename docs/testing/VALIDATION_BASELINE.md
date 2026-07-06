@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR496A Owner Workspace Export Package Contract ARGUS Preflight
+
+ARGUS accepted PR496A on 2026-07-06:
+
+- `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT`.
+
+Reason:
+
+- current export package constraints/types only allow `persona_archive`,
+  `developer_space_archive`, and `project_manifest`, so a real workspace
+  package needs an honest narrow `workspace_manifest` migration rather than
+  reusing an existing kind;
+- accepted scope is authenticated owner-only API/readback and `/studio/export`
+  controls using the existing export package pattern;
+- accepted manifest content is high-level inventory only: personas, Spaces,
+  Developer Spaces, Projects, public/published document refs, export package
+  class counts, trust notes, and excluded/future material;
+- raw ids, private bodies, source ids, storage paths, signed URLs, share links,
+  original files, PDF/binary output, backup/restore claims, provider/runtime
+  work, Redis, Cloudflare, workers, queues, billing, Stripe, Archive connector
+  pulls, public export access, and broad `/studio/export` reskin remain out of
+  scope;
+- hosted ARIADNE proof is required after ARGUS implementation review.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hostile preflight review | Pass | Reviewed PR483/PR483A export scope truth, PR496 resume packet, existing export API/routes/tests, export package migrations/RLS/types, bundle readback, quota guard, `/studio/export` helper/UI, and Station Assistant/navigation entry points. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 7 current export API tests passed before PR496A implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI/helper tests passed before PR496A implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typechecks replayed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint replayed from cache with no warnings or errors. |
+
 ## PR497B Companion Home Initial Scroll Fix Hosted Rerun
 
 ARIADNE completed hosted PR497B proof on 2026-07-06:

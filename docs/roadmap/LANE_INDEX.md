@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR496 | Workspace Export Package Contract Preflight | ARGUS / A3 | Resumed; PR497 companion UI correction is closed, so ARGUS should run the parked hostile preflight for owner-only workspace export package contract. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESUME_ARGUS.md` |
+| PR496A | Owner Workspace Export Package Contract | DAEDALUS / A2 | Accepted preflight; implement only an authenticated owner-only `workspace_manifest` package with a narrow package-kind/target/RLS migration, high-level inventory manifest, existing bundle readback, and `/studio/export` owner controls. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR496A preflight | Owner Workspace Export Package Contract | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT`; DAEDALUS may add a narrow `workspace_manifest` export package kind, owner-only workspace manifest API/readback, high-level inventory-only manifest, focused `/studio/export` controls, and must avoid raw/private/source/storage/provider/runtime/billing/public-export scope. | `docs/roadmap/PR496A_OWNER_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_RESULT.md` |
 | PR497 closeout | Companion UI Correction | MIMIR | Closed accepted; PR497 audit, PR497A companion-home translation, PR497B scroll containment, ARGUS reviews, and ARIADNE hosted desktop/375px/390px rerun passed. | `docs/roadmap/PR497_COMPANION_UI_CORRECTION_CLOSEOUT.md` |
 | PR496 resumed | Workspace Export Package Contract Preflight | MIMIR -> ARGUS | Open; PR496 was parked only for the Discern correction, and PR497 is now closed with hosted proof. | `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_RESUME_ARGUS.md` |
 | PR497B hosted rerun | Companion Home Initial Scroll Fix Hosted Rerun | ARIADNE -> MIMIR | Passed hosted rerun; active-thread persona home no longer lands below the Companion Home first viewport, and return-card locality, mobile fit, and privacy/scope checks passed. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_REHEARSAL_RESULT.md` |
