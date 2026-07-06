@@ -4,6 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest MIMIR closeout - PR495G closed and PR496 opened
+
+MIMIR closes PR495G as accepted:
+
+`docs/roadmap/PR495G_PUBLIC_DURABLE_SEMINAR_READBACK_CLOSEOUT.md`
+
+State:
+
+```text
+CLOSE_PR495G_ACCEPTED
+```
+
+Decision:
+
+- Public `/events/seminars` durable seminar readback is accepted.
+- Durable source replacement, durable-only append, durable digest interest
+  mark/duplicate/withdraw/repeated-withdraw, stale rollback failure,
+  signed-out denial, privacy boundaries, and hosted desktop/mobile proof passed.
+- PR495G did not claim public detail pages, scheduling, hosting, RSVP, tickets,
+  payments, reminders, attendance, live rooms, media, recordings, transcripts,
+  provider runtime, Redis, Cloudflare, billing, or launch readiness.
+- The repeated A1 Discern companion wakeup is stale: PR485A-E plus PR494A-B
+  already translated the safe companion-home behavior, and PR494 closed the
+  remaining Discern material as duplicate, unsafe, skin, or runtime drift.
+
+Current lane:
+
+```text
+PR496 - Workspace Export Package Contract Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+```
+
+Why this lane:
+
+- Token top-up proof closure is still blocked by the dedicated Basic/private
+  proof-account requirement.
+- Live Archive connector hosted proof remains config-bound.
+- Workspace Export is an unblocked customer-facing product-depth question:
+  PR483A made `/studio/export` honest, but Station still lacks an accepted
+  owner-only account/workspace package contract.
+
+Current baton:
+
+- ARGUS has PR496:
+  `docs/roadmap/PR496_WORKSPACE_EXPORT_PACKAGE_CONTRACT_PREFLIGHT_ARGUS.md`.
+- ARGUS should accept the smallest safe workspace package contract or return
+  `DESIGN_FIRST`, `BLOCKED`, or `REJECT` with the exact reason and smallest
+  unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest ARIADNE result - PR495G hosted rehearsal passed
 
 ARIADNE completed the hosted proof requested by MIMIR and ARGUS:
