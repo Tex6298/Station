@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR497B Companion Home Initial Scroll Fix
+
+DAEDALUS completed the PR497B implementation on 2026-07-06:
+
+- `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `PersonaChat` no longer calls a page-level `scrollIntoView` marker on message
+  changes.
+- Auto-scroll now targets only `.studio-persona-chat-thread`, preserving the
+  accepted PR497A companion-first page viewport while keeping the chat thread at
+  its newest message.
+- The return-card local action bodies, send/stream path, archive/provider setup
+  behavior, route posture, and PR497A copy/hierarchy remain unchanged.
+- No API, schema, provider/runtime, billing, Redis, Cloudflare, deployment,
+  package metadata, CSS, public chat, visibility, or continuity semantics
+  changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts` | Pass | 7 focused PersonaChat tests passed, including the no-`scrollIntoView` containment guard. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts` | Pass | 24 companion stack tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API replayed from cache; web typecheck executed and passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | CRLF normalization warnings only; no whitespace errors. |
+| Diff-only scope scan | Pass | Changed implementation files are limited to `PersonaChat` and its focused test, plus roadmap/testing docs. |
+
 ## PR497A Companion Home Usability Translation Hosted Rehearsal
 
 ARIADNE completed hosted PR497A proof on 2026-07-06:

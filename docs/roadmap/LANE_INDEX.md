@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR497B | Companion Home Initial Scroll Fix | DAEDALUS / A2 | Open; fix the active-thread initial page-level auto-scroll so the accepted PR497A companion-first first viewport remains the landed viewport after chat data loads. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_DAEDALUS.md` |
+| PR497B | Companion Home Initial Scroll Fix | ARGUS / A3 | Open review; DAEDALUS removed the page-level `scrollIntoView` path and contained chat auto-scroll to `.studio-persona-chat-thread`. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR497B implementation | Companion Home Initial Scroll Fix | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; `PersonaChat` now scrolls only the chat thread container on message changes, preserving the PR497A companion-first page viewport without backend/runtime/provider/CSS drift. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_RESULT.md` |
 | PR497A defect routing | Companion Home Usability Translation Scroll Defect | ARIADNE -> MIMIR -> DAEDALUS | Routed; ARIADNE found `PRODUCT_DEFECT_ROUTE_DAEDALUS`, and MIMIR opened PR497B as the narrow scroll containment fix. | `docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_DAEDALUS.md` |
 | PR497A rehearsal | Companion Home Usability Translation Hosted Rehearsal | ARIADNE -> MIMIR | Product defect; hosted desktop/375px/390px fit, privacy, and return-action locality passed, but active-thread auto-scroll hides the intended first-viewport hierarchy. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_RESULT.md` |
 | PR497A rehearsal opened | Companion Home Usability Translation Hosted Rehearsal | MIMIR -> ARIADNE | Open; ARGUS accepted PR497A, so ARIADNE should prove hosted desktop/375px/390px persona-home hierarchy, mobile fit, local return actions, and privacy/scope boundaries before closeout. | `docs/roadmap/PR497A_COMPANION_HOME_USABILITY_TRANSLATION_REHEARSAL_ARIADNE.md` |

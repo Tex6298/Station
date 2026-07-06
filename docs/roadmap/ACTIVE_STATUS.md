@@ -4,6 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Latest DAEDALUS result - PR497B ready for ARGUS review
+
+DAEDALUS implemented PR497B:
+
+`docs/roadmap/PR497B_COMPANION_HOME_INITIAL_SCROLL_FIX_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Decision:
+
+- `PersonaChat` no longer uses `bottomRef.current?.scrollIntoView(...)` on
+  message changes.
+- Chat auto-scroll is now contained to `.studio-persona-chat-thread` by calling
+  `thread.scrollTo({ top: thread.scrollHeight, behavior })` on the thread
+  element itself.
+- Initial active-thread load can keep the chat thread at the newest message
+  without moving the document viewport away from PR497A's companion-first
+  hierarchy.
+- Return-card local action bodies, send/stream behavior, archive behavior,
+  provider setup behavior, persona-home hierarchy/copy, routes, and privacy
+  semantics remain unchanged.
+- No API, schema, auth, provider/runtime, billing, Redis, Cloudflare,
+  deployment, package metadata, CSS, public chat, visibility, or
+  Memory/Canon/Archive/Continuity/Integrity semantics changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/components/studio/persona-chat.test.ts`
+  passed: 7 focused tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/companion-home-context.test.ts apps/web/lib/studio-navigation.test.ts apps/web/components/studio/persona-chat.test.ts`
+  passed: 24 companion stack tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed.
+- `git diff --check` passed with CRLF normalization warnings only.
+- Diff-only scope scan showed only `PersonaChat`, its test, and
+  roadmap/testing docs.
+
+Current lane:
+
+```text
+PR497B - Companion Home Initial Scroll Fix
+Owner: ARGUS / A3
+State: OPEN_REVIEW
+```
+
+Current baton:
+
+- ARGUS should review that page-level `scrollIntoView` is gone, auto-scroll is
+  contained to the chat thread, send/stream and return-card behavior remain
+  intact, and no hidden backend/runtime/provider drift entered.
+- ARGUS should wake MIMIR with an acceptance verdict or DAEDALUS with concrete
+  fixes.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
 ## Latest MIMIR routing - PR497B opened for DAEDALUS
 
 MIMIR routed ARIADNE's PR497A hosted defect into a narrow implementation lane:

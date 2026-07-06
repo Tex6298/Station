@@ -37,7 +37,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
   const [input, setInput] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
   const [reviewing, setReviewing] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
   const [state, setState] = useState<ChatState>({
@@ -89,10 +89,16 @@ export function PersonaChat({ personaId, personaName }: Props) {
     });
   }, [personaId]);
 
-  // Auto-scroll to bottom on new messages
+  // Keep chat auto-scroll inside the thread so loading an existing conversation does not move the page.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [state.messages]);
+    const thread = threadRef.current;
+    if (!thread) return;
+
+    thread.scrollTo({
+      top: thread.scrollHeight,
+      behavior: state.sending ? "smooth" : "auto",
+    });
+  }, [state.messages, state.sending]);
 
   async function send() {
     const content = input.trim();
@@ -336,7 +342,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
         </div>
       )}
 
-      <div className="studio-persona-chat-thread" aria-live={state.sending ? "polite" : "off"}>
+      <div ref={threadRef} className="studio-persona-chat-thread" aria-live={state.sending ? "polite" : "off"}>
         {visibleMessages.length === 0 && (
           <div className="studio-persona-chat-empty">
             <strong>Start with {personaName}</strong>
@@ -389,8 +395,6 @@ export function PersonaChat({ personaId, personaName }: Props) {
             <ChatErrorCallout error={state.error} />
           </div>
         )}
-
-        <div ref={bottomRef} />
       </div>
 
       {state.archive && (

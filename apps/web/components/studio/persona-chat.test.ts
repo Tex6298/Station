@@ -13,6 +13,15 @@ test("PersonaChat return card preserves the existing streaming send path", () =>
   assert.match(source, /privateProviderSetupNoticeFromChatError/);
 });
 
+test("PersonaChat keeps auto-scroll contained inside the chat thread", () => {
+  assert.match(source, /const threadRef = useRef<HTMLDivElement>\(null\)/);
+  assert.match(source, /const thread = threadRef\.current/);
+  assert.match(source, /thread\.scrollTo\(\{/);
+  assert.match(source, /top: thread\.scrollHeight/);
+  assert.match(source, /<div ref=\{threadRef\} className="studio-persona-chat-thread"/);
+  assert.doesNotMatch(source, /scrollIntoView|bottomRef/);
+});
+
 test("PersonaChat return card only renders for active existing non-empty threads", () => {
   assert.match(source, /const showReturnThreadCard =/);
   assert.match(source, /state\.conversationStatus === "active"/);
