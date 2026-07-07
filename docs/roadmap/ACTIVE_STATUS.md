@@ -4,38 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502A owner encounter explicit provider route gate opened
+## Current lane - PR502A owner encounter explicit provider route gate ready for ARGUS review
 
-MIMIR closed PR502 and opened PR502A for DAEDALUS:
+DAEDALUS completed PR502A and wakes ARGUS for review:
 
-`docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md`
 
 `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_DAEDALUS.md`
 
-Decision:
+Result:
 
 ```text
-ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE
+READY_FOR_ARGUS_REVIEW
 ```
 
-DAEDALUS may implement only the default-false,
-owner-encounter-route-specific gate:
+Summary:
+
+- the existing owner-only disposable encounter preview now opts into platform
+  NVIDIA private context only when the route-specific env flag is exactly:
 
 ```text
 PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true
 ```
 
-It must apply only to `/persona-encounters/preview/readiness` and
-`/persona-encounters/preview` after same-owner persona checks. It must not
-broaden private NVIDIA provider policy anywhere else.
+- absent, empty, `false`, uppercase, whitespace-padded, and other non-`true`
+  values remain blocked with `provider_data_policy` when only NVIDIA is
+  configured;
+- the gate applies only to `/persona-encounters/preview/readiness` and
+  `/persona-encounters/preview`;
+- same-owner persona loading still happens before provider resolution;
+- the shared provider router was not changed;
+- readiness performs no provider call, token accounting, rate-limit increment,
+  or durable write;
+- generation remains one disposable responder reply with no prompt/output
+  persistence and token usage recorded only with `chat_id: null`;
+- BYOK OpenAI and non-NVIDIA platform DeepSeek routes remain accepted.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`
+  passed: 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`
+  passed: 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed: 19
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check`, `git diff --cached --check`, changed-path scan,
+  provider-policy scan, public encounter scan, durable/source retrieval scan,
+  and secret-shaped diff scan passed or were reviewed with only expected test
+  markers.
 
 Current lane:
 
 ```text
 PR502A - Owner Encounter Explicit Provider Route Gate
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR502 owner encounter private-context provider route preflight accepted

@@ -24,6 +24,8 @@ const OTHER_OWNER_ID = "22222222-2222-4222-8222-222222222222";
 const INITIATOR_ID = "33333333-3333-4333-8333-333333333333";
 const RESPONDER_ID = "44444444-4444-4444-8444-444444444444";
 const OTHER_PERSONA_ID = "55555555-5555-4555-8555-555555555555";
+const PERSONA_ENCOUNTER_NVIDIA_PRIVATE_CONTEXT_FLAG =
+  "PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT";
 
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
@@ -360,7 +362,7 @@ function close(server: Server) {
   });
 }
 
-function installProviderFetch(input: { status?: number; content?: string } = {}) {
+function installProviderFetch(input: { status?: number; content?: string; model?: string } = {}) {
   const calls: Array<{ url: string; body: Row }> = [];
   globalThis.fetch = (async (url: RequestInfo | URL, init?: RequestInit) => {
     calls.push({
@@ -372,7 +374,7 @@ function installProviderFetch(input: { status?: number; content?: string } = {})
       return new Response("provider says no", { status });
     }
     return new Response(JSON.stringify({
-      model: "deepseek-chat",
+      model: input.model ?? "deepseek-chat",
       choices: [{ message: { content: input.content ?? "Copper Scribe answers once." } }],
     }), {
       status,
@@ -388,6 +390,9 @@ function configureProviderEnv() {
   process.env.DEEPSEEK_MODEL = "deepseek-chat";
   delete process.env.ANTHROPIC_API_KEY;
   delete process.env.NVIDIA_AI_API_KEY;
+  delete process.env.NVIDIA_MODEL_BASE_URL;
+  delete process.env.NVIDIA_MODEL;
+  delete process.env[PERSONA_ENCOUNTER_NVIDIA_PRIVATE_CONTEXT_FLAG];
 }
 
 function clearProviderEnv() {
@@ -396,6 +401,19 @@ function clearProviderEnv() {
   delete process.env.DEEPSEEK_MODEL;
   delete process.env.ANTHROPIC_API_KEY;
   delete process.env.NVIDIA_AI_API_KEY;
+  delete process.env.NVIDIA_MODEL_BASE_URL;
+  delete process.env.NVIDIA_MODEL;
+  delete process.env[PERSONA_ENCOUNTER_NVIDIA_PRIVATE_CONTEXT_FLAG];
+}
+
+function configureNvidiaOnlyEnv(flagValue?: string) {
+  clearProviderEnv();
+  process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+  process.env.NVIDIA_MODEL_BASE_URL = "https://nvidia.test/v1";
+  process.env.NVIDIA_MODEL = "openai/gpt-oss-120b";
+  if (flagValue !== undefined) {
+    process.env[PERSONA_ENCOUNTER_NVIDIA_PRIVATE_CONTEXT_FLAG] = flagValue;
+  }
 }
 
 function previewBody(overrides: Partial<{
@@ -429,13 +447,14 @@ function clone<T>(value: T): T {
 
 async function withHarness<T>(
   fn: (input: { db: InMemorySupabase; app: Express; providerCalls: Array<{ url: string; body: Row }> }) => Promise<T>,
-  options: { providerStatus?: number; providerContent?: string; rateLimitProvider?: OperationalCacheProvider } = {},
+  options: { providerStatus?: number; providerContent?: string; providerModel?: string; rateLimitProvider?: OperationalCacheProvider } = {},
 ) {
   const db = new InMemorySupabase();
   configureProviderEnv();
   const providerCalls = installProviderFetch({
     status: options.providerStatus,
     content: options.providerContent,
+    model: options.providerModel,
   });
   setSupabaseAdminForTests(db.client as any);
   setOperationalCacheProviderForTests(options.rateLimitProvider ?? new TestRateLimitProvider());
@@ -567,34 +586,151 @@ test("provider readiness blocks cross-owner responder before provider resolution
 
 test("nvidia-only private context stays paused before generation", async () => {
   await withHarness(async ({ db, app, providerCalls }) => {
+    for (const flagValue of [undefined, "", "false", "TRUE", " true "]) {
+      configureNvidiaOnlyEnv(flagValue);
+
+      const readiness = await requestJson(app, "GET", readinessPath(), {
+        token: "owner-token",
+      });
+
+      assert.equal(readiness.status, 200);
+      assert.equal(readiness.body.ready, false);
+      assert.equal(readiness.body.code, "persona_encounter_provider_unavailable");
+      assert.equal(readiness.body.classification, "provider_data_policy");
+      assert.equal(
+        readiness.body.message,
+        "Encounter preview is paused because provider setup is unavailable.",
+      );
+
+      const generation = await requestJson(app, "POST", "/persona-encounters/preview", {
+        token: "owner-token",
+        body: previewBody(),
+      });
+
+      assert.equal(generation.status, 503);
+      assert.equal(generation.body.code, "persona_encounter_provider_unavailable");
+      assert.equal(generation.body.classification, "provider_data_policy");
+      const responseJson = JSON.stringify({ readiness: readiness.body, generation: generation.body });
+      assert.equal(responseJson.includes("test-nvidia-key"), false);
+      assert.equal(responseJson.includes("nvidia.test"), false);
+      assert.equal(responseJson.includes("openai/gpt-oss-120b"), false);
+    }
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  });
+});
+
+test("nvidia-only private context can be explicitly opted in for owner readiness", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    configureNvidiaOnlyEnv("true");
+
+    const response = await requestJson(app, "GET", readinessPath(), {
+      token: "owner-token",
+    });
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      ready: true,
+      message: "Encounter preview provider is ready.",
+    });
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+    const responseJson = JSON.stringify(response.body);
+    assert.equal(responseJson.includes("test-nvidia-key"), false);
+    assert.equal(responseJson.includes("nvidia.test"), false);
+    assert.equal(responseJson.includes("openai/gpt-oss-120b"), false);
+  });
+});
+
+test("nvidia-only opt-in generates one disposable same-owner reply without durable rows", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    configureNvidiaOnlyEnv("true");
+
+    const response = await requestJson(app, "POST", "/persona-encounters/preview", {
+      token: "owner-token",
+      body: previewBody({ maxOutputTokens: 140 }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.preview.reply.role, "responder");
+    assert.equal(response.body.preview.reply.content, "Copper Scribe answers once.");
+    assert.equal(providerCalls.length, 1);
+    assert.equal(providerCalls[0].url, "https://nvidia.test/v1/chat/completions");
+    assert.equal(providerCalls[0].body.model, "openai/gpt-oss-120b");
+    assert.equal(providerCalls[0].body.max_tokens, 140);
+
+    const transaction = db.rows("token_transactions")[0];
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(transaction.user_id, OWNER_ID);
+    assert.equal(transaction.chat_id, null);
+    assert.equal(transaction.model_used, "openai/gpt-oss-120b");
+    assertNoDurableEncounterWrites(db);
+
+    const responseJson = JSON.stringify(response.body);
+    assert.equal(responseJson.includes("test-nvidia-key"), false);
+    assert.equal(responseJson.includes("nvidia.test"), false);
+    assert.equal(responseJson.includes("openai/gpt-oss-120b"), false);
+    assert.equal(responseJson.includes("owner_user_id"), false);
+    assert.equal(responseJson.includes("private persona notes"), false);
+  }, {
+    providerModel: "openai/gpt-oss-120b",
+  });
+});
+
+test("nvidia-only opt-in still blocks cross-owner responder before provider resolution", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    configureNvidiaOnlyEnv("true");
+
+    const response = await requestJson(app, "POST", "/persona-encounters/preview", {
+      token: "owner-token",
+      body: previewBody({ responderPersonaId: OTHER_PERSONA_ID }),
+    });
+
+    assert.equal(response.status, 403);
+    assert.equal(response.body.code, "persona_encounter_persona_not_owned");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  });
+});
+
+test("owner BYOK route remains accepted without the nvidia encounter opt-in", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
     clearProviderEnv();
     process.env.NVIDIA_AI_API_KEY = "test-nvidia-key";
+    const profile = db.rows("profiles").find((row) => row.id === OWNER_ID)!;
+    profile.ai_mode = "byok";
+    profile.byok_openai_key = "test-openai-key";
+    const responder = db.rows("personas").find((row) => row.id === RESPONDER_ID)!;
+    responder.provider = "openai";
 
     const readiness = await requestJson(app, "GET", readinessPath(), {
       token: "owner-token",
     });
 
-    assert.equal(readiness.status, 200);
-    assert.equal(readiness.body.ready, false);
-    assert.equal(readiness.body.code, "persona_encounter_provider_unavailable");
-    assert.equal(readiness.body.classification, "provider_data_policy");
-    assert.equal(
-      readiness.body.message,
-      "Encounter preview is paused because provider setup is unavailable.",
-    );
+    assert.deepEqual(readiness.body, {
+      ready: true,
+      message: "Encounter preview provider is ready.",
+    });
 
     const generation = await requestJson(app, "POST", "/persona-encounters/preview", {
       token: "owner-token",
       body: previewBody(),
     });
 
-    assert.equal(generation.status, 503);
-    assert.equal(generation.body.code, "persona_encounter_provider_unavailable");
-    assert.equal(generation.body.classification, "provider_data_policy");
-    assert.equal(providerCalls.length, 0);
-    assert.equal(db.rows("token_usage").length, 0);
-    assert.equal(db.rows("token_transactions").length, 0);
+    assert.equal(generation.status, 200);
+    assert.equal(providerCalls.length, 1);
+    assert.equal(providerCalls[0].url, "https://api.openai.com/v1/chat/completions");
+    assert.equal(providerCalls[0].body.model, "gpt-4o-mini");
+    assert.equal(db.rows("token_transactions").length, 1);
     assertNoDurableEncounterWrites(db);
+  }, {
+    providerModel: "gpt-4o-mini",
   });
 });
 

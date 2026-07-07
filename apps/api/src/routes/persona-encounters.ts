@@ -22,6 +22,8 @@ const ENCOUNTER_PREVIEW_REPLY_MAX_CHARS = 2400;
 const ENCOUNTER_PREVIEW_DAY_SECONDS = 24 * 60 * 60;
 const ENCOUNTER_PREVIEW_PER_MINUTE = 2;
 const ENCOUNTER_PREVIEW_PER_DAY = 20;
+const PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT =
+  "PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT";
 
 const previewSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -267,7 +269,7 @@ async function resolveEncounterPreviewProviderRoute(
     platformNvidiaKey: process.env.NVIDIA_AI_API_KEY?.trim() || undefined,
     platformNvidiaBaseUrl: process.env.NVIDIA_MODEL_BASE_URL,
     platformNvidiaModel: process.env.NVIDIA_MODEL,
-    allowPlatformNvidia: false,
+    allowPlatformNvidia: personaEncounterPlatformNvidiaPrivateContextAllowed(),
     stationAnthropicKey: process.env.ANTHROPIC_API_KEY,
     stationAnthropicModel: stationModel.model,
   });
@@ -288,6 +290,10 @@ async function resolveEncounterPreviewProviderRoute(
     configured: true as const,
     chatRoute,
   };
+}
+
+function personaEncounterPlatformNvidiaPrivateContextAllowed() {
+  return process.env[PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT] === "true";
 }
 
 async function checkEncounterPreviewRateLimit(input: {

@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR502A Owner Encounter Explicit Provider Route Gate
+
+DAEDALUS completed the PR502A owner encounter explicit provider route gate on
+2026-07-07:
+
+- `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the only new runtime gate is the route-specific
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` opt-in for
+  the existing owner-only disposable encounter preview;
+- absent, empty, `false`, uppercase, whitespace-padded, and other non-`true`
+  values still fail closed with `provider_data_policy` when only NVIDIA is
+  configured;
+- same-owner persona loading remains before provider resolution;
+- the shared provider router was not changed;
+- readiness still performs no provider call, token accounting, rate-limit
+  increment, or durable write;
+- generation remains one disposable responder reply with no prompt/output
+  persistence and token usage recorded only with `chat_id: null`;
+- BYOK OpenAI and non-NVIDIA platform DeepSeek routes remain accepted.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts` | Pass | 13 API encounter tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts` | Pass | 6 web runtime tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 19 combined encounter tests passed after package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors before docs/result staging. |
+| Changed-path scan | Pass | Only encounter route/test files changed before docs. |
+| Provider-policy scan | Reviewed | Matches were the route-local env gate and expected NVIDIA test fixtures only; no shared router change. |
+| Public encounter scan | Reviewed | No public encounter implementation drift; matches were file headers/test names only. |
+| Durable/source retrieval scan | Reviewed | Matches were no-durable-write assertions and test copy only; no implementation writes. |
+| Secret-shaped diff scan | Reviewed | Matches were env/test fixture names and negative non-leak assertions only; no real secret values. |
+
 ## PR502 Owner Encounter Private-Context Provider Route Preflight
 
 ARGUS completed the PR502 owner encounter private-context provider route
