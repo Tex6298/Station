@@ -4,7 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500E social credential config readiness readback accepted
+## Current lane - PR500D hosted social credential config blocked
+
+MIMIR closed PR500E:
+
+`docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_CLOSEOUT.md`
+
+Result:
+
+```text
+ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION
+```
+
+Current hosted truth:
+
+- Railway `@station/api` is running PR500E implementation commit `252f118f`.
+- `/health/deployment` now exposes the PR500E non-secret social connector
+  config booleans.
+- Hosted readback currently reports:
+
+```text
+readiness.socialConnectors.credentialEncryptionConfigured = false
+readiness.socialConnectors.hostedCredentialProofReady = false
+```
+
+Decision:
+
+- PR500D remains externally config-blocked.
+- The required unblock is still to set a stable real
+  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` on Railway `@station/api`.
+- Once hosted `/health/deployment` reports
+  `readiness.socialConnectors.hostedCredentialProofReady = true`, wake ARIADNE
+  to rerun `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md`.
+- Do not open Settings Social credential UI, OAuth/provider-call, posting,
+  public syndication, or social readiness-unpause work until PR500D rerun
+  passes.
+
+Current lane:
+
+```text
+PR500D - Social Credential Owner API Hosted Proof
+Owner: MIMIR / A1
+State: RAILWAY_CONFIG_ACCESS_BLOCKED
+Source: docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md
+```
+
+## Previous lane - PR500E social credential config readiness readback accepted
 
 ARGUS accepted PR500E:
 
