@@ -53,6 +53,12 @@ export function createApp() {
     express.raw({ type: "application/json", limit: "2mb" })
   );
 
+  // -- Social credential routes validate scalar JSON with bounded route errors ---
+  app.use(
+    "/social/connectors/credentials",
+    express.json({ limit: "2mb", strict: false })
+  );
+
   // -- All other routes use parsed JSON -----------------------------------------
   app.use(express.json({ limit: "2mb" }));
 

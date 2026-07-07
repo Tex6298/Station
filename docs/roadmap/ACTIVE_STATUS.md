@@ -4,40 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500C social credential owner API implementation
+## Current lane - PR500C social credential owner API ready for ARGUS review
 
-MIMIR closed the PR500C preflight and opened implementation for DAEDALUS:
+DAEDALUS completed the PR500C backend-only owner social credential API
+implementation:
 
-`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_RESULT.md`
 
-`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md`
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
 
 Reason:
 
-- ARGUS accepted `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`.
-- Hosted migration 072 is already proven ready.
-- DAEDALUS may implement only the backend authenticated routes for safe
-  credential metadata, Bluesky manual credential replacement storage, and
-  provider-scoped local revoke.
-- No OAuth, provider calls, posting, Settings UI, document pages, queues,
-  workers, billing, Cloudflare, partner adapters, package/lockfile drift,
-  public syndication, hosted schema changes, legacy social table behavior, or
-  readiness unpause is accepted.
+- `GET /social/connectors/credentials` returns owner-scoped safe metadata only.
+- `POST /social/connectors/credentials` accepts only Bluesky manual credential
+  replacement payloads, trims/bounds fields, fails invalid input before
+  storage, requires encryption config before writes, and stores through the
+  PR500A encrypted storage helper.
+- `DELETE /social/connectors/credentials/:provider` is Bluesky-only, local-only,
+  owner-scoped, idempotent, and accepts only absent or empty JSON bodies.
+- A narrow route-specific JSON parser lets scalar credential JSON reach the
+  route validator and return `social_connector_credential_invalid`.
+- `/social/readiness`, Settings Social, document pages, package manifests,
+  lockfiles, migrations, hosted schema, OAuth/provider calls, posting, queues,
+  billing, public syndication, and legacy social tables did not change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts`
+  passed: 29 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts`
+  passed: 88 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Implementation forbidden-path scan passed.
+- `git diff --check` and `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
 PR500C - Social Credential Owner API
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR500C social credential owner API preflight accepted

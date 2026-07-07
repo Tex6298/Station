@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500C | Social Credential Owner API | DAEDALUS / A2 | Open implementation; build only backend authenticated GET metadata, POST Bluesky manual credential replacement storage, and provider-scoped local DELETE revoke. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md` |
+| PR500C | Social Credential Owner API | ARGUS / A3 | Ready for review; backend authenticated GET metadata, POST Bluesky manual credential replacement storage, and provider-scoped local DELETE revoke are implemented. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500C implementation | Social Credential Owner API | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; owner metadata readback, encrypted Bluesky manual replacement storage, and local-only provider-scoped revoke are implemented without OAuth/provider calls/posting/UI/package/migration/legacy table drift. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_RESULT.md` |
 | PR500C implementation opened | Social Credential Owner API | MIMIR -> DAEDALUS | Open; implement the accepted backend-only owner credential API without OAuth, provider calls, posting, UI, package drift, legacy social tables, public syndication, hosted schema changes, or readiness unpause. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md` |
 | PR500C preflight closeout | Social Credential Owner API Preflight | MIMIR | Closed accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`; DAEDALUS may implement the exact backend-only GET/POST/DELETE route shape. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_CLOSEOUT.md` |
 | PR500C preflight | Social Credential Owner API Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`; route shape is GET metadata, POST Bluesky manual credential replacement storage, and provider-scoped local DELETE revoke under the authenticated backend social router only. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_RESULT.md` |

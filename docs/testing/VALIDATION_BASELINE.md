@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500C Social Credential Owner API Implementation
+
+DAEDALUS completed the PR500C social credential owner API implementation on
+2026-07-07:
+
+- `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- authenticated backend owner routes now exist for safe credential metadata,
+  Bluesky manual credential replacement storage, and provider-scoped local
+  revoke;
+- invalid bodies, unsupported providers, missing fields, extra fields, empty
+  fields, overlong fields, arrays, nulls, and parsed scalar values are rejected
+  before storage;
+- missing or malformed social credential encryption config fails before any
+  database write;
+- storage/list/replace/revoke failures return bounded unavailable errors;
+- readiness, Settings Social, document pages, OAuth/provider calls, posting,
+  queues/workers, billing, package/lockfile state, hosted schema, public
+  syndication, and legacy social table behavior remain unchanged.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts` | Pass | 29 focused social/auth/readiness tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts` | Pass | 88 archive connector guard tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| Implementation forbidden-path scan | Pass | No provider fetch/SDK, token exchange/refresh/state, account/profile lookup, legacy social tables, queues/workers, Redis, Cloudflare, Stripe, billing, Settings/document paths, or public syndication matches in the changed implementation surface. |
+| `git diff --check` | Pass | Final pre-commit whitespace check. |
+| `git diff --cached --check` | Pass | Final staged whitespace check. |
+
 ## PR500C Social Credential Owner API Preflight
 
 ARGUS completed the PR500C social credential owner API preflight on
