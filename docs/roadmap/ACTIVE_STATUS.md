@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502 owner encounter private-context provider route preflight accepted
+## Current lane - PR502A owner encounter explicit provider route gate opened
+
+MIMIR closed PR502 and opened PR502A for DAEDALUS:
+
+`docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_DAEDALUS.md`
+
+Decision:
+
+```text
+ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE
+```
+
+DAEDALUS may implement only the default-false,
+owner-encounter-route-specific gate:
+
+```text
+PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true
+```
+
+It must apply only to `/persona-encounters/preview/readiness` and
+`/persona-encounters/preview` after same-owner persona checks. It must not
+broaden private NVIDIA provider policy anywhere else.
+
+Current lane:
+
+```text
+PR502A - Owner Encounter Explicit Provider Route Gate
+Owner: DAEDALUS / A2
+State: OPEN_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_DAEDALUS.md
+```
+
+## Previous lane - PR502 owner encounter private-context provider route preflight accepted
 
 ARGUS accepted PR502:
 
