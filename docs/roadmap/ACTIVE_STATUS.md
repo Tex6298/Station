@@ -4,9 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502 owner encounter private-context provider route preflight
+## Current lane - PR502 owner encounter private-context provider route preflight accepted
 
-MIMIR opens PR502 for ARGUS:
+ARGUS accepted PR502:
+
+`docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE
+```
+
+Reason:
+
+- PR500D remains externally blocked on Railway `@station/api` social credential
+  encryption config.
+- PR501 closed the Discern companion/UI delta revalidation with no remaining
+  safe implementation slice.
+- PR473 already built the owner-only disposable persona encounter preview, but
+  hosted generation remains paused because private-context provider routing was
+  not accepted.
+- The next safe implementation lane is a default-false
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT` gate used only by
+  `/persona-encounters/preview` and
+  `/persona-encounters/preview/readiness`.
+- PR502A must not broaden provider policy outside owner encounter preview,
+  persist transcripts, retrieve private sources, expose public encounter
+  controls, alter social publishing, or add queues/workers/Redis/Cloudflare/
+  billing/schema/migration scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`
+  passed: 9 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`
+  passed: 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed: 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check`, `git diff --cached --check`, and preflight scans passed.
+
+Current lane:
+
+```text
+PR502 - Owner Encounter Private-Context Provider Route Preflight
+Owner: MIMIR / A1
+State: ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE
+Source: docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR502 owner encounter private-context provider route preflight opened
+
+MIMIR opened PR502 for ARGUS:
 
 `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_ARGUS.md`
 

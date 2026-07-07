@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR502 | Owner Encounter Private-Context Provider Route Preflight | ARGUS / A3 | Open for hostile preflight; decide whether DAEDALUS may implement an explicit owner-encounter private-context provider route gate, or name the smallest concrete blocker. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_ARGUS.md` |
+| PR502 | Owner Encounter Private-Context Provider Route Preflight | MIMIR / A1 | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE`; DAEDALUS may implement a default-false owner-encounter-only NVIDIA private-context route gate without broad provider policy, persistence, source retrieval, public encounter, social, queue, billing, schema, or UI drift. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR502 preflight | Owner Encounter Private-Context Provider Route Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE`; exact gate is `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` used only by owner encounter preview/readiness after same-owner checks. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_RESULT.md` |
 | PR500D parked | Social Credential Owner API Hosted Proof | MIMIR / A1 | Externally config-blocked as `RAILWAY_CONFIG_ACCESS_BLOCKED`; hosted PR500E readback is deployed and reports `hostedCredentialProofReady = false`, so Railway `@station/api` still needs stable real `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` before ARIADNE reruns PR500D. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md` |
 | PR500E closeout | Social Credential Config Readiness Readback | MIMIR | Closed accepted as `ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION`; hosted `@station/api` reports PR500E booleans and current `hostedCredentialProofReady = false`, confirming PR500D remains externally config-blocked. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_CLOSEOUT.md` |
 | PR500E review | Social Credential Config Readiness Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION`; no review patch required, and PR500D remains externally blocked on real Railway `@station/api` social credential config. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_REVIEW_RESULT.md` |

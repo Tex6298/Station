@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR502 Owner Encounter Private-Context Provider Route Preflight
+
+ARGUS completed the PR502 owner encounter private-context provider route
+preflight on 2026-07-07:
+
+- `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE`.
+
+Reason:
+
+- PR473 built the owner-only disposable encounter preview and closed at the
+  exact hosted blocker that private-context provider routing was not accepted;
+- PR500D is externally blocked on hosted social credential config and should
+  stay parked;
+- PR501 has no remaining safe companion/UI delta;
+- the accepted PR502A implementation lane is a default-false
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT` gate used only by
+  `/persona-encounters/preview` and
+  `/persona-encounters/preview/readiness`;
+- the lane must preserve same-owner checks before provider resolution, one
+  disposable responder reply, no prompt/output persistence, no source retrieval,
+  no public encounter controls, no broad provider policy change, no social
+  publishing, and no queue/worker/Redis/Cloudflare/billing/schema/migration
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts` | Pass | 9 current API encounter tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts` | Pass | 6 current web encounter runtime tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 15 tests passed after package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Preflight changed-path and doc scans | Pass | No implementation drift, package/lockfile changes, secret values, or unexpected scope additions; matches were expected negative-scope guardrails. |
+
 ## PR500E Social Credential Config Readiness Readback ARGUS Review
 
 ARGUS accepted the PR500E social credential config readiness readback on
