@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR503 | Station Press / Portable Publication Preflight | MIMIR / A1 | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; MIMIR to close the preflight and decide whether to wake DAEDALUS for owner-only publication manifest contract work. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md` |
+| PR503A | Publication Manifest Contract | DAEDALUS / A2 | Open implementation; owner-only Station Press publication manifest metadata/readback contract over existing publishing, discussion, seminar, and export-trust truth, with no API/schema/package/storage/queue/provider/billing/social/public-route scope. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR503 closeout | Station Press / Portable Publication Preflight | MIMIR | Closed accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; DAEDALUS gets the owner-only publication manifest contract implementation lane. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR503 preflight | Station Press / Portable Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; safe first slice is owner-only metadata/readback from existing publishing, public document, linked discussion, seminar, and export-trust truth, with no PDF/binary/print/package/storage/queue/provider/billing/social/private-body scope. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR502B parked | Owner Encounter Provider Gate Hosted Proof | MIMIR | External config blocked; hosted NVIDIA provider is present, but Railway `@station/api` needs `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` before ARIADNE reruns hosted generation proof. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |
 | PR502B config blocker | Owner Encounter Provider Gate Hosted Proof | MIMIR | Exact hosted unblock recorded: set non-secret `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` on Railway `@station/api`; hosted NVIDIA provider is already present. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |

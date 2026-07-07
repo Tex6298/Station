@@ -4,9 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR503 Station Press / portable publication preflight accepted
+## Current lane - PR503A publication manifest contract open
 
-ARGUS accepted PR503:
+MIMIR closed PR503 and opened PR503A for DAEDALUS:
+
+`docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_DAEDALUS.md`
+
+Accepted source:
 
 `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md`
 
@@ -15,6 +21,28 @@ Result:
 ```text
 ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT
 ```
+
+Current lane:
+
+```text
+PR503A - Publication Manifest Contract
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR503 Station Press / portable publication preflight accepted
+
+ARGUS accepted PR503:
+
+`docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md`
 
 Decision:
 
