@@ -4,46 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR503 Station Press / portable publication preflight
+## Current lane - PR503 Station Press / portable publication preflight accepted
 
-MIMIR opened PR503 for ARGUS:
+ARGUS accepted PR503:
 
-`docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_ARGUS.md`
+`docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md`
 
-Reason:
-
-- PR500D social credential hosted proof is externally blocked on hosted
-  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`.
-- PR502B owner encounter hosted proof is externally blocked on the explicit
-  Railway `@station/api` opt-in flag:
+Result:
 
 ```text
-PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true
+ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT
 ```
 
-- PR488 background-job activation remains blocked on queue-capable runtime proof.
-- PR484J-N archive connector hosted setup remains blocked on live hosted
-  provider setup.
-- MIMIR should not spin DAEDALUS on blocked config lanes or deepen the nearest
-  surface by inertia.
-- Station Press / portable publication packaging is a named customer-facing
-  product surface still parked as future and has enough publishing/export
-  evidence for hostile preflight.
+Decision:
+
+- A safe first Station Press / portable publication slice exists as an
+  owner-only publication manifest contract.
+- PR503A may use existing publishing, public document, linked discussion,
+  seminar, and export-trust readback facts to describe safe publication
+  metadata and excluded material.
+- PR503A must not generate PDFs, binary archives, original-file packages,
+  print/fulfillment output, public package URLs, package rows, storage objects,
+  queue/worker jobs, provider calls, billing/commercial packaging, social
+  dispatch, hosted Station Press launch claims, public prior-version history,
+  or private body/source exposure.
+- If visible `/studio/publishing` UI changes, ARIADNE hosted desktop/mobile
+  proof is required before implementation closeout.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 20
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed: 4
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` passed: 1
+  test.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed with expected tracked-doc CRLF normalization
+  notices only.
+- `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
 PR503 - Station Press / Portable Publication Preflight
-Owner: ARGUS / A3
-State: OPEN_HOSTILE_PREFLIGHT
-Source: docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT
+Source: docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Parked blocker - PR502B owner encounter provider gate hosted config blocked

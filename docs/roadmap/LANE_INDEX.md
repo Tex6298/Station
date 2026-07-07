@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR503 | Station Press / Portable Publication Preflight | ARGUS / A3 | Open hostile preflight; decide whether a safe first Station Press / portable publication packaging slice exists now, or whether it is blocked by queue-capable jobs, PDF/binary/print/provider/commercial decisions, or lack of safe product boundary. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_ARGUS.md` |
+| PR503 | Station Press / Portable Publication Preflight | MIMIR / A1 | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; MIMIR to close the preflight and decide whether to wake DAEDALUS for owner-only publication manifest contract work. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR503 preflight | Station Press / Portable Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; safe first slice is owner-only metadata/readback from existing publishing, public document, linked discussion, seminar, and export-trust truth, with no PDF/binary/print/package/storage/queue/provider/billing/social/private-body scope. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR502B parked | Owner Encounter Provider Gate Hosted Proof | MIMIR | External config blocked; hosted NVIDIA provider is present, but Railway `@station/api` needs `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` before ARIADNE reruns hosted generation proof. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |
 | PR502B config blocker | Owner Encounter Provider Gate Hosted Proof | MIMIR | Exact hosted unblock recorded: set non-secret `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` on Railway `@station/api`; hosted NVIDIA provider is already present. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |
 | PR502B hosted proof | Owner Encounter Provider Gate Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked by hosted provider policy/config; web/API were fresh at `30b146d2`, replay owner auth and same-owner persona availability passed, readiness returned `ready:false` with `persona_encounter_provider_unavailable` / `provider_data_policy`, and no generation was attempted. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md` |

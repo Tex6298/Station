@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR503 Station Press / Portable Publication Preflight
+
+ARGUS completed the PR503 Station Press / portable publication preflight on
+2026-07-07:
+
+- `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`.
+
+Reason:
+
+- existing publishing approval, public document, linked discussion, seminar,
+  workspace export, and export-trust artifacts are enough for a
+  publication-specific metadata/readback contract;
+- the safe slice is owner-only and non-persisted, using current route/UI truth
+  rather than new API routes, package rows, storage objects, PDF/binary output,
+  print/fulfillment, provider calls, billing, queue/worker jobs, social
+  dispatch, or public launch claims;
+- actual Station Press package generation remains blocked by PDF, binary,
+  print/provider, storage, queue-capable runtime, commercial, and privacy
+  decisions;
+- private source bodies, document bodies, archive chunks, transcripts, prompts,
+  provider payloads, storage paths, signed URLs, raw ids, tokens, cookies, SQL
+  details, stack traces, and secret-shaped values stay out of the accepted
+  contract.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | PR503 handoff, publishing approval route/service, export route/service, export trust helpers, publishing helpers/dashboard, PR483, PR496, PR488, PR484J-N, and Station launch docs were inspected. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 10 export API tests passed, including workspace manifest create/read/bundle, malformed readback guards, cross-owner denial, and private/source/storage omission. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 20 API/UI tests passed, including owner scope, private body redaction, state transitions, public link gating, metadata-only version compare, and trust copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed, covering stable public errors, linked-thread recovery, tombstone cleanup, and public/community/unlisted/private boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed, proving continuity artifacts publish as separate provenance-labelled documents. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI/helper tests passed, including export-trust and publishing boundary tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed from cache. |
+| `git diff --check` | Pass | No whitespace errors; tracked roadmap/testing docs reported expected CRLF normalization notices only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR502B Owner Encounter Provider Gate Hosted Proof
 
 ARIADNE completed the PR502B hosted owner encounter provider-gate proof on
