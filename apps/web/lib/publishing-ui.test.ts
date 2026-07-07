@@ -20,6 +20,10 @@ import {
   publicDocumentHref,
   publishingDashboardTrustLine,
   publishingDashboardRouteStoryRows,
+  publicationManifestContractForDocument,
+  publicationManifestDisplayRows,
+  STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA,
+  STATION_PRESS_PUBLICATION_MANIFEST_EXCLUSIONS,
   publishingQueueActionGuard,
   publishingApprovalStateLabel,
   publishingSourceLabelForReadback,
@@ -395,6 +399,155 @@ test("publishing dashboard route story explains linked discussion, retract, and 
   assert.match(cleanupBody, /repeat hosted cleanup remain out of scope/i);
   assert.doesNotMatch(cleanupBody, /hosted cleanup has not been run/i);
   assert.doesNotMatch(cleanupBody, /full hard-delete artifact removal is available/i);
+});
+
+test("publication manifest contract returns metadata-only public readback", () => {
+  const contract = publicationManifestContractForDocument({
+    document: {
+      id: "doc-private-route-id",
+      title: "Public Field Log token=abc123 123e4567-e89b-12d3-a456-426614174000",
+      document_type: "field_log",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-07-07T12:00:00.000Z",
+      space_id: "space-private-id",
+      provenance_type: "archive_import",
+      source_label: "source_id=123e4567-e89b-12d3-a456-426614174000 sk-test-secret-token",
+      version: 4,
+      discussion_thread_id: "thread-private-id",
+      comments_enabled: true,
+    },
+    spaces: [{
+      id: "space-private-id",
+      slug: "station-house",
+      title: "Station House sk-test-secret-token",
+      is_public: true,
+    }],
+    seminarRecord: {
+      status: "published",
+      visibility: "public",
+      publicDocumentHref: "/space/station-house/documents/doc-private-route-id",
+      schedule: {
+        startsAt: "2026-07-07T18:00:00.000Z",
+        timeZone: "UTC",
+        durationMinutes: 60,
+      },
+    },
+  });
+
+  assert.equal(contract.schema, STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA);
+  assert.equal(contract.name, "Station Press publication manifest contract");
+  assert.equal(contract.version, 1);
+  assert.equal(contract.documentTypeLabel, "Field Log");
+  assert.equal(contract.statusLabel, "Published");
+  assert.equal(contract.visibilityLabel, "Public");
+  assert.equal(contract.currentVersionLabel, "Current version v4");
+  assert.equal(contract.packageReadback.state, "metadata_ready");
+  assert.equal(contract.discussion.status, "attached");
+  assert.equal(contract.discussion.label, "Attached");
+  assert.equal(contract.seminar?.statusLabel, "Published");
+  assert.match(contract.seminar?.scheduleLabel ?? "", /Stored schedule metadata/);
+  assert.match(contract.seminar?.scheduleLabel ?? "", /UTC/);
+  assert.match(contract.seminar?.scheduleLabel ?? "", /60 min/);
+  assert.match(contract.publicDestinationLabel, /Space-backed public document/);
+  assert.match(contract.sourceLabel, /Archive import/);
+  assert.match(contract.sourceLabel, /source_id=\[redacted\]/);
+
+  for (const expected of STATION_PRESS_PUBLICATION_MANIFEST_EXCLUSIONS) {
+    assert.ok(contract.excludedFutureMaterial.includes(expected), `${expected} should be excluded`);
+  }
+
+  const rows = publicationManifestDisplayRows(contract);
+  assert.deepEqual(rows.map((row) => row.id), ["schema", "state", "destination", "discussion", "seminar", "excluded"]);
+  assert.match(rows.find((row) => row.id === "excluded")?.value ?? "", /PDF output/);
+
+  const serialized = JSON.stringify(contract);
+  assert.doesNotMatch(serialized, /doc-private-route-id|thread-private-id|space-private-id/);
+  assert.doesNotMatch(serialized, /123e4567|sk-test-secret-token|token=abc123/);
+  assert.doesNotMatch(serialized, /document body|private source body|raw package contents/i);
+});
+
+test("publication manifest contract keeps private drafts not package-ready", () => {
+  const contract = publicationManifestContractForDocument({
+    document: {
+      id: "99999999-9999-4999-8999-999999999999",
+      title: "Private Draft owner_id=owner-secret cookie=session-secret",
+      document_type: "essay",
+      status: "draft",
+      visibility: "private",
+      published_at: null,
+      space_id: null,
+      provenance_type: "user_authored",
+      source_label: "private body source_id=123e4567-e89b-12d3-a456-426614174000",
+      version: 1,
+      discussion_thread_id: null,
+      comments_enabled: false,
+    },
+    spaces: [],
+  });
+
+  assert.equal(contract.packageReadback.state, "not_package_ready");
+  assert.equal(contract.packageReadback.label, "Not package-ready");
+  assert.equal(contract.publicDestinationLabel, "No Space-backed public destination");
+  assert.equal(contract.publishedAtLabel, "Not published");
+  assert.equal(contract.discussion.status, "disabled");
+  assert.equal(contract.seminar, null);
+  assert.match(contract.boundary, /Metadata-only owner readback/);
+  assert.match(contract.boundary, /raw ids are excluded/);
+
+  const serialized = JSON.stringify(contract);
+  assert.doesNotMatch(serialized, /99999999|owner-secret|session-secret|123e4567/);
+  assert.doesNotMatch(serialized, /private body/i);
+});
+
+test("publication manifest discussion and seminar metadata stay status-only", () => {
+  const contract = publicationManifestContractForDocument({
+    document: {
+      id: "doc-linked",
+      title: "Linked public document",
+      document_type: "research",
+      status: "published",
+      visibility: "community",
+      published_at: "2026-07-07T12:00:00.000Z",
+      space_id: "space-1",
+      provenance_type: "ai_assisted",
+      source_label: "Provider payload should not appear",
+      version: 2,
+      discussion_thread_id: null,
+      comments_enabled: true,
+    },
+    spaces,
+    seminarRecord: {
+      status: "ready",
+      visibility: "private",
+      schedule: null,
+    },
+  });
+
+  assert.equal(contract.discussion.status, "eligible");
+  assert.equal(contract.discussion.label, "Eligible");
+  assert.match(contract.discussion.detail, /same visibility boundary/);
+  assert.equal(contract.seminar?.statusLabel, "Ready");
+  assert.equal(contract.seminar?.visibilityLabel, "Private");
+  assert.equal(contract.seminar?.scheduleLabel, "No stored schedule metadata");
+  assert.doesNotMatch(JSON.stringify(contract.seminar), /ticket|RSVP|reminder|provider runtime|billing|fulfillment/i);
+  assert.doesNotMatch(JSON.stringify(contract.discussion), /thread|approval|moderation|body|doc-linked/i);
+});
+
+test("publishing dashboard renders publication manifest readback without package controls", () => {
+  const source = readFileSync("apps/web/components/studio/publishing-dashboard.tsx", "utf8");
+
+  assert.match(source, /publicationManifestContractForDocument/);
+  assert.match(source, /publicationManifestDisplayRows/);
+  assert.match(source, /PublicationManifestReadback/);
+
+  const block = source.slice(
+    source.indexOf("function PublicationManifestReadback"),
+    source.indexOf("function SeminarReadinessPanel"),
+  );
+  assert.match(block, /Station Press manifest contract/);
+  assert.match(block, /manifest.packageReadback.detail/);
+  assert.doesNotMatch(block, /apiGet|apiPost|apiPatch|apiDelete|<button|Create .*package|Export package|Download|Share|billing|provider|\/exports|\/station-press/i);
 });
 
 test("publishing trust readback explains public document boundaries", () => {

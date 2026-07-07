@@ -19,6 +19,8 @@ import {
   documentDestinationLabel,
   documentTypeLabel,
   filterDocumentsForPublishingTab,
+  publicationManifestContractForDocument,
+  publicationManifestDisplayRows,
   publicationRetractNotice,
   publicDocumentHref,
   publishingDashboardTrustLine,
@@ -31,6 +33,7 @@ import {
   type PublishingDocument,
   type PublishingSpace,
   type PublishingTab,
+  type PublicationManifestContract,
 } from "@/lib/publishing";
 import {
   seminarRecordForCandidate,
@@ -396,6 +399,16 @@ export function PublishingDashboard() {
               {visible.map((document) => {
                 const href = publicDocumentHref(document, spaces);
                 const approval = approvalForDocument(approvals, document.id);
+                const manifest = publicationManifestContractForDocument({
+                  document,
+                  spaces,
+                  seminarRecord: href
+                    ? seminarRecords.find((record) =>
+                        record.sourceType === "document" &&
+                        record.publicDocumentHref === href
+                      ) ?? null
+                    : null,
+                });
                 const busy = busyApprovalId === document.id || busyApprovalId === approval?.id;
                 return (
                   <article key={document.id} style={row}>
@@ -413,6 +426,7 @@ export function PublishingDashboard() {
                       <div style={sourceLine}>
                         {publishingDashboardTrustLine(document, approval, spaces)}
                       </div>
+                      <PublicationManifestReadback manifest={manifest} />
                     </div>
                     <div style={buttonRow}>
                       <Link href={`/studio/publish?documentId=${document.id}`} style={miniLink}>Edit</Link>
@@ -451,6 +465,25 @@ export function PublishingDashboard() {
         </section>
       </div>
     </main>
+  );
+}
+
+function PublicationManifestReadback({ manifest }: { manifest: PublicationManifestContract }) {
+  const rows = publicationManifestDisplayRows(manifest);
+  return (
+    <details style={manifestDetails}>
+      <summary style={manifestSummary}>Station Press manifest contract</summary>
+      <div style={manifestReadbackGrid}>
+        {rows.map((row) => (
+          <div key={row.id} style={manifestReadbackRow}>
+            <span style={manifestReadbackLabel}>{row.label}</span>
+            <span style={manifestReadbackValue}>{row.value}</span>
+          </div>
+        ))}
+      </div>
+      <p style={manifestReadbackCopy}>{manifest.packageReadback.detail}</p>
+      <p style={manifestReadbackCopy}>{manifest.boundary}</p>
+    </details>
   );
 }
 
@@ -921,6 +954,46 @@ const sourceLine = {
   color: "#687078",
   fontSize: 12,
   marginTop: 7,
+};
+
+const manifestDetails = {
+  marginTop: 8,
+  color: "#687078",
+  fontSize: 12,
+};
+
+const manifestSummary = {
+  color: "#1f2529",
+  cursor: "pointer",
+  fontWeight: 800,
+};
+
+const manifestReadbackGrid = {
+  display: "grid",
+  gap: 6,
+  marginTop: 8,
+};
+
+const manifestReadbackRow = {
+  display: "grid",
+  gridTemplateColumns: "minmax(96px, 0.28fr) minmax(0, 1fr)",
+  gap: 8,
+  alignItems: "start",
+};
+
+const manifestReadbackLabel = {
+  color: "#1f2529",
+  fontWeight: 800,
+};
+
+const manifestReadbackValue = {
+  minWidth: 0,
+  overflowWrap: "anywhere" as const,
+};
+
+const manifestReadbackCopy = {
+  margin: "8px 0 0",
+  lineHeight: 1.45,
 };
 
 const buttonRow = {

@@ -101,6 +101,78 @@ export interface PublishingDashboardRouteStoryRow {
   tone: "info" | "warning";
 }
 
+export interface PublicationManifestSeminarRecord {
+  status: string;
+  visibility: string;
+  publicDocumentHref?: string | null;
+  schedule?: {
+    startsAt: string;
+    timeZone: string;
+    durationMinutes: number | null;
+  } | null;
+}
+
+export type PublicationManifestDiscussionStatus =
+  | "attached"
+  | "eligible"
+  | "unavailable"
+  | "disabled";
+
+export interface PublicationManifestContract {
+  schema: typeof STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA;
+  name: "Station Press publication manifest contract";
+  version: 1;
+  title: string;
+  documentTypeLabel: string;
+  statusLabel: string;
+  visibilityLabel: string;
+  publishedAtLabel: string;
+  currentVersionLabel: string;
+  publicDestinationLabel: string;
+  sourceLabel: string;
+  discussion: {
+    status: PublicationManifestDiscussionStatus;
+    label: string;
+    detail: string;
+  };
+  seminar: {
+    statusLabel: string;
+    visibilityLabel: string;
+    scheduleLabel: string;
+    detail: string;
+  } | null;
+  packageReadback: {
+    state: "metadata_ready" | "not_package_ready";
+    label: string;
+    detail: string;
+  };
+  excludedFutureMaterial: string[];
+  boundary: string;
+}
+
+export interface PublicationManifestDisplayRow {
+  id: "schema" | "state" | "destination" | "discussion" | "seminar" | "excluded";
+  label: string;
+  value: string;
+}
+
+export const STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA =
+  "station.press.publication_manifest_contract.v1";
+
+export const STATION_PRESS_PUBLICATION_MANIFEST_EXCLUSIONS = [
+  "PDF output",
+  "binary archives",
+  "original files",
+  "print and fulfillment",
+  "queues and workers",
+  "public package URLs",
+  "storage objects",
+  "private bodies",
+  "social dispatch",
+  "billing",
+  "commercial packaging",
+] as const;
+
 export type DocumentVersionCompareRowId =
   | "title"
   | "slug"
@@ -494,6 +566,103 @@ export function publishingDashboardRouteStoryRows(): PublishingDashboardRouteSto
   ];
 }
 
+export function publicationManifestContractForDocument(input: {
+  document: Pick<
+    PublishingDocument,
+    | "id"
+    | "title"
+    | "document_type"
+    | "status"
+    | "visibility"
+    | "published_at"
+    | "space_id"
+    | "provenance_type"
+    | "source_label"
+    | "version"
+    | "discussion_thread_id"
+  > & {
+    comments_enabled?: boolean | null;
+  };
+  spaces: PublishingSpace[];
+  seminarRecord?: PublicationManifestSeminarRecord | null;
+}): PublicationManifestContract {
+  const { document, spaces } = input;
+  const title = sanitizePublishingReadbackText(document.title) || "Untitled publication";
+  const publicDestinationLabel = publicationManifestDestinationLabel(document, spaces);
+  const provenance = documentProvenanceLabel(document.provenance_type);
+  const publicHref = publicDocumentHref(document as PublishingDocument, spaces);
+  const metadataReady = Boolean(publicHref);
+  const source = metadataReady ? publishingSourceLabelForReadback(document.source_label) : null;
+
+  return {
+    schema: STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA,
+    name: "Station Press publication manifest contract",
+    version: 1,
+    title,
+    documentTypeLabel: documentTypeLabel(document.document_type),
+    statusLabel: publishingStatusLabel(document.status),
+    visibilityLabel: capitalize(visibilityLabel(document.visibility)),
+    publishedAtLabel: publicationManifestPublishedAtLabel(document.published_at),
+    currentVersionLabel: `Current version v${document.version && document.version > 0 ? document.version : 1}`,
+    publicDestinationLabel,
+    sourceLabel: source ? `${provenance} / ${source}` : provenance,
+    discussion: publicationManifestDiscussion(document),
+    seminar: input.seminarRecord ? publicationManifestSeminar(input.seminarRecord) : null,
+    packageReadback: metadataReady
+      ? {
+          state: "metadata_ready",
+          label: "Metadata readback ready",
+          detail: "Current output is owner-only metadata readback, not a generated package, public URL, storage object, PDF, binary archive, print file, or commercial product.",
+        }
+      : {
+          state: "not_package_ready",
+          label: "Not package-ready",
+          detail: "Private, draft, archived, or missing-Space documents stay owner-only and do not produce Station Press packages.",
+        },
+    excludedFutureMaterial: [...STATION_PRESS_PUBLICATION_MANIFEST_EXCLUSIONS],
+    boundary: "Metadata-only owner readback. Document bodies, private sources, archive chunks, transcripts, prompts, model output, raw events, approval internals, prior-version bodies, private seminar notes, export manifests, files, storage paths, signed URLs, SQL details, stack traces, logs, cookies, tokens, API keys, webhook secrets, env values, and raw ids are excluded.",
+  };
+}
+
+export function publicationManifestDisplayRows(
+  contract: PublicationManifestContract,
+): PublicationManifestDisplayRow[] {
+  return [
+    {
+      id: "schema",
+      label: "Schema",
+      value: contract.schema,
+    },
+    {
+      id: "state",
+      label: "Publication",
+      value: `${contract.documentTypeLabel} / ${contract.statusLabel} / ${contract.visibilityLabel} / ${contract.currentVersionLabel}`,
+    },
+    {
+      id: "destination",
+      label: "Destination",
+      value: contract.publicDestinationLabel,
+    },
+    {
+      id: "discussion",
+      label: "Discussion",
+      value: contract.discussion.label,
+    },
+    {
+      id: "seminar",
+      label: "Seminar",
+      value: contract.seminar
+        ? `${contract.seminar.statusLabel} / ${contract.seminar.scheduleLabel}`
+        : "No stored seminar record",
+    },
+    {
+      id: "excluded",
+      label: "Excluded",
+      value: contract.excludedFutureMaterial.join(", "),
+    },
+  ];
+}
+
 export function documentDestinationLabel(
   document: Pick<PublishingDocument, "space_id">,
   spaces: PublishingSpace[],
@@ -640,6 +809,80 @@ function discussionTrustBody(input: {
   }
 
   return "No linked public discussion is available for this document.";
+}
+
+function publicationManifestDestinationLabel(
+  document: Pick<PublishingDocument, "id" | "space_id" | "status" | "visibility">,
+  spaces: PublishingSpace[],
+) {
+  const href = publicDocumentHref(document as PublishingDocument, spaces);
+  const space = spaceForDocument(document, spaces);
+  if (href && space) {
+    const title = sanitizePublishingReadbackText(space.title) || "Public Space";
+    return `Space-backed ${visibilityLabel(document.visibility)} document in ${title}`;
+  }
+
+  if (space) return "Space selected; public readback is not package-ready";
+  return "No Space-backed public destination";
+}
+
+function publicationManifestDiscussion(
+  document: Pick<PublishingDocument, "status" | "visibility" | "discussion_thread_id"> & {
+    comments_enabled?: boolean | null;
+  },
+): PublicationManifestContract["discussion"] {
+  if (document.comments_enabled === false) {
+    return {
+      status: "disabled",
+      label: "Disabled",
+      detail: "Discussion is disabled for this document.",
+    };
+  }
+
+  if (document.discussion_thread_id) {
+    return {
+      status: "attached",
+      label: "Attached",
+      detail: "A linked discussion exists; this contract keeps only status metadata.",
+    };
+  }
+
+  if (isPublicReadableDocument(document)) {
+    return {
+      status: "eligible",
+      label: "Eligible",
+      detail: "The document can support a linked discussion under the same visibility boundary.",
+    };
+  }
+
+  return {
+    status: "unavailable",
+    label: "Unavailable",
+    detail: "No public-safe discussion state is available for this document.",
+  };
+}
+
+function publicationManifestSeminar(
+  record: PublicationManifestSeminarRecord,
+): NonNullable<PublicationManifestContract["seminar"]> {
+  return {
+    statusLabel: labelize(record.status),
+    visibilityLabel: capitalize(visibilityLabel(record.visibility)),
+    scheduleLabel: publicationManifestScheduleLabel(record.schedule),
+    detail: "Stored seminar metadata only. This contract does not create a live room, audience workflow, model execution, package job, or commercial flow.",
+  };
+}
+
+function publicationManifestPublishedAtLabel(value?: string | null) {
+  return value ? `Published ${formatVersionCompareDate(value)}` : "Not published";
+}
+
+function publicationManifestScheduleLabel(schedule?: PublicationManifestSeminarRecord["schedule"]) {
+  if (!schedule) return "No stored schedule metadata";
+  const startsAt = formatVersionCompareDate(schedule.startsAt);
+  const timeZone = sanitizePublishingReadbackText(schedule.timeZone) || "time zone unavailable";
+  const duration = schedule.durationMinutes ? ` / ${schedule.durationMinutes} min` : "";
+  return `Stored schedule metadata: ${startsAt} / ${timeZone}${duration}`;
 }
 
 function visibilityLabel(value: string) {

@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR503A publication manifest contract open
+## Current lane - PR503A publication manifest contract ready for ARGUS review
 
-MIMIR closed PR503 and opened PR503A for DAEDALUS:
+DAEDALUS completed PR503A and wakes ARGUS for review:
 
-`docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_RESULT.md`
 
 `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_DAEDALUS.md`
 
@@ -16,26 +16,64 @@ Accepted source:
 
 `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md`
 
-Result:
+Implementation result:
 
 ```text
-ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT
+READY_FOR_ARGUS_REVIEW
 ```
+
+Summary:
+
+- `apps/web/lib/publishing.ts` now defines the non-persisted
+  `station.press.publication_manifest_contract.v1` helper and display rows.
+- `/studio/publishing` renders a compact owner-only `Station Press manifest
+  contract` details readback per document from already-fetched dashboard data.
+- Private/draft documents are `not_package_ready` and do not carry owner
+  source-label text in the manifest readback.
+- Published Space-backed documents can show metadata-only public-readback
+  posture without serializing raw document, thread, Space, seminar, package, or
+  owner ids.
+- Linked discussion state is status/label only.
+- Seminar record status and stored schedule metadata appear only when an
+  existing record is already available in dashboard data.
+- Excluded/future material explicitly includes PDFs, binary archives, original
+  files, print/fulfillment, queues/workers, public package URLs, storage
+  objects, private bodies, social dispatch, billing, and commercial packaging.
+- No API, schema, package, storage, provider, billing, social, archive
+  connector, hosted runtime, or public-route file changed.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/seminar-host-readiness.test.ts`
+  passed: 34 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 24
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed: 4
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 194 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` and changed-path scan passed before docs staging.
+
+Review note:
+
+- Visible `/studio/publishing` UI changed, so ARIADNE hosted desktop and
+  390px mobile proof is required after ARGUS acceptance and before MIMIR
+  closeout.
 
 Current lane:
 
 ```text
 PR503A - Publication Manifest Contract
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR503 Station Press / portable publication preflight accepted
