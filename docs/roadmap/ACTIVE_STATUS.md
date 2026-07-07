@@ -4,9 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502A owner encounter explicit provider route gate ready for ARGUS review
+## Current lane - PR502A owner encounter explicit provider route gate accepted
 
-DAEDALUS completed PR502A and wakes ARGUS for review:
+ARGUS accepted PR502A:
+
+`docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION
+```
+
+Summary:
+
+- the implementation is route-local, default-false, and exact-`true`;
+- the gate applies only to `/persona-encounters/preview/readiness` and
+  `/persona-encounters/preview`;
+- same-owner persona loading still happens before provider resolution;
+- the shared provider router was not changed;
+- readiness performs no provider call, token accounting, rate-limit increment,
+  or durable write;
+- generation remains one disposable responder reply with no prompt/output
+  persistence and token usage recorded only with `chatId: null`;
+- BYOK OpenAI and non-NVIDIA platform DeepSeek routes remain accepted;
+- no public encounter, persistence, source retrieval, social, queue, worker,
+  Redis, Cloudflare, billing, schema, migration, package, lockfile, or broad UI
+  scope was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts`
+  passed: 13 tests.
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts`
+  passed: 6 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed: 19
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 190 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check`, `git diff --cached --check`, changed-path scan,
+  provider-policy scan, public encounter scan, durable/source retrieval scan,
+  and secret-shaped diff scan passed or were reviewed with only expected test
+  markers.
+
+Current lane:
+
+```text
+PR502A - Owner Encounter Explicit Provider Route Gate
+Owner: MIMIR / A1
+State: ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION
+Source: docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR502A owner encounter explicit provider route gate ready for ARGUS review
+
+DAEDALUS completed PR502A and woke ARGUS for review:
 
 `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md`
 

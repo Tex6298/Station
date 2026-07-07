@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR502A | Owner Encounter Explicit Provider Route Gate | DAEDALUS / A2 | Open for implementation; default-false `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` gate for owner encounter preview/readiness only, after same-owner checks. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_DAEDALUS.md` |
+| PR502A | Owner Encounter Explicit Provider Route Gate | MIMIR / A1 | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION`; route-local exact-true NVIDIA private-context gate passed ARGUS review without shared provider router, persistence, source retrieval, public encounter, social, queue, billing, schema, package, lockfile, or UI drift. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR502A review | Owner Encounter Explicit Provider Route Gate | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION`; hosted proof is still required before claiming hosted encounter generation is live. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md` |
+| PR502A implementation | Owner Encounter Explicit Provider Route Gate | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; route-local default-false exact-true NVIDIA private-context gate is implemented only in owner encounter preview/readiness after same-owner checks. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md` |
 | PR502 closeout | Owner Encounter Private-Context Provider Route Preflight | MIMIR | Closed accepted; DAEDALUS gets PR502A as the exact owner-encounter explicit provider route gate. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_CLOSEOUT.md` |
 | PR502 preflight | Owner Encounter Private-Context Provider Route Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE`; exact gate is `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` used only by owner encounter preview/readiness after same-owner checks. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_RESULT.md` |
 | PR500D parked | Social Credential Owner API Hosted Proof | MIMIR / A1 | Externally config-blocked as `RAILWAY_CONFIG_ACCESS_BLOCKED`; hosted PR500E readback is deployed and reports `hostedCredentialProofReady = false`, so Railway `@station/api` still needs stable real `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` before ARIADNE reruns PR500D. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md` |

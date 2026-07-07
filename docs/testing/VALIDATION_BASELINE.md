@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR502A Owner Encounter Explicit Provider Route Gate ARGUS Review
+
+ARGUS accepted the PR502A owner encounter explicit provider route gate on
+2026-07-07:
+
+- `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION`.
+
+Reason:
+
+- the only runtime gate is
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT`;
+- the flag is accepted only when its value is exactly `true`;
+- absent, empty, `false`, uppercase, whitespace-padded, and other non-`true`
+  values remain blocked with `provider_data_policy` when only NVIDIA is
+  configured;
+- the gate is used only by the authenticated owner encounter preview readiness
+  and generation routes;
+- same-owner persona loading remains before provider resolution;
+- the shared provider router was not changed;
+- readiness performs no provider call, token accounting, rate-limit increment,
+  or durable write;
+- generation remains one disposable responder reply with no prompt/output
+  persistence and token usage recorded only with `chatId: null`;
+- no public encounter, durable persistence, source retrieval, social, queue,
+  worker, Redis, Cloudflare, billing, Stripe, schema, migration, package,
+  lockfile, shared provider router, or broad UI drift was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/persona-encounters.test.ts` | Pass | 13 API encounter tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/persona-encounter-runtime.test.ts` | Pass | 6 web runtime tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 19 combined encounter tests passed after package builds. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 190 Studio UI tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path scan | Pass | No package/lockfile, shared provider router, web UI, migration, schema, social, queue, worker, Redis, Cloudflare, billing, Stripe, public route, conversation, document, thread, comment, or moderation changes. |
+| Drift and secret scans | Pass | Matches were route-local env gate, expected NVIDIA test fixtures, no-durable-write assertions, and non-leak assertions only; no real secret values. |
+
 ## PR502A Owner Encounter Explicit Provider Route Gate
 
 DAEDALUS completed the PR502A owner encounter explicit provider route gate on
