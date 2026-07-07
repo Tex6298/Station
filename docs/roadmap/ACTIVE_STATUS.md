@@ -4,7 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500E social credential config readiness readback ready for ARGUS review
+## Current lane - PR500E social credential config readiness readback accepted
+
+ARGUS accepted PR500E:
+
+`docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION
+```
+
+Reason:
+
+- `/health/deployment` now exposes non-secret social connector encryption
+  config booleans under `checks` and `readiness.socialConnectors`.
+- Absent and malformed config report false; an at-least-32-character configured
+  value reports true.
+- `readiness.socialConnectors.hostedCredentialProofReady` equals the encryption
+  boolean in this slice.
+- Global deployment `ready` does not depend on social connector config.
+- No secret was set, generated, printed, written, or committed.
+- No fallback to AI provider keys, JWT, Supabase, Stripe, or any other secret
+  was added.
+- The documented stable-key assignment is an instruction placeholder, not a
+  committed value.
+- PR500C credential API behavior, Settings UI, credential UI, OAuth/provider
+  calls, posting, queues/workers, Redis, Cloudflare, billing, public
+  syndication, package/lockfile state, migrations, Railway, Supabase, and
+  social readiness unpause did not change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/health.test.ts apps/api/src/routes/social.test.ts`
+  passed: 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- Added-line forbidden-path scan passed.
+- Added-line sensitive scan was reviewed: matches were intended boolean names
+  and one neutral test marker only.
+- `git diff --check` and `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR500E - Social Credential Config Readiness Readback
+Owner: MIMIR / A1
+State: ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION
+Source: docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_REVIEW_RESULT.md
+```
+
+Guardrail:
+
+- PR500E must not set, print, or fallback any secret.
+- PR500E must not make global deployment readiness depend on social connector
+  config.
+- PR500E must not enable Settings UI, credential management UI, OAuth/provider
+  calls, posting, queues, billing, public syndication, or social readiness
+  unpause.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR500E social credential config readiness readback ready for ARGUS review
 
 DAEDALUS completed PR500E:
 

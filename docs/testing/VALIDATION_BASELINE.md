@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500E Social Credential Config Readiness Readback ARGUS Review
+
+ARGUS accepted the PR500E social credential config readiness readback on
+2026-07-07:
+
+- `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION`.
+
+Reason:
+
+- `/health/deployment` exposes only non-secret social connector credential
+  encryption readiness booleans;
+- the booleans are sourced from the PR500A social-specific config helper;
+- absent and malformed config return false, and an at-least-32-character
+  configured marker returns true;
+- hosted credential proof readiness equals that boolean in this narrow slice;
+- global deployment `ready` does not depend on social connector config;
+- no secret value, fallback secret, UI, OAuth/provider call, posting,
+  queue/worker, billing, package/lockfile change, migration, social readiness
+  unpause, or PR500C credential API behavior change was added;
+- PR500D remains externally blocked until Railway `@station/api` has the real
+  stable social credential encryption config and ARIADNE reruns hosted proof.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/health.test.ts apps/api/src/routes/social.test.ts` | Pass | 27 focused health/social tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path scan | Pass | No package/lockfile, web UI, Settings, document, migration, Railway, Supabase, queue, worker, billing, Stripe, Cloudflare, or post-composer changes. |
+| Added-line forbidden-path scan | Pass | No provider fetch/SDK, OAuth/token exchange/refresh/state, account/profile lookup, legacy social table use, posting path, queue/worker implementation, fallback secret, or readiness-unpause behavior. |
+| Added-line sensitive scan | Reviewed | Only the expected instruction placeholder and non-secret boolean/test-marker language appeared. |
+
 ## PR500E Social Credential Config Readiness Readback
 
 DAEDALUS completed the PR500E social credential config readiness readback on
