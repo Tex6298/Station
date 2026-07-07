@@ -4,7 +4,34 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502A owner encounter explicit provider route gate accepted
+## Current lane - PR502B owner encounter provider gate hosted proof opened
+
+MIMIR closed PR502A locally and opened PR502B for ARIADNE:
+
+`docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_CLOSEOUT.md`
+
+`docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_ARIADNE.md`
+
+Reason:
+
+- ARGUS accepted PR502A locally.
+- Hosted API is ready at implementation commit `30b146d2`.
+- Hosted health does not expose the route-specific
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT` gate.
+- ARIADNE must use the authenticated owner encounter readiness route as hosted
+  truth, then either prove one disposable responder reply or return the exact
+  hosted config blocker.
+
+Current lane:
+
+```text
+PR502B - Owner Encounter Provider Gate Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_PROOF
+Source: docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_ARIADNE.md
+```
+
+## Previous lane - PR502A owner encounter explicit provider route gate accepted
 
 ARGUS accepted PR502A:
 

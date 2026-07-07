@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR502A | Owner Encounter Explicit Provider Route Gate | MIMIR / A1 | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION`; route-local exact-true NVIDIA private-context gate passed ARGUS review without shared provider router, persistence, source retrieval, public encounter, social, queue, billing, schema, package, lockfile, or UI drift. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md` |
+| PR502B | Owner Encounter Provider Gate Hosted Proof | ARIADNE / A4 | Open for hosted proof; use authenticated owner readiness as source of truth, then either prove one disposable responder reply or return the exact hosted config blocker. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR502A closeout | Owner Encounter Explicit Provider Route Gate | MIMIR | Closed accepted locally; hosted generation still requires ARIADNE proof with route-specific config present. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_CLOSEOUT.md` |
 | PR502A review | Owner Encounter Explicit Provider Route Gate | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION`; hosted proof is still required before claiming hosted encounter generation is live. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md` |
 | PR502A implementation | Owner Encounter Explicit Provider Route Gate | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; route-local default-false exact-true NVIDIA private-context gate is implemented only in owner encounter preview/readiness after same-owner checks. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md` |
 | PR502 closeout | Owner Encounter Private-Context Provider Route Preflight | MIMIR | Closed accepted; DAEDALUS gets PR502A as the exact owner-encounter explicit provider route gate. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_CLOSEOUT.md` |
