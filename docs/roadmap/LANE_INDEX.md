@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR502B | Owner Encounter Provider Gate Hosted Proof | ARIADNE / A4 | Open for hosted proof; use authenticated owner readiness as source of truth, then either prove one disposable responder reply or return the exact hosted config blocker. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_ARIADNE.md` |
+| PR502B | Owner Encounter Provider Gate Hosted Proof | MIMIR / A1 | Blocked as `HOSTED_PR502B_PROVIDER_GATE_CONFIG_BLOCKED`; hosted PR502A runtime and owner auth passed, but authenticated encounter readiness returned `persona_encounter_provider_unavailable` with `provider_data_policy`, so ARIADNE stopped before generation. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR502B hosted proof | Owner Encounter Provider Gate Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked by hosted provider policy/config; web/API were fresh at `30b146d2`, replay owner auth and same-owner persona availability passed, readiness returned `ready:false` with `persona_encounter_provider_unavailable` / `provider_data_policy`, and no generation was attempted. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md` |
 | PR502A closeout | Owner Encounter Explicit Provider Route Gate | MIMIR | Closed accepted locally; hosted generation still requires ARIADNE proof with route-specific config present. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_CLOSEOUT.md` |
 | PR502A review | Owner Encounter Explicit Provider Route Gate | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_IMPLEMENTATION`; hosted proof is still required before claiming hosted encounter generation is live. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_REVIEW_RESULT.md` |
 | PR502A implementation | Owner Encounter Explicit Provider Route Gate | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; route-local default-false exact-true NVIDIA private-context gate is implemented only in owner encounter preview/readiness after same-owner checks. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_RESULT.md` |

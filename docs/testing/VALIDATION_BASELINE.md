@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR502B Owner Encounter Provider Gate Hosted Proof
+
+ARIADNE completed the PR502B hosted owner encounter provider-gate proof on
+2026-07-07:
+
+- `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`HOSTED_PR502B_PROVIDER_GATE_CONFIG_BLOCKED`.
+
+Reason:
+
+- hosted web/API were reachable and ready at runtime commit
+  `30b146d223734f17d3c9ab7b102207871377d1e9`, which includes PR502A;
+- replay owner sign-in returned `200` with `canon` tier;
+- the owner had five same-owner personas available for the readiness proof;
+- authenticated `GET /persona-encounters/preview/readiness` returned
+  `ready:false`, code `persona_encounter_provider_unavailable`, and
+  classification `provider_data_policy`;
+- generation was not attempted because PR502B requires stopping before any
+  generation click while readiness is provider-policy/config blocked;
+- no provider call, token accounting, rate-limit increment, disposable reply,
+  transcript, conversation, draft, public page, or shareable output was created;
+- recorded output contained no owner id, raw persona id, prompt body, provider
+  key, env value, raw base URL, raw model config, bearer/JWT token, SQL detail,
+  or stack trace.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API readiness runner | Blocked as expected | 7 checks passed; readiness returned provider policy/config blocker before generation. |
+| Hosted freshness | Pass | Web/API were ready at `30b146d223734f17d3c9ab7b102207871377d1e9`, which includes PR502A. |
+| Replay owner auth | Pass | Sign-in returned `200` with `canon` tier. |
+| Same-owner persona availability | Pass | Owner persona count was 5; selected raw persona ids were not recorded. |
+| Owner readiness route | Config blocked | `ready:false`, `persona_encounter_provider_unavailable`, `provider_data_policy`. |
+| Stop-before-generation rule | Pass | No generation POST was sent because readiness was blocked. |
+| Privacy/secret scan | Pass | Recorded output contained no raw ids, prompt bodies, provider config, tokens, SQL details, or stack traces. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+`pnpm typecheck` was not run because the result updated docs only and did not
+touch imports or scripts.
+
 ## PR502A Owner Encounter Explicit Provider Route Gate ARGUS Review
 
 ARGUS accepted the PR502A owner encounter explicit provider route gate on

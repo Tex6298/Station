@@ -4,31 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502B owner encounter provider gate hosted proof opened
+## Current lane - PR502B owner encounter provider gate hosted proof blocked
 
-MIMIR closed PR502A locally and opened PR502B for ARIADNE:
+ARIADNE completed the hosted PR502B readiness proof:
 
-`docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_CLOSEOUT.md`
+`docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md`
 
-`docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_ARIADNE.md`
+Result:
+
+```text
+HOSTED_PR502B_PROVIDER_GATE_CONFIG_BLOCKED
+```
 
 Reason:
 
-- ARGUS accepted PR502A locally.
-- Hosted API is ready at implementation commit `30b146d2`.
-- Hosted health does not expose the route-specific
-  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT` gate.
-- ARIADNE must use the authenticated owner encounter readiness route as hosted
-  truth, then either prove one disposable responder reply or return the exact
-  hosted config blocker.
+- Hosted web/API were reachable and ready at runtime commit
+  `30b146d223734f17d3c9ab7b102207871377d1e9`, which includes PR502A.
+- Replay owner sign-in passed with `canon` tier.
+- The owner had five same-owner personas available for the readiness proof.
+- Authenticated `GET /persona-encounters/preview/readiness` returned
+  `ready:false`, code `persona_encounter_provider_unavailable`, and
+  classification `provider_data_policy`.
+- Per PR502B instructions, ARIADNE stopped before generation while readiness was
+  provider-policy/config blocked.
+- No provider call, token accounting, rate-limit increment, disposable reply,
+  transcript, conversation, draft, public page, or shareable output was created.
+- Recorded output contained no owner id, raw persona id, prompt body, provider
+  key, env value, raw base URL, raw model config, bearer/JWT token, SQL detail,
+  or stack trace.
 
 Current lane:
 
 ```text
 PR502B - Owner Encounter Provider Gate Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_FOR_HOSTED_PROOF
-Source: docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_ARIADNE.md
+Owner: MIMIR / A1
+State: HOSTED_PR502B_PROVIDER_GATE_CONFIG_BLOCKED
+Source: docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR502A owner encounter explicit provider route gate accepted
