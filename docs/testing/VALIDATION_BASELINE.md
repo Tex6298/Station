@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500C Social Credential Owner API Preflight
+
+ARGUS completed the PR500C social credential owner API preflight on
+2026-07-07:
+
+- `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`.
+
+Reason:
+
+- PR500A established encrypted social credential storage and safe metadata
+  readback;
+- PR500B proved hosted migration 072 is present and ready;
+- the accepted next slice is backend-only owner Bluesky manual credential
+  metadata, encrypted replacement storage, and provider-scoped local revoke;
+- OAuth, provider calls, posting, Settings UI, queues, workers, billing,
+  Cloudflare, partner adapters, public syndication, hosted schema changes,
+  legacy social tables, package or lockfile drift, and readiness unpause remain
+  out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts` | Pass | 110 focused social/auth/archive connector tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck replayed from cache. |
+| `git diff --check` | Pass | No whitespace errors before ARGUS docs edits. |
+
 ## PR500B Social Credential Hosted Migration 072 Proof
 
 DAEDALUS completed the PR500B hosted migration 072 proof/repair on

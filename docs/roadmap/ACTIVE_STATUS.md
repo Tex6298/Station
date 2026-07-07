@@ -4,38 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500C social credential owner API preflight
+## Current lane - PR500C social credential owner API preflight accepted
 
-MIMIR closed PR500B hosted migration proof and opened PR500C for ARGUS:
+ARGUS accepted PR500C:
 
-`docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_CLOSEOUT.md`
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_RESULT.md`
 
-`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md`
+Decision:
+
+```text
+ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API
+```
 
 Reason:
 
-- Hosted migration 072 is now proven present after DAEDALUS applied the
-  accepted migration and re-probed successfully.
-- The owner social credential API route is not yet accepted.
-- ARGUS should decide the smallest backend-only route boundary for safe
-  credential metadata readback, Bluesky manual credential storage, and local
-  revoke/disconnect without OAuth, provider calls, posting, UI, queues,
-  billing, public syndication, or readiness unpause.
+- PR500A established encrypted social credential storage.
+- PR500B proved hosted migration 072 is present and ready.
+- The next safe slice is a backend-only, owner-authenticated Bluesky manual
+  credential API for safe metadata readback, encrypted replacement storage, and
+  provider-scoped local revoke.
+- The accepted lane explicitly forbids OAuth, provider calls, posting, Settings
+  UI, document pages, queues, workers, billing, Cloudflare, partner adapters,
+  package or lockfile drift, public syndication, hosted schema changes, legacy
+  social table behavior, and readiness unpause.
 
 Current lane:
 
 ```text
 PR500C - Social Credential Owner API Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API
+Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR500B social credential hosted migration 072 proof complete
