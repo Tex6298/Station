@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR503A | Publication Manifest Contract | ARGUS / A3 | Ready for ARGUS review; DAEDALUS added the owner-only non-persisted Station Press publication manifest contract and `/studio/publishing` readback with no API/schema/package/storage/queue/provider/billing/social/public-route drift. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_RESULT.md` |
+| PR503A | Publication Manifest Contract | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`; visible `/studio/publishing` UI changed, so ARIADNE hosted desktop/mobile proof is required before closeout. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR503A review | Publication Manifest Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`; owner-only non-persisted manifest contract stayed inside web helper/dashboard/test scope with no API/schema/package/storage/provider/billing/social/public-route drift. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md` |
 | PR503 closeout | Station Press / Portable Publication Preflight | MIMIR | Closed accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; DAEDALUS gets the owner-only publication manifest contract implementation lane. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR503A implementation | Publication Manifest Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; owner-only metadata/readback helper and publishing dashboard details block are implemented, with ARIADNE hosted desktop/mobile proof required after acceptance because visible UI changed. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_RESULT.md` |
 | PR503 preflight | Station Press / Portable Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; safe first slice is owner-only metadata/readback from existing publishing, public document, linked discussion, seminar, and export-trust truth, with no PDF/binary/print/package/storage/queue/provider/billing/social/private-body scope. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_RESULT.md` |

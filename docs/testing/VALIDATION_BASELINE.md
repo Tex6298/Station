@@ -6,46 +6,43 @@ change, not to unknown repo hygiene.
 
 ## PR503A Publication Manifest Contract
 
-DAEDALUS completed the PR503A publication manifest contract implementation on
+ARGUS accepted the PR503A publication manifest contract implementation on
 2026-07-07:
 
-- `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_RESULT.md`
+- `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`.
 
 Reason:
 
-- the new `station.press.publication_manifest_contract.v1` helper is
-  owner-only, non-persisted, and metadata/readback only;
-- private/draft documents are classified as not package-ready and do not carry
-  owner source-label text in the manifest readback;
-- published Space-backed documents can show public-readback metadata without
-  serializing raw document, thread, Space, seminar, package, or owner ids;
-- linked discussion state is status/label only;
-- seminar record status and stored schedule metadata appear only when the
-  current dashboard data already includes a record;
-- excluded/future material names PDFs, binary archives, original files,
-  print/fulfillment, queues/workers, public package URLs, storage objects,
-  private bodies, social dispatch, billing, and commercial packaging;
-- `/studio/publishing` renders a readback-only details block from already
-  fetched dashboard data and adds no mutation buttons, package/export creation,
-  background-job controls, provider controls, billing controls, public download
-  links, share links, or broad redesign.
+- `station.press.publication_manifest_contract.v1` is a non-persisted
+  owner-only metadata/readback helper contract;
+- implementation stayed inside web helper/dashboard/test files and docs;
+- `/studio/publishing` renders readback from already-fetched owner data and
+  adds no package creation, export creation, mutation controls, provider
+  controls, billing controls, public download links, share links, or broad
+  dashboard redesign;
+- no API, package, lockfile, database type, Supabase migration, schema,
+  storage, export route, export package kind, worker, queue, Redis, Cloudflare,
+  billing, Stripe, provider/model, social, archive connector, hosted runtime,
+  public route, package generation, or private body/source exposure drift was
+  found;
+- visible `/studio/publishing` UI changed, so ARIADNE hosted desktop/mobile
+  proof is required before closeout.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/web/lib/publishing-ui.test.ts apps/web/lib/export-trust.test.ts apps/web/lib/seminar-host-readiness.test.ts` | Pass | 34 helper/UI tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 24 API/UI tests passed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 10 export API tests passed as a no-drift check. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 194 Studio UI/helper tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed. |
-| `git diff --check` | Pass | No whitespace errors before docs staging. |
-| Changed-path scan | Pass | Only accepted web helper/dashboard/test files changed before docs; no API/schema/package/storage/provider/billing/social/public-route drift. |
-
-Because visible `/studio/publishing` UI changed, ARIADNE hosted desktop and
-390px mobile proof is required after ARGUS acceptance and before MIMIR
-closeout.
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed from cache. |
+| `git diff --check f365bbce..097905d2` | Pass | No whitespace errors in the implementation range. |
+| `git diff --cached --check` | Pass | No staged whitespace errors during review. |
+| Changed-path scan | Pass | No forbidden API/schema/package/storage/provider/billing/social/public-route paths changed. |
+| Sensitive/drift scans | Reviewed | Matches were redaction fixtures and negative exclusion copy only; no real secrets or raw ids were introduced. |
 
 ## PR503 Station Press / Portable Publication Preflight
 
