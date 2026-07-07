@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500C Social Credential Owner API ARGUS Review
+
+ARGUS accepted the PR500C social credential owner API implementation on
+2026-07-07:
+
+- `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION`.
+
+Reason:
+
+- owner scope is enforced by authenticated `/social` routes, `req.user.id`, and
+  PR500A storage filters;
+- GET returns safe metadata only through the PR500A readback serializer;
+- POST accepts only the bounded Bluesky manual credential body and checks
+  encryption configuration before database writes;
+- DELETE is Bluesky-only, provider-scoped, idempotent, local-only, and does not
+  accept credential ids;
+- the route-specific scalar JSON parser is narrowly mounted to
+  `/social/connectors/credentials`;
+- readiness, Settings Social, document pages, OAuth/provider calls, posting,
+  queues/workers, billing, package/lockfile state, hosted schema, public
+  syndication, and legacy social table behavior remain unchanged.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts` | Pass | 117 focused tests passed: 29 social/auth/readiness tests and 88 archive connector guard tests. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Forbidden-path implementation scan | Pass | No package/lockfile, web UI, Settings, document, migration, hosted schema, provider fetch/SDK, OAuth exchange/refresh/state, account/profile lookup, posting, queue/worker, Redis, Cloudflare, Stripe, billing, public syndication, legacy social table, or readiness-unpause drift. |
+| Secret-shaped diff scan | Pass | No committed secret values found. |
+
 ## PR500C Social Credential Owner API Implementation
 
 DAEDALUS completed the PR500C social credential owner API implementation on

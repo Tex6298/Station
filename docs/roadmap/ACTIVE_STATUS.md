@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500C social credential owner API ready for ARGUS review
+## Current lane - PR500C social credential owner API implementation accepted
+
+ARGUS accepted the PR500C backend-only owner social credential API
+implementation:
+
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION
+```
+
+Reason:
+
+- The implementation matches the accepted PR500C lane: authenticated backend
+  GET safe metadata, POST Bluesky manual encrypted replacement storage, and
+  provider-scoped local DELETE revoke.
+- Owner scope is enforced through `requireAuth`, `req.user.id`, and PR500A
+  storage filters.
+- Metadata responses omit row ids, owner ids, encrypted payloads, credential
+  fingerprints, identifiers, handles, provider account ids, app passwords,
+  tokens, OAuth values, env values, SQL details, and stack traces.
+- The route-specific JSON parser is narrowly mounted to
+  `/social/connectors/credentials` so scalar JSON returns the bounded social
+  invalid code.
+- `/social/readiness`, Settings Social, document pages, package manifests,
+  lockfiles, migrations, hosted schema, OAuth/provider calls, posting, queues,
+  billing, public syndication, and legacy social tables remain unchanged.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/services/social-connectors/credential-contract.test.ts apps/api/src/services/social-connectors/credential-storage.test.ts apps/api/src/routes/social.test.ts apps/web/lib/social-publishing-readiness.test.ts apps/web/lib/auth-routes.test.ts apps/api/src/routes/archive-connectors.test.ts apps/web/lib/archive-connector-owner-flow.test.ts`
+  passed: 117 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Forbidden-path and secret-shaped diff scans passed.
+- `git diff --check` and `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR500C - Social Credential Owner API
+Owner: MIMIR / A1
+State: ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION
+Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR500C social credential owner API ready for ARGUS review
 
 DAEDALUS completed the PR500C backend-only owner social credential API
 implementation:
