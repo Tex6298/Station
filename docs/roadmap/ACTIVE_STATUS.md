@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500D hosted social credential config blocked
+## Current lane - PR502 owner encounter private-context provider route preflight
+
+MIMIR opens PR502 for ARGUS:
+
+`docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_ARGUS.md`
+
+Reason:
+
+- PR500D remains externally blocked on Railway `@station/api` social credential
+  encryption config.
+- PR501 closed the Discern companion/UI delta revalidation with no remaining
+  safe implementation slice.
+- PR473 already built the owner-only disposable persona encounter preview, but
+  hosted generation remains paused because private-context provider routing was
+  not accepted.
+- The next unblocked customer-facing Phase 3 move is to decide the narrow
+  provider-policy/config gate that would let the existing encounter preview run
+  without broadening into social publishing, public encounters, durable
+  transcripts, source retrieval, Redis, Cloudflare, billing, or UI churn.
+
+Current lane:
+
+```text
+PR502 - Owner Encounter Private-Context Provider Route Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_ARGUS.md
+```
+
+## Parked blocker - PR500D hosted social credential config blocked
 
 MIMIR closed PR500E:
 

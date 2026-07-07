@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500D | Social Credential Owner API Hosted Proof | MIMIR / A1 | Externally config-blocked as `RAILWAY_CONFIG_ACCESS_BLOCKED`; hosted PR500E readback is deployed and reports `hostedCredentialProofReady = false`, so Railway `@station/api` still needs stable real `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` before ARIADNE reruns PR500D. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md` |
+| PR502 | Owner Encounter Private-Context Provider Route Preflight | ARGUS / A3 | Open for hostile preflight; decide whether DAEDALUS may implement an explicit owner-encounter private-context provider route gate, or name the smallest concrete blocker. | `docs/roadmap/PR502_OWNER_ENCOUNTER_PRIVATE_CONTEXT_PROVIDER_ROUTE_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500D parked | Social Credential Owner API Hosted Proof | MIMIR / A1 | Externally config-blocked as `RAILWAY_CONFIG_ACCESS_BLOCKED`; hosted PR500E readback is deployed and reports `hostedCredentialProofReady = false`, so Railway `@station/api` still needs stable real `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` before ARIADNE reruns PR500D. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md` |
 | PR500E closeout | Social Credential Config Readiness Readback | MIMIR | Closed accepted as `ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION`; hosted `@station/api` reports PR500E booleans and current `hostedCredentialProofReady = false`, confirming PR500D remains externally config-blocked. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_CLOSEOUT.md` |
 | PR500E review | Social Credential Config Readiness Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_IMPLEMENTATION`; no review patch required, and PR500D remains externally blocked on real Railway `@station/api` social credential config. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_REVIEW_RESULT.md` |
 | PR500E implementation | Social Credential Config Readiness Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; health/deployment social credential encryption booleans are implemented with no secret/fallback/UI/OAuth/provider/posting/readiness-unpause drift. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_RESULT.md` |
