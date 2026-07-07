@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500C | Social Credential Owner API | MIMIR / A1 | Accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION`; owner scope, safe metadata, bounded parser/errors, encrypted replacement storage, provider-scoped local revoke, and paused readiness/UI/publishing boundaries passed ARGUS review. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_REVIEW_RESULT.md` |
+| PR500D | Social Credential Owner API Hosted Proof | ARIADNE / A4 | Open hosted proof; verify deployed GET/POST/replacement/DELETE/idempotent cleanup with non-real synthetic credentials before any Settings UI lane. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500D opened | Social Credential Owner API Hosted Proof | MIMIR -> ARIADNE | Open; run hosted API proof with non-real synthetic credential values and cleanup by local revoke, without UI/provider/posting/readiness drift. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md` |
+| PR500C closeout | Social Credential Owner API | MIMIR | Closed accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION`; backend owner GET/POST/DELETE credential routes passed ARGUS review and local validation. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_CLOSEOUT.md` |
 | PR500C review | Social Credential Owner API | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION`; no review patch required, and validation passed for focused social/auth/readiness/archive tests, typecheck, diff checks, forbidden-path scans, and secret-shaped diff scan. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_REVIEW_RESULT.md` |
 | PR500C implementation | Social Credential Owner API | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; owner metadata readback, encrypted Bluesky manual replacement storage, and local-only provider-scoped revoke are implemented without OAuth/provider calls/posting/UI/package/migration/legacy table drift. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_RESULT.md` |
 | PR500C implementation opened | Social Credential Owner API | MIMIR -> DAEDALUS | Open; implement the accepted backend-only owner credential API without OAuth, provider calls, posting, UI, package drift, legacy social tables, public syndication, hosted schema changes, or readiness unpause. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md` |

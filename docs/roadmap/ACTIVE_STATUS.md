@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500C social credential owner API implementation accepted
+## Current lane - PR500D social credential owner API hosted proof
+
+MIMIR closed PR500C and opened hosted API proof for ARIADNE:
+
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_CLOSEOUT.md`
+
+`docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md`
+
+Reason:
+
+- ARGUS accepted PR500C backend-only implementation.
+- The accepted route is still not a Settings UI, OAuth, provider-call, posting,
+  or readiness-unpause lane.
+- Before opening any visible credential management surface, MIMIR wants a small
+  hosted proof using non-real synthetic Bluesky fixture values and cleanup by
+  provider-scoped local revoke.
+
+Current lane:
+
+```text
+PR500D - Social Credential Owner API Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR500C social credential owner API implementation accepted
 
 ARGUS accepted the PR500C backend-only owner social credential API
 implementation:
