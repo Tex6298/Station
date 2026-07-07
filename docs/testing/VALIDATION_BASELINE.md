@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR503B Publication Manifest Hosted Proof
+
+ARIADNE completed the hosted PR503B publication manifest proof on 2026-07-07:
+
+- `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web/API were reachable and ready at
+  `097905d21b10df3be69fc238f347c72a801cde0a`, the PR503A implementation
+  commit;
+- replay owner sign-in returned `200` with `canon` tier;
+- signed-in `/studio/publishing` rendered the Station Press manifest contract
+  details block on desktop and 390px mobile;
+- the manifest stayed owner-only and metadata/readback-only, with no package,
+  export, provider, job, billing, or social mutation;
+- desktop and 390px mobile fit without horizontal overflow or illegible
+  manifest readback;
+- visible copy exposed no raw ids, secrets, storage paths, SQL errors, stack
+  traces, provider payloads, or unsupported launch/package claims.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser proof runner | Pass | 8 checks passed; no failed checks or caveats. |
+| Hosted freshness | Pass | Web/API were ready at `097905d21b10df3be69fc238f347c72a801cde0a`. |
+| Replay owner auth | Pass | Sign-in returned `200` with `canon` tier. |
+| Desktop screenshot inspection | Pass | Manifest readback rendered, fit horizontally, and performed no mutation/provider/social/billing/job actions. |
+| 390px mobile screenshot inspection | Pass | Manifest readback rendered, fit horizontally, and performed no mutation/provider/social/billing/job actions. |
+| Privacy/product-boundary scan | Pass | SQL-detail and stack-trace wording appeared only as explicit excluded-field copy. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+`pnpm typecheck` was not run because the PR503B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR503A Publication Manifest Contract
 
 ARGUS accepted the PR503A publication manifest contract implementation on

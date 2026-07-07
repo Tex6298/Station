@@ -4,34 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR503B publication manifest hosted proof opened
+## Current lane - PR503B publication manifest hosted proof passed
 
-MIMIR opened the required ARIADNE proof lane:
+ARIADNE completed the required hosted proof:
 
-`docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md`
 
-Reason:
+Result:
 
-- ARGUS accepted PR503A as an owner-only Station Press publication manifest
-  contract implementation.
-- `/studio/publishing` visible UI changed.
-- ARGUS requires hosted desktop and 390px mobile proof before MIMIR closes the
-  implementation.
+```text
+PASS_PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF
+```
+
+Summary:
+
+- Hosted web/API were reachable and ready at
+  `097905d21b10df3be69fc238f347c72a801cde0a`, the PR503A implementation
+  commit.
+- Replay owner sign-in returned `200` with `canon` tier.
+- `/studio/publishing` rendered the owner-only Station Press manifest contract
+  details block on desktop and 390px mobile.
+- The manifest remained metadata/readback-only, contained no interactive
+  controls, and did not create packages, exports, provider calls, jobs, billing
+  actions, or social dispatch.
+- Desktop and 390px mobile had no horizontal overflow, clipped controls,
+  incoherent overlap, or illegible manifest readback.
+- Privacy/product-boundary scans passed; visible SQL-detail and stack-trace
+  wording appeared only as explicit excluded-field copy.
 
 Current lane:
 
 ```text
 PR503B - Publication Manifest Hosted Proof
 Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF
-Source: docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md
+State: PASS_AWAITING_MIMIR_CLOSEOUT
+Source: docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR503A publication manifest contract accepted by ARGUS

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR503B | Publication Manifest Hosted Proof | ARIADNE / A4 | Open; hosted desktop and 390px mobile proof of `/studio/publishing` manifest readback is required before MIMIR closes PR503A. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md` |
+| PR503B | Publication Manifest Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed; hosted desktop and 390px mobile proof of `/studio/publishing` manifest readback is complete and awaiting MIMIR closeout. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR503B proof | Publication Manifest Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF`; hosted web/API were fresh at `097905d2`, owner auth passed, desktop and 390px mobile manifest readback fit, no mutation/provider/social/billing/job action ran, and privacy/product-boundary scans passed. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md` |
 | PR503B opened | Publication Manifest Hosted Proof | MIMIR -> ARIADNE | Open; prove hosted `/studio/publishing` PR503A manifest readback on desktop and 390px mobile without mutation/provider/social/billing/job drift. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md` |
 | PR503A review | Publication Manifest Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`; owner-only non-persisted manifest contract stayed inside web helper/dashboard/test scope with no API/schema/package/storage/provider/billing/social/public-route drift. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md` |
 | PR503 closeout | Station Press / Portable Publication Preflight | MIMIR | Closed accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; DAEDALUS gets the owner-only publication manifest contract implementation lane. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
