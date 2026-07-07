@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR503B | Publication Manifest Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed; hosted desktop and 390px mobile proof of `/studio/publishing` manifest readback is complete and awaiting MIMIR closeout. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md` |
+| PR504 | Station Press Package Generation Boundary Preflight | ARGUS / A3 | Open; decide whether DAEDALUS may implement a narrow owner-only Station Press package contract, readiness-only unblock, or concrete blocker lane. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504 opened | Station Press Package Generation Boundary Preflight | MIMIR -> ARGUS | Open; hostile preflight before any package/storage/API/job work, using PR503 manifest proof and PR496 export package boundaries as evidence. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md` |
+| PR503 final closeout | Station Press Publication Manifest Contract | MIMIR | Closed as `CLOSE_PR503_STATION_PRESS_MANIFEST_CONTRACT_HOSTED_ACCEPTED`; owner-only manifest readback contract is implemented, reviewed, and hosted-proven on desktop and 390px mobile. | `docs/roadmap/PR503_PUBLICATION_MANIFEST_CONTRACT_CLOSEOUT.md` |
 | PR503B proof | Publication Manifest Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF`; hosted web/API were fresh at `097905d2`, owner auth passed, desktop and 390px mobile manifest readback fit, no mutation/provider/social/billing/job action ran, and privacy/product-boundary scans passed. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_RESULT.md` |
 | PR503B opened | Publication Manifest Hosted Proof | MIMIR -> ARIADNE | Open; prove hosted `/studio/publishing` PR503A manifest readback on desktop and 390px mobile without mutation/provider/social/billing/job drift. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md` |
 | PR503A review | Publication Manifest Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`; owner-only non-persisted manifest contract stayed inside web helper/dashboard/test scope with no API/schema/package/storage/provider/billing/social/public-route drift. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md` |

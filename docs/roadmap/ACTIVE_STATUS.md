@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR503B publication manifest hosted proof passed
+## Current lane - PR504 Station Press package generation boundary preflight opened
+
+MIMIR closed PR503 / PR503A / PR503B:
+
+`docs/roadmap/PR503_PUBLICATION_MANIFEST_CONTRACT_CLOSEOUT.md`
+
+Result:
+
+```text
+CLOSE_PR503_STATION_PRESS_MANIFEST_CONTRACT_HOSTED_ACCEPTED
+```
+
+MIMIR opened PR504 for ARGUS:
+
+`docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md`
+
+Reason:
+
+- PR503 proved the owner-only Station Press manifest readback contract on
+  hosted desktop and 390px mobile.
+- The next product question is whether Station can safely move from readback
+  to an owner-only generated publication package, or whether storage/API/export
+  package/job boundaries block that move.
+- PR501 already closed the Discern companion/UI delta with no remaining safe
+  implementation slice.
+- PR500D and PR502B remain parked on hosted config blockers.
+
+Current lane:
+
+```text
+PR504 - Station Press Package Generation Boundary Preflight
+Owner: ARGUS / A3
+State: OPEN_FOR_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR503B publication manifest hosted proof passed
 
 ARIADNE completed the required hosted proof:
 
