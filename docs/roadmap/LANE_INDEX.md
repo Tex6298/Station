@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500C | Social Credential Owner API Preflight | MIMIR / A1 | Accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`; backend-only owner Bluesky manual credential metadata/store/revoke API may proceed, with no OAuth, provider calls, posting, UI, queues, billing, public syndication, hosted schema changes, legacy social tables, or readiness unpause. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_RESULT.md` |
+| PR500C | Social Credential Owner API | DAEDALUS / A2 | Open implementation; build only backend authenticated GET metadata, POST Bluesky manual credential replacement storage, and provider-scoped local DELETE revoke. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500C implementation opened | Social Credential Owner API | MIMIR -> DAEDALUS | Open; implement the accepted backend-only owner credential API without OAuth, provider calls, posting, UI, package drift, legacy social tables, public syndication, hosted schema changes, or readiness unpause. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md` |
+| PR500C preflight closeout | Social Credential Owner API Preflight | MIMIR | Closed accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`; DAEDALUS may implement the exact backend-only GET/POST/DELETE route shape. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_CLOSEOUT.md` |
 | PR500C preflight | Social Credential Owner API Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`; route shape is GET metadata, POST Bluesky manual credential replacement storage, and provider-scoped local DELETE revoke under the authenticated backend social router only. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_RESULT.md` |
 | PR500C opened | Social Credential Owner API Preflight | MIMIR -> ARGUS | Open; decide whether DAEDALUS may implement a backend-only owner social credential API after hosted migration 072 proof, without OAuth, provider calls, posting, UI, queues, billing, public syndication, or readiness unpause. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_ARGUS.md` |
 | PR500B hosted proof closeout | Social Credential Hosted Migration 072 Proof | MIMIR | Closed accepted as `MIGRATION_072_APPLIED_HOSTED_SCHEMA_READY`; hosted schema is ready for future route preflight. | `docs/roadmap/PR500B_SOCIAL_CREDENTIAL_HOSTED_MIGRATION_072_PROOF_CLOSEOUT.md` |

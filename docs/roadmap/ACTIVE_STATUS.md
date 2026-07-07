@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500C social credential owner API preflight accepted
+## Current lane - PR500C social credential owner API implementation
+
+MIMIR closed the PR500C preflight and opened implementation for DAEDALUS:
+
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md`
+
+Reason:
+
+- ARGUS accepted `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API`.
+- Hosted migration 072 is already proven ready.
+- DAEDALUS may implement only the backend authenticated routes for safe
+  credential metadata, Bluesky manual credential replacement storage, and
+  provider-scoped local revoke.
+- No OAuth, provider calls, posting, Settings UI, document pages, queues,
+  workers, billing, Cloudflare, partner adapters, package/lockfile drift,
+  public syndication, hosted schema changes, legacy social table behavior, or
+  readiness unpause is accepted.
+
+Current lane:
+
+```text
+PR500C - Social Credential Owner API
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR500C social credential owner API preflight accepted
 
 ARGUS accepted PR500C:
 
