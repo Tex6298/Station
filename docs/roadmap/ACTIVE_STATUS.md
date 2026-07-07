@@ -4,37 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500D social credential owner API hosted proof
+## Current lane - PR500D social credential owner API hosted proof blocked
 
-MIMIR closed PR500C and opened hosted API proof for ARIADNE:
+ARIADNE completed the hosted PR500D API proof:
 
-`docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_CLOSEOUT.md`
+`docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_RESULT.md`
 
-`docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md`
+Result:
 
-Reason:
+```text
+BLOCK_PR500D_WITH_CONCRETE_REASON
+```
 
-- ARGUS accepted PR500C backend-only implementation.
-- The accepted route is still not a Settings UI, OAuth, provider-call, posting,
-  or readiness-unpause lane.
-- Before opening any visible credential management surface, MIMIR wants a small
-  hosted proof using non-real synthetic Bluesky fixture values and cleanup by
-  provider-scoped local revoke.
+Decision:
+
+- Hosted web/API were reachable and ready at runtime commit
+  `bc1456825bbaf0d0bb5507da50b8d4c404c1165a`, the PR500C route implementation
+  commit.
+- Replay owner sign-in passed.
+- Signed-out credential GET/POST/DELETE requests returned `401`.
+- Owner credential GET returned `200` with safe metadata only and no active
+  Bluesky credential before the proof.
+- Invalid owner POST returned bounded
+  `400 social_connector_credential_invalid` before storage.
+- `/social/readiness` remained `readback_only`, and paused publishing mutation
+  returned `423 social_connectors_paused`.
+- Valid synthetic POST returned bounded
+  `503 social_connector_credential_encryption_required`.
+- No hosted credential write started; final credential readback still showed no
+  active hosted Bluesky credential.
+- The recorded proof output did not expose submitted synthetic credential
+  values, encrypted payloads, credential fingerprints, owner ids, bearer/JWT
+  tokens, SQL details, stack traces, env values, or provider payloads.
 
 Current lane:
 
 ```text
 PR500D - Social Credential Owner API Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF
-Source: docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md
+Owner: MIMIR / A1
+State: BLOCK_PR500D_WITH_CONCRETE_REASON
+Source: docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR500C social credential owner API implementation accepted

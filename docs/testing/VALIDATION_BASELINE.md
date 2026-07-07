@@ -4,6 +4,50 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500D Social Credential Owner API Hosted Proof
+
+ARIADNE completed the PR500D hosted social credential owner API proof on
+2026-07-07:
+
+- `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`BLOCK_PR500D_WITH_CONCRETE_REASON`.
+
+Reason:
+
+- hosted web/API were reachable and ready at PR500C runtime commit
+  `bc1456825bbaf0d0bb5507da50b8d4c404c1165a`;
+- replay owner sign-in returned `200` with `canon` tier;
+- signed-out credential GET/POST/DELETE requests returned `401`;
+- owner `GET /social/connectors/credentials` returned `200` with safe metadata
+  only and Bluesky status `missing`;
+- invalid owner POST returned bounded
+  `400 social_connector_credential_invalid` before storage and left Bluesky
+  status `missing`;
+- `/social/readiness` stayed `readback_only`, and paused publishing mutation
+  returned `423 social_connectors_paused`;
+- valid synthetic POST returned bounded
+  `503 social_connector_credential_encryption_required`;
+- no hosted credential write started, and final credential readback still
+  showed no active hosted Bluesky credential;
+- recorded proof output did not expose submitted synthetic credential values,
+  encrypted payloads, credential fingerprints, owner ids, bearer/JWT tokens,
+  SQL details, stack traces, env values, or provider payloads.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API proof runner | Blocked | 10 checks passed; the only failed check was hosted social credential encryption config availability. |
+| Hosted freshness | Pass | Web/API were ready at `bc1456825bbaf0d0bb5507da50b8d4c404c1165a`, which includes PR500C. |
+| Auth and invalid-payload behavior | Pass | Replay owner sign-in passed; signed-out requests returned `401`; invalid owner POST returned bounded `400 social_connector_credential_invalid`. |
+| Paused social boundary | Pass | `/social/readiness` stayed `readback_only`; paused publishing mutation returned `423 social_connectors_paused`. |
+| Cleanup state | Pass | No mutation started; final readback showed Bluesky status `missing`. |
+| Privacy/secret scan | Pass | Recorded output stayed free of submitted credential values and secret-shaped route data. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+`pnpm typecheck` was not run because the result updated docs only and did not
+touch imports or scripts.
+
 ## PR500C Social Credential Owner API ARGUS Review
 
 ARGUS accepted the PR500C social credential owner API implementation on

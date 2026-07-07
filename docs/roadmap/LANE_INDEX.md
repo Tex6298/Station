@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500D | Social Credential Owner API Hosted Proof | ARIADNE / A4 | Open hosted proof; verify deployed GET/POST/replacement/DELETE/idempotent cleanup with non-real synthetic credentials before any Settings UI lane. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md` |
+| PR500D | Social Credential Owner API Hosted Proof | MIMIR / A1 | Blocked as `BLOCK_PR500D_WITH_CONCRETE_REASON`; hosted PR500C runtime passed auth, safe GET, invalid POST, paused readiness, paused publishing, no-active cleanup, and privacy scan, but valid synthetic POST returned bounded `social_connector_credential_encryption_required`. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500D hosted proof | Social Credential Owner API Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked on hosted config; web/API were fresh at PR500C runtime `bc145682`, auth/safe GET/invalid POST/paused readiness passed, but valid synthetic POST returned bounded `social_connector_credential_encryption_required`, so replacement and revoke proof must wait for hosted config repair. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_RESULT.md` |
 | PR500D opened | Social Credential Owner API Hosted Proof | MIMIR -> ARIADNE | Open; run hosted API proof with non-real synthetic credential values and cleanup by local revoke, without UI/provider/posting/readiness drift. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md` |
 | PR500C closeout | Social Credential Owner API | MIMIR | Closed accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION`; backend owner GET/POST/DELETE credential routes passed ARGUS review and local validation. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_CLOSEOUT.md` |
 | PR500C review | Social Credential Owner API | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR500C_SOCIAL_CREDENTIAL_OWNER_API_IMPLEMENTATION`; no review patch required, and validation passed for focused social/auth/readiness/archive tests, typecheck, diff checks, forbidden-path scans, and secret-shaped diff scan. | `docs/roadmap/PR500C_SOCIAL_CREDENTIAL_OWNER_API_REVIEW_RESULT.md` |
