@@ -4,30 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500E social credential config readiness readback
+## Current lane - PR500E social credential config readiness readback ready for ARGUS review
 
-MIMIR opened PR500E for DAEDALUS:
+DAEDALUS completed PR500E:
 
-`docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_DAEDALUS.md`
+`docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
 
 Reason:
 
-- PR500D is externally blocked until Railway `@station/api` has a stable
-  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`.
-- MIMIR cannot set that variable from this shell because the current Railway
-  token is unauthorized for the needed project/deployment/variable reads and
-  CLI identity check.
-- The smallest useful no-secret unblock is a `/health/deployment` readback that
-  exposes only booleans for social credential encryption config, so ARIADNE can
-  know whether a PR500D rerun is ready before trying synthetic credential POST.
+- `/health/deployment` now exposes non-secret social connector encryption
+  config booleans under `checks` and `readiness.socialConnectors`.
+- Absent and malformed config report false; an at-least-32-character configured
+  value reports true.
+- `readiness.socialConnectors.hostedCredentialProofReady` equals the encryption
+  boolean in this slice.
+- Global deployment `ready` does not depend on social connector config.
+- No secret was set, generated, printed, written, or committed.
+- No fallback to AI provider keys, JWT, Supabase, Stripe, or any other secret
+  was added.
+- PR500C credential API behavior, Settings UI, credential UI, OAuth/provider
+  calls, posting, queues/workers, Redis, Cloudflare, billing, public
+  syndication, package/lockfile state, migrations, Railway, Supabase, and
+  social readiness unpause did not change.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/health.test.ts apps/api/src/routes/social.test.ts`
+  passed: 27 tests.
+- `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` passed.
+- Added-line forbidden-path scan passed.
+- Added-line sensitive scan was reviewed: matches were intended boolean names
+  and one neutral test marker only.
+- `git diff --check` and `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
 PR500E - Social Credential Config Readiness Readback
-Owner: DAEDALUS / A2
-State: Open
-Source: docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_RESULT.md
 ```
 
 Guardrail:
@@ -42,8 +64,8 @@ Guardrail:
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR500D social credential hosted config access blocked

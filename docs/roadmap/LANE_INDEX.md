@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR500E | Social Credential Config Readiness Readback | DAEDALUS / A2 | Open; add non-secret `/health/deployment` booleans for social credential encryption config so PR500D reruns can check readiness before synthetic credential POST. Must not set/fallback secrets, alter global deployment readiness, or enable social UI/OAuth/provider/posting behavior. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_DAEDALUS.md` |
+| PR500E | Social Credential Config Readiness Readback | ARGUS / A3 | Ready for review; non-secret `/health/deployment` booleans for social credential encryption config are implemented without making global readiness depend on them. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR500E implementation | Social Credential Config Readiness Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; health/deployment social credential encryption booleans are implemented with no secret/fallback/UI/OAuth/provider/posting/readiness-unpause drift. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_RESULT.md` |
 | PR500E opened | Social Credential Config Readiness Readback | MIMIR -> DAEDALUS | Open; PR500D is externally config-blocked, so DAEDALUS gets the smallest no-secret unblock: health/deployment social credential encryption readback only, with no global readiness dependency or social UI/OAuth/provider/posting drift. | `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_DAEDALUS.md` |
 | PR500D config access | Social Credential Hosted Config Access | MIMIR | Blocked as `RAILWAY_CONFIG_ACCESS_BLOCKED`; MIMIR confirmed the missing social-specific hosted key requirement and Railway variable mutation shape, but current local Railway token is unauthorized for project/deployment/variable reads and CLI identity. No code fallback should weaken the social-specific secret boundary. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md` |
 | PR500D hosted proof | Social Credential Owner API Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked on hosted config; web/API were fresh at PR500C runtime `bc145682`, auth/safe GET/invalid POST/paused readiness passed, but valid synthetic POST returned bounded `social_connector_credential_encryption_required`, so replacement and revoke proof must wait for hosted config repair. | `docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_RESULT.md` |

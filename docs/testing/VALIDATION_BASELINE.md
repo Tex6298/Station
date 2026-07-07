@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR500E Social Credential Config Readiness Readback
+
+DAEDALUS completed the PR500E social credential config readiness readback on
+2026-07-07:
+
+- `docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/health/deployment` now exposes social connector credential encryption
+  config as booleans only;
+- absent and malformed config return false, and an at-least-32-character
+  configured marker returns true;
+- hosted credential proof readiness equals that boolean in this narrow slice;
+- global deployment `ready` does not depend on the social connector config;
+- no secret values, fallback secrets, UI, OAuth/provider calls, posting,
+  queues/workers, billing, package/lockfile changes, migrations, or social
+  readiness unpause were added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- exec tsx --test apps/api/src/routes/health.test.ts apps/api/src/routes/social.test.ts` | Pass | 27 focused health/social tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/api typecheck` | Pass | API typecheck passed. |
+| Added-line forbidden-path scan | Pass | No provider fetch/SDK, OAuth/token exchange/refresh/state, account/profile lookup, posting, queue/worker, Cloudflare, billing, Settings/document, legacy social table, fallback secret, or readiness-unpause additions. |
+| Added-line sensitive scan | Reviewed | Matches were intended social credential boolean names and one neutral test marker used to prove non-leakage. |
+| `git diff --check` | Pass | Final pre-commit whitespace check. |
+| `git diff --cached --check` | Pass | Final staged whitespace check. |
+
 ## PR500D Social Credential Owner API Hosted Proof
 
 ARIADNE completed the PR500D hosted social credential owner API proof on

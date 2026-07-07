@@ -40,6 +40,7 @@ process.env.RAILWAY_GIT_REPO_NAME = "Station";
 process.env.RAILWAY_DEPLOYMENT_ID = "deployment-123";
 process.env.RAILWAY_SERVICE_NAME = "@station/api";
 process.env.RAILWAY_ENVIRONMENT_NAME = "production";
+delete process.env.SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY;
 
 type Row = Record<string, any>;
 
@@ -56,6 +57,7 @@ const SECRET_MARKERS = [
   "secret-gemini",
   "secret-google",
   "secret-openai",
+  "social-connector-config-marker",
   "secret-redis",
   "secret-upstash",
 ];
@@ -194,6 +196,7 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.checks.openaiEmbeddings, false);
     assert.equal(deployment.body.checks.geminiEmbeddings, true);
     assert.equal(deployment.body.checks.redisConfigured, true);
+    assert.equal(deployment.body.checks.socialConnectorCredentialEncryptionConfigured, false);
     assert.equal(deployment.body.readiness.database.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
@@ -244,6 +247,10 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
         environment: "production",
       },
     });
+    assert.deepEqual(deployment.body.readiness.socialConnectors, {
+      credentialEncryptionConfigured: false,
+      hostedCredentialProofReady: false,
+    });
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
       "match_memory_items",
       "match_private_archive_chunks",
@@ -255,6 +262,47 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assertNoSecrets(deployment.body);
   } finally {
     await resetHealthFakes();
+  }
+});
+
+test("/health/deployment reports social credential encryption config without making deployment readiness depend on it", async () => {
+  const cases: Array<{ value: string | undefined; configured: boolean; label: string }> = [
+    { value: undefined, configured: false, label: "absent" },
+    { value: "short", configured: false, label: "malformed" },
+    { value: "social-connector-config-marker-key-32-plus", configured: true, label: "configured" },
+  ];
+
+  for (const item of cases) {
+    const db = new ReadinessSupabase();
+    db.migrationObjectProof = true;
+
+    await withEnvOverride({
+      SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY: item.value,
+    }, async () => {
+      const { app } = await setupHealthApp(db);
+
+      try {
+        const deployment = await requestJson(app, "GET", "/health/deployment");
+        assert.equal(deployment.status, 200, item.label);
+        assert.equal(deployment.body.ready, true, item.label);
+        assert.equal(
+          deployment.body.checks.socialConnectorCredentialEncryptionConfigured,
+          item.configured,
+          item.label,
+        );
+        assert.deepEqual(
+          deployment.body.readiness.socialConnectors,
+          {
+            credentialEncryptionConfigured: item.configured,
+            hostedCredentialProofReady: item.configured,
+          },
+          item.label,
+        );
+        assertNoSecrets(deployment.body);
+      } finally {
+        await resetHealthFakes();
+      }
+    });
   }
 });
 

@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "../lib/supabase";
 import { queueProviderStatus } from "./background-jobs.service";
 import { resolveActiveEmbeddingProfileCode, resolveActiveEmbeddingProvider } from "./embedding-key.service";
 import { operationalCacheStatus } from "./operational-cache.service";
+import { socialConnectorCredentialEncryptionConfigured } from "./social-connectors/credential-storage";
 
 const PERSONA_FILES_BUCKET = "persona-files";
 const CHECK_TIMEOUT_MS = 1500;
@@ -93,6 +94,7 @@ type DeploymentReadiness = {
     stripePrices: boolean;
     redisConfigured: boolean;
     jwtSecretConfigured: boolean;
+    socialConnectorCredentialEncryptionConfigured: boolean;
   };
   readiness: {
     database: CheckStatus & { configured: boolean };
@@ -153,6 +155,10 @@ type DeploymentReadiness = {
         environment: string;
       };
     };
+    socialConnectors: {
+      credentialEncryptionConfigured: boolean;
+      hostedCredentialProofReady: boolean;
+    };
   };
 };
 
@@ -173,6 +179,7 @@ export async function buildDeploymentReadiness(now = new Date()): Promise<Deploy
   const stripe = stripeStatus();
   const providers = providerStatus();
   const redis = redisStatus();
+  const socialConnectors = socialConnectorStatus();
 
   const ready = [
     database.ok,
@@ -210,6 +217,7 @@ export async function buildDeploymentReadiness(now = new Date()): Promise<Deploy
       stripe,
       providers,
       redis,
+      socialConnectors,
     },
   };
 }
@@ -236,6 +244,7 @@ function buildStaticChecks() {
     stripePrices: stripe.ready,
     redisConfigured: redis.configured,
     jwtSecretConfigured: env.JWT_SECRET !== "change-me-in-production",
+    socialConnectorCredentialEncryptionConfigured: socialConnectorStatus().credentialEncryptionConfigured,
   };
 }
 
@@ -531,6 +540,14 @@ function redisStatus(): DeploymentReadiness["readiness"]["redis"] {
     configured: railwayRedis || upstashRest,
     queue: queueProviderStatus(),
     operationalCache,
+  };
+}
+
+function socialConnectorStatus(): DeploymentReadiness["readiness"]["socialConnectors"] {
+  const credentialEncryptionConfigured = socialConnectorCredentialEncryptionConfigured();
+  return {
+    credentialEncryptionConfigured,
+    hostedCredentialProofReady: credentialEncryptionConfigured,
   };
 }
 
