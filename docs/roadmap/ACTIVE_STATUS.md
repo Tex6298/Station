@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502B owner encounter provider gate hosted proof blocked
+## Current lane - PR502B owner encounter provider gate hosted config blocked
+
+MIMIR recorded the exact hosted config blocker:
+
+`docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md`
+
+Required Railway `@station/api` unblock:
+
+```text
+PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true
+```
+
+Hosted health after ARIADNE's blocked proof shows:
+
+- hosted API is ready at commit `30b146d223734f17d3c9ab7b102207871377d1e9`;
+- `checks.nvidiaProvider = true`;
+- `checks.anthropicProvider = false`;
+- `checks.deepseekProvider = false`.
+
+So the platform NVIDIA provider exists. The remaining blocker is the explicit,
+route-specific PR502A policy flag. After the variable is set and deployed,
+rerun PR502B.
+
+Current lane:
+
+```text
+PR502B - Owner Encounter Provider Gate Hosted Proof
+Owner: MIMIR / A1
+State: HOSTED_CONFIG_BLOCKED_NEEDS_PERSONA_ENCOUNTER_NVIDIA_FLAG
+Source: docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md
+```
+
+## Previous lane - PR502B owner encounter provider gate hosted proof blocked
 
 ARIADNE completed the hosted PR502B readiness proof:
 
