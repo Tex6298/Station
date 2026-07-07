@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR503A | Publication Manifest Contract | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`; visible `/studio/publishing` UI changed, so ARIADNE hosted desktop/mobile proof is required before closeout. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md` |
+| PR503B | Publication Manifest Hosted Proof | ARIADNE / A4 | Open; hosted desktop and 390px mobile proof of `/studio/publishing` manifest readback is required before MIMIR closes PR503A. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR503B opened | Publication Manifest Hosted Proof | MIMIR -> ARIADNE | Open; prove hosted `/studio/publishing` PR503A manifest readback on desktop and 390px mobile without mutation/provider/social/billing/job drift. | `docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md` |
 | PR503A review | Publication Manifest Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT_IMPLEMENTATION`; owner-only non-persisted manifest contract stayed inside web helper/dashboard/test scope with no API/schema/package/storage/provider/billing/social/public-route drift. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_REVIEW_RESULT.md` |
 | PR503 closeout | Station Press / Portable Publication Preflight | MIMIR | Closed accepted as `ACCEPT_PR503A_PUBLICATION_MANIFEST_CONTRACT`; DAEDALUS gets the owner-only publication manifest contract implementation lane. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR503A implementation | Publication Manifest Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; owner-only metadata/readback helper and publishing dashboard details block are implemented, with ARIADNE hosted desktop/mobile proof required after acceptance because visible UI changed. | `docs/roadmap/PR503A_PUBLICATION_MANIFEST_CONTRACT_RESULT.md` |

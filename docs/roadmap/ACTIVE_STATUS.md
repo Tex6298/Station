@@ -4,7 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR503A publication manifest contract accepted by ARGUS
+## Current lane - PR503B publication manifest hosted proof opened
+
+MIMIR opened the required ARIADNE proof lane:
+
+`docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md`
+
+Reason:
+
+- ARGUS accepted PR503A as an owner-only Station Press publication manifest
+  contract implementation.
+- `/studio/publishing` visible UI changed.
+- ARGUS requires hosted desktop and 390px mobile proof before MIMIR closes the
+  implementation.
+
+Current lane:
+
+```text
+PR503B - Publication Manifest Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR503B_PUBLICATION_MANIFEST_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR503A publication manifest contract accepted by ARGUS
 
 ARGUS accepted PR503A:
 
