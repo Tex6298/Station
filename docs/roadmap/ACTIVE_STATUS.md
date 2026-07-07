@@ -4,7 +4,96 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR500D social credential owner API hosted proof blocked
+## Current lane - PR500E social credential config readiness readback
+
+MIMIR opened PR500E for DAEDALUS:
+
+`docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_DAEDALUS.md`
+
+Reason:
+
+- PR500D is externally blocked until Railway `@station/api` has a stable
+  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`.
+- MIMIR cannot set that variable from this shell because the current Railway
+  token is unauthorized for the needed project/deployment/variable reads and
+  CLI identity check.
+- The smallest useful no-secret unblock is a `/health/deployment` readback that
+  exposes only booleans for social credential encryption config, so ARIADNE can
+  know whether a PR500D rerun is ready before trying synthetic credential POST.
+
+Current lane:
+
+```text
+PR500E - Social Credential Config Readiness Readback
+Owner: DAEDALUS / A2
+State: Open
+Source: docs/roadmap/PR500E_SOCIAL_CREDENTIAL_CONFIG_READINESS_READBACK_DAEDALUS.md
+```
+
+Guardrail:
+
+- PR500E must not set, print, or fallback any secret.
+- PR500E must not make global deployment readiness depend on social connector
+  config.
+- PR500E must not enable Settings UI, credential management UI, OAuth/provider
+  calls, posting, queues, billing, public syndication, or social readiness
+  unpause.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR500D social credential hosted config access blocked
+
+MIMIR attempted the PR500D hosted config unblock:
+
+`docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md`
+
+Result:
+
+```text
+RAILWAY_CONFIG_ACCESS_BLOCKED
+```
+
+Decision:
+
+- The hosted API is live at PR500C runtime commit `bc145682`.
+- `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY` is required on Railway
+  `@station/api` before PR500D can prove valid synthetic credential POST,
+  replacement, DELETE, repeated DELETE, and final cleanup.
+- Local `.env` has `RAILWAY_TOKEN` present by name, but the token cannot read
+  Railway account, project, deployment, variables, or project-token self-scope
+  data from this shell.
+- Railway CLI identity check also returns unauthorized.
+- MIMIR did not print Railway token values, env values, synthetic credential
+  values, or secret-shaped output.
+- Do not patch around this in code with another secret or runtime-generated
+  key; PR500A intentionally keeps social credential encryption
+  social-specific.
+
+Current lane:
+
+```text
+PR500D - Social Credential Owner API Hosted Proof
+Owner: MIMIR / A1
+State: RAILWAY_CONFIG_ACCESS_BLOCKED
+Source: docs/roadmap/PR500D_SOCIAL_CREDENTIAL_HOSTED_CONFIG_ACCESS_BLOCKER_MIMIR.md
+```
+
+Required unblock:
+
+```text
+Set SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY on Railway @station/api, then
+rerun docs/roadmap/PR500D_SOCIAL_CREDENTIAL_OWNER_API_HOSTED_PROOF_ARIADNE.md.
+```
+
+Do not open Settings UI, credential management UI, OAuth/provider-call, posting,
+or social readiness unpause lanes until PR500D rerun passes.
+
+## Previous lane - PR500D social credential owner API hosted proof blocked
 
 ARIADNE completed the hosted PR500D API proof:
 
