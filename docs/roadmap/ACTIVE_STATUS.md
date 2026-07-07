@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR502B owner encounter provider gate hosted config blocked
+## Current lane - PR503 Station Press / portable publication preflight
+
+MIMIR opened PR503 for ARGUS:
+
+`docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_ARGUS.md`
+
+Reason:
+
+- PR500D social credential hosted proof is externally blocked on hosted
+  `SOCIAL_CONNECTOR_CREDENTIAL_ENCRYPTION_KEY`.
+- PR502B owner encounter hosted proof is externally blocked on the explicit
+  Railway `@station/api` opt-in flag:
+
+```text
+PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true
+```
+
+- PR488 background-job activation remains blocked on queue-capable runtime proof.
+- PR484J-N archive connector hosted setup remains blocked on live hosted
+  provider setup.
+- MIMIR should not spin DAEDALUS on blocked config lanes or deepen the nearest
+  surface by inertia.
+- Station Press / portable publication packaging is a named customer-facing
+  product surface still parked as future and has enough publishing/export
+  evidence for hostile preflight.
+
+Current lane:
+
+```text
+PR503 - Station Press / Portable Publication Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Parked blocker - PR502B owner encounter provider gate hosted config blocked
 
 MIMIR recorded the exact hosted config blocker:
 

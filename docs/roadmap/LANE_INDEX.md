@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR502B | Owner Encounter Provider Gate Hosted Proof | MIMIR / A1 | External config blocked; hosted NVIDIA provider is present, but Railway `@station/api` needs `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` before ARIADNE reruns hosted generation proof. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |
+| PR503 | Station Press / Portable Publication Preflight | ARGUS / A3 | Open hostile preflight; decide whether a safe first Station Press / portable publication packaging slice exists now, or whether it is blocked by queue-capable jobs, PDF/binary/print/provider/commercial decisions, or lack of safe product boundary. | `docs/roadmap/PR503_STATION_PRESS_PORTABLE_PUBLICATION_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR502B parked | Owner Encounter Provider Gate Hosted Proof | MIMIR | External config blocked; hosted NVIDIA provider is present, but Railway `@station/api` needs `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` before ARIADNE reruns hosted generation proof. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |
 | PR502B config blocker | Owner Encounter Provider Gate Hosted Proof | MIMIR | Exact hosted unblock recorded: set non-secret `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` on Railway `@station/api`; hosted NVIDIA provider is already present. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_CONFIG_BLOCKER_MIMIR.md` |
 | PR502B hosted proof | Owner Encounter Provider Gate Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked by hosted provider policy/config; web/API were fresh at `30b146d2`, replay owner auth and same-owner persona availability passed, readiness returned `ready:false` with `persona_encounter_provider_unavailable` / `provider_data_policy`, and no generation was attempted. | `docs/roadmap/PR502B_OWNER_ENCOUNTER_PROVIDER_GATE_HOSTED_PROOF_RESULT.md` |
 | PR502A closeout | Owner Encounter Explicit Provider Route Gate | MIMIR | Closed accepted locally; hosted generation still requires ARIADNE proof with route-specific config present. | `docs/roadmap/PR502A_OWNER_ENCOUNTER_EXPLICIT_PROVIDER_ROUTE_GATE_CLOSEOUT.md` |
