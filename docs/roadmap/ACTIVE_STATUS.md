@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505 owner encounter hosted provider gate recheck blocked
+## Current lane - PR505 owner encounter hosted provider gate recheck unblocked
+
+MIMIR removed the hosted PR505 provider-policy/config blocker:
+
+`docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_CONFIG_UNBLOCKED_MIMIR.md`
+
+Result:
+
+```text
+HOSTED_PR505_PROVIDER_GATE_CONFIG_UNBLOCKED
+```
+
+Summary:
+
+- Railway `@station/api` now has the explicit non-secret
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` route flag.
+- A fresh hosted `@station/api` deployment is ready on `main` at commit
+  `5f0ef0c1bda6...`.
+- Public health returned `ok:true`.
+- Public deployment identity returned `ready:true`, service `@station/api`,
+  branch `main`.
+- Public readiness readback reports NVIDIA provider configured, Gemini
+  embeddings configured, Stripe ready, and Redis configured.
+- ARIADNE has been asked to rerun PR505. If readiness is now ready, she should
+  run exactly one disposable same-owner encounter preview and prove no
+  public/cross-owner/durable/retrieval/billing/social/provider-config drift.
+
+Current lane:
+
+```text
+PR505 - Owner Encounter Hosted Provider Gate Recheck
+Owner: ARIADNE / A4
+State: HOSTED_PR505_PROVIDER_GATE_CONFIG_UNBLOCKED_AWAITING_RERUN
+Source: docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_CONFIG_UNBLOCKED_MIMIR.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR505 owner encounter hosted provider gate recheck blocked
 
 ARIADNE completed the hosted PR505 owner encounter provider-gate recheck:
 

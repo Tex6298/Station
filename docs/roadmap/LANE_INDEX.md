@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505 | Owner Encounter Hosted Provider Gate Recheck | MIMIR / A1 | Blocked by hosted provider policy/config; readiness still returns `persona_encounter_provider_unavailable` / `provider_data_policy`, so no generation was attempted. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_RESULT.md` |
+| PR505 | Owner Encounter Hosted Provider Gate Recheck | ARIADNE / A4 | Config unblocked; Railway `@station/api` now has `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` and fresh hosted API is ready, so ARIADNE reruns readiness and one disposable preview if ready. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_CONFIG_UNBLOCKED_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505 config unblock | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE | Hosted `@station/api` route flag was applied and fresh API deployment is ready; ARIADNE reruns PR505 and may run exactly one disposable same-owner preview if readiness is ready. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_CONFIG_UNBLOCKED_MIMIR.md` |
 | PR505 proof | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE -> MIMIR | Blocked as `HOSTED_PR505_PROVIDER_GATE_CONFIG_BLOCKED`; web/API/auth/persona availability passed, readiness still returns `persona_encounter_provider_unavailable` / `provider_data_policy`, and generation was not attempted. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_RESULT.md` |
 | PR505 opened | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE | Open hosted proof/recheck; if readiness is blocked, do not generate and record exact provider-policy/config blocker; if ready, prove one disposable same-owner preview with no public/cross-owner/durable drift. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_ARIADNE.md` |
 | PR504 final closeout | Station Press Owner Package | MIMIR | Closed accepted as `CLOSE_PR504_STATION_PRESS_OWNER_PACKAGE_ACCEPTED`; owner-only metadata package and visible three-file bundle readback are hosted-proven, while PDF/print/public download remain future. | `docs/roadmap/PR504_STATION_PRESS_OWNER_PACKAGE_FINAL_CLOSEOUT.md` |
