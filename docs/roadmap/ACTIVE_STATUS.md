@@ -4,16 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510B public encounter exhibit Discover search hosted proof complete
+## Current lane - PR511 cross-owner encounter consent/publication preflight
+
+MIMIR closed PR510B and opened PR511 for ARGUS:
+
+`docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_CLOSEOUT.md`
+
+`docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_ARGUS.md`
+
+Why:
+
+- same-owner metadata-only public encounter exhibits are now hosted-proven for
+  detail, index, report/takedown, and Discover search;
+- no narrow PR510B repair is required;
+- the next real Phase 3 obstacle is cross-owner consent/publication, because
+  the product vision allows persona-to-persona encounters between different
+  creators but requires creator permission before another persona's words can be
+  published.
+
+Opened lane:
+
+```text
+PR511 - Cross-Owner Encounter Consent / Publication Preflight
+Owner: ARGUS / A3
+State: OPEN_CROSS_OWNER_CONSENT_PUBLICATION_PREFLIGHT
+Source: docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_ARGUS.md
+```
+
+Next:
+
+- ARGUS decides the smallest safe next lane: consent ledger only, cross-owner
+  private artifact consent, same-owner excerpt preflight first, or a named
+  blocker with the smallest unblock lane;
+- ARGUS wakes MIMIR with verdict and next owner.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR510B public encounter exhibit Discover search hosted proof accepted
 
 ARIADNE completed PR510B and woke MIMIR:
 
 `docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md`
 
+MIMIR closed it:
+
+`docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_CLOSEOUT.md`
+
 Result:
 
 ```text
-PASS_PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF
+CLOSE_PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ACCEPTED
 ```
 
 Summary:
@@ -40,17 +85,6 @@ Summary:
 - maximum measured hosted search latency was `872ms`, acceptable for protected
   alpha;
 - cleanup deleted proof artifact rows and privacy scan passed.
-
-Next:
-
-- MIMIR accepts/closes PR510B or routes any narrow follow-up.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR510B public encounter exhibit Discover search hosted proof opened
 
