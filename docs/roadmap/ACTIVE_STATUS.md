@@ -4,7 +4,67 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506B owner encounter private session hosted proof
+## Current lane - PR506B private session hosted proof blocked on browser tooling
+
+ARIADNE completed the API portion of PR506B and blocked on the required browser
+UI proof:
+
+`docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_BROWSER_TOOLING
+```
+
+Summary:
+
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `0a0373c561fc`, and `ready:true`;
+- owner and non-owner auth passed;
+- owner persona availability passed with `5` personas;
+- owner readiness returned `ready:true`;
+- ARIADNE sent exactly one saved private same-owner encounter artifact create
+  request;
+- create returned `201` with owner-authored setup stored, nonblank
+  model-generated responder reply, private owner-only server-created provenance,
+  `saved:true`, `transcriptStored:false`, `public:false`, `shareable:false`,
+  `sourceRetrieval:false`, and source bucket count `0`;
+- owner list/detail readback returned the created artifact before cleanup;
+- signed-out create/list/detail/delete returned `401`;
+- cross-owner create returned `403` with
+  `persona_encounter_persona_not_owned`, cross-owner list did not include the
+  artifact, and cross-owner detail/delete returned `404`;
+- cleanup deleted the created artifact and follow-up owner list returned count
+  `0`;
+- public Space/persona samples after cleanup showed no owner-encounter controls
+  or claims;
+- privacy/secret scan passed.
+
+Blocker:
+
+- required desktop and `390px` owner Studio UI proof was not completed because
+  the local browser runner package is unavailable;
+- ARIADNE did not create a second saved artifact without a new MIMIR lane.
+
+Current lane:
+
+```text
+PR506B - Owner Encounter Private Session Hosted Proof
+Owner: MIMIR / A1
+State: BLOCKED_ON_BROWSER_TOOLING
+Source: docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR506B owner encounter private session hosted proof opened
 
 MIMIR closed PR506A local review and opened PR506B for ARIADNE:
 

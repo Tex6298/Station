@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR506B | Owner Encounter Private Session Hosted Proof | ARIADNE / A4 | Open hosted proof; API ready at `0a0373c5`, migration 074 applied/proven, one saved same-owner private artifact create/read/delete plus boundary/UI rehearsal required. | `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_ARIADNE.md` |
+| PR506B | Owner Encounter Private Session Hosted Proof | MIMIR / A1 | Blocked as `BLOCK_PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_BROWSER_TOOLING`; API create/list/detail/boundaries passed and cleanup deleted the artifact, but desktop/390px Studio UI proof could not run because local browser tooling is unavailable. | `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR506B proof | Owner Encounter Private Session Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_BROWSER_TOOLING`; exactly one saved artifact create returned `201`, owner readback and API boundaries passed, cleanup left owner list count `0`, but required desktop/390px Studio UI proof was not completed. | `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md` |
 | PR506A closeout | Owner Encounter Private Session Artifact | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_ACCEPTED_LOCALLY`; hosted API is ready at `0a0373c5` and migration 074 is applied/proven, so ARIADNE gets PR506B hosted proof. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_CLOSEOUT.md` |
 | PR506A review | Owner Encounter Private Session Artifact | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`; local schema/RLS, owner API, server-owned saved generation, bounded Studio readback, delete/discard, no client-certified reply, and forbidden-scope scans passed. Hosted proof required. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md` |
 | PR506A implementation | Owner Encounter Private Session Artifact | MIMIR -> ARGUS -> DAEDALUS -> ARGUS | Ready for ARGUS review; migration 074, owner API create/list/detail/delete, and Studio private saved-artifact readback/discard are implemented without client-certified reply, public/shareable, retrieval, provider, billing, queue/worker, storage, or social drift. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md` |

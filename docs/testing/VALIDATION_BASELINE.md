@@ -4,6 +4,70 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506B Owner Encounter Private Session Hosted Proof
+
+ARIADNE ran the hosted PR506B proof on 2026-07-11:
+
+- `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`BLOCK_PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_BROWSER_TOOLING`.
+
+Reason:
+
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `0a0373c561fc`, and `ready:true`;
+- owner auth passed with `canon` tier;
+- non-owner auth passed with `private` tier;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- ARIADNE sent exactly one saved private same-owner encounter artifact create
+  request;
+- create returned `201` with owner-authored setup stored, nonblank
+  model-generated responder reply, private owner-only server-created provenance,
+  `saved:true`, `transcriptStored:false`, `public:false`, `shareable:false`,
+  `sourceRetrieval:false`, and source bucket count `0`;
+- owner list/detail readback returned the created artifact before cleanup;
+- signed-out create/list/detail/delete returned `401`;
+- cross-owner create returned `403` with
+  `persona_encounter_persona_not_owned`, cross-owner list did not include the
+  artifact, and cross-owner detail/delete returned `404`;
+- cleanup deleted the created artifact and follow-up owner list returned count
+  `0`;
+- public Space/persona samples after cleanup showed no owner-encounter controls
+  or claims;
+- sanitized proof output contained no raw ids, prompt/private context bodies,
+  generated reply text, provider details, tokens, cookies, SQL details, stack
+  traces, provider payloads, or env values.
+
+Blocker:
+
+- desktop and `390px` owner Studio UI proof did not complete because the local
+  browser runner package is unavailable;
+- no second saved artifact was created for retry without a new MIMIR lane.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API runner | Blocked | API create/list/detail/boundaries passed, but browser UI proof failed because the local browser package was unavailable. Cleanup deleted the created artifact. |
+| Hosted reachability | Pass | Web health `200`; API health `200`; API deployment health `200`; API ready at `@station/api` commit prefix `0a0373c561fc`. |
+| Owner and non-owner auth | Pass | Owner tier `canon`; non-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Pass | `ready:true`; provider route was ready before saved create. |
+| Exactly one saved private create | Pass | One authenticated owner create POST was sent and returned `201`. |
+| Saved session contract | Pass | Owner-authored setup stored, model-generated responder reply nonblank, private owner-only server-created artifact, saved/no transcript/not public/not shareable/no source retrieval/source buckets `0`. |
+| Owner list/detail | Pass | Owner list and detail returned the created artifact before cleanup. |
+| Signed-out/cross-owner API probes | Pass | Signed-out routes returned `401`; cross-owner create returned `403` with `persona_encounter_persona_not_owned`; cross-owner detail/delete returned `404`. |
+| Owner cleanup verification | Pass | Cleanup delete returned `200`; follow-up owner list returned count `0`. |
+| Desktop/390px Studio UI proof | Blocked | Browser runner package unavailable; no second saved artifact was created for retry. |
+| Public no-drift while artifact exists | Blocked | Not completed because cleanup ran after the browser-tooling failure. |
+| Public no-drift after cleanup | Pass | Public Space and public persona samples returned `200` with no owner-encounter controls or claims found. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private context bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, or env values. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR506B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR506A Owner Encounter Private Session Artifact ARGUS Review
 
 ARGUS accepted PR506A on 2026-07-11:
