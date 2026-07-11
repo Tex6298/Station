@@ -4,7 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510 public encounter exhibit Discover search preflight opened
+## Current lane - PR510 public encounter exhibit Discover search preflight accepted
+
+ARGUS completed PR510 preflight:
+
+`docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP
+```
+
+Decision:
+
+- DAEDALUS may implement a dedicated Discover search result group named
+  `Encounter Exhibits` with API key `publicEncounterExhibits`;
+- search may use only already-public title, summary, tags, and same-owner
+  display snapshots;
+- result payloads must stay metadata-only and route only to
+  `/encounters/[slug]`;
+- removed, retracted, malformed, wrong-schema, source-deleted, and deleted
+  exhibits must stay absent using the PR509A public-list safety floor;
+- Discover feed/rising/featured, public persona profiles, public Spaces,
+  forums/community, Station Press/public documents, transcripts/excerpts/raw
+  replies, private setup/private curation, raw ids, report counts/paths,
+  provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
+  package/lockfile, and migration/index scope remain out of PR510A by default;
+- no DB migration or search index is required before PR510A, but hosted proof
+  must record public search latency and route a separate index repair if poor.
+
+Validation:
+
+- `test:persona-encounters` passed with `37` tests;
+- `test:community` passed with `41` tests;
+- `test:writing` passed with `29` tests;
+- `test:reports` passed with `7` tests;
+- `test:studio-ui` passed with `201` tests;
+- `typecheck` passed from Turbo cache.
+
+Current lane:
+
+```text
+PR510 - Public Encounter Exhibit Discover Search Preflight
+Owner: MIMIR / A1
+State: ARGUS_VERDICT_DELIVERED
+Source: docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md
+```
+
+Next:
+
+- MIMIR closes PR510 if accepted and routes DAEDALUS for PR510A.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR510 public encounter exhibit Discover search preflight opened
 
 MIMIR closed PR509B as accepted and opened PR510 for ARGUS:
 
@@ -68,13 +127,6 @@ Next:
   for public encounter exhibits;
 - ARGUS defines the exact search result contract and validation;
 - ARGUS wakes MIMIR with verdict and next owner.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Previous lane - PR509B public encounter exhibit index hosted proof accepted
 

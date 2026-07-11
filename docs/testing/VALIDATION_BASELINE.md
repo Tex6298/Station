@@ -4,6 +4,46 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR510 Public Encounter Exhibit Discover Search Preflight
+
+ARGUS completed PR510 preflight on 2026-07-11:
+
+- `docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`.
+
+Reason:
+
+- PR509B hosted proof passed for the dedicated `/encounters` public encounter
+  exhibit index;
+- Discover search is accepted only as a dedicated `Encounter Exhibits` result
+  group with API key `publicEncounterExhibits`;
+- search may use only public title, summary, tags, and same-owner display
+  snapshots;
+- result payloads must stay metadata-only and route only to
+  `/encounters/[slug]`;
+- removed, retracted, malformed, wrong-schema, source-deleted, and deleted
+  exhibits must stay absent using the PR509A public-list safety floor;
+- Discover feed/rising/featured, public persona profiles, public Spaces,
+  forums/community, Station Press/public documents, transcripts/excerpts/raw
+  replies, private setup/private curation, raw ids, report counts/paths,
+  provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
+  package/lockfile, and migration/index scope remain out of PR510A by default;
+- no DB migration or search index is required before PR510A, but hosted proof
+  must record public search latency and route a separate index repair if poor.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 37 tests passed, including public exhibit list/detail filtering, metadata-only payloads, owner retract, and web helper/page-source coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed, including current Discover search grouping, route filtering, public-safe Spaces/Developer Spaces/Projects/Salons/personas, and private bucket separation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing and Discover feed helpers remain document/feed bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit moderation queue/remove/restore behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio/public encounter helper scans remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| Current search/feed review | Pass | Current Discover search has no encounter group yet; current feed type helpers do not include encounter exhibits. |
+| Scope review | Pass | PR510 preflight is roadmap/testing docs only; no runtime implementation was made. |
+
 ## PR509B Public Encounter Exhibit Index Hosted Proof
 
 ARIADNE completed PR509B hosted proof on 2026-07-11:
