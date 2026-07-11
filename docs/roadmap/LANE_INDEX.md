@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504B rerun | Station Press Owner Package Hosted Proof Rerun | ARIADNE / A4 | Open; rerun hosted package create/readback/bundle proof after PR504C repair deploy. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md` |
+| PR504B rerun | Station Press Owner Package Hosted Proof Rerun | ARIADNE / A4 -> MIMIR / A1 | Blocked; hosted PR504C deploy is fresh and UI fits, but owner package create still returns bounded `500 station_press_publication_create_failed`. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504B rerun result | Station Press Owner Package Hosted Proof Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked again as `BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF`; hosted web/API were fresh at `0e72d438`, package-ready fixtures existed, layout/privacy/boundary probes passed, but the single allowed create POST still returned bounded `500 station_press_publication_create_failed`. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_RESULT.md` |
 | PR504B rerun opened | Station Press Owner Package Hosted Proof Rerun | MIMIR -> ARIADNE | Open; PR504C repair accepted locally, but hosted owner create/readback/bundle still needs proof after deploy. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md` |
 | PR504C closeout | Station Press Owner Package Hosted Create Failure | MIMIR | Closed accepted as `ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`; ARIADNE gets PR504B hosted proof rerun. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_CLOSEOUT.md` |
 | PR504C review | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`; missing optional seminar schedule schema no longer blocks owner package creation, non-schema source failures remain bounded, and ARIADNE hosted PR504B rerun is required after deploy. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md` |

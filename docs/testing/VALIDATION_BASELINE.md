@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504B Station Press Owner Package Hosted Proof Rerun
+
+ARIADNE reran the hosted PR504B Station Press owner package proof on
+2026-07-11 after PR504C:
+
+- `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_RESULT.md`
+
+Validation result:
+`BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web/API were reachable, ready, and fresh at
+  `0e72d438c9ac5cb1c7ddf2330d42e617ae6c08d7`;
+- owner and cross-owner replay auth passed;
+- hosted owner fixtures still included five package-ready publications;
+- desktop and 390px mobile `/studio/publishing` rendered the Station Press
+  package surface without horizontal overflow;
+- desktop sent exactly one allowed Station Press package create POST;
+- create still returned bounded `500 station_press_publication_create_failed`;
+- no completed package id, owner readback, or `README.md` / `manifest.json` /
+  `manifest.md` bundle was available to prove;
+- signed-out create/list failed closed with `401`, cross-owner create/list
+  failed closed with `404`;
+- privacy/product-boundary scans passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser proof runner | Blocked | 12 checks passed; 1 check failed because create returned bounded `500 station_press_publication_create_failed`. |
+| Hosted freshness | Pass | Web/API ready at `0e72d438c9ac5cb1c7ddf2330d42e617ae6c08d7`. |
+| Owner and cross-owner auth | Pass | Owner tier `canon`; cross-owner tier `private`. |
+| Hosted fixture readiness | Pass | Five package-ready owner publications were present. |
+| Desktop and 390px mobile layout | Pass | No horizontal overflow; package controls/readback copy rendered. |
+| Allowed mutation scan | Pass | Desktop sent one allowed Station Press create POST; mobile sent none. |
+| Package create/readback/bundle | Blocked | Create returned bounded `500`; no package files were available. |
+| Signed-out/cross-owner create/list probes | Pass | Signed-out `401`; cross-owner `404`. |
+| Privacy/product-boundary scan | Pass | No raw ids, secrets, storage paths, SQL errors, stack traces, provider payloads, or launch/download claims were exposed. |
+| `git diff --check` | Pass | No whitespace errors. |
+
+`pnpm typecheck` was not run because the PR504B rerun result updates
+documentation only and does not touch imports or scripts.
+
 ## PR504C Station Press Owner Package Hosted Create Failure Repair
 
 ARGUS accepted the PR504C Station Press owner package create-path repair on

@@ -4,42 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504B Station Press owner package hosted proof rerun opened
+## Current lane - PR504B Station Press owner package hosted proof rerun blocked
 
-MIMIR closed PR504C:
+ARIADNE completed the PR504B hosted rerun:
 
-`docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_CLOSEOUT.md`
+`docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR
+BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF
 ```
 
-MIMIR opened the PR504B hosted rerun for ARIADNE:
+Summary:
 
-`docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md`
+- Hosted web/API were fresh at
+  `0e72d438c9ac5cb1c7ddf2330d42e617ae6c08d7`, which contains PR504C.
+- Owner auth returned `200` with `canon` tier; cross-owner auth returned `200`
+  with `private` tier.
+- Hosted fixtures still included five package-ready owner publications.
+- Desktop and 390px mobile `/studio/publishing` rendered the package surface
+  without horizontal overflow.
+- Desktop sent exactly one allowed Station Press create POST.
+- Package creation still returned bounded
+  `500 station_press_publication_create_failed`, so no package id,
+  authenticated readback, or `README.md` / `manifest.json` / `manifest.md`
+  bundle could be proven.
+- Signed-out create/list failed closed with `401`; cross-owner create/list
+  failed closed with `404`.
+- Privacy/product-boundary scans passed.
 
-Reason:
+Next:
 
-- ARGUS accepted PR504C.
-- No hosted create/readback/bundle proof was run in ARGUS review.
-- ARIADNE must rerun the hosted Station Press owner package proof after deploy.
+- PR504C did not clear the hosted create failure.
+- Inspect hosted `@station/api` logs and the remaining package source/write
+  path before rerunning PR504B.
 
 Current lane:
 
 ```text
 PR504B - Station Press Owner Package Hosted Proof Rerun
 Owner: ARIADNE / A4
-State: OPEN_HOSTED_RERUN
-Source: docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md
+State: BLOCKED_AWAITING_REPAIR
+Source: docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR504C Station Press owner package create repair accepted
