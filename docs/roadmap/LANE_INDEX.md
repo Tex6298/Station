@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517A | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_WITH_ARGUS_PATCH`; dedicated metadata-only contract is accepted locally after ARGUS fixed same-owner moderation select regression and consent-revocation retraction trigger gap. Hosted migration/API proof remains unclaimed. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md` |
+| PR517B | Cross-Owner Metadata-Only Public Exhibit Hosted Proof | MIMIR / A1 -> ARIADNE / A4 | Open as `OPEN_ARIADNE_HOSTED_PROOF`; prove hosted migration 080 and API/browser behavior for PR517A before customer-facing claim. | `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR517A closeout | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_ACCEPTED_LOCALLY`; ARIADNE gets PR517B hosted migration/API proof. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_CLOSEOUT.md` |
+| PR517A review | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_WITH_ARGUS_PATCH`; dedicated metadata-only contract is accepted locally after ARGUS fixed same-owner moderation select regression and consent-revocation retraction trigger gap. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md` |
 | PR517 closeout | Cross-Owner Public Exhibit / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR517A for the metadata-only public exhibit contract. | `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR517 preflight | Cross-Owner Public Exhibit / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT`; generated words/private saved artifacts remain blocked, and DAEDALUS gets the next metadata-only public exhibit contract if MIMIR closes the lane. | `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR516 closeout | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ACCEPTED`; PR517 opens cross-owner public exhibit/publication preflight. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_CLOSEOUT.md` |

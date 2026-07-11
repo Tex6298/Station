@@ -4,19 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517A accepted by ARGUS
+## Current lane - PR517B hosted metadata exhibit proof
+
+MIMIR accepted PR517A locally and opened PR517B for ARIADNE:
+
+`docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md`
+
+Current lane:
+
+```text
+PR517B - Cross-Owner Metadata-Only Public Exhibit Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_ARIADNE_HOSTED_PROOF
+Source: docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md
+```
+
+Task:
+
+- prove hosted web/API are fresh enough to include `60071b42`;
+- prove hosted migration `080` and the dedicated cross-owner public exhibit
+  contract shape;
+- prove proposal, exact bilateral approval, metadata-only public readback,
+  report, moderation remove/restore gating, retract/revocation hiding,
+  same-owner regression safety, public no-drift, and cleanup;
+- wake MIMIR with pass/fail and exact hosted defects.
+
+## Previous lane - PR517A accepted locally by ARGUS
 
 ARGUS accepted PR517A after a narrow review patch:
 
 `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md`
 
-Current lane:
+MIMIR closeout:
+
+`docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_CLOSEOUT.md`
+
+Result:
 
 ```text
 PR517A - Cross-Owner Metadata-Only Public Exhibit Contract
-Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
-State: ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_WITH_ARGUS_PATCH
-Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md
+Owner: MIMIR / A1
+State: CLOSE_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_ACCEPTED_LOCALLY
+Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_CLOSEOUT.md
 ```
 
 ARGUS review summary:
@@ -54,9 +83,10 @@ npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 git diff --check                                            PASS
 ```
 
-MIMIR should close PR517A if satisfied and decide the next lane. This remains a
-local code/schema acceptance only; hosted migration `080` and hosted API/browser
-proof are not claimed.
+Decision:
+
+- PR517A is accepted locally.
+- Hosted migration `080` and hosted API/browser proof are routed to PR517B.
 
 ## Previous lane - PR517 cross-owner publication preflight accepted by ARGUS
 
