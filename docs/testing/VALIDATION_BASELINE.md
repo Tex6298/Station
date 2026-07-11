@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR515A Cross-Owner Consent Counterparty Selection Contract ARGUS Review
+
+ARGUS accepted PR515A on 2026-07-11:
+
+- `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT`.
+
+Reason:
+
+- authenticated public-slug target lookup is safe for visible invitation UI;
+- authenticated public-slug consent creation resolves the counterparty
+  server-side and avoids browser-visible raw counterparty persona UUIDs or owner
+  ids;
+- private, unavailable, ineligible-owner, stale, same-owner,
+  missing-requester, and strict raw-id/forged-field bodies fail closed before
+  consent writes;
+- target and create readback stay limited to public-safe target fields,
+  participant display snapshots, bounded consent state, audit metadata, and
+  non-executable ledger semantics;
+- web helpers build target/create paths and payloads without counterparty
+  persona ids or owner ids, reject unsafe slugs, and keep error copy bounded;
+- visible UI remains future scope and must use the new public-slug route, not
+  the legacy raw-id create route.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 64 tests passed, including public-slug target/create, unsafe/private/ineligible/stale/same-owner rejection, strict raw-id body rejection, no forbidden readback scans, and existing consent/runtime/session/exhibit boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 209 tests passed, including public-slug helper coverage and existing Studio cross-owner panel source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Implementation path scan | Pass | No infra, migration, package/lockfile, billing, queue, worker, storage, Cloudflare, Railway, Stripe, or deployment paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, JWT-shaped, provider-key env, Railway token, or private-key block values found in the implementation diff. |
+
 ## PR515A Cross-Owner Consent Counterparty Selection Contract
 
 DAEDALUS implemented PR515A on 2026-07-11:

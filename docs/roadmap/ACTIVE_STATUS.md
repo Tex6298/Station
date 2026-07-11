@@ -4,54 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515A ready for ARGUS review
+## Current lane - PR515A accepted by ARGUS; MIMIR routing next
 
-DAEDALUS implemented PR515A:
+ARGUS accepted PR515A:
 
-`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_RESULT.md`
-
-`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md`
+`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT
 ```
 
 Current lane:
 
 ```text
 PR515A - Cross-Owner Consent Counterparty Selection Contract
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT
+Source: docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_REVIEW_RESULT.md
 ```
 
 Summary:
 
-- added authenticated public-slug target lookup:
+- DAEDALUS added authenticated public-slug target lookup:
   `GET /persona-encounters/cross-owner-consent-targets/:publicSlug`;
-- added authenticated public-slug consent creation:
+- DAEDALUS added authenticated public-slug consent creation:
   `POST /persona-encounters/cross-owner-consents/from-public-persona`;
-- target readback returns public display name, short public description,
-  sanitized avatar URL, safe slug/href, explicit eligibility, and provenance
-  labels only;
-- create verifies requester ownership, resolves the counterparty server-side,
-  rejects unsafe/UUID slugs, private or unavailable targets, ineligible-owner
-  targets, stale slugs, same-owner targets, strict-body raw ids, and forged
-  owner/provider fields before writes;
+- ARGUS verified target readback returns public display name, short public
+  description, sanitized avatar URL, safe slug/href, eligibility, and
+  provenance labels only;
+- ARGUS verified create resolves the counterparty server-side from a safe public
+  slug and does not require browser-visible raw counterparty persona UUIDs or
+  owner ids;
+- private, unavailable, ineligible-owner, stale, same-owner, missing-requester,
+  and strict raw-id/forged-field bodies fail closed before consent writes;
 - existing consent ledger RPC, audit rows, scope bounds, participant readback,
-  and state transitions are preserved;
-- web helpers now normalize safe public persona slugs/hrefs, build target/create
-  paths and payloads, type the public target/create responses, and provide
-  bounded invitation error copy;
-- the persona-encounter test harness now honors Supabase
-  `select(..., { count, head })` so tier eligibility is tested against filtered
-  public persona counts;
-- no visible invitation UI, generated-word readback, saved sessions, public
-  exhibits, retrieval, storage, billing, Redis, Cloudflare, workers, provider
-  config, broad redesign, public routes, migrations, deployment, or
-  hosted-runtime scope was added.
+  and non-executable ledger semantics are preserved;
+- web helpers normalize safe slugs and `/personas/:slug` hrefs, reject nested
+  paths and UUID-shaped slugs, and keep invitation error copy bounded;
+- no visible invitation UI, saved sessions, public exhibits, generated-word
+  sharing, retrieval, storage, billing, Redis, Cloudflare, workers, migrations,
+  provider config, public surfacing, hosted-runtime scope, or broad Studio
+  redesign was added.
 
 Validation:
 
@@ -59,31 +54,26 @@ Validation:
 npm exec --yes pnpm@10.32.1 -- run test:persona-encounters  PASS - 64 tests
 npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 209 tests
 npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+git diff --check                                           PASS
 ```
 
-Current baton:
+ARGUS guidance:
 
-- ARGUS should hostile-review PR515A against the counterparty selector/create
-  boundary.
-- If accepted, ARGUS should wake MIMIR with
-  `ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT`.
-- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+- a later visible invitation UI may use the new public-slug target/create
+  contract;
+- browser-facing invitation UI must not use the legacy raw-id
+  `POST /persona-encounters/cross-owner-consents` route;
+- participant inbox/actions can use the existing list/detail/approve/reject/
+  cancel/revoke routes;
+- copy must remain ledger-only and must not imply saved sessions, public
+  exhibits, generated-word sharing, transcripts, summaries, excerpts, retrieval,
+  publication, or public surfacing.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
-
-Summary:
-- DAEDALUS implemented PR515A, the cross-owner consent counterparty selection/create contract.
-- Browser-facing create can use a safe public slug/href instead of a raw counterparty persona UUID.
-- Tests cover unsafe slugs, private/ineligible/same-owner/stale targets, missing requester ownership, strict-body raw id rejection, and no raw owner/persona/provider/private/token/secret/generated-word readback.
-
-Task:
-- Hostile-review PR515A.
-- Confirm the contract safely unblocks visible PR515 invitation UI.
-- Wake MIMIR with acceptance, or wake DAEDALUS with required fixes.
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR515 preflight blocked
