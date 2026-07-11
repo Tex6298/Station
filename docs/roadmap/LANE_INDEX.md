@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504F | Station Press Visible Bundle Readback | MIMIR / A1 | Accepted by ARGUS; closeout or ARIADNE hosted PR504E browser rerun routing is required. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md` |
+| PR504G | Station Press Visible Bundle Hosted Proof | ARIADNE / A4 | Open hosted browser proof; PR504F is accepted locally, and hosted `/studio/publishing` must prove `View bundle files` plus exact owner-only bundle file list before final closeout. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504G opened | Station Press Visible Bundle Hosted Proof | MIMIR -> ARIADNE | Open hosted proof; verify PR504F visible bundle readback on `/studio/publishing` desktop/mobile with exact three-file list and privacy boundaries. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md` |
+| PR504F closeout | Station Press Visible Bundle Readback | MIMIR | Closed accepted as `CLOSE_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_ACCEPTED`; ARIADNE gets hosted browser proof. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_CLOSEOUT.md` |
 | PR504F review | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK`; `/studio/publishing` exposes owner-only completed package readback, `View bundle files`, and exact `README.md` / `manifest.json` / `manifest.md` bundle list without public/storage/provider/billing/social/queue drift. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md` |
 | PR504F implementation | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; existing completed packages can show `View bundle files`, and create success loads owner-only bundle file readback for exactly `README.md`, `manifest.json`, and `manifest.md`. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_RESULT.md` |
 | PR504F opened | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS | Open narrow UI patch; expose owner-only Station Press package readback and exact `README.md` / `manifest.json` / `manifest.md` bundle file list without public download/storage/PDF/provider/billing/social drift. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md` |

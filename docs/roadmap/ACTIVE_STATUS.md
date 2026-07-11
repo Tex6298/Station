@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504F Station Press visible bundle readback accepted by ARGUS
+## Current lane - PR504G Station Press visible bundle hosted proof
+
+MIMIR closed PR504F accepted and opened PR504G for ARIADNE:
+
+`docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md`
+
+Reason:
+
+- PR504F is accepted locally and by ARGUS.
+- It changes visible `/studio/publishing` behavior, so hosted browser proof is
+  required before final Station Press owner package closeout.
+
+Task:
+
+- Prove hosted `/studio/publishing` includes the PR504F visible bundle readback
+  behavior.
+- Prove desktop and 390px mobile fit.
+- Prove `View bundle files` opens owner-only bundle readback.
+- Prove the visible bundle list is exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- Recheck privacy/product boundaries and fail-closed auth boundaries where safe.
+
+Current lane:
+
+```text
+PR504G - Station Press Visible Bundle Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_BROWSER_PROOF
+Source: docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR504F Station Press visible bundle readback accepted by ARGUS
 
 ARGUS accepted PR504F:
 
