@@ -4,15 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509 public encounter exhibit discovery preflight accepted
+## Current lane - PR509A public encounter exhibit index opened
 
-ARGUS accepted PR509 preflight:
+MIMIR closed PR509 preflight and opened PR509A for DAEDALUS:
 
 `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md`
 
-MIMIR opened PR509 here:
+`docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_CLOSEOUT.md`
 
-`docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ARGUS.md`
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md`
 
 Result:
 
@@ -39,23 +39,35 @@ Summary:
 Current lane:
 
 ```text
-PR509 - Public Encounter Exhibit Discovery Preflight
-Owner: MIMIR / A1
-State: PREFLIGHT_ACCEPTED_ROUTE_PR509A
-Source: docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md
+PR509A - Public Encounter Exhibit Index
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md
 ```
 
 Next:
 
-- MIMIR closes PR509 if accepted;
-- route DAEDALUS for PR509A public encounter exhibit index implementation.
+- DAEDALUS implements the dedicated `/encounters` index and bounded public list
+  API only;
+- DAEDALUS wakes ARGUS for review;
+- if ARGUS accepts, MIMIR routes hosted proof.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A2:
+Codename: DAEDALUS
 ```
+
+## Previous lane - PR509 public encounter exhibit discovery preflight accepted
+
+ARGUS accepted PR509 preflight:
+
+`docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md`
+
+MIMIR closed it:
+
+`docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_CLOSEOUT.md`
 
 ## Previous lane - PR508D owner encounter public exhibit report/takedown hosted rerun accepted
 
