@@ -95,6 +95,7 @@ export type PersonaEncounterCrossOwnerConsentReasonCode =
   | "expired"
   | "other";
 export type PersonaEncounterCrossOwnerConsentActorRole = "requester" | "counterparty" | "admin" | "system";
+export type PersonaEncounterCrossOwnerRuntimeParticipantRole = "requester" | "counterparty";
 export type PersonaEncounterCrossOwnerConsentAuditEventType =
   | "invitation_created"
   | "requester_approved"
@@ -107,6 +108,14 @@ export type PersonaEncounterCrossOwnerConsentAuditEventType =
   | "persona_or_account_deletion_blocked"
   | "moderation_lock_applied"
   | "moderation_lock_cleared";
+export type PersonaEncounterCrossOwnerRuntimeAttemptLifecycleStatus =
+  | "blocked_before_provider"
+  | "provider_succeeded"
+  | "provider_failed"
+  | "provider_empty"
+  | "quota_exceeded"
+  | "rate_limited"
+  | "provider_unavailable";
 export type SocialConnectorProvider = "bluesky";
 export type SocialConnectorPurpose = "social_connector";
 export type SocialConnectorCredentialCategory = "manual_credential";
@@ -628,6 +637,30 @@ export interface Database {
           requested_scopes?: PersonaEncounterCrossOwnerConsentRequestedScope[];
           reason_code?: PersonaEncounterCrossOwnerConsentReasonCode | null;
           created_at?: string;
+        };
+        Update: never;
+      };
+      persona_encounter_cross_owner_runtime_attempts: {
+        Row: {
+          id: string;
+          consent_id: string;
+          actor_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          initiator_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          responder_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          consent_status: PersonaEncounterCrossOwnerConsentStatus;
+          requested_scope_version: number;
+          requested_scope: PersonaEncounterCrossOwnerConsentRequestedScope;
+          readiness_code: string;
+          lifecycle_status: PersonaEncounterCrossOwnerRuntimeAttemptLifecycleStatus;
+          provenance_schema: "station.persona_encounter.cross_owner_runtime_attempt.v1";
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_runtime_attempts"]["Row"], "id" | "provenance_schema" | "created_at" | "completed_at"> & {
+          id?: string;
+          provenance_schema?: "station.persona_encounter.cross_owner_runtime_attempt.v1";
+          created_at?: string;
+          completed_at?: string | null;
         };
         Update: never;
       };
@@ -1882,6 +1915,21 @@ export interface Database {
           p_reason_code?: PersonaEncounterCrossOwnerConsentReasonCode | null;
         };
         Returns: Database["public"]["Tables"]["persona_encounter_cross_owner_consents"]["Row"];
+      };
+      record_persona_encounter_cross_owner_runtime_attempt: {
+        Args: {
+          p_consent_id: string;
+          p_actor_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          p_initiator_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          p_responder_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          p_consent_status: PersonaEncounterCrossOwnerConsentStatus;
+          p_requested_scope_version: number;
+          p_requested_scope: PersonaEncounterCrossOwnerConsentRequestedScope;
+          p_readiness_code: string;
+          p_lifecycle_status: PersonaEncounterCrossOwnerRuntimeAttemptLifecycleStatus;
+          p_completed_at?: string | null;
+        };
+        Returns: Database["public"]["Tables"]["persona_encounter_cross_owner_runtime_attempts"]["Row"];
       };
       increment_thread_comment_count: {
         Args: { thread_id: string };

@@ -36,6 +36,8 @@ const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PROVENANCE_SCHEMA =
   "station.persona_encounter.cross_owner_consent.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCHEMA =
   "station.persona_encounter.cross_owner_runtime_context_contract.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_ATTEMPT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.cross_owner_runtime_attempt.v1";
 const CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION = 1;
 const CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE =
   "run_cross_owner_encounter" satisfies CrossOwnerConsentRequestedScope;
@@ -66,7 +68,18 @@ const CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_FIELDS = [
   "requestedScopeVersion",
   "requestedScope",
   "readinessCode",
-  "attemptedAt",
+  "lifecycleStatus",
+  "createdAt",
+  "completedAt",
+] as const;
+const CROSS_OWNER_RUNTIME_ATTEMPT_LIFECYCLE_STATUSES = [
+  "blocked_before_provider",
+  "provider_succeeded",
+  "provider_failed",
+  "provider_empty",
+  "quota_exceeded",
+  "rate_limited",
+  "provider_unavailable",
 ] as const;
 const CROSS_OWNER_CONSENT_STATUSES = [
   "pending",
@@ -237,6 +250,8 @@ type CrossOwnerConsentRequestedScope = typeof CROSS_OWNER_CONSENT_REQUESTED_SCOP
 type CrossOwnerConsentReasonCode = typeof CROSS_OWNER_CONSENT_REASON_CODES[number];
 type CrossOwnerConsentAuditEventType = typeof CROSS_OWNER_CONSENT_AUDIT_EVENT_TYPES[number];
 type CrossOwnerConsentActorRole = "requester" | "counterparty" | "admin" | "system";
+type CrossOwnerRuntimeParticipantRole = "requester" | "counterparty";
+type CrossOwnerRuntimeAttemptLifecycleStatus = typeof CROSS_OWNER_RUNTIME_ATTEMPT_LIFECYCLE_STATUSES[number];
 
 type EncounterPersonaRow = {
   id: string;
@@ -333,6 +348,22 @@ type EncounterCrossOwnerConsentAuditRow = {
   requested_scopes: CrossOwnerConsentRequestedScope[];
   reason_code: CrossOwnerConsentReasonCode | null;
   created_at: string;
+};
+
+type EncounterCrossOwnerRuntimeAttemptRow = {
+  id: string;
+  consent_id: string;
+  actor_role: CrossOwnerRuntimeParticipantRole;
+  initiator_role: CrossOwnerRuntimeParticipantRole;
+  responder_role: CrossOwnerRuntimeParticipantRole;
+  consent_status: CrossOwnerConsentStatus;
+  requested_scope_version: number;
+  requested_scope: CrossOwnerConsentRequestedScope;
+  readiness_code: string;
+  lifecycle_status: CrossOwnerRuntimeAttemptLifecycleStatus;
+  provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_ATTEMPT_PROVENANCE_SCHEMA;
+  created_at: string;
+  completed_at: string | null;
 };
 
 personaEncountersRouter.get("/preview/readiness", requireAuth, async (req, res) => {
@@ -918,6 +949,35 @@ personaEncountersRouter.get(
   },
 );
 
+personaEncountersRouter.get("/cross-owner-consents/:consentId/runtime-attempts", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Cross-owner runtime attempts could not be loaded.",
+      code: "persona_encounter_cross_owner_runtime_attempts_load_failed",
+    });
+  }
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const attempts = await loadCrossOwnerRuntimeAttempts(sb, result.row.id);
+  if (!attempts.ok) {
+    return res.status(500).json({
+      error: "Cross-owner runtime attempts could not be loaded.",
+      code: "persona_encounter_cross_owner_runtime_attempts_load_failed",
+    });
+  }
+
+  return res.json({
+    attempts: attempts.rows.map(serializeCrossOwnerRuntimeAttempt),
+    consent: serializeCrossOwnerRuntimeAttemptConsentSummary(result.row, ownerUserId),
+  });
+});
+
 personaEncountersRouter.get("/cross-owner-consents/:consentId", requireAuth, async (req, res) => {
   const parsedId = sessionIdSchema.safeParse(req.params.consentId);
   if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
@@ -1458,6 +1518,66 @@ function serializeCrossOwnerConsentAuditEvent(row: EncounterCrossOwnerConsentAud
   };
 }
 
+function serializeCrossOwnerRuntimeAttempt(row: EncounterCrossOwnerRuntimeAttemptRow) {
+  return {
+    id: row.id,
+    consentId: row.consent_id,
+    actorRole: row.actor_role,
+    initiatorRole: row.initiator_role,
+    responderRole: row.responder_role,
+    consentStatus: row.consent_status,
+    requestedScopeVersion: row.requested_scope_version,
+    requestedScope: {
+      scope: row.requested_scope,
+      label: crossOwnerConsentScopeLabel(row.requested_scope),
+      executable: false,
+    },
+    readinessCode: row.readiness_code,
+    lifecycleStatus: row.lifecycle_status,
+    timestamps: {
+      createdAt: row.created_at,
+      completedAt: row.completed_at,
+    },
+    provenance: {
+      label: "Cross-owner runtime attempt audit",
+      schema: row.provenance_schema,
+      participantOwnerOnly: true,
+      appendOnly: true,
+      metadataOnly: true,
+      public: false,
+      note: "Bounded attempt metadata only. No prompt, generated output, provider payload, token row, private session, public exhibit, report, source body, raw owner id, or raw persona id is stored here.",
+    },
+  };
+}
+
+function serializeCrossOwnerRuntimeAttemptConsentSummary(
+  row: EncounterCrossOwnerConsentRow,
+  currentOwnerUserId: string,
+) {
+  return {
+    id: row.id,
+    status: row.status,
+    participantRole: crossOwnerConsentParticipantRole(row, currentOwnerUserId),
+    requestedScopeVersion: row.requested_scope_version,
+    requestedScopes: row.requested_scopes.map((scope) => ({
+      scope,
+      label: crossOwnerConsentScopeLabel(scope),
+      executable: false,
+    })),
+    ledger: {
+      executable: false,
+      permitsRuntime: false,
+      note: "Attempt audit readback is metadata-only and does not grant runtime permission.",
+    },
+    provenance: {
+      label: "Cross-owner runtime attempt consent summary",
+      schema: PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_ATTEMPT_PROVENANCE_SCHEMA,
+      participantOwnerOnly: true,
+      public: false,
+    },
+  };
+}
+
 function buildCrossOwnerRuntimeContextContract(input: {
   consent: EncounterCrossOwnerConsentRow;
   actorOwnerUserId: string;
@@ -1523,6 +1643,7 @@ function buildCrossOwnerRuntimeContextContract(input: {
     })),
     futureRuntimeAttemptAudit: {
       writtenInPr512A: false,
+      implementedInPr513A: true,
       allowedMetadataOnlyFields: [...CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_FIELDS],
       forbiddenFields: [
         "rawOwnerIds",
@@ -1804,6 +1925,57 @@ async function loadCrossOwnerConsentAuditEvents(
   return (data ?? []) as EncounterCrossOwnerConsentAuditRow[];
 }
 
+async function loadCrossOwnerRuntimeAttempts(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+): Promise<{ ok: true; rows: EncounterCrossOwnerRuntimeAttemptRow[] } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_runtime_attempts")
+    .select("*")
+    .eq("consent_id", consentId)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  if (error) return { ok: false };
+  return { ok: true, rows: (data ?? []) as EncounterCrossOwnerRuntimeAttemptRow[] };
+}
+
+export async function recordCrossOwnerRuntimeAttemptAudit(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  input: {
+    consentId: string;
+    actorRole: CrossOwnerRuntimeParticipantRole;
+    initiatorRole: CrossOwnerRuntimeParticipantRole;
+    responderRole: CrossOwnerRuntimeParticipantRole;
+    consentStatus: CrossOwnerConsentStatus;
+    requestedScopeVersion: number;
+    requestedScope: CrossOwnerConsentRequestedScope;
+    readinessCode: string;
+    lifecycleStatus: CrossOwnerRuntimeAttemptLifecycleStatus;
+    completedAt?: string | null;
+  },
+): Promise<{ ok: true; row: EncounterCrossOwnerRuntimeAttemptRow } | { ok: false }> {
+  if (!/^[a-z0-9_]{1,80}$/.test(input.readinessCode)) return { ok: false };
+
+  const { data, error } = await sb.rpc("record_persona_encounter_cross_owner_runtime_attempt", {
+    p_consent_id: input.consentId,
+    p_actor_role: input.actorRole,
+    p_initiator_role: input.initiatorRole,
+    p_responder_role: input.responderRole,
+    p_consent_status: input.consentStatus,
+    p_requested_scope_version: input.requestedScopeVersion,
+    p_requested_scope: input.requestedScope,
+    p_readiness_code: input.readinessCode,
+    p_lifecycle_status: input.lifecycleStatus,
+    p_completed_at: input.completedAt ?? null,
+  });
+
+  const row = coerceCrossOwnerRuntimeAttemptRpcRow(data);
+  if (error || !row) return { ok: false };
+
+  return { ok: true, row };
+}
+
 async function transitionCrossOwnerConsent(
   sb: ReturnType<typeof getSupabaseAdmin>,
   consent: EncounterCrossOwnerConsentRow,
@@ -1835,6 +2007,12 @@ function coerceCrossOwnerConsentRpcRow(data: unknown): EncounterCrossOwnerConsen
   const value = Array.isArray(data) ? data[0] : data;
   if (!value || typeof value !== "object") return null;
   return value as EncounterCrossOwnerConsentRow;
+}
+
+function coerceCrossOwnerRuntimeAttemptRpcRow(data: unknown): EncounterCrossOwnerRuntimeAttemptRow | null {
+  const value = Array.isArray(data) ? data[0] : data;
+  if (!value || typeof value !== "object") return null;
+  return value as EncounterCrossOwnerRuntimeAttemptRow;
 }
 
 async function loadOwnerPublicExhibitsBySession(

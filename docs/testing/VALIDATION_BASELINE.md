@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR513A Cross-Owner Runtime Attempt Audit Ledger
+
+DAEDALUS completed PR513A implementation on 2026-07-11:
+
+- `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- migration `078` adds a participant-readable, append-only runtime attempt
+  audit table tied to cross-owner consent rows;
+- API helper `recordCrossOwnerRuntimeAttemptAudit` wraps the bounded RPC helper;
+- participant readback route returns only bounded metadata and a non-executable
+  consent summary;
+- signed-out access returns `401`, nonparticipants return `404`, and generic
+  consent readback remains `executable: false`;
+- provider-backed cross-owner preview, provider calls, prompt assembly,
+  generated words, token rows, private sessions, public exhibits, reports,
+  memory/canon/archive/continuity/export/jobs/storage/public rows, UI, package,
+  billing, Redis, Cloudflare, workers, and deployment remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 48 tests passed, including migration/RLS shape, bounded helper insert/readback, helper failure fail-closed behavior, participant/nonparticipant/signed-out readback, generic consent non-executable readback, privacy, and no-side-effect coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR513A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changes are limited to migration `078`, `packages/db/src/types.ts`, `apps/api/src/routes/persona-encounters.ts`, `apps/api/src/routes/persona-encounters.test.ts`, PR513A result/status/lane docs, and this validation doc. |
+| Forbidden-path scan | Pass | No web UI, package/lockfile, provider service, token service, operational cache, `packages/ai`, `packages/auth`, Railway, Cloudflare, or deploy-script paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the diff. |
+| `git diff --check` | Pass | No unstaged whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR513 Consented Cross-Owner Disposable Preview Preflight
 
 ARGUS completed PR513 preflight on 2026-07-11:

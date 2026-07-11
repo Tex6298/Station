@@ -4,68 +4,80 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513A cross-owner runtime attempt audit ledger opened
+## Current lane - PR513A cross-owner runtime attempt audit ledger ready for ARGUS
 
-MIMIR closed PR513 as accepted with a concrete audit blocker:
+DAEDALUS implemented PR513A:
 
-`docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_RESULT.md`
 
-MIMIR opened PR513A for DAEDALUS:
+Source instruction:
 
 `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_DAEDALUS.md`
 
-Result:
+Implementation result:
 
 ```text
-CLOSE_PR513_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_ACCEPTED_WITH_AUDIT_BLOCKER
-```
-
-Blocked candidate:
-
-```text
-BLOCK_PR513_CROSS_OWNER_DISPOSABLE_PREVIEW_RUNTIME_ATTEMPT_AUDIT_MISSING
+READY_FOR_ARGUS_REVIEW
 ```
 
 Summary:
 
-- PR512A/PR512B prove the hosted context contract, but they do not create a
-  durable participant-visible runtime attempt record;
-- ARGUS did not accept provider-backed cross-owner disposable preview as the
-  next direct implementation lane;
-- concrete blocker:
-  `CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_MISSING`;
-- ARGUS accepts the smaller unblock lane
-  `PR513A - Cross-Owner Runtime Attempt Audit Ledger`;
-- future provider preview policy is pinned as actor-owned/platform provider
-  only, actor-only token accounting, display-snapshot-only prompt context, and
-  private disposable non-canonical response readback only;
-- PR513A may add only the bounded runtime attempt audit ledger/schema/helper and
-  participant-safe readback needed before any cross-owner provider execution;
-- provider-backed preview remains blocked until PR513A is implemented,
-  reviewed, and hosted-proven.
+- migration `078` adds
+  `persona_encounter_cross_owner_runtime_attempts`;
+- attempt rows are tied to cross-owner consent rows and store only bounded
+  metadata: consent id, participant roles, consent status, requested
+  scope/version, readiness code, lifecycle status, and timestamps;
+- RLS permits participant-owner SELECT by joining through the consent row;
+- no participant insert/update/delete policies are created;
+- attempt rows are append-only through update/delete blockers;
+- API helper `recordCrossOwnerRuntimeAttemptAudit` wraps RPC
+  `record_persona_encounter_cross_owner_runtime_attempt`;
+- participant readback is available at
+  `GET /persona-encounters/cross-owner-consents/:consentId/runtime-attempts`;
+- signed-out callers get `401`, nonparticipants get `404`, and readback
+  excludes raw owner/persona ids, persona names, prompts, private fields,
+  provider payloads, generated words, token facts, source bodies, traces, SQL
+  details, env/cookie/bearer values, and secret-shaped strings;
+- generic consent readback remains non-executable.
+
+Non-scope preserved:
+
+- no provider-backed preview, provider call, prompt assembly, generated words,
+  token rows, private sessions, public exhibits, reports, memory/canon/archive/
+  continuity/export/jobs/storage/public rows, public surfacing, UI, package,
+  provider/retrieval/Redis/Cloudflare/Stripe/billing/worker/deploy drift.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters  PASS
+npm exec --yes pnpm@10.32.1 -- run test:reports             PASS
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui           PASS
+npm exec --yes pnpm@10.32.1 -- run typecheck                PASS
+```
 
 Current lane:
 
 ```text
 PR513A - Cross-Owner Runtime Attempt Audit Ledger
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_RESULT.md
 ```
 
 Next:
 
-- DAEDALUS implements the accepted bounded audit ledger/RLS/helper/readback
-  scope without provider calls, prompts, generated words, token rows, private
-  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
-  jobs/storage/public rows, provider/retrieval/Redis/Cloudflare/Stripe/package/
-  deploy/UI drift.
+- ARGUS reviews migration `078`, RPC/helper/route serialization, privacy
+  readback, fail-closed behavior, validation, and no-drift scans.
+- If accepted, ARGUS should wake MIMIR for closeout and MIMIR should route
+  ARIADNE hosted migration/API proof.
+- If fixes are needed, ARGUS should wake DAEDALUS with exact findings.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR513 preflight returned to MIMIR

@@ -12,7 +12,7 @@ import {
   type OperationalCacheProvider,
 } from "../services/operational-cache.service";
 import { estimateConversationTokens } from "../services/token-credits.service";
-import { personaEncountersRouter } from "./persona-encounters";
+import { personaEncountersRouter, recordCrossOwnerRuntimeAttemptAudit } from "./persona-encounters";
 
 process.env.NODE_ENV = "test";
 
@@ -117,6 +117,7 @@ class InMemorySupabase {
     persona_encounter_public_exhibits: [],
     persona_encounter_cross_owner_consents: [],
     persona_encounter_cross_owner_consent_audit_events: [],
+    persona_encounter_cross_owner_runtime_attempts: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -134,6 +135,7 @@ class InMemorySupabase {
 
   private clock = Date.parse("2026-06-29T09:00:00.000Z");
   failNextCrossOwnerConsentAuditRpc = false;
+  failNextCrossOwnerRuntimeAttemptRpc = false;
   private usersByToken = new Map([
     ["owner-token", { id: OWNER_ID, email: "owner@example.test" }],
     ["other-token", { id: OTHER_OWNER_ID, email: "other@example.test" }],
@@ -181,6 +183,9 @@ class InMemorySupabase {
     }
     if (table === "persona_encounter_cross_owner_consent_audit_events" && !row.id) {
       row.id = `aaaaaaaa-aaaa-4aaa-8aaa-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_runtime_attempts" && !row.id) {
+      row.id = `bbbbbbbb-bbbb-4bbb-8bbb-${String(this.rows(table).length + 1).padStart(12, "0")}`;
     }
     row.id ??= `${table}-${this.rows(table).length + 1}`;
 
@@ -258,6 +263,12 @@ class InMemorySupabase {
       row.created_at ??= now;
     }
 
+    if (table === "persona_encounter_cross_owner_runtime_attempts") {
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_runtime_attempt.v1";
+      row.created_at ??= now;
+      row.completed_at ??= null;
+    }
+
     return row;
   }
 
@@ -291,6 +302,10 @@ class InMemorySupabase {
 
     if (name === "transition_persona_encounter_cross_owner_consent") {
       return Promise.resolve(this.transitionCrossOwnerConsentRpc(args));
+    }
+
+    if (name === "record_persona_encounter_cross_owner_runtime_attempt") {
+      return Promise.resolve(this.recordCrossOwnerRuntimeAttemptRpc(args));
     }
 
     return Promise.resolve({ data: null, error: { message: `Unknown RPC ${name}` } });
@@ -382,6 +397,28 @@ class InMemorySupabase {
     });
 
     return { data: clone(consent), error: null };
+  }
+
+  private recordCrossOwnerRuntimeAttemptRpc(args: Row) {
+    if (this.failNextCrossOwnerRuntimeAttemptRpc) {
+      this.failNextCrossOwnerRuntimeAttemptRpc = false;
+      return { data: null, error: { message: "runtime attempt audit insert failed" } };
+    }
+
+    const attempt = this.insertRow("persona_encounter_cross_owner_runtime_attempts", {
+      consent_id: args.p_consent_id,
+      actor_role: args.p_actor_role,
+      initiator_role: args.p_initiator_role,
+      responder_role: args.p_responder_role,
+      consent_status: args.p_consent_status,
+      requested_scope_version: args.p_requested_scope_version,
+      requested_scope: args.p_requested_scope,
+      readiness_code: args.p_readiness_code,
+      lifecycle_status: args.p_lifecycle_status,
+      completed_at: args.p_completed_at ?? null,
+    });
+
+    return { data: clone(attempt), error: null };
   }
 
   private ensureTokenUsage(userId: string) {
@@ -773,6 +810,10 @@ function crossOwnerRuntimeContractPath(
   return `/persona-encounters/cross-owner-consents/${consentId}/runtime-context-contract?${params.toString()}`;
 }
 
+function crossOwnerRuntimeAttemptsPath(consentId: string) {
+  return `/persona-encounters/cross-owner-consents/${consentId}/runtime-attempts`;
+}
+
 function seedCrossOwnerConsent(db: InMemorySupabase, overrides: Row = {}) {
   return db.insertRow("persona_encounter_cross_owner_consents", {
     requester_owner_user_id: OWNER_ID,
@@ -825,6 +866,7 @@ function assertNoDurableEncounterWrites(db: InMemorySupabase) {
     "persona_encounter_public_exhibits",
     "persona_encounter_cross_owner_consents",
     "persona_encounter_cross_owner_consent_audit_events",
+    "persona_encounter_cross_owner_runtime_attempts",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -848,6 +890,7 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
     "persona_encounter_public_exhibits",
     "persona_encounter_cross_owner_consents",
     "persona_encounter_cross_owner_consent_audit_events",
+    "persona_encounter_cross_owner_runtime_attempts",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -865,6 +908,31 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
 }
 
 function assertNoForbiddenCrossOwnerConsentSideEffects(db: InMemorySupabase) {
+  for (const table of [
+    "conversations",
+    "conversation_messages",
+    "persona_encounter_private_sessions",
+    "persona_encounter_public_exhibits",
+    "persona_encounter_cross_owner_runtime_attempts",
+    "archived_chat_transcripts",
+    "continuity_candidates",
+    "continuity_records",
+    "memory_items",
+    "canon_items",
+    "documents",
+    "threads",
+    "comments",
+    "moderation_reports",
+    "public_persona_interaction_counters",
+    "background_jobs",
+    "token_usage",
+    "token_transactions",
+  ]) {
+    assert.equal(db.rows(table).length, 0, `${table} should not be written`);
+  }
+}
+
+function assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db: InMemorySupabase) {
   for (const table of [
     "conversations",
     "conversation_messages",
@@ -963,6 +1031,54 @@ test("cross-owner consent migration creates participant ledger RLS and append-on
   assert.equal(/select_published/i.test(sql), false);
   assert.equal(/disable row level security/i.test(sql), false);
   assert.match(sql, /it does not run encounters, save artifacts, publish metadata/);
+});
+
+test("cross-owner runtime attempt migration creates participant-readable append-only metadata audit", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/078_persona_encounter_cross_owner_runtime_attempts.sql",
+    "utf8",
+  );
+
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.match(sql, /consent_id uuid not null references public\.persona_encounter_cross_owner_consents\(id\) on delete cascade/);
+  assert.match(sql, /actor_role text not null/);
+  assert.match(sql, /initiator_role text not null/);
+  assert.match(sql, /responder_role text not null/);
+  assert.match(sql, /consent_status text not null/);
+  assert.match(sql, /requested_scope_version integer not null/);
+  assert.match(sql, /requested_scope text not null/);
+  assert.match(sql, /readiness_code text not null/);
+  assert.match(sql, /lifecycle_status text not null/);
+  assert.match(sql, /station\.persona_encounter\.cross_owner_runtime_attempt\.v1/);
+  assert.match(sql, /actor_role in \('requester', 'counterparty'\)/);
+  assert.match(sql, /initiator_role <> responder_role/);
+  assert.match(sql, /readiness_code ~ '\^\[a-z0-9_\]\{1,80\}\$'/);
+  assert.match(sql, /blocked_before_provider/);
+  assert.match(sql, /provider_succeeded/);
+  assert.match(sql, /provider_failed/);
+  assert.match(sql, /provider_empty/);
+  assert.match(sql, /quota_exceeded/);
+  assert.match(sql, /rate_limited/);
+  assert.match(sql, /provider_unavailable/);
+  assert.match(sql, /alter table public\.persona_encounter_cross_owner_runtime_attempts enable row level security/);
+  assert.match(sql, /persona_encounter_cross_owner_runtime_attempts_select_participants/);
+  assert.match(sql, /auth\.uid\(\) = consent\.requester_owner_user_id/);
+  assert.match(sql, /auth\.uid\(\) = consent\.counterparty_owner_user_id/);
+  assert.equal(/select_published/i.test(sql), false);
+  assert.equal(/create policy "persona_encounter_cross_owner_runtime_attempts_insert_participants"/.test(sql), false);
+  assert.equal(/create policy "persona_encounter_cross_owner_runtime_attempts_update_participants"/.test(sql), false);
+  assert.equal(/create policy "persona_encounter_cross_owner_runtime_attempts_delete_participants"/.test(sql), false);
+  assert.match(sql, /No direct participant insert policy is created/);
+  assert.match(sql, /No direct participant update\/delete policies are created/);
+  assert.match(sql, /create or replace function public\.record_persona_encounter_cross_owner_runtime_attempt/);
+  assert.match(sql, /security invoker/);
+  assert.match(sql, /insert into public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.match(sql, /prevent_persona_encounter_cross_owner_runtime_attempt_mutation/);
+  assert.match(sql, /before update on public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.match(sql, /before delete on public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.equal(/disable row level security/i.test(sql), false);
+  assert.match(sql, /No prompts, generated output, provider payloads, provider keys/);
+  assert.match(sql, /does not call providers, assemble prompts, record tokens, create private sessions/);
 });
 
 test("cross-owner consent invitations require auth ownership different owners and bounded payloads", async () => {
@@ -1366,6 +1482,7 @@ test("cross-owner runtime context contract returns approved readback without exe
       ],
     );
     assert.equal(contract.body.contract.futureRuntimeAttemptAudit.writtenInPr512A, false);
+    assert.equal(contract.body.contract.futureRuntimeAttemptAudit.implementedInPr513A, true);
     assert.deepEqual(contract.body.contract.futureRuntimeAttemptAudit.allowedMetadataOnlyFields, [
       "consentId",
       "actorRole",
@@ -1375,7 +1492,9 @@ test("cross-owner runtime context contract returns approved readback without exe
       "requestedScopeVersion",
       "requestedScope",
       "readinessCode",
-      "attemptedAt",
+      "lifecycleStatus",
+      "createdAt",
+      "completedAt",
     ]);
 
     assert.equal(db.rows("persona_encounter_cross_owner_consents").length, beforeCounts.consents);
@@ -1418,6 +1537,152 @@ test("cross-owner runtime context contract returns approved readback without exe
     assert.equal(counterpartyContract.body.contract.eligible, true);
     assert.equal(counterpartyContract.body.contract.actor.role, "counterparty");
     assert.equal(counterpartyContract.body.contract.requestedPair.actorOwnsInitiator, true);
+  });
+});
+
+test("cross-owner runtime attempt audit helper records bounded metadata and participant readback only", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+    const beforeProvider = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "approved",
+      requestedScopeVersion: 1,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "wrong_role",
+      lifecycleStatus: "blocked_before_provider",
+    });
+    assert.equal(beforeProvider.ok, true);
+
+    const afterProviderCompletedAt = "2026-06-29T09:10:00.000Z";
+    const afterProvider = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "approved",
+      requestedScopeVersion: 1,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "ready",
+      lifecycleStatus: "provider_failed",
+      completedAt: afterProviderCompletedAt,
+    });
+    assert.equal(afterProvider.ok, true);
+
+    const attemptRows = db.rows("persona_encounter_cross_owner_runtime_attempts");
+    assert.equal(attemptRows.length, 2);
+    assert.equal(attemptRows[0].consent_id, consent.id);
+    assert.equal(attemptRows[0].lifecycle_status, "blocked_before_provider");
+    assert.equal(attemptRows[1].lifecycle_status, "provider_failed");
+    assert.equal(attemptRows[1].completed_at, afterProviderCompletedAt);
+    assert.equal(providerCalls.length, 0);
+    assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db);
+
+    const signedOut = await requestJson(app, "GET", crossOwnerRuntimeAttemptsPath(consent.id));
+    assert.equal(signedOut.status, 401);
+
+    const ownerReadback = await requestJson(app, "GET", crossOwnerRuntimeAttemptsPath(consent.id), {
+      token: "owner-token",
+    });
+    assert.equal(ownerReadback.status, 200);
+    assert.equal(ownerReadback.body.consent.participantRole, "requester");
+    assert.equal(ownerReadback.body.consent.ledger.executable, false);
+    assert.equal(ownerReadback.body.consent.ledger.permitsRuntime, false);
+    assert.equal(ownerReadback.body.attempts.length, 2);
+    assert.equal(ownerReadback.body.attempts[0].lifecycleStatus, "provider_failed");
+    assert.equal(ownerReadback.body.attempts[0].readinessCode, "ready");
+    assert.equal(ownerReadback.body.attempts[0].requestedScope.executable, false);
+    assert.equal(ownerReadback.body.attempts[0].timestamps.completedAt, afterProviderCompletedAt);
+    assert.equal(ownerReadback.body.attempts[0].provenance.metadataOnly, true);
+    assert.equal(ownerReadback.body.attempts[1].lifecycleStatus, "blocked_before_provider");
+
+    const counterpartyReadback = await requestJson(app, "GET", crossOwnerRuntimeAttemptsPath(consent.id), {
+      token: "other-token",
+    });
+    assert.equal(counterpartyReadback.status, 200);
+    assert.equal(counterpartyReadback.body.consent.participantRole, "counterparty");
+    assert.equal(counterpartyReadback.body.attempts.length, 2);
+
+    const nonparticipantReadback = await requestJson(app, "GET", crossOwnerRuntimeAttemptsPath(consent.id), {
+      token: "third-token",
+    });
+    assert.equal(nonparticipantReadback.status, 404);
+
+    const genericConsent = await requestJson(app, "GET", `/persona-encounters/cross-owner-consents/${consent.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(genericConsent.status, 200);
+    assert.equal(genericConsent.body.consent.ledger.executable, false);
+    assert.equal(genericConsent.body.consent.requestedScopes[0].executable, false);
+
+    const responseJson = JSON.stringify(ownerReadback.body);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      THIRD_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      THIRD_PERSONA_ID,
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "Blue Lantern",
+      "Other Owner Persona",
+      "Owner-only private persona notes",
+      "Cross-owner private material",
+      "awakening_prompt",
+      "style_notes",
+      "providerPayload",
+      "provider says no",
+      "Copper Scribe answers once",
+      "test-deepseek-key",
+      "Bearer ",
+      "owner@example.test",
+    ]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in runtime attempt readback`);
+    }
+  });
+});
+
+test("cross-owner runtime attempt audit helper fails closed when audit insertion fails", async () => {
+  await withHarness(async ({ db, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+    db.failNextCrossOwnerRuntimeAttemptRpc = true;
+
+    const failed = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "approved",
+      requestedScopeVersion: 1,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "ready",
+      lifecycleStatus: "blocked_before_provider",
+    });
+
+    assert.equal(failed.ok, false);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(providerCalls.length, 0);
+    assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db);
+
+    const invalidReadiness = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "approved",
+      requestedScopeVersion: 1,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "ready;drop",
+      lifecycleStatus: "blocked_before_provider",
+    });
+    assert.equal(invalidReadiness.ok, false);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
   });
 });
 

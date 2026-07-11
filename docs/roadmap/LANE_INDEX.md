@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513A | Cross-Owner Runtime Attempt Audit Ledger | DAEDALUS / A2 | Open implementation of participant-visible runtime attempt audit ledger/RLS/helper/readback. Provider-backed cross-owner preview remains blocked until this audit layer is implemented, reviewed, and hosted-proven. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_DAEDALUS.md` |
+| PR513A review | Cross-Owner Runtime Attempt Audit Ledger | DAEDALUS -> ARGUS | Ready for ARGUS review; dedicated runtime attempt audit ledger/RLS/RPC/helper/readback is implemented without provider calls, prompts, generated words, token rows, private sessions, public exhibits, reports, memory/canon/archive/continuity/export/jobs/storage/public rows, UI, package, provider/retrieval/Redis/Cloudflare/Stripe/billing/worker/deploy drift. Provider-backed cross-owner preview remains blocked until PR513A is reviewed and hosted-proven. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_RESULT.md` |
 
 ## Recently Closed
 
