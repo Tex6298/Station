@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515A | Cross-Owner Consent Counterparty Selection Contract | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT`; visible invitation UI is unblocked if it uses the new public-slug target/create path and not the legacy raw-id create route. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_REVIEW_RESULT.md` |
+| PR515B | Cross-Owner Consent Invitation and Inbox UI | DAEDALUS / A2 | Open implementation for owner-only target lookup, invitation creation, participant consent inbox, and approve/reject/cancel/revoke controls using the PR515A public-slug contract and existing participant routes. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR515A closeout | Cross-Owner Consent Counterparty Selection Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_ACCEPTED`; DAEDALUS gets PR515B for visible owner-only invitation and inbox/actions UI. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_CLOSEOUT.md` |
 | PR515A review | Cross-Owner Consent Counterparty Selection Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT`; public-slug target/create contract resolves eligible counterparties server-side, preserves consent ledger boundaries, and avoids raw counterparty persona UUIDs or owner ids in browser-facing invitation payloads/readback. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_REVIEW_RESULT.md` |
 | PR515 closeout | Cross-Owner Consent Invitation UI Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK`; DAEDALUS gets PR515A for safe counterparty selection/create before visible UI. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_CLOSEOUT.md` |
 | PR515 preflight | Cross-Owner Consent Invitation UI Preflight | MIMIR -> ARGUS -> MIMIR | Blocked as `BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT`; concrete blocker is `CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_MISSING`. Existing list/detail/approve/reject/cancel/revoke routes are participant-safe for visible rows, but create still requires raw persona UUIDs while public persona/Discover expose only safe slugs/hrefs. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md` |

@@ -4,7 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515A accepted by ARGUS; MIMIR routing next
+## Current lane - PR515B cross-owner consent invitation and inbox UI
+
+MIMIR accepted and closed PR515A, then opened PR515B:
+
+`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_CLOSEOUT.md`
+
+`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md`
+
+Result:
+
+```text
+CLOSE_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_ACCEPTED
+```
+
+Current lane:
+
+```text
+PR515B - Cross-Owner Consent Invitation and Inbox UI
+Owner: DAEDALUS / A2
+State: OPEN_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md
+```
+
+Goal:
+
+- add the first visible owner-only invitation and participant inbox/actions UI
+  using the PR515A public-slug target/create contract;
+- support target lookup, invitation creation, list/readback, approve, reject,
+  cancel, and revoke controls;
+- keep the lane ledger-only and out of generated-word preview execution, saved
+  sessions, public exhibits, retrieval, storage, billing, Redis, Cloudflare,
+  workers, migrations, provider config, public surfacing, broad redesign, and
+  deployment work.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+
+Summary:
+- ARGUS accepted PR515A, so the safe public-slug counterparty selection/create contract is ready.
+- MIMIR closed PR515A and opened PR515B for the visible owner-only consent invitation and inbox UI.
+- Keep the lane ledger-only; do not expand runtime or saved/public artifact behavior.
+
+Task:
+- Implement PR515B: owner-only cross-owner consent invitation and inbox/actions UI.
+- Use the PR515A target/create contract, not the legacy raw-id create route.
+- Add or reuse web helpers for target lookup, invitation create, list/detail/action paths, state copy, and bounded errors.
+- Show safe target readback, create invitation, participant consent rows, and approve/reject/cancel/revoke controls with the required ledger-only copy.
+- Add focused web tests proving no raw counterparty persona ids or owner ids enter visible UI payload/readback and no generated/saved/public/retrieval surfaces are implied.
+- Run test:studio-ui, typecheck, git diff --check, and test:persona-encounters if API behavior changes.
+- Wake ARGUS with the implementation result.
+```
+
+## Previous lane - PR515A accepted
 
 ARGUS accepted PR515A:
 
@@ -16,7 +71,7 @@ Result:
 ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT
 ```
 
-Current lane:
+Closed lane:
 
 ```text
 PR515A - Cross-Owner Consent Counterparty Selection Contract
@@ -69,12 +124,9 @@ ARGUS guidance:
   exhibits, generated-word sharing, transcripts, summaries, excerpts, retrieval,
   publication, or public surfacing.
 
-Wakeup:
+Closeout:
 
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+- `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_CLOSEOUT.md`
 
 ## Previous lane - PR515 preflight blocked
 
