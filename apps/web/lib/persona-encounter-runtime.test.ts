@@ -1,14 +1,22 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
+  PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
+  personaEncounterPrivateSessionPublicExhibitPath,
   personaEncounterPrivateSessionPath,
   personaEncounterPrivateSessionReadback,
+  personaEncounterPublicExhibitPath,
+  personaEncounterPublicExhibitPublishPayload,
+  personaEncounterPublicExhibitReportPath,
+  personaEncounterPublicExhibitRetractPath,
+  personaEncounterPublicExhibitWebHref,
   personaEncounterPreviewAvailabilityCopy,
   personaEncounterPreviewErrorCopy,
   personaEncounterPreviewPayload,
@@ -92,9 +100,46 @@ test("persona encounter runtime helper builds private session paths", () => {
     "/persona-encounters/private-sessions/session%2Fone/curation",
   );
   assert.equal(
+    personaEncounterPrivateSessionPublicExhibitPath("session/one"),
+    "/persona-encounters/private-sessions/session%2Fone/public-exhibit",
+  );
+  assert.equal(
     PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
     "station.persona_encounter.private_session_curation.v1",
   );
+  assert.equal(
+    PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
+    "station.persona_encounter.public_exhibit.v1",
+  );
+});
+
+test("persona encounter runtime helper builds public exhibit paths and payloads", () => {
+  assert.equal(
+    personaEncounterPublicExhibitPath("public/exhibit"),
+    "/persona-encounters/public-exhibits/public%2Fexhibit",
+  );
+  assert.equal(
+    personaEncounterPublicExhibitWebHref("public-exhibit-12345678"),
+    "/encounters/public-exhibit-12345678",
+  );
+  assert.equal(
+    personaEncounterPublicExhibitRetractPath("public-exhibit-12345678"),
+    "/persona-encounters/public-exhibits/public-exhibit-12345678/retract",
+  );
+  assert.equal(
+    personaEncounterPublicExhibitReportPath("public-exhibit-12345678"),
+    "/persona-encounters/public-exhibits/public-exhibit-12345678/report",
+  );
+  assert.deepEqual(personaEncounterPublicExhibitPublishPayload({
+    title: "  Public title  ",
+    summary: "  Public metadata only. ",
+    tags: [" safe ", "", "metadata"],
+  }), {
+    confirmPublicExhibit: true,
+    title: "Public title",
+    summary: "Public metadata only.",
+    tags: ["safe", "metadata"],
+  });
 });
 
 test("persona encounter runtime helper builds bounded private curation payloads", () => {
@@ -202,6 +247,7 @@ test("persona encounter runtime readback labels private saved artifacts honestly
       schema: "station.persona_encounter.private_session_curation.v1",
       note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
     },
+    publicExhibit: null,
   };
 
   assert.deepEqual(personaEncounterPrivateSessionReadback(session), [
@@ -218,7 +264,9 @@ test("persona encounter runtime readback labels private saved artifacts honestly
     "Private note saved",
     "Private tags: quiet, candidate",
     "Private candidate planning flag only",
-    "Not published, shared, moderated, public, or cross-owner consented",
+    "No public exhibit",
+    "Private candidate is not publication approval",
+    "Public exhibits are metadata-only and never publish private setup, raw reply, transcript, excerpt, or private curation",
   ]);
 });
 
@@ -246,6 +294,14 @@ test("persona encounter runtime error copy stays bounded", () => {
     code: "persona_encounter_private_session_curation_failed",
     message: "sql table detail",
   }), "Private encounter curation could not be saved.");
+  assert.equal(personaEncounterPreviewErrorCopy({
+    code: "persona_encounter_public_exhibit_candidate_required",
+    message: "raw private_session_id=secret",
+  }), "Mark this private artifact as a private candidate before publishing public metadata.");
+  assert.equal(personaEncounterPreviewErrorCopy({
+    code: "persona_encounter_public_exhibit_save_failed",
+    message: "sql table detail",
+  }), "Public encounter exhibit metadata could not be saved.");
 });
 
 test("persona encounter runtime availability copy fails closed before generation", () => {
@@ -273,4 +329,25 @@ test("persona encounter runtime availability copy fails closed before generation
     }),
     "Both personas must belong to this owner before a preview can run.",
   );
+});
+
+test("public encounter exhibit page and Studio controls stay metadata-only", () => {
+  const pageSource = readFileSync("apps/web/app/encounters/[slug]/page.tsx", "utf8");
+  const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
+  const runtimeSource = readFileSync("apps/web/lib/persona-encounter-runtime.ts", "utf8");
+
+  assert.match(pageSource, /personaEncounterPublicExhibitPath/);
+  assert.match(pageSource, /personaEncounterPublicExhibitReportPath/);
+  assert.match(pageSource, /Sign in to report/);
+  assert.match(workspaceSource, /PrivateEncounterPublicExhibitControls/);
+  assert.match(workspaceSource, /personaEncounterPublicExhibitPublishPayload/);
+  assert.match(runtimeSource, /confirmPublicExhibit: true/);
+  assert.doesNotMatch(workspaceSource, /title:\s*session\.curation|summary:\s*session\.curation|tags:\s*session\.curation/);
+
+  for (const source of [pageSource, workspaceSource]) {
+    assert.doesNotMatch(
+      source,
+      /owner_user_id|private_session_id|initiator_persona_id|responder_persona_id|owner_setup|responder_reply|owner_title|owner_summary|owner_tags|provider_payload|source_body|raw_source/i,
+    );
+  }
 });

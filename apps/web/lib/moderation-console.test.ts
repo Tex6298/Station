@@ -30,10 +30,18 @@ test("moderation report queue paths preserve active default and bounded filters"
   assert.equal(reportQueuePath({ status: "active", targetType: "all", limit: 50 }), "/reports?limit=50");
   assert.equal(reportQueuePath({ status: "reviewing", targetType: "comment", limit: 25 }), "/reports?status=reviewing&targetType=comment&limit=25");
   assert.equal(reportQueuePath({ status: "active", targetType: "persona", limit: 50 }), "/reports?targetType=persona&limit=50");
+  assert.equal(
+    reportQueuePath({ status: "active", targetType: "persona_encounter_public_exhibit", limit: 50 }),
+    "/reports?targetType=persona_encounter_public_exhibit&limit=50"
+  );
   assert.equal(moderationConsoleHref({ targetType: "persona" }), "/forums/moderation?targetType=persona");
   assert.deepEqual(
     moderationConsoleReportFiltersFromSearch(new URLSearchParams("targetType=persona")),
     { status: "active", targetType: "persona" }
+  );
+  assert.deepEqual(
+    moderationConsoleReportFiltersFromSearch(new URLSearchParams("targetType=persona_encounter_public_exhibit")),
+    { status: "active", targetType: "persona_encounter_public_exhibit" }
   );
   assert.deepEqual(
     moderationConsoleReportFiltersFromSearch({ status: "deleted", targetType: "550e8400-e29b-41d4-a716-446655440000" }),
@@ -45,6 +53,10 @@ test("moderation report target labels do not invent route context", () => {
   assert.equal(reportTargetLabel({ targetType: "thread", targetId: "thread-1" }), "thread:thread-1");
   assert.equal(reportTargetLabel({ targetType: "document", targetId: "doc-1" }), "document:doc-1");
   assert.equal(reportTargetLabel({ targetType: "persona", targetId: "persona-private-id" }), "Persona report");
+  assert.equal(
+    reportTargetLabel({ targetType: "persona_encounter_public_exhibit", targetId: "public-exhibit-12345678" }),
+    "Public encounter exhibit report"
+  );
 });
 
 test("moderation report transitions use existing API statuses", () => {
@@ -93,6 +105,20 @@ test("moderation target helpers keep actions and labels bounded to safe context"
   }).includes("persona-private-id"), false);
   assert.equal(canActOnReportTarget({ targetType: "document", targetContext: undefined }), false);
   assert.equal(canActOnReportTarget(personaReport), false);
+  assert.equal(targetActionPath({ targetType: "persona_encounter_public_exhibit", targetId: "public-exhibit-12345678" }), null);
+  assert.equal(canActOnReportTarget({
+    targetType: "persona_encounter_public_exhibit",
+    targetContext: {
+      targetType: "persona_encounter_public_exhibit",
+      targetId: "public-exhibit-12345678",
+      title: "Public encounter card",
+      status: "published",
+      routeHref: "/encounters/public-exhibit-12345678",
+      routeLabel: "Public encounter card",
+      canOpenRoute: true,
+      supportedActions: ["remove"],
+    },
+  }), true);
   assert.deepEqual(
     nextTargetModerationActions({
       targetContext: { targetType: "comment", targetId: "comment-1", canOpenRoute: false, supportedActions: ["unhide", "remove"] },

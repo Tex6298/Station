@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR508A Owner Encounter Public Exhibit Metadata
+
+DAEDALUS implemented PR508A on 2026-07-11:
+
+- `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- migration `076` adds a dedicated `persona_encounter_public_exhibits` table
+  with owner-scoped source rows, bounded public title/summary/tags,
+  same-owner persona display-name snapshots, public slug, status fields, report
+  counters, RLS, and moderation target support;
+- owner publish/update and retract routes are authenticated, owner-scoped, and
+  require an eligible private candidate artifact with same-owner source
+  personas;
+- public exhibit readback is metadata-only for `published` rows and bounded
+  `404` for missing, malformed, retracted, or removed rows;
+- public report creation and admin report queue context support
+  `persona_encounter_public_exhibit` without exposing raw ids, private setup,
+  generated replies, private curation, provider payloads, prompts, source
+  bodies, SQL details, stack traces, or secret-shaped values;
+- Studio public exhibit controls use newly authored public metadata fields and
+  keep PR507A private curation separate;
+- the dedicated `/encounters/[slug]` web route renders public metadata,
+  same-owner display snapshots, provenance, and signed-in report/sign-in-to-
+  report controls only.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 36 tests passed, including public exhibit migration, publish/retract/report, strict rejection, safe GET, runtime helpers, and UI boundary source scan. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed, including exhibit report persistence, safe admin target context, target filtering, and remove/restore. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 Studio/helper tests passed, including encounter runtime and moderation-console helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known local Windows failure | 8 of 9 tasks passed; web build compiled, linted/typechecked, collected page data, generated 38 static pages, finalized optimization, then failed during standalone trace copy on the known local Windows symlink `EPERM` for Next/React packages. Existing autoprefixer `end` warning remained. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint completed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR508 Owner Encounter Public Exhibit Boundary Preflight
 
 ARGUS completed PR508 on 2026-07-11:

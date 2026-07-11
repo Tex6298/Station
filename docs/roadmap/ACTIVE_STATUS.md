@@ -4,40 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508A owner encounter public exhibit metadata
+## Current lane - PR508A owner encounter public exhibit metadata ready for ARGUS review
 
-MIMIR closed PR508 and opened PR508A for DAEDALUS:
+DAEDALUS implemented PR508A for ARGUS review:
 
-`docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md`
 
 `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_DAEDALUS.md`
 
-Why:
+Result:
 
-- ARGUS accepted same-owner public encounter exhibit metadata as the next safe
-  public encounter lane;
-- the accepted scope is metadata-only public presentation with explicit owner
-  publish/retract, a dedicated public exhibit table/route, and report/takedown
-  support;
-- transcripts, raw generated responder replies, owner-selected excerpts,
-  private setup, private curation, raw ids, provider payloads, prompts, private
-  context, source bodies, cross-owner persona words, and Discover/search/forum
-  surfacing remain blocked.
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Summary:
+
+- migration `076` adds the dedicated public exhibit table, constraints, RLS,
+  and `persona_encounter_public_exhibit` moderation target;
+- owner API routes add explicit publish/update and retract for eligible
+  same-owner private encounter artifacts while keeping the private source row
+  private, non-shareable, and not public;
+- public API/web route `/encounters/[slug]` returns only owner-authored public
+  title, summary, tags, safe same-owner persona display snapshots, provenance,
+  and report/sign-in-to-report controls;
+- report queue/context supports safe exhibit target readback and admin
+  remove/restore that hides or restores the public route;
+- Studio publish controls use newly authored public fields and do not auto-copy
+  PR507A private curation metadata.
+
+Validation so far:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `36` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `7` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `201`
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
+- `npm exec --yes pnpm@10.32.1 -- run build` reached web compile,
+  lint/typecheck, page data, 38 static pages, optimization, and trace
+  collection, then hit the known local Windows standalone symlink `EPERM`;
+- `git diff --check` passed with CRLF warnings only.
 
 Current lane:
 
 ```text
 PR508A - Owner Encounter Public Exhibit Metadata
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR508 owner encounter public exhibit boundary preflight accepted

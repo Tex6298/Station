@@ -17,14 +17,18 @@ import {
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
+  personaEncounterPrivateSessionPublicExhibitPath,
   personaEncounterPrivateSessionPath,
   personaEncounterPrivateSessionReadback,
+  personaEncounterPublicExhibitPublishPayload,
+  personaEncounterPublicExhibitRetractPath,
   personaEncounterPreviewAvailabilityCopy,
   personaEncounterPreviewErrorCopy,
   personaEncounterPreviewPayload,
   personaEncounterPreviewReadback,
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterPublicExhibitResponse,
   type PersonaEncounterPrivateSession,
   type PersonaEncounterPrivateSessionDeleteResponse,
   type PersonaEncounterPrivateSessionListResponse,
@@ -537,6 +541,15 @@ export function PersonaEncounterRuntimePreview({
                     );
                   }}
                 />
+                <PrivateEncounterPublicExhibitControls
+                  session={session}
+                  token={token}
+                  onSessionUpdate={(updated) => {
+                    setSavedSessions((current) =>
+                      current.map((candidate) => candidate.id === updated.id ? updated : candidate)
+                    );
+                  }}
+                />
                 <div className="studio-encounter-artifact-tags">
                   {personaEncounterPrivateSessionReadback(session).slice(5).map((item) => (
                     <span key={item}>
@@ -711,6 +724,174 @@ function PrivateEncounterCurationControls({
           disabled={busy}
         >
           Clear private curation
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PrivateEncounterPublicExhibitControls({
+  session,
+  token,
+  onSessionUpdate,
+}: {
+  session: PersonaEncounterPrivateSession;
+  token: string | null;
+  onSessionUpdate: (session: PersonaEncounterPrivateSession) => void;
+}) {
+  const [title, setTitle] = useState(session.publicExhibit?.title ?? "");
+  const [summary, setSummary] = useState(session.publicExhibit?.summary ?? "");
+  const [tags, setTags] = useState(session.publicExhibit?.tags.join(", ") ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const exhibit = session.publicExhibit;
+  const canPublish = Boolean(
+    token &&
+    session.curation.publicationCandidate &&
+    title.trim() &&
+    summary.trim() &&
+    !busy,
+  );
+
+  useEffect(() => {
+    setTitle(session.publicExhibit?.title ?? "");
+    setSummary(session.publicExhibit?.summary ?? "");
+    setTags(session.publicExhibit?.tags.join(", ") ?? "");
+    setError(null);
+  }, [
+    session.id,
+    session.publicExhibit?.slug,
+    session.publicExhibit?.status,
+    session.publicExhibit?.title,
+    session.publicExhibit?.summary,
+    session.publicExhibit?.tags,
+  ]);
+
+  async function publishExhibit() {
+    if (!token || !canPublish) return;
+    setBusy(true);
+    setError(null);
+
+    try {
+      const response = await apiPost<PersonaEncounterPublicExhibitResponse>(
+        personaEncounterPrivateSessionPublicExhibitPath(session.id),
+        personaEncounterPublicExhibitPublishPayload({
+          title,
+          summary,
+          tags: tags.split(","),
+        }),
+        token,
+      );
+      if (response.session) onSessionUpdate(response.session);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setError("Public encounter exhibit metadata could not be saved.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retractExhibit() {
+    if (!token || !exhibit || busy) return;
+    setBusy(true);
+    setError(null);
+
+    try {
+      const response = await apiPatch<PersonaEncounterPublicExhibitResponse>(
+        personaEncounterPublicExhibitRetractPath(exhibit.slug),
+        {},
+        token,
+      );
+      if (response.session) onSessionUpdate(response.session);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setError("Public encounter exhibit metadata could not be retracted.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="studio-encounter-public-form">
+      <div className="section-label">Public exhibit metadata</div>
+      <p>
+        Publishing creates a metadata-only public exhibit from new public fields. The private candidate flag only enables this control; it is not publication approval.
+      </p>
+      <label>
+        <span className="section-label">Public title</span>
+        <input
+          className="input"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          maxLength={140}
+          disabled={busy}
+          placeholder="Public exhibit title"
+        />
+      </label>
+      <label>
+        <span className="section-label">Public summary</span>
+        <textarea
+          className="textarea"
+          value={summary}
+          onChange={(event) => setSummary(event.target.value)}
+          maxLength={1000}
+          disabled={busy}
+          placeholder="Owner-authored public context only"
+          style={{ minHeight: 92 }}
+        />
+      </label>
+      <label>
+        <span className="section-label">Public tags</span>
+        <input
+          className="input"
+          value={tags}
+          onChange={(event) => setTags(event.target.value)}
+          maxLength={520}
+          disabled={busy}
+          placeholder="metadata, public"
+        />
+      </label>
+      <div className="studio-encounter-artifact-tags">
+        <span>
+          <strong>{session.curation.publicationCandidate ? "Candidate enabled" : "Mark as private candidate first"}</strong>
+        </span>
+        <span>
+          <strong>No transcript, excerpt, raw reply, private setup, or private curation is published</strong>
+        </span>
+        {exhibit && (
+          <span>
+            <strong>Public exhibit {exhibit.status}</strong>
+          </span>
+        )}
+      </div>
+      {exhibit?.status === "published" && (
+        <Link className="studio-place-action" href={exhibit.routeHref}>
+          Open public exhibit
+        </Link>
+      )}
+      {error && <div className="space-form-error">{error}</div>}
+      <div className="studio-runtime-query">
+        <button
+          className="button primary"
+          type="button"
+          onClick={publishExhibit}
+          disabled={!canPublish}
+        >
+          {busy ? "Saving..." : exhibit ? "Update public metadata" : "Publish public metadata"}
+        </button>
+        <button
+          className="button secondary"
+          type="button"
+          onClick={retractExhibit}
+          disabled={!token || !exhibit || exhibit.status !== "published" || busy}
+        >
+          Retract public exhibit
         </button>
       </div>
     </div>

@@ -50,7 +50,7 @@ export type SubcommunityVisibility = "public" | "community" | "unlisted" | "priv
 export type SubcommunityStatus = "active" | "paused" | "archived";
 export type CommentParentType = "thread" | "document" | "space_page";
 export type CommentStatus = "active" | "removed" | "flagged";
-export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona";
+export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona" | "persona_encounter_public_exhibit";
 export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type ModerationReviewRequestRole = "reporter" | "target_author";
 export type ModerationReviewRequestStatus = "open" | "reviewing" | "upheld" | "denied" | "dismissed" | "withdrawn";
@@ -66,6 +66,7 @@ export type PublicSeminarRecordStatus = "draft" | "ready" | "published" | "cance
 export type PublicSeminarRecordVisibility = "private" | "public";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
+export type PersonaEncounterPublicExhibitStatus = "published" | "retracted" | "removed";
 export type SocialConnectorProvider = "bluesky";
 export type SocialConnectorPurpose = "social_connector";
 export type SocialConnectorCredentialCategory = "manual_credential";
@@ -480,6 +481,41 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["persona_encounter_private_sessions"]["Insert"]>;
+      };
+      persona_encounter_public_exhibits: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          private_session_id: string;
+          slug: string;
+          public_title: string;
+          public_summary: string;
+          public_tags: string[];
+          initiator_name_snapshot: string;
+          responder_name_snapshot: string;
+          status: PersonaEncounterPublicExhibitStatus;
+          provenance_schema: "station.persona_encounter.public_exhibit.v1";
+          reported_count: number;
+          published_at: string;
+          retracted_at: string | null;
+          removed_at: string | null;
+          removed_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_public_exhibits"]["Row"], "id" | "status" | "provenance_schema" | "reported_count" | "published_at" | "retracted_at" | "removed_at" | "removed_by" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: PersonaEncounterPublicExhibitStatus;
+          provenance_schema?: "station.persona_encounter.public_exhibit.v1";
+          reported_count?: number;
+          published_at?: string;
+          retracted_at?: string | null;
+          removed_at?: string | null;
+          removed_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_public_exhibits"]["Insert"]>;
       };
       public_persona_interaction_counters: {
         Row: {

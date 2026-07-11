@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { z } from "zod";
 import { resolveChatProviderRuntimeRoute } from "@station/ai/providers/router";
@@ -29,10 +30,16 @@ const PERSONA_ENCOUNTER_PRIVATE_SESSION_PROVENANCE_SCHEMA =
   "station.persona_encounter.private_session.v1";
 const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
+const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.public_exhibit.v1";
 const PRIVATE_SESSION_CURATION_TITLE_MAX_CHARS = 120;
 const PRIVATE_SESSION_CURATION_SUMMARY_MAX_CHARS = 800;
 const PRIVATE_SESSION_CURATION_TAG_MAX_CHARS = 40;
 const PRIVATE_SESSION_CURATION_MAX_TAGS = 12;
+const PUBLIC_EXHIBIT_TITLE_MAX_CHARS = 140;
+const PUBLIC_EXHIBIT_SUMMARY_MAX_CHARS = 1000;
+const PUBLIC_EXHIBIT_TAG_MAX_CHARS = 40;
+const PUBLIC_EXHIBIT_MAX_TAGS = 12;
 
 const previewSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -80,6 +87,20 @@ const privateSessionCurationSchema = z.object({
   message: "At least one curation field is required.",
 });
 
+const publicExhibitPublishSchema = z.object({
+  confirmPublicExhibit: z.literal(true),
+  title: z.string().trim().min(1).max(PUBLIC_EXHIBIT_TITLE_MAX_CHARS),
+  summary: z.string().trim().min(1).max(PUBLIC_EXHIBIT_SUMMARY_MAX_CHARS),
+  tags: z.array(
+    z.string().trim().min(1).max(PUBLIC_EXHIBIT_TAG_MAX_CHARS),
+  ).max(PUBLIC_EXHIBIT_MAX_TAGS).default([]),
+}).strict();
+
+const publicExhibitReportSchema = z.object({
+  reason: z.string().trim().min(1).max(120),
+  notes: z.string().trim().max(500).optional(),
+}).strict();
+
 const readinessSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
   responderPersonaId: z.string().uuid(),
@@ -89,6 +110,7 @@ const readinessSchema = z.object({
 });
 
 const sessionIdSchema = z.string().uuid();
+const publicExhibitSlugSchema = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*-[a-z0-9]{8}$/);
 
 type EncounterPersonaRow = {
   id: string;
@@ -120,6 +142,27 @@ type EncounterPrivateSessionRow = {
   owner_tags?: string[] | null;
   publication_candidate?: boolean | null;
   curation_schema?: typeof PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type EncounterPublicExhibitRow = {
+  id: string;
+  owner_user_id: string;
+  private_session_id: string;
+  slug: string;
+  public_title: string;
+  public_summary: string;
+  public_tags: string[];
+  initiator_name_snapshot: string;
+  responder_name_snapshot: string;
+  status: "published" | "retracted" | "removed";
+  provenance_schema: typeof PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA;
+  reported_count: number;
+  published_at: string;
+  retracted_at: string | null;
+  removed_at: string | null;
+  removed_by: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -305,8 +348,10 @@ personaEncountersRouter.get("/private-sessions", requireAuth, async (req, res) =
     });
   }
 
+  const rows = (data ?? []) as EncounterPrivateSessionRow[];
+  const exhibits = await loadOwnerPublicExhibitsBySession(sb, ownerUserId, rows.map((row) => row.id));
   return res.json({
-    sessions: ((data ?? []) as EncounterPrivateSessionRow[]).map(serializePrivateSession),
+    sessions: rows.map((row) => serializePrivateSession(row, exhibits.get(row.id) ?? null)),
   });
 });
 
@@ -331,8 +376,9 @@ personaEncountersRouter.get("/private-sessions/:sessionId", requireAuth, async (
   }
   if (!data) return res.status(404).json({ error: "Private encounter session not found." });
 
+  const exhibit = await loadOwnerPublicExhibitForSession(sb, ownerUserId, parsed.data);
   return res.json({
-    session: serializePrivateSession(data as EncounterPrivateSessionRow),
+    session: serializePrivateSession(data as EncounterPrivateSessionRow, exhibit),
   });
 });
 
@@ -374,7 +420,193 @@ personaEncountersRouter.patch("/private-sessions/:sessionId/curation", requireAu
   if (!data) return res.status(404).json({ error: "Private encounter session not found." });
 
   return res.json({
-    session: serializePrivateSession(data as EncounterPrivateSessionRow),
+    session: serializePrivateSession(data as EncounterPrivateSessionRow, await loadOwnerPublicExhibitForSession(
+      sb,
+      ownerUserId,
+      parsedSessionId.data,
+    )),
+  });
+});
+
+personaEncountersRouter.post("/private-sessions/:sessionId/public-exhibit", requireAuth, async (req, res) => {
+  const parsedSessionId = sessionIdSchema.safeParse(req.params.sessionId);
+  if (!parsedSessionId.success) return res.status(404).json({ error: "Private encounter session not found." });
+
+  const parsedBody = publicExhibitPublishSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const source = await loadOwnerPrivateSession(sb, ownerUserId, parsedSessionId.data);
+  if (!source) return res.status(404).json({ error: "Private encounter session not found." });
+
+  if (source.publication_candidate !== true) {
+    return res.status(400).json({
+      error: "Private encounter artifact must be marked as a private candidate before publishing metadata.",
+      code: "persona_encounter_public_exhibit_candidate_required",
+    });
+  }
+
+  const sameOwner = await privateSessionPersonasStillSameOwner(sb, source);
+  if (!sameOwner) {
+    return res.status(403).json({
+      error: "Public exhibit requires same-owner source personas.",
+      code: "persona_encounter_public_exhibit_same_owner_required",
+    });
+  }
+
+  const existing = await loadOwnerPublicExhibitForSession(sb, ownerUserId, source.id);
+  if (existing?.status === "removed") {
+    return res.status(403).json({
+      error: "Removed public exhibit metadata cannot be republished by the owner.",
+      code: "persona_encounter_public_exhibit_removed",
+    });
+  }
+
+  const now = new Date().toISOString();
+  const payload = {
+    owner_user_id: ownerUserId,
+    private_session_id: source.id,
+    slug: existing?.slug ?? publicExhibitSlug(parsedBody.data.title),
+    public_title: parsedBody.data.title,
+    public_summary: parsedBody.data.summary,
+    public_tags: parsedBody.data.tags,
+    initiator_name_snapshot: source.initiator_name_snapshot,
+    responder_name_snapshot: source.responder_name_snapshot,
+    status: "published" as const,
+    provenance_schema: PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA as typeof PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
+    published_at: existing?.published_at ?? now,
+    retracted_at: null,
+    removed_at: null,
+    removed_by: null,
+  };
+
+  const result = existing
+    ? await sb
+      .from("persona_encounter_public_exhibits")
+      .update(payload)
+      .eq("slug", existing.slug)
+      .eq("owner_user_id", ownerUserId)
+      .select("*")
+      .single()
+    : await sb
+      .from("persona_encounter_public_exhibits")
+      .insert(payload)
+      .select("*")
+      .single();
+
+  if (result.error || !result.data) {
+    return res.status(500).json({
+      error: "Public encounter exhibit metadata could not be saved.",
+      code: "persona_encounter_public_exhibit_save_failed",
+    });
+  }
+
+  const exhibit = result.data as EncounterPublicExhibitRow;
+  return res.status(existing ? 200 : 201).json({
+    session: serializePrivateSession(source, exhibit),
+    exhibit: serializeOwnerPublicExhibit(exhibit),
+  });
+});
+
+personaEncountersRouter.patch("/public-exhibits/:slug/retract", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Public encounter exhibit not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const existing = await loadOwnerPublicExhibitBySlug(sb, ownerUserId, parsedSlug.data);
+  if (!existing) return res.status(404).json({ error: "Public encounter exhibit not found." });
+  if (existing.status === "removed") {
+    return res.status(403).json({
+      error: "Removed public exhibit metadata cannot be retracted by the owner.",
+      code: "persona_encounter_public_exhibit_removed",
+    });
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_public_exhibits")
+    .update({
+      status: "retracted",
+      retracted_at: new Date().toISOString(),
+    })
+    .eq("slug", parsedSlug.data)
+    .eq("owner_user_id", ownerUserId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Public encounter exhibit metadata could not be retracted.",
+      code: "persona_encounter_public_exhibit_retract_failed",
+    });
+  }
+
+  const exhibit = data as EncounterPublicExhibitRow;
+  const source = await loadOwnerPrivateSession(sb, ownerUserId, exhibit.private_session_id);
+  return res.json({
+    ...(source ? { session: serializePrivateSession(source, exhibit) } : {}),
+    exhibit: serializeOwnerPublicExhibit(exhibit),
+  });
+});
+
+personaEncountersRouter.get("/public-exhibits/:slug", async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Public encounter exhibit not found." });
+
+  const exhibit = await loadPublishedPublicExhibitBySlug(getSupabaseAdmin(), parsedSlug.data);
+  if (!exhibit) return res.status(404).json({ error: "Public encounter exhibit not found." });
+
+  return res.json({
+    exhibit: serializePublishedPublicExhibit(exhibit),
+  });
+});
+
+personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Public encounter exhibit not found." });
+
+  const parsedBody = publicExhibitReportSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const exhibit = await loadPublishedPublicExhibitBySlug(sb, parsedSlug.data);
+  if (!exhibit) return res.status(404).json({ error: "Public encounter exhibit not found." });
+
+  const existing = await loadExistingPublicExhibitReport(
+    sb,
+    req.user!.id,
+    parsedSlug.data,
+    parsedBody.data.reason,
+  );
+  if (existing) {
+    return res.status(200).json({
+      report: { status: existing.status },
+      duplicate: true,
+    });
+  }
+
+  const { data, error } = await sb
+    .from("moderation_reports")
+    .insert({
+      reporter_id: req.user!.id,
+      target_type: "persona_encounter_public_exhibit",
+      target_id: parsedSlug.data,
+      reason: parsedBody.data.reason,
+      notes: parsedBody.data.notes || null,
+      status: "open",
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({ error: "Failed to create report." });
+  }
+
+  await incrementPublicExhibitReportedCount(sb, parsedSlug.data);
+  return res.status(201).json({
+    report: { status: data.status },
+    duplicate: false,
   });
 });
 
@@ -550,7 +782,7 @@ async function generateEncounterResponderReply(input: {
   }
 }
 
-function serializePrivateSession(row: EncounterPrivateSessionRow) {
+function serializePrivateSession(row: EncounterPrivateSessionRow, publicExhibit: EncounterPublicExhibitRow | null = null) {
   return {
     id: row.id,
     createdAt: row.created_at,
@@ -597,7 +829,188 @@ function serializePrivateSession(row: EncounterPrivateSessionRow) {
       schema: row.curation_schema ?? PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
       note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
     },
+    publicExhibit: publicExhibit ? serializeOwnerPublicExhibit(publicExhibit) : null,
   };
+}
+
+function serializeOwnerPublicExhibit(row: EncounterPublicExhibitRow) {
+  return {
+    slug: row.slug,
+    routeHref: `/encounters/${row.slug}`,
+    status: row.status,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: row.public_tags,
+    publishedAt: row.published_at,
+    retractedAt: row.retracted_at,
+    removedAt: row.removed_at,
+    reportedCount: row.reported_count,
+    provenance: {
+      label: "Metadata-only public encounter exhibit",
+      public: row.status === "published" && !row.removed_at,
+      ownerCurated: true,
+      sameOwner: true,
+      source: "Derived from a private same-owner saved artifact",
+      note: "Public output is newly owner-authored metadata only; no transcript, excerpt, raw reply, private setup, private curation, source retrieval, or cross-owner persona words are published.",
+    },
+  };
+}
+
+function serializePublishedPublicExhibit(row: EncounterPublicExhibitRow) {
+  return {
+    slug: row.slug,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: row.public_tags,
+    personas: {
+      label: "Same-owner persona display snapshots",
+      initiatorName: row.initiator_name_snapshot,
+      responderName: row.responder_name_snapshot,
+    },
+    status: "published" as const,
+    publishedAt: row.published_at,
+    provenance: {
+      label: "Metadata-only public encounter exhibit",
+      ownerCurated: true,
+      public: true,
+      sameOwner: true,
+      source: "Derived from a private same-owner saved artifact",
+      note: "This public exhibit contains owner-authored metadata only. It does not publish transcripts, excerpts, raw replies, private setup, private curation, source retrieval, provider details, prompts, private context, or cross-owner persona words.",
+    },
+    report: {
+      requiresSignIn: true,
+      path: `/persona-encounters/public-exhibits/${row.slug}/report`,
+    },
+  };
+}
+
+async function loadOwnerPrivateSession(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+  sessionId: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_private_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .eq("owner_user_id", ownerUserId)
+    .maybeSingle();
+
+  return (data ?? null) as EncounterPrivateSessionRow | null;
+}
+
+async function loadOwnerPublicExhibitsBySession(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+  sessionIds: string[],
+) {
+  const exhibits = new Map<string, EncounterPublicExhibitRow>();
+  if (sessionIds.length === 0) return exhibits;
+
+  const { data } = await sb
+    .from("persona_encounter_public_exhibits")
+    .select("*")
+    .eq("owner_user_id", ownerUserId)
+    .in("private_session_id", sessionIds);
+
+  for (const row of (data ?? []) as EncounterPublicExhibitRow[]) {
+    exhibits.set(row.private_session_id, row);
+  }
+  return exhibits;
+}
+
+async function loadOwnerPublicExhibitForSession(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+  sessionId: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_public_exhibits")
+    .select("*")
+    .eq("owner_user_id", ownerUserId)
+    .eq("private_session_id", sessionId)
+    .maybeSingle();
+
+  return (data ?? null) as EncounterPublicExhibitRow | null;
+}
+
+async function loadOwnerPublicExhibitBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+  slug: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_public_exhibits")
+    .select("*")
+    .eq("owner_user_id", ownerUserId)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  return (data ?? null) as EncounterPublicExhibitRow | null;
+}
+
+async function loadPublishedPublicExhibitBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_public_exhibits")
+    .select("slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, reported_count, published_at, retracted_at, removed_at, removed_by, owner_user_id, private_session_id, id, created_at, updated_at")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  const exhibit = (data ?? null) as EncounterPublicExhibitRow | null;
+  if (!exhibit || exhibit.removed_at) return null;
+  return exhibit;
+}
+
+async function privateSessionPersonasStillSameOwner(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  session: EncounterPrivateSessionRow,
+) {
+  const { data } = await sb
+    .from("personas")
+    .select("id, owner_user_id")
+    .eq("owner_user_id", session.owner_user_id)
+    .in("id", [session.initiator_persona_id, session.responder_persona_id]);
+
+  const ids = new Set((data ?? []).map((row: { id: string }) => row.id));
+  return ids.has(session.initiator_persona_id) && ids.has(session.responder_persona_id);
+}
+
+async function loadExistingPublicExhibitReport(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  reporterId: string,
+  slug: string,
+  reason: string,
+) {
+  const { data } = await sb
+    .from("moderation_reports")
+    .select("*")
+    .eq("reporter_id", reporterId)
+    .eq("target_type", "persona_encounter_public_exhibit")
+    .eq("target_id", slug)
+    .eq("reason", reason);
+
+  return (data ?? []).find((row: { status: string }) => row.status === "open" || row.status === "reviewing") ?? null;
+}
+
+async function incrementPublicExhibitReportedCount(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_public_exhibits")
+    .select("slug, reported_count")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!data) return;
+
+  await sb
+    .from("persona_encounter_public_exhibits")
+    .update({ reported_count: Number(data.reported_count ?? 0) + 1 })
+    .eq("slug", slug);
 }
 
 async function loadOwnedEncounterPersona(
@@ -835,6 +1248,16 @@ function selectEncounterPreviewMaxOutputTokens(input: {
     return Math.max(requested, ENCOUNTER_PREVIEW_NVIDIA_OUTPUT_TOKENS);
   }
   return requested;
+}
+
+function publicExhibitSlug(title: string) {
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 58)
+    .replace(/-+$/g, "") || "encounter";
+  return `${base}-${randomUUID().replace(/-/g, "").slice(0, 8)}`;
 }
 
 function clip(value: string | null | undefined, maxLength: number) {

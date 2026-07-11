@@ -211,7 +211,7 @@ export interface CommunityNotificationRecord {
 }
 
 export interface ModerationReportTargetContext {
-  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona';
+  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona' | 'persona_encounter_public_exhibit';
   targetId: string;
   title?: string | null;
   parentType?: 'thread' | 'document' | 'space_page' | null;
@@ -230,7 +230,7 @@ export interface ModerationReportTargetContext {
 export interface ModerationReportRecord {
   id: string;
   reporterUserId: string;
-  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona';
+  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona' | 'persona_encounter_public_exhibit';
   targetId: string;
   reason: string;
   notes?: string | null;
@@ -244,7 +244,7 @@ export interface ModerationReportRecord {
 
 export interface ReporterModerationReportRecord {
   id: string;
-  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona';
+  targetType: 'user' | 'space' | 'document' | 'thread' | 'comment' | 'persona' | 'persona_encounter_public_exhibit';
   targetId: string;
   reason: string;
   status: 'open' | 'reviewing' | 'resolved' | 'dismissed';

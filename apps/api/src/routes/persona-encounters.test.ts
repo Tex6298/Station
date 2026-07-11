@@ -91,6 +91,7 @@ class InMemorySupabase {
     token_usage: [],
     token_transactions: [],
     persona_encounter_private_sessions: [],
+    persona_encounter_public_exhibits: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -183,6 +184,19 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "persona_encounter_public_exhibits") {
+      row.slug ??= `public-exhibit-${String(this.rows(table).length + 1).padStart(8, "0")}`;
+      row.status ??= "published";
+      row.provenance_schema ??= "station.persona_encounter.public_exhibit.v1";
+      row.reported_count ??= 0;
+      row.published_at ??= now;
+      row.retracted_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     return row;
   }
 
@@ -238,6 +252,7 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
   private mutation:
@@ -272,6 +287,11 @@ class QueryBuilder {
     return this;
   }
 
+  in(field: string, values: unknown[]) {
+    this.inFilters.push([field, values]);
+    return this;
+  }
+
   order(field: string, options: { ascending?: boolean } = {}) {
     this.orderSpec = { field, ascending: options.ascending ?? true };
     return this;
@@ -298,6 +318,9 @@ class QueryBuilder {
     let rows = [...this.db.rows(this.table)];
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
+    }
+    for (const [field, values] of this.inFilters) {
+      rows = rows.filter((row) => values.includes(row[field]));
     }
     if (this.orderSpec) {
       const { field, ascending } = this.orderSpec;
@@ -570,6 +593,7 @@ function assertNoDurableEncounterWrites(db: InMemorySupabase) {
     "conversations",
     "conversation_messages",
     "persona_encounter_private_sessions",
+    "persona_encounter_public_exhibits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -590,6 +614,7 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
   for (const table of [
     "conversations",
     "conversation_messages",
+    "persona_encounter_public_exhibits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -623,6 +648,23 @@ test("private encounter curation migration extends the owner-only table without 
   assert.equal(/drop policy/i.test(sql), false);
   assert.equal(/drop constraint/i.test(sql), false);
   assert.match(sql, /not a public exhibit, share link, moderation state, or cross-owner consent|Does not create publication/);
+});
+
+test("public encounter exhibit migration creates dedicated table RLS and moderation target", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/076_persona_encounter_public_exhibits.sql",
+    "utf8",
+  );
+
+  assert.match(sql, /create table if not exists public\.persona_encounter_public_exhibits/);
+  assert.match(sql, /private_session_id uuid not null references public\.persona_encounter_private_sessions/);
+  assert.match(sql, /slug text not null unique/);
+  assert.match(sql, /status in \('published', 'retracted', 'removed'\)/);
+  assert.match(sql, /persona_encounter_public_exhibits_select_published/);
+  assert.match(sql, /persona_encounter_public_exhibits_update_owner/);
+  assert.match(sql, /station\.persona_encounter\.public_exhibit\.v1/);
+  assert.match(sql, /persona_encounter_public_exhibit/);
+  assert.match(sql, /No transcript, setup body, generated reply, private curation/);
 });
 
 test("owner preview generates one disposable same-owner responder reply without durable encounter rows", async () => {
@@ -1283,6 +1325,255 @@ test("private curation metadata rejects malformed bodies before writes", async (
     assert.equal(providerCalls.length, 1);
     assert.equal(db.rows("token_transactions").length, 1);
     assertNoDurableEncounterWritesExceptPrivateSessions(db);
+  });
+});
+
+test("owner can publish report and retract metadata-only public encounter exhibits", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const create = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody({ maxOutputTokens: 120 }),
+    });
+    assert.equal(create.status, 201);
+    const sessionId = create.body.session.id;
+
+    const curation = await requestJson(app, "PATCH", `/persona-encounters/private-sessions/${sessionId}/curation`, {
+      token: "owner-token",
+      body: {
+        title: "Private title must not publish",
+        summary: "Private curation note must stay private.",
+        tags: ["private-tag"],
+        publicationCandidate: true,
+      },
+    });
+    assert.equal(curation.status, 200);
+
+    const publish = await requestJson(app, "POST", `/persona-encounters/private-sessions/${sessionId}/public-exhibit`, {
+      token: "owner-token",
+      body: {
+        confirmPublicExhibit: true,
+        title: "Public metadata title",
+        summary: "Owner-authored public context only.",
+        tags: ["public", "metadata"],
+      },
+    });
+
+    assert.equal(publish.status, 201);
+    assert.equal(publish.body.exhibit.status, "published");
+    assert.match(publish.body.exhibit.slug, /^public-metadata-title-[a-z0-9]{8}$/);
+    assert.equal(publish.body.exhibit.routeHref, `/encounters/${publish.body.exhibit.slug}`);
+    assert.equal(publish.body.session.publicExhibit.slug, publish.body.exhibit.slug);
+    assert.deepEqual(publish.body.exhibit.tags, ["public", "metadata"]);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 1);
+
+    const publicRead = await requestJson(app, "GET", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}`);
+    assert.equal(publicRead.status, 200);
+    assert.deepEqual(publicRead.body.exhibit.personas, {
+      label: "Same-owner persona display snapshots",
+      initiatorName: "Blue Lantern",
+      responderName: "Copper Scribe",
+    });
+    assert.equal(publicRead.body.exhibit.title, "Public metadata title");
+    assert.equal(publicRead.body.exhibit.summary, "Owner-authored public context only.");
+    assert.equal(publicRead.body.exhibit.report.path, `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}/report`);
+
+    const publicJson = JSON.stringify(publicRead.body);
+    for (const forbidden of [
+      OWNER_ID,
+      INITIATOR_ID,
+      RESPONDER_ID,
+      sessionId,
+      "The owner places both personas in a quiet library",
+      "Copper Scribe answers once.",
+      "Private title must not publish",
+      "Private curation note must stay private.",
+      "private-tag",
+      "deepseek.test",
+      "test-deepseek-key",
+      "private persona notes",
+      "owner_user_id",
+      "private_session_id",
+    ]) {
+      assert.equal(publicJson.includes(forbidden), false, `${forbidden} leaked in public exhibit`);
+    }
+
+    const report = await requestJson(app, "POST", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}/report`, {
+      token: "other-token",
+      body: {
+        reason: "unsafe_public_metadata",
+        notes: "The public metadata needs review.",
+      },
+    });
+    assert.equal(report.status, 201);
+    assert.deepEqual(report.body, {
+      report: { status: "open" },
+      duplicate: false,
+    });
+    assert.equal(db.rows("moderation_reports").length, 1);
+    assert.equal(db.rows("moderation_reports")[0].target_type, "persona_encounter_public_exhibit");
+    assert.equal(db.rows("moderation_reports")[0].target_id, publish.body.exhibit.slug);
+    assert.equal(db.rows("persona_encounter_public_exhibits")[0].reported_count, 1);
+
+    const duplicateReport = await requestJson(app, "POST", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}/report`, {
+      token: "other-token",
+      body: { reason: "unsafe_public_metadata" },
+    });
+    assert.equal(duplicateReport.status, 200);
+    assert.equal(duplicateReport.body.duplicate, true);
+    assert.equal(db.rows("moderation_reports").length, 1);
+
+    const retract = await requestJson(app, "PATCH", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}/retract`, {
+      token: "owner-token",
+      body: { ignored: "extra body is ignored by retract route" },
+    });
+    assert.equal(retract.status, 200);
+    assert.equal(retract.body.exhibit.status, "retracted");
+    assert.equal(retract.body.session.id, sessionId);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 1);
+    assert.equal(db.rows("persona_encounter_private_sessions")[0].shareable, false);
+    assert.equal(db.rows("persona_encounter_private_sessions")[0].public_visibility, "private");
+
+    const hiddenAfterRetract = await requestJson(app, "GET", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}`);
+    assert.equal(hiddenAfterRetract.status, 404);
+
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("conversations").length, 0);
+    assert.equal(db.rows("conversation_messages").length, 0);
+    assert.equal(db.rows("documents").length, 0);
+    assert.equal(db.rows("threads").length, 0);
+    assert.equal(db.rows("comments").length, 0);
+    assert.equal(db.rows("background_jobs").length, 0);
+  });
+});
+
+test("public exhibit publish rejects missing candidate cross-owner and forbidden bodies before writes", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const create = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody({ maxOutputTokens: 120 }),
+    });
+    assert.equal(create.status, 201);
+    const sessionId = create.body.session.id;
+
+    const anonymousPublish = await requestJson(app, "POST", `/persona-encounters/private-sessions/${sessionId}/public-exhibit`, {
+      body: {
+        confirmPublicExhibit: true,
+        title: "Public title",
+        summary: "Public summary.",
+      },
+    });
+    assert.equal(anonymousPublish.status, 401);
+
+    const nonCandidate = await requestJson(app, "POST", `/persona-encounters/private-sessions/${sessionId}/public-exhibit`, {
+      token: "owner-token",
+      body: {
+        confirmPublicExhibit: true,
+        title: "Public title",
+        summary: "Public summary.",
+      },
+    });
+    assert.equal(nonCandidate.status, 400);
+    assert.equal(nonCandidate.body.code, "persona_encounter_public_exhibit_candidate_required");
+
+    db.rows("persona_encounter_private_sessions")[0].publication_candidate = true;
+
+    const invalidBodies: unknown[] = [
+      { title: "Missing confirmation", summary: "Public summary." },
+      { confirmPublicExhibit: false, title: "Public title", summary: "Public summary." },
+      { confirmPublicExhibit: true, title: "", summary: "Public summary." },
+      { confirmPublicExhibit: true, title: "x".repeat(141), summary: "Public summary." },
+      { confirmPublicExhibit: true, title: "Public title", summary: "x".repeat(1001) },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", tags: ["x".repeat(41)] },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", tags: Array.from({ length: 13 }, (_, index) => `tag-${index}`) },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", setup: "private setup" },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", reply: "raw reply" },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", excerpt: "selected words" },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", ownerTitle: "private curation" },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", provider: "deepseek" },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", ownerUserId: OWNER_ID },
+      { confirmPublicExhibit: true, title: "Public title", summary: "Public summary.", shareLink: true },
+    ];
+
+    for (const body of invalidBodies) {
+      const response = await requestJson(app, "POST", `/persona-encounters/private-sessions/${sessionId}/public-exhibit`, {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400, `body should fail: ${JSON.stringify(body)}`);
+    }
+
+    const crossOwner = await requestJson(app, "POST", `/persona-encounters/private-sessions/${sessionId}/public-exhibit`, {
+      token: "other-token",
+      body: {
+        confirmPublicExhibit: true,
+        title: "Public title",
+        summary: "Public summary.",
+      },
+    });
+    assert.equal(crossOwner.status, 404);
+
+    db.rows("personas").find((row) => row.id === RESPONDER_ID)!.owner_user_id = OTHER_OWNER_ID;
+    const noLongerSameOwner = await requestJson(app, "POST", `/persona-encounters/private-sessions/${sessionId}/public-exhibit`, {
+      token: "owner-token",
+      body: {
+        confirmPublicExhibit: true,
+        title: "Public title",
+        summary: "Public summary.",
+      },
+    });
+    assert.equal(noLongerSameOwner.status, 403);
+    assert.equal(noLongerSameOwner.body.code, "persona_encounter_public_exhibit_same_owner_required");
+
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("moderation_reports").length, 0);
+  });
+});
+
+test("public exhibit route hides missing retracted removed and malformed slugs", async () => {
+  await withHarness(async ({ db, app }) => {
+    const published = db.insertRow("persona_encounter_public_exhibits", {
+      owner_user_id: OWNER_ID,
+      private_session_id: "66666666-6666-4666-8666-000000000001",
+      slug: "published-exhibit-12345678",
+      public_title: "Published exhibit",
+      public_summary: "Safe public metadata.",
+      public_tags: [],
+      initiator_name_snapshot: "Blue Lantern",
+      responder_name_snapshot: "Copper Scribe",
+      status: "published",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...published,
+      id: undefined,
+      slug: "retracted-exhibit-12345678",
+      status: "retracted",
+      retracted_at: "2026-06-29T10:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...published,
+      id: undefined,
+      slug: "removed-exhibit-12345678",
+      status: "removed",
+      removed_at: "2026-06-29T11:00:00.000Z",
+    });
+
+    const ok = await requestJson(app, "GET", "/persona-encounters/public-exhibits/published-exhibit-12345678");
+    assert.equal(ok.status, 200);
+    assert.equal(ok.body.exhibit.slug, "published-exhibit-12345678");
+    assert.equal(ok.body.exhibit.status, "published");
+
+    for (const slug of [
+      "retracted-exhibit-12345678",
+      "removed-exhibit-12345678",
+      "missing-exhibit-12345678",
+      "550e8400-e29b-41d4-a716-446655440000",
+    ]) {
+      const response = await requestJson(app, "GET", `/persona-encounters/public-exhibits/${slug}`);
+      assert.equal(response.status, 404, `${slug} should be hidden`);
+    }
   });
 });
 

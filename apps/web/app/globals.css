@@ -3055,7 +3055,8 @@ html, body {
   line-height: 1.35;
 }
 
-.studio-encounter-curation-form {
+.studio-encounter-curation-form,
+.studio-encounter-public-form {
   display: grid;
   gap: 0.65rem;
   padding: 0.75rem;
@@ -3064,11 +3065,17 @@ html, body {
   background: #0b1220;
 }
 
-.studio-encounter-curation-form p {
+.studio-encounter-curation-form p,
+.studio-encounter-public-form p {
   margin: 0;
   color: #93a4ba;
   font-size: 0.82rem;
   line-height: 1.5;
+}
+
+.studio-encounter-public-form {
+  border-color: rgba(125, 211, 252, 0.32);
+  background: #0a1423;
 }
 
 .studio-encounter-candidate-toggle {
@@ -5464,6 +5471,71 @@ main[style*="rgb(11, 14, 20)"] {
   padding: 0.18rem 0.55rem;
   font-size: 0.72rem;
   font-weight: 800;
+}
+
+.public-encounter-page .station-page-inner {
+  display: grid;
+  gap: 14px;
+}
+
+.public-encounter-header {
+  align-items: center;
+}
+
+.public-encounter-readback,
+.public-encounter-provenance,
+.public-encounter-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.public-encounter-readback div,
+.public-encounter-provenance div,
+.public-encounter-actions div {
+  display: grid;
+  gap: 3px;
+}
+
+.public-encounter-readback span,
+.public-encounter-provenance span,
+.public-encounter-actions span {
+  color: var(--station-page-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.public-encounter-readback strong,
+.public-encounter-provenance strong,
+.public-encounter-actions strong {
+  color: var(--station-page-text);
+}
+
+.public-encounter-readback p,
+.public-encounter-provenance p,
+.public-encounter-actions p {
+  margin: 0;
+  color: var(--station-page-muted);
+  line-height: 1.65;
+}
+
+.public-encounter-tags {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px !important;
+}
+
+.public-encounter-tags span {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid var(--station-page-border);
+  border-radius: 999px;
+  background: var(--station-page-soft-2);
+  color: var(--station-page-muted);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: none;
 }
 
 @media (max-width: 720px) {

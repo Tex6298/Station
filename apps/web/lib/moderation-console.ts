@@ -5,7 +5,15 @@ import type {
 import type { AuthUser } from "@station/types";
 
 export const REPORT_QUEUE_STATUSES = ["open", "reviewing", "resolved", "dismissed"] as const;
-export const REPORT_TARGET_TYPES = ["user", "space", "document", "thread", "comment", "persona"] as const;
+export const REPORT_TARGET_TYPES = [
+  "user",
+  "space",
+  "document",
+  "thread",
+  "comment",
+  "persona",
+  "persona_encounter_public_exhibit",
+] as const;
 export const REPORT_TRANSITION_STATUSES = ["reviewing", "resolved", "dismissed"] as const;
 export const REPORT_TARGET_ACTIONS = ["hide", "unhide", "remove", "restore"] as const;
 export const REVIEW_QUEUE_STATUSES = ["open", "reviewing", "upheld", "denied", "dismissed"] as const;
@@ -75,6 +83,7 @@ export function reportQueuePath(input: {
 
 function reportTargetFallbackLabel(report: Pick<ModerationReportRecord, "targetType" | "targetId">) {
   if (report.targetType === "persona") return "Persona report";
+  if (report.targetType === "persona_encounter_public_exhibit") return "Public encounter exhibit report";
   return `${report.targetType}:${report.targetId}`;
 }
 
@@ -126,7 +135,11 @@ export function targetActionPath(report: Pick<ModerationReportRecord, "targetTyp
 
 export function canActOnReportTarget(report: Pick<ModerationReportRecord, "targetContext" | "targetType">) {
   return Boolean(
-    (report.targetType === "thread" || report.targetType === "comment") &&
+    (
+      report.targetType === "thread" ||
+      report.targetType === "comment" ||
+      report.targetType === "persona_encounter_public_exhibit"
+    ) &&
     report.targetContext?.supportedActions?.length
   );
 }

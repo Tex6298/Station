@@ -18,12 +18,13 @@ import { ensureCommunityProfile } from "../services/community.service";
 import { notifyReportStatus, notifyReviewRequestStatus } from "../services/community-notifications.service";
 
 const createReportSchema = z.object({
-  targetType: z.enum(["user", "space", "document", "thread", "comment", "persona"]),
+  targetType: z.enum(["user", "space", "document", "thread", "comment", "persona", "persona_encounter_public_exhibit"]),
   targetId: z.string().min(1),
   reason: z.string().min(1),
   notes: z.string().optional(),
 });
 const reportStatusSchema = z.enum(["open", "reviewing", "resolved", "dismissed"]);
+const publicExhibitTargetActionSchema = z.enum(["remove", "restore"]);
 const reportQueueQuerySchema = z.object({
   status: reportStatusSchema.optional(),
   targetType: createReportSchema.shape.targetType.optional(),
@@ -31,6 +32,7 @@ const reportQueueQuerySchema = z.object({
 });
 const updateReportStatusSchema = z.object({
   status: z.enum(["reviewing", "resolved", "dismissed"]),
+  targetAction: publicExhibitTargetActionSchema.optional(),
 });
 const reviewRequestTargetTypeSchema = z.enum(["thread", "comment"]);
 const reviewRequestStatusSchema = z.enum(["open", "reviewing", "upheld", "denied", "dismissed", "withdrawn"]);
@@ -341,6 +343,21 @@ reportsRouter.patch("/:id", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const sb = getSupabaseAdmin();
+  const current = parsed.data.targetAction
+    ? await loadReportById(sb, req.params.id)
+    : null;
+
+  if (parsed.data.targetAction && !current) return res.status(404).json({ error: "Report not found." });
+  if (parsed.data.targetAction && current?.target_type !== "persona_encounter_public_exhibit") {
+    return res.status(400).json({
+      error: "Target actions are only supported for public encounter exhibit reports.",
+    });
+  }
+  if (parsed.data.targetAction && current) {
+    const target = await loadPublicExhibitModerationTarget(sb, current.target_id);
+    if (!target) return res.status(404).json({ error: "Public encounter exhibit target not found." });
+  }
+
   const { data, error } = await sb
     .from("moderation_reports")
     .update({
@@ -353,6 +370,15 @@ reportsRouter.patch("/:id", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(404).json({ error: "Report not found." });
+  if (parsed.data.targetAction) {
+    const action = await applyPublicExhibitModerationAction(
+      sb,
+      data.target_id,
+      parsed.data.targetAction,
+      req.user!.id
+    );
+    if (action.ok === false) return res.status(action.status).json({ error: action.error });
+  }
   await notifyReportStatus(data, req.user!.id).catch(() => undefined);
   const contexts = await loadReportTargetContexts(sb, [data]).catch(() => new Map<string, ModerationReportTargetContext>());
   return res.json({ report: serializeReport(data, contexts.get(data.id) ?? null) });
@@ -442,6 +468,19 @@ async function loadActiveExistingReport(
 
   const report = (data ?? []).find((row: ModerationReportRow) => ACTIVE_REPORT_STATUSES.has(row.status));
   return { report: report ?? null };
+}
+
+async function loadReportById(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  reportId: string,
+): Promise<ModerationReportRow | null> {
+  const { data } = await sb
+    .from("moderation_reports")
+    .select("*")
+    .eq("id", reportId)
+    .maybeSingle();
+
+  return (data ?? null) as ModerationReportRow | null;
 }
 
 async function resolveReviewRequestStanding(
@@ -567,6 +606,8 @@ async function loadReportTargetContexts(
       contexts.set(report.id, await loadPersonaTargetContext(sb, report.target_id));
     } else if (report.target_type === "user") {
       contexts.set(report.id, await loadUserTargetContext(sb, report.target_id));
+    } else if (report.target_type === "persona_encounter_public_exhibit") {
+      contexts.set(report.id, await loadPublicEncounterExhibitTargetContext(sb, report.target_id));
     }
   }
 
@@ -781,6 +822,42 @@ async function loadUserTargetContext(
   };
 }
 
+async function loadPublicEncounterExhibitTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string
+): Promise<ModerationReportTargetContext> {
+  const { data: exhibit } = await (sb as any)
+    .from("persona_encounter_public_exhibits")
+    .select("slug, public_title, status, reported_count, removed_at")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (!exhibit) {
+    return unavailableTargetContext(
+      "persona_encounter_public_exhibit",
+      slug,
+      "Public encounter exhibit target not found."
+    );
+  }
+
+  const routeHref = exhibit.status === "published" && !exhibit.removed_at
+    ? `/encounters/${exhibit.slug}`
+    : null;
+
+  return {
+    targetType: "persona_encounter_public_exhibit",
+    targetId: exhibit.slug,
+    title: exhibit.public_title ?? "Public encounter exhibit",
+    status: exhibit.status ?? null,
+    visibility: routeHref ? "public" : "not_public",
+    routeHref,
+    routeLabel: routeHref ? exhibit.public_title ?? "Public encounter exhibit" : null,
+    canOpenRoute: Boolean(routeHref),
+    unavailableReason: routeHref ? null : "Public encounter exhibit is not currently public.",
+    supportedActions: exhibit.status === "removed" ? ["restore"] : ["remove"],
+  };
+}
+
 async function loadForumCategory(sb: ReturnType<typeof getSupabaseAdmin>, categoryId: string | null | undefined) {
   if (!categoryId) return null;
   const { data } = await (sb as any)
@@ -867,6 +944,69 @@ async function updateReportedTarget(targetType: string, targetId: string) {
   if (targetType === "user") {
     await bumpReportCount(targetId);
   }
+
+  if (targetType === "persona_encounter_public_exhibit") {
+    const { data: exhibit } = await sb
+      .from("persona_encounter_public_exhibits")
+      .select("slug, reported_count")
+      .eq("slug", targetId)
+      .maybeSingle();
+    if (!exhibit) return;
+    await sb
+      .from("persona_encounter_public_exhibits")
+      .update({ reported_count: Number(exhibit.reported_count ?? 0) + 1 } as any)
+      .eq("slug", targetId);
+  }
+}
+
+async function applyPublicExhibitModerationAction(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+  action: z.infer<typeof publicExhibitTargetActionSchema>,
+  adminUserId: string,
+): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  const exhibit = await loadPublicExhibitModerationTarget(sb, slug);
+
+  if (!exhibit) {
+    return { ok: false, status: 404, error: "Public encounter exhibit target not found." };
+  }
+
+  const update = action === "remove"
+    ? {
+        status: "removed",
+        removed_at: new Date().toISOString(),
+        removed_by: adminUserId,
+      }
+    : {
+        status: "published",
+        removed_at: null,
+        removed_by: null,
+        retracted_at: null,
+      };
+
+  const { error } = await (sb as any)
+    .from("persona_encounter_public_exhibits")
+    .update(update)
+    .eq("slug", slug);
+
+  if (error) {
+    return { ok: false, status: 500, error: "Public encounter exhibit moderation action failed." };
+  }
+
+  return { ok: true };
+}
+
+async function loadPublicExhibitModerationTarget(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+) {
+  const { data } = await (sb as any)
+    .from("persona_encounter_public_exhibits")
+    .select("slug, status")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  return data ?? null;
 }
 
 async function bumpReportCount(userId: string) {

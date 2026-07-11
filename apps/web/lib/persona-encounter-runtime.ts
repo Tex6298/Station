@@ -87,6 +87,7 @@ export interface PersonaEncounterPrivateSession {
     schema: "station.persona_encounter.private_session_curation.v1";
     note: string;
   };
+  publicExhibit: PersonaEncounterPublicExhibitOwnerReadback | null;
 }
 
 export interface PersonaEncounterPrivateSessionCurationRequest {
@@ -94,6 +95,73 @@ export interface PersonaEncounterPrivateSessionCurationRequest {
   summary?: string | null;
   tags?: string[];
   publicationCandidate?: boolean;
+}
+
+export interface PersonaEncounterPublicExhibitOwnerReadback {
+  slug: string;
+  routeHref: string;
+  status: "published" | "retracted" | "removed";
+  title: string;
+  summary: string;
+  tags: string[];
+  publishedAt: string;
+  retractedAt: string | null;
+  removedAt: string | null;
+  reportedCount: number;
+  provenance: {
+    label: "Metadata-only public encounter exhibit";
+    public: boolean;
+    ownerCurated: true;
+    sameOwner: true;
+    source: string;
+    note: string;
+  };
+}
+
+export interface PersonaEncounterPublicExhibitPublishRequest {
+  title: string;
+  summary: string;
+  tags?: string[];
+}
+
+export interface PersonaEncounterPublicExhibitResponse {
+  session?: PersonaEncounterPrivateSession;
+  exhibit: PersonaEncounterPublicExhibitOwnerReadback;
+}
+
+export interface PersonaEncounterPublicExhibitPublicResponse {
+  exhibit: {
+    slug: string;
+    title: string;
+    summary: string;
+    tags: string[];
+    personas: {
+      label: "Same-owner persona display snapshots";
+      initiatorName: string;
+      responderName: string;
+    };
+    status: "published";
+    publishedAt: string;
+    provenance: {
+      label: "Metadata-only public encounter exhibit";
+      ownerCurated: true;
+      public: true;
+      sameOwner: true;
+      source: string;
+      note: string;
+    };
+    report: {
+      requiresSignIn: true;
+      path: string;
+    };
+  };
+}
+
+export interface PersonaEncounterPublicExhibitReportResponse {
+  report: {
+    status: "open" | "reviewing" | "resolved" | "dismissed";
+  };
+  duplicate: boolean;
 }
 
 export interface PersonaEncounterPrivateSessionResponse {
@@ -123,6 +191,8 @@ export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/pre
 export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
 export const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
+export const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.public_exhibit.v1";
 
 export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewRequest) {
   return {
@@ -152,6 +222,26 @@ export function personaEncounterPrivateSessionCurationPath(sessionId: string) {
   return `${personaEncounterPrivateSessionPath(sessionId)}/curation`;
 }
 
+export function personaEncounterPrivateSessionPublicExhibitPath(sessionId: string) {
+  return `${personaEncounterPrivateSessionPath(sessionId)}/public-exhibit`;
+}
+
+export function personaEncounterPublicExhibitPath(slug: string) {
+  return `/persona-encounters/public-exhibits/${encodeURIComponent(slug)}`;
+}
+
+export function personaEncounterPublicExhibitWebHref(slug: string) {
+  return `/encounters/${encodeURIComponent(slug)}`;
+}
+
+export function personaEncounterPublicExhibitRetractPath(slug: string) {
+  return `${personaEncounterPublicExhibitPath(slug)}/retract`;
+}
+
+export function personaEncounterPublicExhibitReportPath(slug: string) {
+  return `${personaEncounterPublicExhibitPath(slug)}/report`;
+}
+
 export function personaEncounterPrivateSessionCurationPayload(
   input: PersonaEncounterPrivateSessionCurationRequest,
 ) {
@@ -164,6 +254,17 @@ export function personaEncounterPrivateSessionCurationPayload(
     ...(input.publicationCandidate !== undefined
       ? { publicationCandidate: input.publicationCandidate }
       : {}),
+  };
+}
+
+export function personaEncounterPublicExhibitPublishPayload(
+  input: PersonaEncounterPublicExhibitPublishRequest,
+) {
+  return {
+    confirmPublicExhibit: true,
+    title: input.title.trim(),
+    summary: input.summary.trim(),
+    tags: (input.tags ?? []).map((tag) => tag.trim()).filter(Boolean),
   };
 }
 
@@ -238,7 +339,11 @@ export function personaEncounterPrivateSessionReadback(session?: PersonaEncounte
     session.curation.publicationCandidate
       ? "Private candidate planning flag only"
       : "Not marked as a private candidate",
-    "Not published, shared, moderated, public, or cross-owner consented",
+    session.publicExhibit
+      ? `Public exhibit ${session.publicExhibit.status}: ${session.publicExhibit.title}`
+      : "No public exhibit",
+    "Private candidate is not publication approval",
+    "Public exhibits are metadata-only and never publish private setup, raw reply, transcript, excerpt, or private curation",
   ];
 }
 
@@ -280,6 +385,16 @@ export function personaEncounterPreviewErrorCopy(input: { status?: number; code?
       return "Private encounter artifact could not be deleted.";
     case "persona_encounter_private_session_curation_failed":
       return "Private encounter curation could not be saved.";
+    case "persona_encounter_public_exhibit_candidate_required":
+      return "Mark this private artifact as a private candidate before publishing public metadata.";
+    case "persona_encounter_public_exhibit_same_owner_required":
+      return "Public encounter exhibits require same-owner source personas.";
+    case "persona_encounter_public_exhibit_removed":
+      return "This public encounter exhibit was removed by moderation.";
+    case "persona_encounter_public_exhibit_save_failed":
+      return "Public encounter exhibit metadata could not be saved.";
+    case "persona_encounter_public_exhibit_retract_failed":
+      return "Public encounter exhibit metadata could not be retracted.";
     default:
       return input.message || "Encounter preview could not run.";
   }

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR508A | Owner Encounter Public Exhibit Metadata | DAEDALUS / A2 | Open for implementation after ARGUS accepted same-owner metadata-only public exhibit with explicit publish/retract, dedicated public table/route, and report/takedown support; transcripts, excerpts, raw replies, private setup/curation, cross-owner words, and Discover/search/forum surfacing remain blocked. | `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_DAEDALUS.md` |
+| PR508A | Owner Encounter Public Exhibit Metadata | ARGUS / A3 | Ready for ARGUS review; DAEDALUS implemented metadata-only same-owner public exhibits with explicit owner publish/retract, dedicated public table/API/web route, safe report/takedown support, and no transcript/excerpt/raw-reply/private-setup/private-curation/cross-owner surfacing. | `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md` |
 
 ## Recently Closed
 

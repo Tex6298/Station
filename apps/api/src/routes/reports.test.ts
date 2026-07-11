@@ -60,6 +60,7 @@ class ReportsSupabase {
     forum_categories: [],
     threads: [],
     comments: [],
+    persona_encounter_public_exhibits: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -137,6 +138,19 @@ class ReportsSupabase {
       row.metadata ??= {};
       row.read_at ??= null;
       row.created_at ??= now;
+    }
+
+    if (table === "persona_encounter_public_exhibits") {
+      row.public_tags ??= [];
+      row.status ??= "published";
+      row.provenance_schema ??= "station.persona_encounter.public_exhibit.v1";
+      row.reported_count ??= 0;
+      row.published_at ??= now;
+      row.retracted_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -399,6 +413,30 @@ test("reports route persists reports through Supabase and scopes reporter to aut
     assert.equal(withNotes.body.report.reporterUserId, "other-user");
     assert.equal(withNotes.body.report.notes, "Contains direct abuse.");
     assert.equal(db.tables.moderation_reports.length, 2);
+
+    db.insertRow("persona_encounter_public_exhibits", {
+      slug: "public-exhibit-12345678",
+      public_title: "Safe public exhibit title",
+      public_summary: "Public metadata only.",
+      initiator_name_snapshot: "Harbor",
+      responder_name_snapshot: "Lantern",
+      owner_user_id: "owner-user",
+      private_session_id: "private-session-id",
+    });
+    const exhibitReport = await requestJson(app, "POST", "/reports", {
+      token: "owner-token",
+      body: {
+        targetType: "persona_encounter_public_exhibit",
+        targetId: "public-exhibit-12345678",
+        reason: "unsafe public exhibit metadata",
+      },
+    });
+
+    assert.equal(exhibitReport.status, 201);
+    assert.equal(exhibitReport.body.report.targetType, "persona_encounter_public_exhibit");
+    assert.equal(exhibitReport.body.report.targetId, "public-exhibit-12345678");
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].reported_count, 1);
+    assert.equal(db.tables.moderation_reports.length, 3);
   } finally {
     setSupabaseAdminForTests(null);
   }
@@ -751,6 +789,20 @@ test("admin report queue includes safe target context for thread and comment rep
     provider: "anthropic",
     awakening_prompt: "Private prompt that must stay out.",
   });
+  db.insertRow("persona_encounter_public_exhibits", {
+    slug: "public-exhibit-12345678",
+    public_title: "Public encounter card",
+    public_summary: "Public owner-authored metadata.",
+    public_tags: ["safe", "metadata"],
+    initiator_name_snapshot: "Harbor",
+    responder_name_snapshot: "Lantern",
+    owner_user_id: "encounter-owner-private-id",
+    private_session_id: "raw-private-session-id",
+    owner_setup: "Private setup body that must stay out.",
+    responder_reply: "Generated reply words that must stay out.",
+    owner_summary: "Private curation that must stay out.",
+    provider_payload: "test-deepseek-key",
+  });
   const threadReport = db.insertRow("moderation_reports", {
     reporter_id: "owner-user",
     target_type: "thread",
@@ -819,6 +871,14 @@ test("admin report queue includes safe target context for thread and comment rep
     target_type: "user",
     target_id: "missing-user",
     reason: "missing user concern",
+    status: "open",
+  });
+  const publicExhibitReport = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "persona_encounter_public_exhibit",
+    target_id: "public-exhibit-12345678",
+    reason: "public exhibit concern",
+    notes: "Admin-only report note for the public exhibit.",
     status: "open",
   });
   setSupabaseAdminForTests(db.client as any);
@@ -953,6 +1013,29 @@ test("admin report queue includes safe target context for thread and comment rep
       unavailableReason: "User target not found.",
       supportedActions: [],
     });
+    assert.deepEqual(byId.get(publicExhibitReport.id)?.targetContext, {
+      targetType: "persona_encounter_public_exhibit",
+      targetId: "public-exhibit-12345678",
+      title: "Public encounter card",
+      status: "published",
+      visibility: "public",
+      routeHref: "/encounters/public-exhibit-12345678",
+      routeLabel: "Public encounter card",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: ["remove"],
+    });
+    const publicExhibitQueue = await requestJson(
+      app,
+      "GET",
+      "/reports?targetType=persona_encounter_public_exhibit&limit=20",
+      { token: "admin-token" }
+    );
+    assert.equal(publicExhibitQueue.status, 200);
+    assert.deepEqual(
+      publicExhibitQueue.body.reports.map((report: Row) => report.id),
+      [publicExhibitReport.id]
+    );
     const queueJson = JSON.stringify(adminQueue.body);
     assert.equal(queueJson.includes("Thread body that must stay out of admin report context."), false);
     assert.equal(queueJson.includes("Parent body that must stay out of admin report context."), false);
@@ -965,8 +1048,13 @@ test("admin report queue includes safe target context for thread and comment rep
     assert.equal(queueJson.includes("Prompt text that must stay out of admin report context."), false);
     assert.equal(queueJson.includes("Private prompt that must stay out."), false);
     assert.equal(queueJson.includes("Style notes that must stay out."), false);
+    assert.equal(queueJson.includes("Private setup body that must stay out."), false);
+    assert.equal(queueJson.includes("Generated reply words that must stay out."), false);
+    assert.equal(queueJson.includes("Private curation that must stay out."), false);
+    assert.equal(queueJson.includes("test-deepseek-key"), false);
     assert.equal(queueJson.includes("Archive source label that must stay out."), false);
     assert.equal(queueJson.includes("raw-source-id-private"), false);
+    assert.equal(queueJson.includes("raw-private-session-id"), false);
     assert.equal(queueJson.includes("thread-author-private-id"), false);
     assert.equal(queueJson.includes("thread-parent-author-private-id"), false);
     assert.equal(queueJson.includes("comment-author-private-id"), false);
@@ -974,6 +1062,7 @@ test("admin report queue includes safe target context for thread and comment rep
     assert.equal(queueJson.includes("document-owner-private-id"), false);
     assert.equal(queueJson.includes("space-owner-private-id"), false);
     assert.equal(queueJson.includes("persona-owner-private-id"), false);
+    assert.equal(queueJson.includes("encounter-owner-private-id"), false);
     assert.equal(queueJson.includes("other@example.test"), false);
     assert.equal(queueJson.includes("tier"), false);
     assert.equal(queueJson.includes("is_admin"), false);
@@ -985,6 +1074,103 @@ test("admin report queue includes safe target context for thread and comment rep
     assert.equal(reporterReadback.status, 200);
     assert.equal(reporterReadback.body.reports[0].id, threadReport.id);
     assert.equal(reporterReadback.body.reports[0].targetContext, undefined);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("admin report status updates can remove and restore public encounter exhibits", async () => {
+  const db = new ReportsSupabase();
+  db.insertRow("persona_encounter_public_exhibits", {
+    slug: "public-exhibit-12345678",
+    public_title: "Public encounter card",
+    public_summary: "Safe metadata only.",
+    public_tags: ["safe"],
+    initiator_name_snapshot: "Harbor",
+    responder_name_snapshot: "Lantern",
+    owner_user_id: "encounter-owner-private-id",
+    private_session_id: "raw-private-session-id",
+  });
+  const report = db.insertRow("moderation_reports", {
+    reporter_id: "owner-user",
+    target_type: "persona_encounter_public_exhibit",
+    target_id: "public-exhibit-12345678",
+    reason: "unsafe public exhibit metadata",
+    notes: "Admin-only notes.",
+    status: "open",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const blockedTargetAction = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "owner-token",
+      body: { status: "resolved", targetAction: "remove" },
+    });
+    assert.equal(blockedTargetAction.status, 403);
+
+    const removed = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "resolved", targetAction: "remove" },
+    });
+    assert.equal(removed.status, 200);
+    assert.equal(removed.body.report.status, "resolved");
+    assert.deepEqual(removed.body.report.targetContext, {
+      targetType: "persona_encounter_public_exhibit",
+      targetId: "public-exhibit-12345678",
+      title: "Public encounter card",
+      status: "removed",
+      visibility: "not_public",
+      routeHref: null,
+      routeLabel: null,
+      canOpenRoute: false,
+      unavailableReason: "Public encounter exhibit is not currently public.",
+      supportedActions: ["restore"],
+    });
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].status, "removed");
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_by, "admin-user");
+    assert.equal(typeof db.tables.persona_encounter_public_exhibits[0].removed_at, "string");
+
+    const restored = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(restored.status, 200);
+    assert.deepEqual(restored.body.report.targetContext, {
+      targetType: "persona_encounter_public_exhibit",
+      targetId: "public-exhibit-12345678",
+      title: "Public encounter card",
+      status: "published",
+      visibility: "public",
+      routeHref: "/encounters/public-exhibit-12345678",
+      routeLabel: "Public encounter card",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: ["remove"],
+    });
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].status, "published");
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_by, null);
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_at, null);
+
+    const invalidThreadActionReport = db.insertRow("moderation_reports", {
+      reporter_id: "owner-user",
+      target_type: "thread",
+      target_id: "thread-1",
+      reason: "spam",
+      status: "open",
+    });
+    const invalidThreadAction = await requestJson(app, "PATCH", `/reports/${invalidThreadActionReport.id}`, {
+      token: "admin-token",
+      body: { status: "resolved", targetAction: "remove" },
+    });
+    assert.equal(invalidThreadAction.status, 400);
+
+    const updateJson = JSON.stringify({ removed: removed.body, restored: restored.body });
+    assert.equal(updateJson.includes("raw-private-session-id"), false);
+    assert.equal(updateJson.includes("encounter-owner-private-id"), false);
+    assert.equal(updateJson.includes("Safe metadata only."), false);
+    assert.equal(updateJson.includes("Harbor"), false);
+    assert.equal(updateJson.includes("Lantern"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }
