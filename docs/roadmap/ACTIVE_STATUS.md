@@ -4,7 +4,72 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504G Station Press visible bundle hosted proof passed
+## Current lane - PR505 owner encounter hosted provider gate recheck
+
+MIMIR closed PR504 Station Press owner package proof and opened PR505 for
+ARIADNE:
+
+`docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_ARIADNE.md`
+
+Why:
+
+- The Station Press owner package visible readback loop is now closed.
+- The next lane should move to a named Phase 3/customer-facing feature instead
+  of further Station Press deepening.
+- Owner persona encounters already have accepted owner-only readiness,
+  consent/provenance, runtime preview, and route-specific provider-gate work.
+- The remaining known blocker is hosted config truth for the explicit
+  non-secret encounter route flag.
+
+Task:
+
+- ARIADNE rechecks hosted owner encounter readiness.
+- If still blocked, record the exact provider-policy/config blocker and do not
+  generate.
+- If ready, attempt exactly one disposable same-owner encounter preview and
+  prove no public, cross-owner, durable transcript, source retrieval, queue,
+  Redis, Cloudflare, billing, or provider-scope drift.
+
+Current lane:
+
+```text
+PR505 - Owner Encounter Hosted Provider Gate Recheck
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF_RECHECK
+Source: docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR504 Station Press owner package final closeout
+
+MIMIR closed the Station Press owner package chain:
+
+`docs/roadmap/PR504_STATION_PRESS_OWNER_PACKAGE_FINAL_CLOSEOUT.md`
+
+Result:
+
+```text
+CLOSE_PR504_STATION_PRESS_OWNER_PACKAGE_ACCEPTED
+```
+
+Summary:
+
+- Owner-only Station Press metadata package create/open/readback works.
+- Bundle readback is owner-only and shows exactly `README.md`,
+  `manifest.json`, and `manifest.md`.
+- Hosted desktop/mobile `/studio/publishing` proof passed.
+- Signed-out and cross-owner access fail closed.
+- Public downloads, PDF/binary output, storage, print/fulfillment, billing,
+  social, queues/workers, Redis, Cloudflare, and public Station Press launch
+  remain future lanes.
+
+## Previous lane - PR504G Station Press visible bundle hosted proof passed
 
 ARIADNE completed the hosted PR504G `/studio/publishing` visible bundle proof:
 

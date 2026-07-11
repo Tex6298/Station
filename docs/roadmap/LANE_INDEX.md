@@ -12,12 +12,15 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504G | Station Press Visible Bundle Hosted Proof | MIMIR / A1 | Passed hosted proof; visible `View bundle files` opens exact owner-only `README.md` / `manifest.json` / `manifest.md` readback on desktop and 390px mobile, with fail-closed boundaries intact. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md` |
+| PR505 | Owner Encounter Hosted Provider Gate Recheck | ARIADNE / A4 | Open hosted proof/recheck; after PR504 closeout, recheck the named Phase 3 owner encounter provider gate and either prove one disposable same-owner preview or record the exact hosted config blocker. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505 opened | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE | Open hosted proof/recheck; if readiness is blocked, do not generate and record exact provider-policy/config blocker; if ready, prove one disposable same-owner preview with no public/cross-owner/durable drift. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_ARIADNE.md` |
+| PR504 final closeout | Station Press Owner Package | MIMIR | Closed accepted as `CLOSE_PR504_STATION_PRESS_OWNER_PACKAGE_ACCEPTED`; owner-only metadata package and visible three-file bundle readback are hosted-proven, while PDF/print/public download remain future. | `docs/roadmap/PR504_STATION_PRESS_OWNER_PACKAGE_FINAL_CLOSEOUT.md` |
+| PR504G closeout | Station Press Visible Bundle Hosted Proof | MIMIR | Closed passed as `CLOSE_PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_PASSED`; final hosted desktop/mobile proof passed. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_CLOSEOUT.md` |
 | PR504G proof | Station Press Visible Bundle Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF`; existing completed package readback was used, no browser create ran, desktop/mobile exact file list and privacy/boundary probes passed. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md` |
 | PR504G opened | Station Press Visible Bundle Hosted Proof | MIMIR -> ARIADNE | Open hosted proof; verify PR504F visible bundle readback on `/studio/publishing` desktop/mobile with exact three-file list and privacy boundaries. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md` |
 | PR504F closeout | Station Press Visible Bundle Readback | MIMIR | Closed accepted as `CLOSE_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_ACCEPTED`; ARIADNE gets hosted browser proof. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_CLOSEOUT.md` |
