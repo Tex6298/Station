@@ -4,7 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513A review returned to MIMIR
+## Current lane - PR513B cross-owner runtime attempt audit hosted proof opened
+
+MIMIR closed PR513A as accepted locally and applied hosted migration `078`:
+
+`docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_CLOSEOUT.md`
+
+MIMIR opened PR513B for ARIADNE:
+
+`docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ACCEPTED_LOCALLY
+```
+
+Summary:
+
+- PR513A implements migration `078`,
+  `persona_encounter_cross_owner_runtime_attempts`, typed RPC support,
+  participant-only readback, and API helper shape;
+- ARGUS accepted with a narrow audit-honesty patch so the RPC validates
+  caller-supplied consent status/scope/version metadata against the parent
+  consent row;
+- provider-success/failure/empty audit rows now require ready approved
+  `run_cross_owner_encounter` consent;
+- generic consent readback remains `executable: false`;
+- hosted migration `078` was applied and ledgered as
+  `20260711172000 / 078_persona_encounter_cross_owner_runtime_attempts`;
+- hosted shape verification found the attempts table, security-invoker RPCs,
+  RLS enabled, one participant SELECT policy, append-only triggers, and the
+  migration ledger row;
+- provider-backed preview, prompt assembly, generated words, token rows, private
+  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
+  jobs/storage/public rows, public surfacing, UI, package, billing,
+  provider/retrieval, Redis, Cloudflare, worker, webhook, and deployment scope
+  remain blocked.
+
+Current lane:
+
+```text
+PR513B - Cross-Owner Runtime Attempt Audit Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_MIGRATION_API_PROOF
+Source: docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_ARIADNE.md
+```
+
+Next:
+
+- ARIADNE proves hosted web/API freshness, migration/table/function/RLS/policy/
+  trigger shape, participant readback, signed-out/nonparticipant fail-closed
+  behavior, RPC metadata validation, `executable: false` generic readback,
+  privacy, cleanup, and no provider/runtime/public/UI drift.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR513A review returned to MIMIR
 
 ARGUS accepted PR513A and woke MIMIR:
 
@@ -32,26 +93,6 @@ Summary:
   jobs/storage/public rows, public surfacing, UI, package, billing,
   provider/retrieval, Redis, Cloudflare, worker, webhook, and deployment scope
   remain blocked.
-
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with 48
-  tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-
-Next:
-
-- MIMIR closes PR513A and routes ARIADNE PR513B hosted migration/API proof, or
-  makes an explicit roadmap decision.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR513A cross-owner runtime attempt audit ledger ready for ARGUS
 
