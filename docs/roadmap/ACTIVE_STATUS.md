@@ -4,7 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514F hosted rehearsal returned to MIMIR
+## Current lane - PR515 cross-owner consent invitation UI preflight
+
+MIMIR accepted PR514F and opened PR515:
+
+`docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_CLOSEOUT.md`
+
+`docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_ARGUS.md`
+
+Result:
+
+```text
+CLOSE_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ACCEPTED
+```
+
+Summary:
+
+- ARIADNE passed hosted desktop/mobile rehearsal for the cross-owner disposable
+  preview Studio panel;
+- signed-out, no-consent, and pending states stayed non-executable;
+- approved eligible consent ran through the consent-scoped setup-only helper;
+- success showed one private disposable response with the required
+  private/disposable/not-saved/not-public/not-canonical/no-retrieval/
+  counterparty-hidden/audit labels;
+- same-owner saved/private/public controls stayed separate;
+- desktop and 390px mobile had no horizontal overflow;
+- public routes showed no proof marker or generated text;
+- no persistence, public surfacing, storage, memory, canon, archive,
+  continuity, integrity, export, or moderation drift appeared;
+- cleanup/privacy passed.
+
+Current lane:
+
+```text
+PR515 - Cross-Owner Consent Invitation UI Preflight
+Owner: ARGUS / A3
+State: OPEN_ARGUS_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_ARGUS.md
+```
+
+Next:
+
+- ARGUS decides whether existing route/readback surfaces are sufficient for
+  DAEDALUS to implement invitation, approval, rejection, cancellation, and
+  revocation UI, or names the smallest contract unblock.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+
+Summary:
+- MIMIR accepted and closed PR514F after ARIADNE passed hosted desktop/mobile rehearsal for the cross-owner disposable preview Studio panel.
+- The next customer-facing gap is safe consent invitation and approval UI.
+- Existing routes already cover create/list/read/approve/reject/cancel/revoke and participant-scoped audit readback.
+
+Task:
+- Run hostile preflight for cross-owner consent invitation and approval UI.
+- Decide whether existing route/readback surfaces are sufficient for DAEDALUS to wire invitation, approval, rejection, cancellation, and revocation controls.
+- Pay special attention to safe counterparty persona selection/readback, raw owner/persona id exposure, and copy that prevents consent from implying saved/public/generated-word sharing.
+- Wake MIMIR with ACCEPT_PR515A_CROSS_OWNER_CONSENT_INVITATION_UI or BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT and the exact smallest next lane.
+```
+
+## Previous lane - PR514F hosted rehearsal accepted
 
 ARIADNE completed PR514F and woke MIMIR:
 
@@ -39,18 +102,18 @@ Summary:
   export/storage/public-surfacing drift appeared;
 - cleanup left no active proof consent and privacy passed.
 
-Current lane:
+Closed lane:
 
 ```text
 PR514F - Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal
 Owner: MIMIR / A1
-State: ARIADNE_VERDICT_RETURNED
+State: CLOSE_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ACCEPTED
 Source: docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md
 ```
 
-Next:
+Closeout:
 
-- MIMIR closes PR514F if accepted, or routes the next narrow lane.
+- `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_CLOSEOUT.md`
 
 ## Previous lane - PR514E cross-owner disposable preview Studio panel accepted
 
