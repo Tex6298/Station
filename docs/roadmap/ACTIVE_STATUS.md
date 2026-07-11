@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR512 preflight returned to MIMIR
+## Current lane - PR512A cross-owner runtime context contract opened
+
+MIMIR closed PR512:
+
+`docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_CLOSEOUT.md`
+
+MIMIR opened PR512A for DAEDALUS:
+
+`docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR512A - Cross-Owner Runtime Context Contract
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_DAEDALUS.md
+```
+
+Summary:
+
+- provider-backed cross-owner runtime remains blocked on
+  `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`;
+- PR512A is readback-only;
+- DAEDALUS should define the exact consent/status/scope/persona-pair/context
+  contract and optional participant-only API readback route;
+- PR512A must not call providers, generate cross-owner words, record token
+  rows, create private sessions/public exhibits/reports/memory/canon/archive/
+  continuity/export/jobs/storage/public rows, or touch infra/package/migration/
+  billing/UI scope.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR512 preflight returned to MIMIR
 
 ARGUS completed PR512 hostile preflight:
 

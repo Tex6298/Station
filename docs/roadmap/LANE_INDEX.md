@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR512 closeout | Consented Cross-Owner Encounter Runtime Preflight | MIMIR / A1 | ARGUS returned `ACCEPT_PR512A_CROSS_OWNER_CONTEXT_CONTRACT_ONLY`; MIMIR to close PR512 and route DAEDALUS to the readback-only context contract lane or make an explicit roadmap decision. | `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md` |
+| PR512A implementation | Cross-Owner Runtime Context Contract | DAEDALUS / A2 | Open; implement readback-only consent/status/scope/persona-pair context contract, with no provider calls, generated words, token rows, private sessions, public exhibits, reports, memory/canon/archive/continuity/export/jobs/storage/public rows, infra, package, migration, billing, or UI drift. | `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR512 closeout | Consented Cross-Owner Encounter Runtime Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ACCEPTED`; ARGUS rejected provider-backed preview for now and accepted PR512A context-contract-only unblock lane. | `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_CLOSEOUT.md` |
 | PR512 preflight | Consented Cross-Owner Encounter Runtime Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR512A_CROSS_OWNER_CONTEXT_CONTRACT_ONLY`; provider-backed disposable cross-owner preview remains blocked on `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`, and the smallest unblock lane is a readback-only cross-owner runtime context contract with no provider call, generated words, token rows, persistence, public surfacing, or infra drift. | `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md` |
 | PR511B closeout | Cross-Owner Encounter Consent Ledger Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ACCEPTED`; hosted ledger proof passed for migration shape, owner A/B create/approve/reject/cancel/revoke, participant audit/readback, signed-out/nonparticipant fail-closed behavior, non-executable readback, no drift, cleanup, and privacy. | `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_CLOSEOUT.md` |
 | PR511A closeout | Cross-Owner Encounter Consent Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ACCEPTED_LOCALLY`; hosted migration 077 applied, ledger row `20260711153000 / 077_persona_encounter_cross_owner_consents` recorded, PostgREST reload requested, and ARIADNE gets PR511B hosted proof. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_CLOSEOUT.md` |
