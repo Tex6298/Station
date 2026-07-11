@@ -4,6 +4,52 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR514F Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal
+
+ARIADNE completed PR514F hosted rehearsal on 2026-07-11:
+
+- `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md`
+
+Validation result:
+`PASS_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `9eb9338b1445`, which includes the PR514E implementation floor;
+- signed-out users had no usable cross-owner preview surface;
+- no-consent and pending states rendered bounded copy with no run button;
+- approved eligible consent ran through the consent-scoped setup-only helper;
+- success showed exactly one private disposable response with required
+  private/disposable/not-saved/not-public/not-canonical/no-retrieval/
+  counterparty-hidden/audit-recorded labels;
+- the run payload did not send initiator/responder, requester/counterparty,
+  owner, or raw persona id fields;
+- the cross-owner panel did not post to same-owner preview, private-session,
+  public-exhibit, or public encounter routes;
+- same-owner saved private artifact and public exhibit controls stayed visually
+  separate;
+- desktop and 390px mobile showed no horizontal overflow;
+- public routes `/discover`, `/forums`, `/writing`, and `/encounters` did not
+  surface the proof marker or generated cross-owner text;
+- no private session, public exhibit, moderation report, memory, canon, archive,
+  continuity, export, storage, or public-surfacing drift appeared;
+- cleanup left no active proof consent and privacy passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted Playwright/API/data rehearsal runner | Pass | Rehearsed signed-out, no-consent, pending, approved-success, desktop, and 390px mobile states. |
+| Hosted reachability | Pass | Web/API health returned `200`; both services were ready at commit prefix `9eb9338b1445`. |
+| Setup-only payload check | Pass | The browser sent one cross-owner disposable-preview POST with setup only and no raw persona/owner fields. |
+| Required label check | Pass | Pre-run and success labels were present, including counterparty-hidden and audit-required/recorded wording. |
+| Public route no-leak check | Pass | `/discover`, `/forums`, `/writing`, and `/encounters` did not contain the proof marker or generated cross-owner text. |
+| No-drift checks | Pass | No private-session/public-exhibit/report/memory/canon/archive/continuity/export/storage rows appeared from the rehearsal. |
+| Cleanup verification | Pass | Two proof consents were inactive after cleanup: one revoked and one cancelled. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw owner ids, raw participant persona ids, provider payloads, bearer values, SQL/env/cookie values, generated text, or secret-shaped strings. |
+
+`pnpm typecheck` was not run because the PR514F result updates documentation
+only and does not touch imports or scripts.
+
 ## PR514E Cross-Owner Disposable Preview Studio Panel ARGUS Review
 
 ARGUS accepted PR514E on 2026-07-11:

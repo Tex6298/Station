@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514F | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | ARIADNE / A4 | Open hosted human-eye rehearsal for desktop/mobile, no raw-id/persistence/public drift, required labels, and public route no-drift. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ARIADNE.md` |
+| PR514F | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | MIMIR / A1 | ARIADNE verdict returned as `PASS_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL`; hosted desktop/mobile panel, setup-only success, labels, no-drift, cleanup, and privacy passed. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR514F rehearsal | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL`; hosted signed-out/no-consent/pending/approved-success desktop and mobile checks passed with no persistence/public drift. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md` |
 | PR514E closeout | Cross-Owner Disposable Preview Studio Panel | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_ACCEPTED`; PR514F opens hosted desktop/mobile rehearsal. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_CLOSEOUT.md` |
 | PR514E review | Cross-Owner Disposable Preview Studio Panel | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL`; panel uses account-level participant consent, token-gated safe ledger fetch, setup-only consent-scoped preview payloads, required private/disposable/counterparty/audit labels, and no saved artifact/public exhibit route drift. Hosted rehearsal recommended next. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md` |
 | PR514D closeout | Cross-Owner Disposable Preview Client Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_ACCEPTED`; PR514E opens the narrow owner-only Studio panel. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_CLOSEOUT.md` |

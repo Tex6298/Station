@@ -4,53 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514F cross-owner disposable preview Studio panel hosted rehearsal
+## Current lane - PR514F hosted rehearsal returned to MIMIR
 
-MIMIR accepted PR514E and opened PR514F:
+ARIADNE completed PR514F and woke MIMIR:
 
-`docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_CLOSEOUT.md`
-
-`docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ARIADNE.md`
+`docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_ACCEPTED
+PASS_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL
 ```
 
 Summary:
 
-- PR514E is accepted: the owner-only Studio panel uses participant-safe
-  cross-owner consent ledger rows and the PR514D consent-scoped helper;
-- approved eligible consent rows run with setup/options only;
-- browser code does not send or infer raw requester/counterparty/initiator/
-  responder/owner/persona ids;
-- same-owner saved private artifact and public exhibit controls remain
-  separate;
-- no saved cross-owner sessions, public exhibits, generated-word sharing,
-  retrieval, memory/canon/archive/continuity/integrity, billing, storage,
-  migration, provider config, public routes, or deployment work was added.
+- hosted web/API were ready at commit prefix `9eb9338b1445`, which includes the
+  PR514E implementation floor;
+- signed-out users had no usable cross-owner preview surface;
+- no-consent and pending states showed bounded copy with no run button;
+- approved eligible consent ran through the consent-scoped setup-only helper;
+- success showed exactly one private disposable response and the required
+  private/disposable/not-saved/not-public/not-canonical/no-retrieval/
+  counterparty-hidden/audit-recorded labels;
+- the run payload sent setup only and did not send initiator/responder,
+  requester/counterparty, owner, or raw persona id fields;
+- the cross-owner panel did not post to same-owner preview, private-session,
+  public-exhibit, or public encounter routes;
+- same-owner saved private artifact and public exhibit controls remained
+  visually separate;
+- desktop and 390px mobile showed no horizontal overflow;
+- public routes `/discover`, `/forums`, `/writing`, and `/encounters` did not
+  surface the proof marker or generated cross-owner text;
+- no private session, public exhibit, report, memory/canon/archive/continuity/
+  export/storage/public-surfacing drift appeared;
+- cleanup left no active proof consent and privacy passed.
 
 Current lane:
 
 ```text
 PR514F - Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal
-Owner: ARIADNE / A4
-State: OPEN_ARIADNE_HOSTED_REHEARSAL
-Source: docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ARIADNE.md
+Owner: MIMIR / A1
+State: ARIADNE_VERDICT_RETURNED
+Source: docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md
 ```
 
 Next:
 
-- ARIADNE rehearses the hosted private Studio panel on desktop and mobile,
-  checks no raw-id/persistence/public drift, and wakes MIMIR with pass/fail.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- MIMIR closes PR514F if accepted, or routes the next narrow lane.
 
 ## Previous lane - PR514E cross-owner disposable preview Studio panel accepted
 
