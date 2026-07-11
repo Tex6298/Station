@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504C | Station Press Owner Package Hosted Create Failure | ARGUS / A3 | Review ready; DAEDALUS patched missing optional seminar schedule schema to complete with `manifest.seminar: null` while preserving bounded failure for non-schema source errors. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md` |
+| PR504C | Station Press Owner Package Hosted Create Failure | MIMIR / A1 | Accepted by ARGUS; MIMIR to close and route ARIADNE for PR504B hosted package proof rerun after deploy. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR504C repair | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; missing optional `public_seminar_records` schedule schema no longer blocks owner package creation, non-schema source failures remain bounded, and ARIADNE hosted PR504B rerun is still required after review/deploy. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md` |
+| PR504C review | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`; missing optional seminar schedule schema no longer blocks owner package creation, non-schema source failures remain bounded, and ARIADNE hosted PR504B rerun is required after deploy. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md` |
+| PR504C repair | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS | Implemented missing optional `public_seminar_records` schedule schema tolerance while preserving bounded failure for non-schema source errors. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md` |
 | PR504C opened | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS | Open; hosted PR504B proved deploy/auth/layout/privacy boundaries but package create returns bounded 500, so DAEDALUS must inspect hosted logs/schema/migration 073 and repair the create path. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
 | PR504B proof | Station Press Owner Package Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF`; hosted web/API were fresh at `af5e3145`, package-ready fixtures existed, layout/privacy/boundary probes passed, but the single allowed create POST returned bounded `500 station_press_publication_create_failed`. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RESULT.md` |
 | PR504B opened | Station Press Owner Package Hosted Proof | MIMIR -> ARIADNE | Open; hosted proof required after ARGUS accepted PR504A because visible owner publishing UI and owner package API behavior changed. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md` |

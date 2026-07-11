@@ -4,16 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504C Station Press owner package create repair ready for ARGUS
+## Current lane - PR504C Station Press owner package create repair accepted
 
-DAEDALUS completed the PR504C repair for ARGUS review:
+ARGUS accepted the PR504C repair:
 
-`docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md`
+`docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-REVIEW_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR
+ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR
 ```
 
 Summary:
@@ -28,8 +28,9 @@ Summary:
   row, and avoid leaking internal schema/source details.
 - Migration `073_station_press_publication_packages.sql` was not changed; the
   fatal readback path was outside the package target/kind/RLS migration.
-- Hosted logs/schema were not directly available in the DAEDALUS thread, so
-  ARIADNE still needs to rerun PR504B after ARGUS review and deploy.
+- ARGUS found no scope drift and made no review patch.
+- Hosted logs/schema were not directly available in the DAEDALUS or ARGUS
+  threads, so ARIADNE still needs to rerun PR504B after deploy.
 
 Validation:
 
@@ -43,16 +44,16 @@ Current lane:
 
 ```text
 PR504C - Station Press Owner Package Hosted Create Failure
-Owner: ARGUS / A3
-State: REVIEW_READY
-Source: docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR
+Source: docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR504C Station Press owner package hosted create failure opened

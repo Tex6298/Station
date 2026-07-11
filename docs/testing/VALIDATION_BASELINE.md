@@ -6,13 +6,13 @@ change, not to unknown repo hygiene.
 
 ## PR504C Station Press Owner Package Hosted Create Failure Repair
 
-DAEDALUS completed the PR504C Station Press owner package create-path repair on
+ARGUS accepted the PR504C Station Press owner package create-path repair on
 2026-07-11:
 
-- `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md`
+- `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md`
 
 Validation result:
-`REVIEW_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`.
+`ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`.
 
 Reason:
 
@@ -24,7 +24,8 @@ Reason:
 - non-schema seminar source failures still fail bounded and leave a failed
   package row;
 - migration `073_station_press_publication_packages.sql` was not changed;
-- hosted proof still needs ARIADNE after ARGUS review and deploy.
+- ARGUS found no scope drift and made no review patch;
+- hosted proof still needs ARIADNE after deploy.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
