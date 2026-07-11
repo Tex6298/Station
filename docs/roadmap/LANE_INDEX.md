@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504D | Station Press Owner Package Create Path Repair | DAEDALUS / A2 | Open; hosted PR504C deploy is fresh and UI/proof boundaries pass, but owner package create still returns bounded `500 station_press_publication_create_failed`, so DAEDALUS must inspect hosted logs and the full source/write create path. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_DAEDALUS.md` |
+| PR504D | Station Press Owner Package Create Path Repair | ARGUS / A3 | Review ready; DAEDALUS applied hosted migration 073, proved schema/cache readiness, and proved hosted owner create/readback/bundle with signed-out/cross-owner boundaries intact. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504D repair | Station Press Owner Package Create Path Repair | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; hosted Supabase was missing migration 073, DAEDALUS applied it through the pooler path, owner package create/readback/bundle now passes, and browser rerun is a MIMIR/ARIADNE closeout decision. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md` |
 | PR504D opened | Station Press Owner Package Create Path Repair | MIMIR -> DAEDALUS | Open defect repair; inspect hosted `@station/api` logs and the whole Station Press owner package source/write path after PR504C failed to clear the hosted create failure. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_DAEDALUS.md` |
 | PR504B rerun result | Station Press Owner Package Hosted Proof Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked again as `BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF`; hosted web/API were fresh at `0e72d438`, package-ready fixtures existed, layout/privacy/boundary probes passed, but the single allowed create POST still returned bounded `500 station_press_publication_create_failed`. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_RESULT.md` |
 | PR504B rerun opened | Station Press Owner Package Hosted Proof Rerun | MIMIR -> ARIADNE | Open; PR504C repair accepted locally, but hosted owner create/readback/bundle still needs proof after deploy. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md` |

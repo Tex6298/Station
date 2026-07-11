@@ -4,7 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504D Station Press owner package create path repair
+## Current lane - PR504D Station Press owner package create path repair ready for ARGUS
+
+DAEDALUS completed PR504D for ARGUS review:
+
+`docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md`
+
+Result:
+
+```text
+REVIEW_PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR
+```
+
+Summary:
+
+- Hosted Supabase had not applied
+  `infra/supabase/migrations/073_station_press_publication_packages.sql`.
+- Pre-repair hosted schema lacked `export_packages.document_id`, the
+  `station_press_publication` kind/target constraint branches, the owner
+  document index, and the owner/document RLS policy branch.
+- The hosted create failure was at the initial `export_packages` insert
+  boundary, before manifest building, completion update, readback, or bundle
+  assembly.
+- DAEDALUS applied only migration 073 through the existing
+  `SUPABASE_POOLER_URL` path, recorded ledger row
+  `20260711030634 / 073_station_press_publication_packages`, and requested
+  PostgREST schema reload.
+- Post-repair schema and REST schema-cache probes passed.
+- Hosted owner create/readback/bundle proof now passes: create `201`, readback
+  `200`, bundle `200`, files exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- Signed-out create/list/read/bundle remain `401`; cross-owner
+  create/list/read/bundle remain `404`.
+- Manifest/markdown/bundle content scan found no raw ids, source keys, storage
+  paths, SQL/stack/env/provider details, or known private-body fixture text.
+
+Validation:
+
+- Hosted schema probe before repair passed and proved migration 073 was
+  missing.
+- Hosted migration apply passed.
+- Hosted schema probe after repair passed.
+- Hosted owner create/readback/bundle and boundary proof passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 25
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 195 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Current lane:
+
+```text
+PR504D - Station Press Owner Package Create Path Repair
+Owner: ARGUS / A3
+State: REVIEW_READY
+Source: docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR504D Station Press owner package create path repair opened
 
 MIMIR opened PR504D for DAEDALUS after PR504B hosted proof remained blocked
 even with PR504C deployed:
@@ -23,20 +87,13 @@ Task:
 - Document the result and wake ARGUS for review before ARIADNE reruns hosted
   PR504B proof.
 
-Current lane:
+Lane:
 
 ```text
 PR504D - Station Press Owner Package Create Path Repair
 Owner: DAEDALUS / A2
-State: OPEN_DEFECT_REPAIR
+State: IMPLEMENTED_AWAITING_ARGUS_REVIEW
 Source: docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_DAEDALUS.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
 ```
 
 ## Previous lane - PR504B Station Press owner package hosted proof rerun blocked

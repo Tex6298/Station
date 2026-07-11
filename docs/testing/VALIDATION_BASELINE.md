@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504D Station Press Owner Package Create Path Repair
+
+DAEDALUS completed the PR504D hosted Station Press owner package create-path
+repair on 2026-07-11:
+
+- `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md`
+
+Validation result:
+`REVIEW_PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR`.
+
+Reason:
+
+- hosted Supabase had not applied
+  `infra/supabase/migrations/073_station_press_publication_packages.sql`;
+- the missing migration left `export_packages.document_id`,
+  `station_press_publication` constraint branches, the owner/document index,
+  and owner/document RLS policy branch absent;
+- the hosted create failure was at the initial `export_packages` insert
+  boundary;
+- DAEDALUS applied only migration 073 through the existing
+  `SUPABASE_POOLER_URL` path, recorded ledger row
+  `20260711030634 / 073_station_press_publication_packages`, and requested
+  PostgREST schema reload;
+- hosted owner create/readback/bundle now passes, and signed-out/cross-owner
+  boundaries remain closed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Hosted schema probe before repair | Pass | Proved `document_id`, Station Press kind/target branches, owner/document index, and owner/document policy branch were missing. |
+| Hosted migration apply | Pass | Applied only `073_station_press_publication_packages.sql`, recorded the hosted ledger row, and requested PostgREST schema reload. |
+| Hosted schema probe after repair | Pass | Column, constraints, index, owner policy branch, RLS, and REST schema-cache `document_id` read all passed. |
+| Hosted owner create/readback/bundle proof | Pass | Owner sign-in `200`; candidate count `5`; first candidate create `201`; readback `200`; bundle `200`; files exactly `README.md`, `manifest.json`, and `manifest.md`. |
+| Hosted boundary probes | Pass | Signed-out create/list/read/bundle returned `401`; cross-owner create/list/read/bundle returned `404`. |
+| Hosted content privacy scan | Pass | Manifest, markdown, and bundle files exposed no raw ids, source keys, storage paths, SQL/stack/env/provider details, or known private-body fixture text. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 15 export API tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 25 publishing API/UI tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 195 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR504B Station Press Owner Package Hosted Proof Rerun
 
 ARIADNE reran the hosted PR504B Station Press owner package proof on
