@@ -24,6 +24,9 @@ import {
   publicationManifestDisplayRows,
   STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA,
   STATION_PRESS_PUBLICATION_MANIFEST_EXCLUSIONS,
+  STATION_PRESS_PUBLICATION_BUNDLE_FILE_NAMES,
+  stationPressPublicationBundleFileNames,
+  stationPressPublicationBundleReadbackCopy,
   stationPressPublicationPackageReady,
   stationPressPublicationPackageStatusCopy,
   publishingQueueActionGuard,
@@ -575,14 +578,39 @@ test("publication manifest package helpers keep owner package status ID-free", (
   );
 });
 
+test("publication manifest bundle helpers keep the owner file list exact", () => {
+  assert.deepEqual(STATION_PRESS_PUBLICATION_BUNDLE_FILE_NAMES, [
+    "README.md",
+    "manifest.json",
+    "manifest.md",
+  ]);
+  assert.deepEqual(
+    stationPressPublicationBundleFileNames([
+      { path: "manifest.md" },
+      { path: "debug.sql" },
+      { path: "README.md" },
+      { path: "manifest.json" },
+    ]),
+    ["README.md", "manifest.json", "manifest.md"],
+  );
+
+  const copy = stationPressPublicationBundleReadbackCopy(["README.md", "manifest.json", "manifest.md"]);
+  assert.match(copy, /Owner-only bundle readback/);
+  assert.match(copy, /README\.md, manifest\.json, and manifest\.md/);
+  assert.doesNotMatch(copy, /download|share|signed URL|storage|launch|package id/i);
+});
+
 test("publishing dashboard renders publication manifest package controls within owner scope", () => {
   const source = readFileSync("apps/web/components/studio/publishing-dashboard.tsx", "utf8");
 
   assert.match(source, /publicationManifestContractForDocument/);
   assert.match(source, /publicationManifestDisplayRows/);
   assert.match(source, /PublicationManifestReadback/);
+  assert.match(source, /StationPressBundleReadbackPanel/);
   assert.match(source, /StationPressPublicationPackageResponse/);
+  assert.match(source, /StationPressPublicationBundleResponse/);
   assert.match(source, /\/exports\/station-press\/publications\/\$\{encodeURIComponent\(document\.id\)\}/);
+  assert.match(source, /\/exports\/\$\{encodeURIComponent\(packageId\)\}\/bundle/);
 
   const block = source.slice(
     source.indexOf("function PublicationManifestReadback"),
@@ -593,7 +621,10 @@ test("publishing dashboard renders publication manifest package controls within 
   assert.match(block, /stationPressPublicationPackageStatusCopy/);
   assert.match(block, /Create metadata package/);
   assert.match(block, /Station Press unavailable/);
-  assert.doesNotMatch(block, /apiGet|apiPost|apiPatch|apiDelete|Download|Share|billing|provider|public package URL|signed URL|packageId|exportPackage\.id|manifest\.id/i);
+  assert.match(block, /View bundle files/);
+  assert.match(block, /stationPressPublicationBundleReadbackCopy/);
+  assert.match(block, /Owner-only metadata proof/);
+  assert.doesNotMatch(block, /Download|Share|billing|provider|public package URL|signed URL|storage_path|Package ID|exportPackage\.id|manifest\.id/i);
 });
 
 test("publishing trust readback explains public document boundaries", () => {

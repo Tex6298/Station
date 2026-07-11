@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504F Station Press Visible Bundle Readback
+
+DAEDALUS completed the local PR504F visible owner-only Station Press bundle
+readback patch on 2026-07-11:
+
+- `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_RESULT.md`
+
+Validation result:
+`REVIEW_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK`.
+
+Reason:
+
+- `/studio/publishing` now loads existing authenticated owner Station Press
+  publication packages for package-ready documents;
+- completed Station Press packages expose a visible `View bundle files` action;
+- package creation still uses the existing authenticated create API and now
+  loads the existing authenticated bundle readback API after success;
+- visible bundle readback is metadata-only and lists exactly `README.md`,
+  `manifest.json`, and `manifest.md` when the backend bundle is complete;
+- source-level Studio UI tests assert the readback panel/action/API wiring and
+  reject public download/storage/PDF/provider/billing/social drift;
+- no API route, schema, provider, billing, public route, queue, worker, storage,
+  or binary/PDF behavior changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 196 Studio UI/helper tests passed, including exact bundle file-list helper coverage and source wiring checks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 26 publishing API/UI tests passed because `apps/web/lib/publishing.ts` changed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 15 export API tests passed because Station Press bundle readback consumes existing export-package APIs. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR504E Station Press Owner Package Browser Closeout
 
 ARIADNE completed the hosted PR504E `/studio/publishing` browser closeout on

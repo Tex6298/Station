@@ -28,6 +28,8 @@ import {
   publishingApprovalStateLabel,
   publishingQueueActionGuard,
   publishingStatusLabel,
+  stationPressPublicationBundleFileNames,
+  stationPressPublicationBundleReadbackCopy,
   stationPressPublicationPackageReady,
   stationPressPublicationPackageStatusCopy,
   type PublishingApproval,
@@ -55,6 +57,54 @@ import {
 
 const routeStoryRows = publishingDashboardRouteStoryRows();
 
+interface StationPressPublicationBundleFile {
+  path: string;
+  mediaType?: string | null;
+  bytes?: number | null;
+  content?: string | null;
+}
+
+interface StationPressPublicationBundleResponse {
+  bundle: {
+    files: StationPressPublicationBundleFile[];
+  };
+}
+
+interface StationPressBundleReadback {
+  packageId: string;
+  files: string[];
+}
+
+async function loadStationPressPackagesForDocuments(
+  documents: PublishingDocument[],
+  spaces: PublishingSpace[],
+  token: string,
+): Promise<{ packages: Record<string, StationPressPublicationPackage[]>; error: string | null }> {
+  const packages: Record<string, StationPressPublicationPackage[]> = {};
+  let failed = false;
+  const readyDocuments = documents.filter((document) =>
+    stationPressPublicationPackageReady(publicationManifestContractForDocument({ document, spaces }))
+  );
+
+  await Promise.all(readyDocuments.map(async (document) => {
+    try {
+      const response = await apiGet<{ exports: StationPressPublicationPackage[] }>(
+        `/exports/station-press/publications/${encodeURIComponent(document.id)}`,
+        token,
+      );
+      packages[document.id] = response.exports ?? [];
+    } catch {
+      failed = true;
+      packages[document.id] = [];
+    }
+  }));
+
+  return {
+    packages,
+    error: failed ? "Station Press metadata package readback is unavailable." : null,
+  };
+}
+
 export function PublishingDashboard() {
   const [tab, setTab] = useState<PublishingTab>("drafts");
   const [documents, setDocuments] = useState<PublishingDocument[]>([]);
@@ -72,7 +122,9 @@ export function PublishingDashboard() {
   const [busySeminarScheduleId, setBusySeminarScheduleId] = useState<string | null>(null);
   const [seminarScheduleInputs, setSeminarScheduleInputs] = useState<Record<string, SeminarScheduleFormState>>({});
   const [stationPressPackages, setStationPressPackages] = useState<Record<string, StationPressPublicationPackage[]>>({});
+  const [stationPressBundleReadbacks, setStationPressBundleReadbacks] = useState<Record<string, StationPressBundleReadback>>({});
   const [busyStationPressDocumentId, setBusyStationPressDocumentId] = useState<string | null>(null);
+  const [loadingStationPressBundlePackageId, setLoadingStationPressBundlePackageId] = useState<string | null>(null);
   const [stationPressPackageError, setStationPressPackageError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +153,11 @@ export function PublishingDashboard() {
             .then((response) => ({ records: response.records ?? [], error: null as string | null }))
             .catch(() => ({ records: [] as OwnerPublicSeminarRecord[], error: "Seminar draft readback is unavailable." })),
         ]);
+        const stationPressPackageData = await loadStationPressPackagesForDocuments(
+          documentData.documents ?? [],
+          spaceData.spaces ?? [],
+          session.access_token,
+        );
 
         if (!cancelled) {
           setToken(session.access_token);
@@ -112,6 +169,8 @@ export function PublishingDashboard() {
           setApprovals(approvalData.approvals ?? []);
           setSeminarRecords(seminarRecordData.records);
           setSeminarRecordsError(seminarRecordData.error);
+          setStationPressPackages(stationPressPackageData.packages);
+          setStationPressPackageError(stationPressPackageData.error);
           setSeminarRecordsLoading(false);
         }
       } catch (e) {
@@ -242,6 +301,31 @@ export function PublishingDashboard() {
     }
   }
 
+  async function loadStationPressBundleReadback(documentId: string, packageId: string) {
+    if (!token) return;
+
+    setLoadingStationPressBundlePackageId(packageId);
+    setStationPressPackageError(null);
+    try {
+      const response = await apiGet<StationPressPublicationBundleResponse>(
+        `/exports/${encodeURIComponent(packageId)}/bundle`,
+        token,
+      );
+      const files = stationPressPublicationBundleFileNames(response.bundle.files ?? []);
+      setStationPressBundleReadbacks((current) => ({
+        ...current,
+        [documentId]: {
+          packageId,
+          files,
+        },
+      }));
+    } catch {
+      setStationPressPackageError("Station Press bundle readback is unavailable.");
+    } finally {
+      setLoadingStationPressBundlePackageId(null);
+    }
+  }
+
   async function createStationPressPackage(document: PublishingDocument, manifest: PublicationManifestContract) {
     if (!token || !stationPressPublicationPackageReady(manifest)) return;
 
@@ -259,6 +343,7 @@ export function PublishingDashboard() {
         [document.id]: [response.exportPackage, ...(current[document.id] ?? [])],
       }));
       setNotice("Station Press metadata package readback is ready.");
+      await loadStationPressBundleReadback(document.id, response.exportPackage.id);
     } catch {
       setStationPressPackageError("Station Press metadata package readback is unavailable.");
     } finally {
@@ -460,9 +545,12 @@ export function PublishingDashboard() {
                       </div>
                       <PublicationManifestReadback
                         busy={busyStationPressDocumentId === document.id}
+                        bundleReadback={stationPressBundleReadbacks[document.id] ?? null}
+                        loadingBundlePackageId={loadingStationPressBundlePackageId}
                         manifest={manifest}
                         packages={stationPressPackages[document.id] ?? []}
                         onCreate={() => void createStationPressPackage(document, manifest)}
+                        onLoadBundle={(packageId) => void loadStationPressBundleReadback(document.id, packageId)}
                       />
                     </div>
                     <div style={buttonRow}>
@@ -507,17 +595,26 @@ export function PublishingDashboard() {
 
 function PublicationManifestReadback({
   busy,
+  bundleReadback,
+  loadingBundlePackageId,
   manifest,
   packages,
   onCreate,
+  onLoadBundle,
 }: {
   busy: boolean;
+  bundleReadback: StationPressBundleReadback | null;
+  loadingBundlePackageId: string | null;
   manifest: PublicationManifestContract;
   packages: StationPressPublicationPackage[];
   onCreate: () => void;
+  onLoadBundle: (packageId: string) => void;
 }) {
   const rows = publicationManifestDisplayRows(manifest);
   const ready = stationPressPublicationPackageReady(manifest);
+  const completedPackage = packages.find((item) => item.status === "completed") ?? null;
+  const loadingBundle = Boolean(completedPackage && loadingBundlePackageId === completedPackage.id);
+  const activeBundleReadback = completedPackage && bundleReadback?.packageId === completedPackage.id ? bundleReadback : null;
   return (
     <details style={manifestDetails}>
       <summary style={manifestSummary}>Station Press manifest contract</summary>
@@ -541,9 +638,54 @@ function PublicationManifestReadback({
             Station Press unavailable
           </button>
         )}
+        {completedPackage ? (
+          <button
+            type="button"
+            disabled={loadingBundle || Boolean(activeBundleReadback)}
+            onClick={() => onLoadBundle(completedPackage.id)}
+            style={miniButton}
+          >
+            {loadingBundle ? "Loading bundle files" : activeBundleReadback ? "Bundle files shown" : "View bundle files"}
+          </button>
+        ) : null}
       </div>
+      <StationPressBundleReadbackPanel loading={loadingBundle} readback={activeBundleReadback} />
       <p style={manifestReadbackCopy}>{manifest.boundary}</p>
     </details>
+  );
+}
+
+function StationPressBundleReadbackPanel({
+  loading,
+  readback,
+}: {
+  loading: boolean;
+  readback: StationPressBundleReadback | null;
+}) {
+  if (loading) {
+    return (
+      <div style={stationPressBundlePanel} aria-live="polite">
+        <div style={manifestReadbackLabel}>Owner bundle files</div>
+        <p style={manifestReadbackCopy}>Loading owner-only bundle file readback.</p>
+      </div>
+    );
+  }
+
+  if (!readback) return null;
+
+  return (
+    <div style={stationPressBundlePanel} aria-live="polite">
+      <div style={manifestReadbackLabel}>Owner bundle files</div>
+      <p style={manifestReadbackCopy}>{stationPressPublicationBundleReadbackCopy(readback.files)}</p>
+      <ul style={stationPressBundleList}>
+        {readback.files.map((file) => (
+          <li key={file} style={stationPressBundleFile}>{file}</li>
+        ))}
+      </ul>
+      <p style={manifestReadbackCopy}>
+        Owner-only metadata proof. This does not publish package files for readers or create PDF/binary output.
+      </p>
+    </div>
   );
 }
 
@@ -1061,6 +1203,35 @@ const stationPressActionRow = {
   flexWrap: "wrap" as const,
   gap: 8,
   marginTop: 8,
+};
+
+const stationPressBundlePanel = {
+  border: "1px solid #d8d3c8",
+  borderRadius: 7,
+  background: "#fbfaf7",
+  display: "grid",
+  gap: 6,
+  marginTop: 10,
+  padding: 10,
+};
+
+const stationPressBundleList = {
+  display: "flex",
+  flexWrap: "wrap" as const,
+  gap: 6,
+  listStyle: "none",
+  margin: "6px 0 0",
+  padding: 0,
+};
+
+const stationPressBundleFile = {
+  border: "1px solid #d8d3c8",
+  borderRadius: 7,
+  background: "#ffffff",
+  color: "#1f2529",
+  fontSize: 12,
+  fontWeight: 800,
+  padding: "5px 7px",
 };
 
 const buttonRow = {

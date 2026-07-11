@@ -4,7 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504F Station Press visible bundle readback
+## Current lane - PR504F Station Press visible bundle readback ready for ARGUS
+
+DAEDALUS completed PR504F for ARGUS review:
+
+`docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_RESULT.md`
+
+Result:
+
+```text
+REVIEW_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK
+```
+
+Summary:
+
+- `/studio/publishing` now loads existing `station_press_publication` package
+  rows for package-ready owner publications on page load.
+- Completed existing packages expose a visible `View bundle files` action
+  without forcing another create.
+- Create success now calls the existing authenticated `GET /exports/:id/bundle`
+  API and opens owner-only bundle readback.
+- The readback panel shows exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- Loading and bounded-error states stay compact and owner-only.
+- Visible copy distinguishes owner-only metadata proof from reader publication
+  files or PDF/binary output.
+- No public download, storage, signed URL, PDF/binary, provider, billing,
+  social, queue/worker, Redis, Cloudflare, public route, broad redesign, launch
+  claim, or visible raw id scope was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 196 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 26
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 15 tests.
+
+Current lane:
+
+```text
+PR504F - Station Press Visible Bundle Readback
+Owner: ARGUS / A3
+State: REVIEW_READY
+Source: docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR504F Station Press visible bundle readback opened
 
 MIMIR opened PR504F for DAEDALUS:
 
@@ -27,20 +80,13 @@ Task:
   social, queue/worker, Redis, Cloudflare, public routes, and broad redesign.
 - Wake ARGUS for review before ARIADNE reruns PR504E.
 
-Current lane:
+Lane:
 
 ```text
 PR504F - Station Press Visible Bundle Readback
 Owner: DAEDALUS / A2
-State: OPEN_NARROW_UI_PATCH
+State: IMPLEMENTED_AWAITING_ARGUS_REVIEW
 Source: docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
 ```
 
 ## Previous lane - PR504E Station Press owner package browser closeout blocked

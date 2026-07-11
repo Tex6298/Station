@@ -176,6 +176,26 @@ export interface StationPressPublicationPackageResponse {
   manifestMarkdown?: string;
 }
 
+export const STATION_PRESS_PUBLICATION_BUNDLE_FILE_NAMES = [
+  "README.md",
+  "manifest.json",
+  "manifest.md",
+] as const;
+
+export function stationPressPublicationBundleFileNames(
+  files: Array<{ path?: string | null }> = [],
+): string[] {
+  const offered = new Set(files.map((file) => file.path).filter(Boolean));
+  return STATION_PRESS_PUBLICATION_BUNDLE_FILE_NAMES.filter((path) => offered.has(path));
+}
+
+export function stationPressPublicationBundleReadbackCopy(files: string[] = []): string {
+  const complete = STATION_PRESS_PUBLICATION_BUNDLE_FILE_NAMES.every((path) => files.includes(path)) && files.length === 3;
+  return complete
+    ? "Owner-only bundle readback is loaded with README.md, manifest.json, and manifest.md."
+    : "Owner-only bundle readback is loaded with a bounded file list.";
+}
+
 export const STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA =
   "station.press.publication_manifest_contract.v1";
 
