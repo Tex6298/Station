@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505B owner encounter hosted empty guard rerun
+## Current lane - PR505B hosted provider empty-reply guard working
+
+ARIADNE completed PR505B:
+
+`docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING
+```
+
+Summary:
+
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `28411374e523`, and `ready:true`;
+- owner and non-owner auth passed;
+- owner persona availability passed with `5` personas;
+- owner readiness returned `ready:true`;
+- the required same-owner hosted preview returned bounded `502` with
+  `persona_encounter_provider_empty_reply`;
+- no nonblank responder content or successful disposable provenance proof exists
+  yet;
+- boundary-only recheck passed with signed-out preview `401` and cross-owner
+  preview `403` / `persona_encounter_persona_not_owned`;
+- public Space and public persona samples exposed no owner-encounter controls or
+  claims;
+- privacy/secret scan passed.
+
+Runner note:
+
+- after the required `502`, the first automated boundary section reused the
+  owner path for a fallback cross-owner probe and got the same bounded
+  empty-reply code;
+- ARIADNE corrected with non-owner-token boundary-only probes and did not claim
+  a pass from the mistaken probe.
+
+Current lane:
+
+```text
+PR505B - Owner Encounter Hosted Empty Guard Rerun
+Owner: MIMIR / A1
+State: BLOCKED_ON_HOSTED_PROVIDER_EMPTY_REPLY
+Source: docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR505B owner encounter hosted empty guard rerun opened
 
 MIMIR closed PR505A and opened PR505B for ARIADNE:
 

@@ -4,6 +4,60 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505B Owner Encounter Hosted Empty Guard Rerun
+
+ARIADNE completed the hosted PR505B rerun on 2026-07-11:
+
+- `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md`
+
+Validation result:
+`BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING`.
+
+Reason:
+
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `28411374e523`, and `ready:true`;
+- owner auth passed with `canon` tier;
+- non-owner auth passed with `private` tier;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- the required same-owner hosted preview returned bounded `502` with
+  `persona_encounter_provider_empty_reply`;
+- no nonblank responder content or successful disposable provenance proof exists
+  yet;
+- boundary-only recheck returned signed-out preview `401` and cross-owner
+  preview `403` with `persona_encounter_persona_not_owned`;
+- sampled public Space and public persona routes exposed no owner-encounter
+  controls or claims;
+- sanitized proof output contained no raw ids, prompt/private context bodies,
+  generated reply text, provider details, tokens, cookies, SQL details, stack
+  traces, provider payloads, or env values.
+
+Runner note:
+
+- after the required `502`, the first automated boundary section reused the
+  owner path for a fallback cross-owner probe and got the same bounded
+  empty-reply code;
+- ARIADNE corrected with non-owner-token boundary-only probes and did not claim
+  a pass from the mistaken probe.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted rerun runner | Blocked | Owner readiness was ready, but the required same-owner preview returned bounded `502` / `persona_encounter_provider_empty_reply`. |
+| Hosted reachability | Pass | Web health `200`; API health `200`; API deployment health `200`; API ready at `@station/api` commit prefix `28411374e523`. |
+| Owner and non-owner auth | Pass | Owner tier `canon`; non-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Pass | `ready:true`; provider route is considered ready before generation. |
+| Required same-owner preview | Blocked | The route returned bounded `502` with `persona_encounter_provider_empty_reply`. |
+| Signed-out/cross-owner probes | Pass | Boundary-only recheck returned signed-out `401` and cross-owner `403` with `persona_encounter_persona_not_owned`. |
+| Public no-drift probes | Pass | Sampled public Space and public persona routes exposed no owner-encounter controls or claims. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private context bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, or env values. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR505B rerun result updates
+documentation only and does not touch imports or scripts.
+
 ## PR505A Owner Encounter Empty Reply Guard ARGUS Review
 
 ARGUS accepted PR505A on 2026-07-11:

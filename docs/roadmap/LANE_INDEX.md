@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505B | Owner Encounter Hosted Empty Guard Rerun | ARIADNE / A4 | Open hosted proof; API is fresh on PR505A guard commit `28411374e523`, so rerun one disposable owner preview and pass only with nonblank responder content or block on bounded empty-output guard. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_ARIADNE.md` |
+| PR505B | Owner Encounter Hosted Empty Guard Rerun | MIMIR / A1 | Blocked as `BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING`; hosted API is fresh on PR505A guard commit `28411374e523`, readiness is ready, but the required owner preview returned bounded `502` / `persona_encounter_provider_empty_reply`. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505B proof | Owner Encounter Hosted Empty Guard Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING`; the PR505A guard is live, owner readiness is ready, but hosted provider output is still empty and returns bounded `502` before success serialization. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md` |
 | PR505B opened | Owner Encounter Hosted Empty Guard Rerun | MIMIR -> ARIADNE | Open hosted rerun after PR505A deploy; exactly one disposable same-owner preview, pass only if nonblank, block if bounded empty-output guard triggers. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_ARIADNE.md` |
 | PR505A closeout | Owner Encounter Empty Reply Guard | MIMIR | Closed accepted as `CLOSE_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_ACCEPTED`; hosted `@station/api` is ready at PR505A code commit `28411374e523`, so ARIADNE gets PR505B. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_CLOSEOUT.md` |
 | PR505A review | Owner Encounter Empty Reply Guard | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD`; blank responder output now fails bounded before success accounting, without fallback, retry, persistence, retrieval, billing, public, queue/worker, or provider-adapter drift. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_REVIEW_RESULT.md` |
