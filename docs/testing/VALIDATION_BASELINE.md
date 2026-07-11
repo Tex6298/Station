@@ -4,6 +4,57 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504E Station Press Owner Package Browser Closeout
+
+ARIADNE completed the hosted PR504E `/studio/publishing` browser closeout on
+2026-07-11:
+
+- `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md`
+
+Validation result:
+`BLOCK_PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_WITH_HUMAN_FLOW_BLOCKER`.
+
+Reason:
+
+- hosted web reached `/studio/publishing`;
+- hosted API health returned `200`;
+- owner auth passed with `canon` tier and cross-owner auth passed with
+  `private` tier;
+- hosted fixtures still included `28` owner documents, `1` owner Space, and
+  `5` package-ready owner publications;
+- desktop `1440px` and mobile `390px` `/studio/publishing` checks passed with
+  no horizontal overflow;
+- the browser performed exactly one allowed Station Press package create, and
+  create returned `201`;
+- authenticated package readback returned `200`, kind
+  `station_press_publication`, status `completed`;
+- authenticated bundle readback returned `200` with exactly `README.md`,
+  `manifest.json`, and `manifest.md`;
+- signed-out create/list/readback/bundle returned `401`;
+- cross-owner create/list/readback/bundle returned `404`;
+- visible UI and bundle file-content privacy/product-boundary scans passed;
+- blocker: the visible `/studio/publishing` page does not expose a bundle
+  readback panel, file list, or `View bundle files` action after the package is
+  complete.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser proof runner | Blocked | Backend create/readback/bundle and boundary checks passed; visible bundle readback was absent. |
+| Hosted reachability | Pass | Browser reached hosted `/studio/publishing`; API health returned `200`; no deploy commit was exposed by the probed health response. |
+| Owner and cross-owner auth | Pass | Owner tier `canon`; cross-owner tier `private`. |
+| Hosted fixture readiness | Pass | Five package-ready owner publications were present. |
+| Desktop and 390px mobile layout | Pass | No horizontal overflow. |
+| Browser create | Pass | One allowed Station Press create request returned `201`. |
+| Package readback | Pass | Authenticated owner package readback returned `200`, kind `station_press_publication`, status `completed`. |
+| Bundle readback | Pass | Authenticated owner bundle readback returned `200` with exactly `README.md`, `manifest.json`, and `manifest.md`. |
+| Visible bundle readback | Blocked | `/studio/publishing` did not expose a bundle readback panel, file list, or `View bundle files` action. |
+| Signed-out/cross-owner probes | Pass | Signed-out returned `401`; cross-owner returned `404` for create/list/readback/bundle. |
+| Privacy/product-boundary scan | Pass | Visible UI and bundle file-content scans stayed within owner-only metadata scope. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR504E result updates documentation
+only and does not touch imports or scripts.
+
 ## PR504D Station Press Owner Package Create Path Repair
 
 ARGUS accepted the PR504D hosted Station Press owner package create-path repair

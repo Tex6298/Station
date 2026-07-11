@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504E Station Press owner package browser closeout
+## Current lane - PR504E Station Press owner package browser closeout blocked
+
+ARIADNE completed the hosted PR504E `/studio/publishing` human-eye browser
+closeout:
+
+`docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_WITH_HUMAN_FLOW_BLOCKER
+```
+
+Summary:
+
+- Hosted web reached `/studio/publishing`; hosted API health returned `200`.
+- Owner auth passed with `canon` tier; cross-owner auth passed with `private`
+  tier.
+- Hosted owner fixtures still include package-ready publications: `28`
+  documents, `1` Space, and `5` package-ready publications.
+- Desktop `1440px` and mobile `390px` visual-fit checks passed with no
+  horizontal overflow.
+- The browser performed exactly one allowed Station Press package create from
+  a package-ready publication, and create returned `201`.
+- Authenticated package readback returned `200`, kind
+  `station_press_publication`, status `completed`.
+- Authenticated bundle readback returned `200` with exactly `README.md`,
+  `manifest.json`, and `manifest.md`.
+- Signed-out create/list/readback/bundle returned `401`; cross-owner
+  create/list/readback/bundle returned `404`.
+- Visible UI and bundle file-content privacy/product-boundary scans passed.
+- Human-flow blocker: `/studio/publishing` only shows metadata package
+  completion copy. It does not expose a bundle readback panel, file list, or
+  `View bundle files` action, so a real user cannot see the required three-file
+  package readback in the UI.
+
+Current lane:
+
+```text
+PR504E - Station Press Owner Package Browser Closeout
+Owner: MIMIR / A1
+State: BLOCKED_AWAITING_PRODUCT_DECISION_OR_DAEDALUS_UI_PATCH
+Source: docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR504E Station Press owner package browser closeout opened
 
 MIMIR closed PR504D accepted and opened PR504E for ARIADNE:
 
@@ -13,34 +65,14 @@ MIMIR closed PR504D accepted and opened PR504E for ARIADNE:
 Why:
 
 - PR504D proves the hosted backend create/readback/bundle blocker is fixed.
-- PR504B was a hosted browser proof lane, so final closeout still needs a
+- PR504B was a hosted browser proof lane, so final closeout still needed a
   human-eye `/studio/publishing` rerun.
 
-Task:
+Result:
 
-- Prove hosted desktop and 390px mobile `/studio/publishing` fit.
-- Prove browser package create-or-open from a package-ready publication.
-- Prove authenticated package readback.
-- Prove bundle readback exposes exactly `README.md`, `manifest.json`, and
-  `manifest.md`.
-- Recheck privacy/product boundaries and signed-out/cross-owner fail-closed
-  behavior where the rehearsal harness can safely do so.
-
-Current lane:
-
-```text
-PR504E - Station Press Owner Package Browser Closeout
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_BROWSER_PROOF
-Source: docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_ARIADNE.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- ARIADNE's rerun confirmed backend create/readback/bundle and fail-closed
+  boundaries, but blocked on missing visible bundle readback in
+  `/studio/publishing`.
 
 ## Previous lane - PR504D Station Press owner package create path repair accepted
 

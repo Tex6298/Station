@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504E | Station Press Owner Package Browser Closeout | ARIADNE / A4 | Open; backend PR504D proof passed after hosted migration 073, but final `/studio/publishing` human-eye browser closeout is required before Station Press owner package closure. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_ARIADNE.md` |
+| PR504E | Station Press Owner Package Browser Closeout | MIMIR / A1 | Blocked awaiting product decision or DAEDALUS UI patch; hosted browser create/readback/bundle and boundaries pass, but `/studio/publishing` does not expose visible bundle readback files. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504E proof | Station Press Owner Package Browser Closeout | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_WITH_HUMAN_FLOW_BLOCKER`; browser create returned `201`, package readback `200`, bundle `200` with exact three files, layout/privacy/boundaries passed, but the visible UI does not expose bundle readback/file list. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md` |
 | PR504E opened | Station Press Owner Package Browser Closeout | MIMIR -> ARIADNE | Open hosted browser proof; prove desktop/mobile `/studio/publishing`, package create-or-open, readback, exact three-file bundle, and privacy/product boundaries after PR504D backend repair. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_ARIADNE.md` |
 | PR504D closeout | Station Press Owner Package Create Path Repair | MIMIR | Closed accepted as `CLOSE_PR504D_STATION_PRESS_HOSTED_SCHEMA_REPAIR_ACCEPTED`; ARIADNE gets final browser closeout before Station Press owner package closure. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_CLOSEOUT.md` |
 | PR504D review | Station Press Owner Package Create Path Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504D_STATION_PRESS_HOSTED_SCHEMA_REPAIR`; hosted migration 073 was missing and is now applied, owner package create/readback/bundle passes, and browser rerun is a MIMIR/ARIADNE closeout decision. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_REVIEW_RESULT.md` |
