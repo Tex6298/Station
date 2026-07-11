@@ -6,12 +6,13 @@ change, not to unknown repo hygiene.
 
 ## PR519A Cross-Owner Metadata Exhibit Discover Search Group
 
-DAEDALUS completed PR519A implementation on 2026-07-12:
+ARGUS accepted PR519A on 2026-07-12:
 
 - `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_RESULT.md`
+- `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_GROUP`.
 
 Reason:
 
@@ -33,7 +34,8 @@ Reason:
   social, Redis, Cloudflare, queue, package, deployment, and migration work
   remain blocked by default;
 - cross-owner public exhibit readback now honestly marks safe published rows
-  Discover-search-listed while keeping `indexed=false`.
+  Discover-search-listed while keeping `indexed=false`;
+- ARGUS accepted without a code patch and recommends hosted PR519B proof next.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -43,8 +45,8 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing and Discover feed helper boundaries remain green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including cross-owner public metadata helper coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
-| `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
-| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR519A implementation and docs. |
+| `git diff --check` | Pass | Working tree whitespace check passed before ARGUS docs edits. |
+| Implementation diff whitespace | Pass | `git diff --check 2ab13ce8..15f50530` passed. |
 | Changed-path scan | Pass | Changes stayed inside the PR519A allowed API, web search, readback helper/test, and roadmap/testing docs scope. |
 | Forbidden-path scan | Pass | No feed, public persona, public Space, forum/Salon, writing, Station Press, homepage, provider, retrieval, storage, billing, social, Redis, Cloudflare, queue, package, lockfile, deployment, or migration paths changed outside the allowed test/source guards. |
 | Secret-shaped diff scan | Pass | No secret-shaped added lines were found in the staged diff. |
