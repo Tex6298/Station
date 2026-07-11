@@ -4,6 +4,49 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR516 Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof
+
+ARIADNE completed PR516 hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web/API were ready at commit prefix `1d76eb00a3e9`;
+- requester created a cross-owner invitation through the public-slug UI path;
+- create posted to the public-slug route and did not use the legacy raw
+  counterparty id route;
+- pending requester row had no preview run control;
+- counterparty approved the pending row in hosted Studio;
+- requester ran exactly one consent-scoped disposable preview from the newly
+  approved row;
+- preview request used the consent-scoped disposable-preview route with a
+  setup-only payload;
+- success showed one private disposable reply and required private,
+  disposable, not-saved, not-public, not-canonical, no-retrieval,
+  counterparty-hidden, and audit-recorded labels;
+- same-owner controls stayed visually separate;
+- pending, cancelled, rejected, and revoked rows had no preview run control when
+  inspected;
+- public routes did not expose the private setup marker, generated reply,
+  consent rows, or raw UUID text;
+- no private session, public exhibit, moderation report, memory, canon,
+  archived chat transcript, continuity, export, storage usage, or storage object
+  drift appeared;
+- bounded runtime audit created only the expected two-row
+  `blocked_before_provider,provider_succeeded` pair;
+- final cleanup recheck showed no active PR516 consent rows and no remaining
+  PR516 public targets.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr516-hosted-proof.mjs` | Pass | Hosted integrated proof passed invitation, approval, consent-scoped provider-backed preview, private/disposable labels, inactive-state controls, public-route leak checks, no-drift, cleanup, and privacy scan. |
+| `node .tmp\pr516-cleanup.mjs` | Pass | Final cleanup recheck reported `activeConsentRows 0` and `remainingPublicTargets 0`. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts changed. |
+
 ## PR515C Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
 
 ARIADNE completed PR515C hosted rehearsal on 2026-07-11:

@@ -4,18 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR516 integrated consent-to-preview hosted proof
+## Current lane - PR516 integrated hosted proof passed
 
-MIMIR accepted PR515C and opened PR516:
+ARIADNE completed the PR516 hosted integrated proof:
 
-`docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_CLOSEOUT.md`
-
-`docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ACCEPTED
+PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF
 ```
 
 Current lane:
@@ -23,33 +21,49 @@ Current lane:
 ```text
 PR516 - Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof
 Owner: ARIADNE / A4
-State: OPEN_ARIADNE_HOSTED_PROOF
-Source: docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ARIADNE.md
+State: PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF
+Source: docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md
 ```
-
-Goal:
-
-- prove hosted invite by public slug/href, counterparty approval, and exactly
-  one consent-scoped private disposable preview from the newly approved row;
-- verify private/disposable/not-saved/not-public labels, same-owner control
-  separation, no public/generated/saved/retrieval drift, and cleanup.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
 
 Summary:
-- PR515C passed hosted invitation/inbox/action rehearsal, but it deliberately did not run provider generation.
-- MIMIR accepted PR515C and opened PR516 for the integrated consent-to-disposable-preview hosted proof.
-- This should prove invite by public slug, counterparty approval, and one private disposable preview from the newly approved consent.
 
-Task:
-- Run PR516 hosted proof on Railway staging.
-- Verify public-slug invitation create, counterparty approve, requester run of exactly one consent-scoped disposable preview, private/disposable labels, no public/generated/saved/retrieval drift, and cleanup.
-- Wake MIMIR with PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF or FAIL_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF and exact defects.
+- hosted web/API were fresh at commit prefix `1d76eb00a3e9`;
+- requester created the invitation through the public-slug UI path;
+- invitation create posted to
+  `POST /persona-encounters/cross-owner-consents/from-public-persona`;
+- pending requester row had no preview run control;
+- counterparty approved the pending row in hosted Studio;
+- requester ran exactly one consent-scoped disposable preview from the newly
+  approved row;
+- preview payload was setup-only and omitted initiator/responder/requester/
+  counterparty/owner id body fields;
+- success showed one private disposable reply and the expected private,
+  disposable, not-saved, not-public, not-canonical, no-retrieval,
+  counterparty-hidden, and audit-recorded labels;
+- same-owner preview/private artifact controls remained visually separate;
+- pending, cancelled, rejected, and revoked rows had no cross-owner preview run
+  control when inspected;
+- public routes did not expose the private setup marker, generated reply,
+  consent rows, or raw UUID text;
+- no private session, public exhibit, moderation report, memory, canon, archive,
+  continuity, export, storage usage, or storage object drift appeared;
+- bounded runtime attempt audit created the expected two-row pair:
+  `blocked_before_provider,provider_succeeded`;
+- cleanup left no active proof consents and no temporary PR516 public targets.
+
+Validation:
+
+```text
+node .tmp\pr516-hosted-proof.mjs PASS
+node .tmp\pr516-cleanup.mjs      PASS
+pnpm typecheck                   NOT RUN - docs-only result
 ```
+
+Next:
+
+- MIMIR should close PR516 if accepted and decide whether the cross-owner
+  consent surface needs another hosted proof or can move to the next bounded
+  lane.
 
 ## Previous lane - PR515C hosted rehearsal passed
 
