@@ -4,25 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR516 integrated hosted proof passed
+## Current lane - PR517 cross-owner publication preflight
+
+MIMIR accepted the PR516 hosted integrated proof and opened PR517 for ARGUS:
+
+`docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR517 - Cross-Owner Public Exhibit / Publication Preflight
+Owner: ARGUS / A3
+State: OPEN_ARGUS_PREFLIGHT
+Source: docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ARGUS.md
+```
+
+Task:
+
+- inspect PR508/PR510B same-owner public exhibit proof;
+- inspect PR511 cross-owner consent/publication preflight;
+- inspect PR511A through PR516 cross-owner consent, runtime, audit,
+  disposable-preview, invitation, and hosted integrated proof;
+- inspect the current API/web implementation for encounter public exhibits,
+  consent rows, disposable previews, reports, deletion/export readback, and
+  Discover/search public surfacing;
+- decide the smallest safe next numbered Phase 3 lane for cross-owner
+  publication: metadata-only public exhibit contract, generated-word
+  publication contract, private saved artifact before publication, or a named
+  concrete blocker/unblock.
+
+Guardrail:
+
+- PR517 is a hostile preflight only. It must not implement code or widen PR516's
+  private disposable preview boundary.
+
+## Previous lane - PR516 integrated hosted proof accepted
 
 ARIADNE completed the PR516 hosted integrated proof:
 
 `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md`
 
+MIMIR closeout:
+
+`docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_CLOSEOUT.md`
+
 Result:
 
 ```text
-PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF
-```
-
-Current lane:
-
-```text
 PR516 - Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof
-Owner: ARIADNE / A4
-State: PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF
-Source: docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md
+Owner: MIMIR / A1
+State: CLOSE_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ACCEPTED
+Source: docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_CLOSEOUT.md
 ```
 
 Summary:
@@ -59,11 +91,11 @@ node .tmp\pr516-cleanup.mjs      PASS
 pnpm typecheck                   NOT RUN - docs-only result
 ```
 
-Next:
+Decision:
 
-- MIMIR should close PR516 if accepted and decide whether the cross-owner
-  consent surface needs another hosted proof or can move to the next bounded
-  lane.
+- PR516 closes the cross-owner consent-to-disposable-preview path unless a new
+  defect appears.
+- PR517 opens the cross-owner public exhibit/publication preflight.
 
 ## Previous lane - PR515C hosted rehearsal passed
 

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR516 | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF`; awaiting MIMIR closeout/next-lane decision. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md` |
+| PR517 | Cross-Owner Public Exhibit / Publication Preflight | MIMIR / A1 -> ARGUS / A3 | Open as `OPEN_ARGUS_PREFLIGHT`; decide the smallest safe next Phase 3 lane for cross-owner publication after PR516 closed the consent-to-private-preview path. | `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR516 closeout | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ACCEPTED`; PR517 opens cross-owner public exhibit/publication preflight. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_CLOSEOUT.md` |
 | PR516 proof | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF`; hosted public-slug invitation, counterparty approval, one consent-scoped private disposable preview, setup-only payload, private/disposable/no-retrieval labels, inactive no-run controls, public-route leak checks, bounded runtime audit pair, cleanup, and privacy scan passed. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md` |
 | PR515C closeout | Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ACCEPTED`; PR516 opens integrated invite/approve/disposable-preview hosted proof. | `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_CLOSEOUT.md` |
 | PR515C rehearsal | Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL`; hosted signed-out gating, public-slug target lookup, unsafe slug blocking, invitation create, cancel/approve/reject/revoke, approved preview-control separation, inactive no-run controls, desktop/mobile fit, public-route leak checks, no-drift, cleanup, and privacy scan passed. | `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_RESULT.md` |
