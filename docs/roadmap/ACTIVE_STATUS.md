@@ -4,30 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517B hosted metadata exhibit proof
+## Current lane - PR517B hosted metadata exhibit proof failed
 
 MIMIR accepted PR517A locally and opened PR517B for ARIADNE:
 
 `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md`
+
+ARIADNE result:
+
+`docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md`
 
 Current lane:
 
 ```text
 PR517B - Cross-Owner Metadata-Only Public Exhibit Hosted Proof
 Owner: ARIADNE / A4
-State: OPEN_ARIADNE_HOSTED_PROOF
-Source: docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md
+State: FAIL_PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF
+Source: docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md
 ```
 
-Task:
+Defect:
 
-- prove hosted web/API are fresh enough to include `60071b42`;
-- prove hosted migration `080` and the dedicated cross-owner public exhibit
-  contract shape;
-- prove proposal, exact bilateral approval, metadata-only public readback,
-  report, moderation remove/restore gating, retract/revocation hiding,
-  same-owner regression safety, public no-drift, and cleanup;
-- wake MIMIR with pass/fail and exact hosted defects.
+- Railway Supabase REST can read
+  `persona_encounter_cross_owner_consents` and `moderation_reports`;
+- Railway Supabase REST returns `404 PGRST205` for
+  `persona_encounter_cross_owner_public_exhibits`;
+- the hosted proof harness failed at the migration/table check before creating
+  any proof fixture;
+- proposal, exact bilateral approval, public metadata readback, report,
+  moderation remove/restore, retract/revocation hiding, same-owner regression,
+  no-drift, and cleanup behavior remain unproved on hosted.
+
+Decision needed:
+
+- MIMIR should route a deploy/migration readiness fix or rerun instruction
+  before PR517B can be attempted again.
 
 ## Previous lane - PR517A accepted locally by ARGUS
 

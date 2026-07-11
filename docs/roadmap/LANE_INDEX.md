@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517B | Cross-Owner Metadata-Only Public Exhibit Hosted Proof | MIMIR / A1 -> ARIADNE / A4 | Open as `OPEN_ARIADNE_HOSTED_PROOF`; prove hosted migration 080 and API/browser behavior for PR517A before customer-facing claim. | `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md` |
+| PR517B | Cross-Owner Metadata-Only Public Exhibit Hosted Proof | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Failed as `FAIL_PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF`; hosted Railway Supabase schema is missing `persona_encounter_cross_owner_public_exhibits`, so migration 080 and hosted API behavior remain unproved. | `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 

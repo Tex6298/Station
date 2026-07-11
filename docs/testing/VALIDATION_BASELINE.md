@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR517B Cross-Owner Metadata-Only Public Exhibit Hosted Proof
+
+ARIADNE attempted PR517B hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`FAIL_PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF`.
+
+Reason:
+
+- Railway Supabase REST can read
+  `persona_encounter_cross_owner_consents` and `moderation_reports`;
+- Railway Supabase REST returns `404 PGRST205` for
+  `persona_encounter_cross_owner_public_exhibits`;
+- the hosted proof harness failed at the migration/table check before creating
+  sign-in, persona, consent, exhibit, report, moderation, provider, runtime,
+  retrieval, storage, public-surfacing, or cleanup proof data;
+- PR517B could not prove proposal, exact bilateral approval, metadata-only
+  public readback, report, moderation remove/restore, revocation/retract
+  hiding, same-owner regression safety, public no-drift, or cleanup on hosted.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr517b-hosted-proof.mjs` | Fail | Hosted migration/table check failed with missing `public.persona_encounter_cross_owner_public_exhibits`; no proof fixture was created. |
+| `node .tmp\pr517b-rest-targets.mjs` | Fail | Railway Supabase REST returned `404 PGRST205` for `persona_encounter_cross_owner_public_exhibits` while adjacent tables were reachable. |
+| Hosted route smoke check | Partial | `GET /persona-encounters/cross-owner-public-exhibits/not-real` returned clean `404`, but the dedicated hosted table is absent so behavior remains unproved. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts touched. |
+
 ## PR517A Cross-Owner Metadata-Only Public Exhibit Contract
 
 ARGUS accepted PR517A after a narrow review patch on 2026-07-11:
