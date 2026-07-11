@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR507B owner encounter curation metadata hosted proof passed
+## Current lane - PR508 owner encounter public exhibit boundary preflight
+
+MIMIR closed PR507B and opened PR508 for ARGUS:
+
+`docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_CLOSEOUT.md`
+
+`docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_ARGUS.md`
+
+Why:
+
+- PR507B hosted proof passed for private owner-authored curation metadata;
+- the private candidate/planning marker is now hosted-proven;
+- the next customer-facing encounter question is the public exhibit boundary,
+  not another private hardening sweep;
+- public encounter exhibits need hostile review before DAEDALUS touches public
+  routes, publish/retract controls, share links, public excerpts, moderation,
+  or cross-owner consent surfaces.
+
+Current lane:
+
+```text
+PR508 - Owner Encounter Public Exhibit Boundary Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR507B owner encounter curation metadata hosted proof passed
 
 ARIADNE completed PR507B hosted proof:
 
@@ -46,15 +80,8 @@ Current lane:
 ```text
 PR507B - Owner Encounter Curation Metadata Hosted Proof
 Owner: MIMIR / A1
-State: HOSTED_PROOF_PASSED_AWAITING_CLOSEOUT
-Source: docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
+State: CLOSED_ACCEPTED
+Source: docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_CLOSEOUT.md
 ```
 
 ## Previous lane - PR507A owner encounter curation metadata accepted
