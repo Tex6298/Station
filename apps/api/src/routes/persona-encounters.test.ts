@@ -1102,11 +1102,46 @@ test("cross-owner runtime attempt migration creates participant-readable append-
   assert.match(sql, /provider lifecycle runtime attempts require approved ready runtime consent/);
   assert.match(sql, /insert into public\.persona_encounter_cross_owner_runtime_attempts/);
   assert.match(sql, /prevent_persona_encounter_cross_owner_runtime_attempt_mutation/);
+  assert.match(sql, /drop trigger if exists pe_co_rt_attempts_no_update/);
+  assert.match(sql, /create trigger pe_co_rt_attempts_no_update/);
   assert.match(sql, /before update on public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.match(sql, /drop trigger if exists pe_co_rt_attempts_no_delete/);
+  assert.match(sql, /create trigger pe_co_rt_attempts_no_delete/);
   assert.match(sql, /before delete on public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.equal("pe_co_rt_attempts_no_update".length < 63, true);
+  assert.equal("pe_co_rt_attempts_no_delete".length < 63, true);
+  assert.notEqual("pe_co_rt_attempts_no_update", "pe_co_rt_attempts_no_delete");
+  assert.equal(/trg_persona_encounter_cross_owner_runtime_attempts_append_only_update/.test(sql), false);
+  assert.equal(/trg_persona_encounter_cross_owner_runtime_attempts_append_only_delete/.test(sql), false);
   assert.equal(/disable row level security/i.test(sql), false);
   assert.match(sql, /No prompts, generated output, provider payloads, provider keys/);
   assert.match(sql, /does not call providers, assemble prompts, record tokens, create private sessions/);
+});
+
+test("cross-owner runtime attempt trigger repair uses short distinct append-only trigger names", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/079_persona_encounter_runtime_attempt_trigger_repair.sql",
+    "utf8",
+  );
+
+  const triggerNames = [...sql.matchAll(/create trigger ([a-z0-9_]+)/g)].map((match) => match[1]);
+  assert.deepEqual(triggerNames, ["pe_co_rt_attempts_no_update", "pe_co_rt_attempts_no_delete"]);
+  assert.equal(new Set(triggerNames).size, 2);
+  for (const triggerName of triggerNames) {
+    assert.equal(triggerName.length < 63, true, `${triggerName} should stay below PostgreSQL identifier limit`);
+  }
+
+  assert.match(sql, /drop trigger if exists trg_persona_encounter_cross_owner_runtime_attempts_append_only_update/);
+  assert.match(sql, /drop trigger if exists trg_persona_encounter_cross_owner_runtime_attempts_append_only_delete/);
+  assert.match(sql, /drop trigger if exists trg_persona_encounter_cross_owner_runtime_attempts_append_only_/);
+  assert.match(sql, /drop trigger if exists pe_co_rt_attempts_no_update/);
+  assert.match(sql, /drop trigger if exists pe_co_rt_attempts_no_delete/);
+  assert.match(sql, /create trigger pe_co_rt_attempts_no_update\s+before update on public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.match(sql, /create trigger pe_co_rt_attempts_no_delete\s+before delete on public\.persona_encounter_cross_owner_runtime_attempts/);
+  assert.match(sql, /execute function public\.prevent_persona_encounter_cross_owner_runtime_attempt_mutation\(\)/);
+  assert.match(sql, /Short non-colliding PR513C trigger name/);
+  assert.equal(/disable row level security/i.test(sql), false);
+  assert.equal(/provider_succeeded|generated output|token_usage|private_session|public_exhibit|moderation_reports/.test(sql), false);
 });
 
 test("cross-owner consent invitations require auth ownership different owners and bounded payloads", async () => {

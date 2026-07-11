@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513C | Cross-Owner Runtime Attempt Append-Only Trigger Repair | DAEDALUS / A2 | Open narrow repair for migration `078` trigger-name truncation/collision. Add migration `079`, patch `078` for fresh installs, and test short distinct update/delete append-only trigger names. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_DAEDALUS.md` |
+| PR513C review | Cross-Owner Runtime Attempt Append-Only Trigger Repair | DAEDALUS -> ARGUS | Ready for ARGUS review; migration `078` now uses short non-colliding trigger names for fresh installs and migration `079` repairs hosted/follow-on databases by recreating distinct update/delete append-only triggers below PostgreSQL's 63-byte identifier limit. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md` |
 
 ## Recently Closed
 

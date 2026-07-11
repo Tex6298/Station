@@ -4,66 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513C append-only trigger repair opened
+## Current lane - PR513C append-only trigger repair ready for ARGUS
 
-MIMIR accepted the PR513B hosted blocker:
+DAEDALUS implemented PR513C:
 
-`docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_BLOCKER_MIMIR.md`
+`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md`
 
-MIMIR opened PR513C for DAEDALUS:
+Source instruction:
 
 `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_DAEDALUS.md`
 
-Result:
+Implementation result:
 
 ```text
-BLOCK_PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_APPEND_ONLY_UPDATE_TRIGGER
+READY_FOR_ARGUS_REVIEW
 ```
 
 Summary:
 
-- hosted web/API were ready at commit prefix `6201109357bb`, which includes the
-  PR513A review floor `62011093`;
-- hosted migration `078`, attempts table, record RPC, trigger function, RLS,
-  participant SELECT policy, and non-mutation policies were present as expected;
-- participant route readback passed for owner A and owner B, signed-out
-  returned `401`, and nonparticipant returned `404`;
-- RPC validation passed for mismatched consent status, mismatched scope version,
-  provider lifecycle without ready state, pending consent, and wrong scope;
-- generic consent readback stayed `executable: false`;
-- no provider/generated/token/private-session/public-exhibit/report/memory/
-  canon/archive/continuity/export/job/storage/public-surface drift appeared;
-- cleanup left no active proof consent;
-- blocker: hosted has the append-only delete trigger, and direct delete is
-  rejected, but the append-only update trigger is absent and a direct update
-  against a proof attempt row succeeded;
-- likely cause: the update/delete trigger names in migration `078` exceed the
-  PostgreSQL identifier limit and collide after truncation, leaving only the
-  delete trigger active;
-- PR513C should add a narrow migration `079`, patch migration `078` for future
-  fresh installs, and test short distinct under-63-byte update/delete trigger
-  names.
+- migration `078` now uses short, distinct trigger names for fresh installs:
+  `pe_co_rt_attempts_no_update` and `pe_co_rt_attempts_no_delete`;
+- migration `079` drops the original long update/delete trigger names, the
+  PostgreSQL-truncated collision name
+  `trg_persona_encounter_cross_owner_runtime_attempts_append_only_`, and any
+  existing short repair triggers before recreating both short triggers;
+- both short triggers call
+  `public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation()`;
+- focused tests prove the short names are distinct, below 63 bytes, and cover
+  both `before update` and `before delete`;
+- PR513A boundaries are preserved: no provider-backed preview, provider call,
+  prompt assembly, generated words, token rows, private sessions, public
+  exhibits, reports, memory/canon/archive/continuity/export/jobs/storage/public
+  rows, UI, package, provider/retrieval/Redis/Cloudflare/Stripe/billing/worker/
+  deploy drift.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters  PASS
+npm exec --yes pnpm@10.32.1 -- run test:reports             PASS
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui           PASS
+npm exec --yes pnpm@10.32.1 -- run typecheck                PASS
+```
 
 Current lane:
 
 ```text
 PR513C - Cross-Owner Runtime Attempt Append-Only Trigger Repair
-Owner: DAEDALUS / A2
-State: OPEN_NARROW_REPAIR
-Source: docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md
 ```
 
 Next:
 
-- DAEDALUS repairs the trigger-name collision, preserving PR513A boundaries and
-  avoiding provider/runtime/UI/provider/retrieval/Redis/Cloudflare/billing/
-  package/deploy drift.
+- ARGUS reviews migration `079`, the patched fresh-install `078`, focused
+  trigger-name tests, validation, and no-drift scans.
+- If accepted, ARGUS should wake MIMIR for closeout, hosted migration `079`,
+  trigger verification, and PR513D hosted rerun routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with exact findings.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR513B cross-owner runtime attempt audit hosted proof failed

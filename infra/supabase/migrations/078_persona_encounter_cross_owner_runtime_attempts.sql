@@ -152,15 +152,15 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_persona_encounter_cross_owner_runtime_attempts_append_only_update
+drop trigger if exists pe_co_rt_attempts_no_update
   on public.persona_encounter_cross_owner_runtime_attempts;
-create trigger trg_persona_encounter_cross_owner_runtime_attempts_append_only_update
+create trigger pe_co_rt_attempts_no_update
   before update on public.persona_encounter_cross_owner_runtime_attempts
   for each row execute function public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation();
 
-drop trigger if exists trg_persona_encounter_cross_owner_runtime_attempts_append_only_delete
+drop trigger if exists pe_co_rt_attempts_no_delete
   on public.persona_encounter_cross_owner_runtime_attempts;
-create trigger trg_persona_encounter_cross_owner_runtime_attempts_append_only_delete
+create trigger pe_co_rt_attempts_no_delete
   before delete on public.persona_encounter_cross_owner_runtime_attempts
   for each row execute function public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation();
 

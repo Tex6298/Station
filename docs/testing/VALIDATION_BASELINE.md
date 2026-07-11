@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR513C Cross-Owner Runtime Attempt Append-Only Trigger Repair
+
+DAEDALUS completed PR513C implementation on 2026-07-11:
+
+- `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- migration `078` now uses short, distinct append-only trigger names for fresh
+  installs;
+- migration `079` drops the original long trigger names, the hosted
+  PostgreSQL-truncated collision name, and recreates both short triggers;
+- both triggers call the existing append-only mutation blocker;
+- focused tests prove the trigger names are distinct, below 63 bytes, and cover
+  both `before update` and `before delete`;
+- provider-backed preview, provider calls, prompt assembly, generated words,
+  token rows, private sessions, public exhibits, reports, memory/canon/archive/
+  continuity/export/jobs/storage/public rows, UI, package, billing,
+  provider/retrieval, Redis, Cloudflare, workers, deployment, and public
+  surfacing remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 49 tests passed, including fresh `078` short trigger shape and `079` repair migration shape. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR513C adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changes are limited to migrations `078`/`079`, persona encounter tests, PR513C result/status/lane docs, and this validation doc. |
+| Forbidden-path scan | Pass | No web UI, package/lockfile, provider service, token service, operational cache, `packages/ai`, `packages/auth`, Railway, Cloudflare, or deploy-script paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the diff. |
+| `git diff --check` | Pass | No unstaged whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR513B Cross-Owner Runtime Attempt Audit Hosted Proof
 
 ARIADNE completed PR513B hosted API/data proof on 2026-07-11:
