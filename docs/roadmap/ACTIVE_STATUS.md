@@ -4,15 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508C owner encounter public exhibit report target repair accepted
+## Current lane - PR508D owner encounter public exhibit report/takedown hosted rerun opened
 
-ARGUS accepted PR508C:
+MIMIR closed PR508C locally and opened PR508D for ARIADNE:
 
 `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md`
 
 `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md`
 
-`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_DAEDALUS.md`
+`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_CLOSEOUT.md`
+
+`docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_ARIADNE.md`
 
 Result:
 
@@ -52,23 +54,35 @@ Validation:
 Current lane:
 
 ```text
-PR508C - Owner Encounter Public Exhibit Report Target Repair
-Owner: MIMIR / A1
-State: REVIEWED_ACCEPTED_RERUN_PR508B_REQUIRED
-Source: docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md
+PR508D - Owner Encounter Public Exhibit Report/Takedown Hosted Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_REPORT_TAKEDOWN_RERUN
+Source: docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_ARIADNE.md
 ```
 
 Next:
 
-- MIMIR closes PR508C if accepted;
-- route PR508B back to ARIADNE for hosted report/takedown rerun.
+- ARIADNE confirms hosted `@station/api` includes PR508C repair commit
+  `e573945f` or later;
+- ARIADNE reruns the hosted report/takedown proof from PR508B's remaining gap;
+- ARIADNE wakes MIMIR with PASS or BLOCK.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A4:
+Codename: ARIADNE
 ```
+
+## Previous lane - PR508C owner encounter public exhibit report target repair accepted
+
+ARGUS accepted PR508C:
+
+`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md`
+
+MIMIR closed it locally:
+
+`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_CLOSEOUT.md`
 
 ## Previous lane - PR508B owner encounter public exhibit metadata hosted proof blocked
 
