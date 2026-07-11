@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR517 Cross-Owner Public Exhibit / Publication Preflight
+
+ARGUS completed PR517 hostile preflight on 2026-07-11:
+
+- `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT`.
+
+Reason:
+
+- same-owner metadata-only public encounter exhibits are hosted-proven for
+  dedicated detail, index, report/takedown, and Discover search;
+- current same-owner public exhibit schema/routes are source-bound to a
+  same-owner private candidate session and must not be reused for cross-owner
+  rows without a new public metadata contract;
+- cross-owner consent, runtime context, runtime attempt audit, invitation UI,
+  and one private disposable preview are hosted-proven;
+- generic cross-owner consent scopes remain non-executable today, including
+  `publish_metadata_only_public_exhibit`;
+- PR516 disposable preview output remains private, disposable, not saved, not
+  public, not canonical, no retrieval, and counterparty-hidden;
+- generated-word excerpts, transcripts, summaries, and private saved
+  cross-owner artifacts remain blocked;
+- next recommended lane is `PR517A - Cross-Owner Metadata-Only Public Exhibit
+  Contract`, owned by DAEDALUS / A2.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 67 tests passed, including same-owner public exhibit publish/report/retract, cross-owner consent non-executable scopes, cross-owner disposable preview privacy, and public/no-drift helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed, including public encounter exhibit report queue context and admin remove/restore behavior. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 212 tests passed, including metadata-only public exhibit copy and cross-owner consent Studio helper boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| Source/scope review | Pass | PR517 is docs-only. No code, schema, package, lockfile, provider, storage, billing, queue/worker, Cloudflare, Redis, social, deployment, or public-surfacing implementation changed. |
+
 ## PR516 Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof
 
 ARIADNE completed PR516 hosted proof on 2026-07-11:

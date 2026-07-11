@@ -4,39 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517 cross-owner publication preflight
+## Current lane - PR517 cross-owner publication preflight accepted by ARGUS
 
-MIMIR accepted the PR516 hosted integrated proof and opened PR517 for ARGUS:
+ARGUS completed the PR517 hostile preflight:
 
-`docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ARGUS.md`
+`docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md`
 
-Current lane:
+Result:
 
 ```text
 PR517 - Cross-Owner Public Exhibit / Publication Preflight
-Owner: ARGUS / A3
-State: OPEN_ARGUS_PREFLIGHT
-Source: docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT
+Source: docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md
 ```
 
-Task:
+ARGUS recommendation:
 
-- inspect PR508/PR510B same-owner public exhibit proof;
-- inspect PR511 cross-owner consent/publication preflight;
-- inspect PR511A through PR516 cross-owner consent, runtime, audit,
-  disposable-preview, invitation, and hosted integrated proof;
-- inspect the current API/web implementation for encounter public exhibits,
-  consent rows, disposable previews, reports, deletion/export readback, and
-  Discover/search public surfacing;
-- decide the smallest safe next numbered Phase 3 lane for cross-owner
-  publication: metadata-only public exhibit contract, generated-word
-  publication contract, private saved artifact before publication, or a named
-  concrete blocker/unblock.
+```text
+PR517A - Cross-Owner Metadata-Only Public Exhibit Contract
+Owner: DAEDALUS / A2
+```
+
+Summary:
+
+- same-owner metadata-only public encounter exhibits are hosted-proven for
+  dedicated detail, index, report/takedown, and Discover search;
+- current same-owner public exhibit schema/routes are intentionally bound to a
+  same-owner private candidate session and must not be reused for cross-owner
+  rows without a new contract;
+- cross-owner consent, runtime context, runtime attempt audit, invitation UI,
+  and one private disposable preview are hosted-proven;
+- generic cross-owner consent scopes, including
+  `publish_metadata_only_public_exhibit`, remain non-executable today;
+- PR516 disposable preview output remains private, disposable, not saved, not
+  public, not canonical, no retrieval, and counterparty-hidden;
+- generated-word publication, transcripts, excerpts, summaries, and private
+  saved cross-owner artifacts remain blocked;
+- the next safe lane is a DAEDALUS contract for bilaterally approved public
+  metadata only: title, summary, tags, safe display snapshots, provenance,
+  report/takedown, revocation, deletion/export, and no generated words.
 
 Guardrail:
 
-- PR517 is a hostile preflight only. It must not implement code or widen PR516's
-  private disposable preview boundary.
+- MIMIR should close PR517 if accepted and wake DAEDALUS for PR517A using the
+  exact metadata-only public exhibit contract boundary in the ARGUS result.
+- PR517A must not retroactively make older generic consent rows executable, must
+  not use PR516 private disposable preview output as source material, and must
+  not add Discover/search/feed/index/persona/Space/forum/Salon/Station Press
+  surfacing by default.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 67 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 7 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 212 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+```
 
 ## Previous lane - PR516 integrated hosted proof accepted
 
