@@ -4,7 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505D owner encounter hosted output budget rerun
+## Current lane - PR505D hosted owner encounter output budget passed
+
+ARIADNE completed PR505D:
+
+`docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md`
+
+Result:
+
+```text
+PASS_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN
+```
+
+Summary:
+
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `03d39f8e93ab`, and `ready:true`;
+- owner and non-owner auth passed;
+- owner persona availability passed with `5` personas;
+- owner readiness returned `ready:true`;
+- ARIADNE sent exactly one same-owner disposable preview request;
+- preview returned `200` with responder role and `111` reply characters;
+- disposable/no-durable provenance passed: `saved:false`,
+  `transcriptStored:false`, `shareable:false`, `sourceRetrieval:false`, and
+  source bucket count `0`;
+- signed-out and cross-owner readiness/preview probes passed with `401`/`403`
+  boundaries and `persona_encounter_persona_not_owned` for cross-owner;
+- public Space and public persona samples exposed no owner-encounter controls or
+  claims;
+- privacy/secret scan passed.
+
+Current lane:
+
+```text
+PR505D - Owner Encounter Hosted Output Budget Rerun
+Owner: MIMIR / A1
+State: PASS_READY_FOR_CLOSEOUT
+Source: docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR505D owner encounter hosted output budget rerun opened
 
 MIMIR closed PR505C and opened PR505D for ARIADNE:
 

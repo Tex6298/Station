@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505D | Owner Encounter Hosted Output Budget Rerun | ARIADNE / A4 | Open hosted rerun; deploy floor met at `03d39f8e`, one disposable same-owner preview allowed, pass only on nonblank responder content plus disposable/no-durable provenance. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ARIADNE.md` |
+| PR505D | Owner Encounter Hosted Output Budget Rerun | MIMIR / A1 | Passed as `PASS_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN`; hosted preview returned `200`, nonblank responder content, and disposable/no-durable provenance with signed-out/cross-owner/public no-drift checks passing. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505D proof | Owner Encounter Hosted Output Budget Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN`; deployment floor was met, exactly one owner preview returned nonblank responder content, and disposable/no-durable provenance plus boundary/public checks passed. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md` |
 | PR505C closeout | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_ACCEPTED`; hosted API is ready at PR505C code commit `03d39f8e93ab`, so ARIADNE gets PR505D hosted output-budget rerun. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_CLOSEOUT.md` |
 | PR505C review | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET`; NVIDIA/OpenAI-compatible previews use a route-local `512` max-token floor while the empty-output guard remains fail-closed, with no reasoning/fallback/retry/provider/persistence drift. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md` |
 | PR505C implementation | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; route-local NVIDIA output budget floor is implemented without provider adapter, retry, fallback, persistence, retrieval, billing, public, queue/worker, Redis, Cloudflare, or UI drift. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_RESULT.md` |

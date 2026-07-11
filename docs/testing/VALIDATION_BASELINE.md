@@ -4,6 +4,54 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505D Owner Encounter Hosted Output Budget Rerun
+
+ARIADNE completed the hosted PR505D rerun on 2026-07-11:
+
+- `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md`
+
+Validation result:
+`PASS_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN`.
+
+Reason:
+
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `03d39f8e93ab`, and `ready:true`;
+- owner auth passed with `canon` tier;
+- non-owner auth passed with `private` tier;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- ARIADNE sent exactly one same-owner disposable preview request;
+- preview returned `200` with responder role and `111` reply characters;
+- disposable/no-durable provenance passed with no save, transcript, shareable
+  output, source retrieval, or source buckets;
+- signed-out and cross-owner readiness/preview probes passed with `401`/`403`
+  boundaries and `persona_encounter_persona_not_owned` for cross-owner;
+- sampled public Space and public persona routes exposed no owner-encounter
+  controls or claims;
+- sanitized proof output contained no raw ids, prompt/private context bodies,
+  generated reply text, provider details, tokens, cookies, SQL details, stack
+  traces, provider payloads, or env values.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted rerun runner | Pass | Deployment floor was met before generation; exactly one owner preview returned `200` with nonblank responder content and disposable/no-durable provenance. |
+| Hosted reachability | Pass | Web health `200`; API health `200`; API deployment health `200`; API ready at `@station/api` commit prefix `03d39f8e93ab`. |
+| Owner and non-owner auth | Pass | Owner tier `canon`; non-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Pass | `ready:true`; provider route was ready before generation. |
+| Exactly one same-owner preview | Pass | One owner preview POST was sent. |
+| Nonblank responder content | Pass | Reply role was `responder`; reply character count was `111`. |
+| Disposable provenance | Pass | Response said no save, transcript, shareable output, source retrieval, or source buckets. |
+| Signed-out/cross-owner probes | Pass | Signed-out preview returned `401`; cross-owner preview returned `403` with `persona_encounter_persona_not_owned`. |
+| Public no-drift probes | Pass | Sampled public Space and public persona routes exposed no owner-encounter controls or claims. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private context bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, or env values. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR505D rerun result updates
+documentation only and does not touch imports or scripts.
+
 ## PR505C Owner Encounter NVIDIA Output Budget ARGUS Review
 
 ARGUS accepted PR505C on 2026-07-11:
