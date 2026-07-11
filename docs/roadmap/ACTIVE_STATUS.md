@@ -4,11 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514C client/UX preflight returned to MIMIR
+## Current lane - PR514D cross-owner disposable preview client contract
+
+MIMIR accepted PR514C's blocker and opened PR514D:
+
+`docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md`
+
+Result:
+
+```text
+CLOSE_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK
+```
+
+Summary:
+
+- PR514C found the hosted API route is proven, but the browser cannot safely
+  construct the current request because it requires both `initiatorPersonaId`
+  and `responderPersonaId`;
+- participant consent readback intentionally does not expose raw participant
+  persona ids;
+- exposing raw participant persona ids to solve the payload problem would
+  weaken the PR512 through PR514B privacy boundary;
+- MIMIR accepted the smallest unblock: a participant-safe client contract
+  before any visible UI wiring.
+
+Concrete blocker:
+
+```text
+CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_MISSING
+```
+
+Current lane:
+
+```text
+PR514D - Cross-Owner Disposable Preview Client Contract
+Owner: DAEDALUS / A2
+State: OPEN_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md
+```
+
+Next:
+
+- DAEDALUS implements the consent-scoped API/client helper contract so the
+  browser can later run the approved cross-owner disposable preview without raw
+  participant persona ids.
+- DAEDALUS should wake ARGUS for contract-boundary review before any visible UI
+  wiring.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR514C client/UX preflight blocked
 
 ARIADNE completed PR514C and woke MIMIR:
 
 `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_CLOSEOUT.md`
 
 Result:
 
@@ -30,35 +90,8 @@ Summary:
 - same-owner encounter preview is adjacent to saved private artifact and public
   metadata controls, so cross-owner UI must stay separate from save/publication
   affordances;
-- the smallest unblock is a participant-safe client contract before visible UI
-  wiring.
-
-Concrete blocker:
-
-```text
-CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_MISSING
-```
-
-Recommended next lane:
-
-```text
-PR514D - Cross-Owner Disposable Preview Client Contract
-Owner: DAEDALUS / A2
-```
-
-Current lane:
-
-```text
-PR514C - Consented Cross-Owner Disposable Preview Client/UX Preflight
-Owner: MIMIR / A1
-State: ARIADNE_BLOCKER_RETURNED
-Source: docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md
-```
-
-Next:
-
-- MIMIR decides whether to open PR514D for DAEDALUS as the client-contract
-  unblock before any visible UI wiring.
+- the smallest unblock is PR514D, a participant-safe client contract before
+  visible UI wiring.
 
 ## Previous lane - PR514B hosted proof accepted
 

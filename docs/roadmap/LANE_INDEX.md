@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514C | Consented Cross-Owner Disposable Preview Client/UX Preflight | MIMIR / A1 | ARIADNE blocker returned: `CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_MISSING`; recommend PR514D client-contract unblock before visible UI wiring. | `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md` |
+| PR514D | Cross-Owner Disposable Preview Client Contract | DAEDALUS / A2 | Open implementation of a consent-scoped API/client helper contract so visible UI can later run the approved disposable preview without raw participant persona ids. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR514C closeout | Consented Cross-Owner Disposable Preview Client/UX Preflight | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK`; PR514D opens for a participant-safe client contract before visible UI wiring. | `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_CLOSEOUT.md` |
 | PR514C preflight | Consented Cross-Owner Disposable Preview Client/UX Preflight | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT`; current route requires raw persona ids the participant-safe client readback does not expose. Recommended next lane: PR514D Cross-Owner Disposable Preview Client Contract. | `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md` |
 | PR514B closeout | Consented Cross-Owner Disposable Preview Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ACCEPTED`; PR514C opens client/UX preflight before customer-facing UI exposure. | `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_CLOSEOUT.md` |
 | PR514B proof | Consented Cross-Owner Disposable Preview Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF`; hosted web/API were fresh at `02e706eb8e3e`, auth/participant/context gates failed closed as expected, provider-backed preview succeeded, actor-only token accounting and runtime attempt rows passed, generic readback stayed executable:false, no-drift/cleanup/privacy passed. | `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md` |
