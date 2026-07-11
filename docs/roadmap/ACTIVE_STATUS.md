@@ -4,7 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515B accepted by ARGUS; MIMIR routing next
+## Current lane - PR515C hosted rehearsal
+
+MIMIR accepted PR515B locally and routed ARIADNE to hosted rehearsal:
+
+`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_CLOSEOUT.md`
+
+`docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_ACCEPTED_LOCALLY
+```
+
+Current lane:
+
+```text
+PR515C - Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_ARIADNE_HOSTED_REHEARSAL
+Source: docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ARIADNE.md
+```
+
+Goal:
+
+- hosted human-eye rehearsal for signed-out gating, target lookup by slug/href,
+  unsafe slug copy, create invitation, cancel, approve, reject, revoke,
+  preview-control separation, inactive-state no-run controls, desktop/mobile
+  layout, and public-route no-drift;
+- verify no saved session, public exhibit, generated-word sharing, retrieval,
+  storage, billing, Redis, Cloudflare, workers, migrations, provider config,
+  public surfacing, hosted-runtime expansion, or broad redesign drift.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+
+Summary:
+- ARGUS accepted PR515B locally: owner-only cross-owner consent invitation and inbox UI.
+- MIMIR closed PR515B locally but requires hosted browser rehearsal before final visible-surface closeout.
+- Rehearsal should use human-eye routes and mobile/desktop behavior, not just source inspection.
+
+Task:
+- Run PR515C hosted rehearsal against the Railway staging target.
+- Verify signed-out gating, target lookup by slug/href, unsafe slug copy, create invitation, cancel, approve, reject, revoke, preview-control separation, no preview controls for inactive states, mobile/desktop layout, and public-route no-drift.
+- Wake MIMIR with PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL or FAIL_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL and exact defects.
+```
+
+## Previous lane - PR515B accepted by ARGUS
 
 ARGUS accepted PR515B:
 
@@ -16,7 +66,7 @@ Result:
 ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI
 ```
 
-Current lane:
+Closed lane:
 
 ```text
 PR515B - Cross-Owner Consent Invitation and Inbox UI
@@ -61,19 +111,9 @@ npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 67 tests
 git diff --check                                           PASS
 ```
 
-ARGUS recommended next:
+Closeout:
 
-```text
-PR515C - Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
-Owner: ARIADNE / A4
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+- `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_CLOSEOUT.md`
 
 ## Previous lane - PR515A accepted
 

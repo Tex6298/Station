@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515B | Cross-Owner Consent Invitation and Inbox UI | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI`; owner-only UI uses PR515A public-slug invitation, participant-scoped inbox/actions, required ledger copy, and no saved/public/runtime drift. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_REVIEW_RESULT.md` |
+| PR515C | Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal | ARIADNE / A4 | Open hosted browser rehearsal for signed-out gating, target lookup, invitation create, cancel/approve/reject/revoke, preview-control separation, mobile/desktop layout, and public-route no-drift. | `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR515B closeout | Cross-Owner Consent Invitation and Inbox UI | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_ACCEPTED_LOCALLY`; ARIADNE gets PR515C hosted rehearsal before final visible-surface closeout. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_CLOSEOUT.md` |
 | PR515B review | Cross-Owner Consent Invitation and Inbox UI | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI`; ARGUS recommends hosted desktop/mobile rehearsal before visible-surface closeout. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_REVIEW_RESULT.md` |
 | PR515A closeout | Cross-Owner Consent Counterparty Selection Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_ACCEPTED`; DAEDALUS gets PR515B for visible owner-only invitation and inbox/actions UI. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_CLOSEOUT.md` |
 | PR515A review | Cross-Owner Consent Counterparty Selection Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT`; public-slug target/create contract resolves eligible counterparties server-side, preserves consent ledger boundaries, and avoids raw counterparty persona UUIDs or owner ids in browser-facing invitation payloads/readback. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_REVIEW_RESULT.md` |
