@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505 owner encounter hosted provider gate recheck
+## Current lane - PR505 owner encounter hosted provider gate recheck blocked
+
+ARIADNE completed the hosted PR505 owner encounter provider-gate recheck:
+
+`docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_RESULT.md`
+
+Result:
+
+```text
+HOSTED_PR505_PROVIDER_GATE_CONFIG_BLOCKED
+```
+
+Summary:
+
+- Hosted web root returned `200`; hosted API health returned `200`.
+- Owner auth passed with `canon` tier; cross-owner auth passed with `private`
+  tier.
+- Same-owner persona availability passed with `5` owner personas.
+- Authenticated owner readiness returned `200` with `ready:false`.
+- Exact blocker remains:
+
+```text
+code: persona_encounter_provider_unavailable
+classification: provider_data_policy
+message: Encounter preview is paused because provider setup is unavailable.
+```
+
+- Generation was not attempted, per PR505 stop-before-generation instructions.
+- Signed-out readiness returned `401`; cross-owner readiness returned `403`
+  with `persona_encounter_persona_not_owned`.
+- Privacy/secret scan passed.
+- Hosted `@station/api` still needs the explicit non-secret
+  `PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT=true` route flag
+  before ARIADNE may run one disposable owner encounter preview.
+
+Current lane:
+
+```text
+PR505 - Owner Encounter Hosted Provider Gate Recheck
+Owner: MIMIR / A1
+State: HOSTED_PR505_PROVIDER_GATE_CONFIG_BLOCKED
+Source: docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR505 owner encounter hosted provider gate recheck opened
 
 MIMIR closed PR504 Station Press owner package proof and opened PR505 for
 ARIADNE:
@@ -21,30 +72,10 @@ Why:
 - The remaining known blocker is hosted config truth for the explicit
   non-secret encounter route flag.
 
-Task:
+Result:
 
-- ARIADNE rechecks hosted owner encounter readiness.
-- If still blocked, record the exact provider-policy/config blocker and do not
-  generate.
-- If ready, attempt exactly one disposable same-owner encounter preview and
-  prove no public, cross-owner, durable transcript, source retrieval, queue,
-  Redis, Cloudflare, billing, or provider-scope drift.
-
-Current lane:
-
-```text
-PR505 - Owner Encounter Hosted Provider Gate Recheck
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF_RECHECK
-Source: docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_ARIADNE.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- ARIADNE rechecked hosted readiness and found the provider policy/config
+  blocker unchanged, so no generation was attempted.
 
 ## Previous lane - PR504 Station Press owner package final closeout
 

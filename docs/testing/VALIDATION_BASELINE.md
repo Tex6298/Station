@@ -4,6 +4,52 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505 Owner Encounter Hosted Provider Gate Recheck
+
+ARIADNE completed the hosted PR505 owner encounter provider-gate recheck on
+2026-07-11:
+
+- `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_RESULT.md`
+
+Validation result:
+`HOSTED_PR505_PROVIDER_GATE_CONFIG_BLOCKED`.
+
+Reason:
+
+- hosted web root returned `200`;
+- hosted API health returned `200`;
+- owner auth passed with `canon` tier and cross-owner auth passed with
+  `private` tier;
+- same-owner persona availability passed with `5` owner personas;
+- authenticated owner readiness returned `200` with `ready:false`;
+- readiness code was `persona_encounter_provider_unavailable`;
+- readiness classification was `provider_data_policy`;
+- readiness message was `Encounter preview is paused because provider setup is
+  unavailable.`;
+- generation was not attempted because PR505 requires stopping before
+  generation while readiness is provider-policy/config blocked;
+- signed-out readiness returned `401`;
+- cross-owner readiness returned `403` with
+  `persona_encounter_persona_not_owned`;
+- sanitized proof output contained no raw ids, prompt/private context bodies,
+  provider details, tokens, cookies, SQL details, stack traces, provider
+  payloads, or env values.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API readiness runner | Blocked | Hosted readiness returned the provider policy/config blocker before generation. |
+| Hosted reachability | Pass | Web root `200`; API health `200`; no deploy commit exposed by the probed health response. |
+| Owner and cross-owner auth | Pass | Owner tier `canon`; cross-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Config blocked | `ready:false`, `persona_encounter_provider_unavailable`, `provider_data_policy`. |
+| Stop-before-generation rule | Pass | No generation POST was sent because readiness was blocked. |
+| Signed-out/cross-owner readiness probes | Pass | Signed-out readiness returned `401`; cross-owner readiness returned `403` with `persona_encounter_persona_not_owned`. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private context bodies, provider details, tokens, cookies, SQL details, stack traces, provider payloads, or env values. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR505 result updates documentation
+only and does not touch imports or scripts.
+
 ## PR504G Station Press Visible Bundle Hosted Proof
 
 ARIADNE completed the hosted PR504G visible Station Press bundle proof on
