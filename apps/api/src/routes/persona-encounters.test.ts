@@ -7,6 +7,7 @@ import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
 import {
   DisabledOperationalCacheProvider,
+  operationalCacheKey,
   resetOperationalCacheProviderForTests,
   setOperationalCacheProviderForTests,
   type OperationalCacheProvider,
@@ -838,6 +839,24 @@ function crossOwnerRuntimeAttemptsPath(consentId: string) {
   return `/persona-encounters/cross-owner-consents/${consentId}/runtime-attempts`;
 }
 
+function crossOwnerDisposablePreviewPath(consentId: string) {
+  return `/persona-encounters/cross-owner-consents/${consentId}/disposable-preview`;
+}
+
+function crossOwnerDisposablePreviewBody(overrides: Partial<{
+  initiatorPersonaId: string;
+  responderPersonaId: string;
+  setup: string;
+  maxOutputTokens: number;
+}> = {}) {
+  return {
+    initiatorPersonaId: INITIATOR_ID,
+    responderPersonaId: OTHER_PERSONA_ID,
+    setup: "The initiating owner asks for one private cross-owner reply in a quiet library.",
+    ...overrides,
+  };
+}
+
 function seedCrossOwnerConsent(db: InMemorySupabase, overrides: Row = {}) {
   return db.insertRow("persona_encounter_cross_owner_consents", {
     requester_owner_user_id: OWNER_ID,
@@ -975,6 +994,28 @@ function assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db: InMemorySupaba
     "background_jobs",
     "token_usage",
     "token_transactions",
+  ]) {
+    assert.equal(db.rows(table).length, 0, `${table} should not be written`);
+  }
+}
+
+function assertNoForbiddenCrossOwnerPreviewSideEffects(db: InMemorySupabase) {
+  for (const table of [
+    "conversations",
+    "conversation_messages",
+    "persona_encounter_private_sessions",
+    "persona_encounter_public_exhibits",
+    "archived_chat_transcripts",
+    "continuity_candidates",
+    "continuity_records",
+    "memory_items",
+    "canon_items",
+    "documents",
+    "threads",
+    "comments",
+    "moderation_reports",
+    "public_persona_interaction_counters",
+    "background_jobs",
   ]) {
     assert.equal(db.rows(table).length, 0, `${table} should not be written`);
   }
@@ -1875,6 +1916,300 @@ test("cross-owner runtime context contract fails closed for status scope version
     assert.equal(providerCalls.length, 0);
     assertNoForbiddenCrossOwnerConsentSideEffects(db);
   });
+});
+
+test("cross-owner disposable preview returns one private generated reply with actor-only token accounting", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+    const counterpartyProfile = db.rows("profiles").find((profile) => profile.id === OTHER_OWNER_ID)!;
+    counterpartyProfile.ai_mode = "byok";
+    counterpartyProfile.byok_deepseek_key = "counterparty-secret-key";
+    const responderPersona = db.rows("personas").find((persona) => persona.id === OTHER_PERSONA_ID)!;
+    responderPersona.provider = "openai";
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody({ maxOutputTokens: 120 }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.preview.reply.role, "responder");
+    assert.equal(response.body.preview.reply.content, "Copper Scribe answers once.");
+    assert.equal(response.body.preview.reply.generated, true);
+    assert.equal(response.body.preview.reply.private, true);
+    assert.equal(response.body.preview.reply.disposable, true);
+    assert.equal(response.body.preview.reply.canonical, false);
+    assert.equal(response.body.preview.reply.public, false);
+    assert.equal(response.body.preview.reply.saved, false);
+    assert.equal(response.body.preview.reply.transcript, false);
+    assert.equal(response.body.preview.reply.summary, false);
+    assert.equal(response.body.preview.reply.excerpt, false);
+    assert.equal(response.body.preview.reply.shareable, false);
+    assert.equal(response.body.preview.reply.sourceRetrieval, false);
+    assert.equal(response.body.provenance.schema, "station.persona_encounter.cross_owner_disposable_preview.v1");
+    assert.equal(response.body.provenance.consent.executable, false);
+    assert.equal(response.body.provenance.persistence.saved, false);
+    assert.equal(response.body.provenance.persistence.privateSessionCreated, false);
+    assert.equal(response.body.provenance.persistence.publicExhibitCreated, false);
+    assert.equal(response.body.provenance.persistence.sourceRetrieval, false);
+
+    assert.equal(providerCalls.length, 1);
+    assert.equal(providerCalls[0].url, "https://deepseek.test/chat/completions");
+    assert.equal(providerCalls[0].body.max_tokens, 120);
+    const providerPayload = JSON.stringify(providerCalls[0].body);
+    assert.equal(providerPayload.includes("Blue Lantern"), true);
+    assert.equal(providerPayload.includes("Other Owner Persona"), true);
+    assert.equal(providerPayload.includes("quiet library"), true);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "Owner-only private persona notes",
+      "Cross-owner private material",
+      "Notice the room before speaking",
+      "Do not expose me",
+      "awakening_prompt",
+      "style_notes",
+      "providerPayload",
+      "counterparty-secret-key",
+      "test-deepseek-key",
+      "Bearer ",
+    ]) {
+      assert.equal(providerPayload.includes(forbidden), false, `${forbidden} leaked to provider prompt`);
+    }
+
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 2);
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_runtime_attempts").map((row) => row.lifecycle_status),
+      ["blocked_before_provider", "provider_succeeded"],
+    );
+    assert.equal(db.rows("token_usage").length, 1);
+    assert.equal(db.rows("token_usage")[0].user_id, OWNER_ID);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("token_transactions")[0].user_id, OWNER_ID);
+    assert.equal(db.rows("token_transactions")[0].chat_id, null);
+    assert.equal(db.rows("token_transactions").some((row) => row.user_id === OTHER_OWNER_ID), false);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+
+    const responseJson = JSON.stringify(response.body);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "Owner-only private persona notes",
+      "Cross-owner private material",
+      "counterparty-secret-key",
+      "test-deepseek-key",
+      "Bearer ",
+    ]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in cross-owner preview response`);
+    }
+  });
+});
+
+test("cross-owner disposable preview fails closed for auth participation and context contract blockers", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+
+    const signedOut = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      body: crossOwnerDisposablePreviewBody(),
+    });
+    assert.equal(signedOut.status, 401);
+
+    const nonparticipant = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "third-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+    assert.equal(nonparticipant.status, 404);
+
+    const wrongRole = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody({
+        initiatorPersonaId: OTHER_PERSONA_ID,
+        responderPersonaId: INITIATOR_ID,
+      }),
+    });
+    assert.equal(wrongRole.status, 409);
+    assert.equal(wrongRole.body.code, "persona_encounter_cross_owner_preview_ineligible");
+
+    const wrongPair = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody({ responderPersonaId: RESPONDER_ID }),
+    });
+    assert.equal(wrongPair.status, 409);
+
+    for (const status of ["pending", "rejected", "cancelled", "revoked"]) {
+      const row = seedCrossOwnerConsent(db, { status });
+      const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(row.id), {
+        token: "owner-token",
+        body: crossOwnerDisposablePreviewBody(),
+      });
+      assert.equal(response.status, 409);
+      assert.equal(response.body.readiness.code, status);
+    }
+
+    const wrongScope = seedCrossOwnerConsent(db, { requested_scopes: ["publish_transcript"] });
+    const wrongScopeResponse = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(wrongScope.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+    assert.equal(wrongScopeResponse.status, 409);
+    assert.equal(wrongScopeResponse.body.readiness.code, "wrong_scope");
+
+    const wrongVersion = seedCrossOwnerConsent(db, { requested_scope_version: 2 });
+    const wrongVersionResponse = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(wrongVersion.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+    assert.equal(wrongVersionResponse.status, 409);
+    assert.equal(wrongVersionResponse.body.readiness.code, "wrong_version");
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  });
+});
+
+test("cross-owner disposable preview audit failure stops before provider call or token write", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+    db.failNextCrossOwnerRuntimeAttemptRpc = true;
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+
+    assert.equal(response.status, 500);
+    assert.equal(response.body.code, "persona_encounter_cross_owner_runtime_attempt_audit_failed");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_usage").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  });
+});
+
+test("cross-owner disposable preview records bounded blocked and provider failure outcomes", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+    clearProviderEnv();
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+
+    assert.equal(response.status, 503);
+    assert.equal(response.body.code, "persona_encounter_provider_unavailable");
+    assert.equal(providerCalls.length, 0);
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_runtime_attempts").map((row) => row.lifecycle_status),
+      ["blocked_before_provider", "provider_unavailable"],
+    );
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  });
+
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+    db.insertRow("token_usage", {
+      user_id: OWNER_ID,
+      period_start: "2026-06-01",
+      tokens_used: 750_000,
+      tokens_limit: 750_000,
+      topup_tokens: 0,
+    });
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+
+    assert.equal(response.status, 402);
+    assert.equal(providerCalls.length, 0);
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_runtime_attempts").map((row) => row.lifecycle_status),
+      ["blocked_before_provider", "quota_exceeded"],
+    );
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  });
+
+  const rateLimitProvider = new TestRateLimitProvider();
+  rateLimitProvider.counts.set(operationalCacheKey({
+    purpose: "rate_limit",
+    scope: {
+      ownerUserId: OWNER_ID,
+      personaId: OTHER_PERSONA_ID,
+      resourceId: `${INITIATOR_ID}:${OTHER_PERSONA_ID}`,
+      operation: "persona_encounter_preview_minute",
+    },
+    parts: ["persona-encounter-preview"],
+    envName: "test",
+  }), 2);
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+
+    assert.equal(response.status, 429);
+    assert.equal(providerCalls.length, 0);
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_runtime_attempts").map((row) => row.lifecycle_status),
+      ["blocked_before_provider", "rate_limited"],
+    );
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  }, { rateLimitProvider });
+
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+
+    assert.equal(response.status, 502);
+    assert.equal(response.body.code, "persona_encounter_provider_failed");
+    assert.equal(providerCalls.length, 1);
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_runtime_attempts").map((row) => row.lifecycle_status),
+      ["blocked_before_provider", "provider_failed"],
+    );
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  }, { providerStatus: 500 });
+
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "owner-token",
+      body: crossOwnerDisposablePreviewBody(),
+    });
+
+    assert.equal(response.status, 502);
+    assert.equal(response.body.code, "persona_encounter_provider_empty_reply");
+    assert.equal(providerCalls.length, 1);
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_runtime_attempts").map((row) => row.lifecycle_status),
+      ["blocked_before_provider", "provider_empty"],
+    );
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+  }, { providerContent: "   " });
 });
 
 test("owner preview generates one disposable same-owner responder reply without durable encounter rows", async () => {

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514A | Consented Cross-Owner Disposable Preview Route | DAEDALUS / A2 | Open implementation: separate authenticated cross-owner disposable preview route gated by approved consent, PR512 runtime context contract eligibility, PR513A runtime attempt audit, actor-owned/platform provider routing, bounded prompt, actor-only token accounting, and no persistence/public surfacing. | `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_DAEDALUS.md` |
+| PR514A review | Consented Cross-Owner Disposable Preview Route | DAEDALUS -> ARGUS | Ready for ARGUS review; separate authenticated cross-owner disposable preview route is implemented with approved-consent/context-contract gates, PR513A runtime attempt audit, actor-owned/platform provider routing, bounded prompt, actor-only token accounting, private disposable response labels, and no persistence/public surfacing. | `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md` |
 
 ## Recently Closed
 

@@ -4,53 +4,79 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514A cross-owner disposable preview route opened
+## Current lane - PR514A cross-owner disposable preview route ready for ARGUS
 
-MIMIR accepted ARIADNE's PR513D result and closed the hosted rerun:
+DAEDALUS implemented PR514A:
 
-`docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_CLOSEOUT.md`
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md`
 
-MIMIR opened PR514A for DAEDALUS:
+Source instruction:
 
 `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_DAEDALUS.md`
 
-Result:
+Implementation result:
 
 ```text
-CLOSE_PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_ACCEPTED
+READY_FOR_ARGUS_REVIEW
 ```
 
 Summary:
 
-- PR513D passed hosted rerun and proved the PR513B blocker is repaired;
-- the concrete blocker `CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_MISSING` is removed;
-- hosted migration `079` is ledgered and both short append-only triggers reject
-  update/delete;
-- participant readback, signed-out/nonparticipant boundaries, RPC validation,
-  generic `executable: false` readback, cleanup, no-drift, and privacy passed;
-- PR514A opens the first narrow provider-backed cross-owner disposable preview
-  route, under the PR512 context-contract floor and PR513A runtime-attempt audit
-  floor.
+- added separate authenticated route:
+  `POST /persona-encounters/cross-owner-consents/:consentId/disposable-preview`;
+- same-owner `POST /persona-encounters/preview` was not widened;
+- route requires participant-scoped consent loading and PR512 runtime context
+  contract eligibility;
+- route requires approved consent, scope version `1`, and
+  `run_cross_owner_encounter`;
+- prompt builder uses only consent display snapshots and actor-authored setup;
+- provider routing is actor-owned/platform only and ignores counterparty BYOK,
+  private provider setup, responder provider preference, and responder persona
+  provider routing;
+- PR513A runtime attempt audit rows are recorded before provider execution and
+  for provider unavailable, quota exceeded, rate limited, provider failed,
+  provider empty, and provider succeeded outcomes;
+- required audit insertion failure fails closed before provider call or token
+  write;
+- successful preview records actor-only token usage with `chatId: null`;
+- response returns exactly one private disposable generated responder reply to
+  the initiating actor and labels it non-persistent, non-public, not saved, not
+  transcript/summary/excerpt/shareable, and not sourced from private retrieval;
+- no private session, public exhibit, report, memory/canon/archive/continuity/
+  export/job/storage/public row, UI, package, billing, Redis, Cloudflare,
+  worker, deployment, or public-surfacing drift.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters  PASS
+npm exec --yes pnpm@10.32.1 -- run test:reports             PASS
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui           PASS
+npm exec --yes pnpm@10.32.1 -- run typecheck                PASS
+```
 
 Current lane:
 
 ```text
 PR514A - Consented Cross-Owner Disposable Preview Route
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md
 ```
 
 Next:
 
-- DAEDALUS implements the separate consent-gated cross-owner disposable preview
-  route and wakes ARGUS for hostile review.
+- ARGUS reviews provider ownership, prompt contents, audit fail-closed ordering,
+  actor-only token accounting, response labels, validation, and no-drift scans.
+- If accepted, ARGUS should wake MIMIR for closeout and ARIADNE hosted proof
+  routing.
+- If fixes are needed, ARGUS should wake DAEDALUS with exact findings.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR513D hosted audit rerun accepted

@@ -38,6 +38,8 @@ const PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCHEMA =
   "station.persona_encounter.cross_owner_runtime_context_contract.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_ATTEMPT_PROVENANCE_SCHEMA =
   "station.persona_encounter.cross_owner_runtime_attempt.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
+  "station.persona_encounter.cross_owner_disposable_preview.v1";
 const CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION = 1;
 const CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE =
   "run_cross_owner_encounter" satisfies CrossOwnerConsentRequestedScope;
@@ -224,6 +226,16 @@ const crossOwnerConsentReasonBodySchema = z.object({
 const crossOwnerRuntimeContextContractQuerySchema = z.object({
   initiatorPersonaId: z.string().uuid(),
   responderPersonaId: z.string().uuid(),
+}).strict().refine((value) => value.initiatorPersonaId !== value.responderPersonaId, {
+  message: "Select two different personas.",
+  path: ["responderPersonaId"],
+});
+
+const crossOwnerDisposablePreviewSchema = z.object({
+  initiatorPersonaId: z.string().uuid(),
+  responderPersonaId: z.string().uuid(),
+  setup: z.string().trim().min(1).max(ENCOUNTER_PREVIEW_MAX_SETUP_CHARS),
+  maxOutputTokens: z.coerce.number().int().min(80).max(500).optional(),
 }).strict().refine((value) => value.initiatorPersonaId !== value.responderPersonaId, {
   message: "Select two different personas.",
   path: ["responderPersonaId"],
@@ -916,6 +928,123 @@ personaEncountersRouter.get("/cross-owner-consents", requireAuth, async (req, re
   });
 });
 
+personaEncountersRouter.post("/cross-owner-consents/:consentId/disposable-preview", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = crossOwnerDisposablePreviewSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const input = parsedBody.data;
+  const contract = buildCrossOwnerRuntimeContextContract({
+    consent: result.row,
+    actorOwnerUserId: ownerUserId,
+    initiatorPersonaId: input.initiatorPersonaId,
+    responderPersonaId: input.responderPersonaId,
+  });
+
+  if (!contract.eligible) {
+    const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(sb, {
+      consent: result.row,
+      actorOwnerUserId: ownerUserId,
+      initiatorPersonaId: input.initiatorPersonaId,
+      responderPersonaId: input.responderPersonaId,
+      readinessCode: contract.readiness.code,
+      lifecycleStatus: "blocked_before_provider",
+    });
+    if (!audit.ok) return res.status(500).json(crossOwnerRuntimeAttemptAuditFailedBody());
+
+    return res.status(409).json({
+      error: "Cross-owner disposable preview is not eligible.",
+      code: "persona_encounter_cross_owner_preview_ineligible",
+      readiness: contract.readiness,
+      execution: {
+        providerCalled: false,
+        tokenAccountingRecorded: false,
+        generatedWordsReturned: false,
+      },
+    });
+  }
+
+  const generation = await generateCrossOwnerDisposablePreviewReply({
+    sb,
+    ownerUserId,
+    fallbackTier: req.user!.tier,
+    consent: result.row,
+    initiatorPersonaId: input.initiatorPersonaId,
+    responderPersonaId: input.responderPersonaId,
+    setup: input.setup,
+    requestedMaxOutputTokens: input.maxOutputTokens,
+  });
+  if (generation.ok === false) return res.status(generation.status).json(generation.body);
+
+  return res.json({
+    preview: {
+      reply: {
+        role: "responder",
+        content: generation.replyContent,
+        generated: true,
+        private: true,
+        disposable: true,
+        canonical: false,
+        public: false,
+        saved: false,
+        transcript: false,
+        summary: false,
+        excerpt: false,
+        shareable: false,
+        sourceRetrieval: false,
+      },
+      rateLimit: generation.rateLimit,
+    },
+    provenance: {
+      schema: PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA,
+      setup: {
+        label: "Actor-authored setup",
+        stored: false,
+      },
+      consent: {
+        id: result.row.id,
+        participantRole: crossOwnerConsentParticipantRole(result.row, ownerUserId),
+        requestedScope: CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE,
+        requestedScopeVersion: CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION,
+        executable: false,
+      },
+      personas: {
+        label: "Consent display snapshots",
+        initiatorName: generation.initiatorName,
+        responderName: generation.responderName,
+      },
+      reply: {
+        label: "Model-generated responder reply",
+        generated: true,
+        private: true,
+        disposable: true,
+        nonCanonical: true,
+        public: false,
+      },
+      persistence: {
+        saved: false,
+        privateSessionCreated: false,
+        publicExhibitCreated: false,
+        transcriptStored: false,
+        summaryStored: false,
+        excerptStored: false,
+        shareable: false,
+        sourceRetrieval: false,
+        sourceBuckets: [],
+        note: "Cross-owner disposable preview only; no private retrieval, Memory, Archive, Canon, Continuity, transcript, summary, excerpt, private session, or public exhibit was created.",
+      },
+    },
+  });
+});
+
 personaEncountersRouter.get(
   "/cross-owner-consents/:consentId/runtime-context-contract",
   requireAuth,
@@ -1314,6 +1443,238 @@ async function generateEncounterResponderReply(input: {
       },
     };
   }
+}
+
+async function generateCrossOwnerDisposablePreviewReply(input: {
+  sb: ReturnType<typeof getSupabaseAdmin>;
+  ownerUserId: string;
+  fallbackTier: string;
+  consent: EncounterCrossOwnerConsentRow;
+  initiatorPersonaId: string;
+  responderPersonaId: string;
+  setup: string;
+  requestedMaxOutputTokens?: number;
+}): Promise<
+  | {
+      ok: true;
+      replyContent: string;
+      initiatorName: string;
+      responderName: string;
+      rateLimit: { remaining: number | null; retryAfter: number | null };
+    }
+  | {
+      ok: false;
+      status: number;
+      body: Record<string, unknown>;
+    }
+> {
+  const actorRole = crossOwnerConsentParticipantRole(input.consent, input.ownerUserId);
+  const initiatorParticipant = crossOwnerConsentPersonaParticipant(input.consent, input.initiatorPersonaId);
+  const responderParticipant = crossOwnerConsentPersonaParticipant(input.consent, input.responderPersonaId);
+  if (!actorRole || !initiatorParticipant || !responderParticipant || initiatorParticipant.role === responderParticipant.role) {
+    return {
+      ok: false,
+      status: 409,
+      body: {
+        error: "Cross-owner disposable preview is not eligible.",
+        code: "persona_encounter_cross_owner_preview_ineligible",
+      },
+    };
+  }
+
+  const beforeProviderAudit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+    consent: input.consent,
+    actorOwnerUserId: input.ownerUserId,
+    initiatorPersonaId: input.initiatorPersonaId,
+    responderPersonaId: input.responderPersonaId,
+    readinessCode: "ready",
+    lifecycleStatus: "blocked_before_provider",
+  });
+  if (!beforeProviderAudit.ok) {
+    return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+  }
+
+  const providerResolution = await resolveCrossOwnerDisposablePreviewProviderRoute(
+    input.sb,
+    input.ownerUserId,
+    input.fallbackTier,
+  );
+  if (!providerResolution.configured) {
+    const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+      consent: input.consent,
+      actorOwnerUserId: input.ownerUserId,
+      initiatorPersonaId: input.initiatorPersonaId,
+      responderPersonaId: input.responderPersonaId,
+      readinessCode: "ready",
+      lifecycleStatus: "provider_unavailable",
+      completedAt: new Date().toISOString(),
+    });
+    if (!audit.ok) return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+
+    return {
+      ok: false,
+      status: providerResolution.status,
+      body: providerResolution.body,
+    };
+  }
+
+  const { chatRoute } = providerResolution;
+  const maxOutputTokens = selectEncounterPreviewMaxOutputTokens({
+    requestedMaxOutputTokens: input.requestedMaxOutputTokens,
+    routeLabel: chatRoute.routeLabel,
+  });
+  const systemPrompt = buildCrossOwnerDisposablePreviewSystemPrompt({
+    initiatorName: initiatorParticipant.personaName,
+    responderName: responderParticipant.personaName,
+  });
+  const userMessage = buildCrossOwnerDisposablePreviewUserMessage({
+    initiatorName: initiatorParticipant.personaName,
+    responderName: responderParticipant.personaName,
+    setup: input.setup,
+  });
+  const estimatedInputTokens = estimateConversationTokens({
+    systemPrompt,
+    userMessage,
+  });
+  const quotaTokenEstimate = estimatedInputTokens + maxOutputTokens;
+
+  try {
+    await assertTokenBudgetForEstimate(input.ownerUserId, quotaTokenEstimate);
+  } catch (error) {
+    if (error instanceof TokenQuotaError) {
+      const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+        consent: input.consent,
+        actorOwnerUserId: input.ownerUserId,
+        initiatorPersonaId: input.initiatorPersonaId,
+        responderPersonaId: input.responderPersonaId,
+        readinessCode: "ready",
+        lifecycleStatus: "quota_exceeded",
+        completedAt: new Date().toISOString(),
+      });
+      if (!audit.ok) return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+
+      return {
+        ok: false,
+        status: 402,
+        body: {
+          error: "Encounter preview token budget exceeded.",
+          code: "persona_encounter_quota_exceeded",
+        },
+      };
+    }
+    throw error;
+  }
+
+  const rateLimit = await checkEncounterPreviewRateLimit({
+    ownerUserId: input.ownerUserId,
+    initiatorPersonaId: input.initiatorPersonaId,
+    responderPersonaId: input.responderPersonaId,
+  });
+  if (!rateLimit.allowed) {
+    const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+      consent: input.consent,
+      actorOwnerUserId: input.ownerUserId,
+      initiatorPersonaId: input.initiatorPersonaId,
+      responderPersonaId: input.responderPersonaId,
+      readinessCode: "ready",
+      lifecycleStatus: "rate_limited",
+      completedAt: new Date().toISOString(),
+    });
+    if (!audit.ok) return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+
+    return {
+      ok: false,
+      status: rateLimit.status,
+      body: rateLimit.body,
+    };
+  }
+
+  let aiResponse: {
+    content: string;
+    model?: string;
+    usage?: { inputTokens?: number; outputTokens?: number };
+  };
+  try {
+    aiResponse = await chatRoute.provider.sendMessage({
+      system: systemPrompt,
+      messages: [{ role: "user", content: userMessage }],
+      ...(chatRoute.routeLabel === "anthropic_platform" ? { model: chatRoute.modelLabel } : {}),
+      maxOutputTokens,
+    });
+  } catch {
+    const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+      consent: input.consent,
+      actorOwnerUserId: input.ownerUserId,
+      initiatorPersonaId: input.initiatorPersonaId,
+      responderPersonaId: input.responderPersonaId,
+      readinessCode: "ready",
+      lifecycleStatus: "provider_failed",
+      completedAt: new Date().toISOString(),
+    });
+    if (!audit.ok) return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+
+    return {
+      ok: false,
+      status: 502,
+      body: {
+        error: "Encounter preview provider failed.",
+        code: "persona_encounter_provider_failed",
+      },
+    };
+  }
+
+  const replyContent = boundEncounterReply(aiResponse.content);
+  if (!replyContent) {
+    const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+      consent: input.consent,
+      actorOwnerUserId: input.ownerUserId,
+      initiatorPersonaId: input.initiatorPersonaId,
+      responderPersonaId: input.responderPersonaId,
+      readinessCode: "ready",
+      lifecycleStatus: "provider_empty",
+      completedAt: new Date().toISOString(),
+    });
+    if (!audit.ok) return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+
+    return {
+      ok: false,
+      status: 502,
+      body: {
+        error: "Encounter preview provider returned an empty reply.",
+        code: "persona_encounter_provider_empty_reply",
+      },
+    };
+  }
+
+  const successAudit = await recordCrossOwnerDisposablePreviewAttemptAudit(input.sb, {
+    consent: input.consent,
+    actorOwnerUserId: input.ownerUserId,
+    initiatorPersonaId: input.initiatorPersonaId,
+    responderPersonaId: input.responderPersonaId,
+    readinessCode: "ready",
+    lifecycleStatus: "provider_succeeded",
+    completedAt: new Date().toISOString(),
+  });
+  if (!successAudit.ok) return { ok: false, status: 500, body: crossOwnerRuntimeAttemptAuditFailedBody() };
+
+  const inputTokens = aiResponse.usage?.inputTokens ?? estimatedInputTokens;
+  const outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
+
+  await recordLlmTokenUsage({
+    userId: input.ownerUserId,
+    model: aiResponse.model || chatRoute.modelLabel,
+    chatId: null,
+    inputTokens,
+    outputTokens,
+  });
+
+  return {
+    ok: true,
+    replyContent,
+    initiatorName: initiatorParticipant.personaName,
+    responderName: responderParticipant.personaName,
+    rateLimit: rateLimit.rateLimit,
+  };
 }
 
 function serializePrivateSession(row: EncounterPrivateSessionRow, publicExhibit: EncounterPublicExhibitRow | null = null) {
@@ -1822,6 +2183,13 @@ function crossOwnerConsentUpdateFailedBody() {
   };
 }
 
+function crossOwnerRuntimeAttemptAuditFailedBody() {
+  return {
+    error: "Cross-owner runtime attempt audit could not be recorded.",
+    code: "persona_encounter_cross_owner_runtime_attempt_audit_failed",
+  };
+}
+
 async function loadOwnerPrivateSession(
   sb: ReturnType<typeof getSupabaseAdmin>,
   ownerUserId: string,
@@ -1974,6 +2342,47 @@ export async function recordCrossOwnerRuntimeAttemptAudit(
   if (error || !row) return { ok: false };
 
   return { ok: true, row };
+}
+
+async function recordCrossOwnerDisposablePreviewAttemptAudit(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  input: {
+    consent: EncounterCrossOwnerConsentRow;
+    actorOwnerUserId: string;
+    initiatorPersonaId: string;
+    responderPersonaId: string;
+    readinessCode: string;
+    lifecycleStatus: CrossOwnerRuntimeAttemptLifecycleStatus;
+    completedAt?: string | null;
+  },
+): Promise<{ ok: true; recorded: boolean } | { ok: false }> {
+  const actorRole = crossOwnerConsentParticipantRole(input.consent, input.actorOwnerUserId);
+  const initiatorParticipant = crossOwnerConsentPersonaParticipant(input.consent, input.initiatorPersonaId);
+  const responderParticipant = crossOwnerConsentPersonaParticipant(input.consent, input.responderPersonaId);
+  if (
+    !actorRole ||
+    !initiatorParticipant ||
+    !responderParticipant ||
+    initiatorParticipant.role === responderParticipant.role
+  ) {
+    return { ok: true, recorded: false };
+  }
+
+  const result = await recordCrossOwnerRuntimeAttemptAudit(sb, {
+    consentId: input.consent.id,
+    actorRole,
+    initiatorRole: initiatorParticipant.role,
+    responderRole: responderParticipant.role,
+    consentStatus: input.consent.status,
+    requestedScopeVersion: input.consent.requested_scope_version,
+    requestedScope: CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE,
+    readinessCode: input.readinessCode,
+    lifecycleStatus: input.lifecycleStatus,
+    completedAt: input.completedAt ?? null,
+  });
+
+  if (!result.ok) return { ok: false };
+  return { ok: true, recorded: true };
 }
 
 async function transitionCrossOwnerConsent(
@@ -2215,6 +2624,53 @@ async function loadOwnedEncounterPersona(
   return (data ?? null) as EncounterPersonaRow | null;
 }
 
+async function resolveCrossOwnerDisposablePreviewProviderRoute(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+  fallbackTier: string,
+) {
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("tier")
+    .eq("id", ownerUserId)
+    .maybeSingle();
+
+  const stationModel = selectStationModel(profile?.tier ?? fallbackTier);
+  const chatRoute = resolveChatProviderRuntimeRoute({
+    provider: "platform",
+    aiMode: "platform",
+    byokOpenaiKey: null,
+    byokAnthropicKey: null,
+    byokDeepseekKey: null,
+    platformDeepseekKey: process.env.DEEPSEEK_API_KEY,
+    platformDeepseekBaseUrl: process.env.DEEPSEEK_BASE_URL,
+    platformDeepseekModel: process.env.DEEPSEEK_MODEL,
+    platformNvidiaKey: process.env.NVIDIA_AI_API_KEY?.trim() || undefined,
+    platformNvidiaBaseUrl: process.env.NVIDIA_MODEL_BASE_URL,
+    platformNvidiaModel: process.env.NVIDIA_MODEL,
+    allowPlatformNvidia: personaEncounterPlatformNvidiaPrivateContextAllowed(),
+    stationAnthropicKey: process.env.ANTHROPIC_API_KEY,
+    stationAnthropicModel: stationModel.model,
+  });
+
+  if (!chatRoute.configured || !chatRoute.provider) {
+    return {
+      configured: false as const,
+      status: 503,
+      body: {
+        error: "Encounter preview provider setup is unavailable.",
+        code: "persona_encounter_provider_unavailable",
+        classification: chatRoute.missingConfig?.classification ?? "provider_config",
+      },
+    };
+  }
+
+  return {
+    configured: true as const,
+    chatRoute,
+  };
+}
+
 async function resolveEncounterPreviewProviderRoute(
   sb: ReturnType<typeof getSupabaseAdmin>,
   ownerUserId: string,
@@ -2407,6 +2863,34 @@ function buildEncounterPreviewUserMessage(input: {
     input.setup,
     "",
     `Reply once as ${input.responderName}.`,
+  ].join("\n");
+}
+
+function buildCrossOwnerDisposablePreviewSystemPrompt(input: {
+  initiatorName: string;
+  responderName: string;
+}) {
+  return [
+    "You are generating one private disposable cross-owner Studio persona encounter preview.",
+    "Generate exactly one reply from the responder display name.",
+    "Use only the consent display names and the actor-authored setup in the user message.",
+    "Do not use, infer, request, or claim access to private profile fields, Memory, Archive, Canon, Continuity, retrieval, transcripts, source bodies, provider internals, storage paths, raw owner ids, raw persona ids, public routes, or shared private history.",
+    "Do not continue the conversation, write both sides, summarize, excerpt, publish, save, or claim persistence.",
+    `Initiator display name: ${clip(input.initiatorName, 120)}`,
+    `Responder display name: ${clip(input.responderName, 120)}`,
+  ].join("\n\n");
+}
+
+function buildCrossOwnerDisposablePreviewUserMessage(input: {
+  initiatorName: string;
+  responderName: string;
+  setup: string;
+}) {
+  return [
+    `Actor-authored setup for ${clip(input.initiatorName, 120)} to encounter ${clip(input.responderName, 120)}:`,
+    input.setup,
+    "",
+    `Reply exactly once as ${clip(input.responderName, 120)}.`,
   ].join("\n");
 }
 

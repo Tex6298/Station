@@ -4,6 +4,50 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR514A Consented Cross-Owner Disposable Preview Route
+
+DAEDALUS completed PR514A implementation on 2026-07-11:
+
+- `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- route
+  `POST /persona-encounters/cross-owner-consents/:consentId/disposable-preview`
+  is separate from same-owner `POST /persona-encounters/preview`;
+- route requires auth, participant-scoped consent, approved
+  `run_cross_owner_encounter` consent, scope version `1`, and PR512 runtime
+  context contract eligibility;
+- prompt builder uses only consent display snapshots and actor-authored setup;
+- provider routing is actor-owned/platform only and ignores counterparty BYOK,
+  private provider setup, responder provider preference, and responder persona
+  provider routing;
+- runtime attempt audit rows are required before provider execution and for
+  blocked/provider outcomes;
+- audit insertion failure fails closed before provider call or token write;
+- successful preview records actor-only token usage with `chatId: null`;
+- response is private, disposable, non-canonical, non-public, not saved, not a
+  transcript/summary/excerpt, not shareable, and not sourced from private
+  retrieval;
+- no private session, public exhibit, report, memory/canon/archive/continuity/
+  export/job/storage/public row, UI, package, billing, Redis, Cloudflare, worker,
+  deployment, or public-surfacing drift was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 53 tests passed, including PR514A success, signed-out/nonparticipant, wrong role/pair, inactive/wrong-scope/wrong-version consent, audit fail-closed before provider/token write, provider unavailable, quota exceeded, rate limited, provider failed, provider empty, prompt privacy, actor-only token accounting, and no-drift coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR514A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changes are limited to persona encounter API/test files and PR514A roadmap/testing docs. |
+| Forbidden-path scan | Pass | No web UI, package/lockfile, provider service, token service, operational cache, `packages/ai`, `packages/auth`, Supabase migration, Railway, Cloudflare, or deploy-script paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the diff. |
+| `git diff --check` | Pass | No unstaged whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR513D Cross-Owner Runtime Attempt Audit Hosted Rerun
 
 ARIADNE completed PR513D hosted API/data rerun on 2026-07-11:
