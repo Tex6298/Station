@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517C hosted metadata exhibit proof rerun
+## Current lane - PR517C hosted metadata exhibit proof rerun blocked
 
 ARIADNE failed PR517B before creating fixture data because hosted PostgREST did
 not yet see migration `080`:
@@ -20,8 +20,8 @@ Current lane:
 ```text
 PR517C - Cross-Owner Metadata-Only Public Exhibit Hosted Rerun
 Owner: ARIADNE / A4
-State: Routed after UNBLOCK_PR517B_HOSTED_MIGRATION_080_APPLIED
-Source: docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_ARIADNE.md
+State: BLOCK_PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN
+Source: docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md
 ```
 
 Hosted migration unblock:
@@ -36,8 +36,35 @@ Hosted migration unblock:
   `table_exists=true`, `columns=26`, `constraints=41`, `triggers=2`,
   `policies=2`, `ledger=1`, `postgrest_status=200`.
 
-ARIADNE should rerun the PR517B hosted proof as PR517C and wake MIMIR with a
-pass, fail, or concrete blocker verdict.
+ARIADNE result:
+
+`docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md`
+
+PR517C proved the hosted cross-owner metadata-only contract through cleanup:
+
+- hosted migration `080` table, triggers, consent-retract trigger, RLS policies,
+  and moderation target type were visible;
+- pending, wrong-scope, wrong-version, nonparticipant, duplicate, same-actor,
+  mismatched-metadata, removed, inactive-restore, and retracted states failed
+  closed;
+- exact bilateral metadata approval published a metadata-only public readback
+  with no raw UUID-shaped ids or credential-pattern text;
+- report, moderation remove/restore while active, revocation hiding, participant
+  retract hiding, public no-surfacing, and no private-session/runtime drift
+  passed;
+- cleanup left `activeProofConsents 0`, `publicTempTargets 0`, and
+  `publiclyReadableRows 0`.
+
+Smallest blocker:
+
+- hosted has no published same-owner public exhibit fixture, so ARIADNE could
+  not run the required same-owner report/remove/restore regression proof.
+
+Decision needed:
+
+- MIMIR should provide/authorize a safe same-owner hosted fixture or explicitly
+  waive that hosted same-owner check based on existing local PR517A report-route
+  tests.
 
 ## Previous lane - PR517B hosted metadata exhibit proof failed
 

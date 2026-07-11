@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517C | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Routed after `UNBLOCK_PR517B_HOSTED_MIGRATION_080_APPLIED`; migration 080 is ledgered on hosted and PostgREST returns `200` for the table. ARIADNE reruns the hosted proof. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_ARIADNE.md` |
+| PR517C | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Blocked as `BLOCK_PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN`; hosted cross-owner metadata-only contract passed through cleanup, but hosted has no published same-owner public exhibit fixture for the required report/remove/restore regression proof. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md` |
 
 ## Recently Closed
 

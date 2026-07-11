@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR517C Cross-Owner Metadata-Only Public Exhibit Hosted Rerun
+
+ARIADNE reran the hosted proof on 2026-07-11 after MIMIR applied hosted
+migration `080`:
+
+- `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md`
+
+Validation result:
+`BLOCK_PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN`.
+
+Reason:
+
+- migration `080` table, exhibit triggers, consent inactive retract trigger,
+  RLS policies, and moderation target type are visible on hosted;
+- proposal and approval fail-closed states passed for pending consent, wrong
+  scope, wrong version, nonparticipant, duplicate proposal, same actor,
+  mismatched metadata, removed exhibit, inactive restore, and retracted exhibit;
+- exact bilateral metadata approval published a metadata-only public readback
+  with no UUID-shaped raw ids or credential-pattern text;
+- report, moderation remove/restore while active, revocation hiding,
+  participant retract hiding, public no-surfacing, and no private
+  session/runtime drift passed;
+- cleanup left no active PR517C proof consents, no public PR517C temporary
+  target, and no publicly readable PR517C proof row;
+- hosted has no published same-owner public exhibit fixture, so the same-owner
+  report/remove/restore regression proof could not run.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr517c-hosted-proof.mjs` | Blocked | Cross-owner hosted contract passed through cleanup; blocked at same-owner regression fixture lookup. |
+| `node .tmp\pr517c-orphan-cleanup.mjs` | Pass | Final cleanup reported `activeProofConsents 0`, `publicTempTargets 0`, and `publiclyReadableRows 0`. |
+| `node .tmp\pr517c-orphan-check.mjs` | Pass | PR517C proof rows are retracted/removed, proof consents are revoked, and temporary targets are private. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts touched. |
+
 ## PR517B Cross-Owner Metadata-Only Public Exhibit Hosted Proof
 
 ARIADNE attempted PR517B hosted proof on 2026-07-11:
