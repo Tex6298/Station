@@ -4,58 +4,86 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515A counterparty selection contract
+## Current lane - PR515A ready for ARGUS review
 
-MIMIR closed PR515 and routed PR515A:
+DAEDALUS implemented PR515A:
 
-`docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_RESULT.md`
 
 `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md`
 
 Result:
 
 ```text
-CLOSE_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK
+READY_FOR_ARGUS_REVIEW
 ```
 
 Current lane:
 
 ```text
 PR515A - Cross-Owner Consent Counterparty Selection Contract
-Owner: DAEDALUS / A2
-State: OPEN_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_RESULT.md
 ```
 
-Goal:
+Summary:
 
-- add the smallest API/web-helper contract that lets an authenticated owner
-  select and invite an eligible public counterparty persona without submitting
-  raw counterparty persona UUIDs or owner ids in browser-visible shapes;
-- preserve requester ownership, different-owner, bounded scope, audit, and
-  participant readback rules;
-- keep visible invitation UI, generated-word readback, saved sessions, public
+- added authenticated public-slug target lookup:
+  `GET /persona-encounters/cross-owner-consent-targets/:publicSlug`;
+- added authenticated public-slug consent creation:
+  `POST /persona-encounters/cross-owner-consents/from-public-persona`;
+- target readback returns public display name, short public description,
+  sanitized avatar URL, safe slug/href, explicit eligibility, and provenance
+  labels only;
+- create verifies requester ownership, resolves the counterparty server-side,
+  rejects unsafe/UUID slugs, private or unavailable targets, ineligible-owner
+  targets, stale slugs, same-owner targets, strict-body raw ids, and forged
+  owner/provider fields before writes;
+- existing consent ledger RPC, audit rows, scope bounds, participant readback,
+  and state transitions are preserved;
+- web helpers now normalize safe public persona slugs/hrefs, build target/create
+  paths and payloads, type the public target/create responses, and provide
+  bounded invitation error copy;
+- the persona-encounter test harness now honors Supabase
+  `select(..., { count, head })` so tier eligibility is tested against filtered
+  public persona counts;
+- no visible invitation UI, generated-word readback, saved sessions, public
   exhibits, retrieval, storage, billing, Redis, Cloudflare, workers, provider
-  config, broad redesign, and hosted-runtime scope out of this lane.
+  config, broad redesign, public routes, migrations, deployment, or
+  hosted-runtime scope was added.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters  PASS - 64 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 209 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+```
+
+Current baton:
+
+- ARGUS should hostile-review PR515A against the counterparty selector/create
+  boundary.
+- If accepted, ARGUS should wake MIMIR with
+  `ACCEPT_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT`.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 
 Summary:
-- ARGUS blocked full PR515 invitation UI on CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_MISSING.
-- Existing participant consent list/detail/action routes are safe for already-visible rows.
-- Invitation creation still needs a safe selector/create contract so browser code does not submit raw counterparty persona UUIDs.
+- DAEDALUS implemented PR515A, the cross-owner consent counterparty selection/create contract.
+- Browser-facing create can use a safe public slug/href instead of a raw counterparty persona UUID.
+- Tests cover unsafe slugs, private/ineligible/same-owner/stale targets, missing requester ownership, strict-body raw id rejection, and no raw owner/persona/provider/private/token/secret/generated-word readback.
 
 Task:
-- Implement PR515A: smallest API/web-helper contract for safe counterparty selection and consent creation.
-- Prefer resolving a safe public slug/href server-side unless an opaque handle is clearly safer and still small.
-- Preserve the existing consent ledger boundaries and participant readback.
-- Add focused API/web-helper tests proving unsafe slugs, private/ineligible/same-owner targets, forged or stale handles, raw ids, private fields, provider payloads, token facts, SQL details, bearer/env/secret-shaped values, and generated-word surfaces do not leak.
-- Run test:persona-encounters, test:studio-ui, and typecheck.
-- Wake ARGUS with the implementation result.
+- Hostile-review PR515A.
+- Confirm the contract safely unblocks visible PR515 invitation UI.
+- Wake MIMIR with acceptance, or wake DAEDALUS with required fixes.
 ```
 
 ## Previous lane - PR515 preflight blocked

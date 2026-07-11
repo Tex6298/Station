@@ -211,6 +211,42 @@ export interface PersonaEncounterCrossOwnerConsentListResponse {
   consents: PersonaEncounterCrossOwnerConsent[];
 }
 
+export interface PersonaEncounterCrossOwnerConsentPublicTarget {
+  personaName: string;
+  shortDescription: string | null;
+  avatarUrl: string | null;
+  publicSlug: string;
+  routeHref: string;
+  eligibility: {
+    eligible: boolean;
+    code: "eligible";
+    message: string;
+  };
+  provenance: {
+    label: "Public counterparty persona selection target";
+    publicOnly: true;
+    participantSafe: true;
+    rawPersonaIdExposed: false;
+    rawOwnerIdExposed: false;
+    note: string;
+  };
+}
+
+export interface PersonaEncounterCrossOwnerConsentPublicTargetResponse {
+  target: PersonaEncounterCrossOwnerConsentPublicTarget;
+}
+
+export interface PersonaEncounterCrossOwnerConsentCreateByPublicSlugRequest {
+  requesterPersonaId: string;
+  counterpartyPublicSlug: string;
+  requestedScopes?: string[];
+}
+
+export interface PersonaEncounterCrossOwnerConsentCreateByPublicSlugResponse {
+  consent: PersonaEncounterCrossOwnerConsent;
+  target: PersonaEncounterCrossOwnerConsentPublicTarget;
+}
+
 export interface PersonaEncounterPrivateSession {
   id: string;
   createdAt: string;
@@ -392,6 +428,10 @@ export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/pre
 export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH = "/persona-encounters/public-exhibits";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH = "/persona-encounters/cross-owner-consents";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH =
+  "/persona-encounters/cross-owner-consents/from-public-persona";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH =
+  "/persona-encounters/cross-owner-consent-targets";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE =
   "run_cross_owner_encounter";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION = 1;
@@ -421,6 +461,38 @@ export function personaEncounterCrossOwnerDisposablePreviewPayload(
   return {
     setup: input.setup.trim(),
     ...(input.maxOutputTokens !== undefined ? { maxOutputTokens: input.maxOutputTokens } : {}),
+  };
+}
+
+export function personaEncounterCrossOwnerCounterpartyPublicSlug(
+  publicSlugOrHref: string | null | undefined,
+) {
+  const value = (publicSlugOrHref ?? "").trim();
+  if (!value) return null;
+
+  const slug = value.startsWith("/personas/")
+    ? value.slice("/personas/".length).split(/[?#]/)[0]
+    : value;
+  if (slug.includes("/")) return null;
+
+  return isSafeCrossOwnerPublicPersonaSlug(slug) ? slug : null;
+}
+
+export function personaEncounterCrossOwnerConsentTargetPath(publicSlugOrHref: string) {
+  const publicSlug = personaEncounterCrossOwnerCounterpartyPublicSlug(publicSlugOrHref);
+  return publicSlug
+    ? `${PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH}/${encodeURIComponent(publicSlug)}`
+    : null;
+}
+
+export function personaEncounterCrossOwnerConsentCreateByPublicSlugPayload(
+  input: PersonaEncounterCrossOwnerConsentCreateByPublicSlugRequest,
+) {
+  const publicSlug = personaEncounterCrossOwnerCounterpartyPublicSlug(input.counterpartyPublicSlug);
+  return {
+    requesterPersonaId: input.requesterPersonaId,
+    counterpartyPublicSlug: publicSlug ?? "",
+    requestedScopes: input.requestedScopes ?? [PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE],
   };
 }
 
@@ -761,6 +833,38 @@ export function personaEncounterCrossOwnerDisposablePreviewErrorCopy(input: {
     default:
       return "Cross-owner disposable preview could not run.";
   }
+}
+
+export function personaEncounterCrossOwnerConsentInvitationErrorCopy(input: {
+  status?: number;
+  code?: string;
+  message?: string;
+}) {
+  switch (input.code) {
+    case "persona_encounter_cross_owner_target_invalid_slug":
+      return "Choose a safe public persona route before inviting.";
+    case "persona_encounter_cross_owner_target_unavailable":
+      return "That public persona cannot be invited.";
+    case "persona_encounter_cross_owner_target_same_owner":
+    case "persona_encounter_cross_owner_required":
+      return "Cross-owner invitations require a public persona owned by another account.";
+    case "persona_encounter_cross_owner_requester_persona_not_owned":
+      return "Choose one of your own personas before inviting.";
+    case "persona_encounter_cross_owner_consent_save_failed":
+      return "Cross-owner consent invitation could not be saved.";
+    case "persona_encounter_cross_owner_target_load_failed":
+      return "Counterparty public persona target could not be loaded.";
+    default:
+      return "Cross-owner consent invitation could not be prepared.";
+  }
+}
+
+function isSafeCrossOwnerPublicPersonaSlug(value: string | null | undefined) {
+  return Boolean(
+    value &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) &&
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  );
 }
 
 function normalizeOptionalText(value: string | null | undefined) {

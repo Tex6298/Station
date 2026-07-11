@@ -14,6 +14,12 @@ import {
   selectStationModel,
 } from "../services/token-credits.service";
 import { incrementOperationalRateLimit } from "../services/operational-cache.service";
+import {
+  isSafePublicPersonaSlug,
+  publicPersonaRouteHref,
+  sanitizePublicPersonaAvatarUrl,
+} from "../lib/persona-serialization";
+import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
 
 export const personaEncountersRouter = Router();
 
@@ -219,6 +225,14 @@ const crossOwnerConsentCreateSchema = z.object({
   path: ["counterpartyPersonaId"],
 });
 
+const crossOwnerConsentCreateByPublicSlugSchema = z.object({
+  requesterPersonaId: z.string().uuid(),
+  counterpartyPublicSlug: z.string().trim().min(1).max(160)
+    .refine((value) => isSafePublicPersonaSlug(value), "Select a safe public persona route."),
+  requestedScopes: crossOwnerConsentRequestedScopesSchema
+    .default(["run_cross_owner_encounter"] satisfies CrossOwnerConsentRequestedScope[]),
+}).strict();
+
 const crossOwnerConsentReasonBodySchema = z.object({
   reasonCode: crossOwnerConsentReasonCodeSchema.optional(),
 }).strict();
@@ -270,6 +284,11 @@ type EncounterPersonaRow = {
   provider: "platform" | "openai" | "anthropic" | "deepseek" | "gemini";
   awakening_prompt?: string | null;
   style_notes?: string | null;
+};
+
+type CrossOwnerConsentPublicTargetRow = Pick<EncounterPersonaRow, "id" | "owner_user_id" | "name" | "short_description" | "visibility"> & {
+  avatar_url?: string | null;
+  public_slug: string;
 };
 
 type EncounterPrivateSessionRow = {
@@ -847,6 +866,104 @@ personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async
   });
 });
 
+personaEncountersRouter.get("/cross-owner-consent-targets/:publicSlug", requireAuth, async (req, res) => {
+  const parsedSlug = z.string().trim().min(1).max(160)
+    .refine((value) => isSafePublicPersonaSlug(value), "Select a safe public persona route.")
+    .safeParse(req.params.publicSlug);
+  if (!parsedSlug.success) {
+    return res.status(400).json({
+      error: "Counterparty public persona route is not safe.",
+      code: "persona_encounter_cross_owner_target_invalid_slug",
+    });
+  }
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const target = await loadCrossOwnerConsentPublicTargetBySlug(sb, parsedSlug.data);
+  if (!target.ok) {
+    return res.status(500).json({
+      error: "Counterparty public persona target could not be loaded.",
+      code: "persona_encounter_cross_owner_target_load_failed",
+    });
+  }
+  if (!target.row) {
+    return res.status(404).json({
+      error: "Counterparty public persona target is not available.",
+      code: "persona_encounter_cross_owner_target_unavailable",
+    });
+  }
+  if (target.row.owner_user_id === ownerUserId) {
+    return res.status(409).json({
+      error: "Cross-owner consent invitations require a public persona owned by another account.",
+      code: "persona_encounter_cross_owner_target_same_owner",
+    });
+  }
+
+  return res.json({
+    target: serializeCrossOwnerConsentPublicTarget(target.row),
+  });
+});
+
+personaEncountersRouter.post("/cross-owner-consents/from-public-persona", requireAuth, async (req, res) => {
+  const parsed = crossOwnerConsentCreateByPublicSlugSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const input = parsed.data;
+
+  const [requesterPersona, target] = await Promise.all([
+    loadOwnedEncounterPersona(sb, input.requesterPersonaId, ownerUserId),
+    loadCrossOwnerConsentPublicTargetBySlug(sb, input.counterpartyPublicSlug),
+  ]);
+
+  if (!requesterPersona) {
+    return res.status(403).json({
+      error: "Requester persona must belong to the current owner.",
+      code: "persona_encounter_cross_owner_requester_persona_not_owned",
+    });
+  }
+
+  if (!target.ok) {
+    return res.status(500).json({
+      error: "Counterparty public persona target could not be loaded.",
+      code: "persona_encounter_cross_owner_target_load_failed",
+    });
+  }
+
+  if (!target.row) {
+    return res.status(404).json({
+      error: "Counterparty public persona target is not available.",
+      code: "persona_encounter_cross_owner_target_unavailable",
+    });
+  }
+
+  if (target.row.owner_user_id === ownerUserId) {
+    return res.status(400).json({
+      error: "Cross-owner consent invitations require personas owned by different owners.",
+      code: "persona_encounter_cross_owner_required",
+    });
+  }
+
+  const created = await createCrossOwnerConsentInvitation(sb, {
+    requesterOwnerUserId: ownerUserId,
+    requesterPersona,
+    counterpartyPersona: target.row,
+    requestedScopes: input.requestedScopes,
+  });
+  if (!created.ok) {
+    return res.status(500).json({
+      error: "Cross-owner encounter consent invitation could not be saved.",
+      code: "persona_encounter_cross_owner_consent_save_failed",
+    });
+  }
+
+  return res.status(201).json({
+    consent: serializeCrossOwnerConsent(created.consent, ownerUserId, created.audit),
+    target: serializeCrossOwnerConsentPublicTarget(target.row),
+  });
+});
+
 personaEncountersRouter.post("/cross-owner-consents", requireAuth, async (req, res) => {
   const parsed = crossOwnerConsentCreateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
@@ -881,28 +998,21 @@ personaEncountersRouter.post("/cross-owner-consents", requireAuth, async (req, r
     });
   }
 
-  const { data, error } = await sb.rpc("create_persona_encounter_cross_owner_consent", {
-    p_requester_owner_user_id: ownerUserId,
-    p_requester_persona_id: requesterPersona.id,
-    p_requester_persona_name_snapshot: requesterPersona.name,
-    p_counterparty_owner_user_id: counterpartyPersona.owner_user_id,
-    p_counterparty_persona_id: counterpartyPersona.id,
-    p_counterparty_persona_name_snapshot: counterpartyPersona.name,
-    p_requested_scopes: input.requestedScopes,
-    p_actor_user_id: ownerUserId,
+  const created = await createCrossOwnerConsentInvitation(sb, {
+    requesterOwnerUserId: ownerUserId,
+    requesterPersona,
+    counterpartyPersona,
+    requestedScopes: input.requestedScopes,
   });
-
-  const consent = coerceCrossOwnerConsentRpcRow(data);
-  if (error || !consent) {
+  if (!created.ok) {
     return res.status(500).json({
       error: "Cross-owner encounter consent invitation could not be saved.",
       code: "persona_encounter_cross_owner_consent_save_failed",
     });
   }
 
-  const audit = await loadCrossOwnerConsentAuditEvents(sb, consent.id);
   return res.status(201).json({
-    consent: serializeCrossOwnerConsent(consent, ownerUserId, audit),
+    consent: serializeCrossOwnerConsent(created.consent, ownerUserId, created.audit),
   });
 });
 
@@ -1872,6 +1982,29 @@ function serializeCrossOwnerConsent(
   };
 }
 
+function serializeCrossOwnerConsentPublicTarget(row: CrossOwnerConsentPublicTargetRow) {
+  return {
+    personaName: row.name,
+    shortDescription: row.short_description ?? null,
+    avatarUrl: sanitizePublicPersonaAvatarUrl(row.avatar_url),
+    publicSlug: row.public_slug,
+    routeHref: publicPersonaRouteHref(row.public_slug),
+    eligibility: {
+      eligible: true,
+      code: "eligible",
+      message: "Public counterparty persona can be invited.",
+    },
+    provenance: {
+      label: "Public counterparty persona selection target",
+      publicOnly: true,
+      participantSafe: true,
+      rawPersonaIdExposed: false,
+      rawOwnerIdExposed: false,
+      note: "Selection readback uses public persona fields only. Private profile fields, owner ids, persona ids, provider payloads, token facts, prompts, SQL details, and generated words are not exposed.",
+    },
+  };
+}
+
 function serializeCrossOwnerConsentAuditEvent(row: EncounterCrossOwnerConsentAuditRow) {
   return {
     id: row.id,
@@ -2248,6 +2381,31 @@ async function loadEncounterPersona(
   return (data ?? null) as EncounterPersonaRow | null;
 }
 
+async function loadCrossOwnerConsentPublicTargetBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  publicSlug: string,
+): Promise<{ ok: true; row: CrossOwnerConsentPublicTargetRow | null } | { ok: false }> {
+  if (!isSafePublicPersonaSlug(publicSlug)) return { ok: true, row: null };
+
+  const { data, error } = await sb
+    .from("personas")
+    .select("id, owner_user_id, name, short_description, visibility, avatar_url, public_slug")
+    .eq("public_slug", publicSlug)
+    .eq("visibility", "public")
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  if (!data) return { ok: true, row: null };
+
+  const row = data as CrossOwnerConsentPublicTargetRow & { public_slug: string | null };
+  if (!isSafePublicPersonaSlug(row.public_slug)) return { ok: true, row: null };
+  if (!await ownerCanExposeExistingPublicPersonas(sb, row.owner_user_id)) {
+    return { ok: true, row: null };
+  }
+
+  return { ok: true, row: { ...row, public_slug: row.public_slug } };
+}
+
 async function loadCrossOwnerConsentsForParticipant(
   sb: ReturnType<typeof getSupabaseAdmin>,
   ownerUserId: string,
@@ -2321,6 +2479,36 @@ async function loadCrossOwnerConsentAuditEvents(
 
   if (error) return [];
   return (data ?? []) as EncounterCrossOwnerConsentAuditRow[];
+}
+
+async function createCrossOwnerConsentInvitation(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  input: {
+    requesterOwnerUserId: string;
+    requesterPersona: Pick<EncounterPersonaRow, "id" | "name">;
+    counterpartyPersona: Pick<EncounterPersonaRow, "id" | "owner_user_id" | "name">;
+    requestedScopes: CrossOwnerConsentRequestedScope[];
+  },
+): Promise<
+  | { ok: true; consent: EncounterCrossOwnerConsentRow; audit: EncounterCrossOwnerConsentAuditRow[] }
+  | { ok: false }
+> {
+  const { data, error } = await sb.rpc("create_persona_encounter_cross_owner_consent", {
+    p_requester_owner_user_id: input.requesterOwnerUserId,
+    p_requester_persona_id: input.requesterPersona.id,
+    p_requester_persona_name_snapshot: input.requesterPersona.name,
+    p_counterparty_owner_user_id: input.counterpartyPersona.owner_user_id,
+    p_counterparty_persona_id: input.counterpartyPersona.id,
+    p_counterparty_persona_name_snapshot: input.counterpartyPersona.name,
+    p_requested_scopes: input.requestedScopes,
+    p_actor_user_id: input.requesterOwnerUserId,
+  });
+
+  const consent = coerceCrossOwnerConsentRpcRow(data);
+  if (error || !consent) return { ok: false };
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, consent.id);
+  return { ok: true, consent, audit };
 }
 
 async function loadCrossOwnerRuntimeAttempts(

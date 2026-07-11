@@ -476,6 +476,7 @@ class QueryBuilder {
   private orderSpecs: Array<{ field: string; ascending: boolean }> = [];
   private orPredicates: Array<(row: Row) => boolean> = [];
   private limitCount: number | null = null;
+  private selectOptions: { count?: string; head?: boolean } = {};
   private mutation:
     | { type: "insert"; payload: Row | Row[] }
     | { type: "update"; payload: Row }
@@ -484,7 +485,8 @@ class QueryBuilder {
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
-  select() {
+  select(_columns?: string, options: { count?: string; head?: boolean } = {}) {
+    this.selectOptions = options;
     return this;
   }
 
@@ -632,18 +634,24 @@ class QueryBuilder {
       return { data: null, error: null };
     }
 
-    const data = clone(this.matchingRows());
+    const rows = this.matchingRows();
+    const count = this.selectOptions.count ? rows.length : null;
+    if (this.selectOptions.head) {
+      return { data: null, error: null, count };
+    }
+
+    const data = clone(rows);
     if (mode === "single") {
       return data.length === 1
-        ? { data: data[0], error: null }
-        : { data: null, error: { message: `Expected one ${this.table} row.` } };
+        ? { data: data[0], error: null, count }
+        : { data: null, error: { message: `Expected one ${this.table} row.` }, count };
     }
     if (mode === "maybeSingle") {
       return data.length > 0
-        ? { data: data[0], error: null }
-        : { data: null, error: null };
+        ? { data: data[0], error: null, count }
+        : { data: null, error: null, count };
     }
-    return { data, error: null };
+    return { data, error: null, count };
   }
 }
 
@@ -816,6 +824,19 @@ function crossOwnerConsentBody(overrides: Partial<{
   return {
     requesterPersonaId: INITIATOR_ID,
     counterpartyPersonaId: OTHER_PERSONA_ID,
+    requestedScopes: ["run_cross_owner_encounter"],
+    ...overrides,
+  };
+}
+
+function crossOwnerConsentByPublicSlugBody(overrides: Partial<{
+  requesterPersonaId: string;
+  counterpartyPublicSlug: string;
+  requestedScopes: string[];
+}> = {}) {
+  return {
+    requesterPersonaId: INITIATOR_ID,
+    counterpartyPublicSlug: "other-owner-persona",
     requestedScopes: ["run_cross_owner_encounter"],
     ...overrides,
   };
@@ -1277,6 +1298,171 @@ test("cross-owner consent invitations require auth ownership different owners an
     ]) {
       assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in consent readback`);
     }
+  });
+});
+
+test("cross-owner consent public target contract resolves and creates without raw counterparty ids", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const otherProfile = db.rows("profiles").find((profile) => profile.id === OTHER_OWNER_ID)!;
+    otherProfile.tier = "creator";
+    const otherPersona = db.rows("personas").find((persona) => persona.id === OTHER_PERSONA_ID)!;
+    otherPersona.visibility = "public";
+    otherPersona.public_slug = "other-owner-persona";
+    otherPersona.avatar_url = "https://example.com/avatar.png";
+
+    const target = await requestJson(app, "GET", "/persona-encounters/cross-owner-consent-targets/other-owner-persona", {
+      token: "owner-token",
+    });
+    assert.equal(target.status, 200);
+    assert.deepEqual(target.body.target, {
+      personaName: "Other Owner Persona",
+      shortDescription: "Not owned by the caller.",
+      avatarUrl: "https://example.com/avatar.png",
+      publicSlug: "other-owner-persona",
+      routeHref: "/personas/other-owner-persona",
+      eligibility: {
+        eligible: true,
+        code: "eligible",
+        message: "Public counterparty persona can be invited.",
+      },
+      provenance: {
+        label: "Public counterparty persona selection target",
+        publicOnly: true,
+        participantSafe: true,
+        rawPersonaIdExposed: false,
+        rawOwnerIdExposed: false,
+        note: "Selection readback uses public persona fields only. Private profile fields, owner ids, persona ids, provider payloads, token facts, prompts, SQL details, and generated words are not exposed.",
+      },
+    });
+
+    const created = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents/from-public-persona", {
+      token: "owner-token",
+      body: crossOwnerConsentByPublicSlugBody({
+        requestedScopes: [
+          "run_cross_owner_encounter",
+          "publish_metadata_only_public_exhibit",
+        ],
+      }),
+    });
+
+    assert.equal(created.status, 201);
+    assert.equal(created.body.consent.status, "pending");
+    assert.equal(created.body.consent.participants.requester.personaName, "Blue Lantern");
+    assert.equal(created.body.consent.participants.counterparty.personaName, "Other Owner Persona");
+    assert.equal(created.body.target.publicSlug, "other-owner-persona");
+    assert.equal(created.body.target.routeHref, "/personas/other-owner-persona");
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_consents")[0].requested_scopes,
+      ["run_cross_owner_encounter", "publish_metadata_only_public_exhibit"],
+    );
+    assert.equal(db.rows("persona_encounter_cross_owner_consent_audit_events").length, 2);
+    assert.equal(providerCalls.length, 0);
+    assertNoForbiddenCrossOwnerConsentSideEffects(db);
+
+    const responseJson = JSON.stringify(created.body);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "owner_user_id",
+      "counterpartyPersonaId",
+      "counterparty_persona_id",
+      "requester_owner_user_id",
+      "Owner-only private persona notes",
+      "Cross-owner private material",
+      "awakening_prompt",
+      "style_notes",
+      "providerPayload",
+      "token_usage",
+      "Bearer ",
+      "sql",
+    ]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in public target create response`);
+    }
+  });
+});
+
+test("cross-owner consent public target contract rejects unsafe unavailable and forged targets", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const anonymous = await requestJson(app, "GET", "/persona-encounters/cross-owner-consent-targets/other-owner-persona");
+    assert.equal(anonymous.status, 401);
+
+    const uuidSlug = await requestJson(
+      app,
+      "GET",
+      "/persona-encounters/cross-owner-consent-targets/550e8400-e29b-41d4-a716-446655440000",
+      { token: "owner-token" },
+    );
+    assert.equal(uuidSlug.status, 400);
+    assert.equal(uuidSlug.body.code, "persona_encounter_cross_owner_target_invalid_slug");
+
+    const rawIds = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents/from-public-persona", {
+      token: "owner-token",
+      body: {
+        ...crossOwnerConsentByPublicSlugBody(),
+        counterpartyPersonaId: OTHER_PERSONA_ID,
+        ownerUserId: OTHER_OWNER_ID,
+        providerPayload: "nope",
+      },
+    });
+    assert.equal(rawIds.status, 400);
+
+    const privateTarget = await requestJson(app, "GET", "/persona-encounters/cross-owner-consent-targets/other-owner-persona", {
+      token: "owner-token",
+    });
+    assert.equal(privateTarget.status, 404);
+    assert.equal(privateTarget.body.code, "persona_encounter_cross_owner_target_unavailable");
+
+    const otherProfile = db.rows("profiles").find((profile) => profile.id === OTHER_OWNER_ID)!;
+    otherProfile.tier = "private";
+    const otherPersona = db.rows("personas").find((persona) => persona.id === OTHER_PERSONA_ID)!;
+    otherPersona.visibility = "public";
+    otherPersona.public_slug = "other-owner-persona";
+
+    const ineligibleTarget = await requestJson(app, "GET", "/persona-encounters/cross-owner-consent-targets/other-owner-persona", {
+      token: "owner-token",
+    });
+    assert.equal(ineligibleTarget.status, 404);
+
+    otherProfile.tier = "creator";
+    const missingRequester = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents/from-public-persona", {
+      token: "owner-token",
+      body: crossOwnerConsentByPublicSlugBody({ requesterPersonaId: OTHER_PERSONA_ID }),
+    });
+    assert.equal(missingRequester.status, 403);
+    assert.equal(missingRequester.body.code, "persona_encounter_cross_owner_requester_persona_not_owned");
+
+    const staleSlug = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents/from-public-persona", {
+      token: "owner-token",
+      body: crossOwnerConsentByPublicSlugBody({ counterpartyPublicSlug: "stale-public-persona" }),
+    });
+    assert.equal(staleSlug.status, 404);
+    assert.equal(staleSlug.body.code, "persona_encounter_cross_owner_target_unavailable");
+
+    const ownerProfile = db.rows("profiles").find((profile) => profile.id === OWNER_ID)!;
+    ownerProfile.tier = "creator";
+    const sameOwnerPersona = db.rows("personas").find((persona) => persona.id === RESPONDER_ID)!;
+    sameOwnerPersona.visibility = "public";
+    sameOwnerPersona.public_slug = "same-owner-persona";
+
+    const sameOwnerTarget = await requestJson(app, "GET", "/persona-encounters/cross-owner-consent-targets/same-owner-persona", {
+      token: "owner-token",
+    });
+    assert.equal(sameOwnerTarget.status, 409);
+    assert.equal(sameOwnerTarget.body.code, "persona_encounter_cross_owner_target_same_owner");
+
+    const sameOwnerCreate = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents/from-public-persona", {
+      token: "owner-token",
+      body: crossOwnerConsentByPublicSlugBody({ counterpartyPublicSlug: "same-owner-persona" }),
+    });
+    assert.equal(sameOwnerCreate.status, 400);
+    assert.equal(sameOwnerCreate.body.code, "persona_encounter_cross_owner_required");
+
+    assert.equal(db.rows("persona_encounter_cross_owner_consents").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_consent_audit_events").length, 0);
+    assert.equal(providerCalls.length, 0);
+    assertNoForbiddenCrossOwnerConsentSideEffects(db);
   });
 });
 

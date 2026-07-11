@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR515A Cross-Owner Consent Counterparty Selection Contract
+
+DAEDALUS implemented PR515A on 2026-07-11:
+
+- `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the API now has an authenticated public-slug target lookup for eligible
+  public counterparty personas;
+- the API now has an authenticated public-slug consent creation path, so
+  browser-facing invitation code does not need to submit a raw counterparty
+  persona UUID;
+- target readback is limited to public display name, short public description,
+  sanitized avatar URL, safe slug/href, explicit eligibility, and provenance
+  labels;
+- create rejects unsafe or UUID-shaped slugs, strict-body raw id/owner/provider
+  fields, private targets, ineligible-owner targets, missing requester
+  ownership, stale slugs, and same-owner targets before consent writes;
+- existing consent ledger RPC, audit rows, scope bounds, participant readback,
+  and state transitions are preserved;
+- web helpers normalize safe public persona slugs/hrefs, build target/create
+  paths and payloads, type target/create responses, and keep invitation error
+  copy bounded;
+- the persona-encounter route test harness now honors Supabase
+  `select(..., { count, head })` behavior so public-persona tier eligibility is
+  tested against filtered counts;
+- no visible invitation UI, saved session, public exhibit, generated-word
+  sharing, retrieval, storage, billing, provider, worker, migration, public
+  route, hosted-runtime, or broad Studio scope was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 64 tests passed, including public-slug target/create coverage, unsafe/private/ineligible/stale/same-owner rejection, strict raw-id body rejection, no forbidden readback scans, and existing consent/runtime/session/exhibit boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 209 tests passed, including the new public-slug helper coverage alongside the existing Studio panel source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for `@station/api` and `@station/web`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+
 ## PR514F Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal
 
 ARIADNE completed PR514F hosted rehearsal on 2026-07-11:

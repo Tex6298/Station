@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515A | Cross-Owner Consent Counterparty Selection Contract | DAEDALUS / A2 | Open implementation for the smallest safe selector/create contract so browser code can invite eligible public counterparties without raw counterparty persona UUIDs or owner ids. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md` |
+| PR515A | Cross-Owner Consent Counterparty Selection Contract | ARGUS / A3 | Ready for hostile review. DAEDALUS added the public-slug target lookup/create contract so browser code can invite eligible public counterparties without raw counterparty persona UUIDs or owner ids. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_RESULT.md` |
 
 ## Recently Closed
 

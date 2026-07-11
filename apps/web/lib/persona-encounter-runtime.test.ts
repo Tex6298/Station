@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
+  PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH,
+  PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH,
   PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA,
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
@@ -11,8 +13,12 @@ import {
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
   personaEncounterCrossOwnerConsentCanRun,
+  personaEncounterCrossOwnerConsentCreateByPublicSlugPayload,
   personaEncounterCrossOwnerConsentDisplay,
+  personaEncounterCrossOwnerConsentInvitationErrorCopy,
   personaEncounterCrossOwnerConsentStateCopy,
+  personaEncounterCrossOwnerConsentTargetPath,
+  personaEncounterCrossOwnerCounterpartyPublicSlug,
   personaEncounterCrossOwnerDisposablePreviewErrorCopy,
   personaEncounterCrossOwnerDisposablePreviewPath,
   personaEncounterCrossOwnerDisposablePreviewPayload,
@@ -256,6 +262,53 @@ test("persona encounter runtime helper builds the consent-scoped cross-owner dis
   assert.equal(payloadJson.includes("responderPersonaId"), false);
   assert.equal(payloadJson.includes("ownerUserId"), false);
   assert.equal(payloadJson.includes("persona_id"), false);
+});
+
+test("persona encounter runtime helper builds public-slug counterparty selection requests", () => {
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH,
+    "/persona-encounters/cross-owner-consent-targets",
+  );
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH,
+    "/persona-encounters/cross-owner-consents/from-public-persona",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerCounterpartyPublicSlug("/personas/other-owner-persona"),
+    "other-owner-persona",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerCounterpartyPublicSlug("other-owner-persona"),
+    "other-owner-persona",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerCounterpartyPublicSlug("/personas/other-owner-persona?from=discover"),
+    "other-owner-persona",
+  );
+  assert.equal(personaEncounterCrossOwnerCounterpartyPublicSlug("/personas/other-owner-persona/extra"), null);
+  assert.equal(personaEncounterCrossOwnerCounterpartyPublicSlug("550e8400-e29b-41d4-a716-446655440000"), null);
+  assert.equal(personaEncounterCrossOwnerCounterpartyPublicSlug("Unsafe Slug"), null);
+  assert.equal(
+    personaEncounterCrossOwnerConsentTargetPath("/personas/other-owner-persona"),
+    "/persona-encounters/cross-owner-consent-targets/other-owner-persona",
+  );
+
+  const payload = personaEncounterCrossOwnerConsentCreateByPublicSlugPayload({
+    requesterPersonaId: "requester-persona-id",
+    counterpartyPublicSlug: "/personas/other-owner-persona",
+    requestedScopes: ["run_cross_owner_encounter", "publish_metadata_only_public_exhibit"],
+  });
+  assert.deepEqual(payload, {
+    requesterPersonaId: "requester-persona-id",
+    counterpartyPublicSlug: "other-owner-persona",
+    requestedScopes: ["run_cross_owner_encounter", "publish_metadata_only_public_exhibit"],
+  });
+
+  const payloadJson = JSON.stringify(payload);
+  assert.equal(payloadJson.includes("counterpartyPersonaId"), false);
+  assert.equal(payloadJson.includes("ownerUserId"), false);
+  assert.equal(payloadJson.includes("owner_user_id"), false);
+  assert.equal(payloadJson.includes("providerPayload"), false);
 });
 
 test("persona encounter runtime helper builds provider readiness path", () => {
@@ -624,6 +677,29 @@ test("persona encounter runtime cross-owner disposable preview error copy stays 
     code: "unknown",
     message: "Bearer secret raw SQL owner_user_id",
   }), "Cross-owner disposable preview could not run.");
+});
+
+test("persona encounter runtime cross-owner consent invitation error copy stays bounded", () => {
+  assert.equal(personaEncounterCrossOwnerConsentInvitationErrorCopy({
+    code: "persona_encounter_cross_owner_target_invalid_slug",
+    message: "raw slug 550e8400-e29b-41d4-a716-446655440000",
+  }), "Choose a safe public persona route before inviting.");
+  assert.equal(personaEncounterCrossOwnerConsentInvitationErrorCopy({
+    code: "persona_encounter_cross_owner_target_unavailable",
+    message: "owner_user_id=secret",
+  }), "That public persona cannot be invited.");
+  assert.equal(personaEncounterCrossOwnerConsentInvitationErrorCopy({
+    code: "persona_encounter_cross_owner_target_same_owner",
+    message: "same owner id secret",
+  }), "Cross-owner invitations require a public persona owned by another account.");
+  assert.equal(personaEncounterCrossOwnerConsentInvitationErrorCopy({
+    code: "persona_encounter_cross_owner_requester_persona_not_owned",
+    message: "requester_persona_id=secret",
+  }), "Choose one of your own personas before inviting.");
+  assert.equal(personaEncounterCrossOwnerConsentInvitationErrorCopy({
+    code: "unknown",
+    message: "Bearer secret raw SQL owner_user_id",
+  }), "Cross-owner consent invitation could not be prepared.");
 });
 
 test("persona encounter runtime availability copy fails closed before generation", () => {
