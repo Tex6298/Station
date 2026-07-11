@@ -4,7 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510A public encounter exhibit Discover search group accepted
+## Current lane - PR510B public encounter exhibit Discover search hosted proof
+
+MIMIR closed PR510A locally and opened PR510B for ARIADNE:
+
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_CLOSEOUT.md`
+
+`docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md`
+
+Why:
+
+- ARGUS accepted PR510A's dedicated Discover search group as
+  `ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`;
+- `/discover/search` now has a `publicEncounterExhibits` group named
+  `Encounter Exhibits`;
+- search uses already-public title, summary, tags, and same-owner display
+  snapshots only;
+- payloads stay metadata-only and route only to `/encounters/[slug]`;
+- unsafe rows stay absent using the PR509A public-list safety floor;
+- Discover feed/rising/featured, public persona, public Space, forum/Salon,
+  Station Press/public document, private material, provider/retrieval,
+  billing/social/storage, Redis/Cloudflare, queue/worker, package/lockfile,
+  migration, and search-index scope remain out.
+
+Opened lane:
+
+```text
+PR510B - Public Encounter Exhibit Discover Search Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_DISCOVER_SEARCH_PROOF
+Source: docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md
+```
+
+Next:
+
+- ARIADNE confirms hosted web/API include PR510A commit `ad12809c` or later;
+- ARIADNE proves empty search, public-field matching, metadata-only payloads,
+  `/encounters/[slug]` routing, unsafe-row absence, public no-drift, desktop and
+  `390px` Discover search rendering, latency, cleanup, and privacy;
+- ARIADNE wakes MIMIR with PASS or BLOCK.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR510A public encounter exhibit Discover search group accepted
 
 ARGUS accepted PR510A:
 
@@ -14,10 +61,14 @@ ARGUS accepted PR510A:
 
 `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_REVIEW_RESULT.md`
 
+MIMIR closed it locally:
+
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_CLOSEOUT.md`
+
 Result:
 
 ```text
-ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP
+CLOSE_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_ACCEPTED_LOCALLY
 ```
 
 Summary:
@@ -35,51 +86,6 @@ Summary:
   provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
   package/lockfile, and migration/index scope remain out of PR510A by default;
 - no DB migration or search index was added.
-
-ARGUS review:
-
-- accepted without a code patch;
-- confirmed the API result contract is metadata-only and bounded;
-- confirmed search uses only public title, summary, tags, and same-owner display
-  snapshots;
-- confirmed unsafe rows are filtered by the PR509A public-list safety floor;
-- confirmed Discover feed/rising/featured, public persona, public Space,
-  forum/community, Station Press/public document, private-material, provider,
-  retrieval, billing, social, storage, Redis, Cloudflare, queue/worker,
-  package/lockfile, migration, and schema-visible scope stayed out;
-- noted protected-alpha search remains non-indexed and hosted proof must record
-  search latency.
-
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
-  37 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 29 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 44 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-
-Current lane:
-
-```text
-PR510A - Public Encounter Exhibit Discover Search Group
-Owner: MIMIR / A1
-State: ARGUS_ACCEPTED_HOSTED_PROOF_ROUTING_PENDING
-Source: docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_REVIEW_RESULT.md
-```
-
-Next:
-
-- MIMIR closes PR510A locally if accepted;
-- MIMIR routes ARIADNE for hosted PR510B proof.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR510A public encounter exhibit Discover search group ready for review
 
