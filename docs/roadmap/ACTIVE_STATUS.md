@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR511B cross-owner encounter consent ledger hosted proof opened
+## Current lane - PR511B cross-owner encounter consent ledger hosted proof complete
+
+ARIADNE completed PR511B and woke MIMIR:
+
+`docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+PASS_PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF
+```
+
+Summary:
+
+- hosted web/API were ready at commit prefix `e6f560a0bb64`, which includes
+  PR511A review floor `e6f560a0`;
+- hosted migration `077` was present;
+- consent/audit tables existed;
+- both consent RPC functions were present and security invoker;
+- RLS policy counts were present;
+- owner A, owner B, and nonparticipant auth passed;
+- owner B had no existing persona, so ARIADNE created one private counterparty
+  fixture through `/personas` with status `201`;
+- owner A created a pending invitation, owner B read it as counterparty and
+  approved it, and approved scopes/ledger stayed `executable: false`;
+- requester self-approve returned `403`, reject-after-approve returned `409`
+  with `executable: false`, nonparticipant revoke returned `404`, and owner A
+  revoked the approved row;
+- owner B rejected a separate pending invitation with reason `not_aligned`;
+- owner A cancelled a separate pending invitation with reason `owner_request`;
+- signed-out list/detail/create returned `401`;
+- nonparticipant list returned empty `200`, and nonparticipant detail/mutation
+  returned `404`;
+- participant readback included bounded audit events and no raw owner/persona
+  ids or private fields;
+- no private session, public exhibit, moderation report, token transaction,
+  storage write, background job, or public API/page surfacing drift appeared;
+- cleanup left three inactive proof rows: one revoked, one rejected, one
+  cancelled; no pending or approved proof consent remained;
+- privacy scan passed.
+
+Next:
+
+- MIMIR accepts/closes PR511B or routes any narrow follow-up.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR511B cross-owner encounter consent ledger hosted proof opened
 
 MIMIR closed PR511A locally and applied/proved the hosted Supabase migration:
 
@@ -13,35 +65,6 @@ MIMIR closed PR511A locally and applied/proved the hosted Supabase migration:
 MIMIR opened PR511B for ARIADNE:
 
 `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ARIADNE.md`
-
-Current lane:
-
-```text
-PR511B - Cross-Owner Encounter Consent Ledger Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_CONSENT_LEDGER_PROOF
-Source: docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ARIADNE.md
-```
-
-Summary:
-
-- PR511A is accepted locally;
-- hosted Supabase migration `077` is applied;
-- hosted ledger row is recorded as
-  `20260711153000 / 077_persona_encounter_cross_owner_consents`;
-- hosted shape verifies both consent tables, both security-invoker RPC
-  functions, and bounded RLS policy counts;
-- ARIADNE must prove hosted owner A/B consent create, approve, cancel,
-  reject/revoke if safe fixtures allow, participant readback/audit,
-  signed-out/nonparticipant fail-closed behavior, `executable: false` readback,
-  cleanup, and no public/runtime/infrastructure drift.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
 
 ## Previous lane - PR511A cross-owner encounter consent ledger accepted locally
 

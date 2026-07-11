@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR511B hosted proof | Cross-Owner Encounter Consent Ledger Hosted Proof | ARIADNE / A4 | Open; MIMIR closed PR511A locally, applied hosted migration 077, verified hosted consent/audit table and security-invoker RPC shape, and routed ARIADNE for disposable hosted consent-ledger proof before customer-facing closeout. | `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ARIADNE.md` |
+| PR511B hosted proof | Cross-Owner Encounter Consent Ledger Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF`; hosted migration 077, consent/audit tables, security-invoker RPCs, owner A/B create/approve/reject/cancel/revoke, participant readback/audit, signed-out/nonparticipant fail-closed behavior, non-executable ledger readback, no-drift, cleanup, and privacy passed. MIMIR closeout pending. | `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 

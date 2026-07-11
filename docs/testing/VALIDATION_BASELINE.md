@@ -4,6 +4,59 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR511B Cross-Owner Encounter Consent Ledger Hosted Proof
+
+ARIADNE completed PR511B hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `e6f560a0bb64`, which includes PR511A review floor `e6f560a0`;
+- hosted migration `077` was present;
+- consent/audit tables existed;
+- both consent RPC functions were present and security invoker;
+- RLS policy counts were present;
+- owner A, owner B, and nonparticipant auth passed;
+- owner B had no existing persona, so ARIADNE created one private counterparty
+  fixture through `/personas` with status `201`;
+- owner A created a pending invitation, owner B read it as counterparty and
+  approved it, and approved scopes/ledger stayed `executable: false`;
+- requester self-approve returned `403`, reject-after-approve returned `409`
+  with `executable: false`, nonparticipant revoke returned `404`, and owner A
+  revoked the approved row;
+- owner B rejected a separate pending invitation with reason `not_aligned`;
+- owner A cancelled a separate pending invitation with reason `owner_request`;
+- signed-out list/detail/create returned `401`;
+- nonparticipant list returned empty `200`, and nonparticipant detail/mutation
+  returned `404`;
+- participant readback included bounded audit events and no raw owner/persona
+  ids or private fields;
+- no private session, public exhibit, moderation report, token transaction,
+  storage write, background job, or public API/page surfacing drift appeared;
+- cleanup left three inactive proof rows: one revoked, one rejected, one
+  cancelled; no pending or approved proof consent remained;
+- privacy scan passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/data proof runner | Pass | Proved migration shape, owner A/B create/approve/reject/cancel/revoke, participant readback/audit, signed-out and nonparticipant fail-closed behavior, non-executable readback, no-drift, cleanup, and privacy. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `e6f560a0bb64`, which includes PR511A review floor `e6f560a0`. |
+| Hosted migration `077` | Pass | Ledger row present; consent/audit tables present; both RPC functions present and security invoker; policy counts present. |
+| Consent API behavior | Pass | Participant owners could create, approve, reject, cancel, revoke, list, and read bounded audit state. |
+| Boundary probes | Pass | Signed-out probes returned `401`; nonparticipant list was empty and detail/mutation returned `404`. |
+| Non-executable ledger | Pass | Created, approved, rejected, cancelled, and revoked readbacks kept requested scopes and ledger flags `executable: false`. |
+| No-drift checks | Pass | No private sessions, public exhibits, moderation reports, token transactions, storage writes, background jobs, or public surfacing appeared from consent routes. |
+| Cleanup verification | Pass | Three proof rows were left inactive: one revoked, one rejected, one cancelled; no pending or approved proof rows remained. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, tokens, cookies, private prompts, generated text, provider payloads, SQL details, stack traces, env values, browser artifacts, or secret-shaped strings. |
+
+`pnpm typecheck` was not run because the PR511B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR511A Cross-Owner Encounter Consent Ledger ARGUS Review
 
 ARGUS accepted PR511A on 2026-07-11:
