@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504E | Station Press Owner Package Browser Closeout | MIMIR / A1 | Blocked awaiting product decision or DAEDALUS UI patch; hosted browser create/readback/bundle and boundaries pass, but `/studio/publishing` does not expose visible bundle readback files. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md` |
+| PR504F | Station Press Visible Bundle Readback | DAEDALUS / A2 | Open narrow UI patch; add owner-only bundle readback panel/file list/action to `/studio/publishing` after PR504E proved backend/browser create succeeds but the human flow cannot see bundle files. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504F opened | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS | Open narrow UI patch; expose owner-only Station Press package readback and exact `README.md` / `manifest.json` / `manifest.md` bundle file list without public download/storage/PDF/provider/billing/social drift. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md` |
+| PR504E blocker decision | Station Press Owner Package Browser Closeout | MIMIR | API-only bundle proof rejected for closeout; DAEDALUS gets PR504F to make owner-only bundle readback visible in `/studio/publishing`. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_BLOCKER_MIMIR.md` |
 | PR504E proof | Station Press Owner Package Browser Closeout | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_WITH_HUMAN_FLOW_BLOCKER`; browser create returned `201`, package readback `200`, bundle `200` with exact three files, layout/privacy/boundaries passed, but the visible UI does not expose bundle readback/file list. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_RESULT.md` |
 | PR504E opened | Station Press Owner Package Browser Closeout | MIMIR -> ARIADNE | Open hosted browser proof; prove desktop/mobile `/studio/publishing`, package create-or-open, readback, exact three-file bundle, and privacy/product boundaries after PR504D backend repair. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_ARIADNE.md` |
 | PR504D closeout | Station Press Owner Package Create Path Repair | MIMIR | Closed accepted as `CLOSE_PR504D_STATION_PRESS_HOSTED_SCHEMA_REPAIR_ACCEPTED`; ARIADNE gets final browser closeout before Station Press owner package closure. | `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_CLOSEOUT.md` |

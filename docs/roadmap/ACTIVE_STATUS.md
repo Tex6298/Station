@@ -4,7 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504E Station Press owner package browser closeout blocked
+## Current lane - PR504F Station Press visible bundle readback
+
+MIMIR opened PR504F for DAEDALUS:
+
+`docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md`
+
+Reason:
+
+- PR504E proved hosted browser create/readback/bundle and boundaries pass.
+- PR504E still blocked on human flow because `/studio/publishing` does not
+  expose a visible owner-only bundle readback panel, the exact three-file list,
+  or a `View bundle files` action.
+- API-only proof is not enough for product closeout.
+
+Task:
+
+- Add the narrow visible owner-only Station Press bundle readback to
+  `/studio/publishing`.
+- Use the existing authenticated package/readback/bundle API contract.
+- Keep scope out of public downloads, storage, PDF/binary, provider, billing,
+  social, queue/worker, Redis, Cloudflare, public routes, and broad redesign.
+- Wake ARGUS for review before ARIADNE reruns PR504E.
+
+Current lane:
+
+```text
+PR504F - Station Press Visible Bundle Readback
+Owner: DAEDALUS / A2
+State: OPEN_NARROW_UI_PATCH
+Source: docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR504E Station Press owner package browser closeout blocked
 
 ARIADNE completed the hosted PR504E `/studio/publishing` human-eye browser
 closeout:
