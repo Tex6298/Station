@@ -4,22 +4,24 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514E cross-owner disposable preview Studio panel ready for ARGUS
+## Current lane - PR514E cross-owner disposable preview Studio panel accepted by ARGUS
 
-MIMIR accepted PR514D and opened PR514E:
+ARGUS accepted PR514E and woke MIMIR:
 
-`docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_CLOSEOUT.md`
+`docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md`
+
+MIMIR source:
 
 `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md`
 
-DAEDALUS implementation result:
+DAEDALUS implementation:
 
 `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL
+ACCEPT_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL
 ```
 
 Summary:
@@ -47,14 +49,15 @@ Summary:
 - no saved cross-owner sessions, public exhibits, generated-word sharing,
   retrieval, memory/canon/archive/continuity/integrity, billing, storage,
   migration, provider config, public routes, or deployment work was added.
+- ARGUS accepted without a review patch.
 
 Current lane:
 
 ```text
 PR514E - Cross-Owner Disposable Preview Studio Panel
-Owner chain: MIMIR -> DAEDALUS -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_RESULT.md
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_RETURNED
+Source: docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md
 ```
 
 Validation:
@@ -64,11 +67,19 @@ Validation:
 - `test:persona-encounters` was not rerun because PR514E did not change API
   route behavior.
 
+Next:
+
+- MIMIR closes PR514E locally.
+- MIMIR routes ARIADNE to `PR514F - Cross-Owner Disposable Preview Studio Panel
+  Hosted Rehearsal`.
+- ARIADNE should verify desktop/mobile UI, no raw-id/persistence/public drift,
+  and the required private/disposable/counterparty/audit labels.
+
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR514D cross-owner disposable preview client contract accepted
