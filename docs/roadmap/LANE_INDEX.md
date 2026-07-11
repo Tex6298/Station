@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513C review | Cross-Owner Runtime Attempt Append-Only Trigger Repair | DAEDALUS -> ARGUS | Ready for ARGUS review; migration `078` now uses short non-colliding trigger names for fresh installs and migration `079` repairs hosted/follow-on databases by recreating distinct update/delete append-only triggers below PostgreSQL's 63-byte identifier limit. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md` |
+| PR513C closeout | Cross-Owner Runtime Attempt Append-Only Trigger Repair | ARGUS -> MIMIR | ARGUS accepted PR513C without a review patch; MIMIR should close the repair, apply hosted migration `079`, verify both hosted short triggers reject update/delete, and route PR513D hosted audit rerun to ARIADNE. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR513C review | Cross-Owner Runtime Attempt Append-Only Trigger Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR`; migration `078` now uses short names for fresh installs and migration `079` repairs hosted/follow-on databases by dropping the long/truncated collision names and recreating distinct update/delete append-only triggers. Hosted migration `079` plus PR513D rerun recommended next. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_REVIEW_RESULT.md` |
 | PR513B blocker | Cross-Owner Runtime Attempt Audit Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_APPEND_ONLY_UPDATE_TRIGGER`; DAEDALUS gets PR513C to repair the migration `078` trigger-name truncation/collision. | `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_BLOCKER_MIMIR.md` |
 | PR513B proof | Cross-Owner Runtime Attempt Audit Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Failed as `FAIL_PR513B_AUDIT_LEDGER_BOUNDARY`; hosted migration/table/RPC/RLS/policy shape mostly passed, but update/delete trigger names collide after PostgreSQL identifier truncation, leaving only the delete trigger active. Direct update was not rejected. | `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md` |
 | PR513A closeout | Cross-Owner Runtime Attempt Audit Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ACCEPTED_LOCALLY`; hosted migration `078` applied and ledgered as `20260711172000 / 078_persona_encounter_cross_owner_runtime_attempts`; ARIADNE gets PR513B hosted migration/API proof. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_CLOSEOUT.md` |

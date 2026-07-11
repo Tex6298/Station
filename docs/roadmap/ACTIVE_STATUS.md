@@ -4,20 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513C append-only trigger repair ready for ARGUS
+## Current lane - PR513C append-only trigger repair accepted by ARGUS
 
-DAEDALUS implemented PR513C:
+ARGUS accepted PR513C and woke MIMIR:
 
-`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md`
-
-Source instruction:
-
-`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_DAEDALUS.md`
+`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_REVIEW_RESULT.md`
 
 Implementation result:
 
+`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md`
+
+Result:
+
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR
 ```
 
 Summary:
@@ -32,6 +32,7 @@ Summary:
   `public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation()`;
 - focused tests prove the short names are distinct, below 63 bytes, and cover
   both `before update` and `before delete`;
+- ARGUS accepted without a review patch;
 - PR513A boundaries are preserved: no provider-backed preview, provider call,
   prompt assembly, generated words, token rows, private sessions, public
   exhibits, reports, memory/canon/archive/continuity/export/jobs/storage/public
@@ -51,24 +52,24 @@ Current lane:
 
 ```text
 PR513C - Cross-Owner Runtime Attempt Append-Only Trigger Repair
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_RESULT.md
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_RETURNED
+Source: docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_REVIEW_RESULT.md
 ```
 
 Next:
 
-- ARGUS reviews migration `079`, the patched fresh-install `078`, focused
-  trigger-name tests, validation, and no-drift scans.
-- If accepted, ARGUS should wake MIMIR for closeout, hosted migration `079`,
-  trigger verification, and PR513D hosted rerun routing.
-- If fixes are needed, ARGUS should wake DAEDALUS with exact findings.
+- MIMIR closes PR513C locally.
+- MIMIR applies hosted migration `079` and verifies both hosted short triggers
+  exist and reject direct update/delete attempts.
+- MIMIR routes ARIADNE to `PR513D - Cross-Owner Runtime Attempt Audit Hosted
+  Rerun`.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR513B cross-owner runtime attempt audit hosted proof failed
