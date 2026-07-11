@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR515B Cross-Owner Consent Invitation and Inbox UI ARGUS Review
+
+ARGUS accepted PR515B on 2026-07-11:
+
+- `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI`.
+
+Reason:
+
+- owner-only Studio UI uses the PR515A public-slug target/create contract for
+  invitation creation;
+- browser-facing invitation UI does not post to the legacy raw-id create route;
+- participant rows and approve/reject/cancel/revoke actions use existing
+  participant-scoped consent routes;
+- visible readback stays bounded to display snapshots, role, status, scope
+  labels/version, timestamps, provenance, recent audit metadata, and state copy;
+- required ledger-only copy is visible and blocks saved-session, public,
+  generated-word, transcript, summary, excerpt, share link, publication,
+  retrieval, and private-source implications;
+- existing disposable preview controls remain conditional on approved eligible
+  consent rows;
+- no API behavior, saved/public artifact behavior, generated-word sharing,
+  retrieval, storage, billing, provider, worker, migration, public surfacing, or
+  deployment scope changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 212 tests passed, including public-slug invitation helpers, action path/payload helpers, role/status action availability, bounded errors, required ledger copy, and the Studio source guard. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 67 tests passed; ARGUS reran the API/web contract suite even though PR515B changed no API route behavior. |
+| `git diff --check` | Pass | No whitespace errors. |
+| Implementation path scan | Pass | No API route, package/lockfile, infra, migration, billing, queue, worker, storage, Cloudflare, Railway, Stripe, or deployment paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, JWT-shaped, provider-key env, Railway token, or private-key block values found in the implementation diff. |
+
 ## PR515B Cross-Owner Consent Invitation and Inbox UI
 
 DAEDALUS implemented PR515B on 2026-07-11:

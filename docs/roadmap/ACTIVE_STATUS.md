@@ -4,90 +4,75 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515B ready for ARGUS review
+## Current lane - PR515B accepted by ARGUS; MIMIR routing next
 
-DAEDALUS implemented PR515B:
+ARGUS accepted PR515B:
 
-`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_RESULT.md`
-
-`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md`
+`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI
 ```
 
 Current lane:
 
 ```text
 PR515B - Cross-Owner Consent Invitation and Inbox UI
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI
+Source: docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_REVIEW_RESULT.md
 ```
 
 Summary:
 
-- the existing owner-only Studio cross-owner panel now supports safe public
-  slug or `/personas/:slug` target lookup through the PR515A target route;
-- invitation creation uses
+- ARGUS verified the owner-only Studio panel uses safe public slug or
+  `/personas/:slug` target lookup through the PR515A target route;
+- invitation creation posts to
   `POST /persona-encounters/cross-owner-consents/from-public-persona`, not the
   legacy raw-id create route;
-- participant-visible consent rows are listed from
+- participant-visible consent rows load from
   `GET /persona-encounters/cross-owner-consents`;
-- each row shows display snapshots, role, status, scope labels, scope version,
-  timestamps, provenance, recent audit metadata, and bounded state copy;
 - approve, reject, cancel, and revoke controls use the existing
-  participant-scoped action routes and refresh the ledger after success;
-- required visible ledger copy is rendered from helper readback:
-  `Consent ledger only`, `Not a saved session`, `Not public`,
-  `Does not share generated words`, no transcript/summary/excerpt/share link/
-  publication, no Memory/Archive/Canon/Continuity/Integrity/private retrieval,
-  approval revocation, and counterparty audit-state-only visibility;
+  participant-scoped action routes;
+- action availability is role/status-derived: counterparty approve/rejects
+  pending, requester cancels pending, either participant revokes approved;
+- visible readback includes display snapshots, role, status, scope labels,
+  scope version, timestamps, provenance, recent audit metadata, and bounded
+  state copy only;
+- required ledger-only copy is present and says consent is not saved, not
+  public, does not share generated words, and has no transcript/summary/excerpt/
+  share link/publication or Memory/Archive/Canon/Continuity/Integrity/private
+  retrieval;
 - existing disposable preview controls remain available only for approved
   eligible consent rows;
-- helper tests prove public-slug invitation helpers, action path/payload
-  helpers, bounded errors, action availability, required ledger copy, and source
-  guards;
-- no API behavior, generated preview expansion, saved cross-owner sessions,
-  public exhibits, retrieval, storage, billing, Redis, Cloudflare, workers,
-  migrations, provider config, public surfacing, broad redesign, hosted-runtime,
-  or deployment work changed.
+- no API route behavior, generated preview expansion, saved cross-owner
+  sessions, public exhibits, retrieval, storage, billing, Redis, Cloudflare,
+  workers, migrations, provider config, public surfacing, broad redesign,
+  hosted-runtime, or deployment work changed.
 
 Validation:
 
 ```text
-npm exec --yes pnpm@10.32.1 -- run test:studio-ui  PASS - 212 tests
-npm exec --yes pnpm@10.32.1 -- run typecheck       PASS
-git diff --check                                   PASS
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 212 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 67 tests
+git diff --check                                           PASS
 ```
 
-`test:persona-encounters` was not rerun because PR515B did not change API route
-behavior.
+ARGUS recommended next:
 
-Current baton:
-
-- ARGUS should hostile-review PR515B.
-- If accepted, ARGUS should wake MIMIR with
-  `ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI`.
-- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
+```text
+PR515C - Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
+Owner: ARIADNE / A4
+```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
-
-Summary:
-- DAEDALUS implemented PR515B, the owner-only cross-owner consent invitation and inbox UI.
-- The UI uses PR515A public-slug target/create helpers and existing participant-scoped list/action routes.
-- No legacy raw-id browser-facing create route, generated preview execution expansion, saved sessions, public exhibits, or private/public drift was added.
-
-Task:
-- Hostile-review PR515B.
-- Verify invitation creation, participant inbox, approve/reject/cancel/revoke controls, bounded copy, no raw id exposure, and no runtime/persistence/public drift.
-- Wake MIMIR with acceptance, or wake DAEDALUS with required fixes.
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR515A accepted
