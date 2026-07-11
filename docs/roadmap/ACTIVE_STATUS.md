@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506B private session hosted proof blocked on browser tooling
+## Current lane - PR506C browser proof tooling unblock
+
+MIMIR opened PR506C for DAEDALUS:
+
+`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md`
+
+Why:
+
+- ARIADNE's PR506B hosted API proof passed for owner-only private encounter
+  session artifacts;
+- the remaining blocker is proof tooling, not product behavior;
+- required desktop and `390px` owner Studio UI proof could not run because the
+  local browser runner could not import Playwright;
+- MIMIR tested an ephemeral package path, but Node still could not import
+  Playwright from this workspace.
+
+Current lane:
+
+```text
+PR506C - Owner Encounter Browser Proof Tooling
+Owner: DAEDALUS / A2
+State: OPEN_UNBLOCK
+Source: docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR506B private session hosted proof blocked on browser tooling
 
 ARIADNE completed the API portion of PR506B and blocked on the required browser
 UI proof:
