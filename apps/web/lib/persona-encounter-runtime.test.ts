@@ -13,9 +13,15 @@ import {
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
   personaEncounterCrossOwnerConsentCanRun,
+  personaEncounterCrossOwnerConsentActionErrorCopy,
+  personaEncounterCrossOwnerConsentActionPath,
+  personaEncounterCrossOwnerConsentActionPayload,
+  personaEncounterCrossOwnerConsentAvailableActions,
   personaEncounterCrossOwnerConsentCreateByPublicSlugPayload,
   personaEncounterCrossOwnerConsentDisplay,
   personaEncounterCrossOwnerConsentInvitationErrorCopy,
+  personaEncounterCrossOwnerConsentLedgerBoundaryReadback,
+  personaEncounterCrossOwnerConsentPath,
   personaEncounterCrossOwnerConsentStateCopy,
   personaEncounterCrossOwnerConsentTargetPath,
   personaEncounterCrossOwnerCounterpartyPublicSlug,
@@ -311,6 +317,38 @@ test("persona encounter runtime helper builds public-slug counterparty selection
   assert.equal(payloadJson.includes("providerPayload"), false);
 });
 
+test("persona encounter runtime helper builds cross-owner consent ledger action requests", () => {
+  assert.equal(
+    personaEncounterCrossOwnerConsentPath("consent/one"),
+    "/persona-encounters/cross-owner-consents/consent%2Fone",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerConsentActionPath("consent/one", "approve"),
+    "/persona-encounters/cross-owner-consents/consent%2Fone/approve",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerConsentActionPath("consent/one", "reject"),
+    "/persona-encounters/cross-owner-consents/consent%2Fone/reject",
+  );
+  assert.deepEqual(personaEncounterCrossOwnerConsentActionPayload(), {});
+  assert.deepEqual(personaEncounterCrossOwnerConsentActionPayload({
+    reasonCode: " owner_request ",
+  }), { reasonCode: "owner_request" });
+  assert.deepEqual(personaEncounterCrossOwnerConsentActionPayload({
+    reasonCode: "owner_user_id=secret",
+  }), {});
+  assert.deepEqual(personaEncounterCrossOwnerConsentLedgerBoundaryReadback(), [
+    "Consent ledger only",
+    "Not a saved session",
+    "Not public",
+    "Does not share generated words",
+    "No transcript, summary, excerpt, share link, or publication",
+    "No Memory, Archive, Canon, Continuity, Integrity, or private retrieval",
+    "Approval can be revoked",
+    "Counterparty sees consent state and audit metadata, not generated preview text here.",
+  ]);
+});
+
 test("persona encounter runtime helper builds provider readiness path", () => {
   assert.equal(
     personaEncounterPreviewReadinessPath({
@@ -384,6 +422,33 @@ test("persona encounter runtime helper classifies cross-owner consent preview el
     personaEncounterCrossOwnerConsentStateCopy(null),
     "No cross-owner consents are available.",
   );
+});
+
+test("persona encounter runtime helper exposes consent actions from participant role and status only", () => {
+  assert.deepEqual(personaEncounterCrossOwnerConsentAvailableActions(crossOwnerConsent({
+    status: "pending",
+    participantRole: "counterparty",
+  })), ["approve", "reject"]);
+  assert.deepEqual(personaEncounterCrossOwnerConsentAvailableActions(crossOwnerConsent({
+    status: "pending",
+    participantRole: "requester",
+  })), ["cancel"]);
+  assert.deepEqual(personaEncounterCrossOwnerConsentAvailableActions(crossOwnerConsent({
+    status: "approved",
+    participantRole: "requester",
+  })), ["revoke"]);
+  assert.deepEqual(personaEncounterCrossOwnerConsentAvailableActions(crossOwnerConsent({
+    status: "approved",
+    participantRole: "counterparty",
+  })), ["revoke"]);
+  assert.deepEqual(personaEncounterCrossOwnerConsentAvailableActions(crossOwnerConsent({
+    status: "rejected",
+    participantRole: "counterparty",
+  })), []);
+  assert.deepEqual(personaEncounterCrossOwnerConsentAvailableActions(crossOwnerConsent({
+    status: "pending",
+    participantRole: null,
+  })), []);
 });
 
 test("persona encounter runtime helper builds private session paths", () => {
@@ -702,6 +767,25 @@ test("persona encounter runtime cross-owner consent invitation error copy stays 
   }), "Cross-owner consent invitation could not be prepared.");
 });
 
+test("persona encounter runtime cross-owner consent action error copy stays bounded", () => {
+  assert.equal(personaEncounterCrossOwnerConsentActionErrorCopy({
+    code: "persona_encounter_cross_owner_consent_counterparty_required",
+    message: "counterparty_owner_user_id=secret",
+  }), "Only the counterparty owner can take that consent action.");
+  assert.equal(personaEncounterCrossOwnerConsentActionErrorCopy({
+    code: "persona_encounter_cross_owner_consent_requester_required",
+    message: "requester_owner_user_id=secret",
+  }), "Only the requester owner can take that consent action.");
+  assert.equal(personaEncounterCrossOwnerConsentActionErrorCopy({
+    code: "persona_encounter_cross_owner_consent_inactive",
+    message: "status raw sql",
+  }), "This consent is not pending or active for that action.");
+  assert.equal(personaEncounterCrossOwnerConsentActionErrorCopy({
+    code: "unknown",
+    message: "Bearer secret raw SQL owner_user_id",
+  }), "Cross-owner consent action could not be saved.");
+});
+
 test("persona encounter runtime availability copy fails closed before generation", () => {
   assert.equal(
     personaEncounterPreviewAvailabilityCopy(null),
@@ -755,7 +839,7 @@ test("public encounter exhibit page and Studio controls stay metadata-only", () 
   }
 });
 
-test("cross-owner disposable preview Studio panel uses only consent-scoped helpers", () => {
+test("cross-owner consent Studio panel uses public-slug invitation and participant helpers", () => {
   const pageSource = readFileSync("apps/web/app/studio/personas/[personaId]/page.tsx", "utf8");
   const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
   const panelStart = workspaceSource.indexOf("export function CrossOwnerDisposablePreviewPanel");
@@ -764,21 +848,33 @@ test("cross-owner disposable preview Studio panel uses only consent-scoped helpe
 
   assert.notEqual(panelStart, -1);
   assert.notEqual(panelEnd, -1);
-  assert.match(pageSource, /<CrossOwnerDisposablePreviewPanel token=\{token\} \/>/);
+  assert.match(pageSource, /<CrossOwnerDisposablePreviewPanel persona=\{persona\} token=\{token\} \/>/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentTargetPath\(targetInput\)/);
+  assert.match(panelSource, /apiGet<PersonaEncounterCrossOwnerConsentPublicTargetResponse>\(targetPath, token\)/);
+  assert.match(panelSource, /PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH/);
+  assert.match(panelSource, /apiPost<PersonaEncounterCrossOwnerConsentCreateByPublicSlugResponse>/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentCreateByPublicSlugPayload/);
+  assert.match(panelSource, /counterpartyPublicSlug: target\.publicSlug/);
   assert.match(panelSource, /PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH/);
   assert.match(panelSource, /apiGet<PersonaEncounterCrossOwnerConsentListResponse>/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentAvailableActions\(consent\)/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentActionPath\(consent\.id, action\)/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentActionPayload/);
+  assert.match(panelSource, /apiPatch<PersonaEncounterCrossOwnerConsentResponse>/);
   assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewPath\(selectedConsent\.id\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewPayload\(\{ setup \}\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewReadback\(preview\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewErrorCopy/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentLedgerBoundaryReadback/);
   assert.match(panelSource, /setupReadback\.map/);
   assert.match(panelSource, /readback\.slice\(4\)/);
-  assert.match(panelSource, /open persona tab is context, not participant proof/);
+  assert.match(panelSource, /Runtime preview stays separate and only appears for approved eligible rows/);
 
   assert.doesNotMatch(
     panelSource,
-    /initiatorPersonaId|responderPersonaId|requesterPersonaId|counterpartyPersonaId|ownerUserId|owner_user_id|requester_persona_id|counterparty_persona_id/,
+    /initiatorPersonaId|responderPersonaId|counterpartyPersonaId|ownerUserId|owner_user_id|requester_persona_id|counterparty_persona_id|requester_owner_user_id|counterparty_owner_user_id/,
   );
+  assert.doesNotMatch(panelSource, /apiPost<[^>]+>\(\s*PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH/);
   assert.doesNotMatch(
     panelSource,
     /PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH|personaEncounterPrivateSession|personaEncounterPublicExhibit|PrivateEncounterPublicExhibitControls|Save private artifact|Publish public metadata/,

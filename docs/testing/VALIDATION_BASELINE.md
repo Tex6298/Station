@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR515B Cross-Owner Consent Invitation and Inbox UI
+
+DAEDALUS implemented PR515B on 2026-07-11:
+
+- `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- the owner-only Studio cross-owner panel now supports safe public slug or
+  `/personas/:slug` target lookup through the PR515A target route;
+- invitation creation posts to
+  `POST /persona-encounters/cross-owner-consents/from-public-persona`, not the
+  legacy raw-id create route;
+- participant-visible rows load from
+  `GET /persona-encounters/cross-owner-consents`;
+- rows show display snapshots, role, status, scopes, scope version, timestamps,
+  provenance, recent audit metadata, and bounded state copy;
+- approve, reject, cancel, and revoke controls use existing participant-scoped
+  action routes and refresh the ledger after success;
+- required ledger-only copy is rendered from a helper and keeps generated-word,
+  saved-session, public, transcript, summary, excerpt, share link, publication,
+  Memory, Archive, Canon, Continuity, Integrity, and private-retrieval
+  boundaries visible;
+- existing disposable preview controls remain available only for approved
+  eligible consent rows;
+- source guards prove the panel uses the PR515A public-slug target/create
+  helpers and participant action helpers, and does not post to the legacy raw-id
+  create route or use private-session/public-exhibit helpers.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 212 tests passed, including PR515B path/payload/action/readback helpers and the Studio source guard. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for `@station/api` and `@station/web`. |
+| `git diff --check` | Pass | No whitespace errors; CRLF normalization warnings only. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Not run | PR515B did not change API route behavior. |
+
 ## PR515A Cross-Owner Consent Counterparty Selection Contract ARGUS Review
 
 ARGUS accepted PR515A on 2026-07-11:

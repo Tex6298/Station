@@ -4,59 +4,90 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515B cross-owner consent invitation and inbox UI
+## Current lane - PR515B ready for ARGUS review
 
-MIMIR accepted and closed PR515A, then opened PR515B:
+DAEDALUS implemented PR515B:
 
-`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_CLOSEOUT.md`
+`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_RESULT.md`
 
 `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md`
 
 Result:
 
 ```text
-CLOSE_PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_ACCEPTED
+READY_FOR_ARGUS_REVIEW
 ```
 
 Current lane:
 
 ```text
 PR515B - Cross-Owner Consent Invitation and Inbox UI
-Owner: DAEDALUS / A2
-State: OPEN_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_RESULT.md
 ```
 
-Goal:
+Summary:
 
-- add the first visible owner-only invitation and participant inbox/actions UI
-  using the PR515A public-slug target/create contract;
-- support target lookup, invitation creation, list/readback, approve, reject,
-  cancel, and revoke controls;
-- keep the lane ledger-only and out of generated-word preview execution, saved
-  sessions, public exhibits, retrieval, storage, billing, Redis, Cloudflare,
-  workers, migrations, provider config, public surfacing, broad redesign, and
-  deployment work.
+- the existing owner-only Studio cross-owner panel now supports safe public
+  slug or `/personas/:slug` target lookup through the PR515A target route;
+- invitation creation uses
+  `POST /persona-encounters/cross-owner-consents/from-public-persona`, not the
+  legacy raw-id create route;
+- participant-visible consent rows are listed from
+  `GET /persona-encounters/cross-owner-consents`;
+- each row shows display snapshots, role, status, scope labels, scope version,
+  timestamps, provenance, recent audit metadata, and bounded state copy;
+- approve, reject, cancel, and revoke controls use the existing
+  participant-scoped action routes and refresh the ledger after success;
+- required visible ledger copy is rendered from helper readback:
+  `Consent ledger only`, `Not a saved session`, `Not public`,
+  `Does not share generated words`, no transcript/summary/excerpt/share link/
+  publication, no Memory/Archive/Canon/Continuity/Integrity/private retrieval,
+  approval revocation, and counterparty audit-state-only visibility;
+- existing disposable preview controls remain available only for approved
+  eligible consent rows;
+- helper tests prove public-slug invitation helpers, action path/payload
+  helpers, bounded errors, action availability, required ledger copy, and source
+  guards;
+- no API behavior, generated preview expansion, saved cross-owner sessions,
+  public exhibits, retrieval, storage, billing, Redis, Cloudflare, workers,
+  migrations, provider config, public surfacing, broad redesign, hosted-runtime,
+  or deployment work changed.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui  PASS - 212 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck       PASS
+git diff --check                                   PASS
+```
+
+`test:persona-encounters` was not rerun because PR515B did not change API route
+behavior.
+
+Current baton:
+
+- ARGUS should hostile-review PR515B.
+- If accepted, ARGUS should wake MIMIR with
+  `ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI`.
+- If fixes are needed, ARGUS should wake DAEDALUS with the smallest repair.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 
 Summary:
-- ARGUS accepted PR515A, so the safe public-slug counterparty selection/create contract is ready.
-- MIMIR closed PR515A and opened PR515B for the visible owner-only consent invitation and inbox UI.
-- Keep the lane ledger-only; do not expand runtime or saved/public artifact behavior.
+- DAEDALUS implemented PR515B, the owner-only cross-owner consent invitation and inbox UI.
+- The UI uses PR515A public-slug target/create helpers and existing participant-scoped list/action routes.
+- No legacy raw-id browser-facing create route, generated preview execution expansion, saved sessions, public exhibits, or private/public drift was added.
 
 Task:
-- Implement PR515B: owner-only cross-owner consent invitation and inbox/actions UI.
-- Use the PR515A target/create contract, not the legacy raw-id create route.
-- Add or reuse web helpers for target lookup, invitation create, list/detail/action paths, state copy, and bounded errors.
-- Show safe target readback, create invitation, participant consent rows, and approve/reject/cancel/revoke controls with the required ledger-only copy.
-- Add focused web tests proving no raw counterparty persona ids or owner ids enter visible UI payload/readback and no generated/saved/public/retrieval surfaces are implied.
-- Run test:studio-ui, typecheck, git diff --check, and test:persona-encounters if API behavior changes.
-- Wake ARGUS with the implementation result.
+- Hostile-review PR515B.
+- Verify invitation creation, participant inbox, approve/reject/cancel/revoke controls, bounded copy, no raw id exposure, and no runtime/persistence/public drift.
+- Wake MIMIR with acceptance, or wake DAEDALUS with required fixes.
 ```
 
 ## Previous lane - PR515A accepted

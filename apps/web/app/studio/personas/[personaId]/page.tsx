@@ -114,7 +114,7 @@ export default function PersonaPage() {
       {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
       {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
         <>
-          <CrossOwnerDisposablePreviewPanel token={token} />
+          <CrossOwnerDisposablePreviewPanel persona={persona} token={token} />
           <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
         </>
       )}

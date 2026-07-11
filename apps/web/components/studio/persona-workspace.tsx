@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Persona, PersonaSummary } from "@station/types/persona";
 import { ApiRequestError, apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api-client";
@@ -14,11 +14,20 @@ import { personaEncounterContractGate } from "@/lib/persona-encounter-contract";
 import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
 import {
   PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
+  PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
+  personaEncounterCrossOwnerConsentActionErrorCopy,
+  personaEncounterCrossOwnerConsentActionPath,
+  personaEncounterCrossOwnerConsentActionPayload,
+  personaEncounterCrossOwnerConsentAvailableActions,
   personaEncounterCrossOwnerConsentCanRun,
+  personaEncounterCrossOwnerConsentCreateByPublicSlugPayload,
   personaEncounterCrossOwnerConsentDisplay,
+  personaEncounterCrossOwnerConsentInvitationErrorCopy,
+  personaEncounterCrossOwnerConsentLedgerBoundaryReadback,
   personaEncounterCrossOwnerConsentStateCopy,
+  personaEncounterCrossOwnerConsentTargetPath,
   personaEncounterCrossOwnerDisposablePreviewErrorCopy,
   personaEncounterCrossOwnerDisposablePreviewPath,
   personaEncounterCrossOwnerDisposablePreviewPayload,
@@ -37,8 +46,13 @@ import {
   personaEncounterPreviewReadback,
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterCrossOwnerConsentAction,
+  type PersonaEncounterCrossOwnerConsentCreateByPublicSlugResponse,
   type PersonaEncounterCrossOwnerConsent,
   type PersonaEncounterCrossOwnerConsentListResponse,
+  type PersonaEncounterCrossOwnerConsentPublicTarget,
+  type PersonaEncounterCrossOwnerConsentPublicTargetResponse,
+  type PersonaEncounterCrossOwnerConsentResponse,
   type PersonaEncounterCrossOwnerDisposablePreviewResponse,
   type PersonaEncounterPublicExhibitResponse,
   type PersonaEncounterPrivateSession,
@@ -586,15 +600,31 @@ export function PersonaEncounterRuntimePreview({
   );
 }
 
-export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | null }) {
+export function CrossOwnerDisposablePreviewPanel({
+  persona,
+  token,
+}: {
+  persona: PersonaWithContinuity;
+  token: string | null;
+}) {
   const [consents, setConsents] = useState<PersonaEncounterCrossOwnerConsent[]>([]);
   const [selectedConsentId, setSelectedConsentId] = useState("");
+  const [targetInput, setTargetInput] = useState("");
+  const [target, setTarget] = useState<PersonaEncounterCrossOwnerConsentPublicTarget | null>(null);
   const [setup, setSetup] = useState("");
   const [preview, setPreview] = useState<PersonaEncounterCrossOwnerDisposablePreviewResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [targetLoading, setTargetLoading] = useState(false);
+  const [inviteBusy, setInviteBusy] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [actionBusyId, setActionBusyId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteMessage, setInviteMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
+  const targetPath = personaEncounterCrossOwnerConsentTargetPath(targetInput);
+  const ledgerBoundary = personaEncounterCrossOwnerConsentLedgerBoundaryReadback();
 
   const eligibleConsents = useMemo(
     () => consents.filter(personaEncounterCrossOwnerConsentCanRun),
@@ -618,7 +648,7 @@ export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | nu
   const setupReadback = preview ? readback.slice(0, 4) : readback;
   const consentStateCopy = personaEncounterCrossOwnerConsentStateCopy(selectedConsent);
 
-  useEffect(() => {
+  const refreshConsents = useCallback(async () => {
     if (!token) {
       setConsents([]);
       setSelectedConsentId("");
@@ -628,40 +658,138 @@ export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | nu
       return;
     }
 
-    let cancelled = false;
     setLoading(true);
     setLoadError(null);
-    apiGet<PersonaEncounterCrossOwnerConsentListResponse>(
-      PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
-      token,
-    ).then((response) => {
-      if (cancelled) return;
+    try {
+      const response = await apiGet<PersonaEncounterCrossOwnerConsentListResponse>(
+        PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
+        token,
+      );
       const nextConsents = response.consents ?? [];
       setConsents(nextConsents);
       setSelectedConsentId((current) => {
         if (nextConsents.some((consent) => consent.id === current)) return current;
         return nextConsents.find(personaEncounterCrossOwnerConsentCanRun)?.id ?? nextConsents[0]?.id ?? "";
       });
-    }).catch((caught) => {
-      if (cancelled) return;
-      if (caught instanceof ApiRequestError) {
-        setLoadError(personaEncounterCrossOwnerDisposablePreviewErrorCopy(caught));
+    } catch (caught) {
+      if (
+        caught instanceof ApiRequestError &&
+        caught.code === "persona_encounter_cross_owner_consent_load_failed"
+      ) {
+        setLoadError(personaEncounterCrossOwnerConsentActionErrorCopy(caught));
       } else {
         setLoadError("Cross-owner consent could not be loaded.");
       }
-    }).finally(() => {
-      if (!cancelled) setLoading(false);
-    });
-
-    return () => {
-      cancelled = true;
-    };
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
+
+  useEffect(() => {
+    void refreshConsents();
+  }, [refreshConsents]);
 
   useEffect(() => {
     setPreview(null);
     setRunError(null);
   }, [selectedConsentId]);
+
+  async function loadTarget() {
+    if (!token) return;
+    if (!targetPath) {
+      setTarget(null);
+      setInviteMessage(null);
+      setInviteError("Choose a safe public persona route before inviting.");
+      return;
+    }
+
+    setTargetLoading(true);
+    setTarget(null);
+    setInviteMessage(null);
+    setInviteError(null);
+
+    try {
+      const response = await apiGet<PersonaEncounterCrossOwnerConsentPublicTargetResponse>(targetPath, token);
+      setTarget(response.target);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setInviteError(personaEncounterCrossOwnerConsentInvitationErrorCopy(caught));
+      } else {
+        setInviteError("Counterparty public persona target could not be loaded.");
+      }
+    } finally {
+      setTargetLoading(false);
+    }
+  }
+
+  async function createInvitation() {
+    if (!token || !target || inviteBusy) return;
+    setInviteBusy(true);
+    setInviteError(null);
+    setInviteMessage(null);
+
+    try {
+      const response = await apiPost<PersonaEncounterCrossOwnerConsentCreateByPublicSlugResponse>(
+        PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH,
+        personaEncounterCrossOwnerConsentCreateByPublicSlugPayload({
+          requesterPersonaId: persona.id,
+          counterpartyPublicSlug: target.publicSlug,
+        }),
+        token,
+      );
+      setTarget(response.target);
+      setInviteMessage(`Invitation created for ${response.target.personaName}.`);
+      setConsents((current) => [
+        response.consent,
+        ...current.filter((consent) => consent.id !== response.consent.id),
+      ]);
+      setSelectedConsentId(response.consent.id);
+      await refreshConsents();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setInviteError(personaEncounterCrossOwnerConsentInvitationErrorCopy(caught));
+      } else {
+        setInviteError("Cross-owner consent invitation could not be prepared.");
+      }
+    } finally {
+      setInviteBusy(false);
+    }
+  }
+
+  async function runConsentAction(
+    consent: PersonaEncounterCrossOwnerConsent,
+    action: PersonaEncounterCrossOwnerConsentAction,
+  ) {
+    if (!token || actionBusyId) return;
+    const busyId = `${consent.id}:${action}`;
+    setActionBusyId(busyId);
+    setActionError(null);
+    setRunError(null);
+    setPreview(null);
+
+    try {
+      const response = await apiPatch<PersonaEncounterCrossOwnerConsentResponse>(
+        personaEncounterCrossOwnerConsentActionPath(consent.id, action),
+        personaEncounterCrossOwnerConsentActionPayload({
+          reasonCode: consentActionReasonCode(action),
+        }),
+        token,
+      );
+      setConsents((current) => current.map((candidate) =>
+        candidate.id === response.consent.id ? response.consent : candidate
+      ));
+      setSelectedConsentId(response.consent.id);
+      await refreshConsents();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setActionError(personaEncounterCrossOwnerConsentActionErrorCopy(caught));
+      } else {
+        setActionError("Cross-owner consent action could not be saved.");
+      }
+    } finally {
+      setActionBusyId(null);
+    }
+  }
 
   async function runCrossOwnerPreview() {
     if (!token || !selectedConsent || !selectedCanRun || !ready || busy) return;
@@ -688,46 +816,167 @@ export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | nu
   }
 
   return (
-    <section className="studio-runtime-preview" aria-label="Cross-owner disposable preview">
+    <section className="studio-runtime-preview" aria-label="Cross-owner consent ledger and disposable preview">
       <div className="studio-section-heading">
-        <div className="section-label">Cross-owner disposable preview</div>
-        <h2>Consent-scoped private preview</h2>
-        <p>Account-level participant consent only. The open persona tab is context, not participant proof.</p>
+        <div className="section-label">Cross-owner consent ledger</div>
+        <h2>Invite, approve, revoke</h2>
+        <p>Owner-only consent controls. Runtime preview stays separate and only appears for approved eligible rows.</p>
+      </div>
+
+      <div className="studio-encounter-artifact-tags">
+        {ledgerBoundary.map((item) => (
+          <span key={item}>
+            <strong>{item}</strong>
+          </span>
+        ))}
       </div>
 
       {!token ? (
-        <div className="studio-empty">Sign in to view participant consent previews.</div>
-      ) : loading ? (
-        <div className="studio-empty">Loading cross-owner consent ledger.</div>
-      ) : loadError ? (
-        <div className="space-form-error">{loadError}</div>
-      ) : consents.length === 0 ? (
-        <div className="studio-empty">No cross-owner consents are available.</div>
+        <div className="studio-empty">Sign in to view participant consent controls.</div>
       ) : (
         <>
-          <div className="studio-runtime-query">
+          <article className="studio-context-panel">
+            <div className="section-label">Invite by public persona route</div>
+            <h3>{persona.name} requests consent</h3>
+            <p>Paste a safe public persona slug or `/personas/:slug` href. The server resolves the counterparty from public fields only.</p>
             <label>
-              <span className="section-label">Consent display snapshots</span>
-              <select
-                className="select"
-                value={selectedConsent?.id ?? ""}
-                onChange={(event) => setSelectedConsentId(event.target.value)}
-                disabled={busy}
+              <span className="section-label">Public counterparty persona</span>
+              <input
+                className="input"
+                value={targetInput}
+                onChange={(event) => {
+                  setTargetInput(event.target.value);
+                  setTarget(null);
+                  setInviteMessage(null);
+                  setInviteError(null);
+                }}
+                maxLength={180}
+                disabled={targetLoading || inviteBusy}
+                placeholder="/personas/public-counterparty"
                 style={{ margin: "0.35rem 0 0" }}
-              >
-                {consents.map((consent) => (
-                  <option key={consent.id} value={consent.id}>
-                    {personaEncounterCrossOwnerConsentDisplay(consent)} / {consent.status}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
-            <div className="studio-encounter-artifact-tags">
-              <span>
-                <strong>{eligibleConsents.length} approved eligible</strong>
-              </span>
+            <div className="studio-runtime-query">
+              <button
+                className="button secondary"
+                type="button"
+                onClick={loadTarget}
+                disabled={!targetPath || targetLoading || inviteBusy}
+              >
+                {targetLoading ? "Checking..." : "Check public target"}
+              </button>
             </div>
-          </div>
+
+            {inviteError && <div className="space-form-error">{inviteError}</div>}
+            {inviteMessage && <div className="studio-empty">{inviteMessage}</div>}
+
+            {target && (
+              <div className="studio-stack">
+                <div className="section-label">{target.provenance.label}</div>
+                <h4>{target.personaName}</h4>
+                <p>{target.shortDescription ?? "No public summary provided."}</p>
+                <div className="studio-encounter-artifact-tags">
+                  <span>
+                    <strong>{target.routeHref}</strong>
+                  </span>
+                  <span>
+                    <strong>{target.eligibility.message}</strong>
+                  </span>
+                  <span>
+                    <strong>{target.provenance.note}</strong>
+                  </span>
+                </div>
+                <div className="studio-runtime-query">
+                  <button
+                    className="button primary"
+                    type="button"
+                    onClick={createInvitation}
+                    disabled={inviteBusy}
+                  >
+                    {inviteBusy ? "Creating..." : "Create consent invitation"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </article>
+
+          <article className="studio-context-panel">
+            <div className="section-label">Participant consent inbox</div>
+            <h3>Visible consent rows</h3>
+            <p>Rows are participant-scoped. Actions update the ledger and audit metadata only.</p>
+            {loading ? (
+              <div className="studio-empty">Loading cross-owner consent ledger.</div>
+            ) : loadError ? (
+              <div className="space-form-error">{loadError}</div>
+            ) : consents.length === 0 ? (
+              <div className="studio-empty">No cross-owner consents are available.</div>
+            ) : (
+              <div className="studio-stack">
+                {consents.map((consent) => {
+                  const actions = personaEncounterCrossOwnerConsentAvailableActions(consent);
+                  return (
+                    <div className="studio-published-row" key={consent.id}>
+                      <div className="section-label">Consent ledger readback</div>
+                      <div>
+                        <strong>{personaEncounterCrossOwnerConsentDisplay(consent)}</strong>
+                      </div>
+                      <div className="studio-encounter-artifact-tags">
+                        <span>
+                          <strong>Status: {consent.status}</strong>
+                        </span>
+                        <span>
+                          <strong>Participant role: {consent.participantRole ?? "participant"}</strong>
+                        </span>
+                        <span>
+                          <strong>Scope version: {consent.requestedScopeVersion}</strong>
+                        </span>
+                        <span>
+                          <strong>{consent.requestedScopes.map((scope) => scope.label).join(", ") || "No scope"}</strong>
+                        </span>
+                        <span>
+                          <strong>Created: {formatDateTime(consent.timestamps.createdAt)}</strong>
+                        </span>
+                        <span>
+                          <strong>Updated: {formatDateTime(consent.timestamps.updatedAt)}</strong>
+                        </span>
+                        <span>
+                          <strong>{consent.provenance.label}</strong>
+                        </span>
+                      </div>
+                      <p>{personaEncounterCrossOwnerConsentStateCopy(consent)}</p>
+                      <div className="studio-runtime-query">
+                        <button
+                          className="button secondary"
+                          type="button"
+                          onClick={() => setSelectedConsentId(consent.id)}
+                          disabled={selectedConsent?.id === consent.id}
+                        >
+                          {selectedConsent?.id === consent.id ? "Selected" : "Inspect"}
+                        </button>
+                        {actions.length === 0 ? (
+                          <span className="studio-place-action">No ledger action available</span>
+                        ) : actions.map((action) => {
+                          const busyId = `${consent.id}:${action}`;
+                          return (
+                            <button
+                              className="button secondary"
+                              type="button"
+                              key={action}
+                              onClick={() => runConsentAction(consent, action)}
+                              disabled={actionBusyId !== null || busy}
+                            >
+                              {actionBusyId === busyId ? "Saving..." : consentActionLabel(action)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {actionError && <div className="space-form-error">{actionError}</div>}
+          </article>
 
           {selectedConsent && (
             <article className="studio-context-panel">
@@ -746,8 +995,26 @@ export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | nu
                 <span>
                   <strong>{selectedConsent.requestedScopes.map((scope) => scope.label).join(", ") || "No scope"}</strong>
                 </span>
+                <span>
+                  <strong>Created: {formatDateTime(selectedConsent.timestamps.createdAt)}</strong>
+                </span>
+                <span>
+                  <strong>Updated: {formatDateTime(selectedConsent.timestamps.updatedAt)}</strong>
+                </span>
+                <span>
+                  <strong>{selectedConsent.provenance.note}</strong>
+                </span>
               </div>
               <p>{consentStateCopy}</p>
+              {selectedConsent.audit.length > 0 && (
+                <div className="studio-encounter-artifact-tags">
+                  {selectedConsent.audit.slice(-3).map((event) => (
+                    <span key={event.id}>
+                      <strong>{event.eventType} / {event.nextStatus} / {formatDateTime(event.createdAt)}</strong>
+                    </span>
+                  ))}
+                </div>
+              )}
             </article>
           )}
 
@@ -816,6 +1083,36 @@ export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | nu
       )}
     </section>
   );
+}
+
+function consentActionLabel(action: PersonaEncounterCrossOwnerConsentAction) {
+  switch (action) {
+    case "approve":
+      return "Approve";
+    case "reject":
+      return "Reject";
+    case "cancel":
+      return "Cancel";
+    case "revoke":
+      return "Revoke";
+  }
+}
+
+function consentActionReasonCode(action: PersonaEncounterCrossOwnerConsentAction) {
+  if (action === "reject") return "not_aligned";
+  if (action === "cancel" || action === "revoke") return "owner_request";
+  return undefined;
+}
+
+function formatDateTime(value: string | null) {
+  if (!value) return "Not recorded";
+  return new Date(value).toLocaleString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function PrivateEncounterCurationControls({

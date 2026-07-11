@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515B | Cross-Owner Consent Invitation and Inbox UI | DAEDALUS / A2 | Open implementation for owner-only target lookup, invitation creation, participant consent inbox, and approve/reject/cancel/revoke controls using the PR515A public-slug contract and existing participant routes. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_DAEDALUS.md` |
+| PR515B | Cross-Owner Consent Invitation and Inbox UI | ARGUS / A3 | Ready for hostile review. DAEDALUS added owner-only target lookup, invitation creation, participant consent inbox, and approve/reject/cancel/revoke controls using the PR515A public-slug contract and existing participant routes. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_RESULT.md` |
 
 ## Recently Closed
 

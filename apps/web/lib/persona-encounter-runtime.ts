@@ -133,6 +133,7 @@ export type PersonaEncounterCrossOwnerConsentStatus =
   | "moderation_locked";
 
 export type PersonaEncounterCrossOwnerConsentParticipantRole = "requester" | "counterparty";
+export type PersonaEncounterCrossOwnerConsentAction = "approve" | "reject" | "cancel" | "revoke";
 
 export interface PersonaEncounterCrossOwnerConsent {
   id: string;
@@ -211,6 +212,10 @@ export interface PersonaEncounterCrossOwnerConsentListResponse {
   consents: PersonaEncounterCrossOwnerConsent[];
 }
 
+export interface PersonaEncounterCrossOwnerConsentResponse {
+  consent: PersonaEncounterCrossOwnerConsent;
+}
+
 export interface PersonaEncounterCrossOwnerConsentPublicTarget {
   personaName: string;
   shortDescription: string | null;
@@ -245,6 +250,10 @@ export interface PersonaEncounterCrossOwnerConsentCreateByPublicSlugRequest {
 export interface PersonaEncounterCrossOwnerConsentCreateByPublicSlugResponse {
   consent: PersonaEncounterCrossOwnerConsent;
   target: PersonaEncounterCrossOwnerConsentPublicTarget;
+}
+
+export interface PersonaEncounterCrossOwnerConsentActionRequest {
+  reasonCode?: string | null;
 }
 
 export interface PersonaEncounterPrivateSession {
@@ -441,6 +450,16 @@ export const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.public_exhibit.v1";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
   "station.persona_encounter.cross_owner_disposable_preview.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_REASON_CODES = new Set([
+  "not_aligned",
+  "owner_request",
+  "persona_deleted",
+  "account_deleted",
+  "moderation_safety",
+  "scope_changed",
+  "expired",
+  "other",
+]);
 
 export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewRequest) {
   return {
@@ -496,6 +515,26 @@ export function personaEncounterCrossOwnerConsentCreateByPublicSlugPayload(
   };
 }
 
+export function personaEncounterCrossOwnerConsentPath(consentId: string) {
+  return `${PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH}/${encodeURIComponent(consentId)}`;
+}
+
+export function personaEncounterCrossOwnerConsentActionPath(
+  consentId: string,
+  action: PersonaEncounterCrossOwnerConsentAction,
+) {
+  return `${personaEncounterCrossOwnerConsentPath(consentId)}/${action}`;
+}
+
+export function personaEncounterCrossOwnerConsentActionPayload(
+  input: PersonaEncounterCrossOwnerConsentActionRequest = {},
+) {
+  const reasonCode = normalizeOptionalText(input.reasonCode);
+  return reasonCode && PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_REASON_CODES.has(reasonCode)
+    ? { reasonCode }
+    : {};
+}
+
 export function personaEncounterCrossOwnerConsentDisplay(consent: PersonaEncounterCrossOwnerConsent) {
   return `${consent.participants.requester.personaName} / ${consent.participants.counterparty.personaName}`;
 }
@@ -545,6 +584,34 @@ export function personaEncounterCrossOwnerConsentStateCopy(
     case "moderation_locked":
       return "Consent is moderation locked and cannot run a preview.";
   }
+}
+
+export function personaEncounterCrossOwnerConsentLedgerBoundaryReadback() {
+  return [
+    "Consent ledger only",
+    "Not a saved session",
+    "Not public",
+    "Does not share generated words",
+    "No transcript, summary, excerpt, share link, or publication",
+    "No Memory, Archive, Canon, Continuity, Integrity, or private retrieval",
+    "Approval can be revoked",
+    "Counterparty sees consent state and audit metadata, not generated preview text here.",
+  ];
+}
+
+export function personaEncounterCrossOwnerConsentAvailableActions(
+  consent: PersonaEncounterCrossOwnerConsent,
+): PersonaEncounterCrossOwnerConsentAction[] {
+  if (consent.status === "pending" && consent.participantRole === "counterparty") {
+    return ["approve", "reject"];
+  }
+  if (consent.status === "pending" && consent.participantRole === "requester") {
+    return ["cancel"];
+  }
+  if (consent.status === "approved" && consent.participantRole) {
+    return ["revoke"];
+  }
+  return [];
 }
 
 export function personaEncounterPreviewReadinessPath(input: {
@@ -856,6 +923,27 @@ export function personaEncounterCrossOwnerConsentInvitationErrorCopy(input: {
       return "Counterparty public persona target could not be loaded.";
     default:
       return "Cross-owner consent invitation could not be prepared.";
+  }
+}
+
+export function personaEncounterCrossOwnerConsentActionErrorCopy(input: {
+  status?: number;
+  code?: string;
+  message?: string;
+}) {
+  switch (input.code) {
+    case "persona_encounter_cross_owner_consent_counterparty_required":
+      return "Only the counterparty owner can take that consent action.";
+    case "persona_encounter_cross_owner_consent_requester_required":
+      return "Only the requester owner can take that consent action.";
+    case "persona_encounter_cross_owner_consent_inactive":
+      return "This consent is not pending or active for that action.";
+    case "persona_encounter_cross_owner_consent_load_failed":
+      return "Cross-owner consent could not be loaded.";
+    case "persona_encounter_cross_owner_consent_update_failed":
+      return "Cross-owner consent could not be updated.";
+    default:
+      return "Cross-owner consent action could not be saved.";
   }
 }
 
