@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR509A | Public Encounter Exhibit Index | DAEDALUS / A2 | Open implementation; add only dedicated `/encounters` public index plus bounded metadata-only public list API for published, non-removed public encounter exhibits. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md` |
+| PR509A | Public Encounter Exhibit Index | ARGUS / A3 | Ready for review; DAEDALUS added only the dedicated `/encounters` public index plus bounded metadata-only public list API for published, non-removed public encounter exhibits. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md` |
 
 ## Recently Closed
 

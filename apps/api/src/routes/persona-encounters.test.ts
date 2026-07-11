@@ -252,8 +252,10 @@ class InMemorySupabase {
 
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
+  private isFilters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, unknown[]]> = [];
-  private orderSpec: { field: string; ascending: boolean } | null = null;
+  private orderSpecs: Array<{ field: string; ascending: boolean }> = [];
+  private orPredicates: Array<(row: Row) => boolean> = [];
   private limitCount: number | null = null;
   private mutation:
     | { type: "insert"; payload: Row | Row[] }
@@ -287,13 +289,32 @@ class QueryBuilder {
     return this;
   }
 
+  is(field: string, value: unknown) {
+    this.isFilters.push([field, value]);
+    return this;
+  }
+
   in(field: string, values: unknown[]) {
     this.inFilters.push([field, values]);
     return this;
   }
 
+  or(expression: string) {
+    const cursor = expression.match(
+      /^published_at\.lt\.([^,]+),and\(published_at\.eq\.([^,]+),slug\.lt\.([^)]+)\)$/,
+    );
+    if (cursor) {
+      const [, beforePublishedAt, samePublishedAt, beforeSlug] = cursor;
+      this.orPredicates.push((row) =>
+        row.published_at < beforePublishedAt ||
+        (row.published_at === samePublishedAt && row.slug < beforeSlug)
+      );
+    }
+    return this;
+  }
+
   order(field: string, options: { ascending?: boolean } = {}) {
-    this.orderSpec = { field, ascending: options.ascending ?? true };
+    this.orderSpecs.push({ field, ascending: options.ascending ?? true });
     return this;
   }
 
@@ -319,16 +340,24 @@ class QueryBuilder {
     for (const [field, value] of this.filters) {
       rows = rows.filter((row) => row[field] === value);
     }
+    for (const [field, value] of this.isFilters) {
+      rows = rows.filter((row) => row[field] === value);
+    }
     for (const [field, values] of this.inFilters) {
       rows = rows.filter((row) => values.includes(row[field]));
     }
-    if (this.orderSpec) {
-      const { field, ascending } = this.orderSpec;
+    for (const predicate of this.orPredicates) {
+      rows = rows.filter(predicate);
+    }
+    if (this.orderSpecs.length > 0) {
       rows.sort((a, b) => {
-        if (a[field] === b[field]) return 0;
-        if (a[field] == null) return 1;
-        if (b[field] == null) return -1;
-        return (a[field] > b[field] ? 1 : -1) * (ascending ? 1 : -1);
+        for (const { field, ascending } of this.orderSpecs) {
+          if (a[field] === b[field]) continue;
+          if (a[field] == null) return 1;
+          if (b[field] == null) return -1;
+          return (a[field] > b[field] ? 1 : -1) * (ascending ? 1 : -1);
+        }
+        return 0;
       });
     }
     if (this.limitCount !== null) rows = rows.slice(0, this.limitCount);
@@ -1380,6 +1409,13 @@ test("owner can publish report and retract metadata-only public encounter exhibi
     assert.equal(publicRead.body.exhibit.summary, "Owner-authored public context only.");
     assert.equal(publicRead.body.exhibit.report.path, `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}/report`);
 
+    const listBeforeRetract = await requestJson(app, "GET", "/persona-encounters/public-exhibits?limit=2");
+    assert.equal(listBeforeRetract.status, 200);
+    assert.deepEqual(listBeforeRetract.body.exhibits.map((exhibit: Row) => exhibit.slug), [publish.body.exhibit.slug]);
+    assert.equal(listBeforeRetract.body.exhibits[0].routeHref, `/encounters/${publish.body.exhibit.slug}`);
+    assert.equal(JSON.stringify(listBeforeRetract.body).includes("reportedCount"), false);
+    assert.equal(JSON.stringify(listBeforeRetract.body).includes("report"), false);
+
     const publicJson = JSON.stringify(publicRead.body);
     for (const forbidden of [
       OWNER_ID,
@@ -1440,6 +1476,9 @@ test("owner can publish report and retract metadata-only public encounter exhibi
 
     const hiddenAfterRetract = await requestJson(app, "GET", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}`);
     assert.equal(hiddenAfterRetract.status, 404);
+    const listAfterRetract = await requestJson(app, "GET", "/persona-encounters/public-exhibits");
+    assert.equal(listAfterRetract.status, 200);
+    assert.deepEqual(listAfterRetract.body.exhibits, []);
 
     assert.equal(providerCalls.length, 1);
     assert.equal(db.rows("token_transactions").length, 1);
@@ -1589,6 +1628,179 @@ test("public exhibit route hides missing retracted removed and malformed slugs",
         body: { reason: "unsafe_public_metadata" },
       });
       assert.equal(report.status, 404, `${slug} report should be hidden`);
+    }
+  });
+});
+
+test("public exhibit list is bounded ordered cursorable and metadata-only", async () => {
+  await withHarness(async ({ db, app }) => {
+    const createSource = (id: string, ownerSetup: string, responderReply: string) => db.insertRow(
+      "persona_encounter_private_sessions",
+      {
+        id,
+        owner_user_id: OWNER_ID,
+        initiator_persona_id: INITIATOR_ID,
+        responder_persona_id: RESPONDER_ID,
+        owner_setup: ownerSetup,
+        responder_reply: responderReply,
+        initiator_name_snapshot: "Blue Lantern",
+        responder_name_snapshot: "Copper Scribe",
+      },
+    );
+    const sourceA = createSource(
+      "66666666-6666-4666-8666-000000000101",
+      "Private setup A should not list.",
+      "Generated private reply A should not list.",
+    );
+    const sourceB = createSource(
+      "66666666-6666-4666-8666-000000000102",
+      "Private setup B should not list.",
+      "Generated private reply B should not list.",
+    );
+    const sourceC = createSource(
+      "66666666-6666-4666-8666-000000000103",
+      "Private setup C should not list.",
+      "Generated private reply C should not list.",
+    );
+
+    const publicBase = {
+      owner_user_id: OWNER_ID,
+      public_summary: "Owner-authored public metadata only.",
+      public_tags: ["public", "metadata"],
+      initiator_name_snapshot: "Blue Lantern",
+      responder_name_snapshot: "Copper Scribe",
+      status: "published",
+      provenance_schema: "station.persona_encounter.public_exhibit.v1",
+    };
+
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceA.id,
+      slug: "shared-alpha-12345678",
+      public_title: "Shared alpha",
+      published_at: "2026-07-10T12:00:00.000Z",
+      reported_count: 9,
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceB.id,
+      slug: "shared-zulu-12345678",
+      public_title: "Shared zulu",
+      published_at: "2026-07-10T12:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "older-exhibit-12345678",
+      public_title: "Older exhibit",
+      published_at: "2026-07-09T12:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "retracted-secret-12345678",
+      public_title: "Cross Owner Secret Retracted",
+      public_summary: "Cross Owner Secret should not list.",
+      status: "retracted",
+      retracted_at: "2026-07-10T13:00:00.000Z",
+      published_at: "2026-07-11T12:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "removed-secret-12345678",
+      public_title: "Removed secret",
+      public_summary: "Removed public metadata should not list.",
+      status: "removed",
+      removed_at: "2026-07-10T13:00:00.000Z",
+      published_at: "2026-07-11T11:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: "66666666-6666-4666-8666-000000000999",
+      slug: "deleted-source-12345678",
+      public_title: "Deleted source",
+      public_summary: "Deleted source public metadata should not list.",
+      published_at: "2026-07-11T10:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "bad_slug",
+      public_title: "Malformed slug",
+      public_summary: "Malformed row should not list.",
+      published_at: "2026-07-11T09:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "wrong-schema-12345678",
+      public_title: "Wrong schema",
+      public_summary: "Wrong schema row should not list.",
+      provenance_schema: "station.persona_encounter.private_session.v1",
+      published_at: "2026-07-11T08:00:00.000Z",
+    });
+
+    const firstPage = await requestJson(app, "GET", "/persona-encounters/public-exhibits?limit=2");
+    assert.equal(firstPage.status, 200);
+    assert.equal(firstPage.body.pagination.limit, 2);
+    assert.deepEqual(firstPage.body.exhibits.map((exhibit: Row) => exhibit.slug), [
+      "shared-zulu-12345678",
+      "shared-alpha-12345678",
+    ]);
+    assert.ok(firstPage.body.pagination.nextCursor);
+
+    const secondPage = await requestJson(
+      app,
+      "GET",
+      `/persona-encounters/public-exhibits?limit=2&cursor=${encodeURIComponent(firstPage.body.pagination.nextCursor)}`,
+    );
+    assert.equal(secondPage.status, 200);
+    assert.deepEqual(secondPage.body.exhibits.map((exhibit: Row) => exhibit.slug), ["older-exhibit-12345678"]);
+    assert.equal(secondPage.body.pagination.nextCursor, null);
+
+    const capped = await requestJson(app, "GET", "/persona-encounters/public-exhibits?limit=999");
+    assert.equal(capped.status, 200);
+    assert.equal(capped.body.pagination.limit, 24);
+    assert.equal(capped.body.exhibits.length, 3);
+
+    const invalidCursor = await requestJson(app, "GET", "/persona-encounters/public-exhibits?cursor=not-a-cursor");
+    assert.equal(invalidCursor.status, 400);
+    assert.equal(invalidCursor.body.code, "persona_encounter_public_exhibit_cursor_invalid");
+
+    const json = JSON.stringify(firstPage.body) + JSON.stringify(secondPage.body) + JSON.stringify(capped.body);
+    for (const forbidden of [
+      OWNER_ID,
+      INITIATOR_ID,
+      RESPONDER_ID,
+      sourceA.id,
+      sourceB.id,
+      sourceC.id,
+      "owner_user_id",
+      "private_session_id",
+      "initiator_persona_id",
+      "responder_persona_id",
+      "reportedCount",
+      "reported_count",
+      "removed_at",
+      "removed_by",
+      "report",
+      "Private setup",
+      "Generated private reply",
+      "Cross Owner Secret",
+      "Removed public metadata should not list",
+      "Deleted source public metadata should not list",
+      "Malformed row should not list",
+      "Wrong schema row should not list",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked in public list`);
+    }
+
+    for (const exhibit of firstPage.body.exhibits) {
+      assert.match(exhibit.routeHref, /^\/encounters\/[a-z0-9-]+-[a-z0-9]{8}$/);
+      assert.equal(exhibit.status, "published");
+      assert.equal(exhibit.provenance.public, true);
+      assert.equal(exhibit.provenance.sameOwner, true);
     }
   });
 });

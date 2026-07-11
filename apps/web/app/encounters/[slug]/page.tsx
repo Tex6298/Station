@@ -100,7 +100,7 @@ export default function PublicEncounterExhibitPage() {
         <section className="station-page-inner station-page-inner-narrow">
           <div className="station-panel">
             <p>{error ?? "Public encounter exhibit not found."}</p>
-            <Link className="station-muted-button" href="/discover">Back to Discover</Link>
+            <Link className="station-muted-button" href="/encounters">Browse encounters</Link>
           </div>
         </section>
       </main>

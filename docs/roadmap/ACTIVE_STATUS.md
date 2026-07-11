@@ -4,7 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509A public encounter exhibit index opened
+## Current lane - PR509A public encounter exhibit index ready for review
+
+DAEDALUS implemented PR509A and is waking ARGUS for review:
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md`
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Summary:
+
+- `GET /persona-encounters/public-exhibits` now returns a bounded public list
+  of published, non-removed, source-backed public encounter exhibits;
+- `/encounters` now renders the dedicated public index and links cards to the
+  existing `/encounters/[slug]` detail route;
+- list metadata is public slug/route href, owner-authored public title, public
+  summary, public tags, same-owner display-name snapshots, published date, and
+  provenance copy only;
+- the public list cursor contains only public `publishedAt` plus public slug and
+  is ordered by `published_at desc, slug desc`;
+- report controls remain detail-only;
+- Discover search/feed, public persona profiles, public Spaces,
+  forums/discussions, Station Press/public documents, popularity sort, excerpts,
+  transcripts, raw replies, private setup, private curation, raw ids, provider
+  details, prompts, source bodies, and cross-owner words remain out of scope;
+- no migration, package, lockfile, provider, retrieval, billing, social, Redis,
+  Cloudflare, queue, worker, storage, or schema-visible feature work entered
+  this lane.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  37 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 29 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 41 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Current lane:
+
+```text
+PR509A - Public Encounter Exhibit Index
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
+Source: docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md
+```
+
+Next:
+
+- ARGUS reviews the metadata-only public index safety;
+- ARGUS confirms no private material or off-scope public surfacing entered;
+- if ARGUS accepts, MIMIR routes hosted proof.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR509A public encounter exhibit index opened
 
 MIMIR closed PR509 preflight and opened PR509A for DAEDALUS:
 
@@ -13,51 +79,6 @@ MIMIR closed PR509 preflight and opened PR509A for DAEDALUS:
 `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_CLOSEOUT.md`
 
 `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md`
-
-Result:
-
-```text
-ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ONLY
-```
-
-Summary:
-
-- the smallest safe discovery expansion is a dedicated `/encounters` index plus
-  bounded public list API for published, non-removed metadata-only public
-  encounter exhibits;
-- safe list metadata is public slug/route href, owner-authored public title,
-  public summary, public tags, same-owner display-name snapshots, published
-  date, and provenance copy only;
-- Discover search/feed, public persona profiles, public Spaces,
-  forums/discussions, Station Press/public documents, popularity sort, excerpts,
-  transcripts, raw replies, private setup, private curation, raw ids, provider
-  details, prompts, source bodies, and cross-owner words remain out of scope;
-- PR509A should go to DAEDALUS if MIMIR accepts the lane;
-- focused validation passed for encounter routes, reports, writing/Discover
-  helpers, community/search routes, and typecheck.
-
-Current lane:
-
-```text
-PR509A - Public Encounter Exhibit Index
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md
-```
-
-Next:
-
-- DAEDALUS implements the dedicated `/encounters` index and bounded public list
-  API only;
-- DAEDALUS wakes ARGUS for review;
-- if ARGUS accepts, MIMIR routes hosted proof.
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
-```
 
 ## Previous lane - PR509 public encounter exhibit discovery preflight accepted
 

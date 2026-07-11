@@ -5,6 +5,7 @@ import {
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
   PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
+  PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
   personaEncounterPrivateSessionCurationPath,
@@ -12,6 +13,7 @@ import {
   personaEncounterPrivateSessionPublicExhibitPath,
   personaEncounterPrivateSessionPath,
   personaEncounterPrivateSessionReadback,
+  personaEncounterPublicExhibitListPath,
   personaEncounterPublicExhibitPath,
   personaEncounterPublicExhibitPublishPayload,
   personaEncounterPublicExhibitReportPath,
@@ -114,6 +116,16 @@ test("persona encounter runtime helper builds private session paths", () => {
 });
 
 test("persona encounter runtime helper builds public exhibit paths and payloads", () => {
+  assert.equal(PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH, "/persona-encounters/public-exhibits");
+  assert.equal(personaEncounterPublicExhibitListPath(), "/persona-encounters/public-exhibits");
+  assert.equal(
+    personaEncounterPublicExhibitListPath({ limit: 12 }),
+    "/persona-encounters/public-exhibits?limit=12",
+  );
+  assert.equal(
+    personaEncounterPublicExhibitListPath({ limit: 12, cursor: "cursor/token" }),
+    "/persona-encounters/public-exhibits?limit=12&cursor=cursor%2Ftoken",
+  );
   assert.equal(
     personaEncounterPublicExhibitPath("public/exhibit"),
     "/persona-encounters/public-exhibits/public%2Fexhibit",
@@ -332,10 +344,15 @@ test("persona encounter runtime availability copy fails closed before generation
 });
 
 test("public encounter exhibit page and Studio controls stay metadata-only", () => {
+  const indexSource = readFileSync("apps/web/app/encounters/page.tsx", "utf8");
   const pageSource = readFileSync("apps/web/app/encounters/[slug]/page.tsx", "utf8");
   const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
   const runtimeSource = readFileSync("apps/web/lib/persona-encounter-runtime.ts", "utf8");
 
+  assert.match(indexSource, /personaEncounterPublicExhibitListPath/);
+  assert.match(indexSource, /href=\{exhibit\.routeHref\}/);
+  assert.doesNotMatch(indexSource, /personaEncounterPublicExhibitReportPath|Report exhibit|Sign in to report/);
+  assert.doesNotMatch(indexSource, /Discover|public persona|public Space|forum|Station Press|transcript|discussion/i);
   assert.match(pageSource, /personaEncounterPublicExhibitPath/);
   assert.match(pageSource, /personaEncounterPublicExhibitReportPath/);
   assert.match(pageSource, /Sign in to report/);
@@ -344,7 +361,7 @@ test("public encounter exhibit page and Studio controls stay metadata-only", () 
   assert.match(runtimeSource, /confirmPublicExhibit: true/);
   assert.doesNotMatch(workspaceSource, /title:\s*session\.curation|summary:\s*session\.curation|tags:\s*session\.curation/);
 
-  for (const source of [pageSource, workspaceSource]) {
+  for (const source of [indexSource, pageSource, workspaceSource]) {
     assert.doesNotMatch(
       source,
       /owner_user_id|private_session_id|initiator_persona_id|responder_persona_id|owner_setup|responder_reply|owner_title|owner_summary|owner_tags|provider_payload|source_body|raw_source/i,

@@ -157,6 +157,37 @@ export interface PersonaEncounterPublicExhibitPublicResponse {
   };
 }
 
+export interface PersonaEncounterPublicExhibitListItem {
+  slug: string;
+  routeHref: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  personas: {
+    label: "Same-owner persona display snapshots";
+    initiatorName: string;
+    responderName: string;
+  };
+  status: "published";
+  publishedAt: string;
+  provenance: {
+    label: "Metadata-only public encounter exhibit";
+    ownerCurated: true;
+    public: true;
+    sameOwner: true;
+    source: string;
+    note: string;
+  };
+}
+
+export interface PersonaEncounterPublicExhibitListResponse {
+  exhibits: PersonaEncounterPublicExhibitListItem[];
+  pagination: {
+    limit: number;
+    nextCursor: string | null;
+  };
+}
+
 export interface PersonaEncounterPublicExhibitReportResponse {
   report: {
     status: "open" | "reviewing" | "resolved" | "dismissed";
@@ -189,6 +220,7 @@ export interface PersonaEncounterPreviewReadinessResponse {
 export const PERSONA_ENCOUNTER_PREVIEW_PATH = "/persona-encounters/preview";
 export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/preview/readiness";
 export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
+export const PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH = "/persona-encounters/public-exhibits";
 export const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
@@ -226,8 +258,19 @@ export function personaEncounterPrivateSessionPublicExhibitPath(sessionId: strin
   return `${personaEncounterPrivateSessionPath(sessionId)}/public-exhibit`;
 }
 
+export function personaEncounterPublicExhibitListPath(input: {
+  limit?: number;
+  cursor?: string | null;
+} = {}) {
+  const params = new URLSearchParams();
+  if (input.limit !== undefined) params.set("limit", String(input.limit));
+  if (input.cursor) params.set("cursor", input.cursor);
+  const query = params.toString();
+  return query ? `${PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH}?${query}` : PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH;
+}
+
 export function personaEncounterPublicExhibitPath(slug: string) {
-  return `/persona-encounters/public-exhibits/${encodeURIComponent(slug)}`;
+  return `${PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH}/${encodeURIComponent(slug)}`;
 }
 
 export function personaEncounterPublicExhibitWebHref(slug: string) {

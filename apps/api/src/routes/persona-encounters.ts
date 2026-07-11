@@ -40,6 +40,11 @@ const PUBLIC_EXHIBIT_TITLE_MAX_CHARS = 140;
 const PUBLIC_EXHIBIT_SUMMARY_MAX_CHARS = 1000;
 const PUBLIC_EXHIBIT_TAG_MAX_CHARS = 40;
 const PUBLIC_EXHIBIT_MAX_TAGS = 12;
+const PUBLIC_EXHIBIT_LIST_DEFAULT_LIMIT = 12;
+const PUBLIC_EXHIBIT_LIST_MAX_LIMIT = 24;
+const PUBLIC_EXHIBIT_LIST_DB_WINDOW = PUBLIC_EXHIBIT_LIST_MAX_LIMIT * 3 + 1;
+const PUBLIC_EXHIBIT_PUBLIC_SELECT =
+  "slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, reported_count, published_at, retracted_at, removed_at, removed_by, owner_user_id, private_session_id, id, created_at, updated_at";
 
 const previewSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -111,6 +116,12 @@ const readinessSchema = z.object({
 
 const sessionIdSchema = z.string().uuid();
 const publicExhibitSlugSchema = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*-[a-z0-9]{8}$/);
+const publicExhibitListCursorSchema = z.object({
+  publishedAt: z.string().datetime(),
+  slug: publicExhibitSlugSchema,
+});
+
+type PublicExhibitListCursor = z.infer<typeof publicExhibitListCursorSchema>;
 
 type EncounterPersonaRow = {
   id: string;
@@ -550,6 +561,37 @@ personaEncountersRouter.patch("/public-exhibits/:slug/retract", requireAuth, asy
   });
 });
 
+personaEncountersRouter.get("/public-exhibits", async (req, res) => {
+  const limit = publicExhibitListLimit(req.query.limit);
+  const parsedCursor = decodePublicExhibitListCursor(req.query.cursor);
+  if (!parsedCursor.ok) {
+    return res.status(400).json({
+      error: "Public encounter exhibit cursor is invalid.",
+      code: "persona_encounter_public_exhibit_cursor_invalid",
+    });
+  }
+
+  const result = await loadPublishedPublicExhibitList(getSupabaseAdmin(), {
+    limit,
+    cursor: parsedCursor.cursor,
+  });
+
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Public encounter exhibits could not be loaded.",
+      code: "persona_encounter_public_exhibit_list_failed",
+    });
+  }
+
+  return res.json({
+    exhibits: result.rows.map(serializePublishedPublicExhibitListItem),
+    pagination: {
+      limit,
+      nextCursor: result.nextCursor,
+    },
+  });
+});
+
 personaEncountersRouter.get("/public-exhibits/:slug", async (req, res) => {
   const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
   if (!parsedSlug.success) return res.status(404).json({ error: "Public encounter exhibit not found." });
@@ -861,7 +903,7 @@ function serializePublishedPublicExhibit(row: EncounterPublicExhibitRow) {
     slug: row.slug,
     title: row.public_title,
     summary: row.public_summary,
-    tags: row.public_tags,
+    tags: publicTags(row.public_tags),
     personas: {
       label: "Same-owner persona display snapshots",
       initiatorName: row.initiator_name_snapshot,
@@ -881,6 +923,21 @@ function serializePublishedPublicExhibit(row: EncounterPublicExhibitRow) {
       requiresSignIn: true,
       path: `/persona-encounters/public-exhibits/${row.slug}/report`,
     },
+  };
+}
+
+function serializePublishedPublicExhibitListItem(row: EncounterPublicExhibitRow) {
+  const detail = serializePublishedPublicExhibit(row);
+  return {
+    slug: detail.slug,
+    routeHref: `/encounters/${detail.slug}`,
+    title: detail.title,
+    summary: detail.summary,
+    tags: detail.tags,
+    personas: detail.personas,
+    status: detail.status,
+    publishedAt: detail.publishedAt,
+    provenance: detail.provenance,
   };
 }
 
@@ -955,7 +1012,7 @@ async function loadPublishedPublicExhibitBySlug(
 ) {
   const { data } = await sb
     .from("persona_encounter_public_exhibits")
-    .select("slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, reported_count, published_at, retracted_at, removed_at, removed_by, owner_user_id, private_session_id, id, created_at, updated_at")
+    .select(PUBLIC_EXHIBIT_PUBLIC_SELECT)
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
@@ -963,6 +1020,77 @@ async function loadPublishedPublicExhibitBySlug(
   const exhibit = (data ?? null) as EncounterPublicExhibitRow | null;
   if (!exhibit || exhibit.removed_at) return null;
   return exhibit;
+}
+
+async function loadPublishedPublicExhibitList(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  input: { limit: number; cursor: PublicExhibitListCursor | null },
+): Promise<
+  | { ok: true; rows: EncounterPublicExhibitRow[]; nextCursor: string | null }
+  | { ok: false }
+> {
+  let query = sb
+    .from("persona_encounter_public_exhibits")
+    .select(PUBLIC_EXHIBIT_PUBLIC_SELECT)
+    .eq("status", "published")
+    .is("removed_at", null)
+    .order("published_at", { ascending: false })
+    .order("slug", { ascending: false })
+    .limit(PUBLIC_EXHIBIT_LIST_DB_WINDOW);
+
+  if (input.cursor) {
+    query = query.or(
+      [
+        `published_at.lt.${input.cursor.publishedAt}`,
+        `and(published_at.eq.${input.cursor.publishedAt},slug.lt.${input.cursor.slug})`,
+      ].join(","),
+    );
+  }
+
+  const { data, error } = await query;
+  if (error) return { ok: false };
+
+  const safeRows = ((data ?? []) as EncounterPublicExhibitRow[]).filter(isSafePublicExhibitListRow);
+  const sourceBackedRows = await filterPublicExhibitsWithExistingSources(sb, safeRows);
+  const pageRows = sourceBackedRows.slice(0, input.limit);
+  const hasNextPage = sourceBackedRows.length > input.limit;
+
+  return {
+    ok: true,
+    rows: pageRows,
+    nextCursor: hasNextPage && pageRows.length > 0
+      ? encodePublicExhibitListCursor(pageRows[pageRows.length - 1])
+      : null,
+  };
+}
+
+async function filterPublicExhibitsWithExistingSources(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  rows: EncounterPublicExhibitRow[],
+) {
+  if (rows.length === 0) return rows;
+
+  const sessionIds = Array.from(new Set(rows.map((row) => row.private_session_id).filter(Boolean)));
+  if (sessionIds.length === 0) return [];
+
+  const { data, error } = await sb
+    .from("persona_encounter_private_sessions")
+    .select("id")
+    .in("id", sessionIds);
+  if (error) return [];
+
+  const existingSessionIds = new Set((data ?? []).map((row: { id: string }) => row.id));
+  return rows.filter((row) => existingSessionIds.has(row.private_session_id));
+}
+
+function isSafePublicExhibitListRow(row: EncounterPublicExhibitRow) {
+  return (
+    row.status === "published" &&
+    !row.removed_at &&
+    !row.retracted_at &&
+    row.provenance_schema === PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA &&
+    publicExhibitSlugSchema.safeParse(row.slug).success
+  );
 }
 
 async function privateSessionPersonasStillSameOwner(
@@ -1258,6 +1386,42 @@ function publicExhibitSlug(title: string) {
     .slice(0, 58)
     .replace(/-+$/g, "") || "encounter";
   return `${base}-${randomUUID().replace(/-/g, "").slice(0, 8)}`;
+}
+
+function publicExhibitListLimit(value: unknown) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = Number.parseInt(String(raw ?? ""), 10);
+  if (!Number.isFinite(parsed)) return PUBLIC_EXHIBIT_LIST_DEFAULT_LIMIT;
+  return Math.min(PUBLIC_EXHIBIT_LIST_MAX_LIMIT, Math.max(1, parsed));
+}
+
+function encodePublicExhibitListCursor(row: EncounterPublicExhibitRow) {
+  return Buffer.from(JSON.stringify({
+    publishedAt: row.published_at,
+    slug: row.slug,
+  }), "utf8").toString("base64url");
+}
+
+function decodePublicExhibitListCursor(value: unknown):
+  | { ok: true; cursor: PublicExhibitListCursor | null }
+  | { ok: false } {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === undefined || raw === null || raw === "") return { ok: true, cursor: null };
+  if (typeof raw !== "string" || raw.length > 240) return { ok: false };
+
+  try {
+    const parsed = publicExhibitListCursorSchema.safeParse(
+      JSON.parse(Buffer.from(raw, "base64url").toString("utf8")),
+    );
+    if (!parsed.success) return { ok: false };
+    return { ok: true, cursor: parsed.data };
+  } catch {
+    return { ok: false };
+  }
+}
+
+function publicTags(value: string[] | null | undefined) {
+  return Array.isArray(value) ? value.filter((tag) => typeof tag === "string") : [];
 }
 
 function clip(value: string | null | undefined, maxLength: number) {

@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR509A Public Encounter Exhibit Index
+
+DAEDALUS implemented PR509A on 2026-07-11:
+
+- `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `GET /persona-encounters/public-exhibits` now returns a bounded public list
+  of published, non-removed, source-backed metadata-only public encounter
+  exhibits;
+- `/encounters` now renders the dedicated public index and links cards to the
+  existing `/encounters/[slug]` detail route;
+- list rows serialize only public slug/route href, owner-authored public title,
+  public summary, public tags, same-owner display-name snapshots, published
+  date, and provenance copy;
+- the cursor contains only public `publishedAt` plus public slug and the list is
+  ordered by `published_at desc, slug desc`;
+- report controls remain detail-only;
+- Discover search/feed, public persona profiles, public Spaces,
+  forums/discussions, Station Press/public documents, popularity sort, excerpts,
+  transcripts, raw replies, private setup, private curation, raw ids, provider
+  details, prompts, source bodies, cross-owner words, packages, lockfiles,
+  migrations, provider, retrieval, billing, social, Redis, Cloudflare, queue,
+  worker, storage, and schema-visible feature work remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 37 tests passed, including public list filtering, cursoring, hidden rows, owner retract, and web helper/page-source coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown and owner-retracted restore protection remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; Discover/writing/public-persona/public-Space helpers remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed; Discover/search/forum/community public-safe routes remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio and public encounter helper scans remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changed runtime paths are limited to encounter API/tests, `/encounters` pages, encounter runtime helper/tests, scoped global CSS, and roadmap/testing docs. |
+| Forbidden-path scan | Pass | No Discover/search/feed, public persona, public Space, forum, Station Press, package, lockfile, migration, provider, retrieval, billing, social, Redis, Cloudflare, queue, worker, storage, or schema-visible implementation paths changed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the PR509A implementation and docs. |
+
 ## PR509 Public Encounter Exhibit Discovery Preflight
 
 ARGUS completed PR509 preflight on 2026-07-11:
