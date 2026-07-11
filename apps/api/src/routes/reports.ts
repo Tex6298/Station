@@ -18,7 +18,16 @@ import { ensureCommunityProfile } from "../services/community.service";
 import { notifyReportStatus, notifyReviewRequestStatus } from "../services/community-notifications.service";
 
 const createReportSchema = z.object({
-  targetType: z.enum(["user", "space", "document", "thread", "comment", "persona", "persona_encounter_public_exhibit"]),
+  targetType: z.enum([
+    "user",
+    "space",
+    "document",
+    "thread",
+    "comment",
+    "persona",
+    "persona_encounter_public_exhibit",
+    "persona_encounter_cross_owner_public_exhibit",
+  ]),
   targetId: z.string().min(1),
   reason: z.string().min(1),
   notes: z.string().optional(),
@@ -63,6 +72,10 @@ type ModerationReviewRequestRow = Database["public"]["Tables"]["moderation_revie
 type ModerationReportTargetType = ModerationReportRow["target_type"];
 const ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
 const ACTIVE_REVIEW_REQUEST_STATUSES = new Set(["open", "reviewing"]);
+const PUBLIC_EXHIBIT_REPORT_TARGET_TYPES = new Set<ModerationReportTargetType>([
+  "persona_encounter_public_exhibit",
+  "persona_encounter_cross_owner_public_exhibit",
+]);
 
 function serializeReport(
   row: ModerationReportRow,
@@ -348,15 +361,15 @@ reportsRouter.patch("/:id", async (req, res) => {
     : null;
 
   if (parsed.data.targetAction && !current) return res.status(404).json({ error: "Report not found." });
-  if (parsed.data.targetAction && current?.target_type !== "persona_encounter_public_exhibit") {
+  if (parsed.data.targetAction && current && !PUBLIC_EXHIBIT_REPORT_TARGET_TYPES.has(current.target_type)) {
     return res.status(400).json({
       error: "Target actions are only supported for public encounter exhibit reports.",
     });
   }
   if (parsed.data.targetAction && current) {
-    const target = await loadPublicExhibitModerationTarget(sb, current.target_id);
+    const target = await loadPublicExhibitModerationTarget(sb, current.target_type, current.target_id);
     if (!target) return res.status(404).json({ error: "Public encounter exhibit target not found." });
-    const supportedActions = publicExhibitModerationActionsForStatus(target.status);
+    const supportedActions = publicExhibitModerationActionsForTarget(target);
     if (!supportedActions.includes(parsed.data.targetAction)) {
       return res.status(400).json({
         error: "Public encounter exhibit moderation action is not available for this target state.",
@@ -379,6 +392,7 @@ reportsRouter.patch("/:id", async (req, res) => {
   if (parsed.data.targetAction) {
     const action = await applyPublicExhibitModerationAction(
       sb,
+      data.target_type,
       data.target_id,
       parsed.data.targetAction,
       req.user!.id
@@ -614,6 +628,8 @@ async function loadReportTargetContexts(
       contexts.set(report.id, await loadUserTargetContext(sb, report.target_id));
     } else if (report.target_type === "persona_encounter_public_exhibit") {
       contexts.set(report.id, await loadPublicEncounterExhibitTargetContext(sb, report.target_id));
+    } else if (report.target_type === "persona_encounter_cross_owner_public_exhibit") {
+      contexts.set(report.id, await loadCrossOwnerPublicEncounterExhibitTargetContext(sb, report.target_id));
     }
   }
 
@@ -860,7 +876,44 @@ async function loadPublicEncounterExhibitTargetContext(
     routeLabel: routeHref ? exhibit.public_title ?? "Public encounter exhibit" : null,
     canOpenRoute: Boolean(routeHref),
     unavailableReason: routeHref ? null : "Public encounter exhibit is not currently public.",
-    supportedActions: publicExhibitModerationActionsForStatus(exhibit.status),
+    supportedActions: publicExhibitModerationActionsForTarget(exhibit),
+  };
+}
+
+async function loadCrossOwnerPublicEncounterExhibitTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  exhibitId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: exhibit } = await (sb as any)
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .select("id, consent_id, slug, public_title, status, reported_count, removed_at, retracted_at")
+    .eq("id", exhibitId)
+    .maybeSingle();
+
+  if (!exhibit) {
+    return unavailableTargetContext(
+      "persona_encounter_cross_owner_public_exhibit",
+      exhibitId,
+      "Cross-owner public encounter exhibit target not found."
+    );
+  }
+
+  const consentActive = await crossOwnerPublicExhibitConsentActive(sb, exhibit.consent_id);
+  const isPublic = exhibit.status === "published" && !exhibit.removed_at && !exhibit.retracted_at && consentActive;
+
+  return {
+    targetType: "persona_encounter_cross_owner_public_exhibit",
+    targetId: exhibit.id,
+    title: exhibit.public_title ?? "Cross-owner public encounter exhibit",
+    status: exhibit.status ?? null,
+    visibility: isPublic ? "public_api_detail" : "not_public",
+    routeHref: null,
+    routeLabel: null,
+    canOpenRoute: false,
+    unavailableReason: isPublic
+      ? "Cross-owner public exhibit currently has API-only public detail readback."
+      : "Cross-owner public exhibit is not currently public.",
+    supportedActions: publicExhibitModerationActionsForTarget({ ...exhibit, consentActive }),
   };
 }
 
@@ -906,11 +959,11 @@ function moderationActionsForTarget(
   return ["hide", "remove"];
 }
 
-function publicExhibitModerationActionsForStatus(
-  status: string | null | undefined
+function publicExhibitModerationActionsForTarget(
+  target: { status?: string | null; consentActive?: boolean | null }
 ): Array<z.infer<typeof publicExhibitTargetActionSchema>> {
-  if (status === "published") return ["remove"];
-  if (status === "removed") return ["restore"];
+  if (target.status === "published") return ["remove"];
+  if (target.status === "removed" && target.consentActive !== false) return ["restore"];
   return [];
 }
 
@@ -971,20 +1024,34 @@ async function updateReportedTarget(targetType: string, targetId: string) {
       .update({ reported_count: Number(exhibit.reported_count ?? 0) + 1 } as any)
       .eq("id", targetId);
   }
+
+  if (targetType === "persona_encounter_cross_owner_public_exhibit") {
+    const { data: exhibit } = await sb
+      .from("persona_encounter_cross_owner_public_exhibits")
+      .select("id, reported_count")
+      .eq("id", targetId)
+      .maybeSingle();
+    if (!exhibit) return;
+    await sb
+      .from("persona_encounter_cross_owner_public_exhibits")
+      .update({ reported_count: Number(exhibit.reported_count ?? 0) + 1 } as any)
+      .eq("id", targetId);
+  }
 }
 
 async function applyPublicExhibitModerationAction(
   sb: ReturnType<typeof getSupabaseAdmin>,
+  targetType: ModerationReportTargetType,
   exhibitId: string,
   action: z.infer<typeof publicExhibitTargetActionSchema>,
   adminUserId: string,
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const exhibit = await loadPublicExhibitModerationTarget(sb, exhibitId);
+  const exhibit = await loadPublicExhibitModerationTarget(sb, targetType, exhibitId);
 
   if (!exhibit) {
     return { ok: false, status: 404, error: "Public encounter exhibit target not found." };
   }
-  const supportedActions = publicExhibitModerationActionsForStatus(exhibit.status);
+  const supportedActions = publicExhibitModerationActionsForTarget(exhibit);
   if (!supportedActions.includes(action)) {
     return {
       ok: false,
@@ -1005,8 +1072,13 @@ async function applyPublicExhibitModerationAction(
         removed_by: null,
       };
 
+  const table = publicExhibitModerationTable(targetType);
+  if (!table) {
+    return { ok: false, status: 400, error: "Public encounter exhibit moderation target is unsupported." };
+  }
+
   const { error } = await (sb as any)
-    .from("persona_encounter_public_exhibits")
+    .from(table)
     .update(update)
     .eq("id", exhibitId);
 
@@ -1019,15 +1091,55 @@ async function applyPublicExhibitModerationAction(
 
 async function loadPublicExhibitModerationTarget(
   sb: ReturnType<typeof getSupabaseAdmin>,
+  targetType: ModerationReportTargetType,
   exhibitId: string,
 ) {
+  const table = publicExhibitModerationTable(targetType);
+  if (!table) return null;
+
   const { data } = await (sb as any)
-    .from("persona_encounter_public_exhibits")
-    .select("id, slug, status, retracted_at")
+    .from(table)
+    .select("id, slug, status, retracted_at, consent_id")
     .eq("id", exhibitId)
     .maybeSingle();
 
-  return data ?? null;
+  if (!data) return null;
+  if (targetType === "persona_encounter_cross_owner_public_exhibit") {
+    return {
+      ...data,
+      consentActive: await crossOwnerPublicExhibitConsentActive(sb, data.consent_id),
+    };
+  }
+
+  return data;
+}
+
+function publicExhibitModerationTable(targetType: ModerationReportTargetType) {
+  if (targetType === "persona_encounter_public_exhibit") return "persona_encounter_public_exhibits";
+  if (targetType === "persona_encounter_cross_owner_public_exhibit") {
+    return "persona_encounter_cross_owner_public_exhibits";
+  }
+  return null;
+}
+
+async function crossOwnerPublicExhibitConsentActive(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string | null | undefined,
+) {
+  if (!consentId) return false;
+  const { data: consent } = await (sb as any)
+    .from("persona_encounter_cross_owner_consents")
+    .select("id, status, requested_scopes, requested_scope_version")
+    .eq("id", consentId)
+    .maybeSingle();
+
+  return Boolean(
+    consent &&
+    consent.status === "approved" &&
+    consent.requested_scope_version === 1 &&
+    Array.isArray(consent.requested_scopes) &&
+    consent.requested_scopes.includes("publish_metadata_only_public_exhibit")
+  );
 }
 
 async function bumpReportCount(userId: string) {

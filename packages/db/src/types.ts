@@ -50,7 +50,15 @@ export type SubcommunityVisibility = "public" | "community" | "unlisted" | "priv
 export type SubcommunityStatus = "active" | "paused" | "archived";
 export type CommentParentType = "thread" | "document" | "space_page";
 export type CommentStatus = "active" | "removed" | "flagged";
-export type ModerationTargetType = "user" | "space" | "document" | "thread" | "comment" | "persona" | "persona_encounter_public_exhibit";
+export type ModerationTargetType =
+  | "user"
+  | "space"
+  | "document"
+  | "thread"
+  | "comment"
+  | "persona"
+  | "persona_encounter_public_exhibit"
+  | "persona_encounter_cross_owner_public_exhibit";
 export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type ModerationReviewRequestRole = "reporter" | "target_author";
 export type ModerationReviewRequestStatus = "open" | "reviewing" | "upheld" | "denied" | "dismissed" | "withdrawn";
@@ -67,6 +75,7 @@ export type PublicSeminarRecordVisibility = "private" | "public";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type PersonaEncounterPublicExhibitStatus = "published" | "retracted" | "removed";
+export type PersonaEncounterCrossOwnerPublicExhibitStatus = "proposed" | "published" | "retracted" | "removed";
 export type PersonaEncounterCrossOwnerConsentStatus =
   | "pending"
   | "approved"
@@ -663,6 +672,52 @@ export interface Database {
           completed_at?: string | null;
         };
         Update: never;
+      };
+      persona_encounter_cross_owner_public_exhibits: {
+        Row: {
+          id: string;
+          consent_id: string;
+          requester_owner_user_id: string;
+          requester_persona_id: string;
+          requester_persona_name_snapshot: string;
+          counterparty_owner_user_id: string;
+          counterparty_persona_id: string;
+          counterparty_persona_name_snapshot: string;
+          slug: string;
+          public_title: string;
+          public_summary: string;
+          public_tags: string[];
+          status: PersonaEncounterCrossOwnerPublicExhibitStatus;
+          contract_version: 1;
+          provenance_schema: "station.persona_encounter.cross_owner_public_exhibit.v1";
+          requester_metadata_approved_at: string | null;
+          counterparty_metadata_approved_at: string | null;
+          reported_count: number;
+          published_at: string | null;
+          retracted_at: string | null;
+          removed_at: string | null;
+          removed_by: string | null;
+          created_by: string;
+          updated_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_public_exhibits"]["Row"], "id" | "status" | "contract_version" | "provenance_schema" | "requester_metadata_approved_at" | "counterparty_metadata_approved_at" | "reported_count" | "published_at" | "retracted_at" | "removed_at" | "removed_by" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: PersonaEncounterCrossOwnerPublicExhibitStatus;
+          contract_version?: 1;
+          provenance_schema?: "station.persona_encounter.cross_owner_public_exhibit.v1";
+          requester_metadata_approved_at?: string | null;
+          counterparty_metadata_approved_at?: string | null;
+          reported_count?: number;
+          published_at?: string | null;
+          retracted_at?: string | null;
+          removed_at?: string | null;
+          removed_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_public_exhibits"]["Insert"]>;
       };
       public_persona_interaction_counters: {
         Row: {

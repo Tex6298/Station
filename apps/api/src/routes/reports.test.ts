@@ -61,6 +61,8 @@ class ReportsSupabase {
     threads: [],
     comments: [],
     persona_encounter_public_exhibits: [],
+    persona_encounter_cross_owner_consents: [],
+    persona_encounter_cross_owner_public_exhibits: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -144,6 +146,34 @@ class ReportsSupabase {
       row.public_tags ??= [];
       row.status ??= "published";
       row.provenance_schema ??= "station.persona_encounter.public_exhibit.v1";
+      row.reported_count ??= 0;
+      row.published_at ??= now;
+      row.retracted_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_consents") {
+      row.status ??= "approved";
+      row.requested_scopes ??= ["publish_metadata_only_public_exhibit"];
+      row.requested_scope_version ??= 1;
+      row.requester_approved_at ??= now;
+      row.counterparty_approved_at ??= now;
+      row.revoked_at ??= null;
+      row.moderation_locked_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_public_exhibits") {
+      row.public_tags ??= [];
+      row.status ??= "published";
+      row.contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_public_exhibit.v1";
+      row.requester_metadata_approved_at ??= now;
+      row.counterparty_metadata_approved_at ??= now;
       row.reported_count ??= 0;
       row.published_at ??= now;
       row.retracted_at ??= null;
@@ -1211,6 +1241,105 @@ test("admin report status updates can remove and restore public encounter exhibi
     assert.equal(updateJson.includes("Safe metadata only."), false);
     assert.equal(updateJson.includes("Harbor"), false);
     assert.equal(updateJson.includes("Lantern"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("admin report status updates can remove and conditionally restore cross-owner public exhibits", async () => {
+  const db = new ReportsSupabase();
+  const consent = db.insertRow("persona_encounter_cross_owner_consents", {
+    id: "cross-owner-consent-1",
+    requester_owner_user_id: "owner-user",
+    requester_persona_id: "requester-persona-private-id",
+    requester_persona_name_snapshot: "Harbor",
+    counterparty_owner_user_id: "other-user",
+    counterparty_persona_id: "counterparty-persona-private-id",
+    counterparty_persona_name_snapshot: "Lantern",
+    requested_scopes: ["publish_metadata_only_public_exhibit"],
+    requested_scope_version: 1,
+  });
+  const publicExhibit = db.insertRow("persona_encounter_cross_owner_public_exhibits", {
+    consent_id: consent.id,
+    slug: "cross-owner-exhibit-12345678",
+    public_title: "Cross-owner public card",
+    public_summary: "Safe metadata only.",
+    public_tags: ["safe"],
+    requester_owner_user_id: "owner-user",
+    requester_persona_id: "requester-persona-private-id",
+    requester_persona_name_snapshot: "Harbor",
+    counterparty_owner_user_id: "other-user",
+    counterparty_persona_id: "counterparty-persona-private-id",
+    counterparty_persona_name_snapshot: "Lantern",
+    created_by: "owner-user",
+    updated_by: "owner-user",
+  });
+  const report = db.insertRow("moderation_reports", {
+    reporter_id: "visitor-user",
+    target_type: "persona_encounter_cross_owner_public_exhibit",
+    target_id: publicExhibit.id,
+    reason: "unsafe public exhibit metadata",
+    notes: "Admin-only notes.",
+    status: "open",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const queue = await requestJson(app, "GET", "/reports?targetType=persona_encounter_cross_owner_public_exhibit", {
+      token: "admin-token",
+    });
+    assert.equal(queue.status, 200);
+    assert.deepEqual(queue.body.reports[0].targetContext, {
+      targetType: "persona_encounter_cross_owner_public_exhibit",
+      targetId: publicExhibit.id,
+      title: "Cross-owner public card",
+      status: "published",
+      visibility: "public_api_detail",
+      routeHref: null,
+      routeLabel: null,
+      canOpenRoute: false,
+      unavailableReason: "Cross-owner public exhibit currently has API-only public detail readback.",
+      supportedActions: ["remove"],
+    });
+
+    const removed = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "resolved", targetAction: "remove" },
+    });
+    assert.equal(removed.status, 200);
+    assert.equal(removed.body.report.targetContext.status, "removed");
+    assert.deepEqual(removed.body.report.targetContext.supportedActions, ["restore"]);
+    assert.equal(db.tables.persona_encounter_cross_owner_public_exhibits[0].status, "removed");
+    assert.equal(db.tables.persona_encounter_cross_owner_public_exhibits[0].removed_by, "admin-user");
+    assert.equal(typeof db.tables.persona_encounter_cross_owner_public_exhibits[0].removed_at, "string");
+
+    db.tables.persona_encounter_cross_owner_consents[0].status = "revoked";
+    const blockedRestore = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(blockedRestore.status, 400);
+    assert.equal(db.tables.persona_encounter_cross_owner_public_exhibits[0].status, "removed");
+
+    db.tables.persona_encounter_cross_owner_consents[0].status = "approved";
+    const restored = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(restored.status, 200);
+    assert.equal(restored.body.report.targetContext.status, "published");
+    assert.equal(restored.body.report.targetContext.visibility, "public_api_detail");
+    assert.deepEqual(restored.body.report.targetContext.supportedActions, ["remove"]);
+    assert.equal(db.tables.persona_encounter_cross_owner_public_exhibits[0].status, "published");
+    assert.equal(db.tables.persona_encounter_cross_owner_public_exhibits[0].removed_by, null);
+    assert.equal(db.tables.persona_encounter_cross_owner_public_exhibits[0].removed_at, null);
+
+    const updateJson = JSON.stringify({ queue: queue.body, removed: removed.body, restored: restored.body });
+    assert.equal(updateJson.includes("requester-persona-private-id"), false);
+    assert.equal(updateJson.includes("counterparty-persona-private-id"), false);
+    assert.equal(updateJson.includes("cross-owner-consent-1"), false);
+    assert.equal(updateJson.includes("consent_id"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

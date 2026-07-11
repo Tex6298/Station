@@ -6,6 +6,10 @@ import {
   PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH,
   PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH,
   PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA,
+  PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION,
+  PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
+  PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE,
+  PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
   PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
@@ -22,6 +26,7 @@ import {
   personaEncounterCrossOwnerConsentInvitationErrorCopy,
   personaEncounterCrossOwnerConsentLedgerBoundaryReadback,
   personaEncounterCrossOwnerConsentPath,
+  personaEncounterCrossOwnerConsentPublicExhibitPath,
   personaEncounterCrossOwnerConsentStateCopy,
   personaEncounterCrossOwnerConsentTargetPath,
   personaEncounterCrossOwnerCounterpartyPublicSlug,
@@ -30,6 +35,13 @@ import {
   personaEncounterCrossOwnerDisposablePreviewPayload,
   personaEncounterCrossOwnerDisposablePreviewReadback,
   personaEncounterCrossOwnerDisposablePreviewReady,
+  personaEncounterCrossOwnerPublicExhibitApprovePath,
+  personaEncounterCrossOwnerPublicExhibitErrorCopy,
+  personaEncounterCrossOwnerPublicExhibitMetadataPayload,
+  personaEncounterCrossOwnerPublicExhibitPath,
+  personaEncounterCrossOwnerPublicExhibitReadback,
+  personaEncounterCrossOwnerPublicExhibitReportPath,
+  personaEncounterCrossOwnerPublicExhibitRetractPath,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPublicExhibitPath,
@@ -48,6 +60,7 @@ import {
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
   type PersonaEncounterCrossOwnerConsent,
+  type PersonaEncounterCrossOwnerPublicExhibitOwnerReadback,
   type PersonaEncounterCrossOwnerDisposablePreviewResponse,
   type PersonaEncounterPreviewResponse,
   type PersonaEncounterPrivateSession,
@@ -340,13 +353,66 @@ test("persona encounter runtime helper builds cross-owner consent ledger action 
   assert.deepEqual(personaEncounterCrossOwnerConsentLedgerBoundaryReadback(), [
     "Consent ledger only",
     "Not a saved session",
-    "Not public",
+    "Not public by itself",
     "Does not share generated words",
-    "No transcript, summary, excerpt, share link, or publication",
+    "Cross-owner public metadata requires separate exact bilateral metadata approval",
+    "No transcript, summary, excerpt, generated words, or share-link publication by consent alone",
     "No Memory, Archive, Canon, Continuity, Integrity, or private retrieval",
     "Approval can be revoked",
     "Counterparty sees consent state and audit metadata, not generated preview text here.",
   ]);
+});
+
+test("persona encounter runtime helper builds cross-owner public metadata exhibit requests", () => {
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH,
+    "/persona-encounters/cross-owner-public-exhibits",
+  );
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
+    "station.persona_encounter.cross_owner_public_exhibit.v1",
+  );
+  assert.equal(PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE, "publish_metadata_only_public_exhibit");
+  assert.equal(PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION, 1);
+  assert.equal(
+    personaEncounterCrossOwnerConsentPublicExhibitPath("consent/one"),
+    "/persona-encounters/cross-owner-consents/consent%2Fone/public-exhibit",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitPath("cross/slug"),
+    "/persona-encounters/cross-owner-public-exhibits/cross%2Fslug",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitApprovePath("cross-owner-exhibit-12345678"),
+    "/persona-encounters/cross-owner-public-exhibits/cross-owner-exhibit-12345678/approve",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitRetractPath("cross-owner-exhibit-12345678"),
+    "/persona-encounters/cross-owner-public-exhibits/cross-owner-exhibit-12345678/retract",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitReportPath("cross-owner-exhibit-12345678"),
+    "/persona-encounters/cross-owner-public-exhibits/cross-owner-exhibit-12345678/report",
+  );
+  const payload = personaEncounterCrossOwnerPublicExhibitMetadataPayload({
+    title: "  Public title  ",
+    summary: "  Metadata only.  ",
+    tags: [" safe ", "", "cross-owner"],
+  });
+  assert.deepEqual(payload, {
+    confirmCrossOwnerPublicMetadata: true,
+    title: "Public title",
+    summary: "Metadata only.",
+    tags: ["safe", "cross-owner"],
+    contractVersion: 1,
+  });
+
+  const payloadJson = JSON.stringify(payload);
+  assert.equal(payloadJson.includes("consentId"), false);
+  assert.equal(payloadJson.includes("ownerUserId"), false);
+  assert.equal(payloadJson.includes("owner_user_id"), false);
+  assert.equal(payloadJson.includes("generatedWords"), false);
+  assert.equal(payloadJson.includes("transcript"), false);
 });
 
 test("persona encounter runtime helper builds provider readiness path", () => {
@@ -613,6 +679,80 @@ test("persona encounter runtime readback labels cross-owner disposable preview b
   ]);
 });
 
+test("persona encounter runtime readback labels cross-owner public metadata boundaries", () => {
+  const exhibit: PersonaEncounterCrossOwnerPublicExhibitOwnerReadback = {
+    slug: "cross-owner-exhibit-12345678",
+    apiPath: "/persona-encounters/cross-owner-public-exhibits/cross-owner-exhibit-12345678",
+    status: "published",
+    title: "Public title",
+    summary: "Metadata only.",
+    tags: ["safe"],
+    contractVersion: 1,
+    participantRole: "requester",
+    participants: {
+      requester: {
+        role: "requester",
+        personaName: "Harbor",
+        currentUser: true,
+        metadataApproved: true,
+      },
+      counterparty: {
+        role: "counterparty",
+        personaName: "Lantern",
+        currentUser: false,
+        metadataApproved: true,
+      },
+    },
+    publication: {
+      public: true,
+      routeListed: false,
+      indexed: false,
+      discoverable: false,
+      generatedWordsPublished: false,
+      transcriptPublished: false,
+      summaryPublished: false,
+      excerptPublished: false,
+      note: "Public API detail readback is metadata-only and not listed in encounter indexes.",
+    },
+    provenance: {
+      label: "Cross-owner metadata-only public encounter exhibit",
+      schema: "station.persona_encounter.cross_owner_public_exhibit.v1",
+      public: true,
+      ownerCurated: true,
+      crossOwner: true,
+      source: "Derived from a bilateral cross-owner consent metadata contract",
+      note: "No generated words are public.",
+    },
+  };
+
+  assert.deepEqual(personaEncounterCrossOwnerPublicExhibitReadback(exhibit), [
+    "Cross-owner metadata-only public exhibit",
+    "Cross-owner metadata-only public encounter exhibit",
+    "Public API detail readback",
+    "Not listed",
+    "Not indexed",
+    "Not Discover",
+    "No generated words",
+    "No transcript",
+    "No generated summary",
+    "No excerpt",
+    "No private setup, PR516 disposable preview output, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
+  ]);
+  assert.deepEqual(personaEncounterCrossOwnerPublicExhibitReadback(null), [
+    "Cross-owner metadata-only public exhibit",
+    "Cross-owner metadata-only public encounter exhibit",
+    "Not public yet",
+    "Not listed",
+    "Not indexed",
+    "Not Discover",
+    "No generated words",
+    "No transcript",
+    "No generated summary",
+    "No excerpt",
+    "No private setup, PR516 disposable preview output, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
+  ]);
+});
+
 test("persona encounter runtime readback labels private saved artifacts honestly", () => {
   const session: PersonaEncounterPrivateSession = {
     id: "session-1",
@@ -784,6 +924,29 @@ test("persona encounter runtime cross-owner consent action error copy stays boun
     code: "unknown",
     message: "Bearer secret raw SQL owner_user_id",
   }), "Cross-owner consent action could not be saved.");
+});
+
+test("persona encounter runtime cross-owner public exhibit error copy stays bounded", () => {
+  assert.equal(personaEncounterCrossOwnerPublicExhibitErrorCopy({
+    code: "persona_encounter_cross_owner_public_exhibit_wrong_scope",
+    message: "raw requested_scopes owner_user_id",
+  }), "This consent does not include public metadata exhibit scope.");
+  assert.equal(personaEncounterCrossOwnerPublicExhibitErrorCopy({
+    code: "persona_encounter_cross_owner_public_exhibit_metadata_mismatch",
+    message: "raw consent_id/private ids",
+  }), "Both owners must approve the exact same public metadata.");
+  assert.equal(personaEncounterCrossOwnerPublicExhibitErrorCopy({
+    code: "persona_encounter_cross_owner_public_exhibit_counterparty_metadata_required",
+    message: "requester_owner_user_id=secret",
+  }), "The other participant must approve the exact public metadata.");
+  assert.equal(personaEncounterCrossOwnerPublicExhibitErrorCopy({
+    code: "persona_encounter_cross_owner_public_exhibit_removed",
+    message: "sql table detail",
+  }), "This cross-owner public exhibit was removed by moderation.");
+  assert.equal(personaEncounterCrossOwnerPublicExhibitErrorCopy({
+    code: "unknown",
+    message: "Bearer secret raw SQL owner_user_id",
+  }), "Cross-owner public exhibit metadata could not be prepared.");
 });
 
 test("persona encounter runtime availability copy fails closed before generation", () => {

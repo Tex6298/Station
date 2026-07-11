@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR517A Cross-Owner Metadata-Only Public Exhibit Contract
+
+DAEDALUS implemented PR517A on 2026-07-11:
+
+- `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- dedicated table
+  `public.persona_encounter_cross_owner_public_exhibits` keeps cross-owner
+  metadata exhibits separate from same-owner private-session-backed exhibits;
+- public metadata proposal requires a participant owner and an approved active
+  consent with `publish_metadata_only_public_exhibit` and contract version `1`;
+- publication requires both participant owners to approve the exact public
+  title, summary, tags, and version;
+- public readback is API-detail-only and is not added to `/encounters`,
+  Discover/search/feed, public persona, Space, forum/community/Salon, writing,
+  or Station Press surfaces;
+- report/moderation uses distinct target type
+  `persona_encounter_cross_owner_public_exhibit`;
+- admin restore requires active bilateral metadata approval and consent
+  revocation retracts/hides linked public rows;
+- web changes are helper-only path/payload/readback/error-copy coverage.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 73 tests passed, including cross-owner metadata proposal, exact bilateral approval, public metadata readback, report duplicate handling, revocation hiding, same-owner exhibit regressions, and web helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including cross-owner public exhibit report queue context and admin remove/restore active-consent gating. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including helper-only cross-owner public exhibit path/payload/readback/error-copy coverage and existing Studio source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Source/scope review | Pass | No package/lockfile, provider, retrieval, token accounting, storage bucket, queue/worker, Redis/Cloudflare, billing/Stripe, social, deployment, Discover/search/feed, public persona, Space, forum/Salon, writing, Station Press, or broad UI implementation changed. |
+
 ## PR517 Cross-Owner Public Exhibit / Publication Preflight
 
 ARGUS completed PR517 hostile preflight on 2026-07-11:

@@ -4,34 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517A cross-owner metadata-only public exhibit contract
+## Current lane - PR517A ready for ARGUS review
 
-MIMIR accepted the PR517 hostile preflight and opened PR517A for DAEDALUS:
+DAEDALUS implemented PR517A and is handing it to ARGUS:
 
-`docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_DAEDALUS.md`
+`docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md`
 
 Current lane:
 
 ```text
 PR517A - Cross-Owner Metadata-Only Public Exhibit Contract
-Owner: DAEDALUS / A2
-State: OPEN_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_DAEDALUS.md
+Owner: DAEDALUS / A2 -> ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md
 ```
 
-Task:
+Implementation summary:
 
-- implement the smallest safe contract for bilaterally approved cross-owner
-  public metadata;
-- prefer a dedicated cross-owner public exhibit contract table unless a narrow
-  extension preserves every same-owner public exhibit constraint;
-- allow only title, summary/context note, tags, safe display snapshots,
-  provenance, status/timestamps, report/takedown, revocation, deletion/export,
-  and route hints;
-- keep generated words, transcripts, excerpts, summaries, PR516 disposable
-  preview output, retrieval, storage, provider calls, Discover/search/feed/
-  index surfacing, and broad UI changes out of scope;
-- wake ARGUS for hostile review when implemented.
+- added a dedicated
+  `public.persona_encounter_cross_owner_public_exhibits` table instead of
+  extending the same-owner private-session-backed public exhibit table;
+- added participant proposal, exact bilateral metadata approval, retract,
+  public API detail readback, and report routes under
+  `/persona-encounters/cross-owner-public-exhibits`;
+- public rows require approved active consent with
+  `publish_metadata_only_public_exhibit`, contract version `1`, and exact
+  public title/summary/tags approval from both participant owners;
+- public readback is API-detail-only and is not added to `/encounters`,
+  Discover/search/feed, public persona, Space, forum/community/Salon, writing,
+  or Station Press surfaces;
+- report queue context uses distinct target type
+  `persona_encounter_cross_owner_public_exhibit`;
+- admin restore requires active bilateral metadata approval, while revocation
+  retracts/hides linked public rows;
+- web changes are helper-only path/payload/readback/error-copy coverage.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 73 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+git diff --check                                            PASS
+git diff --cached --check                                   PASS
+```
+
+ARGUS should hostile-review PR517A before MIMIR closeout.
 
 ## Previous lane - PR517 cross-owner publication preflight accepted by ARGUS
 

@@ -134,6 +134,7 @@ export type PersonaEncounterCrossOwnerConsentStatus =
 
 export type PersonaEncounterCrossOwnerConsentParticipantRole = "requester" | "counterparty";
 export type PersonaEncounterCrossOwnerConsentAction = "approve" | "reject" | "cancel" | "revoke";
+export type PersonaEncounterCrossOwnerPublicExhibitStatus = "proposed" | "published" | "retracted" | "removed";
 
 export interface PersonaEncounterCrossOwnerConsent {
   id: string;
@@ -254,6 +255,62 @@ export interface PersonaEncounterCrossOwnerConsentCreateByPublicSlugResponse {
 
 export interface PersonaEncounterCrossOwnerConsentActionRequest {
   reasonCode?: string | null;
+}
+
+export interface PersonaEncounterCrossOwnerPublicExhibitMetadataRequest {
+  title: string;
+  summary: string;
+  tags?: string[];
+  contractVersion?: 1;
+}
+
+export interface PersonaEncounterCrossOwnerPublicExhibitOwnerReadback {
+  slug: string;
+  apiPath: string;
+  status: PersonaEncounterCrossOwnerPublicExhibitStatus;
+  title: string;
+  summary: string;
+  tags: string[];
+  contractVersion: 1;
+  participantRole: PersonaEncounterCrossOwnerConsentParticipantRole | null;
+  participants: {
+    requester: {
+      role: "requester";
+      personaName: string;
+      currentUser: boolean;
+      metadataApproved: boolean;
+    };
+    counterparty: {
+      role: "counterparty";
+      personaName: string;
+      currentUser: boolean;
+      metadataApproved: boolean;
+    };
+  };
+  publication: {
+    public: boolean;
+    routeListed: false;
+    indexed: false;
+    discoverable: false;
+    generatedWordsPublished: false;
+    transcriptPublished: false;
+    summaryPublished: false;
+    excerptPublished: false;
+    note: string;
+  };
+  provenance: {
+    label: "Cross-owner metadata-only public encounter exhibit";
+    schema: "station.persona_encounter.cross_owner_public_exhibit.v1";
+    public: boolean;
+    ownerCurated: true;
+    crossOwner: true;
+    source: string;
+    note: string;
+  };
+}
+
+export interface PersonaEncounterCrossOwnerPublicExhibitResponse {
+  exhibit: PersonaEncounterCrossOwnerPublicExhibitOwnerReadback;
 }
 
 export interface PersonaEncounterPrivateSession {
@@ -441,15 +498,22 @@ export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PUBLIC_CREATE_PATH =
   "/persona-encounters/cross-owner-consents/from-public-persona";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH =
   "/persona-encounters/cross-owner-consent-targets";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH =
+  "/persona-encounters/cross-owner-public-exhibits";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE =
   "run_cross_owner_encounter";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION = 1;
+export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE =
+  "publish_metadata_only_public_exhibit";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION = 1;
 export const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.public_exhibit.v1";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
   "station.persona_encounter.cross_owner_disposable_preview.v1";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.cross_owner_public_exhibit.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_REASON_CODES = new Set([
   "not_aligned",
   "owner_request",
@@ -535,6 +599,38 @@ export function personaEncounterCrossOwnerConsentActionPayload(
     : {};
 }
 
+export function personaEncounterCrossOwnerConsentPublicExhibitPath(consentId: string) {
+  return `${personaEncounterCrossOwnerConsentPath(consentId)}/public-exhibit`;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitPath(slug: string) {
+  return `${PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH}/${encodeURIComponent(slug)}`;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitApprovePath(slug: string) {
+  return `${personaEncounterCrossOwnerPublicExhibitPath(slug)}/approve`;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitRetractPath(slug: string) {
+  return `${personaEncounterCrossOwnerPublicExhibitPath(slug)}/retract`;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitReportPath(slug: string) {
+  return `${personaEncounterCrossOwnerPublicExhibitPath(slug)}/report`;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitMetadataPayload(
+  input: PersonaEncounterCrossOwnerPublicExhibitMetadataRequest,
+) {
+  return {
+    confirmCrossOwnerPublicMetadata: true,
+    title: input.title.trim(),
+    summary: input.summary.trim(),
+    tags: (input.tags ?? []).map((tag) => tag.trim()).filter(Boolean),
+    contractVersion: input.contractVersion ?? PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION,
+  };
+}
+
 export function personaEncounterCrossOwnerConsentDisplay(consent: PersonaEncounterCrossOwnerConsent) {
   return `${consent.participants.requester.personaName} / ${consent.participants.counterparty.personaName}`;
 }
@@ -590,9 +686,10 @@ export function personaEncounterCrossOwnerConsentLedgerBoundaryReadback() {
   return [
     "Consent ledger only",
     "Not a saved session",
-    "Not public",
+    "Not public by itself",
     "Does not share generated words",
-    "No transcript, summary, excerpt, share link, or publication",
+    "Cross-owner public metadata requires separate exact bilateral metadata approval",
+    "No transcript, summary, excerpt, generated words, or share-link publication by consent alone",
     "No Memory, Archive, Canon, Continuity, Integrity, or private retrieval",
     "Approval can be revoked",
     "Counterparty sees consent state and audit metadata, not generated preview text here.",
@@ -708,6 +805,24 @@ export function personaEncounterCrossOwnerDisposablePreviewReady(input: {
   setup?: string | null;
 }) {
   return Boolean(input.consentId && input.setup?.trim());
+}
+
+export function personaEncounterCrossOwnerPublicExhibitReadback(
+  exhibit?: PersonaEncounterCrossOwnerPublicExhibitOwnerReadback | null,
+) {
+  return [
+    "Cross-owner metadata-only public exhibit",
+    exhibit?.provenance.label ?? "Cross-owner metadata-only public encounter exhibit",
+    exhibit?.publication.public ? "Public API detail readback" : "Not public yet",
+    "Not listed",
+    "Not indexed",
+    "Not Discover",
+    exhibit?.publication.generatedWordsPublished ? "Generated words published" : "No generated words",
+    exhibit?.publication.transcriptPublished ? "Transcript published" : "No transcript",
+    exhibit?.publication.summaryPublished ? "Summary published" : "No generated summary",
+    exhibit?.publication.excerptPublished ? "Excerpt published" : "No excerpt",
+    "No private setup, PR516 disposable preview output, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
+  ];
 }
 
 export function personaEncounterPreviewReadback(response?: PersonaEncounterPreviewResponse | null) {
@@ -944,6 +1059,38 @@ export function personaEncounterCrossOwnerConsentActionErrorCopy(input: {
       return "Cross-owner consent could not be updated.";
     default:
       return "Cross-owner consent action could not be saved.";
+  }
+}
+
+export function personaEncounterCrossOwnerPublicExhibitErrorCopy(input: {
+  status?: number;
+  code?: string;
+  message?: string;
+}) {
+  switch (input.code) {
+    case "persona_encounter_cross_owner_public_exhibit_consent_inactive":
+      return "Cross-owner public metadata requires active approved consent.";
+    case "persona_encounter_cross_owner_public_exhibit_wrong_scope":
+      return "This consent does not include public metadata exhibit scope.";
+    case "persona_encounter_cross_owner_public_exhibit_wrong_version":
+      return "This consent uses an unsupported public metadata contract version.";
+    case "persona_encounter_cross_owner_public_exhibit_exists":
+      return "A cross-owner public metadata proposal already exists for this consent.";
+    case "persona_encounter_cross_owner_public_exhibit_metadata_mismatch":
+      return "Both owners must approve the exact same public metadata.";
+    case "persona_encounter_cross_owner_public_exhibit_counterparty_metadata_required":
+      return "The other participant must approve the exact public metadata.";
+    case "persona_encounter_cross_owner_public_exhibit_removed":
+      return "This cross-owner public exhibit was removed by moderation.";
+    case "persona_encounter_cross_owner_public_exhibit_retracted":
+      return "This cross-owner public exhibit was retracted.";
+    case "persona_encounter_cross_owner_public_exhibit_save_failed":
+    case "persona_encounter_cross_owner_public_exhibit_approve_failed":
+    case "persona_encounter_cross_owner_public_exhibit_retract_failed":
+    case "persona_encounter_cross_owner_public_exhibit_load_failed":
+      return "Cross-owner public exhibit metadata could not be saved.";
+    default:
+      return "Cross-owner public exhibit metadata could not be prepared.";
   }
 }
 

@@ -46,9 +46,14 @@ const PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_ATTEMPT_PROVENANCE_SCHEMA =
   "station.persona_encounter.cross_owner_runtime_attempt.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
   "station.persona_encounter.cross_owner_disposable_preview.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.cross_owner_public_exhibit.v1";
 const CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION = 1;
 const CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE =
   "run_cross_owner_encounter" satisfies CrossOwnerConsentRequestedScope;
+const CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION = 1;
+const CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE =
+  "publish_metadata_only_public_exhibit" satisfies CrossOwnerConsentRequestedScope;
 const CROSS_OWNER_RUNTIME_DENIED_CONTEXT_CLASSES = [
   "long_description",
   "awakening_prompt",
@@ -145,6 +150,8 @@ const PUBLIC_EXHIBIT_LIST_MAX_LIMIT = 24;
 const PUBLIC_EXHIBIT_LIST_DB_WINDOW = PUBLIC_EXHIBIT_LIST_MAX_LIMIT * 3 + 1;
 const PUBLIC_EXHIBIT_PUBLIC_SELECT =
   "slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, reported_count, published_at, retracted_at, removed_at, removed_by, owner_user_id, private_session_id, id, created_at, updated_at";
+const CROSS_OWNER_PUBLIC_EXHIBIT_PUBLIC_SELECT =
+  "id, consent_id, slug, public_title, public_summary, public_tags, requester_persona_name_snapshot, counterparty_persona_name_snapshot, status, contract_version, provenance_schema, requester_metadata_approved_at, counterparty_metadata_approved_at, reported_count, published_at, retracted_at, removed_at, removed_by, created_at, updated_at";
 
 const previewSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -204,6 +211,17 @@ const publicExhibitPublishSchema = z.object({
 const publicExhibitReportSchema = z.object({
   reason: z.string().trim().min(1).max(120),
   notes: z.string().trim().max(500).optional(),
+}).strict();
+
+const crossOwnerPublicExhibitMetadataSchema = z.object({
+  confirmCrossOwnerPublicMetadata: z.literal(true),
+  title: z.string().trim().min(1).max(PUBLIC_EXHIBIT_TITLE_MAX_CHARS),
+  summary: z.string().trim().min(1).max(PUBLIC_EXHIBIT_SUMMARY_MAX_CHARS),
+  tags: z.array(
+    z.string().trim().min(1).max(PUBLIC_EXHIBIT_TAG_MAX_CHARS),
+  ).max(PUBLIC_EXHIBIT_MAX_TAGS).default([]),
+  contractVersion: z.literal(CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION)
+    .default(CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION),
 }).strict();
 
 const crossOwnerConsentRequestedScopeSchema = z.enum(CROSS_OWNER_CONSENT_REQUESTED_SCOPES);
@@ -273,6 +291,7 @@ type CrossOwnerConsentAuditEventType = typeof CROSS_OWNER_CONSENT_AUDIT_EVENT_TY
 type CrossOwnerConsentActorRole = "requester" | "counterparty" | "admin" | "system";
 type CrossOwnerRuntimeParticipantRole = "requester" | "counterparty";
 type CrossOwnerRuntimeAttemptLifecycleStatus = typeof CROSS_OWNER_RUNTIME_ATTEMPT_LIFECYCLE_STATUSES[number];
+type EncounterCrossOwnerPublicExhibitStatus = "proposed" | "published" | "retracted" | "removed";
 
 type EncounterPersonaRow = {
   id: string;
@@ -390,6 +409,35 @@ type EncounterCrossOwnerRuntimeAttemptRow = {
   provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_ATTEMPT_PROVENANCE_SCHEMA;
   created_at: string;
   completed_at: string | null;
+};
+
+type EncounterCrossOwnerPublicExhibitRow = {
+  id: string;
+  consent_id: string;
+  requester_owner_user_id: string;
+  requester_persona_id: string;
+  requester_persona_name_snapshot: string;
+  counterparty_owner_user_id: string;
+  counterparty_persona_id: string;
+  counterparty_persona_name_snapshot: string;
+  slug: string;
+  public_title: string;
+  public_summary: string;
+  public_tags: string[];
+  status: EncounterCrossOwnerPublicExhibitStatus;
+  contract_version: typeof CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION;
+  provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA;
+  requester_metadata_approved_at: string | null;
+  counterparty_metadata_approved_at: string | null;
+  reported_count: number;
+  published_at: string | null;
+  retracted_at: string | null;
+  removed_at: string | null;
+  removed_by: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
 };
 
 personaEncountersRouter.get("/preview/readiness", requireAuth, async (req, res) => {
@@ -860,6 +908,306 @@ personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async
   }
 
   await incrementPublicExhibitReportedCount(sb, exhibit.id);
+  return res.status(201).json({
+    report: { status: data.status },
+    duplicate: false,
+  });
+});
+
+personaEncountersRouter.post("/cross-owner-consents/:consentId/public-exhibit", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = crossOwnerPublicExhibitMetadataSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const readiness = crossOwnerPublicExhibitConsentReadiness(result.row);
+  if (readiness.ready === false) return res.status(409).json(readiness.body);
+
+  const actorRole = crossOwnerConsentParticipantRole(result.row, ownerUserId);
+  if (!actorRole) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const existing = await loadCrossOwnerPublicExhibitForConsent(sb, result.row.id);
+  if (!existing.ok) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be loaded.",
+      code: "persona_encounter_cross_owner_public_exhibit_load_failed",
+    });
+  }
+  if (existing.row) {
+    return res.status(409).json({
+      error: "Cross-owner public exhibit metadata already exists for this consent.",
+      code: "persona_encounter_cross_owner_public_exhibit_exists",
+    });
+  }
+
+  const now = new Date().toISOString();
+  const metadata = parsedBody.data;
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .insert({
+      consent_id: result.row.id,
+      requester_owner_user_id: result.row.requester_owner_user_id,
+      requester_persona_id: result.row.requester_persona_id,
+      requester_persona_name_snapshot: result.row.requester_persona_name_snapshot,
+      counterparty_owner_user_id: result.row.counterparty_owner_user_id,
+      counterparty_persona_id: result.row.counterparty_persona_id,
+      counterparty_persona_name_snapshot: result.row.counterparty_persona_name_snapshot,
+      slug: publicExhibitSlug(metadata.title),
+      public_title: metadata.title,
+      public_summary: metadata.summary,
+      public_tags: metadata.tags,
+      status: "proposed",
+      contract_version: CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION,
+      provenance_schema: PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
+      requester_metadata_approved_at: actorRole === "requester" ? now : null,
+      counterparty_metadata_approved_at: actorRole === "counterparty" ? now : null,
+      created_by: ownerUserId,
+      updated_by: ownerUserId,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be saved.",
+      code: "persona_encounter_cross_owner_public_exhibit_save_failed",
+    });
+  }
+
+  return res.status(201).json({
+    exhibit: serializeCrossOwnerPublicExhibitOwnerReadback(
+      data as EncounterCrossOwnerPublicExhibitRow,
+      result.row,
+      ownerUserId,
+    ),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-public-exhibits/:slug/approve", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const parsedBody = crossOwnerPublicExhibitMetadataSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const exhibit = await loadCrossOwnerPublicExhibitBySlug(sb, parsedSlug.data);
+  if (!exhibit.ok) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be loaded.",
+      code: "persona_encounter_cross_owner_public_exhibit_load_failed",
+    });
+  }
+  if (!exhibit.row) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const consent = await loadCrossOwnerConsentForParticipant(sb, exhibit.row.consent_id, ownerUserId);
+  if (!consent.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!consent.row) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const readiness = crossOwnerPublicExhibitConsentReadiness(consent.row);
+  if (readiness.ready === false) return res.status(409).json(readiness.body);
+  if (exhibit.row.status === "removed") {
+    return res.status(403).json({
+      error: "Removed cross-owner public exhibit metadata cannot be approved.",
+      code: "persona_encounter_cross_owner_public_exhibit_removed",
+    });
+  }
+  if (exhibit.row.status === "retracted") {
+    return res.status(409).json({
+      error: "Retracted cross-owner public exhibit metadata cannot be approved.",
+      code: "persona_encounter_cross_owner_public_exhibit_retracted",
+    });
+  }
+
+  const actorRole = crossOwnerConsentParticipantRole(consent.row, ownerUserId);
+  if (!actorRole) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const metadata = parsedBody.data;
+  if (!crossOwnerPublicExhibitMetadataMatches(exhibit.row, metadata)) {
+    return res.status(409).json({
+      error: "Both owners must approve the exact same public metadata before publication.",
+      code: "persona_encounter_cross_owner_public_exhibit_metadata_mismatch",
+    });
+  }
+
+  if (
+    actorRole === "requester" && exhibit.row.requester_metadata_approved_at ||
+    actorRole === "counterparty" && exhibit.row.counterparty_metadata_approved_at
+  ) {
+    return res.status(409).json({
+      error: "The other participant must approve this exact metadata before it becomes public.",
+      code: "persona_encounter_cross_owner_public_exhibit_counterparty_metadata_required",
+    });
+  }
+
+  const now = new Date().toISOString();
+  const update: Partial<EncounterCrossOwnerPublicExhibitRow> = {
+    updated_by: ownerUserId,
+  };
+  if (actorRole === "requester") update.requester_metadata_approved_at = now;
+  if (actorRole === "counterparty") update.counterparty_metadata_approved_at = now;
+
+  const requesterApproved = update.requester_metadata_approved_at ?? exhibit.row.requester_metadata_approved_at;
+  const counterpartyApproved = update.counterparty_metadata_approved_at ?? exhibit.row.counterparty_metadata_approved_at;
+  if (requesterApproved && counterpartyApproved) {
+    update.status = "published";
+    update.published_at = exhibit.row.published_at ?? now;
+    update.retracted_at = null;
+    update.removed_at = null;
+    update.removed_by = null;
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .update(update)
+    .eq("id", exhibit.row.id)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be approved.",
+      code: "persona_encounter_cross_owner_public_exhibit_approve_failed",
+    });
+  }
+
+  return res.json({
+    exhibit: serializeCrossOwnerPublicExhibitOwnerReadback(
+      data as EncounterCrossOwnerPublicExhibitRow,
+      consent.row,
+      ownerUserId,
+    ),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-public-exhibits/:slug/retract", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const exhibit = await loadCrossOwnerPublicExhibitBySlug(sb, parsedSlug.data);
+  if (!exhibit.ok) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be loaded.",
+      code: "persona_encounter_cross_owner_public_exhibit_load_failed",
+    });
+  }
+  if (!exhibit.row) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const consent = await loadCrossOwnerConsentForParticipant(sb, exhibit.row.consent_id, ownerUserId);
+  if (!consent.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!consent.row) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+  if (exhibit.row.status === "removed") {
+    return res.status(403).json({
+      error: "Removed cross-owner public exhibit metadata cannot be retracted by a participant.",
+      code: "persona_encounter_cross_owner_public_exhibit_removed",
+    });
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .update({
+      status: "retracted",
+      retracted_at: new Date().toISOString(),
+      updated_by: ownerUserId,
+    })
+    .eq("id", exhibit.row.id)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be retracted.",
+      code: "persona_encounter_cross_owner_public_exhibit_retract_failed",
+    });
+  }
+
+  return res.json({
+    exhibit: serializeCrossOwnerPublicExhibitOwnerReadback(
+      data as EncounterCrossOwnerPublicExhibitRow,
+      consent.row,
+      ownerUserId,
+    ),
+  });
+});
+
+personaEncountersRouter.get("/cross-owner-public-exhibits/:slug", async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const result = await loadPublishedCrossOwnerPublicExhibitBySlug(getSupabaseAdmin(), parsedSlug.data);
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be loaded.",
+      code: "persona_encounter_cross_owner_public_exhibit_load_failed",
+    });
+  }
+  if (!result.row || !result.consent) {
+    return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+  }
+
+  return res.json({
+    exhibit: serializePublishedCrossOwnerPublicExhibit(result.row, result.consent),
+  });
+});
+
+personaEncountersRouter.post("/cross-owner-public-exhibits/:slug/report", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const parsedBody = publicExhibitReportSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const result = await loadPublishedCrossOwnerPublicExhibitBySlug(sb, parsedSlug.data);
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be loaded.",
+      code: "persona_encounter_cross_owner_public_exhibit_load_failed",
+    });
+  }
+  if (!result.row) return res.status(404).json({ error: "Cross-owner public exhibit not found." });
+
+  const existing = await loadExistingCrossOwnerPublicExhibitReport(
+    sb,
+    req.user!.id,
+    result.row.id,
+    parsedBody.data.reason,
+  );
+  if (existing) {
+    return res.status(200).json({
+      report: { status: existing.status },
+      duplicate: true,
+    });
+  }
+
+  const { data, error } = await sb
+    .from("moderation_reports")
+    .insert({
+      reporter_id: req.user!.id,
+      target_type: "persona_encounter_cross_owner_public_exhibit",
+      target_id: result.row.id,
+      reason: parsedBody.data.reason,
+      notes: parsedBody.data.notes || null,
+      status: "open",
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({ error: "Failed to create report." });
+  }
+
+  await incrementCrossOwnerPublicExhibitReportedCount(sb, result.row.id);
   return res.status(201).json({
     report: { status: data.status },
     duplicate: false,
@@ -1386,6 +1734,12 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/revoke", require
     reasonCode: parsedBody.data.reasonCode,
   });
   if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
+  if (!await retractCrossOwnerPublicExhibitsForConsent(sb, update.row.id, ownerUserId)) {
+    return res.status(500).json({
+      error: "Cross-owner public exhibit metadata could not be retracted after consent revocation.",
+      code: "persona_encounter_cross_owner_public_exhibit_retract_failed",
+    });
+  }
 
   const audit = await loadCrossOwnerConsentAuditEvents(sb, update.row.id);
   return res.json({
@@ -1914,6 +2268,125 @@ function serializePublishedPublicExhibitListItem(row: EncounterPublicExhibitRow)
   };
 }
 
+function serializeCrossOwnerPublicExhibitOwnerReadback(
+  row: EncounterCrossOwnerPublicExhibitRow,
+  consent: EncounterCrossOwnerConsentRow,
+  currentOwnerUserId: string,
+) {
+  const participantRole = crossOwnerConsentParticipantRole(consent, currentOwnerUserId);
+  const publicReadable = crossOwnerPublicExhibitIsPubliclyReadable(row, consent);
+
+  return {
+    slug: row.slug,
+    apiPath: `/persona-encounters/cross-owner-public-exhibits/${row.slug}`,
+    status: row.status,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: publicTags(row.public_tags),
+    contractVersion: row.contract_version,
+    participantRole,
+    participants: {
+      requester: {
+        role: "requester",
+        personaName: row.requester_persona_name_snapshot,
+        currentUser: participantRole === "requester",
+        metadataApproved: Boolean(row.requester_metadata_approved_at),
+      },
+      counterparty: {
+        role: "counterparty",
+        personaName: row.counterparty_persona_name_snapshot,
+        currentUser: participantRole === "counterparty",
+        metadataApproved: Boolean(row.counterparty_metadata_approved_at),
+      },
+    },
+    timestamps: {
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      requesterMetadataApprovedAt: row.requester_metadata_approved_at,
+      counterpartyMetadataApprovedAt: row.counterparty_metadata_approved_at,
+      publishedAt: row.published_at,
+      retractedAt: row.retracted_at,
+      removedAt: row.removed_at,
+    },
+    consent: {
+      status: consent.status,
+      requestedScope: CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE,
+      requestedScopeVersion: consent.requested_scope_version,
+      activeApproval: crossOwnerPublicExhibitConsentReadiness(consent).ready,
+      executable: false,
+    },
+    publication: {
+      public: publicReadable,
+      routeListed: false,
+      indexed: false,
+      discoverable: false,
+      generatedWordsPublished: false,
+      transcriptPublished: false,
+      summaryPublished: false,
+      excerptPublished: false,
+      note: publicReadable
+        ? "Public API detail readback is metadata-only and not listed in encounter indexes."
+        : "Public readback remains hidden until both participants approve exact metadata and the consent stays active.",
+    },
+    provenance: {
+      label: "Cross-owner metadata-only public encounter exhibit",
+      schema: row.provenance_schema,
+      public: publicReadable,
+      ownerCurated: true,
+      crossOwner: true,
+      source: "Derived from a bilateral cross-owner consent metadata contract",
+      note: "No generated words, transcript, excerpt, summary, private setup, PR516 disposable preview output, provider payload, token fact, retrieval body, raw owner id, or raw persona id is public.",
+    },
+  };
+}
+
+function serializePublishedCrossOwnerPublicExhibit(
+  row: EncounterCrossOwnerPublicExhibitRow,
+  consent: EncounterCrossOwnerConsentRow,
+) {
+  return {
+    slug: row.slug,
+    apiPath: `/persona-encounters/cross-owner-public-exhibits/${row.slug}`,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: publicTags(row.public_tags),
+    status: "published" as const,
+    contractVersion: row.contract_version,
+    publishedAt: row.published_at,
+    participants: {
+      label: "Cross-owner consent display snapshots",
+      requesterName: row.requester_persona_name_snapshot,
+      counterpartyName: row.counterparty_persona_name_snapshot,
+    },
+    consent: {
+      status: consent.status,
+      requestedScope: CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE,
+      requestedScopeVersion: consent.requested_scope_version,
+      activeApproval: true,
+      executable: false,
+    },
+    provenance: {
+      label: "Cross-owner metadata-only public encounter exhibit",
+      ownerCurated: true,
+      public: true,
+      crossOwner: true,
+      generatedWordsPublished: false,
+      transcriptPublished: false,
+      summaryPublished: false,
+      excerptPublished: false,
+      routeListed: false,
+      indexed: false,
+      discoverable: false,
+      source: "Derived from a bilateral cross-owner consent metadata contract",
+      note: "This public exhibit contains approved metadata only. It does not publish generated words, transcripts, excerpts, summaries, private setup, PR516 disposable preview output, provider details, prompts, private context, retrieval bodies, token facts, raw owner ids, or raw persona ids.",
+    },
+    report: {
+      requiresSignIn: true,
+      path: `/persona-encounters/cross-owner-public-exhibits/${row.slug}/report`,
+    },
+  };
+}
+
 function serializeCrossOwnerConsent(
   row: EncounterCrossOwnerConsentRow,
   currentOwnerUserId: string,
@@ -1941,7 +2414,9 @@ function serializeCrossOwnerConsent(
       scope,
       label: crossOwnerConsentScopeLabel(scope),
       executable: false,
-      note: "Recorded for future review only; PR511A does not permit execution or publication.",
+      note: scope === CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE
+        ? "Consent alone does not publish anything; a dedicated bilateral metadata approval row is required."
+        : "Recorded scope label only; dedicated later contracts are required before any scope can be consumed.",
     })),
     requestedScopeVersion: row.requested_scope_version,
     ledger: {
@@ -1954,7 +2429,7 @@ function serializeCrossOwnerConsent(
       permitsTranscript: false,
       permitsSummary: false,
       permitsPublicSurfacing: false,
-      note: "Consent ledger only. Approval cannot be consumed to run an encounter, save artifacts, publish metadata or generated words, expose transcript/summary output, or surface anything publicly.",
+      note: "Consent ledger only. Approval does not by itself run an encounter, save artifacts, publish metadata or generated words, expose transcript/summary output, or surface anything publicly. Cross-owner public metadata also requires a separate exact bilateral metadata approval row.",
     },
     timestamps: {
       createdAt: row.created_at,
@@ -2332,6 +2807,74 @@ function crossOwnerConsentInactiveBody(status: CrossOwnerConsentStatus) {
   };
 }
 
+function crossOwnerPublicExhibitConsentReadiness(row: EncounterCrossOwnerConsentRow):
+  | { ready: true }
+  | { ready: false; body: { error: string; code: string; status?: CrossOwnerConsentStatus; requestedScopeVersion?: number } } {
+  if (row.status !== "approved") {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner public metadata requires an active approved consent.",
+        code: "persona_encounter_cross_owner_public_exhibit_consent_inactive",
+        status: row.status,
+      },
+    };
+  }
+
+  if (row.requested_scope_version !== CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner public metadata requires the current metadata contract version.",
+        code: "persona_encounter_cross_owner_public_exhibit_wrong_version",
+        requestedScopeVersion: row.requested_scope_version,
+      },
+    };
+  }
+
+  if (!row.requested_scopes.includes(CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE)) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner consent does not include metadata-only public exhibit scope.",
+        code: "persona_encounter_cross_owner_public_exhibit_wrong_scope",
+      },
+    };
+  }
+
+  return { ready: true };
+}
+
+function crossOwnerPublicExhibitMetadataMatches(
+  row: EncounterCrossOwnerPublicExhibitRow,
+  metadata: z.infer<typeof crossOwnerPublicExhibitMetadataSchema>,
+) {
+  return (
+    row.contract_version === metadata.contractVersion &&
+    row.public_title === metadata.title &&
+    row.public_summary === metadata.summary &&
+    JSON.stringify(publicTags(row.public_tags)) === JSON.stringify(metadata.tags)
+  );
+}
+
+function crossOwnerPublicExhibitIsPubliclyReadable(
+  row: EncounterCrossOwnerPublicExhibitRow,
+  consent: EncounterCrossOwnerConsentRow,
+) {
+  return Boolean(
+    row.status === "published" &&
+    row.published_at &&
+    !row.retracted_at &&
+    !row.removed_at &&
+    row.provenance_schema === PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA &&
+    row.contract_version === CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION &&
+    row.requester_metadata_approved_at &&
+    row.counterparty_metadata_approved_at &&
+    publicExhibitSlugSchema.safeParse(row.slug).success &&
+    crossOwnerPublicExhibitConsentReadiness(consent).ready
+  );
+}
+
 function crossOwnerConsentLoadFailedBody() {
   return {
     error: "Cross-owner encounter consent could not be loaded.",
@@ -2466,6 +3009,20 @@ async function loadCrossOwnerConsentForParticipant(
   return { ok: true, row };
 }
 
+async function loadCrossOwnerConsentById(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerConsentRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consents")
+    .select("*")
+    .eq("id", consentId)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerConsentRow | null };
+}
+
 async function loadCrossOwnerConsentAuditEvents(
   sb: ReturnType<typeof getSupabaseAdmin>,
   consentId: string,
@@ -2509,6 +3066,64 @@ async function createCrossOwnerConsentInvitation(
 
   const audit = await loadCrossOwnerConsentAuditEvents(sb, consent.id);
   return { ok: true, consent, audit };
+}
+
+async function loadCrossOwnerPublicExhibitForConsent(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerPublicExhibitRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .select("*")
+    .eq("consent_id", consentId)
+    .in("status", ["proposed", "published"])
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerPublicExhibitRow | null };
+}
+
+async function loadCrossOwnerPublicExhibitBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerPublicExhibitRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerPublicExhibitRow | null };
+}
+
+async function loadPublishedCrossOwnerPublicExhibitBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+): Promise<
+  | { ok: true; row: EncounterCrossOwnerPublicExhibitRow | null; consent: EncounterCrossOwnerConsentRow | null }
+  | { ok: false }
+> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .select(CROSS_OWNER_PUBLIC_EXHIBIT_PUBLIC_SELECT)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .is("removed_at", null)
+    .is("retracted_at", null)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  const row = (data ?? null) as EncounterCrossOwnerPublicExhibitRow | null;
+  if (!row) return { ok: true, row: null, consent: null };
+
+  const consent = await loadCrossOwnerConsentById(sb, row.consent_id);
+  if (!consent.ok) return { ok: false };
+  if (!consent.row || !crossOwnerPublicExhibitIsPubliclyReadable(row, consent.row)) {
+    return { ok: true, row: null, consent: null };
+  }
+
+  return { ok: true, row, consent: consent.row };
 }
 
 async function loadCrossOwnerRuntimeAttempts(
@@ -2825,6 +3440,58 @@ async function incrementPublicExhibitReportedCount(
     .from("persona_encounter_public_exhibits")
     .update({ reported_count: Number(data.reported_count ?? 0) + 1 })
     .eq("id", exhibitId);
+}
+
+async function loadExistingCrossOwnerPublicExhibitReport(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  reporterId: string,
+  exhibitId: string,
+  reason: string,
+) {
+  const { data } = await sb
+    .from("moderation_reports")
+    .select("*")
+    .eq("reporter_id", reporterId)
+    .eq("target_type", "persona_encounter_cross_owner_public_exhibit")
+    .eq("target_id", exhibitId)
+    .eq("reason", reason);
+
+  return (data ?? []).find((row: { status: string }) => row.status === "open" || row.status === "reviewing") ?? null;
+}
+
+async function incrementCrossOwnerPublicExhibitReportedCount(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  exhibitId: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .select("id, reported_count")
+    .eq("id", exhibitId)
+    .maybeSingle();
+  if (!data) return;
+
+  await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .update({ reported_count: Number(data.reported_count ?? 0) + 1 })
+    .eq("id", exhibitId);
+}
+
+async function retractCrossOwnerPublicExhibitsForConsent(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+  actorUserId: string,
+) {
+  const { error } = await sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .update({
+      status: "retracted",
+      retracted_at: new Date().toISOString(),
+      updated_by: actorUserId,
+    })
+    .eq("consent_id", consentId)
+    .in("status", ["proposed", "published"]);
+
+  return !error;
 }
 
 async function loadOwnedEncounterPersona(

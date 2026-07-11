@@ -119,6 +119,7 @@ class InMemorySupabase {
     persona_encounter_cross_owner_consents: [],
     persona_encounter_cross_owner_consent_audit_events: [],
     persona_encounter_cross_owner_runtime_attempts: [],
+    persona_encounter_cross_owner_public_exhibits: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -187,6 +188,9 @@ class InMemorySupabase {
     }
     if (table === "persona_encounter_cross_owner_runtime_attempts" && !row.id) {
       row.id = `bbbbbbbb-bbbb-4bbb-8bbb-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_public_exhibits" && !row.id) {
+      row.id = `cccccccc-cccc-4ccc-8ccc-${String(this.rows(table).length + 1).padStart(12, "0")}`;
     }
     row.id ??= `${table}-${this.rows(table).length + 1}`;
 
@@ -268,6 +272,23 @@ class InMemorySupabase {
       row.provenance_schema ??= "station.persona_encounter.cross_owner_runtime_attempt.v1";
       row.created_at ??= now;
       row.completed_at ??= null;
+    }
+
+    if (table === "persona_encounter_cross_owner_public_exhibits") {
+      row.slug ??= `cross-owner-exhibit-${String(this.rows(table).length + 1).padStart(8, "0")}`;
+      row.public_tags ??= [];
+      row.status ??= "proposed";
+      row.contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_public_exhibit.v1";
+      row.requester_metadata_approved_at ??= null;
+      row.counterparty_metadata_approved_at ??= null;
+      row.reported_count ??= 0;
+      row.published_at ??= null;
+      row.retracted_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -864,12 +885,36 @@ function crossOwnerDisposablePreviewPath(consentId: string) {
   return `/persona-encounters/cross-owner-consents/${consentId}/disposable-preview`;
 }
 
+function crossOwnerPublicExhibitPath(slug: string) {
+  return `/persona-encounters/cross-owner-public-exhibits/${slug}`;
+}
+
+function crossOwnerConsentPublicExhibitPath(consentId: string) {
+  return `/persona-encounters/cross-owner-consents/${consentId}/public-exhibit`;
+}
+
 function crossOwnerDisposablePreviewBody(overrides: Partial<{
   setup: string;
   maxOutputTokens: number;
 }> = {}) {
   return {
     setup: "The initiating owner asks for one private cross-owner reply in a quiet library.",
+    ...overrides,
+  };
+}
+
+function crossOwnerPublicExhibitBody(overrides: Partial<{
+  title: string;
+  summary: string;
+  tags: string[];
+  contractVersion: number;
+}> = {}) {
+  return {
+    confirmCrossOwnerPublicMetadata: true,
+    title: "Cross-owner public metadata",
+    summary: "A jointly approved public context note.",
+    tags: ["cross-owner", "metadata"],
+    contractVersion: 1,
     ...overrides,
   };
 }
@@ -927,6 +972,7 @@ function assertNoDurableEncounterWrites(db: InMemorySupabase) {
     "persona_encounter_cross_owner_consents",
     "persona_encounter_cross_owner_consent_audit_events",
     "persona_encounter_cross_owner_runtime_attempts",
+    "persona_encounter_cross_owner_public_exhibits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -951,6 +997,7 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
     "persona_encounter_cross_owner_consents",
     "persona_encounter_cross_owner_consent_audit_events",
     "persona_encounter_cross_owner_runtime_attempts",
+    "persona_encounter_cross_owner_public_exhibits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -973,6 +1020,7 @@ function assertNoForbiddenCrossOwnerConsentSideEffects(db: InMemorySupabase) {
     "conversation_messages",
     "persona_encounter_private_sessions",
     "persona_encounter_public_exhibits",
+    "persona_encounter_cross_owner_public_exhibits",
     "persona_encounter_cross_owner_runtime_attempts",
     "archived_chat_transcripts",
     "continuity_candidates",
@@ -998,6 +1046,7 @@ function assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db: InMemorySupaba
     "conversation_messages",
     "persona_encounter_private_sessions",
     "persona_encounter_public_exhibits",
+    "persona_encounter_cross_owner_public_exhibits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1022,6 +1071,7 @@ function assertNoForbiddenCrossOwnerPreviewSideEffects(db: InMemorySupabase) {
     "conversation_messages",
     "persona_encounter_private_sessions",
     "persona_encounter_public_exhibits",
+    "persona_encounter_cross_owner_public_exhibits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1200,6 +1250,34 @@ test("cross-owner runtime attempt trigger repair uses short distinct append-only
   assert.match(sql, /Short non-colliding PR513C trigger name/);
   assert.equal(/disable row level security/i.test(sql), false);
   assert.equal(/provider_succeeded|generated output|token_usage|private_session|public_exhibit|moderation_reports/.test(sql), false);
+});
+
+test("cross-owner public exhibit migration creates metadata-only bilateral approval table", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/080_persona_encounter_cross_owner_public_exhibits.sql",
+    "utf8",
+  );
+
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_public_exhibits/);
+  assert.match(sql, /consent_id uuid not null references public\.persona_encounter_cross_owner_consents\(id\) on delete cascade/);
+  assert.match(sql, /requester_owner_user_id uuid not null references public\.profiles/);
+  assert.match(sql, /counterparty_owner_user_id uuid not null references public\.profiles/);
+  assert.match(sql, /status in \('proposed', 'published', 'retracted', 'removed'\)/);
+  assert.match(sql, /contract_version integer not null default 1/);
+  assert.match(sql, /requester_metadata_approved_at/);
+  assert.match(sql, /counterparty_metadata_approved_at/);
+  assert.match(sql, /publish_metadata_only_public_exhibit/);
+  assert.match(sql, /validate_persona_encounter_cross_owner_public_exhibit/);
+  assert.match(sql, /retract_cross_owner_public_exhibits_on_consent_inactive/);
+  assert.match(sql, /pe_co_public_exhibits_select_published/);
+  assert.match(sql, /pe_co_public_exhibits_select_participants/);
+  assert.equal(/create policy "pe_co_public_exhibits_insert_participants"/.test(sql), false);
+  assert.equal(/create policy "pe_co_public_exhibits_update_participants"/.test(sql), false);
+  assert.equal(/create policy "pe_co_public_exhibits_delete_participants"/.test(sql), false);
+  assert.match(sql, /No direct participant insert\/update\/delete policy is created/);
+  assert.match(sql, /persona_encounter_cross_owner_public_exhibit/);
+  assert.match(sql, /No generated words, preview output, transcripts, excerpts, summaries/);
+  assert.equal(/disable row level security/i.test(sql), false);
 });
 
 test("cross-owner consent invitations require auth ownership different owners and bounded payloads", async () => {
@@ -2455,6 +2533,248 @@ test("cross-owner disposable preview records bounded blocked and provider failur
     assert.equal(db.rows("token_transactions").length, 0);
     assertNoForbiddenCrossOwnerPreviewSideEffects(db);
   }, { providerContent: "   " });
+});
+
+test("cross-owner metadata public exhibit requires exact bilateral approval and stays detail-only", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const created = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents", {
+      token: "owner-token",
+      body: crossOwnerConsentBody({
+        requestedScopes: ["run_cross_owner_encounter", "publish_metadata_only_public_exhibit"],
+      }),
+    });
+    assert.equal(created.status, 201);
+
+    const approved = await requestJson(
+      app,
+      "PATCH",
+      `/persona-encounters/cross-owner-consents/${created.body.consent.id}/approve`,
+      { token: "other-token", body: {} },
+    );
+    assert.equal(approved.status, 200);
+
+    const propose = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(created.body.consent.id), {
+      token: "owner-token",
+      body: crossOwnerPublicExhibitBody(),
+    });
+    assert.equal(propose.status, 201);
+    assert.equal(propose.body.exhibit.status, "proposed");
+    assert.equal(propose.body.exhibit.publication.public, false);
+    assert.equal(propose.body.exhibit.publication.routeListed, false);
+    assert.equal(propose.body.exhibit.publication.indexed, false);
+    assert.equal(propose.body.exhibit.participants.requester.metadataApproved, true);
+    assert.equal(propose.body.exhibit.participants.counterparty.metadataApproved, false);
+    assert.match(propose.body.exhibit.slug, /^cross-owner-public-metadata-[a-z0-9]{8}$/);
+
+    const hiddenBeforeCounterparty = await requestJson(app, "GET", crossOwnerPublicExhibitPath(propose.body.exhibit.slug));
+    assert.equal(hiddenBeforeCounterparty.status, 404);
+    const sameOwnerList = await requestJson(app, "GET", "/persona-encounters/public-exhibits");
+    assert.equal(sameOwnerList.status, 200);
+    assert.deepEqual(sameOwnerList.body.exhibits, []);
+
+    const duplicateProposal = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(created.body.consent.id), {
+      token: "owner-token",
+      body: crossOwnerPublicExhibitBody({ title: "New title cannot replace exact metadata" }),
+    });
+    assert.equal(duplicateProposal.status, 409);
+    assert.equal(duplicateProposal.body.code, "persona_encounter_cross_owner_public_exhibit_exists");
+
+    const sameActorApproval = await requestJson(app, "PATCH", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/approve`, {
+      token: "owner-token",
+      body: crossOwnerPublicExhibitBody(),
+    });
+    assert.equal(sameActorApproval.status, 409);
+    assert.equal(sameActorApproval.body.code, "persona_encounter_cross_owner_public_exhibit_counterparty_metadata_required");
+
+    const mismatchedApproval = await requestJson(app, "PATCH", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/approve`, {
+      token: "other-token",
+      body: crossOwnerPublicExhibitBody({ summary: "Changed metadata must not publish." }),
+    });
+    assert.equal(mismatchedApproval.status, 409);
+    assert.equal(mismatchedApproval.body.code, "persona_encounter_cross_owner_public_exhibit_metadata_mismatch");
+    assert.equal(db.rows("persona_encounter_cross_owner_public_exhibits")[0].status, "proposed");
+
+    const counterpartyApproval = await requestJson(app, "PATCH", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/approve`, {
+      token: "other-token",
+      body: crossOwnerPublicExhibitBody(),
+    });
+    assert.equal(counterpartyApproval.status, 200);
+    assert.equal(counterpartyApproval.body.exhibit.status, "published");
+    assert.equal(counterpartyApproval.body.exhibit.publication.public, true);
+    assert.equal(counterpartyApproval.body.exhibit.publication.routeListed, false);
+
+    const publicRead = await requestJson(app, "GET", crossOwnerPublicExhibitPath(propose.body.exhibit.slug));
+    assert.equal(publicRead.status, 200);
+    assert.equal(publicRead.body.exhibit.title, "Cross-owner public metadata");
+    assert.equal(publicRead.body.exhibit.summary, "A jointly approved public context note.");
+    assert.deepEqual(publicRead.body.exhibit.tags, ["cross-owner", "metadata"]);
+    assert.equal(publicRead.body.exhibit.status, "published");
+    assert.equal(publicRead.body.exhibit.provenance.crossOwner, true);
+    assert.equal(publicRead.body.exhibit.provenance.generatedWordsPublished, false);
+    assert.equal(publicRead.body.exhibit.provenance.transcriptPublished, false);
+    assert.equal(publicRead.body.exhibit.provenance.routeListed, false);
+    assert.equal(publicRead.body.exhibit.report.path, `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/report`);
+    assert.deepEqual(publicRead.body.exhibit.participants, {
+      label: "Cross-owner consent display snapshots",
+      requesterName: "Blue Lantern",
+      counterpartyName: "Other Owner Persona",
+    });
+
+    const signedOutReport = await requestJson(app, "POST", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/report`, {
+      body: { reason: "unsafe_public_metadata" },
+    });
+    assert.equal(signedOutReport.status, 401);
+
+    const report = await requestJson(app, "POST", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/report`, {
+      token: "third-token",
+      body: {
+        reason: "unsafe_public_metadata",
+        notes: "Cross-owner public metadata needs review.",
+      },
+    });
+    assert.equal(report.status, 201);
+    assert.deepEqual(report.body, {
+      report: { status: "open" },
+      duplicate: false,
+    });
+    assert.equal(db.rows("moderation_reports").length, 1);
+    assert.equal(db.rows("moderation_reports")[0].target_type, "persona_encounter_cross_owner_public_exhibit");
+    assert.equal(db.rows("moderation_reports")[0].target_id, db.rows("persona_encounter_cross_owner_public_exhibits")[0].id);
+    assert.equal(db.rows("moderation_reports")[0].target_id.includes(propose.body.exhibit.slug), false);
+    assert.equal(db.rows("persona_encounter_cross_owner_public_exhibits")[0].reported_count, 1);
+
+    const duplicateReport = await requestJson(app, "POST", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/report`, {
+      token: "third-token",
+      body: { reason: "unsafe_public_metadata" },
+    });
+    assert.equal(duplicateReport.status, 200);
+    assert.equal(duplicateReport.body.duplicate, true);
+    assert.equal(db.rows("moderation_reports").length, 1);
+
+    const listAfterPublish = await requestJson(app, "GET", "/persona-encounters/public-exhibits");
+    assert.equal(listAfterPublish.status, 200);
+    assert.deepEqual(listAfterPublish.body.exhibits, []);
+
+    const publicJson = JSON.stringify(publicRead.body);
+    for (const forbidden of [
+      created.body.consent.id,
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "consent_id",
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "Owner-only private persona notes",
+      "Cross-owner private material",
+      "One private cross-owner reply",
+      "Copper Scribe answers once.",
+      "provider_payload",
+      "token_usage",
+      "Bearer ",
+      "test-deepseek-key",
+    ]) {
+      assert.equal(publicJson.includes(forbidden), false, `${forbidden} leaked in cross-owner public exhibit`);
+    }
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner metadata public exhibit fails closed for scope body participant and revocation drift", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const wrongScope = seedCrossOwnerConsent(db, { requested_scopes: ["run_cross_owner_encounter"] });
+    const wrongScopeResponse = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(wrongScope.id), {
+      token: "owner-token",
+      body: crossOwnerPublicExhibitBody(),
+    });
+    assert.equal(wrongScopeResponse.status, 409);
+    assert.equal(wrongScopeResponse.body.code, "persona_encounter_cross_owner_public_exhibit_wrong_scope");
+
+    const pending = seedCrossOwnerConsent(db, {
+      status: "pending",
+      requested_scopes: ["publish_metadata_only_public_exhibit"],
+      counterparty_approved_at: null,
+    });
+    const pendingResponse = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(pending.id), {
+      token: "owner-token",
+      body: crossOwnerPublicExhibitBody(),
+    });
+    assert.equal(pendingResponse.status, 409);
+    assert.equal(pendingResponse.body.code, "persona_encounter_cross_owner_public_exhibit_consent_inactive");
+
+    const approved = seedCrossOwnerConsent(db, {
+      requested_scopes: ["publish_metadata_only_public_exhibit"],
+    });
+    const nonparticipant = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(approved.id), {
+      token: "third-token",
+      body: crossOwnerPublicExhibitBody(),
+    });
+    assert.equal(nonparticipant.status, 404);
+
+    const invalidBodies: unknown[] = [
+      { title: "Missing confirmation", summary: "Metadata." },
+      { confirmCrossOwnerPublicMetadata: false, title: "Title", summary: "Metadata." },
+      { confirmCrossOwnerPublicMetadata: true, title: "", summary: "Metadata." },
+      { confirmCrossOwnerPublicMetadata: true, title: "Title", summary: "Metadata.", tags: ["x".repeat(41)] },
+      { confirmCrossOwnerPublicMetadata: true, title: "Title", summary: "Metadata.", generatedWords: "Nope." },
+      { confirmCrossOwnerPublicMetadata: true, title: "Title", summary: "Metadata.", consentId: approved.id },
+      { confirmCrossOwnerPublicMetadata: true, title: "Title", summary: "Metadata.", ownerUserId: OWNER_ID },
+      { confirmCrossOwnerPublicMetadata: true, title: "Title", summary: "Metadata.", transcript: "No transcript." },
+    ];
+    for (const body of invalidBodies) {
+      const response = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(approved.id), {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400, `body should fail: ${JSON.stringify(body)}`);
+    }
+
+    const propose = await requestJson(app, "POST", crossOwnerConsentPublicExhibitPath(approved.id), {
+      token: "owner-token",
+      body: crossOwnerPublicExhibitBody({ title: "Revocable metadata" }),
+    });
+    assert.equal(propose.status, 201);
+    const publish = await requestJson(app, "PATCH", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/approve`, {
+      token: "other-token",
+      body: crossOwnerPublicExhibitBody({ title: "Revocable metadata" }),
+    });
+    assert.equal(publish.status, 200);
+    assert.equal(publish.body.exhibit.status, "published");
+
+    const publicBeforeRevoke = await requestJson(app, "GET", crossOwnerPublicExhibitPath(propose.body.exhibit.slug));
+    assert.equal(publicBeforeRevoke.status, 200);
+
+    const revoke = await requestJson(app, "PATCH", `/persona-encounters/cross-owner-consents/${approved.id}/revoke`, {
+      token: "other-token",
+      body: { reasonCode: "owner_request" },
+    });
+    assert.equal(revoke.status, 200);
+    assert.equal(revoke.body.consent.status, "revoked");
+    assert.equal(db.rows("persona_encounter_cross_owner_public_exhibits")[0].status, "retracted");
+
+    const hiddenAfterRevoke = await requestJson(app, "GET", crossOwnerPublicExhibitPath(propose.body.exhibit.slug));
+    assert.equal(hiddenAfterRevoke.status, 404);
+    const reportAfterRevoke = await requestJson(app, "POST", `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/report`, {
+      token: "third-token",
+      body: { reason: "unsafe_public_metadata" },
+    });
+    assert.equal(reportAfterRevoke.status, 404);
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("moderation_reports").length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
 });
 
 test("owner preview generates one disposable same-owner responder reply without durable encounter rows", async () => {
