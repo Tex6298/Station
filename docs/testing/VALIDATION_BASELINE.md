@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR515C Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
+
+ARIADNE completed PR515C hosted rehearsal on 2026-07-11:
+
+- `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_RESULT.md`
+
+Validation result:
+`PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL`.
+
+Reason:
+
+- hosted web/API were ready at commit prefix `1d76eb00a3e9`, matching the
+  PR515B implementation floor;
+- signed-out Studio route access redirected away from consent controls;
+- unsafe UUID-shaped public target input stayed blocked;
+- safe public target lookup worked by bare slug and `/personas/:slug` href
+  without raw target id or owner id readback;
+- invitation creation used the public-slug create route, not the legacy raw
+  counterparty id route;
+- requester cancel, counterparty approve, counterparty reject, and approved-row
+  revoke all worked through the hosted browser UI;
+- approved eligible rows showed the cross-owner disposable preview control while
+  same-owner encounter controls remained visually separate;
+- cancelled, rejected, and revoked rows showed no preview run control when
+  inspected;
+- desktop and 390px mobile had no horizontal overflow or action fit failure;
+- public routes did not expose the private requester proof marker, consent
+  rows, generated text, or raw UUID text;
+- no private session, public exhibit, moderation report, memory, canon,
+  archived chat transcript, continuity, export, storage, or runtime-attempt
+  drift appeared;
+- final cleanup recheck showed no active PR515C consent rows and no remaining
+  PR515C public targets.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr515c-hosted-rehearsal.mjs` | Pass | Hosted browser proof passed signed-out gating, target lookup, unsafe slug blocking, create/cancel/approve/reject/revoke, inactive-state controls, desktop/mobile fit, public-route leak checks, no-drift, cleanup, and privacy scan. |
+| Desktop/mobile screenshot inspection | Pass | Approved eligible row kept cross-owner controls separate from same-owner encounter controls; 390px mobile fit without horizontal overflow. |
+| `node .tmp\pr515c-cleanup.mjs` | Pass | Final cleanup recheck reported `activeConsentRows 0` and `remainingPublicTargets 0` after older PR515C temp state was made private/revoked through participant-safe paths. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts changed. |
+
 ## PR515B Cross-Owner Consent Invitation and Inbox UI ARGUS Review
 
 ARGUS accepted PR515B on 2026-07-11:

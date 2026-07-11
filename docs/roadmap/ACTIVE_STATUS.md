@@ -4,18 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515C hosted rehearsal
+## Current lane - PR515C hosted rehearsal passed
 
-MIMIR accepted PR515B locally and routed ARIADNE to hosted rehearsal:
+ARIADNE completed the PR515C hosted browser rehearsal:
 
-`docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_CLOSEOUT.md`
-
-`docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ARIADNE.md`
+`docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_ACCEPTED_LOCALLY
+PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL
 ```
 
 Current lane:
@@ -23,36 +21,46 @@ Current lane:
 ```text
 PR515C - Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
 Owner: ARIADNE / A4
-State: OPEN_ARIADNE_HOSTED_REHEARSAL
-Source: docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ARIADNE.md
+State: PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL
+Source: docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_RESULT.md
 ```
-
-Goal:
-
-- hosted human-eye rehearsal for signed-out gating, target lookup by slug/href,
-  unsafe slug copy, create invitation, cancel, approve, reject, revoke,
-  preview-control separation, inactive-state no-run controls, desktop/mobile
-  layout, and public-route no-drift;
-- verify no saved session, public exhibit, generated-word sharing, retrieval,
-  storage, billing, Redis, Cloudflare, workers, migrations, provider config,
-  public surfacing, hosted-runtime expansion, or broad redesign drift.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
 
 Summary:
-- ARGUS accepted PR515B locally: owner-only cross-owner consent invitation and inbox UI.
-- MIMIR closed PR515B locally but requires hosted browser rehearsal before final visible-surface closeout.
-- Rehearsal should use human-eye routes and mobile/desktop behavior, not just source inspection.
 
-Task:
-- Run PR515C hosted rehearsal against the Railway staging target.
-- Verify signed-out gating, target lookup by slug/href, unsafe slug copy, create invitation, cancel, approve, reject, revoke, preview-control separation, no preview controls for inactive states, mobile/desktop layout, and public-route no-drift.
-- Wake MIMIR with PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL or FAIL_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL and exact defects.
+- hosted web/API were fresh at commit prefix `1d76eb00a3e9`, matching the
+  PR515B implementation floor;
+- signed-out users had no usable consent controls;
+- unsafe UUID-shaped target input stayed blocked;
+- safe public target lookup worked by bare slug and `/personas/:slug` href
+  without raw target id or owner id readback;
+- invitation creation used the public-slug create path, not the legacy raw
+  counterparty persona id path;
+- requester cancel, counterparty approve, counterparty reject, and approved-row
+  revoke all passed in the hosted browser;
+- approved eligible rows showed the cross-owner disposable preview control while
+  same-owner encounter controls remained visually separate;
+- cancelled, rejected, and revoked rows had no cross-owner preview run control
+  when inspected;
+- desktop and 390px mobile had no horizontal overflow or action fit failure;
+- public routes did not expose the private requester proof marker, consent rows,
+  generated text, or raw UUID text;
+- no private session, public exhibit, moderation report, memory, canon, archive,
+  continuity, export, storage, or runtime-attempt drift appeared;
+- final cleanup recheck showed no active PR515C consent rows and no remaining
+  PR515C public targets.
+
+Validation:
+
+```text
+node .tmp\pr515c-hosted-rehearsal.mjs PASS
+node .tmp\pr515c-cleanup.mjs          PASS
+pnpm typecheck                        NOT RUN - docs-only result
 ```
+
+Next:
+
+- MIMIR should close PR515C if accepted and decide the next bounded lane for the
+  cross-owner consent surface.
 
 ## Previous lane - PR515B accepted by ARGUS
 
