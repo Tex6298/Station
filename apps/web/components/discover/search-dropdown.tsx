@@ -30,6 +30,12 @@ function safePublicEncounterExhibitHref(slug: unknown) {
     : null;
 }
 
+function safeCrossOwnerPublicEncounterExhibitHref(slug: unknown) {
+  return typeof slug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*-[a-z0-9]{8}$/.test(slug)
+    ? `/encounters/cross-owner#${slug}`
+    : null;
+}
+
 function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
   const spaceHref = safeSpaceHref(spaceSlug);
   return spaceHref && typeof documentId === "string" ? `${spaceHref}/documents/${documentId}` : null;
@@ -39,6 +45,7 @@ export const PUBLIC_SEARCH_GROUPS = [
   ["projects", "Public Projects"],
   ["developerSpaces", "Developer Spaces"],
   ["publicEncounterExhibits", "Encounter Exhibits"],
+  ["crossOwnerPublicEncounterExhibits", "Cross-owner Exhibits"],
   ["salons", "Salons"],
   ["personas", "Public personas"],
   ["spaces", "Spaces"],
@@ -64,6 +71,8 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
       return safeDeveloperSpaceHref(result.slug);
     case "publicEncounterExhibits":
       return safePublicEncounterExhibitHref(result.slug);
+    case "crossOwnerPublicEncounterExhibits":
+      return safeCrossOwnerPublicEncounterExhibitHref(result.slug);
     case "salons": {
       const slug = result.categorySlug ?? result.slug;
       return typeof slug === "string" &&
@@ -106,6 +115,12 @@ export function publicSearchResultLabels(key: PublicSearchGroup, result: any): s
       labels.push("Public encounter exhibit");
       labels.push(result.provenance?.label === "Metadata-only public encounter exhibit"
         ? "Metadata-only public encounter exhibit"
+        : null);
+      break;
+    case "crossOwnerPublicEncounterExhibits":
+      labels.push("Cross-owner encounter exhibit");
+      labels.push(result.provenance?.label === "Cross-owner metadata-only public encounter exhibit"
+        ? "Cross-owner metadata-only public encounter exhibit"
         : null);
       break;
     case "salons":

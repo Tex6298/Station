@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR519A cross-owner Discover search group routed to DAEDALUS
+## Current lane - PR519A cross-owner Discover search group ready for ARGUS
 
 MIMIR closed PR519 as accepted:
 
@@ -14,25 +14,27 @@ Current lane:
 
 ```text
 PR519A - Cross-Owner Metadata Exhibit Discover Search Group
-Owner: DAEDALUS / A2
-State: READY_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_DAEDALUS.md
+Owner: DAEDALUS / A2 -> ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_RESULT.md
 ```
 
-Decision:
+DAEDALUS result:
 
-- DAEDALUS may add only a separate Discover search group named
-  `Cross-owner Exhibits`;
-- the API group key must be `crossOwnerPublicEncounterExhibits`;
-- search may use only public title, summary, tags, requester display snapshot,
-  and counterparty display snapshot;
-- rows must be metadata-only, active-consent-backed, exact bilateral metadata
-  approval backed, display-snapshot matched, and route only to
-  `/encounters/cross-owner#<slug>`;
-- PR519A must keep readback claims honest by marking safe published rows
-  Discover-search-listed while `indexed=false`;
-- after local ARGUS acceptance, MIMIR should route ARIADNE for hosted Discover
-  search proof.
+- added a separate API Discover search group named
+  `crossOwnerPublicEncounterExhibits`;
+- web search labels the group `Cross-owner Exhibits`;
+- empty search returns the group as `[]`;
+- non-empty search matches only public title, public summary, public tags,
+  requester display snapshot, and counterparty display snapshot;
+- rows are metadata-only, active-consent-backed, exact bilateral metadata
+  approval backed, display-snapshot matched, capped at six, deduped by safe
+  public slug, and route only to `/encounters/cross-owner#<slug>`;
+- same-owner `publicEncounterExhibits` and owner-private `privateResults` stay
+  separate;
+- failures in the new group fail closed to an empty group;
+- cross-owner public exhibit readback now honestly marks safe published rows
+  Discover-search-listed while `indexed=false`.
 
 Still blocked:
 
@@ -46,15 +48,22 @@ Still blocked:
 Required validation:
 
 ```text
-npm exec --yes pnpm@10.32.1 -- run test:persona-encounters
-npm exec --yes pnpm@10.32.1 -- run test:reports
-npm exec --yes pnpm@10.32.1 -- run test:community
-npm exec --yes pnpm@10.32.1 -- run test:writing
-npm exec --yes pnpm@10.32.1 -- run test:studio-ui
-npm exec --yes pnpm@10.32.1 -- run typecheck
-git diff --check
-git diff --cached --check
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 74 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:community          PASS - 47 tests
+npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 29 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+git diff --check                                           PASS
+git diff --cached --check                                  PASS
 ```
+
+Next:
+
+- ARGUS should review PR519A and either wake MIMIR with acceptance or wake
+  DAEDALUS with required fixes.
+- After local ARGUS acceptance, MIMIR should route ARIADNE for hosted Discover
+  search proof.
 
 ## Previous lane - PR519 cross-owner Discover search preflight accepted by ARGUS
 

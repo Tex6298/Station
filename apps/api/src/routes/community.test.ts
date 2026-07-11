@@ -4419,6 +4419,359 @@ test("Discover search surfaces public encounter exhibits as a metadata-only grou
   }
 });
 
+test("Discover search surfaces cross-owner public encounter exhibits as a separate metadata-only group", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const seedCrossOwnerConsent = (overrides: Row = {}) => db.insertRow(
+      "persona_encounter_cross_owner_consents",
+      {
+        requester_owner_user_id: OWNER_ID,
+        requester_persona_id: PUBLIC_PERSONA_ID,
+        requester_persona_name_snapshot: "Blue Lantern",
+        counterparty_owner_user_id: OTHER_ID,
+        counterparty_persona_id: OTHER_PERSONA_ID,
+        counterparty_persona_name_snapshot: "Other Persona",
+        status: "approved",
+        requested_scopes: ["publish_metadata_only_public_exhibit"],
+        requested_scope_version: 1,
+        requester_approved_at: "2026-07-11T11:00:00.000Z",
+        counterparty_approved_at: "2026-07-11T11:01:00.000Z",
+        ...overrides,
+      },
+    );
+
+    const seedCrossOwnerExhibit = (consent: Row, overrides: Row = {}) => db.insertRow(
+      "persona_encounter_cross_owner_public_exhibits",
+      {
+        consent_id: consent.id,
+        slug: "cross-owner-exhibit-12345678",
+        public_title: "Cross-owner public metadata",
+        public_summary: "A jointly approved public context note.",
+        public_tags: ["cross-owner", "metadata"],
+        requester_persona_name_snapshot: consent.requester_persona_name_snapshot,
+        counterparty_persona_name_snapshot: consent.counterparty_persona_name_snapshot,
+        status: "published",
+        contract_version: 1,
+        provenance_schema: "station.persona_encounter.cross_owner_public_exhibit.v1",
+        requester_metadata_approved_at: "2026-07-11T11:02:00.000Z",
+        counterparty_metadata_approved_at: "2026-07-11T11:03:00.000Z",
+        published_at: "2026-07-11T12:00:00.000Z",
+        retracted_at: null,
+        removed_at: null,
+        ...overrides,
+      },
+    );
+
+    const sameOwnerSource = db.insertRow("persona_encounter_private_sessions", {
+      id: "66666666-6666-4666-8666-000000000301",
+      owner_user_id: OWNER_ID,
+      initiator_persona_id: PUBLIC_PERSONA_ID,
+      responder_persona_id: OTHER_PERSONA_ID,
+      owner_setup: "Private setup for same-owner Aurora should not appear.",
+      responder_reply: "Generated reply for same-owner Aurora should not appear.",
+      initiator_name_snapshot: "Blue Lantern",
+      responder_name_snapshot: "Copper Scribe",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      owner_user_id: OWNER_ID,
+      private_session_id: sameOwnerSource.id,
+      slug: "same-owner-aurora-12345678",
+      public_title: "Aurora Same Owner",
+      public_summary: "Same-owner public metadata.",
+      public_tags: ["aurora"],
+      initiator_name_snapshot: "Blue Lantern",
+      responder_name_snapshot: "Copper Scribe",
+      status: "published",
+      provenance_schema: "station.persona_encounter.public_exhibit.v1",
+      published_at: "2026-07-11T11:00:00.000Z",
+    });
+
+    for (let index = 1; index <= 7; index += 1) {
+      const consent = seedCrossOwnerConsent();
+      seedCrossOwnerExhibit(consent, {
+        slug: `cross-owner-aurora-${String(index).padStart(8, "0")}`,
+        public_title: `Aurora Cross-owner ${index}`,
+        public_summary: "Approved cross-owner public metadata.",
+        public_tags: ["aurora", "metadata"],
+        published_at: `2026-07-11T12:${String(index).padStart(2, "0")}:00.000Z`,
+      });
+    }
+
+    seedCrossOwnerExhibit(seedCrossOwnerConsent(), {
+      slug: "cross-summary-12345678",
+      public_title: "Quiet cross-owner summary row",
+      public_summary: "Needle cross-owner metadata appears here.",
+      public_tags: ["summary"],
+      published_at: "2026-07-10T12:00:00.000Z",
+    });
+    seedCrossOwnerExhibit(seedCrossOwnerConsent(), {
+      slug: "cross-tag-12345678",
+      public_title: "Quiet cross-owner tag row",
+      public_tags: ["quiettag"],
+      published_at: "2026-07-10T11:00:00.000Z",
+    });
+    seedCrossOwnerExhibit(seedCrossOwnerConsent({
+      requester_persona_name_snapshot: "Harbor Witness",
+    }), {
+      slug: "cross-requester-12345678",
+      public_title: "Requester display row",
+      requester_persona_name_snapshot: "Harbor Witness",
+      published_at: "2026-07-10T10:00:00.000Z",
+    });
+    seedCrossOwnerExhibit(seedCrossOwnerConsent({
+      counterparty_persona_name_snapshot: "Glass Witness",
+    }), {
+      slug: "cross-counterparty-12345678",
+      public_title: "Counterparty display row",
+      counterparty_persona_name_snapshot: "Glass Witness",
+      published_at: "2026-07-10T09:00:00.000Z",
+    });
+
+    const hiddenFixtures: Array<[string, Row, Row]> = [
+      [
+        "cross-pending-12345678",
+        {},
+        { status: "proposed", public_title: "Aurora Cross Pending Secret" },
+      ],
+      [
+        "cross-one-sided-12345678",
+        {},
+        {
+          public_title: "Aurora Cross One Sided Secret",
+          counterparty_metadata_approved_at: null,
+        },
+      ],
+      [
+        "cross-wrong-scope-12345678",
+        { requested_scopes: ["run_cross_owner_encounter"] },
+        { public_title: "Aurora Cross Wrong Scope Secret" },
+      ],
+      [
+        "cross-wrong-version-12345678",
+        { requested_scope_version: 2 },
+        { public_title: "Aurora Cross Wrong Version Secret" },
+      ],
+      [
+        "cross-revoked-12345678",
+        { status: "revoked" },
+        { public_title: "Aurora Cross Revoked Secret" },
+      ],
+      [
+        "cross-removed-12345678",
+        {},
+        {
+          public_title: "Aurora Cross Removed Secret",
+          removed_at: "2026-07-11T13:00:00.000Z",
+        },
+      ],
+      [
+        "cross-retracted-12345678",
+        {},
+        {
+          public_title: "Aurora Cross Retracted Secret",
+          retracted_at: "2026-07-11T13:00:00.000Z",
+        },
+      ],
+      [
+        "cross-wrong-schema-12345678",
+        {},
+        {
+          public_title: "Aurora Cross Wrong Schema Secret",
+          provenance_schema: "station.persona_encounter.public_exhibit.v1",
+        },
+      ],
+      [
+        "cross-wrong-contract-12345678",
+        {},
+        {
+          public_title: "Aurora Cross Wrong Contract Secret",
+          contract_version: 2,
+        },
+      ],
+      [
+        "cross-snapshot-drift-12345678",
+        {},
+        {
+          public_title: "Aurora Cross Snapshot Drift Secret",
+          requester_persona_name_snapshot: "Forged requester",
+        },
+      ],
+    ];
+
+    for (const [slug, consentOverrides, exhibitOverrides] of hiddenFixtures) {
+      const consent = seedCrossOwnerConsent(consentOverrides);
+      seedCrossOwnerExhibit(consent, {
+        slug,
+        public_summary: "Hidden private setup generated reply transcript-like source body marker.",
+        public_tags: ["aurora"],
+        published_at: "2026-07-11T13:00:00.000Z",
+        ...exhibitOverrides,
+      });
+    }
+
+    seedCrossOwnerExhibit(seedCrossOwnerConsent(), {
+      consent_id: "99999999-9999-4999-8999-999999999999",
+      slug: "cross-missing-consent-12345678",
+      public_title: "Aurora Cross Missing Consent Secret",
+      public_summary: "Hidden private setup generated reply transcript-like source body marker.",
+      public_tags: ["aurora"],
+      published_at: "2026-07-11T13:00:00.000Z",
+    });
+    seedCrossOwnerExhibit(seedCrossOwnerConsent(), {
+      slug: "bad_slug",
+      public_title: "Aurora Cross Malformed Secret",
+      public_summary: "Hidden private setup generated reply transcript-like source body marker.",
+      public_tags: ["aurora"],
+      published_at: "2026-07-11T13:00:00.000Z",
+    });
+
+    const empty = await requestJson(app, "GET", "/discover/search?q=");
+    assert.equal(empty.status, 200);
+    assert.deepEqual(empty.body.crossOwnerPublicEncounterExhibits, []);
+
+    const titleSearch = await requestJson(app, "GET", "/discover/search?q=Aurora");
+    assert.equal(titleSearch.status, 200);
+    assert.deepEqual(
+      titleSearch.body.crossOwnerPublicEncounterExhibits.map((row: Row) => row.slug),
+      [
+        "cross-owner-aurora-00000007",
+        "cross-owner-aurora-00000006",
+        "cross-owner-aurora-00000005",
+        "cross-owner-aurora-00000004",
+        "cross-owner-aurora-00000003",
+        "cross-owner-aurora-00000002",
+      ],
+    );
+    assert.equal(titleSearch.body.crossOwnerPublicEncounterExhibits.length, 6);
+    assert.deepEqual(titleSearch.body.publicEncounterExhibits.map((row: Row) => row.slug), [
+      "same-owner-aurora-12345678",
+    ]);
+
+    const first = titleSearch.body.crossOwnerPublicEncounterExhibits[0];
+    assert.deepEqual(Object.keys(first).sort(), [
+      "contractVersion",
+      "label",
+      "participants",
+      "provenance",
+      "publishedAt",
+      "routeHref",
+      "slug",
+      "status",
+      "summary",
+      "tags",
+      "title",
+      "type",
+    ].sort());
+    assert.deepEqual(Object.keys(first.participants).sort(), [
+      "counterpartyName",
+      "label",
+      "requesterName",
+    ].sort());
+    assert.deepEqual(Object.keys(first.provenance).sort(), [
+      "bilateralApproval",
+      "crossOwner",
+      "discoverable",
+      "indexed",
+      "label",
+      "metadataOnly",
+      "note",
+      "ownerCurated",
+      "public",
+      "routeListed",
+      "source",
+    ].sort());
+    assert.equal(first.routeHref, `/encounters/cross-owner#${first.slug}`);
+    assert.equal(first.type, "cross_owner_encounter_exhibit");
+    assert.equal(first.label, "Cross-owner encounter exhibit");
+    assert.equal(first.contractVersion, 1);
+    assert.equal(first.status, "published");
+    assert.equal(first.participants.label, "Cross-owner consent display snapshots");
+    assert.equal(first.provenance.label, "Cross-owner metadata-only public encounter exhibit");
+    assert.equal(first.provenance.discoverable, true);
+    assert.equal(first.provenance.indexed, false);
+
+    const summarySearch = await requestJson(app, "GET", "/discover/search?q=Needle");
+    assert.deepEqual(summarySearch.body.crossOwnerPublicEncounterExhibits.map((row: Row) => row.slug), ["cross-summary-12345678"]);
+    const tagSearch = await requestJson(app, "GET", "/discover/search?q=quiettag");
+    assert.deepEqual(tagSearch.body.crossOwnerPublicEncounterExhibits.map((row: Row) => row.slug), ["cross-tag-12345678"]);
+    const requesterSearch = await requestJson(app, "GET", "/discover/search?q=Harbor");
+    assert.deepEqual(requesterSearch.body.crossOwnerPublicEncounterExhibits.map((row: Row) => row.slug), ["cross-requester-12345678"]);
+    const counterpartySearch = await requestJson(app, "GET", "/discover/search?q=Glass");
+    assert.deepEqual(counterpartySearch.body.crossOwnerPublicEncounterExhibits.map((row: Row) => row.slug), ["cross-counterparty-12345678"]);
+
+    db.failNext("persona_encounter_cross_owner_public_exhibits", "select", "private cross-owner search internals");
+    const failedGroup = await requestJson(app, "GET", "/discover/search?q=Aurora");
+    assert.equal(failedGroup.status, 200);
+    assert.deepEqual(failedGroup.body.crossOwnerPublicEncounterExhibits, []);
+
+    const searchJson = JSON.stringify(titleSearch.body.crossOwnerPublicEncounterExhibits) +
+      JSON.stringify(summarySearch.body.crossOwnerPublicEncounterExhibits) +
+      JSON.stringify(tagSearch.body.crossOwnerPublicEncounterExhibits) +
+      JSON.stringify(requesterSearch.body.crossOwnerPublicEncounterExhibits) +
+      JSON.stringify(counterpartySearch.body.crossOwnerPublicEncounterExhibits) +
+      JSON.stringify(failedGroup.body.crossOwnerPublicEncounterExhibits);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_ID,
+      PUBLIC_PERSONA_ID,
+      OTHER_PERSONA_ID,
+      "consent_id",
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "requested_scopes",
+      "report",
+      "reported_count",
+      "moderation",
+      "admin",
+      "provider",
+      "prompt",
+      "source_body",
+      "private setup",
+      "generated reply",
+      "transcript-like",
+      "Aurora Cross Pending Secret",
+      "Aurora Cross One Sided Secret",
+      "Aurora Cross Wrong Scope Secret",
+      "Aurora Cross Wrong Version Secret",
+      "Aurora Cross Revoked Secret",
+      "Aurora Cross Removed Secret",
+      "Aurora Cross Retracted Secret",
+      "Aurora Cross Wrong Schema Secret",
+      "Aurora Cross Wrong Contract Secret",
+      "Aurora Cross Snapshot Drift Secret",
+      "Aurora Cross Missing Consent Secret",
+      "Aurora Cross Malformed Secret",
+      "Forged requester",
+      "private cross-owner search internals",
+    ]) {
+      assert.equal(searchJson.includes(forbidden), false, `${forbidden} leaked into cross-owner encounter search`);
+    }
+
+    const feed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
+    assert.equal(feed.status, 200);
+    const feedJson = JSON.stringify(feed.body.items);
+    assert.equal(feedJson.includes("cross_owner_encounter_exhibit"), false);
+    assert.equal(feedJson.includes("crossOwnerPublicEncounterExhibits"), false);
+    assert.equal(feedJson.includes("Aurora Cross-owner"), false);
+
+    const owner = await requestJson(app, "GET", "/discover/search?q=Aurora", {
+      token: "owner-token",
+    });
+    assert.equal(owner.status, 200);
+    assert.equal(owner.body.crossOwnerPublicEncounterExhibits.length, 6);
+    assert.deepEqual(owner.body.privateResults.documents.map((row: Row) => row.id), [PRIVATE_DOC_ID]);
+    assert.equal(JSON.stringify(owner.body.privateResults).includes("cross_owner_encounter_exhibit"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Discover search document provenance omits raw source labels", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);

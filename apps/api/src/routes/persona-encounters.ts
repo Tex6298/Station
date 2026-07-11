@@ -2350,13 +2350,13 @@ function serializeCrossOwnerPublicExhibitOwnerReadback(
       public: publicReadable,
       routeListed: publicReadable,
       indexed: false,
-      discoverable: false,
+      discoverable: publicReadable,
       generatedWordsPublished: false,
       transcriptPublished: false,
       summaryPublished: false,
       excerptPublished: false,
       note: publicReadable
-        ? "Public API detail readback is metadata-only and listed only in the dedicated cross-owner encounter index."
+        ? "Public API detail readback is metadata-only and listed only in the dedicated cross-owner encounter index plus Discover search."
         : "Public readback remains hidden until both participants approve exact metadata and the consent stays active.",
     },
     provenance: {
@@ -2407,7 +2407,7 @@ function serializePublishedCrossOwnerPublicExhibit(
       excerptPublished: false,
       routeListed: true,
       indexed: false,
-      discoverable: false,
+      discoverable: true,
       source: "Derived from a bilateral cross-owner consent metadata contract",
       note: "This public exhibit contains approved metadata only. It does not publish generated words, transcripts, excerpts, summaries, private setup, PR516 disposable preview output, provider details, prompts, private context, retrieval bodies, token facts, raw owner ids, or raw persona ids.",
     },
@@ -2442,7 +2442,7 @@ function serializePublishedCrossOwnerPublicExhibitListItem(
       bilateralApproval: true,
       routeListed: true,
       indexed: false,
-      discoverable: false,
+      discoverable: true,
     },
     report: detail.report,
   };

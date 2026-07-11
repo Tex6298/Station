@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR519A | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR / A1 -> DAEDALUS / A2 | Ready for implementation; add only a separate `crossOwnerPublicEncounterExhibits` Discover search group with metadata-only active-consent-backed rows routeable to `/encounters/cross-owner#<slug>`, keeping feed, same-owner exhibits, persona/Space/forum/writing/homepage, provider, retrieval, infra, and migration work blocked. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_DAEDALUS.md` |
+| PR519A | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review; DAEDALUS added only a separate `crossOwnerPublicEncounterExhibits` Discover search group with metadata-only active-consent-backed rows routeable to `/encounters/cross-owner#<slug>`, keeping feed, same-owner exhibits, persona/Space/forum/writing/homepage, provider, retrieval, infra, package, lockfile, deployment, and migration work blocked. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_RESULT.md` |
 
 ## Recently Closed
 

@@ -11,7 +11,17 @@ import {
 test("public search groups exclude private owner buckets", () => {
   assert.deepEqual(
     PUBLIC_SEARCH_GROUPS.map(([key]) => key),
-    ["projects", "developerSpaces", "publicEncounterExhibits", "salons", "personas", "spaces", "documents", "threads"]
+    [
+      "projects",
+      "developerSpaces",
+      "publicEncounterExhibits",
+      "crossOwnerPublicEncounterExhibits",
+      "salons",
+      "personas",
+      "spaces",
+      "documents",
+      "threads",
+    ]
   );
   assert.equal((PUBLIC_SEARCH_GROUPS.map(([key]) => key) as readonly string[]).includes("privateResults"), false);
 });
@@ -31,6 +41,16 @@ test("public search hrefs only target supported public routes", () => {
   assert.equal(searchHref("publicEncounterExhibits", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
   assert.equal(searchHref("publicEncounterExhibits", { href: "/admin", slug: "public-exhibit-12345678" }), "/encounters/public-exhibit-12345678");
   assert.equal(searchHref("publicEncounterExhibits", { href: "https://example.test/exhibit" }), null);
+  assert.equal(
+    searchHref("crossOwnerPublicEncounterExhibits", { slug: "cross-owner-exhibit-12345678" }),
+    "/encounters/cross-owner#cross-owner-exhibit-12345678"
+  );
+  assert.equal(searchHref("crossOwnerPublicEncounterExhibits", { slug: "Bad Slug" }), null);
+  assert.equal(searchHref("crossOwnerPublicEncounterExhibits", { slug: "missing-suffix" }), null);
+  assert.equal(searchHref("crossOwnerPublicEncounterExhibits", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
+  assert.equal(searchHref("crossOwnerPublicEncounterExhibits", { href: "/admin", slug: "cross-owner-exhibit-12345678" }), "/encounters/cross-owner#cross-owner-exhibit-12345678");
+  assert.equal(searchHref("crossOwnerPublicEncounterExhibits", { href: "/encounters/public-exhibit-12345678" }), null);
+  assert.equal(searchHref("crossOwnerPublicEncounterExhibits", { href: "https://example.test/exhibit" }), null);
   assert.equal(searchHref("salons", { slug: "station-replay-salon-alpha", href: "/admin" }), "/forums/station-replay-salon-alpha");
   assert.equal(searchHref("salons", { categorySlug: "member-salon" }), "/forums/member-salon");
   assert.equal(searchHref("salons", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
@@ -84,6 +104,21 @@ test("routeable public search items include safe encounter exhibit routes only",
   );
 });
 
+test("routeable public search items include safe cross-owner encounter exhibit anchors only", () => {
+  assert.deepEqual(
+    routeablePublicSearchItems("crossOwnerPublicEncounterExhibits", {
+      crossOwnerPublicEncounterExhibits: [
+        { title: "Cross-owner exhibit", slug: "cross-owner-exhibit-12345678", href: "/admin" },
+        { title: "UUID exhibit", slug: "550e8400-e29b-41d4-a716-446655440000" },
+        { title: "Malformed exhibit", slug: "Bad Slug" },
+        { title: "Missing slug" },
+        { title: "Same-owner route only", href: "/encounters/public-exhibit-12345678" },
+      ],
+    }).map((item) => [item.result.title, item.href]),
+    [["Cross-owner exhibit", "/encounters/cross-owner#cross-owner-exhibit-12345678"]]
+  );
+});
+
 test("routeable public search items ignore private owner buckets", () => {
   const keys = PUBLIC_SEARCH_GROUPS.map(([key]) => key);
 
@@ -124,6 +159,12 @@ test("public search result labels explain scope and provenance", () => {
       provenance: { label: "Metadata-only public encounter exhibit" },
     }),
     ["Public encounter exhibit", "Metadata-only public encounter exhibit"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("crossOwnerPublicEncounterExhibits", {
+      provenance: { label: "Cross-owner metadata-only public encounter exhibit" },
+    }),
+    ["Cross-owner encounter exhibit", "Cross-owner metadata-only public encounter exhibit"]
   );
   assert.deepEqual(
     publicSearchResultLabels("salons", { visibility: "community" }),
@@ -185,4 +226,14 @@ test("Discover front door renders encounter summary from public metadata", () =>
 
   assert.match(source, /r\.summary/);
   assert.match(source, /short_description \?\? r\.description \?\? r\.summary \?\? r\.body/);
+});
+
+test("Discover feed and writing helpers do not surface cross-owner exhibit item types", () => {
+  const feedControlsSource = readFileSync("apps/web/lib/discover-feed-controls.ts", "utf8");
+  const writingFeedSource = readFileSync("apps/web/lib/writing-feed.ts", "utf8");
+
+  assert.doesNotMatch(feedControlsSource, /cross_owner_encounter_exhibit|crossOwnerPublicEncounterExhibits/);
+  assert.doesNotMatch(writingFeedSource, /cross_owner_encounter_exhibit|crossOwnerPublicEncounterExhibits/);
+  assert.match(feedControlsSource, /value === "document"/);
+  assert.match(writingFeedSource, /item\.item_type !== "document"/);
 });

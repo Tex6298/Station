@@ -291,7 +291,7 @@ export interface PersonaEncounterCrossOwnerPublicExhibitOwnerReadback {
     public: boolean;
     routeListed: boolean;
     indexed: false;
-    discoverable: false;
+    discoverable: boolean;
     generatedWordsPublished: false;
     transcriptPublished: false;
     summaryPublished: false;
@@ -336,7 +336,7 @@ export interface PersonaEncounterCrossOwnerPublicExhibitListItem {
     bilateralApproval: true;
     routeListed: true;
     indexed: false;
-    discoverable: false;
+    discoverable: true;
   };
   report: {
     requiresSignIn: true;
@@ -872,7 +872,7 @@ export function personaEncounterCrossOwnerPublicExhibitReadback(
     exhibit?.publication.public ? "Public API detail readback" : "Not public yet",
     exhibit?.publication.routeListed ? "Dedicated cross-owner index" : "Not listed",
     "Not indexed",
-    "Not Discover",
+    exhibit?.publication.discoverable ? "Discover search-listed" : "Not Discover search-listed",
     exhibit?.publication.generatedWordsPublished ? "Generated words published" : "No generated words",
     exhibit?.publication.transcriptPublished ? "Transcript published" : "No transcript",
     exhibit?.publication.summaryPublished ? "Summary published" : "No generated summary",

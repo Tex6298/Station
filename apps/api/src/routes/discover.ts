@@ -27,6 +27,16 @@ const PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT = 6;
 const PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT = 12;
 const PUBLIC_ENCOUNTER_EXHIBIT_SELECT =
   "slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, published_at, retracted_at, removed_at, private_session_id";
+const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.cross_owner_public_exhibit.v1";
+const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_CONTRACT_VERSION = 1;
+const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_REQUIRED_SCOPE =
+  "publish_metadata_only_public_exhibit";
+const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT = 6;
+const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT =
+  CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT * 4;
+const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SELECT =
+  "id, consent_id, slug, public_title, public_summary, public_tags, requester_persona_name_snapshot, counterparty_persona_name_snapshot, status, contract_version, provenance_schema, requester_metadata_approved_at, counterparty_metadata_approved_at, published_at, retracted_at, removed_at";
 const DISCOVER_ERROR_RESPONSES = {
   feed: { error: "Could not load discovery feed.", code: "discover_feed_load_failed" },
   sidebar: { error: "Could not load discovery sidebar.", code: "discover_sidebar_load_failed" },
@@ -45,6 +55,34 @@ type PublicEncounterExhibitSearchRow = {
   retracted_at: string | null;
   removed_at: string | null;
   private_session_id: string;
+};
+
+type CrossOwnerPublicEncounterExhibitSearchRow = {
+  id: string;
+  consent_id: string;
+  slug: string;
+  public_title: string;
+  public_summary: string;
+  public_tags: string[] | null;
+  requester_persona_name_snapshot: string;
+  counterparty_persona_name_snapshot: string;
+  status: string;
+  contract_version: number;
+  provenance_schema: string;
+  requester_metadata_approved_at: string | null;
+  counterparty_metadata_approved_at: string | null;
+  published_at: string | null;
+  retracted_at: string | null;
+  removed_at: string | null;
+};
+
+type CrossOwnerPublicEncounterExhibitConsentRow = {
+  id: string;
+  status: string;
+  requested_scopes: string[] | null;
+  requested_scope_version: number;
+  requester_persona_name_snapshot: string;
+  counterparty_persona_name_snapshot: string;
 };
 
 function canSeeCommunityDocuments(req: Request) {
@@ -165,6 +203,12 @@ function safeDeveloperSpaceHref(slug: unknown) {
 function safePublicEncounterExhibitHref(slug: unknown) {
   return typeof slug === "string" && PUBLIC_ENCOUNTER_EXHIBIT_SLUG_PATTERN.test(slug)
     ? `/encounters/${slug}`
+    : null;
+}
+
+function safeCrossOwnerPublicEncounterExhibitHref(slug: unknown) {
+  return typeof slug === "string" && PUBLIC_ENCOUNTER_EXHIBIT_SLUG_PATTERN.test(slug)
+    ? `/encounters/cross-owner#${slug}`
     : null;
 }
 
@@ -387,6 +431,189 @@ function serializePublicEncounterExhibitSearchResult(row: PublicEncounterExhibit
 }
 
 function publicEncounterExhibitTags(row: PublicEncounterExhibitSearchRow) {
+  return Array.isArray(row.public_tags)
+    ? row.public_tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
+}
+
+async function crossOwnerPublicEncounterExhibitSearchResults(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  q: string,
+  limit = CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT,
+) {
+  const term = q.trim();
+  if (!term) return [];
+
+  const like = `%${term}%`;
+  const fields = [
+    "public_title",
+    "public_summary",
+    "requester_persona_name_snapshot",
+    "counterparty_persona_name_snapshot",
+  ];
+
+  const fieldQueries = fields.map((field) =>
+    crossOwnerPublicEncounterExhibitBaseQuery(sb)
+      .ilike(field, like)
+      .limit(CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT)
+  );
+  const tagQuery = crossOwnerPublicEncounterExhibitBaseQuery(sb)
+    .contains("public_tags", [term.toLowerCase()])
+    .limit(CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT);
+
+  const results = await Promise.all([...fieldQueries, tagQuery]);
+  if (results.some(hasQueryError)) return [];
+
+  const rows = await filterConsentBackedCrossOwnerPublicEncounterExhibits(
+    sb,
+    dedupeCrossOwnerPublicEncounterExhibits(results.flatMap((result) => result.data ?? [])),
+  );
+
+  return rows
+    .sort((a, b) => {
+      const rank = crossOwnerPublicEncounterExhibitSearchRank(a.row, term) -
+        crossOwnerPublicEncounterExhibitSearchRank(b.row, term);
+      if (rank !== 0) return rank;
+      const byDate = new Date(b.row.published_at ?? 0).getTime() - new Date(a.row.published_at ?? 0).getTime();
+      if (byDate !== 0) return byDate;
+      return String(b.row.slug).localeCompare(String(a.row.slug));
+    })
+    .slice(0, limit)
+    .map(({ row }) => serializeCrossOwnerPublicEncounterExhibitSearchResult(row));
+}
+
+function crossOwnerPublicEncounterExhibitBaseQuery(sb: ReturnType<typeof getSupabaseAdmin>) {
+  return sb
+    .from("persona_encounter_cross_owner_public_exhibits")
+    .select(CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SELECT)
+    .eq("status", "published")
+    .is("removed_at", null)
+    .is("retracted_at", null)
+    .order("published_at", { ascending: false });
+}
+
+function dedupeCrossOwnerPublicEncounterExhibits(rows: unknown[]) {
+  const bySlug = new Map<string, CrossOwnerPublicEncounterExhibitSearchRow>();
+  for (const row of rows as CrossOwnerPublicEncounterExhibitSearchRow[]) {
+    if (!isSafeCrossOwnerPublicEncounterExhibitSearchRow(row) || bySlug.has(row.slug)) continue;
+    bySlug.set(row.slug, row);
+  }
+  return [...bySlug.values()];
+}
+
+async function filterConsentBackedCrossOwnerPublicEncounterExhibits(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  rows: CrossOwnerPublicEncounterExhibitSearchRow[],
+) {
+  if (rows.length === 0) {
+    return [] as Array<{
+      row: CrossOwnerPublicEncounterExhibitSearchRow;
+      consent: CrossOwnerPublicEncounterExhibitConsentRow;
+    }>;
+  }
+
+  const consentIds = Array.from(new Set(rows.map((row) => row.consent_id).filter(Boolean)));
+  if (consentIds.length === 0) return [];
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consents")
+    .select("id, status, requested_scopes, requested_scope_version, requester_persona_name_snapshot, counterparty_persona_name_snapshot")
+    .in("id", consentIds);
+  if (error) return [];
+
+  const consents = new Map(
+    ((data ?? []) as CrossOwnerPublicEncounterExhibitConsentRow[]).map((row) => [row.id, row]),
+  );
+
+  const readableRows: Array<{
+    row: CrossOwnerPublicEncounterExhibitSearchRow;
+    consent: CrossOwnerPublicEncounterExhibitConsentRow;
+  }> = [];
+  for (const row of rows) {
+    const consent = consents.get(row.consent_id);
+    if (!consent || !crossOwnerPublicEncounterExhibitIsPubliclyReadable(row, consent)) continue;
+    readableRows.push({ row, consent });
+  }
+  return readableRows;
+}
+
+function isSafeCrossOwnerPublicEncounterExhibitSearchRow(row: CrossOwnerPublicEncounterExhibitSearchRow) {
+  return (
+    row.status === "published" &&
+    Boolean(row.published_at) &&
+    !row.removed_at &&
+    !row.retracted_at &&
+    row.contract_version === CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_CONTRACT_VERSION &&
+    row.provenance_schema === CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_PROVENANCE_SCHEMA &&
+    Boolean(row.requester_metadata_approved_at) &&
+    Boolean(row.counterparty_metadata_approved_at) &&
+    Boolean(safeCrossOwnerPublicEncounterExhibitHref(row.slug))
+  );
+}
+
+function crossOwnerPublicEncounterExhibitIsPubliclyReadable(
+  row: CrossOwnerPublicEncounterExhibitSearchRow,
+  consent: CrossOwnerPublicEncounterExhibitConsentRow,
+) {
+  return (
+    consent.status === "approved" &&
+    consent.requested_scope_version === CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_CONTRACT_VERSION &&
+    Array.isArray(consent.requested_scopes) &&
+    consent.requested_scopes.includes(CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_REQUIRED_SCOPE) &&
+    row.requester_persona_name_snapshot === consent.requester_persona_name_snapshot &&
+    row.counterparty_persona_name_snapshot === consent.counterparty_persona_name_snapshot
+  );
+}
+
+function crossOwnerPublicEncounterExhibitSearchRank(
+  row: CrossOwnerPublicEncounterExhibitSearchRow,
+  term: string,
+) {
+  const q = term.toLowerCase();
+  if (row.public_title?.toLowerCase().includes(q)) return 0;
+  if (crossOwnerPublicEncounterExhibitTags(row).some((tag) => tag.toLowerCase() === q || tag.toLowerCase().includes(q))) {
+    return 1;
+  }
+  if (row.requester_persona_name_snapshot?.toLowerCase().includes(q)) return 2;
+  if (row.counterparty_persona_name_snapshot?.toLowerCase().includes(q)) return 2;
+  if (row.public_summary?.toLowerCase().includes(q)) return 3;
+  return 4;
+}
+
+function serializeCrossOwnerPublicEncounterExhibitSearchResult(row: CrossOwnerPublicEncounterExhibitSearchRow) {
+  return {
+    slug: row.slug,
+    routeHref: `/encounters/cross-owner#${row.slug}`,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: crossOwnerPublicEncounterExhibitTags(row),
+    participants: {
+      label: "Cross-owner consent display snapshots",
+      requesterName: row.requester_persona_name_snapshot,
+      counterpartyName: row.counterparty_persona_name_snapshot,
+    },
+    status: "published" as const,
+    contractVersion: CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_CONTRACT_VERSION,
+    publishedAt: row.published_at,
+    type: "cross_owner_encounter_exhibit" as const,
+    label: "Cross-owner encounter exhibit",
+    provenance: {
+      label: "Cross-owner metadata-only public encounter exhibit",
+      ownerCurated: true,
+      public: true,
+      crossOwner: true,
+      metadataOnly: true,
+      bilateralApproval: true,
+      routeListed: true,
+      discoverable: true,
+      indexed: false,
+      source: "Derived from a bilateral cross-owner consent metadata contract",
+      note: "Discover search lists approved public metadata only.",
+    },
+  };
+}
+
+function crossOwnerPublicEncounterExhibitTags(row: CrossOwnerPublicEncounterExhibitSearchRow) {
   return Array.isArray(row.public_tags)
     ? row.public_tags.filter((tag): tag is string => typeof tag === "string")
     : [];
@@ -920,6 +1147,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       projects: [],
       developerSpaces: [],
       publicEncounterExhibits: [],
+      crossOwnerPublicEncounterExhibits: [],
       salons: [],
       privateResults: req.user ? emptyPrivateSearchResults() : undefined,
     });
@@ -934,6 +1162,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     projectResults,
     developerSpaceResults,
     publicEncounterExhibits,
+    crossOwnerPublicEncounterExhibits,
     salonResults,
     privateResults,
   ] = await Promise.all([
@@ -991,6 +1220,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       )
     )),
     publicEncounterExhibitSearchResults(sb, q),
+    crossOwnerPublicEncounterExhibitSearchResults(sb, q),
     Promise.all(discoverableSubcommunityVisibilities(req).map((visibility) =>
       (sb as any)
         .from("community_subcommunities")
@@ -1015,6 +1245,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     projects: publicProjectSearchResults(projectResults.flatMap((result) => result.data ?? [])),
     developerSpaces: developerSpaceSearchResults(developerSpaceResults.flatMap((result) => result.data ?? [])),
     publicEncounterExhibits,
+    crossOwnerPublicEncounterExhibits,
     salons: publicSalonSearchResults(salonResults.flatMap((result) => result.data ?? [])).slice(0, 6),
     privateResults,
   });
