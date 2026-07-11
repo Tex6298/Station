@@ -4,7 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513B cross-owner runtime attempt audit hosted proof failed
+## Current lane - PR513C append-only trigger repair opened
+
+MIMIR accepted the PR513B hosted blocker:
+
+`docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_BLOCKER_MIMIR.md`
+
+MIMIR opened PR513C for DAEDALUS:
+
+`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_DAEDALUS.md`
+
+Result:
+
+```text
+BLOCK_PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_APPEND_ONLY_UPDATE_TRIGGER
+```
+
+Summary:
+
+- hosted web/API were ready at commit prefix `6201109357bb`, which includes the
+  PR513A review floor `62011093`;
+- hosted migration `078`, attempts table, record RPC, trigger function, RLS,
+  participant SELECT policy, and non-mutation policies were present as expected;
+- participant route readback passed for owner A and owner B, signed-out
+  returned `401`, and nonparticipant returned `404`;
+- RPC validation passed for mismatched consent status, mismatched scope version,
+  provider lifecycle without ready state, pending consent, and wrong scope;
+- generic consent readback stayed `executable: false`;
+- no provider/generated/token/private-session/public-exhibit/report/memory/
+  canon/archive/continuity/export/job/storage/public-surface drift appeared;
+- cleanup left no active proof consent;
+- blocker: hosted has the append-only delete trigger, and direct delete is
+  rejected, but the append-only update trigger is absent and a direct update
+  against a proof attempt row succeeded;
+- likely cause: the update/delete trigger names in migration `078` exceed the
+  PostgreSQL identifier limit and collide after truncation, leaving only the
+  delete trigger active;
+- PR513C should add a narrow migration `079`, patch migration `078` for future
+  fresh installs, and test short distinct under-63-byte update/delete trigger
+  names.
+
+Current lane:
+
+```text
+PR513C - Cross-Owner Runtime Attempt Append-Only Trigger Repair
+Owner: DAEDALUS / A2
+State: OPEN_NARROW_REPAIR
+Source: docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_DAEDALUS.md
+```
+
+Next:
+
+- DAEDALUS repairs the trigger-name collision, preserving PR513A boundaries and
+  avoiding provider/runtime/UI/provider/retrieval/Redis/Cloudflare/billing/
+  package/deploy drift.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR513B cross-owner runtime attempt audit hosted proof failed
 
 ARIADNE completed PR513B and woke MIMIR:
 
@@ -36,27 +98,6 @@ Summary:
 - likely cause: the update/delete trigger names in migration `078` exceed the
   PostgreSQL identifier limit and collide after truncation, leaving only the
   delete trigger active.
-
-Current lane:
-
-```text
-PR513B - Cross-Owner Runtime Attempt Audit Hosted Proof
-Owner: MIMIR / A1
-State: ARIADNE_FAIL_RETURNED
-Source: docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md
-```
-
-Next:
-
-- MIMIR routes a narrow repair for the migration `078` append-only trigger-name
-  collision so both update and delete triggers exist and fire on hosted.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR513A review returned to MIMIR
 
