@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR507A | Owner Encounter Curation Metadata | MIMIR / A1 | Ready for closeout after ARGUS accepted private owner-authored title, note, tags, and candidate/planning metadata on saved same-owner artifacts, with one narrow SQL tag constraint hardening patch and no public/shareable/provider/cross-owner drift. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md` |
+| PR507B | Owner Encounter Curation Metadata Hosted Proof | ARIADNE / A4 | Open hosted proof after PR507A local acceptance; hosted migration 075 is applied/proven, and ARIADNE must prove deployed web/API freshness, desktop/390px owner curation flow, auth/cross-owner boundaries, public no-drift, and cleanup. | `docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR507A closeout | Owner Encounter Curation Metadata | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR507A_OWNER_ENCOUNTER_CURATION_METADATA_ACCEPTED_LOCALLY`; hosted migration 075 was applied/proven and ARIADNE gets PR507B hosted desktop/mobile proof. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_CLOSEOUT.md` |
 | PR507A review | Owner Encounter Curation Metadata | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA` after ARGUS hardened the SQL tag constraint to reject null tag elements; full requested validation passed and hosted proof is required before customer-facing closeout. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md` |
 | PR507A implementation | Owner Encounter Curation Metadata | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; private curation metadata, owner-scoped PATCH, list/detail readback, and Studio edit/clear controls are implemented inside the existing owner-only private encounter artifact boundary. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md` |
 | PR507 closeout | Owner Encounter Publication Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Closed accepted as `CLOSE_PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR507A for private owner-only curation metadata on saved same-owner encounter artifacts. | `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md` |

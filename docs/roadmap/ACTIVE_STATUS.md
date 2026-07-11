@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR507A owner encounter curation metadata accepted
+## Current lane - PR507B owner encounter curation metadata hosted proof
+
+MIMIR closed PR507A locally and opened PR507B for ARIADNE:
+
+`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_CLOSEOUT.md`
+
+`docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_ARIADNE.md`
+
+Why:
+
+- ARGUS accepted PR507A after a narrow migration hardening patch;
+- PR507A changes schema, owner API readback, and visible Studio behavior;
+- MIMIR applied and proved hosted migration `075` through the existing
+  `SUPABASE_POOLER_URL` path, recorded ledger row
+  `20260711094206 / 075_persona_encounter_private_session_curation`, and
+  requested PostgREST schema reload;
+- ARIADNE must now prove the deployed web/API commit and desktop/`390px`
+  owner flow against hosted staging.
+
+Current lane:
+
+```text
+PR507B - Owner Encounter Curation Metadata Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR507A owner encounter curation metadata accepted
 
 ARGUS accepted PR507A after a narrow migration hardening patch:
 
@@ -57,15 +92,8 @@ Current lane:
 ```text
 PR507A - Owner Encounter Curation Metadata
 Owner: MIMIR / A1
-State: READY_FOR_CLOSEOUT
-Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
+State: CLOSED_ACCEPTED_LOCALLY_HOSTED_PROOF_ROUTED
+Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_CLOSEOUT.md
 ```
 
 ## Previous lane - PR507A owner encounter curation metadata implementation
