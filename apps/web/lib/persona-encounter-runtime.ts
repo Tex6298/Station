@@ -313,6 +313,45 @@ export interface PersonaEncounterCrossOwnerPublicExhibitResponse {
   exhibit: PersonaEncounterCrossOwnerPublicExhibitOwnerReadback;
 }
 
+export interface PersonaEncounterCrossOwnerPublicExhibitListItem {
+  slug: string;
+  routeHref: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  status: "published";
+  contractVersion: 1;
+  publishedAt: string;
+  participants: {
+    label: "Cross-owner consent display snapshots";
+    requesterName: string;
+    counterpartyName: string;
+  };
+  provenance: {
+    label: "Cross-owner metadata-only public encounter exhibit";
+    ownerCurated: true;
+    public: true;
+    crossOwner: true;
+    metadataOnly: true;
+    bilateralApproval: true;
+    routeListed: true;
+    indexed: false;
+    discoverable: false;
+  };
+  report: {
+    requiresSignIn: true;
+    path: string;
+  };
+}
+
+export interface PersonaEncounterCrossOwnerPublicExhibitListResponse {
+  exhibits: PersonaEncounterCrossOwnerPublicExhibitListItem[];
+  pagination: {
+    limit: number;
+    nextCursor: string | null;
+  };
+}
+
 export interface PersonaEncounterPrivateSession {
   id: string;
   createdAt: string;
@@ -605,6 +644,23 @@ export function personaEncounterCrossOwnerConsentPublicExhibitPath(consentId: st
 
 export function personaEncounterCrossOwnerPublicExhibitPath(slug: string) {
   return `${PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH}/${encodeURIComponent(slug)}`;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitListPath(input: {
+  limit?: number;
+  cursor?: string | null;
+} = {}) {
+  const params = new URLSearchParams();
+  if (input.limit !== undefined) params.set("limit", String(input.limit));
+  if (input.cursor) params.set("cursor", input.cursor);
+  const query = params.toString();
+  return query
+    ? `${PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH}?${query}`
+    : PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH;
+}
+
+export function personaEncounterCrossOwnerPublicExhibitWebHref(slug: string) {
+  return `/encounters/cross-owner#${encodeURIComponent(slug)}`;
 }
 
 export function personaEncounterCrossOwnerPublicExhibitApprovePath(slug: string) {

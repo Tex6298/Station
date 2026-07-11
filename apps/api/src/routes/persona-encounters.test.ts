@@ -935,6 +935,31 @@ function seedCrossOwnerConsent(db: InMemorySupabase, overrides: Row = {}) {
   });
 }
 
+function seedCrossOwnerPublicExhibit(db: InMemorySupabase, consent: Row, overrides: Row = {}) {
+  return db.insertRow("persona_encounter_cross_owner_public_exhibits", {
+    consent_id: consent.id,
+    requester_owner_user_id: consent.requester_owner_user_id,
+    requester_persona_id: consent.requester_persona_id,
+    requester_persona_name_snapshot: consent.requester_persona_name_snapshot,
+    counterparty_owner_user_id: consent.counterparty_owner_user_id,
+    counterparty_persona_id: consent.counterparty_persona_id,
+    counterparty_persona_name_snapshot: consent.counterparty_persona_name_snapshot,
+    slug: "cross-owner-exhibit-12345678",
+    public_title: "Cross-owner public metadata",
+    public_summary: "A jointly approved public context note.",
+    public_tags: ["cross-owner", "metadata"],
+    status: "published",
+    contract_version: 1,
+    provenance_schema: "station.persona_encounter.cross_owner_public_exhibit.v1",
+    requester_metadata_approved_at: "2026-06-29T09:00:02.000Z",
+    counterparty_metadata_approved_at: "2026-06-29T09:00:03.000Z",
+    published_at: "2026-07-11T12:00:00.000Z",
+    created_by: consent.requester_owner_user_id,
+    updated_by: consent.counterparty_owner_user_id,
+    ...overrides,
+  });
+}
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
@@ -2778,6 +2803,262 @@ test("cross-owner metadata public exhibit fails closed for scope body participan
     assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
     assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
     assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner public exhibit list is bounded metadata-only and consent backed", async () => {
+  await withHarness(async ({ db, app }) => {
+    const validA = seedCrossOwnerConsent(db, {
+      requested_scopes: ["publish_metadata_only_public_exhibit"],
+    });
+    const validB = seedCrossOwnerConsent(db, {
+      requested_scopes: ["publish_metadata_only_public_exhibit"],
+    });
+    const validC = seedCrossOwnerConsent(db, {
+      requested_scopes: ["publish_metadata_only_public_exhibit"],
+    });
+
+    seedCrossOwnerPublicExhibit(db, validA, {
+      slug: "shared-alpha-12345678",
+      public_title: "Shared alpha",
+      public_summary: "Alpha public metadata.",
+      public_tags: ["alpha", "metadata"],
+      published_at: "2026-07-11T12:00:00.000Z",
+    });
+    seedCrossOwnerPublicExhibit(db, validB, {
+      slug: "shared-zulu-12345678",
+      public_title: "Shared zulu",
+      public_summary: "Zulu public metadata.",
+      public_tags: ["zulu"],
+      published_at: "2026-07-11T12:00:00.000Z",
+    });
+    seedCrossOwnerPublicExhibit(db, validC, {
+      slug: "older-exhibit-12345678",
+      public_title: "Older exhibit",
+      public_summary: "Older public metadata.",
+      public_tags: [],
+      published_at: "2026-07-10T12:00:00.000Z",
+    });
+
+    const hiddenFixtures: Array<[string, Row, Row]> = [
+      [
+        "pending-row-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        { status: "proposed", public_title: "Pending row should not list" },
+      ],
+      [
+        "wrong-scope-12345678",
+        { requested_scopes: ["run_cross_owner_encounter"] },
+        { public_title: "Wrong scope row should not list" },
+      ],
+      [
+        "wrong-version-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"], requested_scope_version: 2 },
+        { public_title: "Wrong consent version row should not list" },
+      ],
+      [
+        "one-sided-approval-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        {
+          public_title: "One sided approval row should not list",
+          counterparty_metadata_approved_at: null,
+        },
+      ],
+      [
+        "mismatched-metadata-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        {
+          public_title: "Mismatched metadata row should not list",
+          requester_persona_name_snapshot: "Forged requester",
+        },
+      ],
+      [
+        "revoked-consent-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"], status: "revoked" },
+        { public_title: "Revoked consent row should not list" },
+      ],
+      [
+        "removed-exhibit-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        {
+          public_title: "Removed row should not list",
+          removed_at: "2026-07-11T12:30:00.000Z",
+          removed_by: "moderator",
+        },
+      ],
+      [
+        "retracted-exhibit-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        {
+          public_title: "Retracted row should not list",
+          retracted_at: "2026-07-11T12:30:00.000Z",
+        },
+      ],
+      [
+        "wrong-schema-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        {
+          public_title: "Wrong schema row should not list",
+          provenance_schema: "station.persona_encounter.public_exhibit.v1",
+        },
+      ],
+      [
+        "wrong-contract-12345678",
+        { requested_scopes: ["publish_metadata_only_public_exhibit"] },
+        {
+          public_title: "Wrong contract row should not list",
+          contract_version: 2,
+        },
+      ],
+    ];
+
+    for (const [slug, consentOverrides, exhibitOverrides] of hiddenFixtures) {
+      const consent = seedCrossOwnerConsent(db, consentOverrides);
+      seedCrossOwnerPublicExhibit(db, consent, {
+        slug,
+        published_at: "2026-07-11T13:00:00.000Z",
+        ...exhibitOverrides,
+      });
+    }
+
+    const missingConsent = seedCrossOwnerConsent(db, {
+      requested_scopes: ["publish_metadata_only_public_exhibit"],
+    });
+    seedCrossOwnerPublicExhibit(db, missingConsent, {
+      consent_id: "99999999-9999-4999-8999-999999999999",
+      slug: "missing-consent-12345678",
+      public_title: "Missing consent row should not list",
+      published_at: "2026-07-11T13:00:00.000Z",
+    });
+    seedCrossOwnerPublicExhibit(db, validA, {
+      slug: "bad_slug",
+      public_title: "Malformed slug row should not list",
+      published_at: "2026-07-11T13:00:00.000Z",
+    });
+
+    const firstPage = await requestJson(app, "GET", "/persona-encounters/cross-owner-public-exhibits?limit=2");
+    assert.equal(firstPage.status, 200);
+    assert.equal(firstPage.body.pagination.limit, 2);
+    assert.deepEqual(firstPage.body.exhibits.map((exhibit: Row) => exhibit.slug), [
+      "shared-zulu-12345678",
+      "shared-alpha-12345678",
+    ]);
+    assert.ok(firstPage.body.pagination.nextCursor);
+
+    const first = firstPage.body.exhibits[0];
+    assert.deepEqual(Object.keys(first).sort(), [
+      "contractVersion",
+      "participants",
+      "provenance",
+      "publishedAt",
+      "report",
+      "routeHref",
+      "slug",
+      "status",
+      "summary",
+      "tags",
+      "title",
+    ].sort());
+    assert.deepEqual(Object.keys(first.participants).sort(), [
+      "counterpartyName",
+      "label",
+      "requesterName",
+    ].sort());
+    assert.deepEqual(Object.keys(first.provenance).sort(), [
+      "bilateralApproval",
+      "crossOwner",
+      "discoverable",
+      "indexed",
+      "label",
+      "metadataOnly",
+      "ownerCurated",
+      "public",
+      "routeListed",
+    ].sort());
+    assert.deepEqual(Object.keys(first.report).sort(), ["path", "requiresSignIn"].sort());
+    assert.equal(first.routeHref, "/encounters/cross-owner#shared-zulu-12345678");
+    assert.equal(first.report.path, "/persona-encounters/cross-owner-public-exhibits/shared-zulu-12345678/report");
+    assert.equal(first.contractVersion, 1);
+    assert.equal(first.status, "published");
+    assert.equal(first.provenance.routeListed, true);
+    assert.equal(first.provenance.indexed, false);
+    assert.equal(first.provenance.discoverable, false);
+    assert.equal(first.provenance.metadataOnly, true);
+
+    const secondPage = await requestJson(
+      app,
+      "GET",
+      `/persona-encounters/cross-owner-public-exhibits?limit=2&cursor=${encodeURIComponent(firstPage.body.pagination.nextCursor)}`,
+    );
+    assert.equal(secondPage.status, 200);
+    assert.deepEqual(secondPage.body.exhibits.map((exhibit: Row) => exhibit.slug), ["older-exhibit-12345678"]);
+    assert.equal(secondPage.body.pagination.nextCursor, null);
+
+    const capped = await requestJson(app, "GET", "/persona-encounters/cross-owner-public-exhibits?limit=999");
+    assert.equal(capped.status, 200);
+    assert.equal(capped.body.pagination.limit, 24);
+    assert.equal(capped.body.exhibits.length, 3);
+
+    const invalidCursor = await requestJson(
+      app,
+      "GET",
+      "/persona-encounters/cross-owner-public-exhibits?cursor=not-a-cursor",
+    );
+    assert.equal(invalidCursor.status, 400);
+    assert.equal(invalidCursor.body.code, "persona_encounter_cross_owner_public_exhibit_cursor_invalid");
+
+    const sameOwnerList = await requestJson(app, "GET", "/persona-encounters/public-exhibits");
+    assert.equal(sameOwnerList.status, 200);
+    assert.deepEqual(sameOwnerList.body.exhibits, []);
+
+    const detail = await requestJson(app, "GET", crossOwnerPublicExhibitPath("shared-zulu-12345678"));
+    assert.equal(detail.status, 200);
+    const mismatchDetail = await requestJson(app, "GET", crossOwnerPublicExhibitPath("mismatched-metadata-12345678"));
+    assert.equal(mismatchDetail.status, 404);
+
+    const json = JSON.stringify(firstPage.body) + JSON.stringify(secondPage.body) + JSON.stringify(capped.body);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      THIRD_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      THIRD_PERSONA_ID,
+      validA.id,
+      validB.id,
+      validC.id,
+      "consent_id",
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "reportedCount",
+      "reported_count",
+      "removed_at",
+      "removed_by",
+      "created_by",
+      "updated_by",
+      "Pending row should not list",
+      "Wrong scope row should not list",
+      "Wrong consent version row should not list",
+      "One sided approval row should not list",
+      "Mismatched metadata row should not list",
+      "Forged requester",
+      "Revoked consent row should not list",
+      "Removed row should not list",
+      "Retracted row should not list",
+      "Wrong schema row should not list",
+      "Wrong contract row should not list",
+      "Missing consent row should not list",
+      "Malformed slug row should not list",
+      "provider_payload",
+      "token fact",
+      "Bearer ",
+      "test-deepseek-key",
+    ]) {
+      assert.equal(json.includes(forbidden), false, `${forbidden} leaked in cross-owner public list`);
+    }
   });
 });
 

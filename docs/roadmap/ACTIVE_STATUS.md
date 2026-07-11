@@ -19,17 +19,39 @@ Current lane:
 ```text
 PR518A - Cross-Owner Metadata Exhibit Dedicated Public Index
 Owner: DAEDALUS / A2
-State: Routed after ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT
-Source: docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_DAEDALUS.md
+State: READY_FOR_ARGUS_REVIEW_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX
+Source: docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_RESULT.md
 ```
 
-Scope:
+Result:
 
-- add a dedicated cross-owner metadata-only public exhibit list endpoint;
-- add a dedicated web index route such as `/encounters/cross-owner`;
-- keep cross-owner rows separate from the same-owner `/encounters` list;
-- optionally add one clear link from same-owner `/encounters` to the dedicated
-  cross-owner index.
+- added `GET /persona-encounters/cross-owner-public-exhibits`;
+- list rows are bounded, cursorable, consent-backed, and filtered through the
+  same cross-owner public-readability helper as public detail;
+- public readability now also requires requester/counterparty display snapshots
+  to match the linked consent snapshots;
+- list payload exposes only public metadata fields, safe participant display
+  snapshots, provenance labels, and report path;
+- added `/encounters/cross-owner` as the dedicated web index;
+- added one link from same-owner `/encounters` to the dedicated cross-owner
+  index without mixing rows into the same-owner list.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 74 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:community          PASS - 44 tests
+npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 29 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+```
+
+Next:
+
+- ARGUS reviews PR518A locally.
+- If ARGUS accepts, MIMIR should route hosted proof because PR518A adds a new
+  public findability route.
 
 Still blocked:
 

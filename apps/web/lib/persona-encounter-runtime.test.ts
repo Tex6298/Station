@@ -37,11 +37,13 @@ import {
   personaEncounterCrossOwnerDisposablePreviewReady,
   personaEncounterCrossOwnerPublicExhibitApprovePath,
   personaEncounterCrossOwnerPublicExhibitErrorCopy,
+  personaEncounterCrossOwnerPublicExhibitListPath,
   personaEncounterCrossOwnerPublicExhibitMetadataPayload,
   personaEncounterCrossOwnerPublicExhibitPath,
   personaEncounterCrossOwnerPublicExhibitReadback,
   personaEncounterCrossOwnerPublicExhibitReportPath,
   personaEncounterCrossOwnerPublicExhibitRetractPath,
+  personaEncounterCrossOwnerPublicExhibitWebHref,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPublicExhibitPath,
@@ -381,6 +383,18 @@ test("persona encounter runtime helper builds cross-owner public metadata exhibi
   assert.equal(
     personaEncounterCrossOwnerPublicExhibitPath("cross/slug"),
     "/persona-encounters/cross-owner-public-exhibits/cross%2Fslug",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitListPath({ limit: 12 }),
+    "/persona-encounters/cross-owner-public-exhibits?limit=12",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitListPath({ limit: 12, cursor: "cursor/token" }),
+    "/persona-encounters/cross-owner-public-exhibits?limit=12&cursor=cursor%2Ftoken",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerPublicExhibitWebHref("cross-owner-exhibit-12345678"),
+    "/encounters/cross-owner#cross-owner-exhibit-12345678",
   );
   assert.equal(
     personaEncounterCrossOwnerPublicExhibitApprovePath("cross-owner-exhibit-12345678"),
@@ -978,14 +992,26 @@ test("persona encounter runtime availability copy fails closed before generation
 
 test("public encounter exhibit page and Studio controls stay metadata-only", () => {
   const indexSource = readFileSync("apps/web/app/encounters/page.tsx", "utf8");
+  const crossOwnerIndexSource = readFileSync("apps/web/app/encounters/cross-owner/page.tsx", "utf8");
   const pageSource = readFileSync("apps/web/app/encounters/[slug]/page.tsx", "utf8");
   const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
   const runtimeSource = readFileSync("apps/web/lib/persona-encounter-runtime.ts", "utf8");
 
   assert.match(indexSource, /personaEncounterPublicExhibitListPath/);
+  assert.match(indexSource, /href="\/encounters\/cross-owner"/);
   assert.match(indexSource, /href=\{exhibit\.routeHref\}/);
   assert.doesNotMatch(indexSource, /personaEncounterPublicExhibitReportPath|Report exhibit|Sign in to report/);
   assert.doesNotMatch(indexSource, /Discover|public persona|public Space|forum|Station Press|transcript|discussion/i);
+  assert.match(crossOwnerIndexSource, /personaEncounterCrossOwnerPublicExhibitListPath/);
+  assert.match(crossOwnerIndexSource, /PersonaEncounterCrossOwnerPublicExhibitListResponse/);
+  assert.match(crossOwnerIndexSource, /href=\{exhibit\.routeHref\}/);
+  assert.match(crossOwnerIndexSource, /exhibit\.provenance\.label/);
+  assert.doesNotMatch(crossOwnerIndexSource, /personaEncounterPublicExhibitListPath/);
+  assert.doesNotMatch(crossOwnerIndexSource, /Report exhibit|Sign in to report|personaEncounterCrossOwnerPublicExhibitReportPath/);
+  assert.doesNotMatch(
+    crossOwnerIndexSource,
+    /Discover|public persona|public Space|forum|Station Press|transcript|discussion|generated word|excerpt|source body/i,
+  );
   assert.match(pageSource, /personaEncounterPublicExhibitPath/);
   assert.match(pageSource, /personaEncounterPublicExhibitReportPath/);
   assert.match(pageSource, /Sign in to report/);
@@ -994,10 +1020,10 @@ test("public encounter exhibit page and Studio controls stay metadata-only", () 
   assert.match(runtimeSource, /confirmPublicExhibit: true/);
   assert.doesNotMatch(workspaceSource, /title:\s*session\.curation|summary:\s*session\.curation|tags:\s*session\.curation/);
 
-  for (const source of [indexSource, pageSource, workspaceSource]) {
+  for (const source of [indexSource, crossOwnerIndexSource, pageSource, workspaceSource]) {
     assert.doesNotMatch(
       source,
-      /owner_user_id|private_session_id|initiator_persona_id|responder_persona_id|owner_setup|responder_reply|owner_title|owner_summary|owner_tags|provider_payload|source_body|raw_source/i,
+      /owner_user_id|private_session_id|initiator_persona_id|responder_persona_id|requester_owner_user_id|counterparty_owner_user_id|requester_persona_id|counterparty_persona_id|owner_setup|responder_reply|owner_title|owner_summary|owner_tags|provider_payload|source_body|raw_source/i,
     );
   }
 });

@@ -4,15 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ApiRequestError, apiGet } from "@/lib/api-client";
 import {
-  personaEncounterPublicExhibitListPath,
-  type PersonaEncounterPublicExhibitListItem,
-  type PersonaEncounterPublicExhibitListResponse,
+  personaEncounterCrossOwnerPublicExhibitListPath,
+  type PersonaEncounterCrossOwnerPublicExhibitListItem,
+  type PersonaEncounterCrossOwnerPublicExhibitListResponse,
 } from "@/lib/persona-encounter-runtime";
 
-const PUBLIC_ENCOUNTER_INDEX_LIMIT = 12;
+const CROSS_OWNER_PUBLIC_ENCOUNTER_INDEX_LIMIT = 12;
 
-export default function PublicEncounterExhibitIndexPage() {
-  const [exhibits, setExhibits] = useState<PersonaEncounterPublicExhibitListItem[]>([]);
+export default function CrossOwnerPublicEncounterExhibitIndexPage() {
+  const [exhibits, setExhibits] = useState<PersonaEncounterCrossOwnerPublicExhibitListItem[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -23,8 +23,8 @@ export default function PublicEncounterExhibitIndexPage() {
 
     setLoading(true);
     setError(null);
-    apiGet<PersonaEncounterPublicExhibitListResponse>(
-      personaEncounterPublicExhibitListPath({ limit: PUBLIC_ENCOUNTER_INDEX_LIMIT }),
+    apiGet<PersonaEncounterCrossOwnerPublicExhibitListResponse>(
+      personaEncounterCrossOwnerPublicExhibitListPath({ limit: CROSS_OWNER_PUBLIC_ENCOUNTER_INDEX_LIMIT }),
     )
       .then((response) => {
         if (cancelled) return;
@@ -33,7 +33,7 @@ export default function PublicEncounterExhibitIndexPage() {
       })
       .catch((caught) => {
         if (cancelled) return;
-        setError(publicEncounterIndexError(caught));
+        setError(crossOwnerEncounterIndexError(caught));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -50,40 +50,40 @@ export default function PublicEncounterExhibitIndexPage() {
     setError(null);
 
     try {
-      const response = await apiGet<PersonaEncounterPublicExhibitListResponse>(
-        personaEncounterPublicExhibitListPath({
-          limit: PUBLIC_ENCOUNTER_INDEX_LIMIT,
+      const response = await apiGet<PersonaEncounterCrossOwnerPublicExhibitListResponse>(
+        personaEncounterCrossOwnerPublicExhibitListPath({
+          limit: CROSS_OWNER_PUBLIC_ENCOUNTER_INDEX_LIMIT,
           cursor: nextCursor,
         }),
       );
       setExhibits((current) => [...current, ...response.exhibits]);
       setNextCursor(response.pagination.nextCursor);
     } catch (caught) {
-      setError(publicEncounterIndexError(caught));
+      setError(crossOwnerEncounterIndexError(caught));
     } finally {
       setLoadingMore(false);
     }
   }
 
   return (
-    <main className="station-page public-encounter-page public-encounter-index-page">
+    <main className="station-page public-encounter-page public-encounter-index-page cross-owner-encounter-index-page">
       <section className="station-page-inner">
         <header className="station-page-header public-encounter-index-header">
           <div>
-            <div className="station-eyebrow">Public encounter exhibits</div>
-            <h1 className="station-page-title">Encounters</h1>
+            <div className="station-eyebrow">Cross-owner public encounter exhibits</div>
+            <h1 className="station-page-title">Cross-owner encounters</h1>
             <p className="station-page-lede">
-              Owner-curated public metadata from same-owner persona encounters.
+              Bilaterally approved public metadata from cross-owner persona encounters.
             </p>
           </div>
-          <Link className="station-muted-button" href="/encounters/cross-owner">
-            Cross-owner exhibits
+          <Link className="station-muted-button" href="/encounters">
+            Same-owner exhibits
           </Link>
         </header>
 
         {loading ? (
           <section className="station-panel public-encounter-index-empty" aria-live="polite">
-            <p>Loading public encounter exhibits.</p>
+            <p>Loading cross-owner public encounter exhibits.</p>
           </section>
         ) : error && exhibits.length === 0 ? (
           <section className="station-panel public-encounter-index-empty" aria-live="polite">
@@ -91,13 +91,17 @@ export default function PublicEncounterExhibitIndexPage() {
           </section>
         ) : exhibits.length === 0 ? (
           <section className="station-panel public-encounter-index-empty">
-            <p>No public encounter exhibits are available yet.</p>
+            <p>No cross-owner public encounter exhibits are available yet.</p>
           </section>
         ) : (
           <>
-            <section className="public-encounter-index-grid" aria-label="Public encounter exhibits">
+            <section className="public-encounter-index-grid" aria-label="Cross-owner public encounter exhibits">
               {exhibits.map((exhibit) => (
-                <article className="station-panel public-encounter-card" key={exhibit.slug}>
+                <article
+                  className="station-panel public-encounter-card"
+                  id={exhibit.slug}
+                  key={exhibit.slug}
+                >
                   <div className="public-encounter-card-main">
                     <span>{exhibit.provenance.label}</span>
                     <h2>{exhibit.title}</h2>
@@ -105,8 +109,10 @@ export default function PublicEncounterExhibitIndexPage() {
                   </div>
 
                   <div className="public-encounter-card-personas">
-                    <span>{exhibit.personas.label}</span>
-                    <strong>{exhibit.personas.initiatorName} / {exhibit.personas.responderName}</strong>
+                    <span>{exhibit.participants.label}</span>
+                    <strong>
+                      {exhibit.participants.requesterName} / {exhibit.participants.counterpartyName}
+                    </strong>
                   </div>
 
                   <div className="public-encounter-tags">
@@ -116,7 +122,7 @@ export default function PublicEncounterExhibitIndexPage() {
                   </div>
 
                   <footer className="public-encounter-card-footer">
-                    <time dateTime={exhibit.publishedAt}>{formatPublicEncounterDate(exhibit.publishedAt)}</time>
+                    <time dateTime={exhibit.publishedAt}>{formatCrossOwnerEncounterDate(exhibit.publishedAt)}</time>
                     <Link className="station-muted-button" href={exhibit.routeHref}>
                       Open exhibit
                     </Link>
@@ -146,14 +152,14 @@ export default function PublicEncounterExhibitIndexPage() {
   );
 }
 
-function publicEncounterIndexError(caught: unknown) {
+function crossOwnerEncounterIndexError(caught: unknown) {
   if (caught instanceof ApiRequestError && caught.status === 400) {
-    return "Public encounter exhibit page could not be continued.";
+    return "Cross-owner public encounter exhibit page could not be continued.";
   }
-  return caught instanceof Error ? caught.message : "Public encounter exhibits could not be loaded.";
+  return caught instanceof Error ? caught.message : "Cross-owner public encounter exhibits could not be loaded.";
 }
 
-function formatPublicEncounterDate(value: string) {
+function formatCrossOwnerEncounterDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Recently";
   return date.toLocaleDateString(undefined, {

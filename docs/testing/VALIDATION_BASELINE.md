@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR518A Cross-Owner Metadata Exhibit Dedicated Public Index
+
+DAEDALUS completed PR518A locally on 2026-07-11:
+
+- `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX`.
+
+Reason:
+
+- added the bounded public
+  `GET /persona-encounters/cross-owner-public-exhibits` endpoint;
+- list rows are published, non-removed, non-retracted, valid-slug,
+  contract-version-1, expected-provenance, bilaterally metadata-approved, active
+  approved-consent backed, and display-snapshot matched to the linked consent;
+- list payload is limited to public metadata, safe participant display
+  snapshots, provenance labels, public route anchor, and report path;
+- added `/encounters/cross-owner` as a dedicated web index and one link from
+  same-owner `/encounters`;
+- same-owner `/encounters` and `/persona-encounters/public-exhibits` remain
+  separate from cross-owner rows;
+- no migration, package/lockfile, Discover/search/feed, public persona, Space,
+  forum/community/Salon, writing, Station Press, provider, retrieval, storage,
+  billing, social, Redis, Cloudflare, queue, worker, or deployment scope was
+  changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 74 tests passed, including the new cross-owner public exhibit list, fail-closed pending/wrong-scope/wrong-version/one-sided/mismatched/revoked/missing-consent/removed/retracted/malformed/wrong-schema/wrong-contract fixtures, unchanged detail/report/retract behavior, and same-owner list separation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner and cross-owner public exhibit moderation actions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 44 tests passed; Discover/community route coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing/feed/public persona/Space helpers remain bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including cross-owner index source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path scan | Pass | Staged changes stayed inside PR518A allowed API, web index/runtime, test, and roadmap/testing docs scope. |
+| Forbidden-path scan | Pass | No package/lockfile, Discover/search/feed, public persona, Space, forum/community/Salon, writing, Station Press, provider, retrieval, storage, billing, social, Redis, Cloudflare, queue, worker, migration, or deployment paths changed. |
+| Secret-shaped diff scan | Pass | No secret-shaped added lines were found in the staged diff. |
+
 ## PR518 Cross-Owner Metadata Exhibit Public Surfacing Preflight
 
 ARGUS completed PR518 hostile preflight on 2026-07-11:
