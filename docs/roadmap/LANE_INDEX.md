@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR518 | Cross-Owner Metadata Exhibit Public Surfacing Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT`; DAEDALUS may implement only a dedicated cross-owner metadata exhibit public index contract first. Discover/search/feed, mixed `/encounters` inclusion, persona/Space/forum/Station Press surfacing, generated words, and private artifacts remain blocked. | `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md` |
+| PR518A | Cross-Owner Metadata Exhibit Dedicated Public Index | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Routed after `ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT`; DAEDALUS implements a dedicated metadata-only cross-owner public index without Discover/search/feed or same-owner list mixing. | `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR518 closeout | Cross-Owner Metadata Exhibit Public Surfacing Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR518A for a dedicated cross-owner metadata exhibit public index. | `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_CLOSEOUT.md` |
+| PR518 preflight | Cross-Owner Metadata Exhibit Public Surfacing Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT`; smallest safe surfacing lane is a dedicated index, not same-owner `/encounters` mixing, Discover search/feed, persona/Space linkbacks, or broader publication surfaces. | `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md` |
 | PR517C/PR517D closeout | Cross-Owner Metadata-Only Public Exhibit Hosted Closeout | MIMIR | Closed as `CLOSE_PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_ACCEPTED`; hosted cross-owner detail contract and same-owner regression gate passed, opening PR518 public-surfacing preflight. | `docs/roadmap/PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_CLOSEOUT.md` |
 | PR517D rerun | Same-Owner Public Exhibit Regression Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN`; current-hosted same-owner fixture publish/report/remove/restore/retract/no-drift/cleanup regression passed. | `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md` |
 | PR517C blocker | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | ARIADNE -> MIMIR | Blocked as `BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING`; cross-owner hosted proof passed through cleanup, but MIMIR chose not to waive the missing same-owner report/remove/restore fixture and opened PR517D. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_BLOCKER_MIMIR.md` |

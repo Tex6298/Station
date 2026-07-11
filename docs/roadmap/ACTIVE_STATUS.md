@@ -4,13 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR518 cross-owner public surfacing preflight accepted by ARGUS
+## Current lane - PR518A cross-owner metadata exhibit public index
+
+ARGUS accepted PR518:
+
+`docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR518A - Cross-Owner Metadata Exhibit Dedicated Public Index
+Owner: DAEDALUS / A2
+State: Routed after ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT
+Source: docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_DAEDALUS.md
+```
+
+Scope:
+
+- add a dedicated cross-owner metadata-only public exhibit list endpoint;
+- add a dedicated web index route such as `/encounters/cross-owner`;
+- keep cross-owner rows separate from the same-owner `/encounters` list;
+- optionally add one clear link from same-owner `/encounters` to the dedicated
+  cross-owner index.
+
+Still blocked:
+
+- Discover search/feed, public persona, public Space, forum/community/Salon,
+  writing, Station Press, generated words, transcripts, excerpts, summaries,
+  private saved cross-owner artifacts, PR516 disposable preview output reuse,
+  provider/retrieval/storage/billing/social/Redis/Cloudflare/queue/package/
+  deployment work, and broad UI work.
+
+## Previous lane - PR518 cross-owner public surfacing preflight accepted by ARGUS
 
 ARGUS completed the PR518 hostile preflight:
 
 `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md`
 
-Current lane:
+Result:
 
 ```text
 PR518 - Cross-Owner Metadata Exhibit Public Surfacing Preflight
@@ -18,21 +53,6 @@ Owner: ARGUS / A3 -> MIMIR / A1
 State: ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT
 Source: docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md
 ```
-
-Verdict:
-
-- bilaterally approved metadata-only cross-owner exhibits may become findable
-  only through a dedicated cross-owner public index lane first;
-- recommended next lane:
-  `PR518A - Cross-Owner Metadata Exhibit Dedicated Public Index`;
-- recommended owner: DAEDALUS / A2;
-- the existing same-owner `/encounters` list may link to the dedicated
-  cross-owner index, but must not mix same-owner and cross-owner rows in PR518A;
-- Discover search/feed, public persona, public Space, forum/community/Salon,
-  writing, Station Press, generated words, transcripts, excerpts, summaries,
-  private saved cross-owner artifacts, PR516 disposable preview output reuse,
-  provider/retrieval/storage/billing/social/Redis/Cloudflare/queue/package/
-  deployment work remain blocked.
 
 Validation:
 
@@ -45,7 +65,9 @@ npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
 npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 ```
 
-MIMIR should close PR518 if satisfied and route DAEDALUS for PR518A.
+Decision:
+
+- MIMIR closed PR518 and routed PR518A to DAEDALUS.
 
 ## Previous lane - PR517D same-owner exhibit regression rerun passed
 
