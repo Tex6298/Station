@@ -4,7 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR512A cross-owner runtime context contract ready for review
+## Current lane - PR512A review returned to MIMIR
+
+ARGUS accepted PR512A and woke MIMIR:
+
+`docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT
+```
+
+Summary:
+
+- provider-backed cross-owner runtime remains blocked on
+  `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`;
+- PR512A adds only a readback-only participant API route and helper for the
+  exact consent/status/scope/persona-pair/runtime-context contract;
+- generic consent ledger readback remains `executable: false`;
+- ARGUS accepted without a review patch;
+- no provider calls, prompt assembly, generated cross-owner words, token rows,
+  private sessions, public exhibits, reports, memory/canon/archive/continuity/
+  export/jobs/storage/public rows, infra, package, migration, billing, or UI
+  changed;
+- because PR512A adds an authenticated API route, ARGUS recommends hosted
+  API/data proof next:
+  `PR512B - Cross-Owner Runtime Context Contract Hosted API Proof`,
+  owner ARIADNE / A4.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with 45
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Next:
+
+- MIMIR closes PR512A and routes ARIADNE PR512B hosted API/data proof, or makes
+  an explicit roadmap decision.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR512A cross-owner runtime context contract ready for review
 
 DAEDALUS implemented PR512A and woke ARGUS:
 
@@ -32,18 +81,6 @@ Summary:
 - no provider calls, generated cross-owner words, token rows, private sessions,
   public exhibits, reports, memory/canon/archive/continuity/export/jobs/
   storage/public rows, infra, package, migration, billing, or UI changed.
-
-Next:
-
-- ARGUS reviews PR512A as readback-only context-contract work;
-- if accepted, ARGUS wakes MIMIR with the next routing decision.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Previous lane - PR512 preflight returned to MIMIR
 

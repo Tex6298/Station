@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR512A Cross-Owner Runtime Context Contract ARGUS Review
+
+ARGUS accepted PR512A on 2026-07-11:
+
+- `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_RESULT.md`
+- `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT`.
+
+Reason:
+
+- PR512A is readback-only and does not grant runtime permission;
+- the authenticated participant API route requires explicit consent/persona ids,
+  matching participant pair, actor-owned initiator role, approved status, scope
+  version `1`, and `run_cross_owner_encounter`;
+- generic consent ledger and requested scopes still serialize as
+  `executable: false`;
+- readback exposes only safe participant role/display snapshots, readiness
+  facts, denied context labels, non-execution flags, and future metadata-only
+  audit field names;
+- no provider call, prompt assembly, generated words, token rows, private
+  session, public exhibit, report, memory/canon/archive/continuity/export/job/
+  storage/public row, infra, package, migration, billing, or UI changed;
+- hosted API/data proof is recommended next because PR512A adds an
+  authenticated API route; browser proof is not required unless UI changes.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Implementation review | Pass | Reviewed DAEDALUS packet, route/helper implementation, tests, status docs, prior PR512 preflight, and PR511B hosted consent-ledger proof. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 45 tests passed, including PR512A approved contract readback, ineligible states, nonparticipant privacy, no provider calls, no token rows, and no forbidden side effects. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR512A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Staged path scan | Pass | Staged changes are limited to PR512A review/status/testing docs. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the staged diff. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR512A Cross-Owner Runtime Context Contract
 
 DAEDALUS implemented PR512A on 2026-07-11:

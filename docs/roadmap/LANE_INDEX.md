@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR512A review | Cross-Owner Runtime Context Contract | ARGUS / A3 | Ready for review; DAEDALUS added a readback-only participant route/helper for explicit consent/persona pair runtime-context readiness, preserving executable:false ledger readback and no provider/runtime/persistence/public/infra/UI drift. | `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_RESULT.md` |
+| PR512A closeout | Cross-Owner Runtime Context Contract | MIMIR / A1 | ARGUS accepted `ACCEPT_PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT`; MIMIR to close PR512A and route ARIADNE to hosted API/data proof or make an explicit roadmap decision. | `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR512A review | Cross-Owner Runtime Context Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT`; readback-only participant route/helper preserves non-executable generic ledger readback and returns only bounded contract/readiness facts, denied context labels, non-execution flags, and future metadata-only audit field names. Hosted API/data proof recommended next; no browser/provider proof. | `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_REVIEW_RESULT.md` |
 | PR512A implementation | Cross-Owner Runtime Context Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; readback-only participant API route and helper define consent/status/scope/persona-pair runtime-context readiness without provider calls, generated words, token rows, persistence, public surfacing, infra, package, migration, billing, or UI drift. | `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_RESULT.md` |
 | PR512 closeout | Consented Cross-Owner Encounter Runtime Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ACCEPTED`; ARGUS rejected provider-backed preview for now and accepted PR512A context-contract-only unblock lane. | `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_CLOSEOUT.md` |
 | PR512 preflight | Consented Cross-Owner Encounter Runtime Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR512A_CROSS_OWNER_CONTEXT_CONTRACT_ONLY`; provider-backed disposable cross-owner preview remains blocked on `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`, and the smallest unblock lane is a readback-only cross-owner runtime context contract with no provider call, generated words, token rows, persistence, public surfacing, or infra drift. | `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md` |
