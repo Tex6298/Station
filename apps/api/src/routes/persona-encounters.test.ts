@@ -1412,9 +1412,11 @@ test("owner can publish report and retract metadata-only public encounter exhibi
       report: { status: "open" },
       duplicate: false,
     });
+    const storedExhibit = db.rows("persona_encounter_public_exhibits")[0];
     assert.equal(db.rows("moderation_reports").length, 1);
     assert.equal(db.rows("moderation_reports")[0].target_type, "persona_encounter_public_exhibit");
-    assert.equal(db.rows("moderation_reports")[0].target_id, publish.body.exhibit.slug);
+    assert.equal(db.rows("moderation_reports")[0].target_id, storedExhibit.id);
+    assert.notEqual(db.rows("moderation_reports")[0].target_id, publish.body.exhibit.slug);
     assert.equal(db.rows("persona_encounter_public_exhibits")[0].reported_count, 1);
 
     const duplicateReport = await requestJson(app, "POST", `/persona-encounters/public-exhibits/${publish.body.exhibit.slug}/report`, {
@@ -1568,6 +1570,11 @@ test("public exhibit route hides missing retracted removed and malformed slugs",
     assert.equal(ok.body.exhibit.slug, "published-exhibit-12345678");
     assert.equal(ok.body.exhibit.status, "published");
 
+    const signedOutReport = await requestJson(app, "POST", "/persona-encounters/public-exhibits/published-exhibit-12345678/report", {
+      body: { reason: "unsafe_public_metadata" },
+    });
+    assert.equal(signedOutReport.status, 401);
+
     for (const slug of [
       "retracted-exhibit-12345678",
       "removed-exhibit-12345678",
@@ -1576,6 +1583,12 @@ test("public exhibit route hides missing retracted removed and malformed slugs",
     ]) {
       const response = await requestJson(app, "GET", `/persona-encounters/public-exhibits/${slug}`);
       assert.equal(response.status, 404, `${slug} should be hidden`);
+
+      const report = await requestJson(app, "POST", `/persona-encounters/public-exhibits/${slug}/report`, {
+        token: "other-token",
+        body: { reason: "unsafe_public_metadata" },
+      });
+      assert.equal(report.status, 404, `${slug} report should be hidden`);
     }
   });
 });

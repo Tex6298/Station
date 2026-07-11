@@ -830,18 +830,18 @@ async function loadUserTargetContext(
 
 async function loadPublicEncounterExhibitTargetContext(
   sb: ReturnType<typeof getSupabaseAdmin>,
-  slug: string
+  exhibitId: string
 ): Promise<ModerationReportTargetContext> {
   const { data: exhibit } = await (sb as any)
     .from("persona_encounter_public_exhibits")
-    .select("slug, public_title, status, reported_count, removed_at")
-    .eq("slug", slug)
+    .select("id, slug, public_title, status, reported_count, removed_at, retracted_at")
+    .eq("id", exhibitId)
     .maybeSingle();
 
   if (!exhibit) {
     return unavailableTargetContext(
       "persona_encounter_public_exhibit",
-      slug,
+      exhibitId,
       "Public encounter exhibit target not found."
     );
   }
@@ -852,7 +852,7 @@ async function loadPublicEncounterExhibitTargetContext(
 
   return {
     targetType: "persona_encounter_public_exhibit",
-    targetId: exhibit.slug,
+    targetId: exhibit.id,
     title: exhibit.public_title ?? "Public encounter exhibit",
     status: exhibit.status ?? null,
     visibility: routeHref ? "public" : "not_public",
@@ -962,24 +962,24 @@ async function updateReportedTarget(targetType: string, targetId: string) {
   if (targetType === "persona_encounter_public_exhibit") {
     const { data: exhibit } = await sb
       .from("persona_encounter_public_exhibits")
-      .select("slug, reported_count")
-      .eq("slug", targetId)
+      .select("id, reported_count")
+      .eq("id", targetId)
       .maybeSingle();
     if (!exhibit) return;
     await sb
       .from("persona_encounter_public_exhibits")
       .update({ reported_count: Number(exhibit.reported_count ?? 0) + 1 } as any)
-      .eq("slug", targetId);
+      .eq("id", targetId);
   }
 }
 
 async function applyPublicExhibitModerationAction(
   sb: ReturnType<typeof getSupabaseAdmin>,
-  slug: string,
+  exhibitId: string,
   action: z.infer<typeof publicExhibitTargetActionSchema>,
   adminUserId: string,
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const exhibit = await loadPublicExhibitModerationTarget(sb, slug);
+  const exhibit = await loadPublicExhibitModerationTarget(sb, exhibitId);
 
   if (!exhibit) {
     return { ok: false, status: 404, error: "Public encounter exhibit target not found." };
@@ -1000,16 +1000,15 @@ async function applyPublicExhibitModerationAction(
         removed_by: adminUserId,
       }
     : {
-        status: "published",
+        status: exhibit.retracted_at ? "retracted" : "published",
         removed_at: null,
         removed_by: null,
-        retracted_at: null,
       };
 
   const { error } = await (sb as any)
     .from("persona_encounter_public_exhibits")
     .update(update)
-    .eq("slug", slug);
+    .eq("id", exhibitId);
 
   if (error) {
     return { ok: false, status: 500, error: "Public encounter exhibit moderation action failed." };
@@ -1020,12 +1019,12 @@ async function applyPublicExhibitModerationAction(
 
 async function loadPublicExhibitModerationTarget(
   sb: ReturnType<typeof getSupabaseAdmin>,
-  slug: string,
+  exhibitId: string,
 ) {
   const { data } = await (sb as any)
     .from("persona_encounter_public_exhibits")
-    .select("slug, status")
-    .eq("slug", slug)
+    .select("id, slug, status, retracted_at")
+    .eq("id", exhibitId)
     .maybeSingle();
 
   return data ?? null;

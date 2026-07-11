@@ -4,63 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508C owner encounter public exhibit report target repair opened
+## Current lane - PR508C owner encounter public exhibit report target repair ready for ARGUS review
 
-MIMIR closed the PR508B hosted proof as blocked and opened PR508C for
-DAEDALUS:
+DAEDALUS implemented PR508C for ARGUS review:
 
-`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md`
-
-`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_BLOCKER_MIMIR.md`
+`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md`
 
 `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_DAEDALUS.md`
 
-Why:
+Result:
 
 ```text
-BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE
+READY_FOR_ARGUS_REVIEW
 ```
 
 Summary:
 
-- PR508B hosted web and API health/deployment passed at commit prefix
-  `acb63c4fe4f8`, which includes PR508A floor `acb63c4f`;
-- hosted migration `076` re-probe passed with ledger row
-  `20260711104902 / 076_persona_encounter_public_exhibits`, columns `18/18`,
-  constraints `12/12`, policies `4/4`, triggers `2/2`, exhibit report target
-  support, valid tags accepted, and null tags rejected;
-- owner, non-owner, and admin auth passed;
-- ARIADNE created exactly one same-owner private candidate artifact, proved the
-  signed-out/cross-owner/non-candidate/malformed/forbidden-field/
-  cross-owner-persona boundaries fail closed, and published one metadata-only
-  public exhibit from desktop Studio;
-- desktop and `390px` owner Studio controls fit without horizontal overflow or
-  clipping;
-- signed-out public `/encounters/[slug]` showed metadata only, safe same-owner
-  display snapshots, provenance, and sign-in-to-report copy;
-- owner retract hid the public route, public no-drift samples passed, privacy
-  scan passed, and cleanup deleted the proof artifact;
-- blocker: signed-in report creation for the public exhibit returned `500`.
-  Hosted `moderation_reports.target_id` remains `uuid` while the public exhibit
-  report route writes the public exhibit slug, so no report row exists and
-  admin remove/restore cannot be proven.
+- public exhibit report route remains slug-based but now resolves the slug to
+  the public exhibit UUID before persisting a moderation report;
+- `moderation_reports.target_id` for
+  `persona_encounter_public_exhibit` now stores the exhibit UUID, matching the
+  hosted schema;
+- duplicate report lookup, report counters, admin queue context, and
+  remove/restore now resolve by UUID and keep safe slug route hints in context;
+- admin restore of a removed exhibit with an owner `retracted_at` returns the
+  exhibit to `retracted`, not `published`;
+- no migration, package, lockfile, web UI, provider, storage, queue/worker,
+  Redis, Cloudflare, billing, social, Discover/search/forum/feed, or runtime
+  dependency change entered scope.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `36` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `7` tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 
 Current lane:
 
 ```text
 PR508C - Owner Encounter Public Exhibit Report Target Repair
-Owner: DAEDALUS / A2
-State: OPEN_REPAIR
-Source: docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md
 ```
 
 Next:
 
-- DAEDALUS repairs public exhibit report target persistence by resolving slug
-  to UUID server-side while keeping public routes slug-based and metadata-only;
-- DAEDALUS wakes ARGUS for review;
+- ARGUS reviews the report target repair;
 - if ARGUS accepts PR508C, MIMIR routes PR508B back to ARIADNE for hosted
   report/takedown rerun.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
 
 ## Previous lane - PR508B owner encounter public exhibit metadata hosted proof blocked
 

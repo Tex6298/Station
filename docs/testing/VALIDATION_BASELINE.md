@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR508C Owner Encounter Public Exhibit Report Target Repair
+
+DAEDALUS implemented PR508C on 2026-07-11:
+
+- `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- PR508B hosted proof blocked because signed-in public exhibit report creation
+  attempted to write the public slug into hosted `moderation_reports.target_id`,
+  which remains `uuid`;
+- the public report route remains slug-based and resolves the slug to the
+  public exhibit UUID server-side before inserting a moderation report;
+- duplicate report lookup and public exhibit report counters now use the
+  exhibit UUID;
+- admin report queue context and remove/restore resolve the UUID back to safe
+  public exhibit metadata and slug route hints;
+- admin restore of a removed exhibit with an owner `retracted_at` returns the
+  exhibit to `retracted`, not `published`;
+- no migration, package, lockfile, web UI, provider, storage, queue/worker,
+  Redis, Cloudflare, billing, social, Discover/search/forum/feed, or runtime
+  dependency change entered scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 36 tests passed; public report by slug persists UUID target id, and signed-out/missing/retracted/removed/malformed report paths fail closed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; generic reports, admin queue context, target filtering, remove/restore, and owner-retracted restore behavior use UUID exhibit targets. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR508B Owner Encounter Public Exhibit Metadata Hosted Proof
 
 ARIADNE completed PR508B hosted proof on 2026-07-11:

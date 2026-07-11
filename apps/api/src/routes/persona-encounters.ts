@@ -576,7 +576,7 @@ personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async
   const existing = await loadExistingPublicExhibitReport(
     sb,
     req.user!.id,
-    parsedSlug.data,
+    exhibit.id,
     parsedBody.data.reason,
   );
   if (existing) {
@@ -591,7 +591,7 @@ personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async
     .insert({
       reporter_id: req.user!.id,
       target_type: "persona_encounter_public_exhibit",
-      target_id: parsedSlug.data,
+      target_id: exhibit.id,
       reason: parsedBody.data.reason,
       notes: parsedBody.data.notes || null,
       status: "open",
@@ -603,7 +603,7 @@ personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async
     return res.status(500).json({ error: "Failed to create report." });
   }
 
-  await incrementPublicExhibitReportedCount(sb, parsedSlug.data);
+  await incrementPublicExhibitReportedCount(sb, exhibit.id);
   return res.status(201).json({
     report: { status: data.status },
     duplicate: false,
@@ -982,7 +982,7 @@ async function privateSessionPersonasStillSameOwner(
 async function loadExistingPublicExhibitReport(
   sb: ReturnType<typeof getSupabaseAdmin>,
   reporterId: string,
-  slug: string,
+  exhibitId: string,
   reason: string,
 ) {
   const { data } = await sb
@@ -990,7 +990,7 @@ async function loadExistingPublicExhibitReport(
     .select("*")
     .eq("reporter_id", reporterId)
     .eq("target_type", "persona_encounter_public_exhibit")
-    .eq("target_id", slug)
+    .eq("target_id", exhibitId)
     .eq("reason", reason);
 
   return (data ?? []).find((row: { status: string }) => row.status === "open" || row.status === "reviewing") ?? null;
@@ -998,19 +998,19 @@ async function loadExistingPublicExhibitReport(
 
 async function incrementPublicExhibitReportedCount(
   sb: ReturnType<typeof getSupabaseAdmin>,
-  slug: string,
+  exhibitId: string,
 ) {
   const { data } = await sb
     .from("persona_encounter_public_exhibits")
-    .select("slug, reported_count")
-    .eq("slug", slug)
+    .select("id, reported_count")
+    .eq("id", exhibitId)
     .maybeSingle();
   if (!data) return;
 
   await sb
     .from("persona_encounter_public_exhibits")
     .update({ reported_count: Number(data.reported_count ?? 0) + 1 })
-    .eq("slug", slug);
+    .eq("id", exhibitId);
 }
 
 async function loadOwnedEncounterPersona(

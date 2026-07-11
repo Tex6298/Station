@@ -414,7 +414,7 @@ test("reports route persists reports through Supabase and scopes reporter to aut
     assert.equal(withNotes.body.report.notes, "Contains direct abuse.");
     assert.equal(db.tables.moderation_reports.length, 2);
 
-    db.insertRow("persona_encounter_public_exhibits", {
+    const publicExhibit = db.insertRow("persona_encounter_public_exhibits", {
       slug: "public-exhibit-12345678",
       public_title: "Safe public exhibit title",
       public_summary: "Public metadata only.",
@@ -427,14 +427,14 @@ test("reports route persists reports through Supabase and scopes reporter to aut
       token: "owner-token",
       body: {
         targetType: "persona_encounter_public_exhibit",
-        targetId: "public-exhibit-12345678",
+        targetId: publicExhibit.id,
         reason: "unsafe public exhibit metadata",
       },
     });
 
     assert.equal(exhibitReport.status, 201);
     assert.equal(exhibitReport.body.report.targetType, "persona_encounter_public_exhibit");
-    assert.equal(exhibitReport.body.report.targetId, "public-exhibit-12345678");
+    assert.equal(exhibitReport.body.report.targetId, publicExhibit.id);
     assert.equal(db.tables.persona_encounter_public_exhibits[0].reported_count, 1);
     assert.equal(db.tables.moderation_reports.length, 3);
   } finally {
@@ -789,7 +789,7 @@ test("admin report queue includes safe target context for thread and comment rep
     provider: "anthropic",
     awakening_prompt: "Private prompt that must stay out.",
   });
-  db.insertRow("persona_encounter_public_exhibits", {
+  const publicExhibit = db.insertRow("persona_encounter_public_exhibits", {
     slug: "public-exhibit-12345678",
     public_title: "Public encounter card",
     public_summary: "Public owner-authored metadata.",
@@ -876,7 +876,7 @@ test("admin report queue includes safe target context for thread and comment rep
   const publicExhibitReport = db.insertRow("moderation_reports", {
     reporter_id: "owner-user",
     target_type: "persona_encounter_public_exhibit",
-    target_id: "public-exhibit-12345678",
+    target_id: publicExhibit.id,
     reason: "public exhibit concern",
     notes: "Admin-only report note for the public exhibit.",
     status: "open",
@@ -1015,7 +1015,7 @@ test("admin report queue includes safe target context for thread and comment rep
     });
     assert.deepEqual(byId.get(publicExhibitReport.id)?.targetContext, {
       targetType: "persona_encounter_public_exhibit",
-      targetId: "public-exhibit-12345678",
+      targetId: publicExhibit.id,
       title: "Public encounter card",
       status: "published",
       visibility: "public",
@@ -1081,7 +1081,7 @@ test("admin report queue includes safe target context for thread and comment rep
 
 test("admin report status updates can remove and restore public encounter exhibits", async () => {
   const db = new ReportsSupabase();
-  db.insertRow("persona_encounter_public_exhibits", {
+  const publicExhibit = db.insertRow("persona_encounter_public_exhibits", {
     slug: "public-exhibit-12345678",
     public_title: "Public encounter card",
     public_summary: "Safe metadata only.",
@@ -1094,7 +1094,7 @@ test("admin report status updates can remove and restore public encounter exhibi
   const report = db.insertRow("moderation_reports", {
     reporter_id: "owner-user",
     target_type: "persona_encounter_public_exhibit",
-    target_id: "public-exhibit-12345678",
+    target_id: publicExhibit.id,
     reason: "unsafe public exhibit metadata",
     notes: "Admin-only notes.",
     status: "open",
@@ -1117,7 +1117,7 @@ test("admin report status updates can remove and restore public encounter exhibi
     assert.equal(removed.body.report.status, "resolved");
     assert.deepEqual(removed.body.report.targetContext, {
       targetType: "persona_encounter_public_exhibit",
-      targetId: "public-exhibit-12345678",
+      targetId: publicExhibit.id,
       title: "Public encounter card",
       status: "removed",
       visibility: "not_public",
@@ -1138,7 +1138,7 @@ test("admin report status updates can remove and restore public encounter exhibi
     assert.equal(restored.status, 200);
     assert.deepEqual(restored.body.report.targetContext, {
       targetType: "persona_encounter_public_exhibit",
-      targetId: "public-exhibit-12345678",
+      targetId: publicExhibit.id,
       title: "Public encounter card",
       status: "published",
       visibility: "public",
@@ -1166,6 +1166,31 @@ test("admin report status updates can remove and restore public encounter exhibi
     assert.equal(blockedRetractedRemove.status, 400);
     assert.equal(db.tables.persona_encounter_public_exhibits[0].status, "retracted");
     assert.equal(db.tables.moderation_reports[0].status, "reviewing");
+
+    db.tables.persona_encounter_public_exhibits[0].status = "removed";
+    db.tables.persona_encounter_public_exhibits[0].removed_at = "2026-07-11T11:00:00.000Z";
+    db.tables.persona_encounter_public_exhibits[0].removed_by = "admin-user";
+    const restoreOwnerRetracted = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(restoreOwnerRetracted.status, 200);
+    assert.deepEqual(restoreOwnerRetracted.body.report.targetContext, {
+      targetType: "persona_encounter_public_exhibit",
+      targetId: publicExhibit.id,
+      title: "Public encounter card",
+      status: "retracted",
+      visibility: "not_public",
+      routeHref: null,
+      routeLabel: null,
+      canOpenRoute: false,
+      unavailableReason: "Public encounter exhibit is not currently public.",
+      supportedActions: [],
+    });
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].status, "retracted");
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].retracted_at, "2026-07-11T10:00:00.000Z");
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_by, null);
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_at, null);
 
     const invalidThreadActionReport = db.insertRow("moderation_reports", {
       reporter_id: "owner-user",

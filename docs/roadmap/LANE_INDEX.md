@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR508C | Owner Encounter Public Exhibit Report Target Repair | DAEDALUS / A2 | Open repair; PR508B hosted proof blocked because signed-in public exhibit report creation writes a public slug into hosted `moderation_reports.target_id`, which remains `uuid`. DAEDALUS should keep public routes slug-based, resolve slug to exhibit UUID server-side, persist UUID report targets, and keep admin/report context metadata-only. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_DAEDALUS.md` |
+| PR508C | Owner Encounter Public Exhibit Report Target Repair | ARGUS / A3 | Ready for ARGUS review; DAEDALUS kept public report routes slug-based, resolves slug to exhibit UUID server-side, persists UUID report targets, and keeps admin/report context metadata-only with owner-retracted restore protection. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md` |
 
 ## Recently Closed
 
