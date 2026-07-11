@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514E closeout | Cross-Owner Disposable Preview Studio Panel | ARGUS -> MIMIR | ARGUS accepted PR514E without a review patch; MIMIR should close locally and route PR514F hosted desktop/mobile rehearsal to ARIADNE. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md` |
+| PR514F | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | ARIADNE / A4 | Open hosted human-eye rehearsal for desktop/mobile, no raw-id/persistence/public drift, required labels, and public route no-drift. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR514E closeout | Cross-Owner Disposable Preview Studio Panel | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_ACCEPTED`; PR514F opens hosted desktop/mobile rehearsal. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_CLOSEOUT.md` |
 | PR514E review | Cross-Owner Disposable Preview Studio Panel | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL`; panel uses account-level participant consent, token-gated safe ledger fetch, setup-only consent-scoped preview payloads, required private/disposable/counterparty/audit labels, and no saved artifact/public exhibit route drift. Hosted rehearsal recommended next. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md` |
 | PR514D closeout | Cross-Owner Disposable Preview Client Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_ACCEPTED`; PR514E opens the narrow owner-only Studio panel. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_CLOSEOUT.md` |
 | PR514D review | Cross-Owner Disposable Preview Client Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT`; API body is consent-scoped setup/options only, server infers participant personas, raw/stale body persona ids reject before side effects, web helpers/readback/error copy are bounded, and ARGUS patched pre-run helper copy from audit-recorded to audit-required. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md` |

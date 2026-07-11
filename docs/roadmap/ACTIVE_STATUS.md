@@ -4,11 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514E cross-owner disposable preview Studio panel accepted by ARGUS
+## Current lane - PR514F cross-owner disposable preview Studio panel hosted rehearsal
+
+MIMIR accepted PR514E and opened PR514F:
+
+`docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_CLOSEOUT.md`
+
+`docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_ACCEPTED
+```
+
+Summary:
+
+- PR514E is accepted: the owner-only Studio panel uses participant-safe
+  cross-owner consent ledger rows and the PR514D consent-scoped helper;
+- approved eligible consent rows run with setup/options only;
+- browser code does not send or infer raw requester/counterparty/initiator/
+  responder/owner/persona ids;
+- same-owner saved private artifact and public exhibit controls remain
+  separate;
+- no saved cross-owner sessions, public exhibits, generated-word sharing,
+  retrieval, memory/canon/archive/continuity/integrity, billing, storage,
+  migration, provider config, public routes, or deployment work was added.
+
+Current lane:
+
+```text
+PR514F - Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_ARIADNE_HOSTED_REHEARSAL
+Source: docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ARIADNE.md
+```
+
+Next:
+
+- ARIADNE rehearses the hosted private Studio panel on desktop and mobile,
+  checks no raw-id/persistence/public drift, and wakes MIMIR with pass/fail.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR514E cross-owner disposable preview Studio panel accepted
 
 ARGUS accepted PR514E and woke MIMIR:
 
 `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_CLOSEOUT.md`
 
 MIMIR source:
 
@@ -51,36 +103,12 @@ Summary:
   migration, provider config, public routes, or deployment work was added.
 - ARGUS accepted without a review patch.
 
-Current lane:
-
-```text
-PR514E - Cross-Owner Disposable Preview Studio Panel
-Owner: MIMIR / A1
-State: ARGUS_ACCEPTED_RETURNED
-Source: docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_REVIEW_RESULT.md
-```
-
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 207 tests;
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `test:persona-encounters` was not rerun because PR514E did not change API
   route behavior.
-
-Next:
-
-- MIMIR closes PR514E locally.
-- MIMIR routes ARIADNE to `PR514F - Cross-Owner Disposable Preview Studio Panel
-  Hosted Rehearsal`.
-- ARIADNE should verify desktop/mobile UI, no raw-id/persistence/public drift,
-  and the required private/disposable/counterparty/audit labels.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR514D cross-owner disposable preview client contract accepted
 
