@@ -4,6 +4,57 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505 Owner Encounter Hosted Provider Gate Rerun
+
+ARIADNE completed the hosted PR505 owner encounter rerun on 2026-07-11 after
+MIMIR unblocked the route-specific provider flag:
+
+- `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RERUN_RESULT.md`
+
+Validation result:
+`BLOCK_PR505_HOSTED_OWNER_ENCOUNTER_EMPTY_REPLY`.
+
+Reason:
+
+- hosted web root returned `200`;
+- hosted API health returned `200`;
+- owner auth passed with `canon` tier and cross-owner auth passed with
+  `private` tier;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- ARIADNE sent exactly one disposable same-owner encounter preview request;
+- preview returned `200`;
+- response provenance reported no save, transcript, shareable output, source
+  retrieval, or source buckets;
+- blocker: responder reply role was `responder`, but reply character count was
+  `0`;
+- signed-out preview returned `401`;
+- cross-owner preview returned `403` with
+  `persona_encounter_persona_not_owned`;
+- sampled public Space and public persona routes exposed no owner-encounter
+  controls or claims;
+- sanitized proof output contained no raw ids, prompt/private context bodies,
+  generated reply text, provider details, tokens, cookies, SQL details, stack
+  traces, provider payloads, or env values.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API rerun runner | Blocked | Readiness was ready and exactly one preview returned `200`, but reply text was empty. |
+| Hosted reachability | Pass | Web root `200`; API health `200`. |
+| Owner and cross-owner auth | Pass | Owner tier `canon`; cross-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Pass | `ready:true`; provider is ready. |
+| Exactly one preview request | Pass | One owner preview POST was sent. |
+| Disposable provenance | Pass | Response said no save, transcript, shareable output, source retrieval, or source buckets. |
+| Usable responder reply | Blocked | Reply role was `responder`, but reply character count was `0`. |
+| Signed-out/cross-owner probes | Pass | Signed-out preview returned `401`; cross-owner preview returned `403` with `persona_encounter_persona_not_owned`. |
+| Public no-drift probes | Pass | Sampled public Space and public persona routes exposed no owner-encounter controls or claims. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private context bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, or env values. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR505 rerun result updates
+documentation only and does not touch imports or scripts.
+
 ## PR505 Owner Encounter Hosted Provider Gate Recheck
 
 ARIADNE completed the hosted PR505 owner encounter provider-gate recheck on

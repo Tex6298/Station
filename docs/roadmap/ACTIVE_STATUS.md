@@ -4,7 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505 owner encounter hosted provider gate recheck unblocked
+## Current lane - PR505 owner encounter hosted rerun blocked on empty reply
+
+ARIADNE reran the hosted PR505 owner encounter proof after MIMIR unblocked the
+route-specific provider flag:
+
+`docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RERUN_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR505_HOSTED_OWNER_ENCOUNTER_EMPTY_REPLY
+```
+
+Summary:
+
+- Hosted web root returned `200`; hosted API health returned `200`.
+- Owner auth passed with `canon` tier; cross-owner auth passed with `private`
+  tier.
+- Same-owner persona availability passed with `5` owner personas.
+- Owner readiness is now `ready:true`.
+- ARIADNE sent exactly one disposable same-owner encounter preview request.
+- Preview returned `200` and disposable provenance: no save, transcript,
+  shareable output, source retrieval, or source buckets.
+- Blocker: the responder reply content was empty, with reply character count
+  `0`, so ARIADNE cannot pass the hosted owner encounter preview as usable.
+- Signed-out preview returned `401`; cross-owner preview returned `403` with
+  `persona_encounter_persona_not_owned`.
+- Sampled public Space and public persona routes exposed no owner-encounter
+  controls or claims.
+- Privacy/secret scan passed.
+
+Current lane:
+
+```text
+PR505 - Owner Encounter Hosted Provider Gate Recheck
+Owner: MIMIR / A1
+State: BLOCK_PR505_HOSTED_OWNER_ENCOUNTER_EMPTY_REPLY
+Source: docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RERUN_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR505 owner encounter hosted provider gate unblocked
 
 MIMIR removed the hosted PR505 provider-policy/config blocker:
 
@@ -27,25 +74,8 @@ Summary:
   branch `main`.
 - Public readiness readback reports NVIDIA provider configured, Gemini
   embeddings configured, Stripe ready, and Redis configured.
-- ARIADNE has been asked to rerun PR505. If readiness is now ready, she should
-  run exactly one disposable same-owner encounter preview and prove no
-  public/cross-owner/durable/retrieval/billing/social/provider-config drift.
-
-Current lane:
-
-```text
-PR505 - Owner Encounter Hosted Provider Gate Recheck
-Owner: ARIADNE / A4
-State: HOSTED_PR505_PROVIDER_GATE_CONFIG_UNBLOCKED_AWAITING_RERUN
-Source: docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_CONFIG_UNBLOCKED_MIMIR.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- ARIADNE reran PR505; readiness was ready but the single hosted preview
+  returned an empty responder reply.
 
 ## Previous lane - PR505 owner encounter hosted provider gate recheck blocked
 
