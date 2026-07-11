@@ -618,6 +618,7 @@ test("private encounter curation migration extends the owner-only table without 
   assert.match(sql, /owner_tags text\[\] not null default '\{\}'::text\[\]/);
   assert.match(sql, /publication_candidate boolean not null default false/);
   assert.match(sql, /station\.persona_encounter\.private_session_curation\.v1/);
+  assert.match(sql, /where tag is null\s+or char_length\(btrim\(tag\)\) not between 1 and 40/);
   assert.equal(/disable row level security/i.test(sql), false);
   assert.equal(/drop policy/i.test(sql), false);
   assert.equal(/drop constraint/i.test(sql), false);

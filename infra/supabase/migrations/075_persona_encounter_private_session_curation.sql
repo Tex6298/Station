@@ -12,7 +12,8 @@ as $$
     and not exists (
       select 1
       from unnest(tags) as tag
-      where char_length(btrim(tag)) not between 1 and 40
+      where tag is null
+        or char_length(btrim(tag)) not between 1 and 40
     );
 $$;
 

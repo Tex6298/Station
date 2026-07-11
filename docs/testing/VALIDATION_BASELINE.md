@@ -6,12 +6,14 @@ change, not to unknown repo hygiene.
 
 ## PR507A Owner Encounter Curation Metadata
 
-DAEDALUS completed PR507A on 2026-07-11:
+DAEDALUS completed PR507A on 2026-07-11, and ARGUS accepted it after a
+narrow SQL tag constraint hardening patch:
 
 - `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md`
+- `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md`
 
 Validation result:
-`REVIEW_PR507A_OWNER_ENCOUNTER_CURATION_METADATA`.
+`ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA`.
 
 Reason:
 
@@ -27,15 +29,18 @@ Reason:
   extra keys fail before writes;
 - Studio copy calls the marker private planning only and does not add public
   exhibit/share/publish/moderation/cross-owner controls;
-- no package or lock files changed.
+- no package or lock files changed;
+- ARGUS hardened `persona_encounter_private_session_tags_valid(tags text[])`
+  so raw SQL arrays containing `NULL` tag elements fail the database
+  constraint.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 30 persona encounter API/runtime tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 199 Studio UI/helper tests passed. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 30 persona encounter API/runtime tests passed after the ARGUS patch. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 199 Studio UI/helper tests passed after the ARGUS patch. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed after the ARGUS patch. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
-| `git diff --cached --check` | Pass | No staged whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after the ARGUS review patch and docs/status/index updates. |
 
 ## PR506D Owner Encounter Private Session Browser Rerun
 

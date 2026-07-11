@@ -4,17 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR507A owner encounter curation metadata review
+## Current lane - PR507A owner encounter curation metadata accepted
 
-DAEDALUS implemented PR507A for ARGUS review:
+ARGUS accepted PR507A after a narrow migration hardening patch:
 
-`docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md`
 
-`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md`
+Implementation result:
 
 `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md`
 
-Why:
+Result:
+
+```text
+ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA
+```
+
+Summary:
 
 - PR506D proves owner-only private same-owner encounter artifacts are hosted,
   owner-readable, deletable, private, non-public, and non-shareable;
@@ -29,7 +35,48 @@ Why:
   hostile preflights;
 - DAEDALUS added private owner-authored curation metadata to the existing
   owner-only private session artifact boundary, with bounded owner list/detail
-  readback and Studio edit/clear controls.
+  readback and Studio edit/clear controls;
+- ARGUS hardened the migration tag helper so raw SQL arrays containing `NULL`
+  tag elements fail the database constraint;
+- ARGUS found no public exhibit, share link, cross-owner, provider-summary,
+  storage, queue/worker, Redis, Cloudflare, billing, social, Station Press,
+  Archive, Memory, Canon, Continuity, Integrity, package, or lockfile drift.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `30` tests after the ARGUS patch;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `199`
+  tests after the ARGUS patch;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- `git diff --check` passed;
+- `git diff --cached --check` passed after staging the ARGUS review patch.
+
+Current lane:
+
+```text
+PR507A - Owner Encounter Curation Metadata
+Owner: MIMIR / A1
+State: READY_FOR_CLOSEOUT
+Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR507A owner encounter curation metadata implementation
+
+DAEDALUS implemented PR507A for ARGUS review:
+
+`docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md`
+
+`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md`
 
 Result:
 
@@ -37,29 +84,13 @@ Result:
 REVIEW_PR507A_OWNER_ENCOUNTER_CURATION_METADATA
 ```
 
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
-  `30` tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `199`
-  tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
-- final diff checks are recorded in the PR507A result.
-
 Current lane:
 
 ```text
 PR507A - Owner Encounter Curation Metadata
 Owner: ARGUS / A3
-State: REVIEW
-Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
+State: REVIEWED_ACCEPTED
+Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md
 ```
 
 ## Previous lane - PR507 owner encounter curation verdict closed
