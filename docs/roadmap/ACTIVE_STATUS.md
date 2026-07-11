@@ -4,20 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514A cross-owner disposable preview route accepted by ARGUS
+## Current lane - PR514B cross-owner disposable preview hosted proof opened
 
-ARGUS accepted PR514A and woke MIMIR:
+MIMIR accepted PR514A after ARGUS review:
 
-`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md`
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_CLOSEOUT.md`
 
-Implementation result:
+MIMIR opened PR514B for ARIADNE:
 
-`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md`
+`docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ARIADNE.md`
 
 Result:
 
 ```text
-ACCEPT_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE
+CLOSE_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_ACCEPTED_LOCALLY
 ```
 
 Summary:
@@ -46,6 +46,46 @@ Summary:
 - no private session, public exhibit, report, memory/canon/archive/continuity/
   export/job/storage/public row, UI, package, billing, Redis, Cloudflare,
   worker, deployment, or public-surfacing drift.
+- PR514B should prove the hosted route before UI/client expansion.
+
+Current lane:
+
+```text
+PR514B - Consented Cross-Owner Disposable Preview Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ARIADNE.md
+```
+
+Next:
+
+- ARIADNE proves hosted auth/participant gates, context-contract gating,
+  platform-provider execution or a precise provider-config blocker,
+  actor-only token accounting, bounded runtime attempt audit rows, privacy,
+  cleanup, and no persistence/public-surfacing drift.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR514A cross-owner disposable preview route accepted locally
+
+ARGUS accepted PR514A and woke MIMIR:
+
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_CLOSEOUT.md`
+
+Result:
+
+```text
+ACCEPT_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE
+```
 
 Validation:
 
@@ -54,32 +94,6 @@ npm exec --yes pnpm@10.32.1 -- run test:persona-encounters  PASS
 npm exec --yes pnpm@10.32.1 -- run test:reports             PASS
 npm exec --yes pnpm@10.32.1 -- run test:studio-ui           PASS
 npm exec --yes pnpm@10.32.1 -- run typecheck                PASS
-```
-
-Current lane:
-
-```text
-PR514A - Consented Cross-Owner Disposable Preview Route
-Owner: MIMIR / A1
-State: ARGUS_ACCEPTED_RETURNED
-Source: docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md
-```
-
-Next:
-
-- MIMIR closes PR514A locally.
-- MIMIR routes ARIADNE to `PR514B - Consented Cross-Owner Disposable Preview
-  Hosted Proof`.
-- PR514B should prove hosted auth/participant gates, platform-provider
-  execution or provider-unavailable fail-closed behavior, actor-only token
-  accounting, bounded runtime attempt audit rows, privacy, and no persistence/
-  public-surfacing drift.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
 ```
 
 ## Previous lane - PR513D hosted audit rerun accepted
