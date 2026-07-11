@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506A Owner Encounter Private Session Artifact ARGUS Review
+
+ARGUS accepted PR506A on 2026-07-11:
+
+- `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`.
+
+Reason:
+
+- migration `074` uses a dedicated owner-only
+  `persona_encounter_private_sessions` table with private/no-share/no-source
+  constraints and owner/persona RLS;
+- owner API routes create/list/detail/delete private sessions under
+  `/persona-encounters/private-sessions`;
+- create verifies same-owner personas before provider/quota/rate-limit/provider
+  work and persists only a server-generated nonblank responder reply;
+- strict request parsing rejects client-certified reply text;
+- `/persona-encounters/preview` remains disposable by default;
+- Studio readback/discard stays owner-only and honest that saving creates a new
+  private artifact;
+- scans found no public/shareable, cross-owner, retrieval, provider payload,
+  conversation/archive/memory/canon/continuity/export, billing, social,
+  queue/worker, Redis, Cloudflare, storage, Station Press, voice/avatar, Salon,
+  live-event, package, lockfile, or secret drift.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 26 encounter API/runtime tests passed, including private-session auth, create/list/detail/delete, cross-owner, quota, rate-limit, provider, empty-output, disposable-preview, and no client-certified reply coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 198 Studio helper tests passed, including private-session runtime helper copy. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the ARGUS review docs/status/index patch. |
+| Changed-path/source scan | Pass | Matches were accepted table/FK columns, owner filters, no-durable-write tests, private provenance fields, and negative-scope guardrail language only. No secret-shaped values or unrelated implementation drift found. |
+
 ## PR506A Owner Encounter Private Session Artifact
 
 DAEDALUS completed the local PR506A owner encounter private session artifact on

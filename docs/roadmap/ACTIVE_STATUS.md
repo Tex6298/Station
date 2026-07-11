@@ -4,23 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506A owner encounter private session artifact ready for review
+## Current lane - PR506A owner encounter private session artifact accepted by ARGUS
 
-DAEDALUS implemented PR506A for ARGUS review:
+ARGUS accepted PR506A for MIMIR hosted-proof routing:
 
-`docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md`
+`docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-REVIEW_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT
+ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT
 ```
 
 Summary:
 
-- PR506A adds the smallest owner-only private encounter session artifact.
-- A new dedicated `persona_encounter_private_sessions` table, RLS policy set,
-  indexes, and updated_at trigger are added in migration `074`.
+- ARGUS accepted the dedicated `persona_encounter_private_sessions` schema/RLS,
+  owner API create/list/detail/delete, and Studio private saved-artifact
+  readback/discard.
 - `/persona-encounters/preview` remains disposable by default and must continue
   to report no save, no transcript, no shareable output, and no source
   retrieval.
@@ -37,8 +37,9 @@ Summary:
   scheduled runs, no multi-turn loops, and no Cloudflare/Redis/queue/worker/
   storage bucket/billing/social/Station Press/voice/avatar/Salon/live-event
   drift.
+- Hosted ARIADNE proof is still required before MIMIR closes the product lane.
 
-Validation:
+ARGUS validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed
   `26` tests.
@@ -50,17 +51,41 @@ Current lane:
 
 ```text
 PR506A - Owner Encounter Private Session Artifact
-Owner: ARGUS / A3
-State: REVIEW_READY
-Source: docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPTED_AWAITING_HOSTED_PROOF_ROUTING
+Source: docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
+
+## Previous lane - PR506A owner encounter private session artifact ready for review
+
+DAEDALUS implemented PR506A for ARGUS review:
+
+`docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md`
+
+Result:
+
+```text
+REVIEW_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT
+```
+
+Summary:
+
+- Migration `074` added the dedicated private-session table, RLS policy set,
+  indexes, and updated_at trigger.
+- Owner API routes create/list/detail/delete private sessions under
+  `/persona-encounters/private-sessions`.
+- Create uses strict request parsing and the server-owned same-owner generation
+  path, so client-submitted reply text cannot be certified as generated
+  provenance.
+- Studio persona workspace exposes explicit private saved-artifact create,
+  readback, and discard controls.
 
 ## Previous lane - PR506A owner encounter private session artifact opened
 

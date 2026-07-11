@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR506A | Owner Encounter Private Session Artifact | ARGUS / A3 | Review ready; dedicated owner-only private-session table/API/UI artifact is implemented with server-owned saved generation, bounded readback, and delete/discard while preview remains disposable. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md` |
+| PR506A | Owner Encounter Private Session Artifact | MIMIR / A1 | Accepted by ARGUS; route ARIADNE hosted proof for migration 074, owner create/list/detail/delete, Studio readback/discard, and public/cross-owner/privacy boundaries. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR506A review | Owner Encounter Private Session Artifact | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`; local schema/RLS, owner API, server-owned saved generation, bounded Studio readback, delete/discard, no client-certified reply, and forbidden-scope scans passed. Hosted proof required. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md` |
 | PR506A implementation | Owner Encounter Private Session Artifact | MIMIR -> ARGUS -> DAEDALUS -> ARGUS | Ready for ARGUS review; migration 074, owner API create/list/detail/delete, and Studio private saved-artifact readback/discard are implemented without client-certified reply, public/shareable, retrieval, provider, billing, queue/worker, storage, or social drift. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md` |
 | PR506 preflight | Persona Encounter Private Session Preflight | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`; DAEDALUS gets the new dedicated owner-only private encounter artifact lane, with server-owned saved generation and no client-certified reply provenance. | `docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md` |
 | PR505D closeout | Owner Encounter Hosted Output Budget Rerun | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ACCEPTED`; hosted same-owner preview returned nonblank disposable responder content with signed-out/cross-owner/public no-drift checks passing. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_CLOSEOUT.md` |
