@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR506C | Owner Encounter Browser Proof Tooling | MIMIR / A1 | Accepted by ARGUS; route ARIADNE PR506B/PR506D hosted browser rerun now that root Playwright dev tooling is available. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_REVIEW_RESULT.md` |
+| PR506D | Owner Encounter Private Session Browser Rerun | ARIADNE / A4 | Open hosted browser rerun after PR506C tooling acceptance; exactly one saved private artifact may be created for desktop/390px Studio proof, public no-drift while it exists, cleanup, and final verdict. | `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR506C closeout | Owner Encounter Browser Proof Tooling | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed accepted as `CLOSE_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_ACCEPTED`; root-only Playwright dev tooling unblocks ARIADNE hosted browser proof rerun without product/runtime drift. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_CLOSEOUT.md` |
 | PR506C review | Owner Encounter Browser Proof Tooling | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING`; root Playwright dev tooling and lockfile support passed frozen install, CLI version, import, diff, and scope/secret scans without product/runtime drift. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_REVIEW_RESULT.md` |
 | PR506C implementation | Owner Encounter Browser Proof Tooling | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; root `playwright` devDependency and lockfile update make the Playwright CLI and Node import available from this workspace, with no app runtime or product behavior changes. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md` |
 | PR506B blocker | Owner Encounter Private Session Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked only on browser proof tooling; API create/list/detail/delete, auth boundaries, public no-drift after cleanup, and privacy scan passed. DAEDALUS gets PR506C to unblock the required desktop/390px UI proof. | `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md` |

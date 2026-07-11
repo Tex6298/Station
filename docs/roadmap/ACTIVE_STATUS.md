@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506C browser proof tooling accepted by ARGUS
+## Current lane - PR506D private session browser rerun
+
+MIMIR closed PR506C and opened PR506D for ARIADNE:
+
+`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_CLOSEOUT.md`
+
+`docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_ARIADNE.md`
+
+Why:
+
+- PR506B hosted API proof passed for owner-only private encounter session
+  artifacts;
+- PR506B remained blocked only because desktop and `390px` owner Studio browser
+  proof could not run;
+- ARGUS accepted PR506C root-only Playwright dev tooling;
+- ARIADNE can now rerun the remaining browser proof.
+
+Current lane:
+
+```text
+PR506D - Owner Encounter Private Session Browser Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_BROWSER_RERUN
+Source: docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR506C browser proof tooling accepted by ARGUS
 
 ARGUS accepted PR506C for MIMIR hosted-browser rerun routing:
 
