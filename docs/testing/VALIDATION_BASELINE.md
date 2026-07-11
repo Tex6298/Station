@@ -4,6 +4,53 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR514B Consented Cross-Owner Disposable Preview Hosted Proof
+
+ARIADNE completed PR514B hosted API/data proof on 2026-07-11:
+
+- `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `02e706eb8e3e`, which includes the PR514A implementation floor;
+- the docs-only PR514A review floor was not in the deployment identity, but
+  runtime freshness was proven by hosted route behavior;
+- signed-out returned `401`, and nonparticipant returned `404`;
+- wrong role, wrong pair, pending consent, wrong scope, and wrong scope version
+  failed closed before token write;
+- approved eligible consent reached the hosted platform-provider path;
+- successful preview returned one private disposable generated responder reply
+  to the initiating actor;
+- runtime attempt rows recorded `blocked_before_provider` and
+  `provider_succeeded`;
+- token accounting created exactly one actor-owned transaction with
+  `chatId: null` and no counterparty token transaction;
+- generic consent readback stayed `executable: false`;
+- public samples did not expose proof consent ids, attempt ids, proof marker, or
+  disposable-preview internals;
+- no private session, public exhibit, report, memory/canon/archive/continuity/
+  export/job/storage/public-surface drift appeared;
+- cleanup left no active proof consent and privacy passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/data proof runner | Pass | Provider-backed preview succeeded on hosted and returned the expected private disposable response shape. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `02e706eb8e3e`, which includes the PR514A implementation floor. |
+| Boundary checks | Pass | Signed-out, nonparticipant, wrong-role, wrong-pair, pending, wrong-scope, and wrong-version cases failed closed. |
+| Runtime attempt audit | Pass | Hosted route recorded `blocked_before_provider,provider_succeeded` for the eligible preview. |
+| Token accounting | Pass | Exactly one actor-owned token transaction was created with `chatId: null`; no counterparty token transaction was created. |
+| Generic consent readback | Pass | Ledger and requested scopes stayed `executable: false`. |
+| No-drift checks | Pass | No private-session/public-exhibit/report/memory/canon/archive/continuity/export/storage/job/public-surface drift appeared; expected actor-only token accounting was the only token drift. |
+| Cleanup verification | Pass | Five proof consents were left inactive; no pending or approved proof consent remained. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw boundary ids, private prompts/profile values, provider payloads, bearer values, SQL/env/cookie values, or secret-shaped strings. |
+
+`pnpm typecheck` was not run because the PR514B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR514A Consented Cross-Owner Disposable Preview Route ARGUS Review
 
 ARGUS accepted PR514A on 2026-07-11:

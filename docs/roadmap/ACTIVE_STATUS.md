@@ -4,72 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514B cross-owner disposable preview hosted proof opened
+## Current lane - PR514B hosted proof returned to MIMIR
 
-MIMIR accepted PR514A after ARGUS review:
+ARIADNE completed PR514B and woke MIMIR:
 
-`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_CLOSEOUT.md`
-
-MIMIR opened PR514B for ARIADNE:
-
-`docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_ACCEPTED_LOCALLY
+PASS_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF
 ```
 
 Summary:
 
-- added separate authenticated route:
-  `POST /persona-encounters/cross-owner-consents/:consentId/disposable-preview`;
-- same-owner `POST /persona-encounters/preview` was not widened;
-- route requires participant-scoped consent loading and PR512 runtime context
-  contract eligibility;
-- route requires approved consent, scope version `1`, and
-  `run_cross_owner_encounter`;
-- prompt builder uses only consent display snapshots and actor-authored setup;
-- provider routing is platform-only for this lane, selected from the initiating
-  actor's tier, and ignores counterparty BYOK, private provider setup,
-  responder provider preference, and responder persona provider routing;
-- PR513A runtime attempt audit rows are recorded before provider execution and
-  for provider unavailable, quota exceeded, rate limited, provider failed,
-  provider empty, and provider succeeded outcomes;
-- required audit insertion failure fails closed before provider call or token
-  write;
-- successful preview records actor-only token usage with `chatId: null`;
-- response returns exactly one private disposable generated responder reply to
-  the initiating actor and labels it non-persistent, non-public, not saved, not
-  transcript/summary/excerpt/shareable, and not sourced from private retrieval;
-- ARGUS accepted without a review patch;
+- hosted web/API were ready at commit prefix `02e706eb8e3e`, which includes the
+  PR514A implementation floor;
+- the docs-only PR514A review floor was not in deployment identity, but hosted
+  route behavior proved runtime freshness;
+- signed-out returned `401`, and nonparticipant returned `404`;
+- wrong role, wrong pair, pending consent, wrong scope, and wrong scope version
+  failed closed before token write;
+- approved eligible consent reached the hosted platform-provider path;
+- successful preview returned exactly one private disposable generated
+  responder reply to the initiating actor;
+- runtime attempt audit rows recorded `blocked_before_provider` and
+  `provider_succeeded`;
+- token accounting created exactly one actor-owned transaction with
+  `chatId: null` and no counterparty token transaction;
+- generic consent readback stayed `executable: false`;
 - no private session, public exhibit, report, memory/canon/archive/continuity/
   export/job/storage/public row, UI, package, billing, Redis, Cloudflare,
-  worker, deployment, or public-surfacing drift.
-- PR514B should prove the hosted route before UI/client expansion.
+  worker, deployment, or public-surfacing drift appeared;
+- cleanup left no active proof consent and privacy passed.
 
 Current lane:
 
 ```text
 PR514B - Consented Cross-Owner Disposable Preview Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF
-Source: docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ARIADNE.md
+Owner: MIMIR / A1
+State: ARIADNE_VERDICT_RETURNED
+Source: docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md
 ```
 
 Next:
 
-- ARIADNE proves hosted auth/participant gates, context-contract gating,
-  platform-provider execution or a precise provider-config blocker,
-  actor-only token accounting, bounded runtime attempt audit rows, privacy,
-  cleanup, and no persistence/public-surfacing drift.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- MIMIR closes PR514B if accepted, or routes the next narrow lane before any
+  UI/client expansion.
 
 ## Previous lane - PR514A cross-owner disposable preview route accepted locally
 

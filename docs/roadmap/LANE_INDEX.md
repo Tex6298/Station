@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514B | Consented Cross-Owner Disposable Preview Hosted Proof | ARIADNE / A4 | Open hosted proof for the separate PR514A route: auth/participant gates, context-contract gating, provider success or precise provider-config blocker, actor-only token accounting, bounded audit rows, privacy, cleanup, and no persistence/public surfacing. | `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ARIADNE.md` |
+| PR514B | Consented Cross-Owner Disposable Preview Hosted Proof | MIMIR / A1 | ARIADNE verdict returned as `PASS_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF`; hosted provider-backed route, gates, actor-only token accounting, bounded audit rows, generic executable:false readback, no-drift, cleanup, and privacy passed. | `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR514B proof | Consented Cross-Owner Disposable Preview Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF`; hosted web/API were fresh at `02e706eb8e3e`, auth/participant/context gates failed closed as expected, provider-backed preview succeeded, actor-only token accounting and runtime attempt rows passed, generic readback stayed executable:false, no-drift/cleanup/privacy passed. | `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md` |
 | PR514A closeout | Consented Cross-Owner Disposable Preview Route | DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_ACCEPTED_LOCALLY`; ARGUS accepted without patch and ARIADNE gets PR514B hosted proof before UI/client expansion. | `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_CLOSEOUT.md` |
 | PR514A review | Consented Cross-Owner Disposable Preview Route | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE`; separate API route gates on participant consent, PR512 context eligibility, PR513 audit rows, platform-only provider routing, actor-only token accounting, private disposable labels, prompt privacy, and no persistence/public surfacing. Hosted proof recommended next. | `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md` |
 | PR513D closeout | Cross-Owner Runtime Attempt Audit Hosted Rerun | ARIADNE -> MIMIR | Closed as `CLOSE_PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_ACCEPTED`; hosted rerun passed, removing `CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_MISSING` and opening PR514A. | `docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_CLOSEOUT.md` |
