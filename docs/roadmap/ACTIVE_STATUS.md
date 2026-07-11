@@ -4,18 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510A public encounter exhibit Discover search group ready for review
+## Current lane - PR510A public encounter exhibit Discover search group accepted
 
-DAEDALUS implemented PR510A and is waking ARGUS for review:
+ARGUS accepted PR510A:
 
 `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md`
 
 `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md`
 
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_REVIEW_RESULT.md`
+
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP
 ```
 
 Summary:
@@ -34,6 +36,20 @@ Summary:
   package/lockfile, and migration/index scope remain out of PR510A by default;
 - no DB migration or search index was added.
 
+ARGUS review:
+
+- accepted without a code patch;
+- confirmed the API result contract is metadata-only and bounded;
+- confirmed search uses only public title, summary, tags, and same-owner display
+  snapshots;
+- confirmed unsafe rows are filtered by the PR509A public-list safety floor;
+- confirmed Discover feed/rising/featured, public persona, public Space,
+  forum/community, Station Press/public document, private-material, provider,
+  retrieval, billing, social, storage, Redis, Cloudflare, queue/worker,
+  package/lockfile, migration, and schema-visible scope stayed out;
+- noted protected-alpha search remains non-indexed and hosted proof must record
+  search latency.
+
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
@@ -48,23 +64,28 @@ Current lane:
 
 ```text
 PR510A - Public Encounter Exhibit Discover Search Group
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
-Source: docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_HOSTED_PROOF_ROUTING_PENDING
+Source: docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_REVIEW_RESULT.md
 ```
 
 Next:
 
-- ARGUS reviews PR510A against the accepted search-result contract;
-- ARGUS confirms no off-scope public surfacing or private material entered;
-- if ARGUS accepts, MIMIR routes hosted proof.
+- MIMIR closes PR510A locally if accepted;
+- MIMIR routes ARIADNE for hosted PR510B proof.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
+
+## Previous lane - PR510A public encounter exhibit Discover search group ready for review
+
+DAEDALUS implemented PR510A and woke ARGUS:
+
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md`
 
 ## Previous lane - PR510A public encounter exhibit Discover search group opened
 

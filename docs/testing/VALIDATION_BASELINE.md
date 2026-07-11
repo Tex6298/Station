@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR510A Public Encounter Exhibit Discover Search Group ARGUS Review
+
+ARGUS accepted PR510A on 2026-07-11:
+
+- `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md`
+- `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`.
+
+Reason:
+
+- `/discover/search` returns a dedicated `publicEncounterExhibits` group named
+  `Encounter Exhibits`;
+- search uses only public title, summary, tags, and same-owner display
+  snapshots;
+- result payloads stay metadata-only and route only to `/encounters/[slug]`;
+- unsafe rows are filtered by the PR509A public-list safety floor before
+  serialization;
+- Discover feed/rising/featured, public persona profiles, public Spaces,
+  forums/community, Station Press/public documents, transcripts/excerpts/raw
+  replies, private setup/private curation, raw ids, report counts/paths,
+  provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
+  package/lockfile, migration/index, and hosted runtime scope remain out;
+- no code patch was required;
+- hosted proof is required because public API search output and visible
+  Discover search rendering changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 37 tests passed; PR509A public list/detail safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit moderation queue/remove/restore remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing and Discover feed helpers remain document/feed bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 44 tests passed, including PR510A API/search-dropdown encounter group coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio/public encounter helper scans remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Current search/feed review | Pass | Encounter exhibit surfacing is limited to `/discover/search`; feed helper types do not include `encounter_exhibit`. |
+
 ## PR510A Public Encounter Exhibit Discover Search Group
 
 DAEDALUS implemented PR510A on 2026-07-11:
