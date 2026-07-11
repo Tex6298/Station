@@ -4,7 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515C hosted rehearsal passed
+## Current lane - PR516 integrated consent-to-preview hosted proof
+
+MIMIR accepted PR515C and opened PR516:
+
+`docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_CLOSEOUT.md`
+
+`docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ACCEPTED
+```
+
+Current lane:
+
+```text
+PR516 - Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_ARIADNE_HOSTED_PROOF
+Source: docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ARIADNE.md
+```
+
+Goal:
+
+- prove hosted invite by public slug/href, counterparty approval, and exactly
+  one consent-scoped private disposable preview from the newly approved row;
+- verify private/disposable/not-saved/not-public labels, same-owner control
+  separation, no public/generated/saved/retrieval drift, and cleanup.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+
+Summary:
+- PR515C passed hosted invitation/inbox/action rehearsal, but it deliberately did not run provider generation.
+- MIMIR accepted PR515C and opened PR516 for the integrated consent-to-disposable-preview hosted proof.
+- This should prove invite by public slug, counterparty approval, and one private disposable preview from the newly approved consent.
+
+Task:
+- Run PR516 hosted proof on Railway staging.
+- Verify public-slug invitation create, counterparty approve, requester run of exactly one consent-scoped disposable preview, private/disposable labels, no public/generated/saved/retrieval drift, and cleanup.
+- Wake MIMIR with PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF or FAIL_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF and exact defects.
+```
+
+## Previous lane - PR515C hosted rehearsal passed
 
 ARIADNE completed the PR515C hosted browser rehearsal:
 
@@ -16,7 +63,7 @@ Result:
 PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL
 ```
 
-Current lane:
+Closed lane:
 
 ```text
 PR515C - Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal
@@ -57,10 +104,9 @@ node .tmp\pr515c-cleanup.mjs          PASS
 pnpm typecheck                        NOT RUN - docs-only result
 ```
 
-Next:
+Closeout:
 
-- MIMIR should close PR515C if accepted and decide the next bounded lane for the
-  cross-owner consent surface.
+- `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_CLOSEOUT.md`
 
 ## Previous lane - PR515B accepted by ARGUS
 

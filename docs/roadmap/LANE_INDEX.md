@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515C | Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL`; awaiting MIMIR closeout/next-lane decision. | `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_RESULT.md` |
+| PR516 | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | ARIADNE / A4 | Open hosted proof for invite by public slug/href, counterparty approval, one consent-scoped private disposable preview, no public/generated/saved/retrieval drift, and cleanup. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR515C closeout | Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_ACCEPTED`; PR516 opens integrated invite/approve/disposable-preview hosted proof. | `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_CLOSEOUT.md` |
 | PR515C rehearsal | Cross-Owner Consent Invitation and Inbox UI Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL`; hosted signed-out gating, public-slug target lookup, unsafe slug blocking, invitation create, cancel/approve/reject/revoke, approved preview-control separation, inactive no-run controls, desktop/mobile fit, public-route leak checks, no-drift, cleanup, and privacy scan passed. | `docs/roadmap/PR515C_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_HOSTED_REHEARSAL_RESULT.md` |
 | PR515B closeout | Cross-Owner Consent Invitation and Inbox UI | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_ACCEPTED_LOCALLY`; ARIADNE gets PR515C hosted rehearsal before final visible-surface closeout. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_CLOSEOUT.md` |
 | PR515B review | Cross-Owner Consent Invitation and Inbox UI | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI`; ARGUS recommends hosted desktop/mobile rehearsal before visible-surface closeout. | `docs/roadmap/PR515B_CROSS_OWNER_CONSENT_INVITATION_AND_INBOX_UI_REVIEW_RESULT.md` |
