@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR512 Consented Cross-Owner Encounter Runtime Preflight
+
+ARGUS completed PR512 preflight on 2026-07-11:
+
+- `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR512A_CROSS_OWNER_CONTEXT_CONTRACT_ONLY`.
+
+Reason:
+
+- PR511B proves the hosted cross-owner consent ledger, but all generic consent
+  scope readback remains non-executable;
+- current same-owner preview generation loads both personas as owned by the
+  caller and sends bounded persona profile fields for both personas to the
+  provider;
+- those fields include private context classes such as long descriptions,
+  awakening prompts, and style notes;
+- ARGUS found that the proposed provider-backed cross-owner disposable preview
+  is blocked until Station defines a readback-only cross-owner runtime context
+  contract;
+- PR512A may define that contract only, with no provider call, generated words,
+  token rows, private sessions, public exhibits, reports, memory/canon/archive/
+  continuity/export/jobs/storage writes, public surfacing, package/lockfile,
+  billing, Cloudflare, Redis, queue/worker, deployment, or broad UI drift.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Repo evidence review | Pass | Reviewed PR512 packet, PR511B hosted proof, PR511A ARGUS review, same-owner preview route/tests, and prior same-owner runtime/artifact/publication boundaries. |
+| Current runtime boundary review | Pass | Current provider prompt shape is owner-safe only for same-owner preview; it is not accepted for cross-owner runtime without a context contract. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 43 tests passed, including cross-owner-before-provider, non-executable consent, no side-effect, same-owner preview, private session, public exhibit, and Studio runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio helper/readiness/runtime coverage remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Staged path scan | Pass | Staged changes are limited to PR512 result/status/testing docs. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the staged diff. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR511B Cross-Owner Encounter Consent Ledger Hosted Proof
 
 ARIADNE completed PR511B hosted proof on 2026-07-11:

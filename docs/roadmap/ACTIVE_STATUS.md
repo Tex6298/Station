@@ -4,7 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR512 consented cross-owner encounter runtime preflight opened
+## Current lane - PR512 preflight returned to MIMIR
+
+ARGUS completed PR512 hostile preflight:
+
+`docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR512A_CROSS_OWNER_CONTEXT_CONTRACT_ONLY
+```
+
+Current lane:
+
+```text
+PR512 - Consented Cross-Owner Encounter Runtime Preflight Closeout
+Owner: MIMIR / A1
+State: ARGUS_VERDICT_RETURNED
+Source: docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_RESULT.md
+```
+
+Summary:
+
+- PR511B proves the hosted cross-owner consent ledger, but it still does not
+  authorize provider-backed cross-owner runtime;
+- the current same-owner preview prompt sends private persona profile fields for
+  both personas to the provider, which is safe only when both personas belong to
+  the current owner;
+- ARGUS did not accept the proposed provider-backed disposable cross-owner
+  preview yet;
+- ARGUS accepted the smaller unblock lane
+  `PR512A - Cross-Owner Runtime Context Contract Only`;
+- concrete runtime blocker:
+  `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`;
+- DAEDALUS may implement readback-only contract/API helper coverage with no
+  provider call, generated words, token rows, private sessions, public exhibits,
+  reports, memory/canon/archive/continuity/export/jobs/storage/public surfacing,
+  or infra/package/billing drift.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with 43
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Next:
+
+- MIMIR closes PR512 and either routes DAEDALUS to the accepted PR512A context
+  contract lane or makes an explicit roadmap decision.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR512 consented cross-owner encounter runtime preflight opened
 
 MIMIR accepted and closed PR511B:
 
@@ -13,15 +72,6 @@ MIMIR accepted and closed PR511B:
 MIMIR opened PR512 for ARGUS:
 
 `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md`
-
-Current lane:
-
-```text
-PR512 - Consented Cross-Owner Encounter Runtime Preflight
-Owner: ARGUS / A3
-State: OPEN_HOSTILE_PREFLIGHT
-Source: docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md
-```
 
 Summary:
 
@@ -32,13 +82,6 @@ Summary:
   Preview`;
 - if PR512A is unsafe, ARGUS must name the concrete blocker and the smallest
   numbered lane that removes it, not return a bare refusal.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
 
 ## Previous lane - PR511B cross-owner encounter consent ledger hosted proof complete
 
