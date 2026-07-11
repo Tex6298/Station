@@ -89,6 +89,7 @@ class InMemorySupabase {
     topup_purchases: [],
     token_usage: [],
     token_transactions: [],
+    persona_encounter_private_sessions: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -143,6 +144,9 @@ class InMemorySupabase {
   private prepareRow(table: string, payload: Row) {
     const now = this.timestamp();
     const row = { ...payload };
+    if (table === "persona_encounter_private_sessions" && !row.id) {
+      row.id = `66666666-6666-4666-8666-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
     row.id ??= `${table}-${this.rows(table).length + 1}`;
 
     if (table === "token_usage") {
@@ -162,6 +166,15 @@ class InMemorySupabase {
       row.output_tokens ??= 0;
       row.tokens_delta ??= row.input_tokens + row.output_tokens;
       row.created_at ??= now;
+    }
+
+    if (table === "persona_encounter_private_sessions") {
+      row.provenance_schema ??= "station.persona_encounter.private_session.v1";
+      row.source_retrieval_used ??= false;
+      row.shareable ??= false;
+      row.public_visibility ??= "private";
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     return row;
@@ -221,10 +234,21 @@ class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
+  private mutation: { type: "insert"; payload: Row | Row[] } | { type: "delete" } | null = null;
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
   select() {
+    return this;
+  }
+
+  insert(payload: Row | Row[]) {
+    this.mutation = { type: "insert", payload };
+    return this;
+  }
+
+  delete() {
+    this.mutation = { type: "delete" };
     return this;
   }
 
@@ -274,6 +298,30 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
+    if (this.mutation?.type === "insert") {
+      const payloads = Array.isArray(this.mutation.payload) ? this.mutation.payload : [this.mutation.payload];
+      const inserted = payloads.map((payload) => this.db.insertRow(this.table, payload));
+      const data = clone(inserted);
+      if (mode === "single") {
+        return data.length === 1
+          ? { data: data[0], error: null }
+          : { data: null, error: { message: `Expected one inserted ${this.table} row.` } };
+      }
+      if (mode === "maybeSingle") {
+        return data.length > 0
+          ? { data: data[0], error: null }
+          : { data: null, error: null };
+      }
+      return { data, error: null };
+    }
+
+    if (this.mutation?.type === "delete") {
+      const rows = this.db.rows(this.table);
+      const matches = this.matchingRows().map((row) => row.id);
+      this.db.tables[this.table] = rows.filter((row) => !matches.includes(row.id));
+      return { data: null, error: null };
+    }
+
     const data = clone(this.matchingRows());
     if (mode === "single") {
       return data.length === 1
@@ -441,6 +489,15 @@ function readinessPath(overrides: Partial<{
   return `/persona-encounters/preview/readiness?${params.toString()}`;
 }
 
+function privateSessionBody(overrides: Partial<{
+  initiatorPersonaId: string;
+  responderPersonaId: string;
+  setup: string;
+  maxOutputTokens: number;
+}> = {}) {
+  return previewBody(overrides);
+}
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
@@ -470,6 +527,27 @@ async function withHarness<T>(
 }
 
 function assertNoDurableEncounterWrites(db: InMemorySupabase) {
+  for (const table of [
+    "conversations",
+    "conversation_messages",
+    "persona_encounter_private_sessions",
+    "archived_chat_transcripts",
+    "continuity_candidates",
+    "continuity_records",
+    "memory_items",
+    "canon_items",
+    "documents",
+    "threads",
+    "comments",
+    "moderation_reports",
+    "public_persona_interaction_counters",
+    "background_jobs",
+  ]) {
+    assert.equal(db.rows(table).length, 0, `${table} should not be written`);
+  }
+}
+
+function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabase) {
   for (const table of [
     "conversations",
     "conversation_messages",
@@ -844,5 +922,233 @@ test("empty provider reply fails bounded without recording successful token usag
     assert.equal(responseJson.includes("private persona notes"), false);
   }, {
     providerContent: "  \n\t  ",
+  });
+});
+
+test("private encounter session routes require authentication", async () => {
+  await withHarness(async ({ app, providerCalls }) => {
+    const sessionId = "66666666-6666-4666-8666-666666666666";
+    const create = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      body: privateSessionBody(),
+    });
+    const list = await requestJson(app, "GET", "/persona-encounters/private-sessions");
+    const detail = await requestJson(app, "GET", `/persona-encounters/private-sessions/${sessionId}`);
+    const deletion = await requestJson(app, "DELETE", `/persona-encounters/private-sessions/${sessionId}`);
+
+    assert.equal(create.status, 401);
+    assert.equal(list.status, 401);
+    assert.equal(detail.status, 401);
+    assert.equal(deletion.status, 401);
+    assert.equal(providerCalls.length, 0);
+  });
+});
+
+test("owner can create list detail and delete a private encounter session without leaking raw ids", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const create = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody({ maxOutputTokens: 120 }),
+    });
+
+    assert.equal(create.status, 201);
+    assert.equal(create.body.session.setup.label, "Owner-authored setup");
+    assert.equal(create.body.session.setup.stored, true);
+    assert.equal(create.body.session.setup.content, "The owner places both personas in a quiet library and asks for one reply.");
+    assert.equal(create.body.session.personas.label, "Selected same-owner personas");
+    assert.equal(create.body.session.personas.initiatorName, "Blue Lantern");
+    assert.equal(create.body.session.personas.responderName, "Copper Scribe");
+    assert.equal(create.body.session.reply.label, "Model-generated responder reply");
+    assert.equal(create.body.session.reply.role, "responder");
+    assert.equal(create.body.session.reply.content, "Copper Scribe answers once.");
+    assert.deepEqual(create.body.session.provenance.artifact, {
+      label: "Private owner-only artifact",
+      private: true,
+      ownerOnly: true,
+      serverCreated: true,
+    });
+    assert.deepEqual(create.body.session.provenance.persistence, {
+      saved: true,
+      transcriptStored: false,
+      shareable: false,
+      public: false,
+      sourceRetrieval: false,
+      sourceBuckets: [],
+      note: "Private saved encounter artifact; no Memory, Archive, Canon, Continuity, Integrity, or transcript sources were retrieved.",
+    });
+
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 1);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("token_transactions")[0].chat_id, null);
+    assertNoDurableEncounterWritesExceptPrivateSessions(db);
+
+    const stored = db.rows("persona_encounter_private_sessions")[0];
+    assert.equal(stored.owner_user_id, OWNER_ID);
+    assert.equal(stored.initiator_persona_id, INITIATOR_ID);
+    assert.equal(stored.responder_persona_id, RESPONDER_ID);
+    assert.equal(stored.owner_setup, "The owner places both personas in a quiet library and asks for one reply.");
+    assert.equal(stored.responder_reply, "Copper Scribe answers once.");
+    assert.equal(stored.provenance_schema, "station.persona_encounter.private_session.v1");
+    assert.equal(stored.source_retrieval_used, false);
+    assert.equal(stored.shareable, false);
+    assert.equal(stored.public_visibility, "private");
+
+    const createJson = JSON.stringify(create.body);
+    for (const hidden of [
+      OWNER_ID,
+      INITIATOR_ID,
+      RESPONDER_ID,
+      "owner_user_id",
+      "initiator_persona_id",
+      "responder_persona_id",
+      "test-deepseek-key",
+      "deepseek.test",
+      "deepseek-chat",
+      "private persona notes",
+    ]) {
+      assert.equal(createJson.includes(hidden), false, `${hidden} leaked in create readback`);
+    }
+
+    const list = await requestJson(app, "GET", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+    });
+    assert.equal(list.status, 200);
+    assert.equal(list.body.sessions.length, 1);
+    assert.equal(list.body.sessions[0].id, create.body.session.id);
+    assert.equal(list.body.sessions[0].reply.content, "Copper Scribe answers once.");
+
+    const detail = await requestJson(app, "GET", `/persona-encounters/private-sessions/${create.body.session.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.session.id, create.body.session.id);
+    assert.equal(detail.body.session.setup.content, create.body.session.setup.content);
+
+    const crossOwnerDetail = await requestJson(app, "GET", `/persona-encounters/private-sessions/${create.body.session.id}`, {
+      token: "other-token",
+    });
+    assert.equal(crossOwnerDetail.status, 404);
+
+    const crossOwnerDelete = await requestJson(app, "DELETE", `/persona-encounters/private-sessions/${create.body.session.id}`, {
+      token: "other-token",
+    });
+    assert.equal(crossOwnerDelete.status, 404);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 1);
+
+    const deletion = await requestJson(app, "DELETE", `/persona-encounters/private-sessions/${create.body.session.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(deletion.status, 200);
+    assert.deepEqual(deletion.body, {
+      deleted: true,
+      session: {
+        id: create.body.session.id,
+      },
+    });
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+
+    const afterDelete = await requestJson(app, "GET", `/persona-encounters/private-sessions/${create.body.session.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(afterDelete.status, 404);
+  });
+});
+
+test("private encounter session create rejects client-certified replies and cross-owner personas before side effects", async () => {
+  const rateLimitProvider = new TestRateLimitProvider();
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const extraKey = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: {
+        ...privateSessionBody(),
+        responderReply: "Client-supplied reply must not be certified.",
+      },
+    });
+    assert.equal(extraKey.status, 400);
+
+    const crossOwner = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody({ responderPersonaId: OTHER_PERSONA_ID }),
+    });
+    assert.equal(crossOwner.status, 403);
+    assert.equal(crossOwner.body.code, "persona_encounter_persona_not_owned");
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(rateLimitProvider.keys.length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  }, {
+    rateLimitProvider,
+  });
+});
+
+test("private encounter session provider setup quota rate and empty reply failures insert no session", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    clearProviderEnv();
+    const response = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody(),
+    });
+
+    assert.equal(response.status, 503);
+    assert.equal(response.body.code, "persona_encounter_provider_unavailable");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  });
+
+  await withHarness(async ({ db, app, providerCalls }) => {
+    db.insertRow("token_usage", {
+      user_id: OWNER_ID,
+      period_start: "2026-06-01",
+      tokens_used: 750_000,
+      tokens_limit: 750_000,
+      topup_tokens: 0,
+    });
+    const response = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody(),
+    });
+
+    assert.equal(response.status, 402);
+    assert.equal(response.body.code, "persona_encounter_quota_exceeded");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  });
+
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const response = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody(),
+    });
+
+    assert.equal(response.status, 503);
+    assert.equal(response.body.code, "persona_encounter_rate_limit_unavailable");
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  }, {
+    rateLimitProvider: new DisabledOperationalCacheProvider("missing_config"),
+  });
+
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const response = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody(),
+    });
+
+    assert.equal(response.status, 502);
+    assert.equal(response.body.code, "persona_encounter_provider_empty_reply");
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+  }, {
+    providerContent: "  \n  ",
   });
 });

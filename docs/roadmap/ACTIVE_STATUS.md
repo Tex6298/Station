@@ -4,50 +4,78 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506A owner encounter private session artifact
+## Current lane - PR506A owner encounter private session artifact ready for review
 
-ARGUS completed PR506 hostile preflight and opened PR506A for DAEDALUS:
+DAEDALUS implemented PR506A for ARGUS review:
 
-`docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT
+REVIEW_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT
 ```
 
 Summary:
 
-- PR506A may add a smallest owner-only private encounter session artifact.
-- The saved artifact must use a new dedicated
-  `persona_encounter_private_sessions` table, not conversations, archived chat,
-  memory, canon, continuity, exports, public seminar, or social tables.
+- PR506A adds the smallest owner-only private encounter session artifact.
+- A new dedicated `persona_encounter_private_sessions` table, RLS policy set,
+  indexes, and updated_at trigger are added in migration `074`.
 - `/persona-encounters/preview` remains disposable by default and must continue
   to report no save, no transcript, no shareable output, and no source
   retrieval.
-- Saved artifacts must be created by the server-owned encounter generation path
-  after an explicit owner action; the browser must not submit arbitrary reply
-  text and have the server certify it as model-generated provenance.
+- `POST /persona-encounters/private-sessions` creates a saved artifact only by
+  running the server-owned same-owner generation path; strict request parsing
+  rejects client-certified reply text.
+- `GET /persona-encounters/private-sessions`, detail, and delete are scoped to
+  `req.user!.id` and return only bounded owner-safe readback with opaque
+  session handles.
+- Studio persona workspace now has an explicit `Save private artifact` action,
+  private saved-artifact readback, and discard behavior.
 - Scope remains same-owner, private, one-reply, no source retrieval, no public
   or shareable output, no cross-owner encounters, no autonomous/background or
   scheduled runs, no multi-turn loops, and no Cloudflare/Redis/queue/worker/
-  storage/billing/social/Station Press/voice/avatar/Salon/live-event drift.
+  storage bucket/billing/social/Station Press/voice/avatar/Salon/live-event
+  drift.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed
+  `26` tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed `198` tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Final diff checks are recorded in the result doc before commit.
 
 Current lane:
 
 ```text
 PR506A - Owner Encounter Private Session Artifact
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md
+Owner: ARGUS / A3
+State: REVIEW_READY
+Source: docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
+
+## Previous lane - PR506A owner encounter private session artifact opened
+
+ARGUS completed PR506 hostile preflight and opened PR506A for DAEDALUS:
+
+`docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md`
+
+Decision:
+
+- Build only an authenticated owner-only private encounter session artifact in
+  a new dedicated table.
+- Keep `/persona-encounters/preview` disposable by default.
+- Saved artifacts must be created by the server-owned encounter generation path
+  after an explicit owner action.
+- Do not trust client-submitted reply text as model-generated provenance.
 
 ## Previous lane - PR506 persona encounter private session preflight accepted
 

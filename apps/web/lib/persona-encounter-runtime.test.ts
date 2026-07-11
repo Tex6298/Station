@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
+  personaEncounterPrivateSessionPath,
+  personaEncounterPrivateSessionReadback,
   personaEncounterPreviewAvailabilityCopy,
   personaEncounterPreviewErrorCopy,
   personaEncounterPreviewPayload,
@@ -10,6 +13,7 @@ import {
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
   type PersonaEncounterPreviewResponse,
+  type PersonaEncounterPrivateSession,
 } from "./persona-encounter-runtime";
 
 const response: PersonaEncounterPreviewResponse = {
@@ -74,6 +78,14 @@ test("persona encounter runtime helper builds provider readiness path", () => {
   );
 });
 
+test("persona encounter runtime helper builds private session paths", () => {
+  assert.equal(PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH, "/persona-encounters/private-sessions");
+  assert.equal(
+    personaEncounterPrivateSessionPath("session/one"),
+    "/persona-encounters/private-sessions/session%2Fone",
+  );
+});
+
 test("persona encounter runtime readiness requires two personas and owner setup", () => {
   assert.equal(personaEncounterPreviewReady({
     initiatorPersonaId: "persona-a",
@@ -107,6 +119,59 @@ test("persona encounter runtime readback labels disposable provenance", () => {
   ]);
 });
 
+test("persona encounter runtime readback labels private saved artifacts honestly", () => {
+  const session: PersonaEncounterPrivateSession = {
+    id: "session-1",
+    createdAt: "2026-07-11T00:00:00.000Z",
+    updatedAt: "2026-07-11T00:00:00.000Z",
+    setup: {
+      label: "Owner-authored setup",
+      content: "A private setup.",
+      stored: true,
+    },
+    personas: {
+      label: "Selected same-owner personas",
+      initiatorName: "Harbor",
+      responderName: "Lantern",
+    },
+    reply: {
+      label: "Model-generated responder reply",
+      role: "responder",
+      content: "A saved reply.",
+      generated: true,
+    },
+    provenance: {
+      artifact: {
+        label: "Private owner-only artifact",
+        private: true,
+        ownerOnly: true,
+        serverCreated: true,
+      },
+      persistence: {
+        saved: true,
+        transcriptStored: false,
+        shareable: false,
+        public: false,
+        sourceRetrieval: false,
+        sourceBuckets: [],
+        note: "Private saved encounter artifact; no Memory, Archive, Canon, Continuity, Integrity, or transcript sources were retrieved.",
+      },
+    },
+  };
+
+  assert.deepEqual(personaEncounterPrivateSessionReadback(session), [
+    "Private owner-only artifact",
+    "Owner-authored setup",
+    "Selected same-owner personas",
+    "Model-generated responder reply",
+    "Private saved encounter artifact; no Memory, Archive, Canon, Continuity, Integrity, or transcript sources were retrieved.",
+    "Saved private artifact",
+    "Not public",
+    "Not shareable",
+    "No Memory, Archive, Canon, Continuity, Integrity, or transcript sources retrieved",
+  ]);
+});
+
 test("persona encounter runtime error copy stays bounded", () => {
   assert.equal(personaEncounterPreviewErrorCopy({
     code: "persona_encounter_persona_not_owned",
@@ -119,6 +184,14 @@ test("persona encounter runtime error copy stays bounded", () => {
   assert.equal(personaEncounterPreviewErrorCopy({
     message: "Generic failure",
   }), "Generic failure");
+  assert.equal(personaEncounterPreviewErrorCopy({
+    code: "persona_encounter_provider_empty_reply",
+    message: "raw provider payload",
+  }), "Encounter preview provider returned no visible reply.");
+  assert.equal(personaEncounterPreviewErrorCopy({
+    code: "persona_encounter_private_session_delete_failed",
+    message: "sql table detail",
+  }), "Private encounter artifact could not be deleted.");
 });
 
 test("persona encounter runtime availability copy fails closed before generation", () => {

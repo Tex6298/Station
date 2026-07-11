@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506A Owner Encounter Private Session Artifact
+
+DAEDALUS completed the local PR506A owner encounter private session artifact on
+2026-07-11:
+
+- `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_RESULT.md`
+
+Validation result:
+`REVIEW_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`.
+
+Reason:
+
+- migration `074` adds the dedicated
+  `persona_encounter_private_sessions` owner-only table, constraints, indexes,
+  updated_at trigger, and RLS owner/persona policies;
+- owner API routes create/list/detail/delete private sessions under
+  `/persona-encounters/private-sessions`;
+- create uses the server-owned same-owner generation path and strict request
+  parsing, so client-submitted reply text cannot be certified as generated
+  provenance;
+- `/persona-encounters/preview` remains disposable by default;
+- Studio persona workspace exposes explicit private saved-artifact create,
+  readback, and discard controls;
+- the patch does not add public/shareable output, cross-owner access, source
+  retrieval, provider adapter/router/policy changes, conversations, archived
+  chat, Memory, Canon, Continuity, exports, billing, social, queue/worker,
+  Redis, Cloudflare, storage buckets, Station Press, voice/avatar, Salon, or
+  live-event behavior.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 26 encounter API/runtime tests passed, including private-session auth, create/list/detail/delete, cross-owner, quota, rate-limit, provider, empty-output, and disposable-preview coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 198 Studio helper tests passed, including private-session runtime helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR506 Persona Encounter Private Session Preflight
 
 ARGUS accepted PR506A on 2026-07-11:

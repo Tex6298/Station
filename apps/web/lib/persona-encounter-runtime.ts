@@ -41,6 +41,60 @@ export interface PersonaEncounterPreviewResponse {
   };
 }
 
+export interface PersonaEncounterPrivateSession {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  setup: {
+    label: "Owner-authored setup";
+    content: string;
+    stored: true;
+  };
+  personas: {
+    label: "Selected same-owner personas";
+    initiatorName: string;
+    responderName: string;
+  };
+  reply: {
+    label: "Model-generated responder reply";
+    role: "responder";
+    content: string;
+    generated: true;
+  };
+  provenance: {
+    artifact: {
+      label: "Private owner-only artifact";
+      private: true;
+      ownerOnly: true;
+      serverCreated: true;
+    };
+    persistence: {
+      saved: true;
+      transcriptStored: false;
+      shareable: false;
+      public: false;
+      sourceRetrieval: false;
+      sourceBuckets: [];
+      note: string;
+    };
+  };
+}
+
+export interface PersonaEncounterPrivateSessionResponse {
+  session: PersonaEncounterPrivateSession;
+}
+
+export interface PersonaEncounterPrivateSessionListResponse {
+  sessions: PersonaEncounterPrivateSession[];
+}
+
+export interface PersonaEncounterPrivateSessionDeleteResponse {
+  deleted: true;
+  session: {
+    id: string;
+  };
+}
+
 export interface PersonaEncounterPreviewReadinessResponse {
   ready: boolean;
   message: string;
@@ -50,6 +104,7 @@ export interface PersonaEncounterPreviewReadinessResponse {
 
 export const PERSONA_ENCOUNTER_PREVIEW_PATH = "/persona-encounters/preview";
 export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/preview/readiness";
+export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
 
 export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewRequest) {
   return {
@@ -69,6 +124,10 @@ export function personaEncounterPreviewReadinessPath(input: {
     responderPersonaId: input.responderPersonaId,
   });
   return `${PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH}?${params.toString()}`;
+}
+
+export function personaEncounterPrivateSessionPath(sessionId: string) {
+  return `${PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH}/${encodeURIComponent(sessionId)}`;
 }
 
 export function personaEncounterPreviewReady(input: {
@@ -112,6 +171,33 @@ export function personaEncounterPreviewReadback(response?: PersonaEncounterPrevi
   ];
 }
 
+export function personaEncounterPrivateSessionReadback(session?: PersonaEncounterPrivateSession | null) {
+  if (!session) {
+    return [
+      "Private saved encounter artifact",
+      "Owner-authored setup stored",
+      "Model-generated responder reply stored",
+      "No source retrieval",
+      "Not public",
+      "Not shareable",
+    ];
+  }
+
+  return [
+    session.provenance.artifact.label,
+    session.setup.label,
+    session.personas.label,
+    session.reply.label,
+    session.provenance.persistence.note,
+    session.provenance.persistence.saved ? "Saved private artifact" : "Not saved",
+    session.provenance.persistence.public ? "Public" : "Not public",
+    session.provenance.persistence.shareable ? "Shareable" : "Not shareable",
+    session.provenance.persistence.sourceRetrieval
+      ? "Private source retrieval used"
+      : "No Memory, Archive, Canon, Continuity, Integrity, or transcript sources retrieved",
+  ];
+}
+
 export function personaEncounterPreviewAvailabilityCopy(
   readiness?: PersonaEncounterPreviewReadinessResponse | null,
 ) {
@@ -140,6 +226,14 @@ export function personaEncounterPreviewErrorCopy(input: { status?: number; code?
       return "Encounter preview token budget is exhausted.";
     case "persona_encounter_provider_failed":
       return "Encounter preview provider failed.";
+    case "persona_encounter_provider_empty_reply":
+      return "Encounter preview provider returned no visible reply.";
+    case "persona_encounter_private_session_save_failed":
+      return "Private encounter artifact could not be saved.";
+    case "persona_encounter_private_session_load_failed":
+      return "Private encounter artifacts could not be loaded.";
+    case "persona_encounter_private_session_delete_failed":
+      return "Private encounter artifact could not be deleted.";
     default:
       return input.message || "Encounter preview could not run.";
   }

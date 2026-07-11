@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Persona, PersonaSummary } from "@station/types/persona";
-import { ApiRequestError, apiGet, apiPost } from "@/lib/api-client";
+import { ApiRequestError, apiDelete, apiGet, apiPost } from "@/lib/api-client";
 import {
   activeStudioHref,
   studioPersonaWorkspacePrimaryActions,
@@ -14,12 +14,19 @@ import { personaEncounterContractGate } from "@/lib/persona-encounter-contract";
 import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
 import {
   PERSONA_ENCOUNTER_PREVIEW_PATH,
+  PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
+  personaEncounterPrivateSessionPath,
+  personaEncounterPrivateSessionReadback,
   personaEncounterPreviewAvailabilityCopy,
   personaEncounterPreviewErrorCopy,
   personaEncounterPreviewPayload,
   personaEncounterPreviewReadback,
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterPrivateSession,
+  type PersonaEncounterPrivateSessionDeleteResponse,
+  type PersonaEncounterPrivateSessionListResponse,
+  type PersonaEncounterPrivateSessionResponse,
   type PersonaEncounterPreviewReadinessResponse,
   type PersonaEncounterPreviewResponse,
 } from "@/lib/persona-encounter-runtime";
@@ -228,6 +235,10 @@ export function PersonaEncounterRuntimePreview({
   const [readinessLoading, setReadinessLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedSessions, setSavedSessions] = useState<PersonaEncounterPrivateSession[]>([]);
+  const [savedSessionsLoading, setSavedSessionsLoading] = useState(false);
+  const [savedSessionBusy, setSavedSessionBusy] = useState(false);
+  const [savedSessionError, setSavedSessionError] = useState<string | null>(null);
   const selectedResponderId = responderId || responderOptions[0]?.id || "";
   const selectedResponder = responderOptions.find((candidate) => candidate.id === selectedResponderId) ?? null;
   const ready = personaEncounterPreviewReady({
@@ -237,12 +248,44 @@ export function PersonaEncounterRuntimePreview({
   });
   const readback = personaEncounterPreviewReadback(preview);
   const providerReady = readiness?.ready === true;
+  const savedReadback = personaEncounterPrivateSessionReadback(savedSessions[0] ?? null);
   const availabilityCopy = responderOptions.length === 0
     ? "Create another persona first."
     : readinessLoading
     ? "Checking encounter preview provider setup."
     : personaEncounterPreviewAvailabilityCopy(readiness);
   const generationReady = Boolean(ready && token && providerReady && !readinessLoading);
+
+  useEffect(() => {
+    if (!token) {
+      setSavedSessions([]);
+      setSavedSessionsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSavedSessionsLoading(true);
+    setSavedSessionError(null);
+    apiGet<PersonaEncounterPrivateSessionListResponse>(PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH, token)
+      .then((response) => {
+        if (!cancelled) setSavedSessions(response.sessions);
+      })
+      .catch((caught) => {
+        if (cancelled) return;
+        if (caught instanceof ApiRequestError) {
+          setSavedSessionError(personaEncounterPreviewErrorCopy(caught));
+        } else {
+          setSavedSessionError("Private encounter artifacts could not be loaded.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setSavedSessionsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   useEffect(() => {
     setPreview(null);
@@ -314,6 +357,58 @@ export function PersonaEncounterRuntimePreview({
       }
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function savePrivateSession() {
+    if (!token || !ready || !providerReady || readinessLoading || busy || savedSessionBusy) return;
+    setSavedSessionBusy(true);
+    setSavedSessionError(null);
+
+    try {
+      const response = await apiPost<PersonaEncounterPrivateSessionResponse>(
+        PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
+        personaEncounterPreviewPayload({
+          initiatorPersonaId: persona.id,
+          responderPersonaId: selectedResponderId,
+          setup,
+        }),
+        token,
+      );
+      setSavedSessions((current) => [
+        response.session,
+        ...current.filter((session) => session.id !== response.session.id),
+      ]);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setSavedSessionError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setSavedSessionError("Private encounter artifact could not be saved.");
+      }
+    } finally {
+      setSavedSessionBusy(false);
+    }
+  }
+
+  async function deletePrivateSession(sessionId: string) {
+    if (!token || savedSessionBusy) return;
+    setSavedSessionBusy(true);
+    setSavedSessionError(null);
+
+    try {
+      await apiDelete<PersonaEncounterPrivateSessionDeleteResponse>(
+        personaEncounterPrivateSessionPath(sessionId),
+        token,
+      );
+      setSavedSessions((current) => current.filter((session) => session.id !== sessionId));
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setSavedSessionError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setSavedSessionError("Private encounter artifact could not be deleted.");
+      }
+    } finally {
+      setSavedSessionBusy(false);
     }
   }
 
@@ -393,6 +488,64 @@ export function PersonaEncounterRuntimePreview({
           </div>
         </article>
       )}
+
+      <article className="studio-context-panel">
+        <div className="section-label">Private encounter artifacts</div>
+        <h3>Saved owner-only encounters</h3>
+        <p>Creates a new private saved artifact from a server-generated responder reply. The disposable preview remains unsaved.</p>
+        <div className="studio-runtime-query">
+          <button
+            className="button secondary"
+            type="button"
+            onClick={savePrivateSession}
+            disabled={!generationReady || busy || savedSessionBusy}
+          >
+            {savedSessionBusy ? "Saving..." : "Save private artifact"}
+          </button>
+        </div>
+
+        <div className="studio-encounter-artifact-tags">
+          {savedReadback.slice(0, 6).map((item) => (
+            <span key={item}>
+              <strong>{item}</strong>
+            </span>
+          ))}
+        </div>
+
+        {savedSessionError && <div className="space-form-error">{savedSessionError}</div>}
+
+        {savedSessionsLoading ? (
+          <p>Loading private encounter artifacts.</p>
+        ) : savedSessions.length === 0 ? (
+          <p>No private encounter artifacts saved yet.</p>
+        ) : (
+          <div className="studio-stack">
+            {savedSessions.slice(0, 5).map((session) => (
+              <article className="studio-context-panel" key={session.id}>
+                <div className="section-label">{session.provenance.artifact.label}</div>
+                <h4>{session.personas.initiatorName} / {session.personas.responderName}</h4>
+                <p>{session.setup.content}</p>
+                <p>{session.reply.content}</p>
+                <div className="studio-encounter-artifact-tags">
+                  {personaEncounterPrivateSessionReadback(session).slice(5).map((item) => (
+                    <span key={item}>
+                      <strong>{item}</strong>
+                    </span>
+                  ))}
+                </div>
+                <button
+                  className="button secondary"
+                  type="button"
+                  onClick={() => deletePrivateSession(session.id)}
+                  disabled={savedSessionBusy}
+                >
+                  Discard
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
+      </article>
     </section>
   );
 }

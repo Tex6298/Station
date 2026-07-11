@@ -443,6 +443,34 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["personas"]["Insert"]>;
       };
+      persona_encounter_private_sessions: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          initiator_persona_id: string;
+          responder_persona_id: string;
+          owner_setup: string;
+          responder_reply: string;
+          initiator_name_snapshot: string;
+          responder_name_snapshot: string;
+          provenance_schema: "station.persona_encounter.private_session.v1";
+          source_retrieval_used: false;
+          shareable: false;
+          public_visibility: "private";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_private_sessions"]["Row"], "id" | "provenance_schema" | "source_retrieval_used" | "shareable" | "public_visibility" | "created_at" | "updated_at"> & {
+          id?: string;
+          provenance_schema?: "station.persona_encounter.private_session.v1";
+          source_retrieval_used?: false;
+          shareable?: false;
+          public_visibility?: "private";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_private_sessions"]["Insert"]>;
+      };
       public_persona_interaction_counters: {
         Row: {
           id: string;
