@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR518B | Cross-Owner Metadata Exhibit Public Index Hosted Proof | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Routed after `CLOSE_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_ACCEPTED_LOCALLY`; ARIADNE proves the new dedicated cross-owner index on hosted without broader surfacing drift. | `docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ARIADNE.md` |
+| PR518B | Cross-Owner Metadata Exhibit Public Index Hosted Proof | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF`; dedicated cross-owner API list and `/encounters/cross-owner` page are hosted-proven without broader surfacing drift. | `docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 

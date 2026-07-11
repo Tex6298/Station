@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR518B cross-owner public index hosted proof
+## Current lane - PR518B cross-owner public index hosted proof passed
 
 MIMIR accepted PR518A locally with the ARGUS patch:
 
@@ -19,18 +19,33 @@ Current lane:
 ```text
 PR518B - Cross-Owner Metadata Exhibit Public Index Hosted Proof
 Owner: ARIADNE / A4
-State: Routed after CLOSE_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_ACCEPTED_LOCALLY
-Source: docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ARIADNE.md
+State: PASS_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF
+Source: docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_RESULT.md
 ```
 
-Hosted proof target:
+ARIADNE result:
 
-- verify hosted web/API include PR518A;
-- prove a safe bilaterally approved cross-owner metadata exhibit appears in the
-  dedicated API list and `/encounters/cross-owner`;
-- prove the page/payload is metadata-only and no broader public surfaces pick
-  it up;
-- re-prove same-owner public exhibit behavior and cleanup.
+`docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_RESULT.md`
+
+PR518B passed:
+
+- hosted API/web returned `200`;
+- a safe bilaterally approved cross-owner metadata exhibit appeared in
+  `GET /persona-encounters/cross-owner-public-exhibits`;
+- `/encounters/cross-owner` rendered the proof row on desktop and `390px`
+  mobile without horizontal overflow or clipped proof card;
+- list/detail payloads were metadata-only, route-listed only to the dedicated
+  index, and kept `indexed=false` and `discoverable=false`;
+- pending, one-sided, wrong-scope, removed, retracted, and revoked proof rows
+  stayed absent from the list;
+- same-owner public exhibit publish/report/remove/restore/retract regression
+  still passed;
+- same-owner `/encounters` did not mix cross-owner rows beyond the accepted link
+  to `/encounters/cross-owner`;
+- Discover feed/search, forums, writing, spaces, and homepage did not surface
+  the proof row;
+- cleanup left `crossPublicRowsReadable 0`, the temporary target private, and
+  the same-owner regression fixture deleted.
 
 Still blocked:
 

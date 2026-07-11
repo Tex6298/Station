@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR518B Cross-Owner Metadata Exhibit Public Index Hosted Proof
+
+ARIADNE completed PR518B hosted proof on 2026-07-12:
+
+- `docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF`.
+
+Reason:
+
+- hosted API and web returned `200`;
+- a safe bilaterally approved cross-owner metadata exhibit appeared in the
+  dedicated public list endpoint;
+- list payload exposed only metadata-only public fields, safe participant
+  display snapshots, provenance labels, report path, and
+  `/encounters/cross-owner#<slug>` route href;
+- public detail honestly reported `routeListed=true` while keeping
+  `indexed=false`, `discoverable=false`, and generated/transcript/summary/
+  excerpt publication flags false;
+- pending, one-sided, wrong-scope, removed, retracted, and revoked proof rows
+  stayed absent from the list;
+- same-owner API list and `/encounters` did not mix cross-owner rows beyond the
+  accepted link to `/encounters/cross-owner`;
+- `/encounters/cross-owner` rendered on desktop and `390px` mobile without
+  horizontal overflow or clipped proof card;
+- same-owner public exhibit publish/report/remove/restore/retract regression
+  passed;
+- Discover feed/search, forums, writing, spaces, and homepage did not surface
+  the proof row;
+- cleanup left no readable cross-owner public proof row, made the temporary
+  target private, and deleted the same-owner regression fixture.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr518b-hosted-proof.mjs` | Pass | Cross-owner index API/page proof, same-owner regression, no-drift, desktop/mobile fit, and cleanup passed. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts touched. |
+
 ## PR518A Cross-Owner Metadata Exhibit Dedicated Public Index
 
 ARGUS accepted PR518A after a narrow review patch on 2026-07-12:
