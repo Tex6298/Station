@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR511A Cross-Owner Encounter Consent Ledger
+
+DAEDALUS implemented PR511A on 2026-07-11:
+
+- `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- PR511A adds only a durable owner-scoped consent/provenance ledger for
+  cross-owner persona encounter consent;
+- migration `077` adds dedicated consent and append-only audit tables with
+  participant owner/persona constraints, participant read/requester-insert RLS,
+  participant audit readback RLS, no direct consent update/delete policy, no
+  direct participant audit insert policy, bounded statuses, bounded requested
+  scopes, and no public select/write policy;
+- API routes require auth, verify requester ownership, require a different
+  counterparty owner, scope read/mutation to participant owners, and expose
+  invitation, list, detail, approve, reject, cancel, and revoke transitions;
+- owner readback excludes raw owner/persona ids and marks all requested scopes
+  non-executable, including approved records;
+- cross-owner runtime, private cross-owner artifacts, public exhibits,
+  excerpts, transcripts, summaries, Discover/search/feed, public surfacing,
+  provider/retrieval, billing, storage, social, Redis, Cloudflare,
+  queues/workers, package/lockfile, deployment, and broad UI remain out of
+  scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 42 tests passed, including PR511A migration, invitation, auth/ownership, participant-only readback/mutation, approve/reject/cancel/revoke, inactive-state, non-executable scope, privacy, and no-side-effect coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio helper coverage remains green and PR511A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changed implementation paths are limited to migration `077`, DB types, persona encounter API routes/tests, and roadmap/testing docs. |
+| Forbidden-path scan | Pass | No web UI, Discover/search/feed, forum, Space, document, report, provider, retrieval, billing, storage, social, Redis, Cloudflare, queue, worker, package, lockfile, webhook, deployment, or broad public-surface path changed. |
+| Forbidden side-effect diff scan | Pass | Diff matches for moderation reports, background jobs, private/public encounter tables, token usage, and token transactions appear only in negative test assertions proving consent routes do not write those tables. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, Google key, Slack token, bearer-token-shaped, or private-key block values found in touched implementation files. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR511A implementation and docs. |
+
 ## PR511 Cross-Owner Encounter Consent / Publication Preflight
 
 ARGUS completed PR511 on 2026-07-11:

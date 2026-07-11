@@ -4,48 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR511A cross-owner encounter consent ledger
+## Current lane - PR511A cross-owner encounter consent ledger ready for review
 
-MIMIR closed PR511 and opened PR511A for DAEDALUS:
+DAEDALUS implemented PR511A and woke ARGUS:
 
-`docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md`
 
-`docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_DAEDALUS.md`
-
-Why:
-
-- ARGUS accepted PR511A as
-  `ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ONLY`;
-- the smallest safe next cross-owner lane is a durable owner-scoped
-  consent/provenance ledger, not runtime, artifact, publication, or public
-  surfacing work;
-- PR511A may add invitation, approval, rejection, cancellation, revocation,
-  expiry, supersession, deletion-block, moderation-lock, participant readback,
-  and append-only audit semantics;
-- requested future scopes may be recorded, but no approval can be consumed to
-  run an encounter, save a private cross-owner artifact, publish metadata,
-  publish generated words, publish an excerpt, publish a transcript, publish a
-  summary, or surface anything publicly.
-
-Opened lane:
+Result:
 
 ```text
-PR511A - Cross-Owner Encounter Consent Ledger
-Owner: DAEDALUS / A2
-State: OPEN_CROSS_OWNER_CONSENT_LEDGER_IMPLEMENTATION
-Source: docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_DAEDALUS.md
+READY_FOR_ARGUS_REVIEW
 ```
+
+Summary:
+
+- migration `077` adds dedicated cross-owner consent and audit tables with
+  participant owner/persona constraints, participant read/requester-insert RLS,
+  participant audit readback RLS, no direct consent update/delete policy, no
+  direct participant audit insert policy, bounded states, bounded requested
+  scopes, and append-only audit protection;
+- `packages/db/src/types.ts` now exposes the consent/audit row, status, scope,
+  reason, actor-role, and event-type shapes;
+- `apps/api/src/routes/persona-encounters.ts` now exposes authenticated
+  participant-scoped invitation, list, detail, approve, reject, cancel, and
+  revoke routes;
+- readback excludes raw owner/persona ids and marks every requested scope
+  non-executable, including approved records;
+- focused tests prove auth, requester ownership, different-owner requirement,
+  participant-only readback/mutation, counterparty approval/rejection,
+  requester cancellation, participant revocation, inactive-state blocking,
+  privacy, audit readback, and no forbidden side effects.
 
 Next:
 
-- DAEDALUS implements the ledger-only schema/API/audit slice;
-- DAEDALUS wakes ARGUS for review with result doc and validation.
+- ARGUS reviews PR511A as ledger-only consent/provenance work;
+- ARGUS confirms owner scoping, audit append-only posture, state transitions,
+  non-executable requested scope readback, and forbidden-scope boundaries;
+- if accepted, ARGUS wakes MIMIR with the next routing decision.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR511 cross-owner encounter consent ledger preflight accepted

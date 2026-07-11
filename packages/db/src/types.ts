@@ -67,6 +67,46 @@ export type PublicSeminarRecordVisibility = "private" | "public";
 export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "wordpress" | "ghost" | "reddit";
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type PersonaEncounterPublicExhibitStatus = "published" | "retracted" | "removed";
+export type PersonaEncounterCrossOwnerConsentStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "cancelled"
+  | "revoked"
+  | "expired"
+  | "superseded"
+  | "blocked_by_deletion"
+  | "moderation_locked";
+export type PersonaEncounterCrossOwnerConsentRequestedScope =
+  | "run_cross_owner_encounter"
+  | "save_private_cross_owner_artifact"
+  | "share_participant_metadata_between_owners"
+  | "publish_metadata_only_public_exhibit"
+  | "publish_generated_words_excerpt"
+  | "publish_transcript"
+  | "publish_generated_summary";
+export type PersonaEncounterCrossOwnerConsentReasonCode =
+  | "not_aligned"
+  | "owner_request"
+  | "persona_deleted"
+  | "account_deleted"
+  | "moderation_safety"
+  | "scope_changed"
+  | "expired"
+  | "other";
+export type PersonaEncounterCrossOwnerConsentActorRole = "requester" | "counterparty" | "admin" | "system";
+export type PersonaEncounterCrossOwnerConsentAuditEventType =
+  | "invitation_created"
+  | "requester_approved"
+  | "requester_cancelled"
+  | "counterparty_approved"
+  | "counterparty_rejected"
+  | "participant_revoked"
+  | "invitation_expired"
+  | "scope_version_superseded"
+  | "persona_or_account_deletion_blocked"
+  | "moderation_lock_applied"
+  | "moderation_lock_cleared";
 export type SocialConnectorProvider = "bluesky";
 export type SocialConnectorPurpose = "social_connector";
 export type SocialConnectorCredentialCategory = "manual_credential";
@@ -516,6 +556,80 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["persona_encounter_public_exhibits"]["Insert"]>;
+      };
+      persona_encounter_cross_owner_consents: {
+        Row: {
+          id: string;
+          requester_owner_user_id: string;
+          requester_persona_id: string;
+          requester_persona_name_snapshot: string;
+          counterparty_owner_user_id: string;
+          counterparty_persona_id: string;
+          counterparty_persona_name_snapshot: string;
+          status: PersonaEncounterCrossOwnerConsentStatus;
+          requested_scopes: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          requested_scope_version: number;
+          requester_approved_at: string | null;
+          counterparty_approved_at: string | null;
+          rejected_at: string | null;
+          rejected_by: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          revoked_at: string | null;
+          revoked_by: string | null;
+          expired_at: string | null;
+          superseded_at: string | null;
+          blocked_by_deletion_at: string | null;
+          moderation_locked_at: string | null;
+          reason_code: PersonaEncounterCrossOwnerConsentReasonCode | null;
+          provenance_schema: "station.persona_encounter.cross_owner_consent.v1";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_consents"]["Row"], "id" | "status" | "requested_scopes" | "requested_scope_version" | "requester_approved_at" | "counterparty_approved_at" | "rejected_at" | "rejected_by" | "cancelled_at" | "cancelled_by" | "revoked_at" | "revoked_by" | "expired_at" | "superseded_at" | "blocked_by_deletion_at" | "moderation_locked_at" | "reason_code" | "provenance_schema" | "created_at" | "updated_at"> & {
+          id?: string;
+          status?: PersonaEncounterCrossOwnerConsentStatus;
+          requested_scopes?: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          requested_scope_version?: number;
+          requester_approved_at?: string | null;
+          counterparty_approved_at?: string | null;
+          rejected_at?: string | null;
+          rejected_by?: string | null;
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          revoked_at?: string | null;
+          revoked_by?: string | null;
+          expired_at?: string | null;
+          superseded_at?: string | null;
+          blocked_by_deletion_at?: string | null;
+          moderation_locked_at?: string | null;
+          reason_code?: PersonaEncounterCrossOwnerConsentReasonCode | null;
+          provenance_schema?: "station.persona_encounter.cross_owner_consent.v1";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_consents"]["Insert"]>;
+      };
+      persona_encounter_cross_owner_consent_audit_events: {
+        Row: {
+          id: string;
+          consent_id: string;
+          actor_user_id: string | null;
+          actor_role: PersonaEncounterCrossOwnerConsentActorRole;
+          event_type: PersonaEncounterCrossOwnerConsentAuditEventType;
+          previous_status: PersonaEncounterCrossOwnerConsentStatus | null;
+          next_status: PersonaEncounterCrossOwnerConsentStatus;
+          requested_scopes: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          reason_code: PersonaEncounterCrossOwnerConsentReasonCode | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_consent_audit_events"]["Row"], "id" | "requested_scopes" | "reason_code" | "created_at"> & {
+          id?: string;
+          requested_scopes?: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          reason_code?: PersonaEncounterCrossOwnerConsentReasonCode | null;
+          created_at?: string;
+        };
+        Update: never;
       };
       public_persona_interaction_counters: {
         Row: {

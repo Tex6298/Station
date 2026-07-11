@@ -32,6 +32,51 @@ const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
 const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.public_exhibit.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.cross_owner_consent.v1";
+const CROSS_OWNER_CONSENT_STATUSES = [
+  "pending",
+  "approved",
+  "rejected",
+  "cancelled",
+  "revoked",
+  "expired",
+  "superseded",
+  "blocked_by_deletion",
+  "moderation_locked",
+] as const;
+const CROSS_OWNER_CONSENT_REQUESTED_SCOPES = [
+  "run_cross_owner_encounter",
+  "save_private_cross_owner_artifact",
+  "share_participant_metadata_between_owners",
+  "publish_metadata_only_public_exhibit",
+  "publish_generated_words_excerpt",
+  "publish_transcript",
+  "publish_generated_summary",
+] as const;
+const CROSS_OWNER_CONSENT_REASON_CODES = [
+  "not_aligned",
+  "owner_request",
+  "persona_deleted",
+  "account_deleted",
+  "moderation_safety",
+  "scope_changed",
+  "expired",
+  "other",
+] as const;
+const CROSS_OWNER_CONSENT_AUDIT_EVENT_TYPES = [
+  "invitation_created",
+  "requester_approved",
+  "requester_cancelled",
+  "counterparty_approved",
+  "counterparty_rejected",
+  "participant_revoked",
+  "invitation_expired",
+  "scope_version_superseded",
+  "persona_or_account_deletion_blocked",
+  "moderation_lock_applied",
+  "moderation_lock_cleared",
+] as const;
 const PRIVATE_SESSION_CURATION_TITLE_MAX_CHARS = 120;
 const PRIVATE_SESSION_CURATION_SUMMARY_MAX_CHARS = 800;
 const PRIVATE_SESSION_CURATION_TAG_MAX_CHARS = 40;
@@ -106,6 +151,29 @@ const publicExhibitReportSchema = z.object({
   notes: z.string().trim().max(500).optional(),
 }).strict();
 
+const crossOwnerConsentRequestedScopeSchema = z.enum(CROSS_OWNER_CONSENT_REQUESTED_SCOPES);
+const crossOwnerConsentReasonCodeSchema = z.enum(CROSS_OWNER_CONSENT_REASON_CODES);
+
+const crossOwnerConsentRequestedScopesSchema = z.array(
+  crossOwnerConsentRequestedScopeSchema,
+).min(1).max(CROSS_OWNER_CONSENT_REQUESTED_SCOPES.length).transform((scopes) =>
+  Array.from(new Set(scopes))
+);
+
+const crossOwnerConsentCreateSchema = z.object({
+  requesterPersonaId: z.string().uuid(),
+  counterpartyPersonaId: z.string().uuid(),
+  requestedScopes: crossOwnerConsentRequestedScopesSchema
+    .default(["run_cross_owner_encounter"] satisfies CrossOwnerConsentRequestedScope[]),
+}).strict().refine((value) => value.requesterPersonaId !== value.counterpartyPersonaId, {
+  message: "Select two different personas.",
+  path: ["counterpartyPersonaId"],
+});
+
+const crossOwnerConsentReasonBodySchema = z.object({
+  reasonCode: crossOwnerConsentReasonCodeSchema.optional(),
+}).strict();
+
 const readinessSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
   responderPersonaId: z.string().uuid(),
@@ -122,6 +190,11 @@ const publicExhibitListCursorSchema = z.object({
 });
 
 type PublicExhibitListCursor = z.infer<typeof publicExhibitListCursorSchema>;
+type CrossOwnerConsentStatus = typeof CROSS_OWNER_CONSENT_STATUSES[number];
+type CrossOwnerConsentRequestedScope = typeof CROSS_OWNER_CONSENT_REQUESTED_SCOPES[number];
+type CrossOwnerConsentReasonCode = typeof CROSS_OWNER_CONSENT_REASON_CODES[number];
+type CrossOwnerConsentAuditEventType = typeof CROSS_OWNER_CONSENT_AUDIT_EVENT_TYPES[number];
+type CrossOwnerConsentActorRole = "requester" | "counterparty" | "admin" | "system";
 
 type EncounterPersonaRow = {
   id: string;
@@ -176,6 +249,48 @@ type EncounterPublicExhibitRow = {
   removed_by: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type EncounterCrossOwnerConsentRow = {
+  id: string;
+  requester_owner_user_id: string;
+  requester_persona_id: string;
+  requester_persona_name_snapshot: string;
+  counterparty_owner_user_id: string;
+  counterparty_persona_id: string;
+  counterparty_persona_name_snapshot: string;
+  status: CrossOwnerConsentStatus;
+  requested_scopes: CrossOwnerConsentRequestedScope[];
+  requested_scope_version: number;
+  requester_approved_at: string | null;
+  counterparty_approved_at: string | null;
+  rejected_at: string | null;
+  rejected_by: string | null;
+  cancelled_at: string | null;
+  cancelled_by: string | null;
+  revoked_at: string | null;
+  revoked_by: string | null;
+  expired_at: string | null;
+  superseded_at: string | null;
+  blocked_by_deletion_at: string | null;
+  moderation_locked_at: string | null;
+  reason_code: CrossOwnerConsentReasonCode | null;
+  provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PROVENANCE_SCHEMA;
+  created_at: string;
+  updated_at: string;
+};
+
+type EncounterCrossOwnerConsentAuditRow = {
+  id: string;
+  consent_id: string;
+  actor_user_id: string | null;
+  actor_role: CrossOwnerConsentActorRole;
+  event_type: CrossOwnerConsentAuditEventType;
+  previous_status: CrossOwnerConsentStatus | null;
+  next_status: CrossOwnerConsentStatus;
+  requested_scopes: CrossOwnerConsentRequestedScope[];
+  reason_code: CrossOwnerConsentReasonCode | null;
+  created_at: string;
 };
 
 personaEncountersRouter.get("/preview/readiness", requireAuth, async (req, res) => {
@@ -652,6 +767,289 @@ personaEncountersRouter.post("/public-exhibits/:slug/report", requireAuth, async
   });
 });
 
+personaEncountersRouter.post("/cross-owner-consents", requireAuth, async (req, res) => {
+  const parsed = crossOwnerConsentCreateSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const input = parsed.data;
+
+  const [requesterPersona, counterpartyPersona] = await Promise.all([
+    loadOwnedEncounterPersona(sb, input.requesterPersonaId, ownerUserId),
+    loadEncounterPersona(sb, input.counterpartyPersonaId),
+  ]);
+
+  if (!requesterPersona) {
+    return res.status(403).json({
+      error: "Requester persona must belong to the current owner.",
+      code: "persona_encounter_cross_owner_requester_persona_not_owned",
+    });
+  }
+
+  if (!counterpartyPersona) {
+    return res.status(403).json({
+      error: "Counterparty persona is not available for a cross-owner consent invitation.",
+      code: "persona_encounter_cross_owner_counterparty_persona_unavailable",
+    });
+  }
+
+  if (counterpartyPersona.owner_user_id === ownerUserId) {
+    return res.status(400).json({
+      error: "Cross-owner consent invitations require personas owned by different owners.",
+      code: "persona_encounter_cross_owner_required",
+    });
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consents")
+    .insert({
+      requester_owner_user_id: ownerUserId,
+      requester_persona_id: requesterPersona.id,
+      requester_persona_name_snapshot: requesterPersona.name,
+      counterparty_owner_user_id: counterpartyPersona.owner_user_id,
+      counterparty_persona_id: counterpartyPersona.id,
+      counterparty_persona_name_snapshot: counterpartyPersona.name,
+      status: "pending",
+      requested_scopes: input.requestedScopes,
+      requested_scope_version: 1,
+      requester_approved_at: now,
+      provenance_schema: PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PROVENANCE_SCHEMA,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner encounter consent invitation could not be saved.",
+      code: "persona_encounter_cross_owner_consent_save_failed",
+    });
+  }
+
+  const consent = data as EncounterCrossOwnerConsentRow;
+  await recordCrossOwnerConsentAuditEvent(sb, consent, {
+    actorUserId: ownerUserId,
+    actorRole: "requester",
+    eventType: "invitation_created",
+    previousStatus: null,
+    nextStatus: "pending",
+  });
+  await recordCrossOwnerConsentAuditEvent(sb, consent, {
+    actorUserId: ownerUserId,
+    actorRole: "requester",
+    eventType: "requester_approved",
+    previousStatus: "pending",
+    nextStatus: "pending",
+  });
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, consent.id);
+  return res.status(201).json({
+    consent: serializeCrossOwnerConsent(consent, ownerUserId, audit),
+  });
+});
+
+personaEncountersRouter.get("/cross-owner-consents", requireAuth, async (req, res) => {
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentsForParticipant(sb, ownerUserId);
+
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Cross-owner encounter consent ledger could not be loaded.",
+      code: "persona_encounter_cross_owner_consent_load_failed",
+    });
+  }
+
+  return res.json({
+    consents: result.rows.map((row) => serializeCrossOwnerConsent(row, ownerUserId)),
+  });
+});
+
+personaEncountersRouter.get("/cross-owner-consents/:consentId", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Cross-owner encounter consent could not be loaded.",
+      code: "persona_encounter_cross_owner_consent_load_failed",
+    });
+  }
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, result.row.id);
+  return res.json({
+    consent: serializeCrossOwnerConsent(result.row, ownerUserId, audit),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-consents/:consentId/approve", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = z.object({}).strict().safeParse(req.body ?? {});
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) {
+    return res.status(500).json({
+      error: "Cross-owner encounter consent could not be loaded.",
+      code: "persona_encounter_cross_owner_consent_load_failed",
+    });
+  }
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const consent = result.row;
+  if (ownerUserId !== consent.counterparty_owner_user_id) {
+    return res.status(403).json({
+      error: "Only the counterparty owner can approve this invitation.",
+      code: "persona_encounter_cross_owner_consent_counterparty_required",
+    });
+  }
+  if (consent.status !== "pending") return res.status(409).json(crossOwnerConsentInactiveBody(consent.status));
+
+  const update = await transitionCrossOwnerConsent(sb, consent, ownerUserId, {
+    nextStatus: "approved",
+    actorRole: "counterparty",
+    eventType: "counterparty_approved",
+    patch: {
+      counterparty_approved_at: new Date().toISOString(),
+    },
+  });
+  if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, update.row.id);
+  return res.json({
+    consent: serializeCrossOwnerConsent(update.row, ownerUserId, audit),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-consents/:consentId/reject", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = crossOwnerConsentReasonBodySchema.safeParse(req.body ?? {});
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const consent = result.row;
+  if (ownerUserId !== consent.counterparty_owner_user_id) {
+    return res.status(403).json({
+      error: "Only the counterparty owner can reject this invitation.",
+      code: "persona_encounter_cross_owner_consent_counterparty_required",
+    });
+  }
+  if (consent.status !== "pending") return res.status(409).json(crossOwnerConsentInactiveBody(consent.status));
+
+  const update = await transitionCrossOwnerConsent(sb, consent, ownerUserId, {
+    nextStatus: "rejected",
+    actorRole: "counterparty",
+    eventType: "counterparty_rejected",
+    reasonCode: parsedBody.data.reasonCode,
+    patch: {
+      rejected_at: new Date().toISOString(),
+      rejected_by: ownerUserId,
+      reason_code: parsedBody.data.reasonCode ?? null,
+    },
+  });
+  if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, update.row.id);
+  return res.json({
+    consent: serializeCrossOwnerConsent(update.row, ownerUserId, audit),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-consents/:consentId/cancel", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = crossOwnerConsentReasonBodySchema.safeParse(req.body ?? {});
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const consent = result.row;
+  if (ownerUserId !== consent.requester_owner_user_id) {
+    return res.status(403).json({
+      error: "Only the requester owner can cancel this invitation.",
+      code: "persona_encounter_cross_owner_consent_requester_required",
+    });
+  }
+  if (consent.status !== "pending") return res.status(409).json(crossOwnerConsentInactiveBody(consent.status));
+
+  const update = await transitionCrossOwnerConsent(sb, consent, ownerUserId, {
+    nextStatus: "cancelled",
+    actorRole: "requester",
+    eventType: "requester_cancelled",
+    reasonCode: parsedBody.data.reasonCode,
+    patch: {
+      cancelled_at: new Date().toISOString(),
+      cancelled_by: ownerUserId,
+      reason_code: parsedBody.data.reasonCode ?? null,
+    },
+  });
+  if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, update.row.id);
+  return res.json({
+    consent: serializeCrossOwnerConsent(update.row, ownerUserId, audit),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-consents/:consentId/revoke", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = crossOwnerConsentReasonBodySchema.safeParse(req.body ?? {});
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!result.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const consent = result.row;
+  if (consent.status !== "approved") return res.status(409).json(crossOwnerConsentInactiveBody(consent.status));
+
+  const actorRole = crossOwnerConsentParticipantRole(consent, ownerUserId);
+  if (!actorRole) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const update = await transitionCrossOwnerConsent(sb, consent, ownerUserId, {
+    nextStatus: "revoked",
+    actorRole,
+    eventType: "participant_revoked",
+    reasonCode: parsedBody.data.reasonCode,
+    patch: {
+      revoked_at: new Date().toISOString(),
+      revoked_by: ownerUserId,
+      reason_code: parsedBody.data.reasonCode ?? null,
+    },
+  });
+  if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
+
+  const audit = await loadCrossOwnerConsentAuditEvents(sb, update.row.id);
+  return res.json({
+    consent: serializeCrossOwnerConsent(update.row, ownerUserId, audit),
+  });
+});
+
 personaEncountersRouter.delete("/private-sessions/:sessionId", requireAuth, async (req, res) => {
   const parsed = sessionIdSchema.safeParse(req.params.sessionId);
   if (!parsed.success) return res.status(404).json({ error: "Private encounter session not found." });
@@ -941,6 +1339,142 @@ function serializePublishedPublicExhibitListItem(row: EncounterPublicExhibitRow)
   };
 }
 
+function serializeCrossOwnerConsent(
+  row: EncounterCrossOwnerConsentRow,
+  currentOwnerUserId: string,
+  auditEvents: EncounterCrossOwnerConsentAuditRow[] = [],
+) {
+  const participantRole = crossOwnerConsentParticipantRole(row, currentOwnerUserId);
+
+  return {
+    id: row.id,
+    status: row.status,
+    participantRole,
+    participants: {
+      requester: {
+        role: "requester",
+        personaName: row.requester_persona_name_snapshot,
+        currentUser: participantRole === "requester",
+      },
+      counterparty: {
+        role: "counterparty",
+        personaName: row.counterparty_persona_name_snapshot,
+        currentUser: participantRole === "counterparty",
+      },
+    },
+    requestedScopes: row.requested_scopes.map((scope) => ({
+      scope,
+      label: crossOwnerConsentScopeLabel(scope),
+      executable: false,
+      note: "Recorded for future review only; PR511A does not permit execution or publication.",
+    })),
+    requestedScopeVersion: row.requested_scope_version,
+    ledger: {
+      consentRecordActive: row.status === "approved",
+      executable: false,
+      permitsRuntime: false,
+      permitsPrivateArtifact: false,
+      permitsPublicExhibit: false,
+      permitsGeneratedWords: false,
+      permitsTranscript: false,
+      permitsSummary: false,
+      permitsPublicSurfacing: false,
+      note: "Consent ledger only. Approval cannot be consumed to run an encounter, save artifacts, publish metadata or generated words, expose transcript/summary output, or surface anything publicly.",
+    },
+    timestamps: {
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      requesterApprovedAt: row.requester_approved_at,
+      counterpartyApprovedAt: row.counterparty_approved_at,
+      rejectedAt: row.rejected_at,
+      cancelledAt: row.cancelled_at,
+      revokedAt: row.revoked_at,
+      expiredAt: row.expired_at,
+      supersededAt: row.superseded_at,
+      blockedByDeletionAt: row.blocked_by_deletion_at,
+      moderationLockedAt: row.moderation_locked_at,
+    },
+    reasonCode: row.reason_code,
+    provenance: {
+      label: "Cross-owner consent ledger record",
+      schema: row.provenance_schema,
+      participantOwnerOnly: true,
+      auditAppendOnly: true,
+      public: false,
+      note: "Readback is limited to participant owners and bounded audit metadata.",
+    },
+    audit: auditEvents.map(serializeCrossOwnerConsentAuditEvent),
+  };
+}
+
+function serializeCrossOwnerConsentAuditEvent(row: EncounterCrossOwnerConsentAuditRow) {
+  return {
+    id: row.id,
+    actorRole: row.actor_role,
+    eventType: row.event_type,
+    previousStatus: row.previous_status,
+    nextStatus: row.next_status,
+    requestedScopes: row.requested_scopes.map((scope) => ({
+      scope,
+      label: crossOwnerConsentScopeLabel(scope),
+      executable: false,
+    })),
+    reasonCode: row.reason_code,
+    createdAt: row.created_at,
+  };
+}
+
+function crossOwnerConsentScopeLabel(scope: CrossOwnerConsentRequestedScope) {
+  switch (scope) {
+    case "run_cross_owner_encounter":
+      return "Run cross-owner encounter";
+    case "save_private_cross_owner_artifact":
+      return "Save private cross-owner artifact";
+    case "share_participant_metadata_between_owners":
+      return "Share participant metadata between owners";
+    case "publish_metadata_only_public_exhibit":
+      return "Publish metadata-only public exhibit";
+    case "publish_generated_words_excerpt":
+      return "Publish generated-words excerpt";
+    case "publish_transcript":
+      return "Publish transcript";
+    case "publish_generated_summary":
+      return "Publish generated summary";
+  }
+}
+
+function crossOwnerConsentParticipantRole(
+  row: EncounterCrossOwnerConsentRow,
+  ownerUserId: string,
+): "requester" | "counterparty" | null {
+  if (row.requester_owner_user_id === ownerUserId) return "requester";
+  if (row.counterparty_owner_user_id === ownerUserId) return "counterparty";
+  return null;
+}
+
+function crossOwnerConsentInactiveBody(status: CrossOwnerConsentStatus) {
+  return {
+    error: "Cross-owner consent is not pending or active for this transition.",
+    code: "persona_encounter_cross_owner_consent_inactive",
+    status,
+    executable: false,
+  };
+}
+
+function crossOwnerConsentLoadFailedBody() {
+  return {
+    error: "Cross-owner encounter consent could not be loaded.",
+    code: "persona_encounter_cross_owner_consent_load_failed",
+  };
+}
+
+function crossOwnerConsentUpdateFailedBody() {
+  return {
+    error: "Cross-owner encounter consent could not be updated.",
+    code: "persona_encounter_cross_owner_consent_update_failed",
+  };
+}
+
 async function loadOwnerPrivateSession(
   sb: ReturnType<typeof getSupabaseAdmin>,
   ownerUserId: string,
@@ -954,6 +1488,158 @@ async function loadOwnerPrivateSession(
     .maybeSingle();
 
   return (data ?? null) as EncounterPrivateSessionRow | null;
+}
+
+async function loadEncounterPersona(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  personaId: string,
+) {
+  const { data } = await sb
+    .from("personas")
+    .select("id, owner_user_id, name, short_description, long_description, visibility, provider, awakening_prompt, style_notes")
+    .eq("id", personaId)
+    .maybeSingle();
+
+  return (data ?? null) as EncounterPersonaRow | null;
+}
+
+async function loadCrossOwnerConsentsForParticipant(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  ownerUserId: string,
+): Promise<{ ok: true; rows: EncounterCrossOwnerConsentRow[] } | { ok: false }> {
+  const [requesterResult, counterpartyResult] = await Promise.all([
+    sb
+      .from("persona_encounter_cross_owner_consents")
+      .select("*")
+      .eq("requester_owner_user_id", ownerUserId)
+      .order("created_at", { ascending: false })
+      .limit(25),
+    sb
+      .from("persona_encounter_cross_owner_consents")
+      .select("*")
+      .eq("counterparty_owner_user_id", ownerUserId)
+      .order("created_at", { ascending: false })
+      .limit(25),
+  ]);
+
+  if (requesterResult.error || counterpartyResult.error) return { ok: false };
+
+  const rowsById = new Map<string, EncounterCrossOwnerConsentRow>();
+  for (const row of [
+    ...((requesterResult.data ?? []) as EncounterCrossOwnerConsentRow[]),
+    ...((counterpartyResult.data ?? []) as EncounterCrossOwnerConsentRow[]),
+  ]) {
+    rowsById.set(row.id, row);
+  }
+
+  const rows = [...rowsById.values()]
+    .sort((a, b) => {
+      if (a.created_at === b.created_at) return b.id.localeCompare(a.id);
+      return b.created_at.localeCompare(a.created_at);
+    })
+    .slice(0, 25);
+
+  return { ok: true, rows };
+}
+
+async function loadCrossOwnerConsentForParticipant(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+  ownerUserId: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerConsentRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consents")
+    .select("*")
+    .eq("id", consentId)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+
+  const row = (data ?? null) as EncounterCrossOwnerConsentRow | null;
+  if (!row || !crossOwnerConsentParticipantRole(row, ownerUserId)) {
+    return { ok: true, row: null };
+  }
+
+  return { ok: true, row };
+}
+
+async function loadCrossOwnerConsentAuditEvents(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+) {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consent_audit_events")
+    .select("*")
+    .eq("consent_id", consentId)
+    .order("created_at", { ascending: true })
+    .limit(50);
+
+  if (error) return [];
+  return (data ?? []) as EncounterCrossOwnerConsentAuditRow[];
+}
+
+async function recordCrossOwnerConsentAuditEvent(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consent: EncounterCrossOwnerConsentRow,
+  input: {
+    actorUserId: string | null;
+    actorRole: CrossOwnerConsentActorRole;
+    eventType: CrossOwnerConsentAuditEventType;
+    previousStatus: CrossOwnerConsentStatus | null;
+    nextStatus: CrossOwnerConsentStatus;
+    reasonCode?: CrossOwnerConsentReasonCode;
+  },
+) {
+  await sb
+    .from("persona_encounter_cross_owner_consent_audit_events")
+    .insert({
+      consent_id: consent.id,
+      actor_user_id: input.actorUserId,
+      actor_role: input.actorRole,
+      event_type: input.eventType,
+      previous_status: input.previousStatus,
+      next_status: input.nextStatus,
+      requested_scopes: consent.requested_scopes,
+      reason_code: input.reasonCode ?? null,
+    });
+}
+
+async function transitionCrossOwnerConsent(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consent: EncounterCrossOwnerConsentRow,
+  actorUserId: string,
+  input: {
+    nextStatus: CrossOwnerConsentStatus;
+    actorRole: "requester" | "counterparty";
+    eventType: CrossOwnerConsentAuditEventType;
+    patch: Record<string, unknown>;
+    reasonCode?: CrossOwnerConsentReasonCode;
+  },
+): Promise<{ ok: true; row: EncounterCrossOwnerConsentRow } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consents")
+    .update({
+      ...input.patch,
+      status: input.nextStatus,
+    })
+    .eq("id", consent.id)
+    .eq("status", consent.status)
+    .select("*")
+    .single();
+
+  if (error || !data) return { ok: false };
+
+  const row = data as EncounterCrossOwnerConsentRow;
+  await recordCrossOwnerConsentAuditEvent(sb, row, {
+    actorUserId,
+    actorRole: input.actorRole,
+    eventType: input.eventType,
+    previousStatus: consent.status,
+    nextStatus: input.nextStatus,
+    reasonCode: input.reasonCode,
+  });
+
+  return { ok: true, row };
 }
 
 async function loadOwnerPublicExhibitsBySession(
