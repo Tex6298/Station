@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505B hosted provider empty-reply guard working
+## Current lane - PR505C owner encounter NVIDIA output budget
+
+MIMIR opened PR505C for DAEDALUS:
+
+`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md`
+
+Why:
+
+- PR505B proved hosted PR505A empty-output guard is active.
+- The hosted preview now fails bounded with `502` /
+  `persona_encounter_provider_empty_reply` instead of returning a false `200`.
+- MIMIR ran sanitized NVIDIA/OpenAI-compatible probes:
+  - `max_tokens:64` produced `finishReason:length`, no `message.content`, and
+    non-empty `reasoning_content`;
+  - `max_tokens:512` produced `finishReason:stop` and nonblank
+    `message.content`.
+- Remaining blocker is provider output/completion budget for the
+  NVIDIA/OpenAI-compatible route, not auth, ownership, config readiness,
+  persistence, public exposure, retrieval, billing, social, queue, Redis, or
+  Cloudflare.
+
+Current lane:
+
+```text
+PR505C - Owner Encounter NVIDIA Output Budget
+Owner: DAEDALUS / A2
+State: OPEN_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR505B hosted provider empty-reply guard working
 
 ARIADNE completed PR505B:
 

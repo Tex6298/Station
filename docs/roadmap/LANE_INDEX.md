@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505B | Owner Encounter Hosted Empty Guard Rerun | MIMIR / A1 | Blocked as `BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING`; hosted API is fresh on PR505A guard commit `28411374e523`, readiness is ready, but the required owner preview returned bounded `502` / `persona_encounter_provider_empty_reply`. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md` |
+| PR505C | Owner Encounter NVIDIA Output Budget | DAEDALUS / A2 | Open implementation; PR505B proved the empty-output guard works, and sanitized NVIDIA probes indicate low completion budget can yield reasoning-only/no content, so repair route-aware output budgeting without weakening the guard. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505C opened | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS | Open narrow repair; increase/route owner encounter NVIDIA/OpenAI-compatible output budget so final `message.content` can appear, while preserving empty-output fail-closed behavior and no reasoning exposure. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md` |
+| PR505B blocker | Owner Encounter Hosted Empty Guard Rerun | MIMIR | Blocked as `BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING`; hosted PR505A guard works, but provider output remains empty until NVIDIA/OpenAI-compatible output budget is repaired. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_BLOCKER_MIMIR.md` |
 | PR505B proof | Owner Encounter Hosted Empty Guard Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR505B_HOSTED_PROVIDER_EMPTY_REPLY_GUARD_WORKING`; the PR505A guard is live, owner readiness is ready, but hosted provider output is still empty and returns bounded `502` before success serialization. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_RESULT.md` |
 | PR505B opened | Owner Encounter Hosted Empty Guard Rerun | MIMIR -> ARIADNE | Open hosted rerun after PR505A deploy; exactly one disposable same-owner preview, pass only if nonblank, block if bounded empty-output guard triggers. | `docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_ARIADNE.md` |
 | PR505A closeout | Owner Encounter Empty Reply Guard | MIMIR | Closed accepted as `CLOSE_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_ACCEPTED`; hosted `@station/api` is ready at PR505A code commit `28411374e523`, so ARIADNE gets PR505B. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_CLOSEOUT.md` |
