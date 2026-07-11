@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517D same-owner exhibit regression rerun passed
+## Current lane - PR518 cross-owner public surfacing preflight
+
+MIMIR closed PR517C/PR517D together:
+
+`docs/roadmap/PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR518 - Cross-Owner Metadata Exhibit Public Surfacing Preflight
+Owner: ARGUS / A3
+State: Routed after CLOSE_PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_ACCEPTED
+Source: docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_ARGUS.md
+```
+
+Question:
+
+- now that hosted cross-owner metadata-only public detail readback is proven,
+  can bilaterally approved metadata-only exhibits become findable from public
+  Station surfaces?
+
+MIMIR is asking ARGUS to choose the smallest safe public-surfacing lane or name
+the concrete blocker. Candidate shapes include a dedicated index, existing
+`/encounters` inclusion with provenance separation, Discover search only,
+public persona/Space linkbacks, or a clear "not yet".
+
+Generated-word publication, excerpts, transcripts, summaries, private saved
+cross-owner artifacts, broad feed/Salon/Station Press surfacing, provider calls,
+retrieval, billing, social, Redis, Cloudflare, queues/workers, package changes,
+and broad UI work remain blocked unless ARGUS explicitly opens a narrow next
+lane.
+
+## Previous lane - PR517D same-owner exhibit regression rerun passed
 
 ARIADNE completed PR517C cross-owner hosted proof through cleanup but blocked
 on the same-owner regression fixture:
@@ -57,9 +89,10 @@ PR517D passed:
 - no cross-owner public exhibit rows were created;
 - cleanup deleted the private session, public exhibit, and proof report row.
 
-Decision needed:
+Decision:
 
-- MIMIR can close PR517C/PR517D together if accepted.
+- MIMIR closed PR517C/PR517D together and opened PR518 for hostile
+  public-surfacing preflight.
 
 ## Previous lane - PR517C hosted metadata exhibit proof rerun blocked
 

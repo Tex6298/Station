@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517D | Same-Owner Public Exhibit Regression Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN`; current-hosted same-owner fixture publish/report/remove/restore/retract/no-drift/cleanup regression passed. | `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md` |
+| PR518 | Cross-Owner Metadata Exhibit Public Surfacing Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Routed after `CLOSE_PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_ACCEPTED`; ARGUS decides the smallest safe public-surfacing lane for bilaterally approved metadata-only cross-owner exhibits. | `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR517C/PR517D closeout | Cross-Owner Metadata-Only Public Exhibit Hosted Closeout | MIMIR | Closed as `CLOSE_PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_ACCEPTED`; hosted cross-owner detail contract and same-owner regression gate passed, opening PR518 public-surfacing preflight. | `docs/roadmap/PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_CLOSEOUT.md` |
+| PR517D rerun | Same-Owner Public Exhibit Regression Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN`; current-hosted same-owner fixture publish/report/remove/restore/retract/no-drift/cleanup regression passed. | `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md` |
 | PR517C blocker | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | ARIADNE -> MIMIR | Blocked as `BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING`; cross-owner hosted proof passed through cleanup, but MIMIR chose not to waive the missing same-owner report/remove/restore fixture and opened PR517D. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_BLOCKER_MIMIR.md` |
 | PR517C rerun | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN`; migration 080 and cross-owner contract passed through cleanup, but hosted had no same-owner published public exhibit fixture for the required regression check. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md` |
 | PR517B unblock | Cross-Owner Metadata-Only Public Exhibit Hosted Migration 080 | MIMIR | Migration unblock recorded as `UNBLOCK_PR517B_HOSTED_MIGRATION_080_APPLIED`; hosted migration `080` applied and ledgered as `20260711223402 / 080_persona_encounter_cross_owner_public_exhibits`, PostgREST reload requested, and REST table visibility verified. | `docs/roadmap/PR517B_HOSTED_MIGRATION_080_UNBLOCK_MIMIR.md` |
