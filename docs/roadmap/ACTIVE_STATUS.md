@@ -4,7 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505C owner encounter NVIDIA output budget ready for review
+## Current lane - PR505C owner encounter NVIDIA output budget accepted by ARGUS
+
+ARGUS accepted PR505C:
+
+`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET
+```
+
+Summary:
+
+- Owner encounter previews now apply a route-local `512` max-token floor only
+  for `nvidia_openai_compatible`.
+- Non-NVIDIA preview budget behavior is unchanged.
+- Quota estimation uses the selected route-local budget before the provider
+  call.
+- PR505A's empty-output guard remains fail-closed: blank responder output still
+  returns bounded `502` / `persona_encounter_provider_empty_reply` before
+  success serialization or successful token usage.
+- The OpenAI-compatible adapter still reads only `message.content`; it does not
+  parse or expose `reasoning_content`.
+- No retry, fake fallback, provider policy, persistence, retrieval, billing,
+  public route, queue/worker, Redis, Cloudflare, storage, schema, migration,
+  UI, or secret/payload leakage drift was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed: 20
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Changed-path/source scan passed.
+
+Current lane:
+
+```text
+PR505C - Owner Encounter NVIDIA Output Budget
+Owner: MIMIR / A1
+State: ACCEPTED_AWAITING_CLOSEOUT_OR_ARIADNE_RERUN
+Source: docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR505C owner encounter NVIDIA output budget ready for review
 
 DAEDALUS implemented PR505C for ARGUS review:
 
@@ -44,7 +97,7 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - Final diff checks are recorded in the result doc before commit.
 
-Current lane:
+Lane at handoff:
 
 ```text
 PR505C - Owner Encounter NVIDIA Output Budget

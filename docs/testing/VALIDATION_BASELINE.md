@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505C Owner Encounter NVIDIA Output Budget ARGUS Review
+
+ARGUS accepted PR505C on 2026-07-11:
+
+- `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET`.
+
+Reason:
+
+- `nvidia_openai_compatible` owner encounter previews now use a route-local
+  `512` max-token floor;
+- non-NVIDIA preview budget behavior is unchanged;
+- quota estimation uses the selected budget before provider work;
+- PR505A's empty-output guard remains fail-closed for blank responder output;
+- no `reasoning_content` exposure, retry, fake fallback, provider policy,
+  persistence, retrieval, billing, public route, queue/worker, Redis,
+  Cloudflare, storage, schema, migration, UI, or secret/payload leakage drift
+  was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 20 persona encounter route/runtime tests passed in ARGUS review. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path/source scan | Pass | Matches were the intended budget change, existing empty-reply code, and negative boundary language only. |
+
 ## PR505C Owner Encounter NVIDIA Output Budget
 
 DAEDALUS completed the local PR505C owner encounter NVIDIA output budget patch
