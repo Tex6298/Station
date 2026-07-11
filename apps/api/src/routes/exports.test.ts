@@ -2405,6 +2405,19 @@ test("Station Press package duplicate, malformed, and source failure states stay
     assert.equal(blocked.body.resource, "export_packages");
     assert.equal(db.tables.export_packages.length, 1);
 
+    const processingRow = db.tables.export_packages[0];
+    const processingRead = await requestJson(app, "GET", `/exports/${processingRow.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(processingRead.status, 409);
+    assert.match(JSON.stringify(processingRead.body), /stored manifest readback is complete/);
+
+    const processingBundle = await requestJson(app, "GET", `/exports/${processingRow.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(processingBundle.status, 409);
+    assert.match(JSON.stringify(processingBundle.body), /package is completed/);
+
     for (const scenario of [
       { label: "wrong schema", manifestJson: { schema: "station.press.private.v1", privateDetail: "wrong schema detail must not leak" }, manifestMarkdown: "# wrong schema markdown must not leak" },
       { label: "package id in manifest", manifestJson: { schema: "station.press.publication_package_manifest.v1", package: { id: "raw-package-id", packageKind: "station_press_publication" } }, manifestMarkdown: "# package id markdown must not leak" },
@@ -2418,6 +2431,16 @@ test("Station Press package duplicate, malformed, and source failure states stay
         manifest_json: scenario.manifestJson,
         manifest_markdown: scenario.manifestMarkdown,
       });
+      const readResponse = await requestJson(app, "GET", `/exports/${row.id}`, {
+        token: "owner-token",
+      });
+      assert.equal(readResponse.status, 409, scenario.label);
+      const readResponseText = JSON.stringify(readResponse.body);
+      assert.match(readResponseText, /stored manifest readback is complete/);
+      assert.doesNotMatch(readResponseText, /wrong schema detail/);
+      assert.doesNotMatch(readResponseText, /raw-package-id/);
+      assert.doesNotMatch(readResponseText, /markdown must not leak/);
+
       const response = await requestJson(app, "GET", `/exports/${row.id}/bundle`, {
         token: "owner-token",
       });

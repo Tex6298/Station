@@ -4,25 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504A Station Press owner package contract ready for ARGUS review
+## Current lane - PR504A Station Press owner package contract accepted by ARGUS
 
-DAEDALUS completed PR504A:
+ARGUS accepted PR504A after a narrow review patch:
 
-`docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md`
+`docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_IMPLEMENTATION
 ```
 
 Summary:
 
-- Added explicit `station_press_publication` export package kind and
+- DAEDALUS added explicit `station_press_publication` export package kind and
   `export_packages.document_id` document target.
-- Added migration `073_station_press_publication_packages.sql` with kind,
+- Migration `073_station_press_publication_packages.sql` adds kind,
   target, owner/document index, and owner-document RLS boundaries.
-- Added authenticated owner create/list routes under
+- Authenticated owner create/list routes live under
   `/exports/station-press/publications/:documentId` and extended package
   read/bundle for `station_press_publication`.
 - The package is metadata-only, synchronous, authenticated, private, and
@@ -31,9 +31,16 @@ Summary:
 - Private, draft, archived, missing, cross-owner, and no-Space documents fail
   before a completed row is produced; source failures leave a failed row with
   bounded owner-visible error copy.
+- ARGUS patched `GET /exports/:id` so incomplete or malformed Station Press
+  readback returns bounded `409` instead of echoing malformed stored manifest
+  content.
+- ARGUS patched `/studio/publishing` empty package copy to say no package is
+  loaded, avoiding an overclaim that no package has ever been created.
 - `/studio/publishing` has a small owner-only readiness/action/readback control
   with no package-id display, public package URL, download/share link, storage,
   PDF/binary/print, provider, billing, social, queue/worker, or launch claim.
+- Because visible owner UI changed, ARIADNE hosted desktop and 390px mobile
+  proof is required before MIMIR closes PR504A.
 
 Validation:
 
@@ -46,22 +53,23 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 - `git diff --check` and `git diff --cached --check` passed.
 - Changed-path/source scan reviewed expected exclusion labels, negative leak
-  assertions, and boundary docs only.
+  assertions, schema/RLS fields, bounded internal route handles, and boundary
+  docs only.
 
 Current lane:
 
 ```text
 PR504A - Station Press Owner Package Contract
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_IMPLEMENTATION
+Source: docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR504 Station Press package generation preflight accepted

@@ -563,7 +563,7 @@ test("publication manifest package helpers keep owner package status ID-free", (
   assert.equal(stationPressPublicationPackageReady(notReadyContract), false);
   assert.equal(
     stationPressPublicationPackageStatusCopy(),
-    "No owner metadata package has been created for this publication.",
+    "No owner metadata package is loaded for this publication.",
   );
   assert.equal(
     stationPressPublicationPackageStatusCopy([{ id: "export-package-private-id", packageKind: "station_press_publication", status: "completed" }]),

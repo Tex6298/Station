@@ -1465,6 +1465,7 @@ function buildStationPressPublicationManifestMarkdown(manifest: any) {
 }
 
 function hasStoredStationPressPublicationManifestReadback(row: any) {
+  if (row.status !== "completed" || row.format !== "json_markdown") return false;
   const manifest = row.manifest_json;
   if (!isPlainRecord(manifest)) return false;
   const packageInfo = manifest.package;
@@ -1478,6 +1479,8 @@ function hasStoredStationPressPublicationManifestReadback(row: any) {
     typeof manifest.generatedAt === "string" &&
     isPlainRecord(packageInfo) &&
     packageInfo.packageKind === "station_press_publication" &&
+    packageInfo.status === "completed" &&
+    packageInfo.format === "json_markdown" &&
     isPlainRecord(publication) &&
     typeof publication.title === "string" &&
     typeof publication.documentTypeLabel === "string" &&
@@ -2530,12 +2533,22 @@ exportsRouter.get("/:id", async (req, res) => {
     .single();
 
   if (error || !data) return res.status(404).json({ error: "Export package not found." });
+  if (data.package_kind === "station_press_publication") {
+    if (!hasStoredStationPressPublicationManifestReadback(data)) {
+      return res.status(409).json({
+        error: "Station Press publication readback is available only when stored manifest readback is complete.",
+      });
+    }
+    return res.json({
+      exportPackage: stationPressPublicationExportRow(data),
+      manifest: data.manifest_json,
+      manifestMarkdown: data.manifest_markdown,
+    });
+  }
   return res.json({
     exportPackage: data.package_kind === "workspace_manifest"
       ? workspaceExportRow(data)
-      : data.package_kind === "station_press_publication"
-        ? stationPressPublicationExportRow(data)
-        : exportRow(data),
+      : exportRow(data),
     manifest: data.manifest_json,
     manifestMarkdown: data.manifest_markdown,
   });

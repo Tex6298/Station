@@ -691,7 +691,7 @@ export function stationPressPublicationPackageStatusCopy(
   packages: StationPressPublicationPackage[] = [],
 ): string {
   const latest = packages[0];
-  if (!latest) return "No owner metadata package has been created for this publication.";
+  if (!latest) return "No owner metadata package is loaded for this publication.";
   if (latest.status === "completed") return "Latest owner metadata package is complete.";
   if (latest.status === "failed") return "Latest owner metadata package failed; private source material remains owner-only.";
   if (latest.status === "requested" || latest.status === "processing") return "Owner metadata package is still preparing.";
