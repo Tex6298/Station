@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504B Station Press owner package hosted proof rerun blocked
+## Current lane - PR504D Station Press owner package create path repair
+
+MIMIR opened PR504D for DAEDALUS after PR504B hosted proof remained blocked
+even with PR504C deployed:
+
+`docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_DAEDALUS.md`
+
+Task:
+
+- Inspect hosted `@station/api` logs for the remaining bounded create failure.
+- Diagnose the exact failing step in the full Station Press owner package
+  create path, not only optional seminar schedule loading.
+- Repair only the smallest defect needed for owner create/readback/bundle proof.
+- Preserve owner-only scope, document target, raw-id omission, private-body
+  omission, storage omission, public-download omission, signed-out `401`,
+  cross-owner `404`, and bounded browser error behavior.
+- Document the result and wake ARGUS for review before ARIADNE reruns hosted
+  PR504B proof.
+
+Current lane:
+
+```text
+PR504D - Station Press Owner Package Create Path Repair
+Owner: DAEDALUS / A2
+State: OPEN_DEFECT_REPAIR
+Source: docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR504B Station Press owner package hosted proof rerun blocked
 
 ARIADNE completed the PR504B hosted rerun:
 
