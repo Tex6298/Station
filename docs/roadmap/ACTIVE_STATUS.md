@@ -4,37 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR518 cross-owner public surfacing preflight
+## Current lane - PR518 cross-owner public surfacing preflight accepted by ARGUS
 
-MIMIR closed PR517C/PR517D together:
+ARGUS completed the PR518 hostile preflight:
 
-`docs/roadmap/PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_CLOSEOUT.md`
+`docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md`
 
 Current lane:
 
 ```text
 PR518 - Cross-Owner Metadata Exhibit Public Surfacing Preflight
-Owner: ARGUS / A3
-State: Routed after CLOSE_PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_ACCEPTED
-Source: docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_ARGUS.md
+Owner: ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT
+Source: docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md
 ```
 
-Question:
+Verdict:
 
-- now that hosted cross-owner metadata-only public detail readback is proven,
-  can bilaterally approved metadata-only exhibits become findable from public
-  Station surfaces?
+- bilaterally approved metadata-only cross-owner exhibits may become findable
+  only through a dedicated cross-owner public index lane first;
+- recommended next lane:
+  `PR518A - Cross-Owner Metadata Exhibit Dedicated Public Index`;
+- recommended owner: DAEDALUS / A2;
+- the existing same-owner `/encounters` list may link to the dedicated
+  cross-owner index, but must not mix same-owner and cross-owner rows in PR518A;
+- Discover search/feed, public persona, public Space, forum/community/Salon,
+  writing, Station Press, generated words, transcripts, excerpts, summaries,
+  private saved cross-owner artifacts, PR516 disposable preview output reuse,
+  provider/retrieval/storage/billing/social/Redis/Cloudflare/queue/package/
+  deployment work remain blocked.
 
-MIMIR is asking ARGUS to choose the smallest safe public-surfacing lane or name
-the concrete blocker. Candidate shapes include a dedicated index, existing
-`/encounters` inclusion with provenance separation, Discover search only,
-public persona/Space linkbacks, or a clear "not yet".
+Validation:
 
-Generated-word publication, excerpts, transcripts, summaries, private saved
-cross-owner artifacts, broad feed/Salon/Station Press surfacing, provider calls,
-retrieval, billing, social, Redis, Cloudflare, queues/workers, package changes,
-and broad UI work remain blocked unless ARGUS explicitly opens a narrow next
-lane.
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 73 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:community          PASS - 44 tests
+npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 29 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+```
+
+MIMIR should close PR518 if satisfied and route DAEDALUS for PR518A.
 
 ## Previous lane - PR517D same-owner exhibit regression rerun passed
 

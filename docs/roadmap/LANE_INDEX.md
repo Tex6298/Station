@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR518 | Cross-Owner Metadata Exhibit Public Surfacing Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Routed after `CLOSE_PR517C_PR517D_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_ACCEPTED`; ARGUS decides the smallest safe public-surfacing lane for bilaterally approved metadata-only cross-owner exhibits. | `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_ARGUS.md` |
+| PR518 | Cross-Owner Metadata Exhibit Public Surfacing Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT`; DAEDALUS may implement only a dedicated cross-owner metadata exhibit public index contract first. Discover/search/feed, mixed `/encounters` inclusion, persona/Space/forum/Station Press surfacing, generated words, and private artifacts remain blocked. | `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 

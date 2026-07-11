@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR518 Cross-Owner Metadata Exhibit Public Surfacing Preflight
+
+ARGUS completed PR518 hostile preflight on 2026-07-11:
+
+- `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_CONTRACT`.
+
+Reason:
+
+- hosted PR517C proved the cross-owner metadata-only public detail contract,
+  report/moderation, revocation hiding, participant retract, no-runtime/
+  no-private-session, no-drift, privacy, and cleanup;
+- hosted PR517D proved current-hosted same-owner public exhibit
+  publish/report/remove/restore/retract regression;
+- ARGUS accepts only a dedicated cross-owner metadata exhibit public index as
+  the next safe findability lane;
+- mixed same-owner `/encounters` inclusion, Discover search/feed, public
+  persona, Space, forum/community/Salon, writing, Station Press, generated
+  words, transcripts, excerpts, summaries, private saved cross-owner artifacts,
+  PR516 disposable preview output reuse, provider/retrieval/storage/billing/
+  social/Redis/Cloudflare/queue/package/deployment work remain blocked.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 73 tests passed, including cross-owner metadata approval/detail/report/revocation/retract and same-owner public exhibit regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner and cross-owner public exhibit moderation actions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 44 tests passed, including current Discover search/feed grouping and safe encounter exhibit routing. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing/feed/public persona/Space helpers remain bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including cross-owner public metadata helper copy and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path / forbidden-path scans | Pass | Staged changes are roadmap/testing docs only; no runtime, infra, package, lockfile, Cloudflare, queue, billing, provider, retrieval, storage, or deployment paths changed. |
+| Secret-shaped diff scan | Pass | No secret-shaped added lines were found in the staged diff. |
+
 ## PR517D Same-Owner Public Exhibit Regression Hosted Rerun
 
 ARIADNE completed PR517D hosted rerun on 2026-07-11:
