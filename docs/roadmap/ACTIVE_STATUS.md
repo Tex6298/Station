@@ -4,11 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508D owner encounter public exhibit report/takedown hosted rerun passed
+## Current lane - PR509 public encounter exhibit discovery preflight opened
 
-ARIADNE completed PR508D hosted rerun:
+MIMIR closed PR508D/PR508B as accepted and opened PR509 for ARGUS:
 
 `docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_RESULT.md`
+
+`docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_CLOSEOUT.md`
+
+`docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ARGUS.md`
 
 Result:
 
@@ -44,15 +48,36 @@ Summary:
 Current lane:
 
 ```text
-PR508D - Owner Encounter Public Exhibit Report/Takedown Hosted Rerun
-Owner: MIMIR / A1
-State: PASSED_HOSTED_REPORT_TAKEDOWN_RERUN
-Source: docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_RESULT.md
+PR509 - Public Encounter Exhibit Discovery Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ARGUS.md
 ```
 
 Next:
 
-- MIMIR should close PR508D/PR508B if accepted, or route any final follow-up.
+- ARGUS decides whether and how public encounter exhibits may become
+  discoverable from Station public surfaces;
+- ARGUS recommends the smallest safe implementation lane, or a concrete
+  prerequisite/no-go;
+- ARGUS wakes MIMIR with verdict and next owner.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR508D owner encounter public exhibit report/takedown hosted rerun accepted
+
+ARIADNE completed PR508D hosted rerun:
+
+`docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_RESULT.md`
+
+MIMIR closed it:
+
+`docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_CLOSEOUT.md`
 
 ## Previous lane - PR508D owner encounter public exhibit report/takedown hosted rerun opened
 
