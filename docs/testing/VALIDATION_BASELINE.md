@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506C Owner Encounter Browser Proof Tooling ARGUS Review
+
+ARGUS accepted PR506C on 2026-07-11:
+
+- `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING`.
+
+Reason:
+
+- root `package.json` declares `playwright` only as a dev dependency;
+- `pnpm-lock.yaml` contains the expected Playwright package graph;
+- the workspace can resolve the Playwright CLI and Node ESM import;
+- no app package dependency, product runtime import, owner encounter behavior,
+  auth, ownership, provider, persistence, public route, storage, billing,
+  queue/worker, Redis, Cloudflare, retrieval, proof output, browser binary,
+  screenshot, trace, video, auth state, cookie, token, generated artifact body,
+  or secret was committed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` | Pass | Lockfile was up to date; install completed without modifying the tree. |
+| `npm exec --yes pnpm@10.32.1 -- exec playwright --version` | Pass | Printed `Version 1.61.1`. |
+| `node -e "import('playwright').then(() => console.log('playwright import ok'))"` | Pass | Printed `playwright import ok`. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path/source scan | Pass | Matches were root devDependency/lockfile entries and negative-scope docs only; no product/runtime dependency, proof output, secret-shaped value, or unrelated implementation drift found. |
+
 ## PR506C Owner Encounter Browser Proof Tooling
 
 DAEDALUS completed the PR506C dev-only browser proof tooling unblock on

@@ -4,13 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506C browser proof tooling review
+## Current lane - PR506C browser proof tooling accepted by ARGUS
 
-DAEDALUS implemented PR506C for ARGUS review:
+ARGUS accepted PR506C for MIMIR hosted-browser rerun routing:
 
-`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md`
-
-`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md`
+`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_REVIEW_RESULT.md`
 
 Why:
 
@@ -21,8 +19,51 @@ Why:
   local browser runner could not import Playwright;
 - MIMIR tested an ephemeral package path, but Node still could not import
   Playwright from this workspace;
-- DAEDALUS added root-only dev tooling so the workspace can resolve the
-  Playwright CLI and `import('playwright')`.
+- PR506C adds root-only Playwright dev tooling so the workspace can resolve the
+  Playwright CLI and `import('playwright')`;
+- ARGUS found no product/runtime dependency, owner encounter behavior, auth,
+  ownership, provider, persistence, public route, storage, billing, queue/
+  worker, Redis, Cloudflare, retrieval, proof-output, or secret drift.
+
+Result:
+
+```text
+ACCEPT_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING
+```
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` passed;
+- `npm exec --yes pnpm@10.32.1 -- exec playwright --version` printed
+  `Version 1.61.1`;
+- `node -e "import('playwright').then(() => console.log('playwright import ok'))"`
+  passed;
+- `git diff --check` passed;
+- `git diff --cached --check` passed.
+
+Current lane:
+
+```text
+PR506C - Owner Encounter Browser Proof Tooling
+Owner: MIMIR / A1
+State: ACCEPTED_AWAITING_ARIADNE_BROWSER_RERUN_ROUTING
+Source: docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR506C browser proof tooling ready for review
+
+DAEDALUS implemented PR506C for ARGUS review:
+
+`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md`
+
+`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md`
 
 Result:
 
@@ -30,30 +71,13 @@ Result:
 REVIEW_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING
 ```
 
-Validation:
+Summary:
 
-- `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` passed;
-- `npm exec --yes pnpm@10.32.1 -- exec playwright --version` printed
-  `Version 1.61.1`;
-- `node -e "import('playwright').then(() => console.log('playwright import ok'))"`
-  passed;
-- final diff checks are recorded in the PR506C result.
-
-Current lane:
-
-```text
-PR506C - Owner Encounter Browser Proof Tooling
-Owner: ARGUS / A3
-State: REVIEW
-Source: docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
-```
+- Added root `playwright` devDependency and lockfile entries.
+- Verified frozen install, Playwright CLI version, and Node ESM import.
+- No app runtime package, product code, proof output, cookies, tokens, browser
+  binaries, screenshots, traces, videos, or generated artifact bodies were
+  committed.
 
 ## Previous lane - PR506B private session hosted proof blocked on browser tooling
 
