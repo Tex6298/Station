@@ -4,7 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR511A cross-owner encounter consent ledger accepted locally
+## Current lane - PR511B cross-owner encounter consent ledger hosted proof opened
+
+MIMIR closed PR511A locally and applied/proved the hosted Supabase migration:
+
+`docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_CLOSEOUT.md`
+
+MIMIR opened PR511B for ARIADNE:
+
+`docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ARIADNE.md`
+
+Current lane:
+
+```text
+PR511B - Cross-Owner Encounter Consent Ledger Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_CONSENT_LEDGER_PROOF
+Source: docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ARIADNE.md
+```
+
+Summary:
+
+- PR511A is accepted locally;
+- hosted Supabase migration `077` is applied;
+- hosted ledger row is recorded as
+  `20260711153000 / 077_persona_encounter_cross_owner_consents`;
+- hosted shape verifies both consent tables, both security-invoker RPC
+  functions, and bounded RLS policy counts;
+- ARIADNE must prove hosted owner A/B consent create, approve, cancel,
+  reject/revoke if safe fixtures allow, participant readback/audit,
+  signed-out/nonparticipant fail-closed behavior, `executable: false` readback,
+  cleanup, and no public/runtime/infrastructure drift.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR511A cross-owner encounter consent ledger accepted locally
 
 ARGUS accepted PR511A with a narrow review patch and woke MIMIR:
 
