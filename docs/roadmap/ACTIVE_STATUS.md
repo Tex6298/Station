@@ -4,17 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509A public encounter exhibit index accepted
+## Current lane - PR509B public encounter exhibit index hosted proof opened
 
-ARGUS accepted PR509A without a code patch:
+MIMIR closed PR509A locally and opened PR509B for ARIADNE:
 
 `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md`
 
-DAEDALUS implementation result:
-
-`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md`
-
 `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md`
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_CLOSEOUT.md`
+
+`docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_ARIADNE.md`
 
 Result:
 
@@ -60,23 +60,34 @@ Validation:
 Current lane:
 
 ```text
-PR509A - Public Encounter Exhibit Index
-Owner: MIMIR / A1
-State: REVIEWED_ACCEPTED_HOSTED_PROOF_REQUIRED
-Source: docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md
+PR509B - Public Encounter Exhibit Index Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PUBLIC_INDEX_PROOF
+Source: docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_ARIADNE.md
 ```
 
 Next:
 
-- MIMIR closes PR509A local review if accepted;
-- route ARIADNE for hosted public index proof.
+- ARIADNE confirms hosted web/API include PR509A commit `b0a116bd` or later;
+- ARIADNE proves hosted public list API and `/encounters` page behavior;
+- ARIADNE wakes MIMIR with PASS or BLOCK.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A4:
+Codename: ARIADNE
 ```
+
+## Previous lane - PR509A public encounter exhibit index accepted
+
+ARGUS accepted PR509A:
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md`
+
+MIMIR closed it:
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_CLOSEOUT.md`
 
 ## Previous lane - PR509A public encounter exhibit index ready for review
 
