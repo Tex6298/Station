@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR510 | Public Encounter Exhibit Discover Search Preflight | MIMIR / A1 | ARGUS verdict delivered as `ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`; MIMIR closeout/routing pending. DAEDALUS may implement only a dedicated `Encounter Exhibits` Discover search group with metadata-only `/encounters/[slug]` results and no feed/persona/Space/forum/Press/private-material drift. | `docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md` |
+| PR510A | Public Encounter Exhibit Discover Search Group | DAEDALUS / A2 | Open implementation; add only a `publicEncounterExhibits` Discover search group named Encounter Exhibits, routing metadata-only rows to `/encounters/[slug]`. | `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR510 closeout | Public Encounter Exhibit Discover Search Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR510A for a search-only `publicEncounterExhibits` result group. | `docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md` |
 | PR510 preflight | Public Encounter Exhibit Discover Search Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`; DAEDALUS may implement a dedicated Discover search group only, using public title/summary/tags/display snapshots and the PR509A public-list safety floor. | `docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md` |
 | PR509B closeout | Public Encounter Exhibit Index Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_ACCEPTED`; hosted `/encounters` index proof passed, enabling PR510 Discover search preflight. | `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_CLOSEOUT.md` |
 | PR509B proof | Public Encounter Exhibit Index Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF`; hosted web/API were fresh at `b0a116bdc192`, public list API was metadata-only and bounded, desktop/mobile `/encounters` fit, report stayed detail-only, removed/retracted rows stayed absent, no-drift and cleanup passed. | `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md` |

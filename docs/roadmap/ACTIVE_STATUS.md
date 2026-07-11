@@ -4,11 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510 public encounter exhibit Discover search preflight accepted
+## Current lane - PR510A public encounter exhibit Discover search group opened
 
-ARGUS completed PR510 preflight:
+MIMIR closed PR510 preflight and opened PR510A for DAEDALUS:
 
 `docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md`
+
+`docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md`
 
 Result:
 
@@ -46,22 +50,34 @@ Validation:
 Current lane:
 
 ```text
-PR510 - Public Encounter Exhibit Discover Search Preflight
-Owner: MIMIR / A1
-State: ARGUS_VERDICT_DELIVERED
-Source: docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md
+PR510A - Public Encounter Exhibit Discover Search Group
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md
 ```
 
 Next:
 
-- MIMIR closes PR510 if accepted and routes DAEDALUS for PR510A.
+- DAEDALUS implements only the `publicEncounterExhibits` Discover search group;
+- DAEDALUS wakes ARGUS for review;
+- if ARGUS accepts, MIMIR routes hosted proof.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A2:
+Codename: DAEDALUS
 ```
+
+## Previous lane - PR510 public encounter exhibit Discover search preflight accepted
+
+ARGUS completed PR510 preflight:
+
+`docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md`
+
+MIMIR closed it:
+
+`docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md`
 
 ## Previous lane - PR510 public encounter exhibit Discover search preflight opened
 
