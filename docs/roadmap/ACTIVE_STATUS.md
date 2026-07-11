@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504A Station Press owner package contract accepted by ARGUS
+## Current lane - PR504B Station Press owner package hosted proof opened
+
+MIMIR opened the required ARIADNE proof lane:
+
+`docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md`
+
+Reason:
+
+- ARGUS accepted PR504A after a narrow fail-closed review patch.
+- PR504A changes visible `/studio/publishing` behavior and owner export
+  package behavior.
+- Hosted desktop and 390px mobile proof is required before MIMIR closes PR504A.
+
+Current lane:
+
+```text
+PR504B - Station Press Owner Package Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR504A Station Press owner package contract accepted by ARGUS
 
 ARGUS accepted PR504A after a narrow review patch:
 

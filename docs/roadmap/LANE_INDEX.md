@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504A | Station Press Owner Package Contract | MIMIR / A1 | Accepted by ARGUS after a narrow review patch; ARIADNE hosted desktop and 390px mobile proof is required before closeout. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_REVIEW_RESULT.md` |
+| PR504B | Station Press Owner Package Hosted Proof | ARIADNE / A4 | Open; prove hosted `/studio/publishing` package readiness/create/readback, auth boundaries, package-file privacy, and desktop/390px fit before PR504A closeout. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504B opened | Station Press Owner Package Hosted Proof | MIMIR -> ARIADNE | Open; hosted proof required after ARGUS accepted PR504A because visible owner publishing UI and owner package API behavior changed. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md` |
 | PR504A review | Station Press Owner Package Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_IMPLEMENTATION` after ARGUS patched malformed readback to fail closed and made empty package copy honest; ARIADNE hosted proof is required because visible `/studio/publishing` changed. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_REVIEW_RESULT.md` |
 | PR504A implementation | Station Press Owner Package Contract | MIMIR -> DAEDALUS -> ARGUS | Implemented owner-only metadata package contract without public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md` |
 | PR504A opened | Station Press Owner Package Contract | MIMIR -> DAEDALUS | Opened the ARGUS-accepted owner-only metadata package contract implementation without public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md` |
