@@ -356,6 +356,12 @@ reportsRouter.patch("/:id", async (req, res) => {
   if (parsed.data.targetAction && current) {
     const target = await loadPublicExhibitModerationTarget(sb, current.target_id);
     if (!target) return res.status(404).json({ error: "Public encounter exhibit target not found." });
+    const supportedActions = publicExhibitModerationActionsForStatus(target.status);
+    if (!supportedActions.includes(parsed.data.targetAction)) {
+      return res.status(400).json({
+        error: "Public encounter exhibit moderation action is not available for this target state.",
+      });
+    }
   }
 
   const { data, error } = await sb
@@ -854,7 +860,7 @@ async function loadPublicEncounterExhibitTargetContext(
     routeLabel: routeHref ? exhibit.public_title ?? "Public encounter exhibit" : null,
     canOpenRoute: Boolean(routeHref),
     unavailableReason: routeHref ? null : "Public encounter exhibit is not currently public.",
-    supportedActions: exhibit.status === "removed" ? ["restore"] : ["remove"],
+    supportedActions: publicExhibitModerationActionsForStatus(exhibit.status),
   };
 }
 
@@ -898,6 +904,14 @@ function moderationActionsForTarget(
   if (target.status === "removed") return ["restore"];
   if (target.is_hidden) return ["unhide", "remove"];
   return ["hide", "remove"];
+}
+
+function publicExhibitModerationActionsForStatus(
+  status: string | null | undefined
+): Array<z.infer<typeof publicExhibitTargetActionSchema>> {
+  if (status === "published") return ["remove"];
+  if (status === "removed") return ["restore"];
+  return [];
 }
 
 function isUniqueViolation(error: { code?: string } | null | undefined) {
@@ -969,6 +983,14 @@ async function applyPublicExhibitModerationAction(
 
   if (!exhibit) {
     return { ok: false, status: 404, error: "Public encounter exhibit target not found." };
+  }
+  const supportedActions = publicExhibitModerationActionsForStatus(exhibit.status);
+  if (!supportedActions.includes(action)) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Public encounter exhibit moderation action is not available for this target state.",
+    };
   }
 
   const update = action === "remove"

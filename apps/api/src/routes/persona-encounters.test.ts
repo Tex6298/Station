@@ -660,6 +660,9 @@ test("public encounter exhibit migration creates dedicated table RLS and moderat
   assert.match(sql, /private_session_id uuid not null references public\.persona_encounter_private_sessions/);
   assert.match(sql, /slug text not null unique/);
   assert.match(sql, /status in \('published', 'retracted', 'removed'\)/);
+  assert.match(sql, /where tag is null\s+or char_length\(btrim\(tag\)\) not between 1 and 40/);
+  assert.match(sql, /initiator\.id = session\.initiator_persona_id\s+and initiator\.owner_user_id = new\.owner_user_id/);
+  assert.match(sql, /responder\.id = session\.responder_persona_id\s+and responder\.owner_user_id = new\.owner_user_id/);
   assert.match(sql, /persona_encounter_public_exhibits_select_published/);
   assert.match(sql, /persona_encounter_public_exhibits_update_owner/);
   assert.match(sql, /station\.persona_encounter\.public_exhibit\.v1/);

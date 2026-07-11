@@ -4,14 +4,16 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR508A Owner Encounter Public Exhibit Metadata
+## PR508A Owner Encounter Public Exhibit Metadata ARGUS Review
 
-DAEDALUS implemented PR508A on 2026-07-11:
+DAEDALUS implemented PR508A on 2026-07-11, and ARGUS accepted it after a
+narrow safety patch:
 
 - `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md`
+- `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY`.
 
 Reason:
 
@@ -32,18 +34,23 @@ Reason:
   keep PR507A private curation separate;
 - the dedicated `/encounters/[slug]` web route renders public metadata,
   same-owner display snapshots, provenance, and signed-in report/sign-in-to-
-  report controls only.
+  report controls only;
+- ARGUS hardened SQL tag validation to reject `NULL` tag array elements,
+  strengthened the source trigger's same-owner persona check, and blocked
+  moderation remove/restore actions from overriding owner-retracted exhibits.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 36 tests passed, including public exhibit migration, publish/retract/report, strict rejection, safe GET, runtime helpers, and UI boundary source scan. |
-| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed, including exhibit report persistence, safe admin target context, target filtering, and remove/restore. |
-| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 Studio/helper tests passed, including encounter runtime and moderation-console helpers. |
-| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
-| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known local Windows failure | 8 of 9 tasks passed; web build compiled, linted/typechecked, collected page data, generated 38 static pages, finalized optimization, then failed during standalone trace copy on the known local Windows symlink `EPERM` for Next/React packages. Existing autoprefixer `end` warning remained. |
-| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Next lint completed with no warnings or errors. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 36 tests passed after the ARGUS patch, including migration checks for null tag rejection and same-owner source trigger coverage, publish/retract/report, strict rejection, safe GET, runtime helpers, and UI boundary source scan. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed after the ARGUS patch, including exhibit report persistence, safe admin target context, target filtering, remove/restore, and blocked moderation action for owner-retracted exhibits. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 Studio/helper tests passed after the ARGUS patch, including encounter runtime and moderation-console helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed after the ARGUS patch. |
+| Changed-path scan | Pass | Changed implementation paths are limited to the accepted migration, DB/types, encounter API/tests, reports API/tests, dedicated public exhibit page, Studio encounter UI, moderation-console helpers/tests, scoped CSS, and roadmap/testing docs. No package or lockfile changed. |
+| Forbidden-path scan | Pass | No provider adapter, retrieval/vector/embedding, billing/Stripe, social, Redis, Cloudflare, queue/worker, webhook, storage, Archive, Memory, Canon, Continuity, Integrity, Station Press, package, lockfile, or deployment files changed. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, or bearer-token-shaped values found in changed files. |
+| Public/private leakage scan | Pass | Sensitive-field matches are private owner/admin paths or tests; public exhibit serialization/page and report target context expose metadata only. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
-| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the ARGUS review patch and docs/status updates. |
 
 ## PR508 Owner Encounter Public Exhibit Boundary Preflight
 

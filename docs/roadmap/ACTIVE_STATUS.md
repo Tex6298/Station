@@ -4,9 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508A owner encounter public exhibit metadata ready for ARGUS review
+## Current lane - PR508A owner encounter public exhibit metadata accepted locally
 
-DAEDALUS implemented PR508A for ARGUS review:
+ARGUS accepted PR508A after a narrow review patch:
+
+`docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_RESULT.md`
 
 `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md`
 
@@ -15,52 +17,57 @@ DAEDALUS implemented PR508A for ARGUS review:
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY
 ```
 
 Summary:
 
-- migration `076` adds the dedicated public exhibit table, constraints, RLS,
-  and `persona_encounter_public_exhibit` moderation target;
-- owner API routes add explicit publish/update and retract for eligible
-  same-owner private encounter artifacts while keeping the private source row
-  private, non-shareable, and not public;
-- public API/web route `/encounters/[slug]` returns only owner-authored public
-  title, summary, tags, safe same-owner persona display snapshots, provenance,
-  and report/sign-in-to-report controls;
-- report queue/context supports safe exhibit target readback and admin
-  remove/restore that hides or restores the public route;
-- Studio publish controls use newly authored public fields and do not auto-copy
-  PR507A private curation metadata.
+- PR508A implements same-owner, metadata-only public encounter exhibits with
+  explicit owner publish/retract, a dedicated public table/API/web route, and
+  report/takedown support;
+- public readback is owner-authored public title, summary, tags, safe
+  same-owner persona display snapshots, provenance, and report controls only;
+- ARGUS hardened public tag validation so raw SQL arrays containing `NULL` tag
+  elements fail the database constraint;
+- ARGUS strengthened the public exhibit source trigger so both source personas
+  must still be owned by the exhibit owner;
+- ARGUS restricted moderation target actions so admins can remove only
+  published exhibits and restore only removed exhibits, preserving owner
+  retract control;
+- transcripts, excerpts, raw generated replies, private setup, private
+  curation, raw ids, provider payloads, prompts, private context, source bodies,
+  cross-owner persona words, Discover/search/forum/feed surfacing, package,
+  lockfile, provider, storage, billing, social, Redis, Cloudflare, queue/worker,
+  Archive, Memory, Canon, Continuity, Integrity, and Station Press drift remain
+  blocked.
 
-Validation so far:
+Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
-  `36` tests;
+  `36` tests after the ARGUS patch;
 - `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `7` tests;
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `201`
-  tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
-- `npm exec --yes pnpm@10.32.1 -- run lint` passed;
-- `npm exec --yes pnpm@10.32.1 -- run build` reached web compile,
-  lint/typecheck, page data, 38 static pages, optimization, and trace
-  collection, then hit the known local Windows standalone symlink `EPERM`;
-- `git diff --check` passed with CRLF warnings only.
+  tests after the ARGUS patch;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed after the ARGUS patch;
+- changed-path, forbidden-path, secret-shaped value, and public/private leakage
+  scans passed;
+- `git diff --check` passed with CRLF warnings only;
+- `git diff --cached --check` passed after staging the ARGUS patch and docs.
 
 Current lane:
 
 ```text
 PR508A - Owner Encounter Public Exhibit Metadata
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_RESULT.md
+Owner: MIMIR / A1
+State: REVIEWED_ACCEPTED_LOCALLY_HOSTED_PROOF_REQUIRED
+Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR508 owner encounter public exhibit boundary preflight accepted

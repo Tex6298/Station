@@ -1152,6 +1152,21 @@ test("admin report status updates can remove and restore public encounter exhibi
     assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_by, null);
     assert.equal(db.tables.persona_encounter_public_exhibits[0].removed_at, null);
 
+    db.tables.persona_encounter_public_exhibits[0].status = "retracted";
+    db.tables.persona_encounter_public_exhibits[0].retracted_at = "2026-07-11T10:00:00.000Z";
+    const retractedQueue = await requestJson(app, "GET", "/reports?targetType=persona_encounter_public_exhibit", {
+      token: "admin-token",
+    });
+    assert.equal(retractedQueue.status, 200);
+    assert.deepEqual(retractedQueue.body.reports[0].targetContext.supportedActions, []);
+    const blockedRetractedRemove = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "resolved", targetAction: "remove" },
+    });
+    assert.equal(blockedRetractedRemove.status, 400);
+    assert.equal(db.tables.persona_encounter_public_exhibits[0].status, "retracted");
+    assert.equal(db.tables.moderation_reports[0].status, "reviewing");
+
     const invalidThreadActionReport = db.insertRow("moderation_reports", {
       reporter_id: "owner-user",
       target_type: "thread",

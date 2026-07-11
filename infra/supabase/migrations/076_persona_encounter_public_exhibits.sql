@@ -12,7 +12,8 @@ as $$
     and not exists (
       select 1
       from unnest(tags) as tag
-      where char_length(btrim(tag)) not between 1 and 40
+      where tag is null
+        or char_length(btrim(tag)) not between 1 and 40
     );
 $$;
 
@@ -79,6 +80,18 @@ begin
         and session.shareable = false
         and session.public_visibility = 'private'
         and session.source_retrieval_used = false
+        and exists (
+          select 1
+          from public.personas initiator
+          where initiator.id = session.initiator_persona_id
+            and initiator.owner_user_id = new.owner_user_id
+        )
+        and exists (
+          select 1
+          from public.personas responder
+          where responder.id = session.responder_persona_id
+            and responder.owner_user_id = new.owner_user_id
+        )
     ) then
       raise exception 'persona encounter public exhibit source must be an owner-matched private candidate session';
     end if;
