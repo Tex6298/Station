@@ -4,6 +4,60 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR508D Owner Encounter Public Exhibit Report/Takedown Hosted Rerun
+
+ARIADNE completed PR508D hosted rerun on 2026-07-11:
+
+- `docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_RESULT.md`
+
+Validation result:
+`PASS_PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `e573945f3aed`, which includes PR508C floor `e573945f`;
+- hosted migration `076` compatibility re-probe passed with ledger row present,
+  columns `18/18`, constraints `12/12`, policies `4/4`, triggers `2/2`, report
+  target support, `moderation_reports.target_id` type `uuid`, valid tags
+  accepted, and null tags rejected;
+- owner, non-owner, and admin auth passed;
+- ARIADNE created exactly one same-owner private candidate artifact and
+  published one metadata-only public exhibit;
+- the public route remained slug-based and metadata-only;
+- signed-in public exhibit report by slug returned `201`;
+- hosted moderation report target id was UUID, matched the public exhibit id,
+  and was not the public slug;
+- duplicate report by slug returned bounded `200` duplicate behavior;
+- admin queue resolved safe UUID target context, admin remove hid the public
+  route, and admin restore reopened the eligible removed published exhibit;
+- signed-out, missing, malformed, removed, and retracted report attempts failed
+  closed;
+- owner-retracted admin actions were empty, admin remove/restore after owner
+  retract returned `400`, and the public route stayed `404`;
+- public no-drift samples passed;
+- cleanup deleted the proof artifact and proof report row;
+- privacy/secret scan passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted browser/API runner | Pass | Exactly one private candidate artifact was created; report/takedown rerun passed; cleanup removed the proof artifact and proof report row. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `e573945f3aed`, which includes PR508C floor `e573945f`. |
+| Hosted migration `076` compatibility | Pass | Ledger present, columns `18/18`, constraints `12/12`, policies `4/4`, triggers `2/2`, target id type `uuid`, exhibit report target accepted, valid tags accepted, null tags rejected. |
+| Owner, non-owner, and admin auth | Pass | Owner tier `canon`; non-owner tier `private`; admin capability present. |
+| Public route | Pass | Slug-based route remained metadata-only. |
+| Report creation and duplicate report | Pass | Signed-in report by slug returned `201`; duplicate by slug returned bounded `200` duplicate response. |
+| Report target UUID proof | Pass | Hosted moderation report target matched the public exhibit UUID and was not the public slug. |
+| Admin queue/remove/restore | Pass | Admin queue resolved safe metadata context from UUID, remove hid the route, and restore reopened the removed published exhibit. |
+| Owner-retracted protection | Pass | Owner retract hid the route; retracted admin actions were empty; admin remove/restore attempts returned `400` and route stayed `404`. |
+| Missing/malformed/removed/retracted report attempts | Pass | All failed closed with `404`; signed-out report failed closed with `401`. |
+| Public no-drift | Pass | Discover/search/forum and public Space/persona samples did not surface the proof artifact or exhibit outside `/encounters/[slug]`. |
+| Cleanup verification | Pass | Owner delete returned `200`; owner detail returned `404`; public route returned `404`; proof report cleanup deleted the proof row. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, env values, or browser artifacts. |
+
+`pnpm typecheck` was not run because the PR508D result updates documentation
+only and does not touch imports or scripts.
+
 ## PR508C Owner Encounter Public Exhibit Report Target Repair ARGUS Review
 
 DAEDALUS implemented PR508C on 2026-07-11, and ARGUS accepted it without a

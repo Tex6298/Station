@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR508D | Owner Encounter Public Exhibit Report/Takedown Hosted Rerun | ARIADNE / A4 | Open hosted rerun after PR508C accepted; prove deployed report creation by slug persists UUID target ids, duplicate reports are bounded, admin queue/remove/restore works from UUID, owner-retracted protection holds, public no-drift holds, and cleanup passes. | `docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_ARIADNE.md` |
+| PR508D | Owner Encounter Public Exhibit Report/Takedown Hosted Rerun | MIMIR / A1 | Passed as `PASS_PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN`; hosted PR508C freshness, migration 076 compatibility, signed-in report by slug, UUID target persistence, duplicate report, admin queue/remove/restore, owner-retracted protection, public no-drift, cleanup, and privacy scan all passed. | `docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_RESULT.md` |
 
 ## Recently Closed
 
