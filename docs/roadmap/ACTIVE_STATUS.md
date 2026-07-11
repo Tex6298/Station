@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR519 cross-owner Discover search preflight accepted by ARGUS
+## Current lane - PR519A cross-owner Discover search group routed to DAEDALUS
+
+MIMIR closed PR519 as accepted:
+
+`docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR519A - Cross-Owner Metadata Exhibit Discover Search Group
+Owner: DAEDALUS / A2
+State: READY_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_DAEDALUS.md
+```
+
+Decision:
+
+- DAEDALUS may add only a separate Discover search group named
+  `Cross-owner Exhibits`;
+- the API group key must be `crossOwnerPublicEncounterExhibits`;
+- search may use only public title, summary, tags, requester display snapshot,
+  and counterparty display snapshot;
+- rows must be metadata-only, active-consent-backed, exact bilateral metadata
+  approval backed, display-snapshot matched, and route only to
+  `/encounters/cross-owner#<slug>`;
+- PR519A must keep readback claims honest by marking safe published rows
+  Discover-search-listed while `indexed=false`;
+- after local ARGUS acceptance, MIMIR should route ARIADNE for hosted Discover
+  search proof.
+
+Still blocked:
+
+- Discover feed/rising/featured, public persona, public Space,
+  forum/community/Salon, writing, Station Press, public document, homepage,
+  generated words, transcripts, excerpts, summaries, private saved artifacts,
+  PR516 disposable output reuse, and provider/retrieval/billing/storage/social/
+  Redis/Cloudflare/queue/package/deployment/migration work remain blocked by
+  default.
+
+Required validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters
+npm exec --yes pnpm@10.32.1 -- run test:reports
+npm exec --yes pnpm@10.32.1 -- run test:community
+npm exec --yes pnpm@10.32.1 -- run test:writing
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui
+npm exec --yes pnpm@10.32.1 -- run typecheck
+git diff --check
+git diff --cached --check
+```
+
+## Previous lane - PR519 cross-owner Discover search preflight accepted by ARGUS
 
 ARGUS completed the PR519 hostile preflight:
 
@@ -19,20 +71,6 @@ State: ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CONTRACT
 Source: docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md
 ```
 
-Decision:
-
-- now that `/encounters/cross-owner` and the cross-owner public list endpoint
-  are hosted-proven, DAEDALUS may implement only a separate Discover search
-  group named `Cross-owner Exhibits`;
-- the API group key must be `crossOwnerPublicEncounterExhibits`;
-- search may use only public title, summary, tags, requester display snapshot,
-  and counterparty display snapshot;
-- search rows must be metadata-only, active-consent-backed, exact bilateral
-  approval backed, display-snapshot matched, and route only to
-  `/encounters/cross-owner#<slug>`;
-- PR519A must keep readback claims honest by marking safe published rows
-  Discover-search-listed while `indexed=false`.
-
 Validation:
 
 ```text
@@ -43,20 +81,6 @@ npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 29 tests
 npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
 npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 ```
-
-Next:
-
-- MIMIR should close PR519 if accepted and route DAEDALUS for PR519A using
-  the preflight result.
-
-Still blocked:
-
-- Discover feed/rising/featured, public persona, public Space,
-  forum/community/Salon, writing, Station Press, public document, homepage,
-  generated words, transcripts, excerpts, summaries, private saved artifacts,
-  PR516 disposable output reuse, and provider/retrieval/billing/storage/social/
-  Redis/Cloudflare/queue/package/deployment/migration work remain blocked by
-  default.
 
 ## Previous lane - PR518B cross-owner public index hosted proof passed
 

@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR519 | Cross-Owner Metadata Exhibit Discover Search Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CONTRACT`; DAEDALUS may implement only a separate `crossOwnerPublicEncounterExhibits` Discover search group with metadata-only active-consent-backed rows routeable to `/encounters/cross-owner#<slug>`. | `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md` |
+| PR519A | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR / A1 -> DAEDALUS / A2 | Ready for implementation; add only a separate `crossOwnerPublicEncounterExhibits` Discover search group with metadata-only active-consent-backed rows routeable to `/encounters/cross-owner#<slug>`, keeping feed, same-owner exhibits, persona/Space/forum/writing/homepage, provider, retrieval, infra, and migration work blocked. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR519 closeout | Cross-Owner Metadata Exhibit Discover Search Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR519A for a separate metadata-only cross-owner Discover search group. | `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md` |
+| PR519 preflight | Cross-Owner Metadata Exhibit Discover Search Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CONTRACT`; Discover search may add only a separate `crossOwnerPublicEncounterExhibits` group after PR518B hosted proof. | `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md` |
 | PR518B closeout | Cross-Owner Metadata Exhibit Public Index Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ACCEPTED`; dedicated cross-owner API list and `/encounters/cross-owner` page are hosted-proven, opening PR519 Discover search preflight. | `docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_CLOSEOUT.md` |
 | PR518B proof | Cross-Owner Metadata Exhibit Public Index Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF`; dedicated cross-owner API list and `/encounters/cross-owner` page are hosted-proven without broader surfacing drift. | `docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_RESULT.md` |
 | PR518A closeout | Cross-Owner Metadata Exhibit Dedicated Public Index | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_ACCEPTED_LOCALLY`; ARGUS accepted with a route-listing honesty patch and ARIADNE gets PR518B hosted proof. | `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_CLOSEOUT.md` |
