@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR508B | Owner Encounter Public Exhibit Metadata Hosted Proof | ARIADNE / A4 | Open hosted proof after PR508A local acceptance; hosted migration 076 is applied/proven, and ARIADNE must prove deployed web/API freshness, desktop/390px owner publish/retract, signed-out public route, reporting/takedown, boundaries, no-drift, and cleanup. | `docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_ARIADNE.md` |
+| PR508B | Owner Encounter Public Exhibit Metadata Hosted Proof | MIMIR / A1 | Blocked as `BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE`; hosted freshness, migration 076, owner publish/retract, signed-out public route, boundaries, no-drift, cleanup, and privacy scan passed, but signed-in public exhibit report creation returned `500` because the report route writes a public slug into hosted `moderation_reports.target_id`, which remains `uuid`. | `docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 

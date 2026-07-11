@@ -4,6 +4,60 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR508B Owner Encounter Public Exhibit Metadata Hosted Proof
+
+ARIADNE completed PR508B hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `acb63c4fe4f8`, which includes PR508A floor `acb63c4f`;
+- hosted migration `076` was re-probed successfully with ledger row present,
+  columns `18/18`, constraints `12/12`, policies `4/4`, triggers `2/2`,
+  exhibit report target support, valid tags accepted, and null tags rejected;
+- owner, non-owner, and admin auth passed;
+- same-owner persona availability passed with `5` owner personas;
+- ARIADNE created exactly one same-owner private candidate artifact;
+- signed-out, cross-owner, non-candidate, malformed body, forbidden-field, and
+  cross-owner persona source attempts failed closed;
+- desktop owner Studio published one metadata-only public exhibit from the
+  private candidate artifact;
+- desktop and `390px` Studio public exhibit controls fit without horizontal
+  overflow or clipping;
+- signed-out public `/encounters/[slug]` showed owner-authored public metadata,
+  same-owner display snapshots, provenance, and sign-in-to-report copy only;
+- owner retract returned `200` and hid the public route;
+- Discover/search/forum and public Space/persona no-drift samples passed;
+- cleanup deleted the proof artifact and public route stayed `404`;
+- blocker: signed-in report creation returned `500`, so no admin report row
+  existed and hosted admin remove/restore could not be proven. The narrow
+  persistence mismatch is that hosted `moderation_reports.target_id` remains
+  `uuid` while the public exhibit report route writes the public exhibit slug.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted browser/API runner | Blocked | Hosted report creation returned `500`; cleanup passed. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `acb63c4fe4f8`, which includes PR508A floor `acb63c4f`. |
+| Hosted migration `076` re-probe | Pass | Ledger present, columns `18/18`, constraints `12/12`, policies `4/4`, triggers `2/2`, exhibit report target accepted, valid tags accepted, null tags rejected. |
+| Owner, non-owner, and admin auth | Pass | Owner tier `canon`; non-owner tier `private`; admin capability present. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Negative publish probes | Pass | Signed-out, cross-owner, non-candidate, malformed body, forbidden-field, and cross-owner persona source attempts failed closed. |
+| Desktop/390px Studio publish controls | Pass | Owner published metadata-only public exhibit; desktop and `390px` controls fit without horizontal overflow or clipping. |
+| Signed-out public route | Pass | Dedicated route showed only metadata, same-owner display snapshots, provenance, and sign-in-to-report copy. |
+| Report/takedown | Blocked | Signed-in report returned `500`; no admin report row existed, so admin remove/restore could not be proven. |
+| Owner retract | Pass | Owner retract returned `200`; public route returned `404` afterward. |
+| Public no-drift | Pass | Discover/search/forum and public Space/persona samples did not surface the proof artifact or exhibit outside `/encounters/[slug]`. |
+| Cleanup verification | Pass | Owner delete returned `200`; follow-up owner detail returned `404`; public route returned `404`. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, env values, or browser artifacts. |
+
+`pnpm typecheck` was not run because the PR508B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR508A Owner Encounter Public Exhibit Metadata ARGUS Review
 
 DAEDALUS implemented PR508A on 2026-07-11, and ARGUS accepted it after a

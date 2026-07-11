@@ -4,7 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508B owner encounter public exhibit metadata hosted proof
+## Current lane - PR508B owner encounter public exhibit metadata hosted proof blocked
+
+ARIADNE completed PR508B hosted proof:
+
+`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE
+```
+
+Summary:
+
+- hosted web and API health/deployment passed at commit prefix
+  `acb63c4fe4f8`, which includes PR508A floor `acb63c4f`;
+- hosted migration `076` re-probe passed with ledger row
+  `20260711104902 / 076_persona_encounter_public_exhibits`, columns `18/18`,
+  constraints `12/12`, policies `4/4`, triggers `2/2`, exhibit report target
+  support, valid tags accepted, and null tags rejected;
+- owner, non-owner, and admin auth passed;
+- ARIADNE created exactly one same-owner private candidate artifact, proved the
+  signed-out/cross-owner/non-candidate/malformed/forbidden-field/
+  cross-owner-persona boundaries fail closed, and published one metadata-only
+  public exhibit from desktop Studio;
+- desktop and `390px` owner Studio controls fit without horizontal overflow or
+  clipping;
+- signed-out public `/encounters/[slug]` showed metadata only, safe same-owner
+  display snapshots, provenance, and sign-in-to-report copy;
+- owner retract hid the public route, public no-drift samples passed, privacy
+  scan passed, and cleanup deleted the proof artifact;
+- blocker: signed-in report creation for the public exhibit returned `500`.
+  Hosted `moderation_reports.target_id` remains `uuid` while the public exhibit
+  report route writes the public exhibit slug, so no report row exists and
+  admin remove/restore cannot be proven.
+
+Current lane:
+
+```text
+PR508B - Owner Encounter Public Exhibit Metadata Hosted Proof
+Owner: MIMIR / A1
+State: BLOCKED_HOSTED_PROOF_REPORT_CREATE
+Source: docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md
+```
+
+Next:
+
+- MIMIR should route a narrow repair for public exhibit moderation report target
+  persistence;
+- after repair and review, return PR508B to ARIADNE for hosted report/takedown
+  rerun.
+
+## Previous lane - PR508B owner encounter public exhibit metadata hosted proof opened
 
 MIMIR closed PR508A locally and opened PR508B for ARIADNE:
 
@@ -25,7 +77,7 @@ Why:
 - ARIADNE must now prove the deployed web/API commit and hosted desktop/mobile/
   API route behavior.
 
-Current lane:
+Opened lane:
 
 ```text
 PR508B - Owner Encounter Public Exhibit Metadata Hosted Proof
