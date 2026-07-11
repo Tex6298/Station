@@ -1268,6 +1268,10 @@ test("cross-owner public exhibit migration creates metadata-only bilateral appro
   assert.match(sql, /counterparty_metadata_approved_at/);
   assert.match(sql, /publish_metadata_only_public_exhibit/);
   assert.match(sql, /validate_persona_encounter_cross_owner_public_exhibit/);
+  assert.match(sql, /v_retraction_only boolean not null default false/);
+  assert.match(sql, /old\.status in \('proposed', 'published'\)\s+and new\.status = 'retracted'/);
+  assert.match(sql, /new\.public_title is not distinct from old\.public_title/);
+  assert.match(sql, /if not v_retraction_only\s+and \(/);
   assert.match(sql, /retract_cross_owner_public_exhibits_on_consent_inactive/);
   assert.match(sql, /pe_co_public_exhibits_select_published/);
   assert.match(sql, /pe_co_public_exhibits_select_participants/);

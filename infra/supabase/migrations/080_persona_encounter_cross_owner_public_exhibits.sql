@@ -81,6 +81,7 @@ language plpgsql
 as $$
 declare
   v_consent public.persona_encounter_cross_owner_consents%rowtype;
+  v_retraction_only boolean not null default false;
 begin
   select *
   into v_consent
@@ -91,9 +92,41 @@ begin
     raise exception 'cross-owner public exhibit consent not found';
   end if;
 
-  if v_consent.status <> 'approved'
-    or v_consent.requested_scope_version <> 1
-    or not ('publish_metadata_only_public_exhibit' = any(v_consent.requested_scopes))
+  if tg_op = 'UPDATE' then
+    v_retraction_only :=
+      old.status in ('proposed', 'published')
+      and new.status = 'retracted'
+      and new.id is not distinct from old.id
+      and new.consent_id is not distinct from old.consent_id
+      and new.requester_owner_user_id is not distinct from old.requester_owner_user_id
+      and new.requester_persona_id is not distinct from old.requester_persona_id
+      and new.requester_persona_name_snapshot is not distinct from old.requester_persona_name_snapshot
+      and new.counterparty_owner_user_id is not distinct from old.counterparty_owner_user_id
+      and new.counterparty_persona_id is not distinct from old.counterparty_persona_id
+      and new.counterparty_persona_name_snapshot is not distinct from old.counterparty_persona_name_snapshot
+      and new.slug is not distinct from old.slug
+      and new.public_title is not distinct from old.public_title
+      and new.public_summary is not distinct from old.public_summary
+      and new.public_tags is not distinct from old.public_tags
+      and new.contract_version is not distinct from old.contract_version
+      and new.provenance_schema is not distinct from old.provenance_schema
+      and new.requester_metadata_approved_at is not distinct from old.requester_metadata_approved_at
+      and new.counterparty_metadata_approved_at is not distinct from old.counterparty_metadata_approved_at
+      and new.reported_count is not distinct from old.reported_count
+      and new.published_at is not distinct from old.published_at
+      and new.retracted_at is not null
+      and new.removed_at is not distinct from old.removed_at
+      and new.removed_by is not distinct from old.removed_by
+      and new.created_by is not distinct from old.created_by
+      and new.created_at is not distinct from old.created_at;
+  end if;
+
+  if not v_retraction_only
+    and (
+      v_consent.status <> 'approved'
+      or v_consent.requested_scope_version <> 1
+      or not ('publish_metadata_only_public_exhibit' = any(v_consent.requested_scopes))
+    )
   then
     raise exception 'cross-owner public exhibit requires active approved metadata-only consent';
   end if;

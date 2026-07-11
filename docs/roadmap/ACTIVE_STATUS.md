@@ -4,22 +4,22 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517A ready for ARGUS review
+## Current lane - PR517A accepted by ARGUS
 
-DAEDALUS implemented PR517A and is handing it to ARGUS:
+ARGUS accepted PR517A after a narrow review patch:
 
-`docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md`
+`docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md`
 
 Current lane:
 
 ```text
 PR517A - Cross-Owner Metadata-Only Public Exhibit Contract
-Owner: DAEDALUS / A2 -> ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md
+Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md
 ```
 
-Implementation summary:
+ARGUS review summary:
 
 - added a dedicated
   `public.persona_encounter_cross_owner_public_exhibits` table instead of
@@ -37,6 +37,11 @@ Implementation summary:
   `persona_encounter_cross_owner_public_exhibit`;
 - admin restore requires active bilateral metadata approval, while revocation
   retracts/hides linked public rows;
+- ARGUS patched a same-owner moderation regression caused by selecting
+  cross-owner-only `consent_id` from the same-owner public exhibit table;
+- ARGUS patched the SQL validator so consent revocation can retract linked
+  exhibit rows without allowing metadata or identity mutation after inactive
+  consent;
 - web changes are helper-only path/payload/readback/error-copy coverage.
 
 Validation:
@@ -47,10 +52,11 @@ npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
 npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
 npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 git diff --check                                            PASS
-git diff --cached --check                                   PASS
 ```
 
-ARGUS should hostile-review PR517A before MIMIR closeout.
+MIMIR should close PR517A if satisfied and decide the next lane. This remains a
+local code/schema acceptance only; hosted migration `080` and hosted API/browser
+proof are not claimed.
 
 ## Previous lane - PR517 cross-owner publication preflight accepted by ARGUS
 

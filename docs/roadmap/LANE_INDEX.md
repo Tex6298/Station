@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517A | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review as `READY_FOR_ARGUS_REVIEW`; dedicated cross-owner metadata exhibit table/routes/report target implemented with exact bilateral approval, API-detail-only public readback, no generated words, and no broader surfacing. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md` |
+| PR517A | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_WITH_ARGUS_PATCH`; dedicated metadata-only contract is accepted locally after ARGUS fixed same-owner moderation select regression and consent-revocation retraction trigger gap. Hosted migration/API proof remains unclaimed. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md` |
 
 ## Recently Closed
 

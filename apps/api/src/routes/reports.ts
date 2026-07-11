@@ -1096,10 +1096,13 @@ async function loadPublicExhibitModerationTarget(
 ) {
   const table = publicExhibitModerationTable(targetType);
   if (!table) return null;
+  const selectColumns = targetType === "persona_encounter_cross_owner_public_exhibit"
+    ? "id, slug, status, retracted_at, consent_id"
+    : "id, slug, status, retracted_at";
 
   const { data } = await (sb as any)
     .from(table)
-    .select("id, slug, status, retracted_at, consent_id")
+    .select(selectColumns)
     .eq("id", exhibitId)
     .maybeSingle();
 

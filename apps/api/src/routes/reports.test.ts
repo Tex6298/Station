@@ -192,6 +192,7 @@ class QueryBuilder {
   private inFilters: Array<[string, unknown[]]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
+  private selectColumns = "*";
   private operation: "select" | "insert" | "update" = "select";
   private payload: Row | Row[] | null = null;
   private countRequested = false;
@@ -199,7 +200,8 @@ class QueryBuilder {
 
   constructor(private db: ReportsSupabase, private table: string) {}
 
-  select(_columns = "*", options: { count?: string; head?: boolean } = {}) {
+  select(columns = "*", options: { count?: string; head?: boolean } = {}) {
+    this.selectColumns = columns;
     this.countRequested = Boolean(options.count);
     this.head = Boolean(options.head);
     return this;
@@ -271,6 +273,11 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
+    const selectError = this.validateSelectedColumns();
+    if (selectError) {
+      return { data: null, error: selectError, count: this.countRequested ? 0 : null };
+    }
+
     let rows: Row[];
     if (this.operation === "insert") {
       rows = (Array.isArray(this.payload) ? this.payload : [this.payload as Row])
@@ -298,6 +305,16 @@ class QueryBuilder {
     }
 
     return { data: this.head ? null : data, error: null, count: this.countRequested ? rows.length : null };
+  }
+
+  private validateSelectedColumns() {
+    if (this.table !== "persona_encounter_public_exhibits") return null;
+    if (this.selectColumns === "*" || !this.selectColumns.trim()) return null;
+    const requested = this.selectColumns.split(",").map((column) => column.trim()).filter(Boolean);
+    if (requested.includes("consent_id")) {
+      return { message: "column persona_encounter_public_exhibits.consent_id does not exist" };
+    }
+    return null;
   }
 }
 

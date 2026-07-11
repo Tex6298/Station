@@ -6,12 +6,12 @@ change, not to unknown repo hygiene.
 
 ## PR517A Cross-Owner Metadata-Only Public Exhibit Contract
 
-DAEDALUS implemented PR517A on 2026-07-11:
+ARGUS accepted PR517A after a narrow review patch on 2026-07-11:
 
-- `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_RESULT.md`
+- `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_WITH_ARGUS_PATCH`.
 
 Reason:
 
@@ -29,12 +29,16 @@ Reason:
   `persona_encounter_cross_owner_public_exhibit`;
 - admin restore requires active bilateral metadata approval and consent
   revocation retracts/hides linked public rows;
+- ARGUS patched same-owner moderation so the existing same-owner public exhibit
+  table is not queried for cross-owner-only `consent_id`;
+- ARGUS patched the SQL validator so revocation can retract linked rows while
+  still blocking metadata or identity mutation after inactive consent;
 - web changes are helper-only path/payload/readback/error-copy coverage.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 73 tests passed, including cross-owner metadata proposal, exact bilateral approval, public metadata readback, report duplicate handling, revocation hiding, same-owner exhibit regressions, and web helper coverage. |
-| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including cross-owner public exhibit report queue context and admin remove/restore active-consent gating. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner public exhibit remove/restore, cross-owner public exhibit report queue context, and admin remove/restore active-consent gating. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including helper-only cross-owner public exhibit path/payload/readback/error-copy coverage and existing Studio source guards. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
 | `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
