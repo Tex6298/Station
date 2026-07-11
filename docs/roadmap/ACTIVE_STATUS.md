@@ -4,33 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504B Station Press owner package hosted proof opened
+## Current lane - PR504B Station Press owner package hosted proof blocked
 
-MIMIR opened the required ARIADNE proof lane:
+ARIADNE completed the required hosted proof:
 
-`docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RESULT.md`
 
-Reason:
+Result:
 
-- ARGUS accepted PR504A after a narrow fail-closed review patch.
-- PR504A changes visible `/studio/publishing` behavior and owner export
-  package behavior.
-- Hosted desktop and 390px mobile proof is required before MIMIR closes PR504A.
+```text
+BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF
+```
+
+Summary:
+
+- Hosted web/API were reachable, ready, and fresh at
+  `af5e31457bedfc34d501450d49b42ad3e74d3f74`, the PR504A ARGUS acceptance
+  commit.
+- Owner auth returned `200` with `canon` tier; cross-owner auth returned `200`
+  with `private` tier.
+- Hosted fixtures included five package-ready owner publications, so this was
+  not a fixture-limitation case.
+- Desktop `/studio/publishing` rendered Station Press package controls and
+  sent exactly one allowed Station Press create POST.
+- Package creation returned bounded
+  `500 station_press_publication_create_failed`, so no package id, readback, or
+  `README.md` / `manifest.json` / `manifest.md` bundle could be proven.
+- Desktop and 390px mobile fit without horizontal overflow, and
+  privacy/product-boundary scans passed.
+- Signed-out create/list failed closed with `401`; cross-owner create/list
+  failed closed with `404`.
+
+Smallest next repair:
+
+- inspect hosted `@station/api` logs and hosted migration
+  `073_station_press_publication_packages.sql` application;
+- repair the create path without weakening owner-only, raw-id omission,
+  storage omission, or public-download boundaries;
+- rerun PR504B after repair.
 
 Current lane:
 
 ```text
 PR504B - Station Press Owner Package Hosted Proof
 Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF
-Source: docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md
+State: BLOCKED_AWAITING_REPAIR
+Source: docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR504A Station Press owner package contract accepted by ARGUS
