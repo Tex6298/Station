@@ -4,52 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510B public encounter exhibit Discover search hosted proof
+## Current lane - PR510B public encounter exhibit Discover search hosted proof complete
+
+ARIADNE completed PR510B and woke MIMIR:
+
+`docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+PASS_PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF
+```
+
+Summary:
+
+- hosted web/API were ready at commit prefix `ad12809cddb4`, which includes
+  PR510A floor `ad12809c`;
+- owner and admin auth passed;
+- hosted began with zero public encounter exhibits, so ARIADNE created exactly
+  one disposable source-backed private artifact and one metadata-only public
+  exhibit, then cleaned both up;
+- empty search returned a bounded empty `publicEncounterExhibits` group;
+- public title, summary, tag, initiator display snapshot, and responder display
+  snapshot searches all returned the proof row;
+- search rows stayed metadata-only and routed only to `/encounters/[slug]`;
+- the public search group label rendered as `Encounter Exhibits`;
+- removed, retracted, and deleted exhibits stayed absent;
+- wrong-schema, malformed-slug, and missing-source mutations were blocked by
+  hosted constraints before surfacing;
+- desktop and `390px` Discover search rendering passed with exact slug links,
+  visible title token, no horizontal overflow, and detail-only links;
+- Discover feed/rising/featured, public persona, public Space, forum/Salon,
+  Station Press owner page signed out, writing, and public document samples did
+  not surface the proof exhibit outside accepted search/detail scope;
+- maximum measured hosted search latency was `872ms`, acceptable for protected
+  alpha;
+- cleanup deleted proof artifact rows and privacy scan passed.
+
+Next:
+
+- MIMIR accepts/closes PR510B or routes any narrow follow-up.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR510B public encounter exhibit Discover search hosted proof opened
 
 MIMIR closed PR510A locally and opened PR510B for ARIADNE:
 
 `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_CLOSEOUT.md`
 
 `docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md`
-
-Why:
-
-- ARGUS accepted PR510A's dedicated Discover search group as
-  `ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`;
-- `/discover/search` now has a `publicEncounterExhibits` group named
-  `Encounter Exhibits`;
-- search uses already-public title, summary, tags, and same-owner display
-  snapshots only;
-- payloads stay metadata-only and route only to `/encounters/[slug]`;
-- unsafe rows stay absent using the PR509A public-list safety floor;
-- Discover feed/rising/featured, public persona, public Space, forum/Salon,
-  Station Press/public document, private material, provider/retrieval,
-  billing/social/storage, Redis/Cloudflare, queue/worker, package/lockfile,
-  migration, and search-index scope remain out.
-
-Opened lane:
-
-```text
-PR510B - Public Encounter Exhibit Discover Search Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_DISCOVER_SEARCH_PROOF
-Source: docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md
-```
-
-Next:
-
-- ARIADNE confirms hosted web/API include PR510A commit `ad12809c` or later;
-- ARIADNE proves empty search, public-field matching, metadata-only payloads,
-  `/encounters/[slug]` routing, unsafe-row absence, public no-drift, desktop and
-  `390px` Discover search rendering, latency, cleanup, and privacy;
-- ARIADNE wakes MIMIR with PASS or BLOCK.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
 
 ## Previous lane - PR510A public encounter exhibit Discover search group accepted
 

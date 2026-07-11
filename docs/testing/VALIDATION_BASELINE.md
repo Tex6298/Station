@@ -4,6 +4,55 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR510B Public Encounter Exhibit Discover Search Hosted Proof
+
+ARIADNE completed PR510B hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `ad12809cddb4`, which includes PR510A floor `ad12809c`;
+- owner and admin auth passed;
+- hosted began with zero public encounter exhibits, so ARIADNE created exactly
+  one disposable source-backed private artifact and one metadata-only public
+  exhibit, then cleaned both up;
+- empty search returned a bounded empty `publicEncounterExhibits` group;
+- public title, summary, tag, initiator display snapshot, and responder display
+  snapshot searches all returned the proof row;
+- result payloads stayed metadata-only and routed only to `/encounters/[slug]`;
+- the public web group label rendered as `Encounter Exhibits`;
+- removed, retracted, and deleted exhibits stayed absent;
+- wrong-schema, malformed-slug, and missing-source mutations were blocked by
+  hosted constraints before surfacing;
+- desktop and `390px` Discover search rendering passed with exact slug links,
+  visible title token, no horizontal overflow, and detail-only links;
+- Discover feed/rising/featured, public persona, public Space, forum/Salon,
+  Station Press owner page signed out, writing, and public document samples did
+  not surface the proof exhibit outside accepted search/detail scope;
+- maximum measured hosted search latency was `872ms`, acceptable for protected
+  alpha;
+- cleanup deleted proof artifact rows and privacy scan passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser proof runner | Pass | Exactly one disposable source-backed public exhibit was created; Discover search, unsafe-row absence, no-drift, desktop/mobile rendering, latency, privacy, and cleanup checks passed. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `ad12809cddb4`, which includes PR510A floor `ad12809c`. |
+| Discover search API | Pass | Empty search returned a bounded empty group; public title, summary, tag, initiator, and responder display snapshot searches found the metadata-only proof row. |
+| Search routing | Pass | Search result hrefs route only to `/encounters/[slug]`. |
+| Unsafe-row absence | Pass | Removed, retracted, and deleted rows were absent; wrong-schema, malformed-slug, and missing-source mutations were blocked by hosted constraints before surfacing. |
+| Desktop and `390px` Discover search layout | Pass | The `Encounter Exhibits` group rendered, exact slug links were present, title tokens were visible, results fit, and no horizontal overflow was detected. |
+| Public no-drift | Pass | Discover feed/rising/featured, public persona, public Space, forum/Salon, Station Press owner page signed out, writing, and public document samples did not surface the proof exhibit outside accepted search/detail scope. |
+| Cleanup verification | Pass | Proof artifact rows were deleted; public detail returned `404`; search no longer included the proof exhibit. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, env values, or browser artifacts. |
+
+`pnpm typecheck` was not run because the PR510B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR510A Public Encounter Exhibit Discover Search Group ARGUS Review
 
 ARGUS accepted PR510A on 2026-07-11:

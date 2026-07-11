@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR510B | Public Encounter Exhibit Discover Search Hosted Proof | ARIADNE / A4 | Open hosted proof; confirm deployed web/API include PR510A, then prove `publicEncounterExhibits` search behavior, no-drift, layout, latency, cleanup, and privacy. | `docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md` |
+| PR510B | Public Encounter Exhibit Discover Search Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`; hosted web/API were fresh at `ad12809cddb4`, `publicEncounterExhibits` search was metadata-only and route-only, desktop/mobile Discover search fit, no-drift and cleanup passed. MIMIR closeout pending. | `docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
