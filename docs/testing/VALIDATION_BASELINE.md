@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR512A Cross-Owner Runtime Context Contract
+
+DAEDALUS implemented PR512A on 2026-07-11:
+
+- `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- PR512A defines a readback-only context boundary before any future
+  provider-backed cross-owner runtime lane can be considered;
+- the new route requires auth, explicit consent/persona ids, participant
+  actor, actor-owned initiator persona, matching responder persona, approved
+  consent status, scope version `1`, and `run_cross_owner_encounter`;
+- pending, rejected, cancelled, revoked, wrong-scope, wrong-version,
+  wrong-pair, wrong-role, and nonparticipant cases fail closed;
+- generic consent ledger readback remains `executable: false`;
+- PR512A returns denied context class labels and future metadata-only audit
+  field names, but no private persona field values, prompts, provider payloads,
+  generated words, traces, raw owner ids, or raw persona ids;
+- no provider calls, generated words, token rows, private sessions, public
+  exhibits, reports, memory/canon/archive/continuity/export/jobs/storage/public
+  rows, infra, package, migration, billing, or UI changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 45 tests passed, including PR512A approved contract, pending/rejected/cancelled/revoked, wrong-scope, wrong-version, wrong-pair, wrong-role, nonparticipant, privacy, and no-side-effect coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR512A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changed implementation paths are limited to persona encounter API route/tests and roadmap/testing docs. |
+| Forbidden-path scan | Pass | No web UI, Discover/search/feed, forum, Space, document, report route, provider, retrieval, billing, storage, social, Redis, Cloudflare, queue, worker, package, lockfile, webhook, deployment, migration, or public-surface path changed. |
+| Forbidden side-effect scan | Pass | Diff matches are denied-context labels or negative execution assertions, not side-effect writes or provider/token/storage code. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, Google key, Slack token, bearer-token-shaped, or private-key block values found in touched implementation files. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR512A implementation and docs. |
+
 ## PR512 Consented Cross-Owner Encounter Runtime Preflight
 
 ARGUS completed PR512 preflight on 2026-07-11:

@@ -4,42 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR512A cross-owner runtime context contract opened
+## Current lane - PR512A cross-owner runtime context contract ready for review
 
-MIMIR closed PR512:
+DAEDALUS implemented PR512A and woke ARGUS:
 
-`docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_RESULT.md`
 
-MIMIR opened PR512A for DAEDALUS:
-
-`docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_DAEDALUS.md`
-
-Current lane:
+Result:
 
 ```text
-PR512A - Cross-Owner Runtime Context Contract
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_DAEDALUS.md
+READY_FOR_ARGUS_REVIEW
 ```
 
 Summary:
 
 - provider-backed cross-owner runtime remains blocked on
   `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`;
-- PR512A is readback-only;
-- DAEDALUS should define the exact consent/status/scope/persona-pair/context
-  contract and optional participant-only API readback route;
-- PR512A must not call providers, generate cross-owner words, record token
-  rows, create private sessions/public exhibits/reports/memory/canon/archive/
-  continuity/export/jobs/storage/public rows, or touch infra/package/migration/
-  billing/UI scope.
+- PR512A adds a readback-only participant API route and pure helper for the
+  exact consent/status/scope/persona-pair/runtime-context contract;
+- the route requires explicit `consentId`, `initiatorPersonaId`, and
+  `responderPersonaId`, an approved consent, scope version `1`,
+  `run_cross_owner_encounter`, a matching participant pair, participant actor,
+  and actor-owned initiator persona;
+- pending, rejected, cancelled, revoked, wrong-scope, wrong-version,
+  wrong-pair, and wrong-role cases fail closed with bounded readback;
+- generic consent ledger readback remains `executable: false`;
+- no provider calls, generated cross-owner words, token rows, private sessions,
+  public exhibits, reports, memory/canon/archive/continuity/export/jobs/
+  storage/public rows, infra, package, migration, billing, or UI changed.
+
+Next:
+
+- ARGUS reviews PR512A as readback-only context-contract work;
+- if accepted, ARGUS wakes MIMIR with the next routing decision.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR512 preflight returned to MIMIR

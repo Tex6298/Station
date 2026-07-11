@@ -759,6 +759,36 @@ function crossOwnerConsentBody(overrides: Partial<{
   };
 }
 
+function crossOwnerRuntimeContractPath(
+  consentId: string,
+  overrides: Partial<{
+    initiatorPersonaId: string;
+    responderPersonaId: string;
+  }> = {},
+) {
+  const params = new URLSearchParams({
+    initiatorPersonaId: overrides.initiatorPersonaId ?? INITIATOR_ID,
+    responderPersonaId: overrides.responderPersonaId ?? OTHER_PERSONA_ID,
+  });
+  return `/persona-encounters/cross-owner-consents/${consentId}/runtime-context-contract?${params.toString()}`;
+}
+
+function seedCrossOwnerConsent(db: InMemorySupabase, overrides: Row = {}) {
+  return db.insertRow("persona_encounter_cross_owner_consents", {
+    requester_owner_user_id: OWNER_ID,
+    requester_persona_id: INITIATOR_ID,
+    requester_persona_name_snapshot: "Blue Lantern",
+    counterparty_owner_user_id: OTHER_OWNER_ID,
+    counterparty_persona_id: OTHER_PERSONA_ID,
+    counterparty_persona_name_snapshot: "Other Owner Persona",
+    status: "approved",
+    requested_scopes: ["run_cross_owner_encounter"],
+    requester_approved_at: "2026-06-29T09:00:00.000Z",
+    counterparty_approved_at: "2026-06-29T09:00:01.000Z",
+    ...overrides,
+  });
+}
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
@@ -1257,6 +1287,221 @@ test("cross-owner consent requested scopes are bounded and default to non-execut
     ]);
     assert.equal(created.body.consent.requestedScopes[0].executable, false);
     assert.equal(created.body.consent.ledger.executable, false);
+    assert.equal(providerCalls.length, 0);
+    assertNoForbiddenCrossOwnerConsentSideEffects(db);
+  });
+});
+
+test("cross-owner runtime context contract returns approved readback without executing runtime", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const created = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents", {
+      token: "owner-token",
+      body: crossOwnerConsentBody(),
+    });
+    assert.equal(created.status, 201);
+
+    const approved = await requestJson(
+      app,
+      "PATCH",
+      `/persona-encounters/cross-owner-consents/${created.body.consent.id}/approve`,
+      { token: "other-token", body: {} },
+    );
+    assert.equal(approved.status, 200);
+
+    const beforeCounts = {
+      consents: db.rows("persona_encounter_cross_owner_consents").length,
+      audit: db.rows("persona_encounter_cross_owner_consent_audit_events").length,
+    };
+    const contract = await requestJson(
+      app,
+      "GET",
+      crossOwnerRuntimeContractPath(created.body.consent.id),
+      { token: "owner-token" },
+    );
+
+    assert.equal(contract.status, 200);
+    assert.equal(contract.body.contract.schema, "station.persona_encounter.cross_owner_runtime_context_contract.v1");
+    assert.equal(contract.body.contract.eligible, true);
+    assert.equal(contract.body.contract.readiness.code, "ready");
+    assert.equal(contract.body.contract.actor.role, "requester");
+    assert.equal(contract.body.contract.requestedPair.matchesConsentPair, true);
+    assert.equal(contract.body.contract.requestedPair.actorOwnsInitiator, true);
+    assert.equal(contract.body.contract.requestedPair.responderIsOtherParticipant, true);
+    assert.equal(contract.body.contract.requestedPair.initiator.personaName, "Blue Lantern");
+    assert.equal(contract.body.contract.requestedPair.responder.personaName, "Other Owner Persona");
+    assert.equal(contract.body.contract.requirements.consentStatus, "approved");
+    assert.equal(contract.body.contract.requirements.requestedScopePresent, true);
+    assert.equal(contract.body.contract.requirements.requestedScopeVersion, 1);
+    assert.equal(contract.body.contract.requirements.genericLedgerExecutable, false);
+    assert.equal(contract.body.consent.ledger.executable, false);
+    assert.equal(contract.body.consent.requestedScopes[0].executable, false);
+    assert.equal(contract.body.contract.execution.providerCalled, false);
+    assert.equal(contract.body.contract.execution.promptAssembled, false);
+    assert.equal(contract.body.contract.execution.generatedWordsReturned, false);
+    assert.equal(contract.body.contract.execution.tokenAccountingRecorded, false);
+    assert.equal(contract.body.contract.execution.privateSessionCreated, false);
+    assert.equal(contract.body.contract.execution.publicExhibitCreated, false);
+    assert.equal(contract.body.contract.execution.reportCreated, false);
+    assert.equal(contract.body.contract.execution.storageWritten, false);
+    assert.equal(contract.body.contract.execution.publicSurfaceCreated, false);
+    assert.deepEqual(
+      contract.body.contract.deniedContextClasses.map((row: Row) => row.contextClass),
+      [
+        "long_description",
+        "awakening_prompt",
+        "style_notes",
+        "private_memory",
+        "canon",
+        "archive",
+        "continuity",
+        "transcripts",
+        "source_bodies",
+        "provider_payloads",
+        "provider_config",
+        "raw_owner_ids",
+        "raw_persona_ids",
+        "traces",
+        "storage_paths",
+        "generated_words",
+      ],
+    );
+    assert.equal(contract.body.contract.futureRuntimeAttemptAudit.writtenInPr512A, false);
+    assert.deepEqual(contract.body.contract.futureRuntimeAttemptAudit.allowedMetadataOnlyFields, [
+      "consentId",
+      "actorRole",
+      "initiatorRole",
+      "responderRole",
+      "consentStatus",
+      "requestedScopeVersion",
+      "requestedScope",
+      "readinessCode",
+      "attemptedAt",
+    ]);
+
+    assert.equal(db.rows("persona_encounter_cross_owner_consents").length, beforeCounts.consents);
+    assert.equal(db.rows("persona_encounter_cross_owner_consent_audit_events").length, beforeCounts.audit);
+    assert.equal(providerCalls.length, 0);
+    assertNoForbiddenCrossOwnerConsentSideEffects(db);
+
+    const responseJson = JSON.stringify(contract.body);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "Owner-only private persona notes",
+      "Notice the room before speaking",
+      "Style notes",
+      "Copper Scribe answers once",
+      "provider says no",
+      "test-deepseek-key",
+      "Bearer ",
+    ]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in runtime contract readback`);
+    }
+
+    const counterpartyContract = await requestJson(
+      app,
+      "GET",
+      crossOwnerRuntimeContractPath(created.body.consent.id, {
+        initiatorPersonaId: OTHER_PERSONA_ID,
+        responderPersonaId: INITIATOR_ID,
+      }),
+      { token: "other-token" },
+    );
+    assert.equal(counterpartyContract.status, 200);
+    assert.equal(counterpartyContract.body.contract.eligible, true);
+    assert.equal(counterpartyContract.body.contract.actor.role, "counterparty");
+    assert.equal(counterpartyContract.body.contract.requestedPair.actorOwnsInitiator, true);
+  });
+});
+
+test("cross-owner runtime context contract fails closed for status scope version pair role and nonparticipants", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    for (const status of ["pending", "rejected", "cancelled", "revoked"]) {
+      const row = seedCrossOwnerConsent(db, { status });
+      const response = await requestJson(app, "GET", crossOwnerRuntimeContractPath(row.id), {
+        token: "owner-token",
+      });
+      assert.equal(response.status, 200);
+      assert.equal(response.body.contract.eligible, false);
+      assert.equal(response.body.contract.readiness.code, status);
+      assert.equal(response.body.contract.readiness.ineligibleState, status);
+      assert.equal(response.body.contract.execution.providerCalled, false);
+      assert.equal(response.body.consent.ledger.executable, false);
+    }
+
+    const wrongScope = seedCrossOwnerConsent(db, {
+      requested_scopes: ["publish_transcript"],
+    });
+    const wrongScopeResponse = await requestJson(app, "GET", crossOwnerRuntimeContractPath(wrongScope.id), {
+      token: "owner-token",
+    });
+    assert.equal(wrongScopeResponse.status, 200);
+    assert.equal(wrongScopeResponse.body.contract.eligible, false);
+    assert.equal(wrongScopeResponse.body.contract.readiness.code, "wrong_scope");
+    assert.equal(wrongScopeResponse.body.contract.requirements.requestedScopePresent, false);
+
+    const wrongVersion = seedCrossOwnerConsent(db, {
+      requested_scope_version: 2,
+    });
+    const wrongVersionResponse = await requestJson(app, "GET", crossOwnerRuntimeContractPath(wrongVersion.id), {
+      token: "owner-token",
+    });
+    assert.equal(wrongVersionResponse.status, 200);
+    assert.equal(wrongVersionResponse.body.contract.eligible, false);
+    assert.equal(wrongVersionResponse.body.contract.readiness.code, "wrong_version");
+    assert.equal(wrongVersionResponse.body.contract.requirements.requestedScopeVersion, 2);
+
+    const wrongPair = seedCrossOwnerConsent(db);
+    const wrongPairResponse = await requestJson(
+      app,
+      "GET",
+      crossOwnerRuntimeContractPath(wrongPair.id, { responderPersonaId: RESPONDER_ID }),
+      { token: "owner-token" },
+    );
+    assert.equal(wrongPairResponse.status, 200);
+    assert.equal(wrongPairResponse.body.contract.eligible, false);
+    assert.equal(wrongPairResponse.body.contract.readiness.code, "wrong_pair");
+    assert.equal(wrongPairResponse.body.contract.requestedPair.matchesConsentPair, false);
+
+    const wrongRole = seedCrossOwnerConsent(db);
+    const wrongRoleResponse = await requestJson(
+      app,
+      "GET",
+      crossOwnerRuntimeContractPath(wrongRole.id, {
+        initiatorPersonaId: OTHER_PERSONA_ID,
+        responderPersonaId: INITIATOR_ID,
+      }),
+      { token: "owner-token" },
+    );
+    assert.equal(wrongRoleResponse.status, 200);
+    assert.equal(wrongRoleResponse.body.contract.eligible, false);
+    assert.equal(wrongRoleResponse.body.contract.readiness.code, "wrong_role");
+    assert.equal(wrongRoleResponse.body.contract.requestedPair.actorOwnsInitiator, false);
+
+    const nonparticipant = seedCrossOwnerConsent(db);
+    const nonparticipantResponse = await requestJson(
+      app,
+      "GET",
+      crossOwnerRuntimeContractPath(nonparticipant.id),
+      { token: "third-token" },
+    );
+    assert.equal(nonparticipantResponse.status, 404);
+
+    const malformedQuery = await requestJson(
+      app,
+      "GET",
+      `/persona-encounters/cross-owner-consents/${nonparticipant.id}/runtime-context-contract?initiatorPersonaId=${INITIATOR_ID}`,
+      { token: "owner-token" },
+    );
+    assert.equal(malformedQuery.status, 400);
+
     assert.equal(providerCalls.length, 0);
     assertNoForbiddenCrossOwnerConsentSideEffects(db);
   });

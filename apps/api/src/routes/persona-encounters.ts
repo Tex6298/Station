@@ -34,6 +34,40 @@ const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.public_exhibit.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PROVENANCE_SCHEMA =
   "station.persona_encounter.cross_owner_consent.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCHEMA =
+  "station.persona_encounter.cross_owner_runtime_context_contract.v1";
+const CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION = 1;
+const CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE =
+  "run_cross_owner_encounter" satisfies CrossOwnerConsentRequestedScope;
+const CROSS_OWNER_RUNTIME_DENIED_CONTEXT_CLASSES = [
+  "long_description",
+  "awakening_prompt",
+  "style_notes",
+  "private_memory",
+  "canon",
+  "archive",
+  "continuity",
+  "transcripts",
+  "source_bodies",
+  "provider_payloads",
+  "provider_config",
+  "raw_owner_ids",
+  "raw_persona_ids",
+  "traces",
+  "storage_paths",
+  "generated_words",
+] as const;
+const CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_FIELDS = [
+  "consentId",
+  "actorRole",
+  "initiatorRole",
+  "responderRole",
+  "consentStatus",
+  "requestedScopeVersion",
+  "requestedScope",
+  "readinessCode",
+  "attemptedAt",
+] as const;
 const CROSS_OWNER_CONSENT_STATUSES = [
   "pending",
   "approved",
@@ -173,6 +207,14 @@ const crossOwnerConsentCreateSchema = z.object({
 const crossOwnerConsentReasonBodySchema = z.object({
   reasonCode: crossOwnerConsentReasonCodeSchema.optional(),
 }).strict();
+
+const crossOwnerRuntimeContextContractQuerySchema = z.object({
+  initiatorPersonaId: z.string().uuid(),
+  responderPersonaId: z.string().uuid(),
+}).strict().refine((value) => value.initiatorPersonaId !== value.responderPersonaId, {
+  message: "Select two different personas.",
+  path: ["responderPersonaId"],
+});
 
 const readinessSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -843,6 +885,39 @@ personaEncountersRouter.get("/cross-owner-consents", requireAuth, async (req, re
   });
 });
 
+personaEncountersRouter.get(
+  "/cross-owner-consents/:consentId/runtime-context-contract",
+  requireAuth,
+  async (req, res) => {
+    const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+    if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+    const parsedQuery = crossOwnerRuntimeContextContractQuerySchema.safeParse(req.query);
+    if (!parsedQuery.success) return res.status(400).json({ error: parsedQuery.error.flatten() });
+
+    const ownerUserId = req.user!.id;
+    const sb = getSupabaseAdmin();
+    const result = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+    if (!result.ok) {
+      return res.status(500).json({
+        error: "Cross-owner runtime context contract could not be loaded.",
+        code: "persona_encounter_cross_owner_runtime_context_contract_load_failed",
+      });
+    }
+    if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+    return res.json({
+      contract: buildCrossOwnerRuntimeContextContract({
+        consent: result.row,
+        actorOwnerUserId: ownerUserId,
+        initiatorPersonaId: parsedQuery.data.initiatorPersonaId,
+        responderPersonaId: parsedQuery.data.responderPersonaId,
+      }),
+      consent: serializeCrossOwnerConsent(result.row, ownerUserId),
+    });
+  },
+);
+
 personaEncountersRouter.get("/cross-owner-consents/:consentId", requireAuth, async (req, res) => {
   const parsedId = sessionIdSchema.safeParse(req.params.consentId);
   if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
@@ -1381,6 +1456,198 @@ function serializeCrossOwnerConsentAuditEvent(row: EncounterCrossOwnerConsentAud
     reasonCode: row.reason_code,
     createdAt: row.created_at,
   };
+}
+
+function buildCrossOwnerRuntimeContextContract(input: {
+  consent: EncounterCrossOwnerConsentRow;
+  actorOwnerUserId: string;
+  initiatorPersonaId: string;
+  responderPersonaId: string;
+}) {
+  const actorRole = crossOwnerConsentParticipantRole(input.consent, input.actorOwnerUserId);
+  const initiatorParticipant = crossOwnerConsentPersonaParticipant(input.consent, input.initiatorPersonaId);
+  const responderParticipant = crossOwnerConsentPersonaParticipant(input.consent, input.responderPersonaId);
+  const pairMatchesConsent = Boolean(
+    initiatorParticipant &&
+    responderParticipant &&
+    initiatorParticipant.role !== responderParticipant.role,
+  );
+  const actorOwnsInitiator = Boolean(actorRole && initiatorParticipant?.role === actorRole);
+  const responderIsOtherParticipant = Boolean(
+    actorRole &&
+    responderParticipant &&
+    responderParticipant.role !== actorRole,
+  );
+  const requiredScopePresent = input.consent.requested_scopes.includes(CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE);
+  const requiredScopeVersionMatches =
+    input.consent.requested_scope_version === CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION;
+  const readiness = crossOwnerRuntimeContextReadiness({
+    consent: input.consent,
+    pairMatchesConsent,
+    actorOwnsInitiator,
+    responderIsOtherParticipant,
+    requiredScopePresent,
+    requiredScopeVersionMatches,
+  });
+
+  return {
+    schema: PERSONA_ENCOUNTER_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCHEMA,
+    eligible: readiness.eligible,
+    readiness,
+    actor: {
+      role: actorRole,
+      participant: actorRole !== null,
+    },
+    requestedPair: {
+      explicitConsentId: true,
+      explicitInitiatorPersonaId: true,
+      explicitResponderPersonaId: true,
+      matchesConsentPair: pairMatchesConsent,
+      actorOwnsInitiator,
+      responderIsOtherParticipant,
+      initiator: serializeCrossOwnerRuntimeContextParticipant(initiatorParticipant),
+      responder: serializeCrossOwnerRuntimeContextParticipant(responderParticipant),
+    },
+    requirements: {
+      consentStatusRequired: "approved",
+      consentStatus: input.consent.status,
+      requestedScopeRequired: CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE,
+      requestedScopePresent: requiredScopePresent,
+      requestedScopeVersionRequired: CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION,
+      requestedScopeVersion: input.consent.requested_scope_version,
+      genericLedgerExecutable: false,
+    },
+    deniedContextClasses: CROSS_OWNER_RUNTIME_DENIED_CONTEXT_CLASSES.map((contextClass) => ({
+      contextClass,
+      denied: true,
+    })),
+    futureRuntimeAttemptAudit: {
+      writtenInPr512A: false,
+      allowedMetadataOnlyFields: [...CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_FIELDS],
+      forbiddenFields: [
+        "rawOwnerIds",
+        "rawPersonaIds",
+        "prompts",
+        "privateProfileFields",
+        "providerPayloads",
+        "generatedWords",
+        "traces",
+        "sqlDetails",
+        "envValues",
+        "cookies",
+        "bearerValues",
+        "secretValues",
+      ],
+    },
+    execution: {
+      providerCalled: false,
+      promptAssembled: false,
+      generatedWordsReturned: false,
+      tokenAccountingRecorded: false,
+      privateSessionCreated: false,
+      publicExhibitCreated: false,
+      reportCreated: false,
+      storageWritten: false,
+      publicSurfaceCreated: false,
+    },
+    note: "PR512A is readback-only. This contract does not execute a provider call or grant runtime permission.",
+  };
+}
+
+function crossOwnerRuntimeContextReadiness(input: {
+  consent: EncounterCrossOwnerConsentRow;
+  pairMatchesConsent: boolean;
+  actorOwnsInitiator: boolean;
+  responderIsOtherParticipant: boolean;
+  requiredScopePresent: boolean;
+  requiredScopeVersionMatches: boolean;
+}) {
+  if (!input.pairMatchesConsent) {
+    return {
+      eligible: false,
+      code: "wrong_pair",
+      ineligibleState: "wrong_pair",
+      message: "The supplied persona pair must match the consent participants.",
+    };
+  }
+
+  if (!input.actorOwnsInitiator || !input.responderIsOtherParticipant) {
+    return {
+      eligible: false,
+      code: "wrong_role",
+      ineligibleState: "wrong_role",
+      message: "The actor must initiate with their own participant persona and target the other participant persona.",
+    };
+  }
+
+  if (input.consent.status !== "approved") {
+    return {
+      eligible: false,
+      code: input.consent.status,
+      ineligibleState: input.consent.status,
+      message: "The consent ledger record is not approved for context-contract readiness.",
+    };
+  }
+
+  if (!input.requiredScopeVersionMatches) {
+    return {
+      eligible: false,
+      code: "wrong_version",
+      ineligibleState: "wrong_version",
+      message: "The consent scope version does not match the accepted runtime context contract version.",
+    };
+  }
+
+  if (!input.requiredScopePresent) {
+    return {
+      eligible: false,
+      code: "wrong_scope",
+      ineligibleState: "wrong_scope",
+      message: "The approved consent does not include the required cross-owner runtime scope.",
+    };
+  }
+
+  return {
+    eligible: true,
+    code: "ready",
+    ineligibleState: null,
+    message: "The consent row satisfies the readback-only runtime context contract. Provider execution remains out of scope.",
+  };
+}
+
+function crossOwnerConsentPersonaParticipant(
+  row: EncounterCrossOwnerConsentRow,
+  personaId: string,
+): { role: "requester" | "counterparty"; personaName: string } | null {
+  if (row.requester_persona_id === personaId) {
+    return {
+      role: "requester",
+      personaName: row.requester_persona_name_snapshot,
+    };
+  }
+  if (row.counterparty_persona_id === personaId) {
+    return {
+      role: "counterparty",
+      personaName: row.counterparty_persona_name_snapshot,
+    };
+  }
+  return null;
+}
+
+function serializeCrossOwnerRuntimeContextParticipant(
+  participant: { role: "requester" | "counterparty"; personaName: string } | null,
+) {
+  return participant
+    ? {
+        role: participant.role,
+        personaName: participant.personaName,
+        matchedConsentParticipant: true,
+      }
+    : {
+        role: null,
+        personaName: null,
+        matchedConsentParticipant: false,
+      };
 }
 
 function crossOwnerConsentScopeLabel(scope: CrossOwnerConsentRequestedScope) {
