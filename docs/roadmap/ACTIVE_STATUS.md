@@ -4,47 +4,65 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504 Station Press package generation boundary preflight opened
+## Current lane - PR504 Station Press package generation preflight accepted
 
-MIMIR closed PR503 / PR503A / PR503B:
+ARGUS completed the PR504 hostile preflight:
 
-`docs/roadmap/PR503_PUBLICATION_MANIFEST_CONTRACT_CLOSEOUT.md`
+`docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR503_STATION_PRESS_MANIFEST_CONTRACT_HOSTED_ACCEPTED
+ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT
 ```
 
-MIMIR opened PR504 for ARGUS:
+Summary:
 
-`docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md`
+- DAEDALUS may implement a narrow owner-only Station Press publication package
+  contract.
+- The package may reuse existing export package infrastructure only after
+  adding an explicit `station_press_publication` kind and `document_id`
+  target/RLS boundary. It must not treat a publication as a workspace, Project,
+  persona, or Developer Space package.
+- The accepted package is metadata-only, synchronous, authenticated, private,
+  and table/readback-backed.
+- It must not add public package URLs, public downloads, PDF or binary
+  generation, original-file packaging, print/fulfillment, billing, provider
+  calls, social dispatch, queues/workers, Redis, Cloudflare, storage objects,
+  public routes, launch claims, raw ids in visible/readback copy, or private
+  body/source exposure.
+- Visible `/studio/publishing` package controls, if implemented, must be small
+  owner-only readiness/action/readback controls and will require ARIADNE hosted
+  desktop plus 390px mobile proof after ARGUS review.
 
-Reason:
+ARGUS validation:
 
-- PR503 proved the owner-only Station Press manifest readback contract on
-  hosted desktop and 390px mobile.
-- The next product question is whether Station can safely move from readback
-  to an owner-only generated publication package, or whether storage/API/export
-  package/job boundaries block that move.
-- PR501 already closed the Discern companion/UI delta with no remaining safe
-  implementation slice.
-- PR500D and PR502B remain parked on hosted config blockers.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 10 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 24
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed: 4
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 194 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- Changed-path/source scan found PR504 docs-only and confirmed the required
+  missing implementation boundary is an explicit document target, not storage,
+  worker, provider, billing, social, Cloudflare, Redis, or a public route.
 
 Current lane:
 
 ```text
 PR504 - Station Press Package Generation Boundary Preflight
-Owner: ARGUS / A3
-State: OPEN_FOR_HOSTILE_PREFLIGHT
-Source: docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT
+Source: docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR503B publication manifest hosted proof passed

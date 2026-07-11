@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504 Station Press Package Generation Boundary Preflight
+
+ARGUS completed the PR504 Station Press package generation boundary preflight on
+2026-07-07:
+
+- `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT`.
+
+Reason:
+
+- a narrow owner-only Station Press publication package contract is safe if it
+  adds an explicit `station_press_publication` kind and `document_id`
+  target/RLS boundary;
+- existing `workspace_manifest`, `project_manifest`, persona, and Developer
+  Space package targets must not be reused as proxies for a publication;
+- the accepted package is metadata-only, synchronous, authenticated, private,
+  and table/readback-backed through the existing export package pattern;
+- PR504A must not add public package URLs, public downloads, PDF or binary
+  generation, original-file packaging, print/fulfillment, billing, provider
+  calls, social dispatch, queues/workers, Redis, Cloudflare, storage objects,
+  public routes, broad publishing UI redesign, launch claims, raw ids in
+  visible/readback copy, or private body/source exposure;
+- visible owner package controls on `/studio/publishing`, if implemented, need
+  ARIADNE hosted desktop and 390px mobile proof after ARGUS review.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Repo evidence inspection | Pass | PR503/PR503A/PR503B docs, PR496/PR496A package docs, export route/types/migration, publishing helpers/tests, document discussion boundaries, and export trust boundaries were inspected. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 10 export API tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 24 API/UI publishing tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 document discussion tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 194 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path/source scan | Pass | PR504 was docs-only; current export infrastructure lacks a document target, so PR504A must add the explicit package kind, `document_id`, constraints, RLS, route, and tests before generating publication packages. |
+
 ## PR503B Publication Manifest Hosted Proof
 
 ARIADNE completed the hosted PR503B publication manifest proof on 2026-07-07:
