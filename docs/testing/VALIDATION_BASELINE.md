@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505C Owner Encounter NVIDIA Output Budget
+
+DAEDALUS completed the local PR505C owner encounter NVIDIA output budget patch
+on 2026-07-11:
+
+- `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_RESULT.md`
+
+Validation result:
+`REVIEW_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET`.
+
+Reason:
+
+- PR505B proved hosted readiness and route boundaries, but the active
+  NVIDIA/OpenAI-compatible route still hit PR505A's bounded empty-output guard;
+- MIMIR's sanitized local probe showed a low completion budget can produce
+  reasoning-only/no visible content while `512` max tokens can produce nonblank
+  final `message.content`;
+- owner encounter previews now apply a route-local `512` max-token floor only
+  for `nvidia_openai_compatible`;
+- non-NVIDIA budget behavior is unchanged;
+- the PR505A empty-output guard remains fail-closed and no `reasoning_content`,
+  retry, fake fallback, provider policy, persistence, retrieval, billing,
+  public, queue/worker, Redis, Cloudflare, storage, schema, migration, or UI
+  behavior was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 20 persona encounter route/runtime tests passed; the NVIDIA opt-in test now proves a low requested cap is raised to `512`. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Provider/router tests were not run because PR505C did not change
+`packages/ai` provider adapter or router behavior.
+
 ## PR505B Owner Encounter Hosted Empty Guard Rerun
 
 ARIADNE completed the hosted PR505B rerun on 2026-07-11:

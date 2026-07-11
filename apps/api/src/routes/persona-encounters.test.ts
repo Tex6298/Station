@@ -661,7 +661,7 @@ test("nvidia-only opt-in generates one disposable same-owner reply without durab
     assert.equal(providerCalls.length, 1);
     assert.equal(providerCalls[0].url, "https://nvidia.test/v1/chat/completions");
     assert.equal(providerCalls[0].body.model, "openai/gpt-oss-120b");
-    assert.equal(providerCalls[0].body.max_tokens, 140);
+    assert.equal(providerCalls[0].body.max_tokens, 512);
 
     const transaction = db.rows("token_transactions")[0];
     assert.equal(db.rows("token_transactions").length, 1);

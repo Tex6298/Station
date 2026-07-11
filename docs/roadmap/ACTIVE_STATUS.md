@@ -4,13 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505C owner encounter NVIDIA output budget
+## Current lane - PR505C owner encounter NVIDIA output budget ready for review
 
-MIMIR opened PR505C for DAEDALUS:
+DAEDALUS implemented PR505C for ARGUS review:
 
-`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md`
+`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_RESULT.md`
 
-Why:
+Result:
+
+```text
+REVIEW_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET
+```
+
+Summary:
 
 - PR505B proved hosted PR505A empty-output guard is active.
 - The hosted preview now fails bounded with `502` /
@@ -24,22 +30,49 @@ Why:
   NVIDIA/OpenAI-compatible route, not auth, ownership, config readiness,
   persistence, public exposure, retrieval, billing, social, queue, Redis, or
   Cloudflare.
+- Owner encounter previews now apply a route-local `512` max-token floor only
+  for `nvidia_openai_compatible`.
+- Non-NVIDIA preview budgets remain stable.
+- PR505A's empty-output guard remains fail-closed and still does not expose
+  `reasoning_content`, synthesize fallback content, retry, or record successful
+  token usage for blank output.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed
+  `20` tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Final diff checks are recorded in the result doc before commit.
 
 Current lane:
 
 ```text
 PR505C - Owner Encounter NVIDIA Output Budget
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md
+Owner: ARGUS / A3
+State: REVIEW_READY
+Source: docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
+
+## Previous lane - PR505C owner encounter NVIDIA output budget opened
+
+MIMIR opened PR505C for DAEDALUS:
+
+`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md`
+
+Task:
+
+- Implement route-aware output-token budgeting for NVIDIA/OpenAI-compatible
+  owner encounter previews.
+- Preserve PR505A's bounded empty-output guard.
+- Do not expose `reasoning_content`, add retries, synthesize fallback content,
+  or broaden provider policy/persistence/retrieval/billing/public/queue scope.
 
 ## Previous lane - PR505B hosted provider empty-reply guard working
 

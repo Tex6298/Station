@@ -18,6 +18,7 @@ export const personaEncountersRouter = Router();
 
 const ENCOUNTER_PREVIEW_MAX_SETUP_CHARS = 1600;
 const ENCOUNTER_PREVIEW_MAX_OUTPUT_TOKENS = 360;
+const ENCOUNTER_PREVIEW_NVIDIA_OUTPUT_TOKENS = 512;
 const ENCOUNTER_PREVIEW_REPLY_MAX_CHARS = 2400;
 const ENCOUNTER_PREVIEW_DAY_SECONDS = 24 * 60 * 60;
 const ENCOUNTER_PREVIEW_PER_MINUTE = 2;
@@ -116,7 +117,10 @@ personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
   if (!providerResolution.configured) return res.status(providerResolution.status).json(providerResolution.body);
 
   const { chatRoute } = providerResolution;
-  const maxOutputTokens = input.maxOutputTokens ?? ENCOUNTER_PREVIEW_MAX_OUTPUT_TOKENS;
+  const maxOutputTokens = selectEncounterPreviewMaxOutputTokens({
+    requestedMaxOutputTokens: input.maxOutputTokens,
+    routeLabel: chatRoute.routeLabel,
+  });
   const systemPrompt = buildEncounterPreviewSystemPrompt({ initiator, responder });
   const userMessage = buildEncounterPreviewUserMessage({
     initiatorName: initiator.name,
@@ -438,6 +442,17 @@ function boundEncounterReply(value: string) {
   const clean = value.trim();
   if (clean.length <= ENCOUNTER_PREVIEW_REPLY_MAX_CHARS) return clean;
   return `${clean.slice(0, ENCOUNTER_PREVIEW_REPLY_MAX_CHARS - 3).trimEnd()}...`;
+}
+
+function selectEncounterPreviewMaxOutputTokens(input: {
+  requestedMaxOutputTokens?: number;
+  routeLabel: string;
+}) {
+  const requested = input.requestedMaxOutputTokens ?? ENCOUNTER_PREVIEW_MAX_OUTPUT_TOKENS;
+  if (input.routeLabel === "nvidia_openai_compatible") {
+    return Math.max(requested, ENCOUNTER_PREVIEW_NVIDIA_OUTPUT_TOKENS);
+  }
+  return requested;
 }
 
 function clip(value: string | null | undefined, maxLength: number) {
