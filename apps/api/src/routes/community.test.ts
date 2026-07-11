@@ -214,6 +214,8 @@ class CommunitySupabase {
     community_witnesses: [],
     community_votes: [],
     moderation_reports: [],
+    persona_encounter_private_sessions: [],
+    persona_encounter_public_exhibits: [],
     community_moderation_actions: [
       {
         id: "moderation-action-public-thread",
@@ -463,6 +465,33 @@ class CommunitySupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "persona_encounter_private_sessions") {
+      row.provenance_schema ??= "station.persona_encounter.private_session.v1";
+      row.source_retrieval_used ??= false;
+      row.shareable ??= false;
+      row.public_visibility ??= "private";
+      row.owner_title ??= null;
+      row.owner_summary ??= null;
+      row.owner_tags ??= [];
+      row.publication_candidate ??= false;
+      row.curation_schema ??= "station.persona_encounter.private_session_curation.v1";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_public_exhibits") {
+      row.slug ??= `public-encounter-${String(this.rows(table).length + 1).padStart(8, "0")}`;
+      row.status ??= "published";
+      row.provenance_schema ??= "station.persona_encounter.public_exhibit.v1";
+      row.reported_count ??= 0;
+      row.published_at ??= now;
+      row.retracted_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     if (table === "community_subcommunity_moderators") {
       row.role ??= "moderator";
       row.status ??= "active";
@@ -524,6 +553,7 @@ class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private isFilters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, unknown[]]> = [];
+  private containsFilters: Array<[string, unknown[]]> = [];
   private ilikeFilters: Array<[string, string]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
@@ -556,6 +586,11 @@ class QueryBuilder {
 
   in(field: string, values: unknown[]) {
     this.inFilters.push([field, values]);
+    return this;
+  }
+
+  contains(field: string, values: unknown[]) {
+    this.containsFilters.push([field, values]);
     return this;
   }
 
@@ -628,6 +663,12 @@ class QueryBuilder {
 
     for (const [field, values] of this.inFilters) {
       rows = rows.filter((row) => values.includes(row[field]));
+    }
+
+    for (const [field, values] of this.containsFilters) {
+      rows = rows.filter((row) =>
+        Array.isArray(row[field]) && values.every((value) => row[field].includes(value))
+      );
     }
 
     for (const [field, pattern] of this.ilikeFilters) {
@@ -4130,6 +4171,249 @@ test("Discover feed and search include public-safe Spaces and Developer Spaces",
     ]) {
       assert.equal(depthText.includes(forbidden), false, `${forbidden} leaked into Developer Space search`);
     }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover search surfaces public encounter exhibits as a metadata-only group", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const createSource = (id: string, ownerSetup: string, responderReply: string) => db.insertRow(
+      "persona_encounter_private_sessions",
+      {
+        id,
+        owner_user_id: OWNER_ID,
+        initiator_persona_id: PUBLIC_PERSONA_ID,
+        responder_persona_id: OTHER_PERSONA_ID,
+        owner_setup: ownerSetup,
+        responder_reply: responderReply,
+        initiator_name_snapshot: "Blue Lantern",
+        responder_name_snapshot: "Copper Scribe",
+      },
+    );
+    const sourceA = createSource(
+      "66666666-6666-4666-8666-000000000201",
+      "Private setup Aurora should not appear.",
+      "Generated reply Aurora should not appear.",
+    );
+    const sourceB = createSource(
+      "66666666-6666-4666-8666-000000000202",
+      "Private setup second source should not appear.",
+      "Generated reply second source should not appear.",
+    );
+    const sourceC = createSource(
+      "66666666-6666-4666-8666-000000000203",
+      "Private setup third source should not appear.",
+      "Generated reply third source should not appear.",
+    );
+
+    const publicBase = {
+      owner_user_id: OWNER_ID,
+      public_summary: "Public metadata for the encounter exhibit.",
+      public_tags: ["aurora", "metadata"],
+      initiator_name_snapshot: "Blue Lantern",
+      responder_name_snapshot: "Copper Scribe",
+      status: "published",
+      provenance_schema: "station.persona_encounter.public_exhibit.v1",
+    };
+
+    for (let index = 1; index <= 7; index += 1) {
+      db.insertRow("persona_encounter_public_exhibits", {
+        ...publicBase,
+        private_session_id: index % 2 === 0 ? sourceA.id : sourceB.id,
+        slug: `aurora-exhibit-${String(index).padStart(8, "0")}`,
+        public_title: `Aurora Exhibit ${index}`,
+        published_at: `2026-07-10T12:${String(index).padStart(2, "0")}:00.000Z`,
+      });
+    }
+
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "summary-match-12345678",
+      public_title: "Quiet summary row",
+      public_summary: "Needle summary metadata appears here.",
+      public_tags: ["summary"],
+      published_at: "2026-07-09T12:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "tag-match-12345678",
+      public_title: "Quiet tag row",
+      public_tags: ["quiettag"],
+      published_at: "2026-07-09T11:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "initiator-match-12345678",
+      public_title: "Initiator display row",
+      public_tags: ["display"],
+      initiator_name_snapshot: "Harbor Witness",
+      responder_name_snapshot: "Copper Scribe",
+      published_at: "2026-07-09T10:00:00.000Z",
+    });
+    db.insertRow("persona_encounter_public_exhibits", {
+      ...publicBase,
+      private_session_id: sourceC.id,
+      slug: "responder-match-12345678",
+      public_title: "Responder display row",
+      public_tags: ["display"],
+      initiator_name_snapshot: "Blue Lantern",
+      responder_name_snapshot: "Glass Witness",
+      published_at: "2026-07-09T09:00:00.000Z",
+    });
+
+    for (const hidden of [
+      {
+        slug: "removed-aurora-12345678",
+        status: "removed",
+        removed_at: "2026-07-10T13:00:00.000Z",
+        public_title: "Aurora Removed Secret",
+      },
+      {
+        slug: "retracted-aurora-12345678",
+        status: "retracted",
+        retracted_at: "2026-07-10T13:00:00.000Z",
+        public_title: "Aurora Retracted Secret",
+      },
+      {
+        slug: "wrong-schema-12345678",
+        provenance_schema: "station.persona_encounter.private_session.v1",
+        public_title: "Aurora Wrong Schema Secret",
+      },
+      {
+        slug: "bad_slug",
+        public_title: "Aurora Malformed Secret",
+      },
+      {
+        slug: "deleted-source-12345678",
+        private_session_id: "66666666-6666-4666-8666-000000000999",
+        public_title: "Aurora Deleted Source Secret",
+      },
+    ]) {
+      db.insertRow("persona_encounter_public_exhibits", {
+        ...publicBase,
+        private_session_id: sourceC.id,
+        public_summary: "Hidden transcript-like marker should not appear.",
+        public_tags: ["aurora"],
+        published_at: "2026-07-11T12:00:00.000Z",
+        ...hidden,
+      });
+    }
+
+    const empty = await requestJson(app, "GET", "/discover/search?q=");
+    assert.equal(empty.status, 200);
+    assert.deepEqual(empty.body.publicEncounterExhibits, []);
+
+    const titleSearch = await requestJson(app, "GET", "/discover/search?q=Aurora");
+    assert.equal(titleSearch.status, 200);
+    assert.deepEqual(
+      titleSearch.body.publicEncounterExhibits.map((row: Row) => row.slug),
+      [
+        "aurora-exhibit-00000007",
+        "aurora-exhibit-00000006",
+        "aurora-exhibit-00000005",
+        "aurora-exhibit-00000004",
+        "aurora-exhibit-00000003",
+        "aurora-exhibit-00000002",
+      ],
+    );
+    assert.equal(titleSearch.body.publicEncounterExhibits.length, 6);
+
+    const first = titleSearch.body.publicEncounterExhibits[0];
+    assert.deepEqual(Object.keys(first).sort(), [
+      "label",
+      "personas",
+      "provenance",
+      "publishedAt",
+      "routeHref",
+      "slug",
+      "status",
+      "summary",
+      "tags",
+      "title",
+      "type",
+    ]);
+    assert.deepEqual(Object.keys(first.personas).sort(), ["initiatorName", "label", "responderName"]);
+    assert.deepEqual(Object.keys(first.provenance).sort(), [
+      "label",
+      "note",
+      "ownerCurated",
+      "public",
+      "sameOwner",
+      "source",
+    ]);
+    assert.equal(first.routeHref, `/encounters/${first.slug}`);
+    assert.equal(first.type, "encounter_exhibit");
+    assert.equal(first.label, "Public encounter exhibit");
+    assert.equal(first.provenance.label, "Metadata-only public encounter exhibit");
+    assert.equal(first.status, "published");
+
+    const summarySearch = await requestJson(app, "GET", "/discover/search?q=Needle");
+    assert.deepEqual(summarySearch.body.publicEncounterExhibits.map((row: Row) => row.slug), ["summary-match-12345678"]);
+    const tagSearch = await requestJson(app, "GET", "/discover/search?q=quiettag");
+    assert.deepEqual(tagSearch.body.publicEncounterExhibits.map((row: Row) => row.slug), ["tag-match-12345678"]);
+    const initiatorSearch = await requestJson(app, "GET", "/discover/search?q=Harbor");
+    assert.deepEqual(initiatorSearch.body.publicEncounterExhibits.map((row: Row) => row.slug), ["initiator-match-12345678"]);
+    const responderSearch = await requestJson(app, "GET", "/discover/search?q=Glass");
+    assert.deepEqual(responderSearch.body.publicEncounterExhibits.map((row: Row) => row.slug), ["responder-match-12345678"]);
+
+    const searchJson = JSON.stringify(titleSearch.body.publicEncounterExhibits) +
+      JSON.stringify(summarySearch.body.publicEncounterExhibits) +
+      JSON.stringify(tagSearch.body.publicEncounterExhibits) +
+      JSON.stringify(initiatorSearch.body.publicEncounterExhibits) +
+      JSON.stringify(responderSearch.body.publicEncounterExhibits);
+    for (const forbidden of [
+      OWNER_ID,
+      PUBLIC_PERSONA_ID,
+      OTHER_PERSONA_ID,
+      sourceA.id,
+      sourceB.id,
+      sourceC.id,
+      "owner_user_id",
+      "ownerUserId",
+      "initiator_persona_id",
+      "responder_persona_id",
+      "private_session_id",
+      "privateSessionId",
+      "reported_count",
+      "reportedCount",
+      "report",
+      "provider",
+      "prompt",
+      "source_body",
+      "admin",
+      "Private setup",
+      "Generated reply",
+      "transcript-like marker",
+      "Aurora Removed Secret",
+      "Aurora Retracted Secret",
+      "Aurora Wrong Schema Secret",
+      "Aurora Malformed Secret",
+      "Aurora Deleted Source Secret",
+    ]) {
+      assert.equal(searchJson.includes(forbidden), false, `${forbidden} leaked into encounter search`);
+    }
+
+    const feed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
+    assert.equal(feed.status, 200);
+    const feedJson = JSON.stringify(feed.body.items);
+    assert.equal(feedJson.includes("encounter_exhibit"), false);
+    assert.equal(feedJson.includes("publicEncounterExhibits"), false);
+    assert.equal(feedJson.includes("Aurora Exhibit"), false);
+
+    const owner = await requestJson(app, "GET", "/discover/search?q=Aurora", {
+      token: "owner-token",
+    });
+    assert.equal(owner.status, 200);
+    assert.equal(owner.body.publicEncounterExhibits.length, 6);
+    assert.deepEqual(owner.body.privateResults.documents.map((row: Row) => row.id), [PRIVATE_DOC_ID]);
   } finally {
     setSupabaseAdminForTests(null);
   }

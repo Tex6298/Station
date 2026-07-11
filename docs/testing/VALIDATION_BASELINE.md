@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR510A Public Encounter Exhibit Discover Search Group
+
+DAEDALUS implemented PR510A on 2026-07-11:
+
+- `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `/discover/search` now returns a dedicated `publicEncounterExhibits` result
+  group named `Encounter Exhibits`;
+- search uses only public title, summary, tags, and same-owner display
+  snapshots;
+- result payloads stay metadata-only and route only to `/encounters/[slug]`;
+- removed, retracted, malformed, wrong-schema, source-deleted, and deleted
+  exhibits stay absent using the PR509A public-list safety floor;
+- Discover feed/rising/featured, public persona profiles, public Spaces,
+  forums/community, Station Press/public documents, transcripts/excerpts/raw
+  replies, private setup/private curation, raw ids, report counts/paths,
+  provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
+  package/lockfile, and migration/index scope remain out of PR510A by default;
+- no DB migration or search index was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 37 tests passed; PR509A public list/detail safety remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit moderation queue/remove/restore remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing and Discover feed helpers remain document/feed bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 44 tests passed, including API/search-dropdown encounter group coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio/public encounter helper scans remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | Changed runtime paths are limited to Discover search API/tests and Discover search web helpers/tests. |
+| Forbidden-path scan | Pass | No feed type, public persona route, public Space route, forum/community route, Station Press/public document, migration, package, lockfile, provider, retrieval, billing, social, storage, Redis, Cloudflare, queue, or worker implementation path changed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR510A implementation and docs. |
+
 ## PR510 Public Encounter Exhibit Discover Search Preflight
 
 ARGUS completed PR510 preflight on 2026-07-11:

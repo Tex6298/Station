@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR510A | Public Encounter Exhibit Discover Search Group | DAEDALUS / A2 | Open implementation; add only a `publicEncounterExhibits` Discover search group named Encounter Exhibits, routing metadata-only rows to `/encounters/[slug]`. | `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md` |
+| PR510A | Public Encounter Exhibit Discover Search Group | ARGUS / A3 | Ready for review; DAEDALUS added only a `publicEncounterExhibits` Discover search group named Encounter Exhibits, routing metadata-only rows to `/encounters/[slug]`. | `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md` |
 
 ## Recently Closed
 

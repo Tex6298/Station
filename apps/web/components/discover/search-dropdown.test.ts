@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   PUBLIC_SEARCH_GROUPS,
@@ -10,8 +11,9 @@ import {
 test("public search groups exclude private owner buckets", () => {
   assert.deepEqual(
     PUBLIC_SEARCH_GROUPS.map(([key]) => key),
-    ["projects", "developerSpaces", "salons", "personas", "spaces", "documents", "threads"]
+    ["projects", "developerSpaces", "publicEncounterExhibits", "salons", "personas", "spaces", "documents", "threads"]
   );
+  assert.equal((PUBLIC_SEARCH_GROUPS.map(([key]) => key) as readonly string[]).includes("privateResults"), false);
 });
 
 test("public search hrefs only target supported public routes", () => {
@@ -23,6 +25,12 @@ test("public search hrefs only target supported public routes", () => {
   assert.equal(searchHref("developerSpaces", { slug: "Bad Slug" }), null);
   assert.equal(searchHref("developerSpaces", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
   assert.equal(searchHref("developerSpaces", { href: "/admin" }), null);
+  assert.equal(searchHref("publicEncounterExhibits", { slug: "public-exhibit-12345678" }), "/encounters/public-exhibit-12345678");
+  assert.equal(searchHref("publicEncounterExhibits", { slug: "Bad Slug" }), null);
+  assert.equal(searchHref("publicEncounterExhibits", { slug: "missing-suffix" }), null);
+  assert.equal(searchHref("publicEncounterExhibits", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
+  assert.equal(searchHref("publicEncounterExhibits", { href: "/admin", slug: "public-exhibit-12345678" }), "/encounters/public-exhibit-12345678");
+  assert.equal(searchHref("publicEncounterExhibits", { href: "https://example.test/exhibit" }), null);
   assert.equal(searchHref("salons", { slug: "station-replay-salon-alpha", href: "/admin" }), "/forums/station-replay-salon-alpha");
   assert.equal(searchHref("salons", { categorySlug: "member-salon" }), "/forums/member-salon");
   assert.equal(searchHref("salons", { slug: "550e8400-e29b-41d4-a716-446655440000" }), null);
@@ -62,6 +70,20 @@ test("routeable public search items drop unrouteable public results", () => {
   );
 });
 
+test("routeable public search items include safe encounter exhibit routes only", () => {
+  assert.deepEqual(
+    routeablePublicSearchItems("publicEncounterExhibits", {
+      publicEncounterExhibits: [
+        { title: "Public exhibit", slug: "public-exhibit-12345678", href: "/admin" },
+        { title: "UUID exhibit", slug: "550e8400-e29b-41d4-a716-446655440000" },
+        { title: "Malformed exhibit", slug: "Bad Slug" },
+        { title: "Missing slug" },
+      ],
+    }).map((item) => [item.result.title, item.href]),
+    [["Public exhibit", "/encounters/public-exhibit-12345678"]]
+  );
+});
+
 test("routeable public search items ignore private owner buckets", () => {
   const keys = PUBLIC_SEARCH_GROUPS.map(([key]) => key);
 
@@ -96,6 +118,12 @@ test("public search result labels explain scope and provenance", () => {
       visualisationType: "observed_runtime",
     }),
     ["Community-visible Developer Space", "Observed runtime"]
+  );
+  assert.deepEqual(
+    publicSearchResultLabels("publicEncounterExhibits", {
+      provenance: { label: "Metadata-only public encounter exhibit" },
+    }),
+    ["Public encounter exhibit", "Metadata-only public encounter exhibit"]
   );
   assert.deepEqual(
     publicSearchResultLabels("salons", { visibility: "community" }),
@@ -150,4 +178,11 @@ test("routeable public search items include safe Salon forum routes", () => {
     }).map((item) => [item.result.title, item.href]),
     [["Station Replay Salon Alpha", "/forums/station-replay-salon-alpha"]]
   );
+});
+
+test("Discover front door renders encounter summary from public metadata", () => {
+  const source = readFileSync("apps/web/components/discover/discover-front-door.tsx", "utf8");
+
+  assert.match(source, /r\.summary/);
+  assert.match(source, /short_description \?\? r\.description \?\? r\.summary \?\? r\.body/);
 });

@@ -4,7 +4,69 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR510A public encounter exhibit Discover search group opened
+## Current lane - PR510A public encounter exhibit Discover search group ready for review
+
+DAEDALUS implemented PR510A and is waking ARGUS for review:
+
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md`
+
+`docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md`
+
+Result:
+
+```text
+READY_FOR_ARGUS_REVIEW
+```
+
+Summary:
+
+- `/discover/search` now returns a dedicated `publicEncounterExhibits` result
+  group named `Encounter Exhibits`;
+- search uses only already-public title, summary, tags, and same-owner display
+  snapshots;
+- result payloads stay metadata-only and route only to `/encounters/[slug]`;
+- removed, retracted, malformed, wrong-schema, source-deleted, and deleted
+  exhibits must stay absent using the PR509A public-list safety floor;
+- Discover feed/rising/featured, public persona profiles, public Spaces,
+  forums/community, Station Press/public documents, transcripts/excerpts/raw
+  replies, private setup/private curation, raw ids, report counts/paths,
+  provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
+  package/lockfile, and migration/index scope remain out of PR510A by default;
+- no DB migration or search index was added.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  37 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 29 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 44 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Current lane:
+
+```text
+PR510A - Public Encounter Exhibit Discover Search Group
+Owner: ARGUS / A3
+State: READY_FOR_REVIEW
+Source: docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_RESULT.md
+```
+
+Next:
+
+- ARGUS reviews PR510A against the accepted search-result contract;
+- ARGUS confirms no off-scope public surfacing or private material entered;
+- if ARGUS accepts, MIMIR routes hosted proof.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR510A public encounter exhibit Discover search group opened
 
 MIMIR closed PR510 preflight and opened PR510A for DAEDALUS:
 
@@ -13,61 +75,6 @@ MIMIR closed PR510 preflight and opened PR510A for DAEDALUS:
 `docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md`
 
 `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md`
-
-Result:
-
-```text
-ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP
-```
-
-Decision:
-
-- DAEDALUS may implement a dedicated Discover search result group named
-  `Encounter Exhibits` with API key `publicEncounterExhibits`;
-- search may use only already-public title, summary, tags, and same-owner
-  display snapshots;
-- result payloads must stay metadata-only and route only to
-  `/encounters/[slug]`;
-- removed, retracted, malformed, wrong-schema, source-deleted, and deleted
-  exhibits must stay absent using the PR509A public-list safety floor;
-- Discover feed/rising/featured, public persona profiles, public Spaces,
-  forums/community, Station Press/public documents, transcripts/excerpts/raw
-  replies, private setup/private curation, raw ids, report counts/paths,
-  provider/retrieval, billing/social/storage, Redis/Cloudflare, queue/worker,
-  package/lockfile, and migration/index scope remain out of PR510A by default;
-- no DB migration or search index is required before PR510A, but hosted proof
-  must record public search latency and route a separate index repair if poor.
-
-Validation:
-
-- `test:persona-encounters` passed with `37` tests;
-- `test:community` passed with `41` tests;
-- `test:writing` passed with `29` tests;
-- `test:reports` passed with `7` tests;
-- `test:studio-ui` passed with `201` tests;
-- `typecheck` passed from Turbo cache.
-
-Current lane:
-
-```text
-PR510A - Public Encounter Exhibit Discover Search Group
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_DAEDALUS.md
-```
-
-Next:
-
-- DAEDALUS implements only the `publicEncounterExhibits` Discover search group;
-- DAEDALUS wakes ARGUS for review;
-- if ARGUS accepts, MIMIR routes hosted proof.
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
-```
 
 ## Previous lane - PR510 public encounter exhibit Discover search preflight accepted
 

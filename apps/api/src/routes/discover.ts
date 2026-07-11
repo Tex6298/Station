@@ -19,12 +19,33 @@ import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-elig
 export const discoverRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
 const SAFE_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PUBLIC_ENCOUNTER_EXHIBIT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*-[a-z0-9]{8}$/;
 const UUID_SHAPED_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PUBLIC_ENCOUNTER_EXHIBIT_PROVENANCE_SCHEMA = "station.persona_encounter.public_exhibit.v1";
+const PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT = 6;
+const PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT = 12;
+const PUBLIC_ENCOUNTER_EXHIBIT_SELECT =
+  "slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, published_at, retracted_at, removed_at, private_session_id";
 const DISCOVER_ERROR_RESPONSES = {
   feed: { error: "Could not load discovery feed.", code: "discover_feed_load_failed" },
   sidebar: { error: "Could not load discovery sidebar.", code: "discover_sidebar_load_failed" },
 } as const;
+
+type PublicEncounterExhibitSearchRow = {
+  slug: string;
+  public_title: string;
+  public_summary: string;
+  public_tags: string[] | null;
+  initiator_name_snapshot: string;
+  responder_name_snapshot: string;
+  status: string;
+  provenance_schema: string;
+  published_at: string;
+  retracted_at: string | null;
+  removed_at: string | null;
+  private_session_id: string;
+};
 
 function canSeeCommunityDocuments(req: Request) {
   return Boolean(req.user && COMMUNITY_TIERS.has(req.user.tier));
@@ -141,6 +162,12 @@ function safeDeveloperSpaceHref(slug: unknown) {
     : null;
 }
 
+function safePublicEncounterExhibitHref(slug: unknown) {
+  return typeof slug === "string" && PUBLIC_ENCOUNTER_EXHIBIT_SLUG_PATTERN.test(slug)
+    ? `/encounters/${slug}`
+    : null;
+}
+
 function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearchResult[] {
   const bySlug = new Map<string, any>();
   for (const row of rows) {
@@ -229,6 +256,140 @@ async function publicPersonaSearchResults(
     });
   }
   return results;
+}
+
+async function publicEncounterExhibitSearchResults(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  q: string,
+  limit = PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT,
+) {
+  const term = q.trim();
+  if (!term) return [];
+
+  const like = `%${term}%`;
+  const fields = [
+    "public_title",
+    "public_summary",
+    "initiator_name_snapshot",
+    "responder_name_snapshot",
+  ];
+
+  const fieldQueries = fields.map((field) =>
+    publicEncounterExhibitBaseQuery(sb)
+      .ilike(field, like)
+      .limit(PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT)
+  );
+  const tagQuery = publicEncounterExhibitBaseQuery(sb)
+    .contains("public_tags", [term.toLowerCase()])
+    .limit(PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT);
+
+  const results = await Promise.all([...fieldQueries, tagQuery]);
+  if (results.some(hasQueryError)) return [];
+
+  const rows = await filterSourceBackedPublicEncounterExhibits(
+    sb,
+    dedupePublicEncounterExhibits(results.flatMap((result) => result.data ?? [])),
+  );
+
+  return rows
+    .sort((a, b) => {
+      const rank = publicEncounterExhibitSearchRank(a, term) - publicEncounterExhibitSearchRank(b, term);
+      if (rank !== 0) return rank;
+      const byDate = new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+      if (byDate !== 0) return byDate;
+      return String(b.slug).localeCompare(String(a.slug));
+    })
+    .slice(0, limit)
+    .map(serializePublicEncounterExhibitSearchResult);
+}
+
+function publicEncounterExhibitBaseQuery(sb: ReturnType<typeof getSupabaseAdmin>) {
+  return sb
+    .from("persona_encounter_public_exhibits")
+    .select(PUBLIC_ENCOUNTER_EXHIBIT_SELECT)
+    .eq("status", "published")
+    .is("removed_at", null)
+    .order("published_at", { ascending: false });
+}
+
+function dedupePublicEncounterExhibits(rows: unknown[]) {
+  const bySlug = new Map<string, PublicEncounterExhibitSearchRow>();
+  for (const row of rows as PublicEncounterExhibitSearchRow[]) {
+    if (!isSafePublicEncounterExhibitSearchRow(row) || bySlug.has(row.slug)) continue;
+    bySlug.set(row.slug, row);
+  }
+  return [...bySlug.values()];
+}
+
+async function filterSourceBackedPublicEncounterExhibits(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  rows: PublicEncounterExhibitSearchRow[],
+) {
+  if (rows.length === 0) return rows;
+  const sessionIds = Array.from(new Set(rows.map((row) => row.private_session_id).filter(Boolean)));
+  if (sessionIds.length === 0) return [];
+
+  const { data, error } = await sb
+    .from("persona_encounter_private_sessions")
+    .select("id")
+    .in("id", sessionIds);
+  if (error) return [];
+
+  const existing = new Set((data ?? []).map((row: { id: string }) => row.id));
+  return rows.filter((row) => existing.has(row.private_session_id));
+}
+
+function isSafePublicEncounterExhibitSearchRow(row: PublicEncounterExhibitSearchRow) {
+  return (
+    row.status === "published" &&
+    !row.removed_at &&
+    !row.retracted_at &&
+    row.provenance_schema === PUBLIC_ENCOUNTER_EXHIBIT_PROVENANCE_SCHEMA &&
+    Boolean(safePublicEncounterExhibitHref(row.slug))
+  );
+}
+
+function publicEncounterExhibitSearchRank(row: PublicEncounterExhibitSearchRow, term: string) {
+  const q = term.toLowerCase();
+  if (row.public_title?.toLowerCase().includes(q)) return 0;
+  if (publicEncounterExhibitTags(row).some((tag) => tag.toLowerCase() === q || tag.toLowerCase().includes(q))) return 1;
+  if (row.initiator_name_snapshot?.toLowerCase().includes(q)) return 2;
+  if (row.responder_name_snapshot?.toLowerCase().includes(q)) return 2;
+  if (row.public_summary?.toLowerCase().includes(q)) return 3;
+  return 4;
+}
+
+function serializePublicEncounterExhibitSearchResult(row: PublicEncounterExhibitSearchRow) {
+  return {
+    slug: row.slug,
+    routeHref: `/encounters/${row.slug}`,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: publicEncounterExhibitTags(row),
+    personas: {
+      label: "Same-owner persona display snapshots",
+      initiatorName: row.initiator_name_snapshot,
+      responderName: row.responder_name_snapshot,
+    },
+    status: "published" as const,
+    publishedAt: row.published_at,
+    type: "encounter_exhibit" as const,
+    label: "Public encounter exhibit",
+    provenance: {
+      label: "Metadata-only public encounter exhibit",
+      ownerCurated: true,
+      public: true,
+      sameOwner: true,
+      source: "Derived from a private same-owner saved artifact",
+      note: "Owner-authored public metadata only; no private encounter material is included.",
+    },
+  };
+}
+
+function publicEncounterExhibitTags(row: PublicEncounterExhibitSearchRow) {
+  return Array.isArray(row.public_tags)
+    ? row.public_tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
 }
 
 async function ownerPrivateSearchResults(ownerUserId: string, q: string) {
@@ -758,13 +919,24 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       personas: [],
       projects: [],
       developerSpaces: [],
+      publicEncounterExhibits: [],
       salons: [],
       privateResults: req.user ? emptyPrivateSearchResults() : undefined,
     });
   }
   const sb = getSupabaseAdmin();
 
-  const [docResults, threadResults, spaces, personas, projectResults, developerSpaceResults, salonResults, privateResults] = await Promise.all([
+  const [
+    docResults,
+    threadResults,
+    spaces,
+    personas,
+    projectResults,
+    developerSpaceResults,
+    publicEncounterExhibits,
+    salonResults,
+    privateResults,
+  ] = await Promise.all([
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
@@ -818,6 +990,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
           .limit(6)
       )
     )),
+    publicEncounterExhibitSearchResults(sb, q),
     Promise.all(discoverableSubcommunityVisibilities(req).map((visibility) =>
       (sb as any)
         .from("community_subcommunities")
@@ -841,6 +1014,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     personas:  await publicPersonaSearchResults(sb, personas.data ?? []),
     projects: publicProjectSearchResults(projectResults.flatMap((result) => result.data ?? [])),
     developerSpaces: developerSpaceSearchResults(developerSpaceResults.flatMap((result) => result.data ?? [])),
+    publicEncounterExhibits,
     salons: publicSalonSearchResults(salonResults.flatMap((result) => result.data ?? [])).slice(0, 6),
     privateResults,
   });

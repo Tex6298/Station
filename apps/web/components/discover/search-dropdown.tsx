@@ -24,6 +24,12 @@ function safeDeveloperSpaceHref(slug: unknown) {
     : null;
 }
 
+function safePublicEncounterExhibitHref(slug: unknown) {
+  return typeof slug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*-[a-z0-9]{8}$/.test(slug)
+    ? `/encounters/${slug}`
+    : null;
+}
+
 function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
   const spaceHref = safeSpaceHref(spaceSlug);
   return spaceHref && typeof documentId === "string" ? `${spaceHref}/documents/${documentId}` : null;
@@ -32,6 +38,7 @@ function safeSpaceDocumentHref(spaceSlug: unknown, documentId: unknown) {
 export const PUBLIC_SEARCH_GROUPS = [
   ["projects", "Public Projects"],
   ["developerSpaces", "Developer Spaces"],
+  ["publicEncounterExhibits", "Encounter Exhibits"],
   ["salons", "Salons"],
   ["personas", "Public personas"],
   ["spaces", "Spaces"],
@@ -55,6 +62,8 @@ export function searchHref(key: PublicSearchGroup, result: any): string | null {
       return publicProjectHref(result.slug);
     case "developerSpaces":
       return safeDeveloperSpaceHref(result.slug);
+    case "publicEncounterExhibits":
+      return safePublicEncounterExhibitHref(result.slug);
     case "salons": {
       const slug = result.categorySlug ?? result.slug;
       return typeof slug === "string" &&
@@ -92,6 +101,12 @@ export function publicSearchResultLabels(key: PublicSearchGroup, result: any): s
     case "developerSpaces":
       labels.push(visibilityLabel(result.visibility, "Developer Space"));
       labels.push(labelize(result.visualisationType ?? result.visualisation_type));
+      break;
+    case "publicEncounterExhibits":
+      labels.push("Public encounter exhibit");
+      labels.push(result.provenance?.label === "Metadata-only public encounter exhibit"
+        ? "Metadata-only public encounter exhibit"
+        : null);
       break;
     case "salons":
       labels.push(visibilityLabel(result.visibility, "Salon"));

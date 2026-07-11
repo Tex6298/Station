@@ -545,9 +545,9 @@ export default function DiscoverFrontDoor() {
                               {labels.length > 0 ? (
                                 <span className="public-home-search-readback">{labels.join(" / ")}</span>
                               ) : null}
-                              {(r.short_description || r.description || r.body) && (
+                              {(r.short_description || r.description || r.summary || r.body) && (
                                 <span style={{ color: "#7f8aa0", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
-                                  - {(r.short_description ?? r.description ?? r.body ?? "").slice(0, 60)}
+                                  - {(r.short_description ?? r.description ?? r.summary ?? r.body ?? "").slice(0, 60)}
                                 </span>
                               )}
                             </Link>
