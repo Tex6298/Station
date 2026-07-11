@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504F Station Press Visible Bundle Readback ARGUS Review
+
+ARGUS accepted PR504F on 2026-07-11:
+
+- `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK`.
+
+Reason:
+
+- `/studio/publishing` uses the existing authenticated Station Press package
+  list/create/bundle APIs;
+- existing completed owner metadata packages expose `View bundle files` without
+  forcing a new create;
+- create success transitions into owner-only bundle readback;
+- visible file readback shows exactly `README.md`, `manifest.json`, and
+  `manifest.md`;
+- no API route, schema, storage, public download, PDF/binary, provider, billing,
+  social, queue/worker, Redis, Cloudflare, public route, broad redesign, launch
+  claim, visible raw id, private body, or secret scope was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 196 Studio UI/helper tests passed in ARGUS review. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 26 publishing API/UI tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 15 export API tests passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path/source scan | Pass | Matches were negative boundary copy, tests, or internal authenticated API variables; no secret values or forbidden product expansion were found. |
+
 ## PR504F Station Press Visible Bundle Readback
 
 DAEDALUS completed the local PR504F visible owner-only Station Press bundle

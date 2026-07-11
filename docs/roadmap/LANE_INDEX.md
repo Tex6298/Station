@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504F | Station Press Visible Bundle Readback | ARGUS / A3 | Review ready; visible owner-only bundle readback and exact three-file list/action are implemented on `/studio/publishing`, with ARIADNE browser rerun still required after review. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_RESULT.md` |
+| PR504F | Station Press Visible Bundle Readback | MIMIR / A1 | Accepted by ARGUS; closeout or ARIADNE hosted PR504E browser rerun routing is required. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504F review | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK`; `/studio/publishing` exposes owner-only completed package readback, `View bundle files`, and exact `README.md` / `manifest.json` / `manifest.md` bundle list without public/storage/provider/billing/social/queue drift. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md` |
 | PR504F implementation | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; existing completed packages can show `View bundle files`, and create success loads owner-only bundle file readback for exactly `README.md`, `manifest.json`, and `manifest.md`. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_RESULT.md` |
 | PR504F opened | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS | Open narrow UI patch; expose owner-only Station Press package readback and exact `README.md` / `manifest.json` / `manifest.md` bundle file list without public download/storage/PDF/provider/billing/social drift. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_DAEDALUS.md` |
 | PR504E blocker decision | Station Press Owner Package Browser Closeout | MIMIR | API-only bundle proof rejected for closeout; DAEDALUS gets PR504F to make owner-only bundle readback visible in `/studio/publishing`. | `docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_BLOCKER_MIMIR.md` |

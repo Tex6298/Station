@@ -4,7 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504F Station Press visible bundle readback ready for ARGUS
+## Current lane - PR504F Station Press visible bundle readback accepted by ARGUS
+
+ARGUS accepted PR504F:
+
+`docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK
+```
+
+Summary:
+
+- `/studio/publishing` now loads existing completed
+  `station_press_publication` package rows for package-ready owner
+  publications.
+- Completed packages expose `View bundle files` without forcing another create.
+- Create success uses the existing authenticated
+  `GET /exports/:id/bundle` readback and shows the owner-only bundle files.
+- The visible bundle file list is exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- Loading, empty, and bounded-error states remain compact and owner-only.
+- No API route, schema, storage, public download, signed URL, PDF/binary,
+  provider/model, billing/Stripe, social, queue/worker, Redis, Cloudflare,
+  public route, broad redesign, launch claim, visible raw id, private body, or
+  secret scope was added.
+
+ARGUS validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 196 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 26
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 15 tests.
+- `git diff --check` passed.
+- `git diff --cached --check` passed.
+- Changed-path/source scan passed with only negative boundary copy, tests, and
+  internal authenticated API variables.
+
+Current lane:
+
+```text
+PR504F - Station Press Visible Bundle Readback
+Owner: MIMIR / A1
+State: ACCEPTED_AWAITING_CLOSEOUT_OR_ARIADNE_RERUN
+Source: docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR504F Station Press visible bundle readback ready for ARGUS
 
 DAEDALUS completed PR504F for ARGUS review:
 
@@ -41,7 +97,7 @@ Validation:
   tests.
 - `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 15 tests.
 
-Current lane:
+Lane at handoff:
 
 ```text
 PR504F - Station Press Visible Bundle Readback
