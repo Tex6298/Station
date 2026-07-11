@@ -4,6 +4,60 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504G Station Press Visible Bundle Hosted Proof
+
+ARIADNE completed the hosted PR504G visible Station Press bundle proof on
+2026-07-11:
+
+- `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web reached `/studio/publishing` with status `200`;
+- hosted API health returned `200`;
+- hosted PR504F patch evidence was visible behavior, because the probed health
+  response did not expose a deploy commit;
+- owner auth passed with `canon` tier and cross-owner auth passed with
+  `private` tier;
+- hosted fixtures included `28` owner documents, `1` owner Space, `5`
+  package-ready owner publications, and `1` completed Station Press package
+  publication;
+- the proof used an existing completed package and did not perform a browser
+  create;
+- `View bundle files` appeared on desktop and 390px mobile;
+- `View bundle files` opened owner-only bundle readback on desktop and 390px
+  mobile;
+- visible desktop and mobile file lists were exactly `README.md`,
+  `manifest.json`, and `manifest.md`;
+- authenticated package readback returned `200`, kind
+  `station_press_publication`, status `completed`;
+- authenticated bundle readback returned `200` with exactly `README.md`,
+  `manifest.json`, and `manifest.md`;
+- signed-out create/list/readback/bundle returned `401`;
+- cross-owner create/list/readback/bundle returned `404`;
+- visible UI and bundle file-content privacy/product-boundary scans passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser proof runner | Pass | Existing completed package used; no browser create; visible desktop/mobile bundle readback passed. |
+| Hosted reachability | Pass | Web `/studio/publishing` returned `200`; API health returned `200`; no deploy commit was exposed by the probed health response. |
+| Hosted PR504F behavior | Pass | `View bundle files` was visible and opened owner-only bundle readback. |
+| Owner and cross-owner auth | Pass | Owner tier `canon`; cross-owner tier `private`. |
+| Hosted fixture readiness | Pass | Five package-ready publications and one completed package publication were present. |
+| Desktop and 390px mobile layout | Pass | No horizontal overflow. |
+| Existing package readback | Pass | Existing completed package was used; no create was performed. |
+| Visible file list | Pass | Desktop and mobile both showed exactly `README.md`, `manifest.json`, and `manifest.md`. |
+| Package and bundle readback | Pass | Authenticated owner readback returned `200`; bundle returned `200` with the exact three files. |
+| Signed-out/cross-owner probes | Pass | Signed-out returned `401`; cross-owner returned `404` for create/list/readback/bundle. |
+| Privacy/product-boundary scan | Pass | Visible UI and bundle file-content scans stayed within owner-only metadata scope. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR504G result updates documentation
+only and does not touch imports or scripts.
+
 ## PR504F Station Press Visible Bundle Readback ARGUS Review
 
 ARGUS accepted PR504F on 2026-07-11:

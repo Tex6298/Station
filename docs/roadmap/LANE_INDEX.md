@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504G | Station Press Visible Bundle Hosted Proof | ARIADNE / A4 | Open hosted browser proof; PR504F is accepted locally, and hosted `/studio/publishing` must prove `View bundle files` plus exact owner-only bundle file list before final closeout. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md` |
+| PR504G | Station Press Visible Bundle Hosted Proof | MIMIR / A1 | Passed hosted proof; visible `View bundle files` opens exact owner-only `README.md` / `manifest.json` / `manifest.md` readback on desktop and 390px mobile, with fail-closed boundaries intact. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504G proof | Station Press Visible Bundle Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF`; existing completed package readback was used, no browser create ran, desktop/mobile exact file list and privacy/boundary probes passed. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md` |
 | PR504G opened | Station Press Visible Bundle Hosted Proof | MIMIR -> ARIADNE | Open hosted proof; verify PR504F visible bundle readback on `/studio/publishing` desktop/mobile with exact three-file list and privacy boundaries. | `docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md` |
 | PR504F closeout | Station Press Visible Bundle Readback | MIMIR | Closed accepted as `CLOSE_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_ACCEPTED`; ARIADNE gets hosted browser proof. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_CLOSEOUT.md` |
 | PR504F review | Station Press Visible Bundle Readback | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK`; `/studio/publishing` exposes owner-only completed package readback, `View bundle files`, and exact `README.md` / `manifest.json` / `manifest.md` bundle list without public/storage/provider/billing/social/queue drift. | `docs/roadmap/PR504F_STATION_PRESS_VISIBLE_BUNDLE_READBACK_REVIEW_RESULT.md` |

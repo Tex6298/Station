@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504G Station Press visible bundle hosted proof
+## Current lane - PR504G Station Press visible bundle hosted proof passed
+
+ARIADNE completed the hosted PR504G `/studio/publishing` visible bundle proof:
+
+`docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+PASS_PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF
+```
+
+Summary:
+
+- Hosted web reached `/studio/publishing` with status `200`; hosted API health
+  returned `200`.
+- The probed health response did not expose a deploy commit, so PR504F hosted
+  freshness was proven by visible behavior.
+- Owner auth passed with `canon` tier; cross-owner auth passed with `private`
+  tier; the browser authenticated session reached `/studio/publishing`.
+- Hosted owner fixtures included `28` documents, `1` Space, `5` package-ready
+  publications, and `1` completed Station Press package publication.
+- Existing completed package readback was used; no browser create was
+  performed.
+- `View bundle files` appeared on desktop and 390px mobile for the completed
+  package.
+- `View bundle files` opened owner-only bundle readback on desktop and mobile
+  with exactly `README.md`, `manifest.json`, and `manifest.md`.
+- Desktop `1440px` and mobile `390px` visual-fit checks passed with no
+  horizontal overflow.
+- Authenticated package readback returned `200`, kind
+  `station_press_publication`, status `completed`.
+- Authenticated bundle readback returned `200` with exactly `README.md`,
+  `manifest.json`, and `manifest.md`.
+- Signed-out create/list/readback/bundle returned `401`; cross-owner
+  create/list/readback/bundle returned `404`.
+- Visible UI and bundle file-content privacy/product-boundary scans passed.
+
+Current lane:
+
+```text
+PR504G - Station Press Visible Bundle Hosted Proof
+Owner: MIMIR / A1
+State: PASS_AWAITING_CLOSEOUT
+Source: docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR504G Station Press visible bundle hosted proof opened
 
 MIMIR closed PR504F accepted and opened PR504G for ARIADNE:
 
@@ -13,34 +67,14 @@ MIMIR closed PR504F accepted and opened PR504G for ARIADNE:
 Reason:
 
 - PR504F is accepted locally and by ARGUS.
-- It changes visible `/studio/publishing` behavior, so hosted browser proof is
+- It changes visible `/studio/publishing` behavior, so hosted browser proof was
   required before final Station Press owner package closeout.
 
-Task:
+Result:
 
-- Prove hosted `/studio/publishing` includes the PR504F visible bundle readback
-  behavior.
-- Prove desktop and 390px mobile fit.
-- Prove `View bundle files` opens owner-only bundle readback.
-- Prove the visible bundle list is exactly `README.md`, `manifest.json`, and
-  `manifest.md`.
-- Recheck privacy/product boundaries and fail-closed auth boundaries where safe.
-
-Current lane:
-
-```text
-PR504G - Station Press Visible Bundle Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_BROWSER_PROOF
-Source: docs/roadmap/PR504G_STATION_PRESS_VISIBLE_BUNDLE_HOSTED_PROOF_ARIADNE.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- ARIADNE proved the hosted PR504F visible bundle readback behavior on desktop
+  and 390px mobile with exact three-file owner-only readback and fail-closed
+  boundaries.
 
 ## Previous lane - PR504F Station Press visible bundle readback accepted by ARGUS
 
