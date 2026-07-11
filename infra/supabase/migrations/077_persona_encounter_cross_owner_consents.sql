@@ -222,6 +222,172 @@ create table if not exists public.persona_encounter_cross_owner_consent_audit_ev
 create index if not exists idx_persona_encounter_cross_owner_consent_audit_consent
   on public.persona_encounter_cross_owner_consent_audit_events (consent_id, created_at asc);
 
+create or replace function public.create_persona_encounter_cross_owner_consent(
+  p_requester_owner_user_id uuid,
+  p_requester_persona_id uuid,
+  p_requester_persona_name_snapshot text,
+  p_counterparty_owner_user_id uuid,
+  p_counterparty_persona_id uuid,
+  p_counterparty_persona_name_snapshot text,
+  p_requested_scopes text[],
+  p_actor_user_id uuid
+)
+returns public.persona_encounter_cross_owner_consents
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  v_consent public.persona_encounter_cross_owner_consents%rowtype;
+  v_now timestamptz := now();
+begin
+  insert into public.persona_encounter_cross_owner_consents (
+    requester_owner_user_id,
+    requester_persona_id,
+    requester_persona_name_snapshot,
+    counterparty_owner_user_id,
+    counterparty_persona_id,
+    counterparty_persona_name_snapshot,
+    status,
+    requested_scopes,
+    requested_scope_version,
+    requester_approved_at,
+    provenance_schema
+  )
+  values (
+    p_requester_owner_user_id,
+    p_requester_persona_id,
+    p_requester_persona_name_snapshot,
+    p_counterparty_owner_user_id,
+    p_counterparty_persona_id,
+    p_counterparty_persona_name_snapshot,
+    'pending',
+    coalesce(p_requested_scopes, array['run_cross_owner_encounter']::text[]),
+    1,
+    v_now,
+    'station.persona_encounter.cross_owner_consent.v1'
+  )
+  returning * into v_consent;
+
+  insert into public.persona_encounter_cross_owner_consent_audit_events (
+    consent_id,
+    actor_user_id,
+    actor_role,
+    event_type,
+    previous_status,
+    next_status,
+    requested_scopes
+  )
+  values
+    (
+      v_consent.id,
+      p_actor_user_id,
+      'requester',
+      'invitation_created',
+      null,
+      'pending',
+      v_consent.requested_scopes
+    ),
+    (
+      v_consent.id,
+      p_actor_user_id,
+      'requester',
+      'requester_approved',
+      'pending',
+      'pending',
+      v_consent.requested_scopes
+    );
+
+  return v_consent;
+end;
+$$;
+
+create or replace function public.transition_persona_encounter_cross_owner_consent(
+  p_consent_id uuid,
+  p_expected_status text,
+  p_next_status text,
+  p_actor_user_id uuid,
+  p_actor_role text,
+  p_event_type text,
+  p_reason_code text default null
+)
+returns public.persona_encounter_cross_owner_consents
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  v_consent public.persona_encounter_cross_owner_consents%rowtype;
+  v_now timestamptz := now();
+begin
+  update public.persona_encounter_cross_owner_consents
+  set
+    status = p_next_status,
+    counterparty_approved_at = case
+      when p_next_status = 'approved' then v_now
+      else counterparty_approved_at
+    end,
+    rejected_at = case
+      when p_next_status = 'rejected' then v_now
+      else rejected_at
+    end,
+    rejected_by = case
+      when p_next_status = 'rejected' then p_actor_user_id
+      else rejected_by
+    end,
+    cancelled_at = case
+      when p_next_status = 'cancelled' then v_now
+      else cancelled_at
+    end,
+    cancelled_by = case
+      when p_next_status = 'cancelled' then p_actor_user_id
+      else cancelled_by
+    end,
+    revoked_at = case
+      when p_next_status = 'revoked' then v_now
+      else revoked_at
+    end,
+    revoked_by = case
+      when p_next_status = 'revoked' then p_actor_user_id
+      else revoked_by
+    end,
+    reason_code = case
+      when p_next_status in ('rejected', 'cancelled', 'revoked') then p_reason_code
+      else reason_code
+    end
+  where id = p_consent_id
+    and status = p_expected_status
+  returning * into v_consent;
+
+  if not found then
+    raise exception 'cross-owner consent transition target not found';
+  end if;
+
+  insert into public.persona_encounter_cross_owner_consent_audit_events (
+    consent_id,
+    actor_user_id,
+    actor_role,
+    event_type,
+    previous_status,
+    next_status,
+    requested_scopes,
+    reason_code
+  )
+  values (
+    v_consent.id,
+    p_actor_user_id,
+    p_actor_role,
+    p_event_type,
+    p_expected_status,
+    p_next_status,
+    v_consent.requested_scopes,
+    p_reason_code
+  );
+
+  return v_consent;
+end;
+$$;
+
 create or replace function public.prevent_persona_encounter_cross_owner_consent_audit_mutation()
 returns trigger
 language plpgsql

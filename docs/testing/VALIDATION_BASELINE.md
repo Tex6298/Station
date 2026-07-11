@@ -4,6 +4,46 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR511A Cross-Owner Encounter Consent Ledger ARGUS Review
+
+ARGUS accepted PR511A on 2026-07-11:
+
+- `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md`
+- `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER`.
+
+Reason:
+
+- DAEDALUS kept PR511A ledger-only: dedicated consent/audit tables,
+  participant-scoped API routes, bounded states/scopes, owner readback,
+  non-executable requested scopes, and no UI;
+- ARGUS patched consent create/transition paths so consent mutations and audit
+  insertion happen inside database functions instead of adjacent best-effort
+  API calls;
+- the functions are `security invoker`, typed in DB types, and covered by an
+  audit-failure regression;
+- cross-owner runtime, private cross-owner artifacts, public exhibits,
+  excerpts, transcripts, summaries, Discover/search/feed, public surfacing,
+  provider/retrieval, billing/storage/social, Redis/Cloudflare, queue/worker,
+  package/lockfile, deployment, and broad UI remain blocked;
+- hosted proof is required next because PR511A adds a migration and
+  authenticated API behavior.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 43 tests passed, including PR511A migration, invitation, auth/ownership, participant-only readback/mutation, approve/reject/cancel/revoke, inactive-state, non-executable scope, privacy, no-side-effect coverage, and the ARGUS audit-failure regression. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; Studio helper coverage remains green and PR511A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed with the new typed RPC signatures. |
+| Changed-path scan | Pass | Runtime changes are limited to migration `077`, DB types, persona encounter API routes/tests, and roadmap/testing docs. |
+| Forbidden-path scan | Pass | No web UI, Discover/search/feed, forum, Space, document, report route, provider, retrieval, billing, storage, social, Redis, Cloudflare, queue, worker, package, lockfile, webhook, deployment, or broad public-surface path changed. |
+| Forbidden side-effect scan | Pass | Private/public encounter table, report, token, background job, and public counter matches in tests are negative assertions proving consent routes do not write those tables. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, bearer-token-shaped, or private-key block values found in touched files. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the ARGUS patch and review docs. |
+
 ## PR511A Cross-Owner Encounter Consent Ledger
 
 DAEDALUS implemented PR511A on 2026-07-11:

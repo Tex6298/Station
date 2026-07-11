@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR511A review | Cross-Owner Encounter Consent Ledger | ARGUS / A3 | Ready for hostile review; DAEDALUS added ledger-only schema/API/audit/readback with non-executable requested scopes and no runtime, artifacts, publication, provider calls, public surfacing, or infra drift. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md` |
+| PR511A review | Cross-Owner Encounter Consent Ledger | MIMIR / A1 | ARGUS accepted PR511A locally after a narrow audit-atomicity patch; MIMIR should close PR511A and route ARIADNE for hosted consent-ledger proof before customer-facing closeout. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR511A review | Cross-Owner Encounter Consent Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER` after ARGUS patched consent create/transition paths so consent mutations and audit insertion are atomic DB-function operations; hosted proof required next. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_REVIEW_RESULT.md` |
 | PR511A implementation | Cross-Owner Encounter Consent Ledger | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; dedicated consent/audit schema, participant-scoped API routes, bounded state transitions, non-executable requested scope readback, and focused tests are implemented without cross-owner runtime/publication or infrastructure drift. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md` |
 | PR511 closeout | Cross-Owner Encounter Consent / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR511A for ledger-only consent/provenance implementation. | `docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR511 preflight | Cross-Owner Encounter Consent / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ONLY`; next safe lane is durable bilateral consent/provenance ledger only, with cross-owner runtime, artifacts, publication, generated-word excerpts/transcripts/summaries, public surfacing, provider/retrieval, and infra drift still blocked. | `docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_RESULT.md` |

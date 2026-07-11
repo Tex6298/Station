@@ -133,6 +133,7 @@ class InMemorySupabase {
   };
 
   private clock = Date.parse("2026-06-29T09:00:00.000Z");
+  failNextCrossOwnerConsentAuditRpc = false;
   private usersByToken = new Map([
     ["owner-token", { id: OWNER_ID, email: "owner@example.test" }],
     ["other-token", { id: OTHER_OWNER_ID, email: "other@example.test" }],
@@ -284,7 +285,103 @@ class InMemorySupabase {
       return Promise.resolve({ data: clone(usage), error: null });
     }
 
+    if (name === "create_persona_encounter_cross_owner_consent") {
+      return Promise.resolve(this.createCrossOwnerConsentRpc(args));
+    }
+
+    if (name === "transition_persona_encounter_cross_owner_consent") {
+      return Promise.resolve(this.transitionCrossOwnerConsentRpc(args));
+    }
+
     return Promise.resolve({ data: null, error: { message: `Unknown RPC ${name}` } });
+  }
+
+  private createCrossOwnerConsentRpc(args: Row) {
+    if (this.failNextCrossOwnerConsentAuditRpc) {
+      this.failNextCrossOwnerConsentAuditRpc = false;
+      return { data: null, error: { message: "audit insert failed" } };
+    }
+
+    const now = this.timestamp();
+    const consent = this.insertRow("persona_encounter_cross_owner_consents", {
+      requester_owner_user_id: args.p_requester_owner_user_id,
+      requester_persona_id: args.p_requester_persona_id,
+      requester_persona_name_snapshot: args.p_requester_persona_name_snapshot,
+      counterparty_owner_user_id: args.p_counterparty_owner_user_id,
+      counterparty_persona_id: args.p_counterparty_persona_id,
+      counterparty_persona_name_snapshot: args.p_counterparty_persona_name_snapshot,
+      status: "pending",
+      requested_scopes: args.p_requested_scopes ?? ["run_cross_owner_encounter"],
+      requested_scope_version: 1,
+      requester_approved_at: now,
+      provenance_schema: "station.persona_encounter.cross_owner_consent.v1",
+    });
+
+    this.insertRow("persona_encounter_cross_owner_consent_audit_events", {
+      consent_id: consent.id,
+      actor_user_id: args.p_actor_user_id,
+      actor_role: "requester",
+      event_type: "invitation_created",
+      previous_status: null,
+      next_status: "pending",
+      requested_scopes: consent.requested_scopes,
+    });
+    this.insertRow("persona_encounter_cross_owner_consent_audit_events", {
+      consent_id: consent.id,
+      actor_user_id: args.p_actor_user_id,
+      actor_role: "requester",
+      event_type: "requester_approved",
+      previous_status: "pending",
+      next_status: "pending",
+      requested_scopes: consent.requested_scopes,
+    });
+
+    return { data: clone(consent), error: null };
+  }
+
+  private transitionCrossOwnerConsentRpc(args: Row) {
+    if (this.failNextCrossOwnerConsentAuditRpc) {
+      this.failNextCrossOwnerConsentAuditRpc = false;
+      return { data: null, error: { message: "audit insert failed" } };
+    }
+
+    const consent = this.rows("persona_encounter_cross_owner_consents").find((row) =>
+      row.id === args.p_consent_id && row.status === args.p_expected_status
+    );
+    if (!consent) return { data: null, error: { message: "transition target not found" } };
+
+    const now = this.timestamp();
+    consent.status = args.p_next_status;
+    consent.updated_at = now;
+    if (args.p_next_status === "approved") consent.counterparty_approved_at = now;
+    if (args.p_next_status === "rejected") {
+      consent.rejected_at = now;
+      consent.rejected_by = args.p_actor_user_id;
+      consent.reason_code = args.p_reason_code ?? null;
+    }
+    if (args.p_next_status === "cancelled") {
+      consent.cancelled_at = now;
+      consent.cancelled_by = args.p_actor_user_id;
+      consent.reason_code = args.p_reason_code ?? null;
+    }
+    if (args.p_next_status === "revoked") {
+      consent.revoked_at = now;
+      consent.revoked_by = args.p_actor_user_id;
+      consent.reason_code = args.p_reason_code ?? null;
+    }
+
+    this.insertRow("persona_encounter_cross_owner_consent_audit_events", {
+      consent_id: consent.id,
+      actor_user_id: args.p_actor_user_id,
+      actor_role: args.p_actor_role,
+      event_type: args.p_event_type,
+      previous_status: args.p_expected_status,
+      next_status: args.p_next_status,
+      requested_scopes: consent.requested_scopes,
+      reason_code: args.p_reason_code ?? null,
+    });
+
+    return { data: clone(consent), error: null };
   }
 
   private ensureTokenUsage(userId: string) {
@@ -822,6 +919,10 @@ test("cross-owner consent migration creates participant ledger RLS and append-on
   assert.match(sql, /persona_encounter_cross_owner_consents_select_participants/);
   assert.match(sql, /persona_encounter_cross_owner_consents_insert_requester/);
   assert.match(sql, /persona_encounter_cross_owner_consent_audit_select_participants/);
+  assert.match(sql, /create or replace function public\.create_persona_encounter_cross_owner_consent/);
+  assert.match(sql, /create or replace function public\.transition_persona_encounter_cross_owner_consent/);
+  assert.match(sql, /security invoker/);
+  assert.match(sql, /insert into public\.persona_encounter_cross_owner_consent_audit_events/);
   assert.equal(/create policy "persona_encounter_cross_owner_consents_update_participants"/.test(sql), false);
   assert.match(sql, /No direct participant update\/delete policy is created here/);
   assert.equal(/create policy "persona_encounter_cross_owner_consent_audit_insert_participants"/.test(sql), false);
@@ -930,6 +1031,42 @@ test("cross-owner consent invitations require auth ownership different owners an
     ]) {
       assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in consent readback`);
     }
+  });
+});
+
+test("cross-owner consent create and transitions fail closed when audit insertion fails", async () => {
+  await withHarness(async ({ db, app }) => {
+    db.failNextCrossOwnerConsentAuditRpc = true;
+    const failedCreate = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents", {
+      token: "owner-token",
+      body: crossOwnerConsentBody(),
+    });
+    assert.equal(failedCreate.status, 500);
+    assert.equal(failedCreate.body.code, "persona_encounter_cross_owner_consent_save_failed");
+    assert.equal(db.rows("persona_encounter_cross_owner_consents").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_consent_audit_events").length, 0);
+
+    const created = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents", {
+      token: "owner-token",
+      body: crossOwnerConsentBody(),
+    });
+    assert.equal(created.status, 201);
+    const consentId = created.body.consent.id;
+    assert.equal(db.rows("persona_encounter_cross_owner_consents")[0].status, "pending");
+    assert.equal(db.rows("persona_encounter_cross_owner_consent_audit_events").length, 2);
+
+    db.failNextCrossOwnerConsentAuditRpc = true;
+    const failedApprove = await requestJson(
+      app,
+      "PATCH",
+      `/persona-encounters/cross-owner-consents/${consentId}/approve`,
+      { token: "other-token", body: {} },
+    );
+    assert.equal(failedApprove.status, 500);
+    assert.equal(failedApprove.body.code, "persona_encounter_cross_owner_consent_update_failed");
+    assert.equal(db.rows("persona_encounter_cross_owner_consents")[0].status, "pending");
+    assert.equal(db.rows("persona_encounter_cross_owner_consents")[0].counterparty_approved_at, null);
+    assert.equal(db.rows("persona_encounter_cross_owner_consent_audit_events").length, 2);
   });
 });
 

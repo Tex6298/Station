@@ -801,47 +801,24 @@ personaEncountersRouter.post("/cross-owner-consents", requireAuth, async (req, r
     });
   }
 
-  const now = new Date().toISOString();
-  const { data, error } = await sb
-    .from("persona_encounter_cross_owner_consents")
-    .insert({
-      requester_owner_user_id: ownerUserId,
-      requester_persona_id: requesterPersona.id,
-      requester_persona_name_snapshot: requesterPersona.name,
-      counterparty_owner_user_id: counterpartyPersona.owner_user_id,
-      counterparty_persona_id: counterpartyPersona.id,
-      counterparty_persona_name_snapshot: counterpartyPersona.name,
-      status: "pending",
-      requested_scopes: input.requestedScopes,
-      requested_scope_version: 1,
-      requester_approved_at: now,
-      provenance_schema: PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_PROVENANCE_SCHEMA,
-    })
-    .select("*")
-    .single();
+  const { data, error } = await sb.rpc("create_persona_encounter_cross_owner_consent", {
+    p_requester_owner_user_id: ownerUserId,
+    p_requester_persona_id: requesterPersona.id,
+    p_requester_persona_name_snapshot: requesterPersona.name,
+    p_counterparty_owner_user_id: counterpartyPersona.owner_user_id,
+    p_counterparty_persona_id: counterpartyPersona.id,
+    p_counterparty_persona_name_snapshot: counterpartyPersona.name,
+    p_requested_scopes: input.requestedScopes,
+    p_actor_user_id: ownerUserId,
+  });
 
-  if (error || !data) {
+  const consent = coerceCrossOwnerConsentRpcRow(data);
+  if (error || !consent) {
     return res.status(500).json({
       error: "Cross-owner encounter consent invitation could not be saved.",
       code: "persona_encounter_cross_owner_consent_save_failed",
     });
   }
-
-  const consent = data as EncounterCrossOwnerConsentRow;
-  await recordCrossOwnerConsentAuditEvent(sb, consent, {
-    actorUserId: ownerUserId,
-    actorRole: "requester",
-    eventType: "invitation_created",
-    previousStatus: null,
-    nextStatus: "pending",
-  });
-  await recordCrossOwnerConsentAuditEvent(sb, consent, {
-    actorUserId: ownerUserId,
-    actorRole: "requester",
-    eventType: "requester_approved",
-    previousStatus: "pending",
-    nextStatus: "pending",
-  });
 
   const audit = await loadCrossOwnerConsentAuditEvents(sb, consent.id);
   return res.status(201).json({
@@ -918,9 +895,6 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/approve", requir
     nextStatus: "approved",
     actorRole: "counterparty",
     eventType: "counterparty_approved",
-    patch: {
-      counterparty_approved_at: new Date().toISOString(),
-    },
   });
   if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
 
@@ -957,11 +931,6 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/reject", require
     actorRole: "counterparty",
     eventType: "counterparty_rejected",
     reasonCode: parsedBody.data.reasonCode,
-    patch: {
-      rejected_at: new Date().toISOString(),
-      rejected_by: ownerUserId,
-      reason_code: parsedBody.data.reasonCode ?? null,
-    },
   });
   if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
 
@@ -998,11 +967,6 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/cancel", require
     actorRole: "requester",
     eventType: "requester_cancelled",
     reasonCode: parsedBody.data.reasonCode,
-    patch: {
-      cancelled_at: new Date().toISOString(),
-      cancelled_by: ownerUserId,
-      reason_code: parsedBody.data.reasonCode ?? null,
-    },
   });
   if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
 
@@ -1036,11 +1000,6 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/revoke", require
     actorRole,
     eventType: "participant_revoked",
     reasonCode: parsedBody.data.reasonCode,
-    patch: {
-      revoked_at: new Date().toISOString(),
-      revoked_by: ownerUserId,
-      reason_code: parsedBody.data.reasonCode ?? null,
-    },
   });
   if (!update.ok) return res.status(500).json(crossOwnerConsentUpdateFailedBody());
 
@@ -1578,32 +1537,6 @@ async function loadCrossOwnerConsentAuditEvents(
   return (data ?? []) as EncounterCrossOwnerConsentAuditRow[];
 }
 
-async function recordCrossOwnerConsentAuditEvent(
-  sb: ReturnType<typeof getSupabaseAdmin>,
-  consent: EncounterCrossOwnerConsentRow,
-  input: {
-    actorUserId: string | null;
-    actorRole: CrossOwnerConsentActorRole;
-    eventType: CrossOwnerConsentAuditEventType;
-    previousStatus: CrossOwnerConsentStatus | null;
-    nextStatus: CrossOwnerConsentStatus;
-    reasonCode?: CrossOwnerConsentReasonCode;
-  },
-) {
-  await sb
-    .from("persona_encounter_cross_owner_consent_audit_events")
-    .insert({
-      consent_id: consent.id,
-      actor_user_id: input.actorUserId,
-      actor_role: input.actorRole,
-      event_type: input.eventType,
-      previous_status: input.previousStatus,
-      next_status: input.nextStatus,
-      requested_scopes: consent.requested_scopes,
-      reason_code: input.reasonCode ?? null,
-    });
-}
-
 async function transitionCrossOwnerConsent(
   sb: ReturnType<typeof getSupabaseAdmin>,
   consent: EncounterCrossOwnerConsentRow,
@@ -1612,34 +1545,29 @@ async function transitionCrossOwnerConsent(
     nextStatus: CrossOwnerConsentStatus;
     actorRole: "requester" | "counterparty";
     eventType: CrossOwnerConsentAuditEventType;
-    patch: Record<string, unknown>;
     reasonCode?: CrossOwnerConsentReasonCode;
   },
 ): Promise<{ ok: true; row: EncounterCrossOwnerConsentRow } | { ok: false }> {
-  const { data, error } = await sb
-    .from("persona_encounter_cross_owner_consents")
-    .update({
-      ...input.patch,
-      status: input.nextStatus,
-    })
-    .eq("id", consent.id)
-    .eq("status", consent.status)
-    .select("*")
-    .single();
-
-  if (error || !data) return { ok: false };
-
-  const row = data as EncounterCrossOwnerConsentRow;
-  await recordCrossOwnerConsentAuditEvent(sb, row, {
-    actorUserId,
-    actorRole: input.actorRole,
-    eventType: input.eventType,
-    previousStatus: consent.status,
-    nextStatus: input.nextStatus,
-    reasonCode: input.reasonCode,
+  const { data, error } = await sb.rpc("transition_persona_encounter_cross_owner_consent", {
+    p_consent_id: consent.id,
+    p_expected_status: consent.status,
+    p_next_status: input.nextStatus,
+    p_actor_user_id: actorUserId,
+    p_actor_role: input.actorRole,
+    p_event_type: input.eventType,
+    p_reason_code: input.reasonCode ?? null,
   });
 
+  const row = coerceCrossOwnerConsentRpcRow(data);
+  if (error || !row) return { ok: false };
+
   return { ok: true, row };
+}
+
+function coerceCrossOwnerConsentRpcRow(data: unknown): EncounterCrossOwnerConsentRow | null {
+  const value = Array.isArray(data) ? data[0] : data;
+  if (!value || typeof value !== "object") return null;
+  return value as EncounterCrossOwnerConsentRow;
 }
 
 async function loadOwnerPublicExhibitsBySession(

@@ -4,7 +4,70 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR511A cross-owner encounter consent ledger ready for review
+## Current lane - PR511A cross-owner encounter consent ledger accepted locally
+
+ARGUS accepted PR511A with a narrow review patch and woke MIMIR:
+
+`docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md`
+
+`docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_REVIEW_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER
+```
+
+Summary:
+
+- PR511A implements the accepted ledger-only foundation with dedicated
+  consent/audit tables, typed DB surfaces, and authenticated participant-scoped
+  invitation/list/detail/approve/reject/cancel/revoke routes;
+- requested scopes remain non-executable, including approved records;
+- ARGUS found and patched one safety gap: consent mutations and audit insertion
+  now happen inside database functions instead of adjacent best-effort API
+  calls;
+- the functions are `security invoker`, typed in DB types, and covered by an
+  audit-failure regression;
+- cross-owner runtime, private cross-owner artifacts, public exhibits,
+  excerpts, transcripts, summaries, Discover/search/feed, public surfacing,
+  provider/retrieval, billing/storage/social, Redis/Cloudflare, queue/worker,
+  package/lockfile, deployment, and broad UI remain blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `43` tests after the ARGUS patch;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `7` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `201`
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- changed-path, forbidden-path, forbidden side-effect, secret-shaped value,
+  `git diff --check`, and `git diff --cached --check` scans passed.
+
+Current lane:
+
+```text
+PR511A - Cross-Owner Encounter Consent Ledger
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_READY_FOR_CLOSEOUT_OR_ARIADNE_ROUTING
+Source: docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_REVIEW_RESULT.md
+```
+
+Next:
+
+- MIMIR closes PR511A locally if accepted;
+- MIMIR routes ARIADNE for `PR511B - Cross-Owner Encounter Consent Ledger
+  Hosted Proof` before customer-facing closeout.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR511A cross-owner encounter consent ledger ready for review
 
 DAEDALUS implemented PR511A and woke ARGUS:
 
@@ -14,39 +77,6 @@ Result:
 
 ```text
 READY_FOR_ARGUS_REVIEW
-```
-
-Summary:
-
-- migration `077` adds dedicated cross-owner consent and audit tables with
-  participant owner/persona constraints, participant read/requester-insert RLS,
-  participant audit readback RLS, no direct consent update/delete policy, no
-  direct participant audit insert policy, bounded states, bounded requested
-  scopes, and append-only audit protection;
-- `packages/db/src/types.ts` now exposes the consent/audit row, status, scope,
-  reason, actor-role, and event-type shapes;
-- `apps/api/src/routes/persona-encounters.ts` now exposes authenticated
-  participant-scoped invitation, list, detail, approve, reject, cancel, and
-  revoke routes;
-- readback excludes raw owner/persona ids and marks every requested scope
-  non-executable, including approved records;
-- focused tests prove auth, requester ownership, different-owner requirement,
-  participant-only readback/mutation, counterparty approval/rejection,
-  requester cancellation, participant revocation, inactive-state blocking,
-  privacy, audit readback, and no forbidden side effects.
-
-Next:
-
-- ARGUS reviews PR511A as ledger-only consent/provenance work;
-- ARGUS confirms owner scoping, audit append-only posture, state transitions,
-  non-executable requested scope readback, and forbidden-scope boundaries;
-- if accepted, ARGUS wakes MIMIR with the next routing decision.
-
-Wakeup:
-
-```text
-WAKEUP A3:
-Codename: ARGUS
 ```
 
 ## Previous lane - PR511 cross-owner encounter consent ledger preflight accepted

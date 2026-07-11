@@ -1858,6 +1858,31 @@ export interface Database {
     }>;
     Views: {};
     Functions: {
+      create_persona_encounter_cross_owner_consent: {
+        Args: {
+          p_requester_owner_user_id: string;
+          p_requester_persona_id: string;
+          p_requester_persona_name_snapshot: string;
+          p_counterparty_owner_user_id: string;
+          p_counterparty_persona_id: string;
+          p_counterparty_persona_name_snapshot: string;
+          p_requested_scopes: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          p_actor_user_id: string;
+        };
+        Returns: Database["public"]["Tables"]["persona_encounter_cross_owner_consents"]["Row"];
+      };
+      transition_persona_encounter_cross_owner_consent: {
+        Args: {
+          p_consent_id: string;
+          p_expected_status: PersonaEncounterCrossOwnerConsentStatus;
+          p_next_status: PersonaEncounterCrossOwnerConsentStatus;
+          p_actor_user_id: string;
+          p_actor_role: Extract<PersonaEncounterCrossOwnerConsentActorRole, "requester" | "counterparty">;
+          p_event_type: PersonaEncounterCrossOwnerConsentAuditEventType;
+          p_reason_code?: PersonaEncounterCrossOwnerConsentReasonCode | null;
+        };
+        Returns: Database["public"]["Tables"]["persona_encounter_cross_owner_consents"]["Row"];
+      };
       increment_thread_comment_count: {
         Args: { thread_id: string };
         Returns: void;
