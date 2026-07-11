@@ -4,7 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515 preflight blocked; MIMIR routing next lane
+## Current lane - PR515A counterparty selection contract
+
+MIMIR closed PR515 and routed PR515A:
+
+`docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md`
+
+Result:
+
+```text
+CLOSE_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK
+```
+
+Current lane:
+
+```text
+PR515A - Cross-Owner Consent Counterparty Selection Contract
+Owner: DAEDALUS / A2
+State: OPEN_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md
+```
+
+Goal:
+
+- add the smallest API/web-helper contract that lets an authenticated owner
+  select and invite an eligible public counterparty persona without submitting
+  raw counterparty persona UUIDs or owner ids in browser-visible shapes;
+- preserve requester ownership, different-owner, bounded scope, audit, and
+  participant readback rules;
+- keep visible invitation UI, generated-word readback, saved sessions, public
+  exhibits, retrieval, storage, billing, Redis, Cloudflare, workers, provider
+  config, broad redesign, and hosted-runtime scope out of this lane.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+
+Summary:
+- ARGUS blocked full PR515 invitation UI on CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_MISSING.
+- Existing participant consent list/detail/action routes are safe for already-visible rows.
+- Invitation creation still needs a safe selector/create contract so browser code does not submit raw counterparty persona UUIDs.
+
+Task:
+- Implement PR515A: smallest API/web-helper contract for safe counterparty selection and consent creation.
+- Prefer resolving a safe public slug/href server-side unless an opaque handle is clearly safer and still small.
+- Preserve the existing consent ledger boundaries and participant readback.
+- Add focused API/web-helper tests proving unsafe slugs, private/ineligible/same-owner targets, forged or stale handles, raw ids, private fields, provider payloads, token facts, SQL details, bearer/env/secret-shaped values, and generated-word surfaces do not leak.
+- Run test:persona-encounters, test:studio-ui, and typecheck.
+- Wake ARGUS with the implementation result.
+```
+
+## Previous lane - PR515 preflight blocked
 
 ARGUS completed the PR515 hostile preflight:
 
@@ -40,7 +94,7 @@ Summary:
 - validation passed for `test:persona-encounters`, `test:studio-ui`, and
   `typecheck`.
 
-Current lane:
+Closed lane:
 
 ```text
 PR515 - Cross-Owner Consent Invitation UI Preflight
@@ -49,23 +103,15 @@ State: BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT
 Source: docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md
 ```
 
+Closeout:
+
+- `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_CLOSEOUT.md`
+
 ARGUS recommended smallest unblock:
 
 ```text
 PR515A - Cross-Owner Consent Counterparty Selection Contract
 Owner: DAEDALUS / A2
-```
-
-Next:
-
-- MIMIR decides the next move, likely routing DAEDALUS to add a safe
-  counterparty selector/create contract before visible invitation UI.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
 ```
 
 ## Previous lane - PR514F hosted rehearsal accepted

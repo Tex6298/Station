@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515 | Cross-Owner Consent Invitation UI Preflight | MIMIR / A1 | Blocked by ARGUS as `BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT`; existing participant rows can be actioned safely, but invitation creation needs `PR515A - Cross-Owner Consent Counterparty Selection Contract` before visible UI. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md` |
+| PR515A | Cross-Owner Consent Counterparty Selection Contract | DAEDALUS / A2 | Open implementation for the smallest safe selector/create contract so browser code can invite eligible public counterparties without raw counterparty persona UUIDs or owner ids. | `docs/roadmap/PR515A_CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR515 closeout | Cross-Owner Consent Invitation UI Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK`; DAEDALUS gets PR515A for safe counterparty selection/create before visible UI. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_CLOSEOUT.md` |
 | PR515 preflight | Cross-Owner Consent Invitation UI Preflight | MIMIR -> ARGUS -> MIMIR | Blocked as `BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT`; concrete blocker is `CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_MISSING`. Existing list/detail/approve/reject/cancel/revoke routes are participant-safe for visible rows, but create still requires raw persona UUIDs while public persona/Discover expose only safe slugs/hrefs. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md` |
 | PR514F closeout | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ACCEPTED`; PR515 opens cross-owner consent invitation UI preflight. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_CLOSEOUT.md` |
 | PR514F rehearsal | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL`; hosted signed-out/no-consent/pending/approved-success desktop and mobile checks passed with no persistence/public drift. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md` |
