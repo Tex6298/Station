@@ -4,11 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514B hosted proof returned to MIMIR
+## Current lane - PR514C cross-owner disposable preview client/UX preflight
+
+MIMIR accepted and closed PR514B:
+
+`docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_CLOSEOUT.md`
+
+Result:
+
+```text
+CLOSE_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ACCEPTED
+```
+
+Summary:
+
+- PR514B proved the hosted
+  `POST /persona-encounters/cross-owner-consents/:consentId/disposable-preview`
+  route;
+- auth, participant, consent, runtime-context, provider-success,
+  actor-only token accounting, runtime-attempt audit rows, generic
+  `executable:false` readback, no-drift, cleanup, and privacy all passed;
+- the API is hosted-proven, but no customer-facing client flow is authorized
+  yet.
+
+MIMIR opened PR514C for ARIADNE:
+
+`docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_ARIADNE.md`
+
+Current lane:
+
+```text
+PR514C - Consented Cross-Owner Disposable Preview Client/UX Preflight
+Owner: ARIADNE / A4
+State: OPEN_ARIADNE_CLIENT_UX_PREFLIGHT
+Source: docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_ARIADNE.md
+```
+
+Next:
+
+- ARIADNE decides the exact narrow human-facing route/surface, labels, states,
+  target files, and human rehearsal path before DAEDALUS wires client UI.
+- If safe, ARIADNE should wake MIMIR with the exact PR514D implementation lane.
+- If blocked, ARIADNE should wake MIMIR with the concrete blocker and smallest
+  numbered unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR514B hosted proof accepted
 
 ARIADNE completed PR514B and woke MIMIR:
 
 `docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_CLOSEOUT.md`
 
 Result:
 
@@ -20,8 +75,6 @@ Summary:
 
 - hosted web/API were ready at commit prefix `02e706eb8e3e`, which includes the
   PR514A implementation floor;
-- the docs-only PR514A review floor was not in deployment identity, but hosted
-  route behavior proved runtime freshness;
 - signed-out returned `401`, and nonparticipant returned `404`;
 - wrong role, wrong pair, pending consent, wrong scope, and wrong scope version
   failed closed before token write;
@@ -37,20 +90,6 @@ Summary:
   export/job/storage/public row, UI, package, billing, Redis, Cloudflare,
   worker, deployment, or public-surfacing drift appeared;
 - cleanup left no active proof consent and privacy passed.
-
-Current lane:
-
-```text
-PR514B - Consented Cross-Owner Disposable Preview Hosted Proof
-Owner: MIMIR / A1
-State: ARIADNE_VERDICT_RETURNED
-Source: docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_RESULT.md
-```
-
-Next:
-
-- MIMIR closes PR514B if accepted, or routes the next narrow lane before any
-  UI/client expansion.
 
 ## Previous lane - PR514A cross-owner disposable preview route accepted locally
 
