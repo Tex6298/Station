@@ -1,6 +1,6 @@
 export type ExportPackageTone = "info" | "good" | "warning" | "danger";
 export type ExportBackupSurfaceState = "live" | "preview" | "future";
-export type ExportPackageTrustScope = "persona" | "developer_space" | "workspace";
+export type ExportPackageTrustScope = "persona" | "developer_space" | "workspace" | "station_press";
 export type WorkspaceExportScopeState = "live" | "future" | "excluded" | "decision_needed";
 
 export interface ArchiveExportPackageLike {
@@ -35,7 +35,7 @@ export interface WorkspaceExportScopeRow {
 
 export interface WorkspaceExportLiveClass extends WorkspaceExportScopeRow {
   state: "live";
-  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest" | "workspace_manifest";
+  packageKind: "persona_archive" | "developer_space_archive" | "project_manifest" | "workspace_manifest" | "station_press_publication";
   format: "JSON / Markdown";
   includedSections: string[];
   href?: string;
@@ -80,6 +80,14 @@ const SUMMARY_LABELS: Record<ExportPackageTrustScope, Array<[string, string]>> =
     ["publicPublishedDocumentRefs", "public refs"],
     ["exportPackages", "package rows"],
   ],
+  station_press: [
+    ["schema", "schema"],
+    ["documentType", "type"],
+    ["visibility", "visibility"],
+    ["discussionStatus", "discussion"],
+    ["seminarRecord", "seminar"],
+    ["excludedFutureMaterial", "excluded"],
+  ],
 };
 
 export function exportBackupTrustSurfaces(): ExportBackupSurface[] {
@@ -118,6 +126,17 @@ export function exportBackupTrustSurfaces(): ExportBackupSurface[] {
       limitation: "Does not export linked source rows, private document bodies, collaborator roles, or a full institutional archive.",
     },
     {
+      id: "station-press-publication",
+      title: "Station Press publication package",
+      state: "live",
+      packageKind: "station_press_publication",
+      href: "/studio/publishing",
+      actionLabel: "Open publishing",
+      readback: "Owner-only publication metadata package and bundle readback from the Studio publishing dashboard.",
+      boundary: "Includes safe publication metadata, Space destination labels, manifest contract reference, discussion status, seminar schedule metadata, and trust/excluded material notes.",
+      limitation: "Does not create public package URLs, PDF or print output, storage objects, social dispatch, provider calls, billing, or launch claims.",
+    },
+    {
       id: "workspace-export",
       title: "Workspace manifest package",
       state: "live",
@@ -133,7 +152,7 @@ export function exportBackupTrustSurfaces(): ExportBackupSurface[] {
       title: "PDF, binary, and original file packages",
       state: "future",
       actionLabel: "Future lane",
-      readback: "No PDF, binary archive, original file bundle, or Station Press package is available from current export routes.",
+      readback: "No PDF, binary archive, original file bundle, print package, or public Station Press package is available from current export routes.",
       boundary: "Current readback is manifest and Markdown/JSON bundle content returned only to the authenticated owner.",
       limitation: "Original file packaging, print/PDF assembly, fulfilment, shipping, and checkout are out of scope.",
     },
@@ -178,7 +197,7 @@ export function workspaceExportScopeReadback(
 
   return {
     heading: "Workspace export scope readback",
-    summary: "This owner-only Studio surface maps the scoped export classes Station can read back today, including the workspace manifest package. It is not a private archive bundle, original-file package, PDF generator, backup service, restore workflow, or public download surface.",
+    summary: "This owner-only Studio surface maps the scoped export classes Station can read back today, including the workspace manifest package and Station Press publication metadata package. It is not a private archive bundle, original-file package, PDF generator, backup service, restore workflow, or public download surface.",
     livePackageClasses,
     currentBundleFormat: "Owner-only JSON/Markdown manifests and portable bundle readback.",
     futureUnavailable: [
@@ -196,9 +215,9 @@ export function workspaceExportScopeReadback(
       },
       {
         id: "pdf-binary-station-press",
-        label: "PDF, binary archive, and Station Press",
+        label: "PDF, binary archive, and public Station Press output",
         state: "future",
-        detail: "PDF/print output, binary archives, print readiness, and Station Press packaging need separate privacy, cost, storage, and provider decisions.",
+        detail: "PDF/print output, binary archives, print readiness, and public Station Press packaging need separate privacy, cost, storage, and provider decisions.",
       },
       {
         id: "backup-redundancy-restore",
@@ -251,6 +270,7 @@ export function workspaceExportScopeReadback(
       "Open personas for current persona archive package readback.",
       "Open Developer Spaces for current Developer Space package readback.",
       "Open Projects for current Project manifest readback.",
+      "Open publishing for current Station Press publication metadata package readback.",
       "Create an owner-only workspace manifest here for high-level inventory readback.",
     ],
     boundary: "Owner-only manifest readback: no original-file packaging, generated PDF, binary archive, background job, worker, queue, Redis, Cloudflare, billing, Stripe, provider/model call, public export access, signed URL, shareable private package URL, storage architecture, backup/redundancy claim, or restore drill is added.",
@@ -264,7 +284,11 @@ export function exportBackupSurfaceStateLabel(state: ExportBackupSurfaceState) {
 }
 
 function isWorkspaceLivePackageKind(value: string | undefined): value is WorkspaceExportLiveClass["packageKind"] {
-  return value === "persona_archive" || value === "developer_space_archive" || value === "project_manifest" || value === "workspace_manifest";
+  return value === "persona_archive" ||
+    value === "developer_space_archive" ||
+    value === "project_manifest" ||
+    value === "workspace_manifest" ||
+    value === "station_press_publication";
 }
 
 function workspaceIncludedSections(packageKind: WorkspaceExportLiveClass["packageKind"]) {
@@ -278,6 +302,10 @@ function workspaceIncludedSections(packageKind: WorkspaceExportLiveClass["packag
 
   if (packageKind === "workspace_manifest") {
     return ["workspace counts", "public refs", "package classes", "trust notes", "excluded material"];
+  }
+
+  if (packageKind === "station_press_publication") {
+    return ["publication metadata", "Space destination", "manifest contract", "discussion status", "seminar schedule metadata", "trust notes"];
   }
 
   return ["project summary", "attached Developer Space", "owner evidence reference", "public evidence reference", "trust metadata"];
@@ -346,6 +374,27 @@ export function exportPackageTrustCopy(
 
     return {
       body: "Station is preparing an owner-only workspace manifest from high-level inventory.",
+      nextAction: "Wait for completion before relying on bundle readback.",
+    };
+  }
+
+  if (scope === "station_press") {
+    if (exportPackage.status === "failed") {
+      return {
+        body: "This Station Press publication metadata package did not complete.",
+        nextAction: "Private source material remains owner-only. Create a fresh metadata package when the publication is ready.",
+      };
+    }
+
+    if (exportPackage.status === "completed") {
+      return {
+        body: "This owner-only Station Press publication metadata package is complete.",
+        nextAction: "Use bundle readback to inspect the JSON/Markdown metadata package without public package links.",
+      };
+    }
+
+    return {
+      body: "Station is preparing an owner-only Station Press publication metadata package.",
       nextAction: "Wait for completion before relying on bundle readback.",
     };
   }

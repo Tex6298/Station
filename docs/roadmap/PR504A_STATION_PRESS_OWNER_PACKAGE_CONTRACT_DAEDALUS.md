@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-07-11
 
-Status: Open implementation
+Status: Ready for ARGUS review
 
 ## Source
 

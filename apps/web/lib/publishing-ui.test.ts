@@ -24,6 +24,8 @@ import {
   publicationManifestDisplayRows,
   STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA,
   STATION_PRESS_PUBLICATION_MANIFEST_EXCLUSIONS,
+  stationPressPublicationPackageReady,
+  stationPressPublicationPackageStatusCopy,
   publishingQueueActionGuard,
   publishingApprovalStateLabel,
   publishingSourceLabelForReadback,
@@ -534,12 +536,53 @@ test("publication manifest discussion and seminar metadata stay status-only", ()
   assert.doesNotMatch(JSON.stringify(contract.discussion), /thread|approval|moderation|body|doc-linked/i);
 });
 
-test("publishing dashboard renders publication manifest readback without package controls", () => {
+test("publication manifest package helpers keep owner package status ID-free", () => {
+  const readyContract = publicationManifestContractForDocument({
+    document: {
+      id: "doc-private-route-id",
+      title: "Public Field Log",
+      document_type: "field_log",
+      status: "published",
+      visibility: "public",
+      published_at: "2026-07-07T12:00:00.000Z",
+      space_id: "space-1",
+      provenance_type: "user_authored",
+      source_label: null,
+      version: 2,
+      discussion_thread_id: null,
+      comments_enabled: true,
+    },
+    spaces,
+  });
+  const notReadyContract = publicationManifestContractForDocument({
+    document: documents[0],
+    spaces,
+  });
+
+  assert.equal(stationPressPublicationPackageReady(readyContract), true);
+  assert.equal(stationPressPublicationPackageReady(notReadyContract), false);
+  assert.equal(
+    stationPressPublicationPackageStatusCopy(),
+    "No owner metadata package has been created for this publication.",
+  );
+  assert.equal(
+    stationPressPublicationPackageStatusCopy([{ id: "export-package-private-id", packageKind: "station_press_publication", status: "completed" }]),
+    "Latest owner metadata package is complete.",
+  );
+  assert.doesNotMatch(
+    stationPressPublicationPackageStatusCopy([{ id: "export-package-private-id", packageKind: "station_press_publication", status: "failed" }]),
+    /export-package-private-id|download|share|public package URL/i,
+  );
+});
+
+test("publishing dashboard renders publication manifest package controls within owner scope", () => {
   const source = readFileSync("apps/web/components/studio/publishing-dashboard.tsx", "utf8");
 
   assert.match(source, /publicationManifestContractForDocument/);
   assert.match(source, /publicationManifestDisplayRows/);
   assert.match(source, /PublicationManifestReadback/);
+  assert.match(source, /StationPressPublicationPackageResponse/);
+  assert.match(source, /\/exports\/station-press\/publications\/\$\{encodeURIComponent\(document\.id\)\}/);
 
   const block = source.slice(
     source.indexOf("function PublicationManifestReadback"),
@@ -547,7 +590,10 @@ test("publishing dashboard renders publication manifest readback without package
   );
   assert.match(block, /Station Press manifest contract/);
   assert.match(block, /manifest.packageReadback.detail/);
-  assert.doesNotMatch(block, /apiGet|apiPost|apiPatch|apiDelete|<button|Create .*package|Export package|Download|Share|billing|provider|\/exports|\/station-press/i);
+  assert.match(block, /stationPressPublicationPackageStatusCopy/);
+  assert.match(block, /Create metadata package/);
+  assert.match(block, /Station Press unavailable/);
+  assert.doesNotMatch(block, /apiGet|apiPost|apiPatch|apiDelete|Download|Share|billing|provider|public package URL|signed URL|packageId|exportPackage\.id|manifest\.id/i);
 });
 
 test("publishing trust readback explains public document boundaries", () => {

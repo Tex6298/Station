@@ -28,12 +28,16 @@ import {
   publishingApprovalStateLabel,
   publishingQueueActionGuard,
   publishingStatusLabel,
+  stationPressPublicationPackageReady,
+  stationPressPublicationPackageStatusCopy,
   type PublishingApproval,
   type PublishingApprovalState,
   type PublishingDocument,
   type PublishingSpace,
   type PublishingTab,
   type PublicationManifestContract,
+  type StationPressPublicationPackage,
+  type StationPressPublicationPackageResponse,
 } from "@/lib/publishing";
 import {
   seminarRecordForCandidate,
@@ -67,6 +71,9 @@ export function PublishingDashboard() {
   const [busySeminarHref, setBusySeminarHref] = useState<string | null>(null);
   const [busySeminarScheduleId, setBusySeminarScheduleId] = useState<string | null>(null);
   const [seminarScheduleInputs, setSeminarScheduleInputs] = useState<Record<string, SeminarScheduleFormState>>({});
+  const [stationPressPackages, setStationPressPackages] = useState<Record<string, StationPressPublicationPackage[]>>({});
+  const [busyStationPressDocumentId, setBusyStationPressDocumentId] = useState<string | null>(null);
+  const [stationPressPackageError, setStationPressPackageError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -235,6 +242,30 @@ export function PublishingDashboard() {
     }
   }
 
+  async function createStationPressPackage(document: PublishingDocument, manifest: PublicationManifestContract) {
+    if (!token || !stationPressPublicationPackageReady(manifest)) return;
+
+    setBusyStationPressDocumentId(document.id);
+    setStationPressPackageError(null);
+    setNotice(null);
+    try {
+      const response = await apiPost<StationPressPublicationPackageResponse>(
+        `/exports/station-press/publications/${encodeURIComponent(document.id)}`,
+        {},
+        token,
+      );
+      setStationPressPackages((current) => ({
+        ...current,
+        [document.id]: [response.exportPackage, ...(current[document.id] ?? [])],
+      }));
+      setNotice("Station Press metadata package readback is ready.");
+    } catch {
+      setStationPressPackageError("Station Press metadata package readback is unavailable.");
+    } finally {
+      setBusyStationPressDocumentId(null);
+    }
+  }
+
   async function enqueueApproval(document: PublishingDocument) {
     if (!token) return;
     setBusyApprovalId(document.id);
@@ -359,6 +390,7 @@ export function PublishingDashboard() {
         />
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
+        {stationPressPackageError ? <div className="station-notice" data-tone="error">{stationPressPackageError}</div> : null}
         {notice ? <div className="station-notice" data-tone="success">{notice}</div> : null}
         {!loading && !publishingAllowed ? (
           <div className="station-notice">
@@ -426,7 +458,12 @@ export function PublishingDashboard() {
                       <div style={sourceLine}>
                         {publishingDashboardTrustLine(document, approval, spaces)}
                       </div>
-                      <PublicationManifestReadback manifest={manifest} />
+                      <PublicationManifestReadback
+                        busy={busyStationPressDocumentId === document.id}
+                        manifest={manifest}
+                        packages={stationPressPackages[document.id] ?? []}
+                        onCreate={() => void createStationPressPackage(document, manifest)}
+                      />
                     </div>
                     <div style={buttonRow}>
                       <Link href={`/studio/publish?documentId=${document.id}`} style={miniLink}>Edit</Link>
@@ -468,8 +505,19 @@ export function PublishingDashboard() {
   );
 }
 
-function PublicationManifestReadback({ manifest }: { manifest: PublicationManifestContract }) {
+function PublicationManifestReadback({
+  busy,
+  manifest,
+  packages,
+  onCreate,
+}: {
+  busy: boolean;
+  manifest: PublicationManifestContract;
+  packages: StationPressPublicationPackage[];
+  onCreate: () => void;
+}) {
   const rows = publicationManifestDisplayRows(manifest);
+  const ready = stationPressPublicationPackageReady(manifest);
   return (
     <details style={manifestDetails}>
       <summary style={manifestSummary}>Station Press manifest contract</summary>
@@ -482,6 +530,18 @@ function PublicationManifestReadback({ manifest }: { manifest: PublicationManife
         ))}
       </div>
       <p style={manifestReadbackCopy}>{manifest.packageReadback.detail}</p>
+      <p style={manifestReadbackCopy}>{stationPressPublicationPackageStatusCopy(packages)}</p>
+      <div style={stationPressActionRow}>
+        {ready ? (
+          <button type="button" disabled={busy} onClick={onCreate} style={miniButton}>
+            {busy ? "Creating metadata..." : "Create metadata package"}
+          </button>
+        ) : (
+          <button type="button" disabled title={manifest.packageReadback.detail} style={disabledMiniButton}>
+            Station Press unavailable
+          </button>
+        )}
+      </div>
       <p style={manifestReadbackCopy}>{manifest.boundary}</p>
     </details>
   );
@@ -994,6 +1054,13 @@ const manifestReadbackValue = {
 const manifestReadbackCopy = {
   margin: "8px 0 0",
   lineHeight: 1.45,
+};
+
+const stationPressActionRow = {
+  display: "flex",
+  flexWrap: "wrap" as const,
+  gap: 8,
+  marginTop: 8,
 };
 
 const buttonRow = {

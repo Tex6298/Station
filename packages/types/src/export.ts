@@ -1,5 +1,5 @@
-export type ExportPackageKind = 'persona_archive' | 'developer_space_archive' | 'project_manifest' | 'workspace_manifest';
-export type ScopedExportPackageKind = Exclude<ExportPackageKind, 'workspace_manifest'>;
+export type ExportPackageKind = 'persona_archive' | 'developer_space_archive' | 'project_manifest' | 'workspace_manifest' | 'station_press_publication';
+export type ScopedExportPackageKind = Exclude<ExportPackageKind, 'workspace_manifest' | 'station_press_publication'>;
 
 interface ExportPackageBase {
   id: string;
@@ -27,7 +27,11 @@ export interface WorkspaceExportPackage extends ExportPackageBase {
   packageKind: 'workspace_manifest';
 }
 
-export type ArchiveExportPackage = ScopedArchiveExportPackage | WorkspaceExportPackage;
+export interface StationPressPublicationExportPackage extends ExportPackageBase {
+  packageKind: 'station_press_publication';
+}
+
+export type ArchiveExportPackage = ScopedArchiveExportPackage | WorkspaceExportPackage | StationPressPublicationExportPackage;
 
 export interface ArchiveExportManifest {
   schema: 'station.persona.export.v1';
@@ -77,6 +81,23 @@ export interface WorkspaceExportManifest {
   trust: Record<string, unknown>;
   excludedMaterial: string[];
   futureMaterial: string[];
+}
+
+export interface StationPressPublicationExportManifest {
+  schema: 'station.press.publication_package_manifest.v1';
+  generatedAt: string;
+  package: {
+    status: string;
+    format: string;
+    packageKind: 'station_press_publication';
+  };
+  publication: Record<string, unknown>;
+  destination: Record<string, unknown>;
+  manifestContract: Record<string, unknown>;
+  discussion: Record<string, unknown>;
+  seminar: Record<string, unknown> | null;
+  trust: Record<string, unknown>;
+  excludedFutureMaterial: string[];
 }
 
 export interface ArchiveExportBundleFile {

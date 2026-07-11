@@ -711,6 +711,7 @@ class InMemorySupabase {
       row.persona_id ??= null;
       row.developer_space_id ??= null;
       row.project_id ??= null;
+      row.document_id ??= null;
       row.status ??= "completed";
       row.format ??= "json_markdown";
       row.included_sections ??= [];
@@ -2165,6 +2166,308 @@ test("workspace manifest package guards duplicate, malformed, and source failure
   }
 });
 
+test("owner can create, read, and bundle Station Press publication metadata packages", async () => {
+  const db = new InMemorySupabase();
+  db.insertRow("public_seminar_records", {
+    id: "seminar-private-id",
+    owner_user_id: OWNER_ID,
+    source_type: "document",
+    source_id: DOC_ID,
+    title: "Seminar source title should stay out",
+    summary: "Private seminar notes must not leak",
+    status: "published",
+    visibility: "public",
+    discussion_thread_id: THREAD_ID,
+    scheduled_starts_at: "2026-07-06T18:00:00.000Z",
+    scheduled_time_zone: "Europe/London",
+    scheduled_duration_minutes: 60,
+    created_at: "2026-07-06T10:00:00.000Z",
+    updated_at: "2026-07-06T10:00:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    const anonymousCreate = await requestJson(app, "POST", `/exports/station-press/publications/${DOC_ID}`);
+    assert.equal(anonymousCreate.status, 401);
+
+    const anonymousList = await requestJson(app, "GET", `/exports/station-press/publications/${DOC_ID}`);
+    assert.equal(anonymousList.status, 401);
+
+    const crossOwnerCreate = await requestJson(app, "POST", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(crossOwnerCreate.status, 404);
+    assert.deepEqual(crossOwnerCreate.body, {
+      error: "Station Press publication package is unavailable for this document.",
+      code: "station_press_publication_not_ready",
+    });
+
+    const created = await requestJson(app, "POST", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.exportPackage.packageKind, "station_press_publication");
+    assert.equal(created.body.exportPackage.status, "completed");
+    assert.equal("ownerUserId" in created.body.exportPackage, false);
+    assert.equal("documentId" in created.body.exportPackage, false);
+    assert.equal("personaId" in created.body.exportPackage, false);
+    assert.deepEqual(created.body.exportPackage.includedSections, [
+      "publication_metadata",
+      "space_destination",
+      "manifest_contract",
+      "discussion_status",
+      "seminar_schedule_metadata",
+      "trust",
+      "excluded_future_material",
+    ]);
+
+    const packageRow = db.tables.export_packages.find((row) => row.id === created.body.exportPackage.id);
+    assert.ok(packageRow);
+    assert.equal(packageRow.owner_user_id, OWNER_ID);
+    assert.equal(packageRow.document_id, DOC_ID);
+    assert.equal(packageRow.package_kind, "station_press_publication");
+    assert.equal(packageRow.persona_id, null);
+    assert.equal(packageRow.developer_space_id, null);
+    assert.equal(packageRow.project_id, null);
+
+    assert.equal(created.body.manifest.schema, "station.press.publication_package_manifest.v1");
+    assert.equal(created.body.manifest.package.packageKind, "station_press_publication");
+    assert.equal("id" in created.body.manifest.package, false);
+    assert.equal(created.body.manifest.publication.title, "Published Continuity Note");
+    assert.equal(created.body.manifest.publication.documentTypeLabel, "Essay");
+    assert.equal(created.body.manifest.destination.label, "Station / Harbor Space");
+    assert.equal(created.body.manifest.manifestContract.schema, "station.press.publication_manifest_contract.v1");
+    assert.equal(created.body.manifest.discussion.status, "attached");
+    assert.equal(created.body.manifest.seminar.statusLabel, "Published");
+    assert.match(created.body.manifest.seminar.scheduleLabel, /Europe\/London/);
+    assert.equal(created.body.manifest.trust.ownerOnly, true);
+    assert.equal(created.body.manifest.trust.metadataOnly, true);
+    assert.equal(created.body.manifest.trust.documentBodiesOmitted, true);
+    assert.equal(created.body.manifest.trust.rawIdsOmittedFromFiles, true);
+    assert.equal(created.body.manifest.trust.publicPackageUrlsOmitted, true);
+    assert.match(created.body.manifestMarkdown, /Station Press Publication Package/);
+    assert.doesNotMatch(created.body.manifestMarkdown, new RegExp(created.body.exportPackage.id));
+
+    const manifestText = JSON.stringify(created.body.manifest) + created.body.manifestMarkdown;
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_ID,
+      PERSONA_ID,
+      SPACE_ID,
+      DOC_ID,
+      THREAD_ID,
+      "seminar-private-id",
+      "Public copy body is not required for export refs",
+      "Canon / priority 8",
+      "Private seminar notes",
+      "source_id",
+      "sourceId",
+      "owner_user_id",
+      "ownerUserId",
+      "document_id",
+      "documentId",
+      "thread_id",
+      "threadId",
+      "storage_path",
+      "DATABASE_URL",
+      "SQL",
+      "stack trace",
+      "provider payload",
+      "https://",
+    ]) {
+      assert.equal(manifestText.includes(forbidden), false, `${forbidden} leaked into Station Press manifest`);
+    }
+
+    const listed = await requestJson(app, "GET", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.exports.length, 1);
+    assert.equal(listed.body.exports[0].packageKind, "station_press_publication");
+    assert.equal("documentId" in listed.body.exports[0], false);
+    assert.equal("ownerUserId" in listed.body.exports[0], false);
+
+    const crossOwnerList = await requestJson(app, "GET", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "other-token",
+    });
+    assert.equal(crossOwnerList.status, 404);
+
+    const crossOwnerRead = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
+      token: "other-token",
+    });
+    assert.equal(crossOwnerRead.status, 404);
+
+    const readBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}`, {
+      token: "owner-token",
+    });
+    assert.equal(readBack.status, 200);
+    assert.equal(readBack.body.exportPackage.packageKind, "station_press_publication");
+    assert.equal("documentId" in readBack.body.exportPackage, false);
+    assert.deepEqual(readBack.body.manifest, packageRow.manifest_json);
+    assert.equal(readBack.body.manifestMarkdown, packageRow.manifest_markdown);
+
+    const crossOwnerBundle = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "other-token",
+    });
+    assert.equal(crossOwnerBundle.status, 404);
+
+    const bundleReadBack = await requestJson(app, "GET", `/exports/${created.body.exportPackage.id}/bundle`, {
+      token: "owner-token",
+    });
+    assert.equal(bundleReadBack.status, 200);
+    const bundle = bundleReadBack.body.bundle;
+    const files = assertBundleIntegrity(bundle, "station_press_publication");
+    assert.equal(files.get("manifest.md")?.content, packageRow.manifest_markdown);
+    assert.deepEqual(JSON.parse(files.get("manifest.json")?.content ?? "{}"), packageRow.manifest_json);
+    assert.match(files.get("README.md")?.content ?? "", /metadata readback only/);
+    assert.equal(files.size, 3);
+
+    for (const [path, file] of files) {
+      for (const forbidden of [
+        created.body.exportPackage.id,
+        OWNER_ID,
+        PERSONA_ID,
+        SPACE_ID,
+        DOC_ID,
+        THREAD_ID,
+        "seminar-private-id",
+        "Public copy body is not required for export refs",
+        "Private seminar notes",
+        "source_id",
+        "owner_user_id",
+        "document_id",
+        "storage_path",
+        "DATABASE_URL",
+        "SQL",
+        "stack trace",
+        "https://",
+      ]) {
+        assert.equal(file.content.includes(forbidden), false, `${forbidden} leaked into ${path}`);
+      }
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Station Press publication packages reject not-ready documents before completion", async () => {
+  const db = new InMemorySupabase();
+  const archived = db.insertRow("documents", {
+    ...publishedDocument("12121212-1212-4121-8121-121212121212", "Archived Press Source", "public", "2026-05-26T09:07:30.000Z"),
+    status: "archived",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    for (const documentId of [
+      PRIVATE_DOC_ID,
+      PRIVATE_PUBLISHED_DOC_ID,
+      DEV_PUBLIC_DOC_ID,
+      archived.id,
+      "13131313-1313-4131-8131-131313131313",
+    ]) {
+      const response = await requestJson(app, "POST", `/exports/station-press/publications/${documentId}`, {
+        token: "owner-token",
+      });
+      assert.equal(response.status, 404, documentId);
+      assert.deepEqual(response.body, {
+        error: "Station Press publication package is unavailable for this document.",
+        code: "station_press_publication_not_ready",
+      });
+    }
+
+    assert.equal(db.tables.export_packages.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Station Press package duplicate, malformed, and source failure states stay bounded", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    db.insertRow("export_packages", {
+      owner_user_id: OWNER_ID,
+      document_id: DOC_ID,
+      package_kind: "station_press_publication",
+      status: "processing",
+    });
+
+    const blocked = await requestJson(app, "POST", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(blocked.status, 429);
+    assert.equal(blocked.body.code, "quota_exceeded");
+    assert.equal(blocked.body.resource, "export_packages");
+    assert.equal(db.tables.export_packages.length, 1);
+
+    for (const scenario of [
+      { label: "wrong schema", manifestJson: { schema: "station.press.private.v1", privateDetail: "wrong schema detail must not leak" }, manifestMarkdown: "# wrong schema markdown must not leak" },
+      { label: "package id in manifest", manifestJson: { schema: "station.press.publication_package_manifest.v1", package: { id: "raw-package-id", packageKind: "station_press_publication" } }, manifestMarkdown: "# package id markdown must not leak" },
+      { label: "empty markdown", manifestJson: { schema: "station.press.publication_package_manifest.v1" }, manifestMarkdown: "" },
+    ]) {
+      const row = db.insertRow("export_packages", {
+        owner_user_id: OWNER_ID,
+        document_id: DOC_ID,
+        package_kind: "station_press_publication",
+        status: "completed",
+        manifest_json: scenario.manifestJson,
+        manifest_markdown: scenario.manifestMarkdown,
+      });
+      const response = await requestJson(app, "GET", `/exports/${row.id}/bundle`, {
+        token: "owner-token",
+      });
+      assert.equal(response.status, 409, scenario.label);
+      const responseText = JSON.stringify(response.body);
+      assert.match(responseText, /stored manifest readback is complete/);
+      assert.doesNotMatch(responseText, /wrong schema detail/);
+      assert.doesNotMatch(responseText, /raw-package-id/);
+      assert.doesNotMatch(responseText, /markdown must not leak/);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const failingDb = new InMemorySupabase();
+  failingDb.failSelectTables.add("public_seminar_records");
+  setSupabaseAdminForTests(failingDb.client as any);
+  const failingApp = await createExportsApp();
+
+  try {
+    const failed = await requestJson(failingApp, "POST", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(failed.status, 500);
+    assert.deepEqual(failed.body, {
+      error: "Could not create Station Press publication package.",
+      code: "station_press_publication_create_failed",
+    });
+    const row = failingDb.tables.export_packages[0];
+    assert.equal(row.package_kind, "station_press_publication");
+    assert.equal(row.document_id, DOC_ID);
+    assert.equal(row.status, "failed");
+    assert.equal(row.error_message, "Could not finish Station Press publication package.");
+    assert.equal(row.persona_id, null);
+    assert.equal(row.developer_space_id, null);
+    assert.equal(row.project_id, null);
+
+    const listed = await requestJson(failingApp, "GET", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(listed.status, 200);
+    assert.equal(listed.body.exports[0].status, "failed");
+    assert.equal(listed.body.exports[0].errorMessage, "Could not finish Station Press publication package.");
+    const listedText = JSON.stringify(listed.body);
+    assert.doesNotMatch(listedText, /public_seminar_records|source_id|owner_user_id|DATABASE_URL|SQL|stack trace/);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("workspace manifest migration allows owner-level null-target export packages", () => {
   const migration = readFileSync("infra/supabase/migrations/070_workspace_export_manifest.sql", "utf8");
 
@@ -2176,6 +2479,26 @@ test("workspace manifest migration allows owner-level null-target export package
   assert.match(migration, /package_kind = 'workspace_manifest'\s+and persona_id is null\s+and developer_space_id is null\s+and project_id is null/);
   assert.match(migration, /create index if not exists idx_export_packages_owner_workspace_manifest/);
   assert.match(migration, /create policy "export_packages_all_owner"/);
+  assert.match(migration, /with check \(\s+auth\.uid\(\) = owner_user_id/);
+});
+
+test("Station Press publication package migration adds document target boundaries", () => {
+  const migration = readFileSync("infra/supabase/migrations/073_station_press_publication_packages.sql", "utf8");
+
+  assert.match(migration, /add column if not exists document_id uuid references public\.documents\(id\) on delete cascade/);
+  assert.match(migration, /export_packages_kind_check/);
+  assert.match(
+    migration,
+    /check \(package_kind in \('persona_archive', 'developer_space_archive', 'project_manifest', 'workspace_manifest', 'station_press_publication'\)\)/
+  );
+  assert.match(migration, /package_kind = 'persona_archive'[\s\S]*?document_id is null/);
+  assert.match(migration, /package_kind = 'developer_space_archive'[\s\S]*?document_id is null/);
+  assert.match(migration, /package_kind = 'project_manifest'[\s\S]*?document_id is null/);
+  assert.match(migration, /package_kind = 'workspace_manifest'[\s\S]*?document_id is null/);
+  assert.match(migration, /package_kind = 'station_press_publication'[\s\S]*?document_id is not null/);
+  assert.match(migration, /create index if not exists idx_export_packages_owner_station_press_document/);
+  assert.match(migration, /on public\.export_packages \(owner_user_id, document_id, created_at desc\)/);
+  assert.match(migration, /from public\.documents d[\s\S]*?d\.id = document_id[\s\S]*?d\.author_user_id = auth\.uid\(\)/);
   assert.match(migration, /with check \(\s+auth\.uid\(\) = owner_user_id/);
 });
 

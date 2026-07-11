@@ -4,36 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504A Station Press owner package contract opened
+## Current lane - PR504A Station Press owner package contract ready for ARGUS review
 
-MIMIR closed PR504:
+DAEDALUS completed PR504A:
 
-`docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md`
 
 Result:
 
 ```text
-ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT
+READY_FOR_ARGUS_REVIEW
 ```
 
-MIMIR opened PR504A for DAEDALUS:
+Summary:
 
-`docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md`
+- Added explicit `station_press_publication` export package kind and
+  `export_packages.document_id` document target.
+- Added migration `073_station_press_publication_packages.sql` with kind,
+  target, owner/document index, and owner-document RLS boundaries.
+- Added authenticated owner create/list routes under
+  `/exports/station-press/publications/:documentId` and extended package
+  read/bundle for `station_press_publication`.
+- The package is metadata-only, synchronous, authenticated, private, and
+  table/readback-backed.
+- Bundle files are exactly `README.md`, `manifest.json`, and `manifest.md`.
+- Private, draft, archived, missing, cross-owner, and no-Space documents fail
+  before a completed row is produced; source failures leave a failed row with
+  bounded owner-visible error copy.
+- `/studio/publishing` has a small owner-only readiness/action/readback control
+  with no package-id display, public package URL, download/share link, storage,
+  PDF/binary/print, provider, billing, social, queue/worker, or launch claim.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 14 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 25
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` passed: 4
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 195 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `git diff --check` and `git diff --cached --check` passed.
+- Changed-path/source scan reviewed expected exclusion labels, negative leak
+  assertions, and boundary docs only.
 
 Current lane:
 
 ```text
 PR504A - Station Press Owner Package Contract
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
-Source: docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR504 Station Press package generation preflight accepted

@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504A | Station Press Owner Package Contract | DAEDALUS / A2 | Open implementation; add explicit `station_press_publication` kind plus `document_id` target/RLS boundary and owner-only metadata package/readback. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md` |
+| PR504A | Station Press Owner Package Contract | ARGUS / A3 | Ready for review; owner-only `station_press_publication` metadata package, document target/RLS, export read/bundle, and small Studio publishing control are implemented. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR504A opened | Station Press Owner Package Contract | MIMIR -> DAEDALUS | Open; implement the ARGUS-accepted owner-only metadata package contract without public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md` |
+| PR504A implementation | Station Press Owner Package Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; owner-only metadata package contract implemented without public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md` |
+| PR504A opened | Station Press Owner Package Contract | MIMIR -> DAEDALUS | Opened the ARGUS-accepted owner-only metadata package contract implementation without public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md` |
 | PR504 closeout | Station Press Package Generation Boundary Preflight | MIMIR | Closed accepted as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT`; DAEDALUS gets the explicit document-scoped package implementation. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_CLOSEOUT.md` |
 | PR504 preflight | Station Press Package Generation Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT`; DAEDALUS may implement a narrow owner-only metadata package only with an explicit `station_press_publication` kind and `document_id` target/RLS boundary, with no public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_RESULT.md` |
 | PR504 opened | Station Press Package Generation Boundary Preflight | MIMIR -> ARGUS | Open; hostile preflight before any package/storage/API/job work, using PR503 manifest proof and PR496 export package boundaries as evidence. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md` |

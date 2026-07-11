@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504A Station Press Owner Package Contract
+
+DAEDALUS completed the PR504A Station Press owner package contract on
+2026-07-11:
+
+- `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- `export_packages` now has an explicit `station_press_publication` kind and
+  nullable `document_id` target;
+- migration `073_station_press_publication_packages.sql` adds kind/target
+  constraints, an owner/document index, and owner-document RLS boundaries;
+- authenticated owner create/list routes live under
+  `/exports/station-press/publications/:documentId`;
+- existing authenticated package read/bundle routes support
+  `station_press_publication` with malformed-readback guards;
+- package files are exactly `README.md`, `manifest.json`, and `manifest.md`;
+- the package is owner-only metadata readback, not public Station Press launch;
+- `/studio/publishing` adds only a small owner readiness/action/readback
+  control with no package-id display, public URL, download/share link, storage,
+  PDF/binary/print, provider, billing, social, queue/worker, or launch claim.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 14 export API tests passed, including Station Press create/list/read/bundle, migration assertions, malformed readback, source failure, duplicate guard, not-ready documents, and cross-owner denial. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 25 publishing API/UI tests passed, including the owner package helper/source-inspection coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 document discussion tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 195 Studio UI/helper tests passed, including export-trust and publishing dashboard package-boundary checks. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path/source scan | Reviewed | Matches were expected exclusion labels, negative leak assertions, and boundary docs; no storage object, public package/download route, provider execution, billing, social dispatch, queue/worker, Redis, Cloudflare, or launch implementation drift was found. |
+
 ## PR504 Station Press Package Generation Boundary Preflight
 
 ARGUS completed the PR504 Station Press package generation boundary preflight on

@@ -156,6 +156,26 @@ export interface PublicationManifestDisplayRow {
   value: string;
 }
 
+export interface StationPressPublicationPackage {
+  id: string;
+  packageKind: "station_press_publication";
+  status: "requested" | "processing" | "completed" | "failed" | string;
+  format?: "json_markdown" | string | null;
+  includedSections?: string[];
+  contentSummary?: Record<string, unknown>;
+  errorMessage?: string | null;
+  requestedAt?: string | null;
+  completedAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface StationPressPublicationPackageResponse {
+  exportPackage: StationPressPublicationPackage;
+  manifest?: Record<string, unknown>;
+  manifestMarkdown?: string;
+}
+
 export const STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA =
   "station.press.publication_manifest_contract.v1";
 
@@ -661,6 +681,21 @@ export function publicationManifestDisplayRows(
       value: contract.excludedFutureMaterial.join(", "),
     },
   ];
+}
+
+export function stationPressPublicationPackageReady(contract: PublicationManifestContract): boolean {
+  return contract.packageReadback.state === "metadata_ready";
+}
+
+export function stationPressPublicationPackageStatusCopy(
+  packages: StationPressPublicationPackage[] = [],
+): string {
+  const latest = packages[0];
+  if (!latest) return "No owner metadata package has been created for this publication.";
+  if (latest.status === "completed") return "Latest owner metadata package is complete.";
+  if (latest.status === "failed") return "Latest owner metadata package failed; private source material remains owner-only.";
+  if (latest.status === "requested" || latest.status === "processing") return "Owner metadata package is still preparing.";
+  return "Owner metadata package status is recorded.";
 }
 
 export function documentDestinationLabel(

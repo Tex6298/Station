@@ -84,6 +84,34 @@ const WORKSPACE_FUTURE_MATERIAL = [
   "External job infrastructure and paid entitlement work",
 ];
 
+const STATION_PRESS_PUBLICATION_INCLUDED_SECTIONS = [
+  "publication_metadata",
+  "space_destination",
+  "manifest_contract",
+  "discussion_status",
+  "seminar_schedule_metadata",
+  "trust",
+  "excluded_future_material",
+];
+
+const STATION_PRESS_PUBLICATION_EXCLUDED_MATERIAL = [
+  "PDF output",
+  "binary archives",
+  "original files",
+  "print and fulfillment",
+  "queues and workers",
+  "public package URLs",
+  "storage objects",
+  "private bodies",
+  "social dispatch",
+  "billing",
+  "commercial packaging",
+];
+
+const STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA = "station.press.publication_package_manifest.v1";
+const STATION_PRESS_PUBLICATION_CONTRACT_SCHEMA = "station.press.publication_manifest_contract.v1";
+const STATION_PRESS_PUBLICATION_FAILED_MESSAGE = "Could not finish Station Press publication package.";
+
 const EXPORT_ERROR_RESPONSES = {
   personaList: {
     error: "Could not load export packages.",
@@ -117,6 +145,18 @@ const EXPORT_ERROR_RESPONSES = {
     error: "Could not create workspace manifest package.",
     code: "workspace_export_create_failed",
   },
+  stationPressUnavailable: {
+    error: "Station Press publication package is unavailable for this document.",
+    code: "station_press_publication_not_ready",
+  },
+  stationPressList: {
+    error: "Could not load Station Press publication packages.",
+    code: "station_press_publication_list_failed",
+  },
+  stationPressCreate: {
+    error: "Could not create Station Press publication package.",
+    code: "station_press_publication_create_failed",
+  },
 } as const;
 
 function exportRow(row: any) {
@@ -140,6 +180,22 @@ function exportRow(row: any) {
 }
 
 function workspaceExportRow(row: any) {
+  return {
+    id: row.id,
+    packageKind: row.package_kind,
+    status: row.status,
+    format: row.format,
+    includedSections: row.included_sections ?? [],
+    contentSummary: row.content_summary ?? {},
+    errorMessage: row.error_message ?? null,
+    requestedAt: row.requested_at,
+    completedAt: row.completed_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function stationPressPublicationExportRow(row: any) {
   return {
     id: row.id,
     packageKind: row.package_kind,
@@ -1172,6 +1228,321 @@ function publicDocumentSpaceHref(spaceSlug: string) {
   return publicSpaceHref(spaceSlug);
 }
 
+async function loadOwnedStationPressPublication(documentId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data: document } = await sb
+    .from("documents")
+    .select("id, author_user_id, space_id, title, slug, document_type, status, visibility, comments_enabled, published_at, provenance_type, discussion_thread_id, version, created_at, updated_at")
+    .eq("id", documentId)
+    .eq("author_user_id", ownerUserId)
+    .single();
+
+  if (!document) return null;
+  if (document.author_user_id !== ownerUserId) return null;
+  if (document.status !== "published") return null;
+  if (document.visibility === "private") return null;
+  if (!document.space_id) return null;
+
+  const { data: space } = await sb
+    .from("spaces")
+    .select("id, owner_user_id, title, slug, is_public")
+    .eq("id", document.space_id)
+    .eq("owner_user_id", ownerUserId)
+    .single();
+
+  if (!space || space.owner_user_id !== ownerUserId) return null;
+  if (space.is_public !== true) return null;
+  return { document, space };
+}
+
+function stationPressSanitizedText(value: unknown, fallback: string) {
+  const raw = typeof value === "string" ? value : "";
+  const clean = raw
+    .replace(/https?:\/\/\S+/gi, "[redacted-url]")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi, "[redacted-id]")
+    .replace(/\b(?:source|owner|user|persona|document|thread|seminar|approval|export|package|file|storage|import)_id\s*[:=]\s*\S+/gi, "[redacted-id]")
+    .replace(/\b(?:token|secret|cookie|authorization|bearer|jwt|password|api[_-]?key|webhook[_-]?secret)\s*[:=]\s*\S+/gi, "[redacted-secret]")
+    .replace(/\bBearer\s+\S+/gi, "[redacted-secret]")
+    .replace(/\b(?:sk|pk|ghp|gho|ghu|ghs|glpat)_[A-Za-z0-9_=-]+/g, "[redacted-secret]")
+    .replace(/\b(?:sk|pk)-[A-Za-z0-9-]+/g, "[redacted-secret]")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 180);
+  return clean || fallback;
+}
+
+function stationPressLabelize(value: unknown, fallback: string) {
+  const raw = typeof value === "string" ? value : "";
+  const clean = raw.replace(/[_-]+/g, " ").trim();
+  if (!clean) return fallback;
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function stationPressDocumentTypeLabel(value: unknown) {
+  const labels: Record<string, string> = {
+    essay: "Essay",
+    codex: "Codex",
+    manifesto: "Manifesto",
+    field_log: "Field Log",
+    research: "Research",
+    archive_note: "Archive Note",
+    transcript: "Transcript",
+  };
+  return labels[String(value ?? "")] ?? stationPressLabelize(value, "Document");
+}
+
+function stationPressStatusLabel(value: unknown) {
+  return stationPressLabelize(value, "Unknown");
+}
+
+function stationPressVisibilityLabel(value: unknown) {
+  return stationPressLabelize(value, "Private");
+}
+
+function stationPressDateLabel(value: unknown) {
+  if (typeof value !== "string" || !value) return "Not published";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Published" : date.toISOString();
+}
+
+function stationPressCurrentVersionLabel(value: unknown) {
+  const version = typeof value === "number" && value > 0 ? value : 1;
+  return `Current version v${version}`;
+}
+
+function stationPressDiscussionReadback(document: any) {
+  if (document.discussion_thread_id) {
+    return {
+      status: "attached",
+      label: "Attached",
+      detail: "A linked discussion exists under the publication visibility boundary.",
+    };
+  }
+
+  if (document.comments_enabled === true && document.visibility !== "private") {
+    return {
+      status: "eligible",
+      label: "Eligible",
+      detail: "Comments are enabled; a linked discussion can exist under the same visibility boundary.",
+    };
+  }
+
+  if (document.comments_enabled === false) {
+    return {
+      status: "disabled",
+      label: "Disabled",
+      detail: "Comments are disabled for this publication.",
+    };
+  }
+
+  return {
+    status: "unavailable",
+    label: "Unavailable",
+    detail: "No linked discussion metadata is available for this package.",
+  };
+}
+
+async function loadStationPressSeminarRecord(documentId: string, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("public_seminar_records")
+    .select("status, visibility, scheduled_starts_at, scheduled_time_zone, scheduled_duration_minutes, updated_at")
+    .eq("owner_user_id", ownerUserId)
+    .eq("source_type", "document")
+    .eq("source_id", documentId)
+    .order("updated_at", { ascending: false });
+
+  throwIfQueryError({ error }, "Station Press seminar record source");
+  return (data ?? [])[0] ?? null;
+}
+
+function stationPressSeminarReadback(record: any) {
+  if (!record) return null;
+  const hasSchedule = typeof record.scheduled_starts_at === "string" && record.scheduled_starts_at.length > 0;
+  return {
+    statusLabel: stationPressStatusLabel(record.status),
+    visibilityLabel: stationPressVisibilityLabel(record.visibility),
+    scheduleLabel: hasSchedule
+      ? `Stored schedule metadata: ${stationPressDateLabel(record.scheduled_starts_at)} / ${stationPressSanitizedText(record.scheduled_time_zone, "UTC")} / ${record.scheduled_duration_minutes ?? "duration"} min`
+      : "No stored schedule metadata",
+    detail: "Only durable seminar status and stored schedule metadata are included.",
+  };
+}
+
+async function buildStationPressPublicationManifest(document: any, space: any, ownerUserId: string) {
+  const seminarRecord = await loadStationPressSeminarRecord(document.id, ownerUserId);
+  const discussion = stationPressDiscussionReadback(document);
+  const title = stationPressSanitizedText(document.title, "Untitled publication");
+  const spaceTitle = stationPressSanitizedText(space.title, "Station Space");
+  const spaceSlug = stationPressSanitizedText(space.slug, "station-space");
+  const generatedAt = new Date().toISOString();
+
+  return {
+    schema: STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA,
+    generatedAt,
+    package: {
+      status: "completed",
+      format: "json_markdown",
+      packageKind: "station_press_publication",
+    },
+    publication: {
+      title,
+      documentTypeLabel: stationPressDocumentTypeLabel(document.document_type),
+      statusLabel: stationPressStatusLabel(document.status),
+      visibilityLabel: stationPressVisibilityLabel(document.visibility),
+      publishedAtLabel: stationPressDateLabel(document.published_at),
+      currentVersionLabel: stationPressCurrentVersionLabel(document.version),
+    },
+    destination: {
+      label: `Station / ${spaceTitle}`,
+      spaceTitle,
+      spaceSlug,
+      spaceBacked: true,
+    },
+    manifestContract: {
+      schema: STATION_PRESS_PUBLICATION_CONTRACT_SCHEMA,
+      name: "Station Press publication manifest contract",
+      version: 1,
+    },
+    discussion,
+    seminar: stationPressSeminarReadback(seminarRecord),
+    trust: {
+      ownerOnly: true,
+      metadataOnly: true,
+      documentBodiesOmitted: true,
+      privateSourceRowsOmitted: true,
+      rawIdsOmittedFromFiles: true,
+      storageObjectsOmitted: true,
+      publicPackageUrlsOmitted: true,
+      providerAndBillingOmitted: true,
+      noLaunchClaim: true,
+    },
+    excludedFutureMaterial: STATION_PRESS_PUBLICATION_EXCLUDED_MATERIAL,
+  };
+}
+
+function buildStationPressPublicationManifestMarkdown(manifest: any) {
+  return [
+    "# Station Press Publication Package",
+    "",
+    `Generated: ${manifest.generatedAt}`,
+    "Package kind: station_press_publication",
+    "",
+    "## Publication",
+    `- Title: ${manifest.publication.title}`,
+    `- Type: ${manifest.publication.documentTypeLabel}`,
+    `- Status: ${manifest.publication.statusLabel}`,
+    `- Visibility: ${manifest.publication.visibilityLabel}`,
+    `- Published: ${manifest.publication.publishedAtLabel}`,
+    `- Version: ${manifest.publication.currentVersionLabel}`,
+    "",
+    "## Destination",
+    `- ${manifest.destination.label}`,
+    `- Space slug: ${manifest.destination.spaceSlug}`,
+    "",
+    "## Manifest Contract",
+    `- Schema: ${manifest.manifestContract.schema}`,
+    "",
+    "## Discussion",
+    `- ${manifest.discussion.label}: ${manifest.discussion.detail}`,
+    "",
+    "## Seminar",
+    manifest.seminar
+      ? `- ${manifest.seminar.statusLabel} / ${manifest.seminar.visibilityLabel} / ${manifest.seminar.scheduleLabel}`
+      : "- No stored seminar record",
+    "",
+    "## Trust",
+    `- Owner-only: ${manifest.trust.ownerOnly ? "yes" : "no"}`,
+    `- Metadata-only: ${manifest.trust.metadataOnly ? "yes" : "no"}`,
+    `- Document bodies omitted: ${manifest.trust.documentBodiesOmitted ? "yes" : "no"}`,
+    `- Private source rows omitted: ${manifest.trust.privateSourceRowsOmitted ? "yes" : "no"}`,
+    `- Public package URLs omitted: ${manifest.trust.publicPackageUrlsOmitted ? "yes" : "no"}`,
+    "",
+    "## Excluded Future Material",
+    manifest.excludedFutureMaterial.map((item: string) => `- ${item}`).join("\n"),
+    "",
+  ].join("\n");
+}
+
+function hasStoredStationPressPublicationManifestReadback(row: any) {
+  const manifest = row.manifest_json;
+  if (!isPlainRecord(manifest)) return false;
+  const packageInfo = manifest.package;
+  const publication = manifest.publication;
+  const destination = manifest.destination;
+  const manifestContract = manifest.manifestContract;
+  const discussion = manifest.discussion;
+  const trust = manifest.trust;
+  return (
+    manifest.schema === STATION_PRESS_PUBLICATION_MANIFEST_SCHEMA &&
+    typeof manifest.generatedAt === "string" &&
+    isPlainRecord(packageInfo) &&
+    packageInfo.packageKind === "station_press_publication" &&
+    isPlainRecord(publication) &&
+    typeof publication.title === "string" &&
+    typeof publication.documentTypeLabel === "string" &&
+    isPlainRecord(destination) &&
+    typeof destination.label === "string" &&
+    isPlainRecord(manifestContract) &&
+    manifestContract.schema === STATION_PRESS_PUBLICATION_CONTRACT_SCHEMA &&
+    isPlainRecord(discussion) &&
+    typeof discussion.status === "string" &&
+    isPlainRecord(trust) &&
+    trust.ownerOnly === true &&
+    trust.metadataOnly === true &&
+    trust.documentBodiesOmitted === true &&
+    trust.privateSourceRowsOmitted === true &&
+    trust.rawIdsOmittedFromFiles === true &&
+    trust.storageObjectsOmitted === true &&
+    trust.publicPackageUrlsOmitted === true &&
+    Array.isArray(manifest.excludedFutureMaterial) &&
+    typeof row.manifest_markdown === "string" &&
+    row.manifest_markdown.trim().length > 0
+  );
+}
+
+function buildStationPressPublicationBundle(row: any) {
+  const manifestJson = JSON.stringify(row.manifest_json, null, 2);
+  const manifestMarkdown = row.manifest_markdown;
+  const readme = [
+    "# Station Press Publication Package",
+    "",
+    "Kind: station_press_publication",
+    `Format: ${row.format}`,
+    `Status: ${row.status}`,
+    "",
+    "## Contents",
+    "- `manifest.json` is the canonical structured owner-only publication metadata package.",
+    "- `manifest.md` is the human-readable Markdown readback for the same package.",
+    "",
+    "## Privacy",
+    "This bundle is returned only to the authenticated owner. It contains metadata readback only.",
+    "Document bodies, private source rows, original files, storage objects, public package URLs, provider calls, billing, print, fulfillment, and launch claims remain outside this API response.",
+    "",
+  ].join("\n");
+  const files = [
+    bundleFile("README.md", "text/markdown; charset=utf-8", readme),
+    bundleFile("manifest.json", "application/json; charset=utf-8", manifestJson),
+    bundleFile("manifest.md", "text/markdown; charset=utf-8", manifestMarkdown),
+  ];
+
+  return {
+    schema: "station.export.bundle.v1",
+    generatedAt: new Date().toISOString(),
+    package: stationPressPublicationExportRow(row),
+    privacy: {
+      ownerOnly: true,
+      note: "Stored Station Press publication metadata readback for the authenticated owner.",
+    },
+    integrity: {
+      algorithm: "sha256",
+      fileCount: files.length,
+      files: Object.fromEntries(files.map((file) => [file.path, file.sha256])),
+    },
+    files,
+  };
+}
+
 function latestTimestamp(values: Array<string | null | undefined>) {
   const sorted = values
     .filter((value): value is string => typeof value === "string" && value.length > 0)
@@ -1892,6 +2263,80 @@ async function createWorkspaceExportPackage(ownerUserId: string) {
   }
 }
 
+async function createStationPressPublicationPackage(document: any, space: any, ownerUserId: string) {
+  const sb = getSupabaseAdmin();
+  const requestedAt = new Date().toISOString();
+  await assertNoInProgressExportPackage({
+    ownerUserId,
+    packageKind: "station_press_publication",
+    documentId: document.id,
+  });
+
+  const { data: initial, error } = await sb
+    .from("export_packages")
+    .insert({
+      owner_user_id: ownerUserId,
+      persona_id: null,
+      developer_space_id: null,
+      project_id: null,
+      document_id: document.id,
+      package_kind: "station_press_publication",
+      status: "processing",
+      format: "json_markdown",
+      included_sections: STATION_PRESS_PUBLICATION_INCLUDED_SECTIONS,
+      manifest_json: {},
+      manifest_markdown: "",
+      content_summary: {},
+      requested_at: requestedAt,
+      completed_at: null,
+    })
+    .select("*")
+    .single();
+
+  if (error || !initial) {
+    throw new Error(error?.message ?? "Could not create Station Press publication package.");
+  }
+
+  try {
+    const manifest = await buildStationPressPublicationManifest(document, space, ownerUserId);
+    const manifestMarkdown = buildStationPressPublicationManifestMarkdown(manifest);
+    const completedAt = new Date().toISOString();
+
+    const { data: completed, error: updateError } = await sb
+      .from("export_packages")
+      .update({
+        status: "completed",
+        manifest_json: manifest,
+        manifest_markdown: manifestMarkdown,
+        content_summary: {
+          title: manifest.publication.title,
+          schema: manifest.schema,
+          documentType: manifest.publication.documentTypeLabel,
+          visibility: manifest.publication.visibilityLabel,
+          discussionStatus: manifest.discussion.status,
+          seminarRecord: Boolean(manifest.seminar),
+          excludedFutureMaterial: manifest.excludedFutureMaterial.length,
+        },
+        completed_at: completedAt,
+      })
+      .eq("id", initial.id)
+      .eq("owner_user_id", ownerUserId)
+      .eq("document_id", document.id)
+      .eq("package_kind", "station_press_publication")
+      .select("*")
+      .single();
+
+    if (updateError || !completed) {
+      throw new Error(updateError?.message ?? STATION_PRESS_PUBLICATION_FAILED_MESSAGE);
+    }
+
+    return { row: completed, manifest, manifestMarkdown };
+  } catch {
+    await markExportPackageFailed(initial.id, ownerUserId, STATION_PRESS_PUBLICATION_FAILED_MESSAGE);
+    throw new Error(STATION_PRESS_PUBLICATION_FAILED_MESSAGE);
+  }
+}
+
 async function markExportPackageFailed(packageId: string, ownerUserId: string, message: string) {
   const sb = getSupabaseAdmin();
   await sb
@@ -1930,6 +2375,45 @@ exportsRouter.post("/workspace", async (req, res) => {
     const quotaError = quotaErrorResponse(error);
     if (quotaError) return res.status(quotaError.status).json(quotaError.body);
     return res.status(500).json(EXPORT_ERROR_RESPONSES.workspaceCreate);
+  }
+});
+
+exportsRouter.get("/station-press/publications/:documentId", async (req, res) => {
+  const publication = await loadOwnedStationPressPublication(req.params.documentId, req.user!.id);
+  if (!publication) return res.status(404).json(EXPORT_ERROR_RESPONSES.stationPressUnavailable);
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("export_packages")
+    .select("id, package_kind, status, format, included_sections, content_summary, error_message, requested_at, completed_at, created_at, updated_at")
+    .eq("owner_user_id", req.user!.id)
+    .eq("package_kind", "station_press_publication")
+    .eq("document_id", publication.document.id)
+    .order("created_at", { ascending: false });
+
+  if (error) return res.status(500).json(EXPORT_ERROR_RESPONSES.stationPressList);
+  return res.json({ exports: (data ?? []).map(stationPressPublicationExportRow) });
+});
+
+exportsRouter.post("/station-press/publications/:documentId", async (req, res) => {
+  const publication = await loadOwnedStationPressPublication(req.params.documentId, req.user!.id);
+  if (!publication) return res.status(404).json(EXPORT_ERROR_RESPONSES.stationPressUnavailable);
+
+  try {
+    const { row, manifest, manifestMarkdown } = await createStationPressPublicationPackage(
+      publication.document,
+      publication.space,
+      req.user!.id
+    );
+    return res.status(201).json({
+      exportPackage: stationPressPublicationExportRow(row),
+      manifest,
+      manifestMarkdown,
+    });
+  } catch (error) {
+    const quotaError = quotaErrorResponse(error);
+    if (quotaError) return res.status(quotaError.status).json(quotaError.body);
+    return res.status(500).json(EXPORT_ERROR_RESPONSES.stationPressCreate);
   }
 });
 
@@ -2047,7 +2531,11 @@ exportsRouter.get("/:id", async (req, res) => {
 
   if (error || !data) return res.status(404).json({ error: "Export package not found." });
   return res.json({
-    exportPackage: data.package_kind === "workspace_manifest" ? workspaceExportRow(data) : exportRow(data),
+    exportPackage: data.package_kind === "workspace_manifest"
+      ? workspaceExportRow(data)
+      : data.package_kind === "station_press_publication"
+        ? stationPressPublicationExportRow(data)
+        : exportRow(data),
     manifest: data.manifest_json,
     manifestMarkdown: data.manifest_markdown,
   });
@@ -2081,6 +2569,14 @@ exportsRouter.get("/:id/bundle", async (req, res) => {
       });
     }
     return res.json({ bundle: buildWorkspaceManifestBundle(data) });
+  }
+  if (data.package_kind === "station_press_publication") {
+    if (!hasStoredStationPressPublicationManifestReadback(data)) {
+      return res.status(409).json({
+        error: "Station Press publication bundle is available only when stored manifest readback is complete.",
+      });
+    }
+    return res.json({ bundle: buildStationPressPublicationBundle(data) });
   }
 
   return res.json({ bundle: buildExportBundle(data) });

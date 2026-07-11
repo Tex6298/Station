@@ -26,11 +26,12 @@ test("export backup trust map names live scoped packages and deferred backups", 
     "developer_space_archive",
     "persona_archive",
     "project_manifest",
+    "station_press_publication",
     "workspace_manifest",
   ]);
   assert.deepEqual(exportBackupTrustSummary(surfaces), {
-    total: 6,
-    live: 4,
+    total: 7,
+    live: 5,
     preview: 0,
     future: 2,
   });
@@ -52,7 +53,7 @@ test("workspace export scope readback names only accepted live package classes",
 
   assert.deepEqual(
     readback.livePackageClasses.map((row) => row.packageKind).sort(),
-    ["developer_space_archive", "persona_archive", "project_manifest", "workspace_manifest"],
+    ["developer_space_archive", "persona_archive", "project_manifest", "station_press_publication", "workspace_manifest"],
   );
   assert.equal(readback.currentBundleFormat, "Owner-only JSON/Markdown manifests and portable bundle readback.");
   assert.equal(
@@ -72,7 +73,7 @@ test("workspace export scope readback keeps future workspace export classes unav
 
   assert.match(futureLabels, /Full workspace archive bundle/);
   assert.match(futureLabels, /Original file packaging/);
-  assert.match(futureLabels, /PDF, binary archive, and Station Press/);
+  assert.match(futureLabels, /PDF, binary archive, and public Station Press output/);
   assert.match(futureLabels, /Managed backup, redundancy, and restore drills/);
   assert.match(futureLabels, /Shareable\/private package URLs/);
   assert.equal(readback.futureUnavailable.every((row) => row.state === "future"), true);
@@ -178,6 +179,20 @@ test("export trust helpers keep Developer Space readback bounded", () => {
       publicPublishedDocumentRefs: 5,
     }, "workspace"),
     /1 personas \/ 2 Spaces \/ 3 Developer Spaces \/ 4 Projects \/ 5 public refs/,
+  );
+
+  const stationPress = exportPackageTrustCopy({ status: "completed" }, "station_press");
+  assert.match(stationPress.body, /Station Press publication metadata package is complete/);
+  assert.match(stationPress.nextAction, /without public package links/);
+  assert.equal(
+    exportPackageSummaryLine({
+      documentType: 1,
+      discussionStatus: 1,
+      seminarRecord: 1,
+      excludedFutureMaterial: 11,
+      personas: 99,
+    }, "station_press"),
+    "1 type / 1 discussion / 1 seminar / 11 excluded",
   );
 });
 
