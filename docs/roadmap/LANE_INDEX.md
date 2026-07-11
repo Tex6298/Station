@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505 | Owner Encounter Hosted Provider Gate Recheck | MIMIR / A1 | Blocked after hosted rerun; readiness is ready and one disposable preview returned `200`, but the responder reply content was empty. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RERUN_RESULT.md` |
+| PR505A | Owner Encounter Empty Reply Guard | DAEDALUS / A2 | Open for implementation; hosted readiness is ready and boundaries pass, but the preview returned `200` with empty responder content, so the route/provider adapter must fail bounded instead of accepting blank output. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505A opened | Owner Encounter Empty Reply Guard | MIMIR -> DAEDALUS | Open narrow hardening lane; prevent owner encounter preview from returning `200` for blank/whitespace responder output and inspect OpenAI-compatible/NVIDIA parsing if needed. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md` |
 | PR505 rerun | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR505_HOSTED_OWNER_ENCOUNTER_EMPTY_REPLY`; readiness is ready and exactly one preview returned disposable provenance, but reply content was empty. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RERUN_RESULT.md` |
 | PR505 config unblock | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE | Hosted `@station/api` route flag was applied and fresh API deployment is ready; ARIADNE reruns PR505 and may run exactly one disposable same-owner preview if readiness is ready. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_CONFIG_UNBLOCKED_MIMIR.md` |
 | PR505 proof | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE -> MIMIR | Blocked as `HOSTED_PR505_PROVIDER_GATE_CONFIG_BLOCKED`; web/API/auth/persona availability passed, readiness still returns `persona_encounter_provider_unavailable` / `provider_data_policy`, and generation was not attempted. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RECHECK_RESULT.md` |

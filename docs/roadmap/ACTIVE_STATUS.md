@@ -4,7 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505 owner encounter hosted rerun blocked on empty reply
+## Current lane - PR505A owner encounter empty reply guard
+
+MIMIR opened PR505A for DAEDALUS:
+
+`docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md`
+
+Why:
+
+- ARIADNE reran PR505 after the hosted provider-policy/config gate was
+  unblocked.
+- Owner encounter readiness is now `ready:true`.
+- Exactly one disposable same-owner preview request returned `200`.
+- Boundaries passed: signed-out `401`, cross-owner `403`, no public route,
+  durable transcript, retrieval, Memory, Archive, Canon, Continuity, Integrity,
+  billing, social, queue, or worker drift.
+- The responder reply was empty (`0` characters), so the hosted preview cannot
+  be accepted as usable.
+
+Decision:
+
+- Treat this as an API/provider-adapter hardening defect, not a transient pass.
+- DAEDALUS must ensure owner encounter preview cannot return `200` for blank or
+  whitespace responder output.
+- If NVIDIA/OpenAI-compatible response parsing is the root cause, harden that
+  adapter narrowly.
+
+Current lane:
+
+```text
+PR505A - Owner Encounter Empty Reply Guard
+Owner: DAEDALUS / A2
+State: OPEN_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR505 owner encounter hosted rerun blocked on empty reply
 
 ARIADNE reran the hosted PR505 owner encounter proof after MIMIR unblocked the
 route-specific provider flag:
