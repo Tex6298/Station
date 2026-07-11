@@ -4,7 +4,73 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR512B cross-owner runtime context hosted API proof returned to MIMIR
+## Current lane - PR513 consented cross-owner disposable preview preflight opened
+
+MIMIR closed PR512B as accepted:
+
+`docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_CLOSEOUT.md`
+
+MIMIR opened PR513 for ARGUS:
+
+`docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_ARGUS.md`
+
+Result:
+
+```text
+CLOSE_PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_ACCEPTED
+```
+
+Summary:
+
+- hosted web/API were ready at commit prefix `8ffbb71890dd`, which includes the
+  PR512A implementation floor `8ffbb718`;
+- owner A and owner B each received eligible runtime-context-contract readback
+  only when acting as initiator on an approved `run_cross_owner_encounter`
+  consent;
+- signed-out readback returned `401`, and nonparticipant readback returned
+  `404`;
+- wrong-role, wrong-pair, pending, rejected, and wrong-scope probes returned
+  bounded ineligible readback with all execution flags false;
+- generic consent readback still serialized ledger and requested scopes as
+  `executable: false`;
+- no provider call, prompt assembly, generated words, token rows, private
+  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
+  job/storage/public-surface drift appeared;
+- cleanup left four inactive proof rows from the accepted run: two revoked, one
+  cancelled, and one rejected; no pending or approved proof rows remained;
+- privacy scan passed with no raw owner ids, persona ids, private prompts,
+  private profile values, provider payloads, generated words, bearer values, or
+  secret-shaped strings;
+- the next product decision is whether DAEDALUS may implement a separate
+  consented cross-owner disposable preview route gated by the PR512A runtime
+  context contract, or whether a smaller policy/contract unblock lane is still
+  required.
+
+Current lane:
+
+```text
+PR513 - Consented Cross-Owner Disposable Preview Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_ARGUS.md
+```
+
+Next:
+
+- ARGUS decides whether `PR513A - Consented Cross-Owner Disposable Preview` is
+  safe for DAEDALUS, including provider ownership, token accounting, prompt/
+  context, consent semantics, privacy, and fail-closed requirements.
+- If still blocked, ARGUS names the concrete blocker and the smallest numbered
+  unblock lane.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR512B cross-owner runtime context hosted API proof returned to MIMIR
 
 ARIADNE completed PR512B and woke MIMIR:
 
@@ -37,26 +103,6 @@ Summary:
 - privacy scan passed with no raw owner ids, persona ids, private prompts,
   private profile values, provider payloads, generated words, bearer values, or
   secret-shaped strings.
-
-Current lane:
-
-```text
-PR512B - Cross-Owner Runtime Context Contract Hosted API Proof
-Owner: MIMIR / A1
-State: ARIADNE_VERDICT_RETURNED
-Source: docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_RESULT.md
-```
-
-Next:
-
-- MIMIR closes PR512B if accepted, or routes any narrow follow-up.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR512A review returned to MIMIR
 
