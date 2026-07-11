@@ -338,6 +338,7 @@ test("persona encounter runtime readback labels disposable provenance", () => {
 
 test("persona encounter runtime readback labels cross-owner disposable preview boundaries", () => {
   const labels = personaEncounterCrossOwnerDisposablePreviewReadback(crossOwnerResponse);
+  const fallbackLabels = personaEncounterCrossOwnerDisposablePreviewReadback();
 
   assert.deepEqual(labels, [
     "Cross-owner disposable preview",
@@ -357,7 +358,23 @@ test("persona encounter runtime readback labels cross-owner disposable preview b
     "Runtime attempt audit recorded",
   ]);
 
-  assert.deepEqual(personaEncounterCrossOwnerDisposablePreviewReadback(), labels);
+  assert.deepEqual(fallbackLabels, [
+    "Cross-owner disposable preview",
+    "Actor-authored setup",
+    "Consent display snapshots",
+    "Model-generated responder reply",
+    "Private disposable preview",
+    "Not saved",
+    "Not public",
+    "Not canonical",
+    "Not a transcript",
+    "Not a summary",
+    "Not an excerpt",
+    "Not shareable",
+    "No Memory, Archive, Canon, Continuity, Integrity, private retrieval, or transcript sources used",
+    "Counterparty will not see a generated reply here",
+    "Runtime attempt audit required",
+  ]);
 });
 
 test("persona encounter runtime readback labels private saved artifacts honestly", () => {

@@ -4,22 +4,24 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514D cross-owner disposable preview client contract ready for ARGUS
+## Current lane - PR514D cross-owner disposable preview client contract accepted by ARGUS
 
-MIMIR accepted PR514C's blocker and opened PR514D:
+ARGUS accepted PR514D and woke MIMIR:
 
-`docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md`
+
+MIMIR source:
 
 `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md`
 
-DAEDALUS implementation result:
+DAEDALUS implementation:
 
 `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md`
 
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT
+ACCEPT_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT
 ```
 
 Summary:
@@ -36,6 +38,9 @@ Summary:
 - `apps/web/lib/persona-encounter-runtime.ts` now has consent-scoped path,
   payload, readiness, readback, response, and bounded error-copy helpers for
   later UI wiring;
+- ARGUS patched the no-response helper fallback so it says runtime attempt audit
+  is required before a preview runs, while successful response readback still
+  says runtime attempt audit recorded;
 - stale owner-only contract copy now names the one approved private
   cross-owner disposable preview exception without implying saved/shared output;
 - no visible UI, saved sessions, publication, retrieval, memory/canon/archive/
@@ -46,9 +51,9 @@ Current lane:
 
 ```text
 PR514D - Cross-Owner Disposable Preview Client Contract
-Owner chain: MIMIR -> DAEDALUS -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_RETURNED
+Source: docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md
 ```
 
 Validation:
@@ -58,11 +63,20 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 205 tests;
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 
+Next:
+
+- MIMIR closes PR514D locally.
+- MIMIR decides the next customer-facing wiring/rehearsal lane using the
+  accepted consent-scoped contract.
+- Any visible UI wiring must keep raw participant persona ids out of browser
+  payloads and keep cross-owner disposable preview separate from saved-session
+  and public-exhibit controls.
+
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR514C client/UX preflight blocked

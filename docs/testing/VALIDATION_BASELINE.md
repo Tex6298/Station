@@ -4,14 +4,15 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR514D Cross-Owner Disposable Preview Client Contract
+## PR514D Cross-Owner Disposable Preview Client Contract ARGUS Review
 
-DAEDALUS completed PR514D implementation on 2026-07-11:
+ARGUS accepted PR514D on 2026-07-11:
 
 - `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md`
+- `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT`.
+`ACCEPT_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT`.
 
 Reason:
 
@@ -26,6 +27,9 @@ Reason:
 - response/readback labels include private, disposable, not saved, not public,
   not canonical, not transcript/summary/excerpt/shareable, no private
   retrieval, counterparty-hidden, and runtime-attempt-audited boundaries;
+- ARGUS patched the no-response helper fallback so it says runtime attempt audit
+  is required before a preview runs, while successful response readback still
+  says runtime attempt audit recorded;
 - no visible UI, saved cross-owner session, public exhibit, transcript, summary,
   excerpt, share link, Memory, Canon, Archive, Continuity, Integrity,
   retrieval, export, storage, billing, provider config, migration, worker, or
@@ -33,10 +37,15 @@ Reason:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 58 tests passed. New coverage proves consent-scoped body shape, requester/counterparty server-side pair inference, rejection of explicit/stale persona ids before side effects, auth/nonparticipant gates, inactive/wrong-scope/wrong-version fail-closed behavior, audit failure fail-closed behavior, provider/quota/rate/empty failures, actor-only token accounting, no forbidden preview side effects, web helper payload/readback/error boundaries, and response/provider privacy scans. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 58 tests passed. New coverage proves consent-scoped body shape, requester/counterparty server-side pair inference, rejection of explicit/stale persona ids before side effects, auth/nonparticipant gates, inactive/wrong-scope/wrong-version fail-closed behavior, audit failure fail-closed behavior, provider/quota/rate/empty failures, actor-only token accounting, no forbidden preview side effects, web helper payload/readback/error boundaries, response/provider privacy scans, and the ARGUS fallback-label regression. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 205 tests passed, including updated encounter contract copy and cross-owner disposable preview helper readback/error-copy coverage. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for `@station/api` and `@station/web`. |
-| `git diff --check` | Pass | No whitespace errors; Git emitted expected CRLF conversion warnings for touched files. |
+| Implementation review | Pass | Reviewed PR514C blocker, PR514D handoff/result, API strict schema/inference, API tests, web helper contract, contract copy, and no-scope docs. |
+| Staged path scan | Pass | Staged review changes are limited to cross-owner preview web helper/test updates plus PR514D review/status/testing docs. |
+| Forbidden-path scan | Pass | No visible UI app/component route, package/lockfile, provider service, token service, operational cache, Supabase migration, Railway, Cloudflare, worker, queue, billing, Stripe, storage, or deploy-script paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the staged diff. |
+| `git diff --check` | Pass | No unstaged whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
 
 ## PR514C Consented Cross-Owner Disposable Preview Client/UX Preflight
 

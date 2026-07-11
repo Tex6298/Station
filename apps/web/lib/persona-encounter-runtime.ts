@@ -473,8 +473,8 @@ export function personaEncounterCrossOwnerDisposablePreviewReadback(
       "Not an excerpt",
       "Not shareable",
       "No Memory, Archive, Canon, Continuity, Integrity, private retrieval, or transcript sources used",
-      "Counterparty does not see this generated reply here",
-      "Runtime attempt audit recorded",
+      "Counterparty will not see a generated reply here",
+      "Runtime attempt audit required",
     ];
   }
 
