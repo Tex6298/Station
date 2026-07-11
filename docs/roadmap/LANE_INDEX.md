@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517D | Same-Owner Public Exhibit Regression Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Routed after `BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING`; cross-owner PR517C passed through cleanup, and ARIADNE now creates one safe same-owner fixture to prove current-hosted report/remove/restore regression. | `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_ARIADNE.md` |
+| PR517D | Same-Owner Public Exhibit Regression Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN`; current-hosted same-owner fixture publish/report/remove/restore/retract/no-drift/cleanup regression passed. | `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md` |
 
 ## Recently Closed
 

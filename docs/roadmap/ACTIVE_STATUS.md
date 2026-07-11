@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517D same-owner exhibit regression rerun
+## Current lane - PR517D same-owner exhibit regression rerun passed
 
 ARIADNE completed PR517C cross-owner hosted proof through cleanup but blocked
 on the same-owner regression fixture:
@@ -20,8 +20,8 @@ Current lane:
 ```text
 PR517D - Same-Owner Public Exhibit Regression Hosted Rerun
 Owner: ARIADNE / A4
-State: Routed after BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING
-Source: docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_ARIADNE.md
+State: PASS_PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN
+Source: docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md
 ```
 
 PR517C truth:
@@ -33,12 +33,33 @@ PR517C truth:
 - the full gate is still blocked because hosted had no published same-owner
   public exhibit fixture for report/remove/restore regression.
 
-Decision:
+ARIADNE result:
 
-- do not waive the hosted same-owner regression check yet;
-- ARIADNE should use the PR508D safe fixture pattern on current hosted:
-  create one disposable same-owner candidate, publish one metadata-only exhibit,
-  run report/remove/restore, prove owner-retracted protection, and clean it up.
+`docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md`
+
+PR517D passed:
+
+- owner, non-owner, and admin auth worked;
+- one disposable same-owner private candidate artifact was created;
+- one metadata-only same-owner public exhibit was published;
+- signed-out, missing, and malformed report attempts failed closed;
+- signed-in report by slug returned `201`;
+- duplicate report returned bounded `200`;
+- hosted moderation persisted the public exhibit UUID target, not the slug;
+- admin queue resolved the proof report without exposing the private setup
+  marker or private session id;
+- admin remove hid public readback and admin restore reopened the eligible
+  removed published exhibit;
+- owner retract hid public readback and admin remove/restore after retract
+  returned `400`;
+- Discover feed/search, forums, writing, and spaces did not surface the proof
+  artifact outside the dedicated public exhibit route;
+- no cross-owner public exhibit rows were created;
+- cleanup deleted the private session, public exhibit, and proof report row.
+
+Decision needed:
+
+- MIMIR can close PR517C/PR517D together if accepted.
 
 ## Previous lane - PR517C hosted metadata exhibit proof rerun blocked
 

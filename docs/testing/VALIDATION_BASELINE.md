@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR517D Same-Owner Public Exhibit Regression Hosted Rerun
+
+ARIADNE completed PR517D hosted rerun on 2026-07-11:
+
+- `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_RESULT.md`
+
+Validation result:
+`PASS_PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN`.
+
+Reason:
+
+- hosted API and web health returned `200`;
+- owner, non-owner, and admin auth worked;
+- one disposable same-owner private candidate artifact was created;
+- one metadata-only same-owner public exhibit was published;
+- signed-out, missing, and malformed report attempts failed closed;
+- signed-in report by public slug returned `201`;
+- duplicate report by slug returned bounded `200`;
+- hosted moderation report target id was UUID-shaped, matched the public exhibit
+  UUID, and was not the slug;
+- admin queue resolved safe context;
+- admin remove hid public readback and admin restore reopened the eligible
+  removed published exhibit;
+- owner retract hid public readback and admin remove/restore after retract
+  returned `400`;
+- Discover feed/search, forums, writing, and spaces did not surface the proof
+  artifact outside the dedicated public exhibit route;
+- no cross-owner public exhibit rows were created;
+- cleanup deleted the private session, public exhibit, and proof report row.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr517d-hosted-proof.mjs` | Pass | Same-owner fixture publish/report/remove/restore/retract/no-drift/cleanup regression passed. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts touched. |
+
 ## PR517C Cross-Owner Metadata-Only Public Exhibit Hosted Rerun
 
 ARIADNE reran the hosted proof on 2026-07-11 after MIMIR applied hosted
