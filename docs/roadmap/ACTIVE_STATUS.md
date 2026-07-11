@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508 owner encounter public exhibit boundary preflight ready for MIMIR closeout
+## Current lane - PR508A owner encounter public exhibit metadata
+
+MIMIR closed PR508 and opened PR508A for DAEDALUS:
+
+`docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_DAEDALUS.md`
+
+Why:
+
+- ARGUS accepted same-owner public encounter exhibit metadata as the next safe
+  public encounter lane;
+- the accepted scope is metadata-only public presentation with explicit owner
+  publish/retract, a dedicated public exhibit table/route, and report/takedown
+  support;
+- transcripts, raw generated responder replies, owner-selected excerpts,
+  private setup, private curation, raw ids, provider payloads, prompts, private
+  context, source bodies, cross-owner persona words, and Discover/search/forum
+  surfacing remain blocked.
+
+Current lane:
+
+```text
+PR508A - Owner Encounter Public Exhibit Metadata
+Owner: DAEDALUS / A2
+State: OPEN_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR508 owner encounter public exhibit boundary preflight accepted
 
 ARGUS completed PR508:
 
@@ -51,15 +87,8 @@ Current lane:
 ```text
 PR508 - Owner Encounter Public Exhibit Boundary Preflight
 Owner: MIMIR / A1
-State: READY_FOR_CLOSEOUT
-Source: docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
+State: CLOSED_ACCEPTED
+Source: docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_CLOSEOUT.md
 ```
 
 ## Previous lane - PR507B owner encounter curation metadata hosted proof passed
