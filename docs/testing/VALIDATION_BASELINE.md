@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506 Persona Encounter Private Session Preflight
+
+ARGUS accepted PR506A on 2026-07-11:
+
+- `docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`.
+
+Reason:
+
+- hosted PR505D already proved the same-owner owner encounter preview can
+  return nonblank disposable responder content with signed-out/cross-owner/
+  public no-drift boundaries intact;
+- PR506A can be opened as a new dedicated owner-only private-session artifact
+  table and server-owned saved generation route;
+- `/persona-encounters/preview` remains disposable by default;
+- client-submitted generated reply text must not be certified as
+  model-generated provenance;
+- the accepted lane excludes public/shareable output, cross-owner encounters,
+  autonomous/background/scheduled runs, multi-turn loops, source retrieval,
+  provider-policy drift, storage, queues/workers, Redis, Cloudflare, billing,
+  social, Station Press, voice/avatar, Salon, and live-event work.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 20 encounter API/runtime tests passed before PR506A implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 196 Studio helper tests passed before PR506A implementation. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck replayed from cache and passed. |
+| Changed-path/source scan | Pass | Docs/status/index only; no implementation, package/lockfile, provider, public route, persistence, source retrieval, billing, social, queue/worker, Redis, Cloudflare, storage, or secret drift. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the PR506 docs/status/index patch. |
+
 ## PR505D Owner Encounter Hosted Output Budget Rerun
 
 ARIADNE completed the hosted PR505D rerun on 2026-07-11:

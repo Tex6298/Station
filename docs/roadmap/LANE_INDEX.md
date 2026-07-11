@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR506 | Persona Encounter Private Session Preflight | ARGUS / A3 | Open hostile preflight; decide whether hosted same-owner disposable encounter proof can safely become an owner-only private encounter artifact, or name the smallest blocker. | `docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_ARGUS.md` |
+| PR506A | Owner Encounter Private Session Artifact | DAEDALUS / A2 | Open for implementation; build only an owner-only private encounter artifact with a new dedicated table, server-owned saved generation, readback, and delete/discard, while preview remains disposable. | `docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR506 preflight | Persona Encounter Private Session Preflight | MIMIR -> ARGUS -> DAEDALUS | Accepted as `ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT`; DAEDALUS gets the new dedicated owner-only private encounter artifact lane, with server-owned saved generation and no client-certified reply provenance. | `docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_RESULT.md` |
 | PR505D closeout | Owner Encounter Hosted Output Budget Rerun | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ACCEPTED`; hosted same-owner preview returned nonblank disposable responder content with signed-out/cross-owner/public no-drift checks passing. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_CLOSEOUT.md` |
 | PR505D proof | Owner Encounter Hosted Output Budget Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN`; deployment floor was met, exactly one owner preview returned nonblank responder content, and disposable/no-durable provenance plus boundary/public checks passed. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md` |
 | PR505C closeout | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_ACCEPTED`; hosted API is ready at PR505C code commit `03d39f8e93ab`, so ARIADNE gets PR505D hosted output-budget rerun. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_CLOSEOUT.md` |
