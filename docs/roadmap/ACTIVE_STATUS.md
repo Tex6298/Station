@@ -4,20 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514A cross-owner disposable preview route ready for ARGUS
+## Current lane - PR514A cross-owner disposable preview route accepted by ARGUS
 
-DAEDALUS implemented PR514A:
+ARGUS accepted PR514A and woke MIMIR:
 
-`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md`
-
-Source instruction:
-
-`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_DAEDALUS.md`
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md`
 
 Implementation result:
 
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md`
+
+Result:
+
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE
 ```
 
 Summary:
@@ -30,9 +30,9 @@ Summary:
 - route requires approved consent, scope version `1`, and
   `run_cross_owner_encounter`;
 - prompt builder uses only consent display snapshots and actor-authored setup;
-- provider routing is actor-owned/platform only and ignores counterparty BYOK,
-  private provider setup, responder provider preference, and responder persona
-  provider routing;
+- provider routing is platform-only for this lane, selected from the initiating
+  actor's tier, and ignores counterparty BYOK, private provider setup,
+  responder provider preference, and responder persona provider routing;
 - PR513A runtime attempt audit rows are recorded before provider execution and
   for provider unavailable, quota exceeded, rate limited, provider failed,
   provider empty, and provider succeeded outcomes;
@@ -42,6 +42,7 @@ Summary:
 - response returns exactly one private disposable generated responder reply to
   the initiating actor and labels it non-persistent, non-public, not saved, not
   transcript/summary/excerpt/shareable, and not sourced from private retrieval;
+- ARGUS accepted without a review patch;
 - no private session, public exhibit, report, memory/canon/archive/continuity/
   export/job/storage/public row, UI, package, billing, Redis, Cloudflare,
   worker, deployment, or public-surfacing drift.
@@ -59,24 +60,26 @@ Current lane:
 
 ```text
 PR514A - Consented Cross-Owner Disposable Preview Route
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_RETURNED
+Source: docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md
 ```
 
 Next:
 
-- ARGUS reviews provider ownership, prompt contents, audit fail-closed ordering,
-  actor-only token accounting, response labels, validation, and no-drift scans.
-- If accepted, ARGUS should wake MIMIR for closeout and ARIADNE hosted proof
-  routing.
-- If fixes are needed, ARGUS should wake DAEDALUS with exact findings.
+- MIMIR closes PR514A locally.
+- MIMIR routes ARIADNE to `PR514B - Consented Cross-Owner Disposable Preview
+  Hosted Proof`.
+- PR514B should prove hosted auth/participant gates, platform-provider
+  execution or provider-unavailable fail-closed behavior, actor-only token
+  accounting, bounded runtime attempt audit rows, privacy, and no persistence/
+  public-surfacing drift.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR513D hosted audit rerun accepted

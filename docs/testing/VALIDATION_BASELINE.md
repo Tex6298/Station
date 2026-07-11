@@ -4,14 +4,15 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR514A Consented Cross-Owner Disposable Preview Route
+## PR514A Consented Cross-Owner Disposable Preview Route ARGUS Review
 
-DAEDALUS completed PR514A implementation on 2026-07-11:
+ARGUS accepted PR514A on 2026-07-11:
 
 - `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_RESULT.md`
+- `docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE`.
 
 Reason:
 
@@ -22,9 +23,9 @@ Reason:
   `run_cross_owner_encounter` consent, scope version `1`, and PR512 runtime
   context contract eligibility;
 - prompt builder uses only consent display snapshots and actor-authored setup;
-- provider routing is actor-owned/platform only and ignores counterparty BYOK,
-  private provider setup, responder provider preference, and responder persona
-  provider routing;
+- provider routing is platform-only for this lane, selected from the initiating
+  actor's tier, and ignores counterparty BYOK, private provider setup,
+  responder provider preference, and responder persona provider routing;
 - runtime attempt audit rows are required before provider execution and for
   blocked/provider outcomes;
 - audit insertion failure fails closed before provider call or token write;
@@ -34,7 +35,8 @@ Reason:
   retrieval;
 - no private session, public exhibit, report, memory/canon/archive/continuity/
   export/job/storage/public row, UI, package, billing, Redis, Cloudflare, worker,
-  deployment, or public-surfacing drift was added.
+  deployment, or public-surfacing drift was added;
+- ARGUS accepted without a review patch and recommends hosted API proof next.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -42,9 +44,10 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR514A adds no visible UI. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
-| Changed-path scan | Pass | Changes are limited to persona encounter API/test files and PR514A roadmap/testing docs. |
-| Forbidden-path scan | Pass | No web UI, package/lockfile, provider service, token service, operational cache, `packages/ai`, `packages/auth`, Supabase migration, Railway, Cloudflare, or deploy-script paths changed. |
-| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the diff. |
+| Implementation review | Pass | Reviewed PR514A handoff/result, PR513D hosted audit floor, route/provider/audit/token code, focused tests, and no-drift docs. |
+| Staged path scan | Pass | Staged changes are limited to PR514A review/status/testing docs. |
+| Forbidden-path scan | Pass | No web UI, package/lockfile, provider service, token service, operational cache, `packages/ai`, `packages/auth`, Supabase migration, Railway, Cloudflare, worker, queue, billing, Stripe, or deploy-script paths changed. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the staged diff. |
 | `git diff --check` | Pass | No unstaged whitespace errors. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
 
