@@ -4,7 +4,50 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505D hosted owner encounter output budget passed
+## Current lane - PR506 persona encounter private session preflight
+
+MIMIR closed PR505D and opened PR506 for ARGUS hostile preflight:
+
+`docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_CLOSEOUT.md`
+
+`docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_ARGUS.md`
+
+Result:
+
+```text
+CLOSE_PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ACCEPTED
+```
+
+Summary:
+
+- Hosted owner encounter preview now has proof of nonblank disposable responder
+  content.
+- The accepted product truth remains owner-only, same-owner, route-gated,
+  one-reply, disposable, non-public, non-shareable, and no-source-retrieval.
+- PR506 asks ARGUS whether Station can safely open the smallest owner-only
+  private encounter session artifact lane, or whether transcript ownership,
+  provenance schema, retention/delete, rate/token accounting, or
+  public/private boundary work blocks it.
+- This is a Persona-to-Persona Encounters Phase 3 product preflight, not a
+  provider repair or broad hardening sweep.
+
+Current lane:
+
+```text
+PR506 - Persona Encounter Private Session Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR506_PERSONA_ENCOUNTER_PRIVATE_SESSION_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR505D hosted owner encounter output budget passed
 
 ARIADNE completed PR505D:
 
@@ -44,12 +87,9 @@ State: PASS_READY_FOR_CLOSEOUT
 Source: docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_RESULT.md
 ```
 
-Wakeup:
+PR505D is closed in:
 
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+`docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_CLOSEOUT.md`
 
 ## Previous lane - PR505D owner encounter hosted output budget rerun opened
 
