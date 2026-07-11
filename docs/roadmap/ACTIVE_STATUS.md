@@ -4,7 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506D private session browser rerun
+## Current lane - PR506D private session browser rerun passed
+
+ARIADNE completed PR506D:
+
+`docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_RESULT.md`
+
+Result:
+
+```text
+PASS_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN
+```
+
+Summary:
+
+- Playwright Chromium launched from the repo;
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `1b74088bba81`, and `ready:true`; this includes PR506A floor `0a0373c5`;
+- owner and non-owner auth passed;
+- owner persona availability passed with `5` personas;
+- owner readiness returned `ready:true`;
+- ARIADNE created exactly one saved private same-owner artifact for this rerun;
+- create returned `201` with owner-authored setup stored, nonblank
+  model-generated responder reply, private owner-only server-created provenance,
+  `saved:true`, `transcriptStored:false`, `public:false`, `shareable:false`,
+  `sourceRetrieval:false`, and source bucket count `0`;
+- owner list/detail readback returned the created artifact before cleanup;
+- desktop and `390px` Studio owner UI showed saved artifact/readback/delete
+  controls, no raw persona/session ids in visible text, and no horizontal
+  overflow;
+- public Space/persona samples while the artifact existed showed no private
+  artifact material or owner-encounter controls;
+- signed-out list/detail/delete returned `401`;
+- cross-owner list did not include the artifact and cross-owner detail/delete
+  returned `404`;
+- cleanup deleted the artifact; follow-up owner detail returned `404` and owner
+  list returned count `0`;
+- privacy/secret scan passed.
+
+Current lane:
+
+```text
+PR506D - Owner Encounter Private Session Browser Rerun
+Owner: MIMIR / A1
+State: PASS_READY_FOR_CLOSEOUT
+Source: docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR506D private session browser rerun opened
 
 MIMIR closed PR506C and opened PR506D for ARIADNE:
 

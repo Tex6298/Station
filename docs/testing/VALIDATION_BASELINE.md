@@ -4,6 +4,66 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506D Owner Encounter Private Session Browser Rerun
+
+ARIADNE completed the hosted PR506D browser rerun on 2026-07-11:
+
+- `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_RESULT.md`
+
+Validation result:
+`PASS_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN`.
+
+Reason:
+
+- Playwright Chromium launched from the repo;
+- hosted web/API/deployment checks passed;
+- hosted `@station/api` reported branch `main`, commit prefix
+  `1b74088bba81`, and `ready:true`; this includes PR506A floor `0a0373c5`;
+- owner auth passed with `canon` tier;
+- non-owner auth passed with `private` tier;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- ARIADNE created exactly one saved private same-owner artifact for this rerun;
+- create returned `201` with owner-authored setup stored, nonblank
+  model-generated responder reply, private owner-only server-created provenance,
+  `saved:true`, `transcriptStored:false`, `public:false`, `shareable:false`,
+  `sourceRetrieval:false`, and source bucket count `0`;
+- owner list/detail readback returned the created artifact before cleanup;
+- desktop and `390px` Studio owner UI showed saved artifact/readback/delete
+  controls, no raw persona/session ids in visible text, and no horizontal
+  overflow;
+- public Space/persona samples while the artifact existed showed no private
+  artifact material or owner-encounter controls;
+- signed-out list/detail/delete returned `401`;
+- cross-owner list did not include the artifact and cross-owner detail/delete
+  returned `404`;
+- cleanup deleted the artifact; follow-up owner detail returned `404` and owner
+  list returned count `0`;
+- sanitized proof output contained no raw ids, prompt/private context bodies,
+  generated reply text, provider details, tokens, cookies, SQL details, stack
+  traces, provider payloads, env values, or browser artifacts.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Playwright Chromium launch | Pass | Chromium launched from the repo before artifact creation. |
+| Temporary hosted browser runner | Pass | Exactly one saved artifact was created; desktop/390px UI, public no-drift while artifact existed, boundaries, cleanup, and privacy scan passed. |
+| Hosted reachability | Pass | Web health `200`; API health `200`; API deployment health `200`; API ready at `@station/api` commit prefix `1b74088bba81`, which includes PR506A floor `0a0373c5`. |
+| Owner and non-owner auth | Pass | Owner tier `canon`; non-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Pass | `ready:true`; provider route was ready before saved create. |
+| Exactly one saved private create | Pass | One authenticated owner create POST was sent and returned `201`. |
+| Saved session contract | Pass | Owner-authored setup stored, model-generated responder reply nonblank, private owner-only server-created artifact, saved/no transcript/not public/not shareable/no source retrieval/source buckets `0`. |
+| Owner list/detail | Pass | Owner list and detail returned the created artifact before cleanup. |
+| Signed-out/cross-owner API probes | Pass | Signed-out list/detail/delete returned `401`; cross-owner list did not include the artifact; cross-owner detail/delete returned `404`. |
+| Desktop/390px Studio UI proof | Pass | Saved artifact/readback/delete controls visible, no raw ids/session id in visible text, and no horizontal overflow. |
+| Public no-drift while artifact existed | Pass | Public Space/persona samples showed no private artifact material or owner-encounter controls. |
+| Cleanup verification | Pass | Owner delete returned `200`; follow-up owner detail returned `404`; owner list returned count `0`. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private context bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, env values, or browser artifacts. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR506D result updates documentation
+only and does not touch imports or scripts.
+
 ## PR506C Owner Encounter Browser Proof Tooling ARGUS Review
 
 ARGUS accepted PR506C on 2026-07-11:
