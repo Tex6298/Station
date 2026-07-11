@@ -4,6 +4,51 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR512B Cross-Owner Runtime Context Contract Hosted Proof
+
+ARIADNE completed PR512B hosted API/data proof on 2026-07-11:
+
+- `docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `8ffbb71890dd`, which includes PR512A implementation floor `8ffbb718`;
+- owner A and owner B each received eligible runtime-context-contract readback
+  only when acting as initiator on an approved `run_cross_owner_encounter`
+  consent;
+- signed-out readback returned `401`, and nonparticipant readback returned
+  `404`;
+- wrong-role, wrong-pair, pending, rejected, and wrong-scope probes returned
+  bounded ineligible readback with all execution flags false;
+- generic consent readback still serialized ledger and requested scopes as
+  `executable: false`;
+- no provider call, prompt assembly, generated words, token rows, private
+  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
+  job/storage/public-surface drift appeared;
+- cleanup left four inactive proof rows from the accepted run: two revoked, one
+  cancelled, and one rejected; no pending or approved proof rows remained;
+- privacy scan passed with no raw owner ids, persona ids, private prompts,
+  private profile values, provider payloads, generated words, bearer values, or
+  secret-shaped strings.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/data proof runner | Pass | Proved freshness, owner A/B/nonparticipant auth, eligible readback for both participant initiators, signed-out/nonparticipant fail-closed behavior, representative ineligible-state fail-closed behavior, non-executable generic readback, no-drift, cleanup, and privacy. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `8ffbb71890dd`, which includes PR512A implementation floor `8ffbb718`. |
+| Approved contract readback | Pass | Owner A and owner B each received eligible contract readback only when acting as initiator on the approved `run_cross_owner_encounter` consent. |
+| Boundary probes | Pass | Signed-out returned `401`; nonparticipant returned `404`; wrong-role, wrong-pair, pending, rejected, and wrong-scope states returned bounded ineligible readback. |
+| Non-executable readback | Pass | Approved, ineligible, and generic consent readbacks kept ledger and requested scopes `executable: false`; all execution flags stayed false. |
+| No-drift checks | Pass | No provider/generated/token/private-session/public-exhibit/report/memory/canon/archive/continuity/export/job/storage/public-surface drift appeared. |
+| Cleanup verification | Pass | Four proof rows were left inactive: two revoked, one rejected, one cancelled; no pending or approved proof rows remained. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, tokens, cookies, private prompts, private profile values, generated words, provider payloads, SQL details, stack traces, env values, browser artifacts, or secret-shaped strings. |
+
+`pnpm typecheck` was not run because the PR512B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR512A Cross-Owner Runtime Context Contract ARGUS Review
 
 ARGUS accepted PR512A on 2026-07-11:
