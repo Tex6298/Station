@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR511 | Cross-Owner Encounter Consent / Publication Preflight | ARGUS / A3 | Open preflight; decide the smallest safe next Phase 3 lane for cross-owner consent/publication after same-owner public encounter exhibits passed hosted proof. | `docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_ARGUS.md` |
+| PR511 | Cross-Owner Encounter Consent / Publication Preflight | MIMIR / A1 | ARGUS accepted `ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ONLY`; MIMIR should close PR511 and route DAEDALUS to the ledger-only PR511A boundary or explicitly narrow the lane. | `docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR511 preflight | Cross-Owner Encounter Consent / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ONLY`; next safe lane is durable bilateral consent/provenance ledger only, with cross-owner runtime, artifacts, publication, generated-word excerpts/transcripts/summaries, public surfacing, provider/retrieval, and infra drift still blocked. | `docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR510B closeout | Public Encounter Exhibit Discover Search Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ACCEPTED`; hosted Discover search proof passed and PR511 opens cross-owner consent/publication preflight. | `docs/roadmap/PR510B_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_CLOSEOUT.md` |
 | PR510A closeout | Public Encounter Exhibit Discover Search Group | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_ACCEPTED_LOCALLY`; ARIADNE gets PR510B hosted Discover search proof. | `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_CLOSEOUT.md` |
 | PR510A review | Public Encounter Exhibit Discover Search Group | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP`; dedicated Discover search group stays metadata-only and search-only, with no feed/persona/Space/forum/Press/private-material drift. Hosted proof required. | `docs/roadmap/PR510A_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_GROUP_REVIEW_RESULT.md` |

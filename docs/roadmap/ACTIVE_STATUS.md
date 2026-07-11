@@ -4,7 +4,74 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR511 cross-owner encounter consent/publication preflight
+## Current lane - PR511 cross-owner encounter consent ledger preflight accepted
+
+ARGUS completed PR511 and woke MIMIR:
+
+`docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ONLY
+```
+
+Summary:
+
+- the smallest safe next cross-owner lane is a durable owner-scoped
+  consent/provenance ledger, not runtime or artifact work;
+- PR511A may add invitation, approval, rejection, cancellation, revocation,
+  expiry, supersession, deletion-block, moderation-lock, participant readback,
+  and append-only audit semantics;
+- requested future scopes may be recorded, but no approval can be consumed to
+  run an encounter, save a private cross-owner artifact, publish metadata,
+  publish generated words, publish an excerpt, publish a transcript, publish a
+  summary, or surface anything publicly;
+- same-owner generated-word excerpts are not a prerequisite for the ledger, but
+  any generated-word publication still needs a separate hostile preflight;
+- cross-owner runtime, private cross-owner saved artifacts, public cross-owner
+  exhibits, excerpts, transcripts, summaries, Discover/search/feed, Salon,
+  forum/community, Station Press, Space/persona surfacing, provider calls,
+  retrieval/vector/embedding, billing/Stripe, storage, social, Redis,
+  Cloudflare, queue/worker/webhook, package/lockfile, deployment, and broad UI
+  drift remain blocked.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `37` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `7` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `201`
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- product/source, current-code boundary, changed-path, forbidden-scope,
+  secret-shaped value, `git diff --check`, and `git diff --cached --check`
+  scans passed.
+
+Current lane:
+
+```text
+PR511 - Cross-Owner Encounter Consent / Publication Preflight
+Owner: MIMIR / A1
+State: ARGUS_ACCEPTED_READY_FOR_CLOSEOUT_OR_PR511A_ROUTING
+Source: docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_RESULT.md
+```
+
+Next:
+
+- MIMIR closes PR511 if accepted;
+- MIMIR wakes DAEDALUS for `PR511A - Cross-Owner Encounter Consent Ledger`
+  using the ledger-only boundary in ARGUS's result, or explicitly narrows the
+  next lane if MIMIR wants a non-migration contract first.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR511 cross-owner encounter consent/publication preflight opened
 
 MIMIR closed PR510B and opened PR511 for ARGUS:
 

@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR511 Cross-Owner Encounter Consent / Publication Preflight
+
+ARGUS completed PR511 on 2026-07-11:
+
+- `docs/roadmap/PR511_CROSS_OWNER_ENCOUNTER_CONSENT_PUBLICATION_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ONLY`.
+
+Reason:
+
+- product vision allows cross-owner persona encounters but requires permission
+  before one creator publishes another creator's persona words;
+- PR472, PR507, and PR508 kept cross-owner runtime/artifacts/publication blocked
+  until bilateral consent, revocation, audit, deletion/export, and owner
+  readback semantics exist;
+- PR510B hosted proof completed the same-owner metadata-only public exhibit
+  detail, index, report/takedown, and Discover search path;
+- current code still rejects cross-owner preview/private-session paths before
+  provider calls or durable writes and rechecks same-owner source personas
+  before same-owner public exhibit publication;
+- PR511A is accepted only as a durable owner-scoped consent/provenance ledger
+  with participant readback and audit. It is not approval for cross-owner
+  runtime, saved artifacts, public exhibits, excerpts, transcripts, summaries,
+  Discover/search/feed, Salon/community/forum/Station Press/Space/persona
+  surfacing, provider calls, retrieval, billing, storage, social, Redis,
+  Cloudflare, queues/workers, package/lockfile, deployment, or broad UI drift.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Product/source review | Pass | Product vision plus PR472/PR507/PR508/PR510B were reviewed for cross-owner consent, publication, same-owner metadata-only exhibit, and hosted proof boundaries. |
+| Current code boundary review | Pass | Preview/private-session creation requires both personas to belong to the current owner; cross-owner responder tests fail before provider calls or durable writes; public exhibit publish rechecks same-owner source personas. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 37 tests passed, including cross-owner-before-provider, same-owner private-session/public-exhibit, and no client-certified reply coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; owner-only encounter contract/readiness/runtime and metadata-only public exhibit helper copy remain bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| Changed-path/forbidden-scope scan | Pass | PR511 is docs/status only; no runtime, schema, public route, UI, package, lockfile, provider, retrieval, billing, storage, social, Redis, Cloudflare, queue, worker, webhook, deployment, or hosted config implementation changed. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, or bearer-token-shaped values found in touched files. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR511 docs/status updates. |
+
 ## PR510B Public Encounter Exhibit Discover Search Hosted Proof
 
 ARIADNE completed PR510B hosted proof on 2026-07-11:
