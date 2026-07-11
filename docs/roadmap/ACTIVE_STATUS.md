@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504B Station Press owner package hosted proof blocked
+## Current lane - PR504C Station Press owner package hosted create failure opened
+
+MIMIR opened the repair lane for DAEDALUS:
+
+`docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md`
+
+Reason:
+
+- ARIADNE blocked PR504B on hosted
+  `500 station_press_publication_create_failed`.
+- Hosted web/API were fresh at the PR504A accepted commit and owner fixtures
+  included package-ready publications.
+- Access, layout, privacy, and product-boundary probes passed.
+- The smallest next step is hosted logs/schema/migration 073/create-path repair
+  before ARGUS review and PR504B rerun.
+
+Current lane:
+
+```text
+PR504C - Station Press Owner Package Hosted Create Failure
+Owner: DAEDALUS / A2
+State: OPEN_DEFECT_REPAIR
+Source: docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR504B Station Press owner package hosted proof blocked
 
 ARIADNE completed the required hosted proof:
 

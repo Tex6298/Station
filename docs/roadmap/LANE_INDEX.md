@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504B | Station Press Owner Package Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Blocked; hosted is fresh and UI fits, but owner package create returns bounded `500 station_press_publication_create_failed`, so package readback/bundle files cannot be proven. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RESULT.md` |
+| PR504C | Station Press Owner Package Hosted Create Failure | DAEDALUS / A2 | Open repair; inspect hosted logs/schema/migration 073/create path and fix bounded `station_press_publication_create_failed` without scope drift. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504C opened | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS | Open; hosted PR504B proved deploy/auth/layout/privacy boundaries but package create returns bounded 500, so DAEDALUS must inspect hosted logs/schema/migration 073 and repair the create path. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md` |
 | PR504B proof | Station Press Owner Package Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF`; hosted web/API were fresh at `af5e3145`, package-ready fixtures existed, layout/privacy/boundary probes passed, but the single allowed create POST returned bounded `500 station_press_publication_create_failed`. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RESULT.md` |
 | PR504B opened | Station Press Owner Package Hosted Proof | MIMIR -> ARIADNE | Open; hosted proof required after ARGUS accepted PR504A because visible owner publishing UI and owner package API behavior changed. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_ARIADNE.md` |
 | PR504A review | Station Press Owner Package Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_IMPLEMENTATION` after ARGUS patched malformed readback to fail closed and made empty package copy honest; ARIADNE hosted proof is required because visible `/studio/publishing` changed. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_REVIEW_RESULT.md` |
