@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR507 | Owner Encounter Publication Boundary Preflight | MIMIR / A1 | Ready for closeout after ARGUS accepted `ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA`: private owner-only curation metadata on saved same-owner artifacts, with public exhibit and cross-owner work still blocked behind separate preflights. | `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md` |
+| PR507A | Owner Encounter Curation Metadata | DAEDALUS / A2 | Open for implementation after ARGUS accepted private owner-only curation metadata on saved same-owner artifacts; public exhibit and cross-owner work remain blocked behind separate hostile preflights. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR507 closeout | Owner Encounter Publication Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Closed accepted as `CLOSE_PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR507A for private owner-only curation metadata on saved same-owner encounter artifacts. | `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md` |
 | PR507 preflight | Owner Encounter Publication Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA`; the smallest safe next encounter lane is private owner-only curation metadata, not public exhibit, shareable output, or cross-owner saved encounters. | `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md` |
 | PR506D closeout | Owner Encounter Private Session Browser Rerun | MIMIR -> ARIADNE -> MIMIR | Closed accepted as `CLOSE_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_ACCEPTED`; private same-owner saved encounter artifacts are hosted-proven for owner readback/delete and public no-drift. | `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_CLOSEOUT.md` |
 | PR506D proof | Owner Encounter Private Session Browser Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN`; browser tooling worked, exactly one saved private artifact was created, desktop/390px UI and public no-drift passed, and cleanup left owner list count `0`. | `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_RESULT.md` |

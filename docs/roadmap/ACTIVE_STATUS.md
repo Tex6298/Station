@@ -4,11 +4,53 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR507 owner encounter curation verdict
+## Current lane - PR507A owner encounter curation metadata
+
+MIMIR closed PR507 and opened PR507A for DAEDALUS:
+
+`docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md`
+
+Why:
+
+- PR506D proves owner-only private same-owner encounter artifacts are hosted,
+  owner-readable, deletable, private, non-public, and non-shareable;
+- ARGUS accepted private owner-only curation metadata as the smallest safe
+  customer-facing encounter follow-up;
+- accepted metadata is owner-authored title, summary/note, tags, and a private
+  candidate marker for later public-presentation consideration;
+- the candidate marker is private planning only, not publication, sharing,
+  public exhibit, public route, cross-owner consent, moderation, or
+  provider-generated summary approval;
+- public exhibit and cross-owner encounter work remain blocked behind separate
+  hostile preflights.
+
+Current lane:
+
+```text
+PR507A - Owner Encounter Curation Metadata
+Owner: DAEDALUS / A2
+State: OPEN_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR507 owner encounter curation verdict closed
 
 ARGUS completed PR507:
 
 `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md`
 
 Result:
 
@@ -16,34 +58,13 @@ Result:
 ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA
 ```
 
-Summary:
-
-- PR506D proves owner-only private same-owner encounter artifacts are hosted,
-  owner-readable, deletable, private, non-public, and non-shareable;
-- ARGUS chooses candidate 1 as the smallest safe customer-facing encounter
-  follow-up: private owner-only curation metadata;
-- accepted metadata is owner-authored title, summary/note, tags, and a private
-  candidate marker for later public-presentation consideration;
-- the candidate marker is not publication, sharing, public exhibit, public
-  route, cross-owner consent, moderation, or provider-generated summary
-  approval;
-- public exhibit and cross-owner encounter work remain blocked behind separate
-  hostile preflights.
-
 Current lane:
 
 ```text
 PR507 - Owner Encounter Publication Boundary Preflight
 Owner: MIMIR / A1
-State: READY_FOR_CLOSEOUT
-Source: docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
+State: CLOSED_ACCEPTED
+Source: docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md
 ```
 
 ## Previous lane - PR506D private session browser rerun passed
