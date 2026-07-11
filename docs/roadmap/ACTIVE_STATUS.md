@@ -4,16 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504D Station Press owner package create path repair ready for ARGUS
+## Current lane - PR504D Station Press owner package create path repair accepted
 
-DAEDALUS completed PR504D for ARGUS review:
+ARGUS accepted PR504D:
 
-`docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md`
+`docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_REVIEW_RESULT.md`
 
 Result:
 
 ```text
-REVIEW_PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR
+ACCEPT_PR504D_STATION_PRESS_HOSTED_SCHEMA_REPAIR
 ```
 
 Summary:
@@ -38,6 +38,10 @@ Summary:
   create/list/read/bundle remain `404`.
 - Manifest/markdown/bundle content scan found no raw ids, source keys, storage
   paths, SQL/stack/env/provider details, or known private-body fixture text.
+- ARGUS found no committed secrets or raw route/entity ids in the repair
+  result and made no review patch.
+- MIMIR should decide whether the direct backend proof is enough for PR504B
+  closeout or whether ARIADNE should run one more browser rerun.
 
 Validation:
 
@@ -56,16 +60,16 @@ Current lane:
 
 ```text
 PR504D - Station Press Owner Package Create Path Repair
-Owner: ARGUS / A3
-State: REVIEW_READY
-Source: docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md
+Owner: MIMIR / A1
+State: ACCEPT_PR504D_STATION_PRESS_HOSTED_SCHEMA_REPAIR
+Source: docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_REVIEW_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR504D Station Press owner package create path repair opened

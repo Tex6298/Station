@@ -6,13 +6,13 @@ change, not to unknown repo hygiene.
 
 ## PR504D Station Press Owner Package Create Path Repair
 
-DAEDALUS completed the PR504D hosted Station Press owner package create-path
-repair on 2026-07-11:
+ARGUS accepted the PR504D hosted Station Press owner package create-path repair
+on 2026-07-11:
 
-- `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_RESULT.md`
+- `docs/roadmap/PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR_REVIEW_RESULT.md`
 
 Validation result:
-`REVIEW_PR504D_STATION_PRESS_OWNER_PACKAGE_CREATE_PATH_REPAIR`.
+`ACCEPT_PR504D_STATION_PRESS_HOSTED_SCHEMA_REPAIR`.
 
 Reason:
 
@@ -29,6 +29,8 @@ Reason:
   PostgREST schema reload;
 - hosted owner create/readback/bundle now passes, and signed-out/cross-owner
   boundaries remain closed.
+- ARGUS found no committed secrets or raw route/entity ids in the repair
+  result and made no review patch.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -44,6 +46,7 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
 | `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Proof-doc secret scan | Pass | Matches were env-var names and negative no-leak language only; no secret values or raw route/entity ids were found. |
 
 ## PR504B Station Press Owner Package Hosted Proof Rerun
 
