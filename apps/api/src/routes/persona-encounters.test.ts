@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -173,6 +174,11 @@ class InMemorySupabase {
       row.source_retrieval_used ??= false;
       row.shareable ??= false;
       row.public_visibility ??= "private";
+      row.owner_title ??= null;
+      row.owner_summary ??= null;
+      row.owner_tags ??= [];
+      row.publication_candidate ??= false;
+      row.curation_schema ??= "station.persona_encounter.private_session_curation.v1";
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -234,7 +240,11 @@ class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private limitCount: number | null = null;
-  private mutation: { type: "insert"; payload: Row | Row[] } | { type: "delete" } | null = null;
+  private mutation:
+    | { type: "insert"; payload: Row | Row[] }
+    | { type: "update"; payload: Row }
+    | { type: "delete" }
+    | null = null;
 
   constructor(private db: InMemorySupabase, private table: string) {}
 
@@ -244,6 +254,11 @@ class QueryBuilder {
 
   insert(payload: Row | Row[]) {
     this.mutation = { type: "insert", payload };
+    return this;
+  }
+
+  update(payload: Row) {
+    this.mutation = { type: "update", payload };
     return this;
   }
 
@@ -306,6 +321,30 @@ class QueryBuilder {
         return data.length === 1
           ? { data: data[0], error: null }
           : { data: null, error: { message: `Expected one inserted ${this.table} row.` } };
+      }
+      if (mode === "maybeSingle") {
+        return data.length > 0
+          ? { data: data[0], error: null }
+          : { data: null, error: null };
+      }
+      return { data, error: null };
+    }
+
+    if (this.mutation?.type === "update") {
+      const matches = this.matchingRows();
+      const ids = new Set(matches.map((row) => row.id));
+      const updated: Row[] = [];
+      for (const row of this.db.rows(this.table)) {
+        if (!ids.has(row.id)) continue;
+        Object.assign(row, this.mutation.payload);
+        row.updated_at = this.db.timestamp();
+        updated.push(row);
+      }
+      const data = clone(updated);
+      if (mode === "single") {
+        return data.length === 1
+          ? { data: data[0], error: null }
+          : { data: null, error: { message: `Expected one updated ${this.table} row.` } };
       }
       if (mode === "maybeSingle") {
         return data.length > 0
@@ -566,6 +605,24 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
     assert.equal(db.rows(table).length, 0, `${table} should not be written`);
   }
 }
+
+test("private encounter curation migration extends the owner-only table without weakening RLS", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/075_persona_encounter_private_session_curation.sql",
+    "utf8",
+  );
+
+  assert.match(sql, /alter table public\.persona_encounter_private_sessions/);
+  assert.match(sql, /owner_title text/);
+  assert.match(sql, /owner_summary text/);
+  assert.match(sql, /owner_tags text\[\] not null default '\{\}'::text\[\]/);
+  assert.match(sql, /publication_candidate boolean not null default false/);
+  assert.match(sql, /station\.persona_encounter\.private_session_curation\.v1/);
+  assert.equal(/disable row level security/i.test(sql), false);
+  assert.equal(/drop policy/i.test(sql), false);
+  assert.equal(/drop constraint/i.test(sql), false);
+  assert.match(sql, /not a public exhibit, share link, moderation state, or cross-owner consent|Does not create publication/);
+});
 
 test("owner preview generates one disposable same-owner responder reply without durable encounter rows", async () => {
   await withHarness(async ({ db, app, providerCalls }) => {
@@ -933,11 +990,15 @@ test("private encounter session routes require authentication", async () => {
     });
     const list = await requestJson(app, "GET", "/persona-encounters/private-sessions");
     const detail = await requestJson(app, "GET", `/persona-encounters/private-sessions/${sessionId}`);
+    const curation = await requestJson(app, "PATCH", `/persona-encounters/private-sessions/${sessionId}/curation`, {
+      body: { title: "Private title" },
+    });
     const deletion = await requestJson(app, "DELETE", `/persona-encounters/private-sessions/${sessionId}`);
 
     assert.equal(create.status, 401);
     assert.equal(list.status, 401);
     assert.equal(detail.status, 401);
+    assert.equal(curation.status, 401);
     assert.equal(deletion.status, 401);
     assert.equal(providerCalls.length, 0);
   });
@@ -992,6 +1053,20 @@ test("owner can create list detail and delete a private encounter session withou
     assert.equal(stored.source_retrieval_used, false);
     assert.equal(stored.shareable, false);
     assert.equal(stored.public_visibility, "private");
+    assert.equal(stored.owner_title, null);
+    assert.equal(stored.owner_summary, null);
+    assert.deepEqual(stored.owner_tags, []);
+    assert.equal(stored.publication_candidate, false);
+    assert.equal(stored.curation_schema, "station.persona_encounter.private_session_curation.v1");
+    assert.deepEqual(create.body.session.curation, {
+      label: "Owner-authored private curation",
+      title: null,
+      summary: null,
+      tags: [],
+      publicationCandidate: false,
+      schema: "station.persona_encounter.private_session_curation.v1",
+      note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
+    });
 
     const createJson = JSON.stringify(create.body);
     for (const hidden of [
@@ -1051,6 +1126,162 @@ test("owner can create list detail and delete a private encounter session withou
       token: "owner-token",
     });
     assert.equal(afterDelete.status, 404);
+  });
+});
+
+test("owner can add edit and clear bounded private curation metadata only on own sessions", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const create = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody({ maxOutputTokens: 120 }),
+    });
+    assert.equal(create.status, 201);
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 1);
+
+    const sessionId = create.body.session.id;
+    const update = await requestJson(app, "PATCH", `/persona-encounters/private-sessions/${sessionId}/curation`, {
+      token: "owner-token",
+      body: {
+        title: "  Library draft  ",
+        summary: "  Save this for later shape work.  ",
+        tags: ["  quiet ", "candidate"],
+        publicationCandidate: true,
+      },
+    });
+
+    assert.equal(update.status, 200);
+    assert.equal(update.body.session.id, sessionId);
+    assert.deepEqual(update.body.session.curation, {
+      label: "Owner-authored private curation",
+      title: "Library draft",
+      summary: "Save this for later shape work.",
+      tags: ["quiet", "candidate"],
+      publicationCandidate: true,
+      schema: "station.persona_encounter.private_session_curation.v1",
+      note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
+    });
+
+    const stored = db.rows("persona_encounter_private_sessions")[0];
+    assert.equal(stored.owner_title, "Library draft");
+    assert.equal(stored.owner_summary, "Save this for later shape work.");
+    assert.deepEqual(stored.owner_tags, ["quiet", "candidate"]);
+    assert.equal(stored.publication_candidate, true);
+    assert.equal(stored.curation_schema, "station.persona_encounter.private_session_curation.v1");
+
+    const list = await requestJson(app, "GET", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+    });
+    assert.equal(list.status, 200);
+    assert.deepEqual(list.body.sessions[0].curation.tags, ["quiet", "candidate"]);
+    assert.equal(list.body.sessions[0].curation.publicationCandidate, true);
+
+    const detail = await requestJson(app, "GET", `/persona-encounters/private-sessions/${sessionId}`, {
+      token: "owner-token",
+    });
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.session.curation.title, "Library draft");
+
+    const crossOwner = await requestJson(app, "PATCH", `/persona-encounters/private-sessions/${sessionId}/curation`, {
+      token: "other-token",
+      body: { title: "Cross owner edit" },
+    });
+    assert.equal(crossOwner.status, 404);
+    assert.equal(db.rows("persona_encounter_private_sessions")[0].owner_title, "Library draft");
+
+    const clear = await requestJson(app, "PATCH", `/persona-encounters/private-sessions/${sessionId}/curation`, {
+      token: "owner-token",
+      body: {
+        title: null,
+        summary: "",
+        tags: [],
+        publicationCandidate: false,
+      },
+    });
+    assert.equal(clear.status, 200);
+    assert.deepEqual(clear.body.session.curation, {
+      label: "Owner-authored private curation",
+      title: null,
+      summary: null,
+      tags: [],
+      publicationCandidate: false,
+      schema: "station.persona_encounter.private_session_curation.v1",
+      note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
+    });
+
+    const clearJson = JSON.stringify(clear.body);
+    for (const hidden of [
+      OWNER_ID,
+      INITIATOR_ID,
+      RESPONDER_ID,
+      "owner_user_id",
+      "initiator_persona_id",
+      "responder_persona_id",
+      "deepseek.test",
+      "test-deepseek-key",
+      "private persona notes",
+    ]) {
+      assert.equal(clearJson.includes(hidden), false, `${hidden} leaked in curation readback`);
+    }
+
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assertNoDurableEncounterWritesExceptPrivateSessions(db);
+
+    const deletion = await requestJson(app, "DELETE", `/persona-encounters/private-sessions/${sessionId}`, {
+      token: "owner-token",
+    });
+    assert.equal(deletion.status, 200);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+
+    const afterDelete = await requestJson(app, "GET", `/persona-encounters/private-sessions/${sessionId}`, {
+      token: "owner-token",
+    });
+    assert.equal(afterDelete.status, 404);
+  });
+});
+
+test("private curation metadata rejects malformed bodies before writes", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const create = await requestJson(app, "POST", "/persona-encounters/private-sessions", {
+      token: "owner-token",
+      body: privateSessionBody({ maxOutputTokens: 120 }),
+    });
+    assert.equal(create.status, 201);
+    const sessionId = create.body.session.id;
+
+    const cases: unknown[] = [
+      {},
+      { title: "x".repeat(121) },
+      { summary: "x".repeat(801) },
+      { tags: ["ok", "x".repeat(41)] },
+      { tags: Array.from({ length: 13 }, (_, index) => `tag-${index}`) },
+      { tags: "not-an-array" },
+      { tags: [""] },
+      { publicationCandidate: "yes" },
+      { title: "Allowed", shareable: true },
+      { responderReply: "Client-certified reply must stay rejected." },
+    ];
+
+    for (const body of cases) {
+      const response = await requestJson(app, "PATCH", `/persona-encounters/private-sessions/${sessionId}/curation`, {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400, `body should fail: ${JSON.stringify(body)}`);
+    }
+
+    const stored = db.rows("persona_encounter_private_sessions")[0];
+    assert.equal(stored.owner_title, null);
+    assert.equal(stored.owner_summary, null);
+    assert.deepEqual(stored.owner_tags, []);
+    assert.equal(stored.publication_candidate, false);
+    assert.equal(stored.shareable, false);
+    assert.equal(stored.public_visibility, "private");
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assertNoDurableEncounterWritesExceptPrivateSessions(db);
   });
 });
 

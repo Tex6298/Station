@@ -4,13 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR507A owner encounter curation metadata
+## Current lane - PR507A owner encounter curation metadata review
 
-MIMIR closed PR507 and opened PR507A for DAEDALUS:
+DAEDALUS implemented PR507A for ARGUS review:
 
 `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_CLOSEOUT.md`
 
 `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md`
+
+`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md`
 
 Why:
 
@@ -24,22 +26,40 @@ Why:
   public exhibit, public route, cross-owner consent, moderation, or
   provider-generated summary approval;
 - public exhibit and cross-owner encounter work remain blocked behind separate
-  hostile preflights.
+  hostile preflights;
+- DAEDALUS added private owner-authored curation metadata to the existing
+  owner-only private session artifact boundary, with bounded owner list/detail
+  readback and Studio edit/clear controls.
+
+Result:
+
+```text
+REVIEW_PR507A_OWNER_ENCOUNTER_CURATION_METADATA
+```
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `30` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `199`
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- final diff checks are recorded in the PR507A result.
 
 Current lane:
 
 ```text
 PR507A - Owner Encounter Curation Metadata
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_DAEDALUS.md
+Owner: ARGUS / A3
+State: REVIEW
+Source: docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR507 owner encounter curation verdict closed

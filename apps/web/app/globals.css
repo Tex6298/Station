@@ -3055,6 +3055,36 @@ html, body {
   line-height: 1.35;
 }
 
+.studio-encounter-curation-form {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid #243246;
+  border-radius: 8px;
+  background: #0b1220;
+}
+
+.studio-encounter-curation-form p {
+  margin: 0;
+  color: #93a4ba;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.studio-encounter-candidate-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.studio-encounter-candidate-toggle input {
+  margin-top: 0.15rem;
+}
+
 .studio-runtime-sources {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -78,6 +78,22 @@ export interface PersonaEncounterPrivateSession {
       note: string;
     };
   };
+  curation: {
+    label: "Owner-authored private curation";
+    title: string | null;
+    summary: string | null;
+    tags: string[];
+    publicationCandidate: boolean;
+    schema: "station.persona_encounter.private_session_curation.v1";
+    note: string;
+  };
+}
+
+export interface PersonaEncounterPrivateSessionCurationRequest {
+  title?: string | null;
+  summary?: string | null;
+  tags?: string[];
+  publicationCandidate?: boolean;
 }
 
 export interface PersonaEncounterPrivateSessionResponse {
@@ -105,6 +121,8 @@ export interface PersonaEncounterPreviewReadinessResponse {
 export const PERSONA_ENCOUNTER_PREVIEW_PATH = "/persona-encounters/preview";
 export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/preview/readiness";
 export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
+export const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
+  "station.persona_encounter.private_session_curation.v1";
 
 export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewRequest) {
   return {
@@ -128,6 +146,25 @@ export function personaEncounterPreviewReadinessPath(input: {
 
 export function personaEncounterPrivateSessionPath(sessionId: string) {
   return `${PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH}/${encodeURIComponent(sessionId)}`;
+}
+
+export function personaEncounterPrivateSessionCurationPath(sessionId: string) {
+  return `${personaEncounterPrivateSessionPath(sessionId)}/curation`;
+}
+
+export function personaEncounterPrivateSessionCurationPayload(
+  input: PersonaEncounterPrivateSessionCurationRequest,
+) {
+  return {
+    ...(input.title !== undefined ? { title: normalizeOptionalText(input.title) } : {}),
+    ...(input.summary !== undefined ? { summary: normalizeOptionalText(input.summary) } : {}),
+    ...(input.tags !== undefined
+      ? { tags: input.tags.map((tag) => tag.trim()).filter(Boolean) }
+      : {}),
+    ...(input.publicationCandidate !== undefined
+      ? { publicationCandidate: input.publicationCandidate }
+      : {}),
+  };
 }
 
 export function personaEncounterPreviewReady(input: {
@@ -195,6 +232,13 @@ export function personaEncounterPrivateSessionReadback(session?: PersonaEncounte
     session.provenance.persistence.sourceRetrieval
       ? "Private source retrieval used"
       : "No Memory, Archive, Canon, Continuity, Integrity, or transcript sources retrieved",
+    session.curation.title ? `Private title: ${session.curation.title}` : "No private title",
+    session.curation.summary ? "Private note saved" : "No private note",
+    session.curation.tags.length > 0 ? `Private tags: ${session.curation.tags.join(", ")}` : "No private tags",
+    session.curation.publicationCandidate
+      ? "Private candidate planning flag only"
+      : "Not marked as a private candidate",
+    "Not published, shared, moderated, public, or cross-owner consented",
   ];
 }
 
@@ -234,7 +278,16 @@ export function personaEncounterPreviewErrorCopy(input: { status?: number; code?
       return "Private encounter artifacts could not be loaded.";
     case "persona_encounter_private_session_delete_failed":
       return "Private encounter artifact could not be deleted.";
+    case "persona_encounter_private_session_curation_failed":
+      return "Private encounter curation could not be saved.";
     default:
       return input.message || "Encounter preview could not run.";
   }
+}
+
+function normalizeOptionalText(value: string | null | undefined) {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  const trimmed = value.trim();
+  return trimmed || null;
 }

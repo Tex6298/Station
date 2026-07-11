@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR507A Owner Encounter Curation Metadata
+
+DAEDALUS completed PR507A on 2026-07-11:
+
+- `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_RESULT.md`
+
+Validation result:
+`REVIEW_PR507A_OWNER_ENCOUNTER_CURATION_METADATA`.
+
+Reason:
+
+- migration `075` extends the existing owner-only private encounter session
+  table with owner-authored private curation columns and bounded constraints;
+- PATCH `/persona-encounters/private-sessions/:sessionId/curation` requires
+  auth, strict body validation, and `id` plus `owner_user_id` scoping;
+- owner list/detail readback includes private title, note, tags, and
+  candidate/planning marker without raw owner/persona ids;
+- signed-out attempts return `401`; cross-owner read/update remains bounded
+  `404`;
+- invalid body shapes, overlong fields, overlong/malformed tag arrays, and
+  extra keys fail before writes;
+- Studio copy calls the marker private planning only and does not add public
+  exhibit/share/publish/moderation/cross-owner controls;
+- no package or lock files changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 30 persona encounter API/runtime tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 199 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
 ## PR506D Owner Encounter Private Session Browser Rerun
 
 ARIADNE completed the hosted PR506D browser rerun on 2026-07-11:

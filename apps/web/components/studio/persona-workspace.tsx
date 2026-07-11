@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Persona, PersonaSummary } from "@station/types/persona";
-import { ApiRequestError, apiDelete, apiGet, apiPost } from "@/lib/api-client";
+import { ApiRequestError, apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import {
   activeStudioHref,
   studioPersonaWorkspacePrimaryActions,
@@ -15,6 +15,8 @@ import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness
 import {
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
+  personaEncounterPrivateSessionCurationPath,
+  personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPath,
   personaEncounterPrivateSessionReadback,
   personaEncounterPreviewAvailabilityCopy,
@@ -526,6 +528,15 @@ export function PersonaEncounterRuntimePreview({
                 <h4>{session.personas.initiatorName} / {session.personas.responderName}</h4>
                 <p>{session.setup.content}</p>
                 <p>{session.reply.content}</p>
+                <PrivateEncounterCurationControls
+                  session={session}
+                  token={token}
+                  onSessionUpdate={(updated) => {
+                    setSavedSessions((current) =>
+                      current.map((candidate) => candidate.id === updated.id ? updated : candidate)
+                    );
+                  }}
+                />
                 <div className="studio-encounter-artifact-tags">
                   {personaEncounterPrivateSessionReadback(session).slice(5).map((item) => (
                     <span key={item}>
@@ -547,6 +558,162 @@ export function PersonaEncounterRuntimePreview({
         )}
       </article>
     </section>
+  );
+}
+
+function PrivateEncounterCurationControls({
+  session,
+  token,
+  onSessionUpdate,
+}: {
+  session: PersonaEncounterPrivateSession;
+  token: string | null;
+  onSessionUpdate: (session: PersonaEncounterPrivateSession) => void;
+}) {
+  const [title, setTitle] = useState(session.curation.title ?? "");
+  const [summary, setSummary] = useState(session.curation.summary ?? "");
+  const [tags, setTags] = useState(session.curation.tags.join(", "));
+  const [publicationCandidate, setPublicationCandidate] = useState(session.curation.publicationCandidate);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTitle(session.curation.title ?? "");
+    setSummary(session.curation.summary ?? "");
+    setTags(session.curation.tags.join(", "));
+    setPublicationCandidate(session.curation.publicationCandidate);
+    setError(null);
+  }, [
+    session.id,
+    session.curation.title,
+    session.curation.summary,
+    session.curation.tags,
+    session.curation.publicationCandidate,
+  ]);
+
+  async function saveCuration() {
+    if (!token || busy) return;
+    setBusy(true);
+    setError(null);
+
+    try {
+      const response = await apiPatch<PersonaEncounterPrivateSessionResponse>(
+        personaEncounterPrivateSessionCurationPath(session.id),
+        personaEncounterPrivateSessionCurationPayload({
+          title,
+          summary,
+          tags: tags.split(","),
+          publicationCandidate,
+        }),
+        token,
+      );
+      onSessionUpdate(response.session);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setError("Private encounter curation could not be saved.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function clearCuration() {
+    if (!token || busy) return;
+    setBusy(true);
+    setError(null);
+
+    try {
+      const response = await apiPatch<PersonaEncounterPrivateSessionResponse>(
+        personaEncounterPrivateSessionCurationPath(session.id),
+        personaEncounterPrivateSessionCurationPayload({
+          title: null,
+          summary: null,
+          tags: [],
+          publicationCandidate: false,
+        }),
+        token,
+      );
+      onSessionUpdate(response.session);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setError(personaEncounterPreviewErrorCopy(caught));
+      } else {
+        setError("Private encounter curation could not be cleared.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="studio-encounter-curation-form">
+      <div className="section-label">{session.curation.label}</div>
+      <p>{session.curation.note}</p>
+      <label>
+        <span className="section-label">Private title</span>
+        <input
+          className="input"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          maxLength={120}
+          disabled={busy}
+          placeholder="Owner title"
+        />
+      </label>
+      <label>
+        <span className="section-label">Private note</span>
+        <textarea
+          className="textarea"
+          value={summary}
+          onChange={(event) => setSummary(event.target.value)}
+          maxLength={800}
+          disabled={busy}
+          placeholder="Private owner note"
+          style={{ minHeight: 84 }}
+        />
+      </label>
+      <label>
+        <span className="section-label">Private tags</span>
+        <input
+          className="input"
+          value={tags}
+          onChange={(event) => setTags(event.target.value)}
+          maxLength={520}
+          disabled={busy}
+          placeholder="quiet, candidate"
+        />
+      </label>
+      <label className="studio-encounter-candidate-toggle">
+        <input
+          type="checkbox"
+          checked={publicationCandidate}
+          onChange={(event) => setPublicationCandidate(event.target.checked)}
+          disabled={busy}
+        />
+        <span>Private candidate/planning flag only; not publish, share, moderation, public exhibit, or cross-owner consent.</span>
+      </label>
+      {error && <div className="space-form-error">{error}</div>}
+      <div className="studio-runtime-query">
+        <button
+          className="button secondary"
+          type="button"
+          onClick={saveCuration}
+          disabled={busy}
+        >
+          {busy ? "Saving..." : "Save private curation"}
+        </button>
+        <button
+          className="button secondary"
+          type="button"
+          onClick={clearCuration}
+          disabled={busy}
+        >
+          Clear private curation
+        </button>
+      </div>
+    </div>
   );
 }
 

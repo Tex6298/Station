@@ -27,6 +27,12 @@ const PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT =
   "PERSONA_ENCOUNTER_ALLOW_PLATFORM_NVIDIA_PRIVATE_CONTEXT";
 const PERSONA_ENCOUNTER_PRIVATE_SESSION_PROVENANCE_SCHEMA =
   "station.persona_encounter.private_session.v1";
+const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
+  "station.persona_encounter.private_session_curation.v1";
+const PRIVATE_SESSION_CURATION_TITLE_MAX_CHARS = 120;
+const PRIVATE_SESSION_CURATION_SUMMARY_MAX_CHARS = 800;
+const PRIVATE_SESSION_CURATION_TAG_MAX_CHARS = 40;
+const PRIVATE_SESSION_CURATION_MAX_TAGS = 12;
 
 const previewSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -46,6 +52,32 @@ const privateSessionCreateSchema = z.object({
 }).strict().refine((value) => value.initiatorPersonaId !== value.responderPersonaId, {
   message: "Select two different personas.",
   path: ["responderPersonaId"],
+});
+
+const optionalCurationText = (maxLength: number) => z.preprocess((value) => {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  return value;
+}, z.string().max(maxLength).nullable().optional());
+
+const privateSessionCurationSchema = z.object({
+  title: optionalCurationText(PRIVATE_SESSION_CURATION_TITLE_MAX_CHARS),
+  summary: optionalCurationText(PRIVATE_SESSION_CURATION_SUMMARY_MAX_CHARS),
+  tags: z.array(
+    z.string().trim().min(1).max(PRIVATE_SESSION_CURATION_TAG_MAX_CHARS),
+  ).max(PRIVATE_SESSION_CURATION_MAX_TAGS).optional(),
+  publicationCandidate: z.boolean().optional(),
+}).strict().refine((value) =>
+  value.title !== undefined ||
+  value.summary !== undefined ||
+  value.tags !== undefined ||
+  value.publicationCandidate !== undefined
+, {
+  message: "At least one curation field is required.",
 });
 
 const readinessSchema = z.object({
@@ -83,6 +115,11 @@ type EncounterPrivateSessionRow = {
   source_retrieval_used: boolean;
   shareable: boolean;
   public_visibility: "private";
+  owner_title?: string | null;
+  owner_summary?: string | null;
+  owner_tags?: string[] | null;
+  publication_candidate?: boolean | null;
+  curation_schema?: typeof PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA | null;
   created_at: string;
   updated_at: string;
 };
@@ -290,6 +327,48 @@ personaEncountersRouter.get("/private-sessions/:sessionId", requireAuth, async (
     return res.status(500).json({
       error: "Private encounter session could not be loaded.",
       code: "persona_encounter_private_session_load_failed",
+    });
+  }
+  if (!data) return res.status(404).json({ error: "Private encounter session not found." });
+
+  return res.json({
+    session: serializePrivateSession(data as EncounterPrivateSessionRow),
+  });
+});
+
+personaEncountersRouter.patch("/private-sessions/:sessionId/curation", requireAuth, async (req, res) => {
+  const parsedSessionId = sessionIdSchema.safeParse(req.params.sessionId);
+  if (!parsedSessionId.success) return res.status(404).json({ error: "Private encounter session not found." });
+
+  const parsedBody = privateSessionCurationSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const input = parsedBody.data;
+  const update: Record<string, unknown> = {
+    curation_schema: PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
+  };
+
+  if (Object.prototype.hasOwnProperty.call(input, "title")) update.owner_title = input.title;
+  if (Object.prototype.hasOwnProperty.call(input, "summary")) update.owner_summary = input.summary;
+  if (Object.prototype.hasOwnProperty.call(input, "tags")) update.owner_tags = input.tags;
+  if (Object.prototype.hasOwnProperty.call(input, "publicationCandidate")) {
+    update.publication_candidate = input.publicationCandidate;
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_private_sessions")
+    .update(update)
+    .eq("id", parsedSessionId.data)
+    .eq("owner_user_id", ownerUserId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({
+      error: "Private encounter curation could not be updated.",
+      code: "persona_encounter_private_session_curation_failed",
     });
   }
   if (!data) return res.status(404).json({ error: "Private encounter session not found." });
@@ -508,6 +587,15 @@ function serializePrivateSession(row: EncounterPrivateSessionRow) {
         sourceBuckets: [],
         note: "Private saved encounter artifact; no Memory, Archive, Canon, Continuity, Integrity, or transcript sources were retrieved.",
       },
+    },
+    curation: {
+      label: "Owner-authored private curation",
+      title: row.owner_title ?? null,
+      summary: row.owner_summary ?? null,
+      tags: row.owner_tags ?? [],
+      publicationCandidate: row.publication_candidate ?? false,
+      schema: row.curation_schema ?? PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
+      note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
     },
   };
 }

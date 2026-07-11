@@ -2,8 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
+  PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
+  personaEncounterPrivateSessionCurationPath,
+  personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPath,
   personaEncounterPrivateSessionReadback,
   personaEncounterPreviewAvailabilityCopy,
@@ -84,6 +87,39 @@ test("persona encounter runtime helper builds private session paths", () => {
     personaEncounterPrivateSessionPath("session/one"),
     "/persona-encounters/private-sessions/session%2Fone",
   );
+  assert.equal(
+    personaEncounterPrivateSessionCurationPath("session/one"),
+    "/persona-encounters/private-sessions/session%2Fone/curation",
+  );
+  assert.equal(
+    PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
+    "station.persona_encounter.private_session_curation.v1",
+  );
+});
+
+test("persona encounter runtime helper builds bounded private curation payloads", () => {
+  assert.deepEqual(personaEncounterPrivateSessionCurationPayload({
+    title: "  Field note  ",
+    summary: "  Owner note only. ",
+    tags: ["  quiet ", "", "candidate"],
+    publicationCandidate: true,
+  }), {
+    title: "Field note",
+    summary: "Owner note only.",
+    tags: ["quiet", "candidate"],
+    publicationCandidate: true,
+  });
+  assert.deepEqual(personaEncounterPrivateSessionCurationPayload({
+    title: "",
+    summary: null,
+    tags: [],
+    publicationCandidate: false,
+  }), {
+    title: null,
+    summary: null,
+    tags: [],
+    publicationCandidate: false,
+  });
 });
 
 test("persona encounter runtime readiness requires two personas and owner setup", () => {
@@ -157,6 +193,15 @@ test("persona encounter runtime readback labels private saved artifacts honestly
         note: "Private saved encounter artifact; no Memory, Archive, Canon, Continuity, Integrity, or transcript sources were retrieved.",
       },
     },
+    curation: {
+      label: "Owner-authored private curation",
+      title: "Library draft",
+      summary: "Owner note only.",
+      tags: ["quiet", "candidate"],
+      publicationCandidate: true,
+      schema: "station.persona_encounter.private_session_curation.v1",
+      note: "Private planning metadata only; not a public exhibit, share link, moderation state, or cross-owner consent.",
+    },
   };
 
   assert.deepEqual(personaEncounterPrivateSessionReadback(session), [
@@ -169,6 +214,11 @@ test("persona encounter runtime readback labels private saved artifacts honestly
     "Not public",
     "Not shareable",
     "No Memory, Archive, Canon, Continuity, Integrity, or transcript sources retrieved",
+    "Private title: Library draft",
+    "Private note saved",
+    "Private tags: quiet, candidate",
+    "Private candidate planning flag only",
+    "Not published, shared, moderated, public, or cross-owner consented",
   ]);
 });
 
@@ -192,6 +242,10 @@ test("persona encounter runtime error copy stays bounded", () => {
     code: "persona_encounter_private_session_delete_failed",
     message: "sql table detail",
   }), "Private encounter artifact could not be deleted.");
+  assert.equal(personaEncounterPreviewErrorCopy({
+    code: "persona_encounter_private_session_curation_failed",
+    message: "sql table detail",
+  }), "Private encounter curation could not be saved.");
 });
 
 test("persona encounter runtime availability copy fails closed before generation", () => {

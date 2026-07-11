@@ -457,15 +457,25 @@ export interface Database {
           source_retrieval_used: false;
           shareable: false;
           public_visibility: "private";
+          owner_title: string | null;
+          owner_summary: string | null;
+          owner_tags: string[];
+          publication_candidate: boolean;
+          curation_schema: "station.persona_encounter.private_session_curation.v1";
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["persona_encounter_private_sessions"]["Row"], "id" | "provenance_schema" | "source_retrieval_used" | "shareable" | "public_visibility" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_private_sessions"]["Row"], "id" | "provenance_schema" | "source_retrieval_used" | "shareable" | "public_visibility" | "owner_title" | "owner_summary" | "owner_tags" | "publication_candidate" | "curation_schema" | "created_at" | "updated_at"> & {
           id?: string;
           provenance_schema?: "station.persona_encounter.private_session.v1";
           source_retrieval_used?: false;
           shareable?: false;
           public_visibility?: "private";
+          owner_title?: string | null;
+          owner_summary?: string | null;
+          owner_tags?: string[];
+          publication_candidate?: boolean;
+          curation_schema?: "station.persona_encounter.private_session_curation.v1";
           created_at?: string;
           updated_at?: string;
         };
