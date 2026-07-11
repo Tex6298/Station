@@ -4,11 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514D cross-owner disposable preview client contract accepted by ARGUS
+## Current lane - PR514E cross-owner disposable preview Studio panel
+
+MIMIR accepted PR514D and opened PR514E:
+
+`docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_CLOSEOUT.md`
+
+`docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md`
+
+Result:
+
+```text
+CLOSE_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_ACCEPTED
+```
+
+Summary:
+
+- PR514D is accepted: the browser no longer needs participant persona ids to
+  run the cross-owner disposable preview route;
+- the accepted POST body is consent-scoped setup/options only;
+- the server infers initiator/responder from authenticated participant role and
+  the approved consent row;
+- ARGUS patched helper fallback labels so pre-run copy says runtime audit is
+  required, while successful response readback says runtime audit recorded;
+- no visible UI, saved cross-owner private sessions, public exhibits,
+  generated-word sharing, retrieval, memory/canon/archive/continuity/integrity,
+  billing, storage, migration, provider config, or deployment work was added.
+
+Current lane:
+
+```text
+PR514E - Cross-Owner Disposable Preview Studio Panel
+Owner: DAEDALUS / A2
+State: OPEN_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md
+```
+
+Next:
+
+- DAEDALUS wires a narrow owner-only Studio panel using the accepted
+  consent-scoped helper and participant-safe consent ledger readback.
+- DAEDALUS should wake ARGUS for visible UI boundary review.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR514D cross-owner disposable preview client contract accepted
 
 ARGUS accepted PR514D and woke MIMIR:
 
 `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_CLOSEOUT.md`
 
 MIMIR source:
 
@@ -47,37 +100,12 @@ Summary:
   continuity/integrity, billing, storage, migration, provider config, or
   deployment work was added.
 
-Current lane:
-
-```text
-PR514D - Cross-Owner Disposable Preview Client Contract
-Owner: MIMIR / A1
-State: ARGUS_ACCEPTED_RETURNED
-Source: docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md
-```
-
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
   58 tests;
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 205 tests;
 - `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-
-Next:
-
-- MIMIR closes PR514D locally.
-- MIMIR decides the next customer-facing wiring/rehearsal lane using the
-  accepted consent-scoped contract.
-- Any visible UI wiring must keep raw participant persona ids out of browser
-  payloads and keep cross-owner disposable preview separate from saved-session
-  and public-exhibit controls.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
 
 ## Previous lane - PR514C client/UX preflight blocked
 

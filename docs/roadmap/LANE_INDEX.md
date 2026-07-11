@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514D closeout | Cross-Owner Disposable Preview Client Contract | ARGUS -> MIMIR | ARGUS accepted PR514D with a narrow helper-copy patch; MIMIR should close locally and decide the next customer-facing wiring/rehearsal lane using the consent-scoped contract. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md` |
+| PR514E | Cross-Owner Disposable Preview Studio Panel | DAEDALUS / A2 | Open implementation of a narrow owner-only Studio panel using the accepted consent-scoped helper and participant-safe consent ledger readback. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR514D closeout | Cross-Owner Disposable Preview Client Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_ACCEPTED`; PR514E opens the narrow owner-only Studio panel. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_CLOSEOUT.md` |
 | PR514D review | Cross-Owner Disposable Preview Client Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT`; API body is consent-scoped setup/options only, server infers participant personas, raw/stale body persona ids reject before side effects, web helpers/readback/error copy are bounded, and ARGUS patched pre-run helper copy from audit-recorded to audit-required. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_REVIEW_RESULT.md` |
 | PR514C closeout | Consented Cross-Owner Disposable Preview Client/UX Preflight | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK`; PR514D opens for a participant-safe client contract before visible UI wiring. | `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_CLOSEOUT.md` |
 | PR514C preflight | Consented Cross-Owner Disposable Preview Client/UX Preflight | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT`; current route requires raw persona ids the participant-safe client readback does not expose. Recommended next lane: PR514D Cross-Owner Disposable Preview Client Contract. | `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md` |
