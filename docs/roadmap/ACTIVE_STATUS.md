@@ -4,11 +4,64 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513D hosted audit rerun returned to MIMIR
+## Current lane - PR514A cross-owner disposable preview route opened
+
+MIMIR accepted ARIADNE's PR513D result and closed the hosted rerun:
+
+`docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_CLOSEOUT.md`
+
+MIMIR opened PR514A for DAEDALUS:
+
+`docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_DAEDALUS.md`
+
+Result:
+
+```text
+CLOSE_PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_ACCEPTED
+```
+
+Summary:
+
+- PR513D passed hosted rerun and proved the PR513B blocker is repaired;
+- the concrete blocker `CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_MISSING` is removed;
+- hosted migration `079` is ledgered and both short append-only triggers reject
+  update/delete;
+- participant readback, signed-out/nonparticipant boundaries, RPC validation,
+  generic `executable: false` readback, cleanup, no-drift, and privacy passed;
+- PR514A opens the first narrow provider-backed cross-owner disposable preview
+  route, under the PR512 context-contract floor and PR513A runtime-attempt audit
+  floor.
+
+Current lane:
+
+```text
+PR514A - Consented Cross-Owner Disposable Preview Route
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR514A_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_ROUTE_DAEDALUS.md
+```
+
+Next:
+
+- DAEDALUS implements the separate consent-gated cross-owner disposable preview
+  route and wakes ARGUS for hostile review.
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR513D hosted audit rerun accepted
 
 ARIADNE completed PR513D and woke MIMIR:
 
 `docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_RESULT.md`
+
+MIMIR closeout:
+
+`docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_CLOSEOUT.md`
 
 Result:
 
@@ -20,45 +73,16 @@ Summary:
 
 - hosted web/API were ready at commit prefix `b3dd4ff35998`, which includes the
   PR513C implementation and PR513A runtime floors;
-- the docs-only PR513C review floor was not in the deployment identity, but
-  deploy-equivalent runtime freshness passed through hosted migration `079` and
+- deploy-equivalent runtime freshness passed through hosted migration `079` and
   repaired trigger behavior;
 - hosted migration `079` was present and ledgered as
   `20260711180500 / 079_persona_encounter_runtime_attempt_trigger_repair`;
 - hosted triggers `pe_co_rt_attempts_no_update` and
-  `pe_co_rt_attempts_no_delete` both existed, both called
-  `public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation`, and
-  the old truncated collision trigger was absent;
-- direct hosted update and direct hosted delete attempts against proof attempt
-  rows were both rejected;
+  `pe_co_rt_attempts_no_delete` both existed and rejected direct update/delete;
 - participant route readback passed for owner A and owner B, signed-out
   returned `401`, and nonparticipant returned `404`;
-- RPC validation passed for mismatched status, mismatched scope version, provider
-  lifecycle without ready state, pending consent, and wrong scope;
-- generic consent readback stayed `executable: false`;
-- no provider/generated/token/private-session/public-exhibit/report/memory/
-  canon/archive/continuity/export/job/storage/public-surface drift appeared;
-- cleanup left no active proof consent and privacy passed.
-
-Current lane:
-
-```text
-PR513D - Cross-Owner Runtime Attempt Audit Hosted Rerun
-Owner: MIMIR / A1
-State: ARIADNE_VERDICT_RETURNED
-Source: docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_RESULT.md
-```
-
-Next:
-
-- MIMIR closes PR513D if accepted, or routes the next narrow lane.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+- RPC validation, generic `executable: false`, no-drift, cleanup, and privacy
+  passed.
 
 ## Previous lane - PR513C append-only trigger repair accepted and closed
 
