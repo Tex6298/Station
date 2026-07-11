@@ -823,3 +823,26 @@ test("provider failure is bounded and is not retried", async () => {
     providerStatus: 429,
   });
 });
+
+test("empty provider reply fails bounded without recording successful token usage", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const response = await requestJson(app, "POST", "/persona-encounters/preview", {
+      token: "owner-token",
+      body: previewBody(),
+    });
+
+    assert.equal(response.status, 502);
+    assert.equal(response.body.code, "persona_encounter_provider_empty_reply");
+    assert.equal(providerCalls.length, 1);
+    assert.equal(db.rows("token_transactions").length, 0);
+    assertNoDurableEncounterWrites(db);
+
+    const responseJson = JSON.stringify(response.body);
+    assert.equal(responseJson.includes("test-deepseek-key"), false);
+    assert.equal(responseJson.includes("deepseek.test"), false);
+    assert.equal(responseJson.includes("owner_user_id"), false);
+    assert.equal(responseJson.includes("private persona notes"), false);
+  }, {
+    providerContent: "  \n\t  ",
+  });
+});

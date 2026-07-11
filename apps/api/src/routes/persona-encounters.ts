@@ -155,6 +155,14 @@ personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
       ...(chatRoute.routeLabel === "anthropic_platform" ? { model: chatRoute.modelLabel } : {}),
       maxOutputTokens,
     });
+    const replyContent = boundEncounterReply(aiResponse.content);
+    if (!replyContent) {
+      return res.status(502).json({
+        error: "Encounter preview provider returned an empty reply.",
+        code: "persona_encounter_provider_empty_reply",
+      });
+    }
+
     const inputTokens = aiResponse.usage?.inputTokens ?? estimatedInputTokens;
     const outputTokens = aiResponse.usage?.outputTokens ?? estimateTokensFromText(aiResponse.content);
 
@@ -170,7 +178,7 @@ personaEncountersRouter.post("/preview", requireAuth, async (req, res) => {
       preview: {
         reply: {
           role: "responder",
-          content: boundEncounterReply(aiResponse.content),
+          content: replyContent,
         },
         rateLimit: rateLimit.rateLimit,
       },

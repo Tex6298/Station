@@ -4,47 +4,71 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505A owner encounter empty reply guard
+## Current lane - PR505A owner encounter empty reply guard ready for review
 
-MIMIR opened PR505A for DAEDALUS:
+DAEDALUS implemented PR505A for ARGUS review:
 
-`docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md`
+`docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_RESULT.md`
 
-Why:
+Result:
+
+```text
+REVIEW_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD
+```
+
+Summary:
 
 - ARIADNE reran PR505 after the hosted provider-policy/config gate was
   unblocked.
 - Owner encounter readiness is now `ready:true`.
 - Exactly one disposable same-owner preview request returned `200`.
-- Boundaries passed: signed-out `401`, cross-owner `403`, no public route,
-  durable transcript, retrieval, Memory, Archive, Canon, Continuity, Integrity,
-  billing, social, queue, or worker drift.
 - The responder reply was empty (`0` characters), so the hosted preview cannot
   be accepted as usable.
+- The owner encounter preview route now normalizes the provider reply before
+  success accounting and returns bounded `502` /
+  `persona_encounter_provider_empty_reply` for blank or whitespace-only output.
+- Empty provider output does not record a successful token transaction, does not
+  synthesize fallback content, and does not create durable encounter rows.
+- OpenAI-compatible/NVIDIA adapter code was not changed; the observed hosted
+  failure is covered by the route-level empty-output guard.
 
-Decision:
+Validation:
 
-- Treat this as an API/provider-adapter hardening defect, not a transient pass.
-- DAEDALUS must ensure owner encounter preview cannot return `200` for blank or
-  whitespace responder output.
-- If NVIDIA/OpenAI-compatible response parsing is the root cause, harden that
-  adapter narrowly.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed
+  `20` tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- Final diff checks are recorded in the result doc before commit.
 
 Current lane:
 
 ```text
 PR505A - Owner Encounter Empty Reply Guard
-Owner: DAEDALUS / A2
-State: OPEN_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md
+Owner: ARGUS / A3
+State: REVIEW_READY
+Source: docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
+
+## Previous lane - PR505A owner encounter empty reply guard opened
+
+MIMIR opened PR505A for DAEDALUS:
+
+`docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md`
+
+Decision:
+
+- Treat the hosted empty responder output as an API/provider-adapter hardening
+  defect, not a transient pass.
+- DAEDALUS must ensure owner encounter preview cannot return `200` for blank or
+  whitespace responder output.
+- If NVIDIA/OpenAI-compatible response parsing is the root cause, harden that
+  adapter narrowly.
 
 ## Previous lane - PR505 owner encounter hosted rerun blocked on empty reply
 

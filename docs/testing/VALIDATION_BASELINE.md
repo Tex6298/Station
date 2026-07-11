@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505A Owner Encounter Empty Reply Guard
+
+DAEDALUS completed the local PR505A owner encounter empty reply guard on
+2026-07-11:
+
+- `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_RESULT.md`
+
+Validation result:
+`REVIEW_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD`.
+
+Reason:
+
+- hosted PR505 proved owner readiness and route boundaries but returned `200`
+  with empty responder content;
+- the preview route now normalizes provider output before success serialization
+  or token accounting;
+- blank or whitespace-only output returns bounded `502` with
+  `persona_encounter_provider_empty_reply`;
+- empty output does not record a successful LLM token transaction;
+- the patch does not add fake fallback content, retry loops, provider adapter
+  changes, durable encounter persistence, retrieval, billing, public route,
+  social, queue, worker, storage, or UI behavior.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 20 persona encounter route/runtime tests passed, including the new whitespace-only provider reply regression. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
+Provider/router tests were not run because PR505A did not change
+`packages/ai` provider adapter behavior.
+
 ## PR505 Owner Encounter Hosted Provider Gate Rerun
 
 ARIADNE completed the hosted PR505 owner encounter rerun on 2026-07-11 after
