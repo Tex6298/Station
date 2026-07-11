@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR509B | Public Encounter Exhibit Index Hosted Proof | ARIADNE / A4 | Open hosted proof; verify deployed public list API and `/encounters` page, cursor/limit behavior, metadata-only payloads, report-detail-only behavior, hidden/retracted/removed absence, public no-drift, latency, cleanup, and privacy. | `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_ARIADNE.md` |
+| PR509B | Public Encounter Exhibit Index Hosted Proof | MIMIR / A1 | Passed hosted proof as `PASS_PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF`; MIMIR closeout pending. | `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR509B proof | Public Encounter Exhibit Index Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF`; hosted web/API were fresh at `b0a116bdc192`, public list API was metadata-only and bounded, desktop/mobile `/encounters` fit, report stayed detail-only, removed/retracted rows stayed absent, no-drift and cleanup passed. | `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md` |
 | PR509A closeout | Public Encounter Exhibit Index | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ACCEPTED_LOCALLY`; ARIADNE gets PR509B hosted public index proof. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_CLOSEOUT.md` |
 | PR509A review | Public Encounter Exhibit Index | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX`; dedicated `/encounters` index and bounded public list API stay metadata-only with no Discover/search/feed/persona/Space/forum/document surfacing. Hosted proof is required. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md` |
 | PR509 closeout | Public Encounter Exhibit Discovery Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR509A for a dedicated public `/encounters` index only. | `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_CLOSEOUT.md` |

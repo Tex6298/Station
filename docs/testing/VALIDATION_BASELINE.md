@@ -4,6 +4,56 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR509B Public Encounter Exhibit Index Hosted Proof
+
+ARIADNE completed PR509B hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `b0a116bdc192`, which includes PR509A floor `b0a116bd`;
+- owner, non-owner, and admin auth passed;
+- hosted began with zero public encounter exhibits, so ARIADNE created exactly
+  one disposable source-backed private artifact and one metadata-only public
+  exhibit, then cleaned both up;
+- public list API returned `200` with bounded metadata-only payloads and
+  default latency `883ms`, acceptable for protected alpha;
+- `limit` clamped to `1..24`;
+- invalid cursor returned `400`;
+- public-only cursor continuation returned `200` with an empty page because only
+  the proof row existed;
+- desktop and `390px` `/encounters` rendered one card without horizontal
+  overflow, and card links were detail-only;
+- report controls stayed absent from the index and present only on detail;
+- private-only, moderation-removed, and owner-retracted exhibits stayed absent
+  from list/detail;
+- owner-retracted restore protection held;
+- Discover/search/feed, public persona, public Space, forum, and public
+  document samples did not surface encounter exhibits outside `/encounters`;
+- cleanup deleted the proof artifact and proof report row;
+- privacy/secret scan passed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/browser proof runner | Pass | Exactly one disposable source-backed public exhibit was created; index, report-detail-only, moderation, no-drift, latency, privacy, and cleanup checks passed. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `b0a116bdc192`, which includes PR509A floor `b0a116bd`. |
+| Public list API | Pass | Bounded metadata-only list returned `200`; default latency was `883ms`; `limit` clamped to `1..24`; invalid cursor returned `400`; public-only cursor continuation returned `200`. |
+| Desktop and `390px` `/encounters` layout | Pass | Cards fit without horizontal overflow and linked only to detail routes. |
+| Report-detail-only behavior | Pass | Index omitted report controls; detail retained report control/path. |
+| Hidden/retracted/removed absence | Pass | Private-only artifact, removed exhibit, and owner-retracted exhibit were absent from list/detail. |
+| Owner-retracted restore protection | Pass | Retracted target exposed no supported admin actions; admin remove/restore returned `400` and detail stayed `404`. |
+| Public no-drift | Pass | Discover/search/feed, public persona, public Space, forum, and public document samples did not surface the proof exhibit outside `/encounters`. |
+| Cleanup verification | Pass | Proof artifact and proof report were deleted; public detail returned `404`; public list no longer included the proof exhibit. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private bodies, generated reply text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, env values, or browser artifacts. |
+
+`pnpm typecheck` was not run because the PR509B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR509A Public Encounter Exhibit Index ARGUS Review
 
 DAEDALUS implemented PR509A on 2026-07-11, and ARGUS accepted it without a

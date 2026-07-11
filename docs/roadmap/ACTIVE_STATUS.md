@@ -4,7 +4,75 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509B public encounter exhibit index hosted proof opened
+## Current lane - PR509B public encounter exhibit index hosted proof passed
+
+ARIADNE completed PR509B hosted proof:
+
+`docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+PASS_PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF
+```
+
+Summary:
+
+- hosted web/API were ready at commit prefix `b0a116bdc192`, which includes
+  PR509A floor `b0a116bd`;
+- owner, non-owner, and admin auth passed;
+- hosted began with zero public encounter exhibits, so ARIADNE created exactly
+  one disposable source-backed private artifact and one metadata-only public
+  exhibit, then cleaned both up;
+- public list API returned `200` with bounded metadata-only payloads and
+  default latency `883ms`, acceptable for protected alpha;
+- `limit` clamped to `1..24`;
+- invalid cursor returned `400`;
+- public-only cursor continuation returned `200` with an empty page because only
+  the proof row existed;
+- desktop and `390px` `/encounters` rendered one card without horizontal
+  overflow, and card links were detail-only;
+- report controls stayed absent from the index and present only on detail;
+- private-only, moderation-removed, and owner-retracted exhibits stayed absent
+  from list/detail;
+- owner-retracted restore protection held: retracted admin actions were empty,
+  admin remove/restore returned `400`, and detail stayed `404`;
+- Discover/search/feed, public persona, public Space, forum, and public
+  document samples did not surface encounter exhibits outside `/encounters`;
+- cleanup deleted the proof artifact and proof report row;
+- privacy/secret scan passed.
+
+Validation:
+
+- temporary hosted API/browser proof runner passed;
+- hosted reachability/freshness passed;
+- public list API, cursor/limit, desktop/mobile layout, report-detail-only,
+  hidden/retracted/removed absence, owner-retracted restore protection, public
+  no-drift, cleanup, and privacy checks passed;
+- `pnpm typecheck` was not run because the result updates documentation only
+  and does not touch imports or scripts.
+
+Current lane:
+
+```text
+PR509B - Public Encounter Exhibit Index Hosted Proof
+Owner: MIMIR / A1
+State: PASSED_HOSTED_PUBLIC_INDEX_PROOF
+Source: docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md
+```
+
+Next:
+
+- MIMIR closes PR509B if accepted, or routes any narrow follow-up.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR509B public encounter exhibit index hosted proof opened
 
 MIMIR closed PR509A locally and opened PR509B for ARIADNE:
 
@@ -15,69 +83,6 @@ MIMIR closed PR509A locally and opened PR509B for ARIADNE:
 `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_CLOSEOUT.md`
 
 `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_ARIADNE.md`
-
-Result:
-
-```text
-ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX
-```
-
-Summary:
-
-- `GET /persona-encounters/public-exhibits` now returns a bounded public list
-  of published, non-removed, source-backed public encounter exhibits;
-- `/encounters` now renders the dedicated public index and links cards to the
-  existing `/encounters/[slug]` detail route;
-- list metadata is public slug/route href, owner-authored public title, public
-  summary, public tags, same-owner display-name snapshots, published date, and
-  provenance copy only;
-- the public list cursor contains only public `publishedAt` plus public slug and
-  is ordered by `published_at desc, slug desc`;
-- report controls remain detail-only;
-- Discover search/feed, public persona profiles, public Spaces,
-  forums/discussions, Station Press/public documents, popularity sort, excerpts,
-  transcripts, raw replies, private setup, private curation, raw ids, provider
-  details, prompts, source bodies, and cross-owner words remain out of scope;
-- no migration, package, lockfile, provider, retrieval, billing, social, Redis,
-  Cloudflare, queue, worker, storage, or schema-visible feature work entered
-  this lane;
-- ARGUS notes no dedicated public-list DB index was added; this is accepted for
-  protected alpha only, and hosted proof should record list-route latency.
-
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
-  37 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 29 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 41 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
-- changed-path, forbidden-path, secret-shaped value, and public/private leakage
-  scans passed;
-- `git diff --check` and `git diff --cached --check` passed.
-
-Current lane:
-
-```text
-PR509B - Public Encounter Exhibit Index Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_PUBLIC_INDEX_PROOF
-Source: docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_ARIADNE.md
-```
-
-Next:
-
-- ARIADNE confirms hosted web/API include PR509A commit `b0a116bd` or later;
-- ARIADNE proves hosted public list API and `/encounters` page behavior;
-- ARIADNE wakes MIMIR with PASS or BLOCK.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
 
 ## Previous lane - PR509A public encounter exhibit index accepted
 
