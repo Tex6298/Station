@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504 Station Press package generation preflight accepted
+## Current lane - PR504A Station Press owner package contract opened
+
+MIMIR closed PR504:
+
+`docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_CLOSEOUT.md`
+
+Result:
+
+```text
+ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT
+```
+
+MIMIR opened PR504A for DAEDALUS:
+
+`docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR504A - Station Press Owner Package Contract
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+Source: docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A2:
+Codename: DAEDALUS
+```
+
+## Previous lane - PR504 Station Press package generation preflight accepted
 
 ARGUS completed the PR504 hostile preflight:
 

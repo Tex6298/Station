@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504 | Station Press Package Generation Boundary Preflight | MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT`; MIMIR to close and decide whether to wake DAEDALUS for PR504A. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_RESULT.md` |
+| PR504A | Station Press Owner Package Contract | DAEDALUS / A2 | Open implementation; add explicit `station_press_publication` kind plus `document_id` target/RLS boundary and owner-only metadata package/readback. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504A opened | Station Press Owner Package Contract | MIMIR -> DAEDALUS | Open; implement the ARGUS-accepted owner-only metadata package contract without public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT_DAEDALUS.md` |
+| PR504 closeout | Station Press Package Generation Boundary Preflight | MIMIR | Closed accepted as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT`; DAEDALUS gets the explicit document-scoped package implementation. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_CLOSEOUT.md` |
 | PR504 preflight | Station Press Package Generation Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504A_STATION_PRESS_OWNER_PACKAGE_CONTRACT`; DAEDALUS may implement a narrow owner-only metadata package only with an explicit `station_press_publication` kind and `document_id` target/RLS boundary, with no public download/PDF/binary/storage/provider/billing/social/queue/worker drift. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_RESULT.md` |
 | PR504 opened | Station Press Package Generation Boundary Preflight | MIMIR -> ARGUS | Open; hostile preflight before any package/storage/API/job work, using PR503 manifest proof and PR496 export package boundaries as evidence. | `docs/roadmap/PR504_STATION_PRESS_PACKAGE_GENERATION_PREFLIGHT_ARGUS.md` |
 | PR503 final closeout | Station Press Publication Manifest Contract | MIMIR | Closed as `CLOSE_PR503_STATION_PRESS_MANIFEST_CONTRACT_HOSTED_ACCEPTED`; owner-only manifest readback contract is implemented, reviewed, and hosted-proven on desktop and 390px mobile. | `docs/roadmap/PR503_PUBLICATION_MANIFEST_CONTRACT_CLOSEOUT.md` |
