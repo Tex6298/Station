@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR511B hosted proof | Cross-Owner Encounter Consent Ledger Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF`; hosted migration 077, consent/audit tables, security-invoker RPCs, owner A/B create/approve/reject/cancel/revoke, participant readback/audit, signed-out/nonparticipant fail-closed behavior, non-executable ledger readback, no-drift, cleanup, and privacy passed. MIMIR closeout pending. | `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_RESULT.md` |
+| PR512 preflight | Consented Cross-Owner Encounter Runtime Preflight | ARGUS / A3 | Open; decide whether the hosted-proven consent ledger can safely unlock PR512A consented cross-owner disposable preview, or name the concrete blocker and smallest numbered unblock lane. | `docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR511B closeout | Cross-Owner Encounter Consent Ledger Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_ACCEPTED`; hosted ledger proof passed for migration shape, owner A/B create/approve/reject/cancel/revoke, participant audit/readback, signed-out/nonparticipant fail-closed behavior, non-executable readback, no drift, cleanup, and privacy. | `docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_CLOSEOUT.md` |
 | PR511A closeout | Cross-Owner Encounter Consent Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_ACCEPTED_LOCALLY`; hosted migration 077 applied, ledger row `20260711153000 / 077_persona_encounter_cross_owner_consents` recorded, PostgREST reload requested, and ARIADNE gets PR511B hosted proof. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_CLOSEOUT.md` |
 | PR511A review | Cross-Owner Encounter Consent Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER` after ARGUS patched consent create/transition paths so consent mutations and audit insertion are atomic DB-function operations; hosted proof required next. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_REVIEW_RESULT.md` |
 | PR511A implementation | Cross-Owner Encounter Consent Ledger | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; dedicated consent/audit schema, participant-scoped API routes, bounded state transitions, non-executable requested scope readback, and focused tests are implemented without cross-owner runtime/publication or infrastructure drift. | `docs/roadmap/PR511A_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_RESULT.md` |

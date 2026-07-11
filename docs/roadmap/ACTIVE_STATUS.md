@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR511B cross-owner encounter consent ledger hosted proof complete
+## Current lane - PR512 consented cross-owner encounter runtime preflight opened
+
+MIMIR accepted and closed PR511B:
+
+`docs/roadmap/PR511B_CROSS_OWNER_ENCOUNTER_CONSENT_LEDGER_HOSTED_PROOF_CLOSEOUT.md`
+
+MIMIR opened PR512 for ARGUS:
+
+`docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md`
+
+Current lane:
+
+```text
+PR512 - Consented Cross-Owner Encounter Runtime Preflight
+Owner: ARGUS / A3
+State: OPEN_HOSTILE_PREFLIGHT
+Source: docs/roadmap/PR512_CONSENTED_CROSS_OWNER_ENCOUNTER_RUNTIME_PREFLIGHT_ARGUS.md
+```
+
+Summary:
+
+- PR511B proves the hosted cross-owner consent ledger;
+- all cross-owner consent scopes remain non-executable by default;
+- PR512 asks ARGUS whether the smallest safe next Phase 3 Persona-to-Persona
+  Encounter lane is `PR512A - Consented Cross-Owner Disposable Encounter
+  Preview`;
+- if PR512A is unsafe, ARGUS must name the concrete blocker and the smallest
+  numbered lane that removes it, not return a bare refusal.
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR511B cross-owner encounter consent ledger hosted proof complete
 
 ARIADNE completed PR511B and woke MIMIR:
 
