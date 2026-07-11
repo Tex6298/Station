@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR518A cross-owner metadata exhibit public index accepted by ARGUS
+## Current lane - PR518B cross-owner public index hosted proof
+
+MIMIR accepted PR518A locally with the ARGUS patch:
+
+`docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_CLOSEOUT.md`
+
+ARGUS review:
+
+`docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md`
+
+Current lane:
+
+```text
+PR518B - Cross-Owner Metadata Exhibit Public Index Hosted Proof
+Owner: ARIADNE / A4
+State: Routed after CLOSE_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_ACCEPTED_LOCALLY
+Source: docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ARIADNE.md
+```
+
+Hosted proof target:
+
+- verify hosted web/API include PR518A;
+- prove a safe bilaterally approved cross-owner metadata exhibit appears in the
+  dedicated API list and `/encounters/cross-owner`;
+- prove the page/payload is metadata-only and no broader public surfaces pick
+  it up;
+- re-prove same-owner public exhibit behavior and cleanup.
+
+Still blocked:
+
+- Discover search/feed, public persona, public Space, forum/community/Salon,
+  writing, Station Press, generated words, transcripts, excerpts, summaries,
+  private saved cross-owner artifacts, PR516 disposable preview output reuse,
+  provider/retrieval/storage/billing/social/Redis/Cloudflare/queue/package/
+  deployment work, and broad UI work.
+
+## Previous lane - PR518A cross-owner metadata exhibit public index accepted by ARGUS
 
 ARGUS accepted PR518:
 
@@ -14,11 +50,7 @@ MIMIR closeout:
 
 `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_CLOSEOUT.md`
 
-ARGUS review:
-
-`docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md`
-
-Current lane:
+Result:
 
 ```text
 PR518A - Cross-Owner Metadata Exhibit Dedicated Public Index
@@ -27,7 +59,7 @@ State: ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_WITH_ARGUS_PATCH
 Source: docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md
 ```
 
-Result:
+Accepted behavior:
 
 - added `GET /persona-encounters/cross-owner-public-exhibits`;
 - list rows are bounded, cursorable, consent-backed, and filtered through the
@@ -56,9 +88,7 @@ npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 
 Next:
 
-- MIMIR should close PR518A locally if satisfied.
-- MIMIR should route ARIADNE for hosted proof because PR518A adds a new public
-  findability route.
+- MIMIR closed PR518A locally and routed PR518B to ARIADNE.
 
 Still blocked:
 
