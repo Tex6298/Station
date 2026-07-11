@@ -4,69 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509 public encounter exhibit discovery preflight opened
+## Current lane - PR509 public encounter exhibit discovery preflight accepted
 
-MIMIR closed PR508D/PR508B as accepted and opened PR509 for ARGUS:
+ARGUS accepted PR509 preflight:
 
-`docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_RESULT.md`
+`docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md`
 
-`docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_CLOSEOUT.md`
+MIMIR opened PR509 here:
 
 `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ARGUS.md`
 
 Result:
 
 ```text
-PASS_PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN
+ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ONLY
 ```
 
 Summary:
 
-- hosted web and API health/deployment passed at commit prefix
-  `e573945f3aed`, which includes PR508C floor `e573945f`;
-- hosted migration `076` compatibility re-probe passed with ledger
-  `20260711104902 / 076_persona_encounter_public_exhibits`, columns `18/18`,
-  constraints `12/12`, policies `4/4`, triggers `2/2`, report target support,
-  `moderation_reports.target_id` type `uuid`, valid tags accepted, and null
-  tags rejected;
-- owner, non-owner, and admin auth passed;
-- ARIADNE created exactly one same-owner private candidate artifact, published
-  one metadata-only public exhibit, and confirmed the dedicated public route
-  remained slug-based and metadata-only;
-- signed-in report by public slug returned `201`, duplicate report by slug
-  returned bounded `200`, and hosted moderation report target id was UUID, not
-  the public slug;
-- admin queue resolved safe UUID target context, admin remove hid the public
-  route, and admin restore reopened the eligible removed published exhibit;
-- signed-out, missing, malformed, removed, and retracted report attempts failed
-  closed;
-- owner-retracted admin actions were empty, admin remove/restore after owner
-  retract returned `400`, and the public route stayed `404`;
-- public no-drift and privacy scans passed;
-- cleanup deleted the proof artifact and proof report row.
+- the smallest safe discovery expansion is a dedicated `/encounters` index plus
+  bounded public list API for published, non-removed metadata-only public
+  encounter exhibits;
+- safe list metadata is public slug/route href, owner-authored public title,
+  public summary, public tags, same-owner display-name snapshots, published
+  date, and provenance copy only;
+- Discover search/feed, public persona profiles, public Spaces,
+  forums/discussions, Station Press/public documents, popularity sort, excerpts,
+  transcripts, raw replies, private setup, private curation, raw ids, provider
+  details, prompts, source bodies, and cross-owner words remain out of scope;
+- PR509A should go to DAEDALUS if MIMIR accepts the lane;
+- focused validation passed for encounter routes, reports, writing/Discover
+  helpers, community/search routes, and typecheck.
 
 Current lane:
 
 ```text
 PR509 - Public Encounter Exhibit Discovery Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: PREFLIGHT_ACCEPTED_ROUTE_PR509A
+Source: docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md
 ```
 
 Next:
 
-- ARGUS decides whether and how public encounter exhibits may become
-  discoverable from Station public surfaces;
-- ARGUS recommends the smallest safe implementation lane, or a concrete
-  prerequisite/no-go;
-- ARGUS wakes MIMIR with verdict and next owner.
+- MIMIR closes PR509 if accepted;
+- route DAEDALUS for PR509A public encounter exhibit index implementation.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR508D owner encounter public exhibit report/takedown hosted rerun accepted

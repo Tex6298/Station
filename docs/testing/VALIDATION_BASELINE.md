@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR509 Public Encounter Exhibit Discovery Preflight
+
+ARGUS completed PR509 preflight on 2026-07-11:
+
+- `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ONLY`.
+
+Reason:
+
+- PR508D hosted proof established metadata-only same-owner public encounter
+  exhibits on dedicated `/encounters/[slug]` routes with report/takedown and
+  owner-retract protection;
+- current public exhibit serialization exposes only public slug/title/summary/
+  tags, same-owner display snapshots, published date, provenance, and report
+  affordance;
+- current Discover/search/feed, public persona, public Space, forum, and Station
+  Press surfaces do not include encounter exhibits;
+- the smallest safe discovery expansion is a dedicated `/encounters` index plus
+  bounded public list API for published, non-removed metadata-only exhibits;
+- Discover search/feed, public persona profiles, public Spaces,
+  forums/discussions, Station Press/public documents, popularity sort, excerpts,
+  transcripts, raw replies, private setup, private curation, raw ids, provider
+  details, prompts, source bodies, and cross-owner words remain out of scope.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 36 tests passed; current public exhibit route/report/retract behavior and metadata-only UI scan remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; report queue, UUID public exhibit target context, remove/restore, and owner-retracted restore protection remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; current Discover/writing/public-persona helpers keep routeable item contracts bounded. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 41 tests passed; Discover feed/search, search dropdown route filtering, public forum/search errors, and public-safe item filters remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| Current surfacing review | Pass | Code review found no current public encounter exhibit surfacing outside `/encounters/[slug]`. |
+| Scope review | Pass | PR509 preflight changes are roadmap/testing docs only; no runtime implementation was made. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, or bearer-token-shaped values found in changed files. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR509 preflight docs/status updates. |
+
 ## PR508D Owner Encounter Public Exhibit Report/Takedown Hosted Rerun
 
 ARIADNE completed PR508D hosted rerun on 2026-07-11:

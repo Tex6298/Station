@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR509 | Public Encounter Exhibit Discovery Preflight | ARGUS / A3 | Open boundary preflight; decide whether and how hosted-proven metadata-only public encounter exhibits may become discoverable outside dedicated `/encounters/[slug]` routes without leaking private encounter material or weakening retract/takedown guarantees. | `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ARGUS.md` |
+| PR509 | Public Encounter Exhibit Discovery Preflight | MIMIR / A1 | ARGUS accepted `ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ONLY`; ready for MIMIR closeout/routing to DAEDALUS for a dedicated `/encounters` index and bounded public list API, with Discover/search/feed/persona/Space/forum/Station Press surfacing still forbidden. | `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR509 preflight | Public Encounter Exhibit Discovery Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ONLY`; smallest safe discovery expansion is a dedicated `/encounters` index plus bounded metadata-only public list API, not Discover/search/feed/persona/Space/forum/document surfacing. | `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md` |
 | PR508D closeout | Owner Encounter Public Exhibit Report/Takedown Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_ACCEPTED`; report/takedown is hosted-proven and PR509 opens discovery-surfacing preflight. | `docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_CLOSEOUT.md` |
 | PR508C closeout | Owner Encounter Public Exhibit Report Target Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_ACCEPTED`; ARIADNE gets PR508D to rerun the hosted report/takedown proof. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_CLOSEOUT.md` |
 | PR508C review | Owner Encounter Public Exhibit Report Target Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR`; public report routes stay slug-based, moderation reports persist exhibit UUID targets, admin context resolves UUID to safe metadata, and owner-retracted restore protection remains intact. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md` |
