@@ -10,6 +10,9 @@ import {
   PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
+  personaEncounterCrossOwnerConsentCanRun,
+  personaEncounterCrossOwnerConsentDisplay,
+  personaEncounterCrossOwnerConsentStateCopy,
   personaEncounterCrossOwnerDisposablePreviewErrorCopy,
   personaEncounterCrossOwnerDisposablePreviewPath,
   personaEncounterCrossOwnerDisposablePreviewPayload,
@@ -32,6 +35,7 @@ import {
   personaEncounterPreviewReadback,
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterCrossOwnerConsent,
   type PersonaEncounterCrossOwnerDisposablePreviewResponse,
   type PersonaEncounterPreviewResponse,
   type PersonaEncounterPrivateSession,
@@ -148,6 +152,70 @@ const crossOwnerResponse: PersonaEncounterCrossOwnerDisposablePreviewResponse = 
   },
 };
 
+function crossOwnerConsent(
+  overrides: Partial<PersonaEncounterCrossOwnerConsent> = {},
+): PersonaEncounterCrossOwnerConsent {
+  return {
+    id: "consent-1",
+    status: "approved",
+    participantRole: "requester",
+    participants: {
+      requester: {
+        role: "requester",
+        personaName: "Harbor",
+        currentUser: true,
+      },
+      counterparty: {
+        role: "counterparty",
+        personaName: "Lantern",
+        currentUser: false,
+      },
+    },
+    requestedScopes: [{
+      scope: "run_cross_owner_encounter",
+      label: "Run cross-owner encounter",
+      executable: false,
+    }],
+    requestedScopeVersion: 1,
+    ledger: {
+      consentRecordActive: true,
+      executable: false,
+      permitsRuntime: false,
+      permitsPrivateArtifact: false,
+      permitsPublicExhibit: false,
+      permitsGeneratedWords: false,
+      permitsTranscript: false,
+      permitsSummary: false,
+      permitsPublicSurfacing: false,
+      note: "Consent ledger only.",
+    },
+    timestamps: {
+      createdAt: "2026-07-11T00:00:00.000Z",
+      updatedAt: "2026-07-11T00:00:00.000Z",
+      requesterApprovedAt: "2026-07-11T00:00:00.000Z",
+      counterpartyApprovedAt: "2026-07-11T00:00:00.000Z",
+      rejectedAt: null,
+      cancelledAt: null,
+      revokedAt: null,
+      expiredAt: null,
+      supersededAt: null,
+      blockedByDeletionAt: null,
+      moderationLockedAt: null,
+    },
+    reasonCode: null,
+    provenance: {
+      label: "Cross-owner consent ledger record",
+      schema: "station.persona_encounter.cross_owner_consent.v1",
+      participantOwnerOnly: true,
+      auditAppendOnly: true,
+      public: false,
+      note: "Readback is limited to participant owners.",
+    },
+    audit: [],
+    ...overrides,
+  };
+}
+
 test("persona encounter runtime helper builds the bounded preview request", () => {
   assert.equal(PERSONA_ENCOUNTER_PREVIEW_PATH, "/persona-encounters/preview");
   assert.equal(PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH, "/persona-encounters/preview/readiness");
@@ -213,6 +281,56 @@ test("persona encounter runtime helper checks cross-owner disposable preview rea
     consentId: "consent-1",
     setup: "   ",
   }), false);
+});
+
+test("persona encounter runtime helper classifies cross-owner consent preview eligibility", () => {
+  const approved = crossOwnerConsent();
+
+  assert.equal(personaEncounterCrossOwnerConsentDisplay(approved), "Harbor / Lantern");
+  assert.equal(personaEncounterCrossOwnerConsentCanRun(approved), true);
+  assert.equal(
+    personaEncounterCrossOwnerConsentStateCopy(approved),
+    "Approved consent can run one private disposable preview.",
+  );
+
+  for (const [status, copy] of [
+    ["pending", "Consent is pending and cannot run a preview yet."],
+    ["rejected", "Consent was rejected and cannot run a preview."],
+    ["cancelled", "Consent was cancelled and cannot run a preview."],
+    ["revoked", "Consent was revoked and cannot run a preview."],
+    ["expired", "Consent expired and cannot run a preview."],
+    ["superseded", "Consent was superseded and cannot run a preview."],
+    ["blocked_by_deletion", "Consent is blocked by deletion and cannot run a preview."],
+    ["moderation_locked", "Consent is moderation locked and cannot run a preview."],
+  ] as const) {
+    const consent = crossOwnerConsent({ status });
+    assert.equal(personaEncounterCrossOwnerConsentCanRun(consent), false);
+    assert.equal(personaEncounterCrossOwnerConsentStateCopy(consent), copy);
+  }
+
+  const wrongScope = crossOwnerConsent({
+    requestedScopes: [{
+      scope: "publish_transcript",
+      label: "Publish transcript",
+      executable: false,
+    }],
+  });
+  assert.equal(personaEncounterCrossOwnerConsentCanRun(wrongScope), false);
+  assert.equal(
+    personaEncounterCrossOwnerConsentStateCopy(wrongScope),
+    "This consent does not include cross-owner preview runtime scope.",
+  );
+
+  const wrongVersion = crossOwnerConsent({ requestedScopeVersion: 2 });
+  assert.equal(personaEncounterCrossOwnerConsentCanRun(wrongVersion), false);
+  assert.equal(
+    personaEncounterCrossOwnerConsentStateCopy(wrongVersion),
+    "This consent uses a scope version that cannot run the disposable preview.",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerConsentStateCopy(null),
+    "No cross-owner consents are available.",
+  );
 });
 
 test("persona encounter runtime helper builds private session paths", () => {
@@ -559,4 +677,35 @@ test("public encounter exhibit page and Studio controls stay metadata-only", () 
       /owner_user_id|private_session_id|initiator_persona_id|responder_persona_id|owner_setup|responder_reply|owner_title|owner_summary|owner_tags|provider_payload|source_body|raw_source/i,
     );
   }
+});
+
+test("cross-owner disposable preview Studio panel uses only consent-scoped helpers", () => {
+  const pageSource = readFileSync("apps/web/app/studio/personas/[personaId]/page.tsx", "utf8");
+  const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
+  const panelStart = workspaceSource.indexOf("export function CrossOwnerDisposablePreviewPanel");
+  const panelEnd = workspaceSource.indexOf("function PrivateEncounterCurationControls");
+  const panelSource = workspaceSource.slice(panelStart, panelEnd);
+
+  assert.notEqual(panelStart, -1);
+  assert.notEqual(panelEnd, -1);
+  assert.match(pageSource, /<CrossOwnerDisposablePreviewPanel token=\{token\} \/>/);
+  assert.match(panelSource, /PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH/);
+  assert.match(panelSource, /apiGet<PersonaEncounterCrossOwnerConsentListResponse>/);
+  assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewPath\(selectedConsent\.id\)/);
+  assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewPayload\(\{ setup \}\)/);
+  assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewReadback\(preview\)/);
+  assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewErrorCopy/);
+  assert.match(panelSource, /setupReadback\.map/);
+  assert.match(panelSource, /readback\.slice\(4\)/);
+  assert.match(panelSource, /open persona tab is context, not participant proof/);
+
+  assert.doesNotMatch(
+    panelSource,
+    /initiatorPersonaId|responderPersonaId|requesterPersonaId|counterpartyPersonaId|ownerUserId|owner_user_id|requester_persona_id|counterparty_persona_id/,
+  );
+  assert.doesNotMatch(
+    panelSource,
+    /PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH|personaEncounterPrivateSession|personaEncounterPublicExhibit|PrivateEncounterPublicExhibitControls|Save private artifact|Publish public metadata/,
+  );
+  assert.doesNotMatch(panelSource, /\/encounters\/|\/persona-encounters\/preview["']/);
 });

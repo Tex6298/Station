@@ -15,6 +15,7 @@ import { PersonaChat } from "@/components/studio/persona-chat";
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
 import {
   ContinuityCards,
+  CrossOwnerDisposablePreviewPanel,
   PersonaEncounterContractPanel,
   PersonaEncounterReadinessGate,
   PersonaEncounterRuntimePreview,
@@ -112,7 +113,10 @@ export default function PersonaPage() {
       <PersonaEncounterReadinessGate />
       {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
       {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
-        <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
+        <>
+          <CrossOwnerDisposablePreviewPanel token={token} />
+          <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
+        </>
       )}
       <RuntimeContextPreview personaId={persona.id} />
       <ArchiveExportStatus

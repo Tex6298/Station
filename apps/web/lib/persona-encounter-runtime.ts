@@ -121,6 +121,96 @@ export interface PersonaEncounterCrossOwnerDisposablePreviewResponse {
   };
 }
 
+export type PersonaEncounterCrossOwnerConsentStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "cancelled"
+  | "revoked"
+  | "expired"
+  | "superseded"
+  | "blocked_by_deletion"
+  | "moderation_locked";
+
+export type PersonaEncounterCrossOwnerConsentParticipantRole = "requester" | "counterparty";
+
+export interface PersonaEncounterCrossOwnerConsent {
+  id: string;
+  status: PersonaEncounterCrossOwnerConsentStatus;
+  participantRole: PersonaEncounterCrossOwnerConsentParticipantRole | null;
+  participants: {
+    requester: {
+      role: "requester";
+      personaName: string;
+      currentUser: boolean;
+    };
+    counterparty: {
+      role: "counterparty";
+      personaName: string;
+      currentUser: boolean;
+    };
+  };
+  requestedScopes: Array<{
+    scope: string;
+    label: string;
+    executable: false;
+    note?: string;
+  }>;
+  requestedScopeVersion: number;
+  ledger: {
+    consentRecordActive: boolean;
+    executable: false;
+    permitsRuntime: false;
+    permitsPrivateArtifact: false;
+    permitsPublicExhibit: false;
+    permitsGeneratedWords: false;
+    permitsTranscript: false;
+    permitsSummary: false;
+    permitsPublicSurfacing: false;
+    note: string;
+  };
+  timestamps: {
+    createdAt: string;
+    updatedAt: string;
+    requesterApprovedAt: string | null;
+    counterpartyApprovedAt: string | null;
+    rejectedAt: string | null;
+    cancelledAt: string | null;
+    revokedAt: string | null;
+    expiredAt: string | null;
+    supersededAt: string | null;
+    blockedByDeletionAt: string | null;
+    moderationLockedAt: string | null;
+  };
+  reasonCode: string | null;
+  provenance: {
+    label: "Cross-owner consent ledger record";
+    schema: string;
+    participantOwnerOnly: true;
+    auditAppendOnly: true;
+    public: false;
+    note: string;
+  };
+  audit: Array<{
+    id: string;
+    actorRole: string;
+    eventType: string;
+    previousStatus: string | null;
+    nextStatus: string;
+    requestedScopes: Array<{
+      scope: string;
+      label: string;
+      executable: false;
+    }>;
+    reasonCode: string | null;
+    createdAt: string;
+  }>;
+}
+
+export interface PersonaEncounterCrossOwnerConsentListResponse {
+  consents: PersonaEncounterCrossOwnerConsent[];
+}
+
 export interface PersonaEncounterPrivateSession {
   id: string;
   createdAt: string;
@@ -302,6 +392,9 @@ export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/pre
 export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH = "/persona-encounters/public-exhibits";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH = "/persona-encounters/cross-owner-consents";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE =
+  "run_cross_owner_encounter";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION = 1;
 export const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
@@ -329,6 +422,57 @@ export function personaEncounterCrossOwnerDisposablePreviewPayload(
     setup: input.setup.trim(),
     ...(input.maxOutputTokens !== undefined ? { maxOutputTokens: input.maxOutputTokens } : {}),
   };
+}
+
+export function personaEncounterCrossOwnerConsentDisplay(consent: PersonaEncounterCrossOwnerConsent) {
+  return `${consent.participants.requester.personaName} / ${consent.participants.counterparty.personaName}`;
+}
+
+export function personaEncounterCrossOwnerConsentCanRun(
+  consent: PersonaEncounterCrossOwnerConsent,
+) {
+  return Boolean(
+    consent.status === "approved" &&
+    consent.requestedScopeVersion === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION &&
+    consent.requestedScopes.some((scope) =>
+      scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE
+    ),
+  );
+}
+
+export function personaEncounterCrossOwnerConsentStateCopy(
+  consent?: PersonaEncounterCrossOwnerConsent | null,
+) {
+  if (!consent) return "No cross-owner consents are available.";
+  if (consent.requestedScopeVersion !== PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION) {
+    return "This consent uses a scope version that cannot run the disposable preview.";
+  }
+  if (!consent.requestedScopes.some((scope) =>
+    scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE
+  )) {
+    return "This consent does not include cross-owner preview runtime scope.";
+  }
+
+  switch (consent.status) {
+    case "approved":
+      return "Approved consent can run one private disposable preview.";
+    case "pending":
+      return "Consent is pending and cannot run a preview yet.";
+    case "rejected":
+      return "Consent was rejected and cannot run a preview.";
+    case "cancelled":
+      return "Consent was cancelled and cannot run a preview.";
+    case "revoked":
+      return "Consent was revoked and cannot run a preview.";
+    case "expired":
+      return "Consent expired and cannot run a preview.";
+    case "superseded":
+      return "Consent was superseded and cannot run a preview.";
+    case "blocked_by_deletion":
+      return "Consent is blocked by deletion and cannot run a preview.";
+    case "moderation_locked":
+      return "Consent is moderation locked and cannot run a preview.";
+  }
 }
 
 export function personaEncounterPreviewReadinessPath(input: {

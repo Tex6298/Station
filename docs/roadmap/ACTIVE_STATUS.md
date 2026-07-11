@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514E cross-owner disposable preview Studio panel
+## Current lane - PR514E cross-owner disposable preview Studio panel ready for ARGUS
 
 MIMIR accepted PR514D and opened PR514E:
 
@@ -12,45 +12,63 @@ MIMIR accepted PR514D and opened PR514E:
 
 `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md`
 
+DAEDALUS implementation result:
+
+`docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_RESULT.md`
+
 Result:
 
 ```text
-CLOSE_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_ACCEPTED
+READY_FOR_ARGUS_REVIEW_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL
 ```
 
 Summary:
 
-- PR514D is accepted: the browser no longer needs participant persona ids to
-  run the cross-owner disposable preview route;
-- the accepted POST body is consent-scoped setup/options only;
-- the server infers initiator/responder from authenticated participant role and
-  the approved consent row;
-- ARGUS patched helper fallback labels so pre-run copy says runtime audit is
-  required, while successful response readback says runtime audit recorded;
-- no visible UI, saved cross-owner private sessions, public exhibits,
-  generated-word sharing, retrieval, memory/canon/archive/continuity/integrity,
-  billing, storage, migration, provider config, or deployment work was added.
+- added a narrow owner-only Studio panel for cross-owner disposable preview in
+  the private persona workspace;
+- the panel is account-level participant consent and does not treat the current
+  persona tab as proof of the participant persona;
+- the panel fetches `GET /persona-encounters/cross-owner-consents` only when an
+  auth token is available;
+- consent rows are rendered using participant-safe display snapshots, status,
+  role, scope labels, scope version, timestamps/provenance, and bounded state
+  copy;
+- approved eligible consent rows can run through
+  `personaEncounterCrossOwnerDisposablePreviewPath(selectedConsent.id)` with
+  `personaEncounterCrossOwnerDisposablePreviewPayload({ setup })`;
+- no browser code sends or infers requester/counterparty/initiator/responder
+  persona ids;
+- pre-run and success states show the required private/disposable/not-saved/
+  not-public/not-canonical/no-retrieval/counterparty-hidden/audit labels;
+- pending, rejected, cancelled, revoked, expired, superseded,
+  blocked-by-deletion, moderation-locked, wrong-scope, and wrong-version states
+  have no run button;
+- same-owner saved private artifact and public exhibit controls remain separate;
+- no saved cross-owner sessions, public exhibits, generated-word sharing,
+  retrieval, memory/canon/archive/continuity/integrity, billing, storage,
+  migration, provider config, public routes, or deployment work was added.
 
 Current lane:
 
 ```text
 PR514E - Cross-Owner Disposable Preview Studio Panel
-Owner: DAEDALUS / A2
-State: OPEN_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md
+Owner chain: MIMIR -> DAEDALUS -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_RESULT.md
 ```
 
-Next:
+Validation:
 
-- DAEDALUS wires a narrow owner-only Studio panel using the accepted
-  consent-scoped helper and participant-safe consent ledger readback.
-- DAEDALUS should wake ARGUS for visible UI boundary review.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 207 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `test:persona-encounters` was not rerun because PR514E did not change API
+  route behavior.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR514D cross-owner disposable preview client contract accepted

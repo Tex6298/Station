@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR514E Cross-Owner Disposable Preview Studio Panel
+
+DAEDALUS completed PR514E implementation on 2026-07-11:
+
+- `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL`.
+
+Reason:
+
+- the private persona Studio workspace now includes a narrow account-level
+  participant-consent cross-owner disposable preview panel;
+- the panel fetches `GET /persona-encounters/cross-owner-consents` only when an
+  auth token exists;
+- consent display uses participant-safe names, status, role, scope labels,
+  scope version, and bounded state copy;
+- approved eligible consent rows post through the consent-scoped preview helper
+  with setup-only payloads;
+- source-level coverage proves the panel does not send requester/counterparty/
+  initiator/responder persona ids and does not call same-owner preview,
+  private-session, public-exhibit, or public encounter routes;
+- helper coverage proves pending, rejected, cancelled, revoked, expired,
+  superseded, blocked-by-deletion, moderation-locked, wrong-scope, and
+  wrong-version copy has no runnable state;
+- no API route behavior changed in PR514E.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 207 tests passed. New coverage proves consent eligibility/state copy, account-level Studio panel source wiring, auth-token ledger fetch, consent-scoped setup-only run payload, required private/disposable/no-retrieval/counterparty/audit labels, bounded errors, and separation from same-owner saved artifacts/public exhibits. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for `@station/api` and `@station/web`; `@station/api` was cached and `@station/web` executed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Not run | API route behavior did not change in PR514E. |
+| `git diff --check` | Pass | No whitespace errors; Git emitted expected CRLF conversion warnings for touched files. |
+
 ## PR514D Cross-Owner Disposable Preview Client Contract ARGUS Review
 
 ARGUS accepted PR514D on 2026-07-11:

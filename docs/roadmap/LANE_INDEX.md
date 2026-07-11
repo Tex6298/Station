@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514E | Cross-Owner Disposable Preview Studio Panel | DAEDALUS / A2 | Open implementation of a narrow owner-only Studio panel using the accepted consent-scoped helper and participant-safe consent ledger readback. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_DAEDALUS.md` |
+| PR514E | Cross-Owner Disposable Preview Studio Panel | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS visible UI boundary review; private persona workspace now has an account-level participant-consent panel that fetches the safe consent ledger, posts setup-only consent-scoped preview requests, shows required private/disposable/audit/counterparty labels, and stays separate from saved artifacts/public exhibits. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_RESULT.md` |
 
 ## Recently Closed
 

@@ -13,8 +13,17 @@ import {
 import { personaEncounterContractGate } from "@/lib/persona-encounter-contract";
 import { personaEncounterReadinessGate } from "@/lib/persona-encounter-readiness";
 import {
+  PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
+  personaEncounterCrossOwnerConsentCanRun,
+  personaEncounterCrossOwnerConsentDisplay,
+  personaEncounterCrossOwnerConsentStateCopy,
+  personaEncounterCrossOwnerDisposablePreviewErrorCopy,
+  personaEncounterCrossOwnerDisposablePreviewPath,
+  personaEncounterCrossOwnerDisposablePreviewPayload,
+  personaEncounterCrossOwnerDisposablePreviewReadback,
+  personaEncounterCrossOwnerDisposablePreviewReady,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPublicExhibitPath,
@@ -28,6 +37,9 @@ import {
   personaEncounterPreviewReadback,
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterCrossOwnerConsent,
+  type PersonaEncounterCrossOwnerConsentListResponse,
+  type PersonaEncounterCrossOwnerDisposablePreviewResponse,
   type PersonaEncounterPublicExhibitResponse,
   type PersonaEncounterPrivateSession,
   type PersonaEncounterPrivateSessionDeleteResponse,
@@ -570,6 +582,238 @@ export function PersonaEncounterRuntimePreview({
           </div>
         )}
       </article>
+    </section>
+  );
+}
+
+export function CrossOwnerDisposablePreviewPanel({ token }: { token: string | null }) {
+  const [consents, setConsents] = useState<PersonaEncounterCrossOwnerConsent[]>([]);
+  const [selectedConsentId, setSelectedConsentId] = useState("");
+  const [setup, setSetup] = useState("");
+  const [preview, setPreview] = useState<PersonaEncounterCrossOwnerDisposablePreviewResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
+
+  const eligibleConsents = useMemo(
+    () => consents.filter(personaEncounterCrossOwnerConsentCanRun),
+    [consents],
+  );
+  const selectedConsent =
+    consents.find((consent) => consent.id === selectedConsentId) ??
+    eligibleConsents[0] ??
+    consents[0] ??
+    null;
+  const selectedCanRun = selectedConsent ? personaEncounterCrossOwnerConsentCanRun(selectedConsent) : false;
+  const ready = Boolean(
+    selectedConsent &&
+    selectedCanRun &&
+    personaEncounterCrossOwnerDisposablePreviewReady({
+      consentId: selectedConsent.id,
+      setup,
+    }),
+  );
+  const readback = personaEncounterCrossOwnerDisposablePreviewReadback(preview);
+  const setupReadback = preview ? readback.slice(0, 4) : readback;
+  const consentStateCopy = personaEncounterCrossOwnerConsentStateCopy(selectedConsent);
+
+  useEffect(() => {
+    if (!token) {
+      setConsents([]);
+      setSelectedConsentId("");
+      setPreview(null);
+      setLoadError(null);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+    apiGet<PersonaEncounterCrossOwnerConsentListResponse>(
+      PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
+      token,
+    ).then((response) => {
+      if (cancelled) return;
+      const nextConsents = response.consents ?? [];
+      setConsents(nextConsents);
+      setSelectedConsentId((current) => {
+        if (nextConsents.some((consent) => consent.id === current)) return current;
+        return nextConsents.find(personaEncounterCrossOwnerConsentCanRun)?.id ?? nextConsents[0]?.id ?? "";
+      });
+    }).catch((caught) => {
+      if (cancelled) return;
+      if (caught instanceof ApiRequestError) {
+        setLoadError(personaEncounterCrossOwnerDisposablePreviewErrorCopy(caught));
+      } else {
+        setLoadError("Cross-owner consent could not be loaded.");
+      }
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    setPreview(null);
+    setRunError(null);
+  }, [selectedConsentId]);
+
+  async function runCrossOwnerPreview() {
+    if (!token || !selectedConsent || !selectedCanRun || !ready || busy) return;
+    setBusy(true);
+    setRunError(null);
+    setPreview(null);
+
+    try {
+      const response = await apiPost<PersonaEncounterCrossOwnerDisposablePreviewResponse>(
+        personaEncounterCrossOwnerDisposablePreviewPath(selectedConsent.id),
+        personaEncounterCrossOwnerDisposablePreviewPayload({ setup }),
+        token,
+      );
+      setPreview(response);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setRunError(personaEncounterCrossOwnerDisposablePreviewErrorCopy(caught));
+      } else {
+        setRunError("Cross-owner disposable preview could not run.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="studio-runtime-preview" aria-label="Cross-owner disposable preview">
+      <div className="studio-section-heading">
+        <div className="section-label">Cross-owner disposable preview</div>
+        <h2>Consent-scoped private preview</h2>
+        <p>Account-level participant consent only. The open persona tab is context, not participant proof.</p>
+      </div>
+
+      {!token ? (
+        <div className="studio-empty">Sign in to view participant consent previews.</div>
+      ) : loading ? (
+        <div className="studio-empty">Loading cross-owner consent ledger.</div>
+      ) : loadError ? (
+        <div className="space-form-error">{loadError}</div>
+      ) : consents.length === 0 ? (
+        <div className="studio-empty">No cross-owner consents are available.</div>
+      ) : (
+        <>
+          <div className="studio-runtime-query">
+            <label>
+              <span className="section-label">Consent display snapshots</span>
+              <select
+                className="select"
+                value={selectedConsent?.id ?? ""}
+                onChange={(event) => setSelectedConsentId(event.target.value)}
+                disabled={busy}
+                style={{ margin: "0.35rem 0 0" }}
+              >
+                {consents.map((consent) => (
+                  <option key={consent.id} value={consent.id}>
+                    {personaEncounterCrossOwnerConsentDisplay(consent)} / {consent.status}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="studio-encounter-artifact-tags">
+              <span>
+                <strong>{eligibleConsents.length} approved eligible</strong>
+              </span>
+            </div>
+          </div>
+
+          {selectedConsent && (
+            <article className="studio-context-panel">
+              <div className="section-label">Consent ledger readback</div>
+              <h3>{personaEncounterCrossOwnerConsentDisplay(selectedConsent)}</h3>
+              <div className="studio-encounter-artifact-tags">
+                <span>
+                  <strong>Status: {selectedConsent.status}</strong>
+                </span>
+                <span>
+                  <strong>Participant role: {selectedConsent.participantRole ?? "participant"}</strong>
+                </span>
+                <span>
+                  <strong>Scope version: {selectedConsent.requestedScopeVersion}</strong>
+                </span>
+                <span>
+                  <strong>{selectedConsent.requestedScopes.map((scope) => scope.label).join(", ") || "No scope"}</strong>
+                </span>
+              </div>
+              <p>{consentStateCopy}</p>
+            </article>
+          )}
+
+          {eligibleConsents.length === 0 && (
+            <div className="studio-empty">No approved eligible cross-owner consent can run a disposable preview.</div>
+          )}
+
+          {selectedConsent && selectedCanRun && (
+            <>
+              <label>
+                <span className="section-label">Actor-authored setup</span>
+                <textarea
+                  className="textarea"
+                  value={setup}
+                  onChange={(event) => setSetup(event.target.value)}
+                  maxLength={1600}
+                  disabled={busy}
+                  placeholder="Write one private setup for the approved participant consent."
+                  style={{ margin: "0.35rem 0 0", minHeight: 110 }}
+                />
+              </label>
+
+              <div className="studio-encounter-artifact-tags">
+                {setupReadback.map((item) => (
+                  <span key={item}>
+                    <strong>{item}</strong>
+                  </span>
+                ))}
+                {!setup.trim() && (
+                  <span>
+                    <strong>Actor-authored setup required</strong>
+                  </span>
+                )}
+              </div>
+
+              <div className="studio-runtime-query">
+                <button
+                  className="button primary"
+                  type="button"
+                  onClick={runCrossOwnerPreview}
+                  disabled={!ready || busy}
+                >
+                  {busy ? "Generating..." : "Generate cross-owner preview"}
+                </button>
+              </div>
+            </>
+          )}
+
+          {runError && <div className="space-form-error">{runError}</div>}
+
+          {preview && (
+            <article className="studio-context-panel">
+              <div className="section-label">{preview.provenance.reply.label}</div>
+              <h3>Private disposable reply</h3>
+              <p>{preview.preview.reply.content}</p>
+              <div className="studio-encounter-artifact-tags">
+                {readback.slice(4).map((item) => (
+                  <span key={item}>
+                    <strong>{item}</strong>
+                  </span>
+                ))}
+              </div>
+            </article>
+          )}
+        </>
+      )}
     </section>
   );
 }
