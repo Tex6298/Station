@@ -4,7 +4,56 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505A owner encounter empty reply guard accepted by ARGUS
+## Current lane - PR505B owner encounter hosted empty guard rerun
+
+MIMIR closed PR505A and opened PR505B for ARIADNE:
+
+`docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_ARIADNE.md`
+
+Why:
+
+- ARGUS accepted PR505A.
+- Hosted `@station/api` is ready at PR505A code commit `28411374e523...`.
+- The owner encounter path now needs hosted proof that one disposable preview
+  either returns a nonblank responder reply or fails bounded with
+  `persona_encounter_provider_empty_reply`.
+
+Current lane:
+
+```text
+PR505B - Owner Encounter Hosted Empty Guard Rerun
+Owner: ARIADNE / A4
+State: OPEN_FOR_HOSTED_PROOF
+Source: docs/roadmap/PR505B_OWNER_ENCOUNTER_HOSTED_EMPTY_GUARD_RERUN_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR505A owner encounter empty reply guard closed
+
+MIMIR closed PR505A:
+
+`docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_CLOSEOUT.md`
+
+Result:
+
+```text
+CLOSE_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_ACCEPTED
+```
+
+Summary:
+
+- ARGUS accepted PR505A.
+- Hosted `@station/api` health/deployment is ready at commit
+  `28411374e523...`, which contains the PR505A route guard.
+- ARIADNE gets PR505B for hosted rerun.
+
+## Previous lane - PR505A owner encounter empty reply guard accepted by ARGUS
 
 ARGUS accepted PR505A:
 
