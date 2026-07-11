@@ -2351,6 +2351,42 @@ test("owner can create, read, and bundle Station Press publication metadata pack
   }
 });
 
+test("Station Press publication packages tolerate missing optional seminar schedule schema", async () => {
+  const db = new InMemorySupabase();
+  db.operationErrors.set("select:public_seminar_records", {
+    code: "PGRST204",
+    message: "Could not find the 'scheduled_starts_at' column of 'public_seminar_records' in the schema cache",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createExportsApp();
+
+  try {
+    const created = await requestJson(app, "POST", `/exports/station-press/publications/${DOC_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.exportPackage.packageKind, "station_press_publication");
+    assert.equal(created.body.exportPackage.status, "completed");
+    assert.equal(created.body.manifest.seminar, null);
+    assert.equal("documentId" in created.body.exportPackage, false);
+
+    const packageRow = db.tables.export_packages.find((row) => row.id === created.body.exportPackage.id);
+    assert.ok(packageRow);
+    assert.equal(packageRow.document_id, DOC_ID);
+    assert.equal(packageRow.status, "completed");
+    assert.equal(packageRow.error_message, null);
+    assert.equal(packageRow.manifest_json.seminar, null);
+
+    const responseText = JSON.stringify(created.body) + JSON.stringify(packageRow.manifest_json) + packageRow.manifest_markdown;
+    assert.doesNotMatch(
+      responseText,
+      /PGRST204|public_seminar_records|scheduled_starts_at|schema cache|source_id|owner_user_id|DATABASE_URL|SQL|stack trace/
+    );
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("Station Press publication packages reject not-ready documents before completion", async () => {
   const db = new InMemorySupabase();
   const archived = db.insertRow("documents", {

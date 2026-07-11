@@ -328,6 +328,20 @@ function isMissingSingleRow(error: { code?: string; message?: string } | null | 
   return error?.code === "PGRST116" || message.includes("Expected one");
 }
 
+function isMissingOptionalStationPressSeminarSchema(
+  error: { code?: string; message?: string; details?: string } | null | undefined
+) {
+  const code = error?.code ?? "";
+  const message = `${error?.message ?? ""} ${error?.details ?? ""}`;
+
+  if (code === "42P01" || code === "42703") return true;
+  if ((code === "PGRST204" || code === "PGRST205") && /public_seminar_records|scheduled_|schema cache/i.test(message)) {
+    return true;
+  }
+
+  return /public_seminar_records/i.test(message) && /(could not find|does not exist|schema cache|relation|column)/i.test(message);
+}
+
 function throwIfQueryError(
   result: { error?: { code?: string; message?: string } | null },
   label: string,
@@ -1352,6 +1366,7 @@ async function loadStationPressSeminarRecord(documentId: string, ownerUserId: st
     .eq("source_id", documentId)
     .order("updated_at", { ascending: false });
 
+  if (error && isMissingOptionalStationPressSeminarSchema(error)) return null;
   throwIfQueryError({ error }, "Station Press seminar record source");
   return (data ?? [])[0] ?? null;
 }

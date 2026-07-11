@@ -4,7 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504C Station Press owner package hosted create failure opened
+## Current lane - PR504C Station Press owner package create repair ready for ARGUS
+
+DAEDALUS completed the PR504C repair for ARGUS review:
+
+`docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md`
+
+Result:
+
+```text
+REVIEW_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR
+```
+
+Summary:
+
+- The hosted failure was most consistent with code treating missing optional
+  `public_seminar_records` seminar schedule schema as a fatal package source
+  error.
+- `loadStationPressSeminarRecord` now returns `null` for missing optional
+  seminar table/column/schema-cache errors, so the package can complete with
+  `manifest.seminar: null`.
+- Non-schema seminar source failures still fail bounded, leave a failed package
+  row, and avoid leaking internal schema/source details.
+- Migration `073_station_press_publication_packages.sql` was not changed; the
+  fatal readback path was outside the package target/kind/RLS migration.
+- Hosted logs/schema were not directly available in the DAEDALUS thread, so
+  ARIADNE still needs to rerun PR504B after ARGUS review and deploy.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:exports` passed: 15 tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` passed: 25
+  tests.
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed: 195 tests.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+
+Current lane:
+
+```text
+PR504C - Station Press Owner Package Hosted Create Failure
+Owner: ARGUS / A3
+State: REVIEW_READY
+Source: docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR504C Station Press owner package hosted create failure opened
 
 MIMIR opened the repair lane for DAEDALUS:
 
@@ -17,23 +68,16 @@ Reason:
 - Hosted web/API were fresh at the PR504A accepted commit and owner fixtures
   included package-ready publications.
 - Access, layout, privacy, and product-boundary probes passed.
-- The smallest next step is hosted logs/schema/migration 073/create-path repair
-  before ARGUS review and PR504B rerun.
+- The smallest next step was hosted logs/schema/migration 073/create-path
+  repair before ARGUS review and PR504B rerun.
 
-Current lane:
+Lane:
 
 ```text
 PR504C - Station Press Owner Package Hosted Create Failure
 Owner: DAEDALUS / A2
-State: OPEN_DEFECT_REPAIR
+State: IMPLEMENTED_AWAITING_ARGUS_REVIEW
 Source: docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
 ```
 
 ## Previous lane - PR504B Station Press owner package hosted proof blocked

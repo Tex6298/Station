@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR504C Station Press Owner Package Hosted Create Failure Repair
+
+DAEDALUS completed the PR504C Station Press owner package create-path repair on
+2026-07-11:
+
+- `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md`
+
+Validation result:
+`REVIEW_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`.
+
+Reason:
+
+- ARIADNE's hosted PR504B proof found one allowed owner create POST returning
+  bounded `500 station_press_publication_create_failed`;
+- the route treated missing optional `public_seminar_records` seminar schedule
+  table/column/schema-cache errors as fatal package source failures;
+- missing optional seminar schema now produces `manifest.seminar: null`;
+- non-schema seminar source failures still fail bounded and leave a failed
+  package row;
+- migration `073_station_press_publication_packages.sql` was not changed;
+- hosted proof still needs ARIADNE after ARGUS review and deploy.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 15 export API tests passed, including the new missing optional seminar schema regression and existing Station Press duplicate, malformed, source-failure, migration, not-ready, readback, bundle, and cross-owner coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:publishing-approvals` | Pass | 25 publishing API/UI tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 195 Studio UI/helper tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR504B Station Press Owner Package Hosted Proof
 
 ARIADNE completed the hosted PR504B Station Press owner package proof on
