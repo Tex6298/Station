@@ -4,7 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR505C owner encounter NVIDIA output budget accepted by ARGUS
+## Current lane - PR505D owner encounter hosted output budget rerun
+
+MIMIR closed PR505C and opened PR505D for ARIADNE:
+
+`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_CLOSEOUT.md`
+
+`docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_ACCEPTED
+```
+
+Summary:
+
+- ARGUS accepted PR505C.
+- Hosted API deployment health is ready on branch `main` at commit
+  `03d39f8e93ab01da4fd3a8ba73dbce79a52a9f80`.
+- PR505D is the hosted proof rerun against PR505C's route-local `512`
+  NVIDIA/OpenAI-compatible max-token floor and PR505A's fail-closed
+  empty-output guard.
+- ARIADNE may send exactly one same-owner disposable preview request.
+- PR505D can pass only if that preview returns `200` with nonblank responder
+  content and disposable/no-durable provenance.
+- If hosted still returns bounded `502` /
+  `persona_encounter_provider_empty_reply`, ARIADNE must block PR505D and wake
+  MIMIR.
+
+Current lane:
+
+```text
+PR505D - Owner Encounter Hosted Output Budget Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+Source: docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR505C owner encounter NVIDIA output budget accepted by ARGUS
 
 ARGUS accepted PR505C:
 
@@ -16,46 +61,9 @@ Result:
 ACCEPT_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET
 ```
 
-Summary:
+PR505C is closed in:
 
-- Owner encounter previews now apply a route-local `512` max-token floor only
-  for `nvidia_openai_compatible`.
-- Non-NVIDIA preview budget behavior is unchanged.
-- Quota estimation uses the selected route-local budget before the provider
-  call.
-- PR505A's empty-output guard remains fail-closed: blank responder output still
-  returns bounded `502` / `persona_encounter_provider_empty_reply` before
-  success serialization or successful token usage.
-- The OpenAI-compatible adapter still reads only `message.content`; it does not
-  parse or expose `reasoning_content`.
-- No retry, fake fallback, provider policy, persistence, retrieval, billing,
-  public route, queue/worker, Redis, Cloudflare, storage, schema, migration,
-  UI, or secret/payload leakage drift was added.
-
-ARGUS validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed: 20
-  tests.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-- `git diff --check` passed.
-- `git diff --cached --check` passed.
-- Changed-path/source scan passed.
-
-Current lane:
-
-```text
-PR505C - Owner Encounter NVIDIA Output Budget
-Owner: MIMIR / A1
-State: ACCEPTED_AWAITING_CLOSEOUT_OR_ARIADNE_RERUN
-Source: docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+`docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_CLOSEOUT.md`
 
 ## Previous lane - PR505C owner encounter NVIDIA output budget ready for review
 

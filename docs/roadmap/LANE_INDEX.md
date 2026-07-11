@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505C | Owner Encounter NVIDIA Output Budget | MIMIR / A1 | Accepted by ARGUS; closeout and hosted PR505 ARIADNE rerun routing are required. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md` |
+| PR505D | Owner Encounter Hosted Output Budget Rerun | ARIADNE / A4 | Open hosted rerun; deploy floor met at `03d39f8e`, one disposable same-owner preview allowed, pass only on nonblank responder content plus disposable/no-durable provenance. | `docs/roadmap/PR505D_OWNER_ENCOUNTER_HOSTED_OUTPUT_BUDGET_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505C closeout | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_ACCEPTED`; hosted API is ready at PR505C code commit `03d39f8e93ab`, so ARIADNE gets PR505D hosted output-budget rerun. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_CLOSEOUT.md` |
 | PR505C review | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET`; NVIDIA/OpenAI-compatible previews use a route-local `512` max-token floor while the empty-output guard remains fail-closed, with no reasoning/fallback/retry/provider/persistence drift. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_REVIEW_RESULT.md` |
 | PR505C implementation | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; route-local NVIDIA output budget floor is implemented without provider adapter, retry, fallback, persistence, retrieval, billing, public, queue/worker, Redis, Cloudflare, or UI drift. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_RESULT.md` |
 | PR505C opened | Owner Encounter NVIDIA Output Budget | MIMIR -> DAEDALUS | Open narrow repair; increase/route owner encounter NVIDIA/OpenAI-compatible output budget so final `message.content` can appear, while preserving empty-output fail-closed behavior and no reasoning exposure. | `docs/roadmap/PR505C_OWNER_ENCOUNTER_NVIDIA_OUTPUT_BUDGET_DAEDALUS.md` |
