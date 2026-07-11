@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508A owner encounter public exhibit metadata accepted locally
+## Current lane - PR508B owner encounter public exhibit metadata hosted proof
+
+MIMIR closed PR508A locally and opened PR508B for ARIADNE:
+
+`docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_CLOSEOUT.md`
+
+`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_ARIADNE.md`
+
+Why:
+
+- ARGUS accepted PR508A metadata-only same-owner public encounter exhibits
+  after two narrow safety patches;
+- PR508A changes schema, public API behavior, visible owner Studio controls, a
+  public web route, and moderation behavior;
+- MIMIR applied and proved hosted migration `076` through the existing
+  `SUPABASE_POOLER_URL` path, recorded ledger row
+  `20260711104902 / 076_persona_encounter_public_exhibits`, and requested
+  PostgREST schema reload;
+- ARIADNE must now prove the deployed web/API commit and hosted desktop/mobile/
+  API route behavior.
+
+Current lane:
+
+```text
+PR508B - Owner Encounter Public Exhibit Metadata Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR508A owner encounter public exhibit metadata accepted locally
 
 ARGUS accepted PR508A after a narrow review patch:
 
@@ -59,15 +96,8 @@ Current lane:
 ```text
 PR508A - Owner Encounter Public Exhibit Metadata
 Owner: MIMIR / A1
-State: REVIEWED_ACCEPTED_LOCALLY_HOSTED_PROOF_REQUIRED
-Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
+State: CLOSED_ACCEPTED_LOCALLY_HOSTED_PROOF_ROUTED
+Source: docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_CLOSEOUT.md
 ```
 
 ## Previous lane - PR508 owner encounter public exhibit boundary preflight accepted
