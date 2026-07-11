@@ -4,7 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR518B cross-owner public index hosted proof passed
+## Current lane - PR519 cross-owner Discover search preflight
+
+MIMIR accepted PR518B hosted proof:
+
+`docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR519 - Cross-Owner Metadata Exhibit Discover Search Preflight
+Owner: ARGUS / A3
+State: Routed after CLOSE_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ACCEPTED
+Source: docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ARGUS.md
+```
+
+Question:
+
+- now that the dedicated cross-owner metadata exhibit public index is
+  hosted-proven, may these metadata-only exhibits appear in Discover search
+  results?
+
+Scope:
+
+- preflight only;
+- Discover search result group/question only;
+- feed/rising/featured, public persona, public Space, forum/community/Salon,
+  writing, Station Press, generated words, private artifacts, and provider/
+  retrieval/billing/storage/social/Redis/Cloudflare/queue/package/deployment
+  work remain blocked unless ARGUS explicitly opens a later narrow lane.
+
+## Previous lane - PR518B cross-owner public index hosted proof passed
 
 MIMIR accepted PR518A locally with the ARGUS patch:
 
@@ -54,6 +84,10 @@ Still blocked:
   private saved cross-owner artifacts, PR516 disposable preview output reuse,
   provider/retrieval/storage/billing/social/Redis/Cloudflare/queue/package/
   deployment work, and broad UI work.
+
+Decision:
+
+- MIMIR accepted PR518B and opened PR519 for hostile Discover search preflight.
 
 ## Previous lane - PR518A cross-owner metadata exhibit public index accepted by ARGUS
 
