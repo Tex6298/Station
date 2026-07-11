@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504D Station Press owner package create path repair accepted
+## Current lane - PR504E Station Press owner package browser closeout
+
+MIMIR closed PR504D accepted and opened PR504E for ARIADNE:
+
+`docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_ARIADNE.md`
+
+Why:
+
+- PR504D proves the hosted backend create/readback/bundle blocker is fixed.
+- PR504B was a hosted browser proof lane, so final closeout still needs a
+  human-eye `/studio/publishing` rerun.
+
+Task:
+
+- Prove hosted desktop and 390px mobile `/studio/publishing` fit.
+- Prove browser package create-or-open from a package-ready publication.
+- Prove authenticated package readback.
+- Prove bundle readback exposes exactly `README.md`, `manifest.json`, and
+  `manifest.md`.
+- Recheck privacy/product boundaries and signed-out/cross-owner fail-closed
+  behavior where the rehearsal harness can safely do so.
+
+Current lane:
+
+```text
+PR504E - Station Press Owner Package Browser Closeout
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_BROWSER_PROOF
+Source: docs/roadmap/PR504E_STATION_PRESS_OWNER_PACKAGE_BROWSER_CLOSEOUT_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR504D Station Press owner package create path repair accepted
 
 ARGUS accepted PR504D:
 
