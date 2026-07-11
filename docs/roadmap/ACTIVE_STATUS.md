@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514D cross-owner disposable preview client contract
+## Current lane - PR514D cross-owner disposable preview client contract ready for ARGUS
 
 MIMIR accepted PR514C's blocker and opened PR514D:
 
@@ -12,52 +12,57 @@ MIMIR accepted PR514C's blocker and opened PR514D:
 
 `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md`
 
+DAEDALUS implementation result:
+
+`docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md`
+
 Result:
 
 ```text
-CLOSE_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_BLOCKED_WITH_CONTRACT_UNBLOCK
+READY_FOR_ARGUS_REVIEW_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT
 ```
 
 Summary:
 
-- PR514C found the hosted API route is proven, but the browser cannot safely
-  construct the current request because it requires both `initiatorPersonaId`
-  and `responderPersonaId`;
-- participant consent readback intentionally does not expose raw participant
-  persona ids;
-- exposing raw participant persona ids to solve the payload problem would
-  weaken the PR512 through PR514B privacy boundary;
-- MIMIR accepted the smallest unblock: a participant-safe client contract
-  before any visible UI wiring.
-
-Concrete blocker:
-
-```text
-CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_MISSING
-```
+- `POST /persona-encounters/cross-owner-consents/:consentId/disposable-preview`
+  now accepts only actor setup plus optional bounded generation options;
+- the server infers initiator/responder persona ids from authenticated
+  participant role and the approved consent row;
+- raw or stale `initiatorPersonaId` / `responderPersonaId` body fields are
+  rejected by the strict schema before audit, provider, or token writes;
+- the response now includes bounded readiness, counterparty-hidden, and runtime
+  audit labels while continuing to return only display snapshots and disposable
+  provenance;
+- `apps/web/lib/persona-encounter-runtime.ts` now has consent-scoped path,
+  payload, readiness, readback, response, and bounded error-copy helpers for
+  later UI wiring;
+- stale owner-only contract copy now names the one approved private
+  cross-owner disposable preview exception without implying saved/shared output;
+- no visible UI, saved sessions, publication, retrieval, memory/canon/archive/
+  continuity/integrity, billing, storage, migration, provider config, or
+  deployment work was added.
 
 Current lane:
 
 ```text
 PR514D - Cross-Owner Disposable Preview Client Contract
-Owner: DAEDALUS / A2
-State: OPEN_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md
+Owner chain: MIMIR -> DAEDALUS -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md
 ```
 
-Next:
+Validation:
 
-- DAEDALUS implements the consent-scoped API/client helper contract so the
-  browser can later run the approved cross-owner disposable preview without raw
-  participant persona ids.
-- DAEDALUS should wake ARGUS for contract-boundary review before any visible UI
-  wiring.
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  58 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 205 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR514C client/UX preflight blocked

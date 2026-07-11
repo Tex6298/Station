@@ -41,6 +41,86 @@ export interface PersonaEncounterPreviewResponse {
   };
 }
 
+export interface PersonaEncounterCrossOwnerDisposablePreviewRequest {
+  setup: string;
+  maxOutputTokens?: number;
+}
+
+export interface PersonaEncounterCrossOwnerDisposablePreviewResponse {
+  preview: {
+    reply: {
+      role: "responder";
+      content: string;
+      generated: true;
+      private: true;
+      disposable: true;
+      canonical: false;
+      public: false;
+      saved: false;
+      transcript: false;
+      summary: false;
+      excerpt: false;
+      shareable: false;
+      sourceRetrieval: false;
+    };
+    rateLimit?: {
+      remaining: number | null;
+      retryAfter: number | null;
+    };
+  };
+  provenance: {
+    schema: "station.persona_encounter.cross_owner_disposable_preview.v1";
+    setup: {
+      label: "Actor-authored setup";
+      stored: false;
+    };
+    consent: {
+      id: string;
+      participantRole: "requester" | "counterparty" | null;
+      requestedScope: "run_cross_owner_encounter";
+      requestedScopeVersion: number;
+      executable: false;
+    };
+    readiness: {
+      code: string;
+      message: string;
+    };
+    personas: {
+      label: "Consent display snapshots";
+      initiatorName: string;
+      responderName: string;
+    };
+    reply: {
+      label: "Model-generated responder reply";
+      generated: true;
+      private: true;
+      disposable: true;
+      nonCanonical: true;
+      public: false;
+    };
+    persistence: {
+      saved: false;
+      privateSessionCreated: false;
+      publicExhibitCreated: false;
+      transcriptStored: false;
+      summaryStored: false;
+      excerptStored: false;
+      shareable: false;
+      sourceRetrieval: false;
+      sourceBuckets: [];
+      note: string;
+    };
+    counterparty: {
+      label: "Counterparty does not see this generated reply here";
+      generatedReplyVisibleHere: false;
+    };
+    audit: {
+      label: "Runtime attempt audit recorded";
+      recorded: true;
+    };
+  };
+}
+
 export interface PersonaEncounterPrivateSession {
   id: string;
   createdAt: string;
@@ -221,10 +301,13 @@ export const PERSONA_ENCOUNTER_PREVIEW_PATH = "/persona-encounters/preview";
 export const PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH = "/persona-encounters/preview/readiness";
 export const PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH = "/persona-encounters/private-sessions";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH = "/persona-encounters/public-exhibits";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH = "/persona-encounters/cross-owner-consents";
 export const PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA =
   "station.persona_encounter.private_session_curation.v1";
 export const PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.public_exhibit.v1";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
+  "station.persona_encounter.cross_owner_disposable_preview.v1";
 
 export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewRequest) {
   return {
@@ -232,6 +315,19 @@ export function personaEncounterPreviewPayload(input: PersonaEncounterPreviewReq
     responderPersonaId: input.responderPersonaId,
     setup: input.setup.trim(),
     ...(input.maxOutputTokens ? { maxOutputTokens: input.maxOutputTokens } : {}),
+  };
+}
+
+export function personaEncounterCrossOwnerDisposablePreviewPath(consentId: string) {
+  return `${PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH}/${encodeURIComponent(consentId)}/disposable-preview`;
+}
+
+export function personaEncounterCrossOwnerDisposablePreviewPayload(
+  input: PersonaEncounterCrossOwnerDisposablePreviewRequest,
+) {
+  return {
+    setup: input.setup.trim(),
+    ...(input.maxOutputTokens !== undefined ? { maxOutputTokens: input.maxOutputTokens } : {}),
   };
 }
 
@@ -324,6 +420,13 @@ export function personaEncounterPreviewReady(input: {
   );
 }
 
+export function personaEncounterCrossOwnerDisposablePreviewReady(input: {
+  consentId?: string | null;
+  setup?: string | null;
+}) {
+  return Boolean(input.consentId && input.setup?.trim());
+}
+
 export function personaEncounterPreviewReadback(response?: PersonaEncounterPreviewResponse | null) {
   if (!response) {
     return [
@@ -349,6 +452,52 @@ export function personaEncounterPreviewReadback(response?: PersonaEncounterPrevi
     response.provenance.persistence.sourceRetrieval
       ? "Private source retrieval used"
       : "No Memory, Archive, Canon, Continuity, Integrity, or transcript sources retrieved",
+  ];
+}
+
+export function personaEncounterCrossOwnerDisposablePreviewReadback(
+  response?: PersonaEncounterCrossOwnerDisposablePreviewResponse | null,
+) {
+  if (!response) {
+    return [
+      "Cross-owner disposable preview",
+      "Actor-authored setup",
+      "Consent display snapshots",
+      "Model-generated responder reply",
+      "Private disposable preview",
+      "Not saved",
+      "Not public",
+      "Not canonical",
+      "Not a transcript",
+      "Not a summary",
+      "Not an excerpt",
+      "Not shareable",
+      "No Memory, Archive, Canon, Continuity, Integrity, private retrieval, or transcript sources used",
+      "Counterparty does not see this generated reply here",
+      "Runtime attempt audit recorded",
+    ];
+  }
+
+  return [
+    "Cross-owner disposable preview",
+    response.provenance.setup.label,
+    response.provenance.personas.label,
+    response.provenance.reply.label,
+    response.preview.reply.private && response.preview.reply.disposable
+      ? "Private disposable preview"
+      : "Preview boundary unclear",
+    response.provenance.persistence.saved ? "Saved" : "Not saved",
+    response.preview.reply.public ? "Public" : "Not public",
+    response.preview.reply.canonical ? "Canonical" : "Not canonical",
+    response.preview.reply.transcript ? "Transcript" : "Not a transcript",
+    response.preview.reply.summary ? "Summary" : "Not a summary",
+    response.preview.reply.excerpt ? "Excerpt" : "Not an excerpt",
+    response.preview.reply.shareable ? "Shareable" : "Not shareable",
+    response.provenance.persistence.sourceRetrieval
+      ? "Private retrieval used"
+      : "No Memory, Archive, Canon, Continuity, Integrity, private retrieval, or transcript sources used",
+    response.provenance.counterparty.label,
+    response.provenance.audit.label,
   ];
 }
 
@@ -440,6 +589,33 @@ export function personaEncounterPreviewErrorCopy(input: { status?: number; code?
       return "Public encounter exhibit metadata could not be retracted.";
     default:
       return input.message || "Encounter preview could not run.";
+  }
+}
+
+export function personaEncounterCrossOwnerDisposablePreviewErrorCopy(input: {
+  status?: number;
+  code?: string;
+  message?: string;
+}) {
+  switch (input.code) {
+    case "persona_encounter_provider_unavailable":
+      return "Cross-owner preview provider setup is unavailable.";
+    case "persona_encounter_quota_exceeded":
+      return "Cross-owner preview token budget is exhausted.";
+    case "persona_encounter_rate_limited":
+      return "Cross-owner preview rate limit reached.";
+    case "persona_encounter_cross_owner_preview_ineligible":
+      return "Approved consent is required before this cross-owner preview can run.";
+    case "persona_encounter_cross_owner_consent_load_failed":
+      return "Cross-owner consent could not be loaded.";
+    case "persona_encounter_cross_owner_runtime_attempt_audit_failed":
+      return "Cross-owner preview audit could not be recorded, so the preview is paused.";
+    case "persona_encounter_provider_failed":
+      return "Cross-owner preview provider failed.";
+    case "persona_encounter_provider_empty_reply":
+      return "Cross-owner preview provider returned no visible reply.";
+    default:
+      return "Cross-owner disposable preview could not run.";
   }
 }
 

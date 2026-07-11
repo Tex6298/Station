@@ -2,12 +2,19 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH,
+  PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA,
   PERSONA_ENCOUNTER_PRIVATE_SESSIONS_PATH,
   PERSONA_ENCOUNTER_PRIVATE_SESSION_CURATION_SCHEMA,
   PERSONA_ENCOUNTER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA,
   PERSONA_ENCOUNTER_PUBLIC_EXHIBITS_PATH,
   PERSONA_ENCOUNTER_PREVIEW_PATH,
   PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH,
+  personaEncounterCrossOwnerDisposablePreviewErrorCopy,
+  personaEncounterCrossOwnerDisposablePreviewPath,
+  personaEncounterCrossOwnerDisposablePreviewPayload,
+  personaEncounterCrossOwnerDisposablePreviewReadback,
+  personaEncounterCrossOwnerDisposablePreviewReady,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPublicExhibitPath,
@@ -25,6 +32,7 @@ import {
   personaEncounterPreviewReadback,
   personaEncounterPreviewReadinessPath,
   personaEncounterPreviewReady,
+  type PersonaEncounterCrossOwnerDisposablePreviewResponse,
   type PersonaEncounterPreviewResponse,
   type PersonaEncounterPrivateSession,
 } from "./persona-encounter-runtime";
@@ -65,6 +73,81 @@ const response: PersonaEncounterPreviewResponse = {
   },
 };
 
+const crossOwnerResponse: PersonaEncounterCrossOwnerDisposablePreviewResponse = {
+  preview: {
+    reply: {
+      role: "responder",
+      content: "One private cross-owner reply.",
+      generated: true,
+      private: true,
+      disposable: true,
+      canonical: false,
+      public: false,
+      saved: false,
+      transcript: false,
+      summary: false,
+      excerpt: false,
+      shareable: false,
+      sourceRetrieval: false,
+    },
+    rateLimit: {
+      remaining: 1,
+      retryAfter: null,
+    },
+  },
+  provenance: {
+    schema: "station.persona_encounter.cross_owner_disposable_preview.v1",
+    setup: {
+      label: "Actor-authored setup",
+      stored: false,
+    },
+    consent: {
+      id: "consent-1",
+      participantRole: "requester",
+      requestedScope: "run_cross_owner_encounter",
+      requestedScopeVersion: 1,
+      executable: false,
+    },
+    readiness: {
+      code: "ready",
+      message: "Ready.",
+    },
+    personas: {
+      label: "Consent display snapshots",
+      initiatorName: "Harbor",
+      responderName: "Lantern",
+    },
+    reply: {
+      label: "Model-generated responder reply",
+      generated: true,
+      private: true,
+      disposable: true,
+      nonCanonical: true,
+      public: false,
+    },
+    persistence: {
+      saved: false,
+      privateSessionCreated: false,
+      publicExhibitCreated: false,
+      transcriptStored: false,
+      summaryStored: false,
+      excerptStored: false,
+      shareable: false,
+      sourceRetrieval: false,
+      sourceBuckets: [],
+      note: "Cross-owner disposable preview only; no private retrieval, Memory, Archive, Canon, Continuity, transcript, summary, excerpt, private session, or public exhibit was created.",
+    },
+    counterparty: {
+      label: "Counterparty does not see this generated reply here",
+      generatedReplyVisibleHere: false,
+    },
+    audit: {
+      label: "Runtime attempt audit recorded",
+      recorded: true,
+    },
+  },
+};
+
 test("persona encounter runtime helper builds the bounded preview request", () => {
   assert.equal(PERSONA_ENCOUNTER_PREVIEW_PATH, "/persona-encounters/preview");
   assert.equal(PERSONA_ENCOUNTER_PREVIEW_READINESS_PATH, "/persona-encounters/preview/readiness");
@@ -81,6 +164,32 @@ test("persona encounter runtime helper builds the bounded preview request", () =
   });
 });
 
+test("persona encounter runtime helper builds the consent-scoped cross-owner disposable preview request", () => {
+  assert.equal(PERSONA_ENCOUNTER_CROSS_OWNER_CONSENTS_PATH, "/persona-encounters/cross-owner-consents");
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA,
+    "station.persona_encounter.cross_owner_disposable_preview.v1",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerDisposablePreviewPath("consent/one"),
+    "/persona-encounters/cross-owner-consents/consent%2Fone/disposable-preview",
+  );
+  const payload = personaEncounterCrossOwnerDisposablePreviewPayload({
+    setup: "  One consent-scoped setup.  ",
+    maxOutputTokens: 120,
+  });
+  assert.deepEqual(payload, {
+    setup: "One consent-scoped setup.",
+    maxOutputTokens: 120,
+  });
+
+  const payloadJson = JSON.stringify(payload);
+  assert.equal(payloadJson.includes("initiatorPersonaId"), false);
+  assert.equal(payloadJson.includes("responderPersonaId"), false);
+  assert.equal(payloadJson.includes("ownerUserId"), false);
+  assert.equal(payloadJson.includes("persona_id"), false);
+});
+
 test("persona encounter runtime helper builds provider readiness path", () => {
   assert.equal(
     personaEncounterPreviewReadinessPath({
@@ -89,6 +198,21 @@ test("persona encounter runtime helper builds provider readiness path", () => {
     }),
     "/persona-encounters/preview/readiness?initiatorPersonaId=persona+a&responderPersonaId=persona%2Fb",
   );
+});
+
+test("persona encounter runtime helper checks cross-owner disposable preview readiness locally", () => {
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewReady({
+    consentId: "consent-1",
+    setup: "One prompt.",
+  }), true);
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewReady({
+    consentId: "",
+    setup: "One prompt.",
+  }), false);
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewReady({
+    consentId: "consent-1",
+    setup: "   ",
+  }), false);
 });
 
 test("persona encounter runtime helper builds private session paths", () => {
@@ -212,6 +336,30 @@ test("persona encounter runtime readback labels disposable provenance", () => {
   ]);
 });
 
+test("persona encounter runtime readback labels cross-owner disposable preview boundaries", () => {
+  const labels = personaEncounterCrossOwnerDisposablePreviewReadback(crossOwnerResponse);
+
+  assert.deepEqual(labels, [
+    "Cross-owner disposable preview",
+    "Actor-authored setup",
+    "Consent display snapshots",
+    "Model-generated responder reply",
+    "Private disposable preview",
+    "Not saved",
+    "Not public",
+    "Not canonical",
+    "Not a transcript",
+    "Not a summary",
+    "Not an excerpt",
+    "Not shareable",
+    "No Memory, Archive, Canon, Continuity, Integrity, private retrieval, or transcript sources used",
+    "Counterparty does not see this generated reply here",
+    "Runtime attempt audit recorded",
+  ]);
+
+  assert.deepEqual(personaEncounterCrossOwnerDisposablePreviewReadback(), labels);
+});
+
 test("persona encounter runtime readback labels private saved artifacts honestly", () => {
   const session: PersonaEncounterPrivateSession = {
     id: "session-1",
@@ -314,6 +462,33 @@ test("persona encounter runtime error copy stays bounded", () => {
     code: "persona_encounter_public_exhibit_save_failed",
     message: "sql table detail",
   }), "Public encounter exhibit metadata could not be saved.");
+});
+
+test("persona encounter runtime cross-owner disposable preview error copy stays bounded", () => {
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewErrorCopy({
+    code: "persona_encounter_provider_unavailable",
+    message: "raw provider route",
+  }), "Cross-owner preview provider setup is unavailable.");
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewErrorCopy({
+    code: "persona_encounter_quota_exceeded",
+    message: "raw token ledger",
+  }), "Cross-owner preview token budget is exhausted.");
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewErrorCopy({
+    code: "persona_encounter_rate_limited",
+    message: "redis key detail",
+  }), "Cross-owner preview rate limit reached.");
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewErrorCopy({
+    code: "persona_encounter_cross_owner_preview_ineligible",
+    message: "wrong_scope requester_owner_user_id=secret",
+  }), "Approved consent is required before this cross-owner preview can run.");
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewErrorCopy({
+    code: "persona_encounter_cross_owner_runtime_attempt_audit_failed",
+    message: "sql table detail",
+  }), "Cross-owner preview audit could not be recorded, so the preview is paused.");
+  assert.equal(personaEncounterCrossOwnerDisposablePreviewErrorCopy({
+    code: "unknown",
+    message: "Bearer secret raw SQL owner_user_id",
+  }), "Cross-owner disposable preview could not run.");
 });
 
 test("persona encounter runtime availability copy fails closed before generation", () => {

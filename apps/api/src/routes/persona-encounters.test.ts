@@ -844,14 +844,10 @@ function crossOwnerDisposablePreviewPath(consentId: string) {
 }
 
 function crossOwnerDisposablePreviewBody(overrides: Partial<{
-  initiatorPersonaId: string;
-  responderPersonaId: string;
   setup: string;
   maxOutputTokens: number;
 }> = {}) {
   return {
-    initiatorPersonaId: INITIATOR_ID,
-    responderPersonaId: OTHER_PERSONA_ID,
     setup: "The initiating owner asks for one private cross-owner reply in a quiet library.",
     ...overrides,
   };
@@ -1948,10 +1944,16 @@ test("cross-owner disposable preview returns one private generated reply with ac
     assert.equal(response.body.preview.reply.sourceRetrieval, false);
     assert.equal(response.body.provenance.schema, "station.persona_encounter.cross_owner_disposable_preview.v1");
     assert.equal(response.body.provenance.consent.executable, false);
+    assert.equal(response.body.provenance.consent.participantRole, "requester");
+    assert.equal(response.body.provenance.readiness.code, "ready");
     assert.equal(response.body.provenance.persistence.saved, false);
     assert.equal(response.body.provenance.persistence.privateSessionCreated, false);
     assert.equal(response.body.provenance.persistence.publicExhibitCreated, false);
     assert.equal(response.body.provenance.persistence.sourceRetrieval, false);
+    assert.equal(response.body.provenance.counterparty.generatedReplyVisibleHere, false);
+    assert.equal(response.body.provenance.counterparty.label, "Counterparty does not see this generated reply here");
+    assert.equal(response.body.provenance.audit.recorded, true);
+    assert.equal(response.body.provenance.audit.label, "Runtime attempt audit recorded");
 
     assert.equal(providerCalls.length, 1);
     assert.equal(providerCalls[0].url, "https://deepseek.test/chat/completions");
@@ -2014,6 +2016,57 @@ test("cross-owner disposable preview returns one private generated reply with ac
   });
 });
 
+test("cross-owner disposable preview infers the counterparty actor pair without body persona ids", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const consent = seedCrossOwnerConsent(db);
+
+    const response = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+      token: "other-token",
+      body: crossOwnerDisposablePreviewBody({
+        setup: "The counterparty asks for one private reply from the original requester.",
+      }),
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.provenance.consent.participantRole, "counterparty");
+    assert.equal(response.body.provenance.personas.initiatorName, "Other Owner Persona");
+    assert.equal(response.body.provenance.personas.responderName, "Blue Lantern");
+    assert.equal(response.body.provenance.readiness.code, "ready");
+    assert.equal(response.body.provenance.audit.recorded, true);
+
+    assert.equal(providerCalls.length, 1);
+    const providerPayload = JSON.stringify(providerCalls[0].body);
+    assert.equal(providerPayload.includes("Other Owner Persona"), true);
+    assert.equal(providerPayload.includes("Blue Lantern"), true);
+    assert.equal(providerPayload.includes("original requester"), true);
+    for (const forbidden of [
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "Owner-only private persona notes",
+      "Cross-owner private material",
+    ]) {
+      assert.equal(providerPayload.includes(forbidden), false, `${forbidden} leaked to provider prompt`);
+    }
+
+    assert.equal(db.rows("token_usage").length, 1);
+    assert.equal(db.rows("token_usage")[0].user_id, OTHER_OWNER_ID);
+    assert.equal(db.rows("token_transactions").length, 1);
+    assert.equal(db.rows("token_transactions")[0].user_id, OTHER_OWNER_ID);
+    assert.equal(db.rows("token_transactions").some((row) => row.user_id === OWNER_ID), false);
+    assertNoForbiddenCrossOwnerPreviewSideEffects(db);
+
+    const responseJson = JSON.stringify(response.body);
+    for (const forbidden of [OWNER_ID, OTHER_OWNER_ID, INITIATOR_ID, OTHER_PERSONA_ID]) {
+      assert.equal(responseJson.includes(forbidden), false, `${forbidden} leaked in cross-owner preview response`);
+    }
+  });
+});
+
 test("cross-owner disposable preview fails closed for auth participation and context contract blockers", async () => {
   await withHarness(async ({ db, app, providerCalls }) => {
     const consent = seedCrossOwnerConsent(db);
@@ -2029,21 +2082,27 @@ test("cross-owner disposable preview fails closed for auth participation and con
     });
     assert.equal(nonparticipant.status, 404);
 
-    const wrongRole = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+    const explicitPersonaIds = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
       token: "owner-token",
-      body: crossOwnerDisposablePreviewBody({
+      body: {
+        ...crossOwnerDisposablePreviewBody(),
         initiatorPersonaId: OTHER_PERSONA_ID,
         responderPersonaId: INITIATOR_ID,
-      }),
+      },
     });
-    assert.equal(wrongRole.status, 409);
-    assert.equal(wrongRole.body.code, "persona_encounter_cross_owner_preview_ineligible");
+    assert.equal(explicitPersonaIds.status, 400);
 
-    const wrongPair = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
+    const stalePersonaId = await requestJson(app, "POST", crossOwnerDisposablePreviewPath(consent.id), {
       token: "owner-token",
-      body: crossOwnerDisposablePreviewBody({ responderPersonaId: RESPONDER_ID }),
+      body: {
+        ...crossOwnerDisposablePreviewBody(),
+        responderPersonaId: RESPONDER_ID,
+      },
     });
-    assert.equal(wrongPair.status, 409);
+    assert.equal(stalePersonaId.status, 400);
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
 
     for (const status of ["pending", "rejected", "cancelled", "revoked"]) {
       const row = seedCrossOwnerConsent(db, { status });

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR514D | Cross-Owner Disposable Preview Client Contract | DAEDALUS / A2 | Open implementation of a consent-scoped API/client helper contract so visible UI can later run the approved disposable preview without raw participant persona ids. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_DAEDALUS.md` |
+| PR514D | Cross-Owner Disposable Preview Client Contract | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS contract-boundary review; API body is consent-scoped setup/options only, server infers participant personas, raw/stale body persona ids reject before side effects, web helpers/readback/error copy are bounded, and no visible UI or persistence/public/retrieval drift was added. | `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md` |
 
 ## Recently Closed
 

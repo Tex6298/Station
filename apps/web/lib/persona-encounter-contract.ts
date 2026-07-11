@@ -1,4 +1,4 @@
-export type PersonaEncounterContractStatus = "Same-owner only" | "Required" | "Blocked";
+export type PersonaEncounterContractStatus = "Limited exception" | "Required" | "Blocked";
 
 export interface PersonaEncounterContractItem {
   key: string;
@@ -19,8 +19,8 @@ const PERSONA_ENCOUNTER_CONTRACT_ITEMS: PersonaEncounterContractItem[] = [
   {
     key: "consent-scope",
     label: "Consent scope",
-    status: "Same-owner only",
-    body: "The next possible runtime slice can only be owner-initiated for personas owned by the same account; cross-owner encounters remain blocked until bilateral consent, visibility, revocation, and audit policy exists.",
+    status: "Limited exception",
+    body: "General encounter runtime remains same-owner only. The approved cross-owner exception is a consent-scoped disposable preview that infers participants server-side, stays private, is not saved, and does not publish or share generated words.",
   },
   {
     key: "provenance-labels",
@@ -46,7 +46,7 @@ export function personaEncounterContractGate(): PersonaEncounterContractGate {
   return {
     eyebrow: "Encounter Contract",
     title: "Consent and provenance",
-    summary: "Persona-to-persona encounters still have no runtime here. This owner-only contract readback names the minimum conditions a future provider-backed encounter must satisfy before any call, transcript, or sharing exists.",
+    summary: "Persona-to-persona encounters are still blocked by default. This owner-visible contract names the minimum conditions future runtime must satisfy, with one approved private cross-owner disposable preview path that creates no transcript or sharing.",
     privacy: "Owner-only private Studio contract",
     items: PERSONA_ENCOUNTER_CONTRACT_ITEMS.map((item) => ({ ...item })),
   };
@@ -56,7 +56,7 @@ export function personaEncounterContractIsReadbackOnly(
   gate: PersonaEncounterContractGate = personaEncounterContractGate(),
 ) {
   return gate.items.every((item) => (
-    item.status === "Same-owner only"
+    item.status === "Limited exception"
     || item.status === "Required"
     || item.status === "Blocked"
   ));

@@ -232,14 +232,9 @@ const crossOwnerRuntimeContextContractQuerySchema = z.object({
 });
 
 const crossOwnerDisposablePreviewSchema = z.object({
-  initiatorPersonaId: z.string().uuid(),
-  responderPersonaId: z.string().uuid(),
   setup: z.string().trim().min(1).max(ENCOUNTER_PREVIEW_MAX_SETUP_CHARS),
   maxOutputTokens: z.coerce.number().int().min(80).max(500).optional(),
-}).strict().refine((value) => value.initiatorPersonaId !== value.responderPersonaId, {
-  message: "Select two different personas.",
-  path: ["responderPersonaId"],
-});
+}).strict();
 
 const readinessSchema = z.object({
   initiatorPersonaId: z.string().uuid(),
@@ -942,19 +937,22 @@ personaEncountersRouter.post("/cross-owner-consents/:consentId/disposable-previe
   if (!result.row) return res.status(404).json({ error: "Cross-owner consent not found." });
 
   const input = parsedBody.data;
+  const inferredPair = crossOwnerDisposablePreviewPersonaPair(result.row, ownerUserId);
+  if (!inferredPair) return res.status(404).json({ error: "Cross-owner consent not found." });
+
   const contract = buildCrossOwnerRuntimeContextContract({
     consent: result.row,
     actorOwnerUserId: ownerUserId,
-    initiatorPersonaId: input.initiatorPersonaId,
-    responderPersonaId: input.responderPersonaId,
+    initiatorPersonaId: inferredPair.initiatorPersonaId,
+    responderPersonaId: inferredPair.responderPersonaId,
   });
 
   if (!contract.eligible) {
     const audit = await recordCrossOwnerDisposablePreviewAttemptAudit(sb, {
       consent: result.row,
       actorOwnerUserId: ownerUserId,
-      initiatorPersonaId: input.initiatorPersonaId,
-      responderPersonaId: input.responderPersonaId,
+      initiatorPersonaId: inferredPair.initiatorPersonaId,
+      responderPersonaId: inferredPair.responderPersonaId,
       readinessCode: contract.readiness.code,
       lifecycleStatus: "blocked_before_provider",
     });
@@ -977,8 +975,8 @@ personaEncountersRouter.post("/cross-owner-consents/:consentId/disposable-previe
     ownerUserId,
     fallbackTier: req.user!.tier,
     consent: result.row,
-    initiatorPersonaId: input.initiatorPersonaId,
-    responderPersonaId: input.responderPersonaId,
+    initiatorPersonaId: inferredPair.initiatorPersonaId,
+    responderPersonaId: inferredPair.responderPersonaId,
     setup: input.setup,
     requestedMaxOutputTokens: input.maxOutputTokens,
   });
@@ -1016,6 +1014,10 @@ personaEncountersRouter.post("/cross-owner-consents/:consentId/disposable-previe
         requestedScopeVersion: CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION,
         executable: false,
       },
+      readiness: {
+        code: contract.readiness.code,
+        message: contract.readiness.message,
+      },
       personas: {
         label: "Consent display snapshots",
         initiatorName: generation.initiatorName,
@@ -1040,6 +1042,14 @@ personaEncountersRouter.post("/cross-owner-consents/:consentId/disposable-previe
         sourceRetrieval: false,
         sourceBuckets: [],
         note: "Cross-owner disposable preview only; no private retrieval, Memory, Archive, Canon, Continuity, transcript, summary, excerpt, private session, or public exhibit was created.",
+      },
+      counterparty: {
+        label: "Counterparty does not see this generated reply here",
+        generatedReplyVisibleHere: false,
+      },
+      audit: {
+        label: "Runtime attempt audit recorded",
+        recorded: true,
       },
     },
   });
@@ -2157,6 +2167,26 @@ function crossOwnerConsentParticipantRole(
 ): "requester" | "counterparty" | null {
   if (row.requester_owner_user_id === ownerUserId) return "requester";
   if (row.counterparty_owner_user_id === ownerUserId) return "counterparty";
+  return null;
+}
+
+function crossOwnerDisposablePreviewPersonaPair(
+  row: EncounterCrossOwnerConsentRow,
+  actorOwnerUserId: string,
+): { initiatorPersonaId: string; responderPersonaId: string } | null {
+  const actorRole = crossOwnerConsentParticipantRole(row, actorOwnerUserId);
+  if (actorRole === "requester") {
+    return {
+      initiatorPersonaId: row.requester_persona_id,
+      responderPersonaId: row.counterparty_persona_id,
+    };
+  }
+  if (actorRole === "counterparty") {
+    return {
+      initiatorPersonaId: row.counterparty_persona_id,
+      responderPersonaId: row.requester_persona_id,
+    };
+  }
   return null;
 }
 

@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR514D Cross-Owner Disposable Preview Client Contract
+
+DAEDALUS completed PR514D implementation on 2026-07-11:
+
+- `docs/roadmap/PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW_PR514D_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT`.
+
+Reason:
+
+- the cross-owner disposable preview POST body is now consent-scoped to `setup`
+  plus optional bounded `maxOutputTokens`;
+- the server infers the actor-owned initiator persona and consented responder
+  persona from the authenticated participant role and consent row;
+- explicit or stale body `initiatorPersonaId` / `responderPersonaId` fields are
+  rejected before audit, provider, or token writes;
+- requester and counterparty actors can each run an approved consent-scoped
+  disposable preview without body persona ids;
+- response/readback labels include private, disposable, not saved, not public,
+  not canonical, not transcript/summary/excerpt/shareable, no private
+  retrieval, counterparty-hidden, and runtime-attempt-audited boundaries;
+- no visible UI, saved cross-owner session, public exhibit, transcript, summary,
+  excerpt, share link, Memory, Canon, Archive, Continuity, Integrity,
+  retrieval, export, storage, billing, provider config, migration, worker, or
+  deployment work changed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 58 tests passed. New coverage proves consent-scoped body shape, requester/counterparty server-side pair inference, rejection of explicit/stale persona ids before side effects, auth/nonparticipant gates, inactive/wrong-scope/wrong-version fail-closed behavior, audit failure fail-closed behavior, provider/quota/rate/empty failures, actor-only token accounting, no forbidden preview side effects, web helper payload/readback/error boundaries, and response/provider privacy scans. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 205 tests passed, including updated encounter contract copy and cross-owner disposable preview helper readback/error-copy coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo typecheck passed for `@station/api` and `@station/web`. |
+| `git diff --check` | Pass | No whitespace errors; Git emitted expected CRLF conversion warnings for touched files. |
+
 ## PR514C Consented Cross-Owner Disposable Preview Client/UX Preflight
 
 ARIADNE completed PR514C client/UX preflight on 2026-07-11:
