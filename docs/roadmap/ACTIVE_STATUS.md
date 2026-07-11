@@ -4,11 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509B public encounter exhibit index hosted proof passed
+## Current lane - PR510 public encounter exhibit Discover search preflight opened
 
-ARIADNE completed PR509B hosted proof:
+MIMIR closed PR509B as accepted and opened PR510 for ARGUS:
 
 `docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md`
+
+`docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_CLOSEOUT.md`
+
+`docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ARGUS.md`
 
 Result:
 
@@ -42,35 +46,45 @@ Summary:
 - cleanup deleted the proof artifact and proof report row;
 - privacy/secret scan passed.
 
-Validation:
+Reason for PR510:
 
-- temporary hosted API/browser proof runner passed;
-- hosted reachability/freshness passed;
-- public list API, cursor/limit, desktop/mobile layout, report-detail-only,
-  hidden/retracted/removed absence, owner-retracted restore protection, public
-  no-drift, cleanup, and privacy checks passed;
-- `pnpm typecheck` was not run because the result updates documentation only
-  and does not touch imports or scripts.
+- PR509 preflight classified Discover search as safe only after PR509A hosted
+  proof;
+- that hosted proof has now passed;
+- Discover feed and non-search public surface inclusion remain out of scope.
 
 Current lane:
 
 ```text
-PR509B - Public Encounter Exhibit Index Hosted Proof
-Owner: MIMIR / A1
-State: PASSED_HOSTED_PUBLIC_INDEX_PROOF
-Source: docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md
+PR510 - Public Encounter Exhibit Discover Search Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR510_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ARGUS.md
 ```
 
 Next:
 
-- MIMIR closes PR509B if accepted, or routes any narrow follow-up.
+- ARGUS decides whether DAEDALUS may implement a Discover search result group
+  for public encounter exhibits;
+- ARGUS defines the exact search result contract and validation;
+- ARGUS wakes MIMIR with verdict and next owner.
 
 Wakeup:
 
 ```text
-WAKEUP A1:
-Codename: MIMIR
+WAKEUP A3:
+Codename: ARGUS
 ```
+
+## Previous lane - PR509B public encounter exhibit index hosted proof accepted
+
+ARIADNE completed PR509B hosted proof:
+
+`docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_RESULT.md`
+
+MIMIR closed it:
+
+`docs/roadmap/PR509B_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_HOSTED_PROOF_CLOSEOUT.md`
 
 ## Previous lane - PR509B public encounter exhibit index hosted proof opened
 
