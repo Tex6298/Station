@@ -4,6 +4,60 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR507B Owner Encounter Curation Metadata Hosted Proof
+
+ARIADNE completed PR507B hosted proof on 2026-07-11:
+
+- `docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `a23633f9d402`, which includes PR507A floor `a23633f9`;
+- hosted migration `075` was re-probed successfully with ledger row present,
+  columns `5/5`, constraints `4/4`, valid tags accepted, and null tags
+  rejected;
+- owner and non-owner auth passed with owner tier `canon` and non-owner tier
+  `private`;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- ARIADNE created exactly one saved private same-owner artifact for proof;
+- desktop and `390px` Studio owner flow added, edited, and cleared private
+  title, note, tags, and private candidate/planning marker;
+- owner list/detail readback passed and final curation state was cleared;
+- signed-out curation read/update returned `401`;
+- cross-owner list omitted the artifact, and cross-owner detail/update returned
+  `404`;
+- public Space/persona samples while private curation metadata existed showed no
+  private artifact/setup/reply/curation material or encounter controls;
+- cleanup deleted the artifact and follow-up owner readback omitted it;
+- sanitized proof output contained no raw ids, prompt/private bodies, generated
+  reply text, private curation text, provider details, tokens, cookies, SQL
+  details, stack traces, provider payloads, env values, or browser artifacts.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted browser/API runner | Pass | Chromium launched; exactly one saved private artifact was created; desktop/390px curation add/edit/clear, public no-drift while metadata existed, auth boundaries, cleanup, and privacy scan passed. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `a23633f9d402`, which includes PR507A floor `a23633f9`. |
+| Hosted migration `075` re-probe | Pass | Ledger present, columns `5/5`, constraints `4/4`, valid tags accepted, null tags rejected. |
+| Owner and non-owner auth | Pass | Owner tier `canon`; non-owner tier `private`. |
+| Same-owner persona availability | Pass | Owner persona count was `5`; selected raw persona ids were not recorded. |
+| Owner readiness route | Pass | `ready:true`; provider route was ready before saved create. |
+| Exactly one saved private create | Pass | One authenticated owner create POST was sent and returned `201`. |
+| Desktop/390px Studio curation flow | Pass | Add/edit/clear worked for title, note, tags, and private candidate/planning marker; no raw ids, overflow, or clipped controls were observed. |
+| Owner list/detail | Pass | Owner list and detail returned the created artifact after curation flow and final curation state was cleared. |
+| Signed-out/cross-owner API probes | Pass | Signed-out detail/update returned `401`; cross-owner list omitted the artifact; cross-owner detail/update returned `404`. |
+| Public no-drift while metadata existed | Pass | Public Space/persona samples showed no private artifact/setup/reply/curation material or owner-encounter controls. |
+| Cleanup verification | Pass | Owner delete returned `200`; follow-up owner detail returned `404`; owner list omitted the artifact. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, prompt/private bodies, generated reply text, private curation text, provider details, tokens, cookies, SQL details, stack traces, provider payloads, env values, or browser artifacts. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+`pnpm typecheck` was not run because the PR507B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR507A Owner Encounter Curation Metadata
 
 DAEDALUS completed PR507A on 2026-07-11, and ARGUS accepted it after a

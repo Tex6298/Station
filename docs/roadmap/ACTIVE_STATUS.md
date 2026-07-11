@@ -4,39 +4,57 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR507B owner encounter curation metadata hosted proof
+## Current lane - PR507B owner encounter curation metadata hosted proof passed
 
-MIMIR closed PR507A locally and opened PR507B for ARIADNE:
+ARIADNE completed PR507B hosted proof:
 
-`docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_CLOSEOUT.md`
+`docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_RESULT.md`
 
 `docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_ARIADNE.md`
 
-Why:
+Result:
 
-- ARGUS accepted PR507A after a narrow migration hardening patch;
-- PR507A changes schema, owner API readback, and visible Studio behavior;
-- MIMIR applied and proved hosted migration `075` through the existing
-  `SUPABASE_POOLER_URL` path, recorded ledger row
-  `20260711094206 / 075_persona_encounter_private_session_curation`, and
-  requested PostgREST schema reload;
-- ARIADNE must now prove the deployed web/API commit and desktop/`390px`
-  owner flow against hosted staging.
+```text
+PASS_PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF
+```
+
+Summary:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `a23633f9d402`, which includes PR507A floor `a23633f9`;
+- hosted migration `075` was re-probed successfully: ledger row present,
+  columns `5/5`, constraints `4/4`, valid tags accepted, and null tags
+  rejected;
+- owner and non-owner auth passed, with owner tier `canon` and non-owner tier
+  `private`;
+- same-owner persona availability passed with `5` owner personas;
+- owner readiness returned `ready:true`;
+- ARIADNE created exactly one saved private same-owner artifact for proof;
+- desktop and `390px` Studio owner flow added, edited, and cleared private
+  title, note, tags, and private candidate/planning marker;
+- owner list/detail readback passed and final curation state was cleared;
+- signed-out curation read/update returned `401`;
+- cross-owner list omitted the artifact, and cross-owner detail/update returned
+  `404`;
+- public Space/persona samples while curation metadata existed showed no
+  private artifact/setup/reply/curation material or encounter controls;
+- cleanup deleted the artifact and follow-up owner readback omitted it;
+- sanitized proof output and privacy scan passed.
 
 Current lane:
 
 ```text
 PR507B - Owner Encounter Curation Metadata Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_PROOF
-Source: docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_ARIADNE.md
+Owner: MIMIR / A1
+State: HOSTED_PROOF_PASSED_AWAITING_CLOSEOUT
+Source: docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR507A owner encounter curation metadata accepted

@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR507B | Owner Encounter Curation Metadata Hosted Proof | ARIADNE / A4 | Open hosted proof after PR507A local acceptance; hosted migration 075 is applied/proven, and ARIADNE must prove deployed web/API freshness, desktop/390px owner curation flow, auth/cross-owner boundaries, public no-drift, and cleanup. | `docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_ARIADNE.md` |
+| PR507B | Owner Encounter Curation Metadata Hosted Proof | MIMIR / A1 | Hosted proof passed as `PASS_PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF`; web/API freshness, migration 075 re-probe, desktop/390px curation add/edit/clear, auth/cross-owner boundaries, public no-drift, cleanup, and privacy scan passed. Awaiting MIMIR closeout. | `docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
