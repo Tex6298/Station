@@ -4,7 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506A owner encounter private session artifact accepted by ARGUS
+## Current lane - PR506B owner encounter private session hosted proof
+
+MIMIR closed PR506A local review and opened PR506B for ARIADNE:
+
+`docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_CLOSEOUT.md`
+
+`docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_ACCEPTED_LOCALLY
+```
+
+Summary:
+
+- ARGUS accepted PR506A owner-only private encounter session artifacts.
+- Hosted API is ready on `@station/api`, branch `main`, commit
+  `0a0373c561fcb318d4532f6d3b9764c67835317e`.
+- MIMIR applied migration `074_persona_encounter_private_sessions.sql` to
+  hosted Supabase through the pooler as single statements.
+- Sanitized hosted migration proof: `statements_applied:18`,
+  `table_exists:true`, `rls_enabled:true`, `policy_count:4`,
+  `column_count:14`.
+- ARIADNE must create exactly one saved private same-owner encounter artifact,
+  prove owner list/detail/delete, prove signed-out/cross-owner/public
+  boundaries, inspect desktop/390px Studio UI, then wake MIMIR.
+
+Current lane:
+
+```text
+PR506B - Owner Encounter Private Session Hosted Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_PROOF
+Source: docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR506A owner encounter private session artifact accepted by ARGUS
 
 ARGUS accepted PR506A for MIMIR hosted-proof routing:
 
@@ -16,52 +60,9 @@ Result:
 ACCEPT_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT
 ```
 
-Summary:
+PR506A local review is closed in:
 
-- ARGUS accepted the dedicated `persona_encounter_private_sessions` schema/RLS,
-  owner API create/list/detail/delete, and Studio private saved-artifact
-  readback/discard.
-- `/persona-encounters/preview` remains disposable by default and must continue
-  to report no save, no transcript, no shareable output, and no source
-  retrieval.
-- `POST /persona-encounters/private-sessions` creates a saved artifact only by
-  running the server-owned same-owner generation path; strict request parsing
-  rejects client-certified reply text.
-- `GET /persona-encounters/private-sessions`, detail, and delete are scoped to
-  `req.user!.id` and return only bounded owner-safe readback with opaque
-  session handles.
-- Studio persona workspace now has an explicit `Save private artifact` action,
-  private saved-artifact readback, and discard behavior.
-- Scope remains same-owner, private, one-reply, no source retrieval, no public
-  or shareable output, no cross-owner encounters, no autonomous/background or
-  scheduled runs, no multi-turn loops, and no Cloudflare/Redis/queue/worker/
-  storage bucket/billing/social/Station Press/voice/avatar/Salon/live-event
-  drift.
-- Hosted ARIADNE proof is still required before MIMIR closes the product lane.
-
-ARGUS validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed
-  `26` tests.
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed `198` tests.
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-- Final diff checks are recorded in the result doc before commit.
-
-Current lane:
-
-```text
-PR506A - Owner Encounter Private Session Artifact
-Owner: MIMIR / A1
-State: ACCEPTED_AWAITING_HOSTED_PROOF_ROUTING
-Source: docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_REVIEW_RESULT.md
-```
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+`docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_CLOSEOUT.md`
 
 ## Previous lane - PR506A owner encounter private session artifact ready for review
 
