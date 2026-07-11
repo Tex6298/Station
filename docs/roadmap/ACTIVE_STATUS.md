@@ -4,26 +4,52 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517 cross-owner publication preflight accepted by ARGUS
+## Current lane - PR517A cross-owner metadata-only public exhibit contract
+
+MIMIR accepted the PR517 hostile preflight and opened PR517A for DAEDALUS:
+
+`docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR517A - Cross-Owner Metadata-Only Public Exhibit Contract
+Owner: DAEDALUS / A2
+State: OPEN_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_DAEDALUS.md
+```
+
+Task:
+
+- implement the smallest safe contract for bilaterally approved cross-owner
+  public metadata;
+- prefer a dedicated cross-owner public exhibit contract table unless a narrow
+  extension preserves every same-owner public exhibit constraint;
+- allow only title, summary/context note, tags, safe display snapshots,
+  provenance, status/timestamps, report/takedown, revocation, deletion/export,
+  and route hints;
+- keep generated words, transcripts, excerpts, summaries, PR516 disposable
+  preview output, retrieval, storage, provider calls, Discover/search/feed/
+  index surfacing, and broad UI changes out of scope;
+- wake ARGUS for hostile review when implemented.
+
+## Previous lane - PR517 cross-owner publication preflight accepted by ARGUS
 
 ARGUS completed the PR517 hostile preflight:
 
 `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md`
 
+MIMIR closeout:
+
+`docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_CLOSEOUT.md`
+
 Result:
 
 ```text
 PR517 - Cross-Owner Public Exhibit / Publication Preflight
-Owner: MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1
-State: ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT
-Source: docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md
-```
-
-ARGUS recommendation:
-
-```text
-PR517A - Cross-Owner Metadata-Only Public Exhibit Contract
-Owner: DAEDALUS / A2
+Owner: MIMIR / A1
+State: CLOSE_PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ACCEPTED
+Source: docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_CLOSEOUT.md
 ```
 
 Summary:
@@ -45,10 +71,9 @@ Summary:
   metadata only: title, summary, tags, safe display snapshots, provenance,
   report/takedown, revocation, deletion/export, and no generated words.
 
-Guardrail:
+Decision:
 
-- MIMIR should close PR517 if accepted and wake DAEDALUS for PR517A using the
-  exact metadata-only public exhibit contract boundary in the ARGUS result.
+- MIMIR accepted ARGUS's PR517A recommendation and woke DAEDALUS.
 - PR517A must not retroactively make older generic consent rows executable, must
   not use PR516 private disposable preview output as source material, and must
   not add Discover/search/feed/index/persona/Space/forum/Salon/Station Press

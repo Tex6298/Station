@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517 | Cross-Owner Public Exhibit / Publication Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | ARGUS accepted `ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT`; MIMIR closeout/route pending. Recommended next owner is DAEDALUS / A2 for PR517A metadata-only public exhibit contract. | `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md` |
+| PR517A | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR / A1 -> DAEDALUS / A2 | Open as `OPEN_DAEDALUS_IMPLEMENTATION`; implement a bilaterally approved metadata-only cross-owner public exhibit contract with no generated words or broader surfacing. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR517 closeout | Cross-Owner Public Exhibit / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR517A for the metadata-only public exhibit contract. | `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR517 preflight | Cross-Owner Public Exhibit / Publication Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT`; generated words/private saved artifacts remain blocked, and DAEDALUS gets the next metadata-only public exhibit contract if MIMIR closes the lane. | `docs/roadmap/PR517_CROSS_OWNER_PUBLIC_EXHIBIT_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR516 closeout | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_ACCEPTED`; PR517 opens cross-owner public exhibit/publication preflight. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_CLOSEOUT.md` |
 | PR516 proof | Cross-Owner Consent-to-Disposable Preview Integrated Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF`; hosted public-slug invitation, counterparty approval, one consent-scoped private disposable preview, setup-only payload, private/disposable/no-retrieval labels, inactive no-run controls, public-route leak checks, bounded runtime audit pair, cleanup, and privacy scan passed. | `docs/roadmap/PR516_CROSS_OWNER_CONSENT_TO_DISPOSABLE_PREVIEW_INTEGRATED_HOSTED_PROOF_RESULT.md` |
