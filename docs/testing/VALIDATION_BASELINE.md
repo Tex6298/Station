@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR506C Owner Encounter Browser Proof Tooling
+
+DAEDALUS completed the PR506C dev-only browser proof tooling unblock on
+2026-07-11:
+
+- `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md`
+
+Validation result:
+`REVIEW_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING`.
+
+Reason:
+
+- root `package.json` now declares `playwright` as a dev dependency;
+- `pnpm-lock.yaml` records the package-manager-resolved Playwright dependency;
+- no app package dependency, product code, hosted proof output, browser binary,
+  screenshot, trace, video, auth state, cookie, token, generated artifact body,
+  or secret was committed;
+- Playwright CLI resolution and Node import resolution both pass from the
+  workspace.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` | Pass | Lockfile was up to date after the package-manager update. |
+| `npm exec --yes pnpm@10.32.1 -- exec playwright --version` | Pass | Printed `Version 1.61.1`. |
+| `node -e "import('playwright').then(() => console.log('playwright import ok'))"` | Pass | Printed `playwright import ok`. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+
+If ARIADNE's hosted browser proof environment lacks Chromium binaries after
+pulling PR506C, run:
+
+```text
+npm exec --yes pnpm@10.32.1 -- exec playwright install chromium
+```
+
+No product test suite was run because PR506C changes only root dev tooling and
+roadmap/testing documentation.
+
 ## PR506B Owner Encounter Private Session Hosted Proof
 
 ARIADNE ran the hosted PR506B proof on 2026-07-11:

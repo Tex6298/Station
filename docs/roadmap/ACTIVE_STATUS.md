@@ -4,11 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506C browser proof tooling unblock
+## Current lane - PR506C browser proof tooling review
 
-MIMIR opened PR506C for DAEDALUS:
+DAEDALUS implemented PR506C for ARGUS review:
 
 `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md`
+
+`docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md`
 
 Why:
 
@@ -18,22 +20,39 @@ Why:
 - required desktop and `390px` owner Studio UI proof could not run because the
   local browser runner could not import Playwright;
 - MIMIR tested an ephemeral package path, but Node still could not import
-  Playwright from this workspace.
+  Playwright from this workspace;
+- DAEDALUS added root-only dev tooling so the workspace can resolve the
+  Playwright CLI and `import('playwright')`.
+
+Result:
+
+```text
+REVIEW_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING
+```
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` passed;
+- `npm exec --yes pnpm@10.32.1 -- exec playwright --version` printed
+  `Version 1.61.1`;
+- `node -e "import('playwright').then(() => console.log('playwright import ok'))"`
+  passed;
+- final diff checks are recorded in the PR506C result.
 
 Current lane:
 
 ```text
 PR506C - Owner Encounter Browser Proof Tooling
-Owner: DAEDALUS / A2
-State: OPEN_UNBLOCK
-Source: docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md
+Owner: ARGUS / A3
+State: REVIEW
+Source: docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A2:
-Codename: DAEDALUS
+WAKEUP A3:
+Codename: ARGUS
 ```
 
 ## Previous lane - PR506B private session hosted proof blocked on browser tooling

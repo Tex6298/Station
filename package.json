@@ -51,6 +51,7 @@
     "test:assistant": "pnpm --filter @station/types --filter @station/config --filter @station/db --filter @station/auth --filter @station/ai build && tsx --test apps/api/src/services/station-assistant.service.test.ts apps/api/src/services/conversation-history.service.test.ts"
   },
   "devDependencies": {
+    "playwright": "^1.61.1",
     "tsx": "^4.21.0",
     "turbo": "^2.3.0",
     "typescript": "^5.5.4"

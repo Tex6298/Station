@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR506C | Owner Encounter Browser Proof Tooling | DAEDALUS / A2 | Open unblock; add minimal dev-only browser proof tooling so ARIADNE can rerun the remaining PR506B desktop/390px Studio UI proof without product/runtime drift. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_DAEDALUS.md` |
+| PR506C | Owner Encounter Browser Proof Tooling | ARGUS / A3 | Ready for review; DAEDALUS added root-only Playwright dev tooling so ARIADNE can rerun the remaining PR506B desktop/390px Studio UI proof without product/runtime drift. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR506C implementation | Owner Encounter Browser Proof Tooling | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; root `playwright` devDependency and lockfile update make the Playwright CLI and Node import available from this workspace, with no app runtime or product behavior changes. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_RESULT.md` |
 | PR506B blocker | Owner Encounter Private Session Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked only on browser proof tooling; API create/list/detail/delete, auth boundaries, public no-drift after cleanup, and privacy scan passed. DAEDALUS gets PR506C to unblock the required desktop/390px UI proof. | `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md` |
 | PR506B proof | Owner Encounter Private Session Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_BROWSER_TOOLING`; exactly one saved artifact create returned `201`, owner readback and API boundaries passed, cleanup left owner list count `0`, but required desktop/390px Studio UI proof was not completed. | `docs/roadmap/PR506B_OWNER_ENCOUNTER_PRIVATE_SESSION_HOSTED_PROOF_RESULT.md` |
 | PR506A closeout | Owner Encounter Private Session Artifact | MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_ACCEPTED_LOCALLY`; hosted API is ready at `0a0373c5` and migration 074 is applied/proven, so ARIADNE gets PR506B hosted proof. | `docs/roadmap/PR506A_OWNER_ENCOUNTER_PRIVATE_SESSION_ARTIFACT_CLOSEOUT.md` |
