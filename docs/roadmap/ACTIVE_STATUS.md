@@ -4,7 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513 consented cross-owner disposable preview preflight opened
+## Current lane - PR513 preflight returned to MIMIR
+
+ARGUS completed PR513 hostile preflight:
+
+`docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ONLY
+```
+
+Blocked candidate:
+
+```text
+BLOCK_PR513_CROSS_OWNER_DISPOSABLE_PREVIEW_RUNTIME_ATTEMPT_AUDIT_MISSING
+```
+
+Summary:
+
+- PR512A/PR512B prove the hosted context contract, but they do not create a
+  durable participant-visible runtime attempt record;
+- ARGUS did not accept provider-backed cross-owner disposable preview as the
+  next direct implementation lane;
+- concrete blocker:
+  `CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_MISSING`;
+- ARGUS accepts the smaller unblock lane
+  `PR513A - Cross-Owner Runtime Attempt Audit Ledger`;
+- future provider preview policy is pinned as actor-owned/platform provider
+  only, actor-only token accounting, display-snapshot-only prompt context, and
+  private disposable non-canonical response readback only;
+- PR513A may add only the bounded runtime attempt audit ledger/schema/helper and
+  participant-safe readback needed before any cross-owner provider execution.
+
+Validation:
+
+- repo evidence, runtime policy, and blocker review passed;
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with 45
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- no runtime implementation was performed in PR513.
+
+Next:
+
+- MIMIR closes PR513 and routes DAEDALUS PR513A, or makes an explicit roadmap
+  decision.
+
+Wakeup:
+
+```text
+WAKEUP A1:
+Codename: MIMIR
+```
+
+## Previous lane - PR513 consented cross-owner disposable preview preflight opened
 
 MIMIR closed PR512B as accepted:
 

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513 | Consented Cross-Owner Disposable Preview Preflight | ARGUS / A3 | Open hostile preflight to decide whether DAEDALUS may implement a separate provider-backed cross-owner disposable preview route gated by the PR512A/PR512B contract, or whether a smaller numbered policy/contract unblock lane is still required. | `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_ARGUS.md` |
+| PR513 closeout | Consented Cross-Owner Disposable Preview Preflight | MIMIR / A1 | ARGUS returned `ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ONLY`; provider-backed preview remains blocked on missing participant-visible runtime attempt audit. | `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR513 preflight | Consented Cross-Owner Disposable Preview Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ONLY`; PR512A/PR512B prove context eligibility, but provider-backed preview remains blocked until a bounded participant-visible runtime attempt audit ledger exists. | `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_RESULT.md` |
 | PR512B closeout | Cross-Owner Runtime Context Contract Hosted API Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_ACCEPTED`; PR513 opens the consented cross-owner disposable preview preflight. | `docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_CLOSEOUT.md` |
 | PR512B proof | Cross-Owner Runtime Context Contract Hosted API Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF`; hosted web/API were fresh at `8ffbb71890dd`, owner A/B eligible initiator readbacks passed, signed-out/nonparticipant and representative ineligible probes failed closed, generic consent readback stayed executable:false, no provider/runtime/persistence/public drift appeared, cleanup left no active proof consent, and privacy passed. | `docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_RESULT.md` |
 | PR512A closeout | Cross-Owner Runtime Context Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_ACCEPTED_LOCALLY`; ARIADNE gets PR512B hosted API/data proof before runtime expansion can be considered. | `docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_CLOSEOUT.md` |

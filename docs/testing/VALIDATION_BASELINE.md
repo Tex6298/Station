@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR513 Consented Cross-Owner Disposable Preview Preflight
+
+ARGUS completed PR513 preflight on 2026-07-11:
+
+- `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ONLY`.
+
+Reason:
+
+- PR512A/PR512B prove the hosted context-contract readback but do not create
+  durable participant-visible runtime attempt provenance;
+- provider-backed cross-owner preview would be the first provider call that
+  consumes another owner's approved consent;
+- actor-local token/rate-limit facts are not a bilateral cross-owner consent
+  audit trail;
+- PR513A is accepted only as a runtime attempt audit ledger/schema/helper lane;
+- provider-backed preview, prompt assembly, generated words, token rows, private
+  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
+  jobs/storage/public rows, UI, package, billing, Redis, Cloudflare, queues,
+  workers, and deployment remain blocked.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Repo evidence review | Pass | Reviewed PR513 packet, PR512A local review, PR512B hosted proof/closeout, current context-contract route, and same-owner provider preview path. |
+| Runtime policy review | Pass | Provider ownership, actor-only token accounting, display-snapshot-only prompt context, consent semantics, and response privacy policies are resolved for a later preview lane. |
+| Blocker review | Pass | Found the remaining missing piece is durable participant-visible runtime attempt audit before any cross-owner provider call. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 45 tests passed, including PR512A hosted-proven context-contract local coverage and same-owner preview safety coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR513 adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Staged path scan | Pass | Staged changes are limited to PR513 result/status/testing docs. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the staged diff. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR512B Cross-Owner Runtime Context Contract Hosted Proof
 
 ARIADNE completed PR512B hosted API/data proof on 2026-07-11:
