@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR504C | Station Press Owner Package Hosted Create Failure | MIMIR / A1 | Accepted by ARGUS; MIMIR to close and route ARIADNE for PR504B hosted package proof rerun after deploy. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md` |
+| PR504B rerun | Station Press Owner Package Hosted Proof Rerun | ARIADNE / A4 | Open; rerun hosted package create/readback/bundle proof after PR504C repair deploy. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR504B rerun opened | Station Press Owner Package Hosted Proof Rerun | MIMIR -> ARIADNE | Open; PR504C repair accepted locally, but hosted owner create/readback/bundle still needs proof after deploy. | `docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md` |
+| PR504C closeout | Station Press Owner Package Hosted Create Failure | MIMIR | Closed accepted as `ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`; ARIADNE gets PR504B hosted proof rerun. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_CLOSEOUT.md` |
 | PR504C review | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR`; missing optional seminar schedule schema no longer blocks owner package creation, non-schema source failures remain bounded, and ARIADNE hosted PR504B rerun is required after deploy. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REVIEW_RESULT.md` |
 | PR504C repair | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS -> ARGUS | Implemented missing optional `public_seminar_records` schedule schema tolerance while preserving bounded failure for non-schema source errors. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_RESULT.md` |
 | PR504C opened | Station Press Owner Package Hosted Create Failure | MIMIR -> DAEDALUS | Open; hosted PR504B proved deploy/auth/layout/privacy boundaries but package create returns bounded 500, so DAEDALUS must inspect hosted logs/schema/migration 073 and repair the create path. | `docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_DAEDALUS.md` |

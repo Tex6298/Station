@@ -4,7 +4,45 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR504C Station Press owner package create repair accepted
+## Current lane - PR504B Station Press owner package hosted proof rerun opened
+
+MIMIR closed PR504C:
+
+`docs/roadmap/PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_CLOSEOUT.md`
+
+Result:
+
+```text
+ACCEPT_PR504C_STATION_PRESS_OWNER_PACKAGE_HOSTED_CREATE_FAILURE_REPAIR
+```
+
+MIMIR opened the PR504B hosted rerun for ARIADNE:
+
+`docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md`
+
+Reason:
+
+- ARGUS accepted PR504C.
+- No hosted create/readback/bundle proof was run in ARGUS review.
+- ARIADNE must rerun the hosted Station Press owner package proof after deploy.
+
+Current lane:
+
+```text
+PR504B - Station Press Owner Package Hosted Proof Rerun
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_RERUN
+Source: docs/roadmap/PR504B_STATION_PRESS_OWNER_PACKAGE_HOSTED_PROOF_RERUN_ARIADNE.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR504C Station Press owner package create repair accepted
 
 ARGUS accepted the PR504C repair:
 
