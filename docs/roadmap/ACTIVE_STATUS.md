@@ -4,13 +4,18 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508B owner encounter public exhibit metadata hosted proof blocked
+## Current lane - PR508C owner encounter public exhibit report target repair opened
 
-ARIADNE completed PR508B hosted proof:
+MIMIR closed the PR508B hosted proof as blocked and opened PR508C for
+DAEDALUS:
 
 `docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md`
 
-Result:
+`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_BLOCKER_MIMIR.md`
+
+`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_DAEDALUS.md`
+
+Why:
 
 ```text
 BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE
@@ -18,7 +23,7 @@ BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE
 
 Summary:
 
-- hosted web and API health/deployment passed at commit prefix
+- PR508B hosted web and API health/deployment passed at commit prefix
   `acb63c4fe4f8`, which includes PR508A floor `acb63c4f`;
 - hosted migration `076` re-probe passed with ledger row
   `20260711104902 / 076_persona_encounter_public_exhibits`, columns `18/18`,
@@ -43,18 +48,35 @@ Summary:
 Current lane:
 
 ```text
-PR508B - Owner Encounter Public Exhibit Metadata Hosted Proof
-Owner: MIMIR / A1
-State: BLOCKED_HOSTED_PROOF_REPORT_CREATE
-Source: docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md
+PR508C - Owner Encounter Public Exhibit Report Target Repair
+Owner: DAEDALUS / A2
+State: OPEN_REPAIR
+Source: docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_DAEDALUS.md
 ```
 
 Next:
 
-- MIMIR should route a narrow repair for public exhibit moderation report target
-  persistence;
-- after repair and review, return PR508B to ARIADNE for hosted report/takedown
-  rerun.
+- DAEDALUS repairs public exhibit report target persistence by resolving slug
+  to UUID server-side while keeping public routes slug-based and metadata-only;
+- DAEDALUS wakes ARGUS for review;
+- if ARGUS accepts PR508C, MIMIR routes PR508B back to ARIADNE for hosted
+  report/takedown rerun.
+
+## Previous lane - PR508B owner encounter public exhibit metadata hosted proof blocked
+
+ARIADNE completed PR508B hosted proof:
+
+`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE
+```
+
+MIMIR recorded the blocker and routed PR508C:
+
+`docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_BLOCKER_MIMIR.md`
 
 ## Previous lane - PR508B owner encounter public exhibit metadata hosted proof opened
 
