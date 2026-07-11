@@ -4,14 +4,16 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR509A Public Encounter Exhibit Index
+## PR509A Public Encounter Exhibit Index ARGUS Review
 
-DAEDALUS implemented PR509A on 2026-07-11:
+DAEDALUS implemented PR509A on 2026-07-11, and ARGUS accepted it without a
+code patch:
 
 - `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md`
+- `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX`.
 
 Reason:
 
@@ -31,7 +33,8 @@ Reason:
   transcripts, raw replies, private setup, private curation, raw ids, provider
   details, prompts, source bodies, cross-owner words, packages, lockfiles,
   migrations, provider, retrieval, billing, social, Redis, Cloudflare, queue,
-  worker, storage, and schema-visible feature work remain out of scope.
+  worker, storage, and schema-visible feature work remain out of scope;
+- ARGUS found no private-material or off-scope public-surfacing drift.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
@@ -43,8 +46,10 @@ Reason:
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
 | Changed-path scan | Pass | Changed runtime paths are limited to encounter API/tests, `/encounters` pages, encounter runtime helper/tests, scoped global CSS, and roadmap/testing docs. |
 | Forbidden-path scan | Pass | No Discover/search/feed, public persona, public Space, forum, Station Press, package, lockfile, migration, provider, retrieval, billing, social, Redis, Cloudflare, queue, worker, storage, or schema-visible implementation paths changed. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, or bearer-token-shaped values found in changed files. |
+| Public/private leakage review | Pass | Public list/detail payloads remain metadata-only and exclude report counts, report controls on index, raw ids, private setup, generated reply text, transcript excerpts, private curation, prompts, provider details, source bodies, and admin internals. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
-| `git diff --cached --check` | Pass | No staged whitespace errors after staging the PR509A implementation and docs. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR509A review docs/status updates. |
 
 ## PR509 Public Encounter Exhibit Discovery Preflight
 

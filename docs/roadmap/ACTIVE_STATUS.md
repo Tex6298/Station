@@ -4,9 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR509A public encounter exhibit index ready for review
+## Current lane - PR509A public encounter exhibit index accepted
 
-DAEDALUS implemented PR509A and is waking ARGUS for review:
+ARGUS accepted PR509A without a code patch:
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md`
+
+DAEDALUS implementation result:
 
 `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_DAEDALUS.md`
 
@@ -15,7 +19,7 @@ DAEDALUS implemented PR509A and is waking ARGUS for review:
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX
 ```
 
 Summary:
@@ -36,7 +40,9 @@ Summary:
   details, prompts, source bodies, and cross-owner words remain out of scope;
 - no migration, package, lockfile, provider, retrieval, billing, social, Redis,
   Cloudflare, queue, worker, storage, or schema-visible feature work entered
-  this lane.
+  this lane;
+- ARGUS notes no dedicated public-list DB index was added; this is accepted for
+  protected alpha only, and hosted proof should record list-route latency.
 
 Validation:
 
@@ -46,29 +52,37 @@ Validation:
 - `npm exec --yes pnpm@10.32.1 -- run test:writing` passed with 29 tests;
 - `npm exec --yes pnpm@10.32.1 -- run test:community` passed with 41 tests;
 - `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- changed-path, forbidden-path, secret-shaped value, and public/private leakage
+  scans passed;
+- `git diff --check` and `git diff --cached --check` passed.
 
 Current lane:
 
 ```text
 PR509A - Public Encounter Exhibit Index
-Owner: ARGUS / A3
-State: READY_FOR_REVIEW
-Source: docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md
+Owner: MIMIR / A1
+State: REVIEWED_ACCEPTED_HOSTED_PROOF_REQUIRED
+Source: docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md
 ```
 
 Next:
 
-- ARGUS reviews the metadata-only public index safety;
-- ARGUS confirms no private material or off-scope public surfacing entered;
-- if ARGUS accepts, MIMIR routes hosted proof.
+- MIMIR closes PR509A local review if accepted;
+- route ARIADNE for hosted public index proof.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
+
+## Previous lane - PR509A public encounter exhibit index ready for review
+
+DAEDALUS implemented PR509A and woke ARGUS:
+
+`docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md`
 
 ## Previous lane - PR509A public encounter exhibit index opened
 

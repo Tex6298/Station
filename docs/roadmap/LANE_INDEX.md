@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR509A | Public Encounter Exhibit Index | ARGUS / A3 | Ready for review; DAEDALUS added only the dedicated `/encounters` public index plus bounded metadata-only public list API for published, non-removed public encounter exhibits. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_RESULT.md` |
+| PR509A | Public Encounter Exhibit Index | MIMIR / A1 | ARGUS accepted `ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX`; ready for MIMIR closeout/routing to ARIADNE for hosted public index proof. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR509A review | Public Encounter Exhibit Index | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX`; dedicated `/encounters` index and bounded public list API stay metadata-only with no Discover/search/feed/persona/Space/forum/document surfacing. Hosted proof is required. | `docs/roadmap/PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_REVIEW_RESULT.md` |
 | PR509 closeout | Public Encounter Exhibit Discovery Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR509A for a dedicated public `/encounters` index only. | `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_CLOSEOUT.md` |
 | PR509 preflight | Public Encounter Exhibit Discovery Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR509A_PUBLIC_ENCOUNTER_EXHIBIT_INDEX_ONLY`; smallest safe discovery expansion is a dedicated `/encounters` index plus bounded metadata-only public list API, not Discover/search/feed/persona/Space/forum/document surfacing. | `docs/roadmap/PR509_PUBLIC_ENCOUNTER_EXHIBIT_DISCOVERY_PREFLIGHT_RESULT.md` |
 | PR508D closeout | Owner Encounter Public Exhibit Report/Takedown Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_ACCEPTED`; report/takedown is hosted-proven and PR509 opens discovery-surfacing preflight. | `docs/roadmap/PR508D_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TAKEDOWN_HOSTED_RERUN_CLOSEOUT.md` |
