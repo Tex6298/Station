@@ -2348,7 +2348,7 @@ function serializeCrossOwnerPublicExhibitOwnerReadback(
     },
     publication: {
       public: publicReadable,
-      routeListed: false,
+      routeListed: publicReadable,
       indexed: false,
       discoverable: false,
       generatedWordsPublished: false,
@@ -2356,7 +2356,7 @@ function serializeCrossOwnerPublicExhibitOwnerReadback(
       summaryPublished: false,
       excerptPublished: false,
       note: publicReadable
-        ? "Public API detail readback is metadata-only and not listed in encounter indexes."
+        ? "Public API detail readback is metadata-only and listed only in the dedicated cross-owner encounter index."
         : "Public readback remains hidden until both participants approve exact metadata and the consent stays active.",
     },
     provenance: {
@@ -2405,7 +2405,7 @@ function serializePublishedCrossOwnerPublicExhibit(
       transcriptPublished: false,
       summaryPublished: false,
       excerptPublished: false,
-      routeListed: false,
+      routeListed: true,
       indexed: false,
       discoverable: false,
       source: "Derived from a bilateral cross-owner consent metadata contract",

@@ -6,12 +6,12 @@ change, not to unknown repo hygiene.
 
 ## PR518A Cross-Owner Metadata Exhibit Dedicated Public Index
 
-DAEDALUS completed PR518A locally on 2026-07-11:
+ARGUS accepted PR518A after a narrow review patch on 2026-07-12:
 
-- `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_RESULT.md`
+- `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX`.
+`ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_WITH_ARGUS_PATCH`.
 
 Reason:
 
@@ -26,6 +26,9 @@ Reason:
   same-owner `/encounters`;
 - same-owner `/encounters` and `/persona-encounters/public-exhibits` remain
   separate from cross-owner rows;
+- ARGUS patched stale route-listing readback so published cross-owner exhibits
+  now honestly report the dedicated index while Discover/search/feed remain
+  false;
 - no migration, package/lockfile, Discover/search/feed, public persona, Space,
   forum/community/Salon, writing, Station Press, provider, retrieval, storage,
   billing, social, Redis, Cloudflare, queue, worker, or deployment scope was
@@ -33,7 +36,7 @@ Reason:
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
-| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 74 tests passed, including the new cross-owner public exhibit list, fail-closed pending/wrong-scope/wrong-version/one-sided/mismatched/revoked/missing-consent/removed/retracted/malformed/wrong-schema/wrong-contract fixtures, unchanged detail/report/retract behavior, and same-owner list separation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 74 tests passed, including the new cross-owner public exhibit list, fail-closed pending/wrong-scope/wrong-version/one-sided/mismatched/revoked/missing-consent/removed/retracted/malformed/wrong-schema/wrong-contract fixtures, route-listing readback, unchanged detail/report/retract behavior, and same-owner list separation. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner and cross-owner public exhibit moderation actions. |
 | `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 44 tests passed; Discover/community route coverage remains green. |
 | `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing/feed/public persona/Space helpers remain bounded. |

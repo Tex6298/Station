@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR518A cross-owner metadata exhibit public index
+## Current lane - PR518A cross-owner metadata exhibit public index accepted by ARGUS
 
 ARGUS accepted PR518:
 
@@ -14,13 +14,17 @@ MIMIR closeout:
 
 `docs/roadmap/PR518_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_SURFACING_PREFLIGHT_CLOSEOUT.md`
 
+ARGUS review:
+
+`docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md`
+
 Current lane:
 
 ```text
 PR518A - Cross-Owner Metadata Exhibit Dedicated Public Index
-Owner: DAEDALUS / A2
-State: READY_FOR_ARGUS_REVIEW_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX
-Source: docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_RESULT.md
+Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md
 ```
 
 Result:
@@ -34,7 +38,10 @@ Result:
   snapshots, provenance labels, and report path;
 - added `/encounters/cross-owner` as the dedicated web index;
 - added one link from same-owner `/encounters` to the dedicated cross-owner
-  index without mixing rows into the same-owner list.
+  index without mixing rows into the same-owner list;
+- ARGUS patched stale route-listing readback so published cross-owner public
+  exhibits now honestly report the dedicated index while Discover/search/feed
+  remain false.
 
 Validation:
 
@@ -49,9 +56,9 @@ npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 
 Next:
 
-- ARGUS reviews PR518A locally.
-- If ARGUS accepts, MIMIR should route hosted proof because PR518A adds a new
-  public findability route.
+- MIMIR should close PR518A locally if satisfied.
+- MIMIR should route ARIADNE for hosted proof because PR518A adds a new public
+  findability route.
 
 Still blocked:
 

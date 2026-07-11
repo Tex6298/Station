@@ -289,7 +289,7 @@ export interface PersonaEncounterCrossOwnerPublicExhibitOwnerReadback {
   };
   publication: {
     public: boolean;
-    routeListed: false;
+    routeListed: boolean;
     indexed: false;
     discoverable: false;
     generatedWordsPublished: false;
@@ -870,7 +870,7 @@ export function personaEncounterCrossOwnerPublicExhibitReadback(
     "Cross-owner metadata-only public exhibit",
     exhibit?.provenance.label ?? "Cross-owner metadata-only public encounter exhibit",
     exhibit?.publication.public ? "Public API detail readback" : "Not public yet",
-    "Not listed",
+    exhibit?.publication.routeListed ? "Dedicated cross-owner index" : "Not listed",
     "Not indexed",
     "Not Discover",
     exhibit?.publication.generatedWordsPublished ? "Generated words published" : "No generated words",

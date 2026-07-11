@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR518A | Cross-Owner Metadata Exhibit Dedicated Public Index | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Ready for ARGUS review as `READY_FOR_ARGUS_REVIEW_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX`; DAEDALUS added a dedicated metadata-only cross-owner public index without Discover/search/feed or same-owner list mixing. | `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_RESULT.md` |
+| PR518A | Cross-Owner Metadata Exhibit Dedicated Public Index | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_WITH_ARGUS_PATCH`; dedicated metadata-only cross-owner index accepted locally after ARGUS fixed stale route-listing readback. Hosted proof required next. | `docs/roadmap/PR518A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_REVIEW_RESULT.md` |
 
 ## Recently Closed
 

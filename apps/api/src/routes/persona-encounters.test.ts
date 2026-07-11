@@ -2630,7 +2630,7 @@ test("cross-owner metadata public exhibit requires exact bilateral approval and 
     assert.equal(counterpartyApproval.status, 200);
     assert.equal(counterpartyApproval.body.exhibit.status, "published");
     assert.equal(counterpartyApproval.body.exhibit.publication.public, true);
-    assert.equal(counterpartyApproval.body.exhibit.publication.routeListed, false);
+    assert.equal(counterpartyApproval.body.exhibit.publication.routeListed, true);
 
     const publicRead = await requestJson(app, "GET", crossOwnerPublicExhibitPath(propose.body.exhibit.slug));
     assert.equal(publicRead.status, 200);
@@ -2641,7 +2641,7 @@ test("cross-owner metadata public exhibit requires exact bilateral approval and 
     assert.equal(publicRead.body.exhibit.provenance.crossOwner, true);
     assert.equal(publicRead.body.exhibit.provenance.generatedWordsPublished, false);
     assert.equal(publicRead.body.exhibit.provenance.transcriptPublished, false);
-    assert.equal(publicRead.body.exhibit.provenance.routeListed, false);
+    assert.equal(publicRead.body.exhibit.provenance.routeListed, true);
     assert.equal(publicRead.body.exhibit.report.path, `${crossOwnerPublicExhibitPath(propose.body.exhibit.slug)}/report`);
     assert.deepEqual(publicRead.body.exhibit.participants, {
       label: "Cross-owner consent display snapshots",
