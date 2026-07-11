@@ -4,6 +4,46 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR508 Owner Encounter Public Exhibit Boundary Preflight
+
+ARGUS completed PR508 on 2026-07-11:
+
+- `docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY`.
+
+Reason:
+
+- PR507B hosted proof established the private owner same-owner artifact and
+  private curation loop;
+- ARGUS accepted same-owner public exhibit as a legitimate first public slice
+  only when it is metadata-only and explicitly owner-published;
+- PR508A must use owner-authored public title, summary/context note, optional
+  tags, safe same-owner persona display snapshots, provenance labels,
+  publish/retract state, a public slug, and report/takedown support;
+- PR508A must not publish transcripts, owner-selected excerpts, raw generated
+  responder replies, private setup, private curation, raw ids, provider
+  payloads, prompts, private context, source bodies, cross-owner persona words,
+  or broad Discover/search/forum/feed surfacing;
+- cross-owner exhibits and excerpts remain blocked behind later hostile
+  preflights with consent, revocation, audit, deletion, and readback semantics;
+- no implementation files changed in PR508.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 30 encounter API/runtime tests passed, including private-session auth, owner create/list/detail/delete, private curation update/clear, malformed-body rejection, cross-owner boundaries, provider/quota/rate/empty-output failures, and runtime copy. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 6 reports route tests passed, covering report persistence, reporter scoping, admin queue/status updates, safe target contexts, and moderation review requests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 199 Studio helper tests passed, including encounter contract/readiness/runtime copy, moderation report helpers, route context, publishing retract copy, and bounded owner-visible text helpers. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | PR508 is a preflight-only docs/status update; no code, schema, package, lockfile, public route, provider, storage, billing, queue/worker, Redis, Cloudflare, or social implementation files changed. |
+| Existing-surface scan | Pass | Current encounter code is private-session/curation only; current report validation accepts `user`, `space`, `document`, `thread`, `comment`, and `persona`, so PR508A must add a public encounter exhibit report target before visibility. |
+| Product-boundary scan | Pass | Product vision allows public encounters only with structure, creator control, and permission for another creator's persona words; PR508A stays same-owner and metadata-only. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, or bearer-token-shaped values found in the touched roadmap/testing files. |
+| Scope scan | Pass | Public/shareable, cross-owner, provider, source retrieval, storage, billing, queue/worker, Redis, Cloudflare, social, Archive, Memory, Canon, Continuity, Integrity, Station Press, package, and lockfile matches are guardrail or required-boundary text only. |
+| `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the PR508 preflight result and status docs. |
+
 ## PR507B Owner Encounter Curation Metadata Hosted Proof
 
 ARIADNE completed PR507B hosted proof on 2026-07-11:

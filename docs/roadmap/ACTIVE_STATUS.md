@@ -4,38 +4,62 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508 owner encounter public exhibit boundary preflight
+## Current lane - PR508 owner encounter public exhibit boundary preflight ready for MIMIR closeout
 
-MIMIR closed PR507B and opened PR508 for ARGUS:
+ARGUS completed PR508:
 
-`docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_CLOSEOUT.md`
+`docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_RESULT.md`
 
-`docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_ARGUS.md`
+Result:
 
-Why:
+```text
+ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY
+```
 
-- PR507B hosted proof passed for private owner-authored curation metadata;
-- the private candidate/planning marker is now hosted-proven;
-- the next customer-facing encounter question is the public exhibit boundary,
-  not another private hardening sweep;
-- public encounter exhibits need hostile review before DAEDALUS touches public
-  routes, publish/retract controls, share links, public excerpts, moderation,
-  or cross-owner consent surfaces.
+Summary:
+
+- same-owner public exhibit is a legitimate first slice after PR507B, but only
+  as metadata-only public presentation;
+- the accepted PR508A lane is owner-authored public title, summary/context note,
+  optional tags, safe same-owner persona display snapshots, provenance labels,
+  publish/retract state, a public slug, and report/takedown support;
+- PR508A must use explicit owner publish/retract and a dedicated public exhibit
+  row/route instead of loosening the private-session table's
+  `shareable = false` and `public_visibility = 'private'` constraints;
+- private curation metadata must not auto-copy into public output, and the
+  private candidate marker is not publication approval;
+- transcripts, raw generated responder replies, owner-selected excerpts,
+  private setup, private curation, raw ids, provider payloads, prompts, private
+  context, source bodies, public Discover/search/forum surfacing, and
+  cross-owner persona words remain blocked;
+- cross-owner exhibits and excerpts require later hostile preflights with
+  consent, revocation, audit, deletion, and readback semantics.
+
+Validation:
+
+- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
+  `30` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `6` tests;
+- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with `199`
+  tests;
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- changed-path, existing-surface, product-boundary, secret-shaped value, and
+  forbidden-scope scans passed for the docs-only preflight.
 
 Current lane:
 
 ```text
 PR508 - Owner Encounter Public Exhibit Boundary Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: READY_FOR_CLOSEOUT
+Source: docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_RESULT.md
 ```
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR507B owner encounter curation metadata hosted proof passed

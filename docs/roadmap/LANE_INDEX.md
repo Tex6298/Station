@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR508 | Owner Encounter Public Exhibit Boundary Preflight | ARGUS / A3 | Open hostile preflight; decide the smallest safe public-presentation lane after hosted private curation metadata, before any public route, publish/retract control, share link, public excerpt, moderation, or cross-owner consent surface exists. | `docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_ARGUS.md` |
+| PR508 | Owner Encounter Public Exhibit Boundary Preflight | MIMIR / A1 | Ready for closeout after ARGUS accepted `ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY`; next lane should be same-owner metadata-only public exhibit with explicit publish/retract, dedicated public route/table, and report/takedown support, while transcripts, excerpts, raw replies, private setup/curation, cross-owner words, and Discover/search/forum surfacing remain blocked. | `docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR508 preflight | Owner Encounter Public Exhibit Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY`; same-owner public exhibit is safe only as owner-authored metadata with explicit publish/retract, dedicated public route/table, report/takedown support, and no transcript/excerpt/raw-reply/private-curation/cross-owner publication. | `docs/roadmap/PR508_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_PREFLIGHT_RESULT.md` |
 | PR507B closeout | Owner Encounter Curation Metadata Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed passed as `CLOSE_PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_PASSED`; hosted web/API freshness, migration 075, desktop/390px curation flow, boundaries, public no-drift, cleanup, and privacy scan passed. | `docs/roadmap/PR507B_OWNER_ENCOUNTER_CURATION_METADATA_HOSTED_PROOF_CLOSEOUT.md` |
 | PR507A closeout | Owner Encounter Curation Metadata | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR507A_OWNER_ENCOUNTER_CURATION_METADATA_ACCEPTED_LOCALLY`; hosted migration 075 was applied/proven and ARIADNE gets PR507B hosted desktop/mobile proof. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_CLOSEOUT.md` |
 | PR507A review | Owner Encounter Curation Metadata | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR507A_OWNER_ENCOUNTER_CURATION_METADATA` after ARGUS hardened the SQL tag constraint to reject null tag elements; full requested validation passed and hosted proof is required before customer-facing closeout. | `docs/roadmap/PR507A_OWNER_ENCOUNTER_CURATION_METADATA_REVIEW_RESULT.md` |
