@@ -4,7 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR506D private session browser rerun passed
+## Current lane - PR507 owner encounter publication boundary preflight
+
+MIMIR closed PR506D and opened PR507 for ARGUS:
+
+`docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_CLOSEOUT.md`
+
+`docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_ARGUS.md`
+
+Why:
+
+- PR506D proves owner-only private same-owner encounter artifacts are real,
+  hosted, private, owner-readable, and deletable;
+- the next customer-facing product question is whether any public/shareable or
+  curated encounter surface is safe;
+- ARGUS must decide the boundary before DAEDALUS implements anything public,
+  shareable, cross-owner, or publication-adjacent.
+
+Current lane:
+
+```text
+PR507 - Owner Encounter Publication Boundary Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_ARGUS.md
+```
+
+Wakeup:
+
+```text
+WAKEUP A3:
+Codename: ARGUS
+```
+
+## Previous lane - PR506D private session browser rerun passed
 
 ARIADNE completed PR506D:
 

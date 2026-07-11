@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR506D | Owner Encounter Private Session Browser Rerun | MIMIR / A1 | Passed as `PASS_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN`; one saved artifact was created, desktop/390px Studio readback/delete controls passed, public no-drift passed while it existed, and cleanup removed it. | `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_RESULT.md` |
+| PR507 | Owner Encounter Publication Boundary Preflight | ARGUS / A3 | Open hostile preflight; decide the smallest safe customer-facing next step after private same-owner encounter artifacts, before any public/shareable/cross-owner/publication-adjacent implementation. | `docs/roadmap/PR507_OWNER_ENCOUNTER_PUBLICATION_BOUNDARY_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR506D closeout | Owner Encounter Private Session Browser Rerun | MIMIR -> ARIADNE -> MIMIR | Closed accepted as `CLOSE_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_ACCEPTED`; private same-owner saved encounter artifacts are hosted-proven for owner readback/delete and public no-drift. | `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_CLOSEOUT.md` |
 | PR506D proof | Owner Encounter Private Session Browser Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN`; browser tooling worked, exactly one saved private artifact was created, desktop/390px UI and public no-drift passed, and cleanup left owner list count `0`. | `docs/roadmap/PR506D_OWNER_ENCOUNTER_PRIVATE_SESSION_BROWSER_RERUN_RESULT.md` |
 | PR506C closeout | Owner Encounter Browser Proof Tooling | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed accepted as `CLOSE_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_ACCEPTED`; root-only Playwright dev tooling unblocks ARIADNE hosted browser proof rerun without product/runtime drift. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_CLOSEOUT.md` |
 | PR506C review | Owner Encounter Browser Proof Tooling | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING`; root Playwright dev tooling and lockfile support passed frozen install, CLI version, import, diff, and scope/secret scans without product/runtime drift. | `docs/roadmap/PR506C_OWNER_ENCOUNTER_BROWSER_PROOF_TOOLING_REVIEW_RESULT.md` |
