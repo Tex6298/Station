@@ -405,6 +405,30 @@ class InMemorySupabase {
       return { data: null, error: { message: "runtime attempt audit insert failed" } };
     }
 
+    const consent = this.rows("persona_encounter_cross_owner_consents").find((row) => row.id === args.p_consent_id);
+    if (!consent) {
+      return { data: null, error: { message: "cross-owner consent not found for runtime attempt audit" } };
+    }
+    if (args.p_consent_status !== consent.status) {
+      return { data: null, error: { message: "runtime attempt consent status does not match current consent" } };
+    }
+    if (args.p_requested_scope_version !== consent.requested_scope_version) {
+      return { data: null, error: { message: "runtime attempt scope version does not match current consent" } };
+    }
+
+    const providerLifecycle = new Set(["provider_succeeded", "provider_failed", "provider_empty"]);
+    if (providerLifecycle.has(String(args.p_lifecycle_status))) {
+      if (
+        args.p_readiness_code !== "ready" ||
+        consent.status !== "approved" ||
+        args.p_requested_scope !== "run_cross_owner_encounter" ||
+        !Array.isArray(consent.requested_scopes) ||
+        !consent.requested_scopes.includes(args.p_requested_scope)
+      ) {
+        return { data: null, error: { message: "provider lifecycle runtime attempts require approved ready runtime consent" } };
+      }
+    }
+
     const attempt = this.insertRow("persona_encounter_cross_owner_runtime_attempts", {
       consent_id: args.p_consent_id,
       actor_role: args.p_actor_role,
@@ -1072,6 +1096,10 @@ test("cross-owner runtime attempt migration creates participant-readable append-
   assert.match(sql, /No direct participant update\/delete policies are created/);
   assert.match(sql, /create or replace function public\.record_persona_encounter_cross_owner_runtime_attempt/);
   assert.match(sql, /security invoker/);
+  assert.match(sql, /cross-owner consent not found for runtime attempt audit/);
+  assert.match(sql, /runtime attempt consent status does not match current consent/);
+  assert.match(sql, /runtime attempt scope version does not match current consent/);
+  assert.match(sql, /provider lifecycle runtime attempts require approved ready runtime consent/);
   assert.match(sql, /insert into public\.persona_encounter_cross_owner_runtime_attempts/);
   assert.match(sql, /prevent_persona_encounter_cross_owner_runtime_attempt_mutation/);
   assert.match(sql, /before update on public\.persona_encounter_cross_owner_runtime_attempts/);
@@ -1682,6 +1710,48 @@ test("cross-owner runtime attempt audit helper fails closed when audit insertion
       lifecycleStatus: "blocked_before_provider",
     });
     assert.equal(invalidReadiness.ok, false);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+
+    const mismatchedStatus = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "pending",
+      requestedScopeVersion: 1,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "ready",
+      lifecycleStatus: "blocked_before_provider",
+    });
+    assert.equal(mismatchedStatus.ok, false);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+
+    const mismatchedVersion = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "approved",
+      requestedScopeVersion: 2,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "ready",
+      lifecycleStatus: "blocked_before_provider",
+    });
+    assert.equal(mismatchedVersion.ok, false);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+
+    const providerAttemptWithoutReadyConsent = await recordCrossOwnerRuntimeAttemptAudit(db.client as any, {
+      consentId: consent.id,
+      actorRole: "requester",
+      initiatorRole: "requester",
+      responderRole: "counterparty",
+      consentStatus: "approved",
+      requestedScopeVersion: 1,
+      requestedScope: "run_cross_owner_encounter",
+      readinessCode: "wrong_role",
+      lifecycleStatus: "provider_succeeded",
+    });
+    assert.equal(providerAttemptWithoutReadyConsent.ok, false);
     assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
   });
 });

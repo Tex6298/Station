@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR513A Cross-Owner Runtime Attempt Audit Ledger ARGUS Review
+
+ARGUS accepted PR513A on 2026-07-11:
+
+- `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_RESULT.md`
+- `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER`.
+
+Reason:
+
+- PR513A adds migration `078`, bounded runtime attempt audit metadata, typed RPC
+  support, API helper shape, and participant-only readback;
+- ARGUS patched the RPC so attempt rows validate consent status and scope
+  version against the parent consent row;
+- provider-success/failure/empty audit rows require ready approved
+  `run_cross_owner_encounter` consent;
+- readback remains metadata-only and generic consent readback remains
+  `executable: false`;
+- provider-backed preview, prompt assembly, generated words, token rows, private
+  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
+  jobs/storage/public rows, UI, package, billing, provider/retrieval, Redis,
+  Cloudflare, workers, webhook, deployment, and public surfacing remain blocked;
+- hosted migration/API proof is recommended next.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Implementation review | Pass | Reviewed DAEDALUS packet/result, migration `078`, DB types, route/helper/readback code, tests, PR513 preflight, and PR512B hosted context proof. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 48 tests passed, including the ARGUS audit-honesty regression for status/version mismatch and provider lifecycle readiness. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; public exhibit report/takedown behavior remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 201 tests passed; PR513A adds no visible UI. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Staged path scan | Pass | Staged changes are limited to migration `078`, persona encounter tests, and PR513A review/status/testing docs. |
+| Secret-shaped diff scan | Pass | No API-key, private-key, GitHub token, bearer-token-shaped, provider-key env, Railway token, or private-key block values found in the staged diff. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+
 ## PR513A Cross-Owner Runtime Attempt Audit Ledger
 
 DAEDALUS completed PR513A implementation on 2026-07-11:

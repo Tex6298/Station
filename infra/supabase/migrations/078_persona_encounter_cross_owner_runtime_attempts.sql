@@ -84,8 +84,35 @@ security invoker
 set search_path = public
 as $$
 declare
+  v_consent public.persona_encounter_cross_owner_consents%rowtype;
   v_attempt public.persona_encounter_cross_owner_runtime_attempts%rowtype;
 begin
+  select *
+  into v_consent
+  from public.persona_encounter_cross_owner_consents
+  where id = p_consent_id;
+
+  if not found then
+    raise exception 'cross-owner consent not found for runtime attempt audit';
+  end if;
+
+  if p_consent_status <> v_consent.status then
+    raise exception 'runtime attempt consent status does not match current consent';
+  end if;
+
+  if p_requested_scope_version <> v_consent.requested_scope_version then
+    raise exception 'runtime attempt scope version does not match current consent';
+  end if;
+
+  if p_lifecycle_status in ('provider_succeeded', 'provider_failed', 'provider_empty') then
+    if p_readiness_code <> 'ready'
+      or v_consent.status <> 'approved'
+      or p_requested_scope <> 'run_cross_owner_encounter'
+      or not (p_requested_scope = any(v_consent.requested_scopes)) then
+      raise exception 'provider lifecycle runtime attempts require approved ready runtime consent';
+    end if;
+  end if;
+
   insert into public.persona_encounter_cross_owner_runtime_attempts (
     consent_id,
     actor_role,

@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513A review | Cross-Owner Runtime Attempt Audit Ledger | DAEDALUS -> ARGUS | Ready for ARGUS review; dedicated runtime attempt audit ledger/RLS/RPC/helper/readback is implemented without provider calls, prompts, generated words, token rows, private sessions, public exhibits, reports, memory/canon/archive/continuity/export/jobs/storage/public rows, UI, package, provider/retrieval/Redis/Cloudflare/Stripe/billing/worker/deploy drift. Provider-backed cross-owner preview remains blocked until PR513A is reviewed and hosted-proven. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_RESULT.md` |
+| PR513A closeout | Cross-Owner Runtime Attempt Audit Ledger | MIMIR / A1 | ARGUS accepted `ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER` with a narrow RPC validation patch; MIMIR to close PR513A and route ARIADNE to hosted migration/API proof. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR513A review | Cross-Owner Runtime Attempt Audit Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER`; ARGUS patched RPC validation so audit rows cannot misstate parent consent status/scope version and provider lifecycle rows require ready approved runtime consent. Hosted migration/API proof recommended next. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_REVIEW_RESULT.md` |
 | PR513 closeout | Consented Cross-Owner Disposable Preview Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR513_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_ACCEPTED_WITH_AUDIT_BLOCKER`; DAEDALUS gets PR513A runtime attempt audit ledger. | `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_CLOSEOUT.md` |
 | PR513 preflight | Consented Cross-Owner Disposable Preview Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ONLY`; PR512A/PR512B prove context eligibility, but provider-backed preview remains blocked until a bounded participant-visible runtime attempt audit ledger exists. | `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_RESULT.md` |
 | PR512B closeout | Cross-Owner Runtime Context Contract Hosted API Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_ACCEPTED`; PR513 opens the consented cross-owner disposable preview preflight. | `docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_CLOSEOUT.md` |
