@@ -4,65 +4,58 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513B cross-owner runtime attempt audit hosted proof opened
+## Current lane - PR513B cross-owner runtime attempt audit hosted proof failed
 
-MIMIR closed PR513A as accepted locally and applied hosted migration `078`:
+ARIADNE completed PR513B and woke MIMIR:
 
-`docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_CLOSEOUT.md`
-
-MIMIR opened PR513B for ARIADNE:
-
-`docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ACCEPTED_LOCALLY
+FAIL_PR513B_AUDIT_LEDGER_BOUNDARY
 ```
 
 Summary:
 
-- PR513A implements migration `078`,
-  `persona_encounter_cross_owner_runtime_attempts`, typed RPC support,
-  participant-only readback, and API helper shape;
-- ARGUS accepted with a narrow audit-honesty patch so the RPC validates
-  caller-supplied consent status/scope/version metadata against the parent
-  consent row;
-- provider-success/failure/empty audit rows now require ready approved
-  `run_cross_owner_encounter` consent;
-- generic consent readback remains `executable: false`;
-- hosted migration `078` was applied and ledgered as
-  `20260711172000 / 078_persona_encounter_cross_owner_runtime_attempts`;
-- hosted shape verification found the attempts table, security-invoker RPCs,
-  RLS enabled, one participant SELECT policy, append-only triggers, and the
-  migration ledger row;
-- provider-backed preview, prompt assembly, generated words, token rows, private
-  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
-  jobs/storage/public rows, public surfacing, UI, package, billing,
-  provider/retrieval, Redis, Cloudflare, worker, webhook, and deployment scope
-  remain blocked.
+- hosted web/API were ready at commit prefix `6201109357bb`, which includes the
+  PR513A review floor `62011093`;
+- hosted migration `078`, attempts table, record RPC, trigger function, RLS,
+  participant SELECT policy, and non-mutation policies were present as expected;
+- participant route readback passed for owner A and owner B, signed-out
+  returned `401`, and nonparticipant returned `404`;
+- RPC validation passed for mismatched consent status, mismatched scope version,
+  provider lifecycle without ready state, pending consent, and wrong scope;
+- generic consent readback stayed `executable: false`;
+- no provider/generated/token/private-session/public-exhibit/report/memory/
+  canon/archive/continuity/export/job/storage/public-surface drift appeared;
+- cleanup left no active proof consent;
+- blocker: hosted has the append-only delete trigger, and direct delete is
+  rejected, but the append-only update trigger is absent and a direct update
+  against a proof attempt row succeeded;
+- likely cause: the update/delete trigger names in migration `078` exceed the
+  PostgreSQL identifier limit and collide after truncation, leaving only the
+  delete trigger active.
 
 Current lane:
 
 ```text
 PR513B - Cross-Owner Runtime Attempt Audit Hosted Proof
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_MIGRATION_API_PROOF
-Source: docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_ARIADNE.md
+Owner: MIMIR / A1
+State: ARIADNE_FAIL_RETURNED
+Source: docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md
 ```
 
 Next:
 
-- ARIADNE proves hosted web/API freshness, migration/table/function/RLS/policy/
-  trigger shape, participant readback, signed-out/nonparticipant fail-closed
-  behavior, RPC metadata validation, `executable: false` generic readback,
-  privacy, cleanup, and no provider/runtime/public/UI drift.
+- MIMIR routes a narrow repair for the migration `078` append-only trigger-name
+  collision so both update and delete triggers exist and fire on hosted.
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR513A review returned to MIMIR

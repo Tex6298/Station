@@ -4,6 +4,56 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR513B Cross-Owner Runtime Attempt Audit Hosted Proof
+
+ARIADNE completed PR513B hosted API/data proof on 2026-07-11:
+
+- `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`FAIL_PR513B_AUDIT_LEDGER_BOUNDARY`.
+
+Reason:
+
+- hosted web and API health/deployment checks passed at commit prefix
+  `6201109357bb`, which includes PR513A review floor `62011093`;
+- hosted migration `078`, attempts table, record RPC, trigger function, RLS,
+  participant SELECT policy, and non-mutation policies were present as expected;
+- participant route readback passed for owner A and owner B, signed-out
+  returned `401`, and nonparticipant returned `404`;
+- RPC validation passed for mismatched consent status, mismatched scope version,
+  provider lifecycle without ready state, pending consent, and wrong scope;
+- generic consent readback stayed `executable: false`;
+- no provider call, prompt assembly, generated words, token rows, private
+  sessions, public exhibits, reports, memory/canon/archive/continuity/export/
+  job/storage/public-surface drift appeared;
+- cleanup left no active proof consent;
+- failure: hosted has the append-only delete trigger, and direct delete is
+  rejected, but the append-only update trigger is absent and a direct update
+  against a proof attempt row succeeded.
+
+Likely cause:
+
+- migration `078` uses update/delete trigger names that exceed PostgreSQL's
+  identifier limit and collide after truncation, leaving only one active
+  trigger name on hosted.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Temporary hosted API/data proof runner | Fail | Hosted update append-only trigger is absent and a direct update statement against a proof attempt row succeeded. |
+| Hosted reachability | Pass | Web/API health and deployment checks returned `200`; both services were ready at commit prefix `6201109357bb`, which includes PR513A review floor `62011093`. |
+| Hosted migration `078` | Pass | Ledger row present; attempts table present; record RPC and trigger function present and security invoker; RLS enabled; participant SELECT policy present. |
+| Append-only boundary | Fail | Delete trigger exists and direct delete is rejected; update trigger is absent and direct update is not rejected. |
+| Participant route readback | Pass | Owner A and owner B received bounded metadata-only attempt readback; signed-out returned `401`; nonparticipant returned `404`. |
+| RPC validation | Pass | Mismatched consent status/scope version and invalid provider lifecycle rows were rejected without adding attempts. |
+| Generic consent readback | Pass | Ledger and requested scopes stayed `executable: false`. |
+| No-drift checks | Pass | No provider/generated/token/private-session/public-exhibit/report/memory/canon/archive/continuity/export/job/storage/public-surface drift appeared. |
+| Cleanup verification | Pass | Three proof consents were left inactive; no pending or approved proof consent remained. |
+| Privacy/secret scan | Pass | Sanitized proof output contained no raw ids, tokens, cookies, persona names in attempt readback, private prompts, private profile values, generated words, provider payloads, SQL details, stack traces, env values, browser artifacts, or secret-shaped strings. |
+
+`pnpm typecheck` was not run because the PR513B result updates documentation
+only and does not touch imports or scripts.
+
 ## PR513A Cross-Owner Runtime Attempt Audit Ledger ARGUS Review
 
 ARGUS accepted PR513A on 2026-07-11:

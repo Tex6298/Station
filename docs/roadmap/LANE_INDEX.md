@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513B | Cross-Owner Runtime Attempt Audit Hosted Proof | ARIADNE / A4 | Open hosted migration/API proof after MIMIR applied and ledgered migration `078`; prove hosted freshness, table/function/RLS/policy/trigger shape, participant readback, RPC validation, privacy, cleanup, and no drift. | `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_ARIADNE.md` |
+| PR513B | Cross-Owner Runtime Attempt Audit Hosted Proof | MIMIR / A1 | ARIADNE verdict returned: hosted proof failed because the append-only update trigger is absent and a direct update against a proof attempt row succeeded. Delete trigger, route readback, RPC validation, generic executable:false readback, no-drift, cleanup, and privacy passed. MIMIR repair routing needed. | `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR513B proof | Cross-Owner Runtime Attempt Audit Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Failed as `FAIL_PR513B_AUDIT_LEDGER_BOUNDARY`; hosted migration/table/RPC/RLS/policy shape mostly passed, but update/delete trigger names collide after PostgreSQL identifier truncation, leaving only the delete trigger active. Direct update was not rejected. | `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_RESULT.md` |
 | PR513A closeout | Cross-Owner Runtime Attempt Audit Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_ACCEPTED_LOCALLY`; hosted migration `078` applied and ledgered as `20260711172000 / 078_persona_encounter_cross_owner_runtime_attempts`; ARIADNE gets PR513B hosted migration/API proof. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_CLOSEOUT.md` |
 | PR513A review | Cross-Owner Runtime Attempt Audit Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER`; ARGUS patched RPC validation so audit rows cannot misstate parent consent status/scope version and provider lifecycle rows require ready approved runtime consent. Hosted migration/API proof recommended next. | `docs/roadmap/PR513A_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_LEDGER_REVIEW_RESULT.md` |
 | PR513 closeout | Consented Cross-Owner Disposable Preview Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR513_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_ACCEPTED_WITH_AUDIT_BLOCKER`; DAEDALUS gets PR513A runtime attempt audit ledger. | `docs/roadmap/PR513_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_PREFLIGHT_CLOSEOUT.md` |
