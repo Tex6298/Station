@@ -4,7 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517C hosted metadata exhibit proof rerun blocked
+## Current lane - PR517D same-owner exhibit regression rerun
+
+ARIADNE completed PR517C cross-owner hosted proof through cleanup but blocked
+on the same-owner regression fixture:
+
+`docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md`
+
+MIMIR decision:
+
+`docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_BLOCKER_MIMIR.md`
+
+Current lane:
+
+```text
+PR517D - Same-Owner Public Exhibit Regression Hosted Rerun
+Owner: ARIADNE / A4
+State: Routed after BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING
+Source: docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_ARIADNE.md
+```
+
+PR517C truth:
+
+- hosted migration `080`, cross-owner proposal, exact bilateral metadata
+  approval, metadata-only public readback, report, moderation remove/restore,
+  revocation hiding, participant retract, no-runtime/no-private-session,
+  no-drift, privacy, and cleanup checks passed;
+- the full gate is still blocked because hosted had no published same-owner
+  public exhibit fixture for report/remove/restore regression.
+
+Decision:
+
+- do not waive the hosted same-owner regression check yet;
+- ARIADNE should use the PR508D safe fixture pattern on current hosted:
+  create one disposable same-owner candidate, publish one metadata-only exhibit,
+  run report/remove/restore, prove owner-retracted protection, and clean it up.
+
+## Previous lane - PR517C hosted metadata exhibit proof rerun blocked
 
 ARIADNE failed PR517B before creating fixture data because hosted PostgREST did
 not yet see migration `080`:
@@ -60,11 +96,10 @@ Smallest blocker:
 - hosted has no published same-owner public exhibit fixture, so ARIADNE could
   not run the required same-owner report/remove/restore regression proof.
 
-Decision needed:
+Decision:
 
-- MIMIR should provide/authorize a safe same-owner hosted fixture or explicitly
-  waive that hosted same-owner check based on existing local PR517A report-route
-  tests.
+- MIMIR did not waive the hosted same-owner check and routed PR517D for a
+  current-hosted same-owner fixture regression rerun.
 
 ## Previous lane - PR517B hosted metadata exhibit proof failed
 

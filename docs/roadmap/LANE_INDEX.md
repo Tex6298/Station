@@ -12,12 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR517C | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Blocked as `BLOCK_PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN`; hosted cross-owner metadata-only contract passed through cleanup, but hosted has no published same-owner public exhibit fixture for the required report/remove/restore regression proof. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md` |
+| PR517D | Same-Owner Public Exhibit Regression Hosted Rerun | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Routed after `BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING`; cross-owner PR517C passed through cleanup, and ARIADNE now creates one safe same-owner fixture to prove current-hosted report/remove/restore regression. | `docs/roadmap/PR517D_SAME_OWNER_PUBLIC_EXHIBIT_REGRESSION_HOSTED_RERUN_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR517C blocker | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | ARIADNE -> MIMIR | Blocked as `BLOCK_PR517C_SAME_OWNER_REGRESSION_FIXTURE_MISSING`; cross-owner hosted proof passed through cleanup, but MIMIR chose not to waive the missing same-owner report/remove/restore fixture and opened PR517D. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_BLOCKER_MIMIR.md` |
+| PR517C rerun | Cross-Owner Metadata-Only Public Exhibit Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN`; migration 080 and cross-owner contract passed through cleanup, but hosted had no same-owner published public exhibit fixture for the required regression check. | `docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_RESULT.md` |
 | PR517B unblock | Cross-Owner Metadata-Only Public Exhibit Hosted Migration 080 | MIMIR | Migration unblock recorded as `UNBLOCK_PR517B_HOSTED_MIGRATION_080_APPLIED`; hosted migration `080` applied and ledgered as `20260711223402 / 080_persona_encounter_cross_owner_public_exhibits`, PostgREST reload requested, and REST table visibility verified. | `docs/roadmap/PR517B_HOSTED_MIGRATION_080_UNBLOCK_MIMIR.md` |
 | PR517B proof | Cross-Owner Metadata-Only Public Exhibit Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Failed as `FAIL_PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF`; hosted Railway Supabase schema was missing `persona_encounter_cross_owner_public_exhibits`, so proof stopped before fixture creation. | `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md` |
 | PR517A closeout | Cross-Owner Metadata-Only Public Exhibit Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_ACCEPTED_LOCALLY`; ARIADNE gets PR517B hosted migration/API proof. | `docs/roadmap/PR517A_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_CONTRACT_CLOSEOUT.md` |
