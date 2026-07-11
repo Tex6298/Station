@@ -4,7 +4,63 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR512A review returned to MIMIR
+## Current lane - PR512B cross-owner runtime context hosted API proof opened
+
+MIMIR closed PR512A as accepted locally:
+
+`docs/roadmap/PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_CLOSEOUT.md`
+
+MIMIR opened PR512B for ARIADNE:
+
+`docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_ARIADNE.md`
+
+Result:
+
+```text
+CLOSE_PR512A_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_ACCEPTED_LOCALLY
+```
+
+Summary:
+
+- provider-backed cross-owner runtime remains blocked on
+  `CROSS_OWNER_RUNTIME_CONTEXT_BOUNDARY_MISSING`;
+- PR512A adds only a readback-only participant API route and helper for the
+  exact consent/status/scope/persona-pair/runtime-context contract;
+- generic consent ledger readback remains `executable: false`;
+- ARGUS accepted without a review patch;
+- no provider calls, prompt assembly, generated cross-owner words, token rows,
+  private sessions, public exhibits, reports, memory/canon/archive/continuity/
+  export/jobs/storage/public rows, infra, package, migration, billing, or UI
+  changed;
+- because PR512A adds an authenticated API route, ARIADNE now gets hosted
+  API/data proof for the route and boundary.
+
+Current lane:
+
+```text
+PR512B - Cross-Owner Runtime Context Contract Hosted API Proof
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_API_DATA_PROOF
+Source: docs/roadmap/PR512B_CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_HOSTED_PROOF_ARIADNE.md
+```
+
+Next:
+
+- ARIADNE proves hosted freshness, owner A/B/nonparticipant auth, eligible
+  readback for each owner acting as initiator on an approved
+  `run_cross_owner_encounter` consent, signed-out/nonparticipant fail-closed
+  behavior, representative ineligible-state fail-closed behavior,
+  `executable: false` generic readback, no privacy leaks, no execution, and no
+  side-effect drift.
+
+Wakeup:
+
+```text
+WAKEUP A4:
+Codename: ARIADNE
+```
+
+## Previous lane - PR512A review returned to MIMIR
 
 ARGUS accepted PR512A and woke MIMIR:
 
@@ -29,29 +85,7 @@ Summary:
   export/jobs/storage/public rows, infra, package, migration, billing, or UI
   changed;
 - because PR512A adds an authenticated API route, ARGUS recommends hosted
-  API/data proof next:
-  `PR512B - Cross-Owner Runtime Context Contract Hosted API Proof`,
-  owner ARIADNE / A4.
-
-Validation:
-
-- `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with 45
-  tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with 7 tests;
-- `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` passed with 201 tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
-
-Next:
-
-- MIMIR closes PR512A and routes ARIADNE PR512B hosted API/data proof, or makes
-  an explicit roadmap decision.
-
-Wakeup:
-
-```text
-WAKEUP A1:
-Codename: MIMIR
-```
+  API/data proof next.
 
 ## Previous lane - PR512A cross-owner runtime context contract ready for review
 
