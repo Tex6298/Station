@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR519 | Cross-Owner Metadata Exhibit Discover Search Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Routed after `CLOSE_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ACCEPTED`; ARGUS decides whether Discover search may include metadata-only cross-owner exhibits, without feed or broader surfacing. | `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ARGUS.md` |
+| PR519 | Cross-Owner Metadata Exhibit Discover Search Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS as `ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CONTRACT`; DAEDALUS may implement only a separate `crossOwnerPublicEncounterExhibits` Discover search group with metadata-only active-consent-backed rows routeable to `/encounters/cross-owner#<slug>`. | `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 

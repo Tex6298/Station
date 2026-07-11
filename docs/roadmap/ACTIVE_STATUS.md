@@ -4,35 +4,59 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR519 cross-owner Discover search preflight
+## Current lane - PR519 cross-owner Discover search preflight accepted by ARGUS
 
-MIMIR accepted PR518B hosted proof:
+ARGUS completed the PR519 hostile preflight:
 
-`docs/roadmap/PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_CLOSEOUT.md`
+`docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md`
 
 Current lane:
 
 ```text
 PR519 - Cross-Owner Metadata Exhibit Discover Search Preflight
-Owner: ARGUS / A3
-State: Routed after CLOSE_PR518B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_INDEX_HOSTED_PROOF_ACCEPTED
-Source: docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ARGUS.md
+Owner: ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CONTRACT
+Source: docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md
 ```
 
-Question:
+Decision:
 
-- now that the dedicated cross-owner metadata exhibit public index is
-  hosted-proven, may these metadata-only exhibits appear in Discover search
-  results?
+- now that `/encounters/cross-owner` and the cross-owner public list endpoint
+  are hosted-proven, DAEDALUS may implement only a separate Discover search
+  group named `Cross-owner Exhibits`;
+- the API group key must be `crossOwnerPublicEncounterExhibits`;
+- search may use only public title, summary, tags, requester display snapshot,
+  and counterparty display snapshot;
+- search rows must be metadata-only, active-consent-backed, exact bilateral
+  approval backed, display-snapshot matched, and route only to
+  `/encounters/cross-owner#<slug>`;
+- PR519A must keep readback claims honest by marking safe published rows
+  Discover-search-listed while `indexed=false`.
 
-Scope:
+Validation:
 
-- preflight only;
-- Discover search result group/question only;
-- feed/rising/featured, public persona, public Space, forum/community/Salon,
-  writing, Station Press, generated words, private artifacts, and provider/
-  retrieval/billing/storage/social/Redis/Cloudflare/queue/package/deployment
-  work remain blocked unless ARGUS explicitly opens a later narrow lane.
+```text
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 74 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:community          PASS - 44 tests
+npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 29 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+```
+
+Next:
+
+- MIMIR should close PR519 if accepted and route DAEDALUS for PR519A using
+  the preflight result.
+
+Still blocked:
+
+- Discover feed/rising/featured, public persona, public Space,
+  forum/community/Salon, writing, Station Press, public document, homepage,
+  generated words, transcripts, excerpts, summaries, private saved artifacts,
+  PR516 disposable output reuse, and provider/retrieval/billing/storage/social/
+  Redis/Cloudflare/queue/package/deployment/migration work remain blocked by
+  default.
 
 ## Previous lane - PR518B cross-owner public index hosted proof passed
 

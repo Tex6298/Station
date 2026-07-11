@@ -4,6 +4,51 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR519 Cross-Owner Metadata Exhibit Discover Search Preflight
+
+ARGUS completed PR519 preflight on 2026-07-12:
+
+- `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CONTRACT`.
+
+Reason:
+
+- PR518B hosted proof accepted the dedicated cross-owner metadata exhibit public
+  index and `/encounters/cross-owner`;
+- ARGUS accepts only a separate Discover search group for cross-owner
+  metadata-only public exhibits;
+- allowed API group key is `crossOwnerPublicEncounterExhibits`;
+- allowed web group label is `Cross-owner Exhibits`;
+- search may match only public title, summary, tags, requester display
+  snapshot, and counterparty display snapshot;
+- results must be metadata-only, active-consent-backed, exact bilateral
+  approval backed, display-snapshot matched, and route only to
+  `/encounters/cross-owner#<slug>`;
+- PR519A must keep published cross-owner readback claims honest by marking
+  Discover search listing true while `indexed=false`;
+- Discover feed/rising/featured, public persona, public Space, forum/Salon,
+  Station Press/public document, writing, homepage, generated words,
+  transcripts, excerpts, summaries, private saved artifacts, PR516 disposable
+  output reuse, provider, retrieval, storage, billing, social, Redis,
+  Cloudflare, queue, package, deployment, migration, and broad UI work remain
+  blocked by default.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 74 tests passed, including cross-owner metadata exhibit detail/list/readback and same-owner exhibit regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner and cross-owner public exhibit moderation actions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 44 tests passed, including current Discover search/feed grouping, same-owner public encounter exhibit search, and private bucket separation. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed; writing and Discover feed helper boundaries remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including cross-owner public metadata helper coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR519 preflight docs/status updates. |
+| Changed-path scan | Pass | Changes are limited to PR519 roadmap/status/index docs and `docs/testing/VALIDATION_BASELINE.md`. |
+| Forbidden-path scan | Pass | No app/runtime, infra, package, lockfile, Cloudflare, queue, billing, provider, retrieval, storage, deployment, or migration paths changed. |
+| Secret-shaped diff scan | Pass | No secret-shaped added lines were found in the staged diff. |
+
 ## PR518B Cross-Owner Metadata Exhibit Public Index Hosted Proof
 
 ARIADNE completed PR518B hosted proof on 2026-07-12:
