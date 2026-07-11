@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR514C Consented Cross-Owner Disposable Preview Client/UX Preflight
+
+ARIADNE completed PR514C client/UX preflight on 2026-07-11:
+
+- `docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md`
+
+Validation result:
+`BLOCK_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT`.
+
+Concrete blocker:
+`CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_MISSING`.
+
+Reason:
+
+- the hosted preview route is proven, but its request currently requires both
+  `initiatorPersonaId` and `responderPersonaId`;
+- participant consent readback intentionally does not expose raw participant
+  persona ids;
+- the persona workspace only has the current owner persona context and
+  same-owner encounter preview helpers;
+- `apps/web` has no cross-owner consent, runtime-attempt,
+  runtime-context-contract, or disposable-preview client helper/surface;
+- exposing raw participant persona ids to the browser would weaken the privacy
+  boundary protected by PR512 through PR514B;
+- same-owner encounter preview is adjacent to saved private artifacts and public
+  metadata controls, so cross-owner UI should not be added until the client
+  contract can keep preview separate from save/publication affordances.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Source inspection | Blocked | Reviewed Studio persona page, persona workspace, same-owner encounter runtime helpers/tests, readiness/contract helpers, and API cross-owner route serializers. |
+| Web helper scan | Pass | `rg` found no existing cross-owner consent or disposable-preview web helper/surface. |
+| API contract scan | Blocker found | API route requires participant persona ids, while participant-safe consent readback does not expose those ids. |
+| UX preflight | Blocked | Recommended PR514D Cross-Owner Disposable Preview Client Contract before visible UI wiring. |
+
+`pnpm typecheck` was not run because PR514C is a docs-only UX preflight and does
+not touch imports or scripts.
+
 ## PR514B Consented Cross-Owner Disposable Preview Hosted Proof
 
 ARIADNE completed PR514B hosted API/data proof on 2026-07-11:

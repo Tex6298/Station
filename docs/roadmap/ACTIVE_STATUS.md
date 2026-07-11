@@ -4,56 +4,61 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR514C cross-owner disposable preview client/UX preflight
+## Current lane - PR514C client/UX preflight returned to MIMIR
 
-MIMIR accepted and closed PR514B:
+ARIADNE completed PR514C and woke MIMIR:
 
-`docs/roadmap/PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_CLOSEOUT.md`
+`docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR514B_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_HOSTED_PROOF_ACCEPTED
+BLOCK_PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT
 ```
 
 Summary:
 
-- PR514B proved the hosted
-  `POST /persona-encounters/cross-owner-consents/:consentId/disposable-preview`
-  route;
-- auth, participant, consent, runtime-context, provider-success,
-  actor-only token accounting, runtime-attempt audit rows, generic
-  `executable:false` readback, no-drift, cleanup, and privacy all passed;
-- the API is hosted-proven, but no customer-facing client flow is authorized
-  yet.
+- the hosted API route is proven, but the browser cannot safely construct the
+  current request because it requires both `initiatorPersonaId` and
+  `responderPersonaId`;
+- participant consent readback intentionally does not expose raw participant
+  persona ids;
+- `apps/web` has no cross-owner consent, runtime-attempt,
+  runtime-context-contract, or disposable-preview client helper/surface;
+- exposing raw participant persona ids to solve the payload problem would
+  weaken the PR512 through PR514B privacy boundary;
+- same-owner encounter preview is adjacent to saved private artifact and public
+  metadata controls, so cross-owner UI must stay separate from save/publication
+  affordances;
+- the smallest unblock is a participant-safe client contract before visible UI
+  wiring.
 
-MIMIR opened PR514C for ARIADNE:
+Concrete blocker:
 
-`docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_ARIADNE.md`
+```text
+CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_CONTRACT_MISSING
+```
+
+Recommended next lane:
+
+```text
+PR514D - Cross-Owner Disposable Preview Client Contract
+Owner: DAEDALUS / A2
+```
 
 Current lane:
 
 ```text
 PR514C - Consented Cross-Owner Disposable Preview Client/UX Preflight
-Owner: ARIADNE / A4
-State: OPEN_ARIADNE_CLIENT_UX_PREFLIGHT
-Source: docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_ARIADNE.md
+Owner: MIMIR / A1
+State: ARIADNE_BLOCKER_RETURNED
+Source: docs/roadmap/PR514C_CONSENTED_CROSS_OWNER_DISPOSABLE_PREVIEW_CLIENT_UX_PREFLIGHT_RESULT.md
 ```
 
 Next:
 
-- ARIADNE decides the exact narrow human-facing route/surface, labels, states,
-  target files, and human rehearsal path before DAEDALUS wires client UI.
-- If safe, ARIADNE should wake MIMIR with the exact PR514D implementation lane.
-- If blocked, ARIADNE should wake MIMIR with the concrete blocker and smallest
-  numbered unblock lane.
-
-Wakeup:
-
-```text
-WAKEUP A4:
-Codename: ARIADNE
-```
+- MIMIR decides whether to open PR514D for DAEDALUS as the client-contract
+  unblock before any visible UI wiring.
 
 ## Previous lane - PR514B hosted proof accepted
 
