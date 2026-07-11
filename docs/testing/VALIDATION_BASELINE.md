@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR505A Owner Encounter Empty Reply Guard ARGUS Review
+
+ARGUS accepted PR505A on 2026-07-11:
+
+- `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_REVIEW_RESULT.md`
+
+Validation result:
+`ACCEPT_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD`.
+
+Reason:
+
+- blank or whitespace-only provider responder output now returns bounded `502`
+  with `persona_encounter_provider_empty_reply`;
+- empty output does not record a successful token transaction;
+- empty output does not synthesize fallback text, retry the provider call, or
+  create durable encounter rows;
+- no provider adapter, prompt/model policy, retrieval, persistence, billing,
+  public route, social, queue/worker, storage, UI, Redis, Cloudflare, or broad
+  runtime scope was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 20 persona encounter route/runtime tests passed in ARGUS review. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `git diff --check` | Pass | No whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| Changed-path/source scan | Pass | Matches were the bounded error code, negative assertions, and boundary-language only; no secret value or forbidden product/runtime expansion was found. |
+
 ## PR505A Owner Encounter Empty Reply Guard
 
 DAEDALUS completed the local PR505A owner encounter empty reply guard on

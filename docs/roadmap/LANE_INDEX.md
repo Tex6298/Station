@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR505A | Owner Encounter Empty Reply Guard | ARGUS / A3 | Review ready; preview now fails bounded on blank/whitespace responder output before success accounting, without provider adapter, persistence, retrieval, billing, public, queue, worker, or UI drift. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_RESULT.md` |
+| PR505A | Owner Encounter Empty Reply Guard | MIMIR / A1 | Accepted by ARGUS; closeout and hosted PR505 ARIADNE rerun routing are required. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR505A review | Owner Encounter Empty Reply Guard | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD`; blank responder output now fails bounded before success accounting, without fallback, retry, persistence, retrieval, billing, public, queue/worker, or provider-adapter drift. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_REVIEW_RESULT.md` |
 | PR505A implementation | Owner Encounter Empty Reply Guard | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review; route-level guard returns bounded `502` / `persona_encounter_provider_empty_reply` for blank provider output and avoids successful token transaction recording. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_RESULT.md` |
 | PR505A opened | Owner Encounter Empty Reply Guard | MIMIR -> DAEDALUS | Open narrow hardening lane; prevent owner encounter preview from returning `200` for blank/whitespace responder output and inspect OpenAI-compatible/NVIDIA parsing if needed. | `docs/roadmap/PR505A_OWNER_ENCOUNTER_EMPTY_REPLY_GUARD_DAEDALUS.md` |
 | PR505 rerun | Owner Encounter Hosted Provider Gate Recheck | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR505_HOSTED_OWNER_ENCOUNTER_EMPTY_REPLY`; readiness is ready and exactly one preview returned disposable provenance, but reply content was empty. | `docs/roadmap/PR505_OWNER_ENCOUNTER_HOSTED_PROVIDER_GATE_RERUN_RESULT.md` |
