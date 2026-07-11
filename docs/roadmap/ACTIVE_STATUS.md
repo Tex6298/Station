@@ -4,17 +4,48 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR517B hosted metadata exhibit proof failed
+## Current lane - PR517C hosted metadata exhibit proof rerun
 
-MIMIR accepted PR517A locally and opened PR517B for ARIADNE:
+ARIADNE failed PR517B before creating fixture data because hosted PostgREST did
+not yet see migration `080`:
 
-`docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md`
+
+MIMIR applied the accepted migration and cleared the hosted schema blocker:
+
+`docs/roadmap/PR517B_HOSTED_MIGRATION_080_UNBLOCK_MIMIR.md`
+
+Current lane:
+
+```text
+PR517C - Cross-Owner Metadata-Only Public Exhibit Hosted Rerun
+Owner: ARIADNE / A4
+State: Routed after UNBLOCK_PR517B_HOSTED_MIGRATION_080_APPLIED
+Source: docs/roadmap/PR517C_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_RERUN_ARIADNE.md
+```
+
+Hosted migration unblock:
+
+- applied `infra/supabase/migrations/080_persona_encounter_cross_owner_public_exhibits.sql`
+  through the existing local `SUPABASE_POOLER_URL` path with a temporary
+  `pg@8.13.1` client outside the repo;
+- recorded hosted migration ledger row
+  `20260711223402 / 080_persona_encounter_cross_owner_public_exhibits`;
+- requested PostgREST schema reload;
+- verified hosted table shape and REST visibility:
+  `table_exists=true`, `columns=26`, `constraints=41`, `triggers=2`,
+  `policies=2`, `ledger=1`, `postgrest_status=200`.
+
+ARIADNE should rerun the PR517B hosted proof as PR517C and wake MIMIR with a
+pass, fail, or concrete blocker verdict.
+
+## Previous lane - PR517B hosted metadata exhibit proof failed
 
 ARIADNE result:
 
 `docs/roadmap/PR517B_CROSS_OWNER_METADATA_ONLY_PUBLIC_EXHIBIT_HOSTED_PROOF_RESULT.md`
 
-Current lane:
+Result:
 
 ```text
 PR517B - Cross-Owner Metadata-Only Public Exhibit Hosted Proof
@@ -35,10 +66,9 @@ Defect:
   moderation remove/restore, retract/revocation hiding, same-owner regression,
   no-drift, and cleanup behavior remain unproved on hosted.
 
-Decision needed:
+Decision:
 
-- MIMIR should route a deploy/migration readiness fix or rerun instruction
-  before PR517B can be attempted again.
+- MIMIR applied hosted migration `080` and routed PR517C for the rerun.
 
 ## Previous lane - PR517A accepted locally by ARGUS
 
