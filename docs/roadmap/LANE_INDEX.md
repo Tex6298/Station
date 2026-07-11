@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR515 | Cross-Owner Consent Invitation UI Preflight | ARGUS / A3 | Open hostile preflight for the next customer-facing gap: safe consent invitation, approval, rejection, cancellation, and revocation UI before DAEDALUS wires controls. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_ARGUS.md` |
+| PR515 | Cross-Owner Consent Invitation UI Preflight | MIMIR / A1 | Blocked by ARGUS as `BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT`; existing participant rows can be actioned safely, but invitation creation needs `PR515A - Cross-Owner Consent Counterparty Selection Contract` before visible UI. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR515 preflight | Cross-Owner Consent Invitation UI Preflight | MIMIR -> ARGUS -> MIMIR | Blocked as `BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT`; concrete blocker is `CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_MISSING`. Existing list/detail/approve/reject/cancel/revoke routes are participant-safe for visible rows, but create still requires raw persona UUIDs while public persona/Discover expose only safe slugs/hrefs. | `docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md` |
 | PR514F closeout | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ACCEPTED`; PR515 opens cross-owner consent invitation UI preflight. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_CLOSEOUT.md` |
 | PR514F rehearsal | Cross-Owner Disposable Preview Studio Panel Hosted Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL`; hosted signed-out/no-consent/pending/approved-success desktop and mobile checks passed with no persistence/public drift. | `docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_RESULT.md` |
 | PR514E closeout | Cross-Owner Disposable Preview Studio Panel | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_ACCEPTED`; PR514F opens hosted desktop/mobile rehearsal. | `docs/roadmap/PR514E_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_CLOSEOUT.md` |

@@ -4,67 +4,68 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR515 cross-owner consent invitation UI preflight
+## Current lane - PR515 preflight blocked; MIMIR routing next lane
 
-MIMIR accepted PR514F and opened PR515:
+ARGUS completed the PR515 hostile preflight:
 
-`docs/roadmap/PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_CLOSEOUT.md`
-
-`docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_ARGUS.md`
+`docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR514F_CROSS_OWNER_DISPOSABLE_PREVIEW_STUDIO_PANEL_HOSTED_REHEARSAL_ACCEPTED
+BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT
+```
+
+Concrete blocker:
+
+```text
+CROSS_OWNER_CONSENT_COUNTERPARTY_SELECTION_CONTRACT_MISSING
 ```
 
 Summary:
 
-- ARIADNE passed hosted desktop/mobile rehearsal for the cross-owner disposable
-  preview Studio panel;
-- signed-out, no-consent, and pending states stayed non-executable;
-- approved eligible consent ran through the consent-scoped setup-only helper;
-- success showed one private disposable response with the required
-  private/disposable/not-saved/not-public/not-canonical/no-retrieval/
-  counterparty-hidden/audit labels;
-- same-owner saved/private/public controls stayed separate;
-- desktop and 390px mobile had no horizontal overflow;
-- public routes showed no proof marker or generated text;
-- no persistence, public surfacing, storage, memory, canon, archive,
-  continuity, integrity, export, or moderation drift appeared;
-- cleanup/privacy passed.
+- existing participant-scoped consent list/detail/action routes are sufficient
+  for a consent inbox to approve, reject, cancel, or revoke already-visible
+  rows;
+- full invitation creation is not UI-only because current create requires the
+  browser to submit raw `requesterPersonaId` and `counterpartyPersonaId` UUIDs;
+- public persona and Discover search surfaces safely expose `publicSlug`/href
+  and public profile fields only, but not a write-capable opaque invitation
+  target;
+- using raw public/persona ids to solve invitation creation would weaken the
+  PR511-PR514 privacy boundary;
+- generic consent readback remains ledger-only and `executable:false`; consent
+  still does not authorize saved sessions, public exhibits, generated-word
+  sharing, transcripts, summaries, excerpts, retrieval, or public surfacing;
+- validation passed for `test:persona-encounters`, `test:studio-ui`, and
+  `typecheck`.
 
 Current lane:
 
 ```text
 PR515 - Cross-Owner Consent Invitation UI Preflight
-Owner: ARGUS / A3
-State: OPEN_ARGUS_HOSTILE_PREFLIGHT
-Source: docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_ARGUS.md
+Owner: MIMIR / A1
+State: BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT
+Source: docs/roadmap/PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT_RESULT.md
+```
+
+ARGUS recommended smallest unblock:
+
+```text
+PR515A - Cross-Owner Consent Counterparty Selection Contract
+Owner: DAEDALUS / A2
 ```
 
 Next:
 
-- ARGUS decides whether existing route/readback surfaces are sufficient for
-  DAEDALUS to implement invitation, approval, rejection, cancellation, and
-  revocation UI, or names the smallest contract unblock.
+- MIMIR decides the next move, likely routing DAEDALUS to add a safe
+  counterparty selector/create contract before visible invitation UI.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
-
-Summary:
-- MIMIR accepted and closed PR514F after ARIADNE passed hosted desktop/mobile rehearsal for the cross-owner disposable preview Studio panel.
-- The next customer-facing gap is safe consent invitation and approval UI.
-- Existing routes already cover create/list/read/approve/reject/cancel/revoke and participant-scoped audit readback.
-
-Task:
-- Run hostile preflight for cross-owner consent invitation and approval UI.
-- Decide whether existing route/readback surfaces are sufficient for DAEDALUS to wire invitation, approval, rejection, cancellation, and revocation controls.
-- Pay special attention to safe counterparty persona selection/readback, raw owner/persona id exposure, and copy that prevents consent from implying saved/public/generated-word sharing.
-- Wake MIMIR with ACCEPT_PR515A_CROSS_OWNER_CONSENT_INVITATION_UI or BLOCK_PR515_CROSS_OWNER_CONSENT_INVITATION_UI_PREFLIGHT and the exact smallest next lane.
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR514F hosted rehearsal accepted
