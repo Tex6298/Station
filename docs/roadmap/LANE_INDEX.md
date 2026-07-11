@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR508C | Owner Encounter Public Exhibit Report Target Repair | ARGUS / A3 | Ready for ARGUS review; DAEDALUS kept public report routes slug-based, resolves slug to exhibit UUID server-side, persists UUID report targets, and keeps admin/report context metadata-only with owner-retracted restore protection. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md` |
+| PR508C | Owner Encounter Public Exhibit Report Target Repair | MIMIR / A1 | Ready for closeout/routing after ARGUS accepted the code-only UUID report target repair; PR508B should return to ARIADNE for hosted report/takedown rerun. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR508C review | Owner Encounter Public Exhibit Report Target Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR`; public report routes stay slug-based, moderation reports persist exhibit UUID targets, admin context resolves UUID to safe metadata, and owner-retracted restore protection remains intact. | `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md` |
 | PR508B blocker | Owner Encounter Public Exhibit Metadata Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_REPORT_CREATE`; hosted freshness, migration 076, owner publish/retract, signed-out public route, boundaries, no-drift, cleanup, and privacy scan passed, but signed-in public exhibit report creation returned `500` because the report route writes a public slug into hosted `moderation_reports.target_id`, which remains `uuid`. DAEDALUS gets PR508C for the narrow report target repair. | `docs/roadmap/PR508B_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_HOSTED_PROOF_BLOCKER_MIMIR.md` |
 | PR508A closeout | Owner Encounter Public Exhibit Metadata | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ACCEPTED_LOCALLY`; hosted migration 076 was applied/proven and ARIADNE gets PR508B hosted proof. | `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_CLOSEOUT.md` |
 | PR508A review | Owner Encounter Public Exhibit Metadata | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_ONLY` after ARGUS hardened null-tag SQL validation, strengthened the same-owner source trigger, and preserved owner retract against moderation restore/remove actions; hosted proof is required before customer-facing closeout. | `docs/roadmap/PR508A_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_METADATA_REVIEW_RESULT.md` |

@@ -4,14 +4,16 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR508C Owner Encounter Public Exhibit Report Target Repair
+## PR508C Owner Encounter Public Exhibit Report Target Repair ARGUS Review
 
-DAEDALUS implemented PR508C on 2026-07-11:
+DAEDALUS implemented PR508C on 2026-07-11, and ARGUS accepted it without a
+code patch:
 
 - `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md`
+- `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md`
 
 Validation result:
-`READY_FOR_ARGUS_REVIEW`.
+`ACCEPT_PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR`.
 
 Reason:
 
@@ -28,15 +30,22 @@ Reason:
   exhibit to `retracted`, not `published`;
 - no migration, package, lockfile, web UI, provider, storage, queue/worker,
   Redis, Cloudflare, billing, social, Discover/search/forum/feed, or runtime
-  dependency change entered scope.
+  dependency change entered scope;
+- ARGUS found no private setup, generated reply text, transcript excerpt, raw
+  private id, provider payload, prompt, cross-owner word, public surfacing, or
+  owner-retract safety drift.
 
 | Command / check | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 36 tests passed; public report by slug persists UUID target id, and signed-out/missing/retracted/removed/malformed report paths fail closed. |
 | `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 7 tests passed; generic reports, admin queue context, target filtering, remove/restore, and owner-retracted restore behavior use UUID exhibit targets. |
 | `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| Changed-path scan | Pass | PR508C changes only encounter/report API tests/routes and roadmap/testing docs. |
+| Forbidden-path scan | Pass | No migration, package, lockfile, web UI, provider, retrieval, billing, social, Redis, Cloudflare, queue/worker, storage, Discover/search/forum/feed, Archive, Memory, Canon, Continuity, Integrity, Station Press, or runtime dependency file changed. |
+| Secret-shaped value scan | Pass | No API-key, private-key, GitHub token, OpenAI-style key, Google key, Slack token, or bearer-token-shaped values found in changed files. |
+| Public/private leakage scan | Pass | Public report responses remain status-only; admin context returns safe public exhibit metadata and does not expose private setup, generated reply text, transcript excerpts, raw private ids, provider payloads, prompts, or cross-owner words. |
 | `git diff --check` | Pass | No whitespace errors; Git reported expected LF-to-CRLF working-copy warnings only. |
-| `git diff --cached --check` | Pass | No staged whitespace errors. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging the PR508C review docs/status updates. |
 
 ## PR508B Owner Encounter Public Exhibit Metadata Hosted Proof
 

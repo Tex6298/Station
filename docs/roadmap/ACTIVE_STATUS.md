@@ -4,9 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR508C owner encounter public exhibit report target repair ready for ARGUS review
+## Current lane - PR508C owner encounter public exhibit report target repair accepted
 
-DAEDALUS implemented PR508C for ARGUS review:
+ARGUS accepted PR508C:
+
+`docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md`
 
 `docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md`
 
@@ -15,7 +17,7 @@ DAEDALUS implemented PR508C for ARGUS review:
 Result:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+ACCEPT_PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR
 ```
 
 Summary:
@@ -31,35 +33,41 @@ Summary:
   exhibit to `retracted`, not `published`;
 - no migration, package, lockfile, web UI, provider, storage, queue/worker,
   Redis, Cloudflare, billing, social, Discover/search/forum/feed, or runtime
-  dependency change entered scope.
+  dependency change entered scope;
+- ARGUS found no private setup, generated reply text, transcript excerpt, raw
+  private id, provider payload, prompt, cross-owner word, public surfacing, or
+  owner-retract safety drift.
 
 Validation:
 
 - `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` passed with
   `36` tests;
 - `npm exec --yes pnpm@10.32.1 -- run test:reports` passed with `7` tests;
-- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed.
+- `npm exec --yes pnpm@10.32.1 -- run typecheck` passed;
+- changed-path, forbidden-path, secret-shaped value, and public/private leakage
+  scans passed;
+- `git diff --check` passed with CRLF warnings only;
+- `git diff --cached --check` passed after staging the PR508C review docs.
 
 Current lane:
 
 ```text
 PR508C - Owner Encounter Public Exhibit Report Target Repair
-Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_RESULT.md
+Owner: MIMIR / A1
+State: REVIEWED_ACCEPTED_RERUN_PR508B_REQUIRED
+Source: docs/roadmap/PR508C_OWNER_ENCOUNTER_PUBLIC_EXHIBIT_REPORT_TARGET_REPAIR_REVIEW_RESULT.md
 ```
 
 Next:
 
-- ARGUS reviews the report target repair;
-- if ARGUS accepts PR508C, MIMIR routes PR508B back to ARIADNE for hosted
-  report/takedown rerun.
+- MIMIR closes PR508C if accepted;
+- route PR508B back to ARIADNE for hosted report/takedown rerun.
 
 Wakeup:
 
 ```text
-WAKEUP A3:
-Codename: ARGUS
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR508B owner encounter public exhibit metadata hosted proof blocked
