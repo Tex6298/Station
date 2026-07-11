@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR513D | Cross-Owner Runtime Attempt Audit Hosted Rerun | ARIADNE / A4 | Open hosted rerun after MIMIR applied migration `079` and verified both short append-only triggers reject rollback-only direct update/delete attempts. | `docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_ARIADNE.md` |
+| PR513D | Cross-Owner Runtime Attempt Audit Hosted Rerun | MIMIR / A1 | ARIADNE verdict returned: hosted rerun passed after migration `079`; both short append-only triggers exist and reject direct update/delete attempts, participant readback/boundaries/generic executable:false readback/no-drift/cleanup/privacy passed. | `docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR513D rerun | Cross-Owner Runtime Attempt Audit Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN`; hosted migration `079` was present, `pe_co_rt_attempts_no_update` and `pe_co_rt_attempts_no_delete` both fired, direct update/delete were rejected, and route/no-drift/privacy checks passed. | `docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_RESULT.md` |
 | PR513C closeout | Cross-Owner Runtime Attempt Append-Only Trigger Repair | DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_ACCEPTED_HOSTED`; hosted migration `079` applied and ledgered as `20260711180500 / 079_persona_encounter_runtime_attempt_trigger_repair`; rollback-only proof rejected direct update/delete. ARIADNE gets PR513D hosted rerun. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_CLOSEOUT.md` |
 | PR513C review | Cross-Owner Runtime Attempt Append-Only Trigger Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR`; migration `078` now uses short names for fresh installs and migration `079` repairs hosted/follow-on databases by dropping the long/truncated collision names and recreating distinct update/delete append-only triggers. Hosted migration `079` plus PR513D rerun recommended next. | `docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_REVIEW_RESULT.md` |
 | PR513B blocker | Cross-Owner Runtime Attempt Audit Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_APPEND_ONLY_UPDATE_TRIGGER`; DAEDALUS gets PR513C to repair the migration `078` trigger-name truncation/collision. | `docs/roadmap/PR513B_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_PROOF_BLOCKER_MIMIR.md` |

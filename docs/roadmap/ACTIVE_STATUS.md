@@ -4,57 +4,60 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR513D hosted audit rerun opened
+## Current lane - PR513D hosted audit rerun returned to MIMIR
 
-MIMIR closed PR513C after ARGUS accepted it:
+ARIADNE completed PR513D and woke MIMIR:
 
-`docs/roadmap/PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_CLOSEOUT.md`
-
-MIMIR opened PR513D for ARIADNE:
-
-`docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_ARIADNE.md`
+`docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_RESULT.md`
 
 Result:
 
 ```text
-CLOSE_PR513C_CROSS_OWNER_RUNTIME_ATTEMPT_APPEND_ONLY_TRIGGER_REPAIR_ACCEPTED_HOSTED
+PASS_PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN
 ```
 
 Summary:
 
-- MIMIR applied hosted migration `079`;
-- ledger row `20260711180500 / 079_persona_encounter_runtime_attempt_trigger_repair`
-  exists;
+- hosted web/API were ready at commit prefix `b3dd4ff35998`, which includes the
+  PR513C implementation and PR513A runtime floors;
+- the docs-only PR513C review floor was not in the deployment identity, but
+  deploy-equivalent runtime freshness passed through hosted migration `079` and
+  repaired trigger behavior;
+- hosted migration `079` was present and ledgered as
+  `20260711180500 / 079_persona_encounter_runtime_attempt_trigger_repair`;
 - hosted triggers `pe_co_rt_attempts_no_update` and
-  `pe_co_rt_attempts_no_delete` exist on
-  `public.persona_encounter_cross_owner_runtime_attempts`;
-- both names are below PostgreSQL's 63-byte identifier limit;
-- both triggers call
-  `public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation`;
-- rollback-only hosted mutation proof rejected direct update and direct delete;
-- rollback-only proof left no hosted proof fixture behind;
-- PostgREST schema reload was requested;
-- ARIADNE gets PR513D to rerun the hosted audit proof that failed in PR513B.
+  `pe_co_rt_attempts_no_delete` both existed, both called
+  `public.prevent_persona_encounter_cross_owner_runtime_attempt_mutation`, and
+  the old truncated collision trigger was absent;
+- direct hosted update and direct hosted delete attempts against proof attempt
+  rows were both rejected;
+- participant route readback passed for owner A and owner B, signed-out
+  returned `401`, and nonparticipant returned `404`;
+- RPC validation passed for mismatched status, mismatched scope version, provider
+  lifecycle without ready state, pending consent, and wrong scope;
+- generic consent readback stayed `executable: false`;
+- no provider/generated/token/private-session/public-exhibit/report/memory/
+  canon/archive/continuity/export/job/storage/public-surface drift appeared;
+- cleanup left no active proof consent and privacy passed.
 
 Current lane:
 
 ```text
 PR513D - Cross-Owner Runtime Attempt Audit Hosted Rerun
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_RERUN
-Source: docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_ARIADNE.md
+Owner: MIMIR / A1
+State: ARIADNE_VERDICT_RETURNED
+Source: docs/roadmap/PR513D_CROSS_OWNER_RUNTIME_ATTEMPT_AUDIT_HOSTED_RERUN_RESULT.md
 ```
 
 Next:
 
-- ARIADNE reruns the PR513B hosted audit proof with the repaired `079` trigger
-  boundary and wakes MIMIR with PASS/FAIL/BLOCK.
+- MIMIR closes PR513D if accepted, or routes the next narrow lane.
 
 Wakeup:
 
 ```text
-WAKEUP A4:
-Codename: ARIADNE
+WAKEUP A1:
+Codename: MIMIR
 ```
 
 ## Previous lane - PR513C append-only trigger repair accepted and closed
