@@ -4,28 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523B companion-first persona home draft PR #1 human rehearsal routed to ARIADNE
+## Current lane - PR523B companion-first persona home draft PR #1 ready for MIMIR merge decision
 
-MIMIR accepted ARGUS's PR523A review:
+ARIADNE completed PR523B human rehearsal:
 
-`docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_CLOSEOUT.md`
+`docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md`
 
 Current lane:
 
 ```text
-PR523B - Companion-First Persona Home Draft PR #1 Human Rehearsal
-Owner: ARIADNE / A4
-State: OPEN_HUMAN_REHEARSAL
-Source: docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_ARIADNE.md
+PR523B - Companion-First Persona Home Draft PR #1 Merge Decision
+Owner: MIMIR / A1
+State: ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION
+Source: docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md
 ```
 
 Why:
 
-- draft PR #1 is the companion-first UI source of truth;
-- ARGUS accepted it for human rehearsal and found no DAEDALUS blocker first;
-- ARIADNE must now test the lived product route, mobile behavior,
-  accessibility, Advanced Studio discoverability, and visual fit before MIMIR
-  decides merge/integration or fix routing.
+- draft PR #1 is still the companion-first UI source of truth;
+- ARGUS accepted the branch technically in PR523A;
+- ARIADNE accepted the lived product rehearsal in PR523B with no DAEDALUS
+  blocker before MIMIR's merge/integration decision;
+- residual polish risk is limited to mobile first-tap visibility for `New chat`,
+  mobile first-viewport `Owner-only` wording, and fixture-limited archive/
+  return-to-thread reruns when an accepted provider or active non-empty thread
+  exists.
 
 Draft PR #1:
 
@@ -38,9 +41,9 @@ Commit: 2d4a23835e5aa0928488041168d48b4cb489e8bb
 Review path:
 
 - ARGUS first: complete, accepted for ARIADNE;
-- ARIADNE second: human-eye, mobile, accessibility, and product-fit rehearsal -
-  active;
-- DAEDALUS only if review produces concrete implementation followups.
+- ARIADNE second: complete, accepted for MIMIR merge/integration decision;
+- DAEDALUS only if MIMIR wants the residual polish risks addressed before
+  merge.
 
 Validation:
 
@@ -54,12 +57,40 @@ npx --yes pnpm@10.32.1 run test:persona-encounters    PASS - 74 tests
 npx --yes pnpm@10.32.1 run typecheck                  PASS
 PR diff secret-shaped added-line scan                  PASS
 changed-path/public-surface scan                       PASS
+node .tmp\pr523b-rehearsal.mjs                         PASS - blocks=0, skips=2, results=26
 ```
 
 Parked backend unblock:
 
 - PR522 remains the next backend unblock for generated cross-owner publication,
   but DAEDALUS is not woken for PR522 while PR523 is active.
+
+## Previous lane - PR523B companion-first persona home draft PR #1 accepted by ARIADNE
+
+ARIADNE completed PR523B:
+
+`docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md`
+
+Completed lane:
+
+```text
+PR523B - Companion-First Persona Home Draft PR #1 Human Rehearsal
+Owner: ARIADNE / A4 -> MIMIR / A1
+State: ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION
+Source: docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md
+```
+
+ARIADNE verdict:
+
+- draft PR #1 is ready for MIMIR's merge/integration decision;
+- desktop persona home, `390px` and `375px` mobile persona home, mobile
+  navigation, New Chat URL, explicit thread selection, rapid route switching,
+  provider setup error state, archived read-only state, Memory Inbox,
+  Advanced Studio, and public no-drift checks passed;
+- archive creation and return-to-thread card were fixture-limited because the
+  replay owner had no accepted private provider and no active non-empty
+  conversation fixture;
+- no DAEDALUS patch is required before MIMIR decides.
 
 ## Previous lane - PR523A companion-first persona home draft PR #1 accepted by ARGUS
 

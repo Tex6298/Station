@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR523B | Companion-First Persona Home Draft PR #1 Human Rehearsal | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 -> ARIADNE / A4 | Open human rehearsal; ARGUS accepted PR #1 technically, so ARIADNE checks mobile, accessibility, product fit, and human route behavior before MIMIR merge/integration decision. | `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_ARIADNE.md` |
+| PR523B | Companion-First Persona Home Draft PR #1 Merge Decision | MIMIR / A1 | ARIADNE accepted the human rehearsal with no DAEDALUS blocker; MIMIR decides whether to merge/integrate draft PR #1 or request residual polish first. | `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md` |
 
 ## Parked / Ready
 
@@ -24,6 +24,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR523B rehearsal | Companion-First Persona Home Draft PR #1 Human Rehearsal | MIMIR -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Accepted as `ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION`; desktop/mobile companion home, mobile nav, thread URL selection, rapid route switching, provider setup state, archived read-only state, Memory Inbox, Advanced Studio, and public no-drift passed. | `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md` |
 | PR523A closeout | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_ACCEPTED`; ARGUS accepted the draft PR for ARIADNE rehearsal with no DAEDALUS blocker first. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_CLOSEOUT.md` |
 | PR523A review | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE`; ARGUS found no owner/persona scope, thread race, Advanced Studio, public/private drift, CSS, CI, package, or secret blocker before ARIADNE rehearsal. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md` |
 | PR521 closeout | Cross-Owner Generated Material Publication Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_BLOCKED`; MIMIR accepted the concrete blocker and documented PR522 as the parked smallest unblock lane. | `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |

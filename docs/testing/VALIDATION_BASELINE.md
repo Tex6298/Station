@@ -4,6 +4,60 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR523B Companion-First Persona Home Draft PR #1 Human Rehearsal
+
+ARIADNE completed PR523B human rehearsal on 2026-07-12:
+
+- `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md`
+
+Validation result:
+`ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION`.
+
+Reviewed target:
+
+- GitHub draft PR #1: `https://github.com/Tex6298/Station/pull/1`;
+- branch: `fork/agent/companion-shell-translation`;
+- commit: `2d4a23835e5aa0928488041168d48b4cb489e8bb`.
+
+Reason:
+
+- desktop companion home passed with header, chat, and sidebar in the first
+  viewport;
+- mobile `390px` and `375px` companion home passed with header, chat, and
+  mobile companion nav in the first viewport and no document-level overflow;
+- New Chat URL, existing `?c=<conversationId>` selection, and rapid route
+  switching selected the intended persona-bound thread without silent fallback;
+- hosted send flow produced a visible private-provider setup callout instead of
+  hanging or failing silently;
+- archived-thread fixture rendered read-only state with a disabled composer and
+  `New chat`;
+- Memory Inbox rendered pending candidate accept/reject controls for four
+  fixtures without mutating them;
+- Advanced Studio opened lazily and retained continuity, runtime context, and
+  encounter/readiness material;
+- public homepage, Discover, public Space, forums, writing, and public persona
+  samples showed no private companion copy or mobile overflow.
+
+Fixture-limited notes:
+
+- archive creation was not run end-to-end because the replay owner has no
+  accepted private provider, so send did not create a conversation to archive;
+- return-to-thread card was not exercised because no active non-empty
+  conversation fixture was available.
+
+Residual polish notes:
+
+- mobile `New chat` is available after opening `Navigate`, not in the closed
+  mobile companion summary;
+- mobile first-viewport text preserves `Private companion` but not the explicit
+  `Owner-only` chip.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr523b-rehearsal.mjs` | Pass | Temporary Playwright runner against local PR worktree and hosted API reported `SUMMARY blocks=0 skips=2 results=26`; runner was removed before commit. |
+| `git diff --check` | Pass | Docs-only result whitespace check passed. |
+| `pnpm typecheck` | Not run | Docs-only result; no imports or scripts touched. |
+
 ## PR523A Companion-First Persona Home Draft PR #1 ARGUS Review
 
 ARGUS completed PR523A review on 2026-07-12:
