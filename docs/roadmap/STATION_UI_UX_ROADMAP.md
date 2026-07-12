@@ -69,6 +69,10 @@ estimate, ARGUS to gate, and ARIADNE to review against real user journeys.
   public shell, entry/onboarding language, Discover search clarity, route
   discipline, and mobile browser evidence have been adapted into Station-native
   surfaces. Do not reopen generic Discern parity.
+- Light/dark mode is future UI/platform backlog, not current PR524A scope. When
+  opened, it should cover the companion-first Studio shell, public surfaces,
+  mobile, accessibility/contrast, and persisted user preference rather than a
+  one-route theme toggle.
 - The next lane should start where protected-alpha replay needs the most
   product clarity: the private Studio workbench, with Archive trust constraints
   kept close because archive is the proof layer for continuity.

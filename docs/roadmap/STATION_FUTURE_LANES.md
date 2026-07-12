@@ -71,6 +71,9 @@ Still future/open:
 
 - hard-delete cleanup and artifact removal after publish/retract;
 - production readiness and finished Station MVP claims;
+- light/dark mode as a future UI/platform lane covering the companion-first
+  Studio shell, public surfaces, mobile, accessibility/contrast, and persisted
+  user preference;
 - mature onboarding wizards, richer Document Migrator/API Bridge product depth,
   rich authoring/versioning, live OAuth/API connectors, full PDF/binary/
   workspace export, durable workers/queues/realtime, Redis as Memory truth,

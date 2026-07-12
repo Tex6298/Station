@@ -69,6 +69,14 @@ expansion, provider/retrieval/vector/storage/billing/Redis/Cloudflare/queue/
 deployment/package/broad UI work.
 ```
 
+MIMIR pause directive:
+
+```text
+Source: docs/roadmap/PR524A_POST_CLOSEOUT_PAUSE_DIRECTIVE_MIMIR.md
+State: after PR524A closes or blocks, pause mainline and record Phase 3 standing
+instead of automatically opening the next numbered product lane.
+```
+
 ## Previous lane - PR524 cross-owner generated material publication contract preflight accepted
 
 ARGUS accepted PR524:
