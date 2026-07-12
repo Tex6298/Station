@@ -4,19 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR524 cross-owner generated material publication contract preflight opened
+## Current lane - PR524 cross-owner generated material publication contract preflight accepted by ARGUS
 
 MIMIR closed PR522:
 
 `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_CLOSEOUT.md`
+
+ARGUS completed PR524 preflight:
+
+`docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md`
 
 Current lane:
 
 ```text
 PR524 - Cross-Owner Generated Material Publication Contract Preflight
 Owner: ARGUS / A3 -> MIMIR / A1
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_ARGUS.md
+State: ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT
+Source: docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md
 ```
 
 Why:
@@ -25,18 +29,20 @@ Why:
   generated source artifacts and exact-text bilateral approval ledger rows;
 - PR522 now supplies that private participant-only foundation, accepted by
   ARGUS with a narrow safety patch;
-- public generated body text is still not accepted by implication;
-- ARGUS must decide the exact smallest public generated-material contract lane,
-  or name the concrete blocker and smallest unblock.
+- ARGUS accepts PR524A only as a dedicated, detail-only generated-material
+  publication contract derived from active PR522 artifacts and exact
+  bilaterally approved revisions;
+- MIMIR must close PR524 if accepted and route DAEDALUS to PR524A.
 
 Still blocked by default:
 
 ```text
-Public generated-material route/body text, generated summaries/excerpts,
-transcripts, PR516 disposable-output reuse without explicit source/revision
-approval, public Space/forum/writing/feed/homepage placement, public persona
-chat/context-preview source expansion, provider/retrieval/vector/storage/
-billing/Redis/Cloudflare/queue/deployment/package/broad UI work.
+Extending metadata-only exhibits with generated text, publishing PR516
+disposable output directly, generated summaries/abstracts/transcripts/source
+bodies, public list/index/search/feed/persona linkbacks, public Space/forum/
+writing/homepage placement, public persona chat/context-preview source
+expansion, provider/retrieval/vector/storage/billing/Redis/Cloudflare/queue/
+deployment/package/broad UI work.
 ```
 
 ## Previous lane - PR522 cross-owner private generated artifact and exact-text approval ledger closed

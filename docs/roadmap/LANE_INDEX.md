@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR524 | Cross-Owner Generated Material Publication Contract Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Open as `OPEN_PREFLIGHT`; PR522 removed the private source/approval blocker, so ARGUS must decide the exact smallest public generated-material contract lane or name the concrete blocker and smallest unblock. | `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_ARGUS.md` |
+| PR524 | Cross-Owner Generated Material Publication Contract Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted as `ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT`; PR524A must be a dedicated detail-only public generated-material contract derived solely from active PR522 artifacts and exact bilaterally approved revisions, with no metadata-only route extension or broad placement. | `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 

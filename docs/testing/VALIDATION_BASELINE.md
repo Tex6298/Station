@@ -4,6 +4,50 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR524 Cross-Owner Generated Material Publication Contract Preflight
+
+ARGUS completed PR524 preflight on 2026-07-12:
+
+- `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT`.
+
+Reason:
+
+- PR522 removed the concrete PR521 private-source/exact-approval blocker;
+- PR524A is accepted only as a dedicated detail-only generated-material
+  publication contract;
+- generated public body text must come only from an active PR522 private
+  artifact and exact bilaterally approved revision;
+- metadata-only cross-owner exhibit routes remain metadata-only;
+- public generated-material list/index/search/feed/public-persona linkbacks,
+  Space/forum/writing/homepage placement, provider/retrieval/vector/storage/
+  billing/Cloudflare/queue/package/deployment, and broad UI work remain blocked
+  by default.
+
+Environment note: PR524 itself is docs-only. ARGUS relied on the current
+PR522-accepted code validation from the immediately preceding review and reran
+docs whitespace checks before wakeup.
+
+Required PR524A validation:
+
+| Command / check | Required result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 run test:persona-encounters` | Pass | Must cover source artifact, exact revision, bilateral approval, publication, fail-closed lifecycle, and public no-drift. |
+| `npx --yes pnpm@10.32.1 run test:reports` | Pass | Must cover report, moderation remove/restore, and safe target context. |
+| `npx --yes pnpm@10.32.1 run test:personas` | Pass | Must prove public persona linkbacks/context/chat do not drift. |
+| `npx --yes pnpm@10.32.1 run test:community` | Pass | Must prove Discover/search/feed and community surfaces do not drift unless separately accepted. |
+| `npx --yes pnpm@10.32.1 run test:writing` | Pass | Must prove writing/public document helpers do not surface generated material. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | Must cover private controls, route helpers, copy, and redaction. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | API/web typecheck. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | No lint warnings/errors. |
+| `git diff --check` | Pass | Working tree whitespace check. |
+| `git diff --cached --check` | Pass | Staged whitespace check before wakeup. |
+| Changed-path forbidden-scope scan | Pass | No Cloudflare, queues/workers, provider/model routing, retrieval/vector, storage/export, billing/Stripe, package/deploy, or broad placement drift. |
+| High-risk secret pattern diff scan | Pass | No secret-shaped added content. |
+| `npx --yes pnpm@10.32.1 run build` | Attempt | If Windows Next standalone symlink `EPERM` recurs after compile/page generation, record it honestly as environment failure. |
+
 ## PR522 ARGUS Review - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
 
 ARGUS completed PR522 review on 2026-07-12:
