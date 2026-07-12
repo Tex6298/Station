@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR521 Cross-Owner Generated Material Publication Preflight
+
+ARGUS completed PR521 preflight on 2026-07-12:
+
+- `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md`
+
+Validation result:
+`BLOCK_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT`.
+
+Reason:
+
+- no generated cross-owner public material is safe to implement now;
+- current accepted public cross-owner surfaces remain metadata-only;
+- PR516 disposable preview output remains private, disposable, unsaved, and not
+  reusable as public source material by default;
+- concrete blocker is
+  `CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_AND_EXACT_TEXT_APPROVAL_LEDGER_MISSING`;
+- DAEDALUS may not implement generated-material publication until a private
+  participant-only generated source artifact, exact final-text bilateral
+  approval ledger, generated-material route/table/RLS/audit/moderation/delete
+  contract, and hosted proof exist;
+- generated words, summaries, transcript excerpts, source text, private setup,
+  PR516 output reuse, provider/retrieval payloads, prompts, token facts, raw
+  ids, public Space/forum/writing/feed/homepage placement, provider/model
+  routing, storage/billing/social/Redis/Cloudflare/queue/package/deployment,
+  and broad UI work remain blocked by default.
+
+Environment note: direct `npm run test:personas` stopped before test execution
+because `pnpm` was not on PATH in this shell. ARGUS reran validation through
+the repo-declared `pnpm@10.32.1` using `npx`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 run test:personas` | Pass | 18 tests passed, including public persona linkbacks and context-preview boundaries. |
+| `npx --yes pnpm@10.32.1 run test:persona-encounters` | Pass | 74 tests passed, including private/disposable preview, runtime-attempt metadata audit, cross-owner metadata-only public exhibits, revocation, and moderation. |
+| `npx --yes pnpm@10.32.1 run test:reports` | Pass | 8 tests passed, including cross-owner exhibit moderation behavior. |
+| `npx --yes pnpm@10.32.1 run test:community` | Pass | 47 tests passed, including cross-owner metadata Discover separation and feed/writing helper no-drift. |
+| `npx --yes pnpm@10.32.1 run test:writing` | Pass | 32 tests passed, including public persona linkback anchors and chat/context source exclusion. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 215 tests passed, including private/disposable and metadata-only boundary copy plus redaction coverage. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| `git diff --check` | Pass | Working tree whitespace check passed after docs-only verdict edits. |
+
 ## PR520B Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof
 
 ARIADNE completed PR520B hosted proof on 2026-07-12:

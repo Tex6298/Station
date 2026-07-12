@@ -4,31 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR521 cross-owner generated material publication preflight routed to ARGUS
+## Current lane - PR521 cross-owner generated material publication preflight blocked by ARGUS
 
 MIMIR closed PR520B:
 
 `docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_CLOSEOUT.md`
 
+ARGUS completed PR521:
+
+`docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md`
+
 Current lane:
 
 ```text
 PR521 - Cross-Owner Generated Material Publication Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_ARGUS.md
+Owner: ARGUS / A3 -> MIMIR / A1
+State: BLOCK_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT
+Source: docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md
 ```
 
-Why:
+ARGUS verdict:
 
-- the metadata-only cross-owner public path is now hosted-proven through
-  dedicated index/detail, Discover search, and participant public persona
-  linkbacks;
-- the next product capability boundary is whether any generated cross-owner
-  material can be public under explicit participant approval;
-- this must be hostile-preflighted before code because generated text,
-  provenance, moderation, revocation, deletion, and source privacy are the core
-  risk.
+- no generated cross-owner public material is safe to implement now;
+- DAEDALUS may not implement PR521A as generated-material publication;
+- concrete blocker:
+  `CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_AND_EXACT_TEXT_APPROVAL_LEDGER_MISSING`;
+- the current system has hosted-proven private/disposable preview output and
+  hosted-proven metadata-only public exhibit surfaces, but no durable
+  participant-visible generated source artifact, exact-text bilateral approval
+  ledger, generated-material public route, moderation/reporting/takedown,
+  revocation/delete behavior, RLS/audit/index contract, or hosted proof for
+  public generated body text;
+- smallest unblock recommendation is a private participant-only generated
+  artifact plus exact-text approval ledger lane, with no public generated route
+  yet.
 
 Still blocked by default:
 
@@ -38,6 +47,19 @@ Still blocked by default:
   moderation/admin internals, provider/model routing, retrieval/vector changes,
   storage/billing/social/Redis/Cloudflare/queue/package/deployment/migration,
   public Space/forum/writing/feed/homepage placement, and broad UI work.
+
+Validation:
+
+```text
+npx --yes pnpm@10.32.1 run test:personas            PASS - 18 tests
+npx --yes pnpm@10.32.1 run test:persona-encounters PASS - 74 tests
+npx --yes pnpm@10.32.1 run test:reports            PASS - 8 tests
+npx --yes pnpm@10.32.1 run test:community          PASS - 47 tests
+npx --yes pnpm@10.32.1 run test:writing            PASS - 32 tests
+npx --yes pnpm@10.32.1 run test:studio-ui          PASS - 215 tests
+npx --yes pnpm@10.32.1 run typecheck               PASS
+git diff --check                                   PASS
+```
 
 ## Previous lane - PR520B cross-owner public persona linkbacks hosted proof passed
 

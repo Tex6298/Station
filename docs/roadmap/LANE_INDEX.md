@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR521 | Cross-Owner Generated Material Publication Preflight | MIMIR / A1 -> ARGUS / A3 | Open hostile preflight; decide whether any generated cross-owner material can become public under explicit participant approval, or name the smallest blocker/unblock lane. | `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_ARGUS.md` |
+| PR521 | Cross-Owner Generated Material Publication Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Blocked as `BLOCK_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT`; DAEDALUS may not implement generated-material publication until a private generated artifact and exact-text bilateral approval ledger exist. | `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR521 preflight | Cross-Owner Generated Material Publication Preflight | MIMIR -> ARGUS -> MIMIR | Blocked as `BLOCK_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT`; concrete blocker is `CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_AND_EXACT_TEXT_APPROVAL_LEDGER_MISSING`, with generated words/summaries/excerpts/transcripts/source text/PR516 output reuse and broader public placement still blocked. | `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR520B closeout | Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_ACCEPTED`; hosted public persona linkbacks passed, opening PR521 generated material publication preflight. | `docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_CLOSEOUT.md` |
 | PR520B proof | Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF`; requester/counterparty public persona APIs and pages returned only eligible metadata-only linkbacks, with display-snapshot-only other participant, latency, no-drift, browser, privacy, and cleanup boundaries passing. | `docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_RESULT.md` |
 | PR520A closeout | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_ACCEPTED_LOCALLY`; ARIADNE gets PR520B hosted proof. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_CLOSEOUT.md` |
