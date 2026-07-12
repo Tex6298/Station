@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { Router } from "express";
 import { z } from "zod";
 import { resolveChatProviderRuntimeRoute } from "@station/ai/providers/router";
@@ -48,12 +48,20 @@ const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
   "station.persona_encounter.cross_owner_disposable_preview.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.cross_owner_public_exhibit.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA =
+  "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA =
+  "station.persona_encounter.cross_owner_generated_revision.v1";
 const CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION = 1;
 const CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE =
   "run_cross_owner_encounter" satisfies CrossOwnerConsentRequestedScope;
 const CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION = 1;
 const CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE =
   "publish_metadata_only_public_exhibit" satisfies CrossOwnerConsentRequestedScope;
+const CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION = 1;
+const CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION = 1;
+const CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_REQUIRED_SCOPE =
+  "save_private_cross_owner_artifact" satisfies CrossOwnerConsentRequestedScope;
 const CROSS_OWNER_RUNTIME_DENIED_CONTEXT_CLASSES = [
   "long_description",
   "awakening_prompt",
@@ -148,6 +156,11 @@ const PUBLIC_EXHIBIT_MAX_TAGS = 12;
 const PUBLIC_EXHIBIT_LIST_DEFAULT_LIMIT = 12;
 const PUBLIC_EXHIBIT_LIST_MAX_LIMIT = 24;
 const PUBLIC_EXHIBIT_LIST_DB_WINDOW = PUBLIC_EXHIBIT_LIST_MAX_LIMIT * 3 + 1;
+const CROSS_OWNER_GENERATED_ARTIFACT_TITLE_MAX_CHARS = 140;
+const CROSS_OWNER_GENERATED_ARTIFACT_BODY_MAX_CHARS = 8000;
+const CROSS_OWNER_GENERATED_ARTIFACT_EXCERPT_MAX_CHARS = 1000;
+const CROSS_OWNER_GENERATED_ARTIFACT_LIST_LIMIT = 12;
+const CROSS_OWNER_GENERATED_REVISION_LIST_LIMIT = 12;
 const PUBLIC_EXHIBIT_PUBLIC_SELECT =
   "slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, reported_count, published_at, retracted_at, removed_at, removed_by, owner_user_id, private_session_id, id, created_at, updated_at";
 const CROSS_OWNER_PUBLIC_EXHIBIT_PUBLIC_SELECT =
@@ -224,6 +237,35 @@ const crossOwnerPublicExhibitMetadataSchema = z.object({
     .default(CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION),
 }).strict();
 
+const optionalGeneratedArtifactText = (maxLength: number) => z.preprocess((value) => {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  return value;
+}, z.string().max(maxLength).nullable().optional());
+
+const crossOwnerGeneratedArtifactSchema = z.object({
+  confirmPrivateGeneratedArtifact: z.literal(true),
+  title: z.string().trim().min(1).max(CROSS_OWNER_GENERATED_ARTIFACT_TITLE_MAX_CHARS),
+  body: z.string().trim().min(1).max(CROSS_OWNER_GENERATED_ARTIFACT_BODY_MAX_CHARS),
+  excerpt: optionalGeneratedArtifactText(CROSS_OWNER_GENERATED_ARTIFACT_EXCERPT_MAX_CHARS),
+}).strict();
+
+const crossOwnerGeneratedRevisionSchema = z.object({
+  confirmExactPublicTextProposal: z.literal(true),
+  title: z.string().trim().min(1).max(CROSS_OWNER_GENERATED_ARTIFACT_TITLE_MAX_CHARS),
+  body: z.string().trim().min(1).max(CROSS_OWNER_GENERATED_ARTIFACT_BODY_MAX_CHARS),
+  excerpt: optionalGeneratedArtifactText(CROSS_OWNER_GENERATED_ARTIFACT_EXCERPT_MAX_CHARS),
+}).strict();
+
+const crossOwnerGeneratedRevisionApprovalSchema = z.object({
+  confirmExactTextApproval: z.literal(true),
+  revisionDigest: z.string().regex(/^[a-f0-9]{64}$/),
+}).strict();
+
 const crossOwnerConsentRequestedScopeSchema = z.enum(CROSS_OWNER_CONSENT_REQUESTED_SCOPES);
 const crossOwnerConsentReasonCodeSchema = z.enum(CROSS_OWNER_CONSENT_REASON_CODES);
 
@@ -292,6 +334,20 @@ type CrossOwnerConsentActorRole = "requester" | "counterparty" | "admin" | "syst
 type CrossOwnerRuntimeParticipantRole = "requester" | "counterparty";
 type CrossOwnerRuntimeAttemptLifecycleStatus = typeof CROSS_OWNER_RUNTIME_ATTEMPT_LIFECYCLE_STATUSES[number];
 type EncounterCrossOwnerPublicExhibitStatus = "proposed" | "published" | "retracted" | "removed";
+type EncounterCrossOwnerGeneratedArtifactLifecycleStatus =
+  | "active"
+  | "retracted"
+  | "revoked"
+  | "deleted"
+  | "moderation_blocked";
+type EncounterCrossOwnerGeneratedRevisionStatus =
+  | "proposed"
+  | "approved"
+  | "retracted"
+  | "revoked"
+  | "deleted"
+  | "moderation_blocked"
+  | "invalidated";
 
 type EncounterPersonaRow = {
   id: string;
@@ -438,6 +494,76 @@ type EncounterCrossOwnerPublicExhibitRow = {
   updated_by: string;
   created_at: string;
   updated_at: string;
+};
+
+type EncounterCrossOwnerGeneratedArtifactRow = {
+  id: string;
+  consent_id: string;
+  requester_owner_user_id: string;
+  requester_persona_id: string;
+  requester_persona_name_snapshot: string;
+  counterparty_owner_user_id: string;
+  counterparty_persona_id: string;
+  counterparty_persona_name_snapshot: string;
+  artifact_slug: string;
+  private_title: string;
+  private_body: string;
+  private_excerpt: string | null;
+  generated_content_digest: string;
+  lifecycle_status: EncounterCrossOwnerGeneratedArtifactLifecycleStatus;
+  contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION;
+  provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA;
+  retracted_at: string | null;
+  revoked_at: string | null;
+  deleted_at: string | null;
+  moderation_blocked_at: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type EncounterCrossOwnerGeneratedRevisionRow = {
+  id: string;
+  artifact_id: string;
+  consent_id: string;
+  revision_slug: string;
+  final_title: string;
+  final_body: string;
+  final_excerpt: string | null;
+  text_digest: string;
+  source_artifact_digest: string;
+  requester_persona_name_snapshot: string;
+  counterparty_persona_name_snapshot: string;
+  consent_requested_scope_version: number;
+  consent_requested_scopes: CrossOwnerConsentRequestedScope[];
+  status: EncounterCrossOwnerGeneratedRevisionStatus;
+  contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION;
+  approval_contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION;
+  provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA;
+  proposed_at: string;
+  approved_at: string | null;
+  retracted_at: string | null;
+  revoked_at: string | null;
+  deleted_at: string | null;
+  moderation_blocked_at: string | null;
+  invalidated_at: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type EncounterCrossOwnerGeneratedApprovalRow = {
+  id: string;
+  revision_id: string;
+  artifact_id: string;
+  consent_id: string;
+  participant_role: CrossOwnerRuntimeParticipantRole;
+  approver_owner_user_id: string;
+  revision_digest: string;
+  approval_contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION;
+  approved_at: string;
 };
 
 personaEncountersRouter.get("/preview/readiness", requireAuth, async (req, res) => {
@@ -1245,6 +1371,449 @@ personaEncountersRouter.post("/cross-owner-public-exhibits/:slug/report", requir
   });
 });
 
+personaEncountersRouter.post("/cross-owner-consents/:consentId/generated-artifacts", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const parsedBody = crossOwnerGeneratedArtifactSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const consent = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!consent.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!consent.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const readiness = crossOwnerPrivateGeneratedArtifactConsentReadiness(consent.row);
+  if (readiness.ready === false) return res.status(409).json(readiness.body);
+
+  const payload = parsedBody.data;
+  const now = new Date().toISOString();
+  const digest = crossOwnerGeneratedArtifactDigest({
+    consent: consent.row,
+    title: payload.title,
+    body: payload.body,
+    excerpt: payload.excerpt ?? null,
+  });
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .insert({
+      consent_id: consent.row.id,
+      requester_owner_user_id: consent.row.requester_owner_user_id,
+      requester_persona_id: consent.row.requester_persona_id,
+      requester_persona_name_snapshot: consent.row.requester_persona_name_snapshot,
+      counterparty_owner_user_id: consent.row.counterparty_owner_user_id,
+      counterparty_persona_id: consent.row.counterparty_persona_id,
+      counterparty_persona_name_snapshot: consent.row.counterparty_persona_name_snapshot,
+      artifact_slug: publicExhibitSlug(payload.title),
+      private_title: payload.title,
+      private_body: payload.body,
+      private_excerpt: payload.excerpt ?? null,
+      generated_content_digest: digest,
+      lifecycle_status: "active",
+      contract_version: CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION,
+      provenance_schema: PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA,
+      retracted_at: null,
+      revoked_at: null,
+      deleted_at: null,
+      moderation_blocked_at: null,
+      created_by: ownerUserId,
+      updated_by: ownerUserId,
+      created_at: now,
+      updated_at: now,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be saved.",
+      code: "persona_encounter_cross_owner_generated_artifact_save_failed",
+    });
+  }
+
+  return res.status(201).json({
+    artifact: serializeCrossOwnerGeneratedArtifactReadback({
+      artifact: data as EncounterCrossOwnerGeneratedArtifactRow,
+      consent: consent.row,
+      currentOwnerUserId: ownerUserId,
+      revisions: [],
+      approvals: [],
+    }),
+  });
+});
+
+personaEncountersRouter.get("/cross-owner-consents/:consentId/generated-artifacts", requireAuth, async (req, res) => {
+  const parsedId = sessionIdSchema.safeParse(req.params.consentId);
+  if (!parsedId.success) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const consent = await loadCrossOwnerConsentForParticipant(sb, parsedId.data, ownerUserId);
+  if (!consent.ok) return res.status(500).json(crossOwnerConsentLoadFailedBody());
+  if (!consent.row) return res.status(404).json({ error: "Cross-owner consent not found." });
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .select("*")
+    .eq("consent_id", consent.row.id)
+    .order("created_at", { ascending: false })
+    .limit(CROSS_OWNER_GENERATED_ARTIFACT_LIST_LIMIT);
+
+  if (error) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifacts could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_artifact_load_failed",
+    });
+  }
+
+  const artifacts = ((data ?? []) as EncounterCrossOwnerGeneratedArtifactRow[])
+    .filter((row) => crossOwnerGeneratedArtifactMatchesConsent(row, consent.row!))
+    .map((artifact) => serializeCrossOwnerGeneratedArtifactReadback({
+      artifact,
+      consent: consent.row!,
+      currentOwnerUserId: ownerUserId,
+      revisions: [],
+      approvals: [],
+    }));
+
+  return res.json({ artifacts });
+});
+
+personaEncountersRouter.get("/cross-owner-generated-artifacts/:artifactSlug", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.artifactSlug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+
+  const bundle = await loadCrossOwnerGeneratedArtifactBundleBySlug(getSupabaseAdmin(), parsedSlug.data, req.user!.id);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_artifact_load_failed",
+    });
+  }
+  if (!bundle.artifact || !bundle.consent) {
+    return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+  }
+
+  return res.json({
+    artifact: serializeCrossOwnerGeneratedArtifactReadback({
+      artifact: bundle.artifact,
+      consent: bundle.consent,
+      currentOwnerUserId: req.user!.id,
+      revisions: bundle.revisions,
+      approvals: bundle.approvals,
+    }),
+  });
+});
+
+personaEncountersRouter.post("/cross-owner-generated-artifacts/:artifactSlug/revisions", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.artifactSlug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+
+  const parsedBody = crossOwnerGeneratedRevisionSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedArtifactBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_artifact_load_failed",
+    });
+  }
+  if (!bundle.artifact || !bundle.consent) {
+    return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+  }
+
+  const readiness = crossOwnerGeneratedArtifactRevisionReadiness(bundle.artifact, bundle.consent);
+  if (readiness.ready === false) return res.status(409).json(readiness.body);
+
+  const body = parsedBody.data;
+  const digest = crossOwnerGeneratedRevisionDigest({
+    artifact: bundle.artifact,
+    consent: bundle.consent,
+    title: body.title,
+    body: body.body,
+    excerpt: body.excerpt ?? null,
+  });
+
+  if (!await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "invalidated")) {
+    return res.status(500).json({
+      error: "Cross-owner generated revision approvals could not be reset.",
+      code: "persona_encounter_cross_owner_generated_revision_reset_failed",
+    });
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_revisions")
+    .insert({
+      artifact_id: bundle.artifact.id,
+      consent_id: bundle.consent.id,
+      revision_slug: publicExhibitSlug(body.title),
+      final_title: body.title,
+      final_body: body.body,
+      final_excerpt: body.excerpt ?? null,
+      text_digest: digest,
+      source_artifact_digest: bundle.artifact.generated_content_digest,
+      requester_persona_name_snapshot: bundle.artifact.requester_persona_name_snapshot,
+      counterparty_persona_name_snapshot: bundle.artifact.counterparty_persona_name_snapshot,
+      consent_requested_scope_version: bundle.consent.requested_scope_version,
+      consent_requested_scopes: bundle.consent.requested_scopes,
+      status: "proposed",
+      contract_version: CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION,
+      approval_contract_version: CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION,
+      provenance_schema: PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA,
+      proposed_at: now,
+      approved_at: null,
+      retracted_at: null,
+      revoked_at: null,
+      deleted_at: null,
+      moderation_blocked_at: null,
+      invalidated_at: null,
+      created_by: ownerUserId,
+      updated_by: ownerUserId,
+      created_at: now,
+      updated_at: now,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner generated revision could not be saved.",
+      code: "persona_encounter_cross_owner_generated_revision_save_failed",
+    });
+  }
+
+  return res.status(201).json({
+    revision: serializeCrossOwnerGeneratedRevisionReadback({
+      revision: data as EncounterCrossOwnerGeneratedRevisionRow,
+      artifact: bundle.artifact,
+      consent: bundle.consent,
+      currentOwnerUserId: ownerUserId,
+      approvals: [],
+    }),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-generated-revisions/:revisionSlug/approve", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.revisionSlug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner generated revision not found." });
+
+  const parsedBody = crossOwnerGeneratedRevisionApprovalSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedRevisionBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated revision could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_revision_load_failed",
+    });
+  }
+  if (!bundle.revision || !bundle.artifact || !bundle.consent) {
+    return res.status(404).json({ error: "Cross-owner generated revision not found." });
+  }
+
+  const readiness = crossOwnerGeneratedArtifactRevisionReadiness(bundle.artifact, bundle.consent);
+  if (readiness.ready === false) return res.status(409).json(readiness.body);
+  if (bundle.revision.status !== "proposed") {
+    return res.status(409).json({
+      error: "Only proposed cross-owner generated revisions can be approved.",
+      code: "persona_encounter_cross_owner_generated_revision_inactive",
+      status: bundle.revision.status,
+    });
+  }
+  if (!crossOwnerGeneratedRevisionStillCurrent(bundle.revision, bundle.artifact, bundle.consent)) {
+    return res.status(409).json({
+      error: "Cross-owner generated revision changed after proposal and requires a new exact-text approval.",
+      code: "persona_encounter_cross_owner_generated_revision_stale",
+    });
+  }
+  if (bundle.revision.text_digest !== parsedBody.data.revisionDigest) {
+    return res.status(409).json({
+      error: "Both owners must approve the exact same generated revision digest.",
+      code: "persona_encounter_cross_owner_generated_revision_digest_mismatch",
+    });
+  }
+
+  const actorRole = crossOwnerConsentParticipantRole(bundle.consent, ownerUserId);
+  if (!actorRole) return res.status(404).json({ error: "Cross-owner generated revision not found." });
+
+  const existingApproval = bundle.approvals.find((approval) =>
+    approval.participant_role === actorRole &&
+    approval.revision_digest === bundle.revision!.text_digest
+  );
+  if (existingApproval) {
+    return res.status(409).json({
+      error: "The other participant must approve this exact generated revision before it can proceed.",
+      code: "persona_encounter_cross_owner_generated_revision_counterparty_required",
+    });
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_revision_approvals")
+    .insert({
+      revision_id: bundle.revision.id,
+      artifact_id: bundle.artifact.id,
+      consent_id: bundle.consent.id,
+      participant_role: actorRole,
+      approver_owner_user_id: ownerUserId,
+      revision_digest: bundle.revision.text_digest,
+      approval_contract_version: CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION,
+      approved_at: new Date().toISOString(),
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner generated revision approval could not be recorded.",
+      code: "persona_encounter_cross_owner_generated_revision_approval_failed",
+    });
+  }
+
+  let revision = bundle.revision;
+  const approvals = [...bundle.approvals, data as EncounterCrossOwnerGeneratedApprovalRow];
+  const approvedRoles = new Set(
+    approvals
+      .filter((approval) => approval.revision_digest === revision.text_digest)
+      .map((approval) => approval.participant_role),
+  );
+  if (approvedRoles.has("requester") && approvedRoles.has("counterparty")) {
+    const { data: approvedRow, error: approveError } = await sb
+      .from("persona_encounter_cross_owner_generated_revisions")
+      .update({
+        status: "approved",
+        approved_at: new Date().toISOString(),
+        updated_by: ownerUserId,
+      })
+      .eq("id", revision.id)
+      .select("*")
+      .single();
+    if (approveError || !approvedRow) {
+      return res.status(500).json({
+        error: "Cross-owner generated revision could not be approved.",
+        code: "persona_encounter_cross_owner_generated_revision_approve_failed",
+      });
+    }
+    revision = approvedRow as EncounterCrossOwnerGeneratedRevisionRow;
+  }
+
+  return res.json({
+    revision: serializeCrossOwnerGeneratedRevisionReadback({
+      revision,
+      artifact: bundle.artifact,
+      consent: bundle.consent,
+      currentOwnerUserId: ownerUserId,
+      approvals,
+    }),
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-generated-artifacts/:artifactSlug/retract", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.artifactSlug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedArtifactBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_artifact_load_failed",
+    });
+  }
+  if (!bundle.artifact || !bundle.consent) {
+    return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+  }
+  if (bundle.artifact.lifecycle_status === "deleted" || bundle.artifact.lifecycle_status === "moderation_blocked") {
+    return res.status(409).json({
+      error: "Cross-owner private generated artifact cannot be retracted from its current lifecycle state.",
+      code: "persona_encounter_cross_owner_generated_artifact_inactive",
+      status: bundle.artifact.lifecycle_status,
+    });
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .update({
+      lifecycle_status: "retracted",
+      retracted_at: new Date().toISOString(),
+      updated_by: ownerUserId,
+    })
+    .eq("id", bundle.artifact.id)
+    .select("*")
+    .single();
+
+  if (error || !data || !await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "retracted")) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be retracted.",
+      code: "persona_encounter_cross_owner_generated_artifact_retract_failed",
+    });
+  }
+
+  return res.json({
+    artifact: serializeCrossOwnerGeneratedArtifactReadback({
+      artifact: data as EncounterCrossOwnerGeneratedArtifactRow,
+      consent: bundle.consent,
+      currentOwnerUserId: ownerUserId,
+      revisions: [],
+      approvals: [],
+    }),
+  });
+});
+
+personaEncountersRouter.delete("/cross-owner-generated-artifacts/:artifactSlug", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.artifactSlug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedArtifactBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_artifact_load_failed",
+    });
+  }
+  if (!bundle.artifact || !bundle.consent) {
+    return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
+  }
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .update({
+      lifecycle_status: "deleted",
+      deleted_at: new Date().toISOString(),
+      updated_by: ownerUserId,
+    })
+    .eq("id", bundle.artifact.id)
+    .select("*")
+    .single();
+
+  if (error || !data || !await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "deleted")) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifact could not be deleted.",
+      code: "persona_encounter_cross_owner_generated_artifact_delete_failed",
+    });
+  }
+
+  return res.json({
+    deleted: true,
+    artifact: serializeCrossOwnerGeneratedArtifactReadback({
+      artifact: data as EncounterCrossOwnerGeneratedArtifactRow,
+      consent: bundle.consent,
+      currentOwnerUserId: ownerUserId,
+      revisions: [],
+      approvals: [],
+    }),
+  });
+});
+
 personaEncountersRouter.get("/cross-owner-consent-targets/:publicSlug", requireAuth, async (req, res) => {
   const parsedSlug = z.string().trim().min(1).max(160)
     .refine((value) => isSafePublicPersonaSlug(value), "Select a safe public persona route.")
@@ -1769,6 +2338,12 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/revoke", require
     return res.status(500).json({
       error: "Cross-owner public exhibit metadata could not be retracted after consent revocation.",
       code: "persona_encounter_cross_owner_public_exhibit_retract_failed",
+    });
+  }
+  if (!await markCrossOwnerGeneratedArtifactsForConsentLifecycle(sb, update.row.id, ownerUserId, "revoked")) {
+    return res.status(500).json({
+      error: "Cross-owner private generated artifacts could not be revoked after consent revocation.",
+      code: "persona_encounter_cross_owner_generated_artifact_revoke_failed",
     });
   }
 
@@ -2448,6 +3023,182 @@ function serializePublishedCrossOwnerPublicExhibitListItem(
   };
 }
 
+function serializeCrossOwnerGeneratedArtifactReadback(input: {
+  artifact: EncounterCrossOwnerGeneratedArtifactRow;
+  consent: EncounterCrossOwnerConsentRow;
+  currentOwnerUserId: string;
+  revisions: EncounterCrossOwnerGeneratedRevisionRow[];
+  approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+}) {
+  const { artifact, consent, currentOwnerUserId } = input;
+  const participantRole = crossOwnerConsentParticipantRole(consent, currentOwnerUserId);
+  const active = artifact.lifecycle_status === "active";
+
+  return {
+    artifactSlug: artifact.artifact_slug,
+    apiPath: `/persona-encounters/cross-owner-generated-artifacts/${artifact.artifact_slug}`,
+    lifecycleStatus: artifact.lifecycle_status,
+    title: active ? artifact.private_title : null,
+    body: active ? artifact.private_body : null,
+    excerpt: active ? artifact.private_excerpt : null,
+    contentDigest: artifact.generated_content_digest,
+    contractVersion: artifact.contract_version,
+    participantRole,
+    participants: {
+      requester: {
+        role: "requester",
+        personaName: artifact.requester_persona_name_snapshot,
+        currentUser: participantRole === "requester",
+      },
+      counterparty: {
+        role: "counterparty",
+        personaName: artifact.counterparty_persona_name_snapshot,
+        currentUser: participantRole === "counterparty",
+      },
+    },
+    consent: {
+      status: consent.status,
+      requestedScope: CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_REQUIRED_SCOPE,
+      requestedScopeVersion: consent.requested_scope_version,
+      activeApproval: crossOwnerPrivateGeneratedArtifactConsentReadiness(consent).ready,
+      executable: false,
+    },
+    approvals: {
+      exactTextApprovalRequired: true,
+      bothParticipantsRequired: true,
+      approvalContractVersion: CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION,
+      appendOnlyLedger: true,
+      note: "Approvals attach to an exact revision digest and reset whenever the source artifact, final text, participant snapshots, consent scope/version, or lifecycle changes.",
+    },
+    revisions: input.revisions
+      .slice(0, CROSS_OWNER_GENERATED_REVISION_LIST_LIMIT)
+      .map((revision) => serializeCrossOwnerGeneratedRevisionReadback({
+        revision,
+        artifact,
+        consent,
+        currentOwnerUserId,
+        approvals: input.approvals.filter((approval) => approval.revision_id === revision.id),
+      })),
+    timestamps: {
+      createdAt: artifact.created_at,
+      updatedAt: artifact.updated_at,
+      retractedAt: artifact.retracted_at,
+      revokedAt: artifact.revoked_at,
+      deletedAt: artifact.deleted_at,
+      moderationBlockedAt: artifact.moderation_blocked_at,
+    },
+    publication: {
+      public: false,
+      routeListed: false,
+      indexed: false,
+      discoverable: false,
+      generatedWordsPublished: false,
+      transcriptPublished: false,
+      summaryPublished: false,
+      excerptPublished: false,
+      note: "Private participant readback only. No public generated-material route exists in this contract.",
+    },
+    provenance: {
+      label: "Cross-owner private generated artifact",
+      schema: artifact.provenance_schema,
+      participantOwnerOnly: true,
+      public: false,
+      generatedContentPrivate: true,
+      pr516AutoReuse: false,
+      source: "Explicitly saved private generated artifact under bilateral cross-owner consent.",
+      note: active
+        ? "Generated body text is returned only on this authenticated participant route."
+        : "Generated body text is hidden while this artifact is inactive.",
+    },
+  };
+}
+
+function serializeCrossOwnerGeneratedRevisionReadback(input: {
+  revision: EncounterCrossOwnerGeneratedRevisionRow;
+  artifact: EncounterCrossOwnerGeneratedArtifactRow;
+  consent: EncounterCrossOwnerConsentRow;
+  currentOwnerUserId: string;
+  approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+}) {
+  const { revision, artifact, consent, currentOwnerUserId } = input;
+  const participantRole = crossOwnerConsentParticipantRole(consent, currentOwnerUserId);
+  const readableText = revision.status === "proposed" || revision.status === "approved";
+  const approvedRoles = new Set(
+    input.approvals
+      .filter((approval) =>
+        approval.revision_digest === revision.text_digest &&
+        approval.approval_contract_version === revision.approval_contract_version
+      )
+      .map((approval) => approval.participant_role),
+  );
+
+  return {
+    revisionSlug: revision.revision_slug,
+    artifactSlug: artifact.artifact_slug,
+    apiPath: `/persona-encounters/cross-owner-generated-revisions/${revision.revision_slug}`,
+    status: revision.status,
+    title: readableText ? revision.final_title : null,
+    body: readableText ? revision.final_body : null,
+    excerpt: readableText ? revision.final_excerpt : null,
+    textDigest: revision.text_digest,
+    sourceArtifactDigest: revision.source_artifact_digest,
+    contractVersion: revision.contract_version,
+    approvalContractVersion: revision.approval_contract_version,
+    participantRole,
+    approvals: {
+      requesterApproved: approvedRoles.has("requester"),
+      counterpartyApproved: approvedRoles.has("counterparty"),
+      bothParticipantsApproved: approvedRoles.has("requester") && approvedRoles.has("counterparty"),
+      currentUserApproved: participantRole ? approvedRoles.has(participantRole) : false,
+      rows: input.approvals
+        .filter((approval) => approval.revision_digest === revision.text_digest)
+        .map((approval) => ({
+          participantRole: approval.participant_role,
+          revisionDigest: approval.revision_digest,
+          approvalContractVersion: approval.approval_contract_version,
+          approvedAt: approval.approved_at,
+        })),
+      note: "Approval rows expose participant role and digest only; raw approval ids and owner ids remain private.",
+    },
+    exactText: {
+      immutableDigest: true,
+      sourceArtifactDigestMatches: revision.source_artifact_digest === artifact.generated_content_digest,
+      participantSnapshotsMatch:
+        revision.requester_persona_name_snapshot === artifact.requester_persona_name_snapshot &&
+        revision.counterparty_persona_name_snapshot === artifact.counterparty_persona_name_snapshot,
+      consentScopeVersionMatches: revision.consent_requested_scope_version === consent.requested_scope_version,
+      consentScopesMatch: sameStringSet(revision.consent_requested_scopes, consent.requested_scopes),
+      current: crossOwnerGeneratedRevisionStillCurrent(revision, artifact, consent),
+    },
+    timestamps: {
+      proposedAt: revision.proposed_at,
+      approvedAt: revision.approved_at,
+      retractedAt: revision.retracted_at,
+      revokedAt: revision.revoked_at,
+      deletedAt: revision.deleted_at,
+      moderationBlockedAt: revision.moderation_blocked_at,
+      invalidatedAt: revision.invalidated_at,
+      updatedAt: revision.updated_at,
+    },
+    publication: {
+      public: false,
+      routeListed: false,
+      indexed: false,
+      discoverable: false,
+      generatedWordsPublished: false,
+      note: "Even bilateral approval here does not publish generated words. A later MIMIR-approved publication lane must add any public route.",
+    },
+    provenance: {
+      label: "Cross-owner exact-text generated revision",
+      schema: revision.provenance_schema,
+      participantOwnerOnly: true,
+      public: false,
+      appendOnlyApprovals: true,
+      note: "This is a private proposal and approval ledger for exact text, not a public exhibit or public generated-material detail route.",
+    },
+  };
+}
+
 function serializeCrossOwnerConsent(
   row: EncounterCrossOwnerConsentRow,
   currentOwnerUserId: string,
@@ -2938,6 +3689,167 @@ function crossOwnerPublicExhibitIsPubliclyReadable(
   );
 }
 
+function crossOwnerPrivateGeneratedArtifactConsentReadiness(row: EncounterCrossOwnerConsentRow):
+  | { ready: true }
+  | { ready: false; body: { error: string; code: string; status?: CrossOwnerConsentStatus; requestedScopeVersion?: number } } {
+  if (row.status !== "approved") {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner private generated artifacts require an active approved consent.",
+        code: "persona_encounter_cross_owner_generated_artifact_consent_inactive",
+        status: row.status,
+      },
+    };
+  }
+
+  if (row.requested_scope_version !== CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner private generated artifacts require the current artifact contract version.",
+        code: "persona_encounter_cross_owner_generated_artifact_wrong_version",
+        requestedScopeVersion: row.requested_scope_version,
+      },
+    };
+  }
+
+  if (!row.requested_scopes.includes(CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_REQUIRED_SCOPE)) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner consent does not include private generated artifact scope.",
+        code: "persona_encounter_cross_owner_generated_artifact_wrong_scope",
+      },
+    };
+  }
+
+  return { ready: true };
+}
+
+function crossOwnerGeneratedArtifactRevisionReadiness(
+  artifact: EncounterCrossOwnerGeneratedArtifactRow,
+  consent: EncounterCrossOwnerConsentRow,
+): | { ready: true }
+  | { ready: false; body: { error: string; code: string; status?: string; lifecycleStatus?: string } } {
+  const consentReadiness = crossOwnerPrivateGeneratedArtifactConsentReadiness(consent);
+  if (consentReadiness.ready === false) return consentReadiness;
+
+  if (!crossOwnerGeneratedArtifactMatchesConsent(artifact, consent)) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner private generated artifact participant snapshots no longer match consent.",
+        code: "persona_encounter_cross_owner_generated_artifact_stale_participants",
+      },
+    };
+  }
+
+  if (artifact.lifecycle_status !== "active") {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner private generated artifact is not active.",
+        code: "persona_encounter_cross_owner_generated_artifact_inactive",
+        lifecycleStatus: artifact.lifecycle_status,
+      },
+    };
+  }
+
+  return { ready: true };
+}
+
+function crossOwnerGeneratedArtifactMatchesConsent(
+  artifact: EncounterCrossOwnerGeneratedArtifactRow,
+  consent: EncounterCrossOwnerConsentRow,
+) {
+  return (
+    artifact.consent_id === consent.id &&
+    artifact.requester_owner_user_id === consent.requester_owner_user_id &&
+    artifact.requester_persona_id === consent.requester_persona_id &&
+    artifact.requester_persona_name_snapshot === consent.requester_persona_name_snapshot &&
+    artifact.counterparty_owner_user_id === consent.counterparty_owner_user_id &&
+    artifact.counterparty_persona_id === consent.counterparty_persona_id &&
+    artifact.counterparty_persona_name_snapshot === consent.counterparty_persona_name_snapshot &&
+    artifact.provenance_schema === PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA &&
+    artifact.contract_version === CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION &&
+    publicExhibitSlugSchema.safeParse(artifact.artifact_slug).success &&
+    /^[a-f0-9]{64}$/.test(artifact.generated_content_digest)
+  );
+}
+
+function crossOwnerGeneratedRevisionStillCurrent(
+  revision: EncounterCrossOwnerGeneratedRevisionRow,
+  artifact: EncounterCrossOwnerGeneratedArtifactRow,
+  consent: EncounterCrossOwnerConsentRow,
+) {
+  return (
+    revision.artifact_id === artifact.id &&
+    revision.consent_id === consent.id &&
+    revision.source_artifact_digest === artifact.generated_content_digest &&
+    revision.requester_persona_name_snapshot === artifact.requester_persona_name_snapshot &&
+    revision.counterparty_persona_name_snapshot === artifact.counterparty_persona_name_snapshot &&
+    revision.consent_requested_scope_version === consent.requested_scope_version &&
+    sameStringSet(revision.consent_requested_scopes, consent.requested_scopes) &&
+    revision.contract_version === CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION &&
+    revision.approval_contract_version === CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION &&
+    revision.provenance_schema === PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA &&
+    /^[a-f0-9]{64}$/.test(revision.text_digest)
+  );
+}
+
+function sameStringSet(a: string[] | null | undefined, b: string[] | null | undefined) {
+  const left = [...new Set(a ?? [])].sort();
+  const right = [...new Set(b ?? [])].sort();
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function crossOwnerGeneratedArtifactDigest(input: {
+  consent: EncounterCrossOwnerConsentRow;
+  title: string;
+  body: string;
+  excerpt: string | null;
+}) {
+  return sha256Json({
+    schema: PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA,
+    contractVersion: CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION,
+    consentId: input.consent.id,
+    requesterPersonaNameSnapshot: input.consent.requester_persona_name_snapshot,
+    counterpartyPersonaNameSnapshot: input.consent.counterparty_persona_name_snapshot,
+    requestedScopeVersion: input.consent.requested_scope_version,
+    requestedScopes: [...input.consent.requested_scopes].sort(),
+    title: input.title,
+    body: input.body,
+    excerpt: input.excerpt,
+  });
+}
+
+function crossOwnerGeneratedRevisionDigest(input: {
+  artifact: EncounterCrossOwnerGeneratedArtifactRow;
+  consent: EncounterCrossOwnerConsentRow;
+  title: string;
+  body: string;
+  excerpt: string | null;
+}) {
+  return sha256Json({
+    schema: PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA,
+    contractVersion: CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION,
+    approvalContractVersion: CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION,
+    sourceArtifactDigest: input.artifact.generated_content_digest,
+    requesterPersonaNameSnapshot: input.artifact.requester_persona_name_snapshot,
+    counterpartyPersonaNameSnapshot: input.artifact.counterparty_persona_name_snapshot,
+    requestedScopeVersion: input.consent.requested_scope_version,
+    requestedScopes: [...input.consent.requested_scopes].sort(),
+    title: input.title,
+    body: input.body,
+    excerpt: input.excerpt,
+  });
+}
+
+function sha256Json(value: unknown) {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
 function crossOwnerConsentLoadFailedBody() {
   return {
     error: "Cross-owner encounter consent could not be loaded.",
@@ -3158,6 +4070,149 @@ async function loadCrossOwnerPublicExhibitBySlug(
 
   if (error) return { ok: false };
   return { ok: true, row: (data ?? null) as EncounterCrossOwnerPublicExhibitRow | null };
+}
+
+async function loadCrossOwnerGeneratedArtifactBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerGeneratedArtifactRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .select("*")
+    .eq("artifact_slug", slug)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerGeneratedArtifactRow | null };
+}
+
+async function loadCrossOwnerGeneratedArtifactById(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  artifactId: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerGeneratedArtifactRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .select("*")
+    .eq("id", artifactId)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerGeneratedArtifactRow | null };
+}
+
+async function loadCrossOwnerGeneratedArtifactRevisions(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  artifactId: string,
+): Promise<{ ok: true; rows: EncounterCrossOwnerGeneratedRevisionRow[] } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_revisions")
+    .select("*")
+    .eq("artifact_id", artifactId)
+    .order("created_at", { ascending: false })
+    .limit(CROSS_OWNER_GENERATED_REVISION_LIST_LIMIT);
+
+  if (error) return { ok: false };
+  return { ok: true, rows: (data ?? []) as EncounterCrossOwnerGeneratedRevisionRow[] };
+}
+
+async function loadCrossOwnerGeneratedArtifactApprovals(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  artifactId: string,
+): Promise<{ ok: true; rows: EncounterCrossOwnerGeneratedApprovalRow[] } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_revision_approvals")
+    .select("*")
+    .eq("artifact_id", artifactId)
+    .order("approved_at", { ascending: true })
+    .limit(CROSS_OWNER_GENERATED_REVISION_LIST_LIMIT * 2);
+
+  if (error) return { ok: false };
+  return { ok: true, rows: (data ?? []) as EncounterCrossOwnerGeneratedApprovalRow[] };
+}
+
+async function loadCrossOwnerGeneratedArtifactBundleBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+  ownerUserId: string,
+): Promise<
+  | {
+    ok: true;
+    artifact: EncounterCrossOwnerGeneratedArtifactRow | null;
+    consent: EncounterCrossOwnerConsentRow | null;
+    revisions: EncounterCrossOwnerGeneratedRevisionRow[];
+    approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+  }
+  | { ok: false }
+> {
+  const artifact = await loadCrossOwnerGeneratedArtifactBySlug(sb, slug);
+  if (!artifact.ok) return { ok: false };
+  if (!artifact.row) return { ok: true, artifact: null, consent: null, revisions: [], approvals: [] };
+
+  const consent = await loadCrossOwnerConsentForParticipant(sb, artifact.row.consent_id, ownerUserId);
+  if (!consent.ok) return { ok: false };
+  if (!consent.row || !crossOwnerGeneratedArtifactMatchesConsent(artifact.row, consent.row)) {
+    return { ok: true, artifact: null, consent: null, revisions: [], approvals: [] };
+  }
+
+  const [revisions, approvals] = await Promise.all([
+    loadCrossOwnerGeneratedArtifactRevisions(sb, artifact.row.id),
+    loadCrossOwnerGeneratedArtifactApprovals(sb, artifact.row.id),
+  ]);
+  if (!revisions.ok || !approvals.ok) return { ok: false };
+
+  return {
+    ok: true,
+    artifact: artifact.row,
+    consent: consent.row,
+    revisions: revisions.rows,
+    approvals: approvals.rows,
+  };
+}
+
+async function loadCrossOwnerGeneratedRevisionBundleBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  revisionSlug: string,
+  ownerUserId: string,
+): Promise<
+  | {
+    ok: true;
+    revision: EncounterCrossOwnerGeneratedRevisionRow | null;
+    artifact: EncounterCrossOwnerGeneratedArtifactRow | null;
+    consent: EncounterCrossOwnerConsentRow | null;
+    approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+  }
+  | { ok: false }
+> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_revisions")
+    .select("*")
+    .eq("revision_slug", revisionSlug)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  const revision = (data ?? null) as EncounterCrossOwnerGeneratedRevisionRow | null;
+  if (!revision) return { ok: true, revision: null, artifact: null, consent: null, approvals: [] };
+
+  const artifact = await loadCrossOwnerGeneratedArtifactById(sb, revision.artifact_id);
+  if (!artifact.ok) return { ok: false };
+  if (!artifact.row) return { ok: true, revision: null, artifact: null, consent: null, approvals: [] };
+
+  const consent = await loadCrossOwnerConsentForParticipant(sb, artifact.row.consent_id, ownerUserId);
+  if (!consent.ok) return { ok: false };
+  if (!consent.row || !crossOwnerGeneratedArtifactMatchesConsent(artifact.row, consent.row)) {
+    return { ok: true, revision: null, artifact: null, consent: null, approvals: [] };
+  }
+
+  const approvals = await loadCrossOwnerGeneratedArtifactApprovals(sb, artifact.row.id);
+  if (!approvals.ok) return { ok: false };
+
+  return {
+    ok: true,
+    revision,
+    artifact: artifact.row,
+    consent: consent.row,
+    approvals: approvals.rows.filter((approval) => approval.revision_id === revision.id),
+  };
 }
 
 async function loadPublishedCrossOwnerPublicExhibitBySlug(
@@ -3647,6 +4702,57 @@ async function retractCrossOwnerPublicExhibitsForConsent(
     .in("status", ["proposed", "published"]);
 
   return !error;
+}
+
+async function invalidateCrossOwnerGeneratedRevisionsForArtifact(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  artifactId: string,
+  actorUserId: string,
+  status: Extract<EncounterCrossOwnerGeneratedRevisionStatus, "invalidated" | "retracted" | "revoked" | "deleted" | "moderation_blocked">,
+) {
+  const timestampColumn = `${status}_at`;
+  const { error } = await sb
+    .from("persona_encounter_cross_owner_generated_revisions")
+    .update({
+      status,
+      [timestampColumn]: new Date().toISOString(),
+      updated_by: actorUserId,
+    })
+    .eq("artifact_id", artifactId)
+    .in("status", ["proposed", "approved"]);
+
+  return !error;
+}
+
+async function markCrossOwnerGeneratedArtifactsForConsentLifecycle(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+  actorUserId: string,
+  status: Extract<EncounterCrossOwnerGeneratedArtifactLifecycleStatus, "revoked" | "moderation_blocked">,
+) {
+  const timestampColumn = `${status}_at`;
+  const { error: artifactError } = await sb
+    .from("persona_encounter_cross_owner_generated_artifacts")
+    .update({
+      lifecycle_status: status,
+      [timestampColumn]: new Date().toISOString(),
+      updated_by: actorUserId,
+    })
+    .eq("consent_id", consentId)
+    .in("lifecycle_status", ["active", "retracted"]);
+  if (artifactError) return false;
+
+  const { error: revisionError } = await sb
+    .from("persona_encounter_cross_owner_generated_revisions")
+    .update({
+      status,
+      [timestampColumn]: new Date().toISOString(),
+      updated_by: actorUserId,
+    })
+    .eq("consent_id", consentId)
+    .in("status", ["proposed", "approved"]);
+
+  return !revisionError;
 }
 
 async function loadOwnedEncounterPersona(

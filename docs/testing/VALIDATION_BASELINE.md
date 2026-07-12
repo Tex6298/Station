@@ -4,6 +4,58 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR522 Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
+
+DAEDALUS completed PR522 implementation on 2026-07-12:
+
+- `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- private participant-only generated artifacts now have durable schema/API/type
+  support;
+- exact final-text revisions are digest-bound and approval reset happens on new
+  revisions or lifecycle drift;
+- bilateral approval is append-only and requires both participant roles for the
+  exact digest;
+- retracted, revoked, deleted, and moderation-blocked artifacts hide generated
+  body/excerpt readback;
+- Studio exposes only private participant readback and explicit participant
+  actions;
+- no public generated route, public generated body text, PR516 automatic output
+  reuse, provider/model routing, retrieval, vector/embedding, Redis, Cloudflare,
+  billing, Stripe, storage/export, package/deploy, or broad UI scope was added.
+
+Environment note: validation used
+`npm exec --yes pnpm@10.32.1 -- ...`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- install` | Pass | Lockfile up to date; npm printed existing project-config warnings and pnpm ignored-build-script warning. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Fail - environment | Web compiled, lint/type checks ran, and 40 static pages generated; Next standalone trace copy then failed on Windows with `EPERM: operation not permitted, symlink '...node_modules\\.pnpm\\@next+env@14.2.35\\node_modules\\@next\\env' -> '...apps\\web\\.next\\standalone\\node_modules\\.pnpm\\next@14.2.35_...\\node_modules\\@next\\env'`. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | `@station/web` lint passed with no warnings or errors. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | 21 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 47 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | 2 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-context` | Pass | 12 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:conversation-archive` | Pass | 43 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:continuity-publication` | Pass | 1 test passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:document-discussions` | Pass | 4 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | 15 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | 61 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 80 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 32 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 241 tests passed. |
+| `git diff --check` | Pass | No whitespace errors; Git printed existing LF-to-CRLF working-copy warnings. |
+| Changed-path forbidden-scope scan | Pass | Changed code paths only showed intentional private excerpt/body fields and explicit no-public-generated-route guardrails. |
+
 ## PR523B Companion-First Persona Home Draft PR #1 Human Rehearsal
 
 ARIADNE completed PR523B human rehearsal on 2026-07-12:

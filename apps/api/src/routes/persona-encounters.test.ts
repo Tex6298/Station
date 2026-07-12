@@ -120,6 +120,9 @@ class InMemorySupabase {
     persona_encounter_cross_owner_consent_audit_events: [],
     persona_encounter_cross_owner_runtime_attempts: [],
     persona_encounter_cross_owner_public_exhibits: [],
+    persona_encounter_cross_owner_generated_artifacts: [],
+    persona_encounter_cross_owner_generated_revisions: [],
+    persona_encounter_cross_owner_generated_revision_approvals: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -191,6 +194,15 @@ class InMemorySupabase {
     }
     if (table === "persona_encounter_cross_owner_public_exhibits" && !row.id) {
       row.id = `cccccccc-cccc-4ccc-8ccc-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_generated_artifacts" && !row.id) {
+      row.id = `dddddddd-dddd-4ddd-8ddd-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_generated_revisions" && !row.id) {
+      row.id = `eeeeeeee-eeee-4eee-8eee-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_generated_revision_approvals" && !row.id) {
+      row.id = `ffffffff-ffff-4fff-8fff-${String(this.rows(table).length + 1).padStart(12, "0")}`;
     }
     row.id ??= `${table}-${this.rows(table).length + 1}`;
 
@@ -289,6 +301,44 @@ class InMemorySupabase {
       row.removed_by ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_artifacts") {
+      row.artifact_slug ??= `generated-artifact-${String(this.rows(table).length + 1).padStart(8, "0")}`;
+      row.private_excerpt ??= null;
+      row.lifecycle_status ??= "active";
+      row.contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+      row.retracted_at ??= null;
+      row.revoked_at ??= null;
+      row.deleted_at ??= null;
+      row.moderation_blocked_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_revisions") {
+      row.revision_slug ??= `generated-revision-${String(this.rows(table).length + 1).padStart(8, "0")}`;
+      row.final_excerpt ??= null;
+      row.consent_requested_scopes ??= ["save_private_cross_owner_artifact"];
+      row.status ??= "proposed";
+      row.contract_version ??= 1;
+      row.approval_contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_generated_revision.v1";
+      row.proposed_at ??= now;
+      row.approved_at ??= null;
+      row.retracted_at ??= null;
+      row.revoked_at ??= null;
+      row.deleted_at ??= null;
+      row.moderation_blocked_at ??= null;
+      row.invalidated_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_revision_approvals") {
+      row.approval_contract_version ??= 1;
+      row.approved_at ??= now;
     }
 
     return row;
@@ -893,6 +943,26 @@ function crossOwnerConsentPublicExhibitPath(consentId: string) {
   return `/persona-encounters/cross-owner-consents/${consentId}/public-exhibit`;
 }
 
+function crossOwnerConsentGeneratedArtifactsPath(consentId: string) {
+  return `/persona-encounters/cross-owner-consents/${consentId}/generated-artifacts`;
+}
+
+function crossOwnerGeneratedArtifactPath(artifactSlug: string) {
+  return `/persona-encounters/cross-owner-generated-artifacts/${artifactSlug}`;
+}
+
+function crossOwnerGeneratedArtifactRevisionsPath(artifactSlug: string) {
+  return `${crossOwnerGeneratedArtifactPath(artifactSlug)}/revisions`;
+}
+
+function crossOwnerGeneratedArtifactRetractPath(artifactSlug: string) {
+  return `${crossOwnerGeneratedArtifactPath(artifactSlug)}/retract`;
+}
+
+function crossOwnerGeneratedRevisionApprovePath(revisionSlug: string) {
+  return `/persona-encounters/cross-owner-generated-revisions/${revisionSlug}/approve`;
+}
+
 function crossOwnerDisposablePreviewBody(overrides: Partial<{
   setup: string;
   maxOutputTokens: number;
@@ -919,6 +989,41 @@ function crossOwnerPublicExhibitBody(overrides: Partial<{
   };
 }
 
+function crossOwnerGeneratedArtifactBody(overrides: Partial<{
+  title: string;
+  body: string;
+  excerpt: string | null;
+}> = {}) {
+  return {
+    confirmPrivateGeneratedArtifact: true,
+    title: "Private generated cross-owner artifact",
+    body: "Generated private source text for the two participants only.",
+    excerpt: "Participant-only generated excerpt.",
+    ...overrides,
+  };
+}
+
+function crossOwnerGeneratedRevisionBody(overrides: Partial<{
+  title: string;
+  body: string;
+  excerpt: string | null;
+}> = {}) {
+  return {
+    confirmExactPublicTextProposal: true,
+    title: "Exact future generated text",
+    body: "Exact generated text proposed privately for bilateral approval.",
+    excerpt: "Exact proposed excerpt.",
+    ...overrides,
+  };
+}
+
+function crossOwnerGeneratedRevisionApprovalBody(revisionDigest: string) {
+  return {
+    confirmExactTextApproval: true,
+    revisionDigest,
+  };
+}
+
 function seedCrossOwnerConsent(db: InMemorySupabase, overrides: Row = {}) {
   return db.insertRow("persona_encounter_cross_owner_consents", {
     requester_owner_user_id: OWNER_ID,
@@ -931,6 +1036,29 @@ function seedCrossOwnerConsent(db: InMemorySupabase, overrides: Row = {}) {
     requested_scopes: ["run_cross_owner_encounter"],
     requester_approved_at: "2026-06-29T09:00:00.000Z",
     counterparty_approved_at: "2026-06-29T09:00:01.000Z",
+    ...overrides,
+  });
+}
+
+function seedCrossOwnerGeneratedArtifact(db: InMemorySupabase, consent: Row, overrides: Row = {}) {
+  return db.insertRow("persona_encounter_cross_owner_generated_artifacts", {
+    consent_id: consent.id,
+    requester_owner_user_id: consent.requester_owner_user_id,
+    requester_persona_id: consent.requester_persona_id,
+    requester_persona_name_snapshot: consent.requester_persona_name_snapshot,
+    counterparty_owner_user_id: consent.counterparty_owner_user_id,
+    counterparty_persona_id: consent.counterparty_persona_id,
+    counterparty_persona_name_snapshot: consent.counterparty_persona_name_snapshot,
+    artifact_slug: "generated-artifact-12345678",
+    private_title: "Seeded generated artifact",
+    private_body: "Seeded participant-only generated body text.",
+    private_excerpt: "Seeded excerpt.",
+    generated_content_digest: "a".repeat(64),
+    lifecycle_status: "active",
+    contract_version: 1,
+    provenance_schema: "station.persona_encounter.cross_owner_private_generated_artifact.v1",
+    created_by: consent.requester_owner_user_id,
+    updated_by: consent.requester_owner_user_id,
     ...overrides,
   });
 }
@@ -998,6 +1126,9 @@ function assertNoDurableEncounterWrites(db: InMemorySupabase) {
     "persona_encounter_cross_owner_consent_audit_events",
     "persona_encounter_cross_owner_runtime_attempts",
     "persona_encounter_cross_owner_public_exhibits",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_generated_revisions",
+    "persona_encounter_cross_owner_generated_revision_approvals",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1023,6 +1154,9 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
     "persona_encounter_cross_owner_consent_audit_events",
     "persona_encounter_cross_owner_runtime_attempts",
     "persona_encounter_cross_owner_public_exhibits",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_generated_revisions",
+    "persona_encounter_cross_owner_generated_revision_approvals",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1047,6 +1181,9 @@ function assertNoForbiddenCrossOwnerConsentSideEffects(db: InMemorySupabase) {
     "persona_encounter_public_exhibits",
     "persona_encounter_cross_owner_public_exhibits",
     "persona_encounter_cross_owner_runtime_attempts",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_generated_revisions",
+    "persona_encounter_cross_owner_generated_revision_approvals",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1072,6 +1209,9 @@ function assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db: InMemorySupaba
     "persona_encounter_private_sessions",
     "persona_encounter_public_exhibits",
     "persona_encounter_cross_owner_public_exhibits",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_generated_revisions",
+    "persona_encounter_cross_owner_generated_revision_approvals",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1097,6 +1237,9 @@ function assertNoForbiddenCrossOwnerPreviewSideEffects(db: InMemorySupabase) {
     "persona_encounter_private_sessions",
     "persona_encounter_public_exhibits",
     "persona_encounter_cross_owner_public_exhibits",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_generated_revisions",
+    "persona_encounter_cross_owner_generated_revision_approvals",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1306,6 +1449,41 @@ test("cross-owner public exhibit migration creates metadata-only bilateral appro
   assert.match(sql, /No direct participant insert\/update\/delete policy is created/);
   assert.match(sql, /persona_encounter_cross_owner_public_exhibit/);
   assert.match(sql, /No generated words, preview output, transcripts, excerpts, summaries/);
+  assert.equal(/disable row level security/i.test(sql), false);
+});
+
+test("cross-owner private generated artifact migration creates participant-only exact approval ledger", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/081_persona_encounter_cross_owner_generated_artifacts.sql",
+    "utf8",
+  );
+
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_artifacts/);
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_revisions/);
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_revision_approvals/);
+  assert.match(sql, /consent_id uuid not null references public\.persona_encounter_cross_owner_consents\(id\) on delete cascade/);
+  assert.match(sql, /artifact_slug text not null unique/);
+  assert.match(sql, /revision_slug text not null unique/);
+  assert.match(sql, /generated_content_digest text not null/);
+  assert.match(sql, /text_digest text not null/);
+  assert.match(sql, /source_artifact_digest text not null/);
+  assert.match(sql, /status in \('proposed', 'approved', 'retracted', 'revoked', 'deleted', 'moderation_blocked', 'invalidated'\)/);
+  assert.match(sql, /lifecycle_status in \('active', 'retracted', 'revoked', 'deleted', 'moderation_blocked'\)/);
+  assert.match(sql, /save_private_cross_owner_artifact/);
+  assert.match(sql, /prevent_persona_encounter_cross_owner_generated_approval_mutation/);
+  assert.match(sql, /pe_co_generated_approvals_no_update/);
+  assert.match(sql, /pe_co_generated_approvals_no_delete/);
+  assert.match(sql, /revoke_cross_owner_generated_artifacts_on_consent_inactive/);
+  assert.match(sql, /pe_co_generated_artifacts_select_participants/);
+  assert.match(sql, /pe_co_generated_revisions_select_participants/);
+  assert.match(sql, /pe_co_generated_approvals_select_participants/);
+  assert.equal(/select_published/i.test(sql), false);
+  assert.equal(/create policy "pe_co_generated_artifacts_insert_participants"/.test(sql), false);
+  assert.equal(/create policy "pe_co_generated_revisions_insert_participants"/.test(sql), false);
+  assert.equal(/create policy "pe_co_generated_approvals_insert_participants"/.test(sql), false);
+  assert.match(sql, /No direct participant insert\/update\/delete policy is created/);
+  assert.match(sql, /No public select policy, public generated-material route, PR516 automatic reuse/);
+  assert.match(sql, /not a public publication surface/);
   assert.equal(/disable row level security/i.test(sql), false);
 });
 
@@ -2805,6 +2983,340 @@ test("cross-owner metadata public exhibit fails closed for scope body participan
     assert.equal(db.rows("moderation_reports").length, 0);
     assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
     assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner private generated artifacts require participant readback and exact bilateral approval", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const created = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents", {
+      token: "owner-token",
+      body: crossOwnerConsentBody({
+        requestedScopes: ["save_private_cross_owner_artifact"],
+      }),
+    });
+    assert.equal(created.status, 201);
+
+    const approved = await requestJson(
+      app,
+      "PATCH",
+      `/persona-encounters/cross-owner-consents/${created.body.consent.id}/approve`,
+      { token: "other-token", body: {} },
+    );
+    assert.equal(approved.status, 200);
+
+    const artifact = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(created.body.consent.id), {
+      token: "owner-token",
+      body: crossOwnerGeneratedArtifactBody({
+        body: "Generated private source words for PR522 only.",
+      }),
+    });
+    assert.equal(artifact.status, 201);
+    assert.match(artifact.body.artifact.artifactSlug, /^private-generated-cross-owner-artifact-[a-z0-9]{8}$/);
+    assert.equal(artifact.body.artifact.lifecycleStatus, "active");
+    assert.equal(artifact.body.artifact.body, "Generated private source words for PR522 only.");
+    assert.equal(artifact.body.artifact.publication.public, false);
+    assert.equal(artifact.body.artifact.publication.generatedWordsPublished, false);
+    assert.equal(artifact.body.artifact.provenance.pr516AutoReuse, false);
+    assert.match(artifact.body.artifact.contentDigest, /^[a-f0-9]{64}$/);
+
+    const artifactSlug = artifact.body.artifact.artifactSlug;
+    const signedOut = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(artifactSlug));
+    assert.equal(signedOut.status, 401);
+
+    const nonparticipant = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(artifactSlug), {
+      token: "third-token",
+    });
+    assert.equal(nonparticipant.status, 404);
+
+    const counterpartyRead = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(artifactSlug), {
+      token: "other-token",
+    });
+    assert.equal(counterpartyRead.status, 200);
+    assert.equal(counterpartyRead.body.artifact.body, "Generated private source words for PR522 only.");
+    assert.equal(counterpartyRead.body.artifact.participantRole, "counterparty");
+
+    const list = await requestJson(app, "GET", crossOwnerConsentGeneratedArtifactsPath(created.body.consent.id), {
+      token: "owner-token",
+    });
+    assert.equal(list.status, 200);
+    assert.equal(list.body.artifacts.length, 1);
+    assert.equal(list.body.artifacts[0].body, "Generated private source words for PR522 only.");
+
+    const publicExhibitRead = await requestJson(app, "GET", crossOwnerPublicExhibitPath(artifactSlug));
+    assert.equal(publicExhibitRead.status, 404);
+
+    const revision = await requestJson(app, "POST", crossOwnerGeneratedArtifactRevisionsPath(artifactSlug), {
+      token: "owner-token",
+      body: crossOwnerGeneratedRevisionBody(),
+    });
+    assert.equal(revision.status, 201);
+    assert.equal(revision.body.revision.status, "proposed");
+    assert.match(revision.body.revision.textDigest, /^[a-f0-9]{64}$/);
+    assert.equal(revision.body.revision.body, "Exact generated text proposed privately for bilateral approval.");
+    assert.equal(revision.body.revision.approvals.requesterApproved, false);
+    assert.equal(revision.body.revision.approvals.counterpartyApproved, false);
+    assert.equal(revision.body.revision.publication.public, false);
+    assert.equal(revision.body.revision.publication.generatedWordsPublished, false);
+
+    const requesterApproval = await requestJson(
+      app,
+      "PATCH",
+      crossOwnerGeneratedRevisionApprovePath(revision.body.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedRevisionApprovalBody(revision.body.revision.textDigest),
+      },
+    );
+    assert.equal(requesterApproval.status, 200);
+    assert.equal(requesterApproval.body.revision.status, "proposed");
+    assert.equal(requesterApproval.body.revision.approvals.requesterApproved, true);
+    assert.equal(requesterApproval.body.revision.approvals.counterpartyApproved, false);
+    assert.equal(requesterApproval.body.revision.publication.public, false);
+
+    const duplicateApproval = await requestJson(
+      app,
+      "PATCH",
+      crossOwnerGeneratedRevisionApprovePath(revision.body.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedRevisionApprovalBody(revision.body.revision.textDigest),
+      },
+    );
+    assert.equal(duplicateApproval.status, 409);
+    assert.equal(duplicateApproval.body.code, "persona_encounter_cross_owner_generated_revision_counterparty_required");
+
+    const counterpartyApproval = await requestJson(
+      app,
+      "PATCH",
+      crossOwnerGeneratedRevisionApprovePath(revision.body.revision.revisionSlug),
+      {
+        token: "other-token",
+        body: crossOwnerGeneratedRevisionApprovalBody(revision.body.revision.textDigest),
+      },
+    );
+    assert.equal(counterpartyApproval.status, 200);
+    assert.equal(counterpartyApproval.body.revision.status, "approved");
+    assert.equal(counterpartyApproval.body.revision.approvals.bothParticipantsApproved, true);
+    assert.equal(counterpartyApproval.body.revision.publication.public, false);
+    assert.equal(counterpartyApproval.body.revision.publication.generatedWordsPublished, false);
+
+    const edited = await requestJson(app, "POST", crossOwnerGeneratedArtifactRevisionsPath(artifactSlug), {
+      token: "other-token",
+      body: crossOwnerGeneratedRevisionBody({
+        body: "Edited exact generated text resets both approvals.",
+      }),
+    });
+    assert.equal(edited.status, 201);
+    assert.equal(edited.body.revision.approvals.requesterApproved, false);
+    assert.equal(edited.body.revision.approvals.counterpartyApproved, false);
+    assert.equal(db.rows("persona_encounter_cross_owner_generated_revisions")[0].status, "invalidated");
+
+    const staleDigestApproval = await requestJson(
+      app,
+      "PATCH",
+      crossOwnerGeneratedRevisionApprovePath(edited.body.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedRevisionApprovalBody(revision.body.revision.textDigest),
+      },
+    );
+    assert.equal(staleDigestApproval.status, 409);
+    assert.equal(staleDigestApproval.body.code, "persona_encounter_cross_owner_generated_revision_digest_mismatch");
+
+    const privateJson = JSON.stringify(counterpartyApproval.body);
+    for (const forbidden of [
+      created.body.consent.id,
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "owner_user_id",
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "approver_owner_user_id",
+      "provider_payload",
+      "token_usage",
+      "Bearer ",
+      "test-deepseek-key",
+    ]) {
+      assert.equal(privateJson.includes(forbidden), false, `${forbidden} leaked in generated artifact readback`);
+    }
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner private generated artifacts fail closed for scope lifecycle and public surfaces", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const wrongScope = seedCrossOwnerConsent(db, { requested_scopes: ["run_cross_owner_encounter"] });
+    const wrongScopeResponse = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(wrongScope.id), {
+      token: "owner-token",
+      body: crossOwnerGeneratedArtifactBody(),
+    });
+    assert.equal(wrongScopeResponse.status, 409);
+    assert.equal(wrongScopeResponse.body.code, "persona_encounter_cross_owner_generated_artifact_wrong_scope");
+
+    const wrongVersion = seedCrossOwnerConsent(db, {
+      requested_scopes: ["save_private_cross_owner_artifact"],
+      requested_scope_version: 2,
+    });
+    const wrongVersionResponse = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(wrongVersion.id), {
+      token: "owner-token",
+      body: crossOwnerGeneratedArtifactBody(),
+    });
+    assert.equal(wrongVersionResponse.status, 409);
+    assert.equal(wrongVersionResponse.body.code, "persona_encounter_cross_owner_generated_artifact_wrong_version");
+
+    const pending = seedCrossOwnerConsent(db, {
+      status: "pending",
+      requested_scopes: ["save_private_cross_owner_artifact"],
+      counterparty_approved_at: null,
+    });
+    const pendingResponse = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(pending.id), {
+      token: "owner-token",
+      body: crossOwnerGeneratedArtifactBody(),
+    });
+    assert.equal(pendingResponse.status, 409);
+    assert.equal(pendingResponse.body.code, "persona_encounter_cross_owner_generated_artifact_consent_inactive");
+
+    const approved = seedCrossOwnerConsent(db, {
+      requested_scopes: ["save_private_cross_owner_artifact"],
+    });
+    const nonparticipant = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(approved.id), {
+      token: "third-token",
+      body: crossOwnerGeneratedArtifactBody(),
+    });
+    assert.equal(nonparticipant.status, 404);
+
+    for (const body of [
+      { title: "Missing confirmation", body: "Nope." },
+      { confirmPrivateGeneratedArtifact: false, title: "Title", body: "Nope." },
+      { confirmPrivateGeneratedArtifact: true, title: "", body: "Nope." },
+      { confirmPrivateGeneratedArtifact: true, title: "Title", body: "" },
+      { confirmPrivateGeneratedArtifact: true, title: "Title", body: "Nope.", sourcePreviewId: "pr516" },
+      { confirmPrivateGeneratedArtifact: true, title: "Title", body: "Nope.", ownerUserId: OWNER_ID },
+      { confirmPrivateGeneratedArtifact: true, title: "Title", body: "Nope.", providerPayload: "secret" },
+    ]) {
+      const response = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(approved.id), {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400, `body should fail: ${JSON.stringify(body)}`);
+    }
+
+    const staleArtifact = seedCrossOwnerGeneratedArtifact(db, approved, {
+      artifact_slug: "stale-generated-12345678",
+      requester_persona_name_snapshot: "Old Name",
+    });
+    const staleRead = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(staleArtifact.artifact_slug), {
+      token: "owner-token",
+    });
+    assert.equal(staleRead.status, 404);
+
+    const blockedArtifact = seedCrossOwnerGeneratedArtifact(db, approved, {
+      artifact_slug: "blocked-generated-12345678",
+      lifecycle_status: "moderation_blocked",
+      moderation_blocked_at: "2026-07-11T12:00:00.000Z",
+    });
+    const blockedRead = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(blockedArtifact.artifact_slug), {
+      token: "owner-token",
+    });
+    assert.equal(blockedRead.status, 200);
+    assert.equal(blockedRead.body.artifact.lifecycleStatus, "moderation_blocked");
+    assert.equal(blockedRead.body.artifact.body, null);
+    const blockedRevision = await requestJson(app, "POST", crossOwnerGeneratedArtifactRevisionsPath(blockedArtifact.artifact_slug), {
+      token: "owner-token",
+      body: crossOwnerGeneratedRevisionBody(),
+    });
+    assert.equal(blockedRevision.status, 409);
+    assert.equal(blockedRevision.body.code, "persona_encounter_cross_owner_generated_artifact_inactive");
+
+    const created = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(approved.id), {
+      token: "owner-token",
+      body: crossOwnerGeneratedArtifactBody({ title: "Revoked generated artifact" }),
+    });
+    assert.equal(created.status, 201);
+    const revision = await requestJson(app, "POST", crossOwnerGeneratedArtifactRevisionsPath(created.body.artifact.artifactSlug), {
+      token: "owner-token",
+      body: crossOwnerGeneratedRevisionBody({ title: "Revoked generated revision" }),
+    });
+    assert.equal(revision.status, 201);
+
+    const revoke = await requestJson(app, "PATCH", `/persona-encounters/cross-owner-consents/${approved.id}/revoke`, {
+      token: "other-token",
+      body: { reasonCode: "owner_request" },
+    });
+    assert.equal(revoke.status, 200);
+    assert.equal(revoke.body.consent.status, "revoked");
+    const revokedArtifact = db.rows("persona_encounter_cross_owner_generated_artifacts")
+      .find((row) => row.artifact_slug === created.body.artifact.artifactSlug);
+    assert.equal(revokedArtifact.lifecycle_status, "revoked");
+    const revokedRevision = db.rows("persona_encounter_cross_owner_generated_revisions")
+      .find((row) => row.revision_slug === revision.body.revision.revisionSlug);
+    assert.equal(revokedRevision.status, "revoked");
+
+    const revokedRead = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(created.body.artifact.artifactSlug), {
+      token: "owner-token",
+    });
+    assert.equal(revokedRead.status, 200);
+    assert.equal(revokedRead.body.artifact.body, null);
+
+    const publicList = await requestJson(app, "GET", "/persona-encounters/cross-owner-public-exhibits");
+    assert.equal(publicList.status, 200);
+    assert.equal(JSON.stringify(publicList.body).includes("Generated private source text"), false);
+    assert.equal(JSON.stringify(publicList.body).includes("Exact generated text"), false);
+
+    const deleteConsent = seedCrossOwnerConsent(db, {
+      requested_scopes: ["save_private_cross_owner_artifact"],
+      id: "99999999-9999-4999-8999-000000000200",
+    });
+    const deleteArtifact = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(deleteConsent.id), {
+      token: "owner-token",
+      body: crossOwnerGeneratedArtifactBody({ title: "Deleted generated artifact" }),
+    });
+    assert.equal(deleteArtifact.status, 201);
+    const deleteResponse = await requestJson(
+      app,
+      "DELETE",
+      crossOwnerGeneratedArtifactPath(deleteArtifact.body.artifact.artifactSlug),
+      { token: "other-token" },
+    );
+    assert.equal(deleteResponse.status, 200);
+    assert.equal(deleteResponse.body.deleted, true);
+    assert.equal(deleteResponse.body.artifact.lifecycleStatus, "deleted");
+    assert.equal(deleteResponse.body.artifact.body, null);
+
+    const publicJson = JSON.stringify(publicList.body);
+    for (const forbidden of [
+      "private_body",
+      "final_body",
+      "generated_content_digest",
+      "source_artifact_digest",
+      "Generated private source words",
+      "Exact generated text proposed privately",
+      "provider_payload",
+      "Bearer ",
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+    ]) {
+      assert.equal(publicJson.includes(forbidden), false, `${forbidden} leaked to public generated surface`);
+    }
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_public_exhibits").length, 0);
     assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
     assert.equal(db.rows("token_transactions").length, 0);
   });

@@ -135,6 +135,20 @@ export type PersonaEncounterCrossOwnerConsentStatus =
 export type PersonaEncounterCrossOwnerConsentParticipantRole = "requester" | "counterparty";
 export type PersonaEncounterCrossOwnerConsentAction = "approve" | "reject" | "cancel" | "revoke";
 export type PersonaEncounterCrossOwnerPublicExhibitStatus = "proposed" | "published" | "retracted" | "removed";
+export type PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus =
+  | "active"
+  | "retracted"
+  | "revoked"
+  | "deleted"
+  | "moderation_blocked";
+export type PersonaEncounterCrossOwnerGeneratedRevisionStatus =
+  | "proposed"
+  | "approved"
+  | "retracted"
+  | "revoked"
+  | "deleted"
+  | "moderation_blocked"
+  | "invalidated";
 
 export interface PersonaEncounterCrossOwnerConsent {
   id: string;
@@ -311,6 +325,144 @@ export interface PersonaEncounterCrossOwnerPublicExhibitOwnerReadback {
 
 export interface PersonaEncounterCrossOwnerPublicExhibitResponse {
   exhibit: PersonaEncounterCrossOwnerPublicExhibitOwnerReadback;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedArtifactRequest {
+  title: string;
+  body: string;
+  excerpt?: string | null;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedRevisionRequest {
+  title: string;
+  body: string;
+  excerpt?: string | null;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedRevisionApprovalRequest {
+  revisionDigest: string;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedRevisionReadback {
+  revisionSlug: string;
+  artifactSlug: string;
+  apiPath: string;
+  status: PersonaEncounterCrossOwnerGeneratedRevisionStatus;
+  title: string | null;
+  body: string | null;
+  excerpt: string | null;
+  textDigest: string;
+  sourceArtifactDigest: string;
+  contractVersion: 1;
+  approvalContractVersion: 1;
+  participantRole: PersonaEncounterCrossOwnerConsentParticipantRole | null;
+  approvals: {
+    requesterApproved: boolean;
+    counterpartyApproved: boolean;
+    bothParticipantsApproved: boolean;
+    currentUserApproved: boolean;
+    rows: Array<{
+      participantRole: PersonaEncounterCrossOwnerConsentParticipantRole;
+      revisionDigest: string;
+      approvalContractVersion: 1;
+      approvedAt: string;
+    }>;
+    note: string;
+  };
+  exactText: {
+    immutableDigest: true;
+    sourceArtifactDigestMatches: boolean;
+    participantSnapshotsMatch: boolean;
+    consentScopeVersionMatches: boolean;
+    consentScopesMatch: boolean;
+    current: boolean;
+  };
+  publication: {
+    public: false;
+    routeListed: false;
+    indexed: false;
+    discoverable: false;
+    generatedWordsPublished: false;
+    note: string;
+  };
+  provenance: {
+    label: "Cross-owner exact-text generated revision";
+    schema: "station.persona_encounter.cross_owner_generated_revision.v1";
+    participantOwnerOnly: true;
+    public: false;
+    appendOnlyApprovals: true;
+    note: string;
+  };
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedArtifactReadback {
+  artifactSlug: string;
+  apiPath: string;
+  lifecycleStatus: PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus;
+  title: string | null;
+  body: string | null;
+  excerpt: string | null;
+  contentDigest: string;
+  contractVersion: 1;
+  participantRole: PersonaEncounterCrossOwnerConsentParticipantRole | null;
+  participants: {
+    requester: {
+      role: "requester";
+      personaName: string;
+      currentUser: boolean;
+    };
+    counterparty: {
+      role: "counterparty";
+      personaName: string;
+      currentUser: boolean;
+    };
+  };
+  approvals: {
+    exactTextApprovalRequired: true;
+    bothParticipantsRequired: true;
+    approvalContractVersion: 1;
+    appendOnlyLedger: true;
+    note: string;
+  };
+  revisions: PersonaEncounterCrossOwnerGeneratedRevisionReadback[];
+  publication: {
+    public: false;
+    routeListed: false;
+    indexed: false;
+    discoverable: false;
+    generatedWordsPublished: false;
+    transcriptPublished: false;
+    summaryPublished: false;
+    excerptPublished: false;
+    note: string;
+  };
+  provenance: {
+    label: "Cross-owner private generated artifact";
+    schema: "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+    participantOwnerOnly: true;
+    public: false;
+    generatedContentPrivate: true;
+    pr516AutoReuse: false;
+    source: string;
+    note: string;
+  };
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedArtifactResponse {
+  artifact: PersonaEncounterCrossOwnerGeneratedArtifactReadback;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedArtifactListResponse {
+  artifacts: PersonaEncounterCrossOwnerGeneratedArtifactReadback[];
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedRevisionResponse {
+  revision: PersonaEncounterCrossOwnerGeneratedRevisionReadback;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedArtifactDeleteResponse {
+  deleted: true;
+  artifact: PersonaEncounterCrossOwnerGeneratedArtifactReadback;
 }
 
 export interface PersonaEncounterCrossOwnerPublicExhibitListItem {
@@ -539,8 +691,12 @@ export const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_TARGETS_PATH =
   "/persona-encounters/cross-owner-consent-targets";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH =
   "/persona-encounters/cross-owner-public-exhibits";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACTS_PATH =
+  "/persona-encounters/cross-owner-generated-artifacts";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE =
   "run_cross_owner_encounter";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACT_REQUIRED_SCOPE =
+  "save_private_cross_owner_artifact";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION = 1;
 export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE =
   "publish_metadata_only_public_exhibit";
@@ -553,6 +709,10 @@ export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA =
   "station.persona_encounter.cross_owner_disposable_preview.v1";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_PROVENANCE_SCHEMA =
   "station.persona_encounter.cross_owner_public_exhibit.v1";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA =
+  "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA =
+  "station.persona_encounter.cross_owner_generated_revision.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_REASON_CODES = new Set([
   "not_aligned",
   "owner_request",
@@ -687,6 +847,57 @@ export function personaEncounterCrossOwnerPublicExhibitMetadataPayload(
   };
 }
 
+export function personaEncounterCrossOwnerConsentGeneratedArtifactsPath(consentId: string) {
+  return `${personaEncounterCrossOwnerConsentPath(consentId)}/generated-artifacts`;
+}
+
+export function personaEncounterCrossOwnerGeneratedArtifactPath(artifactSlug: string) {
+  return `${PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACTS_PATH}/${encodeURIComponent(artifactSlug)}`;
+}
+
+export function personaEncounterCrossOwnerGeneratedArtifactRevisionsPath(artifactSlug: string) {
+  return `${personaEncounterCrossOwnerGeneratedArtifactPath(artifactSlug)}/revisions`;
+}
+
+export function personaEncounterCrossOwnerGeneratedArtifactRetractPath(artifactSlug: string) {
+  return `${personaEncounterCrossOwnerGeneratedArtifactPath(artifactSlug)}/retract`;
+}
+
+export function personaEncounterCrossOwnerGeneratedRevisionApprovePath(revisionSlug: string) {
+  return `/persona-encounters/cross-owner-generated-revisions/${encodeURIComponent(revisionSlug)}/approve`;
+}
+
+export function personaEncounterCrossOwnerGeneratedArtifactPayload(
+  input: PersonaEncounterCrossOwnerGeneratedArtifactRequest,
+) {
+  return {
+    confirmPrivateGeneratedArtifact: true,
+    title: input.title.trim(),
+    body: input.body.trim(),
+    ...(input.excerpt !== undefined ? { excerpt: normalizeOptionalText(input.excerpt) } : {}),
+  };
+}
+
+export function personaEncounterCrossOwnerGeneratedRevisionPayload(
+  input: PersonaEncounterCrossOwnerGeneratedRevisionRequest,
+) {
+  return {
+    confirmExactPublicTextProposal: true,
+    title: input.title.trim(),
+    body: input.body.trim(),
+    ...(input.excerpt !== undefined ? { excerpt: normalizeOptionalText(input.excerpt) } : {}),
+  };
+}
+
+export function personaEncounterCrossOwnerGeneratedRevisionApprovalPayload(
+  input: PersonaEncounterCrossOwnerGeneratedRevisionApprovalRequest,
+) {
+  return {
+    confirmExactTextApproval: true,
+    revisionDigest: input.revisionDigest.trim(),
+  };
+}
+
 export function personaEncounterCrossOwnerConsentDisplay(consent: PersonaEncounterCrossOwnerConsent) {
   return `${consent.participants.requester.personaName} / ${consent.participants.counterparty.personaName}`;
 }
@@ -699,6 +910,18 @@ export function personaEncounterCrossOwnerConsentCanRun(
     consent.requestedScopeVersion === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION &&
     consent.requestedScopes.some((scope) =>
       scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE
+    ),
+  );
+}
+
+export function personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(
+  consent: PersonaEncounterCrossOwnerConsent,
+) {
+  return Boolean(
+    consent.status === "approved" &&
+    consent.requestedScopeVersion === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION &&
+    consent.requestedScopes.some((scope) =>
+      scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACT_REQUIRED_SCOPE
     ),
   );
 }
@@ -878,6 +1101,37 @@ export function personaEncounterCrossOwnerPublicExhibitReadback(
     exhibit?.publication.summaryPublished ? "Summary published" : "No generated summary",
     exhibit?.publication.excerptPublished ? "Excerpt published" : "No excerpt",
     "No private setup, PR516 disposable preview output, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
+  ];
+}
+
+export function personaEncounterCrossOwnerPrivateGeneratedArtifactReadback(
+  artifact?: PersonaEncounterCrossOwnerGeneratedArtifactReadback | null,
+) {
+  if (!artifact) {
+    return [
+      "Cross-owner private generated artifact",
+      "Participant-only readback",
+      "No public generated route",
+      "Exact-text approval ledger required",
+      "Both participants must approve the same digest",
+      "PR516 disposable preview is not automatically reused",
+      "No public generated words, transcript, summary, excerpt, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
+    ];
+  }
+
+  const latestRevision = artifact.revisions[0] ?? null;
+  return [
+    artifact.provenance.label,
+    artifact.provenance.generatedContentPrivate ? "Participant-only readback" : "Private boundary unclear",
+    artifact.publication.public ? "Public" : "No public generated route",
+    artifact.approvals.exactTextApprovalRequired ? "Exact-text approval ledger required" : "Approval boundary unclear",
+    latestRevision?.approvals.bothParticipantsApproved
+      ? "Both participants approved latest exact digest"
+      : "Both participants must approve the same digest",
+    artifact.provenance.pr516AutoReuse ? "Preview auto-reuse unclear" : "PR516 disposable preview is not automatically reused",
+    artifact.lifecycleStatus === "active" ? "Artifact active" : `Artifact ${artifact.lifecycleStatus}`,
+    artifact.publication.generatedWordsPublished ? "Generated words published" : "No public generated words",
+    "No transcript, public summary, public excerpt, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
   ];
 }
 
@@ -1147,6 +1401,46 @@ export function personaEncounterCrossOwnerPublicExhibitErrorCopy(input: {
       return "Cross-owner public exhibit metadata could not be saved.";
     default:
       return "Cross-owner public exhibit metadata could not be prepared.";
+  }
+}
+
+export function personaEncounterCrossOwnerGeneratedArtifactErrorCopy(input: {
+  status?: number;
+  code?: string;
+  message?: string;
+}) {
+  switch (input.code) {
+    case "persona_encounter_cross_owner_generated_artifact_consent_inactive":
+      return "Active approved consent is required before saving a private generated artifact.";
+    case "persona_encounter_cross_owner_generated_artifact_wrong_scope":
+      return "This consent does not include private generated artifact scope.";
+    case "persona_encounter_cross_owner_generated_artifact_wrong_version":
+      return "This consent uses an unsupported private generated artifact contract version.";
+    case "persona_encounter_cross_owner_generated_artifact_stale_participants":
+      return "This artifact no longer matches the consent participants.";
+    case "persona_encounter_cross_owner_generated_artifact_inactive":
+      return "This private generated artifact is not active.";
+    case "persona_encounter_cross_owner_generated_revision_digest_mismatch":
+      return "Both participants must approve the exact same generated revision digest.";
+    case "persona_encounter_cross_owner_generated_revision_counterparty_required":
+      return "The other participant must approve this exact generated revision.";
+    case "persona_encounter_cross_owner_generated_revision_inactive":
+      return "Only proposed generated revisions can be approved.";
+    case "persona_encounter_cross_owner_generated_revision_stale":
+      return "This generated revision changed and needs a new exact-text proposal.";
+    case "persona_encounter_cross_owner_generated_artifact_save_failed":
+    case "persona_encounter_cross_owner_generated_artifact_load_failed":
+    case "persona_encounter_cross_owner_generated_artifact_retract_failed":
+    case "persona_encounter_cross_owner_generated_artifact_delete_failed":
+    case "persona_encounter_cross_owner_generated_artifact_revoke_failed":
+    case "persona_encounter_cross_owner_generated_revision_save_failed":
+    case "persona_encounter_cross_owner_generated_revision_load_failed":
+    case "persona_encounter_cross_owner_generated_revision_reset_failed":
+    case "persona_encounter_cross_owner_generated_revision_approval_failed":
+    case "persona_encounter_cross_owner_generated_revision_approve_failed":
+      return "Cross-owner private generated artifact workflow could not be saved.";
+    default:
+      return "Cross-owner private generated artifact workflow could not be prepared.";
   }
 }
 

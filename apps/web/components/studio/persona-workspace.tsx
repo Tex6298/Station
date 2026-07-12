@@ -21,9 +21,11 @@ import {
   personaEncounterCrossOwnerConsentActionPath,
   personaEncounterCrossOwnerConsentActionPayload,
   personaEncounterCrossOwnerConsentAvailableActions,
+  personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact,
   personaEncounterCrossOwnerConsentCanRun,
   personaEncounterCrossOwnerConsentCreateByPublicSlugPayload,
   personaEncounterCrossOwnerConsentDisplay,
+  personaEncounterCrossOwnerConsentGeneratedArtifactsPath,
   personaEncounterCrossOwnerConsentInvitationErrorCopy,
   personaEncounterCrossOwnerConsentLedgerBoundaryReadback,
   personaEncounterCrossOwnerConsentStateCopy,
@@ -33,6 +35,15 @@ import {
   personaEncounterCrossOwnerDisposablePreviewPayload,
   personaEncounterCrossOwnerDisposablePreviewReadback,
   personaEncounterCrossOwnerDisposablePreviewReady,
+  personaEncounterCrossOwnerGeneratedArtifactErrorCopy,
+  personaEncounterCrossOwnerGeneratedArtifactPath,
+  personaEncounterCrossOwnerGeneratedArtifactPayload,
+  personaEncounterCrossOwnerGeneratedArtifactRetractPath,
+  personaEncounterCrossOwnerGeneratedArtifactRevisionsPath,
+  personaEncounterCrossOwnerGeneratedRevisionApprovalPayload,
+  personaEncounterCrossOwnerGeneratedRevisionApprovePath,
+  personaEncounterCrossOwnerGeneratedRevisionPayload,
+  personaEncounterCrossOwnerPrivateGeneratedArtifactReadback,
   personaEncounterPrivateSessionCurationPath,
   personaEncounterPrivateSessionCurationPayload,
   personaEncounterPrivateSessionPublicExhibitPath,
@@ -54,6 +65,11 @@ import {
   type PersonaEncounterCrossOwnerConsentPublicTargetResponse,
   type PersonaEncounterCrossOwnerConsentResponse,
   type PersonaEncounterCrossOwnerDisposablePreviewResponse,
+  type PersonaEncounterCrossOwnerGeneratedArtifactDeleteResponse,
+  type PersonaEncounterCrossOwnerGeneratedArtifactListResponse,
+  type PersonaEncounterCrossOwnerGeneratedArtifactReadback,
+  type PersonaEncounterCrossOwnerGeneratedArtifactResponse,
+  type PersonaEncounterCrossOwnerGeneratedRevisionResponse,
   type PersonaEncounterPublicExhibitResponse,
   type PersonaEncounterPrivateSession,
   type PersonaEncounterPrivateSessionDeleteResponse,
@@ -623,6 +639,13 @@ export function CrossOwnerDisposablePreviewPanel({
   const [inviteMessage, setInviteMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
+  const [generatedArtifacts, setGeneratedArtifacts] = useState<PersonaEncounterCrossOwnerGeneratedArtifactReadback[]>([]);
+  const [generatedArtifactLoading, setGeneratedArtifactLoading] = useState(false);
+  const [generatedArtifactBusyId, setGeneratedArtifactBusyId] = useState<string | null>(null);
+  const [generatedArtifactError, setGeneratedArtifactError] = useState<string | null>(null);
+  const [artifactTitle, setArtifactTitle] = useState("");
+  const [revisionTitle, setRevisionTitle] = useState("");
+  const [revisionBody, setRevisionBody] = useState("");
   const targetPath = personaEncounterCrossOwnerConsentTargetPath(targetInput);
   const ledgerBoundary = personaEncounterCrossOwnerConsentLedgerBoundaryReadback();
 
@@ -647,6 +670,12 @@ export function CrossOwnerDisposablePreviewPanel({
   const readback = personaEncounterCrossOwnerDisposablePreviewReadback(preview);
   const setupReadback = preview ? readback.slice(0, 4) : readback;
   const consentStateCopy = personaEncounterCrossOwnerConsentStateCopy(selectedConsent);
+  const selectedCanSaveGeneratedArtifact = selectedConsent
+    ? personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(selectedConsent)
+    : false;
+  const selectedGeneratedArtifactConsentId =
+    selectedConsent && selectedCanSaveGeneratedArtifact ? selectedConsent.id : "";
+  const generatedArtifactReadback = personaEncounterCrossOwnerPrivateGeneratedArtifactReadback(generatedArtifacts[0]);
 
   const refreshConsents = useCallback(async () => {
     if (!token) {
@@ -689,9 +718,42 @@ export function CrossOwnerDisposablePreviewPanel({
     void refreshConsents();
   }, [refreshConsents]);
 
+  const refreshGeneratedArtifacts = useCallback(async () => {
+    if (!token || !selectedGeneratedArtifactConsentId) {
+      setGeneratedArtifacts([]);
+      setGeneratedArtifactLoading(false);
+      return;
+    }
+
+    setGeneratedArtifactLoading(true);
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiGet<PersonaEncounterCrossOwnerGeneratedArtifactListResponse>(
+        personaEncounterCrossOwnerConsentGeneratedArtifactsPath(selectedGeneratedArtifactConsentId),
+        token,
+      );
+      setGeneratedArtifacts(response.artifacts ?? []);
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner private generated artifacts could not be loaded.");
+      }
+    } finally {
+      setGeneratedArtifactLoading(false);
+    }
+  }, [selectedGeneratedArtifactConsentId, token]);
+
+  useEffect(() => {
+    void refreshGeneratedArtifacts();
+  }, [refreshGeneratedArtifacts]);
+
   useEffect(() => {
     setPreview(null);
     setRunError(null);
+    setGeneratedArtifactError(null);
+    setRevisionTitle("");
+    setRevisionBody("");
   }, [selectedConsentId]);
 
   async function loadTarget() {
@@ -734,6 +796,7 @@ export function CrossOwnerDisposablePreviewPanel({
         personaEncounterCrossOwnerConsentCreateByPublicSlugPayload({
           requesterPersonaId: persona.id,
           counterpartyPublicSlug: target.publicSlug,
+          requestedScopes: ["run_cross_owner_encounter", "save_private_cross_owner_artifact"],
         }),
         token,
       );
@@ -812,6 +875,152 @@ export function CrossOwnerDisposablePreviewPanel({
       }
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function saveGeneratedArtifact() {
+    if (!token || !selectedConsent || !preview || generatedArtifactBusyId) return;
+    const title = artifactTitle.trim() || `${persona.name} generated artifact`;
+    setGeneratedArtifactBusyId("save");
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiPost<PersonaEncounterCrossOwnerGeneratedArtifactResponse>(
+        personaEncounterCrossOwnerConsentGeneratedArtifactsPath(selectedConsent.id),
+        personaEncounterCrossOwnerGeneratedArtifactPayload({
+          title,
+          body: preview.preview.reply.content,
+          excerpt: preview.preview.reply.content.slice(0, 300),
+        }),
+        token,
+      );
+      setGeneratedArtifacts((current) => [
+        response.artifact,
+        ...current.filter((artifact) => artifact.artifactSlug !== response.artifact.artifactSlug),
+      ]);
+      setArtifactTitle("");
+      await refreshGeneratedArtifacts();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner private generated artifact could not be saved.");
+      }
+    } finally {
+      setGeneratedArtifactBusyId(null);
+    }
+  }
+
+  async function proposeGeneratedRevision(artifact: PersonaEncounterCrossOwnerGeneratedArtifactReadback) {
+    if (!token || generatedArtifactBusyId || !revisionTitle.trim() || !revisionBody.trim()) return;
+    const busyId = `${artifact.artifactSlug}:revision`;
+    setGeneratedArtifactBusyId(busyId);
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiPost<PersonaEncounterCrossOwnerGeneratedRevisionResponse>(
+        personaEncounterCrossOwnerGeneratedArtifactRevisionsPath(artifact.artifactSlug),
+        personaEncounterCrossOwnerGeneratedRevisionPayload({
+          title: revisionTitle,
+          body: revisionBody,
+          excerpt: revisionBody.slice(0, 300),
+        }),
+        token,
+      );
+      setGeneratedArtifacts((current) => current.map((candidate) =>
+        candidate.artifactSlug === artifact.artifactSlug
+          ? { ...candidate, revisions: [response.revision, ...candidate.revisions] }
+          : candidate
+      ));
+      setRevisionTitle("");
+      setRevisionBody("");
+      await refreshGeneratedArtifacts();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner exact-text revision could not be saved.");
+      }
+    } finally {
+      setGeneratedArtifactBusyId(null);
+    }
+  }
+
+  async function approveGeneratedRevision(revisionSlug: string, revisionDigest: string) {
+    if (!token || generatedArtifactBusyId) return;
+    const busyId = `${revisionSlug}:approve`;
+    setGeneratedArtifactBusyId(busyId);
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiPatch<PersonaEncounterCrossOwnerGeneratedRevisionResponse>(
+        personaEncounterCrossOwnerGeneratedRevisionApprovePath(revisionSlug),
+        personaEncounterCrossOwnerGeneratedRevisionApprovalPayload({ revisionDigest }),
+        token,
+      );
+      setGeneratedArtifacts((current) => current.map((artifact) => ({
+        ...artifact,
+        revisions: artifact.revisions.map((revision) =>
+          revision.revisionSlug === response.revision.revisionSlug ? response.revision : revision
+        ),
+      })));
+      await refreshGeneratedArtifacts();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner exact-text approval could not be saved.");
+      }
+    } finally {
+      setGeneratedArtifactBusyId(null);
+    }
+  }
+
+  async function retractGeneratedArtifact(artifactSlug: string) {
+    if (!token || generatedArtifactBusyId) return;
+    const busyId = `${artifactSlug}:retract`;
+    setGeneratedArtifactBusyId(busyId);
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiPatch<PersonaEncounterCrossOwnerGeneratedArtifactResponse>(
+        personaEncounterCrossOwnerGeneratedArtifactRetractPath(artifactSlug),
+        {},
+        token,
+      );
+      setGeneratedArtifacts((current) => current.map((artifact) =>
+        artifact.artifactSlug === response.artifact.artifactSlug ? response.artifact : artifact
+      ));
+      await refreshGeneratedArtifacts();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner private generated artifact could not be retracted.");
+      }
+    } finally {
+      setGeneratedArtifactBusyId(null);
+    }
+  }
+
+  async function deleteGeneratedArtifact(artifactSlug: string) {
+    if (!token || generatedArtifactBusyId) return;
+    const busyId = `${artifactSlug}:delete`;
+    setGeneratedArtifactBusyId(busyId);
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiDelete<PersonaEncounterCrossOwnerGeneratedArtifactDeleteResponse>(
+        personaEncounterCrossOwnerGeneratedArtifactPath(artifactSlug),
+        token,
+      );
+      setGeneratedArtifacts((current) => current.map((artifact) =>
+        artifact.artifactSlug === response.artifact.artifactSlug ? response.artifact : artifact
+      ));
+      await refreshGeneratedArtifacts();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner private generated artifact could not be deleted.");
+      }
+    } finally {
+      setGeneratedArtifactBusyId(null);
     }
   }
 
@@ -1077,6 +1286,186 @@ export function CrossOwnerDisposablePreviewPanel({
                   </span>
                 ))}
               </div>
+            </article>
+          )}
+
+          {selectedConsent && selectedCanSaveGeneratedArtifact && (
+            <article className="studio-context-panel">
+              <div className="section-label">Private generated artifact ledger</div>
+              <h3>Participant-only generated material</h3>
+              <p>Explicit save only. Disposable preview text is not reused unless you save it here.</p>
+
+              <div className="studio-encounter-artifact-tags">
+                {generatedArtifactReadback.map((item) => (
+                  <span key={item}>
+                    <strong>{item}</strong>
+                  </span>
+                ))}
+              </div>
+
+              {preview ? (
+                <div className="studio-stack">
+                  <label>
+                    <span className="section-label">Private artifact title</span>
+                    <input
+                      className="input"
+                      value={artifactTitle}
+                      onChange={(event) => setArtifactTitle(event.target.value)}
+                      maxLength={140}
+                      disabled={generatedArtifactBusyId !== null}
+                      placeholder={`${persona.name} generated artifact`}
+                      style={{ margin: "0.35rem 0 0" }}
+                    />
+                  </label>
+                  <div className="studio-runtime-query">
+                    <button
+                      className="button secondary"
+                      type="button"
+                      onClick={saveGeneratedArtifact}
+                      disabled={generatedArtifactBusyId !== null}
+                    >
+                      {generatedArtifactBusyId === "save" ? "Saving..." : "Save private generated artifact"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="studio-empty">Generate a private disposable preview before explicitly saving generated text.</div>
+              )}
+
+              {generatedArtifactError && <div className="space-form-error">{generatedArtifactError}</div>}
+
+              {generatedArtifactLoading ? (
+                <div className="studio-empty">Loading private generated artifacts.</div>
+              ) : generatedArtifacts.length === 0 ? (
+                <div className="studio-empty">No private generated artifacts are saved for this consent.</div>
+              ) : (
+                <div className="studio-stack">
+                  {generatedArtifacts.map((artifact) => {
+                    const latestRevision = artifact.revisions[0] ?? null;
+                    return (
+                      <div className="studio-published-row" key={artifact.artifactSlug}>
+                        <div className="section-label">Private generated artifact</div>
+                        <div>
+                          <strong>{artifact.title ?? artifact.artifactSlug}</strong>
+                        </div>
+                        {artifact.body && <p>{artifact.body}</p>}
+                        <div className="studio-encounter-artifact-tags">
+                          <span>
+                            <strong>Status: {artifact.lifecycleStatus}</strong>
+                          </span>
+                          <span>
+                            <strong>Participant role: {artifact.participantRole ?? "participant"}</strong>
+                          </span>
+                          <span>
+                            <strong>{artifact.provenance.label}</strong>
+                          </span>
+                          <span>
+                            <strong>{artifact.publication.note}</strong>
+                          </span>
+                        </div>
+
+                        {artifact.lifecycleStatus === "active" && (
+                          <div className="studio-stack">
+                            <label>
+                              <span className="section-label">Exact final-text title</span>
+                              <input
+                                className="input"
+                                value={revisionTitle}
+                                onChange={(event) => setRevisionTitle(event.target.value)}
+                                maxLength={140}
+                                disabled={generatedArtifactBusyId !== null}
+                                placeholder={artifact.title ?? "Exact final-text proposal"}
+                                style={{ margin: "0.35rem 0 0" }}
+                              />
+                            </label>
+                            <label>
+                              <span className="section-label">Exact final-text body</span>
+                              <textarea
+                                className="textarea"
+                                value={revisionBody}
+                                onChange={(event) => setRevisionBody(event.target.value)}
+                                maxLength={8000}
+                                disabled={generatedArtifactBusyId !== null}
+                                placeholder="Paste the exact private text both participants must approve."
+                                style={{ margin: "0.35rem 0 0", minHeight: 110 }}
+                              />
+                            </label>
+                            <div className="studio-runtime-query">
+                              <button
+                                className="button secondary"
+                                type="button"
+                                onClick={() => proposeGeneratedRevision(artifact)}
+                                disabled={generatedArtifactBusyId !== null || !revisionTitle.trim() || !revisionBody.trim()}
+                              >
+                                {generatedArtifactBusyId === `${artifact.artifactSlug}:revision`
+                                  ? "Saving..."
+                                  : "Propose exact text"}
+                              </button>
+                              <button
+                                className="button secondary"
+                                type="button"
+                                onClick={() => retractGeneratedArtifact(artifact.artifactSlug)}
+                                disabled={generatedArtifactBusyId !== null}
+                              >
+                                {generatedArtifactBusyId === `${artifact.artifactSlug}:retract`
+                                  ? "Retracting..."
+                                  : "Retract"}
+                              </button>
+                              <button
+                                className="button secondary"
+                                type="button"
+                                onClick={() => deleteGeneratedArtifact(artifact.artifactSlug)}
+                                disabled={generatedArtifactBusyId !== null}
+                              >
+                                {generatedArtifactBusyId === `${artifact.artifactSlug}:delete`
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {latestRevision ? (
+                          <div className="studio-stack">
+                            <div className="section-label">Latest exact-text revision</div>
+                            <p>{latestRevision.title ?? latestRevision.revisionSlug}</p>
+                            <div className="studio-encounter-artifact-tags">
+                              <span>
+                                <strong>Status: {latestRevision.status}</strong>
+                              </span>
+                              <span>
+                                <strong>Requester approved: {latestRevision.approvals.requesterApproved ? "yes" : "no"}</strong>
+                              </span>
+                              <span>
+                                <strong>Counterparty approved: {latestRevision.approvals.counterpartyApproved ? "yes" : "no"}</strong>
+                              </span>
+                              <span>
+                                <strong>{latestRevision.publication.note}</strong>
+                              </span>
+                            </div>
+                            {latestRevision.status === "proposed" && !latestRevision.approvals.currentUserApproved && (
+                              <div className="studio-runtime-query">
+                                <button
+                                  className="button secondary"
+                                  type="button"
+                                  onClick={() => approveGeneratedRevision(latestRevision.revisionSlug, latestRevision.textDigest)}
+                                  disabled={generatedArtifactBusyId !== null}
+                                >
+                                  {generatedArtifactBusyId === `${latestRevision.revisionSlug}:approve`
+                                    ? "Approving..."
+                                    : "Approve exact digest"}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="studio-empty">No exact-text revision has been proposed for this artifact.</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </article>
           )}
         </>

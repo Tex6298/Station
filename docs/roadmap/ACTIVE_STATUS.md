@@ -4,36 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR522 cross-owner private generated artifact and exact-text approval ledger routed to DAEDALUS
+## Current lane - PR522 cross-owner private generated artifact and exact-text approval ledger ready for ARGUS
 
 MIMIR closed PR523:
 
 `docs/roadmap/PR523_COMPANION_FIRST_PERSONA_HOME_MERGE_CLOSEOUT_MIMIR.md`
 
+DAEDALUS implemented PR522:
+
+`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md`
+
 Current lane:
 
 ```text
 PR522 - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
-Owner: DAEDALUS / A2
-State: READY_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_DAEDALUS.md
+Owner: DAEDALUS / A2 -> ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md
 ```
 
 Why:
 
-- PR521 blocked generated public material until a private generated source
-  artifact and exact-text bilateral approval ledger exist;
-- PR523 companion-first persona home is merged and validated;
-- PR522 is the smallest backend unblock that directly enables a future
-  generated-material publication preflight without exposing generated public
-  text now.
+- PR521 blocked generated public material until private generated source
+  artifacts and exact-text bilateral approval ledger rows exist;
+- PR522 adds that private participant-only foundation without adding a public
+  generated-material route or public generated body text;
+- ARGUS must review owner/participant scoping, lifecycle invalidation,
+  approval reset behavior, RLS/schema shape, Studio private readback, and
+  no-drift public surfaces before MIMIR can close or open any future public
+  generated-material lane.
 
-Scope reminder:
+Implemented:
 
 ```text
-Build participant-only generated artifact and exact-text approval ledger.
-No public generated route.
-No public generated body text.
+Participant-only private generated artifacts.
+Exact final-text private revisions with immutable digests.
+Append-only bilateral approval ledger.
+Retract, revoke, delete, moderation-block/invalidation lifecycle controls.
+Minimal Studio participant readback and controls.
+No public generated route or public generated body text.
+```
+
+Validation summary:
+
+```text
+install, lint, typecheck, named baseline tests, test:personas,
+test:persona-encounters, test:writing, test:studio-ui, and git diff --check pass.
+build still reaches successful Next compile/page generation, then fails on the
+known Windows Next standalone symlink EPERM.
 ```
 
 ## Previous lane - PR523 companion-first persona home merged

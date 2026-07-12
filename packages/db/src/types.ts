@@ -76,6 +76,20 @@ export type SocialPlatform = "bluesky" | "mastodon" | "tumblr" | "linkedin" | "w
 export type SocialPostStatus = "pending" | "sent" | "failed" | "scheduled";
 export type PersonaEncounterPublicExhibitStatus = "published" | "retracted" | "removed";
 export type PersonaEncounterCrossOwnerPublicExhibitStatus = "proposed" | "published" | "retracted" | "removed";
+export type PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus =
+  | "active"
+  | "retracted"
+  | "revoked"
+  | "deleted"
+  | "moderation_blocked";
+export type PersonaEncounterCrossOwnerGeneratedRevisionStatus =
+  | "proposed"
+  | "approved"
+  | "retracted"
+  | "revoked"
+  | "deleted"
+  | "moderation_blocked"
+  | "invalidated";
 export type PersonaEncounterCrossOwnerConsentStatus =
   | "pending"
   | "approved"
@@ -718,6 +732,118 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_public_exhibits"]["Insert"]>;
+      };
+      persona_encounter_cross_owner_generated_artifacts: {
+        Row: {
+          id: string;
+          consent_id: string;
+          requester_owner_user_id: string;
+          requester_persona_id: string;
+          requester_persona_name_snapshot: string;
+          counterparty_owner_user_id: string;
+          counterparty_persona_id: string;
+          counterparty_persona_name_snapshot: string;
+          artifact_slug: string;
+          private_title: string;
+          private_body: string;
+          private_excerpt: string | null;
+          generated_content_digest: string;
+          lifecycle_status: PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus;
+          contract_version: 1;
+          provenance_schema: "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+          retracted_at: string | null;
+          revoked_at: string | null;
+          deleted_at: string | null;
+          moderation_blocked_at: string | null;
+          created_by: string;
+          updated_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_artifacts"]["Row"], "id" | "private_excerpt" | "lifecycle_status" | "contract_version" | "provenance_schema" | "retracted_at" | "revoked_at" | "deleted_at" | "moderation_blocked_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          private_excerpt?: string | null;
+          lifecycle_status?: PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus;
+          contract_version?: 1;
+          provenance_schema?: "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+          retracted_at?: string | null;
+          revoked_at?: string | null;
+          deleted_at?: string | null;
+          moderation_blocked_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_artifacts"]["Insert"]>;
+      };
+      persona_encounter_cross_owner_generated_revisions: {
+        Row: {
+          id: string;
+          artifact_id: string;
+          consent_id: string;
+          revision_slug: string;
+          final_title: string;
+          final_body: string;
+          final_excerpt: string | null;
+          text_digest: string;
+          source_artifact_digest: string;
+          requester_persona_name_snapshot: string;
+          counterparty_persona_name_snapshot: string;
+          consent_requested_scope_version: number;
+          consent_requested_scopes: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          status: PersonaEncounterCrossOwnerGeneratedRevisionStatus;
+          contract_version: 1;
+          approval_contract_version: 1;
+          provenance_schema: "station.persona_encounter.cross_owner_generated_revision.v1";
+          proposed_at: string;
+          approved_at: string | null;
+          retracted_at: string | null;
+          revoked_at: string | null;
+          deleted_at: string | null;
+          moderation_blocked_at: string | null;
+          invalidated_at: string | null;
+          created_by: string;
+          updated_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_revisions"]["Row"], "id" | "final_excerpt" | "consent_requested_scopes" | "status" | "contract_version" | "approval_contract_version" | "provenance_schema" | "proposed_at" | "approved_at" | "retracted_at" | "revoked_at" | "deleted_at" | "moderation_blocked_at" | "invalidated_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          final_excerpt?: string | null;
+          consent_requested_scopes?: PersonaEncounterCrossOwnerConsentRequestedScope[];
+          status?: PersonaEncounterCrossOwnerGeneratedRevisionStatus;
+          contract_version?: 1;
+          approval_contract_version?: 1;
+          provenance_schema?: "station.persona_encounter.cross_owner_generated_revision.v1";
+          proposed_at?: string;
+          approved_at?: string | null;
+          retracted_at?: string | null;
+          revoked_at?: string | null;
+          deleted_at?: string | null;
+          moderation_blocked_at?: string | null;
+          invalidated_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_revisions"]["Insert"]>;
+      };
+      persona_encounter_cross_owner_generated_revision_approvals: {
+        Row: {
+          id: string;
+          revision_id: string;
+          artifact_id: string;
+          consent_id: string;
+          participant_role: PersonaEncounterCrossOwnerRuntimeParticipantRole;
+          approver_owner_user_id: string;
+          revision_digest: string;
+          approval_contract_version: 1;
+          approved_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_revision_approvals"]["Row"], "id" | "approval_contract_version" | "approved_at"> & {
+          id?: string;
+          approval_contract_version?: 1;
+          approved_at?: string;
+        };
+        Update: never;
       };
       public_persona_interaction_counters: {
         Row: {
