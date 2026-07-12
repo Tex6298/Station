@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR524 | Cross-Owner Generated Material Publication Contract Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted as `ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT`; PR524A must be a dedicated detail-only public generated-material contract derived solely from active PR522 artifacts and exact bilaterally approved revisions, with no metadata-only route extension or broad placement. | `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md` |
+| PR524A | Cross-Owner Generated Material Publication Contract | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Ready for DAEDALUS implementation as a dedicated detail-only generated-material public contract derived solely from PR522 exact approved revisions; broad placement remains blocked. | `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR524 closeout | Cross-Owner Generated Material Publication Contract Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_ACCEPTED`; ARGUS accepted PR524A as a narrow detail-only generated-material contract and required ARIADNE hosted proof after local acceptance. | `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_CLOSEOUT.md` |
 | PR522 closeout | Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ACCEPTED`; PR521's private generated artifact/exact-text approval blocker is removed, while public generated route/body text remains blocked pending PR524. | `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_CLOSEOUT.md` |
 | PR523 merge | Companion-First Persona Home | MIMIR -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR523_COMPANION_FIRST_PERSONA_HOME_MERGED`; draft PR #1 was merged into main at `4ba3e489`, and merged validation passed. | `docs/roadmap/PR523_COMPANION_FIRST_PERSONA_HOME_MERGE_CLOSEOUT_MIMIR.md` |
 | PR523B rehearsal | Companion-First Persona Home Draft PR #1 Human Rehearsal | MIMIR -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Accepted as `ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION`; desktop/mobile companion home, mobile nav, thread URL selection, rapid route switching, provider setup state, archived read-only state, Memory Inbox, Advanced Studio, and public no-drift passed. | `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md` |

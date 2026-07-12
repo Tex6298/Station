@@ -4,23 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR524 cross-owner generated material publication contract preflight accepted by ARGUS
+## Current lane - PR524A cross-owner generated material publication contract routed to DAEDALUS
 
-MIMIR closed PR522:
+MIMIR closed PR524 preflight:
 
-`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_CLOSEOUT.md`
-
-ARGUS completed PR524 preflight:
-
-`docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md`
+`docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_CLOSEOUT.md`
 
 Current lane:
 
 ```text
-PR524 - Cross-Owner Generated Material Publication Contract Preflight
-Owner: ARGUS / A3 -> MIMIR / A1
-State: ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT
-Source: docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md
+PR524A - Cross-Owner Generated Material Publication Contract
+Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
+State: READY_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_DAEDALUS.md
 ```
 
 Why:
@@ -32,7 +28,19 @@ Why:
 - ARGUS accepts PR524A only as a dedicated, detail-only generated-material
   publication contract derived from active PR522 artifacts and exact
   bilaterally approved revisions;
-- MIMIR must close PR524 if accepted and route DAEDALUS to PR524A.
+- DAEDALUS may implement that narrow contract but must not broaden placement or
+  reuse metadata-only exhibit routes.
+
+Required shape:
+
+```text
+New publish_exact_generated_revision consent scope.
+Dedicated generated-publication table/audit/route.
+Public detail API and minimal public detail web page only.
+Public body copied server-side from the exact approved PR522 revision.
+Report, moderation remove/restore, participant retract/delete lifecycle.
+Hosted ARIADNE proof after ARGUS local acceptance.
+```
 
 Still blocked by default:
 
@@ -44,6 +52,30 @@ writing/homepage placement, public persona chat/context-preview source
 expansion, provider/retrieval/vector/storage/billing/Redis/Cloudflare/queue/
 deployment/package/broad UI work.
 ```
+
+## Previous lane - PR524 cross-owner generated material publication contract preflight accepted
+
+ARGUS accepted PR524:
+
+`docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_RESULT.md`
+
+Completed lane:
+
+```text
+PR524 - Cross-Owner Generated Material Publication Contract Preflight
+Owner: ARGUS / A3 -> MIMIR / A1
+State: CLOSE_PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_ACCEPTED
+Source: docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_CLOSEOUT.md
+```
+
+ARGUS verdict:
+
+- DAEDALUS may implement PR524A as the first public generated-material
+  contract;
+- the lane must be dedicated and detail-only, derived solely from active PR522
+  private artifacts and exact bilaterally approved revisions;
+- metadata-only exhibits remain metadata-only;
+- ARIADNE hosted proof is required after local acceptance.
 
 ## Previous lane - PR522 cross-owner private generated artifact and exact-text approval ledger closed
 
