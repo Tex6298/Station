@@ -60,7 +60,7 @@ test("companion home context rail count labels stay aggregate and bounded", () =
   assert.equal(rail.stops.find((stop) => stop.label === "Archive/files")?.countLabel, "2 files / 1 archived chat");
   assert.equal(rail.stops.find((stop) => stop.label === "Integrity")?.countLabel, "0 integrity sessions");
   assert.match(rail.boundaryCopy, /Owner-only continuity map with aggregate counts/);
-  assert.match(rail.boundaryCopy, /Runtime Context Preview/);
+  assert.match(rail.boundaryCopy, /Advanced Studio/);
   assert.doesNotMatch(rendered, /pending-only|source=all|\/conversations\/candidates\/inbox/i);
 });
 
@@ -78,43 +78,43 @@ test("companion home context rail falls back without inventing context state", (
   assert.equal(rail.stops.find((stop) => stop.label === "Profile")?.countLabel, "Owner settings");
 });
 
-test("persona home renders context rail beside chat without PersonaChat drift", () => {
+test("persona home puts the focused conversation shell before Advanced Studio", () => {
   const page = readFileSync("apps/web/app/studio/personas/[personaId]/page.tsx", "utf8");
+  const layout = readFileSync("apps/web/app/studio/layout.tsx", "utf8");
 
   assert.match(page, /import \{ companionHomeContextRail \} from "@\/lib\/companion-home-context"/);
   assert.match(page, /<CompanionHomeContextRail persona=\{persona\} \/>/);
-  assert.match(page, /<PersonaChat personaId=\{persona\.id\} personaName=\{persona\.name\} \/>/);
-  assert.match(page, /className="studio-home-grid"/);
+  assert.match(page, /<PersonaChat/);
+  assert.match(page, /selectedConversationId=\{target\.id\}/);
+  assert.match(page, /onConversationCreated=\{conversationCreated\}/);
+  assert.match(page, /data-studio-shell="companion"/);
+  assert.match(page, /<PersonaCompanionSidebar/);
   assert.match(page, /aria-label="Companion context rail"/);
-  assert.equal(page.includes("Companion Home"), true);
+  assert.match(page, /<strong>Advanced Studio<\/strong>/);
+  assert.match(layout, /isExactPersonaHomeRoute\(pathname\)/);
+  assert.match(layout, /data-studio-shell="workbench"/);
 
-  const headerIndex = page.indexOf("<PersonaWorkspaceHeader persona={persona} />");
-  const homeIndex = page.indexOf('<section className="studio-home-grid">');
+  const headerIndex = page.indexOf('<header className="studio-companion-header"');
+  const chatIndex = page.indexOf("<PersonaChat");
+  const advancedIndex = page.indexOf('<details className="studio-companion-advanced"');
   const continuityIndex = page.indexOf("<ContinuityCards persona={persona} />");
   const publicReadbackIndex = page.indexOf("<PublicInteractionReadback persona={persona} />");
 
   assert.equal(headerIndex > -1, true);
-  assert.equal(homeIndex > headerIndex, true);
-  assert.equal(continuityIndex > homeIndex, true);
-  assert.equal(publicReadbackIndex > homeIndex, true);
-  assert.doesNotMatch(
-    page,
-    /useSearchParams|URLSearchParams|\?c=|source=all|\/conversations\/candidates\/inbox|StudioRightPanel|sendPersonaChatWithStream|provider payload|compiled prompt/i,
-  );
+  assert.equal(chatIndex > headerIndex, true);
+  assert.equal(advancedIndex > chatIndex, true);
+  assert.equal(continuityIndex > advancedIndex, true);
+  assert.equal(publicReadbackIndex > advancedIndex, true);
+  assert.doesNotMatch(page, /<PersonaWorkspaceHeader/);
 });
 
-test("companion context rail CSS stays scoped", () => {
+test("companion shell CSS stays scoped and retains mobile first-viewport rules", () => {
   const css = readFileSync("apps/web/app/globals.css", "utf8");
-  const selectors = css
-    .split("}")
-    .map((block) => block.split("{")[0]?.trim() ?? "")
-    .filter((selector) => selector.includes(".studio-companion-context"));
-
-  assert.equal(selectors.length > 6, true);
-  for (const selector of selectors) {
-    for (const part of selector.split(",")) {
-      assert.match(part.trim(), /^\.studio-companion-context/);
-      assert.doesNotMatch(part, /\.studio-frame|\.studio-dashboard|\.studio-sidebar|\.public-persona|\.public-home|\.studio-persona-chat/);
-    }
-  }
+  assert.match(css, /\.studio-companion-shell\s*\{/);
+  assert.match(css, /grid-template-columns: 232px minmax\(0, 1fr\)/);
+  assert.match(css, /@media \(max-width: 960px\)/);
+  assert.match(css, /\.studio-companion-mobile-nav/);
+  assert.match(css, /height: max\(340px, calc\(100dvh - 307px\)\)/);
+  assert.match(css, /@media \(max-width: 390px\)/);
+  assert.doesNotMatch(css, /\.public-persona[^,{]*\.studio-companion|\.studio-companion[^,{]*\.public-persona/);
 });

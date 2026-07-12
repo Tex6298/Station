@@ -88,6 +88,10 @@ const candidateListSchema = z.object({
   source: z.enum(["import", "all"]).default("import"),
 });
 
+const conversationReadSchema = z.object({
+  personaId: z.string().min(1).max(128).optional(),
+});
+
 const CONVERSATION_ERROR_RESPONSES = {
   list: {
     error: "Could not load conversations.",
@@ -863,22 +867,32 @@ conversationsRouter.get("/persona/:personaId/candidates", async (req, res) => {
     .from("personas")
     .select("id, owner_user_id")
     .eq("id", personaId)
+    .eq("owner_user_id", userId)
     .single();
 
   if (personaError || !persona) return res.status(404).json({ error: "Persona not found." });
-  if (persona.owner_user_id !== userId) return res.status(403).json({ error: "Not your persona." });
 
-  const { data, error } = await sb
+  let candidateQuery = sb
     .from("continuity_candidates")
     .select("*")
     .eq("persona_id", personaId)
-    .eq("owner_user_id", userId)
+    .eq("owner_user_id", userId);
+
+  if (parsed.data.source === "import") {
+    candidateQuery = candidateQuery.eq("source_table", "persona_files");
+  }
+  if (parsed.data.status === "pending") {
+    candidateQuery = candidateQuery.eq("status", "pending");
+  } else if (parsed.data.status === "reviewed") {
+    candidateQuery = candidateQuery.in("status", ["accepted", "rejected"]);
+  }
+
+  const { data, error } = await candidateQuery
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json(CONVERSATION_ERROR_RESPONSES.candidateList);
 
-  const allRows = data ?? [];
-  const rows = filterCandidateRows(allRows, parsed.data);
+  const rows = filterCandidateRows(data ?? [], parsed.data);
   return res.json({
     candidates: rows.map(candidateRow),
     summary: {
@@ -997,15 +1011,23 @@ conversationsRouter.get("/persona/:personaId/archive-retrieval", async (req, res
 
 // -- Get a single conversation with messages -----------------------------------
 conversationsRouter.get("/:conversationId", async (req, res) => {
+  const parsed = conversationReadSchema.safeParse({ personaId: req.query.personaId });
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
   const sb = getSupabaseAdmin();
   const userId = req.user!.id;
 
-  const { data: conv, error } = await sb
+  let conversationQuery = sb
     .from("conversations")
     .select("*")
     .eq("id", req.params.conversationId)
-    .eq("owner_user_id", userId)
-    .single();
+    .eq("owner_user_id", userId);
+
+  if (parsed.data.personaId) {
+    conversationQuery = conversationQuery.eq("persona_id", parsed.data.personaId);
+  }
+
+  const { data: conv, error } = await conversationQuery.single();
 
   if (error || !conv) return res.status(404).json({ error: "Conversation not found." });
 

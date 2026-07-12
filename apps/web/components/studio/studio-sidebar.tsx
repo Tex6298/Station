@@ -8,8 +8,11 @@ import { getSession } from "@/lib/auth";
 import {
   STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
+  filterStudioPersonas,
   studioRouteContext,
+  studioNewChatHref,
   studioPersonaHref,
+  studioPersonaIdFromRoute,
   studioPersonaMeta,
   studioPublicLinks,
   studioWorkspaceLinks,
@@ -99,8 +102,12 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function StudioSidebar() {
   const [personas, setPersonas] = useState<PersonaSummary[]>([]);
+  const [personaFilter, setPersonaFilter] = useState("");
   const pathname = usePathname();
   const currentContext = studioRouteContext(pathname, personas);
+  const activePersonaId = studioPersonaIdFromRoute(pathname);
+  const newChatHref = studioNewChatHref(personas, activePersonaId);
+  const visiblePersonas = filterStudioPersonas(personas, personaFilter);
 
   useEffect(() => {
     getSession().then(async (session) => {
@@ -116,7 +123,7 @@ export function StudioSidebar() {
 
   return (
     <>
-    <StudioMobileNav personas={personas} currentContext={currentContext} />
+    <StudioMobileNav personas={personas} currentContext={currentContext} newChatHref={newChatHref} />
     <aside className="studio-sidebar-desktop">
       <div style={{ padding: "16px 14px 12px", borderBottom: "1px solid #1f2937" }}>
         <Link href="/studio" style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", textDecoration: "none" }}>
@@ -131,16 +138,18 @@ export function StudioSidebar() {
       <div style={{ overflowY: "auto", padding: 12, flex: 1 }}>
         <Link href="/studio/publish" style={publishButton}>Publish</Link>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-          <Link href="/studio" style={smallAction}>New Chat</Link>
+          <Link href={newChatHref} style={smallAction}>New Chat</Link>
           <Link href="/studio/new" style={smallAction}>New Persona</Link>
         </div>
 
         <CurrentPlace context={currentContext} />
 
         <label style={{ display: "block", marginTop: 12 }}>
-          <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>Search personas and chat history</span>
+          <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>Filter personas</span>
           <input
-            placeholder="Search personas, chats..."
+            value={personaFilter}
+            onChange={(event) => setPersonaFilter(event.currentTarget.value)}
+            placeholder="Filter personas..."
             style={{
               width: "100%",
               border: "1px solid #2f3747",
@@ -161,8 +170,11 @@ export function StudioSidebar() {
         <SectionLabel>Personas</SectionLabel>
         <div style={{ display: "grid", gap: 2 }}>
           {personas.length > 0
-            ? personas.map((persona, index) => <PersonaRow key={persona.id} persona={persona} index={index} />)
+            ? visiblePersonas.map((persona, index) => <PersonaRow key={persona.id} persona={persona} index={index} />)
             : <div style={{ color: "#687386", fontSize: 12, padding: "7px 9px" }}>No personas yet.</div>}
+          {personas.length > 0 && visiblePersonas.length === 0
+            ? <div style={{ color: "#687386", fontSize: 12, padding: "7px 9px" }}>No matching personas.</div>
+            : null}
           <NavLink label="Add persona" href="/studio/new" mark="+" />
         </div>
 
@@ -226,9 +238,11 @@ function CurrentPlace({ context }: { context: StudioRouteContext }) {
 function StudioMobileNav({
   personas,
   currentContext,
+  newChatHref,
 }: {
   personas: PersonaSummary[];
   currentContext: StudioRouteContext;
+  newChatHref: string;
 }) {
   return (
     <details className="studio-mobile-nav">
@@ -254,6 +268,7 @@ function StudioMobileNav({
 
         <div className="studio-mobile-nav-grid">
           <MobileNavLink href="/studio" label="Dashboard" />
+          <MobileNavLink href={newChatHref} label="New Chat" />
           <MobileNavLink href="/studio/new" label="New Persona" />
           <MobileNavLink href="/studio/publish" label="Publish" />
           {studioWorkspaceLinks.map((link) => (

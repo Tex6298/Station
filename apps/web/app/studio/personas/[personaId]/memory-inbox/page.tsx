@@ -6,16 +6,16 @@ import { useParams } from "next/navigation";
 import type { ContinuityCandidate } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
-import { importBackedCandidateInboxPath } from "@/lib/import-review";
+import { continuityCandidateInboxPath } from "@/lib/import-review";
 import { ImportReviewInbox } from "@/components/studio/import-review-inbox";
 
 const MEMORY_INBOX_COPY = {
   eyebrow: "Memory Inbox",
-  title: "Import-backed Memory and Canon candidates",
+  title: "Memory and Canon suggestions",
   description:
-    "Review parsed import candidates before they become Memory or Canon. Accept writes edited text; reject keeps the private source preserved.",
+    "Review suggestions from archived conversations and imports before they become Memory or Canon. Accept writes edited text; reject keeps the private source preserved.",
   emptyState:
-    "No import-backed Memory or Canon candidates are waiting. Add source material from the Archive tab; candidates appear here only after Station can safely parse an import.",
+    "No Memory or Canon suggestions are waiting. New suggestions can arrive from imports or archived conversations.",
 };
 
 export default function PersonaMemoryInboxPage() {
@@ -40,7 +40,7 @@ export default function PersonaMemoryInboxPage() {
 
       setToken(session.access_token);
       const data = await apiGet<{ candidates: ContinuityCandidate[] }>(
-        importBackedCandidateInboxPath(personaId),
+        continuityCandidateInboxPath(personaId),
         session.access_token,
       );
       setCandidates(data.candidates ?? []);
@@ -56,7 +56,7 @@ export default function PersonaMemoryInboxPage() {
   }, [loadCandidates]);
 
   async function handleCandidateUpdated(candidate: ContinuityCandidate) {
-    setCandidates((current) => current.map((item) => item.id === candidate.id ? candidate : item));
+    setCandidates((current) => current.filter((item) => item.id !== candidate.id));
   }
 
   if (loading) {
@@ -85,7 +85,7 @@ export default function PersonaMemoryInboxPage() {
         <div className="studio-section-heading">
           <div className="section-label">Owner Review</div>
           <h2>Memory inbox</h2>
-          <p>Import-backed candidates stay pending until you accept edited text into Memory or Canon.</p>
+          <p>Private suggestions stay pending until you accept edited text into Memory or Canon.</p>
         </div>
         <nav className="studio-companion-shortcuts" aria-label="Memory inbox workspace links">
           <Link href={`/studio/personas/${personaId}`} className="studio-companion-shortcut">
@@ -113,6 +113,7 @@ export default function PersonaMemoryInboxPage() {
         sourceCount={candidates.length}
         onCandidateUpdated={handleCandidateUpdated}
         copy={MEMORY_INBOX_COPY}
+        scope="continuity"
       />
     </main>
   );

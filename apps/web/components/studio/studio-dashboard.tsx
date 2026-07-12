@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
-import { studioDashboardMemoryStop } from "@/lib/studio-navigation";
+import { studioDashboardMemoryStop, studioNewChatHref } from "@/lib/studio-navigation";
 import {
   StudioActionRow,
   StudioEmptyState,
@@ -21,6 +21,7 @@ export interface IntegrityDuePersona {
 type StudioDashboardProps = {
   personas: PersonaSummary[];
   integrityDue: IntegrityDuePersona[];
+  integrityAvailable: boolean;
   loading: boolean;
   error: string | null;
   signedIn: boolean;
@@ -34,7 +35,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   gemini: "Gemini",
 };
 
-const archiveEvents = [
+const archiveDestinations = [
   { icon: "O", label: "Choose an onboarding path", detail: "Fresh Start, Awakening, Migrator, or API Bridge", href: "/studio/onboarding" },
   { icon: "A", label: "Open global archive", detail: "Search owner-scoped archived material and import status", href: "/studio/archive" },
   { icon: "E", label: "Export workspace", detail: "Review portable JSON and Markdown export bundles", href: "/studio/export" },
@@ -65,7 +66,7 @@ function Header({ personaCount }: { personaCount: number }) {
         </h1>
         <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6 }}>
           {personaCount > 0
-            ? `${personaCount} persona${personaCount === 1 ? "" : "s"} to tend, recent archive activity to review, and continuity work ready when you are.`
+            ? `${personaCount} persona${personaCount === 1 ? "" : "s"} in your private Studio. Choose one to talk, review Memory, or continue continuity work.`
             : "Set up your first persona, then Studio becomes your private workspace for chat, memory, notes, and publishing."}
         </p>
         <StudioPlaceStrip
@@ -87,10 +88,11 @@ function Header({ personaCount }: { personaCount: number }) {
 
 function ContinueList({ personas }: { personas: PersonaSummary[] }) {
   const rows = personas.slice(0, 3);
+  const newChatHref = studioNewChatHref(personas);
 
   return (
     <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Continue Where You Left Off" action="New Chat" href="/studio/new" />
+      <SectionTitle title="Your companions" action="New Chat" href={newChatHref} />
       {rows.length === 0 ? (
         <EmptyLine text="No conversations yet. Create a persona to begin." />
       ) : (
@@ -105,9 +107,6 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
                     {persona.shortDescription ?? "Open the current thread and continue the conversation."}
                   </div>
                 </div>
-                <span style={{ marginLeft: "auto", color: "#7d8796", fontSize: 12, whiteSpace: "nowrap" }}>
-                  {index === 0 ? "today" : `${index + 1}d ago`}
-                </span>
               </article>
             </Link>
           ))}
@@ -140,24 +139,25 @@ function MemoryOrientation({ personas }: { personas: PersonaSummary[] }) {
   );
 }
 
-function IntegrityList({ personas, integrityDue }: { personas: PersonaSummary[]; integrityDue: IntegrityDuePersona[] }) {
-  const rows = integrityDue.length > 0
-    ? integrityDue
-    : personas.map((persona, index) => ({
-      id: persona.id,
-      name: persona.name,
-      lastSession: null,
-      sessionStatus: index === 0 ? "overdue" as const : index === 1 ? "due_soon" as const : "ok" as const,
-    }));
+function IntegrityList({
+  integrityDue,
+  available,
+}: {
+  integrityDue: IntegrityDuePersona[];
+  available: boolean;
+}) {
+  const dueRows = integrityDue.filter((persona) => persona.sessionStatus !== "ok");
 
   return (
     <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Integrity Sessions Due" action="View All" href="/studio" />
-      {rows.length === 0 ? (
-        <EmptyLine text="Integrity checks appear after you create a persona." />
+      <SectionTitle title="Integrity Sessions Due" />
+      {!available ? (
+        <EmptyLine text="Integrity due status is temporarily unavailable." />
+      ) : dueRows.length === 0 ? (
+        <EmptyLine text="No Integrity Sessions are currently due." />
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
-          {rows.slice(0, 5).map((persona) => {
+          {dueRows.slice(0, 5).map((persona) => {
             const status = integrityStatus(persona.sessionStatus);
             return (
               <article key={persona.id} className="studio-dashboard-row" style={listRow}>
@@ -216,12 +216,12 @@ function UsageStats() {
   );
 }
 
-function ArchiveActivity() {
+function ArchiveAndPortability() {
   return (
     <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Recent Archive Activity" action="Document Migrator" href="/studio/onboarding" />
+      <SectionTitle title="Archive and portability" action="Document Migrator" href="/studio/onboarding" />
       <div style={{ display: "grid", gap: 10 }}>
-        {archiveEvents.map((event) => (
+        {archiveDestinations.map((event) => (
           <Link key={event.label} href={event.href} style={{ textDecoration: "none" }}>
           <article className="studio-dashboard-row" style={listRow}>
             <span style={iconBox}>{event.icon}</span>
@@ -290,7 +290,11 @@ function ColorDot({ index }: { index: number }) {
   return <span style={{ width: 10, height: 10, borderRadius: "50%", background: colors[index % colors.length], flex: "0 0 auto", marginTop: 5 }} />;
 }
 
-export function StudioDashboard({ personas, integrityDue, loading, error, signedIn }: StudioDashboardProps) {
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+export function StudioDashboard({ personas, integrityDue, integrityAvailable, loading, error, signedIn }: StudioDashboardProps) {
   if (loading) {
     return (
       <Shell>
@@ -338,18 +342,14 @@ export function StudioDashboard({ personas, integrityDue, loading, error, signed
         <div className="studio-dashboard-main">
           <ContinueList personas={personas} />
           <MemoryOrientation personas={personas} />
-          <IntegrityList personas={personas} integrityDue={integrityDue} />
+          <IntegrityList integrityDue={integrityDue} available={integrityAvailable} />
           <UsageStats />
-          <ArchiveActivity />
+          <ArchiveAndPortability />
         </div>
         <PersonaOverview personas={personas} />
       </div>
     </Shell>
   );
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
 const panel = {

@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import type { ArchiveExportPackage } from "@station/types/export";
 import type { PersonaSummary } from "@station/types/persona";
 import { getSession } from "@/lib/auth";
 import { apiGet } from "@/lib/api-client";
 import { companionHomeContextRail } from "@/lib/companion-home-context";
+import {
+  personaConversationTarget,
+  type PersonaConversationSummary,
+} from "@/lib/persona-conversations";
 import { personaEncounterContractCanRenderForOwner } from "@/lib/persona-encounter-contract";
-import { studioPersonaCompanionShortcuts } from "@/lib/studio-navigation";
+import {
+  STUDIO_CONVERSATION_QUERY,
+  studioPersonaCompanionShortcuts,
+  studioPersonaConversationHref,
+} from "@/lib/studio-navigation";
 import { ArchiveExportStatus } from "@/components/studio/archive-export-status";
+import { PersonaCompanionSidebar } from "@/components/studio/persona-companion-sidebar";
 import { PersonaChat } from "@/components/studio/persona-chat";
 import { RuntimeContextPreview } from "@/components/studio/runtime-context-preview";
 import {
@@ -19,22 +28,37 @@ import {
   PersonaEncounterContractPanel,
   PersonaEncounterReadinessGate,
   PersonaEncounterRuntimePreview,
-  PersonaWorkspaceHeader,
   PublicInteractionReadback,
   VoiceAvatarReadinessGate,
   type PersonaWithContinuity,
 } from "@/components/studio/persona-workspace";
 
 export default function PersonaPage() {
+  return (
+    <Suspense fallback={<StudioMessage>Opening private companion workspace...</StudioMessage>}>
+      <PersonaPageInner />
+    </Suspense>
+  );
+}
+
+function PersonaPageInner() {
   const { personaId } = useParams<{ personaId: string }>();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const conversationParam = searchParams.get(STUDIO_CONVERSATION_QUERY);
   const [persona, setPersona] = useState<PersonaWithContinuity | null>(null);
   const [ownedPersonas, setOwnedPersonas] = useState<PersonaSummary[]>([]);
+  const [conversations, setConversations] = useState<PersonaConversationSummary[]>([]);
   const [documents, setDocuments] = useState<PublishedContinuityDocument[]>([]);
   const [exportPackages, setExportPackages] = useState<ArchiveExportPackage[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const [viewerUserId, setViewerUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [advancedLoaded, setAdvancedLoaded] = useState(false);
+  const [advancedLoading, setAdvancedLoading] = useState(false);
+  const [advancedError, setAdvancedError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!personaId) return;
@@ -50,17 +74,15 @@ export default function PersonaPage() {
         setToken(session.access_token);
         setViewerUserId(session.user.id);
 
-        const [personaData, personaListData, documentData, exportData] = await Promise.all([
+        const [personaData, personaListData, conversationData] = await Promise.all([
           apiGet<{ persona: PersonaWithContinuity }>(`/personas/${personaId}`, session.access_token),
           apiGet<{ personas: PersonaSummary[] }>("/personas", session.access_token).catch(() => ({ personas: [] })),
-          apiGet<{ documents: PublishedContinuityDocument[] }>(`/documents?personaId=${personaId}`, session.access_token).catch(() => ({ documents: [] })),
-          apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, session.access_token).catch(() => ({ exports: [] })),
+          apiGet<{ conversations: PersonaConversationSummary[] }>(`/conversations/persona/${personaId}`, session.access_token).catch(() => ({ conversations: [] })),
         ]);
         if (!cancelled) {
           setPersona(personaData.persona);
           setOwnedPersonas(personaListData.personas ?? []);
-          setDocuments(documentData.documents ?? []);
-          setExportPackages(exportData.exports ?? []);
+          setConversations(conversationData.conversations ?? []);
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load persona.");
@@ -75,6 +97,45 @@ export default function PersonaPage() {
     };
   }, [personaId]);
 
+  const refreshConversations = useCallback(async () => {
+    if (!token || !personaId) return;
+    try {
+      const data = await apiGet<{ conversations: PersonaConversationSummary[] }>(
+        `/conversations/persona/${personaId}`,
+        token,
+      );
+      setConversations(data.conversations ?? []);
+    } catch {
+      // The active chat remains usable if the navigation list cannot refresh.
+    }
+  }, [personaId, token]);
+
+  const loadAdvanced = useCallback(async () => {
+    if (!token || !personaId || advancedLoaded || advancedLoading) return;
+    setAdvancedLoading(true);
+    setAdvancedError(null);
+    try {
+      const [documentResult, exportResult] = await Promise.all([
+        apiGet<{ documents: PublishedContinuityDocument[] }>(`/documents?personaId=${personaId}`, token)
+          .then((data) => ({ data, failed: false }))
+          .catch(() => ({ data: { documents: [] }, failed: true })),
+        apiGet<{ exports: ArchiveExportPackage[] }>(`/exports/persona/${personaId}`, token)
+          .then((data) => ({ data, failed: false }))
+          .catch(() => ({ data: { exports: [] }, failed: true })),
+      ]);
+      setDocuments(documentResult.data.documents ?? []);
+      setExportPackages(exportResult.data.exports ?? []);
+      setAdvancedLoaded(true);
+      if (documentResult.failed || exportResult.failed) {
+        setAdvancedError("Some publishing or export history is temporarily unavailable. The other Advanced Studio tools remain ready.");
+      }
+    } catch (caught) {
+      setAdvancedError(caught instanceof Error ? caught.message : "Could not load Advanced Studio.");
+    } finally {
+      setAdvancedLoading(false);
+    }
+  }, [advancedLoaded, advancedLoading, personaId, token]);
+
   if (loading) {
     return <StudioMessage>Loading persona workspace...</StudioMessage>;
   }
@@ -83,51 +144,100 @@ export default function PersonaPage() {
     return <StudioMessage tone="error">{error ?? "Persona not found."}</StudioMessage>;
   }
 
+  const activePersonaId = persona.id;
+  const target = personaConversationTarget(conversationParam, conversations);
+
+  function startNewChat() {
+    router.push(studioPersonaConversationHref(activePersonaId, "new"));
+  }
+
+  function conversationCreated(conversationId: string) {
+    router.replace(studioPersonaConversationHref(activePersonaId, conversationId));
+    void refreshConversations();
+  }
+
+  function advancedToggled(event: React.SyntheticEvent<HTMLDetailsElement>) {
+    const open = event.currentTarget.open;
+    setAdvancedOpen(open);
+    if (open) void loadAdvanced();
+  }
+
   return (
-    <main className="container studio-workspace">
-      <div className="studio-breadcrumb">
-        <Link href="/studio">Studio</Link>
-        <span>/</span>
-        <span>{persona.name}</span>
-      </div>
-
-      <PersonaWorkspaceHeader persona={persona} />
-
-      <section className="studio-home-grid">
-        <div className="studio-home-main">
-          <div className="studio-section-heading studio-home-heading">
-            <div className="section-label">Companion Home</div>
-            <h2>Talk with {persona.name}</h2>
-            <p>Private conversation, memory review, and continuity care stay close together here.</p>
-          </div>
-          <CompanionShortcutStrip personaId={persona.id} />
-          <PersonaChat personaId={persona.id} personaName={persona.name} />
-        </div>
-
-        <CompanionHomeContextRail persona={persona} />
-      </section>
-
-      <ContinuityCards persona={persona} />
-      <PublicInteractionReadback persona={persona} />
-      <VoiceAvatarReadinessGate />
-      <PersonaEncounterReadinessGate />
-      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
-      {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
-        <>
-          <CrossOwnerDisposablePreviewPanel persona={persona} token={token} />
-          <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
-        </>
-      )}
-      <RuntimeContextPreview personaId={persona.id} />
-      <ArchiveExportStatus
-        personaId={persona.id}
-        token={token}
-        exportPackages={exportPackages}
-        onCreated={(exportPackage) => setExportPackages((current) => [exportPackage, ...current])}
-        onRefreshed={setExportPackages}
+    <div className="studio-companion-shell" data-studio-shell="companion">
+      <PersonaCompanionSidebar
+        persona={persona}
+        personas={ownedPersonas}
+        conversations={conversations}
+        selectedConversationId={target.id}
       />
-      <PublishedContinuityHistory documents={documents} />
-    </main>
+
+      <main className="studio-companion-page">
+        <header className="studio-companion-header" data-companion-primary>
+          <div>
+            <div className="studio-kicker">Private companion</div>
+            <h1>{persona.name}</h1>
+            <p>{persona.shortDescription || "A private place to talk, remember, and shape what comes next."}</p>
+          </div>
+          <nav className="studio-companion-header-actions" aria-label="Companion workspace actions">
+            <span>Owner-only</span>
+            <Link href={`/studio/personas/${persona.id}/edit`}>Profile</Link>
+            <Link href="/studio">Studio home</Link>
+          </nav>
+        </header>
+
+        <CompanionShortcutStrip personaId={persona.id} />
+        <PersonaChat
+          personaId={persona.id}
+          personaName={persona.name}
+          selectedConversationId={target.id}
+          onStartNewChat={startNewChat}
+          onConversationCreated={conversationCreated}
+          onConversationArchived={() => void refreshConversations()}
+        />
+
+        <details className="studio-companion-advanced" data-companion-secondary onToggle={advancedToggled}>
+          <summary>
+            <span>
+              <strong>Advanced Studio</strong>
+              <small>Continuity map, readiness, runtime, exports, and publishing history</small>
+            </span>
+            <span>{advancedOpen ? "Close" : "Open"}</span>
+          </summary>
+
+          {advancedOpen ? (
+            <div className="studio-companion-advanced-content">
+              {advancedLoading ? <div className="studio-empty">Loading publishing and export history...</div> : null}
+              {advancedError ? <div className="studio-error-state" role="status">{advancedError}</div> : null}
+              <CompanionHomeContextRail persona={persona} />
+              <ContinuityCards persona={persona} />
+              <PublicInteractionReadback persona={persona} />
+              <VoiceAvatarReadinessGate />
+              <PersonaEncounterReadinessGate />
+              {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && <PersonaEncounterContractPanel />}
+              {personaEncounterContractCanRenderForOwner(persona, viewerUserId) && (
+                <>
+                  <CrossOwnerDisposablePreviewPanel persona={persona} token={token} />
+                  <PersonaEncounterRuntimePreview persona={persona} personas={ownedPersonas} token={token} />
+                </>
+              )}
+              <RuntimeContextPreview personaId={persona.id} />
+              {advancedLoaded ? (
+                <>
+                  <ArchiveExportStatus
+                    personaId={persona.id}
+                    token={token}
+                    exportPackages={exportPackages}
+                    onCreated={(exportPackage) => setExportPackages((current) => [exportPackage, ...current])}
+                    onRefreshed={setExportPackages}
+                  />
+                  <PublishedContinuityHistory documents={documents} />
+                </>
+              ) : null}
+            </div>
+          ) : null}
+        </details>
+      </main>
+    </div>
   );
 }
 
@@ -135,7 +245,7 @@ function CompanionShortcutStrip({ personaId }: { personaId: string }) {
   const shortcuts = studioPersonaCompanionShortcuts(personaId);
 
   return (
-    <nav className="studio-companion-shortcuts" aria-label="Companion next actions">
+    <nav className="studio-companion-shortcuts studio-companion-shortcuts-compact" aria-label="Companion next actions">
       {shortcuts.map((shortcut) => (
         <Link key={shortcut.href} href={shortcut.href} className="studio-companion-shortcut">
           <span>{shortcut.label}</span>
@@ -247,8 +357,4 @@ function StudioMessage({ children, tone = "normal" }: { children: React.ReactNod
       </div>
     </main>
   );
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
