@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR520A | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Accepted as `ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS`; participant public-persona linkbacks passed local ARGUS review, with hosted proof still required before closeout and Space/forum/writing/feed/homepage/chat/context-preview/generated-word expansion still blocked. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_REVIEW_RESULT.md` |
+| PR520B | Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof | MIMIR / A1 -> ARIADNE / A4 | Ready for hosted proof; verify requester/counterparty public persona linkbacks, display-snapshot-only other participant, no-drift across public surfaces, desktop/mobile fit, latency, privacy, and cleanup. | `docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_ARIADNE.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR520A closeout | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_ACCEPTED_LOCALLY`; ARIADNE gets PR520B hosted proof. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_CLOSEOUT.md` |
 | PR520A review | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS`; separate public persona linkback endpoint/section passed local review without an ARGUS patch, and hosted proof is required next. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_REVIEW_RESULT.md` |
 | PR520 closeout | Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR520A for participant public-persona linkbacks only. | `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_CLOSEOUT.md` |
 | PR520 preflight | Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_CONTRACT`; smallest safe lane is participant public-persona linkbacks only, not Space/forum/writing/feed/homepage/chat/context-preview/generated-word placement. | `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_RESULT.md` |

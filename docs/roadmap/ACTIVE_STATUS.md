@@ -4,7 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520A cross-owner public persona linkbacks accepted by ARGUS
+## Current lane - PR520B cross-owner public persona linkbacks hosted proof routed to ARIADNE
+
+MIMIR closed PR520A locally:
+
+`docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR520B - Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof
+Owner: ARIADNE / A4
+State: READY_FOR_HOSTED_PROOF
+Source: docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_ARIADNE.md
+```
+
+Proof target:
+
+- hosted web/API must include PR520A implementation commit `604b2d4b` or
+  later, or prove freshness behaviorally;
+- requester and counterparty public persona pages/API must return only eligible
+  metadata-only linkbacks;
+- the other participant must remain display-snapshot-only with no route, public
+  slug, raw ids, consent id, or profile data;
+- hidden/private/ineligible/old-slug/current-name-drift controls must stay
+  absent;
+- public persona chat/context-preview/events, public Space,
+  forum/Salon/community, writing/public document, Discover feed, homepage,
+  same-owner `/encounters`, and owner-private buckets must show no drift;
+- desktop and `390px` mobile rendering must fit without overlap or clipped
+  link text;
+- latency and cleanup must be recorded.
+
+## Previous lane - PR520A cross-owner public persona linkbacks accepted by ARGUS
 
 MIMIR closed PR520:
 
@@ -52,11 +84,6 @@ npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 git diff --check                                           PASS
 implementation diff whitespace/path/secret scans           PASS
 ```
-
-Next:
-
-- MIMIR should close PR520A locally if satisfied and route ARIADNE for hosted
-  PR520B public persona linkback proof.
 
 ## Previous lane - PR520 cross-owner contextual public linkbacks preflight accepted by ARGUS
 
