@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520A cross-owner public persona linkbacks ready for ARGUS
+## Current lane - PR520A cross-owner public persona linkbacks accepted by ARGUS
 
 MIMIR closed PR520:
 
@@ -14,12 +14,12 @@ Current lane:
 
 ```text
 PR520A - Cross-Owner Metadata Exhibit Public Persona Linkbacks
-Owner: DAEDALUS / A2 -> ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_RESULT.md
+Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS
+Source: docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_REVIEW_RESULT.md
 ```
 
-DAEDALUS result:
+ARGUS review:
 
 - added `GET /personas/public/:publicSlug/cross-owner-exhibits`;
 - rows are visible only when the current public persona is routeable,
@@ -35,6 +35,9 @@ DAEDALUS result:
   public Space, forum/Salon/community, Station Press/public document, writing,
   Discover feed/rising/featured/homepage, and same-owner `/encounters`
   placement.
+- ARGUS accepted without a code patch.
+- Hosted proof is required next to verify real public persona rendering,
+  no-drift, latency, and cleanup before customer-facing closeout.
 
 Validation:
 
@@ -47,13 +50,13 @@ npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 32 tests
 npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
 npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 git diff --check                                           PASS
-git diff --cached --check                                  PASS
+implementation diff whitespace/path/secret scans           PASS
 ```
 
 Next:
 
-- ARGUS should review PR520A and either wake MIMIR with acceptance or wake
-  DAEDALUS with required fixes.
+- MIMIR should close PR520A locally if satisfied and route ARIADNE for hosted
+  PR520B public persona linkback proof.
 
 ## Previous lane - PR520 cross-owner contextual public linkbacks preflight accepted by ARGUS
 
