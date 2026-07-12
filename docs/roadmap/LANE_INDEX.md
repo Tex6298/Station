@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR520 | Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted as `ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_CONTRACT`; PR520A may add only participant public-persona linkbacks for metadata-only cross-owner exhibits, with Space/forum/writing/feed/homepage/chat/context-preview/generated-word expansion still blocked. | `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_RESULT.md` |
+| PR520A | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR / A1 -> DAEDALUS / A2 | Ready for implementation; add only participant public-persona linkbacks for metadata-only cross-owner exhibits, with Space/forum/writing/feed/homepage/chat/context-preview/generated-word expansion still blocked. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR520 closeout | Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR520A for participant public-persona linkbacks only. | `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_CLOSEOUT.md` |
 | PR520 preflight | Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_CONTRACT`; smallest safe lane is participant public-persona linkbacks only, not Space/forum/writing/feed/homepage/chat/context-preview/generated-word placement. | `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_RESULT.md` |
 | PR519B closeout | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ACCEPTED`; hosted Discover search proof passed, opening PR520 contextual public linkbacks preflight. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_CLOSEOUT.md` |
 | PR519B proof | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`; hosted Discover search returns the separate metadata-only cross-owner group for title, summary, tag, requester snapshot, and counterparty snapshot probes, with latency/no-drift/browser/cleanup boundaries passing. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md` |

@@ -4,7 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520 cross-owner contextual public linkbacks preflight accepted by ARGUS
+## Current lane - PR520A cross-owner public persona linkbacks routed to DAEDALUS
+
+MIMIR closed PR520:
+
+`docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR520A - Cross-Owner Metadata Exhibit Public Persona Linkbacks
+Owner: DAEDALUS / A2
+State: READY_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_DAEDALUS.md
+```
+
+Implementation boundary:
+
+- add participant public-persona linkbacks only;
+- the current page persona must be currently public, routeable, eligible, and
+  snapshot-matched to the requester/counterparty display snapshot for its role;
+- the other participant may remain display-snapshot-only and gets no profile
+  route, slug, owner id, or persona id in the payload;
+- linkbacks route only to `/encounters/cross-owner#<slug>`;
+- rows must stay out of public persona chat/context-preview, public persona
+  events, public Space, forum/Salon/community, Station Press/public document,
+  writing, Discover feed/rising/featured/homepage, and same-owner
+  `/encounters` placement.
+
+## Previous lane - PR520 cross-owner contextual public linkbacks preflight accepted by ARGUS
 
 MIMIR closed PR519B:
 
