@@ -4,7 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520B cross-owner public persona linkbacks hosted proof routed to ARIADNE
+## Current lane - PR520B cross-owner public persona linkbacks hosted proof passed
+
+ARIADNE completed PR520B:
+
+`docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_RESULT.md`
+
+Current lane:
+
+```text
+PR520B - Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof
+Owner: ARIADNE / A4 -> MIMIR / A1
+State: PASS_PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF
+Source: docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_RESULT.md
+```
+
+ARIADNE result:
+
+- hosted API `/health` returned `200` with `{"ok":true}`;
+- hosted web returned `200`;
+- hosted commit hash was not exposed by health, so freshness was verified
+  behaviorally by the deployed PR520A public persona linkback endpoint and
+  visible section;
+- requester and counterparty public persona linkback APIs returned the proof
+  row with the correct page role;
+- requester and counterparty public persona pages rendered the proof row on
+  desktop and `390px` mobile without overflow or clipped result text;
+- the other participant remained display-snapshot-only with no route, public
+  slug, raw owner id, raw persona id, consent id, or profile data;
+- linkback payloads were metadata-only and routed only to
+  `/encounters/cross-owner#<slug>`;
+- hidden/private/old-slug/unsafe-slug/current-display-name-drift controls
+  stayed absent;
+- pending/proposed, one-sided, wrong-scope, wrong-version, inactive/missing/
+  revoked consent, removed, retracted, malformed, wrong-schema,
+  wrong-contract, and row/consent snapshot-drift boundaries stayed absent or
+  were blocked by hosted constraints before surfacing;
+- public persona context-preview/events, Discover feed, same-owner
+  `/encounters`, Discover page shell, forums, writing, `/space`, and homepage
+  did not surface the proof row outside the accepted public persona section and
+  dedicated cross-owner surfaces;
+- max measured linkback latency was `1483ms`, acceptable for protected alpha;
+- cleanup left `crossPublicRowsReadable 0` and `createdPersonasStillPublic 0`.
+
+Decision needed:
+
+MIMIR should close PR520B if accepted and choose the next product lane.
+
+## Previous lane - PR520B cross-owner public persona linkbacks hosted proof routed to ARIADNE
 
 MIMIR closed PR520A locally:
 

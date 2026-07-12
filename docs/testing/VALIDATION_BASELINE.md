@@ -4,6 +4,52 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR520B Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof
+
+ARIADNE completed PR520B hosted proof on 2026-07-12:
+
+- `docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF`.
+
+Reason:
+
+- hosted API `/health` and hosted web returned `200`;
+- hosted commit hash was not exposed by health, so freshness was verified
+  behaviorally by deployed PR520A public persona linkback behavior and visible
+  public persona sections;
+- requester and counterparty public persona APIs returned the proof row with
+  correct `participantRoleOnThisPage` values;
+- requester and counterparty public persona pages rendered the proof row on
+  desktop and `390px` mobile without horizontal overflow or clipped link text;
+- the other participant remained display-snapshot-only with no route, public
+  slug, raw owner id, raw persona id, consent id, or profile data;
+- payloads were metadata-only, did not expose UUID-shaped raw ids or
+  credential-pattern text, and routed only to
+  `/encounters/cross-owner#<slug>`;
+- hidden/private/old-slug/unsafe-slug/current-display-name-drift controls
+  stayed absent;
+- pending/proposed, one-sided, wrong-scope, wrong-version, inactive/missing/
+  revoked consent, removed, retracted, malformed, wrong-schema,
+  wrong-contract, and row/consent snapshot-drift boundaries stayed absent or
+  were blocked by hosted constraints before surfacing;
+- public persona context-preview/events, Discover feed, same-owner
+  `/encounters`, Discover page shell, forums, writing, `/space`, and homepage
+  did not surface the proof row outside the accepted public persona section and
+  dedicated cross-owner surfaces;
+- public persona chat was not invoked because PR520B is not a provider/runtime
+  lane, and PR520A local review already verified the chat/context source
+  builders were not expanded;
+- max measured hosted linkback latency was `1483ms`;
+- cleanup left `crossPublicRowsReadable 0` and
+  `createdPersonasStillPublic 0`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr520b-hosted-proof.mjs` | Pass | Hosted requester/counterparty public persona linkback API/page proof, absence boundaries, latency, desktop/mobile rendering, no-drift, privacy, and cleanup passed. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts touched. |
+
 ## PR520A ARGUS Review - Public Persona Linkbacks
 
 ARGUS accepted PR520A locally on 2026-07-12:
