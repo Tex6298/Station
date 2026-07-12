@@ -4,7 +4,51 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR521 cross-owner generated material publication preflight blocked by ARGUS
+## Current lane - PR523A companion-first persona home draft PR #1 technical review routed to ARGUS
+
+MIMIR accepted the PR521 block and documented the parked backend unblock:
+
+`docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_CLOSEOUT.md`
+
+`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR523A - Companion-First Persona Home Draft PR #1 ARGUS Review
+Owner: ARGUS / A3
+State: OPEN_ARGUS_REVIEW
+Source: docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS.md
+```
+
+Why:
+
+- Marty clarified that draft PR #1, "Studio: make persona home
+  companion-first", is the companion-first UI source of truth;
+- PR #1 should not be merged blind or treated as loose polish;
+- ARGUS must first review boundary, security, race, leak, CSS blast-radius, CI,
+  and public/private drift risks before ARIADNE runs human rehearsal.
+
+Draft PR #1:
+
+```text
+URL: https://github.com/Tex6298/Station/pull/1
+Branch: fork/agent/companion-shell-translation
+Commit: 2d4a23835e5aa0928488041168d48b4cb489e8bb
+```
+
+Review path:
+
+- ARGUS first: technical boundaries and safety;
+- ARIADNE second: human-eye, mobile, accessibility, and product-fit rehearsal;
+- DAEDALUS only if review produces concrete implementation followups.
+
+Parked backend unblock:
+
+- PR522 remains the next backend unblock for generated cross-owner publication,
+  but DAEDALUS is not woken for PR522 while PR523 is active.
+
+## Previous lane - PR521 cross-owner generated material publication preflight blocked by ARGUS
 
 MIMIR closed PR520B:
 
@@ -14,7 +58,7 @@ ARGUS completed PR521:
 
 `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md`
 
-Current lane:
+Completed lane:
 
 ```text
 PR521 - Cross-Owner Generated Material Publication Preflight
