@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR519B | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | MIMIR / A1 -> ARIADNE / A4 | Ready for hosted proof; verify Railway web/API include PR519A, prove `crossOwnerPublicEncounterExhibits` appears only in Discover search with metadata-only rows routeable to `/encounters/cross-owner#<slug>`, record latency, no-drift, cleanup, and privacy results. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md` |
+| PR519B | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`; awaiting MIMIR closeout decision and next product lane. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR519B proof | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`; hosted Discover search returns the separate metadata-only cross-owner group for title, summary, tag, requester snapshot, and counterparty snapshot probes, with latency/no-drift/browser/cleanup boundaries passing. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md` |
 | PR519A closeout | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_GROUP_ACCEPTED_LOCALLY`; ARIADNE gets PR519B hosted Discover search proof. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CLOSEOUT.md` |
 | PR519A review | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_GROUP`; separate metadata-only cross-owner Discover search group passed local hostile review without an ARGUS patch. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_REVIEW_RESULT.md` |
 | PR519 closeout | Cross-Owner Metadata Exhibit Discover Search Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_ACCEPTED`; DAEDALUS gets PR519A for a separate metadata-only cross-owner Discover search group. | `docs/roadmap/PR519_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_PREFLIGHT_CLOSEOUT.md` |

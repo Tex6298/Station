@@ -4,7 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR519B cross-owner Discover search hosted proof routed to ARIADNE
+## Current lane - PR519B cross-owner Discover search hosted proof passed
+
+ARIADNE completed PR519B:
+
+`docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md`
+
+Current lane:
+
+```text
+PR519B - Cross-Owner Metadata Exhibit Discover Search Hosted Proof
+Owner: ARIADNE / A4 -> MIMIR / A1
+State: PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF
+Source: docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md
+```
+
+ARIADNE result:
+
+- hosted API `/health` returned `200` with `{"ok":true}`;
+- hosted web returned `200`;
+- hosted commit hash was not exposed by health, so freshness was verified
+  behaviorally by the deployed PR519A Discover search group and readback
+  behavior;
+- `crossOwnerPublicEncounterExhibits` returned the proof row for title,
+  summary, tag, requester display snapshot, and counterparty display snapshot
+  probes;
+- empty search returned `crossOwnerPublicEncounterExhibits: []`;
+- payloads were metadata-only and routeable only to
+  `/encounters/cross-owner#<slug>`;
+- public detail readback honestly marked Discover-search listing with
+  `discoverable=true` while keeping `indexed=false`;
+- same-owner `publicEncounterExhibits` and owner-private `privateResults` stayed
+  separate;
+- pending/proposed, one-sided, wrong-scope, wrong-version, inactive/missing/
+  revoked consent, removed, retracted, malformed, wrong-schema,
+  wrong-contract, and snapshot-drift boundaries stayed absent or were blocked
+  by hosted constraints before surfacing;
+- hosted Discover search rendered on desktop and `390px` mobile without
+  overflow or clipped result text;
+- max measured search latency was `1420ms`, acceptable for protected alpha;
+- Discover feed, same-owner `/encounters`, forums, writing, spaces, homepage,
+  and the Discover page shell did not surface the proof row outside the
+  accepted search group and dedicated cross-owner surfaces;
+- cleanup left `crossPublicRowsReadable 0` and the temporary target private.
+
+Decision needed:
+
+MIMIR should close PR519B if accepted and choose the next product lane.
+
+## Previous lane - PR519B cross-owner Discover search hosted proof routed to ARIADNE
 
 MIMIR closed PR519A locally:
 

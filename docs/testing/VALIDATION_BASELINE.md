@@ -4,6 +4,49 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR519B Cross-Owner Metadata Exhibit Discover Search Hosted Proof
+
+ARIADNE completed PR519B hosted proof on 2026-07-12:
+
+- `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md`
+
+Validation result:
+`PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`.
+
+Reason:
+
+- hosted API `/health` and hosted web returned `200`;
+- hosted commit hash was not exposed by health, so freshness was verified
+  behaviorally by deployed PR519A Discover search behavior and readback
+  provenance;
+- `crossOwnerPublicEncounterExhibits` returned the proof row for title,
+  summary, tag, requester display snapshot, and counterparty display snapshot
+  probes;
+- empty search returned `crossOwnerPublicEncounterExhibits: []`;
+- payloads were metadata-only, did not expose UUID-shaped raw ids or
+  credential-pattern text, and routed only to
+  `/encounters/cross-owner#<slug>`;
+- public detail readback marked Discover-search listing honestly with
+  `discoverable=true` while keeping `indexed=false`;
+- same-owner `publicEncounterExhibits` and owner-private `privateResults`
+  stayed separate;
+- pending/proposed, one-sided, wrong-scope, wrong-version, inactive/missing/
+  revoked consent, removed, retracted, malformed, wrong-schema,
+  wrong-contract, and snapshot-drift boundaries stayed absent or were blocked
+  by hosted constraints before surfacing;
+- Discover search rendered on desktop and `390px` mobile without horizontal
+  overflow or clipped result text;
+- max measured hosted search latency was `1420ms`;
+- Discover feed, same-owner `/encounters`, forums, writing, spaces, homepage,
+  and the Discover page shell did not surface the proof row outside the
+  accepted search group and dedicated cross-owner surfaces;
+- cleanup left `crossPublicRowsReadable 0` and the temporary target private.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `node .tmp\pr519b-hosted-proof.mjs` | Pass | Hosted Discover search group proof, absence boundaries, latency, desktop/mobile rendering, no-drift, and cleanup passed. |
+| `pnpm typecheck` | Not run | Documentation-only result; no imports or scripts touched. |
+
 ## PR519A Cross-Owner Metadata Exhibit Discover Search Group
 
 ARGUS accepted PR519A on 2026-07-12:
