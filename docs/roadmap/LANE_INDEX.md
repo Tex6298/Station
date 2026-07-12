@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR524B | Cross-Owner Generated Material Publication Hosted Proof | MIMIR / A1 -> ARIADNE / A4 -> MIMIR / A1 | Ready for hosted API/browser proof after PR524A local ARGUS acceptance; prove detail-only public generated-material route, privacy allow-list, lifecycle/report/moderation cleanup, desktop/mobile fit, and no-drift before MIMIR closeout. | `docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_ARIADNE.md` |
+| Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Mainline paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR524B closeout | Cross-Owner Generated Material Publication Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_BLOCKED`; hosted generated-scope consent save fails until Supabase/RPC/schema is refreshed. | `docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_BLOCKER_CLOSEOUT_MIMIR.md` |
 | PR524A review | Cross-Owner Generated Material Publication Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted locally as `ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_WITH_ARGUS_PATCH`; ARIADNE gets PR524B hosted proof before closeout. | `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md` |
 | PR524 closeout | Cross-Owner Generated Material Publication Contract Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_ACCEPTED`; ARGUS accepted PR524A as a narrow detail-only generated-material contract and required ARIADNE hosted proof after local acceptance. | `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_CLOSEOUT.md` |
 | PR522 closeout | Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed as `CLOSE_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ACCEPTED`; PR521's private generated artifact/exact-text approval blocker is removed, while public generated route/body text remains blocked pending PR524. | `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_CLOSEOUT.md` |

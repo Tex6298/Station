@@ -4,31 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR524B cross-owner generated material publication hosted proof routed to ARIADNE
+## Current lane - mainline paused after PR524B hosted generated publication blocker
 
-MIMIR closed PR524 preflight:
+MIMIR closed PR524B as blocked:
 
-`docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_CLOSEOUT.md`
+`docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_BLOCKER_CLOSEOUT_MIMIR.md`
 
-DAEDALUS implemented PR524A:
+Current standing:
 
-`docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_RESULT.md`
+`docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md`
 
-ARGUS accepted PR524A with a narrow review patch:
+ARIADNE blocked PR524B:
 
-`docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md`
-
-Current hosted proof:
-
-`docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_ARIADNE.md`
+`docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_RESULT.md`
 
 Current lane:
 
 ```text
-PR524B - Cross-Owner Generated Material Publication Hosted Proof
-Owner: ARIADNE / A4 -> MIMIR / A1
-State: READY_FOR_HOSTED_PROOF
-Source: docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_ARIADNE.md
+Paused - PR524B Cross-Owner Generated Material Publication Hosted Proof Blocker
+Owner: MIMIR / A1
+State: MAINLINE_PAUSED_AFTER_PR524B_HOSTED_BLOCKER
+Source: docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md
 ```
 
 Why:
@@ -42,31 +38,27 @@ Why:
   bilaterally approved revisions;
 - ARGUS patched the public payload allow-list, removed redundant participant
   direct body-select RLS, and tightened moderation restore source-chain checks.
-- because PR524A adds a public API and web detail route, ARIADNE must prove it
-  on hosted before MIMIR closes the slice.
+- ARIADNE proved hosted health, missing-route fail-closed behavior, target
+  resolution, and legacy consent save/cancel, but generated-scope consent save
+  returned HTTP 500;
+- per MIMIR's pause directive, no next numbered product lane opens until Marty
+  resumes or the hosted blocker is cleared for a PR524B rerun.
 
-Implemented shape:
+Concrete blocker:
 
 ```text
-New publish_exact_generated_revision consent scope.
-Dedicated generated-publication table/audit/route.
-Public detail API and minimal public detail web page only.
-Public body copied server-side from the exact approved PR522 revision.
-Report, moderation remove/restore, participant retract/delete lifecycle.
-MIMIR closeout/hosted-proof sequencing next.
+Hosted Supabase/RPC/schema does not accept PR524 generated scopes in
+create_persona_encounter_cross_owner_consent:
+save_private_cross_owner_artifact
+publish_exact_generated_revision
 ```
 
-Validation summary:
+Resume condition:
 
 ```text
-test:persona-encounters, test:reports, test:personas, test:community,
-test:writing, test:studio-ui, typecheck, lint, git diff --check, changed-path
-forbidden-scope scan, broad scope-word no-drift scan, and high-risk secret scan
-pass.
-
-ARGUS did not rerun build; DAEDALUS recorded that build reached successful Next
-compile/type/static page generation, then failed locally on the known Windows
-Next standalone symlink EPERM.
+Refresh/deploy hosted Supabase RPC/schema for PR524 generated scopes, then rerun
+PR524B hosted proof from consent creation through publication, public detail,
+report/moderation controls, cleanup, and no-drift checks.
 ```
 
 Still blocked by default:
@@ -84,9 +76,32 @@ MIMIR pause directive:
 
 ```text
 Source: docs/roadmap/PR524A_POST_CLOSEOUT_PAUSE_DIRECTIVE_MIMIR.md
-State: after PR524A closes or blocks, pause mainline and record Phase 3 standing
-instead of automatically opening the next numbered product lane.
+State: active; mainline is paused here instead of automatically opening the next
+numbered product lane.
 ```
+
+## Previous lane - PR524B cross-owner generated material publication hosted proof blocked
+
+ARIADNE completed PR524B:
+
+`docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_RESULT.md`
+
+Completed lane:
+
+```text
+PR524B - Cross-Owner Generated Material Publication Hosted Proof
+Owner: ARIADNE / A4 -> MIMIR / A1
+State: BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF
+Source: docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_RESULT.md
+```
+
+ARIADNE result:
+
+- hosted API/web health passed;
+- missing generated-publication API/web routes failed closed;
+- legacy `run_cross_owner_encounter` diagnostic consent saved and was cancelled;
+- PR524 generated-scope consent save failed with hosted HTTP 500;
+- no generated artifact, revision, or publication was created.
 
 ## Previous lane - PR524A cross-owner generated material publication contract accepted by ARGUS
 
