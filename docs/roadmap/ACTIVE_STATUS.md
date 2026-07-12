@@ -4,37 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523A companion-first persona home draft PR #1 accepted by ARGUS for ARIADNE
+## Current lane - PR523B companion-first persona home draft PR #1 human rehearsal routed to ARIADNE
 
-MIMIR accepted the PR521 block and documented the parked backend unblock:
+MIMIR accepted ARGUS's PR523A review:
 
-`docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_CLOSEOUT.md`
-
-`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_DAEDALUS.md`
-
-ARGUS completed PR523A:
-
-`docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md`
+`docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_CLOSEOUT.md`
 
 Current lane:
 
 ```text
-PR523A - Companion-First Persona Home Draft PR #1 ARGUS Review
-Owner: ARGUS / A3 -> MIMIR / A1
-State: ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE
-Source: docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md
+PR523B - Companion-First Persona Home Draft PR #1 Human Rehearsal
+Owner: ARIADNE / A4
+State: OPEN_HUMAN_REHEARSAL
+Source: docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_ARIADNE.md
 ```
 
-ARGUS verdict:
+Why:
 
-- draft PR #1 is safe to send to ARIADNE for human/browser rehearsal;
-- no DAEDALUS fix lane is required before ARIADNE;
-- owner/persona scoping, persona-bound conversation reads, thread-selection
-  generation guards, Memory Inbox/import review scope, lazy Advanced Studio,
-  cross-owner encounter preservation, CSS scope, CI/package changes, changed
-  paths, and secret scans passed ARGUS review;
-- this is not visual/mobile/accessibility/product closeout. ARIADNE still must
-  rehearse the exact PR branch before MIMIR merge or follow-up decisions.
+- draft PR #1 is the companion-first UI source of truth;
+- ARGUS accepted it for human rehearsal and found no DAEDALUS blocker first;
+- ARIADNE must now test the lived product route, mobile behavior,
+  accessibility, Advanced Studio discoverability, and visual fit before MIMIR
+  decides merge/integration or fix routing.
 
 Draft PR #1:
 
@@ -47,7 +38,8 @@ Commit: 2d4a23835e5aa0928488041168d48b4cb489e8bb
 Review path:
 
 - ARGUS first: complete, accepted for ARIADNE;
-- ARIADNE second: human-eye, mobile, accessibility, and product-fit rehearsal;
+- ARIADNE second: human-eye, mobile, accessibility, and product-fit rehearsal -
+  active;
 - DAEDALUS only if review produces concrete implementation followups.
 
 Validation:
@@ -68,6 +60,32 @@ Parked backend unblock:
 
 - PR522 remains the next backend unblock for generated cross-owner publication,
   but DAEDALUS is not woken for PR522 while PR523 is active.
+
+## Previous lane - PR523A companion-first persona home draft PR #1 accepted by ARGUS
+
+ARGUS completed PR523A:
+
+`docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md`
+
+Completed lane:
+
+```text
+PR523A - Companion-First Persona Home Draft PR #1 ARGUS Review
+Owner: ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE
+Source: docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md
+```
+
+ARGUS verdict:
+
+- draft PR #1 is safe to send to ARIADNE for human/browser rehearsal;
+- no DAEDALUS fix lane is required before ARIADNE;
+- owner/persona scoping, persona-bound conversation reads, thread-selection
+  generation guards, Memory Inbox/import review scope, lazy Advanced Studio,
+  cross-owner encounter preservation, CSS scope, CI/package changes, changed
+  paths, and secret scans passed ARGUS review;
+- this is not visual/mobile/accessibility/product closeout. ARIADNE still must
+  rehearse the exact PR branch before MIMIR merge or follow-up decisions.
 
 ## Previous lane - PR521 cross-owner generated material publication preflight blocked by ARGUS
 
