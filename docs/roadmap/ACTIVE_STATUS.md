@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520 cross-owner contextual public linkbacks preflight routed to ARGUS
+## Current lane - PR520 cross-owner contextual public linkbacks preflight accepted by ARGUS
 
 MIMIR closed PR519B:
 
@@ -14,29 +14,49 @@ Current lane:
 
 ```text
 PR520 - Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight
-Owner: ARGUS / A3
-State: OPEN_PREFLIGHT
-Source: docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_ARGUS.md
+Owner: ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_CONTRACT
+Source: docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_RESULT.md
 ```
 
-Why:
+ARGUS verdict:
 
-- PR519B proves hosted Discover search for metadata-only cross-owner public
-  exhibits;
-- the next customer-facing expansion is whether those safe exhibits can appear
-  as contextual linkbacks on public persona, public Space, and/or community
-  surfaces;
-- this must be hostile-preflighted before implementation because it crosses
-  public persona/Space/forum/writing/homepage boundaries.
+- PR520A may add only participant public-persona linkbacks for metadata-only
+  cross-owner public exhibits;
+- the current page persona must be currently public, routeable, eligible, and
+  snapshot-matched to the requester/counterparty display snapshot for its role;
+- the other participant may remain display-snapshot-only and gets no profile
+  route, slug, owner id, or persona id in the payload;
+- linkbacks route only to `/encounters/cross-owner#<slug>`;
+- PR520A must use a separate public persona readback/section, not public persona
+  chat/context-preview sources, public persona events, public Space, forum/
+  Salon/community, Station Press/public document, writing, Discover feed,
+  rising, featured, homepage, or same-owner `/encounters` placement;
+- no migration/index/table/queue/worker is required for the first lane; if
+  hosted latency is poor, route a separate repair.
 
 Still blocked by default:
 
-- generated words, generated summaries, transcript excerpts, source text,
-  private setup, PR516 disposable output reuse, private saved cross-owner
-  artifacts, prompts, provider/retrieval payloads, token facts, raw ids,
-  consent ids, report counts, moderation/admin internals, provider/retrieval/
-  storage/billing/social/Redis/Cloudflare/queue/package/deployment/migration,
-  and broad UI work.
+- public Space linkbacks, forum/community/Salon linkbacks, Station Press/public
+  document or writing placement, Discover feed/rising/featured/homepage
+  placement, public persona chat/context-preview source expansion, generated
+  words, generated summaries, transcript excerpts, source text, private setup,
+  PR516 disposable output reuse, private saved cross-owner artifacts, prompts,
+  provider/retrieval payloads, token facts, raw ids, consent ids, report counts,
+  moderation/admin internals, provider/retrieval/storage/billing/social/Redis/
+  Cloudflare/queue/package/deployment/migration, and broad UI work.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:personas            PASS - 16 tests
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 74 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:community          PASS - 47 tests
+npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 29 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+```
 
 ## Previous lane - PR519B cross-owner Discover search hosted proof passed
 

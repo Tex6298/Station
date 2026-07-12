@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR520 Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight
+
+ARGUS completed PR520 preflight on 2026-07-12:
+
+- `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR520A_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_CONTRACT`.
+
+Reason:
+
+- PR519B hosted proof accepted the dedicated cross-owner index/detail and
+  separate Discover search group for metadata-only cross-owner public exhibits;
+- ARGUS accepts only participant public-persona linkbacks as the next lane;
+- the current page persona must be currently public, routeable, eligible, and
+  snapshot-matched to the relevant requester/counterparty display snapshot;
+- the other participant remains display-snapshot-only, with no profile route,
+  public slug, owner id, or persona id in the linkback payload;
+- linkbacks route only to `/encounters/cross-owner#<slug>`;
+- public Space, forum/Salon/community, Station Press/public document, writing,
+  Discover feed/rising/featured, homepage, public persona chat/context-preview
+  sources, same-owner `/encounters` mixing, generated words, transcripts,
+  excerpts, generated summaries, private setup, PR516 output reuse, raw ids,
+  consent ids, report counts, admin internals, provider/retrieval/storage/
+  billing/social/Redis/Cloudflare/queue/package/deployment/migration work, and
+  broad UI work remain blocked.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 16 tests passed, including public persona eligibility, public-only readback, routeable public sources, public chat/report boundaries, and fail-closed public reads. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 74 tests passed, including cross-owner public metadata readability, list/detail/readback, consent revocation, moderation, and same-owner exhibit regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner and cross-owner public exhibit moderation actions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 47 tests passed, including separate cross-owner Discover search, public/private bucket separation, and feed/writing helper no-drift. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 29 tests passed, including public persona route helper, public Space helper, Discover feed controls, and writing feed boundaries. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including cross-owner public metadata helper/readback copy and owner-visible redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+
 ## PR519B Cross-Owner Metadata Exhibit Discover Search Hosted Proof
 
 ARIADNE completed PR519B hosted proof on 2026-07-12:
