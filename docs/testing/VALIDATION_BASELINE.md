@@ -4,7 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR522 Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
+## PR522 ARGUS Review - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
+
+ARGUS completed PR522 review on 2026-07-12:
+
+- `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_WITH_ARGUS_PATCH`.
+
+Reason:
+
+- PR522 is accepted with a narrow ARGUS safety patch;
+- migration `081` now allows lifecycle closure after consent becomes inactive
+  without allowing content/digest mutation under inactive consent;
+- API readback now hides generated artifact and revision body text unless the
+  consent is ready, the artifact is active, and the revision is current;
+- direct participant RLS reads now exclude inactive artifacts/revisions;
+- public generated routes and public generated body text remain absent;
+- changed paths stayed inside the accepted PR522 API/web/runtime/docs/migration
+  and DB type lane, with no Cloudflare, queue, hosted runtime, provider/model
+  routing, retrieval/vector, storage/export, billing/Stripe, partner adapter,
+  or broad public UI drift.
+
+Environment note: ARGUS used
+`npx --yes pnpm@10.32.1 -- ...`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 run test:persona-encounters` | Pass | 80 tests passed, including ARGUS migration/RLS and stale-consent readback regressions. |
+| `npx --yes pnpm@10.32.1 run test:personas` | Pass | 18 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:reports` | Pass | 8 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:community` | Pass | 47 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:writing` | Pass | 32 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 241 tests passed. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed from cache with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; Git printed existing LF-to-CRLF working-copy warnings. |
+| Changed-path forbidden-scope scan | Pass | No forbidden path matches; only intentional PR522 lane files plus ARGUS state/docs were changed. |
+| High-risk secret pattern diff scan | Pass | No high-risk secret-shaped added content found. |
+| `build` | Not rerun by ARGUS | DAEDALUS already recorded the known Windows Next standalone symlink `EPERM` after successful compile/page generation. |
+
+## PR522 DAEDALUS Implementation - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
 
 DAEDALUS completed PR522 implementation on 2026-07-12:
 

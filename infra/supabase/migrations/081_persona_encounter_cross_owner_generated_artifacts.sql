@@ -148,11 +148,27 @@ begin
     raise exception 'cross-owner generated artifact consent not found';
   end if;
 
-  if v_consent.status <> 'approved'
-    or v_consent.requested_scope_version <> 1
+  if v_consent.requested_scope_version <> 1
     or not ('save_private_cross_owner_artifact' = any(v_consent.requested_scopes))
   then
-    raise exception 'cross-owner private generated artifact requires active approved private artifact consent';
+    raise exception 'cross-owner private generated artifact requires current private artifact consent scope';
+  end if;
+
+  if v_consent.status <> 'approved' then
+    if TG_OP = 'INSERT' then
+      raise exception 'cross-owner private generated artifact requires active approved private artifact consent';
+    end if;
+
+    if new.lifecycle_status = 'active'
+      or new.private_title is distinct from old.private_title
+      or new.private_body is distinct from old.private_body
+      or new.private_excerpt is distinct from old.private_excerpt
+      or new.generated_content_digest is distinct from old.generated_content_digest
+      or new.contract_version is distinct from old.contract_version
+      or new.provenance_schema is distinct from old.provenance_schema
+    then
+      raise exception 'inactive cross-owner generated artifact consent only permits lifecycle closure';
+    end if;
   end if;
 
   if new.requester_owner_user_id <> v_consent.requester_owner_user_id
@@ -255,8 +271,11 @@ create policy "pe_co_generated_artifacts_select_participants"
   on public.persona_encounter_cross_owner_generated_artifacts
   for select
   using (
-    auth.uid() = requester_owner_user_id
-    or auth.uid() = counterparty_owner_user_id
+    lifecycle_status = 'active'
+    and (
+      auth.uid() = requester_owner_user_id
+      or auth.uid() = counterparty_owner_user_id
+    )
   );
 
 drop policy if exists "pe_co_generated_revisions_select_participants"
@@ -265,10 +284,13 @@ create policy "pe_co_generated_revisions_select_participants"
   on public.persona_encounter_cross_owner_generated_revisions
   for select
   using (
+    status in ('proposed', 'approved')
+    and
     exists (
       select 1
       from public.persona_encounter_cross_owner_generated_artifacts artifact
       where artifact.id = artifact_id
+        and artifact.lifecycle_status = 'active'
         and (
           auth.uid() = artifact.requester_owner_user_id
           or auth.uid() = artifact.counterparty_owner_user_id
@@ -284,8 +306,16 @@ create policy "pe_co_generated_approvals_select_participants"
   using (
     exists (
       select 1
+      from public.persona_encounter_cross_owner_generated_revisions revision
+      where revision.id = revision_id
+        and revision.status in ('proposed', 'approved')
+    )
+    and
+    exists (
+      select 1
       from public.persona_encounter_cross_owner_generated_artifacts artifact
       where artifact.id = artifact_id
+        and artifact.lifecycle_status = 'active'
         and (
           auth.uid() = artifact.requester_owner_user_id
           or auth.uid() = artifact.counterparty_owner_user_id

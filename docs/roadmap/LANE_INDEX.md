@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR522 | Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review; participant-only generated artifacts, exact-text revisions, append-only bilateral approval ledger, lifecycle invalidation, and minimal Studio private readback are implemented with no public generated route or public generated body text. | `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md` |
+| PR522 | Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Accepted as `ACCEPT_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_WITH_ARGUS_PATCH`; ARGUS fixed DB lifecycle closure, stale-consent API body hiding, and inactive direct RLS read boundaries while preserving no public generated route or public generated body text. | `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ARGUS_RESULT.md` |
 
 ## Recently Closed
 

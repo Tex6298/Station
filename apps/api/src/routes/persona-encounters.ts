@@ -3032,7 +3032,8 @@ function serializeCrossOwnerGeneratedArtifactReadback(input: {
 }) {
   const { artifact, consent, currentOwnerUserId } = input;
   const participantRole = crossOwnerConsentParticipantRole(consent, currentOwnerUserId);
-  const active = artifact.lifecycle_status === "active";
+  const consentReady = crossOwnerPrivateGeneratedArtifactConsentReadiness(consent).ready;
+  const active = artifact.lifecycle_status === "active" && consentReady;
 
   return {
     artifactSlug: artifact.artifact_slug,
@@ -3060,7 +3061,7 @@ function serializeCrossOwnerGeneratedArtifactReadback(input: {
       status: consent.status,
       requestedScope: CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_REQUIRED_SCOPE,
       requestedScopeVersion: consent.requested_scope_version,
-      activeApproval: crossOwnerPrivateGeneratedArtifactConsentReadiness(consent).ready,
+      activeApproval: consentReady,
       executable: false,
     },
     approvals: {
@@ -3122,7 +3123,12 @@ function serializeCrossOwnerGeneratedRevisionReadback(input: {
 }) {
   const { revision, artifact, consent, currentOwnerUserId } = input;
   const participantRole = crossOwnerConsentParticipantRole(consent, currentOwnerUserId);
-  const readableText = revision.status === "proposed" || revision.status === "approved";
+  const consentReady = crossOwnerPrivateGeneratedArtifactConsentReadiness(consent).ready;
+  const revisionCurrent = crossOwnerGeneratedRevisionStillCurrent(revision, artifact, consent);
+  const readableText = (
+    revision.status === "proposed" ||
+    revision.status === "approved"
+  ) && artifact.lifecycle_status === "active" && consentReady && revisionCurrent;
   const approvedRoles = new Set(
     input.approvals
       .filter((approval) =>
@@ -3168,7 +3174,7 @@ function serializeCrossOwnerGeneratedRevisionReadback(input: {
         revision.counterparty_persona_name_snapshot === artifact.counterparty_persona_name_snapshot,
       consentScopeVersionMatches: revision.consent_requested_scope_version === consent.requested_scope_version,
       consentScopesMatch: sameStringSet(revision.consent_requested_scopes, consent.requested_scopes),
-      current: crossOwnerGeneratedRevisionStillCurrent(revision, artifact, consent),
+      current: revisionCurrent,
     },
     timestamps: {
       proposedAt: revision.proposed_at,

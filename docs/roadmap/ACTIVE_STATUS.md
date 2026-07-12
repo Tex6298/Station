@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR522 cross-owner private generated artifact and exact-text approval ledger ready for ARGUS
+## Current lane - PR522 cross-owner private generated artifact and exact-text approval ledger accepted by ARGUS
 
 MIMIR closed PR523:
 
@@ -14,13 +14,17 @@ DAEDALUS implemented PR522:
 
 `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md`
 
+ARGUS accepted PR522 with a narrow review patch:
+
+`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ARGUS_RESULT.md`
+
 Current lane:
 
 ```text
 PR522 - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
-Owner: DAEDALUS / A2 -> ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md
+Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ARGUS_RESULT.md
 ```
 
 Why:
@@ -29,10 +33,9 @@ Why:
   artifacts and exact-text bilateral approval ledger rows exist;
 - PR522 adds that private participant-only foundation without adding a public
   generated-material route or public generated body text;
-- ARGUS must review owner/participant scoping, lifecycle invalidation,
-  approval reset behavior, RLS/schema shape, Studio private readback, and
-  no-drift public surfaces before MIMIR can close or open any future public
-  generated-material lane.
+- ARGUS found and fixed narrow DB/API/RLS fail-closed gaps in lifecycle
+  closure, stale-consent body hiding, and inactive direct-table reads;
+- MIMIR can now close PR522 and decide the next lane.
 
 Implemented:
 
@@ -48,10 +51,11 @@ No public generated route or public generated body text.
 Validation summary:
 
 ```text
-install, lint, typecheck, named baseline tests, test:personas,
-test:persona-encounters, test:writing, test:studio-ui, and git diff --check pass.
-build still reaches successful Next compile/page generation, then fails on the
-known Windows Next standalone symlink EPERM.
+test:persona-encounters, test:personas, test:reports, test:community,
+test:writing, test:studio-ui, typecheck, lint, git diff --check,
+changed-path forbidden-scope scan, and high-risk secret diff scan pass.
+ARGUS did not rerun build; DAEDALUS already recorded the known Windows Next
+standalone symlink EPERM after successful compile/page generation.
 ```
 
 ## Previous lane - PR523 companion-first persona home merged

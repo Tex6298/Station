@@ -1474,9 +1474,16 @@ test("cross-owner private generated artifact migration creates participant-only 
   assert.match(sql, /pe_co_generated_approvals_no_update/);
   assert.match(sql, /pe_co_generated_approvals_no_delete/);
   assert.match(sql, /revoke_cross_owner_generated_artifacts_on_consent_inactive/);
+  assert.match(sql, /requires current private artifact consent scope/);
+  assert.match(sql, /if v_consent\.status <> 'approved' then[\s\S]*if TG_OP = 'INSERT' then/);
+  assert.match(sql, /new\.lifecycle_status = 'active'[\s\S]*new\.private_body is distinct from old\.private_body[\s\S]*new\.generated_content_digest is distinct from old\.generated_content_digest/);
+  assert.match(sql, /inactive cross-owner generated artifact consent only permits lifecycle closure/);
   assert.match(sql, /pe_co_generated_artifacts_select_participants/);
   assert.match(sql, /pe_co_generated_revisions_select_participants/);
   assert.match(sql, /pe_co_generated_approvals_select_participants/);
+  assert.match(sql, /create policy "pe_co_generated_artifacts_select_participants"[\s\S]*lifecycle_status = 'active'/);
+  assert.match(sql, /create policy "pe_co_generated_revisions_select_participants"[\s\S]*status in \('proposed', 'approved'\)[\s\S]*artifact\.lifecycle_status = 'active'/);
+  assert.match(sql, /create policy "pe_co_generated_approvals_select_participants"[\s\S]*revision\.status in \('proposed', 'approved'\)[\s\S]*artifact\.lifecycle_status = 'active'/);
   assert.equal(/select_published/i.test(sql), false);
   assert.equal(/create policy "pe_co_generated_artifacts_insert_participants"/.test(sql), false);
   assert.equal(/create policy "pe_co_generated_revisions_insert_participants"/.test(sql), false);
@@ -3239,6 +3246,47 @@ test("cross-owner private generated artifacts fail closed for scope lifecycle an
     });
     assert.equal(blockedRevision.status, 409);
     assert.equal(blockedRevision.body.code, "persona_encounter_cross_owner_generated_artifact_inactive");
+
+    const driftedConsent = seedCrossOwnerConsent(db, {
+      id: "99999999-9999-4999-8999-000000000150",
+      status: "revoked",
+      requested_scopes: ["save_private_cross_owner_artifact"],
+      revoked_at: "2026-07-11T13:00:00.000Z",
+      revoked_by: OTHER_OWNER_ID,
+    });
+    const driftedArtifact = seedCrossOwnerGeneratedArtifact(db, driftedConsent, {
+      artifact_slug: "revoked-drift-generated-12345678",
+      private_body: "Generated private source text must hide after consent drift.",
+      lifecycle_status: "active",
+    });
+    db.insertRow("persona_encounter_cross_owner_generated_revisions", {
+      artifact_id: driftedArtifact.id,
+      consent_id: driftedConsent.id,
+      revision_slug: "revoked-drift-revision-12345678",
+      final_title: "Drifted exact text",
+      final_body: "Exact generated text must hide after consent drift.",
+      final_excerpt: "Exact generated text must hide.",
+      text_digest: "b".repeat(64),
+      source_artifact_digest: driftedArtifact.generated_content_digest,
+      requester_persona_name_snapshot: driftedArtifact.requester_persona_name_snapshot,
+      counterparty_persona_name_snapshot: driftedArtifact.counterparty_persona_name_snapshot,
+      consent_requested_scope_version: driftedConsent.requested_scope_version,
+      consent_requested_scopes: driftedConsent.requested_scopes,
+      status: "proposed",
+      contract_version: 1,
+      approval_contract_version: 1,
+      provenance_schema: "station.persona_encounter.cross_owner_generated_revision.v1",
+      proposed_at: "2026-07-11T13:01:00.000Z",
+      created_by: OWNER_ID,
+      updated_by: OWNER_ID,
+    });
+    const driftedRead = await requestJson(app, "GET", crossOwnerGeneratedArtifactPath(driftedArtifact.artifact_slug), {
+      token: "owner-token",
+    });
+    assert.equal(driftedRead.status, 200);
+    assert.equal(driftedRead.body.artifact.body, null);
+    assert.equal(driftedRead.body.artifact.consent.activeApproval, false);
+    assert.equal(driftedRead.body.artifact.revisions[0].body, null);
 
     const created = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(approved.id), {
       token: "owner-token",
