@@ -63,6 +63,10 @@ class ReportsSupabase {
     persona_encounter_public_exhibits: [],
     persona_encounter_cross_owner_consents: [],
     persona_encounter_cross_owner_public_exhibits: [],
+    persona_encounter_cross_owner_generated_artifacts: [],
+    persona_encounter_cross_owner_generated_revisions: [],
+    persona_encounter_cross_owner_generated_publications: [],
+    persona_encounter_cross_owner_generated_publication_audit_events: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -181,6 +185,51 @@ class ReportsSupabase {
       row.removed_by ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_artifacts") {
+      row.lifecycle_status ??= "active";
+      row.contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_revisions") {
+      row.status ??= "approved";
+      row.contract_version ??= 1;
+      row.approval_contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_generated_revision.v1";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_publications") {
+      row.status ??= "published";
+      row.public_excerpt ??= null;
+      row.private_artifact_contract_version ??= 1;
+      row.revision_contract_version ??= 1;
+      row.approval_contract_version ??= 1;
+      row.publication_contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_generated_publication.v1";
+      row.reported_count ??= 0;
+      row.published_at ??= now;
+      row.retracted_at ??= null;
+      row.revoked_at ??= null;
+      row.source_invalidated_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.restored_at ??= null;
+      row.restored_by ??= null;
+      row.deleted_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_publication_audit_events") {
+      row.actor_user_id ??= null;
+      row.publication_contract_version ??= 1;
+      row.created_at ??= now;
     }
 
     return row;
@@ -1357,6 +1406,119 @@ test("admin report status updates can remove and conditionally restore cross-own
     assert.equal(updateJson.includes("counterparty-persona-private-id"), false);
     assert.equal(updateJson.includes("cross-owner-consent-1"), false);
     assert.equal(updateJson.includes("consent_id"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("admin report status updates can remove and conditionally restore generated publications", async () => {
+  const db = new ReportsSupabase();
+  const consent = db.insertRow("persona_encounter_cross_owner_consents", {
+    id: "cross-owner-generated-consent-1",
+    requested_scopes: ["save_private_cross_owner_artifact", "publish_exact_generated_revision"],
+    requested_scope_version: 1,
+  });
+  const artifact = db.insertRow("persona_encounter_cross_owner_generated_artifacts", {
+    id: "cross-owner-generated-artifact-1",
+    consent_id: consent.id,
+    lifecycle_status: "active",
+  });
+  const revision = db.insertRow("persona_encounter_cross_owner_generated_revisions", {
+    id: "cross-owner-generated-revision-1",
+    consent_id: consent.id,
+    artifact_id: artifact.id,
+    status: "approved",
+  });
+  const publication = db.insertRow("persona_encounter_cross_owner_generated_publications", {
+    consent_id: consent.id,
+    artifact_id: artifact.id,
+    revision_id: revision.id,
+    public_slug: "generated-publication-12345678",
+    public_title: "Exact generated public detail",
+    public_body: "Exact generated body must not appear in admin target context.",
+    revision_digest: "b".repeat(64),
+    source_artifact_digest: "a".repeat(64),
+    created_by: "owner-user",
+    updated_by: "owner-user",
+  });
+  const report = db.insertRow("moderation_reports", {
+    reporter_id: "visitor-user",
+    target_type: "persona_encounter_cross_owner_generated_publication",
+    target_id: publication.id,
+    reason: "unsafe generated publication",
+    notes: "Admin-only generated-publication note.",
+    status: "open",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createReportsApp();
+
+  try {
+    const queue = await requestJson(app, "GET", "/reports?targetType=persona_encounter_cross_owner_generated_publication", {
+      token: "admin-token",
+    });
+    assert.equal(queue.status, 200);
+    assert.deepEqual(queue.body.reports[0].targetContext, {
+      targetType: "persona_encounter_cross_owner_generated_publication",
+      targetId: publication.id,
+      title: "Exact generated public detail",
+      status: "published",
+      visibility: "public_detail",
+      routeHref: "/encounters/cross-owner/generated/generated-publication-12345678",
+      routeLabel: "Exact generated public detail",
+      canOpenRoute: true,
+      unavailableReason: null,
+      supportedActions: ["remove"],
+    });
+
+    const removed = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "resolved", targetAction: "remove" },
+    });
+    assert.equal(removed.status, 200);
+    assert.equal(removed.body.report.targetContext.status, "removed");
+    assert.equal(removed.body.report.targetContext.visibility, "not_public");
+    assert.deepEqual(removed.body.report.targetContext.supportedActions, ["restore"]);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "removed");
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].removed_by, "admin-user");
+    assert.equal(typeof db.tables.persona_encounter_cross_owner_generated_publications[0].removed_at, "string");
+    assert.equal(
+      db.tables.persona_encounter_cross_owner_generated_publication_audit_events[0].event_type,
+      "moderation_removed",
+    );
+
+    db.tables.persona_encounter_cross_owner_consents[0].status = "revoked";
+    const blockedRestore = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(blockedRestore.status, 400);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "removed");
+
+    db.tables.persona_encounter_cross_owner_consents[0].status = "approved";
+    const restored = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(restored.status, 200);
+    assert.equal(restored.body.report.targetContext.status, "published");
+    assert.equal(restored.body.report.targetContext.visibility, "public_detail");
+    assert.deepEqual(restored.body.report.targetContext.supportedActions, ["remove"]);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "published");
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].removed_by, null);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].removed_at, null);
+    assert.equal(
+      db.tables.persona_encounter_cross_owner_generated_publication_audit_events[1].event_type,
+      "moderation_restored",
+    );
+
+    const updateJson = JSON.stringify({ queue: queue.body, removed: removed.body, restored: restored.body });
+    assert.equal(updateJson.includes("Exact generated body must not appear"), false);
+    assert.equal(updateJson.includes("cross-owner-generated-consent-1"), false);
+    assert.equal(updateJson.includes("cross-owner-generated-artifact-1"), false);
+    assert.equal(updateJson.includes("cross-owner-generated-revision-1"), false);
+    assert.equal(updateJson.includes("consent_id"), false);
+    assert.equal(updateJson.includes("artifact_id"), false);
+    assert.equal(updateJson.includes("revision_id"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

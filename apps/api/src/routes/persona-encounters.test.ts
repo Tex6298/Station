@@ -123,6 +123,8 @@ class InMemorySupabase {
     persona_encounter_cross_owner_generated_artifacts: [],
     persona_encounter_cross_owner_generated_revisions: [],
     persona_encounter_cross_owner_generated_revision_approvals: [],
+    persona_encounter_cross_owner_generated_publications: [],
+    persona_encounter_cross_owner_generated_publication_audit_events: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -203,6 +205,12 @@ class InMemorySupabase {
     }
     if (table === "persona_encounter_cross_owner_generated_revision_approvals" && !row.id) {
       row.id = `ffffffff-ffff-4fff-8fff-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_generated_publications" && !row.id) {
+      row.id = `12121212-1212-4121-8121-${String(this.rows(table).length + 1).padStart(12, "0")}`;
+    }
+    if (table === "persona_encounter_cross_owner_generated_publication_audit_events" && !row.id) {
+      row.id = `34343434-3434-4343-8343-${String(this.rows(table).length + 1).padStart(12, "0")}`;
     }
     row.id ??= `${table}-${this.rows(table).length + 1}`;
 
@@ -339,6 +347,35 @@ class InMemorySupabase {
     if (table === "persona_encounter_cross_owner_generated_revision_approvals") {
       row.approval_contract_version ??= 1;
       row.approved_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_publications") {
+      row.public_slug ??= `generated-publication-${String(this.rows(table).length + 1).padStart(8, "0")}`;
+      row.public_excerpt ??= null;
+      row.status ??= "published";
+      row.private_artifact_contract_version ??= 1;
+      row.revision_contract_version ??= 1;
+      row.approval_contract_version ??= 1;
+      row.publication_contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_generated_publication.v1";
+      row.reported_count ??= 0;
+      row.published_at ??= now;
+      row.retracted_at ??= null;
+      row.revoked_at ??= null;
+      row.source_invalidated_at ??= null;
+      row.removed_at ??= null;
+      row.removed_by ??= null;
+      row.restored_at ??= null;
+      row.restored_by ??= null;
+      row.deleted_at ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_publication_audit_events") {
+      row.actor_user_id ??= null;
+      row.publication_contract_version ??= 1;
+      row.created_at ??= now;
     }
 
     return row;
@@ -963,6 +1000,18 @@ function crossOwnerGeneratedRevisionApprovePath(revisionSlug: string) {
   return `/persona-encounters/cross-owner-generated-revisions/${revisionSlug}/approve`;
 }
 
+function crossOwnerGeneratedRevisionPublicationPath(revisionSlug: string) {
+  return `/persona-encounters/cross-owner-generated-revisions/${revisionSlug}/publication`;
+}
+
+function crossOwnerGeneratedPublicationPath(slug: string) {
+  return `/persona-encounters/cross-owner-generated-publications/${slug}`;
+}
+
+function crossOwnerGeneratedPublicationRetractPath(slug: string) {
+  return `${crossOwnerGeneratedPublicationPath(slug)}/retract`;
+}
+
 function crossOwnerDisposablePreviewBody(overrides: Partial<{
   setup: string;
   maxOutputTokens: number;
@@ -1021,6 +1070,101 @@ function crossOwnerGeneratedRevisionApprovalBody(revisionDigest: string) {
   return {
     confirmExactTextApproval: true,
     revisionDigest,
+  };
+}
+
+function crossOwnerGeneratedPublicationBody(revisionDigest: string) {
+  return {
+    confirmPublicGeneratedMaterialPublication: true,
+    revisionDigest,
+  };
+}
+
+async function createGeneratedRevisionFixture(
+  app: Express,
+  options: {
+    requestedScopes?: string[];
+    artifact?: Partial<{ title: string; body: string; excerpt: string | null }>;
+    revision?: Partial<{ title: string; body: string; excerpt: string | null }>;
+    approveRequester?: boolean;
+    approveCounterparty?: boolean;
+  } = {},
+) {
+  const created = await requestJson(app, "POST", "/persona-encounters/cross-owner-consents", {
+    token: "owner-token",
+    body: crossOwnerConsentBody({
+      requestedScopes: options.requestedScopes ?? [
+        "save_private_cross_owner_artifact",
+        "publish_exact_generated_revision",
+      ],
+    }),
+  });
+  assert.equal(created.status, 201);
+
+  const approved = await requestJson(
+    app,
+    "PATCH",
+    `/persona-encounters/cross-owner-consents/${created.body.consent.id}/approve`,
+    { token: "other-token", body: {} },
+  );
+  assert.equal(approved.status, 200);
+
+  const artifact = await requestJson(app, "POST", crossOwnerConsentGeneratedArtifactsPath(created.body.consent.id), {
+    token: "owner-token",
+    body: crossOwnerGeneratedArtifactBody(options.artifact),
+  });
+  assert.equal(artifact.status, 201);
+
+  const revision = await requestJson(
+    app,
+    "POST",
+    crossOwnerGeneratedArtifactRevisionsPath(artifact.body.artifact.artifactSlug),
+    {
+      token: "owner-token",
+      body: crossOwnerGeneratedRevisionBody(options.revision),
+    },
+  );
+  assert.equal(revision.status, 201);
+
+  let requesterApproval: any = null;
+  let counterpartyApproval: any = null;
+  let latestRevision = revision.body.revision;
+
+  if (options.approveRequester ?? true) {
+    requesterApproval = await requestJson(
+      app,
+      "PATCH",
+      crossOwnerGeneratedRevisionApprovePath(revision.body.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedRevisionApprovalBody(revision.body.revision.textDigest),
+      },
+    );
+    assert.equal(requesterApproval.status, 200);
+    latestRevision = requesterApproval.body.revision;
+  }
+
+  if (options.approveCounterparty ?? true) {
+    counterpartyApproval = await requestJson(
+      app,
+      "PATCH",
+      crossOwnerGeneratedRevisionApprovePath(revision.body.revision.revisionSlug),
+      {
+        token: "other-token",
+        body: crossOwnerGeneratedRevisionApprovalBody(revision.body.revision.textDigest),
+      },
+    );
+    assert.equal(counterpartyApproval.status, 200);
+    latestRevision = counterpartyApproval.body.revision;
+  }
+
+  return {
+    consent: created.body.consent,
+    approvedConsent: approved.body.consent,
+    artifact: artifact.body.artifact,
+    revision: latestRevision,
+    requesterApproval,
+    counterpartyApproval,
   };
 }
 
@@ -1129,6 +1273,8 @@ function assertNoDurableEncounterWrites(db: InMemorySupabase) {
     "persona_encounter_cross_owner_generated_artifacts",
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
+    "persona_encounter_cross_owner_generated_publications",
+    "persona_encounter_cross_owner_generated_publication_audit_events",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1157,6 +1303,8 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
     "persona_encounter_cross_owner_generated_artifacts",
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
+    "persona_encounter_cross_owner_generated_publications",
+    "persona_encounter_cross_owner_generated_publication_audit_events",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1184,6 +1332,8 @@ function assertNoForbiddenCrossOwnerConsentSideEffects(db: InMemorySupabase) {
     "persona_encounter_cross_owner_generated_artifacts",
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
+    "persona_encounter_cross_owner_generated_publications",
+    "persona_encounter_cross_owner_generated_publication_audit_events",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1212,6 +1362,8 @@ function assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db: InMemorySupaba
     "persona_encounter_cross_owner_generated_artifacts",
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
+    "persona_encounter_cross_owner_generated_publications",
+    "persona_encounter_cross_owner_generated_publication_audit_events",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1240,6 +1392,8 @@ function assertNoForbiddenCrossOwnerPreviewSideEffects(db: InMemorySupabase) {
     "persona_encounter_cross_owner_generated_artifacts",
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
+    "persona_encounter_cross_owner_generated_publications",
+    "persona_encounter_cross_owner_generated_publication_audit_events",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1491,6 +1645,35 @@ test("cross-owner private generated artifact migration creates participant-only 
   assert.match(sql, /No direct participant insert\/update\/delete policy is created/);
   assert.match(sql, /No public select policy, public generated-material route, PR516 automatic reuse/);
   assert.match(sql, /not a public publication surface/);
+  assert.equal(/disable row level security/i.test(sql), false);
+});
+
+test("cross-owner generated publication migration creates detail-only public contract and audit", () => {
+  const sql = readFileSync(
+    "infra/supabase/migrations/082_persona_encounter_cross_owner_generated_publications.sql",
+    "utf8",
+  );
+
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_publications/);
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_publication_audit_events/);
+  assert.match(sql, /public_body text not null/);
+  assert.match(sql, /public_excerpt text/);
+  assert.match(sql, /revision_digest text not null/);
+  assert.match(sql, /source_artifact_digest text not null/);
+  assert.match(sql, /status in \('published', 'retracted', 'revoked', 'source_invalidated', 'removed', 'deleted'\)/);
+  assert.match(sql, /publish_exact_generated_revision/);
+  assert.match(sql, /station\.persona_encounter\.cross_owner_generated_publication\.v1/);
+  assert.match(sql, /blocked_public_read/);
+  assert.match(sql, /pe_co_generated_publications_select_public/);
+  assert.match(sql, /pe_co_generated_publications_select_participants/);
+  assert.match(sql, /pe_co_generated_publication_audit_select_participants/);
+  assert.match(sql, /revoke_generated_publications_on_consent_inactive/);
+  assert.match(sql, /invalidate_generated_publications_on_source_artifact/);
+  assert.match(sql, /invalidate_generated_publications_on_revision/);
+  assert.match(sql, /No list, Discover, Space, forum, writing, homepage, public persona linkback/);
+  assert.equal(/create policy "pe_co_generated_publications_insert_participants"/.test(sql), false);
+  assert.equal(/create policy "pe_co_generated_publications_update_participants"/.test(sql), false);
+  assert.equal(/create policy "pe_co_generated_publications_delete_participants"/.test(sql), false);
   assert.equal(/disable row level security/i.test(sql), false);
 });
 
@@ -3157,6 +3340,258 @@ test("cross-owner private generated artifacts require participant readback and e
     assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
     assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
     assert.equal(db.rows("persona_encounter_cross_owner_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner generated publications copy exact approved revisions to a detail-only public route", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const fixture = await createGeneratedRevisionFixture(app, {
+      artifact: {
+        body: "Private generated source words must stay participant-only.",
+      },
+      revision: {
+        title: "Exact PR524A public title",
+        body: "Exact PR524A generated body copied only after bilateral approval.",
+        excerpt: "Exact PR524A excerpt.",
+      },
+    });
+
+    const publish = await requestJson(app, "POST", crossOwnerGeneratedRevisionPublicationPath(fixture.revision.revisionSlug), {
+      token: "owner-token",
+      body: crossOwnerGeneratedPublicationBody(fixture.revision.textDigest),
+    });
+    assert.equal(publish.status, 201);
+    assert.match(publish.body.publication.slug, /^exact-pr524a-public-title-[a-z0-9]{8}$/);
+    assert.equal(publish.body.publication.routeHref, `/encounters/cross-owner/generated/${publish.body.publication.slug}`);
+    assert.equal(publish.body.publication.title, "Exact PR524A public title");
+    assert.equal(publish.body.publication.body, "Exact PR524A generated body copied only after bilateral approval.");
+    assert.equal(publish.body.publication.excerpt, "Exact PR524A excerpt.");
+    assert.equal(publish.body.publication.status, "published");
+    assert.equal(publish.body.publication.contractVersion, 1);
+    assert.equal(publish.body.publication.revisionDigest, fixture.revision.textDigest);
+    assert.equal(publish.body.publication.source.exactApprovedRevision, true);
+    assert.equal(publish.body.publication.source.copiedServerSide, true);
+    assert.equal(publish.body.publication.provenance.public, true);
+    assert.equal(publish.body.publication.provenance.detailOnly, true);
+    assert.equal(publish.body.publication.provenance.routeListed, false);
+    assert.equal(publish.body.publication.provenance.indexed, false);
+    assert.equal(publish.body.publication.provenance.discoverable, false);
+    assert.equal(
+      publish.body.publication.report.path,
+      `/persona-encounters/cross-owner-generated-publications/${publish.body.publication.slug}/report`,
+    );
+
+    const publicationRow = db.rows("persona_encounter_cross_owner_generated_publications")[0];
+    assert.equal(publicationRow.public_slug, publish.body.publication.slug);
+    assert.equal(publicationRow.public_body, "Exact PR524A generated body copied only after bilateral approval.");
+    assert.equal(publicationRow.revision_digest, fixture.revision.textDigest);
+    assert.equal(publicationRow.status, "published");
+    assert.equal(db.rows("persona_encounter_cross_owner_generated_publication_audit_events")[0].event_type, "published");
+
+    const publicRead = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
+    assert.equal(publicRead.status, 200);
+    assert.equal(publicRead.body.publication.body, "Exact PR524A generated body copied only after bilateral approval.");
+    assert.equal(publicRead.body.publication.participants.requester.personaName, "Blue Lantern");
+    assert.equal(publicRead.body.publication.participants.counterparty.personaName, "Other Owner Persona");
+
+    const publicList = await requestJson(app, "GET", "/persona-encounters/cross-owner-public-exhibits");
+    assert.equal(publicList.status, 200);
+    assert.equal(JSON.stringify(publicList.body).includes("Exact PR524A generated body"), false);
+
+    const publicJson = JSON.stringify(publicRead.body);
+    for (const forbidden of [
+      fixture.consent.id,
+      publicationRow.id,
+      publicationRow.artifact_id,
+      publicationRow.revision_id,
+      OWNER_ID,
+      OTHER_OWNER_ID,
+      INITIATOR_ID,
+      OTHER_PERSONA_ID,
+      "requester_owner_user_id",
+      "counterparty_owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "Private generated source words",
+      "private_body",
+      "final_body",
+      "provider_payload",
+      "Bearer ",
+      "test-deepseek-key",
+    ]) {
+      assert.equal(publicJson.includes(forbidden), false, `${forbidden} leaked in generated publication detail`);
+    }
+
+    const signedOutReport = await requestJson(app, "POST", `${crossOwnerGeneratedPublicationPath(publish.body.publication.slug)}/report`, {
+      body: { reason: "unsafe_public_generated_material" },
+    });
+    assert.equal(signedOutReport.status, 401);
+
+    const report = await requestJson(app, "POST", `${crossOwnerGeneratedPublicationPath(publish.body.publication.slug)}/report`, {
+      token: "third-token",
+      body: { reason: "unsafe_public_generated_material", notes: "Exact words look unsafe." },
+    });
+    assert.equal(report.status, 201);
+    assert.equal(report.body.report.status, "open");
+    assert.equal(report.body.duplicate, false);
+
+    const duplicateReport = await requestJson(app, "POST", `${crossOwnerGeneratedPublicationPath(publish.body.publication.slug)}/report`, {
+      token: "third-token",
+      body: { reason: "unsafe_public_generated_material", notes: "Duplicate note should not matter." },
+    });
+    assert.equal(duplicateReport.status, 200);
+    assert.equal(duplicateReport.body.duplicate, true);
+
+    const moderationReport = db.rows("moderation_reports")[0];
+    assert.equal(moderationReport.reporter_id, THIRD_OWNER_ID);
+    assert.equal(moderationReport.target_type, "persona_encounter_cross_owner_generated_publication");
+    assert.equal(moderationReport.target_id, publicationRow.id);
+    assert.equal(moderationReport.status, "open");
+    assert.equal(db.rows("persona_encounter_cross_owner_generated_publications")[0].reported_count, 1);
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner generated publications fail closed for scope digest source and participant drift", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const wrongScope = await createGeneratedRevisionFixture(app, {
+      requestedScopes: ["save_private_cross_owner_artifact"],
+    });
+    const wrongScopePublish = await requestJson(
+      app,
+      "POST",
+      crossOwnerGeneratedRevisionPublicationPath(wrongScope.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedPublicationBody(wrongScope.revision.textDigest),
+      },
+    );
+    assert.equal(wrongScopePublish.status, 409);
+    assert.equal(wrongScopePublish.body.code, "persona_encounter_cross_owner_generated_publication_wrong_scope");
+
+    const oneSided = await createGeneratedRevisionFixture(app, { approveCounterparty: false });
+    const oneSidedPublish = await requestJson(
+      app,
+      "POST",
+      crossOwnerGeneratedRevisionPublicationPath(oneSided.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedPublicationBody(oneSided.revision.textDigest),
+      },
+    );
+    assert.equal(oneSidedPublish.status, 409);
+    assert.equal(oneSidedPublish.body.code, "persona_encounter_cross_owner_generated_publication_revision_unapproved");
+
+    const fixture = await createGeneratedRevisionFixture(app);
+    const staleDigestPublish = await requestJson(
+      app,
+      "POST",
+      crossOwnerGeneratedRevisionPublicationPath(fixture.revision.revisionSlug),
+      {
+        token: "owner-token",
+        body: crossOwnerGeneratedPublicationBody("f".repeat(64)),
+      },
+    );
+    assert.equal(staleDigestPublish.status, 409);
+    assert.equal(staleDigestPublish.body.code, "persona_encounter_cross_owner_generated_publication_digest_mismatch");
+
+    const publish = await requestJson(app, "POST", crossOwnerGeneratedRevisionPublicationPath(fixture.revision.revisionSlug), {
+      token: "owner-token",
+      body: crossOwnerGeneratedPublicationBody(fixture.revision.textDigest),
+    });
+    assert.equal(publish.status, 201);
+
+    const duplicatePublish = await requestJson(app, "POST", crossOwnerGeneratedRevisionPublicationPath(fixture.revision.revisionSlug), {
+      token: "other-token",
+      body: crossOwnerGeneratedPublicationBody(fixture.revision.textDigest),
+    });
+    assert.equal(duplicatePublish.status, 409);
+    assert.equal(duplicatePublish.body.code, "persona_encounter_cross_owner_generated_publication_exists");
+
+    const publicBeforeDrift = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
+    assert.equal(publicBeforeDrift.status, 200);
+
+    db.tables.personas = db.rows("personas").filter((row) => row.id !== OTHER_PERSONA_ID);
+    const publicAfterParticipantDeletion = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
+    assert.equal(publicAfterParticipantDeletion.status, 404);
+    assert.ok(
+      db.rows("persona_encounter_cross_owner_generated_publication_audit_events")
+        .some((event) => event.event_type === "blocked_public_read" && event.actor_role === "public"),
+    );
+
+    const reportAfterParticipantDeletion = await requestJson(app, "POST", `${crossOwnerGeneratedPublicationPath(publish.body.publication.slug)}/report`, {
+      token: "third-token",
+      body: { reason: "unsafe_public_generated_material" },
+    });
+    assert.equal(reportAfterParticipantDeletion.status, 404);
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
+    assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
+    assert.equal(db.rows("token_transactions").length, 0);
+  });
+});
+
+test("cross-owner generated publication participant controls hide and delete public body text", async () => {
+  await withHarness(async ({ db, app, providerCalls }) => {
+    const fixture = await createGeneratedRevisionFixture(app);
+    const publish = await requestJson(app, "POST", crossOwnerGeneratedRevisionPublicationPath(fixture.revision.revisionSlug), {
+      token: "owner-token",
+      body: crossOwnerGeneratedPublicationBody(fixture.revision.textDigest),
+    });
+    assert.equal(publish.status, 201);
+
+    const signedOutRetract = await requestJson(app, "PATCH", crossOwnerGeneratedPublicationRetractPath(publish.body.publication.slug));
+    assert.equal(signedOutRetract.status, 401);
+
+    const nonparticipantRetract = await requestJson(app, "PATCH", crossOwnerGeneratedPublicationRetractPath(publish.body.publication.slug), {
+      token: "third-token",
+    });
+    assert.equal(nonparticipantRetract.status, 404);
+
+    const retract = await requestJson(app, "PATCH", crossOwnerGeneratedPublicationRetractPath(publish.body.publication.slug), {
+      token: "owner-token",
+    });
+    assert.equal(retract.status, 200);
+    assert.equal(retract.body.publication.status, "retracted");
+    assert.equal(retract.body.publication.title, null);
+    assert.equal(retract.body.publication.body, null);
+    assert.equal(retract.body.publication.provenance.public, false);
+    assert.equal(retract.body.publication.provenance.generatedBodyPublished, false);
+
+    const publicAfterRetract = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
+    assert.equal(publicAfterRetract.status, 404);
+
+    const deleteResponse = await requestJson(app, "DELETE", crossOwnerGeneratedPublicationPath(publish.body.publication.slug), {
+      token: "other-token",
+    });
+    assert.equal(deleteResponse.status, 200);
+    assert.equal(deleteResponse.body.deleted, true);
+    assert.equal(deleteResponse.body.publication.status, "deleted");
+    assert.equal(deleteResponse.body.publication.body, null);
+    assert.equal(deleteResponse.body.publication.timestamps.deletedAt !== null, true);
+
+    const publicAfterDelete = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
+    assert.equal(publicAfterDelete.status, 404);
+
+    assert.deepEqual(
+      db.rows("persona_encounter_cross_owner_generated_publication_audit_events")
+        .map((event) => event.event_type)
+        .filter((eventType) => ["published", "retracted", "blocked_public_read", "deleted"].includes(eventType)),
+      ["published", "retracted", "blocked_public_read", "deleted", "blocked_public_read"],
+    );
+
+    assert.equal(providerCalls.length, 0);
+    assert.equal(db.rows("persona_encounter_private_sessions").length, 0);
+    assert.equal(db.rows("persona_encounter_public_exhibits").length, 0);
     assert.equal(db.rows("persona_encounter_cross_owner_runtime_attempts").length, 0);
     assert.equal(db.rows("token_transactions").length, 0);
   });

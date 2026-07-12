@@ -58,7 +58,8 @@ export type ModerationTargetType =
   | "comment"
   | "persona"
   | "persona_encounter_public_exhibit"
-  | "persona_encounter_cross_owner_public_exhibit";
+  | "persona_encounter_cross_owner_public_exhibit"
+  | "persona_encounter_cross_owner_generated_publication";
 export type ModerationStatus = "open" | "reviewing" | "resolved" | "dismissed";
 export type ModerationReviewRequestRole = "reporter" | "target_author";
 export type ModerationReviewRequestStatus = "open" | "reviewing" | "upheld" | "denied" | "dismissed" | "withdrawn";
@@ -90,6 +91,28 @@ export type PersonaEncounterCrossOwnerGeneratedRevisionStatus =
   | "deleted"
   | "moderation_blocked"
   | "invalidated";
+export type PersonaEncounterCrossOwnerGeneratedPublicationStatus =
+  | "published"
+  | "retracted"
+  | "revoked"
+  | "source_invalidated"
+  | "removed"
+  | "deleted";
+export type PersonaEncounterCrossOwnerGeneratedPublicationAuditActorRole =
+  | "requester"
+  | "counterparty"
+  | "admin"
+  | "system"
+  | "public";
+export type PersonaEncounterCrossOwnerGeneratedPublicationAuditEventType =
+  | "published"
+  | "retracted"
+  | "revoked"
+  | "source_invalidated"
+  | "moderation_removed"
+  | "moderation_restored"
+  | "deleted"
+  | "blocked_public_read";
 export type PersonaEncounterCrossOwnerConsentStatus =
   | "pending"
   | "approved"
@@ -105,6 +128,7 @@ export type PersonaEncounterCrossOwnerConsentRequestedScope =
   | "save_private_cross_owner_artifact"
   | "share_participant_metadata_between_owners"
   | "publish_metadata_only_public_exhibit"
+  | "publish_exact_generated_revision"
   | "publish_generated_words_excerpt"
   | "publish_transcript"
   | "publish_generated_summary";
@@ -842,6 +866,93 @@ export interface Database {
           id?: string;
           approval_contract_version?: 1;
           approved_at?: string;
+        };
+        Update: never;
+      };
+      persona_encounter_cross_owner_generated_publications: {
+        Row: {
+          id: string;
+          consent_id: string;
+          artifact_id: string;
+          revision_id: string;
+          requester_owner_user_id: string;
+          requester_persona_id: string;
+          requester_persona_name_snapshot: string;
+          counterparty_owner_user_id: string;
+          counterparty_persona_id: string;
+          counterparty_persona_name_snapshot: string;
+          public_slug: string;
+          public_title: string;
+          public_body: string;
+          public_excerpt: string | null;
+          revision_digest: string;
+          source_artifact_digest: string;
+          status: PersonaEncounterCrossOwnerGeneratedPublicationStatus;
+          private_artifact_contract_version: 1;
+          revision_contract_version: 1;
+          approval_contract_version: 1;
+          publication_contract_version: 1;
+          provenance_schema: "station.persona_encounter.cross_owner_generated_publication.v1";
+          reported_count: number;
+          published_at: string;
+          retracted_at: string | null;
+          revoked_at: string | null;
+          source_invalidated_at: string | null;
+          removed_at: string | null;
+          removed_by: string | null;
+          restored_at: string | null;
+          restored_by: string | null;
+          deleted_at: string | null;
+          created_by: string;
+          updated_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_publications"]["Row"], "id" | "public_excerpt" | "status" | "private_artifact_contract_version" | "revision_contract_version" | "approval_contract_version" | "publication_contract_version" | "provenance_schema" | "reported_count" | "published_at" | "retracted_at" | "revoked_at" | "source_invalidated_at" | "removed_at" | "removed_by" | "restored_at" | "restored_by" | "deleted_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          public_excerpt?: string | null;
+          status?: PersonaEncounterCrossOwnerGeneratedPublicationStatus;
+          private_artifact_contract_version?: 1;
+          revision_contract_version?: 1;
+          approval_contract_version?: 1;
+          publication_contract_version?: 1;
+          provenance_schema?: "station.persona_encounter.cross_owner_generated_publication.v1";
+          reported_count?: number;
+          published_at?: string;
+          retracted_at?: string | null;
+          revoked_at?: string | null;
+          source_invalidated_at?: string | null;
+          removed_at?: string | null;
+          removed_by?: string | null;
+          restored_at?: string | null;
+          restored_by?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_publications"]["Insert"]>;
+      };
+      persona_encounter_cross_owner_generated_publication_audit_events: {
+        Row: {
+          id: string;
+          publication_id: string;
+          consent_id: string;
+          artifact_id: string;
+          revision_id: string;
+          actor_user_id: string | null;
+          actor_role: PersonaEncounterCrossOwnerGeneratedPublicationAuditActorRole;
+          event_type: PersonaEncounterCrossOwnerGeneratedPublicationAuditEventType;
+          previous_status: PersonaEncounterCrossOwnerGeneratedPublicationStatus | null;
+          next_status: PersonaEncounterCrossOwnerGeneratedPublicationStatus | null;
+          revision_digest: string;
+          source_artifact_digest: string;
+          publication_contract_version: 1;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_publication_audit_events"]["Row"], "id" | "publication_contract_version" | "created_at"> & {
+          id?: string;
+          publication_contract_version?: 1;
+          created_at?: string;
         };
         Update: never;
       };

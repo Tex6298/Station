@@ -27,6 +27,7 @@ const createReportSchema = z.object({
     "persona",
     "persona_encounter_public_exhibit",
     "persona_encounter_cross_owner_public_exhibit",
+    "persona_encounter_cross_owner_generated_publication",
   ]),
   targetId: z.string().min(1),
   reason: z.string().min(1),
@@ -75,6 +76,7 @@ const ACTIVE_REVIEW_REQUEST_STATUSES = new Set(["open", "reviewing"]);
 const PUBLIC_EXHIBIT_REPORT_TARGET_TYPES = new Set<ModerationReportTargetType>([
   "persona_encounter_public_exhibit",
   "persona_encounter_cross_owner_public_exhibit",
+  "persona_encounter_cross_owner_generated_publication",
 ]);
 
 function serializeReport(
@@ -630,6 +632,8 @@ async function loadReportTargetContexts(
       contexts.set(report.id, await loadPublicEncounterExhibitTargetContext(sb, report.target_id));
     } else if (report.target_type === "persona_encounter_cross_owner_public_exhibit") {
       contexts.set(report.id, await loadCrossOwnerPublicEncounterExhibitTargetContext(sb, report.target_id));
+    } else if (report.target_type === "persona_encounter_cross_owner_generated_publication") {
+      contexts.set(report.id, await loadCrossOwnerGeneratedPublicationTargetContext(sb, report.target_id));
     }
   }
 
@@ -917,6 +921,43 @@ async function loadCrossOwnerPublicEncounterExhibitTargetContext(
   };
 }
 
+async function loadCrossOwnerGeneratedPublicationTargetContext(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  publicationId: string
+): Promise<ModerationReportTargetContext> {
+  const { data: publication } = await (sb as any)
+    .from("persona_encounter_cross_owner_generated_publications")
+    .select("id, consent_id, artifact_id, revision_id, public_slug, public_title, status, reported_count, removed_at, retracted_at, deleted_at")
+    .eq("id", publicationId)
+    .maybeSingle();
+
+  if (!publication) {
+    return unavailableTargetContext(
+      "persona_encounter_cross_owner_generated_publication",
+      publicationId,
+      "Cross-owner generated publication target not found."
+    );
+  }
+
+  const sourceActive = await crossOwnerGeneratedPublicationSourceActive(sb, publication);
+  const isPublic = publication.status === "published" && !publication.removed_at && !publication.retracted_at && !publication.deleted_at && sourceActive;
+
+  return {
+    targetType: "persona_encounter_cross_owner_generated_publication",
+    targetId: publication.id,
+    title: publication.public_title ?? "Cross-owner generated publication",
+    status: publication.status ?? null,
+    visibility: isPublic ? "public_detail" : "not_public",
+    routeHref: isPublic ? `/encounters/cross-owner/generated/${publication.public_slug}` : null,
+    routeLabel: isPublic ? publication.public_title ?? "Generated publication" : null,
+    canOpenRoute: isPublic,
+    unavailableReason: isPublic
+      ? null
+      : "Cross-owner generated publication is not currently public.",
+    supportedActions: publicExhibitModerationActionsForTarget({ ...publication, sourceActive }),
+  };
+}
+
 async function loadForumCategory(sb: ReturnType<typeof getSupabaseAdmin>, categoryId: string | null | undefined) {
   if (!categoryId) return null;
   const { data } = await (sb as any)
@@ -960,10 +1001,10 @@ function moderationActionsForTarget(
 }
 
 function publicExhibitModerationActionsForTarget(
-  target: { status?: string | null; consentActive?: boolean | null }
+  target: { status?: string | null; consentActive?: boolean | null; sourceActive?: boolean | null }
 ): Array<z.infer<typeof publicExhibitTargetActionSchema>> {
   if (target.status === "published") return ["remove"];
-  if (target.status === "removed" && target.consentActive !== false) return ["restore"];
+  if (target.status === "removed" && target.consentActive !== false && target.sourceActive !== false) return ["restore"];
   return [];
 }
 
@@ -1037,6 +1078,19 @@ async function updateReportedTarget(targetType: string, targetId: string) {
       .update({ reported_count: Number(exhibit.reported_count ?? 0) + 1 } as any)
       .eq("id", targetId);
   }
+
+  if (targetType === "persona_encounter_cross_owner_generated_publication") {
+    const { data: publication } = await sb
+      .from("persona_encounter_cross_owner_generated_publications")
+      .select("id, reported_count")
+      .eq("id", targetId)
+      .maybeSingle();
+    if (!publication) return;
+    await sb
+      .from("persona_encounter_cross_owner_generated_publications")
+      .update({ reported_count: Number(publication.reported_count ?? 0) + 1 } as any)
+      .eq("id", targetId);
+  }
 }
 
 async function applyPublicExhibitModerationAction(
@@ -1066,6 +1120,14 @@ async function applyPublicExhibitModerationAction(
         removed_at: new Date().toISOString(),
         removed_by: adminUserId,
       }
+    : targetType === "persona_encounter_cross_owner_generated_publication"
+    ? {
+        status: exhibit.retracted_at ? "retracted" : "published",
+        removed_at: null,
+        removed_by: null,
+        restored_at: new Date().toISOString(),
+        restored_by: adminUserId,
+      }
     : {
         status: exhibit.retracted_at ? "retracted" : "published",
         removed_at: null,
@@ -1086,6 +1148,10 @@ async function applyPublicExhibitModerationAction(
     return { ok: false, status: 500, error: "Public encounter exhibit moderation action failed." };
   }
 
+  if (targetType === "persona_encounter_cross_owner_generated_publication") {
+    await recordGeneratedPublicationModerationAudit(sb, exhibit, action, adminUserId).catch(() => undefined);
+  }
+
   return { ok: true };
 }
 
@@ -1096,7 +1162,9 @@ async function loadPublicExhibitModerationTarget(
 ) {
   const table = publicExhibitModerationTable(targetType);
   if (!table) return null;
-  const selectColumns = targetType === "persona_encounter_cross_owner_public_exhibit"
+  const selectColumns = targetType === "persona_encounter_cross_owner_generated_publication"
+    ? "id, public_slug, status, retracted_at, consent_id, artifact_id, revision_id, revision_digest, source_artifact_digest, publication_contract_version"
+    : targetType === "persona_encounter_cross_owner_public_exhibit"
     ? "id, slug, status, retracted_at, consent_id"
     : "id, slug, status, retracted_at";
 
@@ -1113,6 +1181,12 @@ async function loadPublicExhibitModerationTarget(
       consentActive: await crossOwnerPublicExhibitConsentActive(sb, data.consent_id),
     };
   }
+  if (targetType === "persona_encounter_cross_owner_generated_publication") {
+    return {
+      ...data,
+      sourceActive: await crossOwnerGeneratedPublicationSourceActive(sb, data),
+    };
+  }
 
   return data;
 }
@@ -1121,6 +1195,9 @@ function publicExhibitModerationTable(targetType: ModerationReportTargetType) {
   if (targetType === "persona_encounter_public_exhibit") return "persona_encounter_public_exhibits";
   if (targetType === "persona_encounter_cross_owner_public_exhibit") {
     return "persona_encounter_cross_owner_public_exhibits";
+  }
+  if (targetType === "persona_encounter_cross_owner_generated_publication") {
+    return "persona_encounter_cross_owner_generated_publications";
   }
   return null;
 }
@@ -1143,6 +1220,83 @@ async function crossOwnerPublicExhibitConsentActive(
     Array.isArray(consent.requested_scopes) &&
     consent.requested_scopes.includes("publish_metadata_only_public_exhibit")
   );
+}
+
+async function crossOwnerGeneratedPublicationSourceActive(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  publication: {
+    consent_id?: string | null;
+    artifact_id?: string | null;
+    revision_id?: string | null;
+  },
+) {
+  if (!publication.consent_id || !publication.artifact_id || !publication.revision_id) return false;
+
+  const [consentResult, artifactResult, revisionResult] = await Promise.all([
+    (sb as any)
+      .from("persona_encounter_cross_owner_consents")
+      .select("id, status, requested_scopes, requested_scope_version")
+      .eq("id", publication.consent_id)
+      .maybeSingle(),
+    (sb as any)
+      .from("persona_encounter_cross_owner_generated_artifacts")
+      .select("id, lifecycle_status")
+      .eq("id", publication.artifact_id)
+      .maybeSingle(),
+    (sb as any)
+      .from("persona_encounter_cross_owner_generated_revisions")
+      .select("id, status")
+      .eq("id", publication.revision_id)
+      .maybeSingle(),
+  ]);
+
+  const consent = consentResult.data;
+  const artifact = artifactResult.data;
+  const revision = revisionResult.data;
+
+  return Boolean(
+    consent &&
+    consent.status === "approved" &&
+    consent.requested_scope_version === 1 &&
+    Array.isArray(consent.requested_scopes) &&
+    consent.requested_scopes.includes("save_private_cross_owner_artifact") &&
+    consent.requested_scopes.includes("publish_exact_generated_revision") &&
+    artifact?.lifecycle_status === "active" &&
+    revision?.status === "approved"
+  );
+}
+
+async function recordGeneratedPublicationModerationAudit(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  publication: {
+    id: string;
+    consent_id: string;
+    artifact_id: string;
+    revision_id: string;
+    revision_digest: string;
+    source_artifact_digest: string;
+    publication_contract_version?: number;
+    status?: string | null;
+  },
+  action: z.infer<typeof publicExhibitTargetActionSchema>,
+  adminUserId: string,
+) {
+  await (sb as any)
+    .from("persona_encounter_cross_owner_generated_publication_audit_events")
+    .insert({
+      publication_id: publication.id,
+      consent_id: publication.consent_id,
+      artifact_id: publication.artifact_id,
+      revision_id: publication.revision_id,
+      actor_user_id: adminUserId,
+      actor_role: "admin",
+      event_type: action === "remove" ? "moderation_removed" : "moderation_restored",
+      previous_status: action === "remove" ? "published" : "removed",
+      next_status: action === "remove" ? "removed" : "published",
+      revision_digest: publication.revision_digest,
+      source_artifact_digest: publication.source_artifact_digest,
+      publication_contract_version: publication.publication_contract_version ?? 1,
+    });
 }
 
 async function bumpReportCount(userId: string) {

@@ -8,6 +8,9 @@ import {
   PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCHEMA,
   PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACT_REQUIRED_SCOPE,
   PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACTS_PATH,
+  PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_REQUIRED_SCOPE,
+  PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA,
+  PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATIONS_PATH,
   PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA,
   PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA,
   PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_CONTRACT_VERSION,
@@ -29,6 +32,7 @@ import {
   personaEncounterCrossOwnerConsentCreateByPublicSlugPayload,
   personaEncounterCrossOwnerConsentDisplay,
   personaEncounterCrossOwnerConsentGeneratedArtifactsPath,
+  personaEncounterCrossOwnerConsentCanPublishGeneratedRevision,
   personaEncounterCrossOwnerConsentInvitationErrorCopy,
   personaEncounterCrossOwnerConsentLedgerBoundaryReadback,
   personaEncounterCrossOwnerConsentPath,
@@ -46,9 +50,16 @@ import {
   personaEncounterCrossOwnerGeneratedArtifactPayload,
   personaEncounterCrossOwnerGeneratedArtifactRetractPath,
   personaEncounterCrossOwnerGeneratedArtifactRevisionsPath,
+  personaEncounterCrossOwnerGeneratedPublicationPath,
+  personaEncounterCrossOwnerGeneratedPublicationPayload,
+  personaEncounterCrossOwnerGeneratedPublicationReadback,
+  personaEncounterCrossOwnerGeneratedPublicationReportPath,
+  personaEncounterCrossOwnerGeneratedPublicationRetractPath,
+  personaEncounterCrossOwnerGeneratedPublicationWebHref,
   personaEncounterCrossOwnerGeneratedRevisionApprovalPayload,
   personaEncounterCrossOwnerGeneratedRevisionApprovePath,
   personaEncounterCrossOwnerGeneratedRevisionPayload,
+  personaEncounterCrossOwnerGeneratedRevisionPublicationPath,
   personaEncounterCrossOwnerPrivateGeneratedArtifactReadback,
   personaEncounterCrossOwnerPublicExhibitApprovePath,
   personaEncounterCrossOwnerPublicExhibitErrorCopy,
@@ -520,6 +531,47 @@ test("persona encounter runtime helper builds cross-owner private generated arti
   assert.equal(payloadJson.includes("providerPayload"), false);
 });
 
+test("persona encounter runtime helper builds cross-owner generated publication requests", () => {
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATIONS_PATH,
+    "/persona-encounters/cross-owner-generated-publications",
+  );
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA,
+    "station.persona_encounter.cross_owner_generated_publication.v1",
+  );
+  assert.equal(
+    PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_REQUIRED_SCOPE,
+    "publish_exact_generated_revision",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerGeneratedRevisionPublicationPath("revision/one"),
+    "/persona-encounters/cross-owner-generated-revisions/revision%2Fone/publication",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerGeneratedPublicationPath("generated/one"),
+    "/persona-encounters/cross-owner-generated-publications/generated%2Fone",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerGeneratedPublicationRetractPath("generated/one"),
+    "/persona-encounters/cross-owner-generated-publications/generated%2Fone/retract",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerGeneratedPublicationReportPath("generated/one"),
+    "/persona-encounters/cross-owner-generated-publications/generated%2Fone/report",
+  );
+  assert.equal(
+    personaEncounterCrossOwnerGeneratedPublicationWebHref("generated/one"),
+    "/encounters/cross-owner/generated/generated%2Fone",
+  );
+  assert.deepEqual(personaEncounterCrossOwnerGeneratedPublicationPayload({
+    revisionDigest: `  ${"b".repeat(64)}  `,
+  }), {
+    confirmPublicGeneratedMaterialPublication: true,
+    revisionDigest: "b".repeat(64),
+  });
+});
+
 test("persona encounter runtime helper builds provider readiness path", () => {
   assert.equal(
     personaEncounterPreviewReadinessPath({
@@ -551,18 +603,37 @@ test("persona encounter runtime helper classifies cross-owner consent preview el
   assert.equal(personaEncounterCrossOwnerConsentDisplay(approved), "Harbor / Lantern");
   assert.equal(personaEncounterCrossOwnerConsentCanRun(approved), true);
   assert.equal(personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(approved), false);
+  assert.equal(personaEncounterCrossOwnerConsentCanPublishGeneratedRevision(approved), false);
   assert.equal(
     personaEncounterCrossOwnerConsentStateCopy(approved),
     "Approved consent can run one private disposable preview.",
   );
 
-  assert.equal(personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(crossOwnerConsent({
+  const generatedOnlyConsent = crossOwnerConsent({
     requestedScopes: [{
       scope: "save_private_cross_owner_artifact",
       label: "Save private cross-owner artifact",
       executable: false,
     }],
-  })), true);
+  });
+  assert.equal(personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(generatedOnlyConsent), true);
+  assert.equal(personaEncounterCrossOwnerConsentCanPublishGeneratedRevision(generatedOnlyConsent), false);
+
+  const generatedPublicationConsent = crossOwnerConsent({
+    requestedScopes: [
+      {
+        scope: "save_private_cross_owner_artifact",
+        label: "Save private cross-owner artifact",
+        executable: false,
+      },
+      {
+        scope: "publish_exact_generated_revision",
+        label: "Publish exact generated revision",
+        executable: false,
+      },
+    ],
+  });
+  assert.equal(personaEncounterCrossOwnerConsentCanPublishGeneratedRevision(generatedPublicationConsent), true);
 
   for (const [status, copy] of [
     ["pending", "Consent is pending and cannot run a preview yet."],
@@ -988,6 +1059,87 @@ test("persona encounter runtime readback labels cross-owner private generated ar
   ]);
 });
 
+test("persona encounter runtime readback labels cross-owner generated publication boundaries", () => {
+  const publication = {
+    slug: "generated-publication-12345678",
+    routeHref: "/encounters/cross-owner/generated/generated-publication-12345678",
+    title: "Exact public generated title",
+    body: "Exact generated body.",
+    excerpt: "Exact generated excerpt.",
+    status: "published" as const,
+    contractVersion: 1 as const,
+    revisionDigest: "b".repeat(64),
+    sourceArtifactDigest: "a".repeat(64),
+    reportedCount: 0,
+    publishedAt: "2026-07-12T12:00:00.000Z",
+    participants: {
+      requester: {
+        role: "requester" as const,
+        personaName: "Harbor",
+      },
+      counterparty: {
+        role: "counterparty" as const,
+        personaName: "Lantern",
+      },
+    },
+    source: {
+      consentStatus: "approved" as const,
+      artifactLifecycleStatus: "active" as const,
+      revisionStatus: "approved" as const,
+      exactApprovedRevision: true,
+      copiedServerSide: true,
+    },
+    timestamps: {
+      publishedAt: "2026-07-12T12:00:00.000Z",
+      retractedAt: null,
+      revokedAt: null,
+      sourceInvalidatedAt: null,
+      removedAt: null,
+      restoredAt: null,
+      deletedAt: null,
+      updatedAt: "2026-07-12T12:00:00.000Z",
+    },
+    provenance: {
+      label: "Cross-owner generated material public detail" as const,
+      schema: "station.persona_encounter.cross_owner_generated_publication.v1" as const,
+      public: true,
+      detailOnly: true as const,
+      routeListed: false as const,
+      indexed: false as const,
+      discoverable: false as const,
+      generatedBodyPublished: true,
+      source: "Copied server-side from an exact bilaterally approved PR522 generated revision.",
+      noPublicList: true as const,
+      noPr516DirectPublication: true as const,
+      note: "This detail route publishes only the approved final generated body for this exact revision.",
+    },
+    report: {
+      requiresSignIn: true as const,
+      path: "/persona-encounters/cross-owner-generated-publications/generated-publication-12345678/report",
+    },
+  };
+
+  assert.deepEqual(personaEncounterCrossOwnerGeneratedPublicationReadback(publication), [
+    "Cross-owner generated material public detail",
+    "Detail route only",
+    "Exact approved revision",
+    "Copied server-side from approved revision",
+    "Public generated body on this detail route",
+    "No public list placement",
+    "No PR516 direct publication",
+    "No provider payload, retrieval body, token fact, raw owner id, or raw persona id",
+  ]);
+  assert.deepEqual(personaEncounterCrossOwnerGeneratedPublicationReadback(null), [
+    "Cross-owner generated material public detail",
+    "Detail route only",
+    "Exact approved revision required",
+    "Copied server-side from PR522 revision",
+    "No public list, Discover, Space, forum, writing, homepage, or persona linkback placement",
+    "No PR516 disposable preview direct publication",
+    "No provider payload, retrieval body, token fact, raw owner id, or raw persona id",
+  ]);
+});
+
 test("persona encounter runtime readback labels private saved artifacts honestly", () => {
   const session: PersonaEncounterPrivateSession = {
     id: "session-1",
@@ -1198,6 +1350,18 @@ test("persona encounter runtime cross-owner generated artifact error copy stays 
     message: "approver_owner_user_id=secret",
   }), "The other participant must approve this exact generated revision.");
   assert.equal(personaEncounterCrossOwnerGeneratedArtifactErrorCopy({
+    code: "persona_encounter_cross_owner_generated_publication_wrong_scope",
+    message: "raw requested_scopes owner_user_id",
+  }), "This consent does not include exact generated revision publication scope.");
+  assert.equal(personaEncounterCrossOwnerGeneratedArtifactErrorCopy({
+    code: "persona_encounter_cross_owner_generated_publication_digest_mismatch",
+    message: "raw final_body private text",
+  }), "Publication requires the exact approved revision digest.");
+  assert.equal(personaEncounterCrossOwnerGeneratedArtifactErrorCopy({
+    code: "persona_encounter_cross_owner_generated_publication_participant_deleted",
+    message: "raw deleted persona id",
+  }), "This publication source is no longer available.");
+  assert.equal(personaEncounterCrossOwnerGeneratedArtifactErrorCopy({
     code: "unknown",
     message: "Bearer secret raw SQL owner_user_id",
   }), "Cross-owner private generated artifact workflow could not be prepared.");
@@ -1268,6 +1432,42 @@ test("public encounter exhibit page and Studio controls stay metadata-only", () 
   }
 });
 
+test("cross-owner generated publication page stays detail-only and unlisted", () => {
+  const generatedPageSource = readFileSync(
+    "apps/web/app/encounters/cross-owner/generated/[slug]/page.tsx",
+    "utf8",
+  );
+  const crossOwnerIndexSource = readFileSync("apps/web/app/encounters/cross-owner/page.tsx", "utf8");
+  const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
+  const runtimeSource = readFileSync("apps/web/lib/persona-encounter-runtime.ts", "utf8");
+
+  assert.match(generatedPageSource, /personaEncounterCrossOwnerGeneratedPublicationPath/);
+  assert.match(generatedPageSource, /personaEncounterCrossOwnerGeneratedPublicationReportPath/);
+  assert.match(generatedPageSource, /personaEncounterCrossOwnerGeneratedPublicationReadback/);
+  assert.match(generatedPageSource, /PersonaEncounterCrossOwnerGeneratedPublicationResponse/);
+  assert.match(generatedPageSource, /Sign in to report/);
+  assert.doesNotMatch(generatedPageSource, /personaEncounterCrossOwnerPublicExhibitListPath/);
+  assert.doesNotMatch(generatedPageSource, /Discover|public Space|forum|Station Press|transcript|provider payload/i);
+
+  assert.doesNotMatch(
+    crossOwnerIndexSource,
+    /personaEncounterCrossOwnerGeneratedPublicationPath|cross-owner\/generated|GeneratedPublication/,
+  );
+  assert.match(workspaceSource, /personaEncounterCrossOwnerConsentCanPublishGeneratedRevision/);
+  assert.match(workspaceSource, /personaEncounterCrossOwnerGeneratedRevisionPublicationPath/);
+  assert.match(workspaceSource, /personaEncounterCrossOwnerGeneratedPublicationPayload/);
+  assert.match(workspaceSource, /personaEncounterCrossOwnerGeneratedPublicationWebHref/);
+  assert.match(workspaceSource, /publish_exact_generated_revision/);
+  assert.match(runtimeSource, /publish_exact_generated_revision/);
+
+  for (const source of [generatedPageSource, workspaceSource]) {
+    assert.doesNotMatch(
+      source,
+      /owner_user_id|requester_owner_user_id|counterparty_owner_user_id|requester_persona_id|counterparty_persona_id|provider_payload|retrieval_body|token_fact|raw_source/i,
+    );
+  }
+});
+
 test("cross-owner consent Studio panel uses public-slug invitation and participant helpers", () => {
   const pageSource = readFileSync("apps/web/app/studio/personas/[personaId]/page.tsx", "utf8");
   const workspaceSource = readFileSync("apps/web/components/studio/persona-workspace.tsx", "utf8");
@@ -1296,12 +1496,16 @@ test("cross-owner consent Studio panel uses public-slug invitation and participa
   assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewReadback\(preview\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerDisposablePreviewErrorCopy/);
   assert.match(panelSource, /personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact/);
+  assert.match(panelSource, /personaEncounterCrossOwnerConsentCanPublishGeneratedRevision/);
   assert.match(panelSource, /personaEncounterCrossOwnerConsentGeneratedArtifactsPath\(selectedConsent\.id\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedArtifactPayload/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedArtifactRevisionsPath\(artifact\.artifactSlug\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedRevisionPayload/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedRevisionApprovePath\(revisionSlug\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedRevisionApprovalPayload/);
+  assert.match(panelSource, /personaEncounterCrossOwnerGeneratedRevisionPublicationPath\(revisionSlug\)/);
+  assert.match(panelSource, /personaEncounterCrossOwnerGeneratedPublicationPayload/);
+  assert.match(panelSource, /personaEncounterCrossOwnerGeneratedPublicationWebHref/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedArtifactRetractPath\(artifactSlug\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerGeneratedArtifactPath\(artifactSlug\)/);
   assert.match(panelSource, /personaEncounterCrossOwnerPrivateGeneratedArtifactReadback/);
@@ -1310,6 +1514,7 @@ test("cross-owner consent Studio panel uses public-slug invitation and participa
   assert.match(panelSource, /readback\.slice\(4\)/);
   assert.match(panelSource, /Runtime preview stays separate and only appears for approved eligible rows/);
   assert.match(panelSource, /Explicit save only/);
+  assert.match(panelSource, /publish_exact_generated_revision/);
 
   assert.doesNotMatch(
     panelSource,

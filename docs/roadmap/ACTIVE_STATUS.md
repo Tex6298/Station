@@ -4,19 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR524A cross-owner generated material publication contract routed to DAEDALUS
+## Current lane - PR524A cross-owner generated material publication contract ready for ARGUS review
 
 MIMIR closed PR524 preflight:
 
 `docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_CLOSEOUT.md`
+
+DAEDALUS implemented PR524A:
+
+`docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_RESULT.md`
 
 Current lane:
 
 ```text
 PR524A - Cross-Owner Generated Material Publication Contract
 Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
-State: READY_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_DAEDALUS.md
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_RESULT.md
 ```
 
 Why:
@@ -31,7 +35,7 @@ Why:
 - DAEDALUS may implement that narrow contract but must not broaden placement or
   reuse metadata-only exhibit routes.
 
-Required shape:
+Implemented shape:
 
 ```text
 New publish_exact_generated_revision consent scope.
@@ -40,6 +44,18 @@ Public detail API and minimal public detail web page only.
 Public body copied server-side from the exact approved PR522 revision.
 Report, moderation remove/restore, participant retract/delete lifecycle.
 Hosted ARIADNE proof after ARGUS local acceptance.
+```
+
+Validation summary:
+
+```text
+test:persona-encounters, test:reports, test:personas, test:community,
+test:writing, test:studio-ui, typecheck, lint, git diff --check, changed-path
+forbidden-scope scan, broad scope-word no-drift scan, and high-risk secret scan
+pass.
+
+build reaches successful Next compile/type/static page generation, then fails
+locally on the known Windows Next standalone symlink EPERM.
 ```
 
 Still blocked by default:

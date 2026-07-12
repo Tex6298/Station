@@ -52,6 +52,8 @@ const PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA =
   "station.persona_encounter.cross_owner_private_generated_artifact.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA =
   "station.persona_encounter.cross_owner_generated_revision.v1";
+const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA =
+  "station.persona_encounter.cross_owner_generated_publication.v1";
 const CROSS_OWNER_RUNTIME_CONTEXT_CONTRACT_SCOPE_VERSION = 1;
 const CROSS_OWNER_RUNTIME_CONTEXT_REQUIRED_SCOPE =
   "run_cross_owner_encounter" satisfies CrossOwnerConsentRequestedScope;
@@ -62,6 +64,9 @@ const CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION = 1;
 const CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION = 1;
 const CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_REQUIRED_SCOPE =
   "save_private_cross_owner_artifact" satisfies CrossOwnerConsentRequestedScope;
+const CROSS_OWNER_GENERATED_PUBLICATION_CONTRACT_VERSION = 1;
+const CROSS_OWNER_GENERATED_PUBLICATION_REQUIRED_SCOPE =
+  "publish_exact_generated_revision" satisfies CrossOwnerConsentRequestedScope;
 const CROSS_OWNER_RUNTIME_DENIED_CONTEXT_CLASSES = [
   "long_description",
   "awakening_prompt",
@@ -118,6 +123,7 @@ const CROSS_OWNER_CONSENT_REQUESTED_SCOPES = [
   "save_private_cross_owner_artifact",
   "share_participant_metadata_between_owners",
   "publish_metadata_only_public_exhibit",
+  "publish_exact_generated_revision",
   "publish_generated_words_excerpt",
   "publish_transcript",
   "publish_generated_summary",
@@ -161,6 +167,8 @@ const CROSS_OWNER_GENERATED_ARTIFACT_BODY_MAX_CHARS = 8000;
 const CROSS_OWNER_GENERATED_ARTIFACT_EXCERPT_MAX_CHARS = 1000;
 const CROSS_OWNER_GENERATED_ARTIFACT_LIST_LIMIT = 12;
 const CROSS_OWNER_GENERATED_REVISION_LIST_LIMIT = 12;
+const CROSS_OWNER_GENERATED_PUBLICATION_PUBLIC_SELECT =
+  "id, consent_id, artifact_id, revision_id, requester_owner_user_id, requester_persona_id, requester_persona_name_snapshot, counterparty_owner_user_id, counterparty_persona_id, counterparty_persona_name_snapshot, public_slug, public_title, public_body, public_excerpt, revision_digest, source_artifact_digest, status, private_artifact_contract_version, revision_contract_version, approval_contract_version, publication_contract_version, provenance_schema, reported_count, published_at, retracted_at, revoked_at, source_invalidated_at, removed_at, removed_by, restored_at, restored_by, deleted_at, created_at, updated_at";
 const PUBLIC_EXHIBIT_PUBLIC_SELECT =
   "slug, public_title, public_summary, public_tags, initiator_name_snapshot, responder_name_snapshot, status, provenance_schema, reported_count, published_at, retracted_at, removed_at, removed_by, owner_user_id, private_session_id, id, created_at, updated_at";
 const CROSS_OWNER_PUBLIC_EXHIBIT_PUBLIC_SELECT =
@@ -266,6 +274,11 @@ const crossOwnerGeneratedRevisionApprovalSchema = z.object({
   revisionDigest: z.string().regex(/^[a-f0-9]{64}$/),
 }).strict();
 
+const crossOwnerGeneratedPublicationSchema = z.object({
+  confirmPublicGeneratedMaterialPublication: z.literal(true),
+  revisionDigest: z.string().regex(/^[a-f0-9]{64}$/),
+}).strict();
+
 const crossOwnerConsentRequestedScopeSchema = z.enum(CROSS_OWNER_CONSENT_REQUESTED_SCOPES);
 const crossOwnerConsentReasonCodeSchema = z.enum(CROSS_OWNER_CONSENT_REASON_CODES);
 
@@ -348,6 +361,28 @@ type EncounterCrossOwnerGeneratedRevisionStatus =
   | "deleted"
   | "moderation_blocked"
   | "invalidated";
+type EncounterCrossOwnerGeneratedPublicationStatus =
+  | "published"
+  | "retracted"
+  | "revoked"
+  | "source_invalidated"
+  | "removed"
+  | "deleted";
+type EncounterCrossOwnerGeneratedPublicationAuditActorRole =
+  | "requester"
+  | "counterparty"
+  | "admin"
+  | "system"
+  | "public";
+type EncounterCrossOwnerGeneratedPublicationAuditEventType =
+  | "published"
+  | "retracted"
+  | "revoked"
+  | "source_invalidated"
+  | "moderation_removed"
+  | "moderation_restored"
+  | "deleted"
+  | "blocked_public_read";
 
 type EncounterPersonaRow = {
   id: string;
@@ -564,6 +599,62 @@ type EncounterCrossOwnerGeneratedApprovalRow = {
   revision_digest: string;
   approval_contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION;
   approved_at: string;
+};
+
+type EncounterCrossOwnerGeneratedPublicationRow = {
+  id: string;
+  consent_id: string;
+  artifact_id: string;
+  revision_id: string;
+  requester_owner_user_id: string;
+  requester_persona_id: string;
+  requester_persona_name_snapshot: string;
+  counterparty_owner_user_id: string;
+  counterparty_persona_id: string;
+  counterparty_persona_name_snapshot: string;
+  public_slug: string;
+  public_title: string;
+  public_body: string;
+  public_excerpt: string | null;
+  revision_digest: string;
+  source_artifact_digest: string;
+  status: EncounterCrossOwnerGeneratedPublicationStatus;
+  private_artifact_contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION;
+  revision_contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_CONTRACT_VERSION;
+  approval_contract_version: typeof CROSS_OWNER_PRIVATE_GENERATED_APPROVAL_CONTRACT_VERSION;
+  publication_contract_version: typeof CROSS_OWNER_GENERATED_PUBLICATION_CONTRACT_VERSION;
+  provenance_schema: typeof PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA;
+  reported_count: number;
+  published_at: string;
+  retracted_at: string | null;
+  revoked_at: string | null;
+  source_invalidated_at: string | null;
+  removed_at: string | null;
+  removed_by: string | null;
+  restored_at: string | null;
+  restored_by: string | null;
+  deleted_at: string | null;
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type EncounterCrossOwnerGeneratedPublicationAuditRow = {
+  id: string;
+  publication_id: string;
+  consent_id: string;
+  artifact_id: string;
+  revision_id: string;
+  actor_user_id: string | null;
+  actor_role: EncounterCrossOwnerGeneratedPublicationAuditActorRole;
+  event_type: EncounterCrossOwnerGeneratedPublicationAuditEventType;
+  previous_status: EncounterCrossOwnerGeneratedPublicationStatus | null;
+  next_status: EncounterCrossOwnerGeneratedPublicationStatus | null;
+  revision_digest: string;
+  source_artifact_digest: string;
+  publication_contract_version: typeof CROSS_OWNER_GENERATED_PUBLICATION_CONTRACT_VERSION;
+  created_at: string;
 };
 
 personaEncountersRouter.get("/preview/readiness", requireAuth, async (req, res) => {
@@ -1714,6 +1805,344 @@ personaEncountersRouter.patch("/cross-owner-generated-revisions/:revisionSlug/ap
   });
 });
 
+personaEncountersRouter.post("/cross-owner-generated-revisions/:revisionSlug/publication", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.revisionSlug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner generated revision not found." });
+
+  const parsedBody = crossOwnerGeneratedPublicationSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedRevisionBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated revision could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_revision_load_failed",
+    });
+  }
+  if (!bundle.revision || !bundle.artifact || !bundle.consent) {
+    return res.status(404).json({ error: "Cross-owner generated revision not found." });
+  }
+
+  const readiness = await crossOwnerGeneratedPublicationReadiness(sb, {
+    publication: null,
+    artifact: bundle.artifact,
+    revision: bundle.revision,
+    consent: bundle.consent,
+    approvals: bundle.approvals,
+    expectedRevisionDigest: parsedBody.data.revisionDigest,
+  });
+  if (readiness.ready === false) return res.status(409).json(readiness.body);
+
+  const existing = await loadCrossOwnerGeneratedPublicationByRevisionId(sb, bundle.revision.id);
+  if (!existing.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be checked.",
+      code: "persona_encounter_cross_owner_generated_publication_load_failed",
+    });
+  }
+  if (existing.row && existing.row.status !== "deleted") {
+    return res.status(409).json({
+      error: "Cross-owner generated publication already exists for this exact revision.",
+      code: "persona_encounter_cross_owner_generated_publication_exists",
+      status: existing.row.status,
+    });
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .insert({
+      consent_id: bundle.consent.id,
+      artifact_id: bundle.artifact.id,
+      revision_id: bundle.revision.id,
+      requester_owner_user_id: bundle.artifact.requester_owner_user_id,
+      requester_persona_id: bundle.artifact.requester_persona_id,
+      requester_persona_name_snapshot: bundle.artifact.requester_persona_name_snapshot,
+      counterparty_owner_user_id: bundle.artifact.counterparty_owner_user_id,
+      counterparty_persona_id: bundle.artifact.counterparty_persona_id,
+      counterparty_persona_name_snapshot: bundle.artifact.counterparty_persona_name_snapshot,
+      public_slug: publicExhibitSlug(bundle.revision.final_title),
+      public_title: bundle.revision.final_title,
+      public_body: bundle.revision.final_body,
+      public_excerpt: bundle.revision.final_excerpt,
+      revision_digest: bundle.revision.text_digest,
+      source_artifact_digest: bundle.artifact.generated_content_digest,
+      status: "published",
+      private_artifact_contract_version: bundle.artifact.contract_version,
+      revision_contract_version: bundle.revision.contract_version,
+      approval_contract_version: bundle.revision.approval_contract_version,
+      publication_contract_version: CROSS_OWNER_GENERATED_PUBLICATION_CONTRACT_VERSION,
+      provenance_schema: PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA,
+      reported_count: 0,
+      published_at: now,
+      retracted_at: null,
+      revoked_at: null,
+      source_invalidated_at: null,
+      removed_at: null,
+      removed_by: null,
+      restored_at: null,
+      restored_by: null,
+      deleted_at: null,
+      created_by: ownerUserId,
+      updated_by: ownerUserId,
+      created_at: now,
+      updated_at: now,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be saved.",
+      code: "persona_encounter_cross_owner_generated_publication_save_failed",
+    });
+  }
+
+  const publication = data as EncounterCrossOwnerGeneratedPublicationRow;
+  await recordCrossOwnerGeneratedPublicationAudit(sb, {
+    publication,
+    actorUserId: ownerUserId,
+    actorRole: crossOwnerConsentParticipantRole(bundle.consent, ownerUserId) ?? "system",
+    eventType: "published",
+    previousStatus: null,
+    nextStatus: publication.status,
+  });
+
+  return res.status(201).json({
+    publication: serializeCrossOwnerGeneratedPublicationDetail({
+      publication,
+      consent: bundle.consent,
+      artifact: bundle.artifact,
+      revision: bundle.revision,
+      publicReadable: true,
+    }),
+  });
+});
+
+personaEncountersRouter.get("/cross-owner-generated-publications/:slug", async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner generated publication not found." });
+
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedPublicationPublicBundleBySlug(sb, parsedSlug.data);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_publication_load_failed",
+    });
+  }
+  if (!bundle.publication || !bundle.consent || !bundle.artifact || !bundle.revision || !bundle.publicReadable) {
+    if (bundle.publication) {
+      await recordCrossOwnerGeneratedPublicationAudit(sb, {
+        publication: bundle.publication,
+        actorUserId: null,
+        actorRole: "public",
+        eventType: "blocked_public_read",
+        previousStatus: bundle.publication.status,
+        nextStatus: bundle.publication.status,
+      });
+    }
+    return res.status(404).json({ error: "Cross-owner generated publication not found." });
+  }
+
+  return res.json({
+    publication: serializeCrossOwnerGeneratedPublicationDetail({
+      publication: bundle.publication,
+      consent: bundle.consent,
+      artifact: bundle.artifact,
+      revision: bundle.revision,
+      publicReadable: true,
+    }),
+  });
+});
+
+personaEncountersRouter.post("/cross-owner-generated-publications/:slug/report", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner generated publication not found." });
+
+  const parsedBody = publicExhibitReportSchema.safeParse(req.body);
+  if (!parsedBody.success) return res.status(400).json({ error: parsedBody.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedPublicationPublicBundleBySlug(sb, parsedSlug.data);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_publication_load_failed",
+    });
+  }
+  if (!bundle.publication || !bundle.publicReadable) {
+    return res.status(404).json({ error: "Cross-owner generated publication not found." });
+  }
+
+  const existing = await loadExistingCrossOwnerGeneratedPublicationReport(
+    sb,
+    req.user!.id,
+    bundle.publication.id,
+    parsedBody.data.reason,
+  );
+  if (existing) {
+    return res.status(200).json({
+      report: { status: existing.status },
+      duplicate: true,
+    });
+  }
+
+  const { data, error } = await sb
+    .from("moderation_reports")
+    .insert({
+      reporter_id: req.user!.id,
+      target_type: "persona_encounter_cross_owner_generated_publication",
+      target_id: bundle.publication.id,
+      reason: parsedBody.data.reason,
+      notes: parsedBody.data.notes ?? null,
+      status: "open",
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({ error: "Failed to create report." });
+  }
+
+  await incrementCrossOwnerGeneratedPublicationReportedCount(sb, bundle.publication.id);
+  return res.status(201).json({
+    report: { status: data.status },
+    duplicate: false,
+  });
+});
+
+personaEncountersRouter.patch("/cross-owner-generated-publications/:slug/retract", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner generated publication not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedPublicationParticipantBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_publication_load_failed",
+    });
+  }
+  if (!bundle.publication || !bundle.consent || !bundle.artifact || !bundle.revision) {
+    return res.status(404).json({ error: "Cross-owner generated publication not found." });
+  }
+  if (bundle.publication.status !== "published") {
+    return res.status(409).json({
+      error: "Only a published generated publication can be retracted by a participant.",
+      code: "persona_encounter_cross_owner_generated_publication_inactive",
+      status: bundle.publication.status,
+    });
+  }
+
+  const previousStatus = bundle.publication.status;
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .update({
+      status: "retracted",
+      retracted_at: new Date().toISOString(),
+      updated_by: ownerUserId,
+    })
+    .eq("id", bundle.publication.id)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be retracted.",
+      code: "persona_encounter_cross_owner_generated_publication_retract_failed",
+    });
+  }
+
+  const publication = data as EncounterCrossOwnerGeneratedPublicationRow;
+  await recordCrossOwnerGeneratedPublicationAudit(sb, {
+    publication,
+    actorUserId: ownerUserId,
+    actorRole: crossOwnerConsentParticipantRole(bundle.consent, ownerUserId) ?? "system",
+    eventType: "retracted",
+    previousStatus,
+    nextStatus: publication.status,
+  });
+
+  return res.json({
+    publication: serializeCrossOwnerGeneratedPublicationDetail({
+      publication,
+      consent: bundle.consent,
+      artifact: bundle.artifact,
+      revision: bundle.revision,
+      publicReadable: false,
+    }),
+  });
+});
+
+personaEncountersRouter.delete("/cross-owner-generated-publications/:slug", requireAuth, async (req, res) => {
+  const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.slug);
+  if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner generated publication not found." });
+
+  const ownerUserId = req.user!.id;
+  const sb = getSupabaseAdmin();
+  const bundle = await loadCrossOwnerGeneratedPublicationParticipantBundleBySlug(sb, parsedSlug.data, ownerUserId);
+  if (!bundle.ok) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be loaded.",
+      code: "persona_encounter_cross_owner_generated_publication_load_failed",
+    });
+  }
+  if (!bundle.publication || !bundle.consent || !bundle.artifact || !bundle.revision) {
+    return res.status(404).json({ error: "Cross-owner generated publication not found." });
+  }
+  if (bundle.publication.status === "deleted") {
+    return res.status(409).json({
+      error: "Cross-owner generated publication is already deleted.",
+      code: "persona_encounter_cross_owner_generated_publication_inactive",
+      status: bundle.publication.status,
+    });
+  }
+
+  const previousStatus = bundle.publication.status;
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .update({
+      status: "deleted",
+      deleted_at: new Date().toISOString(),
+      updated_by: ownerUserId,
+    })
+    .eq("id", bundle.publication.id)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return res.status(500).json({
+      error: "Cross-owner generated publication could not be deleted.",
+      code: "persona_encounter_cross_owner_generated_publication_delete_failed",
+    });
+  }
+
+  const publication = data as EncounterCrossOwnerGeneratedPublicationRow;
+  await recordCrossOwnerGeneratedPublicationAudit(sb, {
+    publication,
+    actorUserId: ownerUserId,
+    actorRole: crossOwnerConsentParticipantRole(bundle.consent, ownerUserId) ?? "system",
+    eventType: "deleted",
+    previousStatus,
+    nextStatus: publication.status,
+  });
+
+  return res.json({
+    deleted: true,
+    publication: serializeCrossOwnerGeneratedPublicationDetail({
+      publication,
+      consent: bundle.consent,
+      artifact: bundle.artifact,
+      revision: bundle.revision,
+      publicReadable: false,
+    }),
+  });
+});
+
 personaEncountersRouter.patch("/cross-owner-generated-artifacts/:artifactSlug/retract", requireAuth, async (req, res) => {
   const parsedSlug = publicExhibitSlugSchema.safeParse(req.params.artifactSlug);
   if (!parsedSlug.success) return res.status(404).json({ error: "Cross-owner private generated artifact not found." });
@@ -1749,7 +2178,12 @@ personaEncountersRouter.patch("/cross-owner-generated-artifacts/:artifactSlug/re
     .select("*")
     .single();
 
-  if (error || !data || !await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "retracted")) {
+  if (
+    error ||
+    !data ||
+    !await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "retracted") ||
+    !await markCrossOwnerGeneratedPublicationsForArtifactLifecycle(sb, bundle.artifact.id, ownerUserId)
+  ) {
     return res.status(500).json({
       error: "Cross-owner private generated artifact could not be retracted.",
       code: "persona_encounter_cross_owner_generated_artifact_retract_failed",
@@ -1795,7 +2229,12 @@ personaEncountersRouter.delete("/cross-owner-generated-artifacts/:artifactSlug",
     .select("*")
     .single();
 
-  if (error || !data || !await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "deleted")) {
+  if (
+    error ||
+    !data ||
+    !await invalidateCrossOwnerGeneratedRevisionsForArtifact(sb, bundle.artifact.id, ownerUserId, "deleted") ||
+    !await markCrossOwnerGeneratedPublicationsForArtifactLifecycle(sb, bundle.artifact.id, ownerUserId)
+  ) {
     return res.status(500).json({
       error: "Cross-owner private generated artifact could not be deleted.",
       code: "persona_encounter_cross_owner_generated_artifact_delete_failed",
@@ -2344,6 +2783,12 @@ personaEncountersRouter.patch("/cross-owner-consents/:consentId/revoke", require
     return res.status(500).json({
       error: "Cross-owner private generated artifacts could not be revoked after consent revocation.",
       code: "persona_encounter_cross_owner_generated_artifact_revoke_failed",
+    });
+  }
+  if (!await markCrossOwnerGeneratedPublicationsForConsentLifecycle(sb, update.row.id, ownerUserId, "revoked")) {
+    return res.status(500).json({
+      error: "Cross-owner generated publications could not be revoked after consent revocation.",
+      code: "persona_encounter_cross_owner_generated_publication_revoke_failed",
     });
   }
 
@@ -3205,6 +3650,82 @@ function serializeCrossOwnerGeneratedRevisionReadback(input: {
   };
 }
 
+function serializeCrossOwnerGeneratedPublicationDetail(input: {
+  publication: EncounterCrossOwnerGeneratedPublicationRow;
+  consent: EncounterCrossOwnerConsentRow;
+  artifact: EncounterCrossOwnerGeneratedArtifactRow;
+  revision: EncounterCrossOwnerGeneratedRevisionRow;
+  publicReadable: boolean;
+}) {
+  const { publication, consent, artifact, revision, publicReadable } = input;
+  const active = publicReadable && publication.status === "published";
+
+  return {
+    slug: publication.public_slug,
+    routeHref: `/encounters/cross-owner/generated/${publication.public_slug}`,
+    title: active ? publication.public_title : null,
+    body: active ? publication.public_body : null,
+    excerpt: active ? publication.public_excerpt : null,
+    status: publication.status,
+    contractVersion: publication.publication_contract_version,
+    revisionDigest: publication.revision_digest,
+    sourceArtifactDigest: publication.source_artifact_digest,
+    reportedCount: publication.reported_count,
+    publishedAt: publication.published_at,
+    participants: {
+      requester: {
+        role: "requester",
+        personaName: publication.requester_persona_name_snapshot,
+      },
+      counterparty: {
+        role: "counterparty",
+        personaName: publication.counterparty_persona_name_snapshot,
+      },
+    },
+    source: {
+      consentStatus: consent.status,
+      artifactLifecycleStatus: artifact.lifecycle_status,
+      revisionStatus: revision.status,
+      exactApprovedRevision: revision.status === "approved" && revision.text_digest === publication.revision_digest,
+      copiedServerSide: (
+        publication.public_title === revision.final_title &&
+        publication.public_body === revision.final_body &&
+        publication.public_excerpt === revision.final_excerpt
+      ),
+    },
+    timestamps: {
+      publishedAt: publication.published_at,
+      retractedAt: publication.retracted_at,
+      revokedAt: publication.revoked_at,
+      sourceInvalidatedAt: publication.source_invalidated_at,
+      removedAt: publication.removed_at,
+      restoredAt: publication.restored_at,
+      deletedAt: publication.deleted_at,
+      updatedAt: publication.updated_at,
+    },
+    provenance: {
+      label: "Cross-owner generated material public detail",
+      schema: publication.provenance_schema,
+      public: active,
+      detailOnly: true,
+      routeListed: false,
+      indexed: false,
+      discoverable: false,
+      generatedBodyPublished: active,
+      source: "Copied server-side from an exact bilaterally approved PR522 generated revision.",
+      noPublicList: true,
+      noPr516DirectPublication: true,
+      note: active
+        ? "This detail route publishes only the approved final generated body for this exact revision."
+        : "Generated body text is hidden while this publication is inactive.",
+    },
+    report: {
+      requiresSignIn: true,
+      path: `/persona-encounters/cross-owner-generated-publications/${publication.public_slug}/report`,
+    },
+  };
+}
+
 function serializeCrossOwnerConsent(
   row: EncounterCrossOwnerConsentRow,
   currentOwnerUserId: string,
@@ -3765,6 +4286,202 @@ function crossOwnerGeneratedArtifactRevisionReadiness(
   return { ready: true };
 }
 
+async function crossOwnerGeneratedPublicationReadiness(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  input: {
+    publication: EncounterCrossOwnerGeneratedPublicationRow | null;
+    artifact: EncounterCrossOwnerGeneratedArtifactRow;
+    revision: EncounterCrossOwnerGeneratedRevisionRow;
+    consent: EncounterCrossOwnerConsentRow;
+    approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+    expectedRevisionDigest: string;
+  },
+): Promise<
+  | { ready: true }
+  | { ready: false; body: { error: string; code: string; status?: string; lifecycleStatus?: string } }
+> {
+  const sourceReadiness = crossOwnerGeneratedArtifactRevisionReadiness(input.artifact, input.consent);
+  if (sourceReadiness.ready === false) return sourceReadiness;
+
+  if (!input.consent.requested_scopes.includes(CROSS_OWNER_GENERATED_PUBLICATION_REQUIRED_SCOPE)) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner consent does not include exact generated revision publication scope.",
+        code: "persona_encounter_cross_owner_generated_publication_wrong_scope",
+      },
+    };
+  }
+
+  if (input.revision.status !== "approved") {
+    return {
+      ready: false,
+      body: {
+        error: "Only approved exact cross-owner generated revisions can be published.",
+        code: "persona_encounter_cross_owner_generated_publication_revision_unapproved",
+        status: input.revision.status,
+      },
+    };
+  }
+
+  if (!crossOwnerGeneratedRevisionStillCurrent(input.revision, input.artifact, input.consent)) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner generated revision changed after approval and requires a new exact-text approval.",
+        code: "persona_encounter_cross_owner_generated_publication_revision_stale",
+      },
+    };
+  }
+
+  if (input.revision.text_digest !== input.expectedRevisionDigest) {
+    return {
+      ready: false,
+      body: {
+        error: "Public generated material publication requires the exact approved revision digest.",
+        code: "persona_encounter_cross_owner_generated_publication_digest_mismatch",
+      },
+    };
+  }
+
+  if (!crossOwnerGeneratedRevisionHasBilateralApproval(input.revision, input.approvals)) {
+    return {
+      ready: false,
+      body: {
+        error: "Both participants must approve the exact generated revision digest before publication.",
+        code: "persona_encounter_cross_owner_generated_publication_bilateral_approval_required",
+      },
+    };
+  }
+
+  if (input.publication && !crossOwnerGeneratedPublicationMatchesSources(
+    input.publication,
+    input.artifact,
+    input.revision,
+    input.consent,
+  )) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner generated publication no longer matches its approved source revision.",
+        code: "persona_encounter_cross_owner_generated_publication_source_mismatch",
+      },
+    };
+  }
+
+  if (!await crossOwnerGeneratedPublicationParticipantsExist(sb, input.artifact)) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner generated publication participant source is no longer available.",
+        code: "persona_encounter_cross_owner_generated_publication_participant_deleted",
+      },
+    };
+  }
+
+  if (input.publication && input.publication.status !== "published") {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner generated publication is not currently public.",
+        code: "persona_encounter_cross_owner_generated_publication_inactive",
+        status: input.publication.status,
+      },
+    };
+  }
+
+  if (input.publication && (
+    input.publication.retracted_at ||
+    input.publication.revoked_at ||
+    input.publication.source_invalidated_at ||
+    input.publication.removed_at ||
+    input.publication.deleted_at
+  )) {
+    return {
+      ready: false,
+      body: {
+        error: "Cross-owner generated publication lifecycle is not publicly readable.",
+        code: "persona_encounter_cross_owner_generated_publication_inactive",
+        status: input.publication.status,
+      },
+    };
+  }
+
+  return { ready: true };
+}
+
+function crossOwnerGeneratedRevisionHasBilateralApproval(
+  revision: EncounterCrossOwnerGeneratedRevisionRow,
+  approvals: EncounterCrossOwnerGeneratedApprovalRow[],
+) {
+  const roles = new Set(
+    approvals
+      .filter((approval) =>
+        approval.revision_id === revision.id &&
+        approval.revision_digest === revision.text_digest &&
+        approval.approval_contract_version === revision.approval_contract_version
+      )
+      .map((approval) => approval.participant_role),
+  );
+  return roles.has("requester") && roles.has("counterparty");
+}
+
+function crossOwnerGeneratedPublicationMatchesSources(
+  publication: EncounterCrossOwnerGeneratedPublicationRow,
+  artifact: EncounterCrossOwnerGeneratedArtifactRow,
+  revision: EncounterCrossOwnerGeneratedRevisionRow,
+  consent: EncounterCrossOwnerConsentRow,
+) {
+  return (
+    publication.consent_id === consent.id &&
+    publication.artifact_id === artifact.id &&
+    publication.revision_id === revision.id &&
+    publication.requester_owner_user_id === artifact.requester_owner_user_id &&
+    publication.requester_persona_id === artifact.requester_persona_id &&
+    publication.requester_persona_name_snapshot === artifact.requester_persona_name_snapshot &&
+    publication.counterparty_owner_user_id === artifact.counterparty_owner_user_id &&
+    publication.counterparty_persona_id === artifact.counterparty_persona_id &&
+    publication.counterparty_persona_name_snapshot === artifact.counterparty_persona_name_snapshot &&
+    publication.public_title === revision.final_title &&
+    publication.public_body === revision.final_body &&
+    publication.public_excerpt === revision.final_excerpt &&
+    publication.revision_digest === revision.text_digest &&
+    publication.source_artifact_digest === artifact.generated_content_digest &&
+    publication.private_artifact_contract_version === artifact.contract_version &&
+    publication.revision_contract_version === revision.contract_version &&
+    publication.approval_contract_version === revision.approval_contract_version &&
+    publication.publication_contract_version === CROSS_OWNER_GENERATED_PUBLICATION_CONTRACT_VERSION &&
+    publication.provenance_schema === PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA &&
+    publicExhibitSlugSchema.safeParse(publication.public_slug).success
+  );
+}
+
+async function crossOwnerGeneratedPublicationParticipantsExist(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  artifact: EncounterCrossOwnerGeneratedArtifactRow,
+) {
+  const [profiles, personas] = await Promise.all([
+    sb
+      .from("profiles")
+      .select("id")
+      .in("id", [artifact.requester_owner_user_id, artifact.counterparty_owner_user_id]),
+    sb
+      .from("personas")
+      .select("id")
+      .in("id", [artifact.requester_persona_id, artifact.counterparty_persona_id]),
+  ]);
+  if (profiles.error || personas.error) return false;
+
+  const profileIds = new Set(((profiles.data ?? []) as Array<{ id: string }>).map((row) => row.id));
+  const personaIds = new Set(((personas.data ?? []) as Array<{ id: string }>).map((row) => row.id));
+  return (
+    profileIds.has(artifact.requester_owner_user_id) &&
+    profileIds.has(artifact.counterparty_owner_user_id) &&
+    personaIds.has(artifact.requester_persona_id) &&
+    personaIds.has(artifact.counterparty_persona_id)
+  );
+}
+
 function crossOwnerGeneratedArtifactMatchesConsent(
   artifact: EncounterCrossOwnerGeneratedArtifactRow,
   consent: EncounterCrossOwnerConsentRow,
@@ -4219,6 +4936,176 @@ async function loadCrossOwnerGeneratedRevisionBundleBySlug(
     consent: consent.row,
     approvals: approvals.rows.filter((approval) => approval.revision_id === revision.id),
   };
+}
+
+async function loadCrossOwnerGeneratedPublicationByRevisionId(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  revisionId: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerGeneratedPublicationRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .select("*")
+    .eq("revision_id", revisionId)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerGeneratedPublicationRow | null };
+}
+
+async function loadCrossOwnerGeneratedPublicationBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerGeneratedPublicationRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .select("*")
+    .eq("public_slug", slug)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerGeneratedPublicationRow | null };
+}
+
+async function loadCrossOwnerGeneratedPublicationPublicBundleBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+): Promise<
+  | {
+    ok: true;
+    publication: EncounterCrossOwnerGeneratedPublicationRow | null;
+    consent: EncounterCrossOwnerConsentRow | null;
+    artifact: EncounterCrossOwnerGeneratedArtifactRow | null;
+    revision: EncounterCrossOwnerGeneratedRevisionRow | null;
+    approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+    publicReadable: boolean;
+  }
+  | { ok: false }
+> {
+  const publication = await loadCrossOwnerGeneratedPublicationBySlug(sb, slug);
+  if (!publication.ok) return { ok: false };
+  if (!publication.row) {
+    return { ok: true, publication: null, consent: null, artifact: null, revision: null, approvals: [], publicReadable: false };
+  }
+
+  const bundle = await loadCrossOwnerGeneratedPublicationSourceBundle(sb, publication.row);
+  if (!bundle.ok) return { ok: false };
+  if (!bundle.consent || !bundle.artifact || !bundle.revision) {
+    return {
+      ok: true,
+      publication: publication.row,
+      consent: null,
+      artifact: null,
+      revision: null,
+      approvals: bundle.approvals,
+      publicReadable: false,
+    };
+  }
+
+  const readiness = await crossOwnerGeneratedPublicationReadiness(sb, {
+    publication: publication.row,
+    artifact: bundle.artifact,
+    revision: bundle.revision,
+    consent: bundle.consent,
+    approvals: bundle.approvals,
+    expectedRevisionDigest: publication.row.revision_digest,
+  });
+
+  return {
+    ok: true,
+    publication: publication.row,
+    consent: bundle.consent,
+    artifact: bundle.artifact,
+    revision: bundle.revision,
+    approvals: bundle.approvals,
+    publicReadable: readiness.ready,
+  };
+}
+
+async function loadCrossOwnerGeneratedPublicationParticipantBundleBySlug(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  slug: string,
+  ownerUserId: string,
+): Promise<
+  | {
+    ok: true;
+    publication: EncounterCrossOwnerGeneratedPublicationRow | null;
+    consent: EncounterCrossOwnerConsentRow | null;
+    artifact: EncounterCrossOwnerGeneratedArtifactRow | null;
+    revision: EncounterCrossOwnerGeneratedRevisionRow | null;
+    approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+  }
+  | { ok: false }
+> {
+  const publication = await loadCrossOwnerGeneratedPublicationBySlug(sb, slug);
+  if (!publication.ok) return { ok: false };
+  if (!publication.row) return { ok: true, publication: null, consent: null, artifact: null, revision: null, approvals: [] };
+
+  const consent = await loadCrossOwnerConsentForParticipant(sb, publication.row.consent_id, ownerUserId);
+  if (!consent.ok) return { ok: false };
+  if (!consent.row) return { ok: true, publication: null, consent: null, artifact: null, revision: null, approvals: [] };
+
+  const bundle = await loadCrossOwnerGeneratedPublicationSourceBundle(sb, publication.row);
+  if (!bundle.ok) return { ok: false };
+  if (!bundle.consent || bundle.consent.id !== consent.row.id) {
+    return { ok: true, publication: null, consent: null, artifact: null, revision: null, approvals: [] };
+  }
+
+  return {
+    ok: true,
+    publication: publication.row,
+    consent: consent.row,
+    artifact: bundle.artifact,
+    revision: bundle.revision,
+    approvals: bundle.approvals,
+  };
+}
+
+async function loadCrossOwnerGeneratedPublicationSourceBundle(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  publication: EncounterCrossOwnerGeneratedPublicationRow,
+): Promise<
+  | {
+    ok: true;
+    consent: EncounterCrossOwnerConsentRow | null;
+    artifact: EncounterCrossOwnerGeneratedArtifactRow | null;
+    revision: EncounterCrossOwnerGeneratedRevisionRow | null;
+    approvals: EncounterCrossOwnerGeneratedApprovalRow[];
+  }
+  | { ok: false }
+> {
+  const [consent, artifact, revision] = await Promise.all([
+    loadCrossOwnerConsentById(sb, publication.consent_id),
+    loadCrossOwnerGeneratedArtifactById(sb, publication.artifact_id),
+    loadCrossOwnerGeneratedRevisionById(sb, publication.revision_id),
+  ]);
+  if (!consent.ok || !artifact.ok || !revision.ok) return { ok: false };
+
+  const approvals = artifact.row
+    ? await loadCrossOwnerGeneratedArtifactApprovals(sb, artifact.row.id)
+    : { ok: true as const, rows: [] };
+  if (!approvals.ok) return { ok: false };
+
+  return {
+    ok: true,
+    consent: consent.row,
+    artifact: artifact.row,
+    revision: revision.row,
+    approvals: approvals.rows.filter((approval) => approval.revision_id === publication.revision_id),
+  };
+}
+
+async function loadCrossOwnerGeneratedRevisionById(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  revisionId: string,
+): Promise<{ ok: true; row: EncounterCrossOwnerGeneratedRevisionRow | null } | { ok: false }> {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_revisions")
+    .select("*")
+    .eq("id", revisionId)
+    .maybeSingle();
+
+  if (error) return { ok: false };
+  return { ok: true, row: (data ?? null) as EncounterCrossOwnerGeneratedRevisionRow | null };
 }
 
 async function loadPublishedCrossOwnerPublicExhibitBySlug(
@@ -4692,6 +5579,73 @@ async function incrementCrossOwnerPublicExhibitReportedCount(
     .eq("id", exhibitId);
 }
 
+async function loadExistingCrossOwnerGeneratedPublicationReport(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  reporterId: string,
+  publicationId: string,
+  reason: string,
+) {
+  const { data } = await sb
+    .from("moderation_reports")
+    .select("*")
+    .eq("reporter_id", reporterId)
+    .eq("target_type", "persona_encounter_cross_owner_generated_publication")
+    .eq("target_id", publicationId)
+    .eq("reason", reason);
+
+  return (data ?? []).find((row: { status: string }) => row.status === "open" || row.status === "reviewing") ?? null;
+}
+
+async function incrementCrossOwnerGeneratedPublicationReportedCount(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  publicationId: string,
+) {
+  const { data } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .select("id, reported_count")
+    .eq("id", publicationId)
+    .maybeSingle();
+  if (!data) return;
+
+  await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .update({ reported_count: Number(data.reported_count ?? 0) + 1 })
+    .eq("id", publicationId);
+}
+
+async function recordCrossOwnerGeneratedPublicationAudit(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  input: {
+    publication: EncounterCrossOwnerGeneratedPublicationRow;
+    actorUserId: string | null;
+    actorRole: EncounterCrossOwnerGeneratedPublicationAuditActorRole;
+    eventType: EncounterCrossOwnerGeneratedPublicationAuditEventType;
+    previousStatus: EncounterCrossOwnerGeneratedPublicationStatus | null;
+    nextStatus: EncounterCrossOwnerGeneratedPublicationStatus | null;
+  },
+) {
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publication_audit_events")
+    .insert({
+      publication_id: input.publication.id,
+      consent_id: input.publication.consent_id,
+      artifact_id: input.publication.artifact_id,
+      revision_id: input.publication.revision_id,
+      actor_user_id: input.actorUserId,
+      actor_role: input.actorRole,
+      event_type: input.eventType,
+      previous_status: input.previousStatus,
+      next_status: input.nextStatus,
+      revision_digest: input.publication.revision_digest,
+      source_artifact_digest: input.publication.source_artifact_digest,
+      publication_contract_version: input.publication.publication_contract_version,
+    })
+    .select("*")
+    .single();
+
+  return !error && Boolean(data as EncounterCrossOwnerGeneratedPublicationAuditRow | null);
+}
+
 async function retractCrossOwnerPublicExhibitsForConsent(
   sb: ReturnType<typeof getSupabaseAdmin>,
   consentId: string,
@@ -4708,6 +5662,71 @@ async function retractCrossOwnerPublicExhibitsForConsent(
     .in("status", ["proposed", "published"]);
 
   return !error;
+}
+
+async function markCrossOwnerGeneratedPublicationsForConsentLifecycle(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  consentId: string,
+  actorUserId: string,
+  status: Extract<EncounterCrossOwnerGeneratedPublicationStatus, "revoked">,
+) {
+  const now = new Date().toISOString();
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .update({
+      status,
+      revoked_at: now,
+      updated_by: actorUserId,
+    })
+    .eq("consent_id", consentId)
+    .in("status", ["published", "removed"])
+    .select("*");
+  if (error) return false;
+
+  for (const publication of (data ?? []) as EncounterCrossOwnerGeneratedPublicationRow[]) {
+    await recordCrossOwnerGeneratedPublicationAudit(sb, {
+      publication,
+      actorUserId,
+      actorRole: "system",
+      eventType: "revoked",
+      previousStatus: "published",
+      nextStatus: publication.status,
+    });
+  }
+
+  return true;
+}
+
+async function markCrossOwnerGeneratedPublicationsForArtifactLifecycle(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  artifactId: string,
+  actorUserId: string,
+) {
+  const now = new Date().toISOString();
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_generated_publications")
+    .update({
+      status: "source_invalidated",
+      source_invalidated_at: now,
+      updated_by: actorUserId,
+    })
+    .eq("artifact_id", artifactId)
+    .in("status", ["published", "removed"])
+    .select("*");
+  if (error) return false;
+
+  for (const publication of (data ?? []) as EncounterCrossOwnerGeneratedPublicationRow[]) {
+    await recordCrossOwnerGeneratedPublicationAudit(sb, {
+      publication,
+      actorUserId,
+      actorRole: "system",
+      eventType: "source_invalidated",
+      previousStatus: "published",
+      nextStatus: publication.status,
+    });
+  }
+
+  return true;
 }
 
 async function invalidateCrossOwnerGeneratedRevisionsForArtifact(

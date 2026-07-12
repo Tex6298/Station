@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR524A DAEDALUS Implementation - Cross-Owner Generated Material Publication Contract
+
+DAEDALUS completed PR524A implementation on 2026-07-12:
+
+- `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- PR524A adds a dedicated generated-material public detail contract separate
+  from metadata-only cross-owner exhibits;
+- public body text is copied server-side only from an active PR522 private
+  artifact and exact bilaterally approved revision;
+- the new consent scope is exactly `publish_exact_generated_revision`;
+- generated-publication reporting, moderation remove/restore, participant
+  retract/delete, and public detail readback are covered;
+- generated material remains absent from public lists, Discover/search/feed,
+  public persona linkbacks, Space/forum/community, writing, homepage, provider/
+  retrieval, storage/export, billing/Stripe, queue/worker, Cloudflare,
+  package/lockfile, deployment, and broad UI scope.
+
+Environment note: commands used
+`npm exec --yes pnpm@10.32.1 -- ...`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 87 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 9 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 18 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 47 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 32 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 244 tests passed. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass | Web lint passed with no warnings or errors. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Fail - environment | Web compiled, lint/type checks ran, and 40 static pages generated; Next standalone trace copy then failed on Windows symlink `EPERM` for traced packages including `react`, `next`, and `@next/env`. |
+| `git diff --check` | Pass | No whitespace errors; Git printed existing LF-to-CRLF working-copy warnings. |
+| Changed-path forbidden-scope scan | Pass | Changed paths stayed in PR524A API/web/runtime/moderation/types/migration/docs scope. |
+| Broad scope-word diff scan | Pass with intentional guardrail hits | Hits were no-drift assertions/docs containing words like Discover, Space, forum, writing, and provider payload. |
+| High-risk secret pattern diff scan | Pass | Refined scan found no API keys, private keys, passwords, `sk-` keys, or literal long bearer values. |
+
 ## PR524 Cross-Owner Generated Material Publication Contract Preflight
 
 ARGUS completed PR524 preflight on 2026-07-12:

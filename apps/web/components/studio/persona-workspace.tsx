@@ -21,6 +21,7 @@ import {
   personaEncounterCrossOwnerConsentActionPath,
   personaEncounterCrossOwnerConsentActionPayload,
   personaEncounterCrossOwnerConsentAvailableActions,
+  personaEncounterCrossOwnerConsentCanPublishGeneratedRevision,
   personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact,
   personaEncounterCrossOwnerConsentCanRun,
   personaEncounterCrossOwnerConsentCreateByPublicSlugPayload,
@@ -42,6 +43,9 @@ import {
   personaEncounterCrossOwnerGeneratedArtifactRevisionsPath,
   personaEncounterCrossOwnerGeneratedRevisionApprovalPayload,
   personaEncounterCrossOwnerGeneratedRevisionApprovePath,
+  personaEncounterCrossOwnerGeneratedRevisionPublicationPath,
+  personaEncounterCrossOwnerGeneratedPublicationPayload,
+  personaEncounterCrossOwnerGeneratedPublicationWebHref,
   personaEncounterCrossOwnerGeneratedRevisionPayload,
   personaEncounterCrossOwnerPrivateGeneratedArtifactReadback,
   personaEncounterPrivateSessionCurationPath,
@@ -69,6 +73,7 @@ import {
   type PersonaEncounterCrossOwnerGeneratedArtifactListResponse,
   type PersonaEncounterCrossOwnerGeneratedArtifactReadback,
   type PersonaEncounterCrossOwnerGeneratedArtifactResponse,
+  type PersonaEncounterCrossOwnerGeneratedPublicationResponse,
   type PersonaEncounterCrossOwnerGeneratedRevisionResponse,
   type PersonaEncounterPublicExhibitResponse,
   type PersonaEncounterPrivateSession,
@@ -673,6 +678,9 @@ export function CrossOwnerDisposablePreviewPanel({
   const selectedCanSaveGeneratedArtifact = selectedConsent
     ? personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(selectedConsent)
     : false;
+  const selectedCanPublishGeneratedRevision = selectedConsent
+    ? personaEncounterCrossOwnerConsentCanPublishGeneratedRevision(selectedConsent)
+    : false;
   const selectedGeneratedArtifactConsentId =
     selectedConsent && selectedCanSaveGeneratedArtifact ? selectedConsent.id : "";
   const generatedArtifactReadback = personaEncounterCrossOwnerPrivateGeneratedArtifactReadback(generatedArtifacts[0]);
@@ -796,7 +804,11 @@ export function CrossOwnerDisposablePreviewPanel({
         personaEncounterCrossOwnerConsentCreateByPublicSlugPayload({
           requesterPersonaId: persona.id,
           counterpartyPublicSlug: target.publicSlug,
-          requestedScopes: ["run_cross_owner_encounter", "save_private_cross_owner_artifact"],
+          requestedScopes: [
+            "run_cross_owner_encounter",
+            "save_private_cross_owner_artifact",
+            "publish_exact_generated_revision",
+          ],
         }),
         token,
       );
@@ -967,6 +979,32 @@ export function CrossOwnerDisposablePreviewPanel({
         setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
       } else {
         setGeneratedArtifactError("Cross-owner exact-text approval could not be saved.");
+      }
+    } finally {
+      setGeneratedArtifactBusyId(null);
+    }
+  }
+
+  async function publishGeneratedRevision(revisionSlug: string, revisionDigest: string) {
+    if (!token || generatedArtifactBusyId) return;
+    const busyId = `${revisionSlug}:publish`;
+    setGeneratedArtifactBusyId(busyId);
+    setGeneratedArtifactError(null);
+    try {
+      const response = await apiPost<PersonaEncounterCrossOwnerGeneratedPublicationResponse>(
+        personaEncounterCrossOwnerGeneratedRevisionPublicationPath(revisionSlug),
+        personaEncounterCrossOwnerGeneratedPublicationPayload({ revisionDigest }),
+        token,
+      );
+      setGeneratedArtifactError(
+        `Generated material detail published at ${personaEncounterCrossOwnerGeneratedPublicationWebHref(response.publication.slug)}.`,
+      );
+      await refreshGeneratedArtifacts();
+    } catch (caught) {
+      if (caught instanceof ApiRequestError) {
+        setGeneratedArtifactError(personaEncounterCrossOwnerGeneratedArtifactErrorCopy(caught));
+      } else {
+        setGeneratedArtifactError("Cross-owner generated publication could not be saved.");
       }
     } finally {
       setGeneratedArtifactBusyId(null);
@@ -1454,6 +1492,22 @@ export function CrossOwnerDisposablePreviewPanel({
                                   {generatedArtifactBusyId === `${latestRevision.revisionSlug}:approve`
                                     ? "Approving..."
                                     : "Approve exact digest"}
+                                </button>
+                              </div>
+                            )}
+                            {latestRevision.status === "approved" &&
+                              latestRevision.approvals.bothParticipantsApproved &&
+                              selectedCanPublishGeneratedRevision && (
+                              <div className="studio-runtime-query">
+                                <button
+                                  className="button secondary"
+                                  type="button"
+                                  onClick={() => publishGeneratedRevision(latestRevision.revisionSlug, latestRevision.textDigest)}
+                                  disabled={generatedArtifactBusyId !== null}
+                                >
+                                  {generatedArtifactBusyId === `${latestRevision.revisionSlug}:publish`
+                                    ? "Publishing..."
+                                    : "Publish generated detail"}
                                 </button>
                               </div>
                             )}

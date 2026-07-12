@@ -13,6 +13,8 @@ export const REPORT_TARGET_TYPES = [
   "comment",
   "persona",
   "persona_encounter_public_exhibit",
+  "persona_encounter_cross_owner_public_exhibit",
+  "persona_encounter_cross_owner_generated_publication",
 ] as const;
 export const REPORT_TRANSITION_STATUSES = ["reviewing", "resolved", "dismissed"] as const;
 export const REPORT_TARGET_ACTIONS = ["hide", "unhide", "remove", "restore"] as const;
@@ -84,6 +86,10 @@ export function reportQueuePath(input: {
 function reportTargetFallbackLabel(report: Pick<ModerationReportRecord, "targetType" | "targetId">) {
   if (report.targetType === "persona") return "Persona report";
   if (report.targetType === "persona_encounter_public_exhibit") return "Public encounter exhibit report";
+  if (report.targetType === "persona_encounter_cross_owner_public_exhibit") return "Cross-owner public exhibit report";
+  if (report.targetType === "persona_encounter_cross_owner_generated_publication") {
+    return "Cross-owner generated publication report";
+  }
   return `${report.targetType}:${report.targetId}`;
 }
 
@@ -138,7 +144,9 @@ export function canActOnReportTarget(report: Pick<ModerationReportRecord, "targe
     (
       report.targetType === "thread" ||
       report.targetType === "comment" ||
-      report.targetType === "persona_encounter_public_exhibit"
+      report.targetType === "persona_encounter_public_exhibit" ||
+      report.targetType === "persona_encounter_cross_owner_public_exhibit" ||
+      report.targetType === "persona_encounter_cross_owner_generated_publication"
     ) &&
     report.targetContext?.supportedActions?.length
   );

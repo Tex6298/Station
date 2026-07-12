@@ -149,6 +149,13 @@ export type PersonaEncounterCrossOwnerGeneratedRevisionStatus =
   | "deleted"
   | "moderation_blocked"
   | "invalidated";
+export type PersonaEncounterCrossOwnerGeneratedPublicationStatus =
+  | "published"
+  | "retracted"
+  | "revoked"
+  | "source_invalidated"
+  | "removed"
+  | "deleted";
 
 export interface PersonaEncounterCrossOwnerConsent {
   id: string;
@@ -343,6 +350,10 @@ export interface PersonaEncounterCrossOwnerGeneratedRevisionApprovalRequest {
   revisionDigest: string;
 }
 
+export interface PersonaEncounterCrossOwnerGeneratedPublicationRequest {
+  revisionDigest: string;
+}
+
 export interface PersonaEncounterCrossOwnerGeneratedRevisionReadback {
   revisionSlug: string;
   artifactSlug: string;
@@ -463,6 +474,74 @@ export interface PersonaEncounterCrossOwnerGeneratedRevisionResponse {
 export interface PersonaEncounterCrossOwnerGeneratedArtifactDeleteResponse {
   deleted: true;
   artifact: PersonaEncounterCrossOwnerGeneratedArtifactReadback;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedPublicationDetail {
+  slug: string;
+  routeHref: string;
+  title: string | null;
+  body: string | null;
+  excerpt: string | null;
+  status: PersonaEncounterCrossOwnerGeneratedPublicationStatus;
+  contractVersion: 1;
+  revisionDigest: string;
+  sourceArtifactDigest: string;
+  reportedCount: number;
+  publishedAt: string;
+  participants: {
+    requester: {
+      role: "requester";
+      personaName: string;
+    };
+    counterparty: {
+      role: "counterparty";
+      personaName: string;
+    };
+  };
+  source: {
+    consentStatus: PersonaEncounterCrossOwnerConsentStatus;
+    artifactLifecycleStatus: PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus;
+    revisionStatus: PersonaEncounterCrossOwnerGeneratedRevisionStatus;
+    exactApprovedRevision: boolean;
+    copiedServerSide: boolean;
+  };
+  timestamps: {
+    publishedAt: string;
+    retractedAt: string | null;
+    revokedAt: string | null;
+    sourceInvalidatedAt: string | null;
+    removedAt: string | null;
+    restoredAt: string | null;
+    deletedAt: string | null;
+    updatedAt: string;
+  };
+  provenance: {
+    label: "Cross-owner generated material public detail";
+    schema: "station.persona_encounter.cross_owner_generated_publication.v1";
+    public: boolean;
+    detailOnly: true;
+    routeListed: false;
+    indexed: false;
+    discoverable: false;
+    generatedBodyPublished: boolean;
+    source: string;
+    noPublicList: true;
+    noPr516DirectPublication: true;
+    note: string;
+  };
+  report: {
+    requiresSignIn: true;
+    path: string;
+  };
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedPublicationResponse {
+  publication: PersonaEncounterCrossOwnerGeneratedPublicationDetail;
+}
+
+export interface PersonaEncounterCrossOwnerGeneratedPublicationDeleteResponse {
+  deleted: true;
+  publication: PersonaEncounterCrossOwnerGeneratedPublicationDetail;
 }
 
 export interface PersonaEncounterCrossOwnerPublicExhibitListItem {
@@ -693,10 +772,14 @@ export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBITS_PATH =
   "/persona-encounters/cross-owner-public-exhibits";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACTS_PATH =
   "/persona-encounters/cross-owner-generated-artifacts";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATIONS_PATH =
+  "/persona-encounters/cross-owner-generated-publications";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_REQUIRED_SCOPE =
   "run_cross_owner_encounter";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACT_REQUIRED_SCOPE =
   "save_private_cross_owner_artifact";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_REQUIRED_SCOPE =
+  "publish_exact_generated_revision";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION = 1;
 export const PERSONA_ENCOUNTER_CROSS_OWNER_PUBLIC_EXHIBIT_REQUIRED_SCOPE =
   "publish_metadata_only_public_exhibit";
@@ -713,6 +796,8 @@ export const PERSONA_ENCOUNTER_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_SCHEMA =
   "station.persona_encounter.cross_owner_private_generated_artifact.v1";
 export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_REVISION_SCHEMA =
   "station.persona_encounter.cross_owner_generated_revision.v1";
+export const PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_SCHEMA =
+  "station.persona_encounter.cross_owner_generated_publication.v1";
 const PERSONA_ENCOUNTER_CROSS_OWNER_CONSENT_REASON_CODES = new Set([
   "not_aligned",
   "owner_request",
@@ -867,6 +952,26 @@ export function personaEncounterCrossOwnerGeneratedRevisionApprovePath(revisionS
   return `/persona-encounters/cross-owner-generated-revisions/${encodeURIComponent(revisionSlug)}/approve`;
 }
 
+export function personaEncounterCrossOwnerGeneratedRevisionPublicationPath(revisionSlug: string) {
+  return `/persona-encounters/cross-owner-generated-revisions/${encodeURIComponent(revisionSlug)}/publication`;
+}
+
+export function personaEncounterCrossOwnerGeneratedPublicationPath(slug: string) {
+  return `${PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATIONS_PATH}/${encodeURIComponent(slug)}`;
+}
+
+export function personaEncounterCrossOwnerGeneratedPublicationRetractPath(slug: string) {
+  return `${personaEncounterCrossOwnerGeneratedPublicationPath(slug)}/retract`;
+}
+
+export function personaEncounterCrossOwnerGeneratedPublicationReportPath(slug: string) {
+  return `${personaEncounterCrossOwnerGeneratedPublicationPath(slug)}/report`;
+}
+
+export function personaEncounterCrossOwnerGeneratedPublicationWebHref(slug: string) {
+  return `/encounters/cross-owner/generated/${encodeURIComponent(slug)}`;
+}
+
 export function personaEncounterCrossOwnerGeneratedArtifactPayload(
   input: PersonaEncounterCrossOwnerGeneratedArtifactRequest,
 ) {
@@ -898,6 +1003,15 @@ export function personaEncounterCrossOwnerGeneratedRevisionApprovalPayload(
   };
 }
 
+export function personaEncounterCrossOwnerGeneratedPublicationPayload(
+  input: PersonaEncounterCrossOwnerGeneratedPublicationRequest,
+) {
+  return {
+    confirmPublicGeneratedMaterialPublication: true,
+    revisionDigest: input.revisionDigest.trim(),
+  };
+}
+
 export function personaEncounterCrossOwnerConsentDisplay(consent: PersonaEncounterCrossOwnerConsent) {
   return `${consent.participants.requester.personaName} / ${consent.participants.counterparty.personaName}`;
 }
@@ -922,6 +1036,21 @@ export function personaEncounterCrossOwnerConsentCanSaveGeneratedArtifact(
     consent.requestedScopeVersion === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION &&
     consent.requestedScopes.some((scope) =>
       scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACT_REQUIRED_SCOPE
+    ),
+  );
+}
+
+export function personaEncounterCrossOwnerConsentCanPublishGeneratedRevision(
+  consent: PersonaEncounterCrossOwnerConsent,
+) {
+  return Boolean(
+    consent.status === "approved" &&
+    consent.requestedScopeVersion === PERSONA_ENCOUNTER_CROSS_OWNER_DISPOSABLE_PREVIEW_SCOPE_VERSION &&
+    consent.requestedScopes.some((scope) =>
+      scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_ARTIFACT_REQUIRED_SCOPE
+    ) &&
+    consent.requestedScopes.some((scope) =>
+      scope.scope === PERSONA_ENCOUNTER_CROSS_OWNER_GENERATED_PUBLICATION_REQUIRED_SCOPE
     ),
   );
 }
@@ -1132,6 +1261,33 @@ export function personaEncounterCrossOwnerPrivateGeneratedArtifactReadback(
     artifact.lifecycleStatus === "active" ? "Artifact active" : `Artifact ${artifact.lifecycleStatus}`,
     artifact.publication.generatedWordsPublished ? "Generated words published" : "No public generated words",
     "No transcript, public summary, public excerpt, provider payload, token fact, retrieval body, raw owner id, or raw persona id",
+  ];
+}
+
+export function personaEncounterCrossOwnerGeneratedPublicationReadback(
+  publication?: PersonaEncounterCrossOwnerGeneratedPublicationDetail | null,
+) {
+  if (!publication) {
+    return [
+      "Cross-owner generated material public detail",
+      "Detail route only",
+      "Exact approved revision required",
+      "Copied server-side from PR522 revision",
+      "No public list, Discover, Space, forum, writing, homepage, or persona linkback placement",
+      "No PR516 disposable preview direct publication",
+      "No provider payload, retrieval body, token fact, raw owner id, or raw persona id",
+    ];
+  }
+
+  return [
+    publication.provenance.label,
+    publication.provenance.detailOnly ? "Detail route only" : "Placement boundary unclear",
+    publication.source.exactApprovedRevision ? "Exact approved revision" : "Revision approval unclear",
+    publication.source.copiedServerSide ? "Copied server-side from approved revision" : "Source copy mismatch",
+    publication.provenance.public ? "Public generated body on this detail route" : "Generated body hidden",
+    publication.provenance.noPublicList ? "No public list placement" : "List placement unclear",
+    publication.provenance.noPr516DirectPublication ? "No PR516 direct publication" : "Preview source unclear",
+    "No provider payload, retrieval body, token fact, raw owner id, or raw persona id",
   ];
 }
 
@@ -1428,6 +1584,24 @@ export function personaEncounterCrossOwnerGeneratedArtifactErrorCopy(input: {
       return "Only proposed generated revisions can be approved.";
     case "persona_encounter_cross_owner_generated_revision_stale":
       return "This generated revision changed and needs a new exact-text proposal.";
+    case "persona_encounter_cross_owner_generated_publication_wrong_scope":
+      return "This consent does not include exact generated revision publication scope.";
+    case "persona_encounter_cross_owner_generated_publication_revision_unapproved":
+      return "Only approved generated revisions can be published.";
+    case "persona_encounter_cross_owner_generated_publication_revision_stale":
+      return "This generated revision changed after approval and needs a new exact-text approval.";
+    case "persona_encounter_cross_owner_generated_publication_digest_mismatch":
+      return "Publication requires the exact approved revision digest.";
+    case "persona_encounter_cross_owner_generated_publication_bilateral_approval_required":
+      return "Both participants must approve this exact revision before publication.";
+    case "persona_encounter_cross_owner_generated_publication_source_mismatch":
+      return "This publication no longer matches its approved source revision.";
+    case "persona_encounter_cross_owner_generated_publication_participant_deleted":
+      return "This publication source is no longer available.";
+    case "persona_encounter_cross_owner_generated_publication_exists":
+      return "A public generated-material detail already exists for this exact revision.";
+    case "persona_encounter_cross_owner_generated_publication_inactive":
+      return "This generated-material publication is not currently public.";
     case "persona_encounter_cross_owner_generated_artifact_save_failed":
     case "persona_encounter_cross_owner_generated_artifact_load_failed":
     case "persona_encounter_cross_owner_generated_artifact_retract_failed":
@@ -1438,6 +1612,11 @@ export function personaEncounterCrossOwnerGeneratedArtifactErrorCopy(input: {
     case "persona_encounter_cross_owner_generated_revision_reset_failed":
     case "persona_encounter_cross_owner_generated_revision_approval_failed":
     case "persona_encounter_cross_owner_generated_revision_approve_failed":
+    case "persona_encounter_cross_owner_generated_publication_load_failed":
+    case "persona_encounter_cross_owner_generated_publication_save_failed":
+    case "persona_encounter_cross_owner_generated_publication_retract_failed":
+    case "persona_encounter_cross_owner_generated_publication_delete_failed":
+    case "persona_encounter_cross_owner_generated_publication_revoke_failed":
       return "Cross-owner private generated artifact workflow could not be saved.";
     default:
       return "Cross-owner private generated artifact workflow could not be prepared.";
