@@ -4,6 +4,51 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR524A ARGUS Review - Cross-Owner Generated Material Publication Contract
+
+ARGUS completed PR524A review on 2026-07-12:
+
+- `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_WITH_ARGUS_PATCH`.
+
+Reason:
+
+- PR524A matches the dedicated detail-only generated-material public contract;
+- public body text remains copied server-side from active PR522 artifacts and
+  exact bilaterally approved revisions only;
+- ARGUS narrowed public generated-publication JSON to remove full digests,
+  report counts, and source lifecycle statuses;
+- ARGUS removed redundant participant direct body-select RLS and kept
+  participant controls server-mediated;
+- ARGUS tightened generated-publication moderation restore to revalidate
+  consent scopes/snapshots, artifact and revision contract/provenance, copied
+  body/digests, publication contract/provenance, and both participant approval
+  owner rows;
+- generated material remains absent from public lists, Discover/search/feed,
+  public persona linkbacks, Space/forum/community, writing, homepage, provider/
+  retrieval, storage/export, billing/Stripe, queue/worker, Cloudflare,
+  package/lockfile, deployment, and broad UI scope.
+
+Environment note: commands used `npx --yes pnpm@10.32.1 run ...`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 run test:persona-encounters` | Pass | 87 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:reports` | Pass | 9 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:personas` | Pass | 18 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:community` | Pass | 47 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:writing` | Pass | 32 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 244 tests passed. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check` | Pass | No whitespace errors; Git printed existing LF-to-CRLF working-copy warnings. |
+| Changed-path forbidden-scope scan | Pass | No Cloudflare, queue/worker, provider/model, retrieval/vector, storage/export, billing/Stripe, package/deploy, or broad public placement path drift. |
+| Broad scope-word diff scan | Pass with intentional guardrail hits | Hits were guardrail tests/docs and local variable names, not new broad placement. |
+| High-risk secret pattern diff scan | Pass | No API keys, private keys, passwords, `sk-` keys, GitHub tokens, JWTs, or long bearer-like literals found. |
+| `build` | Not rerun by ARGUS | DAEDALUS recorded known Windows Next standalone symlink `EPERM` after successful compile/page generation. |
+
 ## PR524A DAEDALUS Implementation - Cross-Owner Generated Material Publication Contract
 
 DAEDALUS completed PR524A implementation on 2026-07-12:

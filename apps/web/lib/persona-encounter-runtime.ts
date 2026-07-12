@@ -484,9 +484,7 @@ export interface PersonaEncounterCrossOwnerGeneratedPublicationDetail {
   excerpt: string | null;
   status: PersonaEncounterCrossOwnerGeneratedPublicationStatus;
   contractVersion: 1;
-  revisionDigest: string;
-  sourceArtifactDigest: string;
-  reportedCount: number;
+  revisionDigestLabel: string;
   publishedAt: string;
   participants: {
     requester: {
@@ -499,9 +497,6 @@ export interface PersonaEncounterCrossOwnerGeneratedPublicationDetail {
     };
   };
   source: {
-    consentStatus: PersonaEncounterCrossOwnerConsentStatus;
-    artifactLifecycleStatus: PersonaEncounterCrossOwnerGeneratedArtifactLifecycleStatus;
-    revisionStatus: PersonaEncounterCrossOwnerGeneratedRevisionStatus;
     exactApprovedRevision: boolean;
     copiedServerSide: boolean;
   };

@@ -434,16 +434,6 @@ create policy "pe_co_generated_publications_select_public"
 
 drop policy if exists "pe_co_generated_publications_select_participants"
   on public.persona_encounter_cross_owner_generated_publications;
-create policy "pe_co_generated_publications_select_participants"
-  on public.persona_encounter_cross_owner_generated_publications
-  for select
-  using (
-    status = 'published'
-    and (
-      auth.uid() = requester_owner_user_id
-      or auth.uid() = counterparty_owner_user_id
-    )
-  );
 
 drop policy if exists "pe_co_generated_publication_audit_select_participants"
   on public.persona_encounter_cross_owner_generated_publication_audit_events;
@@ -475,8 +465,9 @@ drop policy if exists "pe_co_generated_publication_audit_update_participants"
   on public.persona_encounter_cross_owner_generated_publication_audit_events;
 drop policy if exists "pe_co_generated_publication_audit_delete_participants"
   on public.persona_encounter_cross_owner_generated_publication_audit_events;
--- Writes are server-mediated. Direct public reads are limited to currently
--- published rows; inactive public rows and audit events do not expose body text.
+-- Writes and participant controls are server-mediated. Direct public reads are
+-- limited to currently published rows; inactive public rows and audit events do
+-- not expose body text.
 
 comment on table public.persona_encounter_cross_owner_generated_publications is
   'Dedicated PR524A detail-only public generated material table. Public body text is copied server-side only from an active PR522 exact approved revision with bilateral approval. No list, Discover, Space, forum, writing, homepage, public persona linkback, PR516 direct publication, provider payload, retrieval body, prompt, token fact, raw owner id, raw persona id, env value, cookie, bearer value, or secret-shaped value is exposed.';

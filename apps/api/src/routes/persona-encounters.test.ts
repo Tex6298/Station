@@ -1665,12 +1665,12 @@ test("cross-owner generated publication migration creates detail-only public con
   assert.match(sql, /station\.persona_encounter\.cross_owner_generated_publication\.v1/);
   assert.match(sql, /blocked_public_read/);
   assert.match(sql, /pe_co_generated_publications_select_public/);
-  assert.match(sql, /pe_co_generated_publications_select_participants/);
   assert.match(sql, /pe_co_generated_publication_audit_select_participants/);
   assert.match(sql, /revoke_generated_publications_on_consent_inactive/);
   assert.match(sql, /invalidate_generated_publications_on_source_artifact/);
   assert.match(sql, /invalidate_generated_publications_on_revision/);
   assert.match(sql, /No list, Discover, Space, forum, writing, homepage, public persona linkback/);
+  assert.equal(/create policy "pe_co_generated_publications_select_participants"/.test(sql), false);
   assert.equal(/create policy "pe_co_generated_publications_insert_participants"/.test(sql), false);
   assert.equal(/create policy "pe_co_generated_publications_update_participants"/.test(sql), false);
   assert.equal(/create policy "pe_co_generated_publications_delete_participants"/.test(sql), false);
@@ -3370,7 +3370,7 @@ test("cross-owner generated publications copy exact approved revisions to a deta
     assert.equal(publish.body.publication.excerpt, "Exact PR524A excerpt.");
     assert.equal(publish.body.publication.status, "published");
     assert.equal(publish.body.publication.contractVersion, 1);
-    assert.equal(publish.body.publication.revisionDigest, fixture.revision.textDigest);
+    assert.equal(publish.body.publication.revisionDigestLabel, fixture.revision.textDigest.slice(0, 12));
     assert.equal(publish.body.publication.source.exactApprovedRevision, true);
     assert.equal(publish.body.publication.source.copiedServerSide, true);
     assert.equal(publish.body.publication.provenance.public, true);
@@ -3410,10 +3410,18 @@ test("cross-owner generated publications copy exact approved revisions to a deta
       OTHER_OWNER_ID,
       INITIATOR_ID,
       OTHER_PERSONA_ID,
+      fixture.revision.textDigest,
+      publicationRow.source_artifact_digest,
       "requester_owner_user_id",
       "counterparty_owner_user_id",
       "requester_persona_id",
       "counterparty_persona_id",
+      "\"revisionDigest\":",
+      "\"sourceArtifactDigest\":",
+      "\"reportedCount\":",
+      "\"consentStatus\":",
+      "\"artifactLifecycleStatus\":",
+      "\"revisionStatus\":",
       "Private generated source words",
       "private_body",
       "final_body",

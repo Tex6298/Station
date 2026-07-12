@@ -3668,9 +3668,7 @@ function serializeCrossOwnerGeneratedPublicationDetail(input: {
     excerpt: active ? publication.public_excerpt : null,
     status: publication.status,
     contractVersion: publication.publication_contract_version,
-    revisionDigest: publication.revision_digest,
-    sourceArtifactDigest: publication.source_artifact_digest,
-    reportedCount: publication.reported_count,
+    revisionDigestLabel: publication.revision_digest.slice(0, 12),
     publishedAt: publication.published_at,
     participants: {
       requester: {
@@ -3683,9 +3681,6 @@ function serializeCrossOwnerGeneratedPublicationDetail(input: {
       },
     },
     source: {
-      consentStatus: consent.status,
-      artifactLifecycleStatus: artifact.lifecycle_status,
-      revisionStatus: revision.status,
       exactApprovedRevision: revision.status === "approved" && revision.text_digest === publication.revision_digest,
       copiedServerSide: (
         publication.public_title === revision.final_title &&

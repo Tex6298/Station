@@ -1068,9 +1068,7 @@ test("persona encounter runtime readback labels cross-owner generated publicatio
     excerpt: "Exact generated excerpt.",
     status: "published" as const,
     contractVersion: 1 as const,
-    revisionDigest: "b".repeat(64),
-    sourceArtifactDigest: "a".repeat(64),
-    reportedCount: 0,
+    revisionDigestLabel: "b".repeat(12),
     publishedAt: "2026-07-12T12:00:00.000Z",
     participants: {
       requester: {
@@ -1083,9 +1081,6 @@ test("persona encounter runtime readback labels cross-owner generated publicatio
       },
     },
     source: {
-      consentStatus: "approved" as const,
-      artifactLifecycleStatus: "active" as const,
-      revisionStatus: "approved" as const,
       exactApprovedRevision: true,
       copiedServerSide: true,
     },

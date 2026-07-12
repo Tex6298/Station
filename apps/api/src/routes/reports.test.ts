@@ -65,6 +65,7 @@ class ReportsSupabase {
     persona_encounter_cross_owner_public_exhibits: [],
     persona_encounter_cross_owner_generated_artifacts: [],
     persona_encounter_cross_owner_generated_revisions: [],
+    persona_encounter_cross_owner_generated_revision_approvals: [],
     persona_encounter_cross_owner_generated_publications: [],
     persona_encounter_cross_owner_generated_publication_audit_events: [],
   };
@@ -202,6 +203,11 @@ class ReportsSupabase {
       row.provenance_schema ??= "station.persona_encounter.cross_owner_generated_revision.v1";
       row.created_at ??= now;
       row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_generated_revision_approvals") {
+      row.approval_contract_version ??= 1;
+      row.approved_at ??= now;
     }
 
     if (table === "persona_encounter_cross_owner_generated_publications") {
@@ -1413,31 +1419,81 @@ test("admin report status updates can remove and conditionally restore cross-own
 
 test("admin report status updates can remove and conditionally restore generated publications", async () => {
   const db = new ReportsSupabase();
+  const requesterOwnerId = "requester-owner-user";
+  const counterpartyOwnerId = "counterparty-owner-user";
+  const requesterPersonaId = "requester-persona-private-id";
+  const counterpartyPersonaId = "counterparty-persona-private-id";
+  const requesterPersonaName = "Requester Persona";
+  const counterpartyPersonaName = "Counterparty Persona";
   const consent = db.insertRow("persona_encounter_cross_owner_consents", {
     id: "cross-owner-generated-consent-1",
+    requester_owner_user_id: requesterOwnerId,
+    requester_persona_id: requesterPersonaId,
+    requester_persona_name_snapshot: requesterPersonaName,
+    counterparty_owner_user_id: counterpartyOwnerId,
+    counterparty_persona_id: counterpartyPersonaId,
+    counterparty_persona_name_snapshot: counterpartyPersonaName,
     requested_scopes: ["save_private_cross_owner_artifact", "publish_exact_generated_revision"],
     requested_scope_version: 1,
   });
   const artifact = db.insertRow("persona_encounter_cross_owner_generated_artifacts", {
     id: "cross-owner-generated-artifact-1",
     consent_id: consent.id,
+    requester_owner_user_id: requesterOwnerId,
+    requester_persona_id: requesterPersonaId,
+    requester_persona_name_snapshot: requesterPersonaName,
+    counterparty_owner_user_id: counterpartyOwnerId,
+    counterparty_persona_id: counterpartyPersonaId,
+    counterparty_persona_name_snapshot: counterpartyPersonaName,
     lifecycle_status: "active",
+    generated_content_digest: "a".repeat(64),
   });
   const revision = db.insertRow("persona_encounter_cross_owner_generated_revisions", {
     id: "cross-owner-generated-revision-1",
     consent_id: consent.id,
     artifact_id: artifact.id,
+    requester_persona_name_snapshot: requesterPersonaName,
+    counterparty_persona_name_snapshot: counterpartyPersonaName,
+    consent_requested_scopes: ["save_private_cross_owner_artifact", "publish_exact_generated_revision"],
+    consent_requested_scope_version: 1,
+    final_title: "Exact generated public detail",
+    final_body: "Exact generated body must not appear in admin target context.",
+    final_excerpt: null,
+    text_digest: "b".repeat(64),
+    source_artifact_digest: artifact.generated_content_digest,
     status: "approved",
+  });
+  db.insertRow("persona_encounter_cross_owner_generated_revision_approvals", {
+    revision_id: revision.id,
+    artifact_id: artifact.id,
+    consent_id: consent.id,
+    participant_role: "requester",
+    approver_owner_user_id: requesterOwnerId,
+    revision_digest: revision.text_digest,
+  });
+  db.insertRow("persona_encounter_cross_owner_generated_revision_approvals", {
+    revision_id: revision.id,
+    artifact_id: artifact.id,
+    consent_id: consent.id,
+    participant_role: "counterparty",
+    approver_owner_user_id: counterpartyOwnerId,
+    revision_digest: revision.text_digest,
   });
   const publication = db.insertRow("persona_encounter_cross_owner_generated_publications", {
     consent_id: consent.id,
     artifact_id: artifact.id,
     revision_id: revision.id,
+    requester_owner_user_id: requesterOwnerId,
+    requester_persona_id: requesterPersonaId,
+    requester_persona_name_snapshot: requesterPersonaName,
+    counterparty_owner_user_id: counterpartyOwnerId,
+    counterparty_persona_id: counterpartyPersonaId,
+    counterparty_persona_name_snapshot: counterpartyPersonaName,
     public_slug: "generated-publication-12345678",
     public_title: "Exact generated public detail",
     public_body: "Exact generated body must not appear in admin target context.",
-    revision_digest: "b".repeat(64),
-    source_artifact_digest: "a".repeat(64),
+    revision_digest: revision.text_digest,
+    source_artifact_digest: artifact.generated_content_digest,
     created_by: "owner-user",
     updated_by: "owner-user",
   });
@@ -1495,6 +1551,40 @@ test("admin report status updates can remove and conditionally restore generated
     assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "removed");
 
     db.tables.persona_encounter_cross_owner_consents[0].status = "approved";
+    db.tables.persona_encounter_cross_owner_generated_revision_approvals.pop();
+    const blockedMissingApprovalRestore = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(blockedMissingApprovalRestore.status, 400);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "removed");
+    db.insertRow("persona_encounter_cross_owner_generated_revision_approvals", {
+      revision_id: revision.id,
+      artifact_id: artifact.id,
+      consent_id: consent.id,
+      participant_role: "counterparty",
+      approver_owner_user_id: counterpartyOwnerId,
+      revision_digest: revision.text_digest,
+    });
+    db.tables.persona_encounter_cross_owner_generated_revisions[0].final_body = "Edited body cannot restore old publication.";
+    const blockedEditedRevisionRestore = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(blockedEditedRevisionRestore.status, 400);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "removed");
+    db.tables.persona_encounter_cross_owner_generated_revisions[0].final_body =
+      "Exact generated body must not appear in admin target context.";
+    db.tables.persona_encounter_cross_owner_generated_artifacts[0].requester_persona_name_snapshot = "Changed requester snapshot";
+    const blockedSnapshotDriftRestore = await requestJson(app, "PATCH", `/reports/${report.id}`, {
+      token: "admin-token",
+      body: { status: "reviewing", targetAction: "restore" },
+    });
+    assert.equal(blockedSnapshotDriftRestore.status, 400);
+    assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].status, "removed");
+    db.tables.persona_encounter_cross_owner_generated_artifacts[0].requester_persona_name_snapshot =
+      requesterPersonaName;
+
     const restored = await requestJson(app, "PATCH", `/reports/${report.id}`, {
       token: "admin-token",
       body: { status: "reviewing", targetAction: "restore" },
@@ -1513,6 +1603,10 @@ test("admin report status updates can remove and conditionally restore generated
 
     const updateJson = JSON.stringify({ queue: queue.body, removed: removed.body, restored: restored.body });
     assert.equal(updateJson.includes("Exact generated body must not appear"), false);
+    assert.equal(updateJson.includes(requesterOwnerId), false);
+    assert.equal(updateJson.includes(counterpartyOwnerId), false);
+    assert.equal(updateJson.includes(requesterPersonaId), false);
+    assert.equal(updateJson.includes(counterpartyPersonaId), false);
     assert.equal(updateJson.includes("cross-owner-generated-consent-1"), false);
     assert.equal(updateJson.includes("cross-owner-generated-artifact-1"), false);
     assert.equal(updateJson.includes("cross-owner-generated-revision-1"), false);

@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR524A cross-owner generated material publication contract ready for ARGUS review
+## Current lane - PR524A cross-owner generated material publication contract accepted by ARGUS
 
 MIMIR closed PR524 preflight:
 
@@ -14,13 +14,17 @@ DAEDALUS implemented PR524A:
 
 `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_RESULT.md`
 
+ARGUS accepted PR524A with a narrow review patch:
+
+`docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md`
+
 Current lane:
 
 ```text
 PR524A - Cross-Owner Generated Material Publication Contract
 Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_RESULT.md
+State: ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md
 ```
 
 Why:
@@ -29,11 +33,11 @@ Why:
   generated source artifacts and exact-text bilateral approval ledger rows;
 - PR522 now supplies that private participant-only foundation, accepted by
   ARGUS with a narrow safety patch;
-- ARGUS accepts PR524A only as a dedicated, detail-only generated-material
+- PR524A is accepted only as a dedicated, detail-only generated-material
   publication contract derived from active PR522 artifacts and exact
   bilaterally approved revisions;
-- DAEDALUS may implement that narrow contract but must not broaden placement or
-  reuse metadata-only exhibit routes.
+- ARGUS patched the public payload allow-list, removed redundant participant
+  direct body-select RLS, and tightened moderation restore source-chain checks.
 
 Implemented shape:
 
@@ -43,7 +47,7 @@ Dedicated generated-publication table/audit/route.
 Public detail API and minimal public detail web page only.
 Public body copied server-side from the exact approved PR522 revision.
 Report, moderation remove/restore, participant retract/delete lifecycle.
-Hosted ARIADNE proof after ARGUS local acceptance.
+MIMIR closeout/hosted-proof sequencing next.
 ```
 
 Validation summary:
@@ -54,8 +58,9 @@ test:writing, test:studio-ui, typecheck, lint, git diff --check, changed-path
 forbidden-scope scan, broad scope-word no-drift scan, and high-risk secret scan
 pass.
 
-build reaches successful Next compile/type/static page generation, then fails
-locally on the known Windows Next standalone symlink EPERM.
+ARGUS did not rerun build; DAEDALUS recorded that build reached successful Next
+compile/type/static page generation, then failed locally on the known Windows
+Next standalone symlink EPERM.
 ```
 
 Still blocked by default:

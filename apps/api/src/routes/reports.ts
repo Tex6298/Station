@@ -78,6 +78,11 @@ const PUBLIC_EXHIBIT_REPORT_TARGET_TYPES = new Set<ModerationReportTargetType>([
   "persona_encounter_cross_owner_public_exhibit",
   "persona_encounter_cross_owner_generated_publication",
 ]);
+const GENERATED_PUBLICATION_CONTRACT_VERSION = 1;
+const GENERATED_ARTIFACT_PROVENANCE_SCHEMA = "station.persona_encounter.cross_owner_private_generated_artifact.v1";
+const GENERATED_REVISION_PROVENANCE_SCHEMA = "station.persona_encounter.cross_owner_generated_revision.v1";
+const GENERATED_PUBLICATION_PROVENANCE_SCHEMA = "station.persona_encounter.cross_owner_generated_publication.v1";
+const GENERATED_PUBLICATION_SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*-[a-z0-9]{8}$/;
 
 function serializeReport(
   row: ModerationReportRow,
@@ -927,7 +932,7 @@ async function loadCrossOwnerGeneratedPublicationTargetContext(
 ): Promise<ModerationReportTargetContext> {
   const { data: publication } = await (sb as any)
     .from("persona_encounter_cross_owner_generated_publications")
-    .select("id, consent_id, artifact_id, revision_id, public_slug, public_title, status, reported_count, removed_at, retracted_at, deleted_at")
+    .select("id, consent_id, artifact_id, revision_id, requester_owner_user_id, requester_persona_id, requester_persona_name_snapshot, counterparty_owner_user_id, counterparty_persona_id, counterparty_persona_name_snapshot, public_slug, public_title, public_body, public_excerpt, revision_digest, source_artifact_digest, status, private_artifact_contract_version, revision_contract_version, approval_contract_version, publication_contract_version, provenance_schema, reported_count, removed_at, retracted_at, deleted_at")
     .eq("id", publicationId)
     .maybeSingle();
 
@@ -1163,7 +1168,7 @@ async function loadPublicExhibitModerationTarget(
   const table = publicExhibitModerationTable(targetType);
   if (!table) return null;
   const selectColumns = targetType === "persona_encounter_cross_owner_generated_publication"
-    ? "id, public_slug, status, retracted_at, consent_id, artifact_id, revision_id, revision_digest, source_artifact_digest, publication_contract_version"
+    ? "id, consent_id, artifact_id, revision_id, requester_owner_user_id, requester_persona_id, requester_persona_name_snapshot, counterparty_owner_user_id, counterparty_persona_id, counterparty_persona_name_snapshot, public_slug, public_title, public_body, public_excerpt, status, retracted_at, revision_digest, source_artifact_digest, private_artifact_contract_version, revision_contract_version, approval_contract_version, publication_contract_version, provenance_schema"
     : targetType === "persona_encounter_cross_owner_public_exhibit"
     ? "id, slug, status, retracted_at, consent_id"
     : "id, slug, status, retracted_at";
@@ -1228,41 +1233,123 @@ async function crossOwnerGeneratedPublicationSourceActive(
     consent_id?: string | null;
     artifact_id?: string | null;
     revision_id?: string | null;
+    requester_owner_user_id?: string | null;
+    requester_persona_id?: string | null;
+    requester_persona_name_snapshot?: string | null;
+    counterparty_owner_user_id?: string | null;
+    counterparty_persona_id?: string | null;
+    counterparty_persona_name_snapshot?: string | null;
+    public_slug?: string | null;
+    public_title?: string | null;
+    public_body?: string | null;
+    public_excerpt?: string | null;
+    revision_digest?: string | null;
+    source_artifact_digest?: string | null;
+    private_artifact_contract_version?: number | null;
+    revision_contract_version?: number | null;
+    approval_contract_version?: number | null;
+    publication_contract_version?: number | null;
+    provenance_schema?: string | null;
   },
 ) {
-  if (!publication.consent_id || !publication.artifact_id || !publication.revision_id) return false;
+  if (
+    !publication.consent_id ||
+    !publication.artifact_id ||
+    !publication.revision_id ||
+    !publication.requester_owner_user_id ||
+    !publication.requester_persona_id ||
+    !publication.requester_persona_name_snapshot ||
+    !publication.counterparty_owner_user_id ||
+    !publication.counterparty_persona_id ||
+    !publication.counterparty_persona_name_snapshot ||
+    !publication.public_slug ||
+    !publication.revision_digest ||
+    !publication.source_artifact_digest
+  ) return false;
 
-  const [consentResult, artifactResult, revisionResult] = await Promise.all([
+  const [consentResult, artifactResult, revisionResult, approvalsResult] = await Promise.all([
     (sb as any)
       .from("persona_encounter_cross_owner_consents")
-      .select("id, status, requested_scopes, requested_scope_version")
+      .select("id, status, requested_scopes, requested_scope_version, requester_owner_user_id, requester_persona_id, requester_persona_name_snapshot, counterparty_owner_user_id, counterparty_persona_id, counterparty_persona_name_snapshot")
       .eq("id", publication.consent_id)
       .maybeSingle(),
     (sb as any)
       .from("persona_encounter_cross_owner_generated_artifacts")
-      .select("id, lifecycle_status")
+      .select("id, consent_id, requester_owner_user_id, requester_persona_id, requester_persona_name_snapshot, counterparty_owner_user_id, counterparty_persona_id, counterparty_persona_name_snapshot, lifecycle_status, generated_content_digest, contract_version, provenance_schema")
       .eq("id", publication.artifact_id)
       .maybeSingle(),
     (sb as any)
       .from("persona_encounter_cross_owner_generated_revisions")
-      .select("id, status")
+      .select("id, consent_id, artifact_id, requester_persona_name_snapshot, counterparty_persona_name_snapshot, consent_requested_scopes, consent_requested_scope_version, status, final_title, final_body, final_excerpt, text_digest, source_artifact_digest, contract_version, approval_contract_version, provenance_schema")
       .eq("id", publication.revision_id)
       .maybeSingle(),
+    (sb as any)
+      .from("persona_encounter_cross_owner_generated_revision_approvals")
+      .select("id, revision_id, artifact_id, consent_id, participant_role, approver_owner_user_id, revision_digest, approval_contract_version")
+      .eq("revision_id", publication.revision_id),
   ]);
 
   const consent = consentResult.data;
   const artifact = artifactResult.data;
   const revision = revisionResult.data;
+  const approvals = approvalsResult.data ?? [];
+  const hasApproval = (role: "requester" | "counterparty", ownerUserId: string) =>
+    approvals.some((approval: any) =>
+      approval.revision_id === publication.revision_id &&
+      approval.artifact_id === publication.artifact_id &&
+      approval.consent_id === publication.consent_id &&
+      approval.participant_role === role &&
+      approval.approver_owner_user_id === ownerUserId &&
+      approval.revision_digest === publication.revision_digest &&
+      approval.approval_contract_version === publication.approval_contract_version
+    );
 
   return Boolean(
+    publication.provenance_schema === GENERATED_PUBLICATION_PROVENANCE_SCHEMA &&
+    publication.publication_contract_version === GENERATED_PUBLICATION_CONTRACT_VERSION &&
+    GENERATED_PUBLICATION_SLUG_PATTERN.test(publication.public_slug) &&
     consent &&
     consent.status === "approved" &&
     consent.requested_scope_version === 1 &&
     Array.isArray(consent.requested_scopes) &&
     consent.requested_scopes.includes("save_private_cross_owner_artifact") &&
     consent.requested_scopes.includes("publish_exact_generated_revision") &&
+    consent.requester_owner_user_id === publication.requester_owner_user_id &&
+    consent.requester_persona_id === publication.requester_persona_id &&
+    consent.requester_persona_name_snapshot === publication.requester_persona_name_snapshot &&
+    consent.counterparty_owner_user_id === publication.counterparty_owner_user_id &&
+    consent.counterparty_persona_id === publication.counterparty_persona_id &&
+    consent.counterparty_persona_name_snapshot === publication.counterparty_persona_name_snapshot &&
+    artifact?.consent_id === publication.consent_id &&
+    artifact?.requester_owner_user_id === publication.requester_owner_user_id &&
+    artifact?.requester_persona_id === publication.requester_persona_id &&
+    artifact?.requester_persona_name_snapshot === publication.requester_persona_name_snapshot &&
+    artifact?.counterparty_owner_user_id === publication.counterparty_owner_user_id &&
+    artifact?.counterparty_persona_id === publication.counterparty_persona_id &&
+    artifact?.counterparty_persona_name_snapshot === publication.counterparty_persona_name_snapshot &&
     artifact?.lifecycle_status === "active" &&
-    revision?.status === "approved"
+    artifact?.generated_content_digest === publication.source_artifact_digest &&
+    artifact?.contract_version === publication.private_artifact_contract_version &&
+    artifact?.provenance_schema === GENERATED_ARTIFACT_PROVENANCE_SCHEMA &&
+    revision?.consent_id === publication.consent_id &&
+    revision?.artifact_id === publication.artifact_id &&
+    revision?.requester_persona_name_snapshot === publication.requester_persona_name_snapshot &&
+    revision?.counterparty_persona_name_snapshot === publication.counterparty_persona_name_snapshot &&
+    revision?.consent_requested_scope_version === 1 &&
+    Array.isArray(revision?.consent_requested_scopes) &&
+    revision.consent_requested_scopes.includes("save_private_cross_owner_artifact") &&
+    revision.consent_requested_scopes.includes("publish_exact_generated_revision") &&
+    revision?.status === "approved" &&
+    revision?.final_title === publication.public_title &&
+    revision?.final_body === publication.public_body &&
+    revision?.final_excerpt === publication.public_excerpt &&
+    revision?.text_digest === publication.revision_digest &&
+    revision?.source_artifact_digest === publication.source_artifact_digest &&
+    revision?.contract_version === publication.revision_contract_version &&
+    revision?.approval_contract_version === publication.approval_contract_version &&
+    revision?.provenance_schema === GENERATED_REVISION_PROVENANCE_SCHEMA &&
+    hasApproval("requester", publication.requester_owner_user_id) &&
+    hasApproval("counterparty", publication.counterparty_owner_user_id)
   );
 }
 

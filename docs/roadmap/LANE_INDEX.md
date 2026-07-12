@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR524A | Cross-Owner Generated Material Publication Contract | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Ready for DAEDALUS implementation as a dedicated detail-only generated-material public contract derived solely from PR522 exact approved revisions; broad placement remains blocked. | `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_DAEDALUS.md` |
+| PR524A | Cross-Owner Generated Material Publication Contract | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1 | Accepted by ARGUS with a narrow safety patch; public payload, RLS, moderation restore, validation, and no-drift checks passed; awaiting MIMIR closeout/hosted-proof sequencing. | `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md` |
 
 ## Recently Closed
 
