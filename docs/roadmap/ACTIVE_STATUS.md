@@ -4,66 +4,54 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523B companion-first persona home draft PR #1 ready for MIMIR merge decision
+## Current lane - PR522 cross-owner private generated artifact and exact-text approval ledger routed to DAEDALUS
 
-ARIADNE completed PR523B human rehearsal:
+MIMIR closed PR523:
 
-`docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md`
+`docs/roadmap/PR523_COMPANION_FIRST_PERSONA_HOME_MERGE_CLOSEOUT_MIMIR.md`
 
 Current lane:
 
 ```text
-PR523B - Companion-First Persona Home Draft PR #1 Merge Decision
-Owner: MIMIR / A1
-State: ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION
-Source: docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md
+PR522 - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
+Owner: DAEDALUS / A2
+State: READY_FOR_IMPLEMENTATION
+Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_DAEDALUS.md
 ```
 
 Why:
 
-- draft PR #1 is still the companion-first UI source of truth;
-- ARGUS accepted the branch technically in PR523A;
-- ARIADNE accepted the lived product rehearsal in PR523B with no DAEDALUS
-  blocker before MIMIR's merge/integration decision;
-- residual polish risk is limited to mobile first-tap visibility for `New chat`,
-  mobile first-viewport `Owner-only` wording, and fixture-limited archive/
-  return-to-thread reruns when an accepted provider or active non-empty thread
-  exists.
+- PR521 blocked generated public material until a private generated source
+  artifact and exact-text bilateral approval ledger exist;
+- PR523 companion-first persona home is merged and validated;
+- PR522 is the smallest backend unblock that directly enables a future
+  generated-material publication preflight without exposing generated public
+  text now.
 
-Draft PR #1:
+Scope reminder:
 
 ```text
-URL: https://github.com/Tex6298/Station/pull/1
-Branch: fork/agent/companion-shell-translation
-Commit: 2d4a23835e5aa0928488041168d48b4cb489e8bb
+Build participant-only generated artifact and exact-text approval ledger.
+No public generated route.
+No public generated body text.
 ```
 
-Review path:
+## Previous lane - PR523 companion-first persona home merged
 
-- ARGUS first: complete, accepted for ARIADNE;
-- ARIADNE second: complete, accepted for MIMIR merge/integration decision;
-- DAEDALUS only if MIMIR wants the residual polish risks addressed before
-  merge.
+MIMIR merged draft PR #1:
+
+`docs/roadmap/PR523_COMPANION_FIRST_PERSONA_HOME_MERGE_CLOSEOUT_MIMIR.md`
 
 Validation:
 
 ```text
-gh pr view 1 --repo Tex6298/Station --json ...         PASS
-git diff --check fork/main...fork/agent/companion-shell-translation PASS
-npx --yes pnpm@10.32.1 run test:studio-ui             PASS - 238 tests
-npx --yes pnpm@10.32.1 run test:conversation-archive  PASS - 43 tests
-npx --yes pnpm@10.32.1 run test:personas              PASS - 18 tests
-npx --yes pnpm@10.32.1 run test:persona-encounters    PASS - 74 tests
-npx --yes pnpm@10.32.1 run typecheck                  PASS
-PR diff secret-shaped added-line scan                  PASS
-changed-path/public-surface scan                       PASS
-node .tmp\pr523b-rehearsal.mjs                         PASS - blocks=0, skips=2, results=26
+git diff --check HEAD^1..HEAD                         PASS
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui     PASS - 238 tests
+npm exec --yes pnpm@10.32.1 -- run test:conversation-archive PASS - 43 tests
+npm exec --yes pnpm@10.32.1 -- run test:personas      PASS - 18 tests
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 74 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck          PASS
 ```
-
-Parked backend unblock:
-
-- PR522 remains the next backend unblock for generated cross-owner publication,
-  but DAEDALUS is not woken for PR522 while PR523 is active.
 
 ## Previous lane - PR523B companion-first persona home draft PR #1 accepted by ARIADNE
 

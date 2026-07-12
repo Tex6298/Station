@@ -6,7 +6,7 @@ Opened by: MIMIR / A1
 
 Date opened: 2026-07-12
 
-Status: Parked handoff; DAEDALUS not yet woken
+Status: Ready for implementation
 
 Source:
 
@@ -21,9 +21,9 @@ This lane creates participant-only generated source artifacts and an exact-text
 approval ledger. It does not create a public generated-material route and it
 does not publish generated words.
 
-MIMIR has documented this as the next backend unblock from PR521. The current
-active baton is PR523, the companion-first persona home draft PR #1 review
-path. Do not start PR522 until MIMIR wakes DAEDALUS explicitly.
+MIMIR documented this as the next backend unblock from PR521. PR523 has now
+merged the companion-first persona home, so DAEDALUS may start PR522 when woken
+explicitly.
 
 ## Product Contract
 

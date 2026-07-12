@@ -12,18 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR523B | Companion-First Persona Home Draft PR #1 Merge Decision | MIMIR / A1 | ARIADNE accepted the human rehearsal with no DAEDALUS blocker; MIMIR decides whether to merge/integrate draft PR #1 or request residual polish first. | `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md` |
-
-## Parked / Ready
-
-| Lane | Name | Owner | State | Source |
-| --- | --- | --- | --- | --- |
-| PR522 | Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger | MIMIR / A1 -> DAEDALUS / A2 | Parked handoff; next backend unblock from PR521, but DAEDALUS is not yet woken while PR523 reviews draft PR #1. | `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_DAEDALUS.md` |
+| PR522 | Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger | MIMIR / A1 -> DAEDALUS / A2 | Ready for implementation; build participant-only generated source artifacts and exact-text bilateral approval ledger, with no public generated route or public generated body text. | `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_DAEDALUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR523 merge | Companion-First Persona Home | MIMIR -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR523_COMPANION_FIRST_PERSONA_HOME_MERGED`; draft PR #1 was merged into main at `4ba3e489`, and merged validation passed. | `docs/roadmap/PR523_COMPANION_FIRST_PERSONA_HOME_MERGE_CLOSEOUT_MIMIR.md` |
 | PR523B rehearsal | Companion-First Persona Home Draft PR #1 Human Rehearsal | MIMIR -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Accepted as `ACCEPT_PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_MIMIR_MERGE_DECISION`; desktop/mobile companion home, mobile nav, thread URL selection, rapid route switching, provider setup state, archived read-only state, Memory Inbox, Advanced Studio, and public no-drift passed. | `docs/roadmap/PR523B_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_HUMAN_REHEARSAL_RESULT.md` |
 | PR523A closeout | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_ACCEPTED`; ARGUS accepted the draft PR for ARIADNE rehearsal with no DAEDALUS blocker first. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_CLOSEOUT.md` |
 | PR523A review | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE`; ARGUS found no owner/persona scope, thread race, Advanced Studio, public/private drift, CSS, CI, package, or secret blocker before ARIADNE rehearsal. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md` |
