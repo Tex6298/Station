@@ -4,7 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR519A cross-owner Discover search group accepted by ARGUS
+## Current lane - PR519B cross-owner Discover search hosted proof routed to ARIADNE
+
+MIMIR closed PR519A locally:
+
+`docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR519B - Cross-Owner Metadata Exhibit Discover Search Hosted Proof
+Owner: ARIADNE / A4
+State: READY_FOR_HOSTED_PROOF
+Source: docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ARIADNE.md
+```
+
+Proof target:
+
+- hosted web/API must include PR519A implementation commit `15f50530` or later;
+- hosted `/discover/search` must return safe cross-owner metadata-only proof
+  rows under `crossOwnerPublicEncounterExhibits` for title, summary, tag,
+  requester display snapshot, and counterparty display snapshot probes;
+- empty search must return `crossOwnerPublicEncounterExhibits: []`;
+- payloads must route only to `/encounters/cross-owner#<slug>`;
+- readback must honestly mark safe published rows Discover-search-listed while
+  `indexed=false`;
+- same-owner `publicEncounterExhibits`, owner-private `privateResults`,
+  same-owner `/encounters`, Discover feed/rising/featured, public persona,
+  public Space, forum/Salon, public document, Station Press, writing, homepage,
+  and owner-private search buckets must not surface the proof row outside the
+  accepted group and dedicated cross-owner index/detail surfaces;
+- desktop and `390px` mobile Discover search rendering must fit without
+  overlap or clipped result text;
+- cleanup must leave no readable public proof row.
+
+If hosted search latency is poor, ARIADNE should name the concrete public
+search-index repair blocker rather than widening PR519B.
+
+## Previous lane - PR519A cross-owner Discover search group accepted by ARGUS
 
 MIMIR closed PR519 as accepted:
 
@@ -62,11 +99,6 @@ npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
 git diff --check                                           PASS
 implementation diff whitespace/scope/secret scans          PASS
 ```
-
-Next:
-
-- MIMIR should close PR519A locally if accepted and route ARIADNE for hosted
-  PR519B Discover search proof.
 
 ## Previous lane - PR519 cross-owner Discover search preflight accepted by ARGUS
 
