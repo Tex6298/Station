@@ -10,6 +10,7 @@ import type { PersonaSummary } from "@station/types/persona";
 export default function StudioPage() {
   const [personas, setPersonas] = useState<PersonaSummary[]>([]);
   const [integrityDue, setIntegrityDue] = useState<IntegrityDuePersona[]>([]);
+  const [integrityAvailable, setIntegrityAvailable] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
@@ -24,12 +25,15 @@ export default function StudioPage() {
 
       setSignedIn(true);
       try {
-        const [data, dueData] = await Promise.all([
+        const [data, dueResult] = await Promise.all([
           apiGet<{ personas: PersonaSummary[] }>("/personas", session.access_token),
-          apiGet<{ personas: IntegrityDuePersona[] }>("/integrity/due", session.access_token).catch(() => ({ personas: [] })),
+          apiGet<{ personas: IntegrityDuePersona[] }>("/integrity/due", session.access_token)
+            .then((dueData) => ({ dueData, available: true }))
+            .catch(() => ({ dueData: { personas: [] }, available: false })),
         ]);
         setPersonas(data.personas ?? []);
-        setIntegrityDue(dueData.personas ?? []);
+        setIntegrityDue(dueResult.dueData.personas ?? []);
+        setIntegrityAvailable(dueResult.available);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Could not load Studio.");
       } finally {
@@ -42,6 +46,7 @@ export default function StudioPage() {
     <StudioDashboard
       personas={personas}
       integrityDue={integrityDue}
+      integrityAvailable={integrityAvailable}
       loading={loading}
       error={error}
       signedIn={signedIn}

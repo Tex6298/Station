@@ -37,6 +37,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Studio UI behavior tests
+        run: pnpm test:studio-ui
+
       - name: Developer Spaces smoke tests
         run: pnpm test:developer-spaces
 

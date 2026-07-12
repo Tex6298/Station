@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { sendPersonaChatWithStream } from "@/lib/chat-stream";
@@ -10,15 +10,25 @@ import {
   privateProviderSetupNoticeFromChatError,
   type ChatErrorMetadata,
 } from "@/lib/private-provider-setup";
+import {
+  personaConversationBelongsToPersona,
+  personaConversationTitle,
+  type PersonaConversationSummary,
+} from "@/lib/persona-conversations";
 import type { ArchivedChatTranscript, ContinuityCandidate, ConversationMessage } from "@station/types/persona";
 
 interface Props {
   personaId: string;
   personaName: string;
+  selectedConversationId: string | null;
+  onStartNewChat: () => void;
+  onConversationCreated: (conversationId: string) => void;
+  onConversationArchived: () => void;
 }
 
 interface ChatState {
   conversationId: string | null;
+  conversationTitle: string | null;
   conversationStatus: "active" | "archived";
   messages: ConversationMessage[];
   archive: {
@@ -32,62 +42,110 @@ interface ChatState {
   streamStatus: string | null;
 }
 
-export function PersonaChat({ personaId, personaName }: Props) {
+function emptyChatState(loading: boolean): ChatState {
+  return {
+    conversationId: null,
+    conversationTitle: null,
+    conversationStatus: "active",
+    messages: [],
+    archive: null,
+    loading,
+    sending: false,
+    archiving: false,
+    error: null,
+    streamStatus: null,
+  };
+}
+
+export function PersonaChat({
+  personaId,
+  personaName,
+  selectedConversationId,
+  onStartNewChat,
+  onConversationCreated,
+  onConversationArchived,
+}: Props) {
   const [token, setToken] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
   const [reviewing, setReviewing] = useState<string | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  const selectionGenerationRef = useRef(0);
+  const selectionKeyRef = useRef(`${personaId}:${selectedConversationId ?? "new"}`);
 
-  const [state, setState] = useState<ChatState>({
-    conversationId: null,
-    conversationStatus: "active",
-    messages: [],
-    archive: null,
-    loading: true,
-    sending: false,
-    archiving: false,
-    error: null,
-    streamStatus: null,
-  });
+  const [state, setState] = useState<ChatState>(() => emptyChatState(true));
 
-  // Load session + most recent conversation on mount
+  useLayoutEffect(() => {
+    const nextKey = `${personaId}:${selectedConversationId ?? "new"}`;
+    if (selectionKeyRef.current !== nextKey) {
+      selectionKeyRef.current = nextKey;
+      selectionGenerationRef.current += 1;
+    }
+  }, [personaId, selectedConversationId]);
+
+  // The route owns thread selection. Loading an explicit thread never silently
+  // falls back to a different conversation.
   useEffect(() => {
+    let cancelled = false;
+    const requestGeneration = selectionGenerationRef.current;
+    setInput("");
+    setToken(null);
+    setSaving(null);
+    setReviewing(null);
+    setState(emptyChatState(true));
+
     getSession().then(async (session) => {
-      if (!session) { setState((s) => ({ ...s, loading: false })); return; }
+      if (cancelled || selectionGenerationRef.current !== requestGeneration) return;
+      if (!session) {
+        setState(emptyChatState(false));
+        return;
+      }
       setToken(session.access_token);
+
+      if (!selectedConversationId) {
+        setState(emptyChatState(false));
+        return;
+      }
+
       try {
-        const { conversations } = await apiGet<{ conversations: Array<{ id: string }> }>(
-          `/conversations/persona/${personaId}`,
-          session.access_token
+        const { conversation, messages, archive } = await apiGet<{
+          conversation: PersonaConversationSummary;
+          messages: ConversationMessage[];
+          archive: ChatState["archive"];
+        }>(
+          `/conversations/${encodeURIComponent(selectedConversationId)}?personaId=${encodeURIComponent(personaId)}`,
+          session.access_token,
         );
-        if (conversations.length > 0) {
-          const latest = conversations[0];
-          const { conversation, messages, archive } = await apiGet<{
-            conversation: { id: string; status?: "active" | "archived" };
-            messages: ConversationMessage[];
-            archive: ChatState["archive"];
-          }>(
-            `/conversations/${latest.id}`,
-            session.access_token
-          );
-          setState((s) => ({
-            ...s,
-            conversationId: latest.id,
+
+        if (!personaConversationBelongsToPersona(conversation, personaId)) {
+          throw new Error("This conversation is not available in the selected persona workspace.");
+        }
+
+        if (!cancelled && selectionGenerationRef.current === requestGeneration) {
+          setState({
+            ...emptyChatState(false),
+            conversationId: conversation.id,
+            conversationTitle: personaConversationTitle(conversation),
             conversationStatus: conversation.status ?? "active",
             messages: messages ?? [],
             archive: archive ?? null,
-            loading: false,
-          }));
-        } else {
-          setState((s) => ({ ...s, loading: false }));
+          });
         }
-      } catch {
-        setState((s) => ({ ...s, loading: false }));
+      } catch (error) {
+        if (!cancelled && selectionGenerationRef.current === requestGeneration) {
+          setState({
+            ...emptyChatState(false),
+            error: chatErrorMetadata(error, "Could not open this conversation."),
+          });
+        }
       }
     });
-  }, [personaId]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [personaId, selectedConversationId]);
 
   // Keep chat auto-scroll inside the thread so loading an existing conversation does not move the page.
   useEffect(() => {
@@ -103,6 +161,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
   async function send() {
     const content = input.trim();
     if (!content || state.sending || state.conversationStatus === "archived" || !token) return;
+    const requestGeneration = selectionGenerationRef.current;
     setInput("");
 
     // Optimistic user message
@@ -116,15 +175,19 @@ export function PersonaChat({ personaId, personaName }: Props) {
     }));
 
     try {
+      const creatingConversation = state.conversationId === null;
       const { conversationId, reply } = await sendPersonaChatWithStream({
         personaId,
         content,
         conversationId: state.conversationId,
         token,
         onStatus: (status) => {
+          if (selectionGenerationRef.current !== requestGeneration) return;
           setState((s) => ({ ...s, streamStatus: status.message }));
         },
       });
+
+      if (selectionGenerationRef.current !== requestGeneration) return;
 
       setState((s) => ({
         ...s,
@@ -139,7 +202,9 @@ export function PersonaChat({ personaId, personaName }: Props) {
           reply,
         ],
       }));
+      if (creatingConversation) onConversationCreated(conversationId);
     } catch (e) {
+      if (selectionGenerationRef.current !== requestGeneration) return;
       setState((s) => ({
         ...s,
         sending: false,
@@ -153,6 +218,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
 
   async function saveAsMemory(messageId: string) {
     if (!token || !state.conversationId) return;
+    const requestGeneration = selectionGenerationRef.current;
     setSaving(messageId);
     try {
       await apiPost(
@@ -161,11 +227,14 @@ export function PersonaChat({ personaId, personaName }: Props) {
         token
       );
     } catch { /* silent - show toast in future */ }
-    finally { setSaving(null); }
+    finally {
+      if (selectionGenerationRef.current === requestGeneration) setSaving(null);
+    }
   }
 
   async function saveAsCanon(messageId: string) {
     if (!token || !state.conversationId) return;
+    const requestGeneration = selectionGenerationRef.current;
     setSaving(messageId);
     try {
       await apiPost(
@@ -174,11 +243,14 @@ export function PersonaChat({ personaId, personaName }: Props) {
         token
       );
     } catch { /* silent */ }
-    finally { setSaving(null); }
+    finally {
+      if (selectionGenerationRef.current === requestGeneration) setSaving(null);
+    }
   }
 
   async function archiveChat() {
     if (!token || !state.conversationId || state.archiving || state.messages.length === 0) return;
+    const requestGeneration = selectionGenerationRef.current;
     setState((s) => ({ ...s, archiving: true, error: null }));
 
     try {
@@ -191,13 +263,17 @@ export function PersonaChat({ personaId, personaName }: Props) {
         token
       );
 
+      if (selectionGenerationRef.current !== requestGeneration) return;
+
       setState((s) => ({
         ...s,
         conversationStatus: conversation.status ?? "archived",
         archive,
         archiving: false,
       }));
+      onConversationArchived();
     } catch (e) {
+      if (selectionGenerationRef.current !== requestGeneration) return;
       setState((s) => ({
         ...s,
         archiving: false,
@@ -207,10 +283,12 @@ export function PersonaChat({ personaId, personaName }: Props) {
   }
 
   function startNewChat() {
+    selectionGenerationRef.current += 1;
     setInput("");
     setState((s) => ({
       ...s,
       conversationId: null,
+      conversationTitle: null,
       conversationStatus: "active",
       messages: [],
       archive: null,
@@ -218,6 +296,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
       streamStatus: null,
       error: null,
     }));
+    onStartNewChat();
   }
 
   function focusComposerOnly() {
@@ -235,6 +314,7 @@ export function PersonaChat({ personaId, personaName }: Props) {
     edits?: { title: string; content: string }
   ) {
     if (!token) return;
+    const requestGeneration = selectionGenerationRef.current;
     setReviewing(candidateId);
     try {
       const { candidate } = await apiPatch<{ candidate: ContinuityCandidate }>(
@@ -242,6 +322,8 @@ export function PersonaChat({ personaId, personaName }: Props) {
         { action, ...edits },
         token
       );
+
+      if (selectionGenerationRef.current !== requestGeneration) return;
 
       setState((s) => ({
         ...s,
@@ -253,12 +335,13 @@ export function PersonaChat({ personaId, personaName }: Props) {
           : null,
       }));
     } catch (e) {
+      if (selectionGenerationRef.current !== requestGeneration) return;
       setState((s) => ({
         ...s,
         error: chatErrorMetadata(e, "Could not review candidate."),
       }));
     } finally {
-      setReviewing(null);
+      if (selectionGenerationRef.current === requestGeneration) setReviewing(null);
     }
   }
 
@@ -284,18 +367,21 @@ export function PersonaChat({ personaId, personaName }: Props) {
     Boolean(state.conversationId) &&
     visibleMessages.length > 0 &&
     !state.sending;
-  const chatStateLabel = state.conversationStatus === "archived"
+  const selectedConversationUnavailable = Boolean(selectedConversationId && !state.conversationId && state.error);
+  const chatStateLabel = selectedConversationUnavailable
+    ? "Unavailable"
+    : state.conversationStatus === "archived"
     ? "Archived"
     : state.conversationId
       ? "Active"
       : "New";
 
   return (
-    <div className="card studio-persona-chat">
+    <div className="card studio-persona-chat" data-selected-conversation={state.conversationId ?? "new"}>
       <div className="studio-persona-chat-header">
         <div className="studio-persona-chat-heading">
-          <span className="studio-persona-chat-kicker">Companion workspace</span>
-          <strong>Talk with {personaName}</strong>
+          <span className="studio-persona-chat-kicker">Private conversation</span>
+          <strong>{state.conversationTitle ?? `Talk with ${personaName}`}</strong>
         </div>
         <div className="studio-persona-chat-header-actions">
           <span className={`studio-persona-chat-state-pill studio-persona-chat-state-${chatStateLabel.toLowerCase()}`}>
@@ -342,7 +428,14 @@ export function PersonaChat({ personaId, personaName }: Props) {
         </div>
       )}
 
-      <div ref={threadRef} className="studio-persona-chat-thread" aria-live={state.sending ? "polite" : "off"}>
+      <div
+        ref={threadRef}
+        className="studio-persona-chat-thread"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions text"
+        aria-busy={state.sending}
+      >
         {visibleMessages.length === 0 && (
           <div className="studio-persona-chat-empty">
             <strong>Start with {personaName}</strong>
@@ -395,45 +488,52 @@ export function PersonaChat({ personaId, personaName }: Props) {
             <ChatErrorCallout error={state.error} />
           </div>
         )}
-      </div>
-
-      {state.archive && (
-        <div className="studio-persona-chat-archive">
-          <div className="studio-persona-chat-archive-header">
-            <div>
-              <span>Continuity candidates</span>
-              <p>{state.archive.transcript.messageCount} archived messages</p>
+        {state.archive && (
+          <div className="studio-persona-chat-archive">
+            <div className="studio-persona-chat-archive-header">
+              <div>
+                <span>Continuity candidates</span>
+                <p>{state.archive.transcript.messageCount} archived messages</p>
+              </div>
+            </div>
+            <div className="studio-persona-chat-candidate-list">
+              {state.archive.candidates.map((candidate) => (
+                <CandidateReviewCard
+                  key={candidate.id}
+                  candidate={candidate}
+                  busy={reviewing === candidate.id}
+                  onReview={reviewCandidate}
+                />
+              ))}
             </div>
           </div>
-          <div className="studio-persona-chat-candidate-list">
-            {state.archive.candidates.map((candidate) => (
-              <CandidateReviewCard
-                key={candidate.id}
-                candidate={candidate}
-                busy={reviewing === candidate.id}
-                onReview={reviewCandidate}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="studio-persona-chat-composer">
+        <label className="visually-hidden" htmlFor={`persona-chat-composer-${personaId}`}>
+          Message {personaName}
+        </label>
         <textarea
+          id={`persona-chat-composer-${personaId}`}
           ref={composerRef}
           className="textarea studio-persona-chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder={state.conversationStatus === "archived" ? "Start a new chat to continue." : `Write privately to ${personaName}... (Enter to send, Shift+Enter for newline)`}
-          disabled={state.sending || state.conversationStatus === "archived"}
+          placeholder={selectedConversationUnavailable
+            ? "Choose another thread or start a new chat."
+            : state.conversationStatus === "archived"
+              ? "Start a new chat to continue."
+              : `Write privately to ${personaName}... (Enter to send, Shift+Enter for newline)`}
+          disabled={state.sending || state.conversationStatus === "archived" || selectedConversationUnavailable}
         />
         <button
           onClick={send}
-          disabled={state.sending || state.conversationStatus === "archived" || !input.trim()}
+          disabled={state.sending || state.conversationStatus === "archived" || selectedConversationUnavailable || !input.trim()}
           className="button primary studio-persona-chat-send"
         >
-          {state.conversationStatus === "archived" ? "Archived" : state.sending ? "..." : "Send"}
+          {selectedConversationUnavailable ? "Unavailable" : state.conversationStatus === "archived" ? "Archived" : state.sending ? "..." : "Send"}
         </button>
       </div>
     </div>
@@ -471,6 +571,8 @@ function CandidateReviewCard({
   const [title, setTitle] = useState(candidate.title ?? "");
   const [content, setContent] = useState(candidate.content);
   const pending = candidate.status === "pending";
+  const titleId = `candidate-title-${candidate.id}`;
+  const contentId = `candidate-content-${candidate.id}`;
 
   return (
     <div className="studio-persona-chat-candidate">
@@ -481,14 +583,18 @@ function CandidateReviewCard({
         <span className="studio-persona-chat-candidate-status">{candidate.status}</span>
       </div>
 
+      <label className="visually-hidden" htmlFor={titleId}>Candidate title</label>
       <input
+        id={titleId}
         className="input studio-persona-chat-candidate-input"
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         disabled={!pending || busy}
       />
 
+      <label className="visually-hidden" htmlFor={contentId}>Candidate content</label>
       <textarea
+        id={contentId}
         className="textarea studio-persona-chat-candidate-textarea"
         value={content}
         onChange={(event) => setContent(event.target.value)}

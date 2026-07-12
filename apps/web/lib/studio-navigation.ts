@@ -2,6 +2,7 @@ import type { PersonaSummary } from "@station/types/persona";
 
 export const STUDIO_MOBILE_NAV_SUMMARY_LABEL = "Toggle Studio mobile navigation";
 export const SIGNED_MOBILE_TOP_NAV_MENU_ROUTES = ["/studio", "/projects", "/space", "/developer-spaces"] as const;
+export const STUDIO_CONVERSATION_QUERY = "c";
 
 export type StudioRouteContext = {
   label: string;
@@ -96,6 +97,25 @@ const personaWorkspaceTabSpecs = [
   },
 ] as const;
 
+const personaWorkspaceAuxiliarySpecs = [
+  {
+    label: "Inbox",
+    suffix: "/memory-inbox",
+    detail: "Suggested Memory and Canon awaiting owner review",
+    state: "Pending suggestions remain private until the owner accepts or rejects them.",
+    nextActionLabel: "Back to chat",
+    nextActionSuffix: "",
+  },
+  {
+    label: "Profile",
+    suffix: "/edit",
+    detail: "Identity, boundaries, and public controls",
+    state: "Profile changes remain owner-controlled and do not publish private continuity.",
+    nextActionLabel: "Back to chat",
+    nextActionSuffix: "",
+  },
+] as const;
+
 const studioStaticRouteContexts: StudioRouteContext[] = [
   {
     label: "Dashboard",
@@ -180,6 +200,33 @@ export function studioPersonaHref(persona: Pick<PersonaSummary, "id">) {
   return `/studio/personas/${persona.id}`;
 }
 
+export function isExactPersonaHomeRoute(pathname: string) {
+  return /^\/studio\/personas\/[^/]+\/?$/.test(pathname);
+}
+
+export function studioPersonaIdFromRoute(pathname: string) {
+  return pathname.match(/^\/studio\/personas\/([^/?#]+)/)?.[1] ?? null;
+}
+
+export function studioPersonaConversationHref(personaId: string, conversationId: string | "new") {
+  const params = new URLSearchParams({ [STUDIO_CONVERSATION_QUERY]: conversationId });
+  return `/studio/personas/${encodeURIComponent(personaId)}?${params.toString()}`;
+}
+
+export function studioNewChatHref(
+  personas: Array<Pick<PersonaSummary, "id">>,
+  activePersonaId?: string | null,
+) {
+  const target = personas.find((persona) => persona.id === activePersonaId) ?? personas[0];
+  return target ? studioPersonaConversationHref(target.id, "new") : "/studio/new";
+}
+
+export function filterStudioPersonas<T extends Pick<PersonaSummary, "name">>(personas: T[], query: string) {
+  const normalized = query.trim().toLocaleLowerCase();
+  if (!normalized) return personas;
+  return personas.filter((persona) => persona.name.toLocaleLowerCase().includes(normalized));
+}
+
 export function studioPersonaMeta(persona: Pick<PersonaSummary, "visibility">) {
   return `${persona.visibility} - private Studio`;
 }
@@ -214,7 +261,7 @@ export function studioPersonaCompanionShortcuts(personaId: string): StudioPerson
 
   return [
     { label: "Memory", href: `${base}/memory`, detail: "Review what carries forward" },
-    { label: "Inbox", href: `${base}/memory-inbox`, detail: "Shape suggested memory" },
+    { label: "Inbox", href: `${base}/memory-inbox`, detail: "Review continuity suggestions" },
     { label: "Timeline", href: `${base}/continuity`, detail: "Trace the relationship" },
     { label: "Profile", href: `${base}/edit`, detail: "Shape identity and boundaries" },
     { label: "Integrity", href: `${base}/calibration`, detail: "Check alignment" },
@@ -258,7 +305,8 @@ export function studioRouteContext(
   if (personaMatch) {
     const personaId = personaMatch[1] ?? "";
     const suffix = personaMatch[2] ?? "";
-    const tab = personaWorkspaceTabSpecs.find((item) => item.suffix === suffix)
+    const tab = [...personaWorkspaceTabSpecs, ...personaWorkspaceAuxiliarySpecs]
+      .find((item) => item.suffix === suffix)
       ?? personaWorkspaceTabSpecs[0];
     const persona = personas.find((item) => item.id === personaId);
     const label = `${persona?.name ?? "Persona"} / ${tab.label}`;

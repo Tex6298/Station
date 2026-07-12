@@ -5,8 +5,13 @@ import {
   SIGNED_MOBILE_TOP_NAV_MENU_ROUTES,
   STUDIO_MOBILE_NAV_SUMMARY_LABEL,
   activeStudioHref,
+  filterStudioPersonas,
+  isExactPersonaHomeRoute,
   studioRouteContext,
+  studioNewChatHref,
+  studioPersonaConversationHref,
   studioPersonaHref,
+  studioPersonaIdFromRoute,
   studioPersonaMeta,
   studioPersonaCompanionShortcuts,
   studioDashboardMemoryStop,
@@ -20,6 +25,31 @@ test("Studio navigation helpers keep route matching bounded", () => {
   assert.equal(activeStudioHref("/studio/personas/123", "/studio"), false);
   assert.equal(activeStudioHref("/studio/personas/123/memory", "/studio/personas/123"), true);
   assert.equal(activeStudioHref("/studio/personas-archive", "/studio/personas"), false);
+});
+
+test("focused companion routing only bypasses the workbench on an exact persona home", () => {
+  assert.equal(isExactPersonaHomeRoute("/studio/personas/persona-1"), true);
+  assert.equal(isExactPersonaHomeRoute("/studio/personas/persona-1/"), true);
+  assert.equal(isExactPersonaHomeRoute("/studio/personas/persona-1/memory"), false);
+  assert.equal(isExactPersonaHomeRoute("/studio/personas"), false);
+  assert.equal(studioPersonaIdFromRoute("/studio/personas/persona-1/memory"), "persona-1");
+  assert.equal(studioPersonaIdFromRoute("/studio"), null);
+});
+
+test("conversation links make New Chat and thread selection addressable", () => {
+  assert.equal(
+    studioPersonaConversationHref("persona/one", "conversation & one"),
+    "/studio/personas/persona%2Fone?c=conversation+%26+one",
+  );
+  assert.equal(studioNewChatHref([{ id: "first" }, { id: "active" }], "active"), "/studio/personas/active?c=new");
+  assert.equal(studioNewChatHref([], null), "/studio/new");
+});
+
+test("persona filtering powers the sidebar control without inventing search results", () => {
+  const personas = [{ name: "Ariadne" }, { name: "Daedalus" }];
+  assert.deepEqual(filterStudioPersonas(personas, " arI "), [personas[0]]);
+  assert.deepEqual(filterStudioPersonas(personas, ""), personas);
+  assert.deepEqual(filterStudioPersonas(personas, "missing"), []);
 });
 
 test("Studio navigation helpers expose private persona links and labels", () => {
@@ -65,7 +95,7 @@ test("Studio persona companion shortcuts expose the accepted owner routes", () =
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.href, "/studio/personas/persona-1/memory");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.href, "/studio/personas/persona-1/memory-inbox");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.detail, "Review what carries forward");
-  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.detail, "Shape suggested memory");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.detail, "Review continuity suggestions");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Timeline")?.detail, "Trace the relationship");
   assert.equal(shortcuts.some((shortcut) => shortcut.href.includes("/conversations/candidates/inbox")), false);
   assert.equal(shortcuts.some((shortcut) => shortcut.href.startsWith("/space")), false);
@@ -145,6 +175,13 @@ test("Studio route context names persona workspace stops without exposing raw id
   assert.equal(fallback.label, "Persona / Archive");
   assert.equal(fallback.detail, "Private source material and imports");
   assert.match(fallback.state, /owner-only source material/);
+
+  const inbox = studioRouteContext(
+    "/studio/personas/persona-1/memory-inbox",
+    [{ id: "persona-1", name: "Ariadne" }],
+  );
+  assert.equal(inbox.label, "Ariadne / Inbox");
+  assert.equal(inbox.nextAction.href, "/studio/personas/persona-1");
 });
 
 test("Studio mobile navigation exposes an explicit disclosure label", () => {

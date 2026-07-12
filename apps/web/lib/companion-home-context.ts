@@ -45,7 +45,7 @@ export function companionHomeContextRail(input: CompanionHomeContextInput): Comp
     title: `What ${input.personaName?.trim() || "Persona"} carries forward`,
     brief: cleanText(input.longDescription) || cleanText(input.awakeningPrompt) || FALLBACK_BRIEF,
     styleNotes: cleanText(input.styleNotes),
-    boundaryCopy: "Owner-only continuity map with aggregate counts. Runtime Context Preview stays below for selected-source and prompt review.",
+    boundaryCopy: "Owner-only continuity map with aggregate counts. Selected-source and prompt diagnostics stay inside Advanced Studio.",
     stops: [
       {
         label: "Memory",

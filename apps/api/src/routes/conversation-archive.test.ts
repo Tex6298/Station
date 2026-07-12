@@ -807,6 +807,23 @@ test("owner can archive a chat into private continuity candidates", async () => 
     assert.equal(readBack.body.messages.length, 4);
     assert.equal(readBack.body.archive.candidates.find((candidate: Row) => candidate.id === memoryCandidate.id).status, "accepted");
 
+    const personaScopedReadBack = await requestJson(
+      app,
+      "GET",
+      `/conversations/${CONVERSATION_ID}?personaId=${PERSONA_ID}`,
+      { token: "owner-token" },
+    );
+    assert.equal(personaScopedReadBack.status, 200);
+
+    const wrongPersonaReadBack = await requestJson(
+      app,
+      "GET",
+      `/conversations/${CONVERSATION_ID}?personaId=${OTHER_ID}`,
+      { token: "owner-token" },
+    );
+    assert.equal(wrongPersonaReadBack.status, 404);
+    assert.doesNotMatch(JSON.stringify(wrongPersonaReadBack.body), /private grief|Harbor working chat/);
+
     const context = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/context-preview?query=private%20grief`, {
       token: "owner-token",
     });
@@ -2114,6 +2131,16 @@ test("owner can review import-backed continuity candidates without exposing them
     });
     db.insertRow("continuity_candidates", {
       persona_id: PERSONA_ID,
+      owner_user_id: OWNER_ID,
+      candidate_type: "memory",
+      title: "Archived conversation suggestion",
+      content: "A private archived conversation suggested this memory.",
+      archived_chat_transcript_id: "archived-transcript-for-inbox",
+      source_table: null,
+      source_label: null,
+    });
+    db.insertRow("continuity_candidates", {
+      persona_id: PERSONA_ID,
       owner_user_id: OTHER_ID,
       candidate_type: "memory",
       title: "Other owner import candidate",
@@ -2136,10 +2163,21 @@ test("owner can review import-backed continuity candidates without exposing them
     assert.equal(pendingList.body.candidates.every((candidate: Row) => candidate.sourceTable === "persona_files"), true);
     assert.doesNotMatch(JSON.stringify(pendingList.body), /Other owner import candidate/);
 
+    const continuityInbox = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/candidates?source=all&status=pending`, {
+      token: "owner-token",
+    });
+    assert.equal(continuityInbox.status, 200);
+    assert.equal(continuityInbox.body.summary.pending, 4);
+    assert.equal(continuityInbox.body.candidates.some(
+      (candidate: Row) => candidate.archivedChatTranscriptId === "archived-transcript-for-inbox"
+    ), true);
+    assert.match(JSON.stringify(continuityInbox.body), /Archived conversation suggestion/);
+    assert.doesNotMatch(JSON.stringify(continuityInbox.body), /Other owner import candidate/);
+
     const otherPendingList = await requestJson(app, "GET", `/conversations/persona/${PERSONA_ID}/candidates?source=import&status=pending`, {
       token: "other-token",
     });
-    assert.equal(otherPendingList.status, 403);
+    assert.equal(otherPendingList.status, 404);
     assert.doesNotMatch(JSON.stringify(otherPendingList.body), /Other owner import candidate/);
 
     const blocked = await requestJson(app, "PATCH", `/conversations/candidates/${memoryCandidate.id}`, {

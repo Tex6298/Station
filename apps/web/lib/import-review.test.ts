@@ -11,6 +11,7 @@ import {
 } from "./import-preview";
 import {
   importBackedCandidateInboxPath,
+  continuityCandidateInboxPath,
   importReviewCandidateLabel,
   importReviewDestinationLabel,
   importReviewEmptyCopy,
@@ -28,6 +29,13 @@ test("import-backed candidate inbox path stays scoped to import candidates", () 
     "/conversations/persona/persona-1/candidates?source=import&status=all",
   );
   assert.doesNotMatch(importBackedCandidateInboxPath("persona-1"), /source=all|candidates\/inbox/);
+});
+
+test("continuity inbox path requests pending suggestions from every private source", () => {
+  assert.equal(
+    continuityCandidateInboxPath("persona/one"),
+    "/conversations/persona/persona%2Fone/candidates?source=all&status=pending",
+  );
 });
 
 test("import review helpers summarize pending, reviewed, memory, and canon candidates", () => {
@@ -51,9 +59,18 @@ test("import review helpers keep source labels and empty states owner-friendly",
   assert.equal(importReviewSourceLabel({ sourceLabel: " discord.json (discord import) " }), "discord.json (discord import)");
   assert.equal(importReviewSourceLabel({ sourceLabel: "" }), "Imported source");
   assert.equal(importReviewSourceTypeLabel({ sourceTable: "persona_files" }), "Private import source");
+  assert.equal(
+    importReviewSourceLabel({ archivedChatTranscriptId: "transcript-1", sourceLabel: null, sourceTable: null }),
+    "Archived conversation",
+  );
+  assert.equal(
+    importReviewSourceTypeLabel({ archivedChatTranscriptId: "transcript-1", sourceTable: null }),
+    "Archived conversation",
+  );
   assert.equal(importReviewStatusLabel("accepted"), "Accepted");
   assert.match(importReviewEmptyCopy(0), /Upload or paste source material/);
   assert.match(importReviewEmptyCopy(2), /No import review candidates are waiting/);
+  assert.match(importReviewEmptyCopy(0, "continuity"), /archived conversations/);
 });
 
 test("import review helpers label destinations, outcomes, and preservation behavior", () => {
@@ -81,6 +98,14 @@ test("import review helpers label destinations, outcomes, and preservation behav
     importReviewPreservationCopy({ candidateType: "memory", status: "rejected" }),
     /not promoted into runtime material/
   );
+  assert.match(
+    importReviewPreservationCopy({
+      archivedChatTranscriptId: "transcript-1",
+      candidateType: "memory",
+      status: "accepted",
+    }),
+    /archived conversation stays preserved privately/
+  );
 });
 
 test("import review source labels redact private identifiers and secret-shaped values", () => {
@@ -97,17 +122,17 @@ test("import review source labels redact private identifiers and secret-shaped v
   assert.doesNotMatch(label, /bearer abc123/);
 });
 
-test("memory inbox route uses existing import-backed candidate APIs only", () => {
+test("memory inbox route uses the owner-scoped pending continuity candidate API", () => {
   const page = readFileSync("apps/web/app/studio/personas/[personaId]/memory-inbox/page.tsx", "utf8");
   const component = readFileSync("apps/web/components/studio/import-review-inbox.tsx", "utf8");
 
-  assert.match(page, /importBackedCandidateInboxPath\(personaId\)/);
+  assert.match(page, /continuityCandidateInboxPath\(personaId\)/);
   assert.match(page, /Memory Inbox/);
   assert.match(page, /\/memory`\}/);
   assert.match(page, /\/continuity`\}/);
   assert.match(page, /\/calibration`\}/);
   assert.match(component, /\/conversations\/candidates\/\$\{candidate\.id\}/);
-  assert.doesNotMatch(page, /source=all|\/conversations\/candidates\/inbox|sendPersonaChatWithStream|returnToThread|return-to-thread/i);
+  assert.doesNotMatch(page, /\/conversations\/candidates\/inbox|sendPersonaChatWithStream|returnToThread|return-to-thread/i);
   assert.doesNotMatch(page, /archive-connectors|source_inventory|cloudflare|redis|stripe|billing|new Queue|Worker\(|social connector|provider payload|prompt context/i);
   assert.doesNotMatch(page, /sourceId|sourceMessageIds|storagePath|ownerUserId|persona_files|archived_chat_transcripts/i);
 });

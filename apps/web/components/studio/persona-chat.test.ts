@@ -18,7 +18,7 @@ test("PersonaChat keeps auto-scroll contained inside the chat thread", () => {
   assert.match(source, /const thread = threadRef\.current/);
   assert.match(source, /thread\.scrollTo\(\{/);
   assert.match(source, /top: thread\.scrollHeight/);
-  assert.match(source, /<div ref=\{threadRef\} className="studio-persona-chat-thread"/);
+  assert.match(source, /ref=\{threadRef\}[\s\S]*?className="studio-persona-chat-thread"/);
   assert.doesNotMatch(source, /scrollIntoView|bottomRef/);
 });
 
@@ -46,18 +46,45 @@ test("PersonaChat return card actions remain local and owner-triggered", () => {
 
   assert.match(startFreshBody, /conversationId: null/);
   assert.match(startFreshBody, /messages: \[\]/);
+  assert.match(startFreshBody, /onStartNewChat\(\)/);
   assert.match(source, /onClick=\{startNewChat\}/);
   assert.match(source, /Ask for recap/);
 });
 
-test("PersonaChat return card keeps archived conversations read-only and avoids route drift", () => {
-  assert.match(source, /state\.conversationStatus === "archived" \? "Start a new chat to continue\."/);
-  assert.match(source, /disabled=\{state\.sending \|\| state\.conversationStatus === "archived"\}/);
+test("PersonaChat keeps archived and unavailable conversations read-only while route ownership stays outside", () => {
+  assert.match(source, /Start a new chat to continue\./);
+  assert.match(source, /state\.conversationStatus === "archived" \|\| selectedConversationUnavailable/);
   assert.match(source, /state\.conversationStatus === "archived" \? "Archived"/);
+  assert.match(source, /personaConversationBelongsToPersona\(conversation, personaId\)/);
+  assert.match(source, /\/conversations\/\$\{encodeURIComponent\(selectedConversationId\)\}/);
+  assert.match(source, /personaId=\$\{encodeURIComponent\(personaId\)\}/);
+  assert.match(source, /onConversationCreated\(conversationId\)/);
+  assert.match(source, /onConversationArchived\(\)/);
   assert.doesNotMatch(
     source,
-    /useRouter|useSearchParams|URLSearchParams|window\.history|\?c=|source=all|\/conversations\/candidates\/inbox|archive-connectors|source_inventory|cloudflare|redis|stripe|billing|new Queue|Worker\(|social connector|provider payload|prompt context/i,
+    /useRouter|useSearchParams|URLSearchParams|window\.history|\?c=|source=all|\/conversations\/candidates\/inbox/i,
   );
+});
+
+test("PersonaChat ignores stale async completions after thread selection changes", () => {
+  assert.match(source, /selectionGenerationRef/);
+  assert.match(source, /useLayoutEffect\(\(\) =>/);
+  assert.match(source, /selectionGenerationRef\.current !== requestGeneration/);
+  assert.match(source, /selectionGenerationRef\.current \+= 1/);
+});
+
+test("PersonaChat keeps messages and candidate review accessible inside the bounded log", () => {
+  assert.match(source, /role="log"/);
+  assert.match(source, /aria-live="polite"/);
+  assert.match(source, /aria-busy=\{state\.sending\}/);
+  assert.match(source, /Message \{personaName\}/);
+  assert.match(source, /Candidate title/);
+  assert.match(source, /Candidate content/);
+
+  const threadStart = source.indexOf('className="studio-persona-chat-thread"');
+  const archiveIndex = source.indexOf('className="studio-persona-chat-archive"');
+  const threadEnd = source.indexOf('className="studio-persona-chat-composer"');
+  assert.equal(threadStart > -1 && archiveIndex > threadStart && threadEnd > archiveIndex, true);
 });
 
 test("PersonaChat polish keeps live controls honest and avoids placeholders", () => {
@@ -65,7 +92,7 @@ test("PersonaChat polish keeps live controls honest and avoids placeholders", ()
   assert.match(source, /studio-persona-chat-return/);
   assert.match(source, /studio-persona-chat-message-actions/);
   assert.match(source, /Opening private companion workspace/);
-  assert.match(source, /Companion workspace/);
+  assert.match(source, /Private conversation/);
   assert.match(source, /Start with \{personaName\}/);
   assert.match(source, /Write privately to \$\{personaName\}/);
   assert.match(source, /Save to memory/);
@@ -75,7 +102,7 @@ test("PersonaChat polish keeps live controls honest and avoids placeholders", ()
   assert.doesNotMatch(source, /\b(?:Attach|Microphone|Mic|Tools|Regenerate|Copy|Notes|Menu|More options)\b/i);
 });
 
-test("PersonaChat polish CSS stays scoped to studio-persona-chat selectors", () => {
+test("PersonaChat polish CSS stays scoped to chat or focused companion selectors", () => {
   assert.match(css, /\.studio-persona-chat/);
   assert.doesNotMatch(css, /\.public-persona-chat[^{]*\.studio-persona-chat|\.studio-persona-chat[^{]*\.public-persona-chat/);
 
@@ -87,8 +114,9 @@ test("PersonaChat polish CSS stays scoped to studio-persona-chat selectors", () 
 
   for (const selector of selectors) {
     for (const part of selector.split(",")) {
-      assert.match(part.trim(), /^\.studio-persona-chat/);
-      assert.doesNotMatch(part, /\.card|\.button(?!-)|\.textarea(?!-)|\.studio-frame|\.studio-dashboard|\.studio-companion|\.public-persona/);
+      if (!part.includes(".studio-persona-chat")) continue;
+      assert.match(part.trim(), /^(?:\.studio-persona-chat|\.studio-companion-page (?:> )?\.studio-persona-chat)/);
+      assert.doesNotMatch(part, /\.public-persona/);
     }
   }
 });

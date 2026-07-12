@@ -27,12 +27,14 @@ export function ImportReviewInbox({
   sourceCount,
   onCandidateUpdated,
   copy,
+  scope = "import",
 }: {
   candidates: ContinuityCandidate[];
   token: string | null;
   sourceCount: number;
   onCandidateUpdated: (candidate: ContinuityCandidate) => void | Promise<void>;
   copy?: Partial<ImportReviewInboxCopy>;
+  scope?: "import" | "continuity";
 }) {
   const [reviewing, setReviewing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export function ImportReviewInbox({
       );
       await onCandidateUpdated(response.candidate);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not review import candidate.");
+      setError(e instanceof Error ? e.message : "Could not review continuity suggestion.");
     } finally {
       setReviewing(null);
     }
@@ -80,7 +82,7 @@ export function ImportReviewInbox({
 
       <div className="archive-trust-stats">
         <ReviewMetric label="Pending" value={summary.pending} tone={summary.pending > 0 ? "warning" : "info"} />
-        <ReviewMetric label="Reviewed" value={summary.reviewed} />
+        {scope === "import" ? <ReviewMetric label="Reviewed" value={summary.reviewed} /> : null}
         <ReviewMetric label="Memory" value={summary.memory} />
         <ReviewMetric label="Canon" value={summary.canon} />
       </div>
@@ -88,7 +90,7 @@ export function ImportReviewInbox({
       {error ? <StudioErrorState>{error}</StudioErrorState> : null}
 
       {sorted.length === 0 ? (
-        <StudioEmptyState>{resolvedCopy.emptyState ?? importReviewEmptyCopy(sourceCount)}</StudioEmptyState>
+        <StudioEmptyState>{resolvedCopy.emptyState ?? importReviewEmptyCopy(sourceCount, scope)}</StudioEmptyState>
       ) : (
         <div className="studio-item-list">
           {sorted.map((candidate) => (
