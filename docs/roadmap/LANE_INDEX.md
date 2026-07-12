@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR523A | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR / A1 -> ARGUS / A3 | Open technical review; treat draft PR #1 as the companion-first UI source of truth and decide whether it is safe for ARIADNE human rehearsal or needs DAEDALUS fixes. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS.md` |
+| PR523A | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1 | Accepted as `ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE`; no DAEDALUS fix is required before ARIADNE human/browser rehearsal of draft PR #1. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md` |
 
 ## Parked / Ready
 
@@ -24,6 +24,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR523A review | Companion-First Persona Home Draft PR #1 ARGUS Review | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE`; ARGUS found no owner/persona scope, thread race, Advanced Studio, public/private drift, CSS, CI, package, or secret blocker before ARIADNE rehearsal. | `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md` |
 | PR521 closeout | Cross-Owner Generated Material Publication Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_BLOCKED`; MIMIR accepted the concrete blocker and documented PR522 as the parked smallest unblock lane. | `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_CLOSEOUT.md` |
 | PR521 preflight | Cross-Owner Generated Material Publication Preflight | MIMIR -> ARGUS -> MIMIR | Blocked as `BLOCK_PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT`; concrete blocker is `CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_AND_EXACT_TEXT_APPROVAL_LEDGER_MISSING`, with generated words/summaries/excerpts/transcripts/source text/PR516 output reuse and broader public placement still blocked. | `docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_RESULT.md` |
 | PR520B closeout | Cross-Owner Metadata Exhibit Public Persona Linkbacks Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_ACCEPTED`; hosted public persona linkbacks passed, opening PR521 generated material publication preflight. | `docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_CLOSEOUT.md` |

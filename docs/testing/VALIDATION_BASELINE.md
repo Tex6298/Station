@@ -4,6 +4,50 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR523A Companion-First Persona Home Draft PR #1 ARGUS Review
+
+ARGUS completed PR523A review on 2026-07-12:
+
+- `docs/roadmap/PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR523A_COMPANION_FIRST_PERSONA_HOME_DRAFT_PR1_FOR_ARIADNE`.
+
+Reviewed target:
+
+- GitHub draft PR #1: `https://github.com/Tex6298/Station/pull/1`;
+- branch: `fork/agent/companion-shell-translation`;
+- commit: `2d4a23835e5aa0928488041168d48b4cb489e8bb`.
+
+Reason:
+
+- PR #1 is safe to send to ARIADNE for human/browser rehearsal;
+- owner/persona scoping and persona-bound conversation reads passed review;
+- thread selection, sending, archiving, candidate review, and refresh behavior
+  use route-driven selection and stale-completion guards;
+- Memory Inbox/import review remains owner/persona scoped while allowing pending
+  archived conversation and import suggestions;
+- lazy Advanced Studio preserves cross-owner encounter safeguards and existing
+  owner-private tools;
+- CSS additions are scoped to the companion Studio shell or descendants of the
+  companion page;
+- CI/package changes only add Studio UI behavior coverage;
+- no public route, public persona, Discover, Space, forum, writing, homepage,
+  provider, retrieval, billing, storage, Redis, Cloudflare, queue, migration,
+  deployment, lockfile, raw-id, secret, or generated-material drift was found.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `gh pr view 1 --repo Tex6298/Station --json number,title,state,isDraft,headRefName,baseRefName,files,commits,mergeable,statusCheckRollup,url` | Pass | PR #1 open draft, one commit, 24 files, head `agent/companion-shell-translation`, base `main`, `MERGEABLE`, empty status checks. |
+| `git diff --check fork/main...fork/agent/companion-shell-translation` | Pass | No whitespace errors. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 238 tests passed, including companion shell, persona chat, Advanced Studio/cross-owner helper preservation, import review, redaction, and Studio navigation coverage. |
+| `npx --yes pnpm@10.32.1 run test:conversation-archive` | Pass | 43 tests passed, including persona-scoped conversation reads, owner-only candidate filtering, archive retrieval, runtime history, parser, and import-review boundaries. |
+| `npx --yes pnpm@10.32.1 run test:personas` | Pass | 18 tests passed, including public persona and public-source boundaries. |
+| `npx --yes pnpm@10.32.1 run test:persona-encounters` | Pass | 74 tests passed, including cross-owner consent, disposable preview, metadata-only public exhibits, moderation, and Studio helper boundaries. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed from cache. |
+| PR diff secret-shaped added-line scan | Pass | No secret-shaped added lines found. |
+| Changed-path/public-surface scan | Pass | Changes stayed inside Studio UI, owner-authenticated conversations route/tests, CI, and package script coverage; no public route files changed. |
+
 ## PR521 Cross-Owner Generated Material Publication Preflight
 
 ARGUS completed PR521 preflight on 2026-07-12:
