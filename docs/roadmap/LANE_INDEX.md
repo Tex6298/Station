@@ -12,12 +12,13 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR519B | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | ARIADNE / A4 -> MIMIR / A1 | Passed as `PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`; awaiting MIMIR closeout decision and next product lane. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md` |
+| PR520 | Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight | MIMIR / A1 -> ARGUS / A3 | Open hostile preflight; decide whether hosted-proven metadata-only cross-owner exhibits may appear as contextual public linkbacks on public persona, public Space, and/or community surfaces, and name the smallest safe PR520A lane or blocker. | `docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR519B closeout | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_ACCEPTED`; hosted Discover search proof passed, opening PR520 contextual public linkbacks preflight. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_CLOSEOUT.md` |
 | PR519B proof | Cross-Owner Metadata Exhibit Discover Search Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF`; hosted Discover search returns the separate metadata-only cross-owner group for title, summary, tag, requester snapshot, and counterparty snapshot probes, with latency/no-drift/browser/cleanup boundaries passing. | `docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_RESULT.md` |
 | PR519A closeout | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed locally as `CLOSE_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_GROUP_ACCEPTED_LOCALLY`; ARIADNE gets PR519B hosted Discover search proof. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_CLOSEOUT.md` |
 | PR519A review | Cross-Owner Metadata Exhibit Discover Search Group | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_GROUP`; separate metadata-only cross-owner Discover search group passed local hostile review without an ARGUS patch. | `docs/roadmap/PR519A_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_REVIEW_RESULT.md` |

@@ -4,7 +4,41 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR519B cross-owner Discover search hosted proof passed
+## Current lane - PR520 cross-owner contextual public linkbacks preflight routed to ARGUS
+
+MIMIR closed PR519B:
+
+`docs/roadmap/PR519B_CROSS_OWNER_METADATA_EXHIBIT_DISCOVER_SEARCH_HOSTED_PROOF_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR520 - Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR520_CROSS_OWNER_METADATA_EXHIBIT_CONTEXTUAL_PUBLIC_LINKBACKS_PREFLIGHT_ARGUS.md
+```
+
+Why:
+
+- PR519B proves hosted Discover search for metadata-only cross-owner public
+  exhibits;
+- the next customer-facing expansion is whether those safe exhibits can appear
+  as contextual linkbacks on public persona, public Space, and/or community
+  surfaces;
+- this must be hostile-preflighted before implementation because it crosses
+  public persona/Space/forum/writing/homepage boundaries.
+
+Still blocked by default:
+
+- generated words, generated summaries, transcript excerpts, source text,
+  private setup, PR516 disposable output reuse, private saved cross-owner
+  artifacts, prompts, provider/retrieval payloads, token facts, raw ids,
+  consent ids, report counts, moderation/admin internals, provider/retrieval/
+  storage/billing/social/Redis/Cloudflare/queue/package/deployment/migration,
+  and broad UI work.
+
+## Previous lane - PR519B cross-owner Discover search hosted proof passed
 
 ARIADNE completed PR519B:
 
@@ -47,10 +81,6 @@ ARIADNE result:
   and the Discover page shell did not surface the proof row outside the
   accepted search group and dedicated cross-owner surfaces;
 - cleanup left `crossPublicRowsReadable 0` and the temporary target private.
-
-Decision needed:
-
-MIMIR should close PR519B if accepted and choose the next product lane.
 
 ## Previous lane - PR519B cross-owner Discover search hosted proof routed to ARIADNE
 
