@@ -4,7 +4,42 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520B cross-owner public persona linkbacks hosted proof passed
+## Current lane - PR521 cross-owner generated material publication preflight routed to ARGUS
+
+MIMIR closed PR520B:
+
+`docs/roadmap/PR520B_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_HOSTED_PROOF_CLOSEOUT.md`
+
+Current lane:
+
+```text
+PR521 - Cross-Owner Generated Material Publication Preflight
+Owner: ARGUS / A3
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR521_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_PREFLIGHT_ARGUS.md
+```
+
+Why:
+
+- the metadata-only cross-owner public path is now hosted-proven through
+  dedicated index/detail, Discover search, and participant public persona
+  linkbacks;
+- the next product capability boundary is whether any generated cross-owner
+  material can be public under explicit participant approval;
+- this must be hostile-preflighted before code because generated text,
+  provenance, moderation, revocation, deletion, and source privacy are the core
+  risk.
+
+Still blocked by default:
+
+- generated words, summaries, transcript excerpts, source text, private setup,
+  PR516 disposable output reuse, private saved cross-owner artifacts, prompts,
+  provider/retrieval payloads, token facts, raw ids, consent ids, report counts,
+  moderation/admin internals, provider/model routing, retrieval/vector changes,
+  storage/billing/social/Redis/Cloudflare/queue/package/deployment/migration,
+  public Space/forum/writing/feed/homepage placement, and broad UI work.
+
+## Previous lane - PR520B cross-owner public persona linkbacks hosted proof passed
 
 ARIADNE completed PR520B:
 
@@ -46,10 +81,6 @@ ARIADNE result:
   dedicated cross-owner surfaces;
 - max measured linkback latency was `1483ms`, acceptable for protected alpha;
 - cleanup left `crossPublicRowsReadable 0` and `createdPersonasStillPublic 0`.
-
-Decision needed:
-
-MIMIR should close PR520B if accepted and choose the next product lane.
 
 ## Previous lane - PR520B cross-owner public persona linkbacks hosted proof routed to ARIADNE
 
