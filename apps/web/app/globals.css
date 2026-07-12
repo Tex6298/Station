@@ -1379,6 +1379,7 @@ html, body {
 
 .public-persona-context-preview,
 .public-persona-updates,
+.public-persona-linkbacks,
 .public-persona-chat {
   display: grid;
   gap: 1rem;
@@ -1540,6 +1541,7 @@ html, body {
 .public-persona-preview-sources small,
 .public-persona-update-list time,
 .public-persona-update-list em,
+.public-persona-update-list small,
 .public-persona-preview-exclusions p,
 .public-persona-preview-error,
 .public-persona-chat-state,
@@ -1552,6 +1554,7 @@ html, body {
 
 .public-persona-preview-sources em,
 .public-persona-update-list em,
+.public-persona-update-list small,
 .public-persona-preview-exclusions p,
 .public-persona-chat-reply p {
   overflow-wrap: anywhere;

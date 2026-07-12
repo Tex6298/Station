@@ -3,7 +3,9 @@ export type PublicPersonaChatMode = "signed_in_alpha" | "anonymous_alpha";
 const PUBLIC_PERSONA_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_PUBLIC_PERSONA_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CROSS_OWNER_PUBLIC_EXHIBIT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*-[a-z0-9]{8}$/;
 const PUBLIC_PERSONA_OPTIONAL_READ_TIMEOUT_MS = 6000;
+type PublicPersonaOptionalReadSurface = "context-preview" | "updates" | "cross-owner-exhibits";
 
 function isSafePublicPersonaSlug(publicSlug: string | null | undefined) {
   return Boolean(
@@ -18,8 +20,21 @@ export function publicPersonaHref(publicSlug: string | null | undefined) {
   return `/personas/${publicSlug}`;
 }
 
+export function publicPersonaCrossOwnerExhibitHref(slug: string | null | undefined) {
+  if (!slug || !CROSS_OWNER_PUBLIC_EXHIBIT_SLUG_PATTERN.test(slug)) return null;
+  return `/encounters/cross-owner#${slug}`;
+}
+
 export function publicPersonaReadbackCopy() {
   return "Only the public profile is shown here. Private Studio memory, archive, canon, continuity, setup notes, provider settings, and owner data stay hidden.";
+}
+
+export function publicPersonaCrossOwnerExhibitsCopy() {
+  return "Approved cross-owner encounter exhibits list public metadata only. The other participant stays a consent display snapshot, not a profile link.";
+}
+
+export function publicPersonaCrossOwnerExhibitsEmptyCopy() {
+  return "No approved cross-owner public exhibit linkbacks are available for this persona yet.";
 }
 
 export function publicPersonaContextPreviewCopy() {
@@ -34,7 +49,10 @@ export function publicPersonaUpdatesEmptyCopy() {
   return "No published documents or public discussions are available for this persona yet.";
 }
 
-export function publicPersonaOptionalReadErrorCopy(surface: "context-preview" | "updates") {
+export function publicPersonaOptionalReadErrorCopy(surface: PublicPersonaOptionalReadSurface) {
+  if (surface === "cross-owner-exhibits") {
+    return "Cross-owner public exhibit linkbacks are temporarily unavailable.";
+  }
   return surface === "context-preview"
     ? "Public context preview is temporarily unavailable."
     : "Public updates are temporarily unavailable.";
@@ -42,7 +60,7 @@ export function publicPersonaOptionalReadErrorCopy(surface: "context-preview" | 
 
 export async function publicPersonaOptionalRead<T>(
   read: Promise<T>,
-  surface: "context-preview" | "updates",
+  surface: PublicPersonaOptionalReadSurface,
   timeoutMs = PUBLIC_PERSONA_OPTIONAL_READ_TIMEOUT_MS
 ): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;

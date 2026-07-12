@@ -4,6 +4,51 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR520A Cross-Owner Metadata Exhibit Public Persona Linkbacks
+
+DAEDALUS completed PR520A implementation on 2026-07-12:
+
+- `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_RESULT.md`
+
+Validation result:
+`READY_FOR_ARGUS_REVIEW`.
+
+Reason:
+
+- added `GET /personas/public/:publicSlug/cross-owner-exhibits`;
+- current page personas must be public, routeable, owner-tier eligible, and
+  snapshot-matched to the requester/counterparty role;
+- the other participant remains display-snapshot-only with no profile route,
+  public slug, owner id, or persona id;
+- linkbacks route only to `/encounters/cross-owner#<slug>`;
+- rows are metadata-only, published, non-removed, non-retracted,
+  contract-version-1, expected-provenance, active approved-consent backed,
+  requested-scope backed, exact bilateral metadata approval backed,
+  row/consent snapshot matched, safe-slug routeable, latest-first,
+  deterministic, and capped at six;
+- web renders a separate optional public persona section and derives anchors
+  from safe slugs;
+- public persona chat/context-preview sources, public persona events, public
+  Space, forum/Salon/community, Station Press/public document, writing,
+  Discover feed/rising/featured/homepage, same-owner `/encounters`, generated
+  words, provider, retrieval, storage, billing, social, Redis, Cloudflare,
+  queue, package, deployment, and migration work remain blocked by default.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass | 18 tests passed, including requester/counterparty linkbacks, missing other profile display-only serialization, unsafe-row filtering, restore/revoke behavior, bounded failures, and source-list no-drift. |
+| `npm exec --yes pnpm@10.32.1 -- run test:persona-encounters` | Pass | 74 tests passed, including cross-owner public metadata readability, list/detail/readback, consent revocation, moderation, and same-owner exhibit regressions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:reports` | Pass | 8 tests passed, including same-owner and cross-owner public exhibit moderation actions. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | 47 tests passed, including separate cross-owner Discover search, public/private bucket separation, and feed/writing helper no-drift. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | 32 tests passed, including public persona cross-owner safe-anchor helpers and source guards. |
+| `npm exec --yes pnpm@10.32.1 -- run test:studio-ui` | Pass | 215 tests passed, including cross-owner public metadata helper/readback copy and owner-visible redaction coverage. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `git diff --check` | Pass | Whitespace check passed; Git reported expected LF-to-CRLF working-copy warnings only. |
+| `git diff --cached --check` | Pass | No staged whitespace errors after staging PR520A implementation and docs. |
+| Changed-path scan | Pass | Changes stayed inside PR520A allowed API persona route/test, public persona page/helper/test/style, and roadmap/testing docs scope. |
+| Forbidden-path scan | Pass | No public Space, forum/Salon/community, writing/public document, Discover feed/rising/featured, homepage, chat/context source, generated-word, provider/retrieval, storage, billing, social, Redis, Cloudflare, queue, package, lockfile, deployment, or migration paths changed outside allowed helper/source guards. |
+| Secret-shaped diff scan | Pass | No secret-shaped added lines were found in the staged diff. |
+
 ## PR520 Cross-Owner Metadata Exhibit Contextual Public Linkbacks Preflight
 
 ARGUS completed PR520 preflight on 2026-07-12:

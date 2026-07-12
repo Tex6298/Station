@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR520A cross-owner public persona linkbacks routed to DAEDALUS
+## Current lane - PR520A cross-owner public persona linkbacks ready for ARGUS
 
 MIMIR closed PR520:
 
@@ -14,23 +14,46 @@ Current lane:
 
 ```text
 PR520A - Cross-Owner Metadata Exhibit Public Persona Linkbacks
-Owner: DAEDALUS / A2
-State: READY_FOR_IMPLEMENTATION
-Source: docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_DAEDALUS.md
+Owner: DAEDALUS / A2 -> ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_RESULT.md
 ```
 
-Implementation boundary:
+DAEDALUS result:
 
-- add participant public-persona linkbacks only;
-- the current page persona must be currently public, routeable, eligible, and
-  snapshot-matched to the requester/counterparty display snapshot for its role;
-- the other participant may remain display-snapshot-only and gets no profile
-  route, slug, owner id, or persona id in the payload;
+- added `GET /personas/public/:publicSlug/cross-owner-exhibits`;
+- rows are visible only when the current public persona is routeable,
+  owner-tier eligible, and snapshot-matched to its requester/counterparty role;
+- the other participant remains display-snapshot-only and gets no profile
+  route, public slug, owner id, or persona id in the payload;
 - linkbacks route only to `/encounters/cross-owner#<slug>`;
-- rows must stay out of public persona chat/context-preview, public persona
-  events, public Space, forum/Salon/community, Station Press/public document,
-  writing, Discover feed/rising/featured/homepage, and same-owner
-  `/encounters` placement.
+- rows are active-consent-backed, exact bilateral metadata approval backed,
+  safe-slug routeable, latest-first, deterministic, and capped at six;
+- web renders a separate optional public persona section and derives anchors
+  from safe slugs;
+- rows stay out of public persona chat/context-preview, public persona events,
+  public Space, forum/Salon/community, Station Press/public document, writing,
+  Discover feed/rising/featured/homepage, and same-owner `/encounters`
+  placement.
+
+Validation:
+
+```text
+npm exec --yes pnpm@10.32.1 -- run test:personas            PASS - 18 tests
+npm exec --yes pnpm@10.32.1 -- run test:persona-encounters PASS - 74 tests
+npm exec --yes pnpm@10.32.1 -- run test:reports            PASS - 8 tests
+npm exec --yes pnpm@10.32.1 -- run test:community          PASS - 47 tests
+npm exec --yes pnpm@10.32.1 -- run test:writing            PASS - 32 tests
+npm exec --yes pnpm@10.32.1 -- run test:studio-ui          PASS - 215 tests
+npm exec --yes pnpm@10.32.1 -- run typecheck               PASS
+git diff --check                                           PASS
+git diff --cached --check                                  PASS
+```
+
+Next:
+
+- ARGUS should review PR520A and either wake MIMIR with acceptance or wake
+  DAEDALUS with required fixes.
 
 ## Previous lane - PR520 cross-owner contextual public linkbacks preflight accepted by ARGUS
 

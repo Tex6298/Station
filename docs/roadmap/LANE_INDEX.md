@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR520A | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR / A1 -> DAEDALUS / A2 | Ready for implementation; add only participant public-persona linkbacks for metadata-only cross-owner exhibits, with Space/forum/writing/feed/homepage/chat/context-preview/generated-word expansion still blocked. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_DAEDALUS.md` |
+| PR520A | Cross-Owner Metadata Exhibit Public Persona Linkbacks | MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 | Ready for ARGUS review; DAEDALUS added only participant public-persona linkbacks for metadata-only cross-owner exhibits, with Space/forum/writing/feed/homepage/chat/context-preview/generated-word expansion still blocked. | `docs/roadmap/PR520A_CROSS_OWNER_METADATA_EXHIBIT_PUBLIC_PERSONA_LINKBACKS_RESULT.md` |
 
 ## Recently Closed
 

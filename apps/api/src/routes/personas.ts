@@ -121,10 +121,21 @@ const PUBLIC_PERSONA_CONTEXT_DOCUMENT_SELECT =
   "id, title, slug, body, status, visibility, published_at, created_at, space_id, persona_id, source_persona_id, discussion_thread_id";
 const PUBLIC_PERSONA_CONTEXT_THREAD_SELECT =
   "id, title, body, status, visibility, is_hidden, comment_count, category_id, linked_document_id, linked_persona_id, created_at";
+const PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_SELECT =
+  "id, consent_id, requester_persona_id, requester_persona_name_snapshot, counterparty_persona_id, counterparty_persona_name_snapshot, slug, public_title, public_summary, public_tags, status, contract_version, provenance_schema, requester_metadata_approved_at, counterparty_metadata_approved_at, published_at, retracted_at, removed_at";
+const PUBLIC_PERSONA_CROSS_OWNER_CONSENT_SELECT =
+  "id, status, requested_scopes, requested_scope_version, requester_persona_id, requester_persona_name_snapshot, counterparty_persona_id, counterparty_persona_name_snapshot";
 const PUBLIC_PERSONA_INTERACTION_MAX_WINDOW_DAYS = 30;
 const SAFE_FORUM_ROUTE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID_SHAPED_FORUM_ROUTE_SLUG_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_LIMIT = 6;
+const PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_PREFETCH_LIMIT = 24;
+const PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_CONTRACT_VERSION = 1;
+const PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_REQUIRED_SCOPE = "publish_metadata_only_public_exhibit";
+const PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_PROVENANCE_SCHEMA =
+  "station.persona_encounter.cross_owner_public_exhibit.v1";
+const SAFE_CROSS_OWNER_PUBLIC_EXHIBIT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*-[a-z0-9]{8}$/;
 
 const publicContextPreviewQuerySchema = z.object({
   query: z.preprocess(
@@ -319,6 +330,214 @@ function isSafeForumRouteSlug(value: unknown): value is string {
   return typeof value === "string" &&
     SAFE_FORUM_ROUTE_SLUG_PATTERN.test(value) &&
     !UUID_SHAPED_FORUM_ROUTE_SLUG_PATTERN.test(value);
+}
+
+function crossOwnerPublicExhibitRouteHref(slug: unknown) {
+  return typeof slug === "string" && SAFE_CROSS_OWNER_PUBLIC_EXHIBIT_SLUG_PATTERN.test(slug)
+    ? `/encounters/cross-owner#${slug}`
+    : null;
+}
+
+type PublicPersonaCrossOwnerExhibitRole = "requester" | "counterparty";
+
+type PublicPersonaCrossOwnerExhibitRow = {
+  id?: string | null;
+  consent_id: string;
+  requester_persona_id: string;
+  requester_persona_name_snapshot: string;
+  counterparty_persona_id: string;
+  counterparty_persona_name_snapshot: string;
+  slug: string;
+  public_title: string;
+  public_summary: string;
+  public_tags: unknown;
+  status: string;
+  contract_version: number;
+  provenance_schema: string;
+  requester_metadata_approved_at?: string | null;
+  counterparty_metadata_approved_at?: string | null;
+  published_at?: string | null;
+  retracted_at?: string | null;
+  removed_at?: string | null;
+};
+
+type PublicPersonaCrossOwnerConsentRow = {
+  id: string;
+  status: string;
+  requested_scopes: unknown;
+  requested_scope_version: number;
+  requester_persona_id: string;
+  requester_persona_name_snapshot: string;
+  counterparty_persona_id: string;
+  counterparty_persona_name_snapshot: string;
+};
+
+async function loadPublicPersonaCrossOwnerExhibits(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  persona: any,
+) {
+  const [requester, counterparty] = await Promise.all([
+    sb
+      .from("persona_encounter_cross_owner_public_exhibits")
+      .select(PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_SELECT)
+      .eq("requester_persona_id", persona.id)
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_PREFETCH_LIMIT),
+    sb
+      .from("persona_encounter_cross_owner_public_exhibits")
+      .select(PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_SELECT)
+      .eq("counterparty_persona_id", persona.id)
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_PREFETCH_LIMIT),
+  ]);
+
+  if (requester.error || counterparty.error) {
+    throw new Error("public_persona_cross_owner_exhibits_unavailable");
+  }
+
+  const rows = dedupePublicPersonaCrossOwnerExhibits([
+    ...((requester.data ?? []) as PublicPersonaCrossOwnerExhibitRow[]),
+    ...((counterparty.data ?? []) as PublicPersonaCrossOwnerExhibitRow[]),
+  ]);
+  const readable = await filterPublicPersonaCrossOwnerExhibits(sb, persona, rows);
+
+  return readable
+    .sort((left, right) => {
+      const byDate = new Date(right.row.published_at ?? 0).getTime() -
+        new Date(left.row.published_at ?? 0).getTime();
+      if (byDate !== 0) return byDate;
+      return String(right.row.slug).localeCompare(String(left.row.slug));
+    })
+    .slice(0, PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_LIMIT)
+    .map(({ row, role }) => serializePublicPersonaCrossOwnerExhibit(row, role));
+}
+
+function dedupePublicPersonaCrossOwnerExhibits(rows: PublicPersonaCrossOwnerExhibitRow[]) {
+  const bySlug = new Map<string, PublicPersonaCrossOwnerExhibitRow>();
+  for (const row of rows) {
+    if (!row?.slug || bySlug.has(row.slug)) continue;
+    bySlug.set(row.slug, row);
+  }
+  return [...bySlug.values()];
+}
+
+async function filterPublicPersonaCrossOwnerExhibits(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  persona: any,
+  rows: PublicPersonaCrossOwnerExhibitRow[],
+) {
+  const candidates = rows
+    .map((row) => ({ row, role: publicPersonaCrossOwnerRole(row, persona) }))
+    .filter((candidate): candidate is { row: PublicPersonaCrossOwnerExhibitRow; role: PublicPersonaCrossOwnerExhibitRole } =>
+      Boolean(candidate.role)
+    );
+  if (candidates.length === 0) return [];
+
+  const consentIds = [...new Set(candidates.map(({ row }) => row.consent_id).filter(Boolean))];
+  if (consentIds.length === 0) return [];
+
+  const { data, error } = await sb
+    .from("persona_encounter_cross_owner_consents")
+    .select(PUBLIC_PERSONA_CROSS_OWNER_CONSENT_SELECT)
+    .in("id", consentIds);
+  if (error) throw new Error("public_persona_cross_owner_exhibits_unavailable");
+
+  const consents = new Map(
+    ((data ?? []) as PublicPersonaCrossOwnerConsentRow[]).map((row) => [row.id, row]),
+  );
+
+  return candidates.filter(({ row, role }) => {
+    const consent = consents.get(row.consent_id);
+    return Boolean(consent && publicPersonaCrossOwnerExhibitReadable(row, consent, role));
+  });
+}
+
+function publicPersonaCrossOwnerRole(
+  row: PublicPersonaCrossOwnerExhibitRow,
+  persona: any,
+): PublicPersonaCrossOwnerExhibitRole | null {
+  if (row.requester_persona_id === persona.id && row.requester_persona_name_snapshot === persona.name) {
+    return "requester";
+  }
+  if (row.counterparty_persona_id === persona.id && row.counterparty_persona_name_snapshot === persona.name) {
+    return "counterparty";
+  }
+  return null;
+}
+
+function publicPersonaCrossOwnerExhibitReadable(
+  row: PublicPersonaCrossOwnerExhibitRow,
+  consent: PublicPersonaCrossOwnerConsentRow,
+  role: PublicPersonaCrossOwnerExhibitRole,
+) {
+  const roleMatches = role === "requester"
+    ? row.requester_persona_id === consent.requester_persona_id &&
+      row.requester_persona_name_snapshot === consent.requester_persona_name_snapshot
+    : row.counterparty_persona_id === consent.counterparty_persona_id &&
+      row.counterparty_persona_name_snapshot === consent.counterparty_persona_name_snapshot;
+
+  return Boolean(
+    roleMatches &&
+    row.status === "published" &&
+    row.published_at &&
+    !row.removed_at &&
+    !row.retracted_at &&
+    row.contract_version === PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_CONTRACT_VERSION &&
+    row.provenance_schema === PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_PROVENANCE_SCHEMA &&
+    row.requester_metadata_approved_at &&
+    row.counterparty_metadata_approved_at &&
+    crossOwnerPublicExhibitRouteHref(row.slug) &&
+    consent.status === "approved" &&
+    consent.requested_scope_version === PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_CONTRACT_VERSION &&
+    Array.isArray(consent.requested_scopes) &&
+    consent.requested_scopes.includes(PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_REQUIRED_SCOPE) &&
+    row.requester_persona_id === consent.requester_persona_id &&
+    row.counterparty_persona_id === consent.counterparty_persona_id &&
+    row.requester_persona_name_snapshot === consent.requester_persona_name_snapshot &&
+    row.counterparty_persona_name_snapshot === consent.counterparty_persona_name_snapshot
+  );
+}
+
+function publicPersonaCrossOwnerTags(row: PublicPersonaCrossOwnerExhibitRow) {
+  return Array.isArray(row.public_tags)
+    ? row.public_tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
+}
+
+function serializePublicPersonaCrossOwnerExhibit(
+  row: PublicPersonaCrossOwnerExhibitRow,
+  role: PublicPersonaCrossOwnerExhibitRole,
+) {
+  return {
+    slug: row.slug,
+    routeHref: `/encounters/cross-owner#${row.slug}`,
+    title: row.public_title,
+    summary: row.public_summary,
+    tags: publicPersonaCrossOwnerTags(row),
+    status: "published" as const,
+    contractVersion: PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_CONTRACT_VERSION,
+    publishedAt: row.published_at,
+    participantRoleOnThisPage: role,
+    participants: {
+      label: "Cross-owner consent display snapshots",
+      requesterName: row.requester_persona_name_snapshot,
+      counterpartyName: row.counterparty_persona_name_snapshot,
+    },
+    provenance: {
+      label: "Cross-owner metadata-only public encounter exhibit",
+      public: true,
+      crossOwner: true,
+      metadataOnly: true,
+      bilateralApproval: true,
+      routeListed: true,
+      discoverable: true,
+      indexed: false,
+      source: "Derived from a bilateral cross-owner consent metadata contract",
+      note: "Approved public metadata only; the other participant is shown as a consent display snapshot.",
+    },
+  };
 }
 
 async function loadPublicRouteableDocumentsForPersona(sb: ReturnType<typeof getSupabaseAdmin>, personaId: string) {
@@ -1269,6 +1488,34 @@ personasRouter.get("/public/:publicSlug/context-preview", async (req, res) => {
       const query = normalizePublicPersonaContextQuery(parsed.data.query);
       const catalog = await buildPublicPersonaContextSources(getSupabaseAdmin(), data, query);
       return serializePublicPersonaContextPreview(data, query, catalog);
+    });
+    if (!response) return res.status(404).json({ error: "Public persona not found." });
+    return res.json(response);
+  } catch {
+    return publicPersonaRouteUnavailable(res);
+  }
+});
+
+personasRouter.get("/public/:publicSlug/cross-owner-exhibits", async (req, res) => {
+  try {
+    const response = await withPublicPersonaRouteRead(async () => {
+      const data = await loadEligiblePublicPersonaBySlug(
+        req.params.publicSlug,
+        "id, name, short_description, visibility, avatar_url, public_slug, owner_user_id"
+      );
+      if (!data) return null;
+
+      const publicSlug = isSafePublicPersonaSlug(data.public_slug) ? data.public_slug : null;
+      if (!publicSlug) return null;
+
+      return {
+        persona: {
+          name: data.name,
+          publicSlug,
+        },
+        exhibits: await loadPublicPersonaCrossOwnerExhibits(getSupabaseAdmin(), data),
+        limit: PUBLIC_PERSONA_CROSS_OWNER_EXHIBIT_LIMIT,
+      };
     });
     if (!response) return res.status(404).json({ error: "Public persona not found." });
     return res.json(response);

@@ -87,6 +87,8 @@ class InMemorySupabase {
     threads: [],
     moderation_reports: [],
     public_persona_interaction_counters: [],
+    persona_encounter_cross_owner_consents: [],
+    persona_encounter_cross_owner_public_exhibits: [],
     token_usage: [],
     token_transactions: [],
     topup_purchases: [],
@@ -269,6 +271,45 @@ class InMemorySupabase {
       row.chat_success_count ??= 0;
       row.chat_failure_count ??= 0;
       row.report_created_count ??= 0;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_consents") {
+      row.status ??= "approved";
+      row.requested_scopes ??= ["publish_metadata_only_public_exhibit"];
+      row.requested_scope_version ??= 1;
+      row.requester_owner_user_id ??= "creator-owner";
+      row.requester_persona_id ??= "requester-persona";
+      row.requester_persona_name_snapshot ??= "Requester Persona";
+      row.counterparty_owner_user_id ??= "canon-owner";
+      row.counterparty_persona_id ??= "counterparty-persona";
+      row.counterparty_persona_name_snapshot ??= "Counterparty Persona";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "persona_encounter_cross_owner_public_exhibits") {
+      row.consent_id ??= "cross-owner-consent";
+      row.requester_owner_user_id ??= "creator-owner";
+      row.requester_persona_id ??= "requester-persona";
+      row.requester_persona_name_snapshot ??= "Requester Persona";
+      row.counterparty_owner_user_id ??= "canon-owner";
+      row.counterparty_persona_id ??= "counterparty-persona";
+      row.counterparty_persona_name_snapshot ??= "Counterparty Persona";
+      row.slug ??= "cross-owner-public-exhibit-12345678";
+      row.public_title ??= "Cross-owner public exhibit";
+      row.public_summary ??= "Approved public metadata only.";
+      row.public_tags ??= [];
+      row.status ??= "published";
+      row.contract_version ??= 1;
+      row.provenance_schema ??= "station.persona_encounter.cross_owner_public_exhibit.v1";
+      if (!("requester_metadata_approved_at" in row)) row.requester_metadata_approved_at = now;
+      if (!("counterparty_metadata_approved_at" in row)) row.counterparty_metadata_approved_at = now;
+      row.reported_count ??= 0;
+      if (!("published_at" in row)) row.published_at = now;
+      if (!("retracted_at" in row)) row.retracted_at = null;
+      if (!("removed_at" in row)) row.removed_at = null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -591,6 +632,59 @@ function listen(app: Express) {
 function close(server: Server) {
   return new Promise<void>((resolve, reject) => {
     server.close((error) => error ? reject(error) : resolve());
+  });
+}
+
+function insertPublicPersona(db: InMemorySupabase, overrides: Row) {
+  return db.insertRow("personas", {
+    owner_user_id: "creator-owner",
+    name: "Public Persona",
+    short_description: "Public-safe persona.",
+    visibility: "public",
+    public_slug: "public-persona",
+    ...overrides,
+  });
+}
+
+function insertCrossOwnerConsent(db: InMemorySupabase, overrides: Row) {
+  return db.insertRow("persona_encounter_cross_owner_consents", {
+    id: "cross-owner-consent",
+    requester_owner_user_id: "creator-owner",
+    requester_persona_id: "requester-persona",
+    requester_persona_name_snapshot: "Blue Lantern Guide",
+    counterparty_owner_user_id: "canon-owner",
+    counterparty_persona_id: "counterparty-persona",
+    counterparty_persona_name_snapshot: "Silver Archive",
+    status: "approved",
+    requested_scopes: ["publish_metadata_only_public_exhibit"],
+    requested_scope_version: 1,
+    ...overrides,
+  });
+}
+
+function insertCrossOwnerExhibit(db: InMemorySupabase, overrides: Row) {
+  return db.insertRow("persona_encounter_cross_owner_public_exhibits", {
+    id: "cross-owner-exhibit",
+    consent_id: "cross-owner-consent",
+    requester_owner_user_id: "creator-owner",
+    requester_persona_id: "requester-persona",
+    requester_persona_name_snapshot: "Blue Lantern Guide",
+    counterparty_owner_user_id: "canon-owner",
+    counterparty_persona_id: "counterparty-persona",
+    counterparty_persona_name_snapshot: "Silver Archive",
+    slug: "cross-owner-public-exhibit-12345678",
+    public_title: "Cross-owner public exhibit",
+    public_summary: "Approved public metadata only.",
+    public_tags: ["public", "metadata"],
+    status: "published",
+    contract_version: 1,
+    provenance_schema: "station.persona_encounter.cross_owner_public_exhibit.v1",
+    requester_metadata_approved_at: "2026-06-23T10:00:00.000Z",
+    counterparty_metadata_approved_at: "2026-06-23T10:01:00.000Z",
+    published_at: "2026-06-23T10:02:00.000Z",
+    retracted_at: null,
+    removed_at: null,
+    ...overrides,
   });
 }
 
@@ -985,6 +1079,343 @@ test("public persona slug readback is anonymous, public-only, and owner-tier eli
     const rawUuidReadback = await requestJson(app, "GET", "/personas/public/550e8400-e29b-41d4-a716-446655440000");
     assert.equal(rawUuidReadback.status, 404);
   } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public persona cross-owner exhibit linkbacks are participant-scoped and metadata-only", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    const requester = insertPublicPersona(db, {
+      id: "requester-persona",
+      owner_user_id: "creator-owner",
+      name: "Blue Lantern Guide",
+      short_description: "Public-safe guide.",
+      public_slug: "blue-lantern-guide",
+    });
+    const counterparty = insertPublicPersona(db, {
+      id: "counterparty-persona",
+      owner_user_id: "canon-owner",
+      name: "Silver Archive",
+      short_description: "Public-safe counterparty.",
+      public_slug: "silver-archive",
+    });
+    insertPublicPersona(db, {
+      id: "empty-persona",
+      owner_user_id: "creator-owner",
+      name: "No Exhibit Persona",
+      public_slug: "no-exhibit-persona",
+    });
+    insertPublicPersona(db, {
+      id: "private-linkback-persona",
+      owner_user_id: "creator-owner",
+      name: "Private Linkback Persona",
+      visibility: "private",
+      public_slug: "private-linkback-persona",
+    });
+    insertPublicPersona(db, {
+      id: "ineligible-linkback-persona",
+      owner_user_id: "private-owner",
+      name: "Ineligible Linkback Persona",
+      public_slug: "ineligible-linkback-persona",
+    });
+
+    for (let index = 1; index <= 7; index += 1) {
+      const suffix = String(index).padStart(8, "0");
+      insertCrossOwnerConsent(db, { id: `valid-consent-${suffix}` });
+      insertCrossOwnerExhibit(db, {
+        id: `valid-exhibit-${suffix}`,
+        consent_id: `valid-consent-${suffix}`,
+        slug: `cross-owner-linkback-${suffix}`,
+        public_title: `Blue Lantern Linkback ${index}`,
+        public_summary: `Approved public metadata ${index}.`,
+        public_tags: ["blue-lantern", `tag-${index}`],
+        published_at: `2026-06-23T10:0${index}:00.000Z`,
+      });
+    }
+
+    const soloConsent = insertCrossOwnerConsent(db, {
+      id: "solo-consent",
+      counterparty_persona_id: "missing-other-persona",
+      counterparty_persona_name_snapshot: "Missing Other Snapshot",
+    });
+    const soloRow = insertCrossOwnerExhibit(db, {
+      id: "solo-exhibit",
+      consent_id: soloConsent.id,
+      counterparty_persona_id: "missing-other-persona",
+      counterparty_persona_name_snapshot: "Missing Other Snapshot",
+      slug: "missing-other-snapshot-12345678",
+      public_title: "Missing Other Snapshot Linkback",
+      public_summary: "The other participant is display text only.",
+      public_tags: ["snapshot-only"],
+      published_at: "2026-06-23T10:09:00.000Z",
+    });
+
+    const unsafeRows = [
+      {
+        marker: "Hidden Proposed Row",
+        consent: {},
+        row: { status: "proposed" },
+      },
+      {
+        marker: "Hidden One Sided Row",
+        consent: {},
+        row: { counterparty_metadata_approved_at: null },
+      },
+      {
+        marker: "Hidden Wrong Scope Row",
+        consent: { requested_scopes: [] },
+        row: {},
+      },
+      {
+        marker: "Hidden Wrong Version Row",
+        consent: { requested_scope_version: 2 },
+        row: {},
+      },
+      {
+        marker: "Hidden Revoked Consent Row",
+        consent: { status: "revoked" },
+        row: {},
+      },
+      {
+        marker: "Hidden Missing Consent Row",
+        consent: null,
+        row: { consent_id: "missing-consent-id" },
+      },
+      {
+        marker: "Hidden Removed Row",
+        consent: {},
+        row: { removed_at: "2026-06-23T10:10:00.000Z" },
+      },
+      {
+        marker: "Hidden Retracted Row",
+        consent: {},
+        row: { retracted_at: "2026-06-23T10:10:00.000Z" },
+      },
+      {
+        marker: "Hidden Malformed Slug Row",
+        consent: {},
+        row: { slug: "bad_slug" },
+      },
+      {
+        marker: "Hidden Wrong Schema Row",
+        consent: {},
+        row: { provenance_schema: "station.bad.schema" },
+      },
+      {
+        marker: "Hidden Wrong Contract Row",
+        consent: {},
+        row: { contract_version: 2 },
+      },
+      {
+        marker: "Hidden Snapshot Drift Row",
+        consent: { requester_persona_name_snapshot: "Blue Lantern Guide" },
+        row: { requester_persona_name_snapshot: "Forged Requester Snapshot" },
+      },
+      {
+        marker: "Hidden Current Page Drift Row",
+        consent: {
+          requester_persona_name_snapshot: "Old Blue Lantern Guide",
+          counterparty_persona_name_snapshot: "Old Silver Archive",
+        },
+        row: {
+          requester_persona_name_snapshot: "Old Blue Lantern Guide",
+          counterparty_persona_name_snapshot: "Old Silver Archive",
+        },
+      },
+    ];
+
+    unsafeRows.forEach((fixture, index) => {
+      const suffix = String(index + 20).padStart(8, "0");
+      const consentId = `unsafe-consent-${suffix}`;
+      if (fixture.consent !== null) {
+        insertCrossOwnerConsent(db, { id: consentId, ...fixture.consent });
+      }
+      insertCrossOwnerExhibit(db, {
+        id: `unsafe-exhibit-${suffix}`,
+        consent_id: consentId,
+        slug: `unsafe-linkback-${suffix}`,
+        public_title: fixture.marker,
+        public_summary: `${fixture.marker} private setup generated reply provider payload token secret-shaped-value.`,
+        public_tags: ["unsafe"],
+        published_at: "2026-06-23T10:15:00.000Z",
+        ...fixture.row,
+      });
+    });
+
+    const empty = await requestJson(app, "GET", "/personas/public/no-exhibit-persona/cross-owner-exhibits");
+    assert.equal(empty.status, 200);
+    assert.deepEqual(empty.body.exhibits, []);
+
+    const requesterPage = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/cross-owner-exhibits");
+    assert.equal(requesterPage.status, 200);
+    assert.deepEqual(requesterPage.body.persona, {
+      name: "Blue Lantern Guide",
+      publicSlug: "blue-lantern-guide",
+    });
+    assert.equal(requesterPage.body.limit, 6);
+    assert.equal(requesterPage.body.exhibits.length, 6);
+    assert.equal(requesterPage.body.exhibits[0].slug, "missing-other-snapshot-12345678");
+    assert.equal(requesterPage.body.exhibits[0].participantRoleOnThisPage, "requester");
+    assert.equal(requesterPage.body.exhibits[0].participants.counterpartyName, "Missing Other Snapshot");
+    assert.deepEqual(Object.keys(requesterPage.body.exhibits[0]), [
+      "slug",
+      "routeHref",
+      "title",
+      "summary",
+      "tags",
+      "status",
+      "contractVersion",
+      "publishedAt",
+      "participantRoleOnThisPage",
+      "participants",
+      "provenance",
+    ]);
+    assert.deepEqual(Object.keys(requesterPage.body.exhibits[0].participants), [
+      "label",
+      "requesterName",
+      "counterpartyName",
+    ]);
+    assert.deepEqual(Object.keys(requesterPage.body.exhibits[0].provenance), [
+      "label",
+      "public",
+      "crossOwner",
+      "metadataOnly",
+      "bilateralApproval",
+      "routeListed",
+      "discoverable",
+      "indexed",
+      "source",
+      "note",
+    ]);
+    assert.equal(requesterPage.body.exhibits[0].routeHref, "/encounters/cross-owner#missing-other-snapshot-12345678");
+    assert.equal(requesterPage.body.exhibits[0].status, "published");
+    assert.equal(requesterPage.body.exhibits[0].contractVersion, 1);
+    assert.equal(requesterPage.body.exhibits[0].participants.label, "Cross-owner consent display snapshots");
+    assert.equal(requesterPage.body.exhibits[0].provenance.label, "Cross-owner metadata-only public encounter exhibit");
+    assert.equal(requesterPage.body.exhibits[0].provenance.indexed, false);
+    assert.equal(requesterPage.body.exhibits[0].provenance.discoverable, true);
+    assert.equal(
+      requesterPage.body.exhibits.some((row: Row) => row.slug === "cross-owner-linkback-00000001"),
+      false
+    );
+
+    const counterpartyPage = await requestJson(app, "GET", "/personas/public/silver-archive/cross-owner-exhibits");
+    assert.equal(counterpartyPage.status, 200);
+    assert.equal(counterpartyPage.body.exhibits.length, 6);
+    assert.equal(counterpartyPage.body.exhibits[0].participantRoleOnThisPage, "counterparty");
+    assert.deepEqual(
+      counterpartyPage.body.exhibits.map((row: Row) => row.slug),
+      [
+        "cross-owner-linkback-00000007",
+        "cross-owner-linkback-00000006",
+        "cross-owner-linkback-00000005",
+        "cross-owner-linkback-00000004",
+        "cross-owner-linkback-00000003",
+        "cross-owner-linkback-00000002",
+      ]
+    );
+
+    const firstJson = JSON.stringify(requesterPage.body) + JSON.stringify(counterpartyPage.body);
+    for (const marker of unsafeRows.map((row) => row.marker)) {
+      assert.equal(firstJson.includes(marker), false, `${marker} leaked`);
+    }
+    for (const forbidden of [
+      requester.id,
+      counterparty.id,
+      "missing-other-persona",
+      "creator-owner",
+      "canon-owner",
+      "valid-consent-",
+      "solo-consent",
+      "unsafe-consent-",
+      "owner_user_id",
+      "requester_persona_id",
+      "counterparty_persona_id",
+      "requested_scopes",
+      "reported_count",
+      "moderation",
+      "admin",
+      "private setup",
+      "generated reply",
+      "provider payload",
+      "token",
+      "secret-shaped-value",
+    ]) {
+      assert.equal(firstJson.includes(forbidden), false, `${forbidden} leaked`);
+    }
+
+    soloRow.removed_at = "2026-06-23T10:20:00.000Z";
+    const removed = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/cross-owner-exhibits");
+    assert.equal(removed.status, 200);
+    assert.equal(removed.body.exhibits.some((row: Row) => row.slug === soloRow.slug), false);
+
+    soloRow.removed_at = null;
+    const restored = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/cross-owner-exhibits");
+    assert.equal(restored.status, 200);
+    assert.equal(restored.body.exhibits.some((row: Row) => row.slug === soloRow.slug), true);
+
+    soloConsent.status = "revoked";
+    const revokedAfterRestore = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/cross-owner-exhibits");
+    assert.equal(revokedAfterRestore.status, 200);
+    assert.equal(revokedAfterRestore.body.exhibits.some((row: Row) => row.slug === soloRow.slug), false);
+
+    const preview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=Blue");
+    assert.equal(preview.status, 200);
+    const previewJson = JSON.stringify(preview.body);
+    assert.equal(previewJson.includes("cross_owner"), false);
+    assert.equal(previewJson.includes("cross-owner-linkback"), false);
+    assert.equal(previewJson.includes("Missing Other Snapshot Linkback"), false);
+
+    const privatePage = await requestJson(app, "GET", "/personas/public/private-linkback-persona/cross-owner-exhibits");
+    assert.equal(privatePage.status, 404);
+    const ineligiblePage = await requestJson(app, "GET", "/personas/public/ineligible-linkback-persona/cross-owner-exhibits");
+    assert.equal(ineligiblePage.status, 404);
+    const oldSlugPage = await requestJson(app, "GET", "/personas/public/old-blue-lantern-guide/cross-owner-exhibits");
+    assert.equal(oldSlugPage.status, 404);
+    const unsafeSlugPage = await requestJson(
+      app,
+      "GET",
+      "/personas/public/550e8400-e29b-41d4-a716-446655440000/cross-owner-exhibits"
+    );
+    assert.equal(unsafeSlugPage.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("public persona cross-owner exhibit linkback failures stay bounded", async () => {
+  const db = new InMemorySupabase();
+  const previousTimeoutMs = process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS;
+  process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS = "5";
+  setSupabaseAdminForTests(db.client as any);
+  const app = createPersonasApp();
+
+  try {
+    insertPublicPersona(db, {
+      id: "requester-persona",
+      owner_user_id: "creator-owner",
+      name: "Blue Lantern Guide",
+      public_slug: "blue-lantern-guide",
+    });
+    db.hangQuery({
+      table: "persona_encounter_cross_owner_public_exhibits",
+      operation: "select",
+    });
+
+    const response = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/cross-owner-exhibits");
+    assert.equal(response.status, 503);
+    assert.equal(response.body.code, "public_persona_route_unavailable");
+    assert.equal(JSON.stringify(response.body).includes("persona_encounter_cross_owner_public_exhibits"), false);
+  } finally {
+    if (previousTimeoutMs === undefined) {
+      delete process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS;
+    } else {
+      process.env.PUBLIC_PERSONA_ROUTE_TIMEOUT_MS = previousTimeoutMs;
+    }
     setSupabaseAdminForTests(null);
   }
 });

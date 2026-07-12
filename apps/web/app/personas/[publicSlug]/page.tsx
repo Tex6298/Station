@@ -16,6 +16,9 @@ import {
   publicPersonaChatAccess,
   publicPersonaChatCopy,
   publicPersonaChatDisabledCopy,
+  publicPersonaCrossOwnerExhibitHref,
+  publicPersonaCrossOwnerExhibitsCopy,
+  publicPersonaCrossOwnerExhibitsEmptyCopy,
   publicPersonaContextPreviewCopy,
   publicPersonaOptionalRead,
   publicPersonaReadbackCopy,
@@ -35,12 +38,52 @@ interface PublicPersona {
   };
 }
 
+interface PublicPersonaCrossOwnerExhibit {
+  slug: string;
+  routeHref: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  status: "published";
+  contractVersion: number;
+  publishedAt: string;
+  participantRoleOnThisPage: "requester" | "counterparty";
+  participants: {
+    label: "Cross-owner consent display snapshots";
+    requesterName: string;
+    counterpartyName: string;
+  };
+  provenance: {
+    label: "Cross-owner metadata-only public encounter exhibit";
+    public: true;
+    crossOwner: true;
+    metadataOnly: true;
+    bilateralApproval: true;
+    routeListed: true;
+    discoverable: true;
+    indexed: false;
+    source: string;
+    note: string;
+  };
+}
+
+interface PublicPersonaCrossOwnerExhibitsResponse {
+  persona: {
+    name: string;
+    publicSlug: string;
+  };
+  exhibits: PublicPersonaCrossOwnerExhibit[];
+  limit: number;
+}
+
 export default function PublicPersonaPage() {
   const { publicSlug } = useParams<{ publicSlug: string }>();
   const [persona, setPersona] = useState<PublicPersona | null>(null);
   const [preview, setPreview] = useState<PublicPersonaContextPreview | null>(null);
   const [events, setEvents] = useState<PublicPersonaEventsResponse | null>(null);
+  const [crossOwnerExhibits, setCrossOwnerExhibits] = useState<PublicPersonaCrossOwnerExhibitsResponse | null>(null);
   const [eventsError, setEventsError] = useState<string | null>(null);
+  const [crossOwnerExhibitsError, setCrossOwnerExhibitsError] = useState<string | null>(null);
   const [previewQuery, setPreviewQuery] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -64,8 +107,10 @@ export default function PublicPersonaPage() {
       setError(null);
       setPreviewError(null);
       setEventsError(null);
+      setCrossOwnerExhibitsError(null);
       setPreview(null);
       setEvents(null);
+      setCrossOwnerExhibits(null);
       try {
         const data = await apiGet<{ persona: PublicPersona }>(`/personas/public/${publicSlug}`);
         if (!cancelled) {
@@ -96,6 +141,21 @@ export default function PublicPersonaPage() {
           .catch((err) => {
             if (!cancelled) {
               setEventsError(err instanceof Error ? err.message : "Public updates are temporarily unavailable.");
+            }
+          });
+
+        void publicPersonaOptionalRead(
+          apiGet<PublicPersonaCrossOwnerExhibitsResponse>(`/personas/public/${publicSlug}/cross-owner-exhibits`),
+          "cross-owner-exhibits"
+        )
+          .then((exhibitData) => {
+            if (!cancelled) setCrossOwnerExhibits(exhibitData);
+          })
+          .catch((err) => {
+            if (!cancelled) {
+              setCrossOwnerExhibitsError(err instanceof Error
+                ? err.message
+                : "Cross-owner public exhibit linkbacks are temporarily unavailable.");
             }
           });
       } catch (err) {
@@ -212,6 +272,9 @@ export default function PublicPersonaPage() {
     ? persona.publicChat.mode === "anonymous_alpha" ? "Anonymous alpha" : "Signed-in alpha"
     : "Disabled";
   const canUsePublicChat = chatAccess === "signed_in_alpha" || chatAccess === "anonymous_alpha";
+  const routeableCrossOwnerExhibits = (crossOwnerExhibits?.exhibits ?? [])
+    .map((exhibit) => ({ exhibit, href: publicPersonaCrossOwnerExhibitHref(exhibit.slug) }))
+    .filter((item): item is { exhibit: PublicPersonaCrossOwnerExhibit; href: string } => Boolean(item.href));
 
   return (
     <main className="public-persona-page">
@@ -251,6 +314,35 @@ export default function PublicPersonaPage() {
                 <strong>{event.title}</strong>
                 <time dateTime={event.occurredAt}>{formatPublicPersonaEventDate(event.occurredAt)}</time>
                 {event.excerpt && <em>{event.excerpt}</em>}
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="public-persona-panel public-persona-linkbacks" aria-label="Cross-owner encounter exhibits">
+        <div>
+          <span>Cross-owner exhibits</span>
+          <strong>Approved metadata</strong>
+        </div>
+        <p>{publicPersonaCrossOwnerExhibitsCopy()}</p>
+
+        {crossOwnerExhibitsError && <p className="public-persona-preview-error">{crossOwnerExhibitsError}</p>}
+        {crossOwnerExhibits && crossOwnerExhibits.exhibits.length === 0 && (
+          <p className="public-persona-chat-state">{publicPersonaCrossOwnerExhibitsEmptyCopy()}</p>
+        )}
+        {crossOwnerExhibits && crossOwnerExhibits.exhibits.length > 0 && routeableCrossOwnerExhibits.length === 0 && (
+          <p className="public-persona-chat-state">{publicPersonaCrossOwnerExhibitsEmptyCopy()}</p>
+        )}
+        {routeableCrossOwnerExhibits.length > 0 && (
+          <div className="public-persona-update-list">
+            {routeableCrossOwnerExhibits.map(({ exhibit, href }) => (
+              <Link href={href} key={exhibit.slug}>
+                <span>{exhibit.participantRoleOnThisPage === "requester" ? "Requester snapshot" : "Counterparty snapshot"}</span>
+                <strong>{exhibit.title}</strong>
+                <time dateTime={exhibit.publishedAt}>{formatPublicPersonaEventDate(exhibit.publishedAt)}</time>
+                <em>{exhibit.summary}</em>
+                <small>{`${exhibit.participants.requesterName} + ${exhibit.participants.counterpartyName}`}</small>
               </Link>
             ))}
           </div>
