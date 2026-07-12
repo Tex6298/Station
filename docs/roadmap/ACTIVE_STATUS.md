@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR524A cross-owner generated material publication contract accepted by ARGUS
+## Current lane - PR524B cross-owner generated material publication hosted proof routed to ARIADNE
 
 MIMIR closed PR524 preflight:
 
@@ -18,13 +18,17 @@ ARGUS accepted PR524A with a narrow review patch:
 
 `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md`
 
+Current hosted proof:
+
+`docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_ARIADNE.md`
+
 Current lane:
 
 ```text
-PR524A - Cross-Owner Generated Material Publication Contract
-Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
-State: ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_WITH_ARGUS_PATCH
-Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md
+PR524B - Cross-Owner Generated Material Publication Hosted Proof
+Owner: ARIADNE / A4 -> MIMIR / A1
+State: READY_FOR_HOSTED_PROOF
+Source: docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_ARIADNE.md
 ```
 
 Why:
@@ -38,6 +42,8 @@ Why:
   bilaterally approved revisions;
 - ARGUS patched the public payload allow-list, removed redundant participant
   direct body-select RLS, and tightened moderation restore source-chain checks.
+- because PR524A adds a public API and web detail route, ARIADNE must prove it
+  on hosted before MIMIR closes the slice.
 
 Implemented shape:
 
@@ -81,6 +87,27 @@ Source: docs/roadmap/PR524A_POST_CLOSEOUT_PAUSE_DIRECTIVE_MIMIR.md
 State: after PR524A closes or blocks, pause mainline and record Phase 3 standing
 instead of automatically opening the next numbered product lane.
 ```
+
+## Previous lane - PR524A cross-owner generated material publication contract accepted by ARGUS
+
+ARGUS accepted PR524A with a narrow review patch:
+
+`docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md`
+
+Completed local lane:
+
+```text
+PR524A - Cross-Owner Generated Material Publication Contract
+Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
+State: ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md
+```
+
+ARGUS patch:
+
+- narrowed public JSON to remove full digest/source/status/report internals;
+- removed redundant participant direct-select body RLS;
+- tightened moderation restore source-chain checks.
 
 ## Previous lane - PR524 cross-owner generated material publication contract preflight accepted
 
