@@ -4,38 +4,55 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR522 cross-owner private generated artifact and exact-text approval ledger accepted by ARGUS
+## Current lane - PR524 cross-owner generated material publication contract preflight opened
 
-MIMIR closed PR523:
+MIMIR closed PR522:
 
-`docs/roadmap/PR523_COMPANION_FIRST_PERSONA_HOME_MERGE_CLOSEOUT_MIMIR.md`
+`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_CLOSEOUT.md`
 
-DAEDALUS implemented PR522:
+Current lane:
 
-`docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_RESULT.md`
+```text
+PR524 - Cross-Owner Generated Material Publication Contract Preflight
+Owner: ARGUS / A3 -> MIMIR / A1
+State: OPEN_PREFLIGHT
+Source: docs/roadmap/PR524_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_PREFLIGHT_ARGUS.md
+```
+
+Why:
+
+- PR521 blocked generated public material because Station lacked private
+  generated source artifacts and exact-text bilateral approval ledger rows;
+- PR522 now supplies that private participant-only foundation, accepted by
+  ARGUS with a narrow safety patch;
+- public generated body text is still not accepted by implication;
+- ARGUS must decide the exact smallest public generated-material contract lane,
+  or name the concrete blocker and smallest unblock.
+
+Still blocked by default:
+
+```text
+Public generated-material route/body text, generated summaries/excerpts,
+transcripts, PR516 disposable-output reuse without explicit source/revision
+approval, public Space/forum/writing/feed/homepage placement, public persona
+chat/context-preview source expansion, provider/retrieval/vector/storage/
+billing/Redis/Cloudflare/queue/deployment/package/broad UI work.
+```
+
+## Previous lane - PR522 cross-owner private generated artifact and exact-text approval ledger closed
 
 ARGUS accepted PR522 with a narrow review patch:
 
 `docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ARGUS_RESULT.md`
 
-Current lane:
+Completed lane:
 
 ```text
 PR522 - Cross-Owner Private Generated Artifact and Exact-Text Approval Ledger
 Owner: DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
-State: ACCEPT_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_WITH_ARGUS_PATCH
-Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ARGUS_RESULT.md
+State: CLOSE_PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_ACCEPTED
+Source: docs/roadmap/PR522_CROSS_OWNER_PRIVATE_GENERATED_ARTIFACT_APPROVAL_LEDGER_CLOSEOUT.md
 ```
-
-Why:
-
-- PR521 blocked generated public material until private generated source
-  artifacts and exact-text bilateral approval ledger rows exist;
-- PR522 adds that private participant-only foundation without adding a public
-  generated-material route or public generated body text;
-- ARGUS found and fixed narrow DB/API/RLS fail-closed gaps in lifecycle
-  closure, stale-consent body hiding, and inactive direct-table reads;
-- MIMIR can now close PR522 and decide the next lane.
 
 Implemented:
 
