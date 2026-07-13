@@ -4,19 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523D Studio companion entry affordance repair
+## Current lane - PR523D Studio companion entry affordance review
 
-MIMIR completed the stalled PR523C diagnostic and opened the smallest concrete
-repair:
+MIMIR completed the narrow implementation after DAEDALUS consumed the wakeup
+but returned neither a result nor a blocker:
 
-`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_DAEDALUS.md`
+`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_MIMIR_RESULT.md`
 
 Current lane:
 
 ```text
 PR523D - Studio Companion Entry Affordance Repair
-Owner: DAEDALUS / A2
-State: OPEN_IMPLEMENTATION
+Owner: ARGUS / A3
+State: READY_FOR_ARGUS_REVIEW
 ```
 
 PR523C result:
@@ -28,11 +28,12 @@ session-stable, responsive, and reachable through the replay persona. The
 remaining defect is `/studio` first-viewport discoverability: existing owners
 see setup/public actions before an unmistakable companion entry action.
 
-PR523D adds the narrow explicit `Open Companion` affordance without an
-automatic redirect, dashboard reskin, or route/product-scope expansion.
+PR523D now adds the narrow explicit `Open Companion` affordance without an
+automatic redirect, dashboard reskin, or route/product-scope expansion. The
+focused Studio test, the 245-test Studio UI suite, and full typecheck pass.
 
 Phase 3 product expansion and PR524B remain paused while this pre-existing UI
-visibility defect follows DAEDALUS -> ARGUS -> ARIADNE closeout.
+visibility defect follows ARGUS -> ARIADNE closeout.
 
 ## Previous lane - PR523C hosted companion-first UI visibility reconciliation
 

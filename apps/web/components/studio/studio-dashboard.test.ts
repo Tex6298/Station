@@ -20,3 +20,13 @@ test("dashboard integrity list filters current sessions and distinguishes unavai
   assert.match(source, /Integrity due status is temporarily unavailable\./);
   assert.doesNotMatch(source, /integrityDue\.length > 0 \? integrityDue : personas/);
 });
+
+test("dashboard makes the companion home a first-viewport action without breaking zero-persona setup", () => {
+  assert.match(source, /function Header\(\{ personas \}: \{ personas: PersonaSummary\[\] \}\)/);
+  assert.match(source, /const companionHref = studioNewChatHref\(personas\)/);
+  assert.match(source, /personaCount > 0 \? \(\s*<Link href=\{companionHref\} style=\{primaryButton\}>Open Companion<\/Link>/);
+  assert.match(source, /<Link href="\/studio\/new" style=\{primaryButton\}>New Persona<\/Link>/);
+  assert.match(source, /personaCount > 0 \? <Link href="\/studio\/new" style=\{secondaryButton\}>New Persona<\/Link> : null/);
+  assert.match(source, /<Header personas=\{personas\} \/>/);
+  assert.doesNotMatch(source, /router\.(?:push|replace)\(.*studioNewChatHref/);
+});

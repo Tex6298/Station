@@ -1861,6 +1861,19 @@ html, body {
   letter-spacing: 0;
 }
 
+.studio-dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.studio-dashboard-header-copy {
+  flex: 1 1 520px;
+  min-width: 0;
+}
+
 .studio-dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -3636,6 +3649,15 @@ html, body {
 
   .studio-frame-header {
     display: grid;
+  }
+
+  .studio-dashboard-header {
+    display: grid;
+  }
+
+  .studio-dashboard-header .studio-action-row {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .studio-place-strip {

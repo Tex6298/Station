@@ -54,10 +54,13 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Header({ personaCount }: { personaCount: number }) {
+function Header({ personas }: { personas: PersonaSummary[] }) {
+  const personaCount = personas.length;
+  const companionHref = studioNewChatHref(personas);
+
   return (
-    <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
-      <div>
+    <header className="studio-dashboard-header">
+      <div className="studio-dashboard-header-copy">
         <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700 }}>
           Studio Dashboard
         </div>
@@ -78,8 +81,13 @@ function Header({ personaCount }: { personaCount: number }) {
         />
       </div>
       <StudioActionRow>
+        {personaCount > 0 ? (
+          <Link href={companionHref} style={primaryButton}>Open Companion</Link>
+        ) : (
+          <Link href="/studio/new" style={primaryButton}>New Persona</Link>
+        )}
+        {personaCount > 0 ? <Link href="/studio/new" style={secondaryButton}>New Persona</Link> : null}
         <Link href="/studio/onboarding" style={secondaryButton}>Choose Path</Link>
-        <Link href="/studio/new" style={primaryButton}>New Persona</Link>
         <Link href="/space" style={secondaryButton}>Open Public Space</Link>
       </StudioActionRow>
     </header>
@@ -298,7 +306,7 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
   if (loading) {
     return (
       <Shell>
-        <Header personaCount={0} />
+        <Header personas={[]} />
         <StudioPanel>
           <StudioEmptyState>Loading your workspace...</StudioEmptyState>
         </StudioPanel>
@@ -309,7 +317,7 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
   if (!signedIn) {
     return (
       <Shell>
-        <Header personaCount={0} />
+        <Header personas={[]} />
         <StudioPanel className="studio-auth-panel">
           <h2 style={{ margin: "0 0 8px", color: "#f8fafc" }}>Sign in to open Studio</h2>
           <p style={{ margin: "0 0 18px", color: "#a9b0bd", lineHeight: 1.6 }}>
@@ -327,7 +335,7 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
   if (error) {
     return (
       <Shell>
-        <Header personaCount={0} />
+        <Header personas={[]} />
         <StudioErrorState>
           {error}
         </StudioErrorState>
@@ -337,7 +345,7 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
 
   return (
     <Shell>
-      <Header personaCount={personas.length} />
+      <Header personas={personas} />
       <div className="studio-dashboard-grid">
         <div className="studio-dashboard-main">
           <ContinueList personas={personas} />

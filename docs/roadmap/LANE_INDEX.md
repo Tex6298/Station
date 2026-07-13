@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR523D | Studio Companion Entry Affordance Repair | DAEDALUS / A2 | Open implementation; add an explicit first-viewport `Open Companion` action for owners with personas while preserving zero-persona and dashboard routes. | `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_DAEDALUS.md` |
+| PR523D | Studio Companion Entry Affordance Repair | ARGUS / A3 | Ready for review; MIMIR completed the explicit first-viewport `Open Companion` action after DAEDALUS stalled, preserving zero-persona setup and the dashboard route. | `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_MIMIR_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR523D implementation | Studio Companion Entry Affordance Repair | MIMIR -> DAEDALUS (stalled) -> MIMIR -> ARGUS | Ready for ARGUS review; conditional `Open Companion` uses the accepted route resolver, preserves zero-persona setup, and passes focused, Studio UI, and typecheck validation. | `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_MIMIR_RESULT.md` |
 | PR523C diagnostic | Hosted Companion-First UI Visibility Reconciliation | MIMIR -> ARIADNE (stalled) -> MIMIR | Blocked as `BLOCK_PR523C_ON_COMPANION_ENTRY_DISCOVERABILITY`; hosted route/session/responsive behavior passed, but `/studio` lacks an unmistakable first-viewport companion entry action. | `docs/roadmap/PR523C_HOSTED_COMPANION_FIRST_UI_VISIBILITY_RECONCILIATION_MIMIR_RESULT.md` |
 | PR524B closeout | Cross-Owner Generated Material Publication Hosted Proof | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_BLOCKED`; hosted generated-scope consent save fails until Supabase/RPC/schema is refreshed. | `docs/roadmap/PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF_BLOCKER_CLOSEOUT_MIMIR.md` |
 | PR524A review | Cross-Owner Generated Material Publication Contract | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted locally as `ACCEPT_PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_WITH_ARGUS_PATCH`; ARIADNE gets PR524B hosted proof before closeout. | `docs/roadmap/PR524A_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_CONTRACT_ARGUS_RESULT.md` |
