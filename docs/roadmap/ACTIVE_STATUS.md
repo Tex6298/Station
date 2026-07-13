@@ -4,7 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - mainline paused after PR524B hosted generated publication blocker
+## Current lane - PR523C hosted companion-first UI visibility reconciliation
+
+MIMIR opened a narrow defect-reconciliation rehearsal after the product owner
+could not see the merged companion-first correction in normal hosted use:
+
+`docs/roadmap/PR523C_HOSTED_COMPANION_FIRST_UI_VISIBILITY_RECONCILIATION_ARIADNE.md`
+
+Current lane:
+
+```text
+PR523C - Hosted Companion-First UI Visibility Reconciliation
+Owner: ARIADNE / A4
+State: OPEN_HOSTED_HUMAN_REHEARSAL
+```
+
+Known before rehearsal:
+
+- hosted web and API both identify `b6e1429e`, which contains the companion
+  merge at `4ba3e489`;
+- the intended companion-first route is the owner-private persona route reached
+  from `/studio`, not the `/studio` dashboard itself;
+- PR523B proved a local web worktree against the hosted API, so a post-merge
+  hosted web human route was never closed;
+- source/deployment presence is not acceptance: ARIADNE must prove the normal
+  hosted route visibly, or hand a reproducible defect directly to DAEDALUS.
+
+Phase 3 product expansion remains paused after the PR524B hosted generated
+publication blocker while this pre-existing UI visibility defect is reconciled.
+
+## Paused product lane - mainline after PR524B hosted generated publication blocker
 
 MIMIR closed PR524B as blocked:
 
