@@ -16,7 +16,7 @@ Current lane:
 ```text
 PR523D - Studio Companion Entry Affordance Repair
 Owner: ARGUS / A3
-State: READY_FOR_ARGUS_REVIEW
+State: HOSTED_HUMAN_REHEARSAL_PASS_ARGUS_REVIEW_PENDING
 ```
 
 PR523C result:
@@ -31,6 +31,16 @@ see setup/public actions before an unmistakable companion entry action.
 PR523D now adds the narrow explicit `Open Companion` affordance without an
 automatic redirect, dashboard reskin, or route/product-scope expansion. The
 focused Studio test, the 245-test Studio UI suite, and full typecheck pass.
+
+MIMIR also completed the hosted human rehearsal after ARIADNE's wake remained
+unconsumed:
+
+`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_HOSTED_HUMAN_REHEARSAL_MIMIR_RESULT.md`
+
+Desktop and `390px` first-viewport discovery, companion routing, refresh
+persistence, mobile fit, signed-out privacy boundary, and browser-error checks
+pass on Railway at `5ab82d09`. ARGUS's independent code verdict is the only
+remaining closeout gate.
 
 Phase 3 product expansion and PR524B remain paused while this pre-existing UI
 visibility defect follows ARGUS -> ARIADNE closeout.
