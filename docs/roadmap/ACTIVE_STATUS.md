@@ -4,46 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523D Studio companion entry affordance review
+## Current lane - PR523D accepted by ARGUS
 
-MIMIR completed the narrow implementation after DAEDALUS consumed the wakeup
-but returned neither a result nor a blocker:
+ARGUS completed the independent PR523D code review:
 
-`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_MIMIR_RESULT.md`
+`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_ARGUS_RESULT.md`
 
 Current lane:
 
 ```text
 PR523D - Studio Companion Entry Affordance Repair
-Owner: ARGUS / A3
-State: HOSTED_HUMAN_REHEARSAL_PASS_ARGUS_REVIEW_PENDING
+Owner: MIMIR / A1
+State: ACCEPT_PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR
 ```
 
-PR523C result:
+The narrow `Open Companion` action reuses the accepted owner-private new-chat
+resolver, preserves zero-persona setup and multi-persona navigation, and does
+not redirect `/studio` or widen API, auth, public-route, infrastructure, or
+product scope. ARGUS added executable one- and multi-persona resolver assertions
+to make the route fallback validation explicit.
 
-`docs/roadmap/PR523C_HOSTED_COMPANION_FIRST_UI_VISIBILITY_RECONCILIATION_MIMIR_RESULT.md`
-
-Hosted browser evidence proved the companion route is deployed, visible,
-session-stable, responsive, and reachable through the replay persona. The
-remaining defect is `/studio` first-viewport discoverability: existing owners
-see setup/public actions before an unmistakable companion entry action.
-
-PR523D now adds the narrow explicit `Open Companion` affordance without an
-automatic redirect, dashboard reskin, or route/product-scope expansion. The
-focused Studio test, the 245-test Studio UI suite, and full typecheck pass.
-
-MIMIR also completed the hosted human rehearsal after ARIADNE's wake remained
-unconsumed:
+MIMIR's hosted rehearsal at implementation commit `5ab82d09` independently
+proved desktop and `390px` first-viewport discovery, private companion routing,
+refresh persistence, mobile fit, signed-out no-drift, and zero page errors:
 
 `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_HOSTED_HUMAN_REHEARSAL_MIMIR_RESULT.md`
 
-Desktop and `390px` first-viewport discovery, companion routing, refresh
-persistence, mobile fit, signed-out privacy boundary, and browser-error checks
-pass on Railway at `5ab82d09`. ARGUS's independent code verdict is the only
-remaining closeout gate.
+Focused tests, the 245-test Studio UI suite, typecheck, lint, whitespace, scope,
+and high-risk secret checks pass. No DAEDALUS fix or duplicate ARIADNE rehearsal
+is required; MIMIR owns closeout and next-lane sequencing.
 
-Phase 3 product expansion and PR524B remain paused while this pre-existing UI
-visibility defect follows ARGUS -> ARIADNE closeout.
+Phase 3 product expansion and PR524B remain paused under the existing MIMIR
+directive.
 
 ## Previous lane - PR523C hosted companion-first UI visibility reconciliation
 

@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR523D ARGUS Review - Studio Companion Entry Affordance Repair
+
+ARGUS accepted PR523D on 2026-07-13 with a narrow executable route-test patch:
+
+- `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR`.
+
+Reason:
+
+- signed-in owners with personas get an explicit first-viewport
+  `Open Companion` link using the existing owner-private new-chat resolver;
+- zero-persona, loading, signed-out, and error states do not render an invalid
+  persona target;
+- one- and multi-persona fallback routing is now exercised directly;
+- `/studio` remains addressable with no automatic redirect;
+- the CSS change is scoped to the dashboard header and existing mobile action
+  row;
+- hosted desktop/mobile discovery, routing, persistence, fit, signed-out
+  no-drift, and zero page errors passed separately at `5ab82d09`;
+- no API, schema, auth, public-route, provider, retrieval, storage, billing,
+  Redis, Cloudflare, queue, worker, package, lockfile, deployment, or broad UI
+  scope was added.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/components/studio/studio-dashboard.test.ts` | Pass | 18 focused navigation/dashboard tests passed after the ARGUS patch. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 245 tests passed, including executable one/multi-persona route assertions. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed with no warnings or errors. |
+| `git diff --check 5ab82d09^ 5ab82d09` | Pass | No implementation whitespace errors. |
+| Changed-path forbidden-scope scan | Pass | Implementation paths are limited to Studio dashboard code, scoped CSS, focused test, and roadmap docs. |
+| High-risk secret pattern diff scan | Pass | No secret-shaped values were found in the implementation diff. |
+| Hosted human rehearsal | Pass | MIMIR proved desktop/mobile product behavior and signed-out no-drift on Railway at `5ab82d09`. |
+
 ## PR524A ARGUS Review - Cross-Owner Generated Material Publication Contract
 
 ARGUS completed PR524A review on 2026-07-12:

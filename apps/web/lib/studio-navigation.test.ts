@@ -41,6 +41,8 @@ test("conversation links make New Chat and thread selection addressable", () => 
     studioPersonaConversationHref("persona/one", "conversation & one"),
     "/studio/personas/persona%2Fone?c=conversation+%26+one",
   );
+  assert.equal(studioNewChatHref([{ id: "only" }]), "/studio/personas/only?c=new");
+  assert.equal(studioNewChatHref([{ id: "first" }, { id: "second" }]), "/studio/personas/first?c=new");
   assert.equal(studioNewChatHref([{ id: "first" }, { id: "active" }], "active"), "/studio/personas/active?c=new");
   assert.equal(studioNewChatHref([], null), "/studio/new");
 });
