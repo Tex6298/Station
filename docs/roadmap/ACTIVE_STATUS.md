@@ -4,19 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523C hosted companion-first UI visibility reconciliation
+## Current lane - PR523D Studio companion entry affordance repair
+
+MIMIR completed the stalled PR523C diagnostic and opened the smallest concrete
+repair:
+
+`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_DAEDALUS.md`
+
+Current lane:
+
+```text
+PR523D - Studio Companion Entry Affordance Repair
+Owner: DAEDALUS / A2
+State: OPEN_IMPLEMENTATION
+```
+
+PR523C result:
+
+`docs/roadmap/PR523C_HOSTED_COMPANION_FIRST_UI_VISIBILITY_RECONCILIATION_MIMIR_RESULT.md`
+
+Hosted browser evidence proved the companion route is deployed, visible,
+session-stable, responsive, and reachable through the replay persona. The
+remaining defect is `/studio` first-viewport discoverability: existing owners
+see setup/public actions before an unmistakable companion entry action.
+
+PR523D adds the narrow explicit `Open Companion` affordance without an
+automatic redirect, dashboard reskin, or route/product-scope expansion.
+
+Phase 3 product expansion and PR524B remain paused while this pre-existing UI
+visibility defect follows DAEDALUS -> ARGUS -> ARIADNE closeout.
+
+## Previous lane - PR523C hosted companion-first UI visibility reconciliation
 
 MIMIR opened a narrow defect-reconciliation rehearsal after the product owner
 could not see the merged companion-first correction in normal hosted use:
 
 `docs/roadmap/PR523C_HOSTED_COMPANION_FIRST_UI_VISIBILITY_RECONCILIATION_ARIADNE.md`
 
-Current lane:
+Previous lane:
 
 ```text
 PR523C - Hosted Companion-First UI Visibility Reconciliation
-Owner: ARIADNE / A4
-State: OPEN_HOSTED_HUMAN_REHEARSAL
+Owner: MIMIR / A1 with ARIADNE / A4 assigned
+State: BLOCK_PR523C_ON_COMPANION_ENTRY_DISCOVERABILITY
 ```
 
 Known before rehearsal:
