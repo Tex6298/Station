@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525F implementation baton.
+This directive does not interrupt the active PR525F review baton.
 
 Closeout requires all of the following:
 
@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525F Forums Three-Column Honest Composition
+## Current lane - PR525F ready for ARGUS review
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -76,18 +76,21 @@ Current implementation task:
 
 ```text
 PR525F - Forums Three-Column Honest Composition
-Owner chain: MIMIR -> DAEDALUS
-State: READY_FOR_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_DAEDALUS.md
-Next: DAEDALUS implements, commits a measured result, and wakes ARGUS
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md
+Next: ARGUS independently reviews and wakes MIMIR with acceptance or blocker
 ```
 
-PR525F is confined to the `/forums` category index. It translates Discern's
-measured `210px / 720px / 260px` desktop frame and feed-first mobile hierarchy
-onto real Tex categories, subcommunities, recognition, report-status, and
-navigation routes. Unsupported sorting, votes, ranking, activity, provenance,
+MIMIR implemented PR525F after DAEDALUS did not consume either implementation
+wake. The confined `/forums` index now computes to the exact measured `210px /
+720px / 260px` desktop frame, `18px` gaps, `720px x 128px` feed cards, `354px`
+and `339px` mobile feeds, and `172px` narrow cards. Real category and community
+route links, feed-first mobile order, native keyboard/touch disclosure,
+loading/error/empty truth, full validation, and zero-overflow rendered proof
+pass. Unsupported sorting, votes, ranking, activity, provenance, hard-coded
 salons, posting modes, fabricated fallback data, new APIs, and broad reskin
-work are explicitly excluded.
+work remain excluded.
 
 Parallel current-head audit result:
 
@@ -149,7 +152,7 @@ PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
 PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
 PR525E - Compact Chat Visual System And Honest States              CLOSED
-PR525F - Forums Three-Column Honest Composition                    ACTIVE / DAEDALUS
+PR525F - Forums Three-Column Honest Composition                    READY FOR ARGUS REVIEW
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + ACCEPTED PR526B

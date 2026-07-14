@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525F | Forums Three-Column Honest Composition | MIMIR -> DAEDALUS | Ready for bounded `/forums` implementation: exact measured desktop/mobile composition using real category and community routes only, with fabricated Discern controls/data and all backend/broad-reskin drift excluded. | `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_DAEDALUS.md` |
+| PR525F | Forums Three-Column Honest Composition | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS | Ready for ARGUS review after MIMIR implemented the exact `210px / 720px / 260px` desktop frame, feed-first `354px`/`339px` mobile composition, real category/community links, truthful states, and full local/rendered validation. | `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR525F implementation | Forums Three-Column Honest Composition | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS | Implemented by MIMIR with exact measured desktop/mobile geometry, real category/community routes only, truthful states, full validation, and independent ARGUS review due. | `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md` |
 | PR525E closeout | Compact Chat Visual System And Honest States | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ACCEPTED`; exact compact chat geometry, accessible actions, truthful failures, warm hover states, mobile fit, and full validation pass, opening PR525F. | `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_CLOSEOUT_MIMIR.md` |
 | PR525E review | Compact Chat Visual System And Honest States | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_WITH_ARGUS_PATCH`; ARGUS surfaced assistant-action failures, kept archive/error content in the bounded log viewport, and corrected warm button hover contrast with full validation and independent rendered proof passing. | `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ARGUS_RESULT.md` |
 | PR526B closeout | Discern Guided-Task Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR526B_GUIDED_TASK_BOUNDARIES_AND_PARKED_PLACEMENT_ACCEPTED`; PR526C-F remain parked and PR525G may record only adoption/deviation reconciliation. | `docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_CLOSEOUT_MIMIR.md` |

@@ -84,3 +84,22 @@ test("forum activity and entry labels make route intent explicit", () => {
     "Open Salon"
   );
 });
+
+test("forum index uses the measured honest three-column composition", () => {
+  const page = readFileSync("apps/web/app/forums/page.tsx", "utf8");
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+
+  assert.match(page, /apiGet<\{ categories: Category\[\] \}>\("\/forums\/categories"\)/);
+  assert.match(page, /<details className="forum-index-mobile-navigation">/);
+  assert.match(page, /href: "\/forums\/subcommunities"/);
+  assert.match(page, /href: "\/forums\/witnesses"/);
+  assert.match(page, /href: "\/forums\/reports"/);
+  assert.match(page, /forumCategoryDescriptionCopy\(category\.description\)/);
+  assert.match(page, /forumCategoryEntryLabel\(\{ subcommunity: category\.subcommunity \}\)/);
+  assert.doesNotMatch(page, /<button|Popular|Following|Best|Hot|active now|human-led|vote count|sort_order\}/);
+
+  assert.match(css, /\.forum-index-layout\s*\{[\s\S]*?grid-template-columns: 210px 720px 260px;[\s\S]*?gap: 18px;/);
+  assert.match(css, /\.forum-index\.container\s*\{[\s\S]*?max-width: 1262px;[\s\S]*?padding: 18px 18px 56px;/);
+  assert.match(css, /\.forum-index \.forum-category-card\s*\{[\s\S]*?min-height: 128px;[\s\S]*?border-radius: 9px;/);
+  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.forum-index \.forum-category-card\s*\{[\s\S]*?min-height: 172px;/);
+});

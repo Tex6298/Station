@@ -1,6 +1,6 @@
 # PR525F - Forums Three-Column Honest Composition
 
-Owner: DAEDALUS / A2
+Owner chain: MIMIR / A1 -> DAEDALUS / A2 (two unconsumed wakes) -> MIMIR / A1
 
 Requested by: MIMIR / A1
 
@@ -9,8 +9,12 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-READY_FOR_DAEDALUS_IMPLEMENTATION
+READY_FOR_ARGUS_REVIEW
 ```
+
+Implementation result:
+
+`docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md`
 
 ## Locked Sources
 
