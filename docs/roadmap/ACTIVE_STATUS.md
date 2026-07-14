@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525F review baton.
+This directive does not interrupt the active PR525G hosted rehearsal baton.
 
 Closeout requires all of the following:
 
@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525F accepted by ARGUS
+## Current lane - PR525G Hosted Light-Parity Rehearsal
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -72,14 +72,13 @@ candidate truth, mobile fit, full tests, and independent rendered proof pass.
 Existing routes, owner/auth boundaries, API payloads, provider/stream behavior,
 PR525F, and PR526 scope remain untouched.
 
-ARGUS review result:
+Closed Forums dependency:
 
 ```text
 PR525F - Forums Three-Column Honest Composition
 Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
-State: ACCEPT_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_WITH_ARGUS_PATCH
-Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ARGUS_RESULT.md
-Next: MIMIR closes PR525F and decides the next locked move
+State: CLOSE_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ACCEPTED
+Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_CLOSEOUT_MIMIR.md
 ```
 
 ARGUS accepts PR525F after changing the unsupported `Feeds` route-group heading
@@ -91,6 +90,23 @@ native keyboard disclosure, long-content growth, loading/error/empty truth,
 full validation, and zero-overflow rendered proof pass. Unsupported sorting,
 votes, ranking, activity, provenance, hard-coded salons, posting modes,
 fabricated fallback data, new APIs, and broad reskin work remain excluded.
+
+Current hosted rehearsal:
+
+```text
+PR525G - Hosted Light-Parity Rehearsal
+Owner chain: MIMIR -> ARIADNE
+State: OPEN_HOSTED_LIGHT_PARITY_REHEARSAL
+Source: docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_ARIADNE.md
+Next: ARIADNE proves or blocks hosted light parity and wakes MIMIR
+```
+
+PR525G waits for Railway web deployment identity to include `0e090a0c`, then
+rehearses signed-out and replay-owner navigation, Studio, companion/chat, and
+Forums at `1440x900`, `390x844`, and `375x812`. It records bounding rectangles
+as well as screenshots, session refresh truth, keyboard/touch behavior,
+capability preservation, accepted deviations, page errors, and a direct human-
+eye verdict. It makes no hosted mutation and no production patch.
 
 Parallel current-head audit result:
 
@@ -152,10 +168,10 @@ PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
 PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
 PR525E - Compact Chat Visual System And Honest States              CLOSED
-PR525F - Forums Three-Column Honest Composition                    ACCEPTED BY ARGUS
+PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
-PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + ACCEPTED PR526B
+PR525G - Hosted Light-Parity Rehearsal                              ACTIVE / ARIADNE
 PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    AFTER PR525G
 Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```

@@ -1,6 +1,6 @@
 # PR525F - Forums Three-Column Honest Composition
 
-Owner chain: MIMIR / A1 -> DAEDALUS / A2 (two unconsumed wakes) -> MIMIR / A1
+Owner chain: MIMIR / A1 -> DAEDALUS / A2 (two unconsumed wakes) -> MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1
 
 Requested by: MIMIR / A1
 
@@ -9,12 +9,17 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+CLOSE_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ACCEPTED
 ```
 
 Implementation result:
 
 `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md`
+
+Accepted review and closeout:
+
+- `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ARGUS_RESULT.md`
+- `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_CLOSEOUT_MIMIR.md`
 
 ## Locked Sources
 
