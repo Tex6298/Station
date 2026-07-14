@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525G result-closeout baton.
+This directive does not interrupt the active PR525H implementation baton.
 
 Closeout requires all of the following:
 
@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525G Hosted Light-Parity Result Closeout
+## Current lane - PR525H Shared Light/Dark Theme Treatment
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -96,9 +96,9 @@ Hosted rehearsal result:
 ```text
 PR525G - Hosted Light-Parity Rehearsal
 Owner chain: MIMIR -> ARIADNE -> MIMIR
-State: PASS_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL / AWAITING_MIMIR_CLOSEOUT
-Source: docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_RESULT.md
-Next: MIMIR closes PR525G and decides the locked PR525H theme move
+State: CLOSE_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_ACCEPTED
+Source: docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_CLOSEOUT_MIMIR.md
+Next: PR525H implementation, hostile review, and hosted dual-theme rehearsal
 ```
 
 ARIADNE passed PR525G on ready Railway web/API services at exact accepted SHA
@@ -110,6 +110,23 @@ with zero page errors and zero horizontal overflow. Developer Space dark
 interiors remain the accepted deviation; provider/setup and live Forum
 loading/error/empty retain explicitly local-only state proof. No production
 patch was required.
+
+Active implementation:
+
+```text
+PR525H - Shared Light/Dark Theme Treatment
+Owner chain: MIMIR -> DAEDALUS
+State: OPEN_PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT
+Source: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_DAEDALUS.md
+```
+
+PR525H adds one shared System/Light/Dark preference, applies the resolved
+palette before first paint, and moves the accepted PR525B-F surfaces onto a
+complete semantic dual-theme contract. Light geometry and colors remain
+regression fixtures. Composition, routes, capabilities, data behavior, auth,
+and APIs are frozen; the Developer Space observatory visualisation interior
+remains its deliberate bounded dark surface. DAEDALUS hands the implementation
+to ARGUS, then ARIADNE performs hosted dual-theme rehearsal in the same lane.
 
 Parallel current-head audit result:
 
@@ -174,8 +191,8 @@ PR525E - Compact Chat Visual System And Honest States              CLOSED
 PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
-PR525G - Hosted Light-Parity Rehearsal                              ARIADNE PASS / MIMIR CLOSEOUT DUE
-PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    AFTER PR525G
+PR525G - Hosted Light-Parity Rehearsal                              CLOSED
+PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    DAEDALUS IMPLEMENTATION
 Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```
 

@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525G | Hosted Light-Parity Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL`; ready hosted web/API at exact accepted SHA, session persistence, all 12 desktop/`390px`/`375px` public/private cases, exact geometry/styles, routes, accessibility, state truth, zero page errors, and zero overflow pass without hosted mutation. Await MIMIR closeout and PR525H decision. | `docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_RESULT.md` |
+| PR525H | Shared Light/Dark Theme Treatment | MIMIR -> DAEDALUS | Open for a shared System/Light/Dark preference, pre-paint resolution, semantic dual-palette treatment, frozen PR525 composition, and preserved Developer Space observatory interior; ARGUS review and ARIADNE hosted dual-theme rehearsal follow in the same lane. | `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_DAEDALUS.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR525G closeout | Hosted Light-Parity Rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_ACCEPTED`; the fresh hosted 12-case light matrix, session persistence, exact geometry, accessibility, state truth, and mobile fit pass, opening PR525H. | `docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_CLOSEOUT_MIMIR.md` |
 | PR525F closeout | Forums Three-Column Honest Composition | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ACCEPTED`; exact honest desktop/mobile composition passes after ARGUS corrected unsupported `Feeds` framing to `Navigate`, opening PR525G. | `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_CLOSEOUT_MIMIR.md` |
 | PR525F review | Forums Three-Column Honest Composition | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_WITH_ARGUS_PATCH`; ARGUS removed unsupported feed framing from the route group, with exact geometry, real-link/data truth, states, scope, tests, and independent rendered proof passing. | `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ARGUS_RESULT.md` |
 | PR525F implementation | Forums Three-Column Honest Composition | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS | Implemented by MIMIR with exact measured desktop/mobile geometry, real category/community routes only, truthful states, full validation, and independent ARGUS review due. | `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md` |
