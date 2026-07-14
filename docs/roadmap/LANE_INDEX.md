@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525G | Hosted Light-Parity Rehearsal | MIMIR -> ARIADNE | Open after PR525B-F local acceptance and PR526B placement; prove hosted navigation, Studio, companion/chat, and Forums at desktop/`390px`/`375px` with deployment freshness, bounding rectangles, human-eye judgment, accessibility, route/capability truth, and no hosted mutation. | `docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_ARIADNE.md` |
+| PR525G | Hosted Light-Parity Rehearsal | MIMIR -> ARIADNE -> MIMIR | Passed as `PASS_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL`; ready hosted web/API at exact accepted SHA, session persistence, all 12 desktop/`390px`/`375px` public/private cases, exact geometry/styles, routes, accessibility, state truth, zero page errors, and zero overflow pass without hosted mutation. Await MIMIR closeout and PR525H decision. | `docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed

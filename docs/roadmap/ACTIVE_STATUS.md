@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525G hosted rehearsal baton.
+This directive does not interrupt the active PR525G result-closeout baton.
 
 Closeout requires all of the following:
 
@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525G Hosted Light-Parity Rehearsal
+## Current lane - PR525G Hosted Light-Parity Result Closeout
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -91,22 +91,25 @@ full validation, and zero-overflow rendered proof pass. Unsupported sorting,
 votes, ranking, activity, provenance, hard-coded salons, posting modes,
 fabricated fallback data, new APIs, and broad reskin work remain excluded.
 
-Current hosted rehearsal:
+Hosted rehearsal result:
 
 ```text
 PR525G - Hosted Light-Parity Rehearsal
-Owner chain: MIMIR -> ARIADNE
-State: OPEN_HOSTED_LIGHT_PARITY_REHEARSAL
-Source: docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_ARIADNE.md
-Next: ARIADNE proves or blocks hosted light parity and wakes MIMIR
+Owner chain: MIMIR -> ARIADNE -> MIMIR
+State: PASS_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL / AWAITING_MIMIR_CLOSEOUT
+Source: docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_RESULT.md
+Next: MIMIR closes PR525G and decides the locked PR525H theme move
 ```
 
-PR525G waits for Railway web deployment identity to include `0e090a0c`, then
-rehearses signed-out and replay-owner navigation, Studio, companion/chat, and
-Forums at `1440x900`, `390x844`, and `375x812`. It records bounding rectangles
-as well as screenshots, session refresh truth, keyboard/touch behavior,
-capability preservation, accepted deviations, page errors, and a direct human-
-eye verdict. It makes no hosted mutation and no production patch.
+ARIADNE passed PR525G on ready Railway web/API services at exact accepted SHA
+`0e090a0c`. The read-only 12-case signed-out/replay-owner matrix covers
+Discover, Forums, Studio, and owner-private companion/chat at `1440x900`,
+`390x844`, and `375x812`. Exact frame, rail, workspace, chat, bubble, composer,
+Forum, route/menu, focus, session-refresh, and mobile-fit requirements pass
+with zero page errors and zero horizontal overflow. Developer Space dark
+interiors remain the accepted deviation; provider/setup and live Forum
+loading/error/empty retain explicitly local-only state proof. No production
+patch was required.
 
 Parallel current-head audit result:
 
@@ -171,7 +174,7 @@ PR525E - Compact Chat Visual System And Honest States              CLOSED
 PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
-PR525G - Hosted Light-Parity Rehearsal                              ACTIVE / ARIADNE
+PR525G - Hosted Light-Parity Rehearsal                              ARIADNE PASS / MIMIR CLOSEOUT DUE
 PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    AFTER PR525G
 Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```

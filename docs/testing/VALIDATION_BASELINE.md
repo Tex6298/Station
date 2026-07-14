@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525G Hosted Light-Parity Rehearsal
+
+ARIADNE completed the hosted rehearsal on 2026-07-14:
+
+- `docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_RESULT.md`
+
+Validation result: `PASS_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL`.
+
+Reason:
+
+- ready Railway web/API services reported `main` at exact accepted SHA
+  `0e090a0c46a9f46d49b350e562481d14c44ba439`;
+- owner sign-in, auth storage/cookie presence, Studio refresh, and selected
+  companion-route refresh persisted without printing secrets or identifiers;
+- the 12-case Discover, Forums, Studio, and owner-private companion matrix
+  passed at `1440x900`, `390x844`, and `375x812`;
+- exact `46px` navigation, `156px` desktop rails, `854px` companion workspace,
+  compact chat geometry/styles, and `210px / 720px / 260px` Forums composition
+  passed with zero horizontal overflow and zero browser page errors;
+- keyboard/touch menus, focus return, truthful public/private routes, complete
+  thread selection, assistant action disclosure, and active/New/archived/
+  simulated-unavailable states passed without hosted mutation;
+- provider/setup and live Forums loading/error/empty retain accepted local
+  proof; Developer Space dark observatories remain the accepted deviation;
+- PR526A/PR526B are reconciled as adoption/deviation only, with PR526C-F still
+  parked and no guided-flow parity claimed.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web and API `/health/deployment` | Pass | Both services ready on `main` at exact accepted SHA. |
+| Hosted Playwright route/viewport matrix | Pass | 12 primary cases; zero blockers, zero page errors, and zero document-level horizontal overflow. |
+| Session persistence | Pass | Normal owner sign-in plus Studio and selected companion refresh persisted. |
+| Exact geometry/style checks | Pass | Navigation, Studio, companion/chat, bubbles/composer, and Forums measurements match the locked specification. |
+| Interaction/state checks | Pass with one optional fixture unproven | Keyboard/touch, focus, active/New/archived, assistant actions, and simulated unavailable pass; provider/setup retains local proof. |
+| Human-eye capture review | Pass | Desktop, `390px`, and `375px` public/private compositions are coherent and unclipped. |
+| `git diff --check` | Pass | No whitespace errors in the documentation result. |
+| `pnpm typecheck` | Not required | Documentation only; no imports or scripts changed. |
+
 ## PR525F ARGUS Review - Forums Three-Column Honest Composition
 
 ARGUS accepted PR525F on 2026-07-14 with one narrow copy patch:
