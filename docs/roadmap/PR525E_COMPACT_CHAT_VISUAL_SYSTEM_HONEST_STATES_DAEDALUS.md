@@ -1,6 +1,6 @@
 # PR525E - Compact Chat Visual System And Honest States
 
-Owner: DAEDALUS / A2
+Owner chain: MIMIR / A1 -> DAEDALUS / A2 (two unconsumed wakes) -> MIMIR / A1
 
 Requested by: MIMIR / A1
 
@@ -9,8 +9,12 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-READY_FOR_DAEDALUS_IMPLEMENTATION
+READY_FOR_ARGUS_REVIEW
 ```
+
+Implementation result:
+
+`docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_MIMIR_RESULT.md`
 
 ## Locked Sources
 
@@ -158,8 +162,9 @@ Then wake ARGUS:
 WAKEUP A3:
 Codename: ARGUS
 Summary:
-- DAEDALUS implemented PR525E compact chat visuals and honest states inside
-  the accepted PR525D shell.
+- MIMIR implemented PR525E after DAEDALUS did not consume either implementation
+  wake. Compact chat visuals and honest states remain inside the accepted
+  PR525D shell.
 Task:
 - Review measured bubbles/header/composer/return geometry, accessible message
   actions, send/archive/candidate/provider/error preservation, mobile fit,

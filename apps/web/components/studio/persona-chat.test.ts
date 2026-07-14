@@ -102,6 +102,29 @@ test("PersonaChat polish keeps live controls honest and avoids placeholders", ()
   assert.doesNotMatch(source, /\b(?:Attach|Microphone|Mic|Tools|Regenerate|Copy|Notes|Menu|More options)\b/i);
 });
 
+test("PersonaChat exposes the two live assistant actions through one native disclosure", () => {
+  const revealBody = functionBody("revealMessageActions");
+
+  assert.match(source, /<details[\s\S]*?className="studio-persona-chat-message-action-disclosure"[\s\S]*?onToggle=\{revealMessageActions\}[\s\S]*?>/);
+  assert.match(source, /<summary className="studio-persona-chat-message-action-summary">\s*Message actions\s*<\/summary>/);
+  assert.match(source, /studio-persona-chat-message-actions[\s\S]*?Save to memory[\s\S]*?Promote to canon[\s\S]*?<\/details>/);
+  assert.match(source, /onToggle=\{revealMessageActions\}/);
+  assert.match(revealBody, /threadRef\.current/);
+  assert.match(revealBody, /thread\.scrollTo\(\{/);
+  assert.doesNotMatch(revealBody, /window\.|document\.|scrollIntoView/);
+  assert.equal(source.match(/: "Save to memory"/g)?.length, 1);
+  assert.equal(source.match(/: "Promote to canon"/g)?.length, 1);
+});
+
+test("focused companion chat locks the measured compact visual system", () => {
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-header \{[\s\S]*?flex: 0 0 46px;[\s\S]*?min-height: 46px;[\s\S]*?max-height: 46px;/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-bubble-user \{[\s\S]*?max-width: 64%;[\s\S]*?padding: 10px 14px;[\s\S]*?background: #d8e8fb;[\s\S]*?color: #225d9c;[\s\S]*?font-weight: 700;/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-bubble-assistant \{[\s\S]*?max-width: 430px;[\s\S]*?border-radius: 7px;[\s\S]*?padding: 12px 14px;[\s\S]*?background: #f0eee9;[\s\S]*?font-size: 13px;[\s\S]*?line-height: 19px;/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-composer \{[\s\S]*?flex: 0 0 66px;[\s\S]*?min-height: 66px;[\s\S]*?max-height: 66px;/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-button-quiet:hover:not\(:disabled\) \{[\s\S]*?background: var\(--station-page-surface\);/);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?opacity: 0;[\s\S]*?message-row-assistant:hover[\s\S]*?message-action-disclosure:focus-within/);
+});
+
 test("PersonaChat polish CSS stays scoped to chat or focused companion selectors", () => {
   assert.match(css, /\.studio-persona-chat/);
   assert.doesNotMatch(css, /\.public-persona-chat[^{]*\.studio-persona-chat|\.studio-persona-chat[^{]*\.public-persona-chat/);

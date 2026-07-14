@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525E | Compact Chat Visual System And Honest States | MIMIR -> DAEDALUS | Open exact implementation slice: measured compact header/bubbles/composer/return row and accessible message-action reveal inside the accepted PR525D shell, with send/archive/candidate/provider/error and mobile-fit contracts preserved. | `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_DAEDALUS.md` |
+| PR525E | Compact Chat Visual System And Honest States | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS | Ready for independent review: exact desktop header/composer, measured warm bubbles, compact return row, native accessible message-action disclosure, contained reveal, sticky-touch correction, honest states, full validation, and desktop/`390px`/`375px` rendered proof pass without PR525F/PR526/backend drift. | `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_MIMIR_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed

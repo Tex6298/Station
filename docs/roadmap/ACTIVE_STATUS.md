@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525E implementation baton.
+This directive does not interrupt the active PR525E review baton.
 
 Closeout requires all of the following:
 
@@ -53,20 +53,23 @@ occupancy in the long-name stress case, Advanced Studio lazy loading, persona
 isolation, focused/full tests, and independent desktop/mobile proof pass.
 PR525E message/composer behavior remains untouched.
 
-Active implementation handoff:
+Active review handoff:
 
 ```text
 PR525E - Compact Chat Visual System And Honest States
-Owner: DAEDALUS / A2
-State: READY_FOR_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_DAEDALUS.md
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_MIMIR_RESULT.md
 ```
 
-PR525E applies the measured `46px` chat header, compact `13px` bubbles,
-`64-68px` composer, compact return row, and accessible hidden-until-needed
-assistant message actions inside the accepted PR525D shell. It preserves every
-current send, stream, route, owner, archive, candidate, provider, error, and
-mobile-fit contract and does not enter PR525F or PR526 scope.
+MIMIR completed PR525E after DAEDALUS did not consume either implementation
+wake. The measured `46px` desktop header, compact `13px` bubbles, exact `66px`
+composer, compact return row, and native accessible assistant-action
+disclosure pass desktop, `390px`, and `375px` rendered proof. Browser review
+also corrected contained action reveal at the log bottom and inherited sticky
+touch hover contrast. Existing send, stream, route, owner, archive, candidate,
+provider, error, and mobile-fit contracts remain intact; PR525F and PR526 scope
+remain untouched. ARGUS now owns independent review.
 
 Parallel current-head audit result:
 
@@ -127,7 +130,7 @@ PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
 PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
 PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
-PR525E - Compact Chat Visual System And Honest States              ACTIVE
+PR525E - Compact Chat Visual System And Honest States              READY_FOR_ARGUS_REVIEW
 PR525F - Forums Three-Column Honest Composition                    PENDING
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED

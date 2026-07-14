@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type SyntheticEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getSession } from "@/lib/auth";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { sendPersonaChatWithStream } from "@/lib/chat-stream";
@@ -308,6 +308,23 @@ export function PersonaChat({
     composerRef.current?.focus();
   }
 
+  function revealMessageActions(event: SyntheticEvent<HTMLDetailsElement>) {
+    if (!event.currentTarget.open) return;
+    const disclosure = event.currentTarget;
+
+    requestAnimationFrame(() => {
+      const thread = threadRef.current;
+      if (!thread) return;
+      const threadBox = thread.getBoundingClientRect();
+      const disclosureBox = disclosure.getBoundingClientRect();
+      if (disclosureBox.bottom > threadBox.bottom) {
+        thread.scrollTo({
+          top: thread.scrollTop + disclosureBox.bottom - threadBox.bottom + 8,
+        });
+      }
+    });
+  }
+
   async function reviewCandidate(
     candidateId: string,
     action: "accept" | "reject",
@@ -381,7 +398,9 @@ export function PersonaChat({
       <div className="studio-persona-chat-header">
         <div className="studio-persona-chat-heading">
           <span className="studio-persona-chat-kicker">Private conversation</span>
-          <strong>{state.conversationTitle ?? `Talk with ${personaName}`}</strong>
+          <strong title={state.conversationTitle ?? `Talk with ${personaName}`}>
+            {state.conversationTitle ?? `Talk with ${personaName}`}
+          </strong>
         </div>
         <div className="studio-persona-chat-header-actions">
           <span className={`studio-persona-chat-state-pill studio-persona-chat-state-${chatStateLabel.toLowerCase()}`}>
@@ -416,7 +435,7 @@ export function PersonaChat({
           </div>
           <div className="studio-persona-chat-return-actions">
             <button onClick={focusComposerOnly} className="studio-persona-chat-button studio-persona-chat-button-primary">
-              Pick up where you left off
+              Continue
             </button>
             <button onClick={prefillThreadSummary} className="studio-persona-chat-button studio-persona-chat-button-secondary">
               Ask for recap
@@ -453,24 +472,32 @@ export function PersonaChat({
             </div>
 
             {msg.role === "assistant" && state.conversationId && (
-              <div className="studio-persona-chat-message-actions" aria-label="Assistant message actions">
-                <button
-                  onClick={() => saveAsMemory(msg.id)}
-                  disabled={saving === msg.id}
-                  className="studio-persona-chat-button studio-persona-chat-button-quiet"
-                  title="Save to archive as memory"
-                >
-                  {saving === msg.id ? "Saving..." : "Save to memory"}
-                </button>
-                <button
-                  onClick={() => saveAsCanon(msg.id)}
-                  disabled={saving === msg.id}
-                  className="studio-persona-chat-button studio-persona-chat-button-quiet"
-                  title="Promote to canon (always injected)"
-                >
-                  {saving === msg.id ? "Saving..." : "Promote to canon"}
-                </button>
-              </div>
+              <details
+                className="studio-persona-chat-message-action-disclosure"
+                onToggle={revealMessageActions}
+              >
+                <summary className="studio-persona-chat-message-action-summary">
+                  Message actions
+                </summary>
+                <div className="studio-persona-chat-message-actions" aria-label="Assistant message actions">
+                  <button
+                    onClick={() => saveAsMemory(msg.id)}
+                    disabled={saving === msg.id}
+                    className="studio-persona-chat-button studio-persona-chat-button-quiet"
+                    title="Save to archive as memory"
+                  >
+                    {saving === msg.id ? "Saving..." : "Save to memory"}
+                  </button>
+                  <button
+                    onClick={() => saveAsCanon(msg.id)}
+                    disabled={saving === msg.id}
+                    className="studio-persona-chat-button studio-persona-chat-button-quiet"
+                    title="Promote to canon (always injected)"
+                  >
+                    {saving === msg.id ? "Saving..." : "Promote to canon"}
+                  </button>
+                </div>
+              </details>
             )}
           </div>
         ))}
