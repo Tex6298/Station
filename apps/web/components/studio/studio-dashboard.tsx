@@ -41,6 +41,27 @@ const archiveDestinations = [
   { icon: "E", label: "Export workspace", detail: "Review portable JSON and Markdown export bundles", href: "/studio/export" },
 ];
 
+const usageSurfaces = [
+  {
+    label: "Billing",
+    value: "Plan",
+    detail: "Subscription state, entitlement limits, and token-credit separation.",
+    href: "/billing",
+  },
+  {
+    label: "Settings",
+    value: "Tokens",
+    detail: "Server-reported token-credit balance and storage usage.",
+    href: "/settings",
+  },
+  {
+    label: "Archive",
+    value: "Sources",
+    detail: "Owner-wide source state without invented usage math.",
+    href: "/studio/archive",
+  },
+];
+
 function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
   if (status === "never") return { label: "No session", detail: "Start one to strengthen continuity", tone: "danger" as const, action: "Start" };
   if (status === "overdue") return { label: "Overdue", detail: "Integrity session overdue", tone: "danger" as const, action: "Start" };
@@ -49,9 +70,7 @@ function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <StudioFrame>{children}</StudioFrame>
-  );
+  return <StudioFrame>{children}</StudioFrame>;
 }
 
 function Header({ personas }: { personas: PersonaSummary[] }) {
@@ -61,34 +80,30 @@ function Header({ personas }: { personas: PersonaSummary[] }) {
   return (
     <header className="studio-dashboard-header">
       <div className="studio-dashboard-header-copy">
-        <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700 }}>
-          Studio Dashboard
-        </div>
-        <h1 className="studio-dashboard-title" style={{ margin: "8px 0 6px" }}>
-          Welcome back.
-        </h1>
-        <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6 }}>
+        <div className="studio-dashboard-eyebrow">Private Studio</div>
+        <h1 className="studio-dashboard-title">Welcome back.</h1>
+        <p className="studio-dashboard-intro">
           {personaCount > 0
-            ? `${personaCount} persona${personaCount === 1 ? "" : "s"} in your private Studio. Choose one to talk, review Memory, or continue continuity work.`
-            : "Set up your first persona, then Studio becomes your private workspace for chat, memory, notes, and publishing."}
+            ? `${personaCount} persona${personaCount === 1 ? "" : "s"} ready for conversation, Memory, and continuity work.`
+            : "Create a persona to begin private conversation, Memory, and continuity work."}
         </p>
         <StudioPlaceStrip
           label="Dashboard"
-          detail={personaCount > 0 ? "Scan private work, then jump into the next persona, archive, or Integrity task." : "Start with a persona; the rest of Studio stays owner-only until you publish."}
+          detail={personaCount > 0 ? "Your private companions and due work." : "Private setup starts with a persona."}
           privacy="Owner-only Studio"
-          state="Private work stays in Studio until you choose to publish."
-          action={<Link href="/studio/assistant" style={placeAction}>Ask Assistant</Link>}
+          state="Nothing becomes public until you choose to publish."
+          action={<Link href="/studio/assistant" className="studio-dashboard-place-action">Station Assistant</Link>}
         />
       </div>
       <StudioActionRow>
         {personaCount > 0 ? (
-          <Link href={companionHref} style={primaryButton}>Open Companion</Link>
+          <Link href={companionHref} className="studio-dashboard-action" data-variant="primary">Open Companion</Link>
         ) : (
-          <Link href="/studio/new" style={primaryButton}>New Persona</Link>
+          <Link href="/studio/new" className="studio-dashboard-action" data-variant="primary">New Persona</Link>
         )}
-        {personaCount > 0 ? <Link href="/studio/new" style={secondaryButton}>New Persona</Link> : null}
-        <Link href="/studio/onboarding" style={secondaryButton}>Choose Path</Link>
-        <Link href="/space" style={secondaryButton}>Open Public Space</Link>
+        {personaCount > 0 ? <Link href="/studio/new" className="studio-dashboard-action">New Persona</Link> : null}
+        <Link href="/studio/onboarding" className="studio-dashboard-action">Choose Path</Link>
+        <Link href="/space" className="studio-dashboard-action" data-variant="public">Open Public Space</Link>
       </StudioActionRow>
     </header>
   );
@@ -99,23 +114,19 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
   const newChatHref = studioNewChatHref(personas);
 
   return (
-    <section className="studio-dashboard-panel" style={panel}>
+    <section className="studio-dashboard-panel" data-priority="primary">
       <SectionTitle title="Your companions" action="New Chat" href={newChatHref} />
       {rows.length === 0 ? (
-        <EmptyLine text="No conversations yet. Create a persona to begin." />
+        <EmptyLine text="No companions yet. Create a persona to begin." />
       ) : (
-        <div style={{ display: "grid", gap: 10 }}>
+        <div className="studio-dashboard-list">
           {rows.map((persona, index) => (
-            <Link key={persona.id} href={`/studio/personas/${persona.id}`} style={{ textDecoration: "none" }}>
-              <article className="studio-dashboard-row" style={listRow}>
-                <ColorDot index={index} />
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
-                  <div style={mutedLine}>
-                    {persona.shortDescription ?? "Open the current thread and continue the conversation."}
-                  </div>
-                </div>
-              </article>
+            <Link key={persona.id} href={`/studio/personas/${persona.id}`} className="studio-dashboard-row">
+              <ColorDot index={index} />
+              <span className="studio-dashboard-row-copy">
+                <strong>{persona.name}</strong>
+                <small>{persona.shortDescription ?? "Open the current thread and continue the conversation."}</small>
+              </span>
             </Link>
           ))}
         </div>
@@ -128,20 +139,18 @@ function MemoryOrientation({ personas }: { personas: PersonaSummary[] }) {
   const memoryStop = studioDashboardMemoryStop(personas);
 
   return (
-    <section className="studio-dashboard-panel" style={panel}>
+    <section className="studio-dashboard-panel studio-dashboard-memory">
       <SectionTitle title="Memory" action={memoryStop.actionLabel} href={memoryStop.href} />
-      <Link href={memoryStop.href} style={{ textDecoration: "none" }}>
-        <article className="studio-dashboard-row" style={{ ...listRow, alignItems: "flex-start" }}>
-          <span style={{ ...iconBox, color: "#bbf7d0", borderColor: "#14532d", background: "#052e1a" }}>M</span>
-          <div style={{ minWidth: 0, display: "grid", gap: 6 }}>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{memoryStop.statusLabel}</div>
-              <StudioStatusBadge tone={personas.length > 0 ? "good" : "warning"}>{memoryStop.privacy}</StudioStatusBadge>
-            </div>
-            <div style={mutedLine}>{memoryStop.statusDetail}</div>
-            <div style={{ ...mutedLine, color: "#b7c7d8" }}>{memoryStop.body}</div>
-          </div>
-        </article>
+      <Link href={memoryStop.href} className="studio-dashboard-row" data-align="start">
+        <span className="studio-dashboard-icon" data-tone="memory" aria-hidden="true">M</span>
+        <span className="studio-dashboard-row-copy">
+          <span className="studio-dashboard-row-heading">
+            <strong>{memoryStop.statusLabel}</strong>
+            <StudioStatusBadge tone={personas.length > 0 ? "good" : "warning"}>{memoryStop.privacy}</StudioStatusBadge>
+          </span>
+          <small>{memoryStop.statusDetail}</small>
+          <small>{memoryStop.body}</small>
+        </span>
       </Link>
     </section>
   );
@@ -157,27 +166,27 @@ function IntegrityList({
   const dueRows = integrityDue.filter((persona) => persona.sessionStatus !== "ok");
 
   return (
-    <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Integrity Sessions Due" />
+    <section className="studio-dashboard-panel" data-priority="primary">
+      <SectionTitle title="Integrity due" />
       {!available ? (
         <EmptyLine text="Integrity due status is temporarily unavailable." />
       ) : dueRows.length === 0 ? (
         <EmptyLine text="No Integrity Sessions are currently due." />
       ) : (
-        <div style={{ display: "grid", gap: 10 }}>
-          {dueRows.slice(0, 5).map((persona) => {
+        <div className="studio-dashboard-list studio-dashboard-due-list">
+          {dueRows.map((persona) => {
             const status = integrityStatus(persona.sessionStatus);
             return (
-              <article key={persona.id} className="studio-dashboard-row" style={listRow}>
+              <div key={persona.id} className="studio-dashboard-row">
                 <StudioStatusBadge tone={status.tone}>{status.label}</StudioStatusBadge>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
-                  <div style={mutedLine}>{persona.lastSession ? `${status.detail} - ${formatDate(persona.lastSession)}` : status.detail}</div>
-                </div>
-                <Link href={`/studio/personas/${persona.id}/calibration`} style={miniButton}>
+                <span className="studio-dashboard-row-copy">
+                  <strong>{persona.name}</strong>
+                  <small>{persona.lastSession ? `${status.detail} - ${formatDate(persona.lastSession)}` : status.detail}</small>
+                </span>
+                <Link href={`/studio/personas/${persona.id}/calibration`} className="studio-dashboard-mini-action">
                   {status.action}
                 </Link>
-              </article>
+              </div>
             );
           })}
         </div>
@@ -186,37 +195,16 @@ function IntegrityList({
   );
 }
 
-const usageSurfaces = [
-  {
-    label: "Billing",
-    value: "Plan",
-    detail: "Review subscription state, entitlement limits, and token-credit separation.",
-    href: "/billing",
-  },
-  {
-    label: "Settings",
-    value: "Tokens",
-    detail: "Check token-credit balance and storage usage from server readbacks.",
-    href: "/settings",
-  },
-  {
-    label: "Archive",
-    value: "Sources",
-    detail: "Open the owner-wide Archive surface for source state without invented usage math.",
-    href: "/studio/archive",
-  },
-];
-
 function UsageStats() {
   return (
-    <section className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Authoritative Usage" action="Billing" href="/billing" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(132px, 1fr))", gap: 10 }}>
+    <section className="studio-dashboard-panel">
+      <SectionTitle title="Authoritative usage" action="Billing" href="/billing" />
+      <div className="studio-dashboard-metrics">
         {usageSurfaces.map((surface) => (
-          <Link key={surface.label} href={surface.href} style={metricCardLink}>
-            <div style={{ color: "#f8fafc", fontSize: 18, fontWeight: 800, lineHeight: 1 }}>{surface.value}</div>
-            <div style={{ color: "#93c5fd", fontSize: 12, marginTop: 2, fontWeight: 700 }}>{surface.label}</div>
-            <p style={{ color: "#8ea0b8", fontSize: 12, lineHeight: 1.45, margin: "2px 0 0" }}>{surface.detail}</p>
+          <Link key={surface.label} href={surface.href} className="studio-dashboard-metric">
+            <strong>{surface.value}</strong>
+            <span>{surface.label}</span>
+            <small>{surface.detail}</small>
           </Link>
         ))}
       </div>
@@ -226,18 +214,16 @@ function UsageStats() {
 
 function ArchiveAndPortability() {
   return (
-    <section className="studio-dashboard-panel" style={panel}>
+    <section className="studio-dashboard-panel">
       <SectionTitle title="Archive and portability" action="Document Migrator" href="/studio/onboarding" />
-      <div style={{ display: "grid", gap: 10 }}>
-        {archiveDestinations.map((event) => (
-          <Link key={event.label} href={event.href} style={{ textDecoration: "none" }}>
-          <article className="studio-dashboard-row" style={listRow}>
-            <span style={iconBox}>{event.icon}</span>
-            <div>
-              <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 700 }}>{event.label}</div>
-              <div style={mutedLine}>{event.detail}</div>
-            </div>
-          </article>
+      <div className="studio-dashboard-list">
+        {archiveDestinations.map((destination) => (
+          <Link key={destination.label} href={destination.href} className="studio-dashboard-row">
+            <span className="studio-dashboard-icon" aria-hidden="true">{destination.icon}</span>
+            <span className="studio-dashboard-row-copy">
+              <strong>{destination.label}</strong>
+              <small>{destination.detail}</small>
+            </span>
           </Link>
         ))}
       </div>
@@ -247,55 +233,61 @@ function ArchiveAndPortability() {
 
 function PersonaOverview({ personas }: { personas: PersonaSummary[] }) {
   return (
-    <aside className="studio-dashboard-panel" style={panel}>
-      <SectionTitle title="Personas" action="Add" href="/studio/new" />
+    <section className="studio-dashboard-panel">
+      <SectionTitle title="All personas" action="Add" href="/studio/new" />
       {personas.length === 0 ? (
         <EmptyLine text="No personas yet." />
       ) : (
-        <div style={{ display: "grid", gap: 10 }}>
+        <div className="studio-dashboard-list">
           {personas.map((persona, index) => (
-            <Link key={persona.id} href={`/studio/personas/${persona.id}`} style={{ textDecoration: "none" }}>
-              <article className="studio-dashboard-row" style={{ ...listRow, alignItems: "flex-start" }}>
-                <ColorDot index={index} />
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 700 }}>{persona.name}</div>
-                  <div style={mutedLine}>{PROVIDER_LABELS[persona.provider] ?? persona.provider} - {persona.visibility}</div>
-                </div>
-              </article>
+            <Link key={persona.id} href={`/studio/personas/${persona.id}`} className="studio-dashboard-row">
+              <ColorDot index={index} />
+              <span className="studio-dashboard-row-copy">
+                <strong>{persona.name}</strong>
+                <small>{PROVIDER_LABELS[persona.provider] ?? persona.provider} - {persona.visibility}</small>
+              </span>
             </Link>
           ))}
         </div>
       )}
-      <div style={{ borderTop: "1px solid #202938", marginTop: 14, paddingTop: 14, display: "grid", gap: 8 }}>
-        <Link href="/studio/onboarding" style={railLink}>Onboarding Paths</Link>
-        <Link href="/space" style={railLink}>Blog Posts</Link>
-        <Link href="/space" style={railLink}>Public Space</Link>
-        <Link href="/settings" style={railLink}>Settings</Link>
+    </section>
+  );
+}
+
+function MoreStudioTools({ personas }: { personas: PersonaSummary[] }) {
+  return (
+    <details className="studio-dashboard-tools">
+      <summary>
+        <span>
+          <strong>More Studio tools</strong>
+          <small>Usage, archive, portability, and the full persona list</small>
+        </span>
+      </summary>
+      <div className="studio-dashboard-tools-grid">
+        <UsageStats />
+        <ArchiveAndPortability />
+        <PersonaOverview personas={personas} />
       </div>
-    </aside>
+    </details>
   );
 }
 
 function SectionTitle({ title, action, href }: { title: string; action?: string; href?: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-      <h2 style={{ margin: 0, color: "#f8fafc", fontSize: 16 }}>{title}</h2>
-      {action && href ? (
-        <Link href={href} style={{ marginLeft: "auto", color: "#93c5fd", fontSize: 12, textDecoration: "none" }}>
-          {action}
-        </Link>
-      ) : null}
+    <div className="studio-dashboard-section-title">
+      <h2>{title}</h2>
+      {action && href ? <Link href={href}>{action}</Link> : null}
     </div>
   );
 }
 
 function EmptyLine({ text }: { text: string }) {
-  return <div style={{ color: "#7d8796", fontSize: 13, lineHeight: 1.5 }}>{text}</div>;
+  return <p className="studio-dashboard-empty">{text}</p>;
 }
 
 function ColorDot({ index }: { index: number }) {
-  const colors = ["#2563eb", "#0f766e", "#be123c", "#7c3aed", "#ca8a04"];
-  return <span style={{ width: 10, height: 10, borderRadius: "50%", background: colors[index % colors.length], flex: "0 0 auto", marginTop: 5 }} />;
+  const colors = ["#2563eb", "#0f766e", "#be123c", "#7c3aed", "#9a6a08"];
+  return <span className="studio-dashboard-dot" style={{ background: colors[index % colors.length] }} aria-hidden="true" />;
 }
 
 function formatDate(value: string) {
@@ -307,9 +299,7 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
     return (
       <Shell>
         <Header personas={[]} />
-        <StudioPanel>
-          <StudioEmptyState>Loading your workspace...</StudioEmptyState>
-        </StudioPanel>
+        <StudioPanel><StudioEmptyState>Loading your workspace...</StudioEmptyState></StudioPanel>
       </Shell>
     );
   }
@@ -319,14 +309,12 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
       <Shell>
         <Header personas={[]} />
         <StudioPanel className="studio-auth-panel">
-          <h2 style={{ margin: "0 0 8px", color: "#f8fafc" }}>Sign in to open Studio</h2>
-          <p style={{ margin: "0 0 18px", color: "#a9b0bd", lineHeight: 1.6 }}>
-            Studio is the private side of Station: personas, chat, notes, archive, and publishing tools.
-          </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link href="/login" style={primaryButton}>Sign In</Link>
-            <Link href="/signup" style={secondaryButton}>Join Station</Link>
-          </div>
+          <h2>Sign in to open Studio</h2>
+          <p>Studio is the private side of Station: personas, chat, notes, archive, and publishing tools.</p>
+          <StudioActionRow>
+            <Link href="/login" className="studio-dashboard-action" data-variant="primary">Sign In</Link>
+            <Link href="/signup" className="studio-dashboard-action">Join Station</Link>
+          </StudioActionRow>
         </StudioPanel>
       </Shell>
     );
@@ -336,9 +324,7 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
     return (
       <Shell>
         <Header personas={[]} />
-        <StudioErrorState>
-          {error}
-        </StudioErrorState>
+        <StudioErrorState>{error}</StudioErrorState>
       </Shell>
     );
   }
@@ -346,123 +332,12 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
   return (
     <Shell>
       <Header personas={personas} />
-      <div className="studio-dashboard-grid">
-        <div className="studio-dashboard-main">
-          <ContinueList personas={personas} />
-          <MemoryOrientation personas={personas} />
-          <IntegrityList integrityDue={integrityDue} available={integrityAvailable} />
-          <UsageStats />
-          <ArchiveAndPortability />
-        </div>
-        <PersonaOverview personas={personas} />
+      <div className="studio-dashboard-primary-grid">
+        <ContinueList personas={personas} />
+        <IntegrityList integrityDue={integrityDue} available={integrityAvailable} />
       </div>
+      <MemoryOrientation personas={personas} />
+      <MoreStudioTools personas={personas} />
     </Shell>
   );
 }
-
-const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
-  borderRadius: 8,
-  padding: 16,
-};
-
-const listRow = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  border: "1px solid #202938",
-  borderRadius: 8,
-  background: "#0d1420",
-  padding: 12,
-};
-
-const mutedLine = {
-  color: "#8ea0b8",
-  fontSize: 12,
-  lineHeight: 1.45,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  overflowWrap: "anywhere" as const,
-};
-
-const primaryButton = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 40,
-  padding: "0 14px",
-  borderRadius: 8,
-  background: "#2563eb",
-  color: "#fff",
-  fontSize: 14,
-  fontWeight: 700,
-  textDecoration: "none",
-};
-
-const secondaryButton = {
-  ...primaryButton,
-  background: "#111827",
-  border: "1px solid #334155",
-  color: "#d1d5db",
-};
-
-const placeAction = {
-  border: "1px solid var(--station-page-border)",
-  borderRadius: 8,
-  background: "var(--station-page-surface)",
-  color: "var(--station-page-text)",
-  padding: "7px 10px",
-  fontSize: 12,
-  fontWeight: 800,
-  textDecoration: "none",
-};
-
-const miniButton = {
-  marginLeft: "auto",
-  border: "1px solid #334155",
-  borderRadius: 7,
-  background: "#111827",
-  color: "#dbeafe",
-  padding: "6px 9px",
-  fontSize: 12,
-  textDecoration: "none",
-};
-
-const metricCard = {
-  border: "1px solid #202938",
-  borderRadius: 8,
-  background: "#0d1420",
-  padding: 14,
-};
-
-const metricCardLink = {
-  ...metricCard,
-  display: "grid",
-  gap: 6,
-  textDecoration: "none",
-};
-
-const iconBox = {
-  width: 30,
-  height: 30,
-  borderRadius: 8,
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#bfdbfe",
-  display: "grid",
-  placeItems: "center",
-  fontSize: 12,
-  fontWeight: 800,
-  flex: "0 0 auto",
-};
-
-const railLink = {
-  border: "1px solid #202938",
-  borderRadius: 8,
-  background: "#0d1420",
-  color: "#d1d5db",
-  padding: "10px 11px",
-  fontSize: 13,
-  textDecoration: "none",
-};

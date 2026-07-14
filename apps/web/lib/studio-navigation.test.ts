@@ -194,6 +194,25 @@ test("Studio mobile navigation exposes an explicit disclosure label", () => {
   assert.equal(STUDIO_MOBILE_NAV_SUMMARY_LABEL, "Toggle Studio mobile navigation");
 });
 
+test("general Studio rail uses the measured minimal hierarchy and relocates secondary capability", () => {
+  const sidebarSource = readFileSync("apps/web/components/studio/studio-sidebar.tsx", "utf8");
+  const cssSource = readFileSync("apps/web/app/globals.css", "utf8");
+
+  assert.match(sidebarSource, /className="studio-rail-actions"/);
+  assert.match(sidebarSource, /className="studio-rail-personas"/);
+  assert.match(sidebarSource, /<details className="studio-rail-secondary">/);
+  assert.match(sidebarSource, /label="Settings" href="\/settings" mark="S" className="studio-rail-settings"/);
+  assert.match(sidebarSource, /placeholder="Find persona"/);
+  assert.match(sidebarSource, /railSecondaryLinks\.map/);
+  assert.doesNotMatch(sidebarSource, /TokenUsagePanel|StorageUsagePanel|>Station<|studioPersonaMeta/);
+
+  assert.match(cssSource, /\.studio-sidebar-desktop \{\s*width: 156px;\s*flex: 0 0 156px;/);
+  assert.match(cssSource, /@media \(min-width: 960px\)/);
+  assert.match(cssSource, /@media \(max-width: 959px\)/);
+  assert.match(cssSource, /\.studio-mobile-nav \{\s*display: block;\s*position: sticky;/);
+  assert.match(cssSource, /background: var\(--station-frame-rail\)/);
+});
+
 test("signed mobile top nav keeps protected routes reachable through the account menu", () => {
   assert.deepEqual([...SIGNED_MOBILE_TOP_NAV_MENU_ROUTES], ["/studio", "/projects", "/space", "/developer-spaces"]);
 });

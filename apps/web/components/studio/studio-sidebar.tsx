@@ -13,25 +13,31 @@ import {
   studioNewChatHref,
   studioPersonaHref,
   studioPersonaIdFromRoute,
-  studioPersonaMeta,
   studioPublicLinks,
   studioWorkspaceLinks,
   type StudioRouteContext,
 } from "@/lib/studio-navigation";
-import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
-import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
 import type { PersonaSummary } from "@station/types/persona";
 
-function NavLink({
+const railSecondaryLinks = [
+  { label: "Dashboard", href: "/studio", mark: "D", detail: "Private Studio overview" },
+  { label: "Publish", href: "/studio/publish", mark: "P", detail: "Prepare public-safe work" },
+  ...studioWorkspaceLinks.filter((link) => link.href !== "/settings"),
+  ...studioPublicLinks,
+];
+
+function RailLink({
   label,
   href,
   mark,
   detail,
+  className = "",
 }: {
   label: string;
   href: string;
   mark: string;
   detail?: string;
+  className?: string;
 }) {
   const pathname = usePathname();
   const active = activeStudioHref(pathname, href);
@@ -39,22 +45,14 @@ function NavLink({
   return (
     <Link
       href={href}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 9,
-        minHeight: 36,
-        borderRadius: 8,
-        padding: "7px 9px",
-        background: active ? "#16233a" : "transparent",
-        color: active ? "#f8fafc" : "#b6c0ce",
-        textDecoration: "none",
-      }}
+      className={`studio-rail-link ${className}`.trim()}
+      data-active={active}
+      aria-current={active ? "page" : undefined}
     >
-      <span style={markBox}>{mark}</span>
-      <span style={{ minWidth: 0 }}>
-        <span style={{ display: "block", fontSize: 13, fontWeight: active ? 700 : 500 }}>{label}</span>
-        {detail ? <span style={{ display: "block", color: "#687386", fontSize: 11 }}>{detail}</span> : null}
+      <span className="studio-rail-mark" aria-hidden="true">{mark}</span>
+      <span className="studio-rail-link-copy">
+        <strong>{label}</strong>
+        {detail ? <small>{detail}</small> : null}
       </span>
     </Link>
   );
@@ -64,39 +62,23 @@ function PersonaRow({ persona, index }: { persona: PersonaSummary; index: number
   const pathname = usePathname();
   const href = studioPersonaHref(persona);
   const active = pathname.startsWith(href);
-  const colors = ["#2563eb", "#0f766e", "#be123c", "#7c3aed", "#ca8a04"];
+  const colors = ["#2563eb", "#0f766e", "#be123c", "#7c3aed", "#9a6a08"];
 
   return (
     <Link
       href={href}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 9,
-        borderRadius: 8,
-        padding: "7px 9px",
-        background: active ? "#16233a" : "transparent",
-        textDecoration: "none",
-      }}
+      className="studio-rail-persona"
+      data-active={active}
+      aria-current={active ? "page" : undefined}
+      title={persona.name}
     >
-      <span style={{ width: 8, height: 8, borderRadius: "50%", background: colors[index % colors.length], flex: "0 0 auto" }} />
-      <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", color: active ? "#f8fafc" : "#cbd5e1", fontSize: 13, fontWeight: active ? 700 : 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {persona.name}
-        </span>
-        <span style={{ display: "block", color: "#687386", fontSize: 11 }}>
-          {studioPersonaMeta(persona)}
-        </span>
-      </span>
+      <span
+        className="studio-rail-persona-dot"
+        style={{ background: colors[index % colors.length] }}
+        aria-hidden="true"
+      />
+      <span>{persona.name}</span>
     </Link>
-  );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ color: "#687386", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", margin: "16px 9px 7px" }}>
-      {children}
-    </div>
   );
 }
 
@@ -123,99 +105,48 @@ export function StudioSidebar() {
 
   return (
     <>
-    <StudioMobileNav personas={personas} currentContext={currentContext} newChatHref={newChatHref} />
-    <aside className="studio-sidebar-desktop">
-      <div style={{ padding: "16px 14px 12px", borderBottom: "1px solid #1f2937" }}>
-        <Link href="/studio" style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", textDecoration: "none" }}>
-          <span style={{ ...markBox, width: 34, height: 34, color: "#dbeafe", background: "#12305f", borderColor: "#2563eb" }}>S</span>
-          <span>
-            <span style={{ display: "block", fontSize: 15, fontWeight: 800 }}>Station</span>
-            <span style={{ display: "block", color: "#8ea0b8", fontSize: 12 }}>Studio</span>
-          </span>
-        </Link>
-      </div>
-
-      <div style={{ overflowY: "auto", padding: 12, flex: 1 }}>
-        <Link href="/studio/publish" style={publishButton}>Publish</Link>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-          <Link href={newChatHref} style={smallAction}>New Chat</Link>
-          <Link href="/studio/new" style={smallAction}>New Persona</Link>
+      <StudioMobileNav personas={personas} currentContext={currentContext} newChatHref={newChatHref} />
+      <aside className="studio-sidebar-desktop" aria-label="Studio workspace navigation">
+        <div className="studio-rail-actions">
+          <Link href={newChatHref} className="studio-rail-action" data-variant="primary">New Chat</Link>
+          <Link href="/studio/new" className="studio-rail-action">New Persona</Link>
         </div>
 
-        <CurrentPlace context={currentContext} />
+        <nav className="studio-rail-scroll" aria-label="Studio personas and destinations">
+          <div className="studio-rail-section-label">Personas</div>
+          <div className="studio-rail-personas">
+            {personas.length > 0
+              ? visiblePersonas.map((persona, index) => (
+                <PersonaRow key={persona.id} persona={persona} index={index} />
+              ))
+              : <p className="studio-rail-empty">No personas yet.</p>}
+            {personas.length > 0 && visiblePersonas.length === 0
+              ? <p className="studio-rail-empty">No matching personas.</p>
+              : null}
+          </div>
 
-        <label style={{ display: "block", marginTop: 12 }}>
-          <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>Filter personas</span>
-          <input
-            value={personaFilter}
-            onChange={(event) => setPersonaFilter(event.currentTarget.value)}
-            placeholder="Filter personas..."
-            style={{
-              width: "100%",
-              border: "1px solid #2f3747",
-              borderRadius: 8,
-              background: "#090f19",
-              color: "#e5e7eb",
-              padding: "10px 11px",
-              fontSize: 13,
-            }}
-          />
-        </label>
+          <details className="studio-rail-secondary">
+            <summary>More Studio</summary>
+            <div className="studio-rail-secondary-panel">
+              <label className="studio-rail-filter">
+                <span className="visually-hidden">Filter personas</span>
+                <input
+                  value={personaFilter}
+                  onChange={(event) => setPersonaFilter(event.currentTarget.value)}
+                  placeholder="Find persona"
+                  aria-label="Filter personas"
+                />
+              </label>
+              <CurrentPlace context={currentContext} />
+              <div className="studio-rail-secondary-links">
+                {railSecondaryLinks.map((link) => <RailLink key={`${link.href}-${link.label}`} {...link} />)}
+              </div>
+            </div>
+          </details>
+        </nav>
 
-        <SectionLabel>Your Public Presence</SectionLabel>
-        <div style={{ display: "grid", gap: 2 }}>
-          {studioPublicLinks.map((link) => <NavLink key={link.label} {...link} />)}
-        </div>
-
-        <SectionLabel>Personas</SectionLabel>
-        <div style={{ display: "grid", gap: 2 }}>
-          {personas.length > 0
-            ? visiblePersonas.map((persona, index) => <PersonaRow key={persona.id} persona={persona} index={index} />)
-            : <div style={{ color: "#687386", fontSize: 12, padding: "7px 9px" }}>No personas yet.</div>}
-          {personas.length > 0 && visiblePersonas.length === 0
-            ? <div style={{ color: "#687386", fontSize: 12, padding: "7px 9px" }}>No matching personas.</div>
-            : null}
-          <NavLink label="Add persona" href="/studio/new" mark="+" />
-        </div>
-
-        <div style={{ height: 1, background: "#1f2937", margin: "16px 0 0" }} />
-        <div style={{ display: "grid", gap: 2, marginTop: 12 }}>
-          {studioWorkspaceLinks.map((link) => <NavLink key={link.label} {...link} />)}
-        </div>
-      </div>
-
-      <div style={{ borderTop: "1px solid #1f2937", padding: 12 }}>
-        <div style={{ marginBottom: 10 }}>
-          <TokenUsagePanel compact />
-        </div>
-        <div style={{ marginBottom: 10 }}>
-          <StorageUsagePanel compact />
-        </div>
-        <Link
-          href="/studio/assistant"
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            border: "1px solid #2f3747",
-            borderRadius: 8,
-            background: "#101827",
-            color: "#e5e7eb",
-            padding: 10,
-            textDecoration: "none",
-            textAlign: "left",
-          }}
-        >
-          <span style={markBox}>?</span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 13, fontWeight: 700 }}>Station Assistant</span>
-            <span style={{ display: "block", color: "#8ea0b8", fontSize: 11 }}>Help, archive, publish</span>
-          </span>
-          <span style={{ color: "#687386", fontSize: 12 }}>→</span>
-        </Link>
-      </div>
-    </aside>
+        <RailLink label="Settings" href="/settings" mark="S" className="studio-rail-settings" />
+      </aside>
     </>
   );
 }
@@ -250,8 +181,6 @@ function StudioMobileNav({
         <span className="studio-mobile-nav-current">
           <small>{currentContext.privacy}</small>
           <strong>{currentContext.label}</strong>
-          <small>{currentContext.detail}</small>
-          <small>{currentContext.state}</small>
         </span>
       </summary>
       <nav className="studio-mobile-nav-panel" aria-label="Studio mobile navigation">
@@ -261,23 +190,27 @@ function StudioMobileNav({
           <small>{currentContext.detail}</small>
           <small>{currentContext.privacy}</small>
           <small>{currentContext.state}</small>
-          <Link href={currentContext.nextAction.href}>
-            {currentContext.nextAction.label}
-          </Link>
+          <Link href={currentContext.nextAction.href}>{currentContext.nextAction.label}</Link>
         </div>
 
-        <div className="studio-mobile-nav-grid">
+        <div className="studio-mobile-nav-grid" aria-label="Studio actions">
           <MobileNavLink href="/studio" label="Dashboard" />
           <MobileNavLink href={newChatHref} label="New Chat" />
           <MobileNavLink href="/studio/new" label="New Persona" />
           <MobileNavLink href="/studio/publish" label="Publish" />
-          {studioWorkspaceLinks.map((link) => (
-            <MobileNavLink key={link.href} href={link.href} label={link.label} />
-          ))}
         </div>
 
         <div className="studio-mobile-nav-section">
-          <span>Your Public Presence</span>
+          <span>Studio</span>
+          <div className="studio-mobile-nav-grid">
+            {studioWorkspaceLinks.map((link) => (
+              <MobileNavLink key={link.href} href={link.href} label={link.label} />
+            ))}
+          </div>
+        </div>
+
+        <div className="studio-mobile-nav-section">
+          <span>Public presence</span>
           <div className="studio-mobile-nav-grid">
             {studioPublicLinks.map((link) => (
               <MobileNavLink key={link.href} href={link.href} label={link.label} />
@@ -289,7 +222,7 @@ function StudioMobileNav({
           <span>Personas</span>
           <div className="studio-mobile-persona-list">
             {personas.length > 0
-              ? personas.slice(0, 6).map((persona) => (
+              ? personas.map((persona) => (
                 <MobileNavLink key={persona.id} href={studioPersonaHref(persona)} label={persona.name} />
               ))
               : <p>No personas yet.</p>}
@@ -304,49 +237,8 @@ function MobileNavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
   const active = activeStudioHref(pathname, href);
   return (
-    <Link href={href} data-active={active}>
+    <Link href={href} data-active={active} aria-current={active ? "page" : undefined}>
       {label}
     </Link>
   );
 }
-
-const markBox = {
-  width: 24,
-  height: 24,
-  borderRadius: 7,
-  border: "1px solid #334155",
-  background: "#101827",
-  color: "#bfdbfe",
-  display: "grid",
-  placeItems: "center",
-  fontSize: 11,
-  fontWeight: 800,
-  flex: "0 0 auto",
-};
-
-const publishButton = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 40,
-  borderRadius: 8,
-  background: "#2563eb",
-  color: "#fff",
-  fontSize: 14,
-  fontWeight: 800,
-  textDecoration: "none",
-};
-
-const smallAction = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 34,
-  border: "1px solid #2f3747",
-  borderRadius: 8,
-  background: "#101827",
-  color: "#d1d5db",
-  fontSize: 12,
-  fontWeight: 700,
-  textDecoration: "none",
-};

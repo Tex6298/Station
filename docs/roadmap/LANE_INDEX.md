@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525C | Studio Dashboard And Minimal Rail Composition | MIMIR -> DAEDALUS | Open exact implementation slice: `156px` warm desktop rail, no rail below `960px`, compact mobile disclosure, warm first-viewport dashboard hierarchy, and explicit capability relocation without entering PR525D/E/F. | `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_DAEDALUS.md` |
+| PR525C | Studio Dashboard And Minimal Rail Composition | MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS | Ready for ARGUS review: exact `156px` warm desktop rail, no rail below `960px`, compact mobile disclosure, warm first-viewport dashboard hierarchy, and explicit capability relocation pass local tests and rendered proof without entering PR525D/E/F. | `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed

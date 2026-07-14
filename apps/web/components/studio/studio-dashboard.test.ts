@@ -24,9 +24,35 @@ test("dashboard integrity list filters current sessions and distinguishes unavai
 test("dashboard makes the companion home a first-viewport action without breaking zero-persona setup", () => {
   assert.match(source, /function Header\(\{ personas \}: \{ personas: PersonaSummary\[\] \}\)/);
   assert.match(source, /const companionHref = studioNewChatHref\(personas\)/);
-  assert.match(source, /personaCount > 0 \? \(\s*<Link href=\{companionHref\} style=\{primaryButton\}>Open Companion<\/Link>/);
-  assert.match(source, /<Link href="\/studio\/new" style=\{primaryButton\}>New Persona<\/Link>/);
-  assert.match(source, /personaCount > 0 \? <Link href="\/studio\/new" style=\{secondaryButton\}>New Persona<\/Link> : null/);
+  assert.match(source, /personaCount > 0 \? \(\s*<Link href=\{companionHref\} className="studio-dashboard-action" data-variant="primary">Open Companion<\/Link>/);
+  assert.match(source, /<Link href="\/studio\/new" className="studio-dashboard-action" data-variant="primary">New Persona<\/Link>/);
+  assert.match(source, /<Link href="\/studio\/onboarding" className="studio-dashboard-action">Choose Path<\/Link>/);
+  assert.match(source, /<Link href="\/space" className="studio-dashboard-action" data-variant="public">Open Public Space<\/Link>/);
+  assert.match(source, /href="\/studio\/assistant" className="studio-dashboard-place-action">Station Assistant/);
   assert.match(source, /<Header personas=\{personas\} \/>/);
   assert.doesNotMatch(source, /router\.(?:push|replace)\(.*studioNewChatHref/);
+});
+
+test("dashboard keeps companions and truthful Integrity state ahead of disclosed secondary tools", () => {
+  const primaryGrid = source.indexOf('className="studio-dashboard-primary-grid"');
+  const companionList = source.indexOf("<ContinueList personas={personas} />");
+  const integrityList = source.indexOf("<IntegrityList integrityDue={integrityDue} available={integrityAvailable} />");
+  const memory = source.indexOf("<MemoryOrientation personas={personas} />");
+  const secondaryTools = source.indexOf("<MoreStudioTools personas={personas} />");
+
+  assert.ok(primaryGrid >= 0);
+  assert.ok(companionList > primaryGrid);
+  assert.ok(integrityList > companionList);
+  assert.ok(memory > integrityList);
+  assert.ok(secondaryTools > memory);
+  assert.match(source, /<details className="studio-dashboard-tools">/);
+  assert.match(source, /<UsageStats \/>/);
+  assert.match(source, /<ArchiveAndPortability \/>/);
+  assert.match(source, /<PersonaOverview personas=\{personas\} \/>/);
+});
+
+test("dashboard warm composition uses shared classes instead of the old dark inline card palette", () => {
+  assert.match(source, /className="studio-dashboard-panel"/);
+  assert.match(source, /className="studio-dashboard-row"/);
+  assert.doesNotMatch(source, /const panel =|const listRow =|const metricCard =|background: "#101622"|color: "#f8fafc"/);
 });

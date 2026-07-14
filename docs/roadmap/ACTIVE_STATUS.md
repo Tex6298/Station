@@ -14,16 +14,17 @@ Current handoff:
 
 ```text
 PR525C - Studio Dashboard And Minimal Rail Composition
-Owner: DAEDALUS / A2
-State: READY_FOR_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_DAEDALUS.md
+Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md
 ```
 
-PR525C is the next locked dependency from ARIADNE's measured result. It applies
-the exact `156px` warm general Studio rail, removes the desktop rail below
-`960px`, gives mobile one compact full-width Studio disclosure, and restores a
-warm first-viewport dashboard hierarchy containing primary actions, recent
-companions, and truthful Integrity state.
+PR525C now applies the exact `156px` warm general Studio rail, removes the
+desktop rail below `960px`, gives mobile one compact full-width Studio
+disclosure, and restores a warm first-viewport dashboard hierarchy containing
+primary actions, recent companions, and truthful Integrity state. Focused,
+Studio UI, auth, Developer Space, typecheck, lint, diff, and rendered
+desktop/mobile proof pass; ARGUS owns independent review.
 
 Capability relocation is explicit: quota/storage move out of permanent rail
 chrome to their authoritative Settings/Billing destinations; public presence,
@@ -31,11 +32,11 @@ publishing, onboarding, Archive, Export, Assistant, and private work routes stay
 keyboard reachable through named disclosures and existing routes. Nothing may
 be deleted merely to shorten the page.
 
-PR525C must not begin the exact-persona companion shell/thread drawer, chat
-visual system, or Forums work reserved for PR525D, PR525E, and PR525F. API,
-schema, auth behavior, backend data, provider/retrieval/storage/billing logic,
-Redis, Cloudflare, deployment, and Developer Space observatory interiors remain
-out of scope.
+The implementation did not begin the exact-persona companion shell/thread
+drawer, chat visual system, or Forums work reserved for PR525D, PR525E, and
+PR525F. API, schema, auth behavior, backend data, provider/retrieval/storage/
+billing logic, Redis, Cloudflare, deployment, and Developer Space observatory
+interiors remain unchanged.
 
 The locked implementation sequence is:
 
