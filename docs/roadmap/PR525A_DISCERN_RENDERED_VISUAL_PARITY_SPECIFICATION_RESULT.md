@@ -65,6 +65,23 @@ The simulated failure intercepted one browser GET with HTTP `503`; it did not
 mutate hosted data. Screenshots, credentials, tokens, cookies, private IDs, and
 private conversation content were kept temporary and are not committed.
 
+## Fresh-Head Boundary
+
+PR525A is an accurate rendered specification of its assigned visual source,
+`de7b918e`; it is not a completeness assessment of Discern head after that
+commit. Discern advanced to `ff93308b` while this result was being completed.
+
+The newer commit adds a shared conversational creation/configuration engine
+across fourteen secondary workflows. It does not replace the `de7b918e` main
+companion, chat, rail, Forums-index, Discover, Writing-browse, or Developer
+Space observatory target. PR525D-F therefore continue against this ledger while
+PR526A independently audits the new flow system:
+
+`docs/roadmap/PR526A_DISCERN_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT_ARIADNE.md`
+
+PR525 may not be called a current-Discern-complete comparison until PR526A's
+adoption/deviation map is accepted and placed.
+
 Commit `99ae8a5c` was inspected only as lineage. Its removed persona topbar and
 Memory/Canon/Archive right panel are not in this specification.
 

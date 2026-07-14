@@ -4,71 +4,66 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525C accepted by ARGUS
+## Current lanes - PR525D implementation and PR526A fresh-head audit
 
-ARGUS completed the independent PR525C review:
+PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
-`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md`
+`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_CLOSEOUT_MIMIR.md`
 
-Current handoff:
-
-```text
-PR525C - Studio Dashboard And Minimal Rail Composition
-Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS -> MIMIR
-State: ACCEPT_PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_WITH_ARGUS_PATCH
-Next: MIMIR closes PR525C and decides the next move
-```
-
-PR525C applies the exact `156px` warm general Studio rail, removes the desktop
-rail below `960px`, gives mobile one compact full-width Studio disclosure, and
-restores a warm first-viewport dashboard hierarchy containing primary actions,
-recent companions, and truthful Integrity state. ARGUS accepted it after a
-narrow patch that closes the mobile disclosure when a destination is selected.
-
-Capability relocation is explicit: quota/storage move out of permanent rail
-chrome to their authoritative Settings/Billing destinations; public presence,
-publishing, onboarding, Archive, Export, Assistant, and private work routes stay
-keyboard reachable through named disclosures and existing routes. Nothing may
-be deleted merely to shorten the page.
-
-ARGUS independently passed 23 focused tests, 250 Studio UI tests, 21 auth tests,
-61 Developer Space tests, typecheck, lint, scope/secret scans, and a local
-desktop/`390px`/`375px` Playwright review. Exact `156px` geometry, first-viewport
-bounds, all nine relocated destinations, signed-out redirect, long-name fit,
-zero horizontal overflow, zero page errors, and post-selection disclosure
-closure pass.
-
-The implementation did not begin the exact-persona companion shell/thread
-drawer, chat visual system, or Forums work reserved for PR525D, PR525E, and
-PR525F. API, schema, auth behavior, backend data, provider/retrieval/storage/
-billing logic, Redis, Cloudflare, deployment, and Developer Space observatory
-interiors remain unchanged.
-
-The locked implementation sequence is:
+Active implementation handoff:
 
 ```text
-PR525B - Shared Warm-Light Frame And 46px Global Navigation
-PR525C - Studio Dashboard And Minimal Rail Composition
 PR525D - Full-Height Companion Shell And Thread Disclosure
-PR525E - Compact Chat Visual System And Honest States
-PR525F - Forums Three-Column Honest Composition
-PR525G - Hosted Light-Parity Rehearsal
+Owner: DAEDALUS / A2
+State: READY_FOR_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_DAEDALUS.md
 ```
 
-MIMIR's implementation/render proof and ARGUS's acceptance are recorded here:
+PR525D is the next clean dependency from ARIADNE's measured `de7b918e`
+composition. It applies the exact warm `156px` companion rail, moves the
+complete URL-backed thread directory and filter behind a keyboard-safe
+`Threads` disclosure, makes conversation own the first workspace viewport,
+collapses to a full-width mobile companion summary below `960px`, and leaves
+PR525E's chat visuals and behavior untouched.
 
-`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md`
+Parallel current-head audit:
 
-`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md`
+```text
+PR526A - Discern Fresh-Head Conversational Flow Delta Audit
+Owner: ARIADNE / A4
+State: READY_FOR_ARIADNE_DELTA_AUDIT
+Source: docs/roadmap/PR526A_DISCERN_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT_ARIADNE.md
+```
 
-PR525B's accepted shared-frame dependency remains recorded here:
+Discern advanced from `de7b918e` to `ff93308b` while PR525A was completing.
+PR526A renders and audits the new shared conversation engine and fourteen
+converted creation/configuration surfaces. It separates useful product/UI
+direction from the source's `POST /flow/generate`, Deepseek provider,
+localStorage, auth-token, deleted-flow, and global-CSS assumptions before any
+implementation decision.
 
-`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md`
+The two lanes are intentionally parallel. `ff93308b` does not modify the main
+companion page, `PersonaChat`, companion rail, Forums index, Discover, Writing
+browse, or Developer Space observatory dashboards, so PR525D-F continue.
+PR525G cannot call the comparison current-Discern complete until PR526A has an
+accepted placement, and affected creation/configuration surfaces are frozen
+from new redesign/expansion until that audit and ARGUS boundary review.
 
-`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ARGUS_RESULT.md`
+Locked sequence and gate:
+
+```text
+PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
+PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
+PR525D - Full-Height Companion Shell And Thread Disclosure         ACTIVE
+PR525E - Compact Chat Visual System And Honest States              NEXT
+PR525F - Forums Three-Column Honest Composition                    PENDING
+PR526A - Fresh-Head Conversational Flow Delta Audit                PARALLEL GATE
+PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + PR526A PLACEMENT
+```
 
 Commit `99ae8a5c` remains lineage only; its removed persona topbar/right panel
-are not part of the target.
+are not part of the target. PR525's accepted visual source remains `de7b918e`;
+PR526A prevents that snapshot from being mistaken for a current-head audit.
 
 The final light composition is corrected first. Dark mode follows through
 shared theme tokens only after light parity is accepted. Phase 3 product

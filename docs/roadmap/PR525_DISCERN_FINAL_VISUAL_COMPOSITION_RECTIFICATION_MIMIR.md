@@ -37,6 +37,14 @@ superseded intermediate components.
 
 The Discern source is a visual/compositional reference, not a patch to merge.
 
+Discern later advanced to `ff93308b`, adding a shared conversational system for
+fourteen creation/configuration workflows. That fresh head does not replace
+the `de7b918e` companion/chat/Forums visual target and must not invalidate
+accepted PR525 work. PR526A audits the delta in parallel before any affected
+surface is redesigned or PR525 is described as current-Discern complete:
+
+`docs/roadmap/PR526A_DISCERN_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT_ARIADNE.md`
+
 ## Visible Target
 
 PR525 must faithfully recover the final composition, including:
@@ -115,7 +123,8 @@ binding it to honest Tex behavior.
    reports, actions, and provenance.
 7. **PR525G - Hosted Light-Parity Rehearsal** proves desktop, `390px`, and
    `375px` geometry against the PR525A ledger using screenshots and bounding
-   rectangles.
+   rectangles. It also confirms PR526A has an accepted placement; it does not
+   silently treat `de7b918e` as current-head completeness.
 8. **ARGUS review per implementation slice**: protect owner, route, data-truth,
    accessibility, and newer-capability boundaries without redistilling the
    visual target.
@@ -125,6 +134,12 @@ binding it to honest Tex behavior.
 The Discern-derived light interface comes first. Dark mode follows only after
 light parity is accepted, using shared theme tokens so color and contrast change
 without changing composition. Dark mode is not PR525A scope.
+
+In parallel, **PR526A - Discern Fresh-Head Conversational Flow Delta Audit**
+compares `de7b918e..ff93308b` across all converted creation/configuration
+surfaces. It does not block clean PR525D-F file/product boundaries, but its
+accepted adoption/deviation map is a prerequisite to PR525G closeout and to any
+new expansion of those affected surfaces.
 
 ## Parallel Roadmap State
 

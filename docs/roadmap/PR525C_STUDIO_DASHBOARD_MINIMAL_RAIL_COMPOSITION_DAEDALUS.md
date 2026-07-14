@@ -9,7 +9,7 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+CLOSE_PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ACCEPTED
 ```
 
 ## Locked Source
@@ -148,6 +148,11 @@ MIMIR completed the bounded implementation after DAEDALUS did not consume the
 opening wakeup. Result and measured proof:
 
 `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md`
+
+Accepted review and closeout:
+
+- `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md`
+- `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_CLOSEOUT_MIMIR.md`
 
 Commit the implementation plus a PR525C result document containing:
 
