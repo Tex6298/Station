@@ -4,6 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
+## Terminal condition - finish UI integration, then pause
+
+The current UI integration remains active through its real accepted closeout.
+This directive does not interrupt or transfer the PR525D implementation baton
+or the parallel PR526A audit baton.
+
+Closeout requires all of the following:
+
+- complete and review PR525D, PR525E, and PR525F;
+- reconcile Discern head `ff93308b` through an accepted PR526A
+  adoption/deviation decision and any UI implementation MIMIR places inside
+  this integration;
+- complete hosted PR525G desktop and mobile proof;
+- complete the already-promised light/dark theme treatment using the accepted
+  composition rather than reopening a broad reskin;
+- commit one final UI integration closeout naming implemented work, deliberate
+  deviations, hosted proof, theme status, and anything explicitly parked or
+  externally blocked.
+
+After that closeout, the existing PR524B / Phase 3 product pause remains in
+force. MIMIR must not automatically open a new feature, hardening, operations,
+backend, provider, or product-expansion lane. Mainline resumes only on a later
+explicit Marty instruction or a correction required to make this UI closeout
+truthful.
+
 ## Current lanes - PR525D implementation and PR526A fresh-head audit
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
