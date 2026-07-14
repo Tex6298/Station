@@ -9,8 +9,12 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-OPEN_IMPLEMENTATION
+READY_FOR_ARGUS_REVIEW
 ```
+
+Implementation result:
+
+`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md`
 
 ## Locked Source
 

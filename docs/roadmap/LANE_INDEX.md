@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525B | Shared Warm-Light Frame And 46px Global Navigation | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Open implementation; exact token, `46px` geometry, compact route-placement, mobile-menu, auth-preservation, Developer Space no-drift, file-scope, and validation gates are locked. | `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_DAEDALUS.md` |
+| PR525B | Shared Warm-Light Frame And 46px Global Navigation | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Ready for ARGUS review; measured warm-light tokens, exact `46px` frame, compact route placement, accessible desktop/mobile disclosures, 247 Studio UI tests, 61 Developer Space tests, full typecheck/lint, and signed-out/signed-in rendered matrix pass. | `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed

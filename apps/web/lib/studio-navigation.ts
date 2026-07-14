@@ -2,6 +2,19 @@ import type { PersonaSummary } from "@station/types/persona";
 
 export const STUDIO_MOBILE_NAV_SUMMARY_LABEL = "Toggle Studio mobile navigation";
 export const SIGNED_MOBILE_TOP_NAV_MENU_ROUTES = ["/studio", "/projects", "/space", "/developer-spaces"] as const;
+export const TOP_NAV_PUBLIC_ROUTES = [
+  { href: "/discover", label: "Discover" },
+  { href: "/writing", label: "Writing" },
+  { href: "/forums", label: "Forums" },
+] as const;
+export const TOP_NAV_PRIVATE_ROUTES = [
+  { href: "/studio", label: "Studio" },
+  { href: "/projects", label: "Projects" },
+  { href: "/space", label: "My Space" },
+  { href: "/developer-spaces", label: "Developer Spaces", compactLabel: "Developer" },
+  { href: "/billing", label: "Billing" },
+  { href: "/settings", label: "Settings" },
+] as const;
 export const STUDIO_CONVERSATION_QUERY = "c";
 
 export type StudioRouteContext = {
@@ -194,6 +207,14 @@ const studioStaticRouteContexts: StudioRouteContext[] = [
 export function activeStudioHref(pathname: string, href: string) {
   if (href === "/studio") return pathname === "/studio";
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function activeTopNavHref(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function activeTopNavPrivateRoute(pathname: string) {
+  return TOP_NAV_PRIVATE_ROUTES.find((route) => activeTopNavHref(pathname, route.href)) ?? null;
 }
 
 export function studioPersonaHref(persona: Pick<PersonaSummary, "id">) {

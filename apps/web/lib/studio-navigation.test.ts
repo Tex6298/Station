@@ -4,7 +4,11 @@ import test from "node:test";
 import {
   SIGNED_MOBILE_TOP_NAV_MENU_ROUTES,
   STUDIO_MOBILE_NAV_SUMMARY_LABEL,
+  TOP_NAV_PRIVATE_ROUTES,
+  TOP_NAV_PUBLIC_ROUTES,
   activeStudioHref,
+  activeTopNavHref,
+  activeTopNavPrivateRoute,
   filterStudioPersonas,
   isExactPersonaHomeRoute,
   studioRouteContext,
@@ -192,4 +196,42 @@ test("Studio mobile navigation exposes an explicit disclosure label", () => {
 
 test("signed mobile top nav keeps protected routes reachable through the account menu", () => {
   assert.deepEqual([...SIGNED_MOBILE_TOP_NAV_MENU_ROUTES], ["/studio", "/projects", "/space", "/developer-spaces"]);
+});
+
+test("global navigation preserves public and private destinations while showing only the active private section", () => {
+  assert.deepEqual(TOP_NAV_PUBLIC_ROUTES.map((route) => route.href), ["/discover", "/writing", "/forums"]);
+  assert.deepEqual(TOP_NAV_PRIVATE_ROUTES.map((route) => route.href), [
+    "/studio",
+    "/projects",
+    "/space",
+    "/developer-spaces",
+    "/billing",
+    "/settings",
+  ]);
+
+  assert.equal(activeTopNavHref("/studio/personas/persona-1", "/studio"), true);
+  assert.equal(activeTopNavHref("/studio-copy", "/studio"), false);
+  assert.equal(activeTopNavPrivateRoute("/developer-spaces/example")?.label, "Developer Spaces");
+  assert.equal(activeTopNavPrivateRoute("/discover"), null);
+});
+
+test("global navigation uses the locked warm 46px frame and accessible compact disclosures", () => {
+  const navSource = readFileSync("apps/web/components/nav/top-nav.tsx", "utf8");
+  const cssSource = readFileSync("apps/web/app/globals.css", "utf8");
+
+  assert.match(navSource, /const currentPrivateRoute = user \? activeTopNavPrivateRoute\(pathname\) : null/);
+  assert.match(navSource, /aria-label="Navigation menu"/);
+  assert.match(navSource, /aria-label="Station destinations"/);
+  assert.match(navSource, /event\.key !== "Escape"/);
+  assert.match(navSource, /accountButtonRef\.current\?\.focus\(\)/);
+  assert.match(navSource, /routeMenuButtonRef\.current\?\.focus\(\)/);
+  assert.match(navSource, /aria-current=\{active \? "page" : undefined\}/);
+
+  assert.match(cssSource, /--station-global-nav-height: 46px/);
+  assert.match(cssSource, /--station-frame-canvas: #f6f4ee/);
+  assert.match(cssSource, /--station-frame-border: #d7d2c8/);
+  assert.match(cssSource, /--station-frame-active: #1f5fa8/);
+  assert.match(cssSource, /height: var\(--station-global-nav-height\)/);
+  assert.match(cssSource, /box-shadow: inset 0 -1px var\(--station-frame-active\)/);
+  assert.doesNotMatch(cssSource, /calc\(100(?:d)?vh - 52px\)|top: 52px/);
 });

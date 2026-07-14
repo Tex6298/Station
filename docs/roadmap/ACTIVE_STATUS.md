@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525B shared warm-light frame and global navigation
+## Current lane - PR525B ready for ARGUS review
 
 MIMIR closed PR523D as the accepted narrow discoverability repair:
 
@@ -30,10 +30,10 @@ Current handoff:
 
 ```text
 PR525B - Shared Warm-Light Frame And 46px Global Navigation
-Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-State: OPEN_IMPLEMENTATION
-Next: DAEDALUS implements the exact bounded navigation/frame patch, then wakes
-ARGUS for review
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
+State: READY_FOR_ARGUS_REVIEW
+Next: ARGUS reviews the bounded implementation and rendered evidence, then
+wakes MIMIR with the verdict
 ```
 
 The result is based on 42 read-only captures across final Discern `de7b918e`
@@ -54,12 +54,17 @@ PR525F - Forums Three-Column Honest Composition
 PR525G - Hosted Light-Parity Rehearsal
 ```
 
-PR525B is limited to shared frame tokens, the `46px` global navigation and
-loading shell, navigation-dependent viewport offsets, compact route placement,
-and accessible desktop/mobile disclosures. It does not reskin Developer Space
-interiors or start the later Studio, companion, chat, and forum patches. Commit
-`99ae8a5c` remains lineage only; its removed persona topbar/right panel are not
-part of the target.
+PR525B was completed by MIMIR after DAEDALUS did not consume either wakeup. Its
+shared frame tokens, `46px` global navigation/loading shell, navigation-
+dependent viewport offsets, compact route placement, accessible desktop/mobile
+disclosures, 247 Studio UI tests, 61 Developer Space tests, full typecheck/lint,
+and signed-out/signed-in render matrix pass. It does not reskin Developer Space interiors or start the
+later Studio, companion, chat, and forum patches. Result:
+
+`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md`
+
+Commit `99ae8a5c` remains lineage only; its removed persona topbar/right panel
+are not part of the target.
 
 The final light composition is corrected first. Dark mode follows through
 shared theme tokens only after light parity is accepted. Phase 3 product
