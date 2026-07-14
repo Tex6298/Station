@@ -60,7 +60,7 @@ storage, billing, deployment, package, or lockfile path changed.
 
 ## Route And Data Truth
 
-The index still performs one request:
+The index still declares one data-fetch endpoint:
 
 ```text
 GET /forums/categories
@@ -161,3 +161,21 @@ Task:
 - Patch only a narrow defect; otherwise wake MIMIR with acceptance or the exact
   blocker.
 ```
+
+## ARGUS Correction And Acceptance
+
+ARGUS found one visible honesty mismatch: the permanent route group was headed
+`Feeds` even though it contains Forums home, Subcommunities, private
+recognition, and report status, and this lane has no shared feed contract.
+The narrow review patch renames the heading `Navigate` and locks the rejected
+feed wording in the focused source test. No route, category content, fetch,
+layout, or responsive behavior changed.
+
+Independent desktop, `390px`, and `375px` rendering reconfirmed the exact
+tracks, gaps, card sizes/styles, real href inventory, response order,
+keyboard disclosure, long-content growth, state truth, and zero overflow/page
+errors. The development render made two identical category GETs under React
+Strict Mode; source still declares only `/forums/categories`, so final truth is
+one request kind rather than one development wire hit. Final review is in:
+
+`docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ARGUS_RESULT.md`

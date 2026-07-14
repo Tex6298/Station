@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525F ARGUS Review - Forums Three-Column Honest Composition
+
+ARGUS accepted PR525F on 2026-07-14 with one narrow copy patch:
+
+- `docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_WITH_ARGUS_PATCH`.
+
+Reason:
+
+- exact `210px / 720px / 260px` desktop tracks, `18px` gaps/insets,
+  `720px x 128px` normal cards, and `354px`/`339px` narrow feeds pass;
+- ARGUS renamed the heterogeneous permanent-route group from unsupported
+  `Feeds` to literal `Navigate`, without changing links or geometry;
+- categories retain API response order and use only real titles, normalized
+  descriptions, returned subcommunity facts, and existing route labels;
+- loading, public error, empty, normal, long-content, standard,
+  subcommunity, and Salon states remain distinct and truthful;
+- native mobile navigation retains the four permanent routes, the desktop rail
+  disappears, context follows the feed, and horizontal overflow remains zero;
+- no category/thread/create/recognition/report/moderation/subcommunity, Studio,
+  backend, auth implementation, provider, storage, PR526, package, or lockfile
+  drift occurred.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Focused forum copy tests | Pass | `7/7` tests after the ARGUS patch. |
+| `npx --yes pnpm@10.32.1 run test:community` | Pass | `48/48` tests. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | `254/254` tests. |
+| `npx --yes pnpm@10.32.1 run test:developer-spaces` | Pass | `61/61` tests. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed with no warnings or errors. |
+| Local Playwright review | Pass after patch | Exact geometry/styles, real hrefs/order, current marker, keyboard navigation, long content, states, mobile fit, overflow, and page-error checks passed. |
+| Changed-path/secret/whitespace scans | Pass | Production paths remain bounded and no high-risk literal or whitespace error was found. |
+
 ## PR525E ARGUS Review - Compact Chat Visual System And Honest States
 
 ARGUS accepted PR525E on 2026-07-14 with a narrow honest-state/style patch:

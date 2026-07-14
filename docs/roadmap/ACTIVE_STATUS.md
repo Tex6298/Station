@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525F ready for ARGUS review
+## Current lane - PR525F accepted by ARGUS
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -72,25 +72,25 @@ candidate truth, mobile fit, full tests, and independent rendered proof pass.
 Existing routes, owner/auth boundaries, API payloads, provider/stream behavior,
 PR525F, and PR526 scope remain untouched.
 
-Current implementation task:
+ARGUS review result:
 
 ```text
 PR525F - Forums Three-Column Honest Composition
-Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_MIMIR_RESULT.md
-Next: ARGUS independently reviews and wakes MIMIR with acceptance or blocker
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
+State: ACCEPT_PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_ARGUS_RESULT.md
+Next: MIMIR closes PR525F and decides the next locked move
 ```
 
-MIMIR implemented PR525F after DAEDALUS did not consume either implementation
-wake. The confined `/forums` index now computes to the exact measured `210px /
-720px / 260px` desktop frame, `18px` gaps, `720px x 128px` feed cards, `354px`
-and `339px` mobile feeds, and `172px` narrow cards. Real category and community
-route links, feed-first mobile order, native keyboard/touch disclosure,
-loading/error/empty truth, full validation, and zero-overflow rendered proof
-pass. Unsupported sorting, votes, ranking, activity, provenance, hard-coded
-salons, posting modes, fabricated fallback data, new APIs, and broad reskin
-work remain excluded.
+ARGUS accepts PR525F after changing the unsupported `Feeds` route-group heading
+to the literal `Navigate`. The confined `/forums` index computes to the exact
+measured `210px / 720px / 260px` desktop frame, `18px` gaps, `720px x 128px`
+normal cards, `354px` and `339px` mobile feeds, and `172px` normal narrow cards.
+Real response-ordered category/community routes, feed-first mobile order,
+native keyboard disclosure, long-content growth, loading/error/empty truth,
+full validation, and zero-overflow rendered proof pass. Unsupported sorting,
+votes, ranking, activity, provenance, hard-coded salons, posting modes,
+fabricated fallback data, new APIs, and broad reskin work remain excluded.
 
 Parallel current-head audit result:
 
@@ -152,7 +152,7 @@ PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
 PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
 PR525E - Compact Chat Visual System And Honest States              CLOSED
-PR525F - Forums Three-Column Honest Composition                    READY FOR ARGUS REVIEW
+PR525F - Forums Three-Column Honest Composition                    ACCEPTED BY ARGUS
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + ACCEPTED PR526B

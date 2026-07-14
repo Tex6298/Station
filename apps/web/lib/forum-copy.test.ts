@@ -96,7 +96,8 @@ test("forum index uses the measured honest three-column composition", () => {
   assert.match(page, /href: "\/forums\/reports"/);
   assert.match(page, /forumCategoryDescriptionCopy\(category\.description\)/);
   assert.match(page, /forumCategoryEntryLabel\(\{ subcommunity: category\.subcommunity \}\)/);
-  assert.doesNotMatch(page, /<button|Popular|Following|Best|Hot|active now|human-led|vote count|sort_order\}/);
+  assert.match(page, /<h2>Navigate<\/h2>/);
+  assert.doesNotMatch(page, /<button|>Feeds<|Popular|Following|Best|Hot|active now|human-led|vote count|sort_order\}/);
 
   assert.match(css, /\.forum-index-layout\s*\{[\s\S]*?grid-template-columns: 210px 720px 260px;[\s\S]*?gap: 18px;/);
   assert.match(css, /\.forum-index\.container\s*\{[\s\S]*?max-width: 1262px;[\s\S]*?padding: 18px 18px 56px;/);

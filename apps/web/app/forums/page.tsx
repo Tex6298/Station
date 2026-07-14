@@ -52,7 +52,7 @@ export default function ForumsPage() {
       <div className="forum-index-layout">
         <aside className="forum-index-left-rail" aria-label="Forum navigation">
           <section className="forum-index-rail-section">
-            <h2>Feeds</h2>
+            <h2>Navigate</h2>
             <ForumRouteLinks className="forum-index-route-list" />
           </section>
 
