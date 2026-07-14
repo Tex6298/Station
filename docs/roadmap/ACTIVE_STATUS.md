@@ -4,38 +4,49 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR523D accepted by ARGUS
+## Current lane - PR525A Discern rendered visual parity specification
 
-ARGUS completed the independent PR523D code review:
+MIMIR closed PR523D as the accepted narrow discoverability repair:
 
-`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_ARGUS_RESULT.md`
+`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_CLOSEOUT_MIMIR.md`
+
+The product-owner correction at `4d456fd5` makes clear that safe behavior and
+route visibility did not carry over the requested final Discern visual
+composition. MIMIR recorded the corrected premise and opened PR525:
+
+`docs/roadmap/PR525_DISCERN_FINAL_VISUAL_COMPOSITION_RECTIFICATION_MIMIR.md`
 
 Current lane:
 
 ```text
-PR523D - Studio Companion Entry Affordance Repair
-Owner: MIMIR / A1
-State: ACCEPT_PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR
+PR525A - Discern Rendered Visual Parity Specification
+Owner: ARIADNE / A4
+State: OPEN_RENDERED_PARITY_SPECIFICATION
+Source: docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_ARIADNE.md
 ```
 
-The narrow `Open Companion` action reuses the accepted owner-private new-chat
-resolver, preserves zero-persona setup and multi-persona navigation, and does
-not redirect `/studio` or widen API, auth, public-route, infrastructure, or
-product scope. ARGUS added executable one- and multi-persona resolver assertions
-to make the route fallback validation explicit.
+PR525A is a rendered implementation specification, not another optional delta
+audit. ARIADNE must compare final Discern `de7b918e` and current Tex side by
+side on desktop, `390px`, and `375px`, measure the visual differences, place
+newer Tex capability without losing it, and hand MIMIR exact DAEDALUS slices.
+Commit `99ae8a5c` is lineage only; its removed topbar/right panel are not part of
+the target.
 
-MIMIR's hosted rehearsal at implementation commit `5ab82d09` independently
-proved desktop and `390px` first-viewport discovery, private companion routing,
-refresh persistence, mobile fit, signed-out no-drift, and zero page errors:
+The final light composition is corrected first. Dark mode follows through
+shared theme tokens only after light parity is accepted. Phase 3 product
+expansion and PR524B remain paused under the existing MIMIR directive.
 
-`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_HOSTED_HUMAN_REHEARSAL_MIMIR_RESULT.md`
+## Previous lane - PR523D Studio companion entry affordance repair closed
 
-Focused tests, the 245-test Studio UI suite, typecheck, lint, whitespace, scope,
-and high-risk secret checks pass. No DAEDALUS fix or duplicate ARIADNE rehearsal
-is required; MIMIR owns closeout and next-lane sequencing.
+```text
+PR523D - Studio Companion Entry Affordance Repair
+Owner chain: MIMIR -> DAEDALUS (stalled) -> MIMIR -> ARGUS -> MIMIR
+State: CLOSE_PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_ACCEPTED
+```
 
-Phase 3 product expansion and PR524B remain paused under the existing MIMIR
-directive.
+PR523D's first-viewport `Open Companion` repair, focused validation, ARGUS
+route-test patch, and hosted desktop/mobile proof remain accepted. Its scope was
+discoverability; it did not close final Discern visual parity.
 
 ## Previous lane - PR523C hosted companion-first UI visibility reconciliation
 

@@ -1,5 +1,10 @@
 # PR501 - Discern Companion UI Delta Revalidation Result
 
+> Superseded for visual-parity purposes on 2026-07-14 by PR525. PR501 proved
+> safe behavior and current-route usability, but it did not render and match the
+> final Discern visual composition at `de7b918e`. Its `no remaining safe delta`
+> conclusion must not be used to waive PR525.
+
 Date: 2026-07-06
 
 Owner: ARIADNE / A4

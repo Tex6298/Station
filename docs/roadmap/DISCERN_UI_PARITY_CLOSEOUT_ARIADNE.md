@@ -1,5 +1,11 @@
 # Discern UI/UX Parity Closeout - ARIADNE
 
+> Superseded for visual-parity purposes on 2026-07-14 by PR525. The product
+> owner clarified that the final rendered composition at Discern `de7b918e`
+> was the requested correction, not optional reference material. This document
+> remains historical staging evidence only and must not be cited to close
+> visual parity.
+
 Date: 2026-06-14
 Reviewer: ARIADNE / A4
 Status: accepted for current staging/replay target.
