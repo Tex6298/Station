@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525E review baton.
+This directive does not interrupt the active PR525F implementation baton.
 
 Closeout requires all of the following:
 
@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525E accepted by ARGUS
+## Current lane - PR525F Forums Three-Column Honest Composition
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -53,14 +53,13 @@ occupancy in the long-name stress case, Advanced Studio lazy loading, persona
 isolation, focused/full tests, and independent desktop/mobile proof pass.
 PR525D itself did not alter PR525E message/composer behavior.
 
-ARGUS review result:
+Closed chat dependency:
 
 ```text
 PR525E - Compact Chat Visual System And Honest States
 Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
-State: ACCEPT_PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_WITH_ARGUS_PATCH
-Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ARGUS_RESULT.md
-Next: MIMIR closes PR525E and decides the next locked move
+State: CLOSE_PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ACCEPTED
+Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_CLOSEOUT_MIMIR.md
 ```
 
 ARGUS accepts PR525E after a narrow patch surfaced previously swallowed
@@ -72,6 +71,23 @@ plus log occupancy, native keyboard/touch action disclosure, provider/archive/
 candidate truth, mobile fit, full tests, and independent rendered proof pass.
 Existing routes, owner/auth boundaries, API payloads, provider/stream behavior,
 PR525F, and PR526 scope remain untouched.
+
+Current implementation task:
+
+```text
+PR525F - Forums Three-Column Honest Composition
+Owner chain: MIMIR -> DAEDALUS
+State: READY_FOR_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR525F_FORUMS_THREE_COLUMN_HONEST_COMPOSITION_DAEDALUS.md
+Next: DAEDALUS implements, commits a measured result, and wakes ARGUS
+```
+
+PR525F is confined to the `/forums` category index. It translates Discern's
+measured `210px / 720px / 260px` desktop frame and feed-first mobile hierarchy
+onto real Tex categories, subcommunities, recognition, report-status, and
+navigation routes. Unsupported sorting, votes, ranking, activity, provenance,
+salons, posting modes, fabricated fallback data, new APIs, and broad reskin
+work are explicitly excluded.
 
 Parallel current-head audit result:
 
@@ -132,8 +148,8 @@ PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
 PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
 PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
-PR525E - Compact Chat Visual System And Honest States              ACCEPTED BY ARGUS
-PR525F - Forums Three-Column Honest Composition                    PENDING
+PR525E - Compact Chat Visual System And Honest States              CLOSED
+PR525F - Forums Three-Column Honest Composition                    ACTIVE / DAEDALUS
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + ACCEPTED PR526B

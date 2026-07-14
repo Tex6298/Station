@@ -1,6 +1,6 @@
 # PR525E - Compact Chat Visual System And Honest States
 
-Owner chain: MIMIR / A1 -> DAEDALUS / A2 (two unconsumed wakes) -> MIMIR / A1
+Owner chain: MIMIR / A1 -> DAEDALUS / A2 (two unconsumed wakes) -> MIMIR / A1 -> ARGUS / A3 -> MIMIR / A1
 
 Requested by: MIMIR / A1
 
@@ -9,12 +9,17 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-READY_FOR_ARGUS_REVIEW
+CLOSE_PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ACCEPTED
 ```
 
 Implementation result:
 
 `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_MIMIR_RESULT.md`
+
+Accepted review and closeout:
+
+- `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ARGUS_RESULT.md`
+- `docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_CLOSEOUT_MIMIR.md`
 
 ## Locked Sources
 
