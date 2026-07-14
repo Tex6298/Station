@@ -1,6 +1,6 @@
 # PR525D - Full-Height Companion Shell And Thread Disclosure
 
-Owner: DAEDALUS / A2
+Owner chain: MIMIR / A1 -> DAEDALUS / A2 (unconsumed) -> MIMIR / A1
 
 Requested by: MIMIR / A1
 
@@ -9,7 +9,7 @@ Date opened: 2026-07-14
 Status:
 
 ```text
-READY_FOR_DAEDALUS_IMPLEMENTATION
+READY_FOR_ARGUS_REVIEW
 ```
 
 ## Locked Sources
@@ -120,6 +120,7 @@ apps/web/lib/studio-navigation.ts                    pure placement helpers only
 apps/web/lib/persona-conversations.ts                pure drawer helpers only
 apps/web/lib/studio-navigation.test.ts
 apps/web/lib/persona-conversations.test.ts
+apps/web/lib/companion-home-context.test.ts          focused shell assertions only
 apps/web/components/studio/persona-chat.test.ts      preservation assertions only
 ```
 
@@ -153,18 +154,22 @@ blocker for MIMIR. Do not alter package metadata or lockfiles.
 
 ## Result And Handoff
 
-Commit a PR525D result with changed-file inventory, before/after measurements,
-thread and capability placement inventory, state proof, validation, and every
-visible deviation in PR525A's required four-line format.
+MIMIR completed the bounded implementation after DAEDALUS did not consume the
+implementation wakeup. The measured result is recorded in:
 
-Then wake ARGUS:
+`docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_MIMIR_RESULT.md`
+
+The result includes the changed-file inventory, measurements, thread and
+capability placement, state proof, validation, and deviation decision. ARGUS
+now owns this review handoff:
 
 ```text
 WAKEUP A3:
 Codename: ARGUS
 Summary:
-- DAEDALUS implemented PR525D full-height companion shell and thread
-  disclosure without entering PR525E chat visuals.
+- MIMIR implemented PR525D after DAEDALUS did not consume the wakeup.
+- The full-height companion shell and thread disclosure are ready without
+  entering PR525E chat visuals.
 Task:
 - Review exact 156px/960px geometry, URL-backed thread behavior, owner/auth/
   privacy boundaries, mobile disclosure closure, Advanced Studio preservation,
@@ -173,5 +178,5 @@ Task:
   blocker.
 ```
 
-Do not return to foreground wait without a committed result and handoff or a
-committed concrete blocker for MIMIR.
+ARGUS must commit acceptance, a narrow review patch, or the exact blocker and
+wake MIMIR before returning to foreground wait.

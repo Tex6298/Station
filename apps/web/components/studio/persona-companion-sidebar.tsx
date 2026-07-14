@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
 import {
-  filterStudioPersonas,
   studioPersonaCompanionShortcuts,
   studioPersonaConversationHref,
 } from "@/lib/studio-navigation";
@@ -26,86 +25,115 @@ export function PersonaCompanionSidebar({
   selectedConversationId: string | null;
 }) {
   const [filter, setFilter] = useState("");
+  const mobileDisclosureRef = useRef<HTMLDetailsElement>(null);
   const visibleThreads = filterPersonaConversations(conversations, filter);
-  const visiblePersonas = filterStudioPersonas(
-    personas.filter((candidate) => candidate.id !== persona.id),
-    filter,
-  );
   const shortcuts = studioPersonaCompanionShortcuts(persona.id);
+  const ownedPersonas = personas.some((candidate) => candidate.id === persona.id)
+    ? personas
+    : [persona, ...personas];
+  const selectedConversation = conversations.find((conversation) => conversation.id === selectedConversationId);
+  const selectedThreadLabel = selectedConversation
+    ? personaConversationTitle(selectedConversation)
+    : selectedConversationId
+      ? "Unavailable thread"
+      : "New conversation";
   const newChatHref = studioPersonaConversationHref(persona.id, "new");
+  const careLinks = [
+    ...shortcuts,
+    { label: "Canon", href: `/studio/personas/${persona.id}/canon` },
+    { label: "Archive", href: `/studio/personas/${persona.id}/files` },
+  ];
+
+  function closeMobileAfterSelection(event: React.MouseEvent<HTMLElement>) {
+    if (event.target instanceof Element && event.target.closest("a")) {
+      mobileDisclosureRef.current?.removeAttribute("open");
+    }
+  }
 
   return (
     <>
       <aside className="studio-companion-sidebar" aria-label={`${persona.name} conversations`}>
-        <div className="studio-companion-sidebar-brand">
-          <Link href="/studio">Station</Link>
-          <span>Private companion</span>
-        </div>
-
         <div className="studio-companion-sidebar-actions">
           <Link href={newChatHref} className="studio-companion-sidebar-primary">New chat</Link>
           <Link href="/studio/new">New persona</Link>
         </div>
 
-        <label className="studio-companion-filter">
-          <span>Filter this companion&apos;s threads and your personas</span>
-          <input
-            value={filter}
-            onChange={(event) => setFilter(event.currentTarget.value)}
-            placeholder="Filter threads or personas"
-          />
-        </label>
-
         <div className="studio-companion-sidebar-scroll">
-          <div className="studio-companion-sidebar-label">{persona.name}</div>
-          <Link
-            href={newChatHref}
-            className="studio-companion-thread"
-            aria-current={selectedConversationId === null ? "page" : undefined}
-          >
-            <span>New conversation</span>
-          </Link>
-          {visibleThreads.map((conversation) => (
-            <Link
-              key={conversation.id}
-              href={studioPersonaConversationHref(persona.id, conversation.id)}
-              className="studio-companion-thread"
-              aria-current={selectedConversationId === conversation.id ? "page" : undefined}
-            >
-              <span>{personaConversationTitle(conversation)}</span>
-              {conversation.status === "archived" ? <small>Archived</small> : null}
-            </Link>
-          ))}
-          {conversations.length > 0 && visibleThreads.length === 0 ? (
-            <p className="studio-companion-filter-empty">No matching threads.</p>
-          ) : null}
-
-          <div className="studio-companion-sidebar-label">Companion care</div>
-          <nav className="studio-companion-sidebar-links" aria-label="Companion care">
-            {shortcuts.map((shortcut) => (
-              <Link key={shortcut.href} href={shortcut.href}>{shortcut.label}</Link>
+          <div className="studio-companion-sidebar-label">Companions</div>
+          <nav className="studio-companion-personas" aria-label="Your companions">
+            {ownedPersonas.map((candidate, index) => (
+              <Link
+                key={candidate.id}
+                href={`/studio/personas/${candidate.id}`}
+                className="studio-companion-persona"
+                aria-current={candidate.id === persona.id ? "page" : undefined}
+                title={candidate.name}
+              >
+                <span className="studio-companion-persona-dot" data-index={index % 5} aria-hidden="true" />
+                <span>{candidate.name}</span>
+              </Link>
             ))}
           </nav>
 
-          <div className="studio-companion-sidebar-label">Other personas</div>
-          <nav className="studio-companion-sidebar-links" aria-label="Other personas">
-            {visiblePersonas.map((candidate) => (
-              <Link key={candidate.id} href={`/studio/personas/${candidate.id}`}>{candidate.name}</Link>
-            ))}
-            {personas.length > 1 && visiblePersonas.length === 0 ? (
-              <p className="studio-companion-filter-empty">No matching personas.</p>
-            ) : null}
-          </nav>
+          <details className="studio-companion-disclosure studio-companion-threads">
+            <summary>
+              <span>Threads</span>
+              <small>{selectedThreadLabel} / {conversations.length}</small>
+            </summary>
+            <div className="studio-companion-disclosure-panel">
+              <label className="studio-companion-filter">
+                <span className="visually-hidden">Filter {persona.name}&apos;s threads</span>
+                <input
+                  value={filter}
+                  onChange={(event) => setFilter(event.currentTarget.value)}
+                  placeholder="Find thread"
+                  aria-label={`Filter ${persona.name}'s threads`}
+                />
+              </label>
+              <nav className="studio-companion-thread-list" aria-label={`${persona.name} threads`}>
+                <ThreadLink
+                  href={newChatHref}
+                  label="New conversation"
+                  selected={selectedConversationId === null}
+                />
+                {visibleThreads.map((conversation) => (
+                  <ThreadLink
+                    key={conversation.id}
+                    href={studioPersonaConversationHref(persona.id, conversation.id)}
+                    label={personaConversationTitle(conversation)}
+                    selected={selectedConversationId === conversation.id}
+                    archived={conversation.status === "archived"}
+                  />
+                ))}
+              </nav>
+              {conversations.length > 0 && visibleThreads.length === 0 ? (
+                <p className="studio-companion-filter-empty">No matching threads.</p>
+              ) : null}
+              {conversations.length === 0 ? (
+                <p className="studio-companion-filter-empty">No saved threads yet.</p>
+              ) : null}
+            </div>
+          </details>
+
+          <details className="studio-companion-disclosure studio-companion-care">
+            <summary>
+              <span>Companion care</span>
+              <small>Memory, continuity, profile</small>
+            </summary>
+            <nav className="studio-companion-sidebar-links" aria-label="Companion care">
+              {careLinks.map((link) => (
+                <Link key={link.href} href={link.href}>{link.label}</Link>
+              ))}
+              <Link href="/studio">Studio home</Link>
+              <Link href="/studio/publish">Publish</Link>
+            </nav>
+          </details>
         </div>
 
-        <nav className="studio-companion-sidebar-footer" aria-label="Studio destinations">
-          <Link href="/studio">Studio home</Link>
-          <Link href="/studio/publish">Publish</Link>
-          <Link href="/settings">Settings</Link>
-        </nav>
+        <Link href="/settings" className="studio-companion-settings">Settings</Link>
       </aside>
 
-      <details className="studio-companion-mobile-nav">
+      <details ref={mobileDisclosureRef} className="studio-companion-mobile-nav">
         <summary>
           <span>
             <small>Private companion</small>
@@ -113,23 +141,107 @@ export function PersonaCompanionSidebar({
           </span>
           <span>Navigate</span>
         </summary>
-        <nav aria-label={`${persona.name} mobile navigation`}>
-          <Link href={newChatHref} aria-current={selectedConversationId === null ? "page" : undefined}>New chat</Link>
-          <Link href="/studio">Studio home</Link>
-          {shortcuts.map((shortcut) => (
-            <Link key={shortcut.href} href={shortcut.href}>{shortcut.label}</Link>
-          ))}
-          {conversations.slice(0, 6).map((conversation) => (
-            <Link
-              key={conversation.id}
-              href={studioPersonaConversationHref(persona.id, conversation.id)}
-              aria-current={selectedConversationId === conversation.id ? "page" : undefined}
-            >
-              {personaConversationTitle(conversation)}
-            </Link>
-          ))}
-        </nav>
+        <div className="studio-companion-mobile-panel" onClick={closeMobileAfterSelection}>
+          <div className="studio-companion-mobile-current">
+            <span>Current thread</span>
+            <strong>{selectedThreadLabel}</strong>
+            <small>Owner-only conversation</small>
+          </div>
+
+          <nav className="studio-companion-mobile-grid" aria-label="Companion actions">
+            <Link href={newChatHref} aria-current={selectedConversationId === null ? "page" : undefined}>New chat</Link>
+            <Link href="/studio/new">New persona</Link>
+          </nav>
+
+          <section className="studio-companion-mobile-section">
+            <span>Companions</span>
+            <nav className="studio-companion-mobile-list" aria-label="Your mobile companions">
+              {ownedPersonas.map((candidate) => (
+                <Link
+                  key={candidate.id}
+                  href={`/studio/personas/${candidate.id}`}
+                  aria-current={candidate.id === persona.id ? "page" : undefined}
+                >
+                  {candidate.name}
+                </Link>
+              ))}
+            </nav>
+          </section>
+
+          <section className="studio-companion-mobile-section">
+            <span>Threads</span>
+            <label className="studio-companion-filter">
+              <span className="visually-hidden">Filter {persona.name}&apos;s mobile threads</span>
+              <input
+                value={filter}
+                onChange={(event) => setFilter(event.currentTarget.value)}
+                placeholder="Find thread"
+                aria-label={`Filter ${persona.name}'s mobile threads`}
+              />
+            </label>
+            <nav className="studio-companion-mobile-list" aria-label={`${persona.name} mobile threads`}>
+              <Link href={newChatHref} aria-current={selectedConversationId === null ? "page" : undefined}>
+                New conversation
+              </Link>
+              {visibleThreads.map((conversation) => (
+                <Link
+                  key={conversation.id}
+                  href={studioPersonaConversationHref(persona.id, conversation.id)}
+                  aria-current={selectedConversationId === conversation.id ? "page" : undefined}
+                >
+                  <span>{personaConversationTitle(conversation)}</span>
+                  {conversation.status === "archived" ? <small>Archived</small> : null}
+                </Link>
+              ))}
+            </nav>
+            {conversations.length > 0 && visibleThreads.length === 0 ? (
+              <p className="studio-companion-filter-empty">No matching threads.</p>
+            ) : null}
+            {conversations.length === 0 ? (
+              <p className="studio-companion-filter-empty">No saved threads yet.</p>
+            ) : null}
+          </section>
+
+          <section className="studio-companion-mobile-section">
+            <span>Companion care</span>
+            <nav className="studio-companion-mobile-grid" aria-label="Mobile companion care">
+              {careLinks.map((link) => (
+                <Link key={link.href} href={link.href}>{link.label}</Link>
+              ))}
+            </nav>
+          </section>
+
+          <nav className="studio-companion-mobile-grid" aria-label="Mobile Studio destinations">
+            <Link href="/studio">Studio home</Link>
+            <Link href="/studio/publish">Publish</Link>
+            <Link href="/settings">Settings</Link>
+          </nav>
+        </div>
       </details>
     </>
+  );
+}
+
+function ThreadLink({
+  href,
+  label,
+  selected,
+  archived = false,
+}: {
+  href: string;
+  label: string;
+  selected: boolean;
+  archived?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="studio-companion-thread"
+      aria-current={selected ? "page" : undefined}
+      title={label}
+    >
+      <span>{label}</span>
+      {archived ? <small>Archived</small> : null}
+    </Link>
   );
 }

@@ -88,6 +88,7 @@ test("persona home puts the focused conversation shell before Advanced Studio", 
   assert.match(page, /selectedConversationId=\{target\.id\}/);
   assert.match(page, /onConversationCreated=\{conversationCreated\}/);
   assert.match(page, /data-studio-shell="companion"/);
+  assert.match(page, /className="studio-companion-primary" data-companion-primary/);
   assert.match(page, /<PersonaCompanionSidebar/);
   assert.match(page, /aria-label="Companion context rail"/);
   assert.match(page, /<strong>Advanced Studio<\/strong>/);
@@ -108,13 +109,40 @@ test("persona home puts the focused conversation shell before Advanced Studio", 
   assert.doesNotMatch(page, /<PersonaWorkspaceHeader/);
 });
 
-test("companion shell CSS stays scoped and retains mobile first-viewport rules", () => {
+test("companion navigation keeps complete inventories in ordered disclosures", () => {
+  const sidebar = readFileSync("apps/web/components/studio/persona-companion-sidebar.tsx", "utf8");
+  const actionsIndex = sidebar.indexOf('className="studio-companion-sidebar-actions"');
+  const personasIndex = sidebar.indexOf('<div className="studio-companion-sidebar-label">Companions</div>');
+  const threadsIndex = sidebar.indexOf('className="studio-companion-disclosure studio-companion-threads"');
+  const careIndex = sidebar.indexOf('className="studio-companion-disclosure studio-companion-care"');
+  const settingsIndex = sidebar.indexOf('className="studio-companion-settings"');
+
+  assert.equal(actionsIndex > -1, true);
+  assert.equal(personasIndex > actionsIndex, true);
+  assert.equal(threadsIndex > personasIndex, true);
+  assert.equal(careIndex > threadsIndex, true);
+  assert.equal(settingsIndex > careIndex, true);
+  assert.match(sidebar, /<summary>[\s\S]*?<span>Threads<\/span>/);
+  assert.match(sidebar, /visibleThreads\.map\(\(conversation\) =>/);
+  assert.match(sidebar, /ownedPersonas\.map\(\(candidate/);
+  assert.match(sidebar, /mobileDisclosureRef\.current\?\.removeAttribute\("open"\)/);
+  assert.match(sidebar, /className="studio-companion-mobile-panel" onClick=\{closeMobileAfterSelection\}/);
+  assert.doesNotMatch(sidebar, /\.slice\(0, 6\)|studio-companion-sidebar-brand/);
+});
+
+test("companion shell CSS stays scoped and retains exact desktop and mobile geometry", () => {
   const css = readFileSync("apps/web/app/globals.css", "utf8");
   assert.match(css, /\.studio-companion-shell\s*\{/);
-  assert.match(css, /grid-template-columns: 232px minmax\(0, 1fr\)/);
-  assert.match(css, /@media \(max-width: 960px\)/);
+  assert.match(css, /grid-template-columns: 156px minmax\(0, 1fr\)/);
+  assert.match(css, /\.studio-companion-primary\s*\{[\s\S]*?grid-template-rows: auto 34px minmax\(0, 1fr\)/);
+  assert.match(css, /\.studio-companion-shortcuts\.studio-companion-shortcuts-compact\s*\{[\s\S]*?grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+  assert.match(css, /height: calc\(100dvh - var\(--station-global-nav-height\)\)/);
+  assert.match(css, /@media \(max-width: 959px\)/);
   assert.match(css, /\.studio-companion-mobile-nav/);
-  assert.match(css, /height: max\(340px, calc\(100dvh - 307px\)\)/);
+  assert.match(css, /\.studio-companion-mobile-panel\s*\{[\s\S]*?max-height: min\(76dvh, 640px\)/);
+  assert.match(css, /height: calc\(100dvh - var\(--station-global-nav-height\) - 56px\)/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-return-text\s*\{[\s\S]*?flex: none/);
   assert.match(css, /@media \(max-width: 390px\)/);
+  assert.doesNotMatch(css, /grid-template-columns: 232px minmax\(0, 1fr\)|@media \(max-width: 960px\)/);
   assert.doesNotMatch(css, /\.public-persona[^,{]*\.studio-companion|\.studio-companion[^,{]*\.public-persona/);
 });

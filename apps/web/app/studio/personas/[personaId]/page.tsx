@@ -172,28 +172,30 @@ function PersonaPageInner() {
       />
 
       <main className="studio-companion-page">
-        <header className="studio-companion-header" data-companion-primary>
-          <div>
-            <div className="studio-kicker">Private companion</div>
-            <h1>{persona.name}</h1>
-            <p>{persona.shortDescription || "A private place to talk, remember, and shape what comes next."}</p>
-          </div>
-          <nav className="studio-companion-header-actions" aria-label="Companion workspace actions">
-            <span>Owner-only</span>
-            <Link href={`/studio/personas/${persona.id}/edit`}>Profile</Link>
-            <Link href="/studio">Studio home</Link>
-          </nav>
-        </header>
+        <section className="studio-companion-primary" data-companion-primary>
+          <header className="studio-companion-header">
+            <div>
+              <div className="studio-kicker">Private companion</div>
+              <h1>{persona.name}</h1>
+              <p>{persona.shortDescription || "A private place to talk, remember, and shape what comes next."}</p>
+            </div>
+            <nav className="studio-companion-header-actions" aria-label="Companion workspace actions">
+              <span>Owner-only</span>
+              <Link href={`/studio/personas/${persona.id}/edit`}>Profile</Link>
+              <Link href="/studio">Studio home</Link>
+            </nav>
+          </header>
 
-        <CompanionShortcutStrip personaId={persona.id} />
-        <PersonaChat
-          personaId={persona.id}
-          personaName={persona.name}
-          selectedConversationId={target.id}
-          onStartNewChat={startNewChat}
-          onConversationCreated={conversationCreated}
-          onConversationArchived={() => void refreshConversations()}
-        />
+          <CompanionShortcutStrip personaId={persona.id} />
+          <PersonaChat
+            personaId={persona.id}
+            personaName={persona.name}
+            selectedConversationId={target.id}
+            onStartNewChat={startNewChat}
+            onConversationCreated={conversationCreated}
+            onConversationArchived={() => void refreshConversations()}
+          />
+        </section>
 
         <details className="studio-companion-advanced" data-companion-secondary onToggle={advancedToggled}>
           <summary>

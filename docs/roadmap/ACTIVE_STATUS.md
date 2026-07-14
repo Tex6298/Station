@@ -7,17 +7,18 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt or transfer the PR525D implementation baton
-or the parallel PR526A audit baton.
+This directive does not interrupt PR525D review or the queued PR526B boundary
+preflight.
 
 Closeout requires all of the following:
 
 - complete and review PR525D, PR525E, and PR525F;
-- reconcile Discern head `ff93308b` through an accepted PR526A
-  adoption/deviation decision and any UI implementation MIMIR places inside
-  this integration;
+- reconcile Discern head `ff93308b` through the accepted PR526A
+  adoption/deviation decision and PR526B boundary preflight; PR526C-F remain
+  parked unless that preflight identifies a concrete correction needed to make
+  this UI closeout truthful;
 - complete hosted PR525G desktop and mobile proof;
-- complete the already-promised light/dark theme treatment using the accepted
+- complete PR525H shared light/dark theme treatment using the accepted
   composition rather than reopening a broad reskin;
 - commit one final UI integration closeout naming implemented work, deliberate
   deviations, hosted proof, theme status, and anything explicitly parked or
@@ -29,27 +30,27 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lanes - PR525D implementation and PR526A placement
+## Current lanes - PR525D review and PR526B boundary placement
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
 `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_CLOSEOUT_MIMIR.md`
 
-Active implementation handoff:
+Active review handoff:
 
 ```text
 PR525D - Full-Height Companion Shell And Thread Disclosure
-Owner: DAEDALUS / A2
-State: READY_FOR_DAEDALUS_IMPLEMENTATION
-Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_DAEDALUS.md
+Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
+Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_MIMIR_RESULT.md
 ```
 
-PR525D is the next clean dependency from ARIADNE's measured `de7b918e`
-composition. It applies the exact warm `156px` companion rail, moves the
-complete URL-backed thread directory and filter behind a keyboard-safe
-`Threads` disclosure, makes conversation own the first workspace viewport,
-collapses to a full-width mobile companion summary below `960px`, and leaves
-PR525E's chat visuals and behavior untouched.
+MIMIR completed PR525D after DAEDALUS did not consume either implementation
+wake. Exact warm `156px` rail and `960px` collapse, complete URL-backed thread
+disclosure, `854px` desktop primary workspace, full-width mobile companion
+summary, keyboard closure, Advanced Studio preservation, focused/full tests,
+and rendered desktop/mobile proof pass. PR525E chat visuals and behavior remain
+untouched.
 
 Parallel current-head audit result:
 
@@ -69,36 +70,61 @@ adaptable direction, but rejects the source action engine, `POST
 replacement flows, duplicate routes, auth-token sweep, and global CSS. Failed
 writes advanced to false success without visible recovery, private memory
 entered localStorage, primary mobile billing was hidden, and the source
-typecheck fails. MIMIR now owns explicit implementation/deferral placement and
-must wake ARGUS for boundary preflight before any PR526 implementation.
+typecheck fails. MIMIR has placed the result as presentation direction only and
+queued ARGUS's docs-only PR526B boundary preflight before any PR526
+implementation.
+
+Placement:
+
+```text
+PR526B - Discern Guided-Task Boundary Preflight
+Owner: ARGUS / A3 after PR525D review
+State: READY_FOR_ARGUS_PREFLIGHT_AFTER_PR525D_REVIEW
+Source: docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_ARGUS.md
+
+PR526C-F - guided-task primitives and three proposed pilots
+State: PARKED_BEHIND_TERMINAL_UI_CLOSEOUT_PAUSE
+```
+
+PR526B authorizes no code. It must confirm the rejection of the source action
+runner, provider endpoint, localStorage, replacement flows, duplicate routes,
+auth sweep, and global CSS; preserve every Tex server contract; and decide
+whether any exact correction is needed before PR525G can truthfully record
+fresh-head reconciliation. In the absence of such a correction, PR526C-F stay
+parked for a later explicit product decision.
 
 The two lanes remain intentionally parallel. `ff93308b` does not modify the
 main companion page, `PersonaChat`, companion rail, Forums index, Discover,
 Writing browse, or Developer Space observatory dashboards, so PR525D-F
 continue. PR525G cannot call the comparison current-Discern complete until
-MIMIR records PR526A placement and ARGUS boundary-preflight sequencing.
-Affected creation/configuration surfaces remain frozen from new redesign or
-expansion until that decision; truthful fixes and current owner work continue.
+ARGUS accepts the PR526B boundary and parked placement. Affected
+creation/configuration surfaces remain frozen from new redesign or expansion
+until that decision; truthful fixes and current owner work continue.
 
 Locked sequence and gate:
 
 ```text
 PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
 PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
-PR525D - Full-Height Companion Shell And Thread Disclosure         ACTIVE
-PR525E - Compact Chat Visual System And Honest States              NEXT
+PR525D - Full-Height Companion Shell And Thread Disclosure         READY FOR ARGUS REVIEW
+PR526B - Guided-Task Boundary Preflight                             QUEUED AFTER PR525D REVIEW
+PR525E - Compact Chat Visual System And Honest States              NEXT AFTER PR525D ACCEPTANCE
 PR525F - Forums Three-Column Honest Composition                    PENDING
-PR526A - Fresh-Head Conversational Flow Delta Audit                AUDIT COMPLETE / PLACEMENT GATE
-PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + PR526A PLACEMENT
+PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
+PR526C-F - Guided-Task Implementation Proposals                    PARKED
+PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + ACCEPTED PR526B
+PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    AFTER PR525G
+Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```
 
 Commit `99ae8a5c` remains lineage only; its removed persona topbar/right panel
 are not part of the target. PR525's accepted visual source remains `de7b918e`;
 PR526A prevents that snapshot from being mistaken for a current-head audit.
 
-The final light composition is corrected first. Dark mode follows through
-shared theme tokens only after light parity is accepted. Phase 3 product
-expansion and PR524B remain paused under the existing MIMIR directive.
+The final light composition is corrected first. PR525H then carries shared
+light/dark tokens and hosted dual-mode rehearsal without reopening a broad
+reskin. Phase 3 product expansion and PR524B remain paused under the existing
+MIMIR directive.
 
 ## Previous lane - PR523D Studio companion entry affordance repair closed
 
