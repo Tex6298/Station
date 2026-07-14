@@ -50,8 +50,9 @@ exact-persona companion, chat, or Forums file changed.
 - Removed the duplicate Station brand and permanent token/storage meters.
 - Kept the permanent hierarchy deliberately small: New Chat, New Persona,
   personas, one `More Studio` disclosure, and Settings fixed at the bottom.
-- Kept active-persona treatment, long-name wrapping, an honest no-persona and
-  no-match state, and persona filtering inside the named disclosure.
+- Kept active-persona treatment, desktop name ellipsis with a full-title
+  fallback, mobile/dashboard wrapping, honest no-persona and no-match states,
+  and persona filtering inside the named disclosure.
 - At `959px` and below, removed the desktop rail and supplied one compact,
   full-width, height-bounded Studio disclosure below global navigation.
 - The mobile disclosure uses native links and details/summary semantics,

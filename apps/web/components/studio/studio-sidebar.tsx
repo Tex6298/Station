@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { apiGet } from "@/lib/api-client";
@@ -175,15 +175,27 @@ function StudioMobileNav({
   currentContext: StudioRouteContext;
   newChatHref: string;
 }) {
+  const disclosureRef = useRef<HTMLDetailsElement>(null);
+
+  function closeAfterSelection(event: React.MouseEvent<HTMLElement>) {
+    if (event.target instanceof Element && event.target.closest("a")) {
+      disclosureRef.current?.removeAttribute("open");
+    }
+  }
+
   return (
-    <details className="studio-mobile-nav">
+    <details ref={disclosureRef} className="studio-mobile-nav">
       <summary aria-label={STUDIO_MOBILE_NAV_SUMMARY_LABEL}>
         <span className="studio-mobile-nav-current">
           <small>{currentContext.privacy}</small>
           <strong>{currentContext.label}</strong>
         </span>
       </summary>
-      <nav className="studio-mobile-nav-panel" aria-label="Studio mobile navigation">
+      <nav
+        className="studio-mobile-nav-panel"
+        aria-label="Studio mobile navigation"
+        onClick={closeAfterSelection}
+      >
         <div className="studio-mobile-current-card">
           <span>Current stop</span>
           <strong>{currentContext.label}</strong>

@@ -4,33 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525C Studio dashboard and minimal rail
+## Current lane - PR525C accepted by ARGUS
 
-MIMIR closed PR525B accepted:
+ARGUS completed the independent PR525C review:
 
-`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_CLOSEOUT_MIMIR.md`
+`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md`
 
 Current handoff:
 
 ```text
 PR525C - Studio Dashboard And Minimal Rail Composition
-Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md
+Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS -> MIMIR
+State: ACCEPT_PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_WITH_ARGUS_PATCH
+Next: MIMIR closes PR525C and decides the next move
 ```
 
-PR525C now applies the exact `156px` warm general Studio rail, removes the
-desktop rail below `960px`, gives mobile one compact full-width Studio
-disclosure, and restores a warm first-viewport dashboard hierarchy containing
-primary actions, recent companions, and truthful Integrity state. Focused,
-Studio UI, auth, Developer Space, typecheck, lint, diff, and rendered
-desktop/mobile proof pass; ARGUS owns independent review.
+PR525C applies the exact `156px` warm general Studio rail, removes the desktop
+rail below `960px`, gives mobile one compact full-width Studio disclosure, and
+restores a warm first-viewport dashboard hierarchy containing primary actions,
+recent companions, and truthful Integrity state. ARGUS accepted it after a
+narrow patch that closes the mobile disclosure when a destination is selected.
 
 Capability relocation is explicit: quota/storage move out of permanent rail
 chrome to their authoritative Settings/Billing destinations; public presence,
 publishing, onboarding, Archive, Export, Assistant, and private work routes stay
 keyboard reachable through named disclosures and existing routes. Nothing may
 be deleted merely to shorten the page.
+
+ARGUS independently passed 23 focused tests, 250 Studio UI tests, 21 auth tests,
+61 Developer Space tests, typecheck, lint, scope/secret scans, and a local
+desktop/`390px`/`375px` Playwright review. Exact `156px` geometry, first-viewport
+bounds, all nine relocated destinations, signed-out redirect, long-name fit,
+zero horizontal overflow, zero page errors, and post-selection disclosure
+closure pass.
 
 The implementation did not begin the exact-persona companion shell/thread
 drawer, chat visual system, or Forums work reserved for PR525D, PR525E, and
@@ -49,8 +55,13 @@ PR525F - Forums Three-Column Honest Composition
 PR525G - Hosted Light-Parity Rehearsal
 ```
 
-PR525B's implementation, replay-owner proof, and ARGUS acceptance remain
-recorded here:
+MIMIR's implementation/render proof and ARGUS's acceptance are recorded here:
+
+`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md`
+
+`docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md`
+
+PR525B's accepted shared-frame dependency remains recorded here:
 
 `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md`
 

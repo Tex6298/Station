@@ -4,6 +4,49 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525C ARGUS Review - Studio Dashboard And Minimal Rail Composition
+
+ARGUS accepted PR525C on 2026-07-14 with a narrow interaction patch:
+
+- `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_WITH_ARGUS_PATCH`.
+
+Reason:
+
+- the general desktop Studio rail is exactly `156px` at `960px` and above and
+  is absent below that breakpoint;
+- mobile receives one full-width, height-bounded disclosure, now closed after
+  keyboard or pointer link activation instead of covering the selected page;
+- owner-private orientation, companion entry, primary actions, owned
+  companions, and truthful Integrity state precede secondary tools;
+- all nine relocated destinations, complete persona access, filtering,
+  Settings/Billing authority, Archive/Export, and public-presence routes remain
+  reachable without fake controls or counts;
+- session-gated owner reads, protected-route redirect, API/auth/privacy
+  contracts, exact-persona shell separation, and later PR525 boundaries remain
+  intact;
+- Developer Space interiors, API, schema, providers, retrieval, storage,
+  billing implementation, Redis, Cloudflare, queues/workers, deployment,
+  package, and lockfile scope do not change;
+- ARGUS's synthetic-session render review reproduced MIMIR's exact desktop and
+  mobile bounds with zero overflow/page errors, then verified the mobile
+  selection fix independently.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/studio-navigation.test.ts apps/web/components/studio/studio-dashboard.test.ts` | Pass | 23 focused tests passed after the ARGUS patch. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 250 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:auth` | Pass | 21 auth/session/route tests passed. |
+| `npx --yes pnpm@10.32.1 run test:developer-spaces` | Pass | 61 tests passed. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed with no warnings or errors. |
+| Local Playwright review | Pass | Desktop/`390px`/`375px` geometry and signed-out checks passed; a post-patch `390px` keyboard pass verified selection closure with zero page errors. |
+| `git diff --check 064a7c6f^ --` | Pass | No whitespace errors. |
+| Changed-path forbidden-scope scan | Pass | Production changes remain in the bounded Studio dashboard/rail/CSS/test paths. |
+| High-risk secret pattern diff scan | Pass | No secret-shaped literals were found. |
+
 ## PR525B ARGUS Review - Shared Warm-Light Frame And Global Navigation
 
 ARGUS accepted PR525B on 2026-07-14 without a code patch:

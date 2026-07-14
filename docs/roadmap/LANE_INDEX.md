@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525C | Studio Dashboard And Minimal Rail Composition | MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS | Ready for ARGUS review: exact `156px` warm desktop rail, no rail below `960px`, compact mobile disclosure, warm first-viewport dashboard hierarchy, and explicit capability relocation pass local tests and rendered proof without entering PR525D/E/F. | `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_MIMIR_RESULT.md` |
+| PR525C | Studio Dashboard And Minimal Rail Composition | MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS -> MIMIR | Accepted with a narrow ARGUS patch that closes the mobile disclosure after destination selection; exact rail/breakpoint geometry, owner/auth/privacy boundaries, capability relocation, first-viewport composition, Developer Space no-drift, and independent desktop/mobile checks pass. MIMIR closeout is due. | `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR525C review | Studio Dashboard And Minimal Rail Composition | MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_WITH_ARGUS_PATCH`; ARGUS fixed sticky mobile disclosure selection and corrected the desktop long-name claim, with focused/full/auth/Developer Space/typecheck/lint and independent rendered checks passing. | `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_ARGUS_RESULT.md` |
 | PR525B closeout | Shared Warm-Light Frame And 46px Global Navigation | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Closed as `CLOSE_PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ACCEPTED`; shared tokens, exact navigation geometry, route/auth/session behavior, keyboard disclosures, and independent render checks pass. | `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_CLOSEOUT_MIMIR.md` |
 | PR525B review | Shared Warm-Light Frame And 46px Global Navigation | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR | Accepted with no code patch; focused, Studio UI, Developer Space, auth, typecheck/lint, scope/secret, and independent nine-case rendered checks pass. | `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ARGUS_RESULT.md` |
 | PR525A | Discern Rendered Visual Parity Specification | MIMIR -> ARIADNE -> MIMIR | Complete; 42 rendered captures lock the measurable navigation, Studio, companion, chat, forum, mobile, capability, deviation, and component-map specification used by PR525B-PR525G. | `docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md` |

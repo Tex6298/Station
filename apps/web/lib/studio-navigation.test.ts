@@ -204,6 +204,9 @@ test("general Studio rail uses the measured minimal hierarchy and relocates seco
   assert.match(sidebarSource, /label="Settings" href="\/settings" mark="S" className="studio-rail-settings"/);
   assert.match(sidebarSource, /placeholder="Find persona"/);
   assert.match(sidebarSource, /railSecondaryLinks\.map/);
+  assert.match(sidebarSource, /ref=\{disclosureRef\}/);
+  assert.match(sidebarSource, /event\.target\.closest\("a"\)/);
+  assert.match(sidebarSource, /onClick=\{closeAfterSelection\}/);
   assert.doesNotMatch(sidebarSource, /TokenUsagePanel|StorageUsagePanel|>Station<|studioPersonaMeta/);
 
   assert.match(cssSource, /\.studio-sidebar-desktop \{\s*width: 156px;\s*flex: 0 0 156px;/);
