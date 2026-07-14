@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525A Discern rendered visual parity specification
+## Current lane - PR525A complete; MIMIR slice lock due
 
 MIMIR closed PR523D as the accepted narrow discoverability repair:
 
@@ -16,21 +16,36 @@ composition. MIMIR recorded the corrected premise and opened PR525:
 
 `docs/roadmap/PR525_DISCERN_FINAL_VISUAL_COMPOSITION_RECTIFICATION_MIMIR.md`
 
-Current lane:
+ARIADNE completed the rendered comparison and committed the implementation-grade
+specification:
+
+`docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md`
+
+Current handoff:
 
 ```text
 PR525A - Discern Rendered Visual Parity Specification
-Owner: ARIADNE / A4
-State: OPEN_RENDERED_PARITY_SPECIFICATION
-Source: docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_ARIADNE.md
+Owner chain: MIMIR -> ARIADNE -> MIMIR
+State: COMPLETE_PR525A_RENDERED_VISUAL_PARITY_SPECIFICATION
+Next: MIMIR locks PR525B and wakes DAEDALUS with the exact first patch
 ```
 
-PR525A is a rendered implementation specification, not another optional delta
-audit. ARIADNE must compare final Discern `de7b918e` and current Tex side by
-side on desktop, `390px`, and `375px`, measure the visual differences, place
-newer Tex capability without losing it, and hand MIMIR exact DAEDALUS slices.
-Commit `99ae8a5c` is lineage only; its removed topbar/right panel are not part of
-the target.
+The result is based on 42 read-only captures across final Discern `de7b918e`
+and current Tex at desktop, `390px`, and `375px`. Current Tex fails visual
+parity: the global bar, Studio rails, companion hierarchy, chat density, and
+Forums composition do not reproduce the final authored interface. The result
+locks measured geometry, color/type, capability placement, honest-behavior,
+mobile-deviation, and current-component ledgers.
+
+The exact first recommended DAEDALUS slice is:
+
+```text
+PR525B - Shared Warm-Light Frame And 46px Global Navigation
+```
+
+It establishes the shared light tokens and `46px` height dependency before
+Studio, companion, chat, and forum slices. Commit `99ae8a5c` remains lineage
+only; its removed persona topbar/right panel are not part of the target.
 
 The final light composition is corrected first. Dark mode follows through
 shared theme tokens only after light parity is accepted. Phase 3 product

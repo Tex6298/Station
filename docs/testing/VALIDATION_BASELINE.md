@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525A Discern Rendered Visual Parity Specification
+
+ARIADNE completed PR525A on 2026-07-14:
+
+- `docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md`
+
+Validation result:
+`COMPLETE_PR525A_RENDERED_VISUAL_PARITY_SPECIFICATION`.
+
+Reason:
+
+- final Discern `de7b918e` and current Tex were rendered side by side rather
+  than compared from source presence;
+- 42 captures covered signed-out public, signed-in public, Studio dashboard,
+  companion new chat, populated active thread, simulated read failure, and
+  Forums across desktop, `390px`, and `375px`;
+- the same read-only 13-persona / 32-thread replay fixture was used in both
+  trees, with no hosted writes;
+- zero browser page errors occurred;
+- current Tex fails the required final visual composition despite functional
+  route safety;
+- the result locks shared tokens, `46px` navigation, `156px` Studio rails,
+  conversation-first chat geometry, honest forum reconciliation, mobile
+  deviations, capability placement, and exact implementation slices;
+- Discern's clipped mobile Studio rail, overflowing public mobile composition,
+  fake forum data/controls, hardcoded due banner, hover-only actions, and silent
+  conversation-read failure are recorded as concrete deviations rather than
+  imported defects;
+- PR525B is the recommended first implementation slice: shared warm-light
+  tokens and compact global navigation only.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Reference identity | Pass | Detached render source was exactly `de7b918e`; `99ae8a5c` was lineage only. |
+| Render matrix | Pass | 42 captures covered both trees, seven states, and all three required viewports. |
+| Browser runtime | Pass | Zero page errors. |
+| Hosted mutation boundary | Pass | API reads only; error state used browser interception. |
+| Privacy scan | Pass | No credentials, tokens, cookies, private IDs, or private conversation text entered the result. |
+| Mobile inspection | Pass with source defects | Discern public overflow and clipped Studio bounding boxes are measured; current Tex width safety is retained as a required deviation. |
+| Typecheck/lint | Not run | PR525A changes planning/validation Markdown only and touches no imports or scripts. |
+
 ## PR523D ARGUS Review - Studio Companion Entry Affordance Repair
 
 ARGUS accepted PR523D on 2026-07-13 with a narrow executable route-test patch:
