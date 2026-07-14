@@ -7,12 +7,11 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt PR525D review or the queued PR526B boundary
-preflight.
+This directive does not interrupt the active PR525E implementation baton.
 
 Closeout requires all of the following:
 
-- complete and review PR525D, PR525E, and PR525F;
+- preserve accepted PR525D and complete/review PR525E and PR525F;
 - reconcile Discern head `ff93308b` through the accepted PR526A
   adoption/deviation decision and PR526B boundary preflight; PR526C-F remain
   parked unless that preflight identifies a concrete correction needed to make
@@ -30,20 +29,19 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lanes - PR525D and PR526B accepted by ARGUS
+## Current lane - PR525E compact chat visual system
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
 `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_CLOSEOUT_MIMIR.md`
 
-ARGUS review result:
+Closed shell dependency:
 
 ```text
 PR525D - Full-Height Companion Shell And Thread Disclosure
 Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS -> MIMIR
-State: ACCEPT_PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_WITH_ARGUS_PATCH
-Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_ARGUS_RESULT.md
-Next: MIMIR closes PR525D and decides the next locked move
+State: CLOSE_PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_ACCEPTED
+Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_CLOSEOUT_MIMIR.md
 ```
 
 ARGUS accepted PR525D after a narrow review patch removed inherited chat-card
@@ -54,6 +52,21 @@ warm `156px` rail and `960px` collapse, complete URL-backed thread disclosure,
 occupancy in the long-name stress case, Advanced Studio lazy loading, persona
 isolation, focused/full tests, and independent desktop/mobile proof pass.
 PR525E message/composer behavior remains untouched.
+
+Active implementation handoff:
+
+```text
+PR525E - Compact Chat Visual System And Honest States
+Owner: DAEDALUS / A2
+State: READY_FOR_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_DAEDALUS.md
+```
+
+PR525E applies the measured `46px` chat header, compact `13px` bubbles,
+`64-68px` composer, compact return row, and accessible hidden-until-needed
+assistant message actions inside the accepted PR525D shell. It preserves every
+current send, stream, route, owner, archive, candidate, provider, error, and
+mobile-fit contract and does not enter PR525F or PR526 scope.
 
 Parallel current-head audit result:
 
@@ -82,8 +95,8 @@ Placement:
 ```text
 PR526B - Discern Guided-Task Boundary Preflight
 Owner chain: MIMIR -> ARGUS -> MIMIR
-State: ACCEPT_PR526B_GUIDED_TASK_BOUNDARIES_AND_PARKED_PLACEMENT
-Source: docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_RESULT.md
+State: CLOSE_PR526B_GUIDED_TASK_BOUNDARIES_AND_PARKED_PLACEMENT_ACCEPTED
+Source: docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_CLOSEOUT_MIMIR.md
 
 PR526C-F - guided-task primitives and three proposed pilots
 State: PARKED_BEHIND_TERMINAL_UI_CLOSEOUT_PAUSE
@@ -98,23 +111,23 @@ and a separately reviewed identity-scoped/versioned/expiring draft contract if
 resume is ever proposed. No PR526 correction is required for PR525E/F/G/H;
 PR526C-F stay parked for a later explicit product decision.
 
-The two lanes remain intentionally parallel. `ff93308b` does not modify the
-main companion page, `PersonaChat`, companion rail, Forums index, Discover,
-Writing browse, or Developer Space observatory dashboards, so PR525D-F
-continue. PR525G may call the comparison current-Discern reconciled only by
-citing the accepted PR526A/PR526B adoption/deviation map; it may not claim
-source-flow implementation or parity. Affected creation/configuration surfaces
-remain frozen from new redesign or expansion; truthful fixes and current owner
-work continue.
+Fresh-head reconciliation no longer gates the clean visual slices. `ff93308b`
+does not modify the main companion page, `PersonaChat`, companion rail, Forums
+index, Discover, Writing browse, or Developer Space observatory dashboards,
+so PR525E-F continue. PR525G may call the comparison current-Discern reconciled
+only by citing the accepted PR526A/PR526B adoption/deviation map; it may not
+claim source-flow implementation or parity. Affected creation/configuration
+surfaces remain frozen from new redesign or expansion; truthful fixes and
+current owner work continue.
 
 Locked sequence and gate:
 
 ```text
 PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
 PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
-PR525D - Full-Height Companion Shell And Thread Disclosure         ACCEPTED BY ARGUS
-PR526B - Guided-Task Boundary Preflight                             ACCEPTED / IMPLEMENTATION PARKED
-PR525E - Compact Chat Visual System And Honest States              NEXT AFTER PR525D ACCEPTANCE
+PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
+PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
+PR525E - Compact Chat Visual System And Honest States              ACTIVE
 PR525F - Forums Three-Column Honest Composition                    PENDING
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
