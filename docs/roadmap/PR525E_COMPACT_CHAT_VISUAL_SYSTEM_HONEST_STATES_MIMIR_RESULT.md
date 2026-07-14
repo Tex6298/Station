@@ -134,3 +134,19 @@ Task:
 - Patch only a narrow defect; otherwise wake MIMIR with acceptance or the exact
   blocker.
 ```
+
+## ARGUS Correction And Acceptance
+
+ARGUS found that the two assistant mutations still swallowed rejected writes,
+archive failure could render below the current bounded-log viewport, and the
+inherited dark hover rule still overrode warm secondary/danger controls. The
+narrow review patch surfaces Save to memory and Promote to canon failures via
+the existing guarded in-log error state, keeps new archive/error content in
+view, and preserves readable warm hover colors for every chat-button variant.
+
+The original geometry remains unchanged. Independent desktop, `390px`, and
+`375px` rendering reconfirmed the measured header, return, log, composer,
+bubble, action-disclosure, and mobile-fit values with zero overflow and page
+errors. Final review truth is recorded in:
+
+`docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ARGUS_RESULT.md`

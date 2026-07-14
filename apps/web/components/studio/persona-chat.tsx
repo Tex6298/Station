@@ -156,7 +156,7 @@ export function PersonaChat({
       top: thread.scrollHeight,
       behavior: state.sending ? "smooth" : "auto",
     });
-  }, [state.messages, state.sending]);
+  }, [state.archive, state.error, state.messages, state.sending]);
 
   async function send() {
     const content = input.trim();
@@ -220,13 +220,21 @@ export function PersonaChat({
     if (!token || !state.conversationId) return;
     const requestGeneration = selectionGenerationRef.current;
     setSaving(messageId);
+    setState((s) => ({ ...s, error: null }));
     try {
       await apiPost(
         `/conversations/${state.conversationId}/save-memory`,
         { messageId },
         token
       );
-    } catch { /* silent - show toast in future */ }
+    } catch (e) {
+      if (selectionGenerationRef.current === requestGeneration) {
+        setState((s) => ({
+          ...s,
+          error: chatErrorMetadata(e, "Could not save this message to memory."),
+        }));
+      }
+    }
     finally {
       if (selectionGenerationRef.current === requestGeneration) setSaving(null);
     }
@@ -236,13 +244,21 @@ export function PersonaChat({
     if (!token || !state.conversationId) return;
     const requestGeneration = selectionGenerationRef.current;
     setSaving(messageId);
+    setState((s) => ({ ...s, error: null }));
     try {
       await apiPost(
         `/conversations/${state.conversationId}/save-canon`,
         { messageId },
         token
       );
-    } catch { /* silent */ }
+    } catch (e) {
+      if (selectionGenerationRef.current === requestGeneration) {
+        setState((s) => ({
+          ...s,
+          error: chatErrorMetadata(e, "Could not promote this message to canon."),
+        }));
+      }
+    }
     finally {
       if (selectionGenerationRef.current === requestGeneration) setSaving(null);
     }
@@ -510,11 +526,6 @@ export function PersonaChat({
           </div>
         )}
 
-        {state.error && (
-          <div className="studio-persona-chat-error" role="status">
-            <ChatErrorCallout error={state.error} />
-          </div>
-        )}
         {state.archive && (
           <div className="studio-persona-chat-archive">
             <div className="studio-persona-chat-archive-header">
@@ -533,6 +544,11 @@ export function PersonaChat({
                 />
               ))}
             </div>
+          </div>
+        )}
+        {state.error && (
+          <div className="studio-persona-chat-error" role="status">
+            <ChatErrorCallout error={state.error} />
           </div>
         )}
       </div>

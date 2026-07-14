@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525E compact chat visual system
+## Current lane - PR525E accepted by ARGUS
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -51,25 +51,27 @@ warm `156px` rail and `960px` collapse, complete URL-backed thread disclosure,
 `854px` desktop primary workspace, `71.2%` retained return-row plus message-log
 occupancy in the long-name stress case, Advanced Studio lazy loading, persona
 isolation, focused/full tests, and independent desktop/mobile proof pass.
-PR525E message/composer behavior remains untouched.
+PR525D itself did not alter PR525E message/composer behavior.
 
-Active review handoff:
+ARGUS review result:
 
 ```text
 PR525E - Compact Chat Visual System And Honest States
-Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_MIMIR_RESULT.md
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
+State: ACCEPT_PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR525E_COMPACT_CHAT_VISUAL_SYSTEM_HONEST_STATES_ARGUS_RESULT.md
+Next: MIMIR closes PR525E and decides the next locked move
 ```
 
-MIMIR completed PR525E after DAEDALUS did not consume either implementation
-wake. The measured `46px` desktop header, compact `13px` bubbles, exact `66px`
-composer, compact return row, and native accessible assistant-action
-disclosure pass desktop, `390px`, and `375px` rendered proof. Browser review
-also corrected contained action reveal at the log bottom and inherited sticky
-touch hover contrast. Existing send, stream, route, owner, archive, candidate,
-provider, error, and mobile-fit contracts remain intact; PR525F and PR526 scope
-remain untouched. ARGUS now owns independent review.
+ARGUS accepts PR525E after a narrow patch surfaced previously swallowed
+assistant-mutation failures, kept new archive/error content visible inside the
+bounded log, and prevented inherited dark hover styling from overriding warm
+secondary/danger controls. The measured `46px` desktop header, `54px` narrow
+header, compact `13px` bubbles, exact `66px` composer, `84.6%` desktop return
+plus log occupancy, native keyboard/touch action disclosure, provider/archive/
+candidate truth, mobile fit, full tests, and independent rendered proof pass.
+Existing routes, owner/auth boundaries, API payloads, provider/stream behavior,
+PR525F, and PR526 scope remain untouched.
 
 Parallel current-head audit result:
 
@@ -130,7 +132,7 @@ PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
 PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         CLOSED
 PR526B - Guided-Task Boundary Preflight                             CLOSED / IMPLEMENTATION PARKED
-PR525E - Compact Chat Visual System And Honest States              READY_FOR_ARGUS_REVIEW
+PR525E - Compact Chat Visual System And Honest States              ACCEPTED BY ARGUS
 PR525F - Forums Three-Column Honest Composition                    PENDING
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED

@@ -18,6 +18,7 @@ test("PersonaChat keeps auto-scroll contained inside the chat thread", () => {
   assert.match(source, /const thread = threadRef\.current/);
   assert.match(source, /thread\.scrollTo\(\{/);
   assert.match(source, /top: thread\.scrollHeight/);
+  assert.match(source, /\[state\.archive, state\.error, state\.messages, state\.sending\]/);
   assert.match(source, /ref=\{threadRef\}[\s\S]*?className="studio-persona-chat-thread"/);
   assert.doesNotMatch(source, /scrollIntoView|bottomRef/);
 });
@@ -102,6 +103,21 @@ test("PersonaChat polish keeps live controls honest and avoids placeholders", ()
   assert.doesNotMatch(source, /\b(?:Attach|Microphone|Mic|Tools|Regenerate|Copy|Notes|Menu|More options)\b/i);
 });
 
+test("assistant mutations report owner-visible failures through the bounded log", () => {
+  const memoryBody = functionBody("saveAsMemory");
+  const canonBody = functionBody("saveAsCanon");
+
+  assert.match(memoryBody, /chatErrorMetadata\(e, "Could not save this message to memory\."\)/);
+  assert.match(canonBody, /chatErrorMetadata\(e, "Could not promote this message to canon\."\)/);
+  assert.doesNotMatch(memoryBody, /silent|show toast in future/i);
+  assert.doesNotMatch(canonBody, /silent/i);
+
+  const archiveIndex = source.indexOf('className="studio-persona-chat-archive"');
+  const errorIndex = source.indexOf('className="studio-persona-chat-error"');
+  const threadEnd = source.indexOf('className="studio-persona-chat-composer"');
+  assert.equal(archiveIndex > -1 && errorIndex > archiveIndex && threadEnd > errorIndex, true);
+});
+
 test("PersonaChat exposes the two live assistant actions through one native disclosure", () => {
   const revealBody = functionBody("revealMessageActions");
 
@@ -121,6 +137,9 @@ test("focused companion chat locks the measured compact visual system", () => {
   assert.match(css, /\.studio-companion-page \.studio-persona-chat-bubble-user \{[\s\S]*?max-width: 64%;[\s\S]*?padding: 10px 14px;[\s\S]*?background: #d8e8fb;[\s\S]*?color: #225d9c;[\s\S]*?font-weight: 700;/);
   assert.match(css, /\.studio-companion-page \.studio-persona-chat-bubble-assistant \{[\s\S]*?max-width: 430px;[\s\S]*?border-radius: 7px;[\s\S]*?padding: 12px 14px;[\s\S]*?background: #f0eee9;[\s\S]*?font-size: 13px;[\s\S]*?line-height: 19px;/);
   assert.match(css, /\.studio-companion-page \.studio-persona-chat-composer \{[\s\S]*?flex: 0 0 66px;[\s\S]*?min-height: 66px;[\s\S]*?max-height: 66px;/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-button:hover:not\(:disabled\) \{[\s\S]*?background: var\(--station-page-soft-2\);[\s\S]*?color: var\(--station-page-text\);/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-button-primary:hover:not\(:disabled\),[\s\S]*?studio-persona-chat-send:hover:not\(:disabled\)[\s\S]*?color: #fff;/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat-button-danger:hover:not\(:disabled\) \{[\s\S]*?background: #f8e8e5;[\s\S]*?color: var\(--station-page-red\);/);
   assert.match(css, /\.studio-companion-page \.studio-persona-chat-button-quiet:hover:not\(:disabled\) \{[\s\S]*?background: var\(--station-page-surface\);/);
   assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?opacity: 0;[\s\S]*?message-row-assistant:hover[\s\S]*?message-action-disclosure:focus-within/);
 });

@@ -6188,6 +6188,12 @@ main[style*="rgb(11, 14, 20)"] {
   font-size: 10px;
 }
 
+.studio-companion-page .studio-persona-chat-button:hover:not(:disabled) {
+  border-color: var(--station-page-border-strong);
+  background: var(--station-page-soft-2);
+  color: var(--station-page-text);
+}
+
 .studio-companion-page .studio-persona-chat-state-active {
   border-color: rgba(59, 143, 99, 0.35);
   background: #eef7f1;
@@ -6207,9 +6213,22 @@ main[style*="rgb(11, 14, 20)"] {
   color: #fff;
 }
 
+.studio-companion-page .studio-persona-chat-button-primary:hover:not(:disabled),
+.studio-companion-page .studio-persona-chat-send:hover:not(:disabled) {
+  border-color: var(--station-page-text);
+  background: var(--station-page-text);
+  color: #fff;
+}
+
 .studio-companion-page .studio-persona-chat-button-danger {
   border-color: rgba(157, 60, 53, 0.28);
   background: #faefed;
+  color: var(--station-page-red);
+}
+
+.studio-companion-page .studio-persona-chat-button-danger:hover:not(:disabled) {
+  border-color: rgba(157, 60, 53, 0.45);
+  background: #f8e8e5;
   color: var(--station-page-red);
 }
 
