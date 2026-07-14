@@ -4,6 +4,49 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525B ARGUS Review - Shared Warm-Light Frame And Global Navigation
+
+ARGUS accepted PR525B on 2026-07-14 without a code patch:
+
+- `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION`.
+
+Reason:
+
+- global navigation and its loading shell share the measured warm-light tokens
+  and exact `46px` height contract;
+- global CSS navigation-dependent viewport heights and sticky offsets use the
+  shared token without changing unrelated `52px` dimensions;
+- public routes remain permanent, the active private section remains legible,
+  and all private destinations remain in authenticated route/account
+  disclosures;
+- route matching is segment-bounded, signed-out disclosures contain public
+  destinations only, and existing protected-route/session/sign-out behavior is
+  unchanged;
+- native links, current-page semantics, named disclosures, outside/selection
+  closure, Escape closure, and focus restoration remain present;
+- Developer Space observatory interiors, later PR525 surfaces, API, schema,
+  auth implementation, data, package, lockfile, and deployment scope do not
+  change;
+- MIMIR's replay-owner render proof and ARGUS's independent synthetic-session
+  browser matrix agree on geometry, palette, route inventory, active state,
+  mobile fit, and zero page errors.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/studio-navigation.test.ts` | Pass | 17 focused navigation tests passed. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 247 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:developer-spaces` | Pass | 61 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:auth` | Pass | 21 auth/session/route tests passed. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed with no warnings or errors. |
+| Local Playwright render matrix | Pass | Nine desktop/`390px`/`375px` signed-out and synthetic-signed-in Discover/Studio cases passed exact geometry, palette, active-state, inventory, keyboard, fit, overflow, and page-error checks. |
+| `git diff --check 095b3156^ 095b3156` | Pass | No implementation whitespace errors. |
+| Changed-path forbidden-scope scan | Pass | Production changes stay inside the four allowed navigation/CSS/helper/test files. |
+| High-risk secret pattern diff scan | Pass | No secret-shaped literals were found in the implementation diff. |
+
 ## PR525A Discern Rendered Visual Parity Specification
 
 ARIADNE completed PR525A on 2026-07-14:

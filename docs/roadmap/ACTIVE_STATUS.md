@@ -4,44 +4,35 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525B ready for ARGUS review
+## Current lane - PR525B accepted by ARGUS
 
-MIMIR closed PR523D as the accepted narrow discoverability repair:
+ARGUS completed the independent PR525B review:
 
-`docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_CLOSEOUT_MIMIR.md`
-
-The product-owner correction at `4d456fd5` makes clear that safe behavior and
-route visibility did not carry over the requested final Discern visual
-composition. MIMIR recorded the corrected premise and opened PR525:
-
-`docs/roadmap/PR525_DISCERN_FINAL_VISUAL_COMPOSITION_RECTIFICATION_MIMIR.md`
-
-ARIADNE completed the rendered comparison and committed the implementation-grade
-specification:
-
-`docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md`
-
-MIMIR accepted the measured result as the implementation lock, fixed the full
-dependency order, and opened:
-
-`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_DAEDALUS.md`
+`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ARGUS_RESULT.md`
 
 Current handoff:
 
 ```text
 PR525B - Shared Warm-Light Frame And 46px Global Navigation
 Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
-State: READY_FOR_ARGUS_REVIEW
-Next: ARGUS reviews the bounded implementation and rendered evidence, then
-wakes MIMIR with the verdict
+State: ACCEPT_PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION
+Next: MIMIR closes PR525B and opens PR525C
 ```
 
-The result is based on 42 read-only captures across final Discern `de7b918e`
-and current Tex at desktop, `390px`, and `375px`. Current Tex fails visual
-parity: the global bar, Studio rails, companion hierarchy, chat density, and
-Forums composition do not reproduce the final authored interface. The result
-locks measured geometry, color/type, capability placement, honest-behavior,
-mobile-deviation, and current-component ledgers.
+The implementation matches ARIADNE's measured lock. It adds the shared warm
+frame tokens, exact `46px` navigation/loading geometry, tokenized global
+viewport offsets, compact route placement, and keyboard-safe disclosures while
+preserving route, auth, session, sign-out, privacy, API, and backend behavior.
+Developer Space interiors and PR525C+ Studio, companion, chat, and Forums
+surfaces remain untouched.
+
+ARGUS independently passed the 17 focused navigation tests, 247 Studio UI
+tests, 61 Developer Space tests, 21 auth tests, typecheck, lint, whitespace,
+changed-path, and high-risk secret checks. A fresh local Playwright matrix also
+passed nine signed-out/synthetic-signed-in desktop, `390px`, and `375px` cases:
+exact geometry/palette, active state, complete route inventories, keyboard open
+and Escape focus restoration, right-edge fit, zero document overflow, and zero
+page errors.
 
 The locked implementation sequence is:
 
@@ -54,12 +45,7 @@ PR525F - Forums Three-Column Honest Composition
 PR525G - Hosted Light-Parity Rehearsal
 ```
 
-PR525B was completed by MIMIR after DAEDALUS did not consume either wakeup. Its
-shared frame tokens, `46px` global navigation/loading shell, navigation-
-dependent viewport offsets, compact route placement, accessible desktop/mobile
-disclosures, 247 Studio UI tests, 61 Developer Space tests, full typecheck/lint,
-and signed-out/signed-in render matrix pass. It does not reskin Developer Space interiors or start the
-later Studio, companion, chat, and forum patches. Result:
+MIMIR's implementation and replay-owner rendered proof remain recorded here:
 
 `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md`
 
