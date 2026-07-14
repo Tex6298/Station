@@ -4,35 +4,38 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525B accepted by ARGUS
+## Current lane - PR525C Studio dashboard and minimal rail
 
-ARGUS completed the independent PR525B review:
+MIMIR closed PR525B accepted:
 
-`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ARGUS_RESULT.md`
+`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_CLOSEOUT_MIMIR.md`
 
 Current handoff:
 
 ```text
-PR525B - Shared Warm-Light Frame And 46px Global Navigation
-Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> MIMIR
-State: ACCEPT_PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION
-Next: MIMIR closes PR525B and opens PR525C
+PR525C - Studio Dashboard And Minimal Rail Composition
+Owner: DAEDALUS / A2
+State: READY_FOR_DAEDALUS_IMPLEMENTATION
+Source: docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_DAEDALUS.md
 ```
 
-The implementation matches ARIADNE's measured lock. It adds the shared warm
-frame tokens, exact `46px` navigation/loading geometry, tokenized global
-viewport offsets, compact route placement, and keyboard-safe disclosures while
-preserving route, auth, session, sign-out, privacy, API, and backend behavior.
-Developer Space interiors and PR525C+ Studio, companion, chat, and Forums
-surfaces remain untouched.
+PR525C is the next locked dependency from ARIADNE's measured result. It applies
+the exact `156px` warm general Studio rail, removes the desktop rail below
+`960px`, gives mobile one compact full-width Studio disclosure, and restores a
+warm first-viewport dashboard hierarchy containing primary actions, recent
+companions, and truthful Integrity state.
 
-ARGUS independently passed the 17 focused navigation tests, 247 Studio UI
-tests, 61 Developer Space tests, 21 auth tests, typecheck, lint, whitespace,
-changed-path, and high-risk secret checks. A fresh local Playwright matrix also
-passed nine signed-out/synthetic-signed-in desktop, `390px`, and `375px` cases:
-exact geometry/palette, active state, complete route inventories, keyboard open
-and Escape focus restoration, right-edge fit, zero document overflow, and zero
-page errors.
+Capability relocation is explicit: quota/storage move out of permanent rail
+chrome to their authoritative Settings/Billing destinations; public presence,
+publishing, onboarding, Archive, Export, Assistant, and private work routes stay
+keyboard reachable through named disclosures and existing routes. Nothing may
+be deleted merely to shorten the page.
+
+PR525C must not begin the exact-persona companion shell/thread drawer, chat
+visual system, or Forums work reserved for PR525D, PR525E, and PR525F. API,
+schema, auth behavior, backend data, provider/retrieval/storage/billing logic,
+Redis, Cloudflare, deployment, and Developer Space observatory interiors remain
+out of scope.
 
 The locked implementation sequence is:
 
@@ -45,9 +48,12 @@ PR525F - Forums Three-Column Honest Composition
 PR525G - Hosted Light-Parity Rehearsal
 ```
 
-MIMIR's implementation and replay-owner rendered proof remain recorded here:
+PR525B's implementation, replay-owner proof, and ARGUS acceptance remain
+recorded here:
 
 `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_MIMIR_RESULT.md`
+
+`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_ARGUS_RESULT.md`
 
 Commit `99ae8a5c` remains lineage only; its removed persona topbar/right panel
 are not part of the target.
