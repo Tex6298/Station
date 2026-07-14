@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR526A Discern Fresh-Head Conversational Flow Delta Audit
+
+ARIADNE completed the audit on 2026-07-14:
+
+- `docs/roadmap/PR526A_DISCERN_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT_ARIADNE.md`
+
+Validation result:
+`COMPLETE_PR526A_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT`.
+
+Decision:
+
+- adapt only deterministic one-question guidance, typed choices, and
+  domain-owned live previews after an ARGUS boundary preflight;
+- reject the source action runner because failed writes advance to false
+  success with no visible error, retry, rollback, or retained action state;
+- reject generic `POST /flow/generate`, hard-coded Deepseek, raw localStorage
+  persistence, replacement of authoritative flows, duplicate route wrappers,
+  broad auth-token replacement, and global `.conv-*` CSS;
+- preserve current Tex authorization, visibility, provider routing,
+  token-credit/quota, moderation/provenance, memory lifecycle, Integrity,
+  archive manifest, billing, and one-time-secret contracts;
+- leave PR525D-F active and require MIMIR placement plus ARGUS preflight before
+  any PR526 implementation.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| `git diff --name-status de7b918e..ff93308b` in a disposable Discern worktree | Pass | Complete 55-file, 3,884-insertion, 2,511-deletion delta inspected. |
+| Synthetic Playwright render matrix | Pass with rejection findings | 15 route mounts at desktop, `390px`, and `375px`; 45 cases and 90 entry/interaction captures with zero page errors. |
+| Complete/error/resume/validation probes | Pass as audit evidence | One successful completion, seven synthetic `503` mutation paths, three refresh resumes, and the forum title boundary were reproduced. |
+| Mobile geometry | Fail source acceptance | Developer create overflowed to `527px`; primary `/billing` collapsed the flow to `0px`; old Studio rail left some flows only `109.1px` wide. |
+| Error recovery | Fail source acceptance | Profile, Developer Space, key rotation, billing, export, and Integrity rendered false success after failed writes; memory silently advanced. |
+| Persistence/privacy | Fail source acceptance | A `747` byte memory-review packet containing a private memory title was stored in raw localStorage. |
+| Accessibility review | Fail source acceptance | Focus moved to `BODY` in 36/45 first interactions; nested live logs, unnamed groups, missing length/error associations, and a keyboard-incomplete slider remain. |
+| Source `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Fail in Discern source | Five `accessToken`/`access_token` `TS2551` errors remain in forum thread detail. Source code was not patched. |
+| `git diff --check` | Pass | No whitespace errors after the documentation audit. |
+| Current Tex `pnpm typecheck` | Not required | PR526A changes documentation only and does not touch imports or scripts. |
+
 ## PR525C ARGUS Review - Studio Dashboard And Minimal Rail Composition
 
 ARGUS accepted PR525C on 2026-07-14 with a narrow interaction patch:

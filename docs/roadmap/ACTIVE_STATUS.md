@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lanes - PR525D implementation and PR526A fresh-head audit
+## Current lanes - PR525D implementation and PR526A placement
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -51,28 +51,34 @@ complete URL-backed thread directory and filter behind a keyboard-safe
 collapses to a full-width mobile companion summary below `960px`, and leaves
 PR525E's chat visuals and behavior untouched.
 
-Parallel current-head audit:
+Parallel current-head audit result:
 
 ```text
 PR526A - Discern Fresh-Head Conversational Flow Delta Audit
-Owner: ARIADNE / A4
-State: READY_FOR_ARIADNE_DELTA_AUDIT
+Owner chain: MIMIR -> ARIADNE -> MIMIR
+State: COMPLETE_PR526A_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT
 Source: docs/roadmap/PR526A_DISCERN_FRESH_HEAD_CONVERSATIONAL_FLOW_DELTA_AUDIT_ARIADNE.md
 ```
 
 Discern advanced from `de7b918e` to `ff93308b` while PR525A was completing.
-PR526A renders and audits the new shared conversation engine and fourteen
-converted creation/configuration surfaces. It separates useful product/UI
-direction from the source's `POST /flow/generate`, Deepseek provider,
-localStorage, auth-token, deleted-flow, and global-CSS assumptions before any
-implementation decision.
+ARIADNE rendered 15 route mounts for 13 semantic jobs at desktop, `390px`, and
+`375px`, then exercised complete, failed-mutation, resume, and validation
+paths. The audit accepts one-question guidance and typed live previews as
+adaptable direction, but rejects the source action engine, `POST
+/flow/generate`, hard-coded Deepseek provider, localStorage persistence,
+replacement flows, duplicate routes, auth-token sweep, and global CSS. Failed
+writes advanced to false success without visible recovery, private memory
+entered localStorage, primary mobile billing was hidden, and the source
+typecheck fails. MIMIR now owns explicit implementation/deferral placement and
+must wake ARGUS for boundary preflight before any PR526 implementation.
 
-The two lanes are intentionally parallel. `ff93308b` does not modify the main
-companion page, `PersonaChat`, companion rail, Forums index, Discover, Writing
-browse, or Developer Space observatory dashboards, so PR525D-F continue.
-PR525G cannot call the comparison current-Discern complete until PR526A has an
-accepted placement, and affected creation/configuration surfaces are frozen
-from new redesign/expansion until that audit and ARGUS boundary review.
+The two lanes remain intentionally parallel. `ff93308b` does not modify the
+main companion page, `PersonaChat`, companion rail, Forums index, Discover,
+Writing browse, or Developer Space observatory dashboards, so PR525D-F
+continue. PR525G cannot call the comparison current-Discern complete until
+MIMIR records PR526A placement and ARGUS boundary-preflight sequencing.
+Affected creation/configuration surfaces remain frozen from new redesign or
+expansion until that decision; truthful fixes and current owner work continue.
 
 Locked sequence and gate:
 
@@ -82,7 +88,7 @@ PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
 PR525D - Full-Height Companion Shell And Thread Disclosure         ACTIVE
 PR525E - Compact Chat Visual System And Honest States              NEXT
 PR525F - Forums Three-Column Honest Composition                    PENDING
-PR526A - Fresh-Head Conversational Flow Delta Audit                PARALLEL GATE
+PR526A - Fresh-Head Conversational Flow Delta Audit                AUDIT COMPLETE / PLACEMENT GATE
 PR525G - Hosted Light-Parity Rehearsal                              AFTER D-F + PR526A PLACEMENT
 ```
 
