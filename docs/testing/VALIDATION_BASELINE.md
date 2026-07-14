@@ -4,6 +4,79 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR526B ARGUS Preflight - Discern Guided-Task Boundaries
+
+ARGUS accepted PR526B on 2026-07-14 as a docs-only boundary result:
+
+- `docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_RESULT.md`
+
+Validation result:
+`ACCEPT_PR526B_GUIDED_TASK_BOUNDARIES_AND_PARKED_PLACEMENT`.
+
+Reason:
+
+- the source action runner, false-success progression, generic provider
+  endpoint/full-context forwarding, route-local Deepseek construction outside
+  Station's router, private flow localStorage, replacement surfaces, duplicate
+  aliases, auth sweep, and global `.conv-*` CSS are explicitly rejected;
+- future action state must include pending, failed/retry, cancelled, and
+  unknown/reconciliation outcomes, with authoritative server success and safe
+  idempotency before retries;
+- any future resume draft requires a separate owner/resource-scoped, typed,
+  versioned, expiring, minimized, purgeable, server-authorized contract;
+- every current authorization, visibility, moderation, provenance, secret,
+  billing, archive/export, lifecycle, route, and error contract remains
+  authoritative;
+- PR526C-F remain parked and PR525G may record fresh-head reconciliation only
+  as adoption/deviation, not implemented parity;
+- no PR526 production correction is required before PR525E/F/G/H.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| PR526A changed paths | Pass | `afe10b67` changes documentation only. |
+| Rejected mechanism scan | Pass | Current production source has no flow engine/generate route, `.conv-*` CSS, kindling/flow storage key, or source action surface. |
+| Alias/flow route scan | Pass | Proposed settings aliases and generic flow route are absent. |
+| Current storage review | Pass with scoped existing use | Auth localStorage and public roulette session counters are unchanged; no private guided-task state exists. |
+| Canonical endpoint spot-check | Pass | Existing forum, Developer key, memory lifecycle, Integrity, Billing, and Export routes remain authoritative. |
+| PR526 production change | None | Result is roadmap/testing documentation only. |
+
+## PR525D ARGUS Review - Full-Height Companion Shell And Thread Disclosure
+
+ARGUS accepted PR525D on 2026-07-14 with a narrow shell/accessibility patch:
+
+- `docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_WITH_ARGUS_PATCH`.
+
+Reason:
+
+- exact warm `156px` desktop rail, `960px` collapse, full-width mobile shell,
+  complete URL-backed thread inventory, and `854px` primary workspace pass;
+- ARGUS removed inherited generic card padding so the retained return row plus
+  message log occupies `71.2%` of the primary workspace and the composer anchors
+  at its bottom;
+- mobile summary/list names now wrap in max-content scroll rows, the workspace
+  allowance retains composer fit, and selection restores focus to the summary;
+- session-gated owner reads, signed-out redirect, conversation ownership/race/
+  archive/error behavior, Advanced Studio lazy loading, and persona isolation
+  remain intact;
+- no PR525E/F, API, schema, auth implementation, provider, retrieval, storage,
+  billing, Redis, Cloudflare, queue/worker, deployment, Developer Space,
+  package, or lockfile drift occurred.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Focused navigation/conversation/chat tests | Pass | 36 tests passed after the ARGUS patch. |
+| `npx --yes pnpm@10.32.1 run test:studio-ui` | Pass | 251 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:conversation-archive` | Pass | 43 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:auth` | Pass | 21 tests passed. |
+| `npx --yes pnpm@10.32.1 run test:developer-spaces` | Pass | 61 tests passed. |
+| `npx --yes pnpm@10.32.1 run typecheck` | Pass | Turbo API/web typecheck passed. |
+| `npx --yes pnpm@10.32.1 run lint` | Pass | Web lint passed with no warnings or errors. |
+| Local Playwright review | Pass after patch | Exact geometry, occupancy, URL/inventory/filter/archive states, mobile wrapping/focus/fit, lazy loading, persona isolation, signed-out redirect, overflow, and page-error checks passed. |
+| Changed-path/secret/whitespace scans | Pass | Production paths remain bounded and no high-risk literal or whitespace error was found. |
+
 ## PR526A Discern Fresh-Head Conversational Flow Delta Audit
 
 ARIADNE completed the audit on 2026-07-14:

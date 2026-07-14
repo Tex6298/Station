@@ -6107,6 +6107,7 @@ main[style*="rgb(11, 14, 20)"] {
   height: 100%;
   min-height: 0;
   margin: 0;
+  padding: 0;
   border: 1px solid var(--station-page-border);
   background: var(--station-page-surface);
   color: var(--station-page-text);
@@ -6331,10 +6332,9 @@ main[style*="rgb(11, 14, 20)"] {
 
   .studio-companion-mobile-nav > summary strong {
     min-width: 0;
-    overflow: hidden;
     font-size: 12px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .studio-companion-mobile-nav > summary small,
@@ -6403,9 +6403,24 @@ main[style*="rgb(11, 14, 20)"] {
   }
 
   .studio-companion-mobile-list {
+    align-content: start;
+    grid-auto-rows: max-content;
     max-height: min(31dvh, 260px);
     overflow-y: auto;
     scrollbar-width: thin;
+  }
+
+  .studio-companion-mobile-panel .studio-companion-mobile-list a {
+    align-items: flex-start;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .studio-companion-mobile-panel .studio-companion-mobile-list a > span {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .studio-companion-mobile-panel a {
@@ -6454,7 +6469,7 @@ main[style*="rgb(11, 14, 20)"] {
   .studio-companion-primary {
     grid-template-rows: auto 32px minmax(0, 1fr);
     gap: 6px;
-    height: calc(100dvh - var(--station-global-nav-height) - 56px);
+    height: calc(100dvh - var(--station-global-nav-height) - 68px);
     min-height: 520px;
   }
 

@@ -126,6 +126,8 @@ test("companion navigation keeps complete inventories in ordered disclosures", (
   assert.match(sidebar, /visibleThreads\.map\(\(conversation\) =>/);
   assert.match(sidebar, /ownedPersonas\.map\(\(candidate/);
   assert.match(sidebar, /mobileDisclosureRef\.current\?\.removeAttribute\("open"\)/);
+  assert.match(sidebar, /mobileSummaryRef\.current\?\.focus\(\)/);
+  assert.match(sidebar, /<summary ref=\{mobileSummaryRef\}>/);
   assert.match(sidebar, /className="studio-companion-mobile-panel" onClick=\{closeMobileAfterSelection\}/);
   assert.doesNotMatch(sidebar, /\.slice\(0, 6\)|studio-companion-sidebar-brand/);
 });
@@ -140,7 +142,11 @@ test("companion shell CSS stays scoped and retains exact desktop and mobile geom
   assert.match(css, /@media \(max-width: 959px\)/);
   assert.match(css, /\.studio-companion-mobile-nav/);
   assert.match(css, /\.studio-companion-mobile-panel\s*\{[\s\S]*?max-height: min\(76dvh, 640px\)/);
-  assert.match(css, /height: calc\(100dvh - var\(--station-global-nav-height\) - 56px\)/);
+  assert.match(css, /\.studio-companion-mobile-nav > summary strong\s*\{[\s\S]*?overflow-wrap: anywhere;[\s\S]*?white-space: normal/);
+  assert.match(css, /\.studio-companion-mobile-list\s*\{[\s\S]*?grid-auto-rows: max-content/);
+  assert.match(css, /\.studio-companion-mobile-panel \.studio-companion-mobile-list a\s*\{[\s\S]*?overflow-wrap: anywhere;[\s\S]*?white-space: normal/);
+  assert.match(css, /\.studio-companion-page \.studio-persona-chat\s*\{[\s\S]*?padding: 0/);
+  assert.match(css, /height: calc\(100dvh - var\(--station-global-nav-height\) - 68px\)/);
   assert.match(css, /\.studio-companion-page \.studio-persona-chat-return-text\s*\{[\s\S]*?flex: none/);
   assert.match(css, /@media \(max-width: 390px\)/);
   assert.doesNotMatch(css, /grid-template-columns: 232px minmax\(0, 1fr\)|@media \(max-width: 960px\)/);

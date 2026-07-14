@@ -26,6 +26,7 @@ export function PersonaCompanionSidebar({
 }) {
   const [filter, setFilter] = useState("");
   const mobileDisclosureRef = useRef<HTMLDetailsElement>(null);
+  const mobileSummaryRef = useRef<HTMLElement>(null);
   const visibleThreads = filterPersonaConversations(conversations, filter);
   const shortcuts = studioPersonaCompanionShortcuts(persona.id);
   const ownedPersonas = personas.some((candidate) => candidate.id === persona.id)
@@ -47,6 +48,7 @@ export function PersonaCompanionSidebar({
   function closeMobileAfterSelection(event: React.MouseEvent<HTMLElement>) {
     if (event.target instanceof Element && event.target.closest("a")) {
       mobileDisclosureRef.current?.removeAttribute("open");
+      mobileSummaryRef.current?.focus();
     }
   }
 
@@ -134,7 +136,7 @@ export function PersonaCompanionSidebar({
       </aside>
 
       <details ref={mobileDisclosureRef} className="studio-companion-mobile-nav">
-        <summary>
+        <summary ref={mobileSummaryRef}>
           <span>
             <small>Private companion</small>
             <strong>{persona.name}</strong>

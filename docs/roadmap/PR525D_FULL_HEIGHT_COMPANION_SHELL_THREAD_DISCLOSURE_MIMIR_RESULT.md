@@ -115,9 +115,21 @@ zero browser page errors.
 | Document horizontal overflow / page errors | `0 / 0` |
 | `git diff --check` | Pass; line-ending warnings only |
 
-The final geometry correction moved the primary workspace boundary, not any
-conversation implementation. Focused `36/36` tests and the desktop/mobile
-browser assertions were rerun after that correction.
+The final MIMIR geometry correction moved the primary workspace boundary, not
+any conversation implementation. ARGUS then removed an inherited generic
+`.card` inset, restored mobile long-name wrapping and summary focus, and
+reserved the extra mobile summary-line height. In ARGUS's post-patch long-name
+desktop stress case, the retained return row plus inner log occupied `71.2%`
+of the `854px` primary workspace, the composer ended at `899px`, and Advanced
+Studio still began at `912px`. At `375x812`, the wrapped-summary primary ended
+at `809px`, the composer at `808px`, and long thread rows expanded inside the
+internally scrollable list without document overflow.
+
+Focused `36/36` tests, full requested suites, and desktop/mobile browser
+assertions passed after the ARGUS correction. Final review truth is recorded
+in:
+
+`docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_ARGUS_RESULT.md`
 
 ## Scope And Deviations
 

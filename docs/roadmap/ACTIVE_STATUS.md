@@ -30,27 +30,30 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lanes - PR525D review and PR526B boundary placement
+## Current lanes - PR525D and PR526B accepted by ARGUS
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
 `docs/roadmap/PR525C_STUDIO_DASHBOARD_MINIMAL_RAIL_COMPOSITION_CLOSEOUT_MIMIR.md`
 
-Active review handoff:
+ARGUS review result:
 
 ```text
 PR525D - Full-Height Companion Shell And Thread Disclosure
-Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_MIMIR_RESULT.md
+Owner chain: MIMIR -> DAEDALUS (unconsumed) -> MIMIR -> ARGUS -> MIMIR
+State: ACCEPT_PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR525D_FULL_HEIGHT_COMPANION_SHELL_THREAD_DISCLOSURE_ARGUS_RESULT.md
+Next: MIMIR closes PR525D and decides the next locked move
 ```
 
-MIMIR completed PR525D after DAEDALUS did not consume either implementation
-wake. Exact warm `156px` rail and `960px` collapse, complete URL-backed thread
-disclosure, `854px` desktop primary workspace, full-width mobile companion
-summary, keyboard closure, Advanced Studio preservation, focused/full tests,
-and rendered desktop/mobile proof pass. PR525E chat visuals and behavior remain
-untouched.
+ARGUS accepted PR525D after a narrow review patch removed inherited chat-card
+padding, restored required mobile wrapping, retained composer fit for wrapped
+summaries, and returned keyboard focus to the summary after selection. Exact
+warm `156px` rail and `960px` collapse, complete URL-backed thread disclosure,
+`854px` desktop primary workspace, `71.2%` retained return-row plus message-log
+occupancy in the long-name stress case, Advanced Studio lazy loading, persona
+isolation, focused/full tests, and independent desktop/mobile proof pass.
+PR525E message/composer behavior remains untouched.
 
 Parallel current-head audit result:
 
@@ -70,44 +73,47 @@ adaptable direction, but rejects the source action engine, `POST
 replacement flows, duplicate routes, auth-token sweep, and global CSS. Failed
 writes advanced to false success without visible recovery, private memory
 entered localStorage, primary mobile billing was hidden, and the source
-typecheck fails. MIMIR has placed the result as presentation direction only and
-queued ARGUS's docs-only PR526B boundary preflight before any PR526
+typecheck fails. MIMIR placed the result as presentation direction only. ARGUS
+has now accepted the docs-only PR526B boundary preflight before any PR526
 implementation.
 
 Placement:
 
 ```text
 PR526B - Discern Guided-Task Boundary Preflight
-Owner: ARGUS / A3 after PR525D review
-State: READY_FOR_ARGUS_PREFLIGHT_AFTER_PR525D_REVIEW
-Source: docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_ARGUS.md
+Owner chain: MIMIR -> ARGUS -> MIMIR
+State: ACCEPT_PR526B_GUIDED_TASK_BOUNDARIES_AND_PARKED_PLACEMENT
+Source: docs/roadmap/PR526B_DISCERN_GUIDED_TASK_BOUNDARY_PREFLIGHT_RESULT.md
 
 PR526C-F - guided-task primitives and three proposed pilots
 State: PARKED_BEHIND_TERMINAL_UI_CLOSEOUT_PAUSE
 ```
 
-PR526B authorizes no code. It must confirm the rejection of the source action
-runner, provider endpoint, localStorage, replacement flows, duplicate routes,
-auth sweep, and global CSS; preserve every Tex server contract; and decide
-whether any exact correction is needed before PR525G can truthfully record
-fresh-head reconciliation. In the absence of such a correction, PR526C-F stay
-parked for a later explicit product decision.
+PR526B authorizes no code. It rejects the source action runner, generic provider
+endpoint, private/durable flow localStorage, replacement flows, duplicate
+routes, auth sweep, and global CSS. It requires authoritative action success,
+an explicit unknown/reconciliation state for ambiguous outcomes, safe
+idempotency before retries, server-owned authorization/visibility/provenance,
+and a separately reviewed identity-scoped/versioned/expiring draft contract if
+resume is ever proposed. No PR526 correction is required for PR525E/F/G/H;
+PR526C-F stay parked for a later explicit product decision.
 
 The two lanes remain intentionally parallel. `ff93308b` does not modify the
 main companion page, `PersonaChat`, companion rail, Forums index, Discover,
 Writing browse, or Developer Space observatory dashboards, so PR525D-F
-continue. PR525G cannot call the comparison current-Discern complete until
-ARGUS accepts the PR526B boundary and parked placement. Affected
-creation/configuration surfaces remain frozen from new redesign or expansion
-until that decision; truthful fixes and current owner work continue.
+continue. PR525G may call the comparison current-Discern reconciled only by
+citing the accepted PR526A/PR526B adoption/deviation map; it may not claim
+source-flow implementation or parity. Affected creation/configuration surfaces
+remain frozen from new redesign or expansion; truthful fixes and current owner
+work continue.
 
 Locked sequence and gate:
 
 ```text
 PR525B - Shared Warm-Light Frame And 46px Global Navigation        CLOSED
 PR525C - Studio Dashboard And Minimal Rail Composition             CLOSED
-PR525D - Full-Height Companion Shell And Thread Disclosure         READY FOR ARGUS REVIEW
-PR526B - Guided-Task Boundary Preflight                             QUEUED AFTER PR525D REVIEW
+PR525D - Full-Height Companion Shell And Thread Disclosure         ACCEPTED BY ARGUS
+PR526B - Guided-Task Boundary Preflight                             ACCEPTED / IMPLEMENTATION PARKED
 PR525E - Compact Chat Visual System And Honest States              NEXT AFTER PR525D ACCEPTANCE
 PR525F - Forums Three-Column Honest Composition                    PENDING
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
