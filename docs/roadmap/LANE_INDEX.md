@@ -12,13 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525A | Discern Rendered Visual Parity Specification | MIMIR -> ARIADNE -> MIMIR | Complete; 42 rendered captures lock the measurable navigation, Studio, companion, chat, forum, mobile, capability, deviation, and component-map specification. MIMIR must open PR525B and wake DAEDALUS with the exact shared warm-light frame / `46px` navigation patch. | `docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md` |
+| PR525B | Shared Warm-Light Frame And 46px Global Navigation | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Open implementation; exact token, `46px` geometry, compact route-placement, mobile-menu, auth-preservation, Developer Space no-drift, file-scope, and validation gates are locked. | `docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_DAEDALUS.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR525A | Discern Rendered Visual Parity Specification | MIMIR -> ARIADNE -> MIMIR | Complete; 42 rendered captures lock the measurable navigation, Studio, companion, chat, forum, mobile, capability, deviation, and component-map specification used by PR525B-PR525G. | `docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md` |
 | PR523D closeout | Studio Companion Entry Affordance Repair | MIMIR -> DAEDALUS (stalled) -> MIMIR -> ARGUS -> MIMIR | Closed accepted as a narrow discoverability repair; it does not claim final Discern visual parity. | `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_CLOSEOUT_MIMIR.md` |
 | PR523D review | Studio Companion Entry Affordance Repair | MIMIR -> DAEDALUS (stalled) -> MIMIR -> ARGUS -> MIMIR | Accepted after a narrow ARGUS route-test patch; owner scope, zero/one/multi-persona routing, no redirect, CSS scope, and forbidden-scope boundaries pass. | `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_AFFORDANCE_REPAIR_ARGUS_RESULT.md` |
 | PR523D hosted rehearsal | Studio Companion Entry Affordance Repair | MIMIR -> ARIADNE (unconsumed) -> MIMIR | Passed on hosted Railway at `5ab82d09`; desktop/mobile visibility, private new-chat routing, refresh persistence, mobile fit, public boundary, and zero page errors passed. | `docs/roadmap/PR523D_STUDIO_COMPANION_ENTRY_HOSTED_HUMAN_REHEARSAL_MIMIR_RESULT.md` |

@@ -98,13 +98,28 @@ binding it to honest Tex behavior.
    `de7b918e` and current Tex side by side and commits a measurable
    implementation specification and deviation ledger. This is not a decision
    on whether to implement; implementation is already required.
-2. **PR525B+ - DAEDALUS implementation slices**: MIMIR converts the locked
-   specification into bounded shared-token/navigation/Studio/forum patches.
-   Slice boundaries follow the rendered dependency map, not convenience.
-3. **ARGUS review per implementation slice**: protect owner, route, data-truth,
+2. **PR525B - Shared Warm-Light Frame And 46px Global Navigation** establishes
+   the shared tokens and page-height dependency without recoloring Developer
+   Space observatory interiors.
+3. **PR525C - Studio Dashboard And Minimal Rail Composition** applies the
+   `156px` rail, warm first-viewport dashboard hierarchy, mobile collapse, and
+   locked capability relocation.
+4. **PR525D - Full-Height Companion Shell And Thread Disclosure** makes the
+   conversation the dominant workspace and moves the existing URL-backed
+   thread directory into an accessible disclosure.
+5. **PR525E - Compact Chat Visual System And Honest States** applies the
+   measured bubbles, composer, message actions, return flow, and provider/error
+   treatments without weakening current behavior.
+6. **PR525F - Forums Three-Column Honest Composition** translates the final
+   Discern frame using only real Tex categories, subcommunities, recognition,
+   reports, actions, and provenance.
+7. **PR525G - Hosted Light-Parity Rehearsal** proves desktop, `390px`, and
+   `375px` geometry against the PR525A ledger using screenshots and bounding
+   rectangles.
+8. **ARGUS review per implementation slice**: protect owner, route, data-truth,
    accessibility, and newer-capability boundaries without redistilling the
    visual target.
-4. **ARIADNE hosted comparison**: desktop, `390px`, and `375px` side-by-side
+9. **ARIADNE hosted comparison**: desktop, `390px`, and `375px` side-by-side
    proof plus product-owner recognition closeout.
 
 The Discern-derived light interface comes first. Dark mode follows only after

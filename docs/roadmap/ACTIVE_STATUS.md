@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current lane - PR525A complete; MIMIR slice lock due
+## Current lane - PR525B shared warm-light frame and global navigation
 
 MIMIR closed PR523D as the accepted narrow discoverability repair:
 
@@ -21,13 +21,19 @@ specification:
 
 `docs/roadmap/PR525A_DISCERN_RENDERED_VISUAL_PARITY_SPECIFICATION_RESULT.md`
 
+MIMIR accepted the measured result as the implementation lock, fixed the full
+dependency order, and opened:
+
+`docs/roadmap/PR525B_SHARED_WARM_LIGHT_FRAME_GLOBAL_NAVIGATION_DAEDALUS.md`
+
 Current handoff:
 
 ```text
-PR525A - Discern Rendered Visual Parity Specification
-Owner chain: MIMIR -> ARIADNE -> MIMIR
-State: COMPLETE_PR525A_RENDERED_VISUAL_PARITY_SPECIFICATION
-Next: MIMIR locks PR525B and wakes DAEDALUS with the exact first patch
+PR525B - Shared Warm-Light Frame And 46px Global Navigation
+Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+State: OPEN_IMPLEMENTATION
+Next: DAEDALUS implements the exact bounded navigation/frame patch, then wakes
+ARGUS for review
 ```
 
 The result is based on 42 read-only captures across final Discern `de7b918e`
@@ -37,15 +43,23 @@ Forums composition do not reproduce the final authored interface. The result
 locks measured geometry, color/type, capability placement, honest-behavior,
 mobile-deviation, and current-component ledgers.
 
-The exact first recommended DAEDALUS slice is:
+The locked implementation sequence is:
 
 ```text
 PR525B - Shared Warm-Light Frame And 46px Global Navigation
+PR525C - Studio Dashboard And Minimal Rail Composition
+PR525D - Full-Height Companion Shell And Thread Disclosure
+PR525E - Compact Chat Visual System And Honest States
+PR525F - Forums Three-Column Honest Composition
+PR525G - Hosted Light-Parity Rehearsal
 ```
 
-It establishes the shared light tokens and `46px` height dependency before
-Studio, companion, chat, and forum slices. Commit `99ae8a5c` remains lineage
-only; its removed persona topbar/right panel are not part of the target.
+PR525B is limited to shared frame tokens, the `46px` global navigation and
+loading shell, navigation-dependent viewport offsets, compact route placement,
+and accessible desktop/mobile disclosures. It does not reskin Developer Space
+interiors or start the later Studio, companion, chat, and forum patches. Commit
+`99ae8a5c` remains lineage only; its removed persona topbar/right panel are not
+part of the target.
 
 The final light composition is corrected first. Dark mode follows through
 shared theme tokens only after light parity is accepted. Phase 3 product
