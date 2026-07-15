@@ -4,6 +4,56 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E1 And PR484J-N1 Repairs Submitted
+
+DAEDALUS completed both routed hosted-blocker repairs on 2026-07-15:
+
+- `docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS_RESULT.md`
+- `docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS_RESULT.md`
+
+```text
+READY_PR527E1_AND_PR484J_N1_HOSTED_BLOCKER_REPAIRS_FOR_ARGUS
+```
+
+PR527E1 validation:
+
+| Command / proof | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/public-persona-route.test.ts` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `264/264` |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass |
+| Local intercepted placeholder contrast proof | Pass, `18/18` samples |
+| `git diff --check` | Pass |
+
+Placeholder contrast measurements: System/Light `5.35:1` for Avatar URL and
+Context handoff at `1440x900`, `390x844`, and `375x812`; Dark `7.53:1` for
+both fields at the same viewports. Every placeholder sample had opacity `1`,
+zero overflow, and no hosted mutation. Temporary scripts/server were removed.
+
+PR484J-N1 validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Migration hash check | Pass for exact `062` and `063` SHA-256 values |
+| Hosted preflight | Pass; ledger names absent, target tables absent, dependencies present |
+| Hosted apply | Pass; exact `062`/`063` applied atomically with one ledger row each |
+| Hosted catalog/RLS proof | Pass; columns `15/15` and `13/13`, constraints, indexes, triggers, RLS, owner policies |
+| Hosted row counts | Pass; credentials `0`, OAuth states `0` |
+| PostgREST visibility | Pass; both target tables return `200` with service-role metadata probe |
+| Deployed API signed-out credentials read | Pass, `401` |
+| Deployed API replay-owner credentials read | Pass, `200`, two provider metadata rows, no token material values |
+| Hosted Archive page | Pass; `/studio/archive` loads with no page error and no credentials-read `500` |
+| `npx --yes pnpm@10.32.1 test:storage` | Pass, `19/19` |
+| `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass, `43/43` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `git diff --check` | Pass |
+
+Temporary `pg@8.13.1` tooling lived under the OS temp directory and was
+removed. No connection string, key, password, token, cookie, raw response body,
+private id, credential value, SQL row, provider payload, hosted log,
+screenshot, trace, or video was committed or recorded.
+
 ## PR527E Hosted Rehearsal Blockers Routed
 
 ARIADNE completed the exact-SHA, zero-product-write rehearsal on 2026-07-15:

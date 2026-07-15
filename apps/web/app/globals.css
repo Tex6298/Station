@@ -8937,6 +8937,12 @@ a.studio-dashboard-row:hover {
   padding: 10px 11px;
 }
 
+.persona-profile-field input::placeholder,
+.persona-profile-field textarea::placeholder {
+  color: color-mix(in srgb, var(--station-page-muted) 78%, var(--station-page-text));
+  opacity: 1;
+}
+
 .persona-profile-field textarea {
   min-height: 96px;
   resize: vertical;

@@ -213,6 +213,7 @@ test("Persona Profile route CSS is scoped, token based, responsive, and focus vi
   assert.match(routeCss, /\.persona-profile-page/);
   assert.match(routeCss, /var\(--station-page-bg\)/);
   assert.match(routeCss, /var\(--station-page-surface\)/);
+  assert.match(routeCss, /\.persona-profile-field input::placeholder,\s*\.persona-profile-field textarea::placeholder\s*\{\s*color: color-mix\(in srgb, var\(--station-page-muted\) 78%, var\(--station-page-text\)\);\s*opacity: 1;\s*\}/);
   assert.match(routeCss, /:focus-visible/);
   assert.match(routeCss, /@media \(max-width: 820px\)/);
   assert.match(routeCss, /grid-template-columns: 1fr/);

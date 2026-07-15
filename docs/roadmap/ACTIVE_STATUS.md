@@ -4,10 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E hosted blockers routed as PR527E1 and PR484J-N1
+## Active lane - PR527E hosted blocker repairs ready for ARGUS
 
 ```text
-BLOCK_PR527E_HOSTED_PLACEHOLDER_CONTRAST_AND_ARCHIVE_CREDENTIALS_READ
+READY_PR527E1_AND_PR484J_N1_HOSTED_BLOCKER_REPAIRS_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
@@ -16,9 +16,11 @@ ARGUS result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESUL
 Hosted rehearsal: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_ARIADNE.md
 Hosted result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_RESULT.md
 Placeholder repair: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS.md
+Placeholder result: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS_RESULT.md
 Archive schema/read unblock: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS.md
+Archive schema/read result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS_RESULT.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: DAEDALUS completes both bounded tasks, wakes ARGUS for hostile review, then ARIADNE reruns only the failed hosted gates
+Next: ARGUS hostile-reviews both bounded repairs, independently verifies local/rendered and hosted ledger/catalog/read truth, then wakes MIMIR with verdict
 ```
 
 ARIADNE passed signed-out protection, exact owner/static/live truth, independent
@@ -37,6 +39,26 @@ authorizes only exact migrations `062` and `063`, their honest ledger rows,
 catalog/read proof, and zero credential/OAuth/product rows. It does not require
 or authorize Reddit configuration, an encryption key, OAuth, provider calls,
 or migrations `064` through `067`.
+
+DAEDALUS completed both bounded repairs. PR527E1 changed only route-scoped
+Persona Profile placeholder CSS and its focused source test. Local intercepted
+browser proof measured all `18` Avatar URL / Context handoff placeholder
+samples above the `4.5:1` floor: System/Light `5.35:1` and Dark `7.53:1`,
+with opacity `1`, zero overflow, zero hosted mutation, and no committed proof
+artifact. Focused source `14/14`, Studio `264/264`, web typecheck, web lint,
+and `git diff --check` passed.
+
+PR484J-N1 applied exact migrations `062` and `063` through the existing hosted
+`SUPABASE_POOLER_URL` path in one transaction, inserted one ledger row for
+each exact migration name, and requested PostgREST schema reload. Post-apply
+catalog proof shows expected columns `15/15` and `13/13`, constraints,
+indexes, updated-at triggers, RLS, owner policies, and zero credential/OAuth
+rows. REST table visibility returns `200`; signed-out credentials GET returns
+`401`; replay-owner credentials GET returns `200` with two provider metadata
+rows and no token material values. Hosted `/studio/archive` loads with no page
+error and no credentials-read `500`. Storage `19/19`, conversation archive
+`43/43`, API typecheck, and `git diff --check` passed. Temporary `pg` tooling
+and proof scripts were removed.
 
 ARGUS accepts the implementation with a narrow patch. Exact id/owner and
 continuity truth now gate owner controls; secondary architecture, graph,
