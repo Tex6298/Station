@@ -4,32 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2 migration 083 review with ARGUS
+## Active lane - PR527D2 migration 083 blocked in ARGUS review
 
 ```text
-READY_PR527D2_DATABASE_TRIGGER_OWNED_VISIBLE_REPLY_COUNT_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+BLOCK_PR527D2_UNTRUSTED_COMMENT_TIMESTAMP_CAN_PIN_FOREIGN_THREAD_ACTIVITY
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Source: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS.md
-Preflight: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_PREFLIGHT_ARGUS_RESULT.md
-Result: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
-Next: ARGUS reviews transactional SQL, trigger/guard privileges, compatibility window, reconciliation, tests, rollback packet, and frozen scope before any hosted migration or write
+Implementation: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
+Review: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md
+Next: MIMIR returns the same locked lane to DAEDALUS for trusted insert-time activity, fail-closed function-owner enforcement, and exact static assertions
 ```
 
-DAEDALUS completed the locked local migration `083` packet. It implements
-transactional database-trigger maintenance for active, non-hidden thread reply
-counts, all-thread reconciliation, count-derived hot-score repair,
-direct-counter protection, a nonnegative invariant, and replacement of the
-anonymous/authenticated-executable blind increment with a service-role-only
-no-write compatibility shim. The existing API compatibility call remains for
-the schema-deployment bridge. Focused community, document-discussion, report,
-API typecheck, and diff-check validation pass locally.
+ARGUS executed the exact migration in a disposable local PostgreSQL harness.
+Thirty-five positive checks pass across reconciliation, count transitions,
+rollback, guards, shim behavior, and privilege denial. One adversarial check
+confirms a blocker: the trigger propagates caller-writable
+`comments.created_at` into `threads.last_activity_at`, so an authenticated
+direct insert can pin another public thread to an unbounded future activity
+time.
+
+The migration also assumes without enforcing that its executor is the owner
+of both tables, and the focused static test does not actually assert every
+fixed-search-path, helper-revocation, or full-reconciliation claim in the
+DAEDALUS result. The same narrow lane must use trusted database time only for
+actual inserts, enforce function ownership fail-closed, and lock those clauses
+in tests. Required local suites still pass `51/51`, `4/4`, and `9/9`, with API
+typecheck and diff check passing; those results do not override the blocker.
 
 ARGUS's read-only hosted/source preflight remains the evidence basis: the sole
 live mismatch has stored counter `1`, total/active/viewer-visible rows `2/2/2`,
 and hidden/removed/flagged rows `0/0/0`. The other five anonymous-readable and
 all other live threads match. One inaccessible removed standalone thread is
 also historically overcounted, so live-only repair is insufficient. No hosted
-migration, backfill, or write is authorized before ARGUS review.
+migration, backfill, or write is authorized while the ARGUS block remains.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted

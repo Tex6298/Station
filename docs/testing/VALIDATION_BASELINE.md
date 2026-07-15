@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2 Migration 083 Blocked In ARGUS Review
+
+ARGUS completed the local implementation review on 2026-07-15:
+
+- `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md`
+
+```text
+BLOCK_PR527D2_UNTRUSTED_COMMENT_TIMESTAMP_CAN_PIN_FOREIGN_THREAD_ACTIVITY
+```
+
+The exact migration executed successfully in a disposable local PostgreSQL
+harness. `35` positive checks passed for reconciliation, canonical deltas,
+rollback, direct-counter denial, helper privileges, compatibility shim, and
+failure atomicity. One adversarial check confirmed the block: an authenticated
+direct comment insert can supply an unbounded `created_at`, which the
+security-definer trigger propagates into another owner's thread activity time.
+
+The correction must use trusted database time only for actual visible inserts,
+avoid replayable activity advancement on update transitions, enforce the
+required table-owner function context fail-closed, and add static assertions
+for that rule plus security-definer/search-path/helper-revocation and complete
+reconciliation clauses. No hosted migration, backfill, counter repair, RPC
+invocation, or product write is authorized.
+
+ARGUS validation:
+
+| Command / check | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `51/51` |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| Disposable exact-migration PostgreSQL probe | `35` positive checks pass; `1` adversarial check confirms blocker |
+| `git diff --check` | Pass |
+
 ## PR527D2 Migration 083 Implementation Submitted For ARGUS Review
 
 DAEDALUS completed the locked local implementation on 2026-07-15:
