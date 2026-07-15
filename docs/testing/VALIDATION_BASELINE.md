@@ -4,6 +4,50 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525H Hosted Dual-Theme Rehearsal
+
+ARIADNE completed the exact-SHA hosted rehearsal on 2026-07-15:
+
+- `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_HOSTED_REHEARSAL_RESULT.md`
+
+Validation result: `PASS_PR525H_HOSTED_DUAL_THEME_REHEARSAL`.
+
+Reason:
+
+- ready Railway web/API services reported `main` at exact accepted SHA
+  `857a7e734662a9b586515d4575401a02dc843e20`;
+- 45 System/Light/Dark cases covered signed-out Discover, Forums, and public
+  Developer Space observatory plus replay-owner Studio and companion/chat at
+  `1440x900`, `390x844`, and `375x812`;
+- first-paint resolution, live System changes, explicit persistence, invalid
+  and denied storage fallback, auth-session isolation, and owner refresh
+  persistence passed;
+- exact `46px` navigation, `30px` appearance trigger, PR525 Studio, Forums,
+  companion, chat, and mobile geometry remained frozen;
+- semantic contrast, keyboard/touch operation, complete menu inventories,
+  focus return, public/private boundaries, and the fixed observatory-interior
+  signature passed;
+- every primary case had zero browser page errors and zero document-level
+  horizontal overflow, with no hosted product mutation or committed private
+  evidence;
+- classified console diagnostics were limited to caught Next.js RSC fallbacks
+  during forced authenticated full-page transitions and the expected
+  browser-only unavailable-state `503`.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Web and API `/health/deployment` | Pass | Both services ready on `main` at the exact accepted SHA. |
+| Hosted Playwright matrix | Pass | 45 primary cases; zero blockers, page errors, or horizontal overflow. |
+| Preference and session proof | Pass | System/live, explicit persistence, denied/invalid storage, auth isolation, and refresh passed. |
+| Geometry, contrast, and accessibility | Pass | Exact dimensions, semantic pairs, complete menus, keyboard/touch, and focus return passed. |
+| Developer Space isolation | Pass | The canvas/bubble signature remained identical while the surrounding frame changed. |
+| Human-eye review | Pass | Desktop, `390px`, and `375px` public/private captures were coherent and unclipped. |
+| `git diff --check` | Pass | No whitespace errors in the documentation result. |
+| `pnpm typecheck` | Not required | Documentation only; no imports or scripts changed. |
+
+MIMIR final UI integration closeout remains required before the terminal
+mainline pause resumes.
+
 ## PR525H ARGUS Review - Shared Light/Dark Theme Treatment
 
 ARGUS accepted PR525H locally on 2026-07-15 with a narrow review patch:

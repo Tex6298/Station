@@ -7,7 +7,7 @@ when a PR lands, or when validation truth changes.
 ## Terminal condition - finish UI integration, then pause
 
 The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525H implementation baton.
+This directive does not interrupt the active PR525H closeout baton.
 
 Closeout requires all of the following:
 
@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525H Hosted Dual-Theme Rehearsal
+## Current lane - PR525H Hosted Dual-Theme Rehearsal Passed
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -132,6 +132,29 @@ routes, capabilities, successful auth/session behavior, APIs, owner scope, and
 package dependencies remain frozen. Full local tests and the independent
 three-viewport dual-theme matrix pass; ARIADNE now owns hosted rehearsal.
 
+Hosted rehearsal result:
+
+```text
+PR525H - Hosted Dual-Theme Rehearsal
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> ARIADNE -> MIMIR
+State: PASS_PR525H_HOSTED_DUAL_THEME_REHEARSAL
+Source: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_HOSTED_REHEARSAL_RESULT.md
+Next: MIMIR final UI integration closeout, then pause mainline
+```
+
+ARIADNE passed the fresh read-only hosted rehearsal on ready Railway web/API
+services at exact accepted SHA `857a7e73`. The 45-case System/Light/Dark matrix
+covers signed-out Discover, Forums, and a public Developer Space observatory,
+plus replay-owner Studio and companion/chat, at `1440x900`, `390x844`, and
+`375x812`. First-paint resolution, live System behavior, explicit persistence,
+auth isolation, complete accessible menus, exact frozen geometry, semantic
+contrast, observatory interior isolation, session refresh, mobile fit, and
+visibility boundaries pass with zero blockers, zero page errors, and zero
+horizontal overflow. Classified console output consists only of caught
+Next.js RSC fallbacks during forced authenticated transitions and the expected
+synthetic unavailable-state `503`. No hosted product mutation or production
+patch was required.
+
 Parallel current-head audit result:
 
 ```text
@@ -196,7 +219,7 @@ PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              CLOSED
-PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    ARIADNE HOSTED REHEARSAL
+PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    HOSTED PASS / MIMIR CLOSEOUT
 Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```
 
