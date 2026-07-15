@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527D1 | Forum Reply Composer Contrast Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Accepted locally by ARGUS without a review patch; independent tests and nine-case composer contrast proof pass. MIMIR must route the exact accepted commit to ARIADNE for the bounded hosted composer rerun. | `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_ARGUS_RESULT.md` |
+| PR527D1 | Forum Reply Composer Contrast Hosted Rerun | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Exact accepted SHA `ae349fc9` is ready on Railway web/API; ARIADNE owns the read-only nine-case hosted composer boundary/placeholder rerun. | `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_HOSTED_RERUN_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527D1 hosted rerun opened | Forum Reply Composer Contrast | MIMIR -> ARIADNE -> MIMIR | Opened on exact ready Railway SHA `ae349fc9`; signed-in System/Light/Dark at desktop and both mobile widths, read-only, with the reply-count caveat frozen separately. | `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_HOSTED_RERUN_ARIADNE.md` |
 | PR527D1 review | Forum Reply Composer Contrast Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR` without a review patch; independent `50/50` community, `263/263` Studio UI, web typecheck/lint, diff check, and nine-case composer proof pass. Hosted composer rerun and the separate reply-count caveat remain open. | `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_ARGUS_RESULT.md` |
 | PR527D1 implementation | Forum Reply Composer Contrast Repair | MIMIR -> DAEDALUS -> ARGUS | Submitted as `READY_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_FOR_ARGUS` and subsequently accepted unchanged by ARGUS; route-scoped class/token/test repair and local nine-case proof pass. | `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_DAEDALUS_RESULT.md` |
 | PR527D hosted rehearsal result | Forum Thread Semantic Theme Repair | MIMIR -> ARIADNE -> MIMIR | Completed `18/18` read-only cases; thread presentation otherwise passes, but signed-in composer boundary and Dark placeholder contrast fail. Separate `1 reply` versus two rendered replies caveat retained for later triage. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_HOSTED_REHEARSAL_RESULT.md` |

@@ -4,16 +4,21 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D1 accepted locally; hosted composer rerun required
+## Active lane - PR527D1 hosted composer contrast rerun with ARIADNE
 
 ```text
-ACCEPT_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR
+REHEARSE_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_ON_HOSTED
 Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_DAEDALUS.md
+Source: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_HOSTED_RERUN_ARIADNE.md
 Implementation: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_DAEDALUS_RESULT.md
 Review: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_ARGUS_RESULT.md
-Next: MIMIR routes the exact accepted commit to ARIADNE for the bounded hosted composer contrast rerun
+Next: ARIADNE runs the exact-SHA nine-case hosted composer rerun and wakes MIMIR with pass, defect, or exact blocker
 ```
+
+Railway web and API return `200`, `ok:true`, `ready:true`, branch `main`, exact
+service names, and full accepted implementation SHA
+`ae349fc9f71c533333751a68515572a45bcff72b`. ARIADNE owns the read-only
+System/Light/Dark composer rerun at `1440x900`, `390x844`, and `375x812`.
 
 DAEDALUS completed the bounded local PR527D1 repair. The signed-in Forum reply
 textarea now has a dedicated `forum-thread-detail-composer` class layered on
@@ -30,9 +35,9 @@ contrast are both `5.03:1`; minimum input/caret contrast is `13.55:1`; minimum
 focus contrast is `6.84:1`; product writes, page errors, unclassified console
 errors, clipping, overlap, and horizontal overflow are all `0`.
 
-This is local acceptance only. ARIADNE must rerun the bounded composer contrast
-sanity gate on the exact deployed accepted SHA before MIMIR decides PR527D
-closeout.
+This is local acceptance only. The exact deployed accepted SHA is now ready,
+and ARIADNE must return the bounded composer verdict before MIMIR decides
+PR527D closeout.
 
 ARIADNE completed all `18` required exact-SHA hosted PR527D cases read-only.
 Thread presentation, replies, metadata, source navigation, participation,
