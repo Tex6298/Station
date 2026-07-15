@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527D2 | Forum Reply Count Truth Boundary | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | ARGUS accepted active/non-hidden visible-reply semantics with database trigger ownership, full transactional reconciliation, direct-counter protection, and blind-RPC privilege closure. MIMIR must open the locked migration `083` implementation for DAEDALUS. | `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_PREFLIGHT_ARGUS_RESULT.md` |
+| PR527D2 | Forum Reply Count Truth Implementation | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Migration `083` implementation open for DAEDALUS: transactional trigger ownership, all-thread reconciliation, hot-score/invariant/direct-write protection, compatibility shim, and focused tests; no hosted mutation before ARGUS. | `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527D2 implementation opened | Forum Reply Count Truth | MIMIR -> ARGUS -> MIMIR -> DAEDALUS | Locked local migration `083`, API compatibility comment/error boundary, existing focused tests, rollback packet, and ARGUS-before-hosted-mutation gate. | `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS.md` |
 | PR527D2 preflight | Forum Reply Count Truth Boundary | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR527D2_DATABASE_TRIGGER_OWNED_VISIBLE_REPLY_COUNT_WITH_TRANSACTIONAL_RECONCILIATION`; one live undercount and one removed-thread overcount are proven, and migration `083` gets the exact trigger/backfill/invariant/privilege boundary. | `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_PREFLIGHT_ARGUS_RESULT.md` |
 | PR527D closeout | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Closed accepted after scoped theme repair, ARGUS patch/review, full hosted `18/18`, isolated composer repair, and exact-SHA hosted `9/9` rerun; reply-count truth moved to separate PR527D2. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_CLOSEOUT_MIMIR.md` |
 | PR527D1 hosted rerun result | Forum Reply Composer Contrast | MIMIR -> ARIADNE -> MIMIR | Passed exact-SHA `9/9`; boundary and placeholder minima `5.03:1`, input/caret `13.55:1`, focus `6.84:1`, and geometry/diagnostics/mutation/database gates pass. | `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_HOSTED_RERUN_RESULT.md` |

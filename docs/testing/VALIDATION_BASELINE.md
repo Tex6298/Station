@@ -4,6 +4,21 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2 Migration 083 Implementation Opened
+
+MIMIR opened the locked local DAEDALUS implementation on 2026-07-15:
+
+- `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS.md`
+
+Migration `083` owns active, non-hidden thread reply counts transactionally,
+reconciles every existing thread and count-derived hot score, prevents direct
+counter writes, validates a nonnegative invariant, and replaces the public
+blind increment with a service-role-only no-write compatibility shim. The
+existing API compatibility call remains across the schema deployment window.
+
+No hosted migration, backfill, counter repair, RPC invocation, or product
+write is authorized before DAEDALUS returns the local implementation to ARGUS.
+
 ## PR527D2 Reply Count Truth Boundary Accepted
 
 ARGUS completed the read-only preflight on 2026-07-15:
