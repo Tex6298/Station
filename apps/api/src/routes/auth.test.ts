@@ -420,6 +420,66 @@ test("signup deliberately confirms beta users before returning a session", async
   }
 });
 
+test("signup accepts a 72-byte ASCII password at the create boundary", async () => {
+  const db = new AuthTestSupabase();
+  useAuthFakes(db);
+  const app = createAuthProofApp();
+  const password = "A".repeat(72);
+
+  try {
+    const created = await requestJson(app, "POST", "/auth/signup", {
+      body: {
+        email: "new@example.test",
+        password,
+        username: "new_user",
+      },
+    });
+
+    assert.equal(created.status, 201);
+    assert.equal(db.createdUserPayloads.length, 1);
+    assert.equal(db.createdUserPayloads[0].password, password);
+  } finally {
+    resetAuthFakes();
+  }
+});
+
+test("signup rejects passwords over the 72-byte UTF-8 boundary before create", async () => {
+  const cases = [
+    {
+      name: "ascii",
+      password: "A".repeat(73),
+    },
+    {
+      name: "multibyte",
+      password: "🙂".repeat(19),
+    },
+  ];
+
+  for (const item of cases) {
+    const db = new AuthTestSupabase();
+    useAuthFakes(db);
+    const app = createAuthProofApp();
+
+    try {
+      const rejected = await requestJson(app, "POST", "/auth/signup", {
+        body: {
+          email: `${item.name}@example.test`,
+          password: item.password,
+          username: `${item.name}_user`,
+        },
+      });
+
+      assert.equal(rejected.status, 400);
+      assert.equal(db.createdUserPayloads.length, 0);
+      assert.deepEqual(rejected.body.error.fieldErrors.password, ["Password must be 72 bytes or fewer."]);
+      assertSafeAuthBody(rejected.body);
+      assert.doesNotMatch(JSON.stringify(rejected.body), /bcrypt|supabase|stack|A{20}|🙂/i);
+    } finally {
+      resetAuthFakes();
+    }
+  }
+});
+
 test("auth controller failures return stable public copy without service payloads", async () => {
   const signupDb = new AuthTestSupabase();
   signupDb.createUserError = hostileAuthError("signup");

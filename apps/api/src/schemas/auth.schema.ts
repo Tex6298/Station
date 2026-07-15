@@ -1,8 +1,16 @@
 import { z } from "zod";
 
+const MAX_SIGNUP_PASSWORD_BYTES = 72;
+const SIGNUP_PASSWORD_MAX_BYTES_MESSAGE = "Password must be 72 bytes or fewer.";
+
 export const signUpSchema = z.object({
   email: z.string().email("Invalid email address."),
-  password: z.string().min(8, "Password must be at least 8 characters."),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters.")
+    .refine((password) => Buffer.byteLength(password, "utf8") <= MAX_SIGNUP_PASSWORD_BYTES, {
+      message: SIGNUP_PASSWORD_MAX_BYTES_MESSAGE,
+    }),
   username: z
     .string()
     .min(3, "Username must be at least 3 characters.")
