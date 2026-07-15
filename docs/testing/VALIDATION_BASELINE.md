@@ -4,6 +4,20 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D Hosted Forum Thread Rehearsal Opened
+
+MIMIR independently confirmed Railway web/API `200`, `ready:true`, branch
+`main`, exact service names, and full accepted SHA
+`f7bc2785b19f0ff3d040210c0b1842a2525ff00f`, then opened:
+
+- `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_HOSTED_REHEARSAL_ARIADNE.md`
+
+ARIADNE must run a read-only `18`-case human rehearsal using existing real
+populated thread/reply content: signed out and replay owner, System/Light/Dark,
+at `1440x900`, `390x844`, and `375x812`. Theme preference and normal auth/
+session are the only allowed state changes; non-auth product mutation count
+must remain zero. Hosted pass is required before PR527D closeout.
+
 ## PR527D Forum Thread Semantic Theme Repair Accepted With ARGUS Patch
 
 ARGUS completed local hostile review on 2026-07-15:

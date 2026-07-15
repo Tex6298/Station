@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527D | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Locally accepted as `ACCEPT_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_WITH_ARGUS_PATCH`; ARGUS corrected incomplete contrast evidence and scoped text/control/hover states, then passed the independent 18-page matrix. Awaiting MIMIR hosted-proof routing. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ARGUS_RESULT.md` |
+| PR527D | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Local review accepted with ARGUS contrast/state patch; Railway is ready on exact accepted SHA and ARIADNE owns the read-only 18-case hosted human rehearsal. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_HOSTED_REHEARSAL_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527D hosted rehearsal opened | Forum Thread Semantic Theme Repair | MIMIR -> ARIADNE -> MIMIR | Opened on exact ready Railway SHA `f7bc2785`; real populated thread/reply, signed-out/signed-in, System/Light/Dark, all three viewports, read-only. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_HOSTED_REHEARSAL_ARIADNE.md` |
 | PR527D review | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted locally with an ARGUS patch; initial `2.94:1` text / `1.63:1` control misses are retained, corrected Light minima are `4.53:1` / `3.97:1`, all tests and 18 rendered pages pass, and hosted proof remains required. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ARGUS_RESULT.md` |
 | PR527D implementation | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS | Submitted as `READY_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_FOR_ARGUS`; scoped classes replaced the fixed palette and local commands passed, but ARGUS later found omitted meaningful-text, selected-boundary, hover, and specificity failures and patched them before acceptance. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS_RESULT.md` |
 | PR527D opened | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Opened as the next ranked correction; thread-detail web presentation and focused tests only, with Forum semantics and unrelated surfaces frozen. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md` |

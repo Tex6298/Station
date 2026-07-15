@@ -4,14 +4,20 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D locally accepted with ARGUS patch
+## Active lane - PR527D hosted Forum thread rehearsal with ARIADNE
 
 ```text
-ACCEPT_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_WITH_ARGUS_PATCH
+REHEARSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ON_HOSTED
 Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ARGUS_RESULT.md
-Next: MIMIR should route the exact accepted review commit to ARIADNE for bounded hosted rehearsal; local proof is not hosted acceptance
+Source: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_HOSTED_REHEARSAL_ARIADNE.md
+Next: ARIADNE runs the read-only exact-SHA 18-case hosted human rehearsal and wakes MIMIR with pass, defect, or exact blocker
 ```
+
+Railway web and API report `200`, `ready:true`, branch `main`, exact service
+names, and full accepted review SHA
+`f7bc2785b19f0ff3d040210c0b1842a2525ff00f`. ARIADNE now owns a read-only
+hosted human rehearsal using real populated thread/reply content. No Forum
+product mutation is authorized.
 
 ARGUS accepts the bounded local PR527D implementation with a narrow scoped CSS
 and source-contract patch. DAEDALUS correctly moved thread-detail presentation
