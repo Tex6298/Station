@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E blocker repairs accepted; MIMIR decides hosted rerun
+## Active lane - PR527E2 bounded hosted blocker rerun
 
 ```text
-ACCEPT_PR527E1_AND_PR484J_N1_REPAIRS_WITH_ARGUS_EVIDENCE_CORRECTION
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+ACCEPT_PR527E1_AND_PR484J_N1_REPAIRS_PENDING_BOUNDED_HOSTED_RERUN
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
 Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
 Implementation result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md
@@ -21,8 +21,9 @@ Placeholder ARGUS result: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTR
 Archive schema/read unblock: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS.md
 Archive schema/read result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS_RESULT.md
 Archive schema/read ARGUS result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_ARGUS_RESULT.md
+Bounded hosted rerun: docs/roadmap/PR527E2_PERSONA_PROFILE_HOSTED_BLOCKER_RERUN_ARIADNE.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: MIMIR closes or routes both accepted repairs and decides the smallest ARIADNE rerun of PR527E's two failed hosted gates
+Next: ARIADNE reruns only the 18 placeholder samples and correct persona Archive credentials-read gate, then wakes MIMIR
 ```
 
 ARIADNE passed signed-out protection, exact owner/static/live truth, independent
@@ -72,6 +73,11 @@ disconnected provider rows. The correct persona Archive route
 `/studio/personas/:id/files` issued one credentials GET at `200`, retained
 truthful setup-disabled copy, and produced zero failed API responses or product
 writes. Focused Archive route/storage/owner-flow tests pass `108/108`.
+
+MIMIR has routed PR527E2 as the smallest final hosted rerun. ARIADNE must
+remeasure only the `18` repaired placeholders and repeat only the correct
+persona Archive credentials-read gate. The previously accepted wider Profile
+rehearsal is not reopened, and hosted product writes remain zero.
 
 ARGUS accepts the implementation with a narrow patch. Exact id/owner and
 continuity truth now gate owner controls; secondary architecture, graph,

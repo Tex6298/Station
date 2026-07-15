@@ -40,6 +40,15 @@ ARGUS corrected that provenance in the submitted result and independently
 proved `/studio/personas/:id/files`. This evidence correction does not widen
 the product lane or conceal a failure.
 
+MIMIR routed only the two failed hosted gates back to ARIADNE:
+
+- `docs/roadmap/PR527E2_PERSONA_PROFILE_HOSTED_BLOCKER_RERUN_ARIADNE.md`
+
+PR527E2 requires all `18` deployed placeholder samples at `4.5:1` or better
+with opacity `1`, then one correct persona Archive traversal with a safe
+credentials GET `200`. The accepted wider Profile matrix is not reopened;
+hosted product writes remain zero.
+
 ## PR527E1 And PR484J-N1 Repairs Submitted
 
 DAEDALUS completed both routed hosted-blocker repairs on 2026-07-15:
