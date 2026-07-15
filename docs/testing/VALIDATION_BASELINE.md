@@ -4,7 +4,26 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527 UI Product Completeness Inventory Open
+## PR527A Notes Truth Boundary Preflight Open
+
+ARIADNE completed the PR527 hosted inventory at `745ff4ca`:
+
+- `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md`
+
+Result: `PR527_INVENTORY_COMPLETE_CORRECTIONS_REQUIRED`.
+
+- 2 principal journeys pass;
+- 4 fail product truth;
+- 6 have exact hosted or safe-fixture blockers;
+- 1 is truthfully unavailable to the replay owner's tier.
+
+PR527A now sends `/studio/notes` through ARGUS boundary preflight before a
+route-only truth repair. The hosted inventory proved that the current local
+editor silently loses private writing, restores seeded faux notes, and exposes
+nine inert commands. No PR527A implementation or validation result is accepted
+yet.
+
+## PR527 UI Product Completeness Definition
 
 Product-owner correction `6ee89b5a` retains the PR525 visual and theme proof
 below but supersedes its overall UI-completion label. PR527 now requires hosted
@@ -13,8 +32,8 @@ mutation/readback/refresh/cleanup proof where a workflow writes state:
 
 - `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md`
 
-No PR527 journey result is accepted yet. ARIADNE owns the first hosted
-human/product inventory. PR524B and unrelated Phase 3 expansion remain paused.
+The PR527 inventory is now complete and its numbered correction sequence is
+active. PR524B and unrelated Phase 3 expansion remain paused.
 
 ## PR525H Hosted Dual-Theme Rehearsal
 

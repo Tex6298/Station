@@ -4,27 +4,27 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527 UI product completeness hosted journey inventory
+## Active lane - PR527A Notes truth boundary preflight
 
 ```text
-OPEN_PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY
-Owner chain: MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md
+OPEN_PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT
+Owner chain: MIMIR -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS.md
 ```
 
-Product-owner correction `6ee89b5a` supersedes PR525's overall UI-completion
-label. PR525A-H remain accepted as the Discern-informed visual foundation, but
-their predetermined read-heavy route matrix did not prove Station's supported
-product end to end.
+ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
+public discovery and `J13` export pass; four journeys fail product truth, six
+have exact hosted/fixture blockers, and one is truthfully tier-unavailable.
+Station is not product-journey complete.
 
-ARIADNE owns a finite hosted human/product inventory across account entry,
-persona setup/import/update, companion chat, Memory/Continuity/Integrity,
-Archive, writing/publishing, Spaces, public discovery, Forums/community,
-Developer Spaces, settings/providers, Stripe test billing, and exports. Live
-commands require authoritative mutation/readback/refresh/cleanup proof; every
-visible command must be live, truthfully unavailable, permission-gated, or
-recorded as a route-specific defect. The result returns to MIMIR for ARGUS
-boundary review where needed and bounded DAEDALUS correction slices.
+The first correction is `/studio/notes`. Its local-only editor silently loses
+private writing on refresh, restores seeded faux notes, does not filter search,
+and presents nine inert commands. ARGUS now owns the boundary preflight for a
+route-only truth repair: remove the unsupported editor and general navigation
+promise, retain the owner-gated deep link, show one exact unavailable state,
+and link only to real Global Archive and Studio destinations. If accepted,
+MIMIR wakes DAEDALUS for the bounded patch, then ARGUS review and ARIADNE hosted
+rehearsal.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product
