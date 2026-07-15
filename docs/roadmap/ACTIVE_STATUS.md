@@ -4,14 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D Forum thread semantic theme repair with DAEDALUS
+## Active lane - PR527D Forum thread semantic theme repair with ARGUS
 
 ```text
-OPEN_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR
+READY_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_FOR_ARGUS
 Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
 Source: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md
-Next: DAEDALUS replaces fixed thread-detail palette ownership with existing semantic theme tokens, proves the nine-case local render matrix, and wakes ARGUS
+Result: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS_RESULT.md
+Next: ARGUS hostile-reviews fixed-palette removal, semantic token/class scope, behavior boundaries, focused tests, and independent rendered System/Light/Dark proof
 ```
+
+DAEDALUS completed the bounded local PR527D implementation. Thread-detail
+presentation now uses scoped `forum-thread-detail-*` classes and existing
+`--station-page-*` tokens for post/reply bodies, metadata, Watch, witness,
+moderation, feedback, controls, labels, links, signed-out, loading, and locked
+states. No API/data/auth/tier/Watch/vote/report/witness/moderation/database or
+global theme behavior was changed, and no global `[style*=...]` compatibility
+override was added.
+
+Local validation passes community `50/50`, Studio UI `263/263`, web
+typecheck, web lint, and `git diff --check`. The intercepted local browser
+matrix passed `1440x900`, `390x844`, and `375x812` across System, Light, and
+Dark with signed-out and signed-in states, plus loading, ready, saving/disabled,
+and bounded failure presentation. Minimum measured normal text contrast is
+`4.53:1`; minimum measured non-text contrast is `3.63:1`; page errors,
+unclassified console errors, and horizontal overflow are all `0`.
 
 PR527C is closed as
 `CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED`.

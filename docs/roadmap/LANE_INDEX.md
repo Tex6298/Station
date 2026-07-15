@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527D | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Open; replace fixed thread-detail palette ownership with existing semantic tokens, preserve all behavior, and prove System/Light/Dark at desktop plus both narrow widths before review and hosted rehearsal. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md` |
+| PR527D | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Ready for ARGUS review; DAEDALUS replaced fixed thread-detail palette ownership with scoped semantic token classes, preserved behavior, and passed local commands plus intercepted System/Light/Dark proof. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS_RESULT.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527D implementation | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS | Ready for ARGUS review as `READY_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_FOR_ARGUS`; scoped semantic classes/tokens replace the fixed thread-detail palette, local `50/50` community, `263/263` Studio UI, web typecheck/lint, diff check, and intercepted nine-case theme/viewport proof pass. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS_RESULT.md` |
 | PR527D opened | Forum Thread Semantic Theme Repair | MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Opened as the next ranked correction; thread-detail web presentation and focused tests only, with Forum semantics and unrelated surfaces frozen. | `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md` |
 | PR527C closeout | Forum Watch Hosted Lifecycle And Boundaries | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Closed accepted; migration/readiness, fail-closed UI, owner lifecycle, hosted `401/403/404`, non-exposure, human states, and cleanup pass. Retains ARGUS correction that two sequential disposable cycles ran and both cleaned to zero residue. | `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_BOUNDARIES_CLOSEOUT_MIMIR.md` |
 | PR527C2 review | Forum Watch Disposable Auth-Create Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted with an evidence correction: local `24/24` auth, `49/49` community, typecheck, exact deployed SHA, `400/201/403/404`, non-exposure, and cleanup pass; logs show two sequential tagged cycles, both at zero residue. PR527C close is recommended. | `docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_ARGUS_RESULT.md` |

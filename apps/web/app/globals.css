@@ -5212,9 +5212,9 @@ html, body {
   margin-bottom: 0.75rem;
 }
 
-.forum-thread-detail-labels span:not([style]) {
+.forum-thread-detail-labels span:not([style]):not(.forum-thread-detail-faint) {
   max-width: 100%;
-  border: 1px solid var(--station-page-border);
+  border: 1px solid var(--station-page-muted);
   border-radius: 999px;
   background: var(--station-page-soft-2);
   color: var(--station-page-muted);
@@ -5230,6 +5230,328 @@ html, body {
 .forum-thread-detail-labels span[data-tone="locked"] {
   background: var(--station-page-selected-bg);
   color: var(--station-page-accent);
+}
+
+.forum-thread-detail {
+  color: var(--station-page-text);
+}
+
+.forum-thread-detail a {
+  color: var(--station-page-accent);
+}
+
+.card.forum-thread-detail-card {
+  border-color: var(--station-page-muted);
+  background: var(--station-page-surface);
+  color: var(--station-page-text);
+}
+
+.forum-thread-detail-primary {
+  background: var(--station-page-thread);
+}
+
+.forum-thread-detail-breadcrumb {
+  margin-bottom: 1.5rem;
+  color: var(--station-page-faint);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.forum-thread-detail-breadcrumb a {
+  color: var(--station-page-muted);
+}
+
+.forum-thread-detail-title {
+  margin: 0 0 0.75rem;
+  color: var(--station-page-text);
+  font-size: 1.5rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.forum-thread-detail-meta,
+.forum-thread-detail-comment-meta {
+  color: var(--station-page-muted);
+  font-size: 0.78rem;
+}
+
+.forum-thread-detail-comment-meta {
+  font-size: 0.75rem;
+}
+
+.forum-thread-detail-faint {
+  color: var(--station-page-faint);
+  font-size: 0.72rem;
+}
+
+.forum-thread-detail-body,
+.forum-thread-detail-comment-body {
+  color: var(--station-page-text);
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.forum-thread-detail-body {
+  font-size: 0.975rem;
+}
+
+.forum-thread-detail-comment-body {
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.forum-thread-detail-actions,
+.forum-thread-detail-comment-actions,
+.forum-thread-detail-watch,
+.forum-thread-detail-witness,
+.forum-thread-detail-moderation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  color: var(--station-page-muted);
+}
+
+.forum-thread-detail-actions {
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.78rem;
+}
+
+.forum-thread-detail-actions strong {
+  color: var(--station-page-text);
+}
+
+.forum-thread-detail-comment-actions {
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+  font-size: 0.75rem;
+}
+
+.forum-thread-detail-watch,
+.forum-thread-detail-witness,
+.forum-thread-detail-moderation {
+  border-top: 1px solid var(--station-page-muted);
+}
+
+.forum-thread-detail-watch {
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  font-size: 0.78rem;
+}
+
+.forum-thread-detail-witness,
+.forum-thread-detail-moderation {
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.forum-thread-detail-moderation {
+  margin-top: 0.75rem;
+}
+
+.forum-thread-detail-witness-header,
+.forum-thread-detail-witness-meaning,
+.forum-thread-detail-witness-boundary {
+  flex-basis: 100%;
+}
+
+.forum-thread-detail-witness-header,
+.forum-thread-detail-witness-meaning {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.forum-thread-detail-witness-header {
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.forum-thread-detail-witness-title,
+.forum-thread-detail-moderation-title {
+  color: var(--station-page-text);
+  font-weight: 700;
+}
+
+.forum-thread-detail-moderation-title {
+  font-weight: 600;
+}
+
+.forum-thread-detail-witness-meaning,
+.forum-thread-detail-witness-boundary {
+  color: var(--station-page-muted);
+  font-size: 0.72rem;
+}
+
+.forum-thread-detail-section-label {
+  margin-bottom: 0.75rem;
+  color: var(--station-page-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.card.forum-thread-detail-state {
+  border-color: var(--station-page-muted);
+  background: var(--station-page-surface);
+  color: var(--station-page-muted);
+}
+
+.card.forum-thread-detail-state[data-tone="danger"] {
+  border-color: var(--station-page-danger-border);
+  background: var(--station-page-danger-bg);
+  color: var(--station-page-red);
+}
+
+.forum-thread-detail-feedback,
+.forum-thread-detail-notice {
+  border-radius: 6px;
+  font-size: 0.78rem;
+}
+
+.forum-thread-detail-feedback {
+  margin-top: 0.6rem;
+}
+
+.forum-thread-detail-feedback[data-tone="success"],
+.forum-thread-detail-notice[data-tone="success"] {
+  border: 1px solid var(--station-page-success-border);
+  background: var(--station-page-success-bg);
+  color: var(--station-page-success-text);
+}
+
+.forum-thread-detail-feedback[data-tone="error"],
+.forum-thread-detail-notice[data-tone="error"] {
+  border: 1px solid var(--station-page-danger-border);
+  background: var(--station-page-danger-bg);
+  color: var(--station-page-red);
+}
+
+.forum-thread-detail-feedback {
+  padding: 0.45rem 0.65rem;
+}
+
+.forum-thread-detail-notice {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.forum-thread-detail-source-link {
+  color: var(--station-page-green);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.forum-thread-detail-button,
+.forum-thread-detail-witness-button,
+.forum-thread-detail-witness-pill,
+.forum-thread-detail-moderation-button,
+.forum-thread-detail-inline-action,
+.forum-thread-detail-submit {
+  border-radius: 6px;
+  font: inherit;
+}
+
+.forum-thread-detail-button,
+.forum-thread-detail-witness-button,
+.forum-thread-detail-witness-pill,
+.forum-thread-detail-moderation-button {
+  border: 1px solid var(--station-page-muted);
+  background: var(--station-page-surface);
+  color: var(--station-page-muted);
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+}
+
+.forum-thread-detail-witness-button,
+.forum-thread-detail-witness-pill,
+.forum-thread-detail-moderation-button {
+  padding: 0.16rem 0.48rem;
+}
+
+.forum-thread-detail-button,
+.forum-thread-detail-witness-button,
+.forum-thread-detail-moderation-button,
+.forum-thread-detail-inline-action,
+.forum-thread-detail-submit {
+  cursor: pointer;
+}
+
+.forum-thread-detail-button[data-active="true"] {
+  border-color: var(--station-page-on-strong);
+  background: var(--station-page-text);
+  color: var(--station-page-on-strong);
+}
+
+.forum-thread-detail-witness-button[data-active="true"],
+.forum-thread-detail-witness-pill[data-active="true"] {
+  border-color: var(--station-page-success-border);
+  background: var(--station-page-success-bg);
+  color: var(--station-page-success-text);
+}
+
+.forum-thread-detail-moderation-button[data-strong="true"] {
+  border-color: var(--station-page-danger-border);
+  background: var(--station-page-danger-bg);
+  color: var(--station-page-red);
+}
+
+.forum-thread-detail-witness-button:disabled,
+.forum-thread-detail-moderation-button:disabled,
+.forum-thread-detail-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.forum-thread-detail-witness-button[data-loading="true"],
+.forum-thread-detail-moderation-button[data-loading="true"] {
+  cursor: wait;
+}
+
+.forum-thread-detail-inline-action {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--station-page-muted);
+  font-size: 0.72rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.forum-thread-detail-submit {
+  border: 1px solid var(--station-page-on-strong);
+  border-radius: 8px;
+  background: var(--station-page-text);
+  color: var(--station-page-on-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+}
+
+.forum-thread-detail-button:hover,
+.forum-thread-detail-witness-button:hover,
+.forum-thread-detail-moderation-button:hover,
+.forum-thread-detail-inline-action:hover {
+  border-color: var(--station-page-border-strong);
+  color: var(--station-page-text);
+}
+
+.forum-thread-detail-submit:hover:not(:disabled) {
+  background: var(--station-page-accent);
+  border-color: var(--station-page-accent);
+}
+
+.forum-thread-detail-button:focus-visible,
+.forum-thread-detail-witness-button:focus-visible,
+.forum-thread-detail-moderation-button:focus-visible,
+.forum-thread-detail-inline-action:focus-visible,
+.forum-thread-detail-submit:focus-visible,
+.forum-thread-detail a:focus-visible {
+  outline: 2px solid var(--station-page-accent);
+  outline-offset: 2px;
 }
 
 .forum-thread-title {

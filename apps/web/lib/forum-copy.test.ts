@@ -58,6 +58,36 @@ test("forum page sources avoid legacy public score and vote labels", () => {
   assert.match(source, /forumParticipationActionLabel/);
 });
 
+test("forum thread detail uses scoped semantic theme classes", () => {
+  const threadPage = readFileSync("apps/web/app/forums/[categorySlug]/[threadId]/page.tsx", "utf8");
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+  const scopedStart = css.indexOf(".forum-thread-detail {");
+  const scopedThreadCss = css.slice(
+    scopedStart,
+    css.indexOf(".forum-thread-title {", scopedStart)
+  );
+
+  assert.match(threadPage, /forum-thread-detail-body/);
+  assert.match(threadPage, /forum-thread-detail-comment-body/);
+  assert.match(threadPage, /forum-thread-detail-watch/);
+  assert.match(threadPage, /forum-thread-detail-witness-button/);
+  assert.match(threadPage, /forum-thread-detail-moderation-button/);
+  assert.match(threadPage, /forum-thread-detail-submit/);
+  assert.doesNotMatch(
+    threadPage,
+    /#(?:1f2529|687078|8b8f92|534ab7|d8d3c8|ece8dd|fff|2d1515|7d2e2e|eb5757|25633f|e9f5ee|f8f7f4)\b/i
+  );
+
+  assert.match(css, /\.forum-thread-detail-body\s*,\s*\n\.forum-thread-detail-comment-body\s*\{[\s\S]*?color: var\(--station-page-text\);/);
+  assert.match(css, /\.forum-thread-detail-button[\s\S]*?border: 1px solid var\(--station-page-muted\);/);
+  assert.match(css, /\.forum-thread-detail-button\[data-active="true"\]\s*\{[\s\S]*?background: var\(--station-page-text\);[\s\S]*?color: var\(--station-page-on-strong\);/);
+  assert.match(css, /\.forum-thread-detail-witness-button\[data-active="true"\][\s\S]*?background: var\(--station-page-success-bg\);/);
+  assert.match(css, /\.forum-thread-detail-moderation-button\[data-strong="true"\]\s*\{[\s\S]*?background: var\(--station-page-danger-bg\);/);
+  assert.match(css, /\.forum-thread-detail-submit:focus-visible/);
+  assert.ok(scopedThreadCss.length > 0);
+  assert.doesNotMatch(scopedThreadCss, /\[style\*=/);
+});
+
 test("forum thread status labels avoid raw visibility jargon", () => {
   assert.equal(forumThreadVisibilityLabel("public"), "Public");
   assert.equal(forumThreadVisibilityLabel("community"), "Community-visible");
