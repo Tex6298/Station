@@ -4,43 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2A trusted activity repair review with ARGUS
+## Active lane - PR527D2A accepted locally; hosted decision with MIMIR
 
 ```text
-READY_PR527D2A_TRUSTED_ACTIVITY_AND_FUNCTION_OWNER_GUARD_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+ACCEPT_PR527D2A_TRUSTED_ACTIVITY_AND_FUNCTION_OWNER_GUARD_WITH_ARGUS_TEST_PATCH
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Source: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS.md
 Implementation: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
-Review: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md
-Result: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md
-Next: ARGUS reruns the exact migration bytes in a disposable PostgreSQL harness, including adversarial future timestamp and update-replay cases, before any hosted mutation
+Blocked review: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md
+Correction: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md
+Review: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_ARGUS_RESULT.md
+Next: MIMIR closes the local correction and decides the separately audited hosted migration/proof gate
 ```
 
-DAEDALUS completed the bounded PR527D2A correction. Migration `083` now uses
-database-derived `statement_timestamp()` only for actual visible comment
-inserts, passes no activity timestamp for visibility/status/parent updates,
-and fails closed unless `public.comments` and `public.threads` share an owner
-and the migration runs as that owner. The focused source test now locks the
-trusted-time rule, owner check, fixed search paths, helper revocations,
-complete reconciliation, service-role-only shim, and rollback grant floor.
+ARGUS accepts the bounded correction after the exact migration passed `30/30`
+disposable PostgreSQL checks. An unbounded caller row timestamp now advances a
+parent only to trusted database statement time on actual insert; hide/unhide,
+remove/restore, repeated updates, and parent moves cannot replay activity. A
+non-owner migration role fails before object creation, while the valid shared
+table-owner context applies and owns the security-definer functions.
 
-Local validation passes community `51/51`, document discussions `4/4`,
-reports `9/9`, API typecheck, and diff check. These are static/mocked checks;
-ARGUS still owns the executable PostgreSQL rerun with adversarial future
-timestamp and update-replay cases.
-
-ARGUS's PR527D2 block remains the executable evidence basis until that rerun:
-the previous exact-migration harness had thirty-five positive checks pass, then
-proved caller-writable `comments.created_at` could pin another public thread's
-activity time. No hosted migration, backfill, or write is authorized while
-ARGUS review remains open.
+ARGUS tightened the focused source test so each migration function's
+security-definer/search-path clauses and each helper revoke are checked within
+their own definition/statement. Community `51/51`, document discussions
+`4/4`, reports `9/9`, API typecheck, and diff check pass. This is local
+acceptance only: no hosted migration, backfill, counter repair, RPC invocation,
+or ledger write occurred or is yet authorized.
 
 ARGUS's read-only hosted/source preflight remains the evidence basis: the sole
 live mismatch has stored counter `1`, total/active/viewer-visible rows `2/2/2`,
 and hidden/removed/flagged rows `0/0/0`. The other five anonymous-readable and
 all other live threads match. One inaccessible removed standalone thread is
 also historically overcounted, so live-only repair is insufficient. No hosted
-migration, backfill, or write is authorized while the ARGUS block remains.
+migration, backfill, or write is authorized until MIMIR opens the audited gate.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted

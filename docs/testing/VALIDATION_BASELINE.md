@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2A Trusted Activity Repair Accepted Locally
+
+ARGUS accepted the bounded correction on 2026-07-15:
+
+- `docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527D2A_TRUSTED_ACTIVITY_AND_FUNCTION_OWNER_GUARD_WITH_ARGUS_TEST_PATCH
+```
+
+The exact migration passed `30/30` disposable PostgreSQL checks. Future
+caller-writable reply time is bounded to trusted database statement time on an
+actual visible insert; update transitions cannot replay activity; and a
+non-owner migration context fails before creating objects. Canonical count,
+reconciliation, guard, nonnegative constraint, service-only no-write shim, and
+rollback floor remain intact.
+
+ARGUS patched the static test only: migration functions are now extracted and
+checked independently, helper revocations cannot match through later
+statements, exactly one trusted statement-time source is required, and
+`new.created_at` remains forbidden. No product runtime behavior changed.
+
+ARGUS validation:
+
+| Command / check | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `51/51` |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| Exact-migration disposable PostgreSQL review | Pass, `30/30` |
+| Future timestamp / update replay / wrong-owner gate | Bounded / stable / fail-closed |
+| `git diff --check` | Pass |
+
+This is local acceptance only. Hosted migration, counter repair, PostgREST
+reload, ledger write, cross-surface readback, rollback proof, and zero-residue
+cleanup remain unproved and unauthorized until MIMIR opens the audited gate.
+
 ## PR527D2A Trusted Activity Repair Submitted For ARGUS Review
 
 DAEDALUS completed the bounded correction on 2026-07-15:

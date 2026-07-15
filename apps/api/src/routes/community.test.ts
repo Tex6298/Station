@@ -64,9 +64,21 @@ const UNSAFE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab07";
 const MIGRATION_083_PATH = "infra/supabase/migrations/083_forum_visible_reply_count_integrity.sql";
 const PR527D2A_RESULT_PATH = "docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md";
 
+function migrationFunctionDefinition(sql: string, functionName: string) {
+  const escapedName = functionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = sql.match(new RegExp(`create or replace function public\\.${escapedName}\\b[\\s\\S]*?\\n\\$\\$;`, "i"));
+  assert.ok(match, `Expected migration function ${functionName}`);
+  return match[0];
+}
+
 test("migration 083 owns visible thread reply counts transactionally", () => {
   const sql = readFileSync(MIGRATION_083_PATH, "utf8");
   const result = readFileSync(PR527D2A_RESULT_PATH, "utf8");
+  const visibleReplyFunction = migrationFunctionDefinition(sql, "forum_comment_counts_as_visible_reply");
+  const deltaFunction = migrationFunctionDefinition(sql, "apply_thread_visible_reply_count_delta");
+  const syncFunction = migrationFunctionDefinition(sql, "sync_thread_visible_reply_count_from_comments");
+  const directWriteGuardFunction = migrationFunctionDefinition(sql, "prevent_direct_thread_comment_count_write");
+  const compatibilityFunction = migrationFunctionDefinition(sql, "increment_thread_comment_count");
 
   assert.match(sql, /\bbegin;\s*select pg_advisory_xact_lock\(hashtextextended\('station\.pr527d2\.visible_reply_count\.083'/i);
   assert.match(sql, /to_regprocedure\('public\.increment_thread_comment_count\(uuid\)'\)/);
@@ -85,18 +97,23 @@ test("migration 083 owns visible thread reply counts transactionally", () => {
   assert.match(sql, /if tg_op = 'INSERT' then\s+trusted_activity_at := statement_timestamp\(\);/);
   assert.match(sql, /perform public\.apply_thread_visible_reply_count_delta\(new_thread_id, 1, trusted_activity_at, false\);/);
   assert.doesNotMatch(sql, /new\.created_at/);
+  assert.equal(sql.match(/statement_timestamp\(\)/g)?.length, 1);
   assert.match(sql, /hot_score = score \+ \(next_count \* 0\.35\)/);
   assert.match(sql, /reply_delta > 0[\s\S]*activity_at > last_activity_at/);
-  assert.match(sql, /create or replace function public\.apply_thread_visible_reply_count_delta[\s\S]*security definer[\s\S]*set search_path = public, pg_temp/);
-  assert.match(sql, /create or replace function public\.sync_thread_visible_reply_count_from_comments[\s\S]*security definer[\s\S]*set search_path = public, pg_temp/);
-  assert.match(sql, /create or replace function public\.increment_thread_comment_count[\s\S]*security definer[\s\S]*set search_path = public, pg_temp/);
-  assert.match(sql, /create or replace function public\.forum_comment_counts_as_visible_reply[\s\S]*set search_path = public, pg_temp/);
-  assert.match(sql, /create or replace function public\.prevent_direct_thread_comment_count_write[\s\S]*set search_path = public, pg_temp/);
+  assert.match(deltaFunction, /security definer/);
+  assert.match(deltaFunction, /set search_path = public, pg_temp/);
+  assert.match(syncFunction, /security definer/);
+  assert.match(syncFunction, /set search_path = public, pg_temp/);
+  assert.doesNotMatch(syncFunction, /new\.created_at/);
+  assert.match(compatibilityFunction, /security definer/);
+  assert.match(compatibilityFunction, /set search_path = public, pg_temp/);
+  assert.match(visibleReplyFunction, /set search_path = public, pg_temp/);
+  assert.match(directWriteGuardFunction, /set search_path = public, pg_temp/);
   assert.match(sql, /revoke all on function public\.forum_comment_counts_as_visible_reply\(text, text, boolean\) from public, anon, authenticated/);
-  assert.match(sql, /revoke all on function public\.apply_thread_visible_reply_count_delta\(uuid, integer, timestamptz, boolean\)[\s\S]*from public, anon, authenticated/);
-  assert.match(sql, /revoke all on function public\.sync_thread_visible_reply_count_from_comments\(\)[\s\S]*from public, anon, authenticated/);
+  assert.match(sql, /revoke all on function public\.apply_thread_visible_reply_count_delta\(uuid, integer, timestamptz, boolean\)\s+from public, anon, authenticated/);
+  assert.match(sql, /revoke all on function public\.sync_thread_visible_reply_count_from_comments\(\)\s+from public, anon, authenticated/);
   assert.match(sql, /prevent_direct_thread_comment_count_write/);
-  assert.match(sql, /revoke all on function public\.prevent_direct_thread_comment_count_write\(\)[\s\S]*from public, anon, authenticated/);
+  assert.match(sql, /revoke all on function public\.prevent_direct_thread_comment_count_write\(\)\s+from public, anon, authenticated/);
   assert.match(sql, /tg_op = 'INSERT' and coalesce\(new\.comment_count, 0\) <> 0/);
   assert.match(sql, /tg_op = 'UPDATE' and new\.comment_count is distinct from old\.comment_count/);
   assert.match(sql, /with visible_reply_counts as \(\s+select\s+t\.id,\s+coalesce\(count\(c\.id\), 0\)::integer as visible_reply_count[\s\S]*from public\.threads t[\s\S]*left join public\.comments c[\s\S]*on c\.parent_type = 'thread'[\s\S]*and c\.parent_id = t\.id[\s\S]*and c\.status = 'active'[\s\S]*and c\.is_hidden = false[\s\S]*group by t\.id[\s\S]*\)\s+update public\.threads t\s+set\s+comment_count = visible_reply_counts\.visible_reply_count,\s+hot_score = t\.score \+ \(visible_reply_counts\.visible_reply_count \* 0\.35\)/);
