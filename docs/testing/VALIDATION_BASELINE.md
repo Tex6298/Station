@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2B Hosted Migration 083 Proof Accepted By ARGUS
+
+ARGUS accepted the hosted migration and durable proof on 2026-07-15:
+
+- `docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527D2B_HOSTED_MIGRATION_AND_PROOF_WITH_DISCOVER_SEARCH_COUNT_CAVEAT
+```
+
+Independent read-only validation:
+
+| Check | Result |
+| --- | --- |
+| API/web deployment | Both `200/ready:true`, branch `main`, exact shared accepted SHA `da105cf077b224abfa2a3e48e0cc00b52bd34455` |
+| Migration SHA-256 | `DA4BBF4021723768F9DCEC41E0AD91C6FA4D909BAE17012B72FDF0462907C44B` |
+| Target and owner context | Hosted configured Supabase project; shared table owner and migration owner context pass |
+| Functions | Exact `5`, table-owner-owned, fixed search path, expected security-definer and trusted-activity shapes |
+| Privileges | Internal execute closed to `PUBLIC`/`anon`/`authenticated`; shim service-only and no-write |
+| Triggers/constraint/index | Exact two enabled triggers, validated nonnegative constraint, and visible-reply partial index |
+| Migration ledger | Exactly one named `083` row with one `20260715...` version |
+| Aggregate | `12` threads, `0` counter mismatches, `0` hot-score mismatches, `6` canonical replies, `0` negative or future-activity rows |
+| Tagged cleanup | Zero across auth users/sessions/refresh tokens, profiles, threads, comments, notifications, reports, votes, witnesses, and watches |
+| Linked discussion readback | Database count `2` equals document discussion and thread detail, both `200` |
+| Hosted mutation by ARGUS | `0`; read-only transactions rolled back |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `51/51` |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+
+DAEDALUS's count-`1` disposable fixture agreed through Forum detail, category,
+and Discover rising. Discover search returned the fixture but exposes no reply
+count; independent source/live review confirms that it proves presence only.
+ARGUS accepts the migration with this explicit caveat and does not claim search
+count agreement or authorize a search API contract change.
+
 ## PR527D2B Hosted Migration 083 Proof Submitted For ARGUS Review
 
 DAEDALUS completed the audited hosted apply/proof on 2026-07-15:

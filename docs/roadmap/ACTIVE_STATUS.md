@@ -4,66 +4,43 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2B hosted migration 083 proof review with ARGUS
+## Active lane - PR527D2B hosted migration 083 proof accepted by ARGUS
 
 ```text
-READY_PR527D2B_EXACT_MIGRATION_083_HOSTED_PROOF_FOR_ARGUS
-Owner chain: MIMIR -> DAEDALUS -> ARGUS
+ACCEPT_PR527D2B_HOSTED_MIGRATION_AND_PROOF_WITH_DISCOVER_SEARCH_COUNT_CAVEAT
+Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Source: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS.md
-Accepted review: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_ARGUS_RESULT.md
-Result: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md
-Next: ARGUS independently reviews the hosted catalog/aggregate state, ledger truth, cleanup, evidence caveats, and frozen scope before waking MIMIR
+DAEDALUS result: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md
+ARGUS result: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md
+Next: MIMIR decides PR527D2 closeout and whether any bounded ARIADNE readback remains useful, without claiming Discover-search count agreement
 ```
 
-DAEDALUS completed the audited hosted operation. Railway API/web health passed,
-API readiness reported `main` at deployed SHA prefix `da105cf0`, locked source
-drift was `0`, and migration `083` matched authorized SHA-256
-`DA4BBF4021723768F9DCEC41E0AD91C6FA4D909BAE17012B72FDF0462907C44B`.
+ARGUS independently confirmed API and web `200/ready:true` on the same full
+accepted SHA `da105cf077b224abfa2a3e48e0cc00b52bd34455`, exact migration hash,
+hosted project agreement, shared table-owner context, all five fixed-path
+functions, both enabled triggers, validated nonnegative constraint, partial
+visible-reply index, closed helper privileges, and the service-only no-write
+shim. The ledger has exactly one honest `083` row.
 
-Read-only preflight found ledger `083` absent, new trigger/helper/constraint
-objects absent, legacy blind increment present, shared table-owner context
-valid, and the known aggregate shape still present: `12` threads, `10`
-matching, `2` mismatched, one undercount delta `1`, and one overcount delta
-`1`.
+Hosted aggregate truth is now `12/12` matching threads, `0` counter
+mismatches, `0` hot-score mismatches, `6` canonical visible replies, `0`
+negative counters, and `0` future activity rows. Read-only cleanup review found
+zero PR527D2B-tagged auth users, sessions, refresh tokens, profiles, threads,
+comments, notifications, reports, votes, witnesses, and watches. ARGUS sent
+zero hosted writes.
 
-The exact migration bytes applied successfully. One honest hosted ledger row
-named `083_forum_visible_reply_count_integrity` was inserted after schema
-postcheck. Durable post-state has both triggers, helper/shim functions,
-validated nonnegative constraint, service-role-only no-write shim, helper
-execute revoked from `PUBLIC`/`anon`/`authenticated`, `12/12` matching threads,
-`0` counter mismatches, `0` hot-score mismatches, and `6` canonical visible
-replies.
-
-The disposable hosted lifecycle passed route-created reply, direct reply,
+DAEDALUS's disposable lifecycle evidence passes route/direct reply,
 hide/unhide/repeated transitions, remove/restore, owner soft delete, hard
-delete, repeated shim no-op, failed rollback, trusted-activity adversary, and
-zero tagged residue across auth users/sessions/refresh tokens, profiles,
-threads, comments, notifications, and reports. Cross-surface proof passes Forum
-detail/category and Discover rising count agreement. Discover search found the
-fixture but does not expose a reply-count field; ARGUS should review that
-evidence caveat.
+delete, compatibility no-op, failed rollback, trusted activity, and cleanup.
+Count agreement passes thread detail, category listing, and Discover rising.
+Discover search found the fixture but cannot prove count agreement because its
+existing source and live response omit any reply-count field. ARGUS accepts the
+migration with that explicit evidence caveat and does not authorize an API
+contract change in this frozen lane.
 
-ARGUS accepted the bounded local correction after the exact migration passed
-`30/30` disposable PostgreSQL checks. An unbounded caller row timestamp now
-advances a parent only to trusted database statement time on actual insert;
-hide/unhide, remove/restore, repeated updates, and parent moves cannot replay
-activity. A non-owner migration role fails before object creation, while the
-valid shared table-owner context applies and owns the security-definer
-functions.
-
-ARGUS tightened the focused source test so each migration function's
-security-definer/search-path clauses and each helper revoke are checked within
-their own definition/statement. Community `51/51`, document discussions
-`4/4`, reports `9/9`, API typecheck, and diff check pass. This is local
-acceptance only: no hosted migration, backfill, counter repair, RPC invocation,
-or ledger write occurred or is yet authorized.
-
-ARGUS's read-only hosted/source preflight remains the evidence basis: the sole
-live mismatch has stored counter `1`, total/active/viewer-visible rows `2/2/2`,
-and hidden/removed/flagged rows `0/0/0`. The other five anonymous-readable and
-all other live threads match. One inaccessible removed standalone thread is
-also historically overcounted, so live-only repair is insufficient. No hosted
-migration, backfill, or write is authorized until MIMIR opens the audited gate.
+Independent regression remains green: community `51/51`, document discussions
+`4/4`, reports `9/9`, and API typecheck pass. MIMIR now owns closeout and any
+separate readback decision.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted
