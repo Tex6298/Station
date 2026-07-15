@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Persona Profile Truth And Theme Preflight Opened
+
+MIMIR opened the next ranked PR527 boundary on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS.md`
+
+```text
+OPEN_PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT
+```
+
+ARGUS must map every read-only, navigational, and live Persona Profile control
+and lock the smallest truthful route-scoped semantic theme/copy repair. Avatar,
+eligible anonymous chat, handoff, continuity/archive, and Integrity behavior
+must remain live; identity/provider/visibility/deletion capability must not be
+invented. The preflight is read-only and authorizes no source or hosted write.
+
+## PR527D2 Forum Reply Count Truth Closed
+
+MIMIR closed the data-integrity lane on 2026-07-15:
+
+- `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md`
+
+```text
+CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS
+```
+
+The original hosted defect passes at desktop and mobile: public document,
+linked thread summary, exactly two active reply cards, category card, and
+refresh all agree at `2`. Migration `083`, its honest ledger row, `12/12`
+canonical counters, hot-score/security/lifecycle/activity/cleanup proof, and
+eligible standalone Discover rising count agreement are accepted.
+
+Discover search exposes no count and linked threads are intentionally omitted
+from the unified feed when their document already represents them. Those are
+preserved evidence/response contracts, not stale-count failures, and PR527D2
+does not widen either API/UI surface.
+
 ## PR527D2C Hosted Human Reply-Count Readback Opened
 
 MIMIR opened the final zero-write human rehearsal on 2026-07-15:

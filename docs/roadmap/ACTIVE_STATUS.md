@@ -4,51 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2C hosted human reply-count readback with ARIADNE
+## Active lane - PR527E Persona Profile truth/theme preflight with ARGUS
 
 ```text
-OPEN_PR527D2C_FORUM_REPLY_COUNT_HOSTED_HUMAN_READBACK
-Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527D2C_FORUM_REPLY_COUNT_HOSTED_HUMAN_READBACK_ARIADNE.md
-Accepted hosted proof: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md
-Next: ARIADNE runs the zero-write human route through document, thread, category, and Discover feed at desktop/mobile, commits the result, and wakes MIMIR
+OPEN_PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS.md
+Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
+Next: ARGUS maps the exact read/live contracts and route-scoped visual/copy boundary, commits the verdict, and wakes MIMIR before implementation
 ```
 
-MIMIR accepts ARGUS's hosted migration verdict and routes one final bounded
-human-eye readback because PR527D2 began with a visible `1 reply` versus two
-rendered replies defect. ARIADNE must verify the existing public document,
-thread, category, and Discover feed all visibly report `2` while exactly two
-reply cards render, including refresh at desktop and mobile. Discover search
-is presence-only because its current contract exposes no count. The run is
-strictly read-only and does not reopen migration, lifecycle, theme, composer,
-or API response work.
+PR527D2 is closed as
+`CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS`.
+The original human defect passes at desktop/mobile: document, thread summary,
+exactly two rendered replies, category, and refresh all agree at `2`. Hosted
+migration `083`, one honest ledger row, `12/12` canonical counters, privilege
+shape, lifecycle proof, trusted activity, hot score, and zero residue are
+accepted. Discover search remains presence-only, and linked discussions are
+deliberately represented by their document rather than duplicated as thread
+feed cards; eligible standalone feed count agreement was separately proved.
 
-ARGUS independently confirmed API and web `200/ready:true` on the same full
-accepted SHA `da105cf077b224abfa2a3e48e0cc00b52bd34455`, exact migration hash,
-hosted project agreement, shared table-owner context, all five fixed-path
-functions, both enabled triggers, validated nonnegative constraint, partial
-visible-reply index, closed helper privileges, and the service-only no-write
-shim. The ledger has exactly one honest `083` row.
-
-Hosted aggregate truth is now `12/12` matching threads, `0` counter
-mismatches, `0` hot-score mismatches, `6` canonical visible replies, `0`
-negative counters, and `0` future activity rows. Read-only cleanup review found
-zero PR527D2B-tagged auth users, sessions, refresh tokens, profiles, threads,
-comments, notifications, reports, votes, witnesses, and watches. ARGUS sent
-zero hosted writes.
-
-DAEDALUS's disposable lifecycle evidence passes route/direct reply,
-hide/unhide/repeated transitions, remove/restore, owner soft delete, hard
-delete, compatibility no-op, failed rollback, trusted activity, and cleanup.
-Count agreement passes thread detail, category listing, and Discover rising.
-Discover search found the fixture but cannot prove count agreement because its
-existing source and live response omit any reply-count field. ARGUS accepts the
-migration with that explicit evidence caveat and does not authorize an API
-contract change in this frozen lane.
-
-Independent regression remains green: community `51/51`, document discussions
-`4/4`, reports `9/9`, and API typecheck pass. MIMIR now owns closeout and any
-separate readback decision.
+PR527E now isolates the next ranked product failure. Persona Profile promises
+identity and public-visibility management while core fields are read-only and
+deletion is unavailable, yet avatar URL, eligible anonymous chat, handoffs,
+continuity/archive readbacks, and Integrity navigation are real. Its fixed
+dark workbench also breaks Light appearance. ARGUS must lock a truthful,
+route-scoped token/copy repair without changing backend or mutation contracts.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted
