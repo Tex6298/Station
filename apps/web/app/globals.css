@@ -5224,7 +5224,7 @@ html, body {
 }
 
 .forum-thread-detail-labels span[data-tone="document"] {
-  color: var(--station-page-green);
+  color: var(--station-page-success-text);
 }
 
 .forum-thread-detail-labels span[data-tone="locked"] {
@@ -5252,7 +5252,7 @@ html, body {
 
 .forum-thread-detail-breadcrumb {
   margin-bottom: 1.5rem;
-  color: var(--station-page-faint);
+  color: var(--station-page-muted);
   font-size: 0.78rem;
   overflow-wrap: anywhere;
 }
@@ -5271,8 +5271,10 @@ html, body {
 
 .forum-thread-detail-meta,
 .forum-thread-detail-comment-meta {
+  min-width: 0;
   color: var(--station-page-muted);
   font-size: 0.78rem;
+  overflow-wrap: anywhere;
 }
 
 .forum-thread-detail-comment-meta {
@@ -5280,7 +5282,7 @@ html, body {
 }
 
 .forum-thread-detail-faint {
-  color: var(--station-page-faint);
+  color: var(--station-page-muted);
   font-size: 0.72rem;
 }
 
@@ -5402,7 +5404,7 @@ html, body {
 }
 
 .card.forum-thread-detail-state[data-tone="danger"] {
-  border-color: var(--station-page-danger-border);
+  border-color: var(--station-page-red);
   background: var(--station-page-danger-bg);
   color: var(--station-page-red);
 }
@@ -5419,14 +5421,14 @@ html, body {
 
 .forum-thread-detail-feedback[data-tone="success"],
 .forum-thread-detail-notice[data-tone="success"] {
-  border: 1px solid var(--station-page-success-border);
+  border: 1px solid var(--station-page-success-text);
   background: var(--station-page-success-bg);
   color: var(--station-page-success-text);
 }
 
 .forum-thread-detail-feedback[data-tone="error"],
 .forum-thread-detail-notice[data-tone="error"] {
-  border: 1px solid var(--station-page-danger-border);
+  border: 1px solid var(--station-page-red);
   background: var(--station-page-danger-bg);
   color: var(--station-page-red);
 }
@@ -5441,8 +5443,8 @@ html, body {
   font-size: 0.85rem;
 }
 
-.forum-thread-detail-source-link {
-  color: var(--station-page-green);
+.forum-thread-detail .forum-thread-detail-source-link {
+  color: var(--station-page-success-text);
   font-size: 0.82rem;
   text-decoration: none;
 }
@@ -5461,10 +5463,12 @@ html, body {
 .forum-thread-detail-witness-button,
 .forum-thread-detail-witness-pill,
 .forum-thread-detail-moderation-button {
+  max-width: 100%;
   border: 1px solid var(--station-page-muted);
   background: var(--station-page-surface);
   color: var(--station-page-muted);
   font-size: 0.72rem;
+  overflow-wrap: anywhere;
   padding: 0.15rem 0.45rem;
 }
 
@@ -5490,13 +5494,13 @@ html, body {
 
 .forum-thread-detail-witness-button[data-active="true"],
 .forum-thread-detail-witness-pill[data-active="true"] {
-  border-color: var(--station-page-success-border);
+  border-color: var(--station-page-green);
   background: var(--station-page-success-bg);
   color: var(--station-page-success-text);
 }
 
 .forum-thread-detail-moderation-button[data-strong="true"] {
-  border-color: var(--station-page-danger-border);
+  border-color: var(--station-page-red);
   background: var(--station-page-danger-bg);
   color: var(--station-page-red);
 }
@@ -5531,17 +5535,39 @@ html, body {
   padding: 0.5rem 1.25rem;
 }
 
-.forum-thread-detail-button:hover,
-.forum-thread-detail-witness-button:hover,
-.forum-thread-detail-moderation-button:hover,
+.forum-thread-detail-button:hover:not(:disabled):not([data-active="true"]),
+.forum-thread-detail-witness-button:hover:not(:disabled):not([data-active="true"]),
+.forum-thread-detail-moderation-button:hover:not(:disabled):not([data-strong="true"]),
 .forum-thread-detail-inline-action:hover {
-  border-color: var(--station-page-border-strong);
+  border-color: var(--station-page-accent);
   color: var(--station-page-text);
+}
+
+.forum-thread-detail-button[data-active="true"]:hover {
+  border-color: var(--station-page-accent);
+}
+
+.forum-thread-detail-witness-button[data-active="true"]:hover:not(:disabled) {
+  border-color: var(--station-page-green);
+  box-shadow: 0 0 0 1px var(--station-page-green);
+}
+
+.forum-thread-detail-moderation-button[data-strong="true"]:hover:not(:disabled) {
+  border-color: var(--station-page-red);
+  background: var(--station-page-danger-hover);
 }
 
 .forum-thread-detail-submit:hover:not(:disabled) {
   background: var(--station-page-accent);
   border-color: var(--station-page-accent);
+}
+
+.forum-thread-detail-button:active:not(:disabled),
+.forum-thread-detail-witness-button:active:not(:disabled),
+.forum-thread-detail-moderation-button:active:not(:disabled),
+.forum-thread-detail-inline-action:active,
+.forum-thread-detail-submit:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .forum-thread-detail-button:focus-visible,

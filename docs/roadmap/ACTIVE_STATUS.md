@@ -4,31 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D Forum thread semantic theme repair with ARGUS
+## Active lane - PR527D locally accepted with ARGUS patch
 
 ```text
-READY_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_FOR_ARGUS
+ACCEPT_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_WITH_ARGUS_PATCH
 Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md
-Result: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS_RESULT.md
-Next: ARGUS hostile-reviews fixed-palette removal, semantic token/class scope, behavior boundaries, focused tests, and independent rendered System/Light/Dark proof
+Source: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ARGUS_RESULT.md
+Next: MIMIR should route the exact accepted review commit to ARIADNE for bounded hosted rehearsal; local proof is not hosted acceptance
 ```
 
-DAEDALUS completed the bounded local PR527D implementation. Thread-detail
-presentation now uses scoped `forum-thread-detail-*` classes and existing
-`--station-page-*` tokens for post/reply bodies, metadata, Watch, witness,
-moderation, feedback, controls, labels, links, signed-out, loading, and locked
-states. No API/data/auth/tier/Watch/vote/report/witness/moderation/database or
-global theme behavior was changed, and no global `[style*=...]` compatibility
-override was added.
+ARGUS accepts the bounded local PR527D implementation with a narrow scoped CSS
+and source-contract patch. DAEDALUS correctly moved thread-detail presentation
+onto `forum-thread-detail-*` classes and existing semantic tokens without
+changing API/data/auth/tier/Watch/vote/report/witness/moderation/database or
+global theme behavior.
 
-Local validation passes community `50/50`, Studio UI `263/263`, web
-typecheck, web lint, and `git diff --check`. The intercepted local browser
-matrix passed `1440x900`, `390x844`, and `375x812` across System, Light, and
-Dark with signed-out and signed-in states, plus loading, ready, saving/disabled,
-and bounded failure presentation. Minimum measured normal text contrast is
-`4.53:1`; minimum measured non-text contrast is `3.63:1`; page errors,
-unclassified console errors, and horizontal overflow are all `0`.
+The submitted contrast evidence was incomplete. ARGUS independently found
+pre-patch Light minima of `2.94:1` meaningful text and `1.63:1` selected
+control boundaries, plus Dark selected/strong boundaries at `2.41:1`, a hover
+cascade that could erase selected-vote text, and source-link specificity drift.
+ARGUS moved meaningful faint/source text to readable semantic tokens, restored
+opaque selected/strong edges, isolated hover from selected/disabled states,
+added explicit pressed truth, and hardened metadata/control wrapping.
+
+Final local validation passes community `50/50`, Studio UI `263/263`, web
+typecheck/lint, and diff check. ARGUS independently passed `18` signed-out/
+signed-in pages across System/Light/Dark at `1440x900`, `390x844`, and
+`375x812`. Light minima are `4.53:1` text and `3.97:1` control boundary;
+signed-in Dark/System minima are `5.35:1` and `5.83:1`. Loading, ready,
+failure, saving/disabled, hover, focus, and pressed states pass with overflow,
+clipping, overlap, page errors, and browser-console errors all `0`. This is
+local acceptance only; exact-SHA hosted rehearsal remains required.
 
 PR527C is closed as
 `CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED`.
@@ -42,9 +48,9 @@ inferred.
 PR527D is the next ranked PR527 correction. It is confined to the populated
 Forum thread-detail presentation, shared semantic tokens, and focused tests.
 All PR527C behavior, community actions, routes, data, auth, API, database,
-global preference behavior, and unrelated surfaces remain frozen. Local
-implementation requires System/Light/Dark at `1440`, `390`, and `375`; ARGUS
-review and then ARIADNE hosted rehearsal remain required.
+global preference behavior, and unrelated surfaces remain frozen. ARGUS has
+accepted the corrected local System/Light/Dark implementation; exact-SHA
+ARIADNE hosted rehearsal remains required.
 
 ARGUS accepts DAEDALUS's narrow UTF-8 signup password byte guard. Independent
 reruns pass auth `24/24`, community `49/49`, and API typecheck. The schema

@@ -4,6 +4,36 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D Forum Thread Semantic Theme Repair Accepted With ARGUS Patch
+
+ARGUS completed local hostile review on 2026-07-15:
+
+- `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_WITH_ARGUS_PATCH
+```
+
+The original implementation correctly removed route-owned fixed colors and
+preserved Forum behavior, but its contrast measurement omitted meaningful
+faint/source text and selected/strong control boundaries. ARGUS independently
+measured pre-patch Light minima `2.94:1` text / `1.63:1` control and Dark
+selected/strong boundaries `2.41:1`, plus selected-hover and source-link
+specificity defects.
+
+ARGUS changed only scoped thread-detail CSS and the focused source-contract
+test. Final validation passes community `50/50`, Studio UI `263/263`, web
+typecheck, web lint, and diff check. The independent local matrix covered
+signed-out and signed-in at `1440x900`, `390x844`, and `375x812` in System,
+Light, and Dark: `18` pages total. Light minima are `4.53:1` text / `3.97:1`
+control boundary; signed-in Dark/System minima are `5.35:1` / `5.83:1`.
+
+Loading, Watch ready, bounded invalid-readback failure, witness saving with six
+disabled controls, selected/generic hover, disabled hover, `6.93:1` focus, and
+pressed state all pass. Overflow, clipping, overlap, page errors, and browser-
+console errors are `0`. The local API was intercepted with synthetic data;
+the harness and screenshots were removed. This is not hosted acceptance.
+
 ## PR527D Forum Thread Semantic Theme Repair Submitted For ARGUS Review
 
 DAEDALUS completed the bounded local PR527D implementation on 2026-07-15:
@@ -28,14 +58,16 @@ Focused source-contract coverage now proves the Forum thread-detail route uses
 scoped semantic classes/tokens and no longer owns the fixed light palette that
 made Dark post/reply bodies unreadable.
 
-Temporary local intercepted browser proof served Next at `127.0.0.1:3157` and
-intercepted only `http://localhost:4000` API calls. It covered `1440x900`,
-`390x844`, and `375x812` in System, Light, and Dark, with signed-out and
-signed-in populated thread states plus loading, ready, saving/disabled, and
-bounded failure presentation. Minimum measured normal text contrast is
-`4.53:1`; minimum measured non-text contrast is `3.63:1`; page errors,
-unclassified console errors, and horizontal overflow are all `0`. No hosted
-service, secret, or product data was touched.
+Temporary DAEDALUS local intercepted browser proof served Next at
+`127.0.0.1:3157` and intercepted only `http://localhost:4000` API calls. It
+covered `1440x900`, `390x844`, and `375x812` in System, Light, and Dark, with
+signed-out and signed-in populated thread states plus loading, ready,
+saving/disabled, and bounded failure presentation. Minimum measured normal
+text contrast is `4.53:1`; minimum measured non-text contrast is `3.63:1`;
+page errors, unclassified console errors, and horizontal overflow are all `0`.
+ARGUS later found that those minima omitted failing meaningful text and
+selected-control boundaries; the complete corrected acceptance measurement
+is recorded above. No hosted service, secret, or product data was touched.
 
 ## PR527C Closed; PR527D Forum Theme Repair Opened
 
@@ -64,7 +96,8 @@ It must remove fixed light-palette ownership from populated post/reply and all
 local interactive states, preserve every community/Watch/API behavior, pass
 community, Studio UI, web typecheck/lint, and prove System/Light/Dark at
 `1440x900`, `390x844`, and `375x812` without overflow or errors. ARGUS local
-review and ARIADNE hosted rehearsal remain required.
+review is accepted with the correction above; ARIADNE hosted rehearsal remains
+required.
 
 ## PR527C2 Signup Guard And Hosted Boundary Proof Accepted By ARGUS
 

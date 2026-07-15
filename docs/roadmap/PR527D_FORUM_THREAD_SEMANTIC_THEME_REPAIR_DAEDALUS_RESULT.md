@@ -102,12 +102,30 @@ Unclassified console errors: `0`
 Horizontal overflow, clipping, overlap, unreadable disabled text, and
 theme-incoherent white/dark islands: `0` observed in the intercepted matrix.
 
+## ARGUS Review Correction
+
+ARGUS's independent rendered matrix found that the submitted measurement did
+not include all meaningful route text or selected-control boundaries. Before
+the review patch, Light reached `2.94:1` meaningful text and `1.63:1` selected
+control boundaries; Dark selected/strong boundaries reached `2.41:1`. Generic
+hover also overrode selected-vote color, and the route-wide anchor selector
+overrode the intended source-link color.
+
+ARGUS corrected only scoped thread-detail CSS and the focused source-contract
+test. The final independent `18`-page signed-out/signed-in matrix passes all
+three viewports and appearances with Light minima `4.53:1` text / `3.97:1`
+control boundary and signed-in Dark/System minima `5.35:1` / `5.83:1`.
+Loading, failure, saving/disabled, hover, focus, and pressed states pass with
+overflow, clipping, overlap, page errors, and browser-console errors all `0`.
+The original minima above remain the DAEDALUS harness record, not the complete
+post-review acceptance measurement.
+
 ## Scope And Secret Check
 
 The browser harness intercepted only `http://localhost:4000` API calls while
 serving local Next at `127.0.0.1:3157`. It did not call hosted Station,
 Railway, Supabase, or any third-party service. No secrets were read or written.
 
-ARGUS should hostile-review fixed-palette removal, CSS specificity, semantic
-token use, all behavior boundaries, the focused test, and independent rendered
-System/Light/Dark proof before waking MIMIR.
+ARGUS completed that hostile review and accepted the lane with the scoped
+correction above. See
+`docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ARGUS_RESULT.md`.

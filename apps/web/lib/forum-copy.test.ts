@@ -83,9 +83,18 @@ test("forum thread detail uses scoped semantic theme classes", () => {
   assert.match(css, /\.forum-thread-detail-button\[data-active="true"\]\s*\{[\s\S]*?background: var\(--station-page-text\);[\s\S]*?color: var\(--station-page-on-strong\);/);
   assert.match(css, /\.forum-thread-detail-witness-button\[data-active="true"\][\s\S]*?background: var\(--station-page-success-bg\);/);
   assert.match(css, /\.forum-thread-detail-moderation-button\[data-strong="true"\]\s*\{[\s\S]*?background: var\(--station-page-danger-bg\);/);
+  assert.match(css, /\.forum-thread-detail-breadcrumb\s*\{[\s\S]*?color: var\(--station-page-muted\);/);
+  assert.match(css, /\.forum-thread-detail-faint\s*\{[\s\S]*?color: var\(--station-page-muted\);/);
+  assert.match(css, /\.forum-thread-detail \.forum-thread-detail-source-link\s*\{[\s\S]*?color: var\(--station-page-success-text\);/);
+  assert.match(css, /\.forum-thread-detail-witness-button\[data-active="true"\],[\s\S]*?border-color: var\(--station-page-green\);/);
+  assert.match(css, /\.forum-thread-detail-moderation-button\[data-strong="true"\]\s*\{[\s\S]*?border-color: var\(--station-page-red\);/);
+  assert.match(css, /\.forum-thread-detail-button:hover:not\(:disabled\):not\(\[data-active="true"\]\)/);
+  assert.match(css, /\.forum-thread-detail-button\[data-active="true"\]:hover\s*\{\s*border-color: var\(--station-page-accent\);\s*\}/);
+  assert.match(css, /\.forum-thread-detail-button:active:not\(:disabled\)[\s\S]*?transform: translateY\(1px\);/);
   assert.match(css, /\.forum-thread-detail-submit:focus-visible/);
   assert.ok(scopedThreadCss.length > 0);
   assert.doesNotMatch(scopedThreadCss, /\[style\*=/);
+  assert.doesNotMatch(scopedThreadCss, /#[0-9a-f]{3,8}\b/i);
 });
 
 test("forum thread status labels avoid raw visibility jargon", () => {
