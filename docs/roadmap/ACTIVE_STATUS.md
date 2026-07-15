@@ -4,15 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E Persona Profile truth/theme preflight with ARGUS
+## Active lane - PR527E Persona Profile preflight accepted; MIMIR handoff
 
 ```text
-OPEN_PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT
+ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARIES
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS.md
+Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
+Opening packet: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: ARGUS maps the exact read/live contracts and route-scoped visual/copy boundary, commits the verdict, and wakes MIMIR before implementation
+Next: MIMIR wakes DAEDALUS with ARGUS's exact file allow-list, owner gate, truth/state/copy contract, semantic presentation boundary, and review gates
 ```
+
+ARGUS accepts PR527E's bounded preflight. The page may retain exactly three
+live mutation capabilities: avatar URL save/clear, eligible anonymous public
+chat alpha, and context handoff creation. Name, both descriptions, provider,
+visibility, public chat, public description, architecture, graph, archive,
+continuity, lifecycle, and Integrity history remain static facts, readback, or
+navigation. Failed secondary reads must no longer masquerade as authoritative
+empty states, action notices must stay local and bounded, and the primary page
+must reject non-owner public serialization before mounting owner controls.
+
+The opening statement that no persona-delete path exists is corrected. An
+owner-filtered `DELETE /personas/:id` API route exists, but Persona Profile has
+no delete command and PR527E must not add one. Route-context copy in
+`studio-navigation.ts` is inside the exact slice because it visibly promises
+identity and boundary shaping. All other Studio navigation and every backend,
+schema, auth, tier, billing, provider, public, package, and hosted-runtime
+domain remain frozen.
+
+Read-only hosted orientation reproduced the defect across all nine
+viewport/theme cases on healthy shared API/web SHA `da105cf07`: Light title
+and support contrast measured about `1.06:1` and `1.96:1`, narrow desktop-grid
+minimums caused severe overlap at `390` and `375`, and no focus target met the
+explicit route focus criterion. No Persona Profile command or browser-side
+non-GET ran. This is pre-implementation defect evidence, not acceptance proof.
 
 PR527D2 is closed as
 `CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS`.
@@ -24,12 +49,9 @@ accepted. Discover search remains presence-only, and linked discussions are
 deliberately represented by their document rather than duplicated as thread
 feed cards; eligible standalone feed count agreement was separately proved.
 
-PR527E now isolates the next ranked product failure. Persona Profile promises
-identity and public-visibility management while core fields are read-only and
-deletion is unavailable, yet avatar URL, eligible anonymous chat, handoffs,
-continuity/archive readbacks, and Integrity navigation are real. Its fixed
-dark workbench also breaks Light appearance. ARGUS must lock a truthful,
-route-scoped token/copy repair without changing backend or mutation contracts.
+PR527E isolates the next ranked product failure. Its accepted implementation
+boundary is recorded in the ARGUS result and now awaits MIMIR's committed
+DAEDALUS handoff.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted

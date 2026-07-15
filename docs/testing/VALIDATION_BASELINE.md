@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Persona Profile Truth And Theme Preflight Accepted
+
+ARGUS accepted the bounded implementation boundary on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARIES
+```
+
+The exact slice adds a client owner-id gate before owner controls, converts
+name/descriptions/provider/visibility/public-chat/public-description into
+static facts, preserves only avatar URL, eligible anonymous-chat, and handoff
+mutations, separates optional read failures from empty results, corrects the
+visible Studio Profile context, and tokenises the route for System/Light/Dark
+and narrow geometry. Backend contracts and persona deletion remain frozen.
+
+Source correction: owner-filtered `DELETE /personas/:id` exists, but the page
+has no delete command and PR527E must not add one. The existing architecture
+GET can initialize a missing layer profile, so read-only evidence must not
+overclaim that route as database-pure.
+
+Preflight validation:
+
+| Check | Result |
+| --- | --- |
+| Focused web/navigation/lifecycle tests | Pass, `37/37` |
+| `test:personas` | Pass, `18/18` |
+| `test:integrity` | Pass, `3/3` |
+| `test:persona-context` | Pass, `12/12` |
+| Hosted API/web orientation | Ready on shared SHA `da105cf077b224abfa2a3e48e0cc00b52bd34455` |
+| Hosted viewport/theme matrix | `9/9` loaded; fixed-Light contrast and narrow overlap defects reproduced |
+| Hosted Persona Profile commands | Zero invoked; zero browser-side non-GET attempts |
+| Temporary probe/evidence | Removed; no private value, id, credential, screenshot, or tool remains |
+
+This orientation proves the defect and boundary only. DAEDALUS implementation,
+hostile ARGUS review, exact-SHA deployment, and zero-write ARIADNE human proof
+remain required.
+
 ## PR527E Persona Profile Truth And Theme Preflight Opened
 
 MIMIR opened the next ranked PR527 boundary on 2026-07-15:
