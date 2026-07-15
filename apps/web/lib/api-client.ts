@@ -159,3 +159,24 @@ export function updateAiProviderSettings(
 ): Promise<{ settings: AiProviderSettings }> {
   return apiPatch<{ settings: AiProviderSettings }>("/settings/ai-provider", patch, token);
 }
+
+// -- Notification preferences -------------------------------------------------
+
+export interface NotificationPreferences {
+  forumReplyNotificationsEnabled: boolean;
+}
+
+export interface NotificationPreferencesPatch {
+  forumReplyNotificationsEnabled: boolean;
+}
+
+export function getNotificationPreferences(token: string): Promise<{ settings: NotificationPreferences }> {
+  return apiGet<{ settings: NotificationPreferences }>("/settings/notifications", token);
+}
+
+export function updateNotificationPreferences(
+  token: string,
+  patch: NotificationPreferencesPatch
+): Promise<{ settings: NotificationPreferences }> {
+  return apiPatch<{ settings: NotificationPreferences }>("/settings/notifications", patch, token);
+}

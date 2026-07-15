@@ -4,15 +4,16 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F Settings Persistence Truth implementation
+## Active lane - PR527F Settings Persistence Truth ready for ARGUS
 
 ```text
-ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_NOTIFICATION_PREFERENCE_GATING_FUTURE_THREAD_COMMENT_FANOUT
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS
+READY_PR527F_SETTINGS_PERSISTENCE_TRUTH_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
+Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: DAEDALUS implements the exact local slice and wakes ARGUS for hostile review; hosted mutation remains deferred until ARGUS accepts it
+Next: ARGUS hostile-reviews the local implementation and wakes MIMIR with verdict; hosted migration/product mutation remains deferred until ARGUS accepts it
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -35,11 +36,24 @@ the public Profile boundary, zero Watches/notifications, stable geometry, and
 no product write. The accepted result locks migration `084`, API/state/copy,
 file allow-list, local tests, and a later disposable hosted lifecycle.
 
-PR527F is now open for DAEDALUS implementation. Checkbox persistence alone is
-not the feature: migration `084`, authoritative API readback, future
-`thread_comment` fanout gating, and the controlled non-optimistic Settings UI
-must land and validate as one bounded slice. Hosted migration and product-data
-mutation remain forbidden until independent ARGUS acceptance.
+DAEDALUS implemented the local slice. Migration `084` creates only the
+dedicated owner preference table and no data/backfill. GET/PATCH
+`/settings/notifications` are authenticated, owner-keyed, strict, bounded, and
+authoritative. `notifyThreadComment` performs one bulk preference read before
+insert and suppresses only explicit-false future `thread_comment` recipients;
+lookup failure creates no reply notification but keeps the valid comment path
+successful. Report/review notifications, Watches, existing notification rows,
+read state, and external delivery remain unchanged.
+
+Settings now exposes one controlled, non-optimistic Forum replies preference
+and renders Archive completions, Integrity session reminders, Follower
+notifications, and Event reminders as unavailable facts with no controls or
+default-on implication. Validation passes AI Settings `14/14`, Community
+`54/54`, Reports `9/9`, notification-preferences `5/5`, DB build, API/web
+typecheck, web lint, and a `21/21` intercepted local rendered matrix across
+System/Light/Dark desktop/mobile plus load/save/reconcile/signed-out/stale
+states. Temporary proof artifacts were removed. Hosted migration and
+product-data mutation remain forbidden until independent ARGUS acceptance.
 
 ## Previous PR527E hosted rehearsal blocker history
 

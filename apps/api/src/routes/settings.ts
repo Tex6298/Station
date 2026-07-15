@@ -65,9 +65,58 @@ type ProfileAiSettingsRow = {
   byok_deepseek_key?: string | null;
 };
 
+type NotificationPreferencesRow = {
+  owner_user_id: string;
+  forum_reply_notifications_enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+const notificationPreferencesSchema = z.object({
+  forumReplyNotificationsEnabled: z.boolean({
+    required_error: "Forum reply notification preference must be true or false.",
+    invalid_type_error: "Forum reply notification preference must be true or false.",
+  }),
+}).strict();
+
 export const settingsRouter = Router();
 
 settingsRouter.use(requireAuth);
+
+settingsRouter.get("/notifications", async (req, res) => {
+  try {
+    const settings = await loadNotificationPreferences(req.user!.id);
+    return res.json({ settings });
+  } catch {
+    return res.status(500).json({
+      error: "Could not load notification preferences.",
+      code: "notification_preferences_load_failed",
+    });
+  }
+});
+
+settingsRouter.patch("/notifications", async (req, res) => {
+  const parsed = notificationPreferencesSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: "Forum reply notification preference must be true or false.",
+      code: "invalid_forum_reply_notification_preference",
+    });
+  }
+
+  try {
+    const settings = await saveNotificationPreferences(
+      req.user!.id,
+      parsed.data.forumReplyNotificationsEnabled
+    );
+    return res.json({ settings });
+  } catch {
+    return res.status(500).json({
+      error: "Could not save notification preferences.",
+      code: "notification_preferences_save_failed",
+    });
+  }
+});
 
 settingsRouter.get("/ai-provider", async (req, res) => {
   try {
@@ -172,4 +221,40 @@ function clearLegacyProfileValue(profile: LegacyAiProviderProfile, provider: Sup
       profile.byok_deepseek_key = null;
       return;
   }
+}
+
+async function loadNotificationPreferences(userId: string) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_notification_preferences")
+    .select("forum_reply_notifications_enabled")
+    .eq("owner_user_id", userId)
+    .maybeSingle();
+
+  if (error) throw new Error("Could not load notification preferences.");
+  return serializeNotificationPreferences(data as Pick<NotificationPreferencesRow, "forum_reply_notifications_enabled"> | null);
+}
+
+async function saveNotificationPreferences(userId: string, enabled: boolean) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_notification_preferences")
+    .upsert({
+      owner_user_id: userId,
+      forum_reply_notifications_enabled: enabled,
+    }, { onConflict: "owner_user_id" })
+    .select("forum_reply_notifications_enabled")
+    .single();
+
+  if (error || !data || typeof data.forum_reply_notifications_enabled !== "boolean") {
+    throw new Error("Could not save notification preferences.");
+  }
+
+  return serializeNotificationPreferences(data as Pick<NotificationPreferencesRow, "forum_reply_notifications_enabled">);
+}
+
+function serializeNotificationPreferences(row: Pick<NotificationPreferencesRow, "forum_reply_notifications_enabled"> | null) {
+  return {
+    forumReplyNotificationsEnabled: row?.forum_reply_notifications_enabled ?? true,
+  };
 }

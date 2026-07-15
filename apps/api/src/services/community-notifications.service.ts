@@ -3,6 +3,7 @@ import type { CommunityNotificationRecord, CommunityThreadWatchRecord } from "@s
 import { getSupabaseAdmin } from "../lib/supabase";
 
 type CommunityNotificationRow = Database["public"]["Tables"]["community_notifications"]["Row"];
+type CommunityNotificationPreferenceRow = Database["public"]["Tables"]["community_notification_preferences"]["Row"];
 type CommunityThreadWatchRow = Database["public"]["Tables"]["community_thread_watches"]["Row"];
 type ModerationReportRow = Database["public"]["Tables"]["moderation_reports"]["Row"];
 type ModerationReviewRequestRow = Database["public"]["Tables"]["moderation_review_requests"]["Row"];
@@ -100,12 +101,13 @@ export async function notifyThreadComment(input: {
   if (thread.author_user_id) recipients.add(thread.author_user_id);
   for (const watch of watches ?? []) recipients.add(watch.user_id);
   recipients.delete(input.commenterUserId);
+  const eligibleRecipients = await filterForumReplyNotificationRecipients([...recipients]);
 
   const routeHref = category?.slug
     ? `/forums/${category.slug}/${thread.id}#comment-${input.commentId}`
     : null;
   const rows = [];
-  for (const recipientUserId of recipients) {
+  for (const recipientUserId of eligibleRecipients) {
     const row = await createCommunityNotification({
       recipientUserId,
       actorUserId: input.commenterUserId,
@@ -125,6 +127,27 @@ export async function notifyThreadComment(input: {
   }
 
   return rows;
+}
+
+async function filterForumReplyNotificationRecipients(recipientUserIds: string[]) {
+  if (recipientUserIds.length === 0) return recipientUserIds;
+
+  const sb = getSupabaseAdmin();
+  const { data, error } = await (sb as any)
+    .from("community_notification_preferences")
+    .select("owner_user_id, forum_reply_notifications_enabled")
+    .in("owner_user_id", recipientUserIds);
+
+  if (error || !Array.isArray(data)) {
+    throw new Error("Could not load notification preferences.");
+  }
+
+  const disabled = new Set(
+    (data as Pick<CommunityNotificationPreferenceRow, "owner_user_id" | "forum_reply_notifications_enabled">[])
+      .filter((row) => row.forum_reply_notifications_enabled === false)
+      .map((row) => row.owner_user_id)
+  );
+  return recipientUserIds.filter((recipientUserId) => !disabled.has(recipientUserId));
 }
 
 export async function notifyReportStatus(row: ModerationReportRow, actorUserId: string) {

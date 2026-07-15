@@ -62,6 +62,7 @@ const COMMUNITY_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab05";
 const UNLISTED_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab06";
 const UNSAFE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab07";
 const MIGRATION_083_PATH = "infra/supabase/migrations/083_forum_visible_reply_count_integrity.sql";
+const MIGRATION_084_PATH = "infra/supabase/migrations/084_community_notification_preferences.sql";
 const PR527D2A_RESULT_PATH = "docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md";
 
 function migrationFunctionDefinition(sql: string, functionName: string) {
@@ -126,6 +127,35 @@ test("migration 083 owns visible thread reply counts transactionally", () => {
   assert.match(result, /Rollback grant floor: service-role-only execute on\s+`public\.increment_thread_comment_count\(uuid\)`/);
   assert.doesNotMatch(sql, /\bgreatest\s*\(/i);
   assert.doesNotMatch(sql, /insert\s+into\s+.*schema_migrations/i);
+});
+
+test("migration 084 creates only owner notification preferences with exact RLS boundary", () => {
+  const sql = readFileSync(MIGRATION_084_PATH, "utf8");
+
+  assert.match(sql, /\bbegin;\s*select pg_advisory_xact_lock\(hashtextextended\('station\.pr527f\.community_notification_preferences\.084'/i);
+  assert.match(sql, /to_regclass\('public\.profiles'\)/);
+  assert.match(sql, /to_regprocedure\('public\.handle_updated_at\(\)'\)/);
+  assert.match(sql, /to_regclass\('public\.community_notification_preferences'\) is not null[\s\S]*raise exception/i);
+  assert.match(sql, /create table public\.community_notification_preferences\s*\(/i);
+  assert.match(sql, /owner_user_id uuid primary key references public\.profiles\(id\) on delete cascade/i);
+  assert.match(sql, /forum_reply_notifications_enabled boolean not null default true/i);
+  assert.match(sql, /created_at timestamptz not null default now\(\)/i);
+  assert.match(sql, /updated_at timestamptz not null default now\(\)/i);
+  assert.match(sql, /create trigger trg_community_notification_preferences_updated_at[\s\S]*execute function public\.handle_updated_at\(\)/i);
+  assert.match(sql, /alter table public\.community_notification_preferences enable row level security/i);
+  assert.match(sql, /for select[\s\S]*using \(auth\.uid\(\) = owner_user_id\)/i);
+  assert.match(sql, /for insert[\s\S]*with check \(auth\.uid\(\) = owner_user_id\)/i);
+  assert.match(sql, /for update[\s\S]*using \(auth\.uid\(\) = owner_user_id\)[\s\S]*with check \(auth\.uid\(\) = owner_user_id\)/i);
+  assert.doesNotMatch(sql, /for delete/i);
+  assert.match(sql, /revoke all on table public\.community_notification_preferences from public, anon, authenticated/i);
+  assert.match(sql, /grant select, insert, update on table public\.community_notification_preferences to authenticated/i);
+  assert.match(sql, /grant all on table public\.community_notification_preferences to service_role/i);
+  assert.match(sql, /Missing row means forum reply notifications are enabled/i);
+  assert.match(sql, /Gates only future in-app thread_comment notification creation/i);
+  assert.match(sql, /notify pgrst, 'reload schema';[\s\S]*commit;/i);
+  assert.doesNotMatch(sql, /alter table public\.profiles/i);
+  assert.doesNotMatch(sql, /insert into public\.community_notification_preferences/i);
+  assert.doesNotMatch(sql, /community_notification_preferences.*preference_key/i);
 });
 
 class CommunitySupabase {
@@ -278,6 +308,7 @@ class CommunitySupabase {
     comments: [],
     community_thread_watches: [],
     community_notifications: [],
+    community_notification_preferences: [],
     community_witnesses: [],
     community_votes: [],
     moderation_reports: [],
@@ -600,6 +631,12 @@ class CommunitySupabase {
       row.metadata ??= {};
       row.read_at ??= null;
       row.created_at ??= now;
+    }
+
+    if (table === "community_notification_preferences") {
+      row.forum_reply_notifications_enabled ??= true;
+      row.created_at ??= now;
+      row.updated_at ??= now;
     }
 
     if (table === "moderation_reports") {
@@ -3575,6 +3612,130 @@ test("thread watches and notifications are owner-scoped and comment fanout is pa
     assert.equal(unwatch.status, 200);
     assert.equal(unwatch.body.isWatching, false);
     assert.equal(db.tables.community_thread_watches.length, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("forum reply notification preference gates only future thread comment fanout", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    db.insertRow("community_thread_watches", {
+      user_id: MEMBER_ID,
+      thread_id: PUBLIC_THREAD_ID,
+      is_muted: false,
+    });
+    db.insertRow("community_thread_watches", {
+      user_id: OTHER_ID,
+      thread_id: PUBLIC_THREAD_ID,
+      is_muted: false,
+    });
+
+    const everyoneEnabled = await requestJson(app, "POST", "/comments", {
+      token: "visitor-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Visitor comment while everyone uses the missing-row default.",
+      },
+    });
+    assert.equal(everyoneEnabled.status, 403);
+
+    const firstComment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Member comment reaches author and other watcher.",
+      },
+    });
+    assert.equal(firstComment.status, 201);
+    const firstRows = db.tables.community_notifications.filter(
+      (row) => row.event_key === `thread_comment:${firstComment.body.comment.id}`
+    );
+    assert.deepEqual(firstRows.map((row) => row.recipient_user_id).sort(), [OWNER_ID, OTHER_ID].sort());
+
+    db.insertRow("community_notification_preferences", {
+      owner_user_id: OWNER_ID,
+      forum_reply_notifications_enabled: false,
+    });
+    db.insertRow("community_notification_preferences", {
+      owner_user_id: OTHER_ID,
+      forum_reply_notifications_enabled: false,
+    });
+
+    const suppressedComment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Member comment after author and watcher explicitly paused.",
+      },
+    });
+    assert.equal(suppressedComment.status, 201);
+    const suppressedRows = db.tables.community_notifications.filter(
+      (row) => row.event_key === `thread_comment:${suppressedComment.body.comment.id}`
+    );
+    assert.deepEqual(suppressedRows, []);
+    assert.equal(db.tables.community_thread_watches.length, 2);
+
+    db.tables.community_notification_preferences.find((row) => row.owner_user_id === OWNER_ID)!
+      .forum_reply_notifications_enabled = true;
+    const mixedComment = await requestJson(app, "POST", "/comments", {
+      token: "member-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Member comment after author re-enabled and watcher stayed paused.",
+      },
+    });
+    assert.equal(mixedComment.status, 201);
+    const mixedRows = db.tables.community_notifications.filter(
+      (row) => row.event_key === `thread_comment:${mixedComment.body.comment.id}`
+    );
+    assert.deepEqual(mixedRows.map((row) => row.recipient_user_id), [OWNER_ID]);
+
+    const reportNotificationCount = db.tables.community_notifications.filter(
+      (row) => row.notification_type === "report_status"
+    ).length;
+    const reviewNotificationCount = db.tables.community_notifications.filter(
+      (row) => row.notification_type === "review_request_status"
+    ).length;
+    assert.equal(reportNotificationCount, 0);
+    assert.equal(reviewNotificationCount, 0);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("thread comment preference lookup failure fails notification fanout closed without failing comment creation", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    db.insertRow("community_thread_watches", {
+      user_id: MEMBER_ID,
+      thread_id: PUBLIC_THREAD_ID,
+      is_muted: false,
+    });
+    db.failNext("community_notification_preferences", "select", "hostile preference read failure");
+
+    const response = await requestJson(app, "POST", "/comments", {
+      token: "owner-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Comment creation still succeeds while notification fanout fails closed.",
+      },
+    });
+    assert.equal(response.status, 201);
+    assert.equal(db.tables.comments.some((row) => row.id === response.body.comment.id), true);
+    assert.equal(db.tables.community_notifications.length, 0);
+    assert.equal(JSON.stringify(response.body).includes("hostile preference read failure"), false);
   } finally {
     setSupabaseAdminForTests(null);
   }

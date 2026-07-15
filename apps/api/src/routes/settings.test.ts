@@ -38,7 +38,9 @@ class AiSettingsSupabase {
       },
     ],
     ai_provider_byok_secrets: [],
+    community_notification_preferences: [],
   };
+  private forcedFailures: Array<{ table: string; operation: string; message: string }> = [];
 
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
@@ -61,12 +63,26 @@ class AiSettingsSupabase {
     if (!this.tables[table]) this.tables[table] = [];
     return this.tables[table];
   }
+
+  failNext(table: string, operation: string, message = "Forced operation failure.") {
+    this.forcedFailures.push({ table, operation, message });
+  }
+
+  consumeFailure(table: string, operation: string) {
+    const index = this.forcedFailures.findIndex(
+      (failure) => failure.table === table && failure.operation === operation
+    );
+    if (index === -1) return null;
+    const [failure] = this.forcedFailures.splice(index, 1);
+    return failure;
+  }
 }
 
 class Query {
   private filters: Array<[string, unknown]> = [];
   private operation: "select" | "insert" | "update" = "select";
   private payload: Row | null = null;
+  private upsertConflict: string[] = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
 
   constructor(private db: AiSettingsSupabase, private table: string) {}
@@ -87,6 +103,13 @@ class Query {
     return this;
   }
 
+  upsert(payload: Row, options: { onConflict?: string } = {}) {
+    this.operation = "insert";
+    this.payload = payload;
+    this.upsertConflict = options.onConflict?.split(",").map((field) => field.trim()).filter(Boolean) ?? [];
+    return this;
+  }
+
   eq(field: string, value: unknown) {
     this.filters.push([field, value]);
     return this;
@@ -99,6 +122,10 @@ class Query {
 
   single() {
     return this.execute("single");
+  }
+
+  maybeSingle() {
+    return this.execute("maybeSingle");
   }
 
   then(onfulfilled: any, onrejected: any) {
@@ -123,16 +150,30 @@ class Query {
     return rows;
   }
 
-  private async execute(mode?: "single") {
+  private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
+    const forcedFailure = this.db.consumeFailure(this.table, this.operation);
+    if (forcedFailure) return { data: null, error: { message: forcedFailure.message } };
+
     if (this.operation === "insert") {
-      const row = {
-        id: `${this.table}-${this.db.rows(this.table).length + 1}`,
-        created_at: "2026-06-28T12:00:00.000Z",
-        updated_at: "2026-06-28T12:00:00.000Z",
-        ...(this.payload ?? {}),
-      };
-      this.db.rows(this.table).push(row);
+      let row: Row | undefined;
+      if (this.upsertConflict.length > 0) {
+        row = this.db.rows(this.table).find((candidate) =>
+          this.upsertConflict.every((field) => candidate[field] === this.payload?.[field])
+        );
+      }
+      if (row) {
+        Object.assign(row, this.payload);
+        row.updated_at = "2026-06-28T12:05:00.000Z";
+      } else {
+        row = {
+          id: `${this.table}-${this.db.rows(this.table).length + 1}`,
+          created_at: "2026-06-28T12:00:00.000Z",
+          updated_at: "2026-06-28T12:00:00.000Z",
+          ...(this.payload ?? {}),
+        };
+        this.db.rows(this.table).push(row);
+      }
       rows = [row];
     } else if (this.operation === "update") {
       rows = this.matchingRows();
@@ -148,6 +189,12 @@ class Query {
       return rows.length === 1
         ? { data: rows[0], error: null }
         : { data: null, error: { message: `Expected one ${this.table} row.` } };
+    }
+
+    if (mode === "maybeSingle") {
+      return rows.length <= 1
+        ? { data: rows[0] ?? null, error: null }
+        : { data: null, error: { message: `Expected zero or one ${this.table} row.` } };
     }
 
     return { data: rows, error: null };
@@ -255,6 +302,118 @@ test("AI provider settings require auth and return masked owner readback only", 
     assert.match(owner.body.settings.policy.gemini, /embeddings-only/i);
     assert.match(owner.body.settings.policy.nvidia, /do not use/i);
     assertNoRawKeys(owner.body);
+  } finally {
+    resetSettingsFakes();
+  }
+});
+
+test("notification preferences require auth, default missing rows to enabled, and stay owner scoped", async () => {
+  const db = new AiSettingsSupabase();
+  useSettingsFakes(db);
+  const app = createSettingsProofApp();
+
+  try {
+    const visitor = await requestJson(app, "GET", "/settings/notifications");
+    assert.equal(visitor.status, 401);
+
+    const initial = await requestJson(app, "GET", "/settings/notifications", { token: "owner-token" });
+    assert.equal(initial.status, 200);
+    assert.deepEqual(initial.body, {
+      settings: { forumReplyNotificationsEnabled: true },
+    });
+    assert.equal(db.rows("community_notification_preferences").length, 0);
+
+    const updated = await requestJson(app, "PATCH", "/settings/notifications", {
+      token: "owner-token",
+      body: { forumReplyNotificationsEnabled: false },
+    });
+    assert.equal(updated.status, 200);
+    assert.deepEqual(updated.body, {
+      settings: { forumReplyNotificationsEnabled: false },
+    });
+    assert.equal(db.rows("community_notification_preferences").length, 1);
+    assert.equal(db.rows("community_notification_preferences")[0].owner_user_id, "owner-user");
+    assert.equal(db.rows("community_notification_preferences")[0].forum_reply_notifications_enabled, false);
+
+    const repeated = await requestJson(app, "PATCH", "/settings/notifications", {
+      token: "owner-token",
+      body: { forumReplyNotificationsEnabled: false },
+    });
+    assert.equal(repeated.status, 200);
+    assert.equal(db.rows("community_notification_preferences").length, 1);
+
+    const otherInitial = await requestJson(app, "GET", "/settings/notifications", { token: "other-token" });
+    assert.equal(otherInitial.status, 200);
+    assert.deepEqual(otherInitial.body, {
+      settings: { forumReplyNotificationsEnabled: true },
+    });
+  } finally {
+    resetSettingsFakes();
+  }
+});
+
+test("notification preferences reject malformed bodies and bound storage errors", async () => {
+  const invalidBodies = [
+    {},
+    { forumReplyNotificationsEnabled: null },
+    { forumReplyNotificationsEnabled: "false" },
+    { forumReplyNotificationsEnabled: 0 },
+    { forumReplyNotificationsEnabled: false, ownerUserId: "other-user" },
+  ];
+
+  for (const body of invalidBodies) {
+    const db = new AiSettingsSupabase();
+    useSettingsFakes(db);
+    const app = createSettingsProofApp();
+    try {
+      const response = await requestJson(app, "PATCH", "/settings/notifications", {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, 400);
+      assert.deepEqual(response.body, {
+        error: "Forum reply notification preference must be true or false.",
+        code: "invalid_forum_reply_notification_preference",
+      });
+      assert.equal(db.rows("community_notification_preferences").length, 0);
+    } finally {
+      resetSettingsFakes();
+    }
+  }
+
+  const loadFailureDb = new AiSettingsSupabase();
+  loadFailureDb.failNext("community_notification_preferences", "select", "relation missing");
+  useSettingsFakes(loadFailureDb);
+  const loadFailureApp = createSettingsProofApp();
+  try {
+    const response = await requestJson(loadFailureApp, "GET", "/settings/notifications", {
+      token: "owner-token",
+    });
+    assert.equal(response.status, 500);
+    assert.deepEqual(response.body, {
+      error: "Could not load notification preferences.",
+      code: "notification_preferences_load_failed",
+    });
+    assert.equal(JSON.stringify(response.body).includes("relation missing"), false);
+  } finally {
+    resetSettingsFakes();
+  }
+
+  const saveFailureDb = new AiSettingsSupabase();
+  saveFailureDb.failNext("community_notification_preferences", "insert", "policy failed");
+  useSettingsFakes(saveFailureDb);
+  const saveFailureApp = createSettingsProofApp();
+  try {
+    const response = await requestJson(saveFailureApp, "PATCH", "/settings/notifications", {
+      token: "owner-token",
+      body: { forumReplyNotificationsEnabled: false },
+    });
+    assert.equal(response.status, 500);
+    assert.deepEqual(response.body, {
+      error: "Could not save notification preferences.",
+      code: "notification_preferences_save_failed",
+    });
+    assert.equal(JSON.stringify(response.body).includes("policy failed"), false);
   } finally {
     resetSettingsFakes();
   }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { AiObservabilityPanel } from "@/components/settings/ai-observability-panel";
 import { AiProviderSettingsPanel } from "@/components/settings/ai-provider-settings-panel";
+import { NotificationPreferencesPanel } from "@/components/settings/notification-preferences-panel";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
 import { getSession } from "@/lib/auth";
@@ -55,14 +56,6 @@ const settingSections = [
     href: "/notifications",
     mark: "N",
   },
-];
-
-const notificationRows = [
-  "Forum replies",
-  "Archive completions",
-  "Integrity session reminders",
-  "Follower notifications",
-  "Event reminders",
 ];
 
 type ProfileSnapshotState = {
@@ -181,17 +174,7 @@ export default function SettingsPage() {
 
             <section style={panel}>
               <h2 style={sectionTitle}>Notification Preferences</h2>
-              <p style={settingNote}>
-                Notification settings are not persisted yet. Defaults remain enabled until the preference editor ships.
-              </p>
-              <div style={{ display: "grid", gap: 9 }}>
-                {notificationRows.map((row) => (
-                  <label key={row} style={toggleRow}>
-                    <input type="checkbox" defaultChecked disabled />
-                    {row}
-                  </label>
-                ))}
-              </div>
+              <NotificationPreferencesPanel />
             </section>
 
             <section style={panel}>
@@ -274,19 +257,4 @@ const statusPill = {
   padding: "0.18rem 0.5rem",
   fontSize: 11,
   fontWeight: 800,
-};
-
-const settingNote = {
-  margin: "0 0 12px",
-  color: "#687078",
-  fontSize: 13,
-  lineHeight: 1.55,
-};
-
-const toggleRow = {
-  display: "flex",
-  alignItems: "center",
-  gap: 9,
-  color: "#1f2529",
-  fontSize: 13,
 };

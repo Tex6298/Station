@@ -1931,6 +1931,20 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["community_notifications"]["Insert"]>;
       };
+      community_notification_preferences: {
+        Row: {
+          owner_user_id: string;
+          forum_reply_notifications_enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["community_notification_preferences"]["Row"], "forum_reply_notifications_enabled" | "created_at" | "updated_at"> & {
+          forum_reply_notifications_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["community_notification_preferences"]["Insert"]>;
+      };
       moderation_reports: {
         Row: {
           id: string;
