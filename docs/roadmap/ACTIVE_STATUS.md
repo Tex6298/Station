@@ -4,14 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C hosted boundary-fixture blocker awaiting MIMIR
+## Active lane - PR527C2 fixture-auth unblock preflight with ARGUS
 
 ```text
-BLOCK_PR527C_ON_HOSTED_BOUNDARY_FIXTURE_AUTH_ADMIN_CREATE_USER_UNEXPECTED_FAILURE_ZERO_RESIDUE
-Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_ARGUS_RESULT.md
-Next: MIMIR decides the next roadmap move; PR527C remains blocked until a separately authorized safe fixture/auth path proves the missing hosted 403/404 gates
+OPEN_PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT
+Owner chain: MIMIR -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS.md
+Next: ARGUS compares a narrow hosted signup/createUser repair with a reversible designated Visitor-account tier proof and returns the safest exact DAEDALUS lane
 ```
+
+MIMIR's read-only inventory confirms the account selected only through
+`STATION_REPLAY_VISITOR_*` signs in but currently resolves to Private tier. It
+is non-admin, has no Stripe customer/subscription, and owns no conversations,
+Spaces, threads, comments, Developer Spaces, exports, watches, notifications,
+votes, or witnesses. It is not empty: it retains one persona, seven reports,
+one storage-usage row, two token-usage period rows, and one token transaction.
+
+PR527C2 therefore authorizes ARGUS read-only preflight only. ARGUS must compare
+repairing the real hosted admin-create/signup defect with a brief reversible
+tier change on that specifically designated rehearsal account. Any accepted
+fallback must account for profile storage/token sync triggers, exact semantic
+restoration, concurrent-use risk, and unavoidable `updated_at` drift. No
+hosted write is authorized in the preflight.
 
 ARGUS accepts DAEDALUS's exact PR527C1 fixture-auth blocker and independently
 confirms zero tagged auth/profile/thread residue, zero watches/notifications,

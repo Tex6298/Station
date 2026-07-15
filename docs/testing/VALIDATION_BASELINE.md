@@ -4,6 +4,32 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C2 Fixture-Auth Unblock Preflight Opened
+
+MIMIR opened a read-only ARGUS decision lane on 2026-07-15:
+
+- `docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS.md`
+
+Status:
+
+```text
+OPEN_PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT
+```
+
+Sanitized read-only hosted inventory confirms the specifically designated
+Visitor rehearsal account signs in at current tier `private`, is non-admin,
+has no Stripe customer/subscription, and has no conversations, Spaces,
+threads, comments, Developer Spaces, exports, watches, notifications, votes,
+or witnesses. It retains one persona, seven reports, one storage-usage row,
+two token-usage period rows, and one token transaction.
+
+ARGUS must compare a narrow repair of the real hosted admin-create/signup
+failure with a short reversible tier proof using only that designated account.
+The latter is not zero-mutation: profile tier updates synchronize storage and
+current token limits and advance update timestamps. Preflight authorizes no
+hosted write and must return exact DAEDALUS mutation, restoration, concurrency,
+validation, and cleanup gates or an exact blocker.
+
 ## PR527C1 Auth-Fixture Blocker Accepted By ARGUS
 
 ARGUS completed independent review on 2026-07-15:
