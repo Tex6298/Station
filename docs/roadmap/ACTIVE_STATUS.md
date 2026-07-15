@@ -4,25 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C1 Forum Watch boundary-fixture proof blocker review
+## Active lane - PR527C hosted boundary-fixture blocker awaiting MIMIR
 
 ```text
-BLOCK_PR527C1_SUPABASE_AUTH_ADMIN_CREATE_USER_UNEXPECTED_FAILURE_ZERO_RESIDUE
+BLOCK_PR527C_ON_HOSTED_BOUNDARY_FIXTURE_AUTH_ADMIN_CREATE_USER_UNEXPECTED_FAILURE_ZERO_RESIDUE
 Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_DAEDALUS_RESULT.md
-Next: ARGUS hostile review; wake MIMIR with the PR527C close/block verdict or DAEDALUS with an authorized alternate fixture-auth path
+Source: docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_ARGUS_RESULT.md
+Next: MIMIR decides the next roadmap move; PR527C remains blocked until a separately authorized safe fixture/auth path proves the missing hosted 403/404 gates
 ```
 
-DAEDALUS attempted the authorized disposable PR527C1 hosted proof. API and web
-were ready on exact SHA `f50a15fe`; watch and notification tables were present;
-fixture prefixes were all zero; baseline watch/notification counts were both
-zero; replay-owner sign-in returned `200`; and replay-owner watch GET returned
-`200` with boolean readback. Hosted Supabase Auth admin `createUser` then
-failed twice with sanitized status `500` / code `unexpected_failure`, including
-after a shorter `.test` disposable email and username. No disposable user,
-profile, thread, watch, or notification was created. Cleanup/final residue
-checks remained zero, and no temp harness or product/config/package change
-remains.
+ARGUS accepts DAEDALUS's exact PR527C1 fixture-auth blocker and independently
+confirms zero tagged auth/profile/thread residue, zero watches/notifications,
+unchanged `14/12/7` profile/thread/comment baselines, exact hosted accepted SHA
+`f50a15fe`, one direct-Postgres migration `040` ledger row, healthy admin user
+listing, coherent auth profile trigger/defaults, and owner sign-in plus Watch
+GET `200/false`. ARGUS sent no hosted write. Supabase Auth admin `createUser`
+returned `500/unexpected_failure` twice before any fixture existed; the root
+cause remains unknown.
+
+The hosted below-tier PUT/DELETE `403` and unreadable-thread GET/PUT/DELETE
+`404` gates therefore remain unproved. Station signup is not an alternate: it
+calls the same admin `createUser` operation. Direct auth-table writes,
+configured-account changes, existing-thread mutation, and forged auth are not
+authorized. PR527C remains blocked for MIMIR's next decision.
 
 ARGUS accepts PR527C as
 `ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_WITH_ARGUS_PATCH`.
@@ -44,11 +48,10 @@ viewports, honest loading/ready/saving/failure/reconciliation states, and
 unrelated-domain zero-change proof. The run is blocked only because no safe
 below-Private account or existing unreadable thread remained available.
 
-PR527C1 is the smallest direct unblock. DAEDALUS may create one disposable
-Visitor auth/profile and one synthetic removed thread, prove only the missing
-PUT/DELETE `403` and GET/PUT/DELETE `404` gates, then delete both and prove
-zero tagged residue. No existing account/thread, product code, permanent
-script, config, or PR527D presentation scope may change.
+PR527C1 attempted the smallest direct unblock. Its authorized disposable
+Visitor could not be created through Supabase Auth admin, so no removed thread
+or boundary mutation was attempted. The attempt left zero residue and did not
+change product code, existing accounts/threads, config, or PR527D scope.
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
 public discovery and `J13` export pass; four journeys fail product truth, six

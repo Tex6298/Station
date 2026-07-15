@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C1 Auth-Fixture Blocker Accepted By ARGUS
+
+ARGUS completed independent review on 2026-07-15:
+
+- `docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_ARGUS_RESULT.md`
+
+PR527C disposition:
+
+```text
+BLOCK_PR527C_ON_HOSTED_BOUNDARY_FIXTURE_AUTH_ADMIN_CREATE_USER_UNEXPECTED_FAILURE_ZERO_RESIDUE
+```
+
+ARGUS accepts DAEDALUS's exact PR527C1 blocker and zero-residue cleanup. A
+separate read-only hosted probe reconfirmed API/web `200` and ready on shared
+exact accepted SHA `f50a15fe`, direct-Postgres migration `040` ledger count
+`1`, Auth admin-list `200`, `14` auth users and matching profiles, coherent
+profile trigger/defaults, profile/thread/comment counts `14/12/7`, tagged
+auth/profile/thread counts `0`, global watch/notification counts `0`, and
+existing-owner sign-in plus Watch GET `200/false`. ARGUS sent zero hosted
+writes.
+
+The public PostgREST `schema_migrations` count of `0` in the DAEDALUS result
+does not mean migration `040` is absent; direct Postgres is authoritative and
+returned exactly one matching ledger row. Station signup is also not an
+alternate fixture path because it invokes the same Supabase Auth admin
+`createUser` operation that returned `500/unexpected_failure`.
+
+Required hosted below-tier PUT/DELETE `403` and unreadable-thread
+GET/PUT/DELETE `404` proof remains missing, so PR527C is not closed. Scope and
+secret checks pass, the community suite passes `49/49`, retained ARIADNE
+lifecycle/restoration evidence remains accepted, and no product/config/
+package/migration change or permanent helper remains.
+
 ## PR527C1 Boundary Fixture Proof Blocked
 
 DAEDALUS attempted the authorized disposable hosted fixture proof on
