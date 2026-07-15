@@ -115,18 +115,19 @@ Active implementation:
 
 ```text
 PR525H - Shared Light/Dark Theme Treatment
-Owner chain: MIMIR -> DAEDALUS
-State: OPEN_PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS
+State: READY_FOR_ARGUS_REVIEW
 Source: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_DAEDALUS.md
+Result: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_MIMIR_RESULT.md
 ```
 
-PR525H adds one shared System/Light/Dark preference, applies the resolved
-palette before first paint, and moves the accepted PR525B-F surfaces onto a
-complete semantic dual-theme contract. Light geometry and colors remain
-regression fixtures. Composition, routes, capabilities, data behavior, auth,
-and APIs are frozen; the Developer Space observatory visualisation interior
-remains its deliberate bounded dark surface. DAEDALUS hands the implementation
-to ARGUS, then ARIADNE performs hosted dual-theme rehearsal in the same lane.
+MIMIR completed PR525H after DAEDALUS did not consume either wake. One shared
+System/Light/Dark preference now resolves before first paint and the accepted
+PR525B-F surfaces use a complete semantic dual-theme contract. Light geometry
+and colors remain regression fixtures. Composition, routes, capabilities,
+data behavior, auth, and APIs remain frozen; no Developer Space component or
+visualisation selector changed. ARGUS now owns hostile review, then ARIADNE
+performs hosted dual-theme rehearsal in the same lane if accepted.
 
 Parallel current-head audit result:
 
@@ -192,7 +193,7 @@ PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              CLOSED
-PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    DAEDALUS IMPLEMENTATION
+PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    ARGUS REVIEW
 Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```
 

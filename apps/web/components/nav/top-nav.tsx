@@ -12,8 +12,33 @@ import {
   activeTopNavHref,
   activeTopNavPrivateRoute,
 } from "@/lib/studio-navigation";
+import {
+  STATION_THEME_MEDIA_QUERY,
+  STATION_THEME_PREFERENCES,
+  STATION_THEME_STORAGE_KEY,
+  type StationThemePreference,
+  applyStationTheme,
+  persistStationThemePreference,
+  readStationThemePreference,
+} from "@/lib/theme";
 
 type NavUser = AuthUser & { email: string; isAdmin: boolean };
+
+function stationThemeMedia(): MediaQueryList | null {
+  try {
+    return typeof window.matchMedia === "function" ? window.matchMedia(STATION_THEME_MEDIA_QUERY) : null;
+  } catch {
+    return null;
+  }
+}
+
+function stationThemeStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
 
 export function TopNav() {
   const router = useRouter();
@@ -23,10 +48,48 @@ export function TopNav() {
   const [authChecked, setAuthChecked] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [routeMenuOpen, setRouteMenuOpen] = useState(false);
+  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const [themePreference, setThemePreference] = useState<StationThemePreference>("system");
+  const themePreferenceRef = useRef<StationThemePreference>("system");
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const accountButtonRef = useRef<HTMLButtonElement>(null);
   const routeMenuRef = useRef<HTMLDivElement>(null);
   const routeMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+  const themeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const media = stationThemeMedia();
+    const sync = (preference: StationThemePreference) => {
+      themePreferenceRef.current = preference;
+      setThemePreference(preference);
+      applyStationTheme(document.documentElement, preference, media?.matches ?? false);
+    };
+    const handleMediaChange = () => {
+      if (themePreferenceRef.current === "system") sync("system");
+    };
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === STATION_THEME_STORAGE_KEY) {
+        sync(readStationThemePreference(stationThemeStorage()));
+      }
+    };
+
+    sync(readStationThemePreference(stationThemeStorage()));
+    if (media && typeof media.addEventListener === "function") {
+      media.addEventListener("change", handleMediaChange);
+    } else {
+      media?.addListener(handleMediaChange);
+    }
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      if (media && typeof media.removeEventListener === "function") {
+        media.removeEventListener("change", handleMediaChange);
+      } else {
+        media?.removeListener(handleMediaChange);
+      }
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +111,7 @@ export function TopNav() {
   useEffect(() => {
     setAccountMenuOpen(false);
     setRouteMenuOpen(false);
+    setThemeMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -59,6 +123,9 @@ export function TopNav() {
       if (routeMenuRef.current && !routeMenuRef.current.contains(target)) {
         setRouteMenuOpen(false);
       }
+      if (themeMenuRef.current && !themeMenuRef.current.contains(target)) {
+        setThemeMenuOpen(false);
+      }
     }
 
     document.addEventListener("mousedown", handlePointerDown);
@@ -66,7 +133,7 @@ export function TopNav() {
   }, []);
 
   useEffect(() => {
-    if (!accountMenuOpen && !routeMenuOpen) return;
+    if (!accountMenuOpen && !routeMenuOpen && !themeMenuOpen) return;
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
@@ -76,17 +143,23 @@ export function TopNav() {
         routeMenuButtonRef.current?.focus();
         return;
       }
+      if (themeMenuOpen) {
+        setThemeMenuOpen(false);
+        themeButtonRef.current?.focus();
+        return;
+      }
       setAccountMenuOpen(false);
       accountButtonRef.current?.focus();
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [accountMenuOpen, routeMenuOpen]);
+  }, [accountMenuOpen, routeMenuOpen, themeMenuOpen]);
 
   async function handleSignOut() {
     setAccountMenuOpen(false);
     setRouteMenuOpen(false);
+    setThemeMenuOpen(false);
     await signOut();
     setUser(null);
     router.push("/");
@@ -141,6 +214,7 @@ export function TopNav() {
             aria-label="Navigation menu"
             onClick={() => {
               setAccountMenuOpen(false);
+              setThemeMenuOpen(false);
               setRouteMenuOpen((open) => !open);
             }}
           >
@@ -179,6 +253,60 @@ export function TopNav() {
           ) : null}
         </div>
 
+        <div ref={themeMenuRef} className="top-nav-theme-menu">
+          <button
+            ref={themeButtonRef}
+            type="button"
+            className="top-nav-theme-button"
+            data-open={themeMenuOpen ? "true" : "false"}
+            aria-expanded={themeMenuOpen}
+            aria-haspopup="menu"
+            aria-controls="top-nav-theme-menu"
+            aria-label={`Appearance: ${themePreference}`}
+            title="Appearance"
+            onClick={() => {
+              setAccountMenuOpen(false);
+              setRouteMenuOpen(false);
+              setThemeMenuOpen((open) => !open);
+            }}
+          >
+            <span className="top-nav-theme-glyph" aria-hidden="true" />
+          </button>
+
+          {themeMenuOpen ? (
+            <div
+              id="top-nav-theme-menu"
+              className="top-nav-dropdown top-nav-theme-dropdown"
+              role="menu"
+              aria-label="Appearance"
+            >
+              <div className="top-nav-theme-heading">Appearance</div>
+              {STATION_THEME_PREFERENCES.map((preference) => (
+                <button
+                  key={preference}
+                  type="button"
+                  className="top-nav-theme-option"
+                  role="menuitemradio"
+                  aria-checked={themePreference === preference}
+                  data-active={themePreference === preference ? "true" : "false"}
+                  onClick={() => {
+                    const media = stationThemeMedia();
+                    themePreferenceRef.current = preference;
+                    setThemePreference(preference);
+                    persistStationThemePreference(stationThemeStorage(), preference);
+                    applyStationTheme(document.documentElement, preference, media?.matches ?? false);
+                    setThemeMenuOpen(false);
+                    themeButtonRef.current?.focus();
+                  }}
+                >
+                  <span>{preference[0].toUpperCase() + preference.slice(1)}</span>
+                  <span aria-hidden="true">{themePreference === preference ? "Selected" : ""}</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
         <div className="top-nav-account">
           {!authChecked ? (
             <div className="top-nav-skeleton" />
@@ -189,6 +317,7 @@ export function TopNav() {
                 type="button"
                 onClick={() => {
                   setRouteMenuOpen(false);
+                  setThemeMenuOpen(false);
                   setAccountMenuOpen((open) => !open);
                 }}
                 className="top-nav-user-button"

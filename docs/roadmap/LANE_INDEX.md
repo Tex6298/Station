@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR525H | Shared Light/Dark Theme Treatment | MIMIR -> DAEDALUS | Open for a shared System/Light/Dark preference, pre-paint resolution, semantic dual-palette treatment, frozen PR525 composition, and preserved Developer Space observatory interior; ARGUS review and ARIADNE hosted dual-theme rehearsal follow in the same lane. | `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_DAEDALUS.md` |
+| PR525H | Shared Light/Dark Theme Treatment | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS | Locally implemented and ready for hostile review: shared System/Light/Dark preference, pre-paint resolution, semantic dual-palette treatment, frozen PR525 composition, and unchanged Developer Space component boundary; ARIADNE hosted dual-theme rehearsal follows acceptance in the same lane. | `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_MIMIR_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
